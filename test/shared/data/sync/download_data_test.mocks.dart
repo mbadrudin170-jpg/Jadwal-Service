@@ -29,9 +29,9 @@ import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dar
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart'
     as _i27;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i4;
-import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart'
+import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart'
     as _i13;
-import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart'
+import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart'
     as _i23;
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart'
     as _i15;
@@ -291,15 +291,15 @@ class MockSyncManager extends _i1.Mock implements _i10.SyncManager {
   }
 
   @override
-  _i9.Future<DateTime> getLastDownload() => (super.noSuchMethod(
+  _i9.Future<DateTime> ambilTanggalTerakhirDownload() => (super.noSuchMethod(
         Invocation.method(
-          #getLastDownload,
+          #ambilTanggalTerakhirDownload,
           [],
         ),
         returnValue: _i9.Future<DateTime>.value(_FakeDateTime_0(
           this,
           Invocation.method(
-            #getLastDownload,
+            #ambilTanggalTerakhirDownload,
             [],
           ),
         )),
@@ -488,20 +488,20 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
       ) as _i9.Future<void>);
 }
 
-/// A class which mocks [CategoryOperation].
+/// A class which mocks [KategoriOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCategoryOperation extends _i1.Mock implements _i13.CategoryOperation {
-  MockCategoryOperation() {
+class MockKategoriOpSqlite extends _i1.Mock implements _i13.KategoriOpSqlite {
+  MockKategoriOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
+  _i2.SqliteDatabase get sqlitedb => (super.noSuchMethod(
+        Invocation.getter(#sqlitedb),
         returnValue: _FakeSqliteDatabase_1(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqlitedb),
         ),
       ) as _i2.SqliteDatabase);
 
@@ -870,22 +870,22 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i17.PelangganOpSqlite {
   }
 
   @override
-  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
+  _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
+        Invocation.getter(#sqliteDb),
         returnValue: _FakeSqliteDatabase_1(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
       ) as _i2.SqliteDatabase);
 
   @override
-  _i9.Future<void> tambah(
+  _i9.Future<void> tambahPelanggan(
     _i18.PelangganModel? customer, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #tambah,
+          #tambahPelanggan,
           [customer],
           {#dariServer: dariServer},
         ),
@@ -894,9 +894,9 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i17.PelangganOpSqlite {
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<List<_i18.PelangganModel>> ambilSemua() => (super.noSuchMethod(
+  _i9.Future<List<_i18.PelangganModel>> ambilPelanggan() => (super.noSuchMethod(
         Invocation.method(
-          #ambilSemua,
+          #ambilPelanggan,
           [],
         ),
         returnValue: _i9.Future<List<_i18.PelangganModel>>.value(
@@ -915,9 +915,10 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i17.PelangganOpSqlite {
       ) as _i9.Future<List<_i18.PelangganModel>>);
 
   @override
-  _i9.Future<_i18.PelangganModel?> getById(String? id) => (super.noSuchMethod(
+  _i9.Future<_i18.PelangganModel?> ambilBerdasarkanId(String? id) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #getById,
+          #ambilBerdasarkanId,
           [id],
         ),
         returnValue: _i9.Future<_i18.PelangganModel?>.value(),
@@ -1013,11 +1014,11 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   }
 
   @override
-  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
+  _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
+        Invocation.getter(#sqliteDb),
         returnValue: _FakeSqliteDatabase_1(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
       ) as _i2.SqliteDatabase);
 
@@ -1032,24 +1033,24 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<List<_i20.ActiveCustomerDetailModel>>
+  _i9.Future<List<_i20.DetailPelangganAktifModel>>
       getAllActiveCustomersWithDetails() => (super.noSuchMethod(
             Invocation.method(
               #getAllActiveCustomersWithDetails,
               [],
             ),
-            returnValue: _i9.Future<List<_i20.ActiveCustomerDetailModel>>.value(
-                <_i20.ActiveCustomerDetailModel>[]),
-          ) as _i9.Future<List<_i20.ActiveCustomerDetailModel>>);
+            returnValue: _i9.Future<List<_i20.DetailPelangganAktifModel>>.value(
+                <_i20.DetailPelangganAktifModel>[]),
+          ) as _i9.Future<List<_i20.DetailPelangganAktifModel>>);
 
   @override
-  _i9.Future<_i5.PelangganAktifModel> createActiveCustomer(
+  _i9.Future<_i5.PelangganAktifModel> tambahPelangganAktif(
     _i5.PelangganAktifModel? activeCustomer, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #createActiveCustomer,
+          #tambahPelangganAktif,
           [activeCustomer],
           {#fromServer: fromServer},
         ),
@@ -1057,7 +1058,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
             _FakePelangganAktifModel_4(
           this,
           Invocation.method(
-            #createActiveCustomer,
+            #tambahPelangganAktif,
             [activeCustomer],
             {#fromServer: fromServer},
           ),
@@ -1204,31 +1205,31 @@ class MockTransaksiOpsqlite extends _i1.Mock implements _i21.TransaksiOpsqlite {
   }
 
   @override
-  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
+  _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
+        Invocation.getter(#sqliteDb),
         returnValue: _FakeSqliteDatabase_1(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
       ) as _i2.SqliteDatabase);
 
   @override
-  _i4.BaseOpSqlite get baseOperation => (super.noSuchMethod(
-        Invocation.getter(#baseOperation),
+  _i4.BaseOpSqlite get baseOpSqlite => (super.noSuchMethod(
+        Invocation.getter(#baseOpSqlite),
         returnValue: _FakeBaseOpSqlite_3(
           this,
-          Invocation.getter(#baseOperation),
+          Invocation.getter(#baseOpSqlite),
         ),
       ) as _i4.BaseOpSqlite);
 
   @override
-  _i9.Future<int> addTransaction(
+  _i9.Future<int> tambahTransaksi(
     _i5.TransaksiModel? transaction, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #addTransaction,
+          #tambahTransaksi,
           [transaction],
           {#fromServer: fromServer},
         ),
@@ -1247,9 +1248,10 @@ class MockTransaksiOpsqlite extends _i1.Mock implements _i21.TransaksiOpsqlite {
       ) as _i9.Future<List<_i5.TransaksiModel>>);
 
   @override
-  _i9.Future<_i5.TransaksiModel?> getById(String? id) => (super.noSuchMethod(
+  _i9.Future<_i5.TransaksiModel?> ambilBerdasarkanId(String? id) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #getById,
+          #ambilBerdasarkanId,
           [id],
         ),
         returnValue: _i9.Future<_i5.TransaksiModel?>.value(),
@@ -1391,9 +1393,9 @@ class MockTransaksiOpsqlite extends _i1.Mock implements _i21.TransaksiOpsqlite {
       ) as _i9.Future<int>);
 
   @override
-  _i9.Future<int> getTotalPoints(String? customerId) => (super.noSuchMethod(
+  _i9.Future<int> ambilTotalPoin(String? customerId) => (super.noSuchMethod(
         Invocation.method(
-          #getTotalPoints,
+          #ambilTotalPoin,
           [customerId],
         ),
         returnValue: _i9.Future<int>.value(0),
@@ -1646,24 +1648,24 @@ class MockOrderOpsqlite extends _i1.Mock implements _i23.OrderOpsqlite {
       ) as _i9.Future<int>);
 
   @override
-  _i9.Future<void> saveOrder(
+  _i9.Future<void> tambahOrder(
     _i25.OrderModel? order, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #saveOrder,
+          #tambahOrder,
           [order],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i9.Future<void>.value(),
         returnValueForMissingStub: _i9.Future<void>.value(),
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<List<_i25.OrderModel>> getAllOrders() => (super.noSuchMethod(
+  _i9.Future<List<_i25.OrderModel>> ambilSemuaOrder() => (super.noSuchMethod(
         Invocation.method(
-          #getAllOrders,
+          #ambilSemuaOrder,
           [],
         ),
         returnValue:
@@ -1681,11 +1683,11 @@ class MockOrderOpsqlite extends _i1.Mock implements _i23.OrderOpsqlite {
       ) as _i9.Stream<List<_i25.OrderModel>>);
 
   @override
-  _i9.Future<List<_i25.OrderModel>> getOrdersByStatus(
+  _i9.Future<List<_i25.OrderModel>> ambilOrderBerdasarkanStatus(
           _i24.StatusOrderEnum? status) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getOrdersByStatus,
+          #ambilOrderBerdasarkanStatus,
           [status],
         ),
         returnValue:
@@ -1693,19 +1695,19 @@ class MockOrderOpsqlite extends _i1.Mock implements _i23.OrderOpsqlite {
       ) as _i9.Future<List<_i25.OrderModel>>);
 
   @override
-  _i9.Future<void> updateOrderStatus(
+  _i9.Future<void> updateStatusOrder(
     String? id,
     _i24.StatusOrderEnum? status, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #updateOrderStatus,
+          #updateStatusOrder,
           [
             id,
             status,
           ],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i9.Future<void>.value(),
         returnValueForMissingStub: _i9.Future<void>.value(),
@@ -1727,25 +1729,25 @@ class MockOrderOpsqlite extends _i1.Mock implements _i23.OrderOpsqlite {
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<void> softDelete(
+  _i9.Future<void> softDeleteorder(
     String? id, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDelete,
+          #softDeleteorder,
           [id],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i9.Future<void>.value(),
         returnValueForMissingStub: _i9.Future<void>.value(),
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<int> softDeleteAll({bool? fromServer = false}) =>
+  _i9.Future<int> softDeleteAllOrder({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDeleteAll,
+          #softDeleteAllOrder,
           [],
           {#fromServer: fromServer},
         ),
@@ -1755,13 +1757,13 @@ class MockOrderOpsqlite extends _i1.Mock implements _i23.OrderOpsqlite {
   @override
   _i9.Future<void> insertOrUpdateBatch(
     List<_i25.OrderModel>? items, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #insertOrUpdateBatch,
           [items],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i9.Future<void>.value(),
         returnValueForMissingStub: _i9.Future<void>.value(),

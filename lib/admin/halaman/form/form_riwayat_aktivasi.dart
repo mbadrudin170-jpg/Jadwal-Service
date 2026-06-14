@@ -1,6 +1,4 @@
-// path: lib/admin/halaman/form/subscription_history_form.dart
-// REFAKTOR: Mengubah StatefulWidget menjadi ConsumerStatefulWidget dan menggunakan
-// Riverpod untuk dependency injection (TransactionOperation, NotifikasiServis).
+// path: lib/admin/halaman/form/form_riwayat_aktivasi.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -98,7 +96,7 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
     Log.info('Menyimpan perubahan untuk transaksi ID: ${widget.transaksi.id}');
 
     // Mengakses dependency melalui Riverpod's ref
-    final transactionOperation = ref.read(transactionOperationProvider);
+    final transactionOperation = ref.read(transaksiOpSqliteProvider);
     final notifikasiServis = ref.read(notifikasiServisProvider);
 
     try {
@@ -114,7 +112,7 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
         updatedTransaction,
       );
       Log.info('Transaksi berhasil diperbarui di database.');
-      ref.invalidate(transactionOperationProvider);
+      ref.invalidate(transaksiOpSqliteProvider);
       await _handleExpiryNotification(
         notifikasiServis: notifikasiServis,
         statusSebelumnya: widget.transaksi.paymentStatus,

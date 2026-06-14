@@ -14,10 +14,10 @@ import 'package:wifi/shared/utils/toast_util.dart';
 /// Halaman untuk menampilkan detail dari sebuah transaksi.
 class DetailTransaksi extends ConsumerStatefulWidget {
   /// Model transaksi yang akan ditampilkan.
-  final TransaksiModel transaction;
+  final TransaksiModel transaksi;
 
   /// Konstruktor untuk TransactionDetailPage.
-  const DetailTransaksi({super.key, required this.transaction});
+  const DetailTransaksi({super.key, required this.transaksi});
 
   @override
   ConsumerState<DetailTransaksi> createState() => _DetailTransaksistate();
@@ -25,11 +25,11 @@ class DetailTransaksi extends ConsumerStatefulWidget {
 
 class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
   late final DompetOpSqlite _dompetOpSqlite = ref.watch(dompetOpSqliteProvider);
-  late final CategoryOperation _categoryOperation =
+  late final KategoriOpSqlite _kategoriOpSqlite =
       ref.watch(kategoriOpSqliteProvider);
-  late final PelangganOpSqlite _customerOperation =
+  late final PelangganOpSqlite _pelangganOpsqlite =
       ref.watch(pelangganOpSqliteProvider);
-  late final PaketOpSqlite _packageOperation = ref.watch(paketOpSqliteProvider);
+  late final PaketOpSqlite _paketOpSqlite = ref.watch(paketOpSqliteProvider);
   late final SubKategoriOpSqlite _subKategoriOpSqlite =
       ref.watch(subKategoriOpSqliteProvider);
 
@@ -39,7 +39,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
   @override
   void initState() {
     super.initState();
-    _currentTransaction = widget.transaction;
+    _currentTransaction = widget.transaksi;
     Log.info('Membuka halaman Detail Transaksi ID: ${_currentTransaction.id}');
   }
 
@@ -73,8 +73,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
     final isSaved = await Navigator.push<bool?>(
       context,
       MaterialPageRoute(
-        builder: (final context) =>
-            FormTransaksi(transaksi: _currentTransaction),
+        builder: (context) => FormTransaksi(transaksi: _currentTransaction),
       ),
     );
 
@@ -82,14 +81,14 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
       Log.info(
           'Form edit melaporkan keberhasilan penyimpanan. Memuat ulang data transaksi dari database.');
       try {
-        final transaksiOpSqlite = ref.read(transactionOperationProvider);
-        final updatedTransaction =
-            await transaksiOpSqlite.getById(_currentTransaction.id);
+        final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
+        final transaksi =
+            await transaksiOpSqlite.ambilBerdasarkanId(_currentTransaction.id);
 
-        if (updatedTransaction != null) {
+        if (transaksi != null) {
           Log.info('Berhasil memuat data transaksi terbaru. Memperbarui UI.');
           setState(() {
-            _currentTransaction = updatedTransaction;
+            _currentTransaction = transaksi;
             _diUpdate = true;
           });
         } else {
@@ -161,7 +160,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
             _buildFutureDetailRow(
               'Kategori',
               _getName(
-                _categoryOperation.getCategoryById,
+                _kategoriOpSqlite.getCategoryById,
                 transaksi.categoryId,
                 'Kategori',
               ),
@@ -181,7 +180,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
               _buildFutureDetailRow(
                 'Pelanggan',
                 _getName(
-                  _customerOperation.getById,
+                  _pelangganOpsqlite.ambilBerdasarkanId,
                   transaksi.customerId!,
                   'Pelanggan',
                 ),
@@ -190,7 +189,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
               _buildFutureDetailRow(
                 'Paket',
                 _getName(
-                  _packageOperation.getById,
+                  _paketOpSqlite.getById,
                   transaksi.packageId!,
                   'Paket',
                 ),

@@ -171,7 +171,7 @@ class FeedbackOperation {
       await baseOpSqlite.insertOrUpdateBatch(
         _tableName,
         data,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info(
         'Berhasil menyelesaikan insertOrUpdateBatch untuk ${feedbackList.length} item.',
@@ -222,7 +222,7 @@ class FeedbackOperation {
   }) async {
     Log.info('Memulai soft delete untuk feedback ID: $id');
     try {
-      await baseOpSqlite.hapusSementara(
+      await baseOpSqlite.softDelete(
         _tableName,
         id,
         dariServer: fromServer,
@@ -244,7 +244,7 @@ class FeedbackOperation {
   }) async {
     Log.info('Memulai soft delete untuk semua feedback');
     try {
-      final count = await baseOpSqlite.hapusSementaraSemua(
+      final count = await baseOpSqlite.softDeleteAll(
         _tableName,
         dariServer: fromServer,
       );

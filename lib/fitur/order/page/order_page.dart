@@ -130,7 +130,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                         if (appRole == AppRole.admin) {
                           await ref
                               .read(orderOperationProvider)
-                              .softDelete(order.id);
+                              .softDeleteorder(order.id);
                         } else {
                           await ref
                               .read(orderOpFirebaseProvider)
@@ -340,7 +340,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           try {
             await ref
                 .read(orderOperationProvider)
-                .updateOrderStatus(order.id, status);
+                .updateStatusOrder(order.id, status);
             ref.invalidate(orderProvider);
 
             if (pageContext.mounted) {

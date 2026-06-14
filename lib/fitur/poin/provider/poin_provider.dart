@@ -29,7 +29,7 @@ class Poin extends _$Poin {
 
     final rewards = await dataSource.getPublicPackages();
     final transaksi = await dataSource.getPointsTransactions(customerId);
-    final totalPoin = await dataSource.getTotalPoints(customerId);
+    final totalPoin = await dataSource.ambilTotalPoin(customerId);
     return PoinState(
       rewards: rewards,
       transaksi: transaksi,
@@ -55,7 +55,7 @@ Future<PointsPageData> pointsPageData(Ref ref, String customerId) async {
   final dataSource = ref.watch(pointsDataSourceProvider);
 
   final [totalPoints, rewards] = await Future.wait([
-    dataSource.getTotalPoints(customerId),
+    dataSource.ambilTotalPoin(customerId),
     dataSource.getPublicPackages(),
   ]);
 

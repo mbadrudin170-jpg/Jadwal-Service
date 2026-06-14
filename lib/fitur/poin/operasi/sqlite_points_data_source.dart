@@ -9,29 +9,29 @@ import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 class SQLitePointsDataSource implements PointsPageDataSource {
-  final TransaksiOpsqlite _transactionOperation;
-  final PaketOpSqlite _packageOperation;
+  final TransaksiOpsqlite _transaksiOpSqlite;
+  final PaketOpSqlite _paketOpSqlite;
 
   SQLitePointsDataSource({
-    required TransaksiOpsqlite transactionOperation,
-    required PaketOpSqlite packageOperation,
-  })  : _transactionOperation = transactionOperation,
-        _packageOperation = packageOperation;
+    required TransaksiOpsqlite transaksiOpSqlite,
+    required PaketOpSqlite paketOpSqlite,
+  })  : _transaksiOpSqlite = transaksiOpSqlite,
+        _paketOpSqlite = paketOpSqlite;
 
   @override
-  Future<int> getTotalPoints(String customerId) {
-    return _transactionOperation.getTotalPoints(customerId);
+  Future<int> ambilTotalPoin(String customerId) {
+    return _transaksiOpSqlite.ambilTotalPoin(customerId);
   }
 
   @override
   Future<List<PaketModel>> getPublicPackages() {
-    return _packageOperation.getPaketPublic();
+    return _paketOpSqlite.getPaketPublic();
   }
 
   @override
   Future<List<TransaksiModel>> getPointsTransactions(
       final String customerId) async {
-    final history = await _transactionOperation.getByIdPelanggan(customerId);
+    final history = await _transaksiOpSqlite.getByIdPelanggan(customerId);
     return history
         .where((t) => t.earnedPoints > 0 || t.usedPoints > 0)
         .toList();
@@ -39,7 +39,7 @@ class SQLitePointsDataSource implements PointsPageDataSource {
 
   @override
   Future<PaketModel?> getPaketByid(String packageId) {
-    return _packageOperation.getById(packageId);
+    return _paketOpSqlite.getById(packageId);
   }
 
   @override
@@ -48,7 +48,7 @@ class SQLitePointsDataSource implements PointsPageDataSource {
 
 final sqlitePointsDataSourceProvider = Provider<SQLitePointsDataSource>((ref) {
   return SQLitePointsDataSource(
-    transactionOperation: ref.watch(transactionOperationProvider),
-    packageOperation: ref.watch(paketOpSqliteProvider),
+    transaksiOpSqlite: ref.watch(transaksiOpSqliteProvider),
+    paketOpSqlite: ref.watch(paketOpSqliteProvider),
   );
 });

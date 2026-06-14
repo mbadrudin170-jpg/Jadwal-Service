@@ -58,8 +58,8 @@ void main() {
       type: DurationType.days,
       updatedAt: now);
 
-  final activeCust1 = ActiveCustomerDetailModel(
-    activeCustomer: PelangganAktifModel(
+  final activeCust1 = DetailPelangganAktifModel(
+    pelangganAktif: PelangganAktifModel(
         id: 'ac1',
         idPelanggan: 'cust1',
         packageId: 'pkg1',
@@ -71,8 +71,8 @@ void main() {
     packageName: package1.name,
   );
 
-  final activeCust2 = ActiveCustomerDetailModel(
-    activeCustomer: PelangganAktifModel(
+  final activeCust2 = DetailPelangganAktifModel(
+    pelangganAktif: PelangganAktifModel(
         id: 'ac2',
         idPelanggan: 'cust2',
         packageId: 'pkg1',
@@ -84,8 +84,8 @@ void main() {
     packageName: package1.name,
   );
 
-  final activeCust3 = ActiveCustomerDetailModel(
-    activeCustomer: PelangganAktifModel(
+  final activeCust3 = DetailPelangganAktifModel(
+    pelangganAktif: PelangganAktifModel(
         id: 'ac3',
         idPelanggan: 'cust3',
         packageId: 'pkg1',

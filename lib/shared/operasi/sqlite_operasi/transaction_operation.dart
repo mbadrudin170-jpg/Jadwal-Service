@@ -14,27 +14,27 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data transaksi di database lokal.
 class TransaksiOpsqlite {
-  final SqliteDatabase dbHelper;
-  final BaseOpSqlite baseOperation;
-  final String _tableName = NamaTabel.transactions;
+  final SqliteDatabase sqliteDb;
+  final BaseOpSqlite baseOpSqlite;
+  final String _tabel = NamaTabel.transactions;
   final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
   final _nowUtc = DateTime.now().toUtc();
 
   TransaksiOpsqlite({
-    required this.dbHelper,
-    required this.baseOperation,
+    required this.sqliteDb,
+    required this.baseOpSqlite,
   });
 
-  Future<Database> get _db async => await dbHelper.database;
+  Future<Database> get _sqliteDb async => await sqliteDb.database;
 
   /// Menghitung ulang saldo dompet berdasarkan semua transaksi terkait dan memperbaruinya.
   /// Operasi ini harus dijalankan di dalam sebuah transaksi database [txn].
   Future<void> _recalculateAndUpdateWalletBalance(
-    final String walletId,
+    final String idDompet,
     final DatabaseExecutor txn,
   ) async {
     try {
-      Log.info('Memulai hitung ulang saldo untuk Wallet ID: $walletId');
+      Log.info('Memulai hitung ulang saldo untuk Wallet ID: $idDompet');
 
       final totalResult = await txn.rawQuery(
         '''
@@ -60,10 +60,10 @@ class TransaksiOpsqlite {
               ELSE 0
             END
           ), 0) as total
-        FROM $_tableName
+        FROM $_tabel
         WHERE ${NamaKolom.isDeleted} = 0 AND (${NamaKolom.walletId} = ? OR ${NamaKolom.destinationWalletId} = ?)
         ''',
-        [walletId, walletId, walletId, walletId, walletId, walletId],
+        [idDompet, idDompet, idDompet, idDompet, idDompet, idDompet],
       );
 
       final totalBalance =
@@ -76,30 +76,30 @@ class TransaksiOpsqlite {
           NamaKolom.updatedAt: _nowEpoch,
         },
         where: '${NamaKolom.id} = ?',
-        whereArgs: [walletId],
+        whereArgs: [idDompet],
       );
 
       Log.info(
-          'Berhasil update saldo Wallet ID: $walletId menjadi $totalBalance');
+          'Berhasil update saldo Wallet ID: $idDompet menjadi $totalBalance');
     } on Exception catch (e, st) {
-      Log.error('Gagal hitung ulang saldo Wallet ID: $walletId', e: e, s: st);
+      Log.error('Gagal hitung ulang saldo Wallet ID: $idDompet', e: e, s: st);
       rethrow;
     }
   }
 
   /// Menambahkan transaksi baru ke database dan memperbarui saldo dompet terkait.
-  Future<int> addTransaction(
+  Future<int> tambahTransaksi(
     final TransaksiModel transaction, {
     final bool fromServer = false,
   }) async {
     try {
-      final id = await baseOperation.runComplexOperation<int>(
+      final id = await baseOpSqlite.runComplexOperation<int>(
         (final Transaction txn) async {
           Log.info('Memulai transaksi database untuk addTransaction');
           final data = transaction.copyWith(updatedAt: _nowUtc);
 
           final newId = await txn.insert(
-            _tableName,
+            _tabel,
             data.toSqlite(),
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
@@ -130,9 +130,9 @@ class TransaksiOpsqlite {
   Future<List<TransaksiModel>> getAllTransactions() async {
     try {
       Log.info('Mengambil data semua transaksi dari SQLite');
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _tabel,
         where: '${NamaKolom.isDeleted} = ?',
         whereArgs: [0],
         orderBy: '${NamaKolom.date} DESC',
@@ -149,12 +149,12 @@ class TransaksiOpsqlite {
   }
 
   /// Mengambil satu transaksi berdasarkan ID-nya.
-  Future<TransaksiModel?> getById(final String id) async {
+  Future<TransaksiModel?> ambilBerdasarkanId(String id) async {
     try {
-      final db = await _db;
+      final db = await _sqliteDb;
       Log.info('Mencari transaksi berdasarkan ID: $id');
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _tabel,
         where: '${NamaKolom.id} = ?',
         whereArgs: [id],
         limit: 1,
@@ -177,12 +177,12 @@ class TransaksiOpsqlite {
   Future<TransaksiModel?> getLatestPaidTransactionByUserId(
       final String customerId) async {
     try {
-      final db = await _db;
+      final db = await _sqliteDb;
       Log.info(
           'Mencari transaksi lunas terbaru untuk pengguna ID: $customerId');
 
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _tabel,
         where:
             '${NamaKolom.customerId} = ? AND ${NamaKolom.paymentStatus} = ? AND ${NamaKolom.isDeleted} = ?',
         whereArgs: [customerId, PaymentStatus.paid.name, 0],
@@ -213,10 +213,10 @@ class TransaksiOpsqlite {
     final String customerId,
   ) async {
     try {
-      final db = await _db;
+      final db = await _sqliteDb;
       Log.info('Mengambil transaksi untuk Customer ID: $customerId');
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _tabel,
         where: '${NamaKolom.customerId} = ? AND ${NamaKolom.isDeleted} = ?',
         whereArgs: [customerId, 0],
         orderBy: '${NamaKolom.date} DESC',
@@ -236,10 +236,10 @@ class TransaksiOpsqlite {
   Future<List<TransaksiModel>> getTransactionsByWalletId(
       final String walletId) async {
     try {
-      final db = await _db;
+      final db = await _sqliteDb;
       Log.info('Mengambil transaksi terkait Wallet ID: $walletId');
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _tabel,
         where:
             '(${NamaKolom.walletId} = ? OR ${NamaKolom.destinationWalletId} = ?) AND ${NamaKolom.isDeleted} = ?',
         whereArgs: [walletId, walletId, 0],
@@ -258,10 +258,10 @@ class TransaksiOpsqlite {
   /// Mengambil semua transaksi yang merupakan aktivasi paket.
   Future<List<TransaksiModel>> getTransactionsByPackageActivation() async {
     try {
-      final db = await _db;
+      final db = await _sqliteDb;
       Log.info('Mengambil transaksi dengan status isActivated = 1');
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _tabel,
         where: '${NamaKolom.isActivated} = ? AND ${NamaKolom.isDeleted} = ?',
         whereArgs: [1, 0],
         orderBy: '${NamaKolom.date} DESC',
@@ -283,16 +283,16 @@ class TransaksiOpsqlite {
     final bool fromServer = false,
   }) async {
     try {
-      await baseOperation.runComplexOperation<void>(
+      await baseOpSqlite.runComplexOperation<void>(
         (final Transaction txn) async {
           Log.info('Memulai update transaksi database ID: $id');
           final maps = await txn
-              .query(_tableName, where: '${NamaKolom.id} = ?', whereArgs: [id]);
+              .query(_tabel, where: '${NamaKolom.id} = ?', whereArgs: [id]);
 
           if (maps.isNotEmpty) {
             final oldTransaction = TransaksiModel.fromSqlite(maps.first);
             final updateData = newTransaction.copyWith(updatedAt: _nowUtc);
-            await txn.update(_tableName, updateData.toSqlite(),
+            await txn.update(_tabel, updateData.toSqlite(),
                 where: '${NamaKolom.id} = ?', whereArgs: [id]);
             Log.info('Data transaksi ID: $id diperbarui');
 
@@ -330,11 +330,11 @@ class TransaksiOpsqlite {
     final bool fromServer = false,
   }) async {
     try {
-      await baseOperation.runComplexOperation<void>(
+      await baseOpSqlite.runComplexOperation<void>(
         (final Transaction txn) async {
           Log.info('Memulai soft delete atomik untuk ID: $id');
           final maps = await txn
-              .query(_tableName, where: '${NamaKolom.id} = ?', whereArgs: [id]);
+              .query(_tabel, where: '${NamaKolom.id} = ?', whereArgs: [id]);
 
           if (maps.isEmpty) {
             Log.warning('Soft delete gagal: Transaksi ID $id tidak ditemukan');
@@ -343,7 +343,7 @@ class TransaksiOpsqlite {
 
           final oldTransaction = TransaksiModel.fromSqlite(maps.first);
           await txn.update(
-            _tableName,
+            _tabel,
             {
               NamaKolom.isDeleted: 1,
               NamaKolom.updatedAt: _nowEpoch,
@@ -375,11 +375,11 @@ class TransaksiOpsqlite {
   /// Menandai semua transaksi sebagai dihapus dan mereset saldo semua dompet menjadi 0.
   Future<int> softDeleteAll({final bool fromServer = false}) async {
     try {
-      final count = await baseOperation.runComplexOperation<int>(
+      final count = await baseOpSqlite.runComplexOperation<int>(
         (final Transaction txn) async {
           Log.warning('Memulai soft delete semua transaksi secara atomik');
           final rowsAffected = await txn.update(
-            _tableName,
+            _tabel,
             {
               NamaKolom.isDeleted: 1,
               NamaKolom.updatedAt: _nowEpoch,
@@ -414,10 +414,10 @@ class TransaksiOpsqlite {
   /// Menghitung total pemasukan (income) dari semua transaksi.
   Future<double> getTotalIncome() async {
     try {
-      final db = await _db;
+      final db = await _sqliteDb;
       Log.info('Menghitung total seluruh pemasukan');
       final result = await db.rawQuery(
-          "SELECT SUM(${NamaKolom.amount}) as total FROM $_tableName WHERE ${NamaKolom.type} = 'income' AND ${NamaKolom.isDeleted} = 0");
+          "SELECT SUM(${NamaKolom.amount}) as total FROM $_tabel WHERE ${NamaKolom.type} = 'income' AND ${NamaKolom.isDeleted} = 0");
       double total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
@@ -433,10 +433,10 @@ class TransaksiOpsqlite {
   /// Menghitung total pengeluaran (expense) dari semua transaksi.
   Future<double> getTotalExpense() async {
     try {
-      final db = await _db;
+      final db = await _sqliteDb;
       Log.info('Menghitung total seluruh pengeluaran');
       final result = await db.rawQuery(
-          "SELECT SUM(${NamaKolom.amount}) as total FROM $_tableName WHERE ${NamaKolom.type} = 'expense' AND ${NamaKolom.isDeleted} = 0");
+          "SELECT SUM(${NamaKolom.amount}) as total FROM $_tabel WHERE ${NamaKolom.type} = 'expense' AND ${NamaKolom.isDeleted} = 0");
       double total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
@@ -462,10 +462,10 @@ class TransaksiOpsqlite {
   /// Menghitung total poin yang diperoleh seorang pelanggan.
   Future<int> getEarnedPoints(final String customerId) async {
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       Log.info('Menghitung poin yang dihasilkan Customer: $customerId');
       final result = await db.rawQuery(
-          'SELECT SUM(${NamaKolom.earnedPoints}) as total FROM $_tableName WHERE ${NamaKolom.customerId} = ? AND ${NamaKolom.isDeleted} = 0 AND ${NamaKolom.paymentStatus} = ?',
+          'SELECT SUM(${NamaKolom.earnedPoints}) as total FROM $_tabel WHERE ${NamaKolom.customerId} = ? AND ${NamaKolom.isDeleted} = 0 AND ${NamaKolom.paymentStatus} = ?',
           [customerId, PaymentStatus.paid.name]);
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin dihasilkan: $total');
@@ -479,10 +479,10 @@ class TransaksiOpsqlite {
   /// Menghitung total poin yang digunakan seorang pelanggan.
   Future<int> getUsedPoints(final String customerId) async {
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       Log.info('Menghitung poin yang digunakan Customer: $customerId');
       final result = await db.rawQuery(
-          'SELECT SUM(${NamaKolom.usedPoints}) as total FROM $_tableName WHERE ${NamaKolom.customerId} = ? AND ${NamaKolom.isDeleted} = 0 AND ${NamaKolom.paymentStatus} = ?',
+          'SELECT SUM(${NamaKolom.usedPoints}) as total FROM $_tabel WHERE ${NamaKolom.customerId} = ? AND ${NamaKolom.isDeleted} = 0 AND ${NamaKolom.paymentStatus} = ?',
           [customerId, PaymentStatus.paid.name]);
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin digunakan: $total');
@@ -494,7 +494,7 @@ class TransaksiOpsqlite {
   }
 
   /// Menghitung total saldo poin seorang pelanggan.
-  Future<int> getTotalPoints(String customerId) async {
+  Future<int> ambilTotalPoin(String customerId) async {
     Log.info('Menghitung saldo poin akhir Customer: $customerId');
     final earnedPoints = await getEarnedPoints(customerId);
     final usedPoints = await getUsedPoints(customerId);
@@ -516,14 +516,14 @@ class TransaksiOpsqlite {
     final Set<String> affectedWallets = {};
 
     try {
-      await baseOperation.runComplexOperation<void>(
+      await baseOpSqlite.runComplexOperation<void>(
         (final Transaction txn) async {
           Log.info(
               'Memulai proses Batch insert/update untuk ${items.length} item');
           final batch = txn.batch();
           for (final item in items) {
             batch.insert(
-              _tableName,
+              _tabel,
               item.copyWith(updatedAt: _nowUtc).toSqlite(),
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -557,11 +557,11 @@ class TransaksiOpsqlite {
       return [];
     }
     try {
-      final db = await _db;
+      final db = await _sqliteDb;
       Log.info('Mengambil transaksi berdasarkan list ID: $ids');
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _tabel,
         where: '${NamaKolom.id} IN ($placeholders)',
         whereArgs: ids,
       );

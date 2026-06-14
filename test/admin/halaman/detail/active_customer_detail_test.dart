@@ -78,8 +78,8 @@ void main() {
     status: PaymentStatus.paid,
   );
 
-  final tActiveCustomerDetailModel = ActiveCustomerDetailModel(
-    activeCustomer: tActiveCustomer,
+  final tActiveCustomerDetailModel = DetailPelangganAktifModel(
+    pelangganAktif: tActiveCustomer,
     customerName: tCustomer.name,
     packageName: tPackage.name,
   );
@@ -259,7 +259,7 @@ void main() {
       await tester.pumpAndSettle();
 
       verify(() => mockNavigatorObserver.didPush(any(), any()));
-      expect(find.byType(DetailPaket), findsOneWidget);
+      expect(find.byType(DetailPaketPage), findsOneWidget);
     });
 
     testWidgets('Test 09: tapping "Kirim Info" button calls provider method',

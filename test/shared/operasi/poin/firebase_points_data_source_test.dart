@@ -43,7 +43,7 @@ void main() {
           .thenAnswer((_) async => 150);
 
       // Act: Panggil metode yang akan diuji
-      final result = await dataSource.getTotalPoints(customerId);
+      final result = await dataSource.ambilTotalPoin(customerId);
 
       // Assert: Verifikasi bahwa hasilnya benar dan metode mock dipanggil
       expect(result, 150);

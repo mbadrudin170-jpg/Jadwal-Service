@@ -10,12 +10,12 @@ part of 'pelanggan_provider.dart';
 // ignore_for_file: type=lint, type=warning
 /// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
 
-@ProviderFor(customerList)
-final customerListProvider = CustomerListProvider._();
+@ProviderFor(daftarPelanggan)
+final daftarPelangganProvider = DaftarPelangganProvider._();
 
 /// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
 
-final class CustomerListProvider extends $FunctionalProvider<
+final class DaftarPelangganProvider extends $FunctionalProvider<
         AsyncValue<
             List<
                 (
@@ -47,19 +47,19 @@ final class CustomerListProvider extends $FunctionalProvider<
                   int,
                 )>> {
   /// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
-  CustomerListProvider._()
+  DaftarPelangganProvider._()
       : super(
           from: null,
           argument: null,
           retry: null,
-          name: r'customerListProvider',
+          name: r'daftarPelangganProvider',
           isAutoDispose: true,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
 
   @override
-  String debugGetCreateSourceHash() => _$customerListHash();
+  String debugGetCreateSourceHash() => _$daftarPelangganHash();
 
   @$internal
   @override
@@ -78,11 +78,11 @@ final class CustomerListProvider extends $FunctionalProvider<
             PelangganModel,
             int,
           )>> create(Ref ref) {
-    return customerList(ref);
+    return daftarPelanggan(ref);
   }
 }
 
-String _$customerListHash() => r'e347d79ed19a65dc1359c7afbf71c2a502a10a19';
+String _$daftarPelangganHash() => r'526aa1d50ddeb172780bcb1a95e4e73c97774051';
 
 /// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
 
@@ -347,7 +347,7 @@ final class PelangganDetailProvider extends $FunctionalProvider<
   }
 }
 
-String _$pelangganDetailHash() => r'fe47ac1d6a223a7628a634f952dcab294e3816bb';
+String _$pelangganDetailHash() => r'f035ec5051457c1093e90687ba33b06fe986510c';
 
 /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 

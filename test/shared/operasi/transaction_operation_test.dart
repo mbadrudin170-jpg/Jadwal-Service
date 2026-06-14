@@ -27,8 +27,8 @@ void main() {
     mockDatabase = MockDatabase();
     mockTransaction = MockTransaction();
     transactionOperation = TransaksiOpsqlite(
-      dbHelper: mockDbHelper,
-      baseOperation: mockBaseOperation,
+      sqliteDb: mockDbHelper,
+      baseOpSqlite: mockBaseOperation,
     );
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
   });
@@ -89,7 +89,7 @@ void main() {
         return await action(mockTransaction);
       });
 
-      await transactionOperation.addTransaction(tTransaction);
+      await transactionOperation.tambahTransaksi(tTransaction);
 
       verify(mockBaseOperation.runComplexOperation<int>(any)).called(1);
     });

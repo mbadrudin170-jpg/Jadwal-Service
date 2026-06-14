@@ -11,15 +11,15 @@ part 'pelanggan_provider.g.dart';
 
 /// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
 @riverpod
-Future<List<(PelangganModel, int)>> customerList(Ref ref) async {
+Future<List<(PelangganModel, int)>> daftarPelanggan(Ref ref) async {
   Log.info(
       'Mendapatkan daftar pelanggan aktif beserta poin dari SQLite via pelangganProvider...');
 
   final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
   final poinOpSqlite = ref.watch(sqlitePointsDataSourceProvider);
-  final listPelanggan = await pelangganOpSqlite.ambilSemua();
+  final listPelanggan = await pelangganOpSqlite.ambilPelanggan();
   final List<Future<int>> pointsFutures = listPelanggan
-      .map((PelangganModel c) => poinOpSqlite.getTotalPoints(c.id))
+      .map((PelangganModel c) => poinOpSqlite.ambilTotalPoin(c.id))
       .toList();
   final poin = await Future.wait(pointsFutures);
   final List<(PelangganModel, int)> hasil = [];
@@ -71,9 +71,9 @@ class SearchQueryPelanggan extends _$SearchQueryPelanggan {
 @riverpod
 Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
   final pelangganOpSqlte = ref.watch(pelangganOpSqliteProvider);
-  final transaksiOpSqlite = ref.watch(transactionOperationProvider);
-  final pelanggan = await pelangganOpSqlte.getById(id);
-  final poin = await transaksiOpSqlite.getTotalPoints(id);
+  final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
+  final pelanggan = await pelangganOpSqlte.ambilBerdasarkanId(id);
+  final poin = await transaksiOpSqlite.ambilTotalPoin(id);
 
   return (pelanggan, poin);
 }

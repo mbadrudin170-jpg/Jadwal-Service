@@ -16,7 +16,7 @@ class DownloadDataService {
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
   final DompetOpSqlite _dompetOpSqlite;
-  final CategoryOperation _categoryOperation;
+  final KategoriOpSqlite _categoryOperation;
   final PaketOpSqlite _paketOpSqlite;
   final PelangganOpSqlite _pelangganOpSqlite;
   final PelangganAktifOpSqlite _activeCustomerOperation;
@@ -32,7 +32,7 @@ class DownloadDataService {
     required FirebaseFirestore firestore,
     required SyncManager syncManager,
     required DompetOpSqlite walletOperation,
-    required CategoryOperation categoryOperation,
+    required KategoriOpSqlite categoryOperation,
     required PaketOpSqlite paketOpSqlite,
     required PelangganOpSqlite pelangganOpSqlite,
     required PelangganAktifOpSqlite activeCustomerOperation,
@@ -63,7 +63,7 @@ class DownloadDataService {
     required final FirebaseFirestore firestore,
     required final SyncManager syncManager,
     required final DompetOpSqlite walletOperation,
-    required final CategoryOperation categoryOperation,
+    required final KategoriOpSqlite categoryOperation,
     required final PaketOpSqlite packageOperation,
     required final PelangganOpSqlite customerOperation,
     required final PelangganAktifOpSqlite activeCustomerOperation,
@@ -127,7 +127,8 @@ class DownloadDataService {
   Future<void> downloadSettingsData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [SETTINGS]');
     try {
-      final lastDownloadTime = await _syncManager.getLastDownload();
+      final lastDownloadTime =
+          await _syncManager.ambilTanggalTerakhirDownload();
       // Menggunakan konstanta NamaTabel.settings untuk nama koleksi
       const collectionName = NamaTabel.settings;
       // Menggunakan globalSettingsId dari settings_model.dart
@@ -175,7 +176,7 @@ class DownloadDataService {
   /// Mengunduh data dompet dari Firebase.
   Future<void> downloadWalletData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [WALLET]');
-    final lastDownloadTime = await _syncManager.getLastDownload();
+    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
     await synchronizeCollection<DompetModel>(
       collectionName: NamaTabel.wallet,
       lastDownloadTime: lastDownloadTime,
@@ -188,7 +189,7 @@ class DownloadDataService {
   /// Mengunduh data kategori dari Firebase.
   Future<void> downloadCategoryData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [CATEGORY]');
-    final lastDownloadTime = await _syncManager.getLastDownload();
+    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
     await synchronizeCollection<KategoriModel>(
       collectionName: NamaTabel.category,
       lastDownloadTime: lastDownloadTime,
@@ -201,7 +202,7 @@ class DownloadDataService {
   /// Mengunduh data paket dari Firebase.
   Future<void> downloadPackageData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PACKAGE]');
-    final lastDownloadTime = await _syncManager.getLastDownload();
+    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
     await synchronizeCollection<PaketModel>(
       collectionName: NamaTabel.package,
       lastDownloadTime: lastDownloadTime,
@@ -214,7 +215,7 @@ class DownloadDataService {
   /// Mengunduh data pelanggan dari Firebase.
   Future<void> downloadCustomerData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [CUSTOMER]');
-    final lastDownloadTime = await _syncManager.getLastDownload();
+    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
     await synchronizeCollection<PelangganModel>(
       collectionName: NamaTabel.customer,
       lastDownloadTime: lastDownloadTime,
@@ -227,7 +228,7 @@ class DownloadDataService {
   /// Mengunduh data pelanggan aktif dari Firebase.
   Future<void> downloadActiveCustomerData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [ACTIVE CUSTOMER]');
-    final lastDownloadTime = await _syncManager.getLastDownload();
+    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
     await synchronizeCollection<PelangganAktifModel>(
       collectionName: NamaTabel.activeCustomer,
       lastDownloadTime: lastDownloadTime,
@@ -240,7 +241,7 @@ class DownloadDataService {
   /// Mengunduh data transaksi dari Firebase.
   Future<void> downloadTransactionData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [TRANSACTION]');
-    final lastDownloadTime = await _syncManager.getLastDownload();
+    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
     await synchronizeCollection<TransaksiModel>(
       collectionName: NamaTabel.transactions,
       lastDownloadTime: lastDownloadTime,
@@ -253,7 +254,7 @@ class DownloadDataService {
   /// Mengunduh data kritik dan saran dari Firebase.
   Future<void> downloadFeedbackData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [FEEDBACK]');
-    final lastDownloadTime = await _syncManager.getLastDownload();
+    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
     await synchronizeCollection<FeedbackModel>(
       collectionName: NamaTabel.feedback,
       lastDownloadTime: lastDownloadTime,
@@ -266,20 +267,20 @@ class DownloadDataService {
   /// Mengunduh data pesanan dari Firebase.
   Future<void> downloadOrderData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [ORDER]');
-    final lastDownloadTime = await _syncManager.getLastDownload();
+    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
     await synchronizeCollection<OrderModel>(
       collectionName: NamaTabel.customerOrder,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: OrderModel.fromFirebase,
       batchOperation: (final data) =>
-          _orderOperation.insertOrUpdateBatch(data, fromServer: true),
+          _orderOperation.insertOrUpdateBatch(data, dariServer: true),
     );
   }
 
   /// Mengunduh data sub-kategori dari Firebase.
   Future<void> downloadSubCategoryData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [SUB CATEGORY]');
-    final lastDownloadTime = await _syncManager.getLastDownload();
+    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
     await synchronizeCollection<SubCategoryModel>(
       collectionName: NamaTabel.subCategory,
       lastDownloadTime: lastDownloadTime,
@@ -292,7 +293,7 @@ class DownloadDataService {
   /// Mengunduh data versi APK user dari Firebase.
   Future<void> downloadApkVersionData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [APK VERSION]');
-    final lastDownloadTime = await _syncManager.getLastDownload();
+    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
     await synchronizeCollection<ApkVersionModel>(
       collectionName: NamaTabel.userApkVersion,
       lastDownloadTime: lastDownloadTime,
@@ -370,7 +371,7 @@ final downloadDataServiceProvider = Provider<DownloadDataService>((ref) {
     paketOpSqlite: ref.read(paketOpSqliteProvider),
     pelangganOpSqlite: ref.read(pelangganOpSqliteProvider),
     activeCustomerOperation: ref.read(pelangganAktifOpSqliteProvider),
-    transactionOperation: ref.read(transactionOperationProvider),
+    transactionOperation: ref.read(transaksiOpSqliteProvider),
     feedbackOperation: ref.read(feedbackOperationProvider),
     orderOperation: ref.read(orderOperationProvider),
     subCategoryOperation: ref.read(subKategoriOpSqliteProvider),

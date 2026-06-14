@@ -104,7 +104,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
         final retentionDays = dataPengaturan.autoDeleteArchiveDays;
         final dataCleaningOperation = ref.read(dataCleaningOperationProvider);
         await dataCleaningOperation
-            .deleteAllExpiredArchivedData(retentionDays: retentionDays)
+            .hapusPermanentDataYangDiarsip(retentionDays: retentionDays)
             .timeout(const Duration(seconds: 5));
       } else {
         Log.warning(

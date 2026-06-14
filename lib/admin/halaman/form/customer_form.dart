@@ -103,7 +103,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           Log.info(
             'Menjalankan operasi CREATE untuk pelanggan baru: ${newCustomer.name}',
           );
-          await pelangganOpSqlite.tambah(newCustomer);
+          await pelangganOpSqlite.tambahPelanggan(newCustomer);
         } else {
           Log.info(
             'Menjalankan operasi UPDATE untuk pelanggan ID: ${newCustomer.id}',

@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$PelangganAktifState {
-  List<ActiveCustomerDetailModel> get daftarPelangganAktif;
+  List<DetailPelangganAktifModel> get daftarPelangganAktif;
   SortOption get sortBy;
 
   /// Create a copy of PelangganAktifState
@@ -52,7 +52,7 @@ abstract mixin class $PelangganAktifStateCopyWith<$Res> {
       _$PelangganAktifStateCopyWithImpl;
   @useResult
   $Res call(
-      {List<ActiveCustomerDetailModel> daftarPelangganAktif,
+      {List<DetailPelangganAktifModel> daftarPelangganAktif,
       SortOption sortBy});
 }
 
@@ -76,7 +76,7 @@ class _$PelangganAktifStateCopyWithImpl<$Res>
       daftarPelangganAktif: null == daftarPelangganAktif
           ? _self.daftarPelangganAktif
           : daftarPelangganAktif // ignore: cast_nullable_to_non_nullable
-              as List<ActiveCustomerDetailModel>,
+              as List<DetailPelangganAktifModel>,
       sortBy: null == sortBy
           ? _self.sortBy
           : sortBy // ignore: cast_nullable_to_non_nullable
@@ -178,7 +178,7 @@ extension PelangganAktifStatePatterns on PelangganAktifState {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(List<ActiveCustomerDetailModel> daftarPelangganAktif,
+    TResult Function(List<DetailPelangganAktifModel> daftarPelangganAktif,
             SortOption sortBy)?
         $default, {
     required TResult orElse(),
@@ -207,7 +207,7 @@ extension PelangganAktifStatePatterns on PelangganAktifState {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(List<ActiveCustomerDetailModel> daftarPelangganAktif,
+    TResult Function(List<DetailPelangganAktifModel> daftarPelangganAktif,
             SortOption sortBy)
         $default,
   ) {
@@ -234,7 +234,7 @@ extension PelangganAktifStatePatterns on PelangganAktifState {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(List<ActiveCustomerDetailModel> daftarPelangganAktif,
+    TResult? Function(List<DetailPelangganAktifModel> daftarPelangganAktif,
             SortOption sortBy)?
         $default,
   ) {
@@ -252,14 +252,14 @@ extension PelangganAktifStatePatterns on PelangganAktifState {
 
 class _PelangganAktifState implements PelangganAktifState {
   const _PelangganAktifState(
-      {final List<ActiveCustomerDetailModel> daftarPelangganAktif = const [],
+      {final List<DetailPelangganAktifModel> daftarPelangganAktif = const [],
       this.sortBy = SortOption.berakhirHariIni})
       : _daftarPelangganAktif = daftarPelangganAktif;
 
-  final List<ActiveCustomerDetailModel> _daftarPelangganAktif;
+  final List<DetailPelangganAktifModel> _daftarPelangganAktif;
   @override
   @JsonKey()
-  List<ActiveCustomerDetailModel> get daftarPelangganAktif {
+  List<DetailPelangganAktifModel> get daftarPelangganAktif {
     if (_daftarPelangganAktif is EqualUnmodifiableListView)
       return _daftarPelangganAktif;
     // ignore: implicit_dynamic_type
@@ -308,7 +308,7 @@ abstract mixin class _$PelangganAktifStateCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {List<ActiveCustomerDetailModel> daftarPelangganAktif,
+      {List<DetailPelangganAktifModel> daftarPelangganAktif,
       SortOption sortBy});
 }
 
@@ -332,7 +332,7 @@ class __$PelangganAktifStateCopyWithImpl<$Res>
       daftarPelangganAktif: null == daftarPelangganAktif
           ? _self._daftarPelangganAktif
           : daftarPelangganAktif // ignore: cast_nullable_to_non_nullable
-              as List<ActiveCustomerDetailModel>,
+              as List<DetailPelangganAktifModel>,
       sortBy: null == sortBy
           ? _self.sortBy
           : sortBy // ignore: cast_nullable_to_non_nullable

@@ -53,7 +53,7 @@ final class PoinProvider extends $AsyncNotifierProvider<Poin, PoinState> {
   }
 }
 
-String _$poinHash() => r'8c210f01cd53f9e4c3270deb721f136a1de90988';
+String _$poinHash() => r'e6a66d42809f4e8bc3071870a6da5bf8c6988edc';
 
 final class PoinFamily extends $Family
     with
@@ -214,7 +214,7 @@ final class PointsPageDataProvider extends $FunctionalProvider<
   }
 }
 
-String _$pointsPageDataHash() => r'c28468c21175271b025427f2c6c5f12afeb8bebf';
+String _$pointsPageDataHash() => r'b1649862381c7d14126a1724896af09c087cc58b';
 
 final class PointsPageDataFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<PointsPageData>, String> {

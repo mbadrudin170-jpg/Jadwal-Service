@@ -53,39 +53,39 @@ class _FakeBaseOpSqlite_1 extends _i1.SmartFake implements _i3.BaseOpSqlite {
 /// See the documentation for Mockito's code generation for more information.
 class MockTransaksiOpsqlite extends _i1.Mock implements _i4.TransaksiOpsqlite {
   @override
-  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
+  _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
+        Invocation.getter(#sqliteDb),
         returnValue: _FakeSqliteDatabase_0(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
         returnValueForMissingStub: _FakeSqliteDatabase_0(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
       ) as _i2.SqliteDatabase);
 
   @override
-  _i3.BaseOpSqlite get baseOperation => (super.noSuchMethod(
-        Invocation.getter(#baseOperation),
+  _i3.BaseOpSqlite get baseOpSqlite => (super.noSuchMethod(
+        Invocation.getter(#baseOpSqlite),
         returnValue: _FakeBaseOpSqlite_1(
           this,
-          Invocation.getter(#baseOperation),
+          Invocation.getter(#baseOpSqlite),
         ),
         returnValueForMissingStub: _FakeBaseOpSqlite_1(
           this,
-          Invocation.getter(#baseOperation),
+          Invocation.getter(#baseOpSqlite),
         ),
       ) as _i3.BaseOpSqlite);
 
   @override
-  _i5.Future<int> addTransaction(
+  _i5.Future<int> tambahTransaksi(
     _i6.TransaksiModel? transaction, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #addTransaction,
+          #tambahTransaksi,
           [transaction],
           {#fromServer: fromServer},
         ),
@@ -107,9 +107,10 @@ class MockTransaksiOpsqlite extends _i1.Mock implements _i4.TransaksiOpsqlite {
       ) as _i5.Future<List<_i6.TransaksiModel>>);
 
   @override
-  _i5.Future<_i6.TransaksiModel?> getById(String? id) => (super.noSuchMethod(
+  _i5.Future<_i6.TransaksiModel?> ambilBerdasarkanId(String? id) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #getById,
+          #ambilBerdasarkanId,
           [id],
         ),
         returnValue: _i5.Future<_i6.TransaksiModel?>.value(),
@@ -265,9 +266,9 @@ class MockTransaksiOpsqlite extends _i1.Mock implements _i4.TransaksiOpsqlite {
       ) as _i5.Future<int>);
 
   @override
-  _i5.Future<int> getTotalPoints(String? customerId) => (super.noSuchMethod(
+  _i5.Future<int> ambilTotalPoin(String? customerId) => (super.noSuchMethod(
         Invocation.method(
-          #getTotalPoints,
+          #ambilTotalPoin,
           [customerId],
         ),
         returnValue: _i5.Future<int>.value(0),

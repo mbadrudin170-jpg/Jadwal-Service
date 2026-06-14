@@ -156,11 +156,11 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   }
 
   @override
-  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
+  _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
+        Invocation.getter(#sqliteDb),
         returnValue: _FakeSqliteDatabase_0(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
       ) as _i2.SqliteDatabase);
 
@@ -175,24 +175,24 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
       ) as _i5.Future<void>);
 
   @override
-  _i5.Future<List<_i7.ActiveCustomerDetailModel>>
+  _i5.Future<List<_i7.DetailPelangganAktifModel>>
       getAllActiveCustomersWithDetails() => (super.noSuchMethod(
             Invocation.method(
               #getAllActiveCustomersWithDetails,
               [],
             ),
-            returnValue: _i5.Future<List<_i7.ActiveCustomerDetailModel>>.value(
-                <_i7.ActiveCustomerDetailModel>[]),
-          ) as _i5.Future<List<_i7.ActiveCustomerDetailModel>>);
+            returnValue: _i5.Future<List<_i7.DetailPelangganAktifModel>>.value(
+                <_i7.DetailPelangganAktifModel>[]),
+          ) as _i5.Future<List<_i7.DetailPelangganAktifModel>>);
 
   @override
-  _i5.Future<_i3.PelangganAktifModel> createActiveCustomer(
+  _i5.Future<_i3.PelangganAktifModel> tambahPelangganAktif(
     _i3.PelangganAktifModel? activeCustomer, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #createActiveCustomer,
+          #tambahPelangganAktif,
           [activeCustomer],
           {#fromServer: fromServer},
         ),
@@ -200,7 +200,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
             _FakePelangganAktifModel_1(
           this,
           Invocation.method(
-            #createActiveCustomer,
+            #tambahPelangganAktif,
             [activeCustomer],
             {#fromServer: fromServer},
           ),

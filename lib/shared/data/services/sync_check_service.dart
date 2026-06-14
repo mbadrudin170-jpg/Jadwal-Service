@@ -16,7 +16,7 @@ class SyncCheckService {
   final SyncManager _syncManager;
   final UploadDataService _uploadService;
   final DownloadDataService _downloadService;
-  final NewDataCheckService _newDataCheck;
+  final PengecekanDataBaruService _newDataCheck;
   final FirebaseFirestore _firestore;
 
   /// Konstruktor dengan injeksi dependensi (wajib).
@@ -24,7 +24,7 @@ class SyncCheckService {
     required SyncManager syncManager,
     required UploadDataService uploadService,
     required DownloadDataService downloadService,
-    required NewDataCheckService newDataCheck,
+    required PengecekanDataBaruService newDataCheck,
     required FirebaseFirestore firestore,
   })  : _syncManager = syncManager,
         _uploadService = uploadService,
@@ -51,13 +51,14 @@ class SyncCheckService {
 
   Future<bool> _checkAndRunUpload() async {
     try {
-      final bool hasDataToUpload = await _newDataCheck.hasNewSqliteData();
+      final bool hasDataToUpload =
+          await _newDataCheck.apakahSqliteAdaDataBaru();
 
       if (hasDataToUpload) {
         await _uploadService.uploadSemuaData();
         final DateTime now = DateTime.now();
         await _syncManager.setLastUpload(now);
-        await _newDataCheck.resetNeedUpload();
+        await _newDataCheck.resetButuhUpload();
         Log.info('Metadata sinkronisasi berhasil diperbarui: $now.');
         return true;
       } else {
@@ -88,9 +89,10 @@ class SyncCheckService {
 
   Future<void> _checkAndRunDownload() async {
     try {
-      final bool hasNewServerData = await _newDataCheck.hasNewFirebaseData(
-        collectionName: NamaTabel.statusGlobal,
-        documentId: globalStatusId,
+      final bool hasNewServerData =
+          await _newDataCheck.apakahFirebaseAdaDataBaru(
+        namaKoleksi: NamaTabel.statusGlobal,
+        idDokumen: globalStatusId,
       );
 
       if (hasNewServerData) {
@@ -115,7 +117,8 @@ final syncCheckServiceProvider = Provider<SyncCheckService>((ref) {
     syncManager: ref.read(syncManagerProvider),
     uploadService: ref.read(uploadDataServiceProvider), // harus sudah ada
     downloadService: ref.read(downloadDataServiceProvider), // sudah ada
-    newDataCheck: ref.read(newDataCheckServiceProvider), // harus sudah ada
+    newDataCheck:
+        ref.read(pengecekanDataBaruBaruServiceProvider), // harus sudah ada
     firestore: FirebaseFirestore.instance,
   );
 });

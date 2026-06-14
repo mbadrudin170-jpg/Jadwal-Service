@@ -20,7 +20,7 @@ import 'new_data_check_service_test.mocks.dart';
   DocumentReference,
 ])
 void main() {
-  late NewDataCheckService service;
+  late PengecekanDataBaruService service;
   late MockSyncManager mockSyncManager;
   late MockUploadStatusOperation mockUploadStatusOperation;
 
@@ -34,7 +34,7 @@ void main() {
     test('harus mengembalikan true jika ada data yang belum diunggah di SQLite',
         () async {
       // Membuat instance service di dalam test untuk isolasi
-      service = NewDataCheckService(
+      service = PengecekanDataBaruService(
         firestore: FakeFirebaseFirestore(),
         syncManager: mockSyncManager,
         uploadStatusOperation: mockUploadStatusOperation,
@@ -42,7 +42,7 @@ void main() {
       when(mockUploadStatusOperation.getNeedUpload())
           .thenAnswer((_) async => true);
 
-      final result = await service.hasNewSqliteData();
+      final result = await service.apakahSqliteAdaDataBaru();
 
       expect(result, isTrue);
       verify(mockUploadStatusOperation.getNeedUpload()).called(1);
@@ -51,7 +51,7 @@ void main() {
     test(
         'harus mengembalikan false jika tidak ada data yang belum diunggah di SQLite',
         () async {
-      service = NewDataCheckService(
+      service = PengecekanDataBaruService(
         firestore: FakeFirebaseFirestore(),
         syncManager: mockSyncManager,
         uploadStatusOperation: mockUploadStatusOperation,
@@ -59,7 +59,7 @@ void main() {
       when(mockUploadStatusOperation.getNeedUpload())
           .thenAnswer((_) async => false);
 
-      final result = await service.hasNewSqliteData();
+      final result = await service.apakahSqliteAdaDataBaru();
 
       expect(result, isFalse);
       verify(mockUploadStatusOperation.getNeedUpload()).called(1);
@@ -74,12 +74,12 @@ void main() {
     // Tes yang menggunakan implementasi nyata (FakeFirebaseFirestore)
     test('harus mengembalikan true jika ada data baru di Firebase', () async {
       final fakeFirestore = FakeFirebaseFirestore();
-      service = NewDataCheckService(
+      service = PengecekanDataBaruService(
         firestore: fakeFirestore,
         syncManager: mockSyncManager,
         uploadStatusOperation: mockUploadStatusOperation,
       );
-      when(mockSyncManager.getLastDownload())
+      when(mockSyncManager.ambilTanggalTerakhirDownload())
           .thenAnswer((_) async => lastDownloadTime);
 
       final newDataTime = lastDownloadTime.add(const Duration(hours: 1));
@@ -87,22 +87,22 @@ void main() {
         'updated_at': Timestamp.fromDate(newDataTime),
       });
 
-      final result = await service.hasNewFirebaseData(
-          collectionName: testCollection, documentId: testDocument);
+      final result = await service.apakahFirebaseAdaDataBaru(
+          namaKoleksi: testCollection, idDokumen: testDocument);
 
       expect(result, isTrue);
-      verify(mockSyncManager.getLastDownload()).called(1);
+      verify(mockSyncManager.ambilTanggalTerakhirDownload()).called(1);
     });
 
     test('harus mengembalikan false jika tidak ada data baru di Firebase',
         () async {
       final fakeFirestore = FakeFirebaseFirestore();
-      service = NewDataCheckService(
+      service = PengecekanDataBaruService(
         firestore: fakeFirestore,
         syncManager: mockSyncManager,
         uploadStatusOperation: mockUploadStatusOperation,
       );
-      when(mockSyncManager.getLastDownload())
+      when(mockSyncManager.ambilTanggalTerakhirDownload())
           .thenAnswer((_) async => lastDownloadTime);
 
       final oldDataTime = lastDownloadTime.subtract(const Duration(hours: 1));
@@ -110,16 +110,16 @@ void main() {
         'updated_at': Timestamp.fromDate(oldDataTime),
       });
 
-      final result = await service.hasNewFirebaseData(
-          collectionName: testCollection, documentId: testDocument);
+      final result = await service.apakahFirebaseAdaDataBaru(
+          namaKoleksi: testCollection, idDokumen: testDocument);
 
       expect(result, isFalse);
-      verify(mockSyncManager.getLastDownload()).called(1);
+      verify(mockSyncManager.ambilTanggalTerakhirDownload()).called(1);
     });
 
     // Tes yang gagal sebelumnya, sekarang diperbaiki dengan mock yang digenerate
     test('harus mengembalikan false jika terjadi error saat query', () async {
-      when(mockSyncManager.getLastDownload())
+      when(mockSyncManager.ambilTanggalTerakhirDownload())
           .thenAnswer((_) async => lastDownloadTime);
 
       // Menggunakan Mocks yang digenerate untuk seluruh rantai panggilan Firestore
@@ -128,7 +128,7 @@ void main() {
       final mockDocument = MockDocumentReference<Map<String, dynamic>>();
 
       // Membuat instance service dengan mock Firestore
-      final serviceWithMock = NewDataCheckService(
+      final serviceWithMock = PengecekanDataBaruService(
         firestore: mockFirestore,
         syncManager: mockSyncManager,
         uploadStatusOperation: mockUploadStatusOperation,
@@ -140,13 +140,13 @@ void main() {
       when(mockDocument.get(any))
           .thenThrow(FirebaseException(plugin: 'test', message: 'Test Error'));
 
-      final result = await serviceWithMock.hasNewFirebaseData(
-          collectionName: testCollection, documentId: testDocument);
+      final result = await serviceWithMock.apakahFirebaseAdaDataBaru(
+          namaKoleksi: testCollection, idDokumen: testDocument);
 
       expect(result, isFalse, reason: 'Harusnya false karena ada exception');
 
       // Verifikasi bahwa semua metode yang diharapkan dipanggil
-      verify(mockSyncManager.getLastDownload()).called(1);
+      verify(mockSyncManager.ambilTanggalTerakhirDownload()).called(1);
       verify(mockFirestore.collection(testCollection)).called(1);
       verify(mockCollection.doc(testDocument)).called(1);
       verify(mockDocument.get(any)).called(1);

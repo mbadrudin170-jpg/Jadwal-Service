@@ -6,9 +6,9 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/form_kategori.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
 
-class MockCategoryOperation extends Mock implements CategoryOperation {}
+class MockCategoryOperation extends Mock implements KategoriOpSqlite {}
 
 void main() {
   late MockCategoryOperation mockCategoryOperation;

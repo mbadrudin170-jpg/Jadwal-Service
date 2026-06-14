@@ -89,7 +89,8 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                       : () => Navigator.push(
                             context,
                             MaterialPageRoute<void>(
-                              builder: (context) => DetailPaket(paket: package),
+                              builder: (context) =>
+                                  DetailPaketPage(paket: package),
                             ),
                           ),
                   children: [

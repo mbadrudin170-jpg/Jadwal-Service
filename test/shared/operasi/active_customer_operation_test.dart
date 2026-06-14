@@ -44,8 +44,8 @@ void main() {
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
 
     activeCustomerOperation = PelangganAktifOpSqlite(
-      dbHelper: mockDbHelper,
-      baseOperation: mockBaseOperation,
+      sqliteDb: mockDbHelper,
+      baseOpSqlite: mockBaseOperation,
       pelangganOpSqlite: mockCustomerOperation,
       notifikasiServis: mockNotifikasiServis,
     );
@@ -137,7 +137,7 @@ void main() {
           .thenAnswer((_) async {});
 
       final result =
-          await activeCustomerOperation.createActiveCustomer(tActiveCustomer1);
+          await activeCustomerOperation.tambahPelangganAktif(tActiveCustomer1);
 
       expect(result.id, isNotEmpty);
       verify(mockBaseOperation.runComplexOperation<void>(any)).called(1);

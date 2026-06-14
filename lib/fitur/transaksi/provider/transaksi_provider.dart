@@ -15,44 +15,45 @@ part 'transaksi_provider.freezed.dart';
 part 'transaksi_provider.g.dart';
 
 @freezed
-abstract class TransactionState with _$TransactionState {
-  const factory TransactionState({
-    @Default([]) List<TransaksiModel> transactions,
+abstract class TransaksiState with _$TransaksiState {
+  const factory TransaksiState({
+    @Default([]) List<TransaksiModel> transaksi,
     @Default(0.0) double totalIncome,
     @Default(0.0) double totalExpense,
     @Default(0.0) double netTotal,
     @Default(SortBy.newest) SortBy sortBy,
-  }) = _TransactionState;
+  }) = _TransaksiState;
 }
 
 @riverpod
-class Transaction extends _$Transaction {
+class Transaksi extends _$Transaksi {
   // PERBAIKAN 1: Gunakan ref.watch agar reaktif dan aman sesuai standar resmi
-  TransaksiOpsqlite get _operation => ref.watch(transactionOperationProvider);
+  TransaksiOpsqlite get _transaksiOpSqlite =>
+      ref.watch(transaksiOpSqliteProvider);
 
   @override
-  FutureOr<TransactionState> build() {
+  FutureOr<TransaksiState> build() {
     // Menentukan sorting default saat pertama kali build dijalankan
     return _loadData(SortBy.newest);
   }
 
   // PERBAIKAN 2: Passing nilai sortBy ke dalam fungsi load data
   // untuk menghindari pembacaan `state.value` yang tidak menentu saat async loading
-  Future<TransactionState> _loadData(SortBy targetSortBy) async {
+  Future<TransaksiState> _loadData(SortBy targetSortBy) async {
     final results = await Future.wait([
-      _operation.getAllTransactions(),
-      _operation.getTotalIncome(),
-      _operation.getTotalExpense(),
-      _operation.getNetTotal(),
+      _transaksiOpSqlite.getAllTransactions(),
+      _transaksiOpSqlite.getTotalIncome(),
+      _transaksiOpSqlite.getTotalExpense(),
+      _transaksiOpSqlite.getNetTotal(),
     ]);
 
-    final transactions = results[0] as List<TransaksiModel>;
+    final transaksi = results[0] as List<TransaksiModel>;
 
     // Jalankan sorting lokal sebelum state dilempar ke UI
-    _performSort(transactions, targetSortBy);
+    _performSort(transaksi, targetSortBy);
 
-    return TransactionState(
-      transactions: transactions,
+    return TransaksiState(
+      transaksi: transaksi,
       totalIncome: results[1] as double,
       totalExpense: results[2] as double,
       netTotal: results[3] as double,
@@ -68,11 +69,11 @@ class Transaction extends _$Transaction {
     if (currentState.sortBy == newSortBy) return;
 
     final List<TransaksiModel> sortedTransactions =
-        List.from(currentState.transactions);
+        List.from(currentState.transaksi);
     _performSort(sortedTransactions, newSortBy);
 
     state = AsyncValue.data(currentState.copyWith(
-      transactions: sortedTransactions,
+      transaksi: sortedTransactions,
       sortBy: newSortBy,
     ));
   }
@@ -98,12 +99,12 @@ class Transaction extends _$Transaction {
   // Fungsi Mutasi Data (Gunakan ref.read di dalam scope aksi ini aman)
   // ==========================================================
 
-  Future<void> addTransaction(TransaksiModel transaction) async {
+  Future<void> tambahTransaksi(TransaksiModel transaction) async {
     // Ambil sorting saat ini sebelum masuk state loading
     final currentSort = state.value?.sortBy ?? SortBy.newest;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await _operation.addTransaction(transaction);
+      await _transaksiOpSqlite.tambahTransaksi(transaction);
       ref.invalidate(dompetProvider);
       ref.invalidate(statistikProvider);
       return _loadData(currentSort);
@@ -114,7 +115,7 @@ class Transaction extends _$Transaction {
     final currentSort = state.value?.sortBy ?? SortBy.newest;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await _operation.updateTransaction(transaction.id, transaction);
+      await _transaksiOpSqlite.updateTransaction(transaction.id, transaction);
       ref.invalidate(dompetProvider);
       ref.invalidate(statistikProvider);
       return _loadData(currentSort);
@@ -125,7 +126,7 @@ class Transaction extends _$Transaction {
     final currentSort = state.value?.sortBy ?? SortBy.newest;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await _operation.softDelete(id);
+      await _transaksiOpSqlite.softDelete(id);
       ref.invalidate(dompetProvider);
       ref.invalidate(statistikProvider);
       return _loadData(currentSort);
@@ -135,7 +136,7 @@ class Transaction extends _$Transaction {
   Future<void> softDeleteAll() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await _operation.softDeleteAll();
+      await _transaksiOpSqlite.softDeleteAll();
       ref.invalidate(dompetProvider);
       ref.invalidate(statistikProvider);
       return _loadData(SortBy.newest);

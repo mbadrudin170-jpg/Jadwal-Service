@@ -145,7 +145,7 @@ class SettingsOpSqlite {
       await _baseOpSqlite.insertOrUpdateBatch(
         _namaTabel,
         [data],
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Batch operation untuk pengaturan berhasil.');
     } catch (e, st) {

@@ -14,7 +14,7 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
@@ -70,7 +70,7 @@ void main() {
     registerFallbackValue(StatusOrderEnum.baru);
 
     // Stubs default
-    when(() => mockPackageOpFirebase.getPackageById(any()))
+    when(() => mockPackageOpFirebase.ambilBerdasarkanId(any()))
         .thenAnswer((_) => Future.value(package1));
     when(() => mockOrderOpFirebase.getAllByUserId(any()))
         .thenAnswer((_) => Stream.value([]));
@@ -81,7 +81,8 @@ void main() {
     when(() => mockOrderOpFirebase.countOrdersByStatus(any(), any()))
         .thenAnswer((_) async => 0);
     // Stub for softDelete to prevent timer leaks
-    when(() => mockOrderOperation.softDelete(any())).thenAnswer((_) async => 1);
+    when(() => mockOrderOperation.softDeleteorder(any()))
+        .thenAnswer((_) async => 1);
   });
 
   // 4. Widget tester wrapper
@@ -111,7 +112,7 @@ void main() {
           .thenAnswer((_) => Stream.value([orderAdmin]));
       when(() => mockOrderOperation.getJumlahByStatus(StatusOrderEnum.baru))
           .thenAnswer((_) async => 1);
-      when(() => mockPackageOpFirebase.getPackageById('pkg1'))
+      when(() => mockPackageOpFirebase.ambilBerdasarkanId('pkg1'))
           .thenAnswer((_) => Future.value(package1));
 
       await tester.pumpWidget(createTestableWidget(
@@ -140,7 +141,7 @@ void main() {
           .thenAnswer((_) => Stream.value([orderUser]));
       when(() => mockOrderOpFirebase.countOrdersByStatus(
           StatusOrderEnum.diproses, any())).thenAnswer((_) async => 1);
-      when(() => mockPackageOpFirebase.getPackageById('pkg2'))
+      when(() => mockPackageOpFirebase.ambilBerdasarkanId('pkg2'))
           .thenAnswer((_) => Future.value(package2));
 
       await tester.pumpWidget(createTestableWidget(
@@ -170,9 +171,9 @@ void main() {
           StatusOrderEnum.baru, any())).thenAnswer((_) async => 1);
       when(() => mockOrderOpFirebase.countOrdersByStatus(
           StatusOrderEnum.diproses, any())).thenAnswer((_) async => 1);
-      when(() => mockPackageOpFirebase.getPackageById('pkg1'))
+      when(() => mockPackageOpFirebase.ambilBerdasarkanId('pkg1'))
           .thenAnswer((_) => Future.value(package1));
-      when(() => mockPackageOpFirebase.getPackageById('pkg2'))
+      when(() => mockPackageOpFirebase.ambilBerdasarkanId('pkg2'))
           .thenAnswer((_) => Future.value(package2));
 
       await tester.pumpWidget(createTestableWidget(
@@ -208,7 +209,7 @@ void main() {
           .thenAnswer((_) => Stream.value([orderAdmin]));
       when(() => mockOrderOperation.getJumlahByStatus(any()))
           .thenAnswer((_) async => 1);
-      when(() => mockPackageOpFirebase.getPackageById(any()))
+      when(() => mockPackageOpFirebase.ambilBerdasarkanId(any()))
           .thenAnswer((_) => Future.value(package1));
 
       await tester.pumpWidget(createTestableWidget(
@@ -243,9 +244,9 @@ void main() {
           .thenAnswer((_) => Stream.value([orderAdmin]));
       when(() => mockOrderOperation.getJumlahByStatus(any()))
           .thenAnswer((_) async => 1);
-      when(() => mockPackageOpFirebase.getPackageById(any()))
+      when(() => mockPackageOpFirebase.ambilBerdasarkanId(any()))
           .thenAnswer((_) => Future.value(package1));
-      when(() => mockOrderOperation.updateOrderStatus(any(), any()))
+      when(() => mockOrderOperation.updateStatusOrder(any(), any()))
           .thenAnswer((_) async {});
 
       await tester.pumpWidget(createTestableWidget(
@@ -290,7 +291,7 @@ void main() {
       await tester
           .pumpAndSettle(const Duration(seconds: 5)); // Allow time for toast
 
-      verify(() => mockOrderOperation.updateOrderStatus(
+      verify(() => mockOrderOperation.updateStatusOrder(
           orderAdmin.id, StatusOrderEnum.selesai)).called(1);
     });
 
@@ -299,7 +300,7 @@ void main() {
           .thenAnswer((_) => Stream.value([orderUser]));
       when(() => mockOrderOpFirebase.countOrdersByStatus(any(), any()))
           .thenAnswer((_) async => 1);
-      when(() => mockPackageOpFirebase.getPackageById(any()))
+      when(() => mockPackageOpFirebase.ambilBerdasarkanId(any()))
           .thenAnswer((_) => Future.value(package2));
       when(() => mockOrderOpFirebase.softDeleteOrder(any()))
           .thenAnswer((_) async {});

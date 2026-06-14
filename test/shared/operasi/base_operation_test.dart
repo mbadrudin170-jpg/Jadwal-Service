@@ -105,7 +105,7 @@ void main() {
       const table = 'test_table';
       const id = '1';
 
-      await baseOperation.hapusSementara(table, id);
+      await baseOperation.softDelete(table, id);
 
       final captured = verify(mockTxn.update(
         table,

@@ -1,46 +1,45 @@
-// path: lib/admin/halaman/detail/package_detail.dart
+// path: lib/admin/halaman/detail/detail_paket.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/form/form_paket.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah paket.
-class DetailPaket extends ConsumerStatefulWidget {
+class DetailPaketPage extends ConsumerStatefulWidget {
   /// Model paket yang akan ditampilkan.
   final PaketModel paket;
 
   /// Konstruktor untuk PackageDetailPage.
-  const DetailPaket({
+  const DetailPaketPage({
     super.key,
     required this.paket,
   });
 
   @override
-  ConsumerState<DetailPaket> createState() => _DetailPaketState();
+  ConsumerState<DetailPaketPage> createState() => _DetailPaketState();
 }
 
-class _DetailPaketState extends ConsumerState<DetailPaket> {
-  late PaketModel _package;
+class _DetailPaketState extends ConsumerState<DetailPaketPage> {
+  late PaketModel _paket;
 
   @override
   void initState() {
     super.initState();
     Log.info('Membuka halaman detail paket.');
-    _package = widget.paket;
+    _paket = widget.paket;
     Log.info(
-        'Data paket berhasil dimuat: ${_package.name}, ID: ${_package.id}.');
+        'Data paket berhasil dimuat: ${_paket.name}, ID: ${_paket.id}.');
   }
 
-  Future<void> _editPackage() async {
-    Log.info('Navigasi ke form edit paket: ${_package.name}.');
+  Future<void> _navigasiKeEdit() async {
+    Log.info('Navigasi ke form edit paket: ${_paket.name}.');
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (final context) => FormPaket(package: _package),
+        builder: (final context) => FormPaket(package: _paket),
       ),
     );
 
@@ -53,13 +52,13 @@ class _DetailPaketState extends ConsumerState<DetailPaket> {
   }
 
   @override
-  Widget build( BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_package.name),
+        title: Text(_paket.name),
         actions: [
           IconButton(
-            onPressed: _editPackage,
+            onPressed: _navigasiKeEdit,
             icon: const Icon(TIcons.edit),
             tooltip: 'Edit Paket',
           ),
@@ -90,10 +89,10 @@ class _DetailPaketState extends ConsumerState<DetailPaket> {
                   ],
                 ),
                 gapH20,
-                _buildDetailRow('Nama Paket', _package.name),
-                _buildDetailRow('Harga Sewa', 'Rp ${_package.price}'),
+                _buildDetailRow('Nama Paket', _paket.name),
+                _buildDetailRow('Harga Sewa', 'Rp ${_paket.price}'),
                 _buildDetailRow('Masa Aktif',
-                    '${_package.duration} ${_package.type.displayName}'),
+                    '${_paket.duration} ${_paket.type.displayName}'),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
                   child: Divider(thickness: 1),
@@ -111,10 +110,10 @@ class _DetailPaketState extends ConsumerState<DetailPaket> {
                   ],
                 ),
                 gapH12,
-                _buildDetailRow('Poin Hadiah', '${_package.rewardPoints} Poin',
+                _buildDetailRow('Poin Hadiah', '${_paket.rewardPoints} Poin',
                     subTitle: 'Didapat saat beli paket'),
                 _buildDetailRow(
-                    'Poin Penukaran', '${_package.redemptionPoints} Poin',
+                    'Poin Penukaran', '${_paket.redemptionPoints} Poin',
                     subTitle: 'Syarat tukar gratis'),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -122,9 +121,9 @@ class _DetailPaketState extends ConsumerState<DetailPaket> {
                 ),
                 _buildDetailRow(
                   'Status Publik',
-                  _package.isPublic ? 'Tersedia di Aplikasi' : 'Hanya Admin',
+                  _paket.isPublic ? 'Tersedia di Aplikasi' : 'Hanya Admin',
                   customValueColor:
-                      _package.isPublic ? Colors.green : Colors.red,
+                      _paket.isPublic ? Colors.green : Colors.red,
                 ),
               ],
             ),

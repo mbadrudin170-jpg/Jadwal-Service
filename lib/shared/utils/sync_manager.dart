@@ -12,9 +12,8 @@ final syncManagerProvider = Provider<SyncManager>((ref) {
   return SyncManager();
 });
 
-
 class SyncManager {
-  Future<DateTime> getLastDownload() async {
+  Future<DateTime> ambilTanggalTerakhirDownload() async {
     Log.info('Meminta timestamp terakhir unduh dari PreferenceService');
     final result = await PreferenceService.getLastDownload();
     final lastTime =

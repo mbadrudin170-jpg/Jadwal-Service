@@ -51,8 +51,8 @@ class ActiveCustomerSorter {
   /// Mengurutkan daftar [customers] berdasarkan [sortOption] yang dipilih.
   ///
   /// Mengembalikan list baru yang sudah terurut.
-  static List<ActiveCustomerDetailModel> sort(
-    final List<ActiveCustomerDetailModel> customers,
+  static List<DetailPelangganAktifModel> sort(
+    final List<DetailPelangganAktifModel> customers,
     final SortOption sortOption,
   ) {
     Log.info(
@@ -60,21 +60,24 @@ class ActiveCustomerSorter {
     );
     final sortedList = List.of(customers);
 
-    int Function(ActiveCustomerDetailModel, ActiveCustomerDetailModel) comparator;
+    int Function(DetailPelangganAktifModel, DetailPelangganAktifModel)
+        comparator;
 
     switch (sortOption) {
       case SortOption.endDate:
         comparator = (final a, final b) =>
-            a.activeCustomer.endDate.compareTo(b.activeCustomer.endDate);
+            a.pelangganAktif.endDate.compareTo(b.pelangganAktif.endDate);
         break;
       case SortOption.startDate:
         comparator = (final a, final b) =>
-            a.activeCustomer.startDate.compareTo(b.activeCustomer.startDate);
+            a.pelangganAktif.startDate.compareTo(b.pelangganAktif.startDate);
         break;
       case SortOption.lastUpdated:
         comparator = (final a, final b) {
-          final dateA = a.activeCustomer.updatedAt ?? a.activeCustomer.startDate;
-          final dateB = b.activeCustomer.updatedAt ?? b.activeCustomer.startDate;
+          final dateA =
+              a.pelangganAktif.updatedAt ?? a.pelangganAktif.startDate;
+          final dateB =
+              b.pelangganAktif.updatedAt ?? b.pelangganAktif.startDate;
           return dateB.compareTo(dateA);
         };
         break;
@@ -91,11 +94,10 @@ class ActiveCustomerSorter {
       case SortOption.paid:
       case SortOption.unpaid:
         comparator = (final a, final b) {
-          final isPaidA = a.activeCustomer.status == PaymentStatus.paid;
-          final isPaidB = b.activeCustomer.status == PaymentStatus.paid;
+          final isPaidA = a.pelangganAktif.status == PaymentStatus.paid;
+          final isPaidB = b.pelangganAktif.status == PaymentStatus.paid;
           if (isPaidA == isPaidB) {
-            return a.activeCustomer.endDate
-                .compareTo(b.activeCustomer.endDate);
+            return a.pelangganAktif.endDate.compareTo(b.pelangganAktif.endDate);
           }
           return (sortOption == SortOption.paid)
               ? (isPaidA ? -1 : 1)
@@ -106,12 +108,11 @@ class ActiveCustomerSorter {
       case SortOption.inactivePackage:
         comparator = (final a, final b) {
           final isActiveA =
-              CalculationUtil.remainingDays(a.activeCustomer.endDate) >= 0;
+              CalculationUtil.remainingDays(a.pelangganAktif.endDate) >= 0;
           final isActiveB =
-              CalculationUtil.remainingDays(b.activeCustomer.endDate) >= 0;
+              CalculationUtil.remainingDays(b.pelangganAktif.endDate) >= 0;
           if (isActiveA == isActiveB) {
-            return a.activeCustomer.endDate
-                .compareTo(b.activeCustomer.endDate);
+            return a.pelangganAktif.endDate.compareTo(b.pelangganAktif.endDate);
           }
           return (sortOption == SortOption.activePackage)
               ? (isActiveA ? -1 : 1)

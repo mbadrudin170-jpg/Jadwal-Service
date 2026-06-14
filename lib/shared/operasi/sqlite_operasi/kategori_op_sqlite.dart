@@ -10,20 +10,20 @@ import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data kategori di database lokal.
-class CategoryOperation {
+class KategoriOpSqlite {
   /// Instance dari DatabaseHelper untuk mengakses database.
-  final SqliteDatabase dbHelper;
+  final SqliteDatabase sqlitedb;
 
   /// Instance dari BaseOperation untuk operasi database umum.
-  final BaseOpSqlite _baseOperation;
+  final BaseOpSqlite _baseOpSqlite;
 
   final String _tableName = NamaTabel.category;
 
   /// Konstruktor untuk CategoryOperation.
-  CategoryOperation({
-    required this.dbHelper,
+  KategoriOpSqlite({
+    required this.sqlitedb,
     required final BaseOpSqlite baseOperation,
-  }) : _baseOperation = baseOperation {
+  }) : _baseOpSqlite = baseOperation {
     Log.info('CategoryOperation instance dibuat.');
   }
 
@@ -34,16 +34,16 @@ class CategoryOperation {
   }) async {
     Log.info('Memulai createCategory untuk category: ${category.toSqlite()}');
     try {
-      final newCategory = category.copyWith(updatedAt: DateTime.now().toUtc());
-      final data = newCategory.toSqlite();
+      final kategoriBaru = category.copyWith(updatedAt: DateTime.now().toUtc());
+      final data = kategoriBaru.toSqlite();
 
-      await _baseOperation.sisipkan(
+      await _baseOpSqlite.sisipkan(
         _tableName,
         data,
         dariServer: fromServer,
       );
-      Log.info('Berhasil membuat category baru dengan ID: ${newCategory.id}');
-      return newCategory;
+      Log.info('Berhasil membuat category baru dengan ID: ${kategoriBaru.id}');
+      return kategoriBaru;
     } catch (e, st) {
       Log.error('Gagal saat createCategory', e: e, s: st);
       rethrow;
@@ -55,7 +55,7 @@ class CategoryOperation {
     Log.info(
         'Memulai getCategories (mengambil semua kategori yang tidak diarsipkan).');
     try {
-      final db = await dbHelper.database;
+      final db = await sqlitedb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: '${NamaKolom.isDeleted} = 0',
@@ -76,7 +76,7 @@ class CategoryOperation {
   Future<KategoriModel> getCategoryById(final String id) async {
     Log.info('Memulai getCategoryById untuk ID: $id');
     try {
-      final db = await dbHelper.database;
+      final db = await sqlitedb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: '${NamaKolom.id} = ?',
@@ -105,7 +105,7 @@ class CategoryOperation {
       final TipeKategori type) async {
     Log.info('Memulai getCategoriesByType untuk tipe: ${type.name}');
     try {
-      final db = await dbHelper.database;
+      final db = await sqlitedb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: '${NamaKolom.type} = ? AND ${NamaKolom.isDeleted} = 0',
@@ -138,7 +138,7 @@ class CategoryOperation {
     try {
       final data =
           category.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
-      await _baseOperation.update(
+      await _baseOpSqlite.update(
         _tableName,
         data,
         category.id,
@@ -161,7 +161,7 @@ class CategoryOperation {
     Log.warning(
         'PERINGATAN: Memulai deleteCategory (hard delete) untuk category ID: $id');
     try {
-      await _baseOperation.delete(
+      await _baseOpSqlite.delete(
         _tableName,
         id,
         dariServer: fromServer,
@@ -180,7 +180,7 @@ class CategoryOperation {
   }) async {
     Log.info('Memulai soft delete untuk category ID: $id');
     try {
-      await _baseOperation.hapusSementara(
+      await _baseOpSqlite.softDelete(
         _tableName,
         id,
         dariServer: fromServer,
@@ -202,7 +202,7 @@ class CategoryOperation {
   }) async {
     Log.info('Memulai soft delete untuk semua kategori');
     try {
-      final count = await _baseOperation.hapusSementaraSemua(
+      final count = await _baseOpSqlite.softDeleteAll(
         _tableName,
         dariServer: fromServer,
       );
@@ -231,7 +231,7 @@ class CategoryOperation {
           'List item untuk clearAndInsertAll kosong, hanya operasi pembersihan yang akan dilakukan.');
     }
     try {
-      await _baseOperation.runComplexOperation<void>(
+      await _baseOpSqlite.runComplexOperation<void>(
         (final Transaction txn) async {
           final batch = txn.batch();
 
@@ -265,7 +265,7 @@ class CategoryOperation {
     Log.info(
         'Memulai getChangesSince untuk category sejak: ${since.toIso8601String()}');
     try {
-      final db = await dbHelper.database;
+      final db = await sqlitedb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: '${NamaKolom.updatedAt} > ?',
@@ -303,10 +303,10 @@ class CategoryOperation {
                 item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
-      await _baseOperation.insertOrUpdateBatch(
+      await _baseOpSqlite.insertOrUpdateBatch(
         _tableName,
         data,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info(
           'Berhasil menyelesaikan insertOrUpdateBatch untuk ${items.length} item category.');
@@ -326,7 +326,7 @@ class CategoryOperation {
       return [];
     }
     try {
-      final db = await dbHelper.database;
+      final db = await sqlitedb.database;
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,

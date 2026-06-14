@@ -1,21 +1,23 @@
 // path: test/admin/providers/package_activation_history_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/providers/package_activation_history_provider.dart';
-import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
-import 'package_activation_history_provider_test.mocks.dart';
+// 1. Buat mock class menggunakan mocktail
+class MockTransaksiOpsqlite extends Mock implements TransaksiOpsqlite {}
 
-@GenerateMocks([TransaksiOpsqlite, PelangganOpSqlite])
+class MockPelangganOpSqlite extends Mock implements PelangganOpSqlite {}
+
 void main() {
-  // 1. Definisikan data dummy yang valid
+  // 2. Definisikan data dummy yang valid
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day, now.hour, now.minute);
   final yesterday = today.subtract(const Duration(days: 1));
@@ -84,28 +86,28 @@ void main() {
   final mockTransactions = [t1, t2, t3, t4];
   final mockCustomers = [c1, c2, c3];
 
-  // 2. Buat mock untuk semua dependensi
-  late MockTransactionOperation mockTransactionOperation;
-  late MockCustomerOperation mockCustomerOperation;
+  // 3. Buat mock untuk semua dependensi
+  late MockTransaksiOpsqlite mockTransaksiOpsqlite;
+  late MockPelangganOpSqlite mockPelangganOpSqlite;
   late ProviderContainer container;
 
-  // 3. Atur setup untuk setiap test
+  // 4. Atur setup untuk setiap test
   setUp(() {
-    mockTransactionOperation = MockTransactionOperation();
-    mockCustomerOperation = MockCustomerOperation();
+    mockTransaksiOpsqlite = MockTransaksiOpsqlite();
+    mockPelangganOpSqlite = MockPelangganOpSqlite();
 
     container = ProviderContainer(
       overrides: [
-        transactionOperationProvider
-            .overrideWithValue(mockTransactionOperation),
-        customerOperationProvider.overrideWithValue(mockCustomerOperation),
+        // Gunakan provider yang benar dari operasi_sqlite_provider.dart
+        transaksiOpSqliteProvider.overrideWithValue(mockTransaksiOpsqlite),
+        pelangganOpSqliteProvider.overrideWithValue(mockPelangganOpSqlite),
       ],
     );
 
-    // Atur mock untuk mengembalikan data dummy
-    when(mockTransactionOperation.getTransactionsByPackageActivation())
+    // Atur mock untuk mengembalikan data dummy menggunakan syntax mocktail
+    when(() => mockTransaksiOpsqlite.getTransactionsByPackageActivation())
         .thenAnswer((_) async => List.from(mockTransactions));
-    when(mockCustomerOperation.getAll())
+    when(() => mockPelangganOpSqlite.ambilPelanggan())
         .thenAnswer((_) async => List.from(mockCustomers));
   });
 
@@ -114,19 +116,19 @@ void main() {
   });
 
   group('PackageActivationHistory Provider Sorting Tests', () {
-    test('1. endDate harus mengurutkan list berdasarkan endDate descending',
+    test('01. endDate harus mengurutkan list berdasarkan endDate descending',
         () async {
       // Tunggu provider untuk inisialisasi
       final state =
           await container.read(packageActivationHistoryProvider.future);
 
       // Verifikasi urutan default adalah berdasarkan endDate descending (null di akhir)
-      expect(state.items.map((item) => item.transaction.id).toList(),
+      expect(state.items.map((item) => item.transaksi.id).toList(),
           ['2', '1', '3', '4']);
       expect(state.sortBy, SortOption.endDate);
     });
 
-    test('2. nameAZ harus mengurutkan list berdasarkan nama A-Z', () async {
+    test('02. nameAZ harus mengurutkan list berdasarkan nama A-Z', () async {
       // Inisialisasi dulu
       await container.read(packageActivationHistoryProvider.future);
 
@@ -143,7 +145,7 @@ void main() {
       expect(state.sortBy, SortOption.nameAZ);
     });
 
-    test('3. namaZA harus mengurutkan list berdasarkan nama Z-A', () async {
+    test('03. namaZA harus mengurutkan list berdasarkan nama Z-A', () async {
       await container.read(packageActivationHistoryProvider.future);
       container
           .read(packageActivationHistoryProvider.notifier)
@@ -158,7 +160,7 @@ void main() {
     });
 
     test(
-        '4. newest harus mengurutkan list updateAt yang terbaru ke yang terlama',
+        '04. newest harus mengurutkan list updateAt yang terbaru ke yang terlama',
         () async {
       await container.read(packageActivationHistoryProvider.future);
       container
@@ -168,13 +170,13 @@ void main() {
       final state = container.read(packageActivationHistoryProvider).value!;
 
       // Verifikasi urutan berdasarkan tanggal terbaru: t2, t4, t1, t3
-      expect(state.items.map((item) => item.transaction.id).toList(),
+      expect(state.items.map((item) => item.transaksi.id).toList(),
           ['2', '4', '1', '3']);
       expect(state.sortBy, SortOption.updatedAtAZ);
     });
 
     test(
-        '5. oldest harus mengurutkan list updateAt yang terlama ke yang terbaru',
+        '05. oldest harus mengurutkan list updateAt yang terlama ke yang terbaru',
         () async {
       await container.read(packageActivationHistoryProvider.future);
       container
@@ -184,13 +186,13 @@ void main() {
       final state = container.read(packageActivationHistoryProvider).value!;
 
       // Verifikasi urutan berdasarkan tanggal terlama: t3, t1, t4, t2
-      expect(state.items.map((item) => item.transaction.id).toList(),
+      expect(state.items.map((item) => item.transaksi.id).toList(),
           ['3', '1', '4', '2']);
       expect(state.sortBy, SortOption.updatedAtZA);
     });
 
     test(
-        '6. endingToday harus mengurutkan list yang berakhir hari ini ke paling lama',
+        '06. endingToday harus mengurutkan list yang berakhir hari ini ke paling lama',
         () async {
       await container.read(packageActivationHistoryProvider.future);
       container
@@ -200,11 +202,11 @@ void main() {
       final state = container.read(packageActivationHistoryProvider).value!;
 
       // Verifikasi: t1 (berakhir hari ini) harus di paling atas
-      expect(state.items.first.transaction.id, '1');
+      expect(state.items.first.transaksi.id, '1');
       expect(state.sortBy, SortOption.endingToday);
     });
 
-    test('7. paid harus mengurutkan list dari yang lunas ke yang belum lunas',
+    test('07. paid harus mengurutkan list dari yang lunas ke yang belum lunas',
         () async {
       await container.read(packageActivationHistoryProvider.future);
       container
@@ -214,14 +216,15 @@ void main() {
       final state = container.read(packageActivationHistoryProvider).value!;
 
       // Verifikasi: yang lunas (t1, t3) di atas, diurutkan berdasarkan tanggal terbaru
-      final ids = state.items.map((item) => item.transaction.id).toList();
+      final ids = state.items.map((item) => item.transaksi.id).toList();
       expect(ids, ['1', '3', '2', '4']);
-      expect(state.items[0].transaction.paymentStatus, PaymentStatus.paid);
-      expect(state.items[1].transaction.paymentStatus, PaymentStatus.paid);
+      expect(state.items[0].transaksi.paymentStatus, PaymentStatus.paid);
+      expect(state.items[1].transaksi.paymentStatus, PaymentStatus.paid);
       expect(state.sortBy, SortOption.paid);
     });
 
-    test('8. unpaid harus mengurutkan list dari yang belum lunas ke yang lunas',
+    test(
+        '08. unpaid harus mengurutkan list dari yang belum lunas ke yang lunas',
         () async {
       await container.read(packageActivationHistoryProvider.future);
       container
@@ -231,12 +234,12 @@ void main() {
       final state = container.read(packageActivationHistoryProvider).value!;
 
       // Verifikasi: yang belum lunas (t2, t4) di atas, diurutkan berdasarkan tanggal terbaru
-      final ids = state.items.map((item) => item.transaction.id).toList();
+      final ids = state.items.map((item) => item.transaksi.id).toList();
       expect(ids, ['2', '4', '1', '3']);
-      expect(state.items[0].transaction.paymentStatus, PaymentStatus.unpaid);
-      expect(state.items[1].transaction.paymentStatus, PaymentStatus.unpaid);
-      expect(state.items[2].transaction.paymentStatus, PaymentStatus.paid);
-      expect(state.items[3].transaction.paymentStatus, PaymentStatus.paid);
+      expect(state.items[0].transaksi.paymentStatus, PaymentStatus.unpaid);
+      expect(state.items[1].transaksi.paymentStatus, PaymentStatus.unpaid);
+      expect(state.items[2].transaksi.paymentStatus, PaymentStatus.paid);
+      expect(state.items[3].transaksi.paymentStatus, PaymentStatus.paid);
 
       expect(state.sortBy, SortOption.unpaid);
     });

@@ -35,7 +35,7 @@ void main() {
   Widget createTestWidget() {
     return ProviderScope(
       child: MaterialApp(
-        home: DetailPaket(paket: testPackage),
+        home: DetailPaketPage(paket: testPackage),
         navigatorObservers: [mockNavigatorObserver],
       ),
     );

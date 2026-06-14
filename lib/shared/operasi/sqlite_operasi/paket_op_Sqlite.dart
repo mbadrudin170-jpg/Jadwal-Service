@@ -172,7 +172,7 @@ class PaketOpSqlite {
   Future<void> hapusSementara(String id, {bool dariServer = false}) async {
     Log.info('Memulai soft delete untuk package id: $id');
     try {
-      await baseOperation.hapusSementara(
+      await baseOperation.softDelete(
         _tableName,
         id,
         dariServer: dariServer,
@@ -188,7 +188,7 @@ class PaketOpSqlite {
   Future<int> hapusSementaraSemua({bool dariServer = false}) async {
     Log.info('Memulai soft-delete untuk semua paket');
     try {
-      final count = await baseOperation.hapusSementaraSemua(
+      final count = await baseOperation.softDeleteAll(
         _tableName,
         dariServer: dariServer,
       );
@@ -274,7 +274,7 @@ class PaketOpSqlite {
       await baseOperation.insertOrUpdateBatch(
         _tableName,
         dataList,
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil insertOrUpdateBatch untuk ${items.length} item');
     } catch (e, s) {

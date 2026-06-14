@@ -21,7 +21,7 @@ final statistikOpSliteProvider = Provider<StatistikOpSqlite>((ref) {
     pelangganAktifOpSqlite: ref.watch(pelangganAktifOpSqliteProvider),
     feedbackOpSqlite: ref.watch(feedbackOperationProvider),
     paketOpSqlite: ref.watch(paketOpSqliteProvider),
-    transaksiOpSqlite: ref.watch(transactionOperationProvider),
+    transaksiOpSqlite: ref.watch(transaksiOpSqliteProvider),
   );
 });
 

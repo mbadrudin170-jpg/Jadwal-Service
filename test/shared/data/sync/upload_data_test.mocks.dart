@@ -614,15 +614,15 @@ class MockSyncManager extends _i1.Mock implements _i10.SyncManager {
   }
 
   @override
-  _i6.Future<DateTime> getLastDownload() => (super.noSuchMethod(
+  _i6.Future<DateTime> ambilTanggalTerakhirDownload() => (super.noSuchMethod(
         Invocation.method(
-          #getLastDownload,
+          #ambilTanggalTerakhirDownload,
           [],
         ),
         returnValue: _i6.Future<DateTime>.value(_FakeDateTime_11(
           this,
           Invocation.method(
-            #getLastDownload,
+            #ambilTanggalTerakhirDownload,
             [],
           ),
         )),

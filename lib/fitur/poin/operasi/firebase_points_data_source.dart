@@ -20,7 +20,7 @@ class FirebasePointsDataSource implements PointsPageDataSource {
         _packageOpFirebase = packageOpFirebase;
 
   @override
-  Future<int> getTotalPoints(String customerId) {
+  Future<int> ambilTotalPoin(String customerId) {
     return _transactionOpFirebase.ambilTotalPoin(customerId);
   }
 

@@ -229,7 +229,7 @@ class BaseOpSqlite {
   }
 
   /// Melakukan soft delete pada satu baris di [table] berdasarkan [id].
-  Future<void> hapusSementara(
+  Future<void> softDelete(
     final String table,
     final String id, {
     final bool dariServer = false,
@@ -276,7 +276,7 @@ class BaseOpSqlite {
   }
 
   /// Melakukan soft delete pada semua baris di [table] yang belum di-soft-delete.
-  Future<int> hapusSementaraSemua(
+  Future<int> softDeleteAll(
     final String table, {
     final bool dariServer = false,
   }) async {
@@ -317,7 +317,7 @@ class BaseOpSqlite {
   Future<void> insertOrUpdateBatch(
     final String table,
     final List<Map<String, dynamic>> dataList, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     if (dataList.isEmpty) {
       Log.warning('Daftar data batch kosong, operasi dibatalkan', {
@@ -328,7 +328,7 @@ class BaseOpSqlite {
     Log.info('Memulai batch operation', {
       'tabel': table,
       'totalItem': dataList.length,
-      'fromServer': fromServer,
+      'fromServer': dariServer,
     });
     try {
       await _runInTransaction(
@@ -351,7 +351,7 @@ class BaseOpSqlite {
           await batch.commit(noResult: true);
           Log.info('Batch operation sukses');
         },
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
     } catch (e, s) {
       Log.error(

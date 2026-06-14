@@ -134,7 +134,7 @@ class SubKategoriOpSqlite {
   }) async {
     Log.info('Memulai soft delete untuk sub-kategori ID: $id');
     try {
-      await baseOpSqlite.hapusSementara(
+      await baseOpSqlite.softDelete(
         _tableName,
         id,
         dariServer: fromServer,
@@ -152,7 +152,7 @@ class SubKategoriOpSqlite {
   }) async {
     Log.info('Memulai soft delete untuk semua sub-kategori');
     try {
-      final count = await baseOpSqlite.hapusSementaraSemua(
+      final count = await baseOpSqlite.softDeleteAll(
         _tableName,
         dariServer: fromServer,
       );
@@ -186,7 +186,7 @@ class SubKategoriOpSqlite {
       await baseOpSqlite.insertOrUpdateBatch(
         _tableName,
         data,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Batch sub-kategori selesai diproses.');
     } on Exception catch (e, s) {

@@ -95,13 +95,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     Log.info('Memulai memuat semua data untuk FormPelangganAktif');
     final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
     final paketOpsqlite = ref.read(paketOpSqliteProvider);
-    final transaksiOperasi = ref.read(transactionOperationProvider);
+    final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
     final dompetOpSqlite = ref.read(dompetOpSqliteProvider);
     final kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
     try {
       final pa = widget.pelangganAktif;
       final transaksiTerkaitFuture = pa?.transactionId != null
-          ? transaksiOperasi.getById(pa!.transactionId!)
+          ? transaksiOperasi.ambilBerdasarkanId(pa!.transactionId!)
           : Future<TransaksiModel?>.value();
 
       final results = await Future.wait<Object?>([
@@ -165,7 +165,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Future<void> _mapEditData(TransaksiModel? transaksi) async {
-    final transaksiOperasi = ref.read(transactionOperationProvider);
+    final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
     final pa = widget.pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
 
@@ -203,7 +203,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     _statusPembayaran = pa.status;
 
     if (_pelangganDipilih != null) {
-      await transaksiOperasi.getTotalPoints(_pelangganDipilih!.id).then((poin) {
+      await transaksiOperasi.ambilTotalPoin(_pelangganDipilih!.id).then((poin) {
         if (mounted) {
           setState(() => _saldoPoinPelanggan = poin);
         }
@@ -339,17 +339,17 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         pelangganAktifHasil = await pelangganAktifOpsqlite
             .updateActiveCustomer(pelangganAktifData);
         await ref
-            .read(transactionProvider.notifier)
+            .read(transaksiProvider.notifier)
             .updateTransaction(transaksiData);
         notifikasiOpFirebase.deleteByTransactionId(transaksiId);
         Log.info(
             'menghapus data notifikasi dalam mode edit agar data selalu terbaru');
       } else {
         pelangganAktifHasil = await pelangganAktifOpsqlite
-            .createActiveCustomer(pelangganAktifData);
+            .tambahPelangganAktif(pelangganAktifData);
         await ref
-            .read(transactionProvider.notifier)
-            .addTransaction(transaksiData);
+            .read(transaksiProvider.notifier)
+            .tambahTransaksi(transaksiData);
       }
       ref.invalidate(pelangganAktifProvider);
 
@@ -444,7 +444,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
           title: Text(
@@ -527,7 +527,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Widget _buildPelangganDropdown() {
-    final transaksiOperasi = ref.read(transactionOperationProvider);
+    final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
     return DropdownButtonFormField<PelangganModel>(
       key: const Key('pelanggan_dropdown'),
       decoration: const InputDecoration(
@@ -540,7 +540,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         if (newValue == null) {
           return;
         }
-        final saldoPoin = await transaksiOperasi.getTotalPoints(newValue.id);
+        final saldoPoin = await transaksiOperasi.ambilTotalPoin(newValue.id);
         if (mounted) {
           setState(() {
             Log.info(
@@ -768,7 +768,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             ToastUtil.success(context, hasil.message);
             ref.invalidate(activeCustomerOpFirebaseProvider);
             ref.invalidate(pelangganAktifOpSqliteProvider);
-            ref.invalidate(transactionOperationProvider);
+            ref.invalidate(transaksiOpSqliteProvider);
             ref.invalidate(transactionOpFirebaseProvider);
             ref.invalidate(dompetOpSqliteProvider);
             ref.invalidate(statistikProvider);

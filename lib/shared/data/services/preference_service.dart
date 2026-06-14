@@ -56,8 +56,7 @@ class PreferenceService {
     Log.info('Timestamp terakhir unggah berhasil disimpan');
   }
 
-  static Future<DateTime?> _getTimestamp(
-      final String key, final String label) async {
+  static Future<DateTime?> _getTimestamp(String key, String label) async {
     Log.info('Membaca timestamp $label dari SharedPreferences | Key: $key');
     final prefs = await _prefs;
     final timestamp = prefs.getInt(key);
@@ -84,8 +83,8 @@ class PreferenceService {
     );
     try {
       final prefs = await _prefs;
-      final int millis = time.toUtc().millisecondsSinceEpoch;
-      await prefs.setInt(key, millis);
+      final int tanggal = time.toUtc().millisecondsSinceEpoch;
+      await prefs.setInt(key, tanggal);
       Log.info('✨ Timestamp $label berhasil disimpan | UTC: $time');
     } on Exception catch (e, s) {
       Log.error('Error saat menyimpan timestamp $label: $e', e: e, s: s);

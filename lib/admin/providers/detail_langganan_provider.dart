@@ -25,18 +25,18 @@ Future<DetailLanggananState?> ambilDetailLangganan(
   String idTransaksi,
 ) async {
   // Ambil semua operation repo
-  final transaksiOpSqlite = ref.watch(transactionOperationProvider);
+  final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
   final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
   final paketOpSqlite = ref.watch(paketOpSqliteProvider);
 
   // 1. Ambil data transaksi utama
-  final transaksi = await transaksiOpSqlite.getById(idTransaksi);
+  final transaksi = await transaksiOpSqlite.ambilBerdasarkanId(idTransaksi);
   if (transaksi == null) return null;
 
   // 2. Ambil data relasi secara paralel untuk menghemat waktu pemuatan
   final hasil = await Future.wait<Object?>([
     transaksi.customerId != null
-        ? pelangganOpSqlite.getById(transaksi.customerId!)
+        ? pelangganOpSqlite.ambilBerdasarkanId(transaksi.customerId!)
         : Future<PelangganModel?>.value(),
     transaksi.packageId != null
         ? paketOpSqlite.getById(transaksi.packageId!)

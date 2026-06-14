@@ -73,7 +73,7 @@ class PackagePage extends ConsumerWidget {
                   await Navigator.push(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (context) => DetailPaket(paket: paket),
+                      builder: (context) => DetailPaketPage(paket: paket),
                     ),
                   );
                 },

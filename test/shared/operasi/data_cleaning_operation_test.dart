@@ -53,7 +53,7 @@ void main() {
 
     // Inisialisasi kelas yang diuji dengan dependensi mock
     dataCleaningOperation = DataCleaningOperation(
-      dbHelper: mockDbHelper,
+      sqliteDb: mockDbHelper,
       firestore: fakeFirestore,
     );
   });
@@ -113,7 +113,7 @@ void main() {
 
     // --- Eksekusi ---
     final totalDeleted =
-        await dataCleaningOperation.deleteAllExpiredArchivedData(
+        await dataCleaningOperation.hapusPermanentDataYangDiarsip(
       retentionDays: retentionDays,
     );
 

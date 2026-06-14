@@ -688,14 +688,14 @@ class MockBaseOpSqlite extends _i1.Mock implements _i6.BaseOpSqlite {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> hapusSementara(
+  _i3.Future<void> softDelete(
     String? table,
     String? id, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #hapusSementara,
+          #softDelete,
           [
             table,
             id,
@@ -707,13 +707,13 @@ class MockBaseOpSqlite extends _i1.Mock implements _i6.BaseOpSqlite {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<int> hapusSementaraSemua(
+  _i3.Future<int> softDeleteAll(
     String? table, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #hapusSementaraSemua,
+          #softDeleteAll,
           [table],
           {#dariServer: dariServer},
         ),
@@ -724,7 +724,7 @@ class MockBaseOpSqlite extends _i1.Mock implements _i6.BaseOpSqlite {
   _i3.Future<void> insertOrUpdateBatch(
     String? table,
     List<Map<String, dynamic>>? dataList, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -733,7 +733,7 @@ class MockBaseOpSqlite extends _i1.Mock implements _i6.BaseOpSqlite {
             table,
             dataList,
           ],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),

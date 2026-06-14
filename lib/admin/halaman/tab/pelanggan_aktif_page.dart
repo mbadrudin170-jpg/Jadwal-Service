@@ -1,7 +1,7 @@
-// path: lib/admin/halaman/tab/active_customer_tab.dart
+// path: lib/admin/halaman/tab/pelanggan_aktif_page.dart
+
 import 'dart:async';
 
-// TODO : buatkan file test nya
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/detail_pelanggan_aktif.dart';
@@ -47,15 +47,15 @@ String _getSortLabel(SortOption option) {
   }
 }
 
-class ActiveCustomerPage extends ConsumerStatefulWidget {
-  const ActiveCustomerPage({super.key});
+class PelangganAktifPage extends ConsumerStatefulWidget {
+  const PelangganAktifPage({super.key});
 
   @override
   ActiveCustomerPageState createState() => ActiveCustomerPageState();
 }
 
-class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
-    with AutomaticKeepAliveClientMixin<ActiveCustomerPage> {
+class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
+    with AutomaticKeepAliveClientMixin<PelangganAktifPage> {
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
 
@@ -70,7 +70,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
 
     Future.microtask(() async {
       try {
-        await _activeCustomerOperation.arsipkanLanggananKadaluarsa();
+        await _pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
       } catch (e) {
         Log.error('Gagal menjalankan arsip otomatis saat aplikasi dibuka',
             e: e);
@@ -86,10 +86,10 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
     super.dispose();
   }
 
-  PelangganAktifOpSqlite get _activeCustomerOperation =>
+  PelangganAktifOpSqlite get _pelangganAktifOpSqlite =>
       ref.read(pelangganAktifOpSqliteProvider);
-  TransaksiOpsqlite get _transactionOperation =>
-      ref.read(transactionOperationProvider);
+  TransaksiOpsqlite get _transaksiOpsqlite =>
+      ref.read(transaksiOpSqliteProvider);
 
   void _onSearchChanged() {
     setState(() {});
@@ -97,7 +97,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
 
   Future<void> refreshData() async {
     try {
-      await _activeCustomerOperation.arsipkanLanggananKadaluarsa();
+      await _pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
     } catch (e) {
       Log.error('Gagal arsip otomatis saat refresh', e: e);
     }
@@ -105,13 +105,13 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
   }
 
   Future<void> _softDeleteCustomer(
-      final ActiveCustomerDetailModel customer) async {
-    final customerId = customer.activeCustomer.id;
+      final DetailPelangganAktifModel customer) async {
+    final customerId = customer.pelangganAktif.id;
     final customerName = customer.customerName;
-    final transactionId = customer.activeCustomer.transactionId;
-    final bool? confirm = await showDialog<bool>(
+    final transactionId = customer.pelangganAktif.transactionId;
+    final bool? konfirmasi = await showDialog<bool>(
       context: context,
-      builder: (final ctx) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         title: const Text('Konfirmasi Arsipkan'),
         content: Text('Yakin ingin mengarsipkan pelanggan "$customerName"?'),
         actions: [
@@ -129,11 +129,11 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
       ),
     );
 
-    if (confirm ?? false) {
+    if (konfirmasi ?? false) {
       try {
-        await _activeCustomerOperation.softDelete(customerId);
+        await _pelangganAktifOpSqlite.softDelete(customerId);
         if (transactionId != null) {
-          await _transactionOperation.softDelete(transactionId);
+          await _transaksiOpsqlite.softDelete(transactionId);
         }
         Log.info('Berhasil soft delete pelanggan ID: $customerId');
         if (mounted) {
@@ -269,8 +269,8 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
         if (confirm ?? false) {
           try {
             Log.warning('Eksekusi arsipkan semua pelanggan aktif');
-            await _activeCustomerOperation.softDeleteAll();
-            await _transactionOperation.softDeleteAll();
+            await _pelangganAktifOpSqlite.softDeleteAll();
+            await _transaksiOpsqlite.softDeleteAll();
             if (mounted) {
               ToastUtil.success(context, 'Berhasil mengarsipkan  pelanggan.');
             }
@@ -290,7 +290,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
         try {
           Log.info('Mulai arsipkan pelanggan kadaluarsa');
           final count =
-              await _activeCustomerOperation.arsipkanLanggananKadaluarsa();
+              await _pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
           Log.info('Selesai arsipkan kadaluarsa, jumlah=$count');
           if (mounted) {
             ToastUtil.success(
@@ -373,7 +373,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
               itemCount: displayedCustomers.length,
               itemBuilder: (_, i) {
                 final detail = displayedCustomers[i];
-                final c = detail.activeCustomer;
+                final c = detail.pelangganAktif;
                 return Card(
                   margin: const EdgeInsets.only(
                       left: TSizes.p16, right: TSizes.p16, bottom: TSizes.p12),
@@ -383,7 +383,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
                       await Navigator.push(
                           context,
                           MaterialPageRoute<void>(
-                              builder: (final _) =>
+                              builder: ( _) =>
                                   DetailPelangganAktif(pelangganAktif: c)));
                     },
                     child: ListTile(

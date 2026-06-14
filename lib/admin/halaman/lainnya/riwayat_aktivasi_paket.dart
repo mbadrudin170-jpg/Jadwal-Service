@@ -49,7 +49,7 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
             itemCount: state.items.length,
             itemBuilder: (context, index) {
               final item = state.items[index];
-              final transaction = item.transaction;
+              final transaction = item.transaksi;
               final paymentStatusColor =
                   transaction.paymentStatus == PaymentStatus.paid
                       ? Colors.green

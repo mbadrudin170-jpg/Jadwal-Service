@@ -5,11 +5,11 @@
 export 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-export 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
+export 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
 export 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
-export "package:wifi/shared/operasi/sqlite_operasi/order_operation.dart";
+export "package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart";
 export 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';

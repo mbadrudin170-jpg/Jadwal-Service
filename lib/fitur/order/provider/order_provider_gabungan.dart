@@ -38,7 +38,7 @@ Future<List<OrderModel>> daftarPesanan(Ref ref) async {
   final appRole = ref.watch(appRoleProvider);
   if (appRole == AppRole.admin) {
     final orderOpSqlite = ref.watch(orderOperationProvider);
-    return await orderOpSqlite.getAllOrders();
+    return await orderOpSqlite.ambilSemuaOrder();
   } else {
     final userId = ref.watch(userIdProvider).value;
     final orderOpFirebase = ref.watch(orderOpFirebaseProvider);

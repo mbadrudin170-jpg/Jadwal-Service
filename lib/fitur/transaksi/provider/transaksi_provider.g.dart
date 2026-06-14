@@ -9,42 +9,41 @@ part of 'transaksi_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(Transaction)
-final transactionProvider = TransactionProvider._();
+@ProviderFor(Transaksi)
+final transaksiProvider = TransaksiProvider._();
 
-final class TransactionProvider
-    extends $AsyncNotifierProvider<Transaction, TransactionState> {
-  TransactionProvider._()
+final class TransaksiProvider
+    extends $AsyncNotifierProvider<Transaksi, TransaksiState> {
+  TransaksiProvider._()
       : super(
           from: null,
           argument: null,
           retry: null,
-          name: r'transactionProvider',
+          name: r'transaksiProvider',
           isAutoDispose: true,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
 
   @override
-  String debugGetCreateSourceHash() => _$transactionHash();
+  String debugGetCreateSourceHash() => _$transaksiHash();
 
   @$internal
   @override
-  Transaction create() => Transaction();
+  Transaksi create() => Transaksi();
 }
 
-String _$transactionHash() => r'66171c8a76a000e38a1f0407263095ad6d3681b1';
+String _$transaksiHash() => r'a1b7b03b399d3b9b1811d2a00cdc92285853e064';
 
-abstract class _$Transaction extends $AsyncNotifier<TransactionState> {
-  FutureOr<TransactionState> build();
+abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
+  FutureOr<TransaksiState> build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref =
-        this.ref as $Ref<AsyncValue<TransactionState>, TransactionState>;
+    final ref = this.ref as $Ref<AsyncValue<TransaksiState>, TransaksiState>;
     final element = ref.element as $ClassProviderElement<
-        AnyNotifier<AsyncValue<TransactionState>, TransactionState>,
-        AsyncValue<TransactionState>,
+        AnyNotifier<AsyncValue<TransaksiState>, TransaksiState>,
+        AsyncValue<TransaksiState>,
         Object?,
         Object?>;
     return element.handleCreate(ref, build);

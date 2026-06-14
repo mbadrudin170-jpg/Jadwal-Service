@@ -11,12 +11,12 @@ import 'package:wifi/shared/model/transaksi_model.dart';
 part 'package_activation_history_provider.g.dart';
 
 class TransactionWithCustomer {
-  final TransaksiModel transaction;
-  final PelangganModel? customer;
+  final TransaksiModel transaksi;
+  final PelangganModel? pelanggan;
 
-  TransactionWithCustomer({required this.transaction, this.customer});
+  TransactionWithCustomer({required this.transaksi, this.pelanggan});
 
-  String get customerName => customer?.name ?? 'Tidak diketahui';
+  String get customerName => pelanggan?.name ?? 'Tidak diketahui';
 }
 
 enum SortOption {
@@ -54,29 +54,28 @@ class PackageActivationHistoryState {
 class PackageActivationHistory extends _$PackageActivationHistory {
   @override
   FutureOr<PackageActivationHistoryState> build() {
-    ref.watch(transactionOperationProvider);
-    ref.watch(
-        pelangganOpSqliteProvider); // Pastikan provider customer juga ditonton
+    ref.watch(transaksiOpSqliteProvider);
+    ref.watch(pelangganOpSqliteProvider);
     return _loadData(SortOption.endDate);
   }
 
   Future<PackageActivationHistoryState> _loadData(SortOption targetSort) async {
     // 3. Ambil kedua data stream
-    final transactionOp = ref.read(transactionOperationProvider);
-    final customerOp = ref.read(pelangganOpSqliteProvider);
+    final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
+    final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
 
-    final transactions =
-        await transactionOp.getTransactionsByPackageActivation();
-    final customers = await customerOp.ambilSemua();
+    final transaksi =
+        await transaksiOpSqlite.getTransactionsByPackageActivation();
+    final pealnggan = await pelangganOpSqlite.ambilPelanggan();
 
     // Buat peta untuk pencarian cepat
-    final customerMap = {for (var c in customers) c.id: c};
+    final customerMap = {for (var c in pealnggan) c.id: c};
 
     // 4. Gabungkan data
-    final combinedList = transactions.map((trans) {
+    final combinedList = transaksi.map((trans) {
       return TransactionWithCustomer(
-        transaction: trans,
-        customer: customerMap[trans.customerId],
+        transaksi: trans,
+        pelanggan: customerMap[trans.customerId],
       );
     }).toList();
 
@@ -109,20 +108,20 @@ class PackageActivationHistory extends _$PackageActivationHistory {
     switch (option) {
       case SortOption.endDate:
         list.sort((a, b) {
-          if (a.transaction.endDate == null && b.transaction.endDate == null) {
+          if (a.transaksi.endDate == null && b.transaksi.endDate == null) {
             return 0;
           }
-          if (a.transaction.endDate == null) return 1;
-          if (b.transaction.endDate == null) return -1;
+          if (a.transaksi.endDate == null) return 1;
+          if (b.transaksi.endDate == null) return -1;
           final dateCompare =
-              b.transaction.endDate!.compareTo(a.transaction.endDate!);
+              b.transaksi.endDate!.compareTo(a.transaksi.endDate!);
           if (dateCompare != 0) return dateCompare;
-          return a.transaction.id.compareTo(b.transaction.id);
+          return a.transaksi.id.compareTo(b.transaksi.id);
         });
       case SortOption.updatedAtAZ:
         list.sort((a, b) {
-          final updateAtA = a.transaction.updatedAt;
-          final updateAtB = b.transaction.updatedAt;
+          final updateAtA = a.transaksi.updatedAt;
+          final updateAtB = b.transaksi.updatedAt;
           if (updateAtA == null && updateAtB == null) return 0;
           if (updateAtA == null) return 1;
           if (updateAtB == null) return -1;
@@ -131,8 +130,8 @@ class PackageActivationHistory extends _$PackageActivationHistory {
         break;
       case SortOption.updatedAtZA:
         list.sort((a, b) {
-          final updateAtA = a.transaction.updatedAt;
-          final updateAtB = b.transaction.updatedAt;
+          final updateAtA = a.transaksi.updatedAt;
+          final updateAtB = b.transaksi.updatedAt;
           if (updateAtA == null && updateAtB == null) return 0;
           if (updateAtA == null) return -1;
           if (updateAtB == null) return 1;
@@ -149,42 +148,42 @@ class PackageActivationHistory extends _$PackageActivationHistory {
       case SortOption.endingToday:
         final now = DateTime.now();
         list.sort((a, b) {
-          final isTodayA = a.transaction.endDate != null &&
-              a.transaction.endDate!.year == now.year &&
-              a.transaction.endDate!.month == now.month &&
-              a.transaction.endDate!.day == now.day;
-          final isTodayB = b.transaction.endDate != null &&
-              b.transaction.endDate!.year == now.year &&
-              b.transaction.endDate!.month == now.month &&
-              b.transaction.endDate!.day == now.day;
+          final isTodayA = a.transaksi.endDate != null &&
+              a.transaksi.endDate!.year == now.year &&
+              a.transaksi.endDate!.month == now.month &&
+              a.transaksi.endDate!.day == now.day;
+          final isTodayB = b.transaksi.endDate != null &&
+              b.transaksi.endDate!.year == now.year &&
+              b.transaksi.endDate!.month == now.month &&
+              b.transaksi.endDate!.day == now.day;
 
           if (isTodayA && !isTodayB) return -1;
           if (!isTodayA && isTodayB) return 1;
 
-          if (a.transaction.endDate == null && b.transaction.endDate == null) {
+          if (a.transaksi.endDate == null && b.transaksi.endDate == null) {
             return 0;
           }
-          if (a.transaction.endDate == null) return 1;
-          if (b.transaction.endDate == null) return -1;
-          return a.transaction.endDate!.compareTo(b.transaction.endDate!);
+          if (a.transaksi.endDate == null) return 1;
+          if (b.transaksi.endDate == null) return -1;
+          return a.transaksi.endDate!.compareTo(b.transaksi.endDate!);
         });
       case SortOption.paid:
         list.sort((a, b) {
-          final isPaidA = a.transaction.paymentStatus == PaymentStatus.paid;
-          final isPaidB = b.transaction.paymentStatus == PaymentStatus.paid;
+          final isPaidA = a.transaksi.paymentStatus == PaymentStatus.paid;
+          final isPaidB = b.transaksi.paymentStatus == PaymentStatus.paid;
           if (isPaidA && !isPaidB) return -1;
           if (!isPaidA && isPaidB) return 1;
-          return (b.transaction.updatedAt ?? b.transaction.date)
-              .compareTo(a.transaction.updatedAt ?? a.transaction.date);
+          return (b.transaksi.updatedAt ?? b.transaksi.date)
+              .compareTo(a.transaksi.updatedAt ?? a.transaksi.date);
         });
       case SortOption.unpaid:
         list.sort((a, b) {
-          final isUnpaidA = a.transaction.paymentStatus == PaymentStatus.unpaid;
-          final isUnpaidB = b.transaction.paymentStatus == PaymentStatus.unpaid;
+          final isUnpaidA = a.transaksi.paymentStatus == PaymentStatus.unpaid;
+          final isUnpaidB = b.transaksi.paymentStatus == PaymentStatus.unpaid;
           if (isUnpaidA && !isUnpaidB) return -1;
           if (!isUnpaidA && isUnpaidB) return 1;
-          return (b.transaction.updatedAt ?? b.transaction.date)
-              .compareTo(a.transaction.updatedAt ?? a.transaction.date);
+          return (b.transaksi.updatedAt ?? b.transaksi.date)
+              .compareTo(a.transaksi.updatedAt ?? a.transaksi.date);
         });
     }
   }

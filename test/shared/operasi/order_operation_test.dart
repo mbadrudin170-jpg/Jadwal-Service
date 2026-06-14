@@ -9,7 +9,7 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart';
 
 import 'order_operation_test.mocks.dart';
 
@@ -46,7 +46,7 @@ void main() {
       when(mockDatabase.query(any, orderBy: anyNamed('orderBy')))
           .thenAnswer((_) async => [tOrderMap]);
 
-      final result = await orderOperation.getAllOrders();
+      final result = await orderOperation.ambilSemuaOrder();
 
       expect(result, isA<List<OrderModel>>());
       expect(result.length, 1);
@@ -59,7 +59,7 @@ void main() {
       when(mockBaseOperation.sisipkan(any, any))
           .thenAnswer((_) => Future.value());
 
-      await orderOperation.saveOrder(tOrder);
+      await orderOperation.tambahOrder(tOrder);
 
       verify(mockBaseOperation.sisipkan(tableName, any)).called(1);
     });
@@ -73,7 +73,7 @@ void main() {
       when(mockBaseOperation.update(any, any, any))
           .thenAnswer((_) => Future.value());
 
-      await orderOperation.updateOrderStatus(tOrder.id, newStatus);
+      await orderOperation.updateStatusOrder(tOrder.id, newStatus);
 
       final verificationResult = verify(mockBaseOperation.update(
         tableName,
@@ -101,7 +101,7 @@ void main() {
       when(mockBaseOperation.hapusSementara(any, any))
           .thenAnswer((_) => Future.value());
 
-      await orderOperation.softDelete('1');
+      await orderOperation.softDeleteorder('1');
 
       verify(mockBaseOperation.hapusSementara(tableName, '1')).called(1);
     });
@@ -169,7 +169,7 @@ void main() {
         orderBy: anyNamed('orderBy'),
       )).thenAnswer((_) async => [tOrderMap]);
 
-      final result = await orderOperation.getOrdersByStatus(status);
+      final result = await orderOperation.ambilOrderBerdasarkanStatus(status);
 
       expect(result, isA<List<OrderModel>>());
       expect(result.length, 1);
@@ -187,7 +187,7 @@ void main() {
       when(mockBaseOperation.hapusSementaraSemua(any))
           .thenAnswer((_) async => 1);
 
-      await orderOperation.softDeleteAll();
+      await orderOperation.softDeleteAllOrder();
 
       verify(mockBaseOperation.hapusSementaraSemua(tableName)).called(1);
     });

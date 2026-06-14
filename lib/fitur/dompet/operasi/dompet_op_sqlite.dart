@@ -127,7 +127,7 @@ class DompetOpSqlite {
       {final bool fromServer = false}) async {
     Log.info('Memulai soft delete untuk wallet ID: $id');
     try {
-      await _baseOperation.hapusSementara(
+      await _baseOperation.softDelete(
         _tableName,
         id,
         dariServer: fromServer,
@@ -149,7 +149,7 @@ class DompetOpSqlite {
   }) async {
     Log.info('Memulai soft delete untuk semua dompet');
     try {
-      final count = await _baseOperation.hapusSementaraSemua(
+      final count = await _baseOperation.softDeleteAll(
         _tableName,
         dariServer: fromServer,
       );
@@ -253,7 +253,7 @@ class DompetOpSqlite {
       await _baseOperation.insertOrUpdateBatch(
         _tableName,
         data,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Batch dompet selesai diproses.');
     } on Exception catch (e, st) {

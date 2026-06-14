@@ -8,7 +8,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/category_type_enum.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
@@ -23,7 +23,7 @@ class CategoryPage extends ConsumerStatefulWidget {
 
 /// State untuk [CategoryPage].
 class _CategoryPageState extends ConsumerState<CategoryPage> {
-  late final CategoryOperation _categoryOperation;
+  late final KategoriOpSqlite _categoryOperation;
   late final SubKategoriOpSqlite _subCategoryOperation;
   late Future<List<KategoriModel>> _categoryListFuture;
   TipeKategori _selectedType = TipeKategori.income;

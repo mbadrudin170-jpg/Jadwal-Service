@@ -96,7 +96,7 @@ void main() {
       // Arrange
       await container.read(transactionProvider.future);
       expect(container.read(transactionProvider),
-          isA<AsyncData<TransactionState>>());
+          isA<AsyncData<TransaksiState>>());
 
       // Act: urutkan berdasarkan terlama
       container
@@ -105,7 +105,7 @@ void main() {
 
       // Assert
       expect(container.read(transactionProvider),
-          isA<AsyncData<TransactionState>>());
+          isA<AsyncData<TransaksiState>>());
       final stateOldest = container.read(transactionProvider).value!;
       expect(stateOldest.sortBy, SortBy.oldest);
       expect(stateOldest.transactions.first.id, '1');
@@ -117,7 +117,7 @@ void main() {
 
       // Assert
       expect(container.read(transactionProvider),
-          isA<AsyncData<TransactionState>>());
+          isA<AsyncData<TransaksiState>>());
       final stateLowest = container.read(transactionProvider).value!;
       expect(stateLowest.sortBy, SortBy.lowestAmount);
       expect(stateLowest.transactions.first.amount, 50000);

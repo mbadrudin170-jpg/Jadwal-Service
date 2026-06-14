@@ -19,7 +19,7 @@ import 'sync_check_service_test.mocks.dart';
   SyncManager,
   UploadDataService,
   DownloadDataService,
-  NewDataCheckService,
+  PengecekanDataBaruService,
 ])
 void main() {
   late MockSyncManager mockSyncManager;
@@ -57,10 +57,11 @@ void main() {
         'harus menjalankan upload dan download jika ada data baru di lokal dan server',
         () async {
       // ATUR
-      when(mockNewDataCheck.hasNewSqliteData()).thenAnswer((_) async => true);
-      when(mockNewDataCheck.hasNewFirebaseData(
-        collectionName: anyNamed('collectionName'),
-        documentId: anyNamed('documentId'),
+      when(mockNewDataCheck.apakahSqliteAdaDataBaru())
+          .thenAnswer((_) async => true);
+      when(mockNewDataCheck.apakahFirebaseAdaDataBaru(
+        namaKoleksi: anyNamed('collectionName'),
+        idDokumen: anyNamed('documentId'),
       )).thenAnswer((_) async => true);
 
       // JALANKAN
@@ -68,7 +69,7 @@ void main() {
 
       // VERIFIKASI
       // Pastikan proses unggah terpicu
-      verify(mockNewDataCheck.hasNewSqliteData()).called(1);
+      verify(mockNewDataCheck.apakahSqliteAdaDataBaru()).called(1);
       verify(mockUploadService.uploadSemuaData()).called(1);
       verify(mockSyncManager.setLastUpload(any)).called(1);
       verify(mockNewDataCheck.resetNeedUpload()).called(1);
@@ -82,9 +83,9 @@ void main() {
       expect(statusDoc.data(), contains(NamaKolom.updatedAt));
 
       // Pastikan proses unduh terpicu
-      verify(mockNewDataCheck.hasNewFirebaseData(
-              collectionName: NamaTabel.get(TableName.statusGlobal),
-              documentId: globalStatusId))
+      verify(mockNewDataCheck.apakahFirebaseAdaDataBaru(
+              namaKoleksi: NamaTabel.get(TableName.statusGlobal),
+              idDokumen: globalStatusId))
           .called(1);
       verify(mockDownloadService.downloadAllData()).called(1);
       verify(mockSyncManager.setLastDownload(any)).called(1);
@@ -93,10 +94,11 @@ void main() {
     test('harus menjalankan upload saja jika hanya ada data baru di lokal',
         () async {
       // ATUR
-      when(mockNewDataCheck.hasNewSqliteData()).thenAnswer((_) async => true);
-      when(mockNewDataCheck.hasNewFirebaseData(
-        collectionName: anyNamed('collectionName'),
-        documentId: anyNamed('documentId'),
+      when(mockNewDataCheck.apakahSqliteAdaDataBaru())
+          .thenAnswer((_) async => true);
+      when(mockNewDataCheck.apakahFirebaseAdaDataBaru(
+        namaKoleksi: anyNamed('collectionName'),
+        idDokumen: anyNamed('documentId'),
       )).thenAnswer((_) async => false);
 
       // JALANKAN
@@ -108,9 +110,9 @@ void main() {
       verify(mockSyncManager.setLastUpload(any)).called(1);
 
       // Pastikan proses unduh diperiksa tapi tidak dieksekusi
-      verify(mockNewDataCheck.hasNewFirebaseData(
-              collectionName: NamaTabel.get(TableName.statusGlobal),
-              documentId: globalStatusId))
+      verify(mockNewDataCheck.apakahFirebaseAdaDataBaru(
+              namaKoleksi: NamaTabel.get(TableName.statusGlobal),
+              idDokumen: globalStatusId))
           .called(1);
       verifyNever(mockDownloadService.downloadAllData());
       verifyNever(mockSyncManager.setLastDownload(any));
@@ -119,10 +121,11 @@ void main() {
     test('harus menjalankan download saja jika hanya ada data baru di server',
         () async {
       // ATUR
-      when(mockNewDataCheck.hasNewSqliteData()).thenAnswer((_) async => false);
-      when(mockNewDataCheck.hasNewFirebaseData(
-        collectionName: anyNamed('collectionName'),
-        documentId: anyNamed('documentId'),
+      when(mockNewDataCheck.apakahSqliteAdaDataBaru())
+          .thenAnswer((_) async => false);
+      when(mockNewDataCheck.apakahFirebaseAdaDataBaru(
+        namaKoleksi: anyNamed('collectionName'),
+        idDokumen: anyNamed('documentId'),
       )).thenAnswer((_) async => true);
 
       // JALANKAN
@@ -130,7 +133,7 @@ void main() {
 
       // VERIFIKASI
       // Pastikan proses unggah diperiksa tapi tidak dieksekusi
-      verify(mockNewDataCheck.hasNewSqliteData()).called(1);
+      verify(mockNewDataCheck.apakahSqliteAdaDataBaru()).called(1);
       verifyNever(mockUploadService.uploadSemuaData());
       verifyNever(mockSyncManager.setLastUpload(any));
 
@@ -149,22 +152,23 @@ void main() {
     test('tidak melakukan apa-apa jika tidak ada data baru sama sekali',
         () async {
       // ATUR
-      when(mockNewDataCheck.hasNewSqliteData()).thenAnswer((_) async => false);
-      when(mockNewDataCheck.hasNewFirebaseData(
-        collectionName: anyNamed('collectionName'),
-        documentId: anyNamed('documentId'),
+      when(mockNewDataCheck.apakahSqliteAdaDataBaru())
+          .thenAnswer((_) async => false);
+      when(mockNewDataCheck.apakahFirebaseAdaDataBaru(
+        namaKoleksi: anyNamed('collectionName'),
+        idDokumen: anyNamed('documentId'),
       )).thenAnswer((_) async => false);
 
       // JALANKAN
       await syncCheckService.runSyncCheck();
 
       // VERIFIKASI
-      verify(mockNewDataCheck.hasNewSqliteData()).called(1);
+      verify(mockNewDataCheck.apakahSqliteAdaDataBaru()).called(1);
       verifyNever(mockUploadService.uploadSemuaData());
 
-      verify(mockNewDataCheck.hasNewFirebaseData(
-              collectionName: NamaTabel.get(TableName.statusGlobal),
-              documentId: globalStatusId))
+      verify(mockNewDataCheck.apakahFirebaseAdaDataBaru(
+              namaKoleksi: NamaTabel.get(TableName.statusGlobal),
+              idDokumen: globalStatusId))
           .called(1);
       verifyNever(mockDownloadService.downloadAllData());
 
@@ -178,11 +182,12 @@ void main() {
     test('harus log error dan tidak update metadata saat unggah gagal',
         () async {
       // ATUR
-      when(mockNewDataCheck.hasNewSqliteData()).thenAnswer((_) async => true);
+      when(mockNewDataCheck.apakahSqliteAdaDataBaru())
+          .thenAnswer((_) async => true);
       when(mockUploadService.uploadSemuaData()).thenThrow(Exception('Gagal!'));
-      when(mockNewDataCheck.hasNewFirebaseData(
-              collectionName: anyNamed('collectionName'),
-              documentId: anyNamed('documentId')))
+      when(mockNewDataCheck.apakahFirebaseAdaDataBaru(
+              namaKoleksi: anyNamed('collectionName'),
+              idDokumen: anyNamed('documentId')))
           .thenAnswer((_) async => false);
 
       // JALANKAN
@@ -201,19 +206,20 @@ void main() {
       expect(statusDoc.exists, isFalse);
 
       // Pengecekan unduh harus tetap berjalan
-      verify(mockNewDataCheck.hasNewFirebaseData(
-              collectionName: anyNamed('collectionName'),
-              documentId: anyNamed('documentId')))
+      verify(mockNewDataCheck.apakahFirebaseAdaDataBaru(
+              namaKoleksi: anyNamed('collectionName'),
+              idDokumen: anyNamed('documentId')))
           .called(1);
     });
 
     test('harus log error dan tidak update metadata saat unduh gagal',
         () async {
       // ATUR
-      when(mockNewDataCheck.hasNewSqliteData()).thenAnswer((_) async => false);
-      when(mockNewDataCheck.hasNewFirebaseData(
-              collectionName: anyNamed('collectionName'),
-              documentId: anyNamed('documentId')))
+      when(mockNewDataCheck.apakahSqliteAdaDataBaru())
+          .thenAnswer((_) async => false);
+      when(mockNewDataCheck.apakahFirebaseAdaDataBaru(
+              namaKoleksi: anyNamed('collectionName'),
+              idDokumen: anyNamed('documentId')))
           .thenAnswer((_) async => true);
       when(mockDownloadService.downloadAllData())
           .thenThrow(Exception('Gagal!'));

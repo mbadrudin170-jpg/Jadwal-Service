@@ -7,7 +7,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/enum/category_type_enum.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
 
 import 'category_operation_test.mocks.dart';
 
@@ -20,15 +20,15 @@ void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockDatabase mockDatabase;
   late MockBaseOperation mockBaseOperation;
-  late CategoryOperation categoryOperation;
+  late KategoriOpSqlite categoryOperation;
 
   setUp(() {
     mockDbHelper = MockDatabaseHelper();
     mockDatabase = MockDatabase();
     mockBaseOperation = MockBaseOperation();
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
-    categoryOperation = CategoryOperation(
-      dbHelper: mockDbHelper,
+    categoryOperation = KategoriOpSqlite(
+      sqlitedb: mockDbHelper,
       baseOperation: mockBaseOperation,
     );
   });

@@ -3,7 +3,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
+import 'package:wifi/admin/halaman/tab/pelanggan_aktif_page.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
 import 'package:wifi/admin/providers/statistik_provider.dart';
@@ -116,7 +116,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                         onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute<void>(
-                                builder: (_) => const ActiveCustomerPage())),
+                                builder: (_) => const PelangganAktifPage())),
                         title: 'Langganan Aktif',
                         value: data.jumlahLanggananAktif.toString(),
                         icon: TIcons.wifi,

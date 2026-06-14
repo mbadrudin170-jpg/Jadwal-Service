@@ -12,7 +12,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -48,9 +48,9 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
   DompetModel? _selectedDompet;
   DompetModel? _selectedDompetTujuan;
 
-  late final DompetOpSqlite _dompetOperasi;
-  late final CategoryOperation _kategoriOperasi;
-  late final TransaksiOpsqlite _transaksiOperasi;
+  late final DompetOpSqlite _dompetOpSlite;
+  late final KategoriOpSqlite _kategoriOpSqlite;
+  late final TransaksiOpsqlite _transaksiOpSqlite;
 
   List<KategoriModel> _kategoriList = [];
   List<DompetModel> _dompetList = [];
@@ -66,9 +66,9 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     Log.info(
       'Menginisialisasi FormTransaksiPage dalam mode: ${_isEditMode ? "Edit" : "Tambah"}.',
     );
-    _dompetOperasi = ref.read(dompetOpSqliteProvider);
-    _kategoriOperasi = ref.read(kategoriOpSqliteProvider);
-    _transaksiOperasi = ref.read(transactionOperationProvider);
+    _dompetOpSlite = ref.read(dompetOpSqliteProvider);
+    _kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
+    _transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
     unawaited(_loadData());
   }
 
@@ -77,9 +77,9 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     setState(() => _isLoading = true);
 
     try {
-      final dompetList = await _dompetOperasi.getAll();
+      final dompetList = await _dompetOpSlite.getAll();
       Log.info('Berhasil memuat ${dompetList.length} dompet.');
-      final kategoriList = await _kategoriOperasi.getAll();
+      final kategoriList = await _kategoriOpSqlite.getAll();
       Log.info('Berhasil memuat ${kategoriList.length} kategori.');
 
       if (!mounted) return;
@@ -267,15 +267,15 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
           Log.info(
             'Menjalankan operasi UPDATE untuk transaksi ID: ${transaksi.id}',
           );
-          await _transaksiOperasi.updateTransaction(
+          await _transaksiOpSqlite.updateTransaction(
             widget.transaksi!.id,
             transaksi,
           );
         } else {
           Log.info('Menjalankan operasi CREATE untuk transaksi baru.');
-          await _transaksiOperasi.addTransaction(transaksi);
+          await _transaksiOpSqlite.tambahTransaksi(transaksi);
         }
-        ref.invalidate(transactionOperationProvider);
+        ref.invalidate(transaksiOpSqliteProvider);
         if (!mounted) return;
         Log.info(
           'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',

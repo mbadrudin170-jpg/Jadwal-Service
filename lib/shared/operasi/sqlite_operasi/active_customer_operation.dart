@@ -15,7 +15,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
 const uuid = Uuid();
 
 class PelangganAktifOpSqlite {
-  final SqliteDatabase dbHelper;
+  final SqliteDatabase sqliteDb;
   final BaseOpSqlite _baseOperation;
   final NotifikasiServis _notifikasiServis;
   final PelangganOpSqlite _customerOperation;
@@ -26,11 +26,11 @@ class PelangganAktifOpSqlite {
   DateTime get _nowUtc => DateTime.now().toUtc();
 
   PelangganAktifOpSqlite({
-    required this.dbHelper,
-    required BaseOpSqlite baseOperation,
+    required this.sqliteDb,
+    required BaseOpSqlite baseOpSqlite,
     required PelangganOpSqlite pelangganOpSqlite,
     required NotifikasiServis notifikasiServis,
-  })  : _baseOperation = baseOperation,
+  })  : _baseOperation = baseOpSqlite,
         _customerOperation = pelangganOpSqlite,
         _notifikasiServis = notifikasiServis {
     Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_tableName');
@@ -60,9 +60,9 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<List<ActiveCustomerDetailModel>>
+  Future<List<DetailPelangganAktifModel>>
       getAllActiveCustomersWithDetails() async {
-    final db = await dbHelper.database;
+    final db = await sqliteDb.database;
     Log.info(
         'Mengambil semua pelanggan aktif dengan detail yang belum berakhir (JOIN)');
 
@@ -88,8 +88,8 @@ class PelangganAktifOpSqlite {
 
       return List.generate(maps.length, (final i) {
         final map = maps[i];
-        return ActiveCustomerDetailModel(
-          activeCustomer: PelangganAktifModel.fromSqlite(map),
+        return DetailPelangganAktifModel(
+          pelangganAktif: PelangganAktifModel.fromSqlite(map),
           customerName: map['customer_name'] as String? ?? 'Tanpa Nama',
           packageName: map['package_name'] as String? ?? 'Tanpa Paket',
         );
@@ -103,7 +103,7 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<PelangganAktifModel> createActiveCustomer(
+  Future<PelangganAktifModel> tambahPelangganAktif(
     final PelangganAktifModel activeCustomer, {
     final bool fromServer = false,
   }) async {
@@ -140,7 +140,7 @@ class PelangganAktifOpSqlite {
 
   Future<List<PelangganAktifModel>> getALl() async {
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       Log.info('Mengambil semua active customer dari tabel $_tableName');
 
       final List<Map<String, dynamic>> maps = await db.query(
@@ -162,7 +162,7 @@ class PelangganAktifOpSqlite {
 
   Future<PelangganAktifModel?> getById(final String id) async {
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       Log.info('Mencari active customer dengan ID: $id di tabel $_tableName');
 
       final List<Map<String, dynamic>> maps = await db.query(
@@ -226,8 +226,8 @@ class PelangganAktifOpSqlite {
       Log.info(
           '(RE)SCHEDULING: Menjadwalkan notifikasi untuk active customer ID: ${activeCustomer.id}');
 
-      final customer =
-          await _customerOperation.getById(activeCustomer.customerId);
+      final customer = await _customerOperation
+          .ambilBerdasarkanId(activeCustomer.customerId);
       final customerName = customer?.name ?? 'Tanpa Nama';
 
       await _notifikasiServis.batalNotifikasi(activeCustomer.id.hashCode);
@@ -294,7 +294,7 @@ class PelangganAktifOpSqlite {
       await _baseOperation.insertOrUpdateBatch(
         _tableName,
         data,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
 
       Log.info('Batch ${items.length} active customer berhasil diproses');
@@ -394,7 +394,7 @@ class PelangganAktifOpSqlite {
   Future<int> arsipkanLanggananKadaluarsa({bool fromServer = false}) async {
     try {
       Log.info('Memeriksa active customer kadaluarsa');
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
 
       final List<Map<String, dynamic>> expiredCustomers = await db.query(
         _tableName,
@@ -494,7 +494,7 @@ class PelangganAktifOpSqlite {
         return [];
       }
 
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,

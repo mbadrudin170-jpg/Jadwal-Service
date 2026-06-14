@@ -8,10 +8,10 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
@@ -36,14 +36,14 @@ PaketOpSqlite paketOpSqlite(Ref ref) {
 
 /// Provider untuk menyediakan instance dari [TransaksiOpsqlite].
 @Riverpod(keepAlive: true)
-TransaksiOpsqlite transactionOperation(Ref ref) {
+TransaksiOpsqlite transaksiOpSqlite(Ref ref) {
   Log.info('Membuat instance TransactionOperation via @riverpod...');
-  final dbHelper = ref.watch(sqliteDatabaseProvider);
-  final baseOperation = ref.watch(baseOpSqliteProvider);
+  final sqliteDb = ref.watch(sqliteDatabaseProvider);
+  final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
   return TransaksiOpsqlite(
-    dbHelper: dbHelper,
-    baseOperation: baseOperation,
+    sqliteDb: sqliteDb,
+    baseOpSqlite: baseOpSqlite,
   );
 }
 
@@ -51,12 +51,12 @@ TransaksiOpsqlite transactionOperation(Ref ref) {
 @Riverpod(keepAlive: true)
 PelangganOpSqlite pelangganOpSqlite(Ref ref) {
   Log.info('Membuat instance CustomerOperation via @riverpod...');
-  final dbHelper = ref.watch(sqliteDatabaseProvider);
-  final baseOperation = ref.watch(baseOpSqliteProvider);
+  final sqliteDb = ref.watch(sqliteDatabaseProvider);
+  final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
   return PelangganOpSqlite(
-    dbHelper: dbHelper,
-    baseOperation: baseOperation,
+    sqliteDb: sqliteDb,
+    baseOpSqlite: baseOpSqlite,
   );
 }
 
@@ -65,13 +65,13 @@ PelangganOpSqlite pelangganOpSqlite(Ref ref) {
 PelangganAktifOpSqlite pelangganAktifOpSqlite(Ref ref) {
   Log.info('Membuat instance ActiveCustomerOperation via @riverpod...');
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
-  final baseOperation = ref.watch(baseOpSqliteProvider);
+  final baseOpSqlite = ref.watch(baseOpSqliteProvider);
   final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
   final notifikasiServis = ref.watch(notifikasiServisProvider);
 
   return PelangganAktifOpSqlite(
-    dbHelper: sqliteDb,
-    baseOperation: baseOperation,
+    sqliteDb: sqliteDb,
+    baseOpSqlite: baseOpSqlite,
     pelangganOpSqlite: pelangganOpSqlite,
     notifikasiServis: notifikasiServis,
   );
@@ -81,24 +81,24 @@ PelangganAktifOpSqlite pelangganAktifOpSqlite(Ref ref) {
 @Riverpod(keepAlive: true)
 ApkVersionOperation apkVersionOperation(Ref ref) {
   Log.info('Membuat instance ApkVersionOperation via @riverpod...');
-  final dbHelper = ref.watch(sqliteDatabaseProvider);
-  final baseOperation = ref.watch(baseOpSqliteProvider);
+  final sqliteDb = ref.watch(sqliteDatabaseProvider);
+  final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
   return ApkVersionOperation(
-    dbHelper: dbHelper,
-    baseOperation: baseOperation,
+    dbHelper: sqliteDb,
+    baseOperation: baseOpSqlite,
   );
 }
 
-/// Provider untuk menyediakan instance dari [CategoryOperation].
+/// Provider untuk menyediakan instance dari [KategoriOpSqlite].
 @Riverpod(keepAlive: true)
-CategoryOperation kategoriOpSqlite(Ref ref) {
+KategoriOpSqlite kategoriOpSqlite(Ref ref) {
   Log.info('Membuat instance CategoryOperation via @riverpod...');
   final dbHelper = ref.watch(sqliteDatabaseProvider);
   final baseOperation = ref.watch(baseOpSqliteProvider);
 
-  return CategoryOperation(
-    dbHelper: dbHelper,
+  return KategoriOpSqlite(
+    sqlitedb: dbHelper,
     baseOperation: baseOperation,
   );
 }

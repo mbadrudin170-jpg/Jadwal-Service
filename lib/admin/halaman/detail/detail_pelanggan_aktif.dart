@@ -38,27 +38,27 @@ final activeCustomerDetailProvider = FutureProvider.family<
 
   // 2. Cari ActiveCustomerDetailModel yang sesuai dengan ID
   final detailModel = activeCustomerDetails.firstWhereOrNull(
-    (detail) => detail.activeCustomer.id == id,
+    (detail) => detail.pelangganAktif.id == id,
   );
 
   if (detailModel == null) {
     throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
   }
 
-  final pelangganAktif = detailModel.activeCustomer;
+  final pelangganAktif = detailModel.pelangganAktif;
 
   // 3. Fetch detail tambahan menggunakan operasi individual
   final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
   final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-  final transaksiOpsqlite = ref.watch(transactionOperationProvider);
+  final transaksiOpsqlite = ref.watch(transaksiOpSqliteProvider);
   final hasil = await Future.wait<Object?>([
-    pelangganOpSqlite.getById(pelangganAktif.customerId),
+    pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.customerId),
     pelangganAktif.packageId.isNotEmpty
         ? paketOpSqlite.getById(pelangganAktif.packageId)
         : Future<PaketModel?>.value(),
     (pelangganAktif.transactionId != null &&
             pelangganAktif.transactionId!.isNotEmpty)
-        ? transaksiOpsqlite.getById(pelangganAktif.transactionId!)
+        ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.transactionId!)
         : Future<TransaksiModel?>.value(),
   ]);
 
@@ -228,7 +228,8 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                             unawaited(Navigator.push<void>(
                               context,
                               MaterialPageRoute<void>(
-                                builder: (context) => DetailPaket(paket: paket),
+                                builder: (context) =>
+                                    DetailPaketPage(paket: paket),
                               ),
                             ));
                           }

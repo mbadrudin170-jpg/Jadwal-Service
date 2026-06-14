@@ -573,11 +573,11 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   }
 
   @override
-  _i3.SqliteDatabase get dbHelper => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
+  _i3.SqliteDatabase get sqliteDb => (super.noSuchMethod(
+        Invocation.getter(#sqliteDb),
         returnValue: _FakeSqliteDatabase_1(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
       ) as _i3.SqliteDatabase);
 
@@ -592,24 +592,24 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
       ) as _i7.Future<void>);
 
   @override
-  _i7.Future<List<_i14.ActiveCustomerDetailModel>>
+  _i7.Future<List<_i14.DetailPelangganAktifModel>>
       getAllActiveCustomersWithDetails() => (super.noSuchMethod(
             Invocation.method(
               #getAllActiveCustomersWithDetails,
               [],
             ),
-            returnValue: _i7.Future<List<_i14.ActiveCustomerDetailModel>>.value(
-                <_i14.ActiveCustomerDetailModel>[]),
-          ) as _i7.Future<List<_i14.ActiveCustomerDetailModel>>);
+            returnValue: _i7.Future<List<_i14.DetailPelangganAktifModel>>.value(
+                <_i14.DetailPelangganAktifModel>[]),
+          ) as _i7.Future<List<_i14.DetailPelangganAktifModel>>);
 
   @override
-  _i7.Future<_i4.PelangganAktifModel> createActiveCustomer(
+  _i7.Future<_i4.PelangganAktifModel> tambahPelangganAktif(
     _i4.PelangganAktifModel? activeCustomer, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #createActiveCustomer,
+          #tambahPelangganAktif,
           [activeCustomer],
           {#fromServer: fromServer},
         ),
@@ -617,7 +617,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
             _FakePelangganAktifModel_2(
           this,
           Invocation.method(
-            #createActiveCustomer,
+            #tambahPelangganAktif,
             [activeCustomer],
             {#fromServer: fromServer},
           ),
@@ -843,10 +843,11 @@ class MockDataCleaningOperation extends _i1.Mock
   }
 
   @override
-  _i7.Future<int> deleteAllExpiredArchivedData({required int? retentionDays}) =>
+  _i7.Future<int> hapusPermanentDataYangDiarsip(
+          {required int? retentionDays}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #deleteAllExpiredArchivedData,
+          #hapusPermanentDataYangDiarsip,
           [],
           {#retentionDays: retentionDays},
         ),

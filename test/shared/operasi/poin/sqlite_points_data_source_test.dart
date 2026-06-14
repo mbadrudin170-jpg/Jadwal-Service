@@ -22,8 +22,8 @@ void main() {
     mockTransactionOperation = MockTransactionOperation();
     mockPackageOperation = MockPackageOperation();
     dataSource = SQLitePointsDataSource(
-      transactionOperation: mockTransactionOperation,
-      packageOperation: mockPackageOperation,
+      transaksiOpSqlite: mockTransactionOperation,
+      paketOpSqlite: mockPackageOperation,
     );
   });
 
@@ -36,7 +36,7 @@ void main() {
       when(mockTransactionOperation.getTotalPoints(customerId))
           .thenAnswer((_) async => 100);
 
-      final result = await dataSource.getTotalPoints(customerId);
+      final result = await dataSource.ambilTotalPoin(customerId);
 
       expect(result, 100);
       verify(mockTransactionOperation.getTotalPoints(customerId));

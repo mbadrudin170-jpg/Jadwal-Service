@@ -46,15 +46,15 @@ class MockSyncManager extends _i1.Mock implements _i2.SyncManager {
   }
 
   @override
-  _i3.Future<DateTime> getLastDownload() => (super.noSuchMethod(
+  _i3.Future<DateTime> ambilTanggalTerakhirDownload() => (super.noSuchMethod(
         Invocation.method(
-          #getLastDownload,
+          #ambilTanggalTerakhirDownload,
           [],
         ),
         returnValue: _i3.Future<DateTime>.value(_FakeDateTime_0(
           this,
           Invocation.method(
-            #getLastDownload,
+            #ambilTanggalTerakhirDownload,
             [],
           ),
         )),
@@ -413,28 +413,28 @@ class MockDownloadDataService extends _i1.Mock
       ) as _i3.Future<void>);
 }
 
-/// A class which mocks [NewDataCheckService].
+/// A class which mocks [PengecekanDataBaruService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockNewDataCheckService extends _i1.Mock
-    implements _i7.NewDataCheckService {
-  MockNewDataCheckService() {
+class MockPengecekanDataBaruService extends _i1.Mock
+    implements _i7.PengecekanDataBaruService {
+  MockPengecekanDataBaruService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Future<bool> hasNewSqliteData() => (super.noSuchMethod(
+  _i3.Future<bool> apakahSqliteAdaDataBaru() => (super.noSuchMethod(
         Invocation.method(
-          #hasNewSqliteData,
+          #apakahSqliteAdaDataBaru,
           [],
         ),
         returnValue: _i3.Future<bool>.value(false),
       ) as _i3.Future<bool>);
 
   @override
-  _i3.Future<void> resetNeedUpload() => (super.noSuchMethod(
+  _i3.Future<void> resetButuhUpload() => (super.noSuchMethod(
         Invocation.method(
-          #resetNeedUpload,
+          #resetButuhUpload,
           [],
         ),
         returnValue: _i3.Future<void>.value(),
@@ -442,17 +442,17 @@ class MockNewDataCheckService extends _i1.Mock
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<bool> hasNewFirebaseData({
-    required String? collectionName,
-    required String? documentId,
+  _i3.Future<bool> apakahFirebaseAdaDataBaru({
+    required String? namaKoleksi,
+    required String? idDokumen,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #hasNewFirebaseData,
+          #apakahFirebaseAdaDataBaru,
           [],
           {
-            #collectionName: collectionName,
-            #documentId: documentId,
+            #namaKoleksi: namaKoleksi,
+            #idDokumen: idDokumen,
           },
         ),
         returnValue: _i3.Future<bool>.value(false),

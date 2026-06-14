@@ -12,12 +12,9 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/financial_summary_widget.dart';
 import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
+import 'package:wifi/shared/widget/financial_summary_widget.dart';
 
-//===============[ ENUM & EXTENSION ]===============================
-
-/// Mendefinisikan kriteria pengurutan untuk daftar transaksi.
 enum SortBy {
   newest,
   oldest,
@@ -50,7 +47,7 @@ class TransactionPageA extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncState = ref.watch(transactionProvider);
+    final asyncState = ref.watch(transaksiProvider);
 
     return Scaffold(
       appBar: const _TransactionAppBar(), // Widget AppBar yang diekstrak
@@ -96,7 +93,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentSortBy =
-        ref.watch(transactionProvider).value?.sortBy ?? SortBy.newest;
+        ref.watch(transaksiProvider).value?.sortBy ?? SortBy.newest;
     return AppBar(
       title: const Text('Transaksi'),
       actions: [
@@ -145,7 +142,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     if (newSort != null) {
       // Memanggil method di notifier untuk mengubah urutan
-      ref.read(transactionProvider.notifier).sortTransactions(newSort);
+      ref.read(transaksiProvider.notifier).sortTransactions(newSort);
     }
   }
 
@@ -177,7 +174,7 @@ Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
 
   if ((confirmed ?? false) && context.mounted) {
     try {
-      await ref.read(transactionProvider.notifier).softDeleteAll();
+      await ref.read(transaksiProvider.notifier).softDeleteAll();
 
       if (context.mounted) {
         ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
@@ -193,14 +190,14 @@ Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
 
 /// Body utama Halaman Transaksi.
 class _TransactionBody extends ConsumerWidget {
-  final TransactionState state;
+  final TransaksiState state;
 
   const _TransactionBody({required this.state});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return RefreshIndicator(
-      onRefresh: () => ref.read(transactionProvider.notifier).refresh(),
+      onRefresh: () => ref.read(transaksiProvider.notifier).refresh(),
       child: Column(
         children: [
           // Ringkasan Keuangan (selalu ditampilkan)
@@ -211,9 +208,9 @@ class _TransactionBody extends ConsumerWidget {
           ),
           // Bagian ini akan berganti antara list dan pesan kosong
           Expanded(
-            child: state.transactions.isEmpty
+            child: state.transaksi.isEmpty
                 ? const Center(child: Text('Tidak ada transaksi'))
-                : _TransactionListView(transactions: state.transactions),
+                : _TransactionListView(transactions: state.transaksi),
           ),
         ],
       ),
@@ -253,12 +250,11 @@ class _TransactionListView extends ConsumerWidget {
             ...transactionsOnDate.map((transaction) => buildTransactionItem(
                   context,
                   transaction,
-                  onTap: () =>
-                      _navigateToTransactionDetail(context, transaction),
-                  onEdit: () => _navigateToTransactionForm(context,
-                      transaction: transaction),
+                  onTap: () => _navigasiKeDetailTransaksi(context, transaction),
+                  onEdit: () => _navigasiKeFormTransaksi(context,
+                      transaksi: transaction),
                   onDelete: () => ref
-                      .read(transactionProvider.notifier)
+                      .read(transaksiProvider.notifier)
                       .softDelete(transaction.id),
                 )),
           ],
@@ -268,25 +264,25 @@ class _TransactionListView extends ConsumerWidget {
   }
 
   /// Navigasi ke halaman detail transaksi.
-  Future<void> _navigateToTransactionDetail(
-      BuildContext context, TransaksiModel transaction) async {
+  Future<void> _navigasiKeDetailTransaksi(
+      BuildContext context, TransaksiModel transaksi) async {
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => DetailTransaksi(transaction: transaction),
+        builder: (context) => DetailTransaksi(transaksi: transaksi),
       ),
     );
   }
 
   /// Navigasi ke halaman form (dibutuhkan di sini untuk action onEdit).
-  Future<void> _navigateToTransactionForm(
+  Future<void> _navigasiKeFormTransaksi(
     BuildContext context, {
-    TransaksiModel? transaction,
+    TransaksiModel? transaksi,
   }) async {
     await Navigator.push(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) => FormTransaksi(transaksi: transaction),
+        builder: (context) => FormTransaksi(transaksi: transaksi),
       ),
     );
   }

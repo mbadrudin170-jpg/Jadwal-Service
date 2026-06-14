@@ -13,28 +13,27 @@ part of 'transaksi_provider.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$TransactionState {
-  List<TransaksiModel> get transactions;
+mixin _$TransaksiState {
+  List<TransaksiModel> get transaksi;
   double get totalIncome;
   double get totalExpense;
   double get netTotal;
   SortBy get sortBy;
 
-  /// Create a copy of TransactionState
+  /// Create a copy of TransaksiState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $TransactionStateCopyWith<TransactionState> get copyWith =>
-      _$TransactionStateCopyWithImpl<TransactionState>(
-          this as TransactionState, _$identity);
+  $TransaksiStateCopyWith<TransaksiState> get copyWith =>
+      _$TransaksiStateCopyWithImpl<TransaksiState>(
+          this as TransaksiState, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is TransactionState &&
-            const DeepCollectionEquality()
-                .equals(other.transactions, transactions) &&
+            other is TransaksiState &&
+            const DeepCollectionEquality().equals(other.transaksi, transaksi) &&
             (identical(other.totalIncome, totalIncome) ||
                 other.totalIncome == totalIncome) &&
             (identical(other.totalExpense, totalExpense) ||
@@ -47,7 +46,7 @@ mixin _$TransactionState {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      const DeepCollectionEquality().hash(transactions),
+      const DeepCollectionEquality().hash(transaksi),
       totalIncome,
       totalExpense,
       netTotal,
@@ -55,18 +54,18 @@ mixin _$TransactionState {
 
   @override
   String toString() {
-    return 'TransactionState(transactions: $transactions, totalIncome: $totalIncome, totalExpense: $totalExpense, netTotal: $netTotal, sortBy: $sortBy)';
+    return 'TransaksiState(transaksi: $transaksi, totalIncome: $totalIncome, totalExpense: $totalExpense, netTotal: $netTotal, sortBy: $sortBy)';
   }
 }
 
 /// @nodoc
-abstract mixin class $TransactionStateCopyWith<$Res> {
-  factory $TransactionStateCopyWith(
-          TransactionState value, $Res Function(TransactionState) _then) =
-      _$TransactionStateCopyWithImpl;
+abstract mixin class $TransaksiStateCopyWith<$Res> {
+  factory $TransaksiStateCopyWith(
+          TransaksiState value, $Res Function(TransaksiState) _then) =
+      _$TransaksiStateCopyWithImpl;
   @useResult
   $Res call(
-      {List<TransaksiModel> transactions,
+      {List<TransaksiModel> transaksi,
       double totalIncome,
       double totalExpense,
       double netTotal,
@@ -74,28 +73,28 @@ abstract mixin class $TransactionStateCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$TransactionStateCopyWithImpl<$Res>
-    implements $TransactionStateCopyWith<$Res> {
-  _$TransactionStateCopyWithImpl(this._self, this._then);
+class _$TransaksiStateCopyWithImpl<$Res>
+    implements $TransaksiStateCopyWith<$Res> {
+  _$TransaksiStateCopyWithImpl(this._self, this._then);
 
-  final TransactionState _self;
-  final $Res Function(TransactionState) _then;
+  final TransaksiState _self;
+  final $Res Function(TransaksiState) _then;
 
-  /// Create a copy of TransactionState
+  /// Create a copy of TransaksiState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? transactions = null,
+    Object? transaksi = null,
     Object? totalIncome = null,
     Object? totalExpense = null,
     Object? netTotal = null,
     Object? sortBy = null,
   }) {
     return _then(_self.copyWith(
-      transactions: null == transactions
-          ? _self.transactions
-          : transactions // ignore: cast_nullable_to_non_nullable
+      transaksi: null == transaksi
+          ? _self.transaksi
+          : transaksi // ignore: cast_nullable_to_non_nullable
               as List<TransaksiModel>,
       totalIncome: null == totalIncome
           ? _self.totalIncome
@@ -117,8 +116,8 @@ class _$TransactionStateCopyWithImpl<$Res>
   }
 }
 
-/// Adds pattern-matching-related methods to [TransactionState].
-extension TransactionStatePatterns on TransactionState {
+/// Adds pattern-matching-related methods to [TransaksiState].
+extension TransaksiStatePatterns on TransaksiState {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
@@ -133,12 +132,12 @@ extension TransactionStatePatterns on TransactionState {
 
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>(
-    TResult Function(_TransactionState value)? $default, {
+    TResult Function(_TransaksiState value)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _TransactionState() when $default != null:
+      case _TransaksiState() when $default != null:
         return $default(_that);
       case _:
         return orElse();
@@ -160,11 +159,11 @@ extension TransactionStatePatterns on TransactionState {
 
   @optionalTypeArgs
   TResult map<TResult extends Object?>(
-    TResult Function(_TransactionState value) $default,
+    TResult Function(_TransaksiState value) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _TransactionState():
+      case _TransaksiState():
         return $default(_that);
       case _:
         throw StateError('Unexpected subclass');
@@ -185,11 +184,11 @@ extension TransactionStatePatterns on TransactionState {
 
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_TransactionState value)? $default,
+    TResult? Function(_TransaksiState value)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _TransactionState() when $default != null:
+      case _TransaksiState() when $default != null:
         return $default(_that);
       case _:
         return null;
@@ -210,16 +209,16 @@ extension TransactionStatePatterns on TransactionState {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(List<TransaksiModel> transactions, double totalIncome,
+    TResult Function(List<TransaksiModel> transaksi, double totalIncome,
             double totalExpense, double netTotal, SortBy sortBy)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _TransactionState() when $default != null:
-        return $default(_that.transactions, _that.totalIncome,
-            _that.totalExpense, _that.netTotal, _that.sortBy);
+      case _TransaksiState() when $default != null:
+        return $default(_that.transaksi, _that.totalIncome, _that.totalExpense,
+            _that.netTotal, _that.sortBy);
       case _:
         return orElse();
     }
@@ -240,15 +239,15 @@ extension TransactionStatePatterns on TransactionState {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(List<TransaksiModel> transactions, double totalIncome,
+    TResult Function(List<TransaksiModel> transaksi, double totalIncome,
             double totalExpense, double netTotal, SortBy sortBy)
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _TransactionState():
-        return $default(_that.transactions, _that.totalIncome,
-            _that.totalExpense, _that.netTotal, _that.sortBy);
+      case _TransaksiState():
+        return $default(_that.transaksi, _that.totalIncome, _that.totalExpense,
+            _that.netTotal, _that.sortBy);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -268,15 +267,15 @@ extension TransactionStatePatterns on TransactionState {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(List<TransaksiModel> transactions, double totalIncome,
+    TResult? Function(List<TransaksiModel> transaksi, double totalIncome,
             double totalExpense, double netTotal, SortBy sortBy)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _TransactionState() when $default != null:
-        return $default(_that.transactions, _that.totalIncome,
-            _that.totalExpense, _that.netTotal, _that.sortBy);
+      case _TransaksiState() when $default != null:
+        return $default(_that.transaksi, _that.totalIncome, _that.totalExpense,
+            _that.netTotal, _that.sortBy);
       case _:
         return null;
     }
@@ -285,22 +284,22 @@ extension TransactionStatePatterns on TransactionState {
 
 /// @nodoc
 
-class _TransactionState implements TransactionState {
-  const _TransactionState(
-      {final List<TransaksiModel> transactions = const [],
+class _TransaksiState implements TransaksiState {
+  const _TransaksiState(
+      {final List<TransaksiModel> transaksi = const [],
       this.totalIncome = 0.0,
       this.totalExpense = 0.0,
       this.netTotal = 0.0,
       this.sortBy = SortBy.newest})
-      : _transactions = transactions;
+      : _transaksi = transaksi;
 
-  final List<TransaksiModel> _transactions;
+  final List<TransaksiModel> _transaksi;
   @override
   @JsonKey()
-  List<TransaksiModel> get transactions {
-    if (_transactions is EqualUnmodifiableListView) return _transactions;
+  List<TransaksiModel> get transaksi {
+    if (_transaksi is EqualUnmodifiableListView) return _transaksi;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_transactions);
+    return EqualUnmodifiableListView(_transaksi);
   }
 
   @override
@@ -316,21 +315,21 @@ class _TransactionState implements TransactionState {
   @JsonKey()
   final SortBy sortBy;
 
-  /// Create a copy of TransactionState
+  /// Create a copy of TransaksiState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$TransactionStateCopyWith<_TransactionState> get copyWith =>
-      __$TransactionStateCopyWithImpl<_TransactionState>(this, _$identity);
+  _$TransaksiStateCopyWith<_TransaksiState> get copyWith =>
+      __$TransaksiStateCopyWithImpl<_TransaksiState>(this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _TransactionState &&
+            other is _TransaksiState &&
             const DeepCollectionEquality()
-                .equals(other._transactions, _transactions) &&
+                .equals(other._transaksi, _transaksi) &&
             (identical(other.totalIncome, totalIncome) ||
                 other.totalIncome == totalIncome) &&
             (identical(other.totalExpense, totalExpense) ||
@@ -343,7 +342,7 @@ class _TransactionState implements TransactionState {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      const DeepCollectionEquality().hash(_transactions),
+      const DeepCollectionEquality().hash(_transaksi),
       totalIncome,
       totalExpense,
       netTotal,
@@ -351,20 +350,20 @@ class _TransactionState implements TransactionState {
 
   @override
   String toString() {
-    return 'TransactionState(transactions: $transactions, totalIncome: $totalIncome, totalExpense: $totalExpense, netTotal: $netTotal, sortBy: $sortBy)';
+    return 'TransaksiState(transaksi: $transaksi, totalIncome: $totalIncome, totalExpense: $totalExpense, netTotal: $netTotal, sortBy: $sortBy)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$TransactionStateCopyWith<$Res>
-    implements $TransactionStateCopyWith<$Res> {
-  factory _$TransactionStateCopyWith(
-          _TransactionState value, $Res Function(_TransactionState) _then) =
-      __$TransactionStateCopyWithImpl;
+abstract mixin class _$TransaksiStateCopyWith<$Res>
+    implements $TransaksiStateCopyWith<$Res> {
+  factory _$TransaksiStateCopyWith(
+          _TransaksiState value, $Res Function(_TransaksiState) _then) =
+      __$TransaksiStateCopyWithImpl;
   @override
   @useResult
   $Res call(
-      {List<TransaksiModel> transactions,
+      {List<TransaksiModel> transaksi,
       double totalIncome,
       double totalExpense,
       double netTotal,
@@ -372,28 +371,28 @@ abstract mixin class _$TransactionStateCopyWith<$Res>
 }
 
 /// @nodoc
-class __$TransactionStateCopyWithImpl<$Res>
-    implements _$TransactionStateCopyWith<$Res> {
-  __$TransactionStateCopyWithImpl(this._self, this._then);
+class __$TransaksiStateCopyWithImpl<$Res>
+    implements _$TransaksiStateCopyWith<$Res> {
+  __$TransaksiStateCopyWithImpl(this._self, this._then);
 
-  final _TransactionState _self;
-  final $Res Function(_TransactionState) _then;
+  final _TransaksiState _self;
+  final $Res Function(_TransaksiState) _then;
 
-  /// Create a copy of TransactionState
+  /// Create a copy of TransaksiState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? transactions = null,
+    Object? transaksi = null,
     Object? totalIncome = null,
     Object? totalExpense = null,
     Object? netTotal = null,
     Object? sortBy = null,
   }) {
-    return _then(_TransactionState(
-      transactions: null == transactions
-          ? _self._transactions
-          : transactions // ignore: cast_nullable_to_non_nullable
+    return _then(_TransaksiState(
+      transaksi: null == transaksi
+          ? _self._transaksi
+          : transaksi // ignore: cast_nullable_to_non_nullable
               as List<TransaksiModel>,
       totalIncome: null == totalIncome
           ? _self.totalIncome

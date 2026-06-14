@@ -168,7 +168,7 @@ void main() {
         .thenReturn(Future.value(0));
     when(mockSettingsOperation.getSettings())
         .thenReturn(Future.value(SettingsModel()));
-    when(mockDataCleaningOperation.deleteAllExpiredArchivedData(
+    when(mockDataCleaningOperation.hapusPermanentDataYangDiarsip(
             retentionDays: anyNamed('retentionDays')))
         .thenReturn(Future.value(0));
     when(mockLayananUnduhAwal.jalankanUnduhanAwal()).thenAnswer((_) async {});
@@ -275,7 +275,7 @@ void main() {
       expect(halamanUtama.isOffline, isTrue);
 
       verifyNever(mockLayananUnduhAwal.jalankanUnduhanAwal());
-      verifyNever(mockDataCleaningOperation.deleteAllExpiredArchivedData(
+      verifyNever(mockDataCleaningOperation.hapusPermanentDataYangDiarsip(
           retentionDays: anyNamed('retentionDays')));
     });
   });

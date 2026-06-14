@@ -28,7 +28,7 @@ class CustomerNameWidget extends ConsumerWidget {
     Log.info('Membangun CustomerNameWidget untuk customerId: $customerId');
     final customerOperation = ref.read(pelangganOpSqliteProvider);
     return FutureBuilder<PelangganModel?>(
-      future: customerOperation.getById(customerId),
+      future: customerOperation.ambilBerdasarkanId(customerId),
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           Log.info('Menunggu data pelanggan untuk ID: $customerId');

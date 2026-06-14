@@ -4,9 +4,9 @@ import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 
 /// Model ini adalah struktur data gabungan untuk menampilkan detail pelanggan aktif.
 /// Ini bukan tabel database, melainkan hasil dari query JOIN yang efisien.
-class ActiveCustomerDetailModel {
+class DetailPelangganAktifModel {
   /// Data inti pelanggan aktif.
-  final PelangganAktifModel activeCustomer;
+  final PelangganAktifModel pelangganAktif;
 
   /// Nama lengkap pelanggan, diambil dari tabel `customer`.
   final String customerName;
@@ -14,9 +14,9 @@ class ActiveCustomerDetailModel {
   /// Nama paket, diambil dari tabel `package`.
   final String packageName;
 
-  /// Konstruktor untuk membuat instance [ActiveCustomerDetailModel].
-  ActiveCustomerDetailModel({
-    required this.activeCustomer,
+  /// Konstruktor untuk membuat instance [DetailPelangganAktifModel].
+  DetailPelangganAktifModel({
+    required this.pelangganAktif,
     required this.customerName,
     required this.packageName,
   });

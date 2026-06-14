@@ -7,63 +7,52 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
-/// Kelas untuk operasi terkait data pelanggan di database lokal.
 class PelangganOpSqlite {
-  /// Instance dari DatabaseHelper untuk mengakses database.
-  final SqliteDatabase dbHelper;
+  final SqliteDatabase sqliteDb;
 
-  /// Instance dari [BaseOpSqlite] untuk operasi CRUD dasar.
-  final BaseOpSqlite _baseOperation;
+  final BaseOpSqlite _baseOpSqlite;
 
-  final String _namaTabel = NamaTabel.customer;
+  final String _tabel = NamaTabel.customer;
 
-  /// Konstruktor untuk [PelangganOpSqlite].
-  ///
-  /// Memungkinkan injeksi dependensi untuk [dbHelper] dan [baseOperation]
-  /// untuk memfasilitasi pengujian. Jika tidak disediakan, instance default akan digunakan.
   PelangganOpSqlite({
-    required this.dbHelper,
-    required BaseOpSqlite baseOperation,
-  }) : _baseOperation = baseOperation {
+    required this.sqliteDb,
+    required BaseOpSqlite baseOpSqlite,
+  }) : _baseOpSqlite = baseOpSqlite {
     Log.info('CustomerOperation diinisialisasi');
   }
 
-  /// Menyimpan [PelangganModel] baru ke dalam database.
-  Future<void> tambah(
+  Future<void> tambahPelanggan(
     PelangganModel customer, {
     bool dariServer = false,
   }) async {
     Log.info('Memulai pembuatan customer dengan ID: ${customer.id}');
     try {
-      final customerToSave = customer.copyWith(
+      final pelangganBaru = customer.copyWith(
         updatedAt: DateTime.now().toUtc(),
       );
-      final data = customerToSave.toSqlite();
+      final data = pelangganBaru.toSqlite();
 
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
-      await _baseOperation.sisipkan(
-        _namaTabel,
+      await _baseOpSqlite.sisipkan(
+        _tabel,
         data,
         dariServer: dariServer,
       );
 
       Log.info(
-          'Customer (ID: ${customerToSave.id}) berhasil dibuat di database lokal.');
+          'Customer (ID: ${pelangganBaru.id}) berhasil dibuat di database lokal.');
     } catch (e, s) {
       Log.error('Gagal membuat customer.', e: e, s: s);
       rethrow;
     }
   }
 
-  /// Mengambil semua pelanggan yang aktif (tidak diarsipkan dan tidak dihapus).
-  Future<List<PelangganModel>> ambilSemua() async {
+  Future<List<PelangganModel>> ambilPelanggan() async {
     Log.info(
         'Mengambil semua customer yang aktif (tidak diarsipkan dan tidak dihapus).');
     try {
-      final db = await dbHelper.database;
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
+        _tabel,
         where: '${NamaKolom.archivedAt} IS NULL AND ${NamaKolom.isDeleted} = ?',
         whereArgs: [0],
       );
@@ -78,14 +67,12 @@ class PelangganOpSqlite {
     }
   }
 
-  /// Mengambil semua pelanggan, termasuk yang diarsipkan dan dihapus.
   Future<List<PelangganModel>> ambilSemuaPelanggan() async {
     Log.info('Mengambil SEMUA data customer dari database lokal.');
     try {
-      final db = await dbHelper.database;
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
+        _tabel,
       );
 
       Log.info('Berhasil mengambil total ${maps.length} customer.');
@@ -98,14 +85,12 @@ class PelangganOpSqlite {
     }
   }
 
-  /// Mengambil [PelangganModel] berdasarkan [id].
-  Future<PelangganModel?> getById(String id) async {
+  Future<PelangganModel?> ambilBerdasarkanId(String id) async {
     Log.info('Mencari customer berdasarkan ID: $id');
     try {
-      final db = await dbHelper.database;
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
+        _tabel,
         where: '${NamaKolom.id} = ?',
         whereArgs: [id],
       );
@@ -122,7 +107,6 @@ class PelangganOpSqlite {
     }
   }
 
-  /// Memperbarui [PelangganModel] yang ada di database.
   Future<void> perbaruiPelanggan(
     PelangganModel customer, {
     bool dariServer = false,
@@ -132,9 +116,8 @@ class PelangganOpSqlite {
       final data =
           customer.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
 
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
-      await _baseOperation.update(
-        _namaTabel,
+      await _baseOpSqlite.update(
+        _tabel,
         data,
         customer.id,
         dariServer: dariServer,
@@ -147,15 +130,14 @@ class PelangganOpSqlite {
     }
   }
 
-  /// Melakukan soft delete pada [PelangganModel] berdasarkan [id].
   Future<void> hapusSementara(
     String id, {
     bool dariServer = false,
   }) async {
     Log.info('Memulai proses soft delete untuk customer ID: $id');
     try {
-      await _baseOperation.hapusSementara(
-        _namaTabel,
+      await _baseOpSqlite.softDelete(
+        _tabel,
         id,
         dariServer: dariServer,
       );
@@ -166,14 +148,13 @@ class PelangganOpSqlite {
     }
   }
 
-  /// Melakukan soft delete pada semua customer.
   Future<int> hapusSementaraSemua({
     bool dariServer = false,
   }) async {
     Log.info('Memulai proses soft delete untuk semua customer.');
     try {
-      final count = await _baseOperation.hapusSementaraSemua(
-        _namaTabel,
+      final count = await _baseOpSqlite.softDeleteAll(
+        _tabel,
         dariServer: dariServer,
       );
       Log.info(
@@ -185,14 +166,12 @@ class PelangganOpSqlite {
     }
   }
 
-  /// Mengambil semua pelanggan yang telah diubah sejak [since].
   Future<List<PelangganModel>> ambilPerubahanSejak(DateTime since) async {
     Log.info('Mengambil perubahan customer sejak: ${since.toIso8601String()}');
     try {
-      final db = await dbHelper.database;
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
+        _tabel,
         where: '${NamaKolom.updatedAt} > ?',
         whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
@@ -208,7 +187,6 @@ class PelangganOpSqlite {
     }
   }
 
-  /// Menyisipkan atau memperbarui sekumpulan [PelangganModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
     List<PelangganModel> items, {
     bool dariServer = false,
@@ -223,11 +201,10 @@ class PelangganOpSqlite {
         return item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
       }).toList();
 
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
-      await _baseOperation.insertOrUpdateBatch(
-        _namaTabel,
+      await _baseOpSqlite.insertOrUpdateBatch(
+        _tabel,
         data,
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
       Log.info(
           'Berhasil menyelesaikan operasi batch untuk ${items.length} customer.');
@@ -237,7 +214,6 @@ class PelangganOpSqlite {
     }
   }
 
-  /// Mengambil beberapa [PelangganModel] berdasarkan daftar [ids].
   Future<List<PelangganModel>> ambilPelangganBerdasarkanId(
       List<String> ids) async {
     if (ids.isEmpty) {
@@ -246,11 +222,10 @@ class PelangganOpSqlite {
     }
     Log.info('Mengambil data customer untuk ${ids.length} ID.');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final placeholders = List.filled(ids.length, '?').join(',');
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
+        _tabel,
         where: '${NamaKolom.id} IN ($placeholders)',
         whereArgs: ids,
       );

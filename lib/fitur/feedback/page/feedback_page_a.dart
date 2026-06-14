@@ -47,7 +47,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   Future<void> _loadPelangganMapping() async {
     try {
       final pelangganList =
-          await ref.read(pelangganOpSqliteProvider).ambilSemua();
+          await ref.read(pelangganOpSqliteProvider).ambilPelanggan();
       if (mounted) {
         setState(() {
           _mapNamaUser = {for (var p in pelangganList) p.id: p.name};

@@ -28,7 +28,7 @@ enum SortOption {
 @freezed
 abstract class PelangganAktifState with _$PelangganAktifState {
   const factory PelangganAktifState({
-    @Default([]) List<ActiveCustomerDetailModel> daftarPelangganAktif,
+    @Default([]) List<DetailPelangganAktifModel> daftarPelangganAktif,
     @Default(SortOption.berakhirHariIni) SortOption sortBy,
   }) = _PelangganAktifState;
 }
@@ -49,18 +49,18 @@ class PelangganAktif extends _$PelangganAktif {
     return ascending ? a.compareTo(b) : b.compareTo(a);
   }
 
-  List<ActiveCustomerDetailModel> _sortData(
-      List<ActiveCustomerDetailModel> data, SortOption sortBy) {
-    final sorted = List<ActiveCustomerDetailModel>.from(data);
+  List<DetailPelangganAktifModel> _sortData(
+      List<DetailPelangganAktifModel> data, SortOption sortBy) {
+    final sorted = List<DetailPelangganAktifModel>.from(data);
     final now = DateTime.now();
 
     sorted.sort((a, b) {
       switch (sortBy) {
         case SortOption.berakhirHariIni:
           final sisaHariA =
-              a.activeCustomer.endDate.difference(now).inMilliseconds;
+              a.pelangganAktif.endDate.difference(now).inMilliseconds;
           final sisaHariB =
-              b.activeCustomer.endDate.difference(now).inMilliseconds;
+              b.pelangganAktif.endDate.difference(now).inMilliseconds;
 
           final lewatA = sisaHariA < 0;
           final lewatB = sisaHariB < 0;
@@ -74,27 +74,27 @@ class PelangganAktif extends _$PelangganAktif {
 
         case SortOption.terbaru:
           return _compareNullableDates(
-              a.activeCustomer.updatedAt, b.activeCustomer.updatedAt,
+              a.pelangganAktif.updatedAt, b.pelangganAktif.updatedAt,
               ascending: false); // Terbaru di atas (descending)
 
         case SortOption.terlama:
-          return _compareNullableDates(a.activeCustomer.updatedAt,
-              b.activeCustomer.updatedAt); // Terlama di atas (ascending)
+          return _compareNullableDates(a.pelangganAktif.updatedAt,
+              b.pelangganAktif.updatedAt); // Terlama di atas (ascending)
 
         case SortOption.tanggalMulai:
-          return a.activeCustomer.startDate
-              .compareTo(b.activeCustomer.startDate);
+          return a.pelangganAktif.startDate
+              .compareTo(b.pelangganAktif.startDate);
 
         case SortOption.tanggalBerakhir:
-          return b.activeCustomer.endDate.compareTo(a.activeCustomer.endDate);
+          return b.pelangganAktif.endDate.compareTo(a.pelangganAktif.endDate);
 
         case SortOption.lunas:
-          return a.activeCustomer.status.index
-              .compareTo(b.activeCustomer.status.index);
+          return a.pelangganAktif.status.index
+              .compareTo(b.pelangganAktif.status.index);
 
         case SortOption.belumLunas:
-          return b.activeCustomer.status.index
-              .compareTo(a.activeCustomer.status.index);
+          return b.pelangganAktif.status.index
+              .compareTo(a.pelangganAktif.status.index);
 
         case SortOption.namaAZ:
           return a.customerName
@@ -126,8 +126,10 @@ class PelangganAktif extends _$PelangganAktif {
     final currentSortBy = state.value?.sortBy ?? SortOption.berakhirHariIni;
     state = const AsyncValue.loading();
     try {
-      final data =await  ref.read(pelangganAktifOpSqliteProvider).getAllActiveCustomersWithDetails();
-     final sortedData = _sortData(data, currentSortBy);
+      final data = await ref
+          .read(pelangganAktifOpSqliteProvider)
+          .getAllActiveCustomersWithDetails();
+      final sortedData = _sortData(data, currentSortBy);
       state = AsyncValue.data(PelangganAktifState(
           daftarPelangganAktif: sortedData, sortBy: currentSortBy));
     } on Exception catch (e, st) {

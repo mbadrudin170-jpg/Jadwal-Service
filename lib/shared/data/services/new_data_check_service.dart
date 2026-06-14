@@ -16,26 +16,26 @@ import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart'
 import 'package:wifi/shared/utils/parser_util.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
-class NewDataCheckService {
+class PengecekanDataBaruService {
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
-  final StatusUploadOpSqlite _uploadStatusOperation;
+  final StatusUploadOpSqlite _statusUploadOpSqlite;
 
   /// Konstruktor dengan injeksi dependensi.
-  NewDataCheckService({
+  PengecekanDataBaruService({
     required FirebaseFirestore firestore,
     required SyncManager syncManager,
     required StatusUploadOpSqlite uploadStatusOperation,
   })  : _firestore = firestore,
         _syncManager = syncManager,
-        _uploadStatusOperation = uploadStatusOperation {
+        _statusUploadOpSqlite = uploadStatusOperation {
     Log.info('NewDataCheckService diinisialisasi dengan dependency injection.');
   }
 
   /// Memeriksa apakah ada data baru di SQLite yang perlu diunggah.
   ///
   /// Mengembalikan `true` jika ada data baru, `false` jika tidak.
-  Future<bool> hasNewSqliteData() async {
+  Future<bool> apakahSqliteAdaDataBaru() async {
     Log.info(
       'Memulai prosedur pengecekan data lokal di SQLite. Sistem akan memverifikasi apakah ada perubahan data yang belum diunggah ke server.',
     );
@@ -44,7 +44,7 @@ class NewDataCheckService {
       Log.info(
         'Mengakses UploadStatusOperation untuk membaca nilai dari kolom need_upload di database internal. Ini adalah indikator utama apakah aplikasi memiliki payload baru.',
       );
-      final bool result = await _uploadStatusOperation.ambilButuhUpload();
+      final bool result = await _statusUploadOpSqlite.ambilButuhUpload();
 
       if (result) {
         Log.info(
@@ -67,10 +67,10 @@ class NewDataCheckService {
   }
 
   /// Mereset status `need_upload` menjadi false.
-  Future<void> resetNeedUpload() async {
+  Future<void> resetButuhUpload() async {
     Log.info('Mereset bendera need_upload menjadi false.');
     try {
-      await _uploadStatusOperation.resetStatusUpload();
+      await _statusUploadOpSqlite.resetStatusUpload();
       Log.info('Bendera need_upload berhasil direset.');
     } on Exception catch (e, s) {
       Log.error(
@@ -87,28 +87,29 @@ class NewDataCheckService {
   /// diperbarui di Firebase.
   ///
   /// Mengembalikan `true` jika ada data baru, `false` jika tidak.
-  Future<bool> hasNewFirebaseData({
-    required final String collectionName,
-    required final String documentId,
+  Future<bool> apakahFirebaseAdaDataBaru({
+    required final String namaKoleksi,
+    required final String idDokumen,
   }) async {
     Log.info(
-      'Memulai prosedur pembandingan timestamp server. Lokasi target koleksi: "$collectionName", dokumen: "$documentId". Prosedur ini akan menentukan apakah aplikasi perlu mengunduh data terbaru.',
+      'Memulai prosedur pembandingan timestamp server. Lokasi target koleksi: "$namaKoleksi", dokumen: "$idDokumen". Prosedur ini akan menentukan apakah aplikasi perlu mengunduh data terbaru.',
     );
 
     try {
       Log.info(
         'Mengambil metadata waktu unduhan terakhir dari penyimpanan preferensi lokal melalui SyncManager.',
       );
-      final DateTime localTime = await _syncManager.getLastDownload();
+      final DateTime tanggalTerakhirDownload =
+          await _syncManager.ambilTanggalTerakhirDownload();
       Log.info(
-        'Timestamp unduhan lokal terakhir yang tercatat adalah: $localTime',
+        'Timestamp unduhan lokal terakhir yang tercatat adalah: $tanggalTerakhirDownload',
       );
 
       Log.info(
         'Membangun referensi dokumen Firestore dan memulai permintaan pengambilan data langsung dari server cloud (Source.server).',
       );
       final DocumentReference docRef =
-          _firestore.collection(collectionName).doc(documentId);
+          _firestore.collection(namaKoleksi).doc(idDokumen);
       final DocumentSnapshot docSnapshot = await docRef.get(
         const GetOptions(source: Source.server),
       );
@@ -123,10 +124,10 @@ class NewDataCheckService {
           Log.info(
             'Field "${NamaKolom.updatedAt}" ditemukan. Mem-parsing nilai: ${data[NamaKolom.updatedAt]}',
           );
-          final DateTime? serverTime =
+          final DateTime? tanggalUpdateAt =
               ParserUtil.parseDateTime(data[NamaKolom.updatedAt]);
 
-          if (serverTime == null) {
+          if (tanggalUpdateAt == null) {
             Log.warning(
               'Gagal mem-parsing nilai "${NamaKolom.updatedAt}" dari server. '
               'Nilai tidak valid atau format tidak didukung. '
@@ -135,12 +136,12 @@ class NewDataCheckService {
             return false;
           }
 
-          Log.info('Waktu pembaruan di server adalah: $serverTime');
+          Log.info('Waktu pembaruan di server adalah: $tanggalUpdateAt');
 
-          final bool isAfter = serverTime.isAfter(localTime);
+          final bool isAfter = tanggalUpdateAt.isAfter(tanggalTerakhirDownload);
           if (isAfter) {
             Log.info(
-              'Kesimpulan: Waktu server ($serverTime) lebih baru daripada waktu lokal ($localTime). PENGUNDUHAN DATA DIPERLUKAN untuk menjaga aktualitas data.',
+              'Kesimpulan: Waktu server ($tanggalUpdateAt) lebih baru daripada waktu lokal ($tanggalTerakhirDownload). PENGUNDUHAN DATA DIPERLUKAN untuk menjaga aktualitas data.',
             );
           } else {
             Log.info(
@@ -156,7 +157,7 @@ class NewDataCheckService {
         }
       } else {
         Log.warning(
-          'Dokumen target "$documentId" tidak tersedia di koleksi "$collectionName" pada server Firebase. Pastikan dokumen status global telah dibuat di konsol Firebase.',
+          'Dokumen target "$idDokumen" tidak tersedia di koleksi "$namaKoleksi" pada server Firebase. Pastikan dokumen status global telah dibuat di konsol Firebase.',
         );
         return false;
       }
@@ -171,8 +172,9 @@ class NewDataCheckService {
   }
 }
 
-final newDataCheckServiceProvider = Provider<NewDataCheckService>((ref) {
-  return NewDataCheckService(
+final pengecekanDataBaruBaruServiceProvider =
+    Provider<PengecekanDataBaruService>((ref) {
+  return PengecekanDataBaruService(
     firestore: FirebaseFirestore.instance,
     syncManager: ref.read(syncManagerProvider),
     uploadStatusOperation: ref.read(statusUploadOpSlite),

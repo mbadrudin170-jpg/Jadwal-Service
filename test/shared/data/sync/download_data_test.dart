@@ -9,10 +9,10 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
@@ -25,7 +25,7 @@ import 'download_data_test.mocks.dart';
 @GenerateMocks([
   SyncManager,
   DompetOpSqlite,
-  CategoryOperation,
+  KategoriOpSqlite,
   PaketOpSqlite,
   PelangganOpSqlite,
   PelangganAktifOpSqlite,
@@ -107,7 +107,8 @@ void main() {
     final lastSync = DateTime(2023);
 
     setUp(() {
-      when(mockSyncManager.getLastDownload()).thenAnswer((_) async => lastSync);
+      when(mockSyncManager.ambilTanggalTerakhirDownload())
+          .thenAnswer((_) async => lastSync);
 
       when(mockFirestore.collection(any)).thenReturn(mockCollection);
       when(mockCollection.doc(any)).thenReturn(mockDocRef);
@@ -132,7 +133,7 @@ void main() {
         await downloadDataService.downloadAllData();
 
         verify(
-          mockSyncManager.getLastDownload(),
+          mockSyncManager.ambilTanggalTerakhirDownload(),
         ).called(greaterThanOrEqualTo(10));
         verify(mockFirestore.collection(any)).called(greaterThanOrEqualTo(10));
       },

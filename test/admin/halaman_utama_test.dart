@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
+import 'package:wifi/admin/halaman/tab/pelanggan_aktif_page.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
 import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/fitur/dompet/page/dompet_page.dart';
@@ -101,7 +101,7 @@ void main() {
       await tester.pumpAndSettle(); // Tunggu semua future di initState selesai
 
       // Verifikasi UI Awal
-      expect(find.byType(ActiveCustomerPage), findsOneWidget);
+      expect(find.byType(PelangganAktifPage), findsOneWidget);
       expect(find.byType(BottomNavigationBar), findsOneWidget);
       expect(find.text('Aktif'), findsWidgets);
 
@@ -155,7 +155,7 @@ void main() {
       await tester.tap(find.byIcon(TIcons.wallet));
       await tester.pumpAndSettle();
       expect(find.byType(DompetPage), findsOneWidget);
-      expect(find.byType(ActiveCustomerPage), findsNothing);
+      expect(find.byType(PelangganAktifPage), findsNothing);
 
       // Pindah ke tab Lainnya
       await tester.tap(find.byIcon(TIcons.apps));

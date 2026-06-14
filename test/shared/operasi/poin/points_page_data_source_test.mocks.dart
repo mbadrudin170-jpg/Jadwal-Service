@@ -41,9 +41,9 @@ class MockPointsPageDataSource extends _i1.Mock
       ) as bool);
 
   @override
-  _i3.Future<int> getTotalPoints(String? customerId) => (super.noSuchMethod(
+  _i3.Future<int> ambilTotalPoin(String? customerId) => (super.noSuchMethod(
         Invocation.method(
-          #getTotalPoints,
+          #ambilTotalPoin,
           [customerId],
         ),
         returnValue: _i3.Future<int>.value(0),

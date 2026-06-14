@@ -75,7 +75,7 @@ void main() {
             .overrideWithValue(mockSubCategoryOperation),
       ],
       child: MaterialApp(
-        home: DetailTransaksi(transaction: tTransaction),
+        home: DetailTransaksi(transaksi: tTransaction),
       ),
     );
   }

@@ -19,9 +19,9 @@ void main() {
 
     test('getTotalPoints returns a Future<int>', () {
       const customerId = 'test_id';
-      when(dataSource.getTotalPoints(customerId)).thenAnswer((_) async => 100);
+      when(dataSource.ambilTotalPoin(customerId)).thenAnswer((_) async => 100);
 
-      expect(dataSource.getTotalPoints(customerId), isA<Future<int>>());
+      expect(dataSource.ambilTotalPoin(customerId), isA<Future<int>>());
     });
 
     test('getPublicPackages returns a Future<List<PackageModel>>', () {

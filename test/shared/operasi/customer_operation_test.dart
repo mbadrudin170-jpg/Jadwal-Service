@@ -27,8 +27,8 @@ void main() {
     mockBaseOperation = MockBaseOperation();
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
     customerOperation = PelangganOpSqlite(
-      dbHelper: mockDbHelper,
-      baseOperation: mockBaseOperation,
+      sqliteDb: mockDbHelper,
+      baseOpSqlite: mockBaseOperation,
     );
   });
 
@@ -55,7 +55,7 @@ void main() {
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tCustomerMap]);
 
-      final result = await customerOperation.ambilSemua();
+      final result = await customerOperation.ambilPelanggan();
 
       expect(result, isA<List<PelangganModel>>());
       expect(result.first.id, tCustomer.id);
@@ -66,7 +66,7 @@ void main() {
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tCustomerMap]);
 
-      final result = await customerOperation.getById('1');
+      final result = await customerOperation.ambilBerdasarkanId('1');
 
       expect(result, isA<PelangganModel>());
       expect(result?.id, tCustomer.id);

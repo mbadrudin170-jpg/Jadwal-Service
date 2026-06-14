@@ -4,7 +4,7 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 
 abstract class PointsPageDataSource {
-  Future<int> getTotalPoints(String customerId);
+  Future<int> ambilTotalPoin(String customerId);
 
   Future<List<PaketModel>> getPublicPackages();
 
