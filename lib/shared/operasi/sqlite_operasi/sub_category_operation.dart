@@ -10,16 +10,16 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 /// Kelas untuk operasi terkait data sub-kategori di database lokal.
 class SubKategoriOpSqlite {
   /// Instance dari DatabaseHelper untuk mengakses database.
-  final SqliteDatabase dbHelper;
+  final SqliteDatabase sqliteDb;
 
   /// Instance dari [BaseOpSqlite] untuk operasi CRUD dasar.
-  final BaseOpSqlite baseOperation;
+  final BaseOpSqlite baseOpSqlite;
 
   final String _tableName = NamaTabel.subCategory;
 
   SubKategoriOpSqlite({
-    required this.dbHelper,
-    required this.baseOperation,
+    required this.sqliteDb,
+    required this.baseOpSqlite,
   });
 
   /// Menyimpan [SubCategoryModel] baru ke dalam database.
@@ -31,7 +31,7 @@ class SubKategoriOpSqlite {
     try {
       final data =
           subCategory.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
-      await baseOperation.sisipkan(
+      await baseOpSqlite.sisipkan(
         _tableName,
         data,
         dariServer: fromServer,
@@ -49,7 +49,7 @@ class SubKategoriOpSqlite {
   ) async {
     Log.info('Mengambil sub-kategori untuk kategori ID: $categoryId');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: '${NamaKolom.categoryId} = ? AND ${NamaKolom.isDeleted} = ?',
@@ -70,7 +70,7 @@ class SubKategoriOpSqlite {
   Future<SubCategoryModel?> getSubCategoryById(final String id) async {
     Log.info('Mengambil sub-kategori dengan ID: $id');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: 'id = ?',
@@ -98,7 +98,7 @@ class SubKategoriOpSqlite {
     try {
       final data =
           subCategory.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
-      await baseOperation.update(
+      await baseOpSqlite.update(
         _tableName,
         data,
         subCategory.id,
@@ -115,7 +115,7 @@ class SubKategoriOpSqlite {
   Future<void> delete(final String id, {final bool fromServer = false}) async {
     Log.warning('PERINGATAN: Menghapus sub-kategori ID: $id secara permanen');
     try {
-      await baseOperation.delete(
+      await baseOpSqlite.delete(
         _tableName,
         id,
         dariServer: fromServer,
@@ -134,7 +134,7 @@ class SubKategoriOpSqlite {
   }) async {
     Log.info('Memulai soft delete untuk sub-kategori ID: $id');
     try {
-      await baseOperation.hapusSementara(
+      await baseOpSqlite.hapusSementara(
         _tableName,
         id,
         dariServer: fromServer,
@@ -152,7 +152,7 @@ class SubKategoriOpSqlite {
   }) async {
     Log.info('Memulai soft delete untuk semua sub-kategori');
     try {
-      final count = await baseOperation.hapusSementaraSemua(
+      final count = await baseOpSqlite.hapusSementaraSemua(
         _tableName,
         dariServer: fromServer,
       );
@@ -183,7 +183,7 @@ class SubKategoriOpSqlite {
                 item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
-      await baseOperation.insertOrUpdateBatch(
+      await baseOpSqlite.insertOrUpdateBatch(
         _tableName,
         data,
         fromServer: fromServer,
@@ -205,7 +205,7 @@ class SubKategoriOpSqlite {
       return [];
     }
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,

@@ -12,15 +12,15 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 /// Kelas untuk operasi terkait data pesanan di database lokal.
 class OrderOpsqlite {
   /// Instance dari DatabaseHelper untuk mengakses database.
-  final SqliteDatabase dbHelper;
+  final SqliteDatabase sqliteDb;
 
   /// Instance dari [BaseOpSqlite] untuk operasi CRUD dasar.
-  final BaseOpSqlite baseOperation;
+  final BaseOpSqlite baseOpSqlite;
 
   /// Konstruktor untuk [OrderOpsqlite].
   OrderOpsqlite({
-    required this.dbHelper,
-    required this.baseOperation,
+    required this.sqliteDb,
+    required this.baseOpSqlite,
   });
 
   /// Mendapatkan nama tabel pesanan dari konstanta.
@@ -29,7 +29,7 @@ class OrderOpsqlite {
   Future<int> getJumlahByStatus(StatusOrderEnum status) async {
     Log.info('Menghitung pesanan dengan status: ${status.name}');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final result = await db.rawQuery(
         'SELECT COUNT(*) FROM $_tableName WHERE ${NamaKolom.status} = ? AND ${NamaKolom.isDeleted} = 0',
         [status.name],
@@ -54,7 +54,7 @@ class OrderOpsqlite {
       final orderToSave = order.copyWith(
         updatedAt: DateTime.now().toUtc(),
       );
-      await baseOperation.sisipkan(
+      await baseOpSqlite.sisipkan(
         _tableName,
         orderToSave.toSqlite(),
         dariServer: fromServer,
@@ -70,7 +70,7 @@ class OrderOpsqlite {
   Future<List<OrderModel>> getAllOrders() async {
     Log.info('Mengambil semua pesanan dari database.');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         orderBy: '${NamaKolom.date} DESC',
@@ -86,7 +86,7 @@ class OrderOpsqlite {
   Stream<List<OrderModel>> getAllActiveOrdersStream() async* {
     Log.info('Mengambil semua pesanan aktif dari database (stream sekali).');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: '${NamaKolom.isDeleted} = 0',
@@ -105,7 +105,7 @@ class OrderOpsqlite {
       final StatusOrderEnum status) async {
     Log.info('Mengambil pesanan dengan status: ${status.name}');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: '${NamaKolom.status} = ? AND ${NamaKolom.isDeleted} = 0',
@@ -129,7 +129,7 @@ class OrderOpsqlite {
   }) async {
     Log.info('Memperbarui status pesanan ID: $id menjadi ${status.name}');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: '${NamaKolom.id} = ?',
@@ -142,7 +142,7 @@ class OrderOpsqlite {
           status: status,
           updatedAt: DateTime.now().toUtc(),
         );
-        await baseOperation.update(
+        await baseOpSqlite.update(
           _tableName,
           newOrder.toSqlite(),
           id,
@@ -168,7 +168,7 @@ class OrderOpsqlite {
   }) async {
     Log.warning('Menghapus pesanan ID: $id (hard delete)');
     try {
-      await baseOperation.delete(_tableName, id, dariServer: fromServer);
+      await baseOpSqlite.delete(_tableName, id, dariServer: fromServer);
       Log.info('Berhasil menghapus pesanan dengan ID: $id.');
     } on Exception catch (e, s) {
       Log.error('Gagal menghapus pesanan.', e: e, s: s);
@@ -183,7 +183,7 @@ class OrderOpsqlite {
   }) async {
     Log.info('Memulai soft delete untuk pesanan ID: $id');
     try {
-      await baseOperation.hapusSementara(
+      await baseOpSqlite.hapusSementara(
         _tableName,
         id,
         dariServer: fromServer,
@@ -201,7 +201,7 @@ class OrderOpsqlite {
   }) async {
     Log.info('Memulai soft delete untuk semua pesanan');
     try {
-      final count = await baseOperation.hapusSementaraSemua(
+      final count = await baseOpSqlite.hapusSementaraSemua(
         _tableName,
         dariServer: fromServer,
       );
@@ -230,7 +230,7 @@ class OrderOpsqlite {
                 item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
-      await baseOperation.insertOrUpdateBatch(
+      await baseOpSqlite.insertOrUpdateBatch(
         _tableName,
         data,
         fromServer: fromServer,
@@ -250,7 +250,7 @@ class OrderOpsqlite {
       return [];
     }
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where:

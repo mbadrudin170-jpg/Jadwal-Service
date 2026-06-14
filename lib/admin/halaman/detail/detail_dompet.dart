@@ -76,7 +76,7 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
 
   Future<DetailDompetData> _loadData() async {
     Log.info('Memuat data detail dompet ID: ${widget.dompet.id}');
-    final walletOperation = ref.read(walletOperationProvider);
+    final walletOperation = ref.read(dompetOpSqliteProvider);
     final transactionOperation = ref.read(transactionOperationProvider);
 
     try {

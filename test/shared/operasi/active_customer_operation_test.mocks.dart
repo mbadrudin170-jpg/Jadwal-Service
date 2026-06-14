@@ -481,10 +481,10 @@ class MockNotifikasiServis extends _i1.Mock implements _i10.NotifikasiServis {
       );
 
   @override
-  _i3.Future<void> initNotif({required String? iconName}) =>
+  _i3.Future<void> inisialisasiNotifikasi({required String? iconName}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #initNotif,
+          #inisialisasiNotifikasi,
           [],
           {#iconName: iconName},
         ),
@@ -530,7 +530,7 @@ class MockNotifikasiServis extends _i1.Mock implements _i10.NotifikasiServis {
   @override
   _i3.Future<void> mintaIzin() => (super.noSuchMethod(
         Invocation.method(
-          #requestPermissions,
+          #mintaIzin,
           [],
         ),
         returnValue: _i3.Future<void>.value(),

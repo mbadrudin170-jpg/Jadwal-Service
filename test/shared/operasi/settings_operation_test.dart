@@ -30,8 +30,8 @@ void main() {
     mockBaseOperation = MockBaseOperation();
     mockDatabase = MockDatabase();
     settingsOperation = SettingsOpSqlite(
-      dbHelper: mockDbHelper,
-      baseOperation: mockBaseOperation,
+      sqliteDb: mockDbHelper,
+      baseOpSqlite: mockBaseOperation,
     );
 
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);

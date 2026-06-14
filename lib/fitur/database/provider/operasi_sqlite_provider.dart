@@ -22,7 +22,7 @@ part 'operasi_sqlite_provider.g.dart';
 
 /// Provider untuk menyediakan instance dari [PaketOpSqlite].
 @Riverpod(keepAlive: true)
-PaketOpSqlite packageOperation(Ref ref) {
+PaketOpSqlite paketOpSqlite(Ref ref) {
   Log.info('Membuat instance PackageOperation via @riverpod...');
 
   final dbHelper = ref.watch(sqliteDatabaseProvider);
@@ -114,61 +114,61 @@ DataCleaningOperation dataCleaningOperation(Ref ref) {
 @Riverpod(keepAlive: true)
 FeedbackOperation feedbackOperation(Ref ref) {
   Log.info('Membuat instance FeedbackOperation via @riverpod...');
-  final dbHelper = ref.watch(sqliteDatabaseProvider);
-  final baseOperation = ref.watch(baseOpSqliteProvider);
+  final sqliteDb = ref.watch(sqliteDatabaseProvider);
+  final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
   return FeedbackOperation(
-    dbHelper: dbHelper,
-    baseOperation: baseOperation,
+    sqliteDb: sqliteDb,
+    baseOpSqlite: baseOpSqlite,
   );
 }
 
 @Riverpod(keepAlive: true)
 OrderOpsqlite orderOperation(Ref ref) {
   Log.info('Membuat instance OrderOperation via @riverpod...');
-  final dbHelper = ref.watch(sqliteDatabaseProvider);
-  final baseOperation = ref.watch(baseOpSqliteProvider);
+  final sqliteDb = ref.watch(sqliteDatabaseProvider);
+  final baseOpSqlite = ref.watch(baseOpSqliteProvider);
   return OrderOpsqlite(
-    dbHelper: dbHelper,
-    baseOperation: baseOperation,
+    sqliteDb: sqliteDb,
+    baseOpSqlite: baseOpSqlite,
   );
 }
 
 /// Provider untuk menyediakan instance dari [SettingsOpSqlite].
 @Riverpod(keepAlive: true)
-SettingsOpSqlite settingsOperation(Ref ref) {
+SettingsOpSqlite settingsOpSqlite(Ref ref) {
   Log.info('Membuat instance SettingsOperation via @riverpod...');
-  final dbHelper = ref.watch(sqliteDatabaseProvider);
-  final baseOperation = ref.watch(baseOpSqliteProvider);
+  final sqliteDb = ref.watch(sqliteDatabaseProvider);
+  final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
   return SettingsOpSqlite(
-    dbHelper: dbHelper,
-    baseOperation: baseOperation,
+    sqliteDb: sqliteDb,
+    baseOpSqlite: baseOpSqlite,
   );
 }
 
 /// Provider untuk menyediakan instance dari [SubKategoriOpSqlite].
 @Riverpod(keepAlive: true)
-SubKategoriOpSqlite subCategoryOperation(Ref ref) {
+SubKategoriOpSqlite subKategoriOpSqlite(Ref ref) {
   Log.info('Membuat instance SubCategoryOperation via @riverpod...');
-  final dbHelper = ref.watch(sqliteDatabaseProvider);
-  final baseOperation = ref.watch(baseOpSqliteProvider);
+  final sqliteDb = ref.watch(sqliteDatabaseProvider);
+  final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
   return SubKategoriOpSqlite(
-    dbHelper: dbHelper,
-    baseOperation: baseOperation,
+    sqliteDb: sqliteDb,
+    baseOpSqlite: baseOpSqlite,
   );
 }
 
 /// Provider untuk menyediakan instance dari [DompetOpSqlite].
 @Riverpod(keepAlive: true)
-DompetOpSqlite walletOperation(Ref ref) {
+DompetOpSqlite dompetOpSqlite(Ref ref) {
   Log.info('Membuat instance WalletOperation via @riverpod...');
-  final dbHelper = ref.watch(sqliteDatabaseProvider);
-  final baseOperation = ref.watch(baseOpSqliteProvider);
+  final sqliteDb = ref.watch(sqliteDatabaseProvider);
+  final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
   return DompetOpSqlite(
-    dbHelper: dbHelper,
-    baseOperation: baseOperation,
+    sqliteDb: sqliteDb,
+    baseOpSqlite: baseOpSqlite,
   );
 }

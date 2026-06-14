@@ -49,7 +49,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
   @override
   void initState() {
     super.initState();
-    _packageOperation = ref.read(packageOperationProvider);
+    _packageOperation = ref.read(paketOpSqliteProvider);
     if (_isEditMode) {
       _nameController.text = widget.package!.name;
       _priceController.text = widget.package!.price.toString();

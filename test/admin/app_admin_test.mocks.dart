@@ -379,10 +379,10 @@ class MockNotifikasiServis extends _i1.Mock implements _i10.NotifikasiServis {
       );
 
   @override
-  _i7.Future<void> initNotif({required String? iconName}) =>
+  _i7.Future<void> inisialisasiNotifikasi({required String? iconName}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #initNotif,
+          #inisialisasiNotifikasi,
           [],
           {#iconName: iconName},
         ),
@@ -428,7 +428,7 @@ class MockNotifikasiServis extends _i1.Mock implements _i10.NotifikasiServis {
   @override
   _i7.Future<void> mintaIzin() => (super.noSuchMethod(
         Invocation.method(
-          #requestPermissions,
+          #mintaIzin,
           [],
         ),
         returnValue: _i7.Future<void>.value(),
@@ -724,7 +724,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   _i7.Future<int> arsipkanLanggananKadaluarsa({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #archiveExpiredCustomers,
+          #arsipkanLanggananKadaluarsa,
           [],
           {#fromServer: fromServer},
         ),

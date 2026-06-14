@@ -9,16 +9,16 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data dompet di database lokal.
 class DompetOpSqlite {
-  final SqliteDatabase dbHelper;
+  final SqliteDatabase sqliteDb;
   final BaseOpSqlite _baseOperation;
   final String _tableName = NamaTabel.wallet;
   final _nowUtc = DateTime.now().toUtc();
 
   /// Konstruktor dengan injeksi dependensi untuk pengujian.
   DompetOpSqlite({
-    required this.dbHelper,
-    required final BaseOpSqlite baseOperation,
-  }) : _baseOperation = baseOperation;
+    required this.sqliteDb,
+    required final BaseOpSqlite baseOpSqlite,
+  }) : _baseOperation = baseOpSqlite;
 
   Future<void> tambahDompet(
     final WalletModel wallet, {
@@ -47,7 +47,7 @@ class DompetOpSqlite {
   }) async {
     Log.info('Memulai getWallets (showArchived: $showArchived).');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final query = showArchived
           ? null
           : '${NamaKolom.isDeleted} = 0 AND ${NamaKolom.archivedAt} IS NULL';
@@ -72,7 +72,7 @@ class DompetOpSqlite {
   Future<WalletModel?> getById(final String id) async {
     Log.info('Memulai getById untuk ID: $id');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: '${NamaKolom.id} = ? AND ${NamaKolom.isDeleted} = 0',
@@ -170,7 +170,7 @@ class DompetOpSqlite {
     Log.info(
         'Memulai ambilTotalsaldo (menghitung total saldo dari semua wallet aktif).');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final result = await db.rawQuery(
         'SELECT SUM(${NamaKolom.balance}) as total FROM $_tableName WHERE ${NamaKolom.isDeleted} = 0',
       );
@@ -193,7 +193,7 @@ class DompetOpSqlite {
     Log.info(
         'Memulai ambilSaldoPositif (menghitung total saldo > 0 dari wallet aktif).');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final result = await db.rawQuery(
         'SELECT SUM(${NamaKolom.balance}) as total FROM $_tableName WHERE ${NamaKolom.balance} > 0 AND ${NamaKolom.isDeleted} = 0',
       );
@@ -216,7 +216,7 @@ class DompetOpSqlite {
     Log.info(
         'Memulai ambilSaldoNegatif (menghitung total saldo < 0 dari wallet aktif).');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final result = await db.rawQuery(
         'SELECT SUM(${NamaKolom.balance}) as total FROM $_tableName WHERE ${NamaKolom.balance} < 0 AND ${NamaKolom.isDeleted} = 0',
       );

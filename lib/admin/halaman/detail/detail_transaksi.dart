@@ -25,15 +25,15 @@ class DetailTransaksi extends ConsumerStatefulWidget {
 
 class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
   late final DompetOpSqlite _dompetOpSqlite =
-      ref.watch(walletOperationProvider);
+      ref.watch(dompetOpSqliteProvider);
   late final CategoryOperation _categoryOperation =
       ref.watch(kategoriOpSqliteProvider);
   late final PelangganOpSqlite _customerOperation =
       ref.watch(pelangganOpSqliteProvider);
   late final PaketOpSqlite _packageOperation =
-      ref.watch(packageOperationProvider);
+      ref.watch(paketOpSqliteProvider);
   late final SubKategoriOpSqlite _subKategoriOpSqlite =
-      ref.watch(subCategoryOperationProvider);
+      ref.watch(subKategoriOpSqliteProvider);
 
   late TransaksiModel _currentTransaction;
   bool _diUpdate = false;

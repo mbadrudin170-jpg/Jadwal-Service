@@ -49,7 +49,7 @@ final activeCustomerDetailProvider = FutureProvider.family<
 
   // 3. Fetch detail tambahan menggunakan operasi individual
   final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
-  final paketOpSqlite = ref.watch(packageOperationProvider);
+  final paketOpSqlite = ref.watch(paketOpSqliteProvider);
   final transaksiOpsqlite = ref.watch(transactionOperationProvider);
   final hasil = await Future.wait<Object?>([
     pelangganOpSqlite.getById(pelangganAktif.customerId),

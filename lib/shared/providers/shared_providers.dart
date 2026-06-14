@@ -39,36 +39,35 @@ NotifikasiServis notifikasiServis(Ref ref) {
 @Riverpod(keepAlive: true)
 void pengontrolNotifikasi(Ref ref) {
   final role = ref.watch(appRoleProvider);
-  final servis = ref.watch(notifikasiServisProvider);
-  final notifikasiOp = ref.watch(notifikasiOpFirebaseProvider);
+  final notifikasiService = ref.watch(notifikasiServisProvider);
+  final notifikasiOpFirebase = ref.watch(notifikasiOpFirebaseProvider);
 
   Log.info('Menginisialisasi Notifikasi Controller untuk peran: $role');
 
   if (role == AppRole.admin) {
-    // LOGIKA UNTUK ADMIN
     Log.info('Mode Admin: Memulai pemantauan notifikasi umum.');
-    servis.pantauNotifUmum(notifikasiOp);
+    notifikasiService.pantauNotifUmum(notifikasiOpFirebase);
   } else {
-    // LOGIKA UNTUK USER
     Log.info('Mode User: Menyiapkan listener untuk status login.');
     ref.listen(localStorageServiceProvider, (previous, next) {
       next.when(
         data: (localStorage) async {
-          final customer = await localStorage.ambilAkunLogin();
-          if (customer != null) {
+          final pelanggan = await localStorage.ambilAkunLogin();
+          if (pelanggan != null) {
             Log.info(
-                'User login terdeteksi, memulai pemantauan untuk ${customer.id}');
-            servis.pantauNotifUser(notifikasiOp, customer.id);
+                'User login terdeteksi, memulai pemantauan untuk ${pelanggan.id}');
+            notifikasiService.pantauNotifUser(
+                notifikasiOpFirebase, pelanggan.id);
           } else {
             Log.info(
                 'User logout terdeteksi, menghentikan pemantauan notifikasi.');
-            servis.hentikanPemantauanNotifikasi();
+            notifikasiService.hentikanPemantauanNotifikasi();
           }
         },
         loading: () => Log.info('Menunggu LocalStorageService siap...'),
-        error: (e, st) {
-          Log.error('Error pada localStorageServiceProvider', e: e, s: st);
-          servis.hentikanPemantauanNotifikasi();
+        error: (e, s) {
+          Log.error('Error pada localStorageServiceProvider', e: e, s: s);
+          notifikasiService.hentikanPemantauanNotifikasi();
         },
       );
     });
@@ -77,6 +76,6 @@ void pengontrolNotifikasi(Ref ref) {
   ref.onDispose(() {
     Log.info(
         'Notifikasi controller di-dispose, menghentikan semua pemantauan.');
-    servis.hentikanPemantauanNotifikasi();
+    notifikasiService.hentikanPemantauanNotifikasi();
   });
 }

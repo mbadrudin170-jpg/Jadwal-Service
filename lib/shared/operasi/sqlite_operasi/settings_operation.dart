@@ -15,10 +15,10 @@ class SettingsOpSqlite {
   ///
   /// Memungkinkan injeksi dependensi untuk [sqliteDb] dan [_baseOpSqlite] guna memfasilitasi pengujian.
   SettingsOpSqlite({
-    required final SqliteDatabase dbHelper,
-    required final BaseOpSqlite baseOperation,
-  })  : sqliteDb = dbHelper,
-        _baseOpSqlite = baseOperation;
+    required final SqliteDatabase sqliteDb,
+    required final BaseOpSqlite baseOpSqlite,
+  })  : sqliteDb = sqliteDb,
+        _baseOpSqlite = baseOpSqlite;
 
   final String _namaTabel = NamaTabel.settings;
 

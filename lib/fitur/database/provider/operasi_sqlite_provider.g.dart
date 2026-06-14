@@ -10,28 +10,28 @@ part of 'operasi_sqlite_provider.dart';
 // ignore_for_file: type=lint, type=warning
 /// Provider untuk menyediakan instance dari [PaketOpSqlite].
 
-@ProviderFor(packageOperation)
-final packageOperationProvider = PackageOperationProvider._();
+@ProviderFor(paketOpSqlite)
+final paketOpSqliteProvider = PaketOpSqliteProvider._();
 
 /// Provider untuk menyediakan instance dari [PaketOpSqlite].
 
-final class PackageOperationProvider
+final class PaketOpSqliteProvider
     extends $FunctionalProvider<PaketOpSqlite, PaketOpSqlite, PaketOpSqlite>
     with $Provider<PaketOpSqlite> {
   /// Provider untuk menyediakan instance dari [PaketOpSqlite].
-  PackageOperationProvider._()
+  PaketOpSqliteProvider._()
       : super(
           from: null,
           argument: null,
           retry: null,
-          name: r'packageOperationProvider',
+          name: r'paketOpSqliteProvider',
           isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
 
   @override
-  String debugGetCreateSourceHash() => _$packageOperationHash();
+  String debugGetCreateSourceHash() => _$paketOpSqliteHash();
 
   @$internal
   @override
@@ -40,7 +40,7 @@ final class PackageOperationProvider
 
   @override
   PaketOpSqlite create(Ref ref) {
-    return packageOperation(ref);
+    return paketOpSqlite(ref);
   }
 
   /// {@macro riverpod.override_with_value}
@@ -52,7 +52,7 @@ final class PackageOperationProvider
   }
 }
 
-String _$packageOperationHash() => r'4300f68097795646d111e2f80537de355d29b908';
+String _$paketOpSqliteHash() => r'07e17862ebbb8f2a7115096cafc2173ac8e0c08d';
 
 /// Provider untuk menyediakan instance dari [TransaksiOpsqlite].
 
@@ -392,7 +392,7 @@ final class FeedbackOperationProvider extends $FunctionalProvider<
   }
 }
 
-String _$feedbackOperationHash() => r'27777d0e1b27bef3d78407eae7a844850e8d4a97';
+String _$feedbackOperationHash() => r'81b5086900a4639cd207889b28bf9f351ccbb1a3';
 
 @ProviderFor(orderOperation)
 final orderOperationProvider = OrderOperationProvider._();
@@ -433,33 +433,33 @@ final class OrderOperationProvider
   }
 }
 
-String _$orderOperationHash() => r'7cd302763c2801a20f73a4e8f445420114647486';
+String _$orderOperationHash() => r'bb1fae98329288b40c2b61c6a8bed33a1ec7147b';
 
 /// Provider untuk menyediakan instance dari [SettingsOpSqlite].
 
-@ProviderFor(settingsOperation)
-final settingsOperationProvider = SettingsOperationProvider._();
+@ProviderFor(settingsOpSqlite)
+final settingsOpSqliteProvider = SettingsOpSqliteProvider._();
 
 /// Provider untuk menyediakan instance dari [SettingsOpSqlite].
 
-final class SettingsOperationProvider extends $FunctionalProvider<
+final class SettingsOpSqliteProvider extends $FunctionalProvider<
     SettingsOpSqlite,
     SettingsOpSqlite,
     SettingsOpSqlite> with $Provider<SettingsOpSqlite> {
   /// Provider untuk menyediakan instance dari [SettingsOpSqlite].
-  SettingsOperationProvider._()
+  SettingsOpSqliteProvider._()
       : super(
           from: null,
           argument: null,
           retry: null,
-          name: r'settingsOperationProvider',
+          name: r'settingsOpSqliteProvider',
           isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
 
   @override
-  String debugGetCreateSourceHash() => _$settingsOperationHash();
+  String debugGetCreateSourceHash() => _$settingsOpSqliteHash();
 
   @$internal
   @override
@@ -468,7 +468,7 @@ final class SettingsOperationProvider extends $FunctionalProvider<
 
   @override
   SettingsOpSqlite create(Ref ref) {
-    return settingsOperation(ref);
+    return settingsOpSqlite(ref);
   }
 
   /// {@macro riverpod.override_with_value}
@@ -480,33 +480,33 @@ final class SettingsOperationProvider extends $FunctionalProvider<
   }
 }
 
-String _$settingsOperationHash() => r'1dabb1ceba8cb80d7c913dd4d99d8c774e5ebc41';
+String _$settingsOpSqliteHash() => r'f3b3c30df9fc8bfd5b6cabeded596df0e4af9f2b';
 
 /// Provider untuk menyediakan instance dari [SubKategoriOpSqlite].
 
-@ProviderFor(subCategoryOperation)
-final subCategoryOperationProvider = SubCategoryOperationProvider._();
+@ProviderFor(subKategoriOpSqlite)
+final subKategoriOpSqliteProvider = SubKategoriOpSqliteProvider._();
 
 /// Provider untuk menyediakan instance dari [SubKategoriOpSqlite].
 
-final class SubCategoryOperationProvider extends $FunctionalProvider<
+final class SubKategoriOpSqliteProvider extends $FunctionalProvider<
     SubKategoriOpSqlite,
     SubKategoriOpSqlite,
     SubKategoriOpSqlite> with $Provider<SubKategoriOpSqlite> {
   /// Provider untuk menyediakan instance dari [SubKategoriOpSqlite].
-  SubCategoryOperationProvider._()
+  SubKategoriOpSqliteProvider._()
       : super(
           from: null,
           argument: null,
           retry: null,
-          name: r'subCategoryOperationProvider',
+          name: r'subKategoriOpSqliteProvider',
           isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
 
   @override
-  String debugGetCreateSourceHash() => _$subCategoryOperationHash();
+  String debugGetCreateSourceHash() => _$subKategoriOpSqliteHash();
 
   @$internal
   @override
@@ -516,7 +516,7 @@ final class SubCategoryOperationProvider extends $FunctionalProvider<
 
   @override
   SubKategoriOpSqlite create(Ref ref) {
-    return subCategoryOperation(ref);
+    return subKategoriOpSqlite(ref);
   }
 
   /// {@macro riverpod.override_with_value}
@@ -528,33 +528,33 @@ final class SubCategoryOperationProvider extends $FunctionalProvider<
   }
 }
 
-String _$subCategoryOperationHash() =>
-    r'c813b7aad2bd798fb47afbca7fae00e57e2babe4';
+String _$subKategoriOpSqliteHash() =>
+    r'27cf51ea6d06bd8aca636482ba2bce10a7aa1066';
 
 /// Provider untuk menyediakan instance dari [DompetOpSqlite].
 
-@ProviderFor(walletOperation)
-final walletOperationProvider = WalletOperationProvider._();
+@ProviderFor(dompetOpSqlite)
+final dompetOpSqliteProvider = DompetOpSqliteProvider._();
 
 /// Provider untuk menyediakan instance dari [DompetOpSqlite].
 
-final class WalletOperationProvider
+final class DompetOpSqliteProvider
     extends $FunctionalProvider<DompetOpSqlite, DompetOpSqlite, DompetOpSqlite>
     with $Provider<DompetOpSqlite> {
   /// Provider untuk menyediakan instance dari [DompetOpSqlite].
-  WalletOperationProvider._()
+  DompetOpSqliteProvider._()
       : super(
           from: null,
           argument: null,
           retry: null,
-          name: r'walletOperationProvider',
+          name: r'dompetOpSqliteProvider',
           isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
 
   @override
-  String debugGetCreateSourceHash() => _$walletOperationHash();
+  String debugGetCreateSourceHash() => _$dompetOpSqliteHash();
 
   @$internal
   @override
@@ -563,7 +563,7 @@ final class WalletOperationProvider
 
   @override
   DompetOpSqlite create(Ref ref) {
-    return walletOperation(ref);
+    return dompetOpSqlite(ref);
   }
 
   /// {@macro riverpod.override_with_value}
@@ -575,4 +575,4 @@ final class WalletOperationProvider
   }
 }
 
-String _$walletOperationHash() => r'877ced8dad92c4013d9e9d1abf9412f087d04b4a';
+String _$dompetOpSqliteHash() => r'934eed2b1b930b0551825d1f18b2d291057f8753';

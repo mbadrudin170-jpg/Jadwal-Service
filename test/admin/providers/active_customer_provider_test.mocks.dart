@@ -235,7 +235,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   _i5.Future<int> arsipkanLanggananKadaluarsa({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #archiveExpiredCustomers,
+          #arsipkanLanggananKadaluarsa,
           [],
           {#fromServer: fromServer},
         ),

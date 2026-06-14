@@ -66,7 +66,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     Log.info(
       'Menginisialisasi FormTransaksiPage dalam mode: ${_isEditMode ? "Edit" : "Tambah"}.',
     );
-    _dompetOperasi = ref.read(walletOperationProvider);
+    _dompetOperasi = ref.read(dompetOpSqliteProvider);
     _kategoriOperasi = ref.read(kategoriOpSqliteProvider);
     _transaksiOperasi = ref.read(transactionOperationProvider);
     unawaited(_loadData());

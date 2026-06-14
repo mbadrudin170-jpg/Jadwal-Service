@@ -10,13 +10,13 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data kritik dan saran di database lokal.
 class FeedbackOperation {
-  final SqliteDatabase dbHelper;
-  final BaseOpSqlite baseOperation;
+  final SqliteDatabase sqliteDb;
+  final BaseOpSqlite baseOpSqlite;
   final String _tableName = NamaTabel.feedback;
 
   FeedbackOperation({
-    required this.dbHelper,
-    required this.baseOperation,
+    required this.sqliteDb,
+    required this.baseOpSqlite,
   });
 
   /// Menyimpan [FeedbackModel] baru ke dalam database.
@@ -29,7 +29,7 @@ class FeedbackOperation {
       final data =
           feedback.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
 
-      await baseOperation.sisipkan(
+      await baseOpSqlite.sisipkan(
         _tableName,
         data,
         dariServer: fromServer,
@@ -47,7 +47,7 @@ class FeedbackOperation {
       'Memulai getAllFeedback (mengambil semua, diurutkan berdasarkan tanggal terbaru).',
     );
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         orderBy: '${NamaKolom.date} DESC',
@@ -68,7 +68,7 @@ class FeedbackOperation {
   Future<List<FeedbackModel>> getAllActiveFeedback() async {
     Log.info('Mengambil semua feedback aktif (isDeleted = 0).');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: '${NamaKolom.isDeleted} = 0',
@@ -90,7 +90,7 @@ class FeedbackOperation {
   Future<FeedbackModel> getById(final String id) async {
     Log.info('Memulai getFeedbackById untuk ID: $id');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: 'id = ?',
@@ -123,7 +123,7 @@ class FeedbackOperation {
       'Memulai getChanges kritik_saran sejak: ${lastSync.toIso8601String()}',
     );
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: '${NamaKolom.updatedAt} > ?',
@@ -168,7 +168,7 @@ class FeedbackOperation {
                 item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
-      await baseOperation.insertOrUpdateBatch(
+      await baseOpSqlite.insertOrUpdateBatch(
         _tableName,
         data,
         fromServer: fromServer,
@@ -199,7 +199,7 @@ class FeedbackOperation {
       'PERINGATAN: Memulai deleteFeedback (hard delete) untuk ID: $id',
     );
     try {
-      await baseOperation.delete(
+      await baseOpSqlite.delete(
         _tableName,
         id,
         dariServer: fromServer,
@@ -222,7 +222,7 @@ class FeedbackOperation {
   }) async {
     Log.info('Memulai soft delete untuk feedback ID: $id');
     try {
-      await baseOperation.hapusSementara(
+      await baseOpSqlite.hapusSementara(
         _tableName,
         id,
         dariServer: fromServer,
@@ -244,7 +244,7 @@ class FeedbackOperation {
   }) async {
     Log.info('Memulai soft delete untuk semua feedback');
     try {
-      final count = await baseOperation.hapusSementaraSemua(
+      final count = await baseOpSqlite.hapusSementaraSemua(
         _tableName,
         dariServer: fromServer,
       );
@@ -266,7 +266,7 @@ class FeedbackOperation {
       'PERINGATAN: Memulai deleteAllFeedback. Ini adalah operasi destruktif.',
     );
     try {
-      await baseOperation.runComplexOperation<int>(
+      await baseOpSqlite.runComplexOperation<int>(
         (final Transaction txn) async {
           final int count = await txn.delete(
             _tableName,
@@ -293,7 +293,7 @@ class FeedbackOperation {
       'PERINGATAN: Memulai deleteByUserId (hard delete) untuk userId: $userId',
     );
     try {
-      await baseOperation.runComplexOperation<int>(
+      await baseOpSqlite.runComplexOperation<int>(
         (final Transaction txn) async {
           final int deletedCount = await txn.delete(
             _tableName,
@@ -327,7 +327,7 @@ class FeedbackOperation {
       return [];
     }
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: 'id IN (${List.filled(ids.length, '?').join(',')})',

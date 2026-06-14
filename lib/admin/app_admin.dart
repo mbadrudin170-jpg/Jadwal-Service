@@ -59,7 +59,8 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
     try {
       await BackgroundService.init();
 
-      await notifikasiServis.initNotif(iconName: 'ic_notification');
+      await notifikasiServis.inisialisasiNotifikasi(
+          iconName: 'ic_notification');
       await notifikasiServis.mintaIzin();
 
       final launchDetails =
@@ -87,9 +88,9 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
 
-        final initialDownloadService = ref.read(unduhanAwalServiceProvider);
+        final unduhanAwalService = ref.read(unduhanAwalServiceProvider);
         try {
-          await initialDownloadService.jalankanUnduhanAwal().timeout(
+          await unduhanAwalService.jalankanUnduhanAwal().timeout(
                 const Duration(seconds: 30),
               );
           Log.info('Initial download berhasil diselesaikan.');
@@ -99,7 +100,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
         }
 
         final dataPengaturan =
-            await ref.read(settingsOperationProvider).getSettings();
+            await ref.read(settingsOpSqliteProvider).getSettings();
         final retentionDays = dataPengaturan.autoDeleteArchiveDays;
         final dataCleaningOperation = ref.read(dataCleaningOperationProvider);
         await dataCleaningOperation

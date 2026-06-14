@@ -36,7 +36,7 @@ class _SettingsFormState extends ConsumerState<SettingsForm> {
   @override
   void initState() {
     super.initState();
-    _settingsOperation = ref.read(settingsOperationProvider);
+    _settingsOperation = ref.read(settingsOpSqliteProvider);
     Log.info('Menginisialisasi SettingsForm.', {
       'interval': widget.settings.autoSyncInterval,
       'hapus_arsip': widget.settings.autoDeleteArchiveDays,

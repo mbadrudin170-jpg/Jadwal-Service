@@ -360,11 +360,11 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
   }
 
   @override
-  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
+  _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
+        Invocation.getter(#sqliteDb),
         returnValue: _FakeSqliteDatabase_1(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
       ) as _i2.SqliteDatabase);
 
@@ -1164,7 +1164,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   _i9.Future<int> arsipkanLanggananKadaluarsa({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #archiveExpiredCustomers,
+          #arsipkanLanggananKadaluarsa,
           [],
           {#fromServer: fromServer},
         ),
@@ -1436,20 +1436,20 @@ class MockFeedbackOperation extends _i1.Mock implements _i22.FeedbackOperation {
   }
 
   @override
-  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
+  _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
+        Invocation.getter(#sqliteDb),
         returnValue: _FakeSqliteDatabase_1(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
       ) as _i2.SqliteDatabase);
 
   @override
-  _i4.BaseOpSqlite get baseOperation => (super.noSuchMethod(
-        Invocation.getter(#baseOperation),
+  _i4.BaseOpSqlite get baseOpSqlite => (super.noSuchMethod(
+        Invocation.getter(#baseOpSqlite),
         returnValue: _FakeBaseOpSqlite_3(
           this,
-          Invocation.getter(#baseOperation),
+          Invocation.getter(#baseOpSqlite),
         ),
       ) as _i4.BaseOpSqlite);
 
@@ -1618,20 +1618,20 @@ class MockOrderOpsqlite extends _i1.Mock implements _i23.OrderOpsqlite {
   }
 
   @override
-  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
+  _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
+        Invocation.getter(#sqliteDb),
         returnValue: _FakeSqliteDatabase_1(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
       ) as _i2.SqliteDatabase);
 
   @override
-  _i4.BaseOpSqlite get baseOperation => (super.noSuchMethod(
-        Invocation.getter(#baseOperation),
+  _i4.BaseOpSqlite get baseOpSqlite => (super.noSuchMethod(
+        Invocation.getter(#baseOpSqlite),
         returnValue: _FakeBaseOpSqlite_3(
           this,
-          Invocation.getter(#baseOperation),
+          Invocation.getter(#baseOpSqlite),
         ),
       ) as _i4.BaseOpSqlite);
 
@@ -1789,20 +1789,20 @@ class MockSubKategoriOpSqlite extends _i1.Mock
   }
 
   @override
-  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
+  _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
+        Invocation.getter(#sqliteDb),
         returnValue: _FakeSqliteDatabase_1(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
       ) as _i2.SqliteDatabase);
 
   @override
-  _i4.BaseOpSqlite get baseOperation => (super.noSuchMethod(
-        Invocation.getter(#baseOperation),
+  _i4.BaseOpSqlite get baseOpSqlite => (super.noSuchMethod(
+        Invocation.getter(#baseOpSqlite),
         returnValue: _FakeBaseOpSqlite_3(
           this,
-          Invocation.getter(#baseOperation),
+          Invocation.getter(#baseOpSqlite),
         ),
       ) as _i4.BaseOpSqlite);
 

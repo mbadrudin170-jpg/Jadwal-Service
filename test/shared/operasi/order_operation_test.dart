@@ -25,8 +25,8 @@ void main() {
     mockBaseOperation = MockBaseOperation();
     mockDatabase = MockDatabase();
     orderOperation = OrderOpsqlite(
-      dbHelper: mockDbHelper,
-      baseOperation: mockBaseOperation,
+      sqliteDb: mockDbHelper,
+      baseOpSqlite: mockBaseOperation,
     );
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
   });

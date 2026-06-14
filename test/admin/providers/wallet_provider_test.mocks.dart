@@ -41,15 +41,15 @@ class _FakeSqliteDatabase_0 extends _i1.SmartFake
 /// See the documentation for Mockito's code generation for more information.
 class MockDompetOpSqlite extends _i1.Mock implements _i3.DompetOpSqlite {
   @override
-  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
+  _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
+        Invocation.getter(#sqliteDb),
         returnValue: _FakeSqliteDatabase_0(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
         returnValueForMissingStub: _FakeSqliteDatabase_0(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
       ) as _i2.SqliteDatabase);
 

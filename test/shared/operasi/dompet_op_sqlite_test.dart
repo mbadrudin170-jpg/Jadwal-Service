@@ -24,8 +24,8 @@ void main() {
     mockBaseOperation = MockBaseOperation();
     mockDatabase = MockDatabase();
     dompetOpSqlite = DompetOpSqlite(
-      dbHelper: mockDbHelper,
-      baseOperation: mockBaseOperation,
+      sqliteDb: mockDbHelper,
+      baseOpSqlite: mockBaseOperation,
     );
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
   });

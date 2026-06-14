@@ -94,9 +94,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     setState(() => _isLoading = true);
     Log.info('Memulai memuat semua data untuk FormPelangganAktif');
     final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
-    final paketOpsqlite = ref.read(packageOperationProvider);
+    final paketOpsqlite = ref.read(paketOpSqliteProvider);
     final transaksiOperasi = ref.read(transactionOperationProvider);
-    final dompetOpSqlite = ref.read(walletOperationProvider);
+    final dompetOpSqlite = ref.read(dompetOpSqliteProvider);
     final kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
     try {
       final pa = widget.pelangganAktif;
@@ -770,7 +770,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             ref.invalidate(pelangganAktifOpSqliteProvider);
             ref.invalidate(transactionOperationProvider);
             ref.invalidate(transactionOpFirebaseProvider);
-            ref.invalidate(walletOperationProvider);
+            ref.invalidate(dompetOpSqliteProvider);
             ref.invalidate(statistikProvider);
             navigator.pop();
             Log.info(

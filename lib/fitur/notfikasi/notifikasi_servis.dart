@@ -149,11 +149,7 @@ class NotifikasiServis {
       );
       Log.info('Layanan Notifikasi berhasil diinisialisasi secara lengkap.');
     } on Exception catch (e, s) {
-      Log.error(
-        'Gagal melakukan inisialisasi plugin notifikasi',
-        e: e,
-        s: s
-      );
+      Log.error('Gagal melakukan inisialisasi plugin notifikasi', e: e, s: s);
     }
   }
 

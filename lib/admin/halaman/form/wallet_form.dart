@@ -39,7 +39,7 @@ class _WalletFormState extends ConsumerState<WalletForm> {
     final isEditMode = widget.wallet != null;
     Log.info('Membuat state WalletForm. '
         'Mode: ${isEditMode ? "EDIT (ID: ${widget.wallet!.id}, Nama: ${widget.wallet!.name}, Saldo: ${widget.wallet!.balance})" : "TAMBAH BARU"}');
-    _dompetOpSqlite = ref.read(walletOperationProvider);
+    _dompetOpSqlite = ref.read(dompetOpSqliteProvider);
 
     Log.info('Membuat FocusNode untuk input nama dompet.');
     _namaFocusNode = FocusNode();

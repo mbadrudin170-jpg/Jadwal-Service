@@ -32,8 +32,8 @@ void main() {
     mockDatabase = MockDatabase();
     mockTransaction = MockTransaction();
     feedbackOperation = FeedbackOperation(
-      dbHelper: mockDbHelper,
-      baseOperation: mockBaseOperation,
+      sqliteDb: mockDbHelper,
+      baseOpSqlite: mockBaseOperation,
     );
 
     // Atur respons default untuk mock
