@@ -340,7 +340,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         durasiBonus: durasiBonus,
         tipeDurasiBonus: _isBonus ? _tipeBonusDurasi : null,
         tanggalMulai: tanggalMulai,
-        tangglberakhir: tanggalBerakhir,
+        tanggalBerakhir: tanggalBerakhir,
         statusAktivasi: true,
       );
       Log.info(

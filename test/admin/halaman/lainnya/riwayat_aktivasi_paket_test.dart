@@ -45,7 +45,7 @@ void main() {
     idPaket: 'p1',
     tanggal: DateTime(2023, 1, 1),
     tanggalMulai: DateTime(2023, 1, 1),
-    tangglberakhir: DateTime(2023, 2, 1),
+    tanggalBerakhir: DateTime(2023, 2, 1),
     jumlah: 50000,
     tipe: TipeTransaksi.income,
     idDompet: 'w1',

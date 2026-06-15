@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/detail/detail_pelanggan.dart
+// path: lib/fitur/pelanggan/ui/admin/detail_pelanggan_a.dart
 
 import 'dart:async';
 
@@ -38,7 +38,7 @@ class DetailPelanggan extends ConsumerWidget {
 Nama : ${customer.nama}
 No HP : ${customer.telepon}
 Alamat : ${customer.alamat}
-Password : ${customer.password}
+Password : ${customer.kataSandi}
 MAC : ${customer.macAddress}
 '''
         .trim();

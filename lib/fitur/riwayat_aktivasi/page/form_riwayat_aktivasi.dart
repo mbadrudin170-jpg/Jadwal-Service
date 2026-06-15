@@ -35,7 +35,7 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
   void initState() {
     super.initState();
     _tanggalMulai = widget.transaksi.tanggalMulai ?? DateTime.now();
-    _tanggalBerakhir = widget.transaksi.tangglberakhir ?? DateTime.now();
+    _tanggalBerakhir = widget.transaksi.tanggalBerakhir ?? DateTime.now();
     _statusPembayaran = widget.transaksi.statusPembayaran;
     Log.info(
         'Form edit riwayat langganan diinisialisasi untuk transaksi ID: ${widget.transaksi.id}');
@@ -103,7 +103,7 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
     try {
       final updateTransaksi = widget.transaksi.copyWith(
         tanggalMulai: _tanggalMulai,
-        tangglberakhir: _tanggalBerakhir,
+        tanggalBerakhir: _tanggalBerakhir,
         statusPembayaran: _statusPembayaran,
         diperbaruiPada: DateTime.now(),
       );

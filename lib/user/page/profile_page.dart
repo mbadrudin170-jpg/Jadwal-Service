@@ -94,10 +94,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
       if (activeSubscriptions.isNotEmpty) {
         lastSubscription = activeSubscriptions.reduce(
-          (a, b) => a.tangglberakhir!.isAfter(b.tangglberakhir!) ? a : b,
+          (a, b) => a.tanggalBerakhir!.isAfter(b.tanggalBerakhir!) ? a : b,
         );
         Log.info(
-            'Langganan terakhir berakhir pada: ${lastSubscription.tangglberakhir}.');
+            'Langganan terakhir berakhir pada: ${lastSubscription.tanggalBerakhir}.');
 
         if (lastSubscription.idPaket != null) {
           packageModel =
@@ -225,9 +225,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
 
     final String activePeriodText = PerhitunganUtil.ambilTeksSisaMasaAktif(
-        lastSubscription.tangglberakhir!);
+        lastSubscription.tanggalBerakhir!);
     final Color activePeriodColor = PerhitunganUtil.ambilWarnaSisaMasaAktif(
-        lastSubscription.tangglberakhir!);
+        lastSubscription.tanggalBerakhir!);
     final Color paymentStatusColor =
         lastSubscription.statusPembayaran == StatusPembayaran.paid
             ? Colors.green
@@ -251,7 +251,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           icon: TIcons.dateRange,
           label: 'Berakhir Pada',
           value: FormatWaktuLengkap.formatSingkat(
-              lastSubscription.tangglberakhir!),
+              lastSubscription.tanggalBerakhir!),
         ),
         _InfoItem(
           icon: TIcons.hourglass,

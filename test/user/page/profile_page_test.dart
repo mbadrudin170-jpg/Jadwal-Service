@@ -56,7 +56,7 @@ void main() {
     idPelanggan: 'test-user-id',
     idPaket: 'test-package-id',
     tanggal: DateTime.now(),
-    tangglberakhir: DateTime.now().add(const Duration(days: 30)),
+    tanggalBerakhir: DateTime.now().add(const Duration(days: 30)),
     jumlah: 100000,
     tipe: 'income',
     deskripsi: '',

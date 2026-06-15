@@ -36,7 +36,7 @@ mixin _$TransaksiModel {
   int get durasiBonus;
   TipeDurasiPaket? get tipeDurasiBonus;
   DateTime? get tanggalMulai;
-  DateTime? get tangglberakhir;
+  DateTime? get tanggalBerakhir;
   bool get statusAktivasi;
 
   /// Create a copy of TransaksiModel
@@ -90,8 +90,8 @@ mixin _$TransaksiModel {
                 other.tipeDurasiBonus == tipeDurasiBonus) &&
             (identical(other.tanggalMulai, tanggalMulai) ||
                 other.tanggalMulai == tanggalMulai) &&
-            (identical(other.tangglberakhir, tangglberakhir) ||
-                other.tangglberakhir == tangglberakhir) &&
+            (identical(other.tanggalBerakhir, tanggalBerakhir) ||
+                other.tanggalBerakhir == tanggalBerakhir) &&
             (identical(other.statusAktivasi, statusAktivasi) ||
                 other.statusAktivasi == statusAktivasi));
   }
@@ -121,13 +121,13 @@ mixin _$TransaksiModel {
         durasiBonus,
         tipeDurasiBonus,
         tanggalMulai,
-        tangglberakhir,
+        tanggalBerakhir,
         statusAktivasi
       ]);
 
   @override
   String toString() {
-    return 'TransaksiModel(id: $id, tanggal: $tanggal, deskripsi: $deskripsi, jumlah: $jumlah, tipe: $tipe, idDompet: $idDompet, idKategori: $idKategori, idDompetTujuan: $idDompetTujuan, idPelanggan: $idPelanggan, idPaket: $idPaket, idSubKategori: $idSubKategori, statusPembayaran: $statusPembayaran, poinDidapat: $poinDidapat, poinDigunakan: $poinDigunakan, diperbaruiPada: $diperbaruiPada, diarsipkanPada: $diarsipkanPada, diHapus: $diHapus, durasiPaket: $durasiPaket, tipeDurasiPaket: $tipeDurasiPaket, durasiBonus: $durasiBonus, tipeDurasiBonus: $tipeDurasiBonus, tanggalMulai: $tanggalMulai, tangglberakhir: $tangglberakhir, statusAktivasi: $statusAktivasi)';
+    return 'TransaksiModel(id: $id, tanggal: $tanggal, deskripsi: $deskripsi, jumlah: $jumlah, tipe: $tipe, idDompet: $idDompet, idKategori: $idKategori, idDompetTujuan: $idDompetTujuan, idPelanggan: $idPelanggan, idPaket: $idPaket, idSubKategori: $idSubKategori, statusPembayaran: $statusPembayaran, poinDidapat: $poinDidapat, poinDigunakan: $poinDigunakan, diperbaruiPada: $diperbaruiPada, diarsipkanPada: $diarsipkanPada, diHapus: $diHapus, durasiPaket: $durasiPaket, tipeDurasiPaket: $tipeDurasiPaket, durasiBonus: $durasiBonus, tipeDurasiBonus: $tipeDurasiBonus, tanggalMulai: $tanggalMulai, tanggalBerakhir: $tanggalBerakhir, statusAktivasi: $statusAktivasi)';
   }
 }
 
@@ -160,7 +160,7 @@ abstract mixin class $TransaksiModelCopyWith<$Res> {
       int durasiBonus,
       TipeDurasiPaket? tipeDurasiBonus,
       DateTime? tanggalMulai,
-      DateTime? tangglberakhir,
+      DateTime? tanggalBerakhir,
       bool statusAktivasi});
 }
 
@@ -199,7 +199,7 @@ class _$TransaksiModelCopyWithImpl<$Res>
     Object? durasiBonus = null,
     Object? tipeDurasiBonus = freezed,
     Object? tanggalMulai = freezed,
-    Object? tangglberakhir = freezed,
+    Object? tanggalBerakhir = freezed,
     Object? statusAktivasi = null,
   }) {
     return _then(_self.copyWith(
@@ -291,9 +291,9 @@ class _$TransaksiModelCopyWithImpl<$Res>
           ? _self.tanggalMulai
           : tanggalMulai // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      tangglberakhir: freezed == tangglberakhir
-          ? _self.tangglberakhir
-          : tangglberakhir // ignore: cast_nullable_to_non_nullable
+      tanggalBerakhir: freezed == tanggalBerakhir
+          ? _self.tanggalBerakhir
+          : tanggalBerakhir // ignore: cast_nullable_to_non_nullable
               as DateTime?,
       statusAktivasi: null == statusAktivasi
           ? _self.statusAktivasi
@@ -419,7 +419,7 @@ extension TransaksiModelPatterns on TransaksiModel {
             int durasiBonus,
             TipeDurasiPaket? tipeDurasiBonus,
             DateTime? tanggalMulai,
-            DateTime? tangglberakhir,
+            DateTime? tanggalBerakhir,
             bool statusAktivasi)?
         $default, {
     required TResult orElse(),
@@ -450,7 +450,7 @@ extension TransaksiModelPatterns on TransaksiModel {
             _that.durasiBonus,
             _that.tipeDurasiBonus,
             _that.tanggalMulai,
-            _that.tangglberakhir,
+            _that.tanggalBerakhir,
             _that.statusAktivasi);
       case _:
         return orElse();
@@ -495,7 +495,7 @@ extension TransaksiModelPatterns on TransaksiModel {
             int durasiBonus,
             TipeDurasiPaket? tipeDurasiBonus,
             DateTime? tanggalMulai,
-            DateTime? tangglberakhir,
+            DateTime? tanggalBerakhir,
             bool statusAktivasi)
         $default,
   ) {
@@ -525,7 +525,7 @@ extension TransaksiModelPatterns on TransaksiModel {
             _that.durasiBonus,
             _that.tipeDurasiBonus,
             _that.tanggalMulai,
-            _that.tangglberakhir,
+            _that.tanggalBerakhir,
             _that.statusAktivasi);
       case _:
         throw StateError('Unexpected subclass');
@@ -569,7 +569,7 @@ extension TransaksiModelPatterns on TransaksiModel {
             int durasiBonus,
             TipeDurasiPaket? tipeDurasiBonus,
             DateTime? tanggalMulai,
-            DateTime? tangglberakhir,
+            DateTime? tanggalBerakhir,
             bool statusAktivasi)?
         $default,
   ) {
@@ -599,7 +599,7 @@ extension TransaksiModelPatterns on TransaksiModel {
             _that.durasiBonus,
             _that.tipeDurasiBonus,
             _that.tanggalMulai,
-            _that.tangglberakhir,
+            _that.tanggalBerakhir,
             _that.statusAktivasi);
       case _:
         return null;
@@ -611,7 +611,7 @@ extension TransaksiModelPatterns on TransaksiModel {
 
 class _TransaksiModel extends TransaksiModel {
   const _TransaksiModel(
-      {this.id = '',
+      {required this.id,
       required this.tanggal,
       required this.deskripsi,
       required this.jumlah,
@@ -633,12 +633,11 @@ class _TransaksiModel extends TransaksiModel {
       this.durasiBonus = 0,
       this.tipeDurasiBonus,
       this.tanggalMulai,
-      this.tangglberakhir,
+      this.tanggalBerakhir,
       this.statusAktivasi = false})
       : super._();
 
   @override
-  @JsonKey()
   final String id;
   @override
   final DateTime tanggal;
@@ -688,7 +687,7 @@ class _TransaksiModel extends TransaksiModel {
   @override
   final DateTime? tanggalMulai;
   @override
-  final DateTime? tangglberakhir;
+  final DateTime? tanggalBerakhir;
   @override
   @JsonKey()
   final bool statusAktivasi;
@@ -744,8 +743,8 @@ class _TransaksiModel extends TransaksiModel {
                 other.tipeDurasiBonus == tipeDurasiBonus) &&
             (identical(other.tanggalMulai, tanggalMulai) ||
                 other.tanggalMulai == tanggalMulai) &&
-            (identical(other.tangglberakhir, tangglberakhir) ||
-                other.tangglberakhir == tangglberakhir) &&
+            (identical(other.tanggalBerakhir, tanggalBerakhir) ||
+                other.tanggalBerakhir == tanggalBerakhir) &&
             (identical(other.statusAktivasi, statusAktivasi) ||
                 other.statusAktivasi == statusAktivasi));
   }
@@ -775,13 +774,13 @@ class _TransaksiModel extends TransaksiModel {
         durasiBonus,
         tipeDurasiBonus,
         tanggalMulai,
-        tangglberakhir,
+        tanggalBerakhir,
         statusAktivasi
       ]);
 
   @override
   String toString() {
-    return 'TransaksiModel(id: $id, tanggal: $tanggal, deskripsi: $deskripsi, jumlah: $jumlah, tipe: $tipe, idDompet: $idDompet, idKategori: $idKategori, idDompetTujuan: $idDompetTujuan, idPelanggan: $idPelanggan, idPaket: $idPaket, idSubKategori: $idSubKategori, statusPembayaran: $statusPembayaran, poinDidapat: $poinDidapat, poinDigunakan: $poinDigunakan, diperbaruiPada: $diperbaruiPada, diarsipkanPada: $diarsipkanPada, diHapus: $diHapus, durasiPaket: $durasiPaket, tipeDurasiPaket: $tipeDurasiPaket, durasiBonus: $durasiBonus, tipeDurasiBonus: $tipeDurasiBonus, tanggalMulai: $tanggalMulai, tangglberakhir: $tangglberakhir, statusAktivasi: $statusAktivasi)';
+    return 'TransaksiModel(id: $id, tanggal: $tanggal, deskripsi: $deskripsi, jumlah: $jumlah, tipe: $tipe, idDompet: $idDompet, idKategori: $idKategori, idDompetTujuan: $idDompetTujuan, idPelanggan: $idPelanggan, idPaket: $idPaket, idSubKategori: $idSubKategori, statusPembayaran: $statusPembayaran, poinDidapat: $poinDidapat, poinDigunakan: $poinDigunakan, diperbaruiPada: $diperbaruiPada, diarsipkanPada: $diarsipkanPada, diHapus: $diHapus, durasiPaket: $durasiPaket, tipeDurasiPaket: $tipeDurasiPaket, durasiBonus: $durasiBonus, tipeDurasiBonus: $tipeDurasiBonus, tanggalMulai: $tanggalMulai, tanggalBerakhir: $tanggalBerakhir, statusAktivasi: $statusAktivasi)';
   }
 }
 
@@ -816,7 +815,7 @@ abstract mixin class _$TransaksiModelCopyWith<$Res>
       int durasiBonus,
       TipeDurasiPaket? tipeDurasiBonus,
       DateTime? tanggalMulai,
-      DateTime? tangglberakhir,
+      DateTime? tanggalBerakhir,
       bool statusAktivasi});
 }
 
@@ -855,7 +854,7 @@ class __$TransaksiModelCopyWithImpl<$Res>
     Object? durasiBonus = null,
     Object? tipeDurasiBonus = freezed,
     Object? tanggalMulai = freezed,
-    Object? tangglberakhir = freezed,
+    Object? tanggalBerakhir = freezed,
     Object? statusAktivasi = null,
   }) {
     return _then(_TransaksiModel(
@@ -947,9 +946,9 @@ class __$TransaksiModelCopyWithImpl<$Res>
           ? _self.tanggalMulai
           : tanggalMulai // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      tangglberakhir: freezed == tangglberakhir
-          ? _self.tangglberakhir
-          : tangglberakhir // ignore: cast_nullable_to_non_nullable
+      tanggalBerakhir: freezed == tanggalBerakhir
+          ? _self.tanggalBerakhir
+          : tanggalBerakhir // ignore: cast_nullable_to_non_nullable
               as DateTime?,
       statusAktivasi: null == statusAktivasi
           ? _self.statusAktivasi

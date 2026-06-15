@@ -92,9 +92,9 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
                       ),
                       gapH4,
                       if (transaction.tanggalMulai != null &&
-                          transaction.tangglberakhir != null)
+                          transaction.tanggalBerakhir != null)
                         Text(
-                          'Aktif: ${FormatTanggal.formatDasar(transaction.tanggalMulai!)} - ${FormatTanggal.formatDasar(transaction.tangglberakhir!)}',
+                          'Aktif: ${FormatTanggal.formatDasar(transaction.tanggalMulai!)} - ${FormatTanggal.formatDasar(transaction.tanggalBerakhir!)}',
                         ),
                     ],
                   ),

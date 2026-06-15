@@ -25,16 +25,14 @@ enum SortMode {
   statusUnpaid,
 }
 
-class SubscriptionHistoryPage extends ConsumerStatefulWidget {
-  const SubscriptionHistoryPage({super.key});
+class TransaksiU extends ConsumerStatefulWidget {
+  const TransaksiU({super.key});
 
   @override
-  ConsumerState<SubscriptionHistoryPage> createState() =>
-      _SubscriptionHistoryPageState();
+  ConsumerState<TransaksiU> createState() => _TransaksiUState();
 }
 
-class _SubscriptionHistoryPageState
-    extends ConsumerState<SubscriptionHistoryPage> {
+class _TransaksiUState extends ConsumerState<TransaksiU> {
   final TransaksiOpFirebase _transactionOpFirebase = TransaksiOpFirebase();
 
   SortMode _sortMode = SortMode.endDateNewest;
@@ -60,18 +58,18 @@ class _SubscriptionHistoryPageState
     switch (_sortMode) {
       case SortMode.endDateNewest:
         history.sort((a, b) {
-          if (a.tangglberakhir == null && b.tangglberakhir == null) return 0;
-          if (a.tangglberakhir == null) return 1;
-          if (b.tangglberakhir == null) return -1;
-          return b.tangglberakhir!.compareTo(a.tangglberakhir!);
+          if (a.tanggalBerakhir == null && b.tanggalBerakhir == null) return 0;
+          if (a.tanggalBerakhir == null) return 1;
+          if (b.tanggalBerakhir == null) return -1;
+          return b.tanggalBerakhir!.compareTo(a.tanggalBerakhir!);
         });
         break;
       case SortMode.endDateOldest:
         history.sort((a, b) {
-          if (a.tangglberakhir == null && b.tangglberakhir == null) return 0;
-          if (a.tangglberakhir == null) return 1;
-          if (b.tangglberakhir == null) return -1;
-          return a.tangglberakhir!.compareTo(b.tangglberakhir!);
+          if (a.tanggalBerakhir == null && b.tanggalBerakhir == null) return 0;
+          if (a.tanggalBerakhir == null) return 1;
+          if (b.tanggalBerakhir == null) return -1;
+          return a.tanggalBerakhir!.compareTo(b.tanggalBerakhir!);
         });
         break;
       case SortMode.statusPaid:
@@ -193,13 +191,13 @@ class _SubscriptionHistoryPageState
                               ? packageOpFirebase
                                   .ambilBerdasarkanId(tx.idPaket!)
                               : Future<PaketModel?>.value();
-                          final activeText = tx.tangglberakhir != null
+                          final activeText = tx.tanggalBerakhir != null
                               ? PerhitunganUtil.ambilTeksSisaMasaAktif(
-                                  tx.tangglberakhir!)
+                                  tx.tanggalBerakhir!)
                               : 'N/A';
-                          final activeColor = tx.tangglberakhir != null
+                          final activeColor = tx.tanggalBerakhir != null
                               ? PerhitunganUtil.ambilWarnaSisaMasaAktif(
-                                  tx.tangglberakhir!)
+                                  tx.tanggalBerakhir!)
                               : Colors.grey;
                           return Card(
                             key: ValueKey(tx.id),
@@ -212,9 +210,9 @@ class _SubscriptionHistoryPageState
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    if (tx.tangglberakhir != null)
+                                    if (tx.tanggalBerakhir != null)
                                       Text(
-                                          'Berakhir - ${FormatWaktuLengkap.formatSingkat(tx.tangglberakhir!)}'),
+                                          'Berakhir - ${FormatWaktuLengkap.formatSingkat(tx.tanggalBerakhir!)}'),
                                     Text(
                                         'Status: ${tx.statusPembayaran.displayName}',
                                         style: TextStyle(

@@ -50,10 +50,10 @@ class DetailTransaksiU extends StatelessWidget {
                 'Tanggal Mulai:',
                 FormatWaktuLengkap.formatSingkat(transaksi.tanggalMulai!),
               ),
-            if (transaksi.tangglberakhir != null)
+            if (transaksi.tanggalBerakhir != null)
               _buildInfoRow(
                 'Tanggal Berakhir:',
-                FormatWaktuLengkap.formatSingkat(transaksi.tangglberakhir!),
+                FormatWaktuLengkap.formatSingkat(transaksi.tanggalBerakhir!),
               ),
             _buildInfoRow(
               'Poin didapat:',

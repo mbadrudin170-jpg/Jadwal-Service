@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/detail_paket.dart';
-import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
+import 'package:wifi/fitur/pelanggan/ui/admin/detail_pelanggan_a.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/form_riwayat_aktivasi.dart';
 import 'package:wifi/admin/providers/detail_langganan_provider.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
@@ -130,11 +130,11 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                           'Tanggal Mulai',
                           FormatWaktuLengkap.formatSingkat(
                               transaction.tanggalMulai!)),
-                    if (transaction.tangglberakhir != null)
+                    if (transaction.tanggalBerakhir != null)
                       _buildRow(
                           'Tanggal Berakhir',
                           FormatWaktuLengkap.formatSingkat(
-                              transaction.tangglberakhir!)),
+                              transaction.tanggalBerakhir!)),
                     _buildRow('Status Pembayaran',
                         transaction.statusPembayaran.displayName.toUpperCase(),
                         color: paymentStatusColor, isBold: true),

@@ -31,7 +31,7 @@ void main() {
     idDompet: 'wallet-01',
     idKategori: 'cat-internet',
     statusPembayaran: StatusPembayaran.paid,
-    tangglberakhir: DateTime.now().add(const Duration(days: 30)),
+    tanggalBerakhir: DateTime.now().add(const Duration(days: 30)),
     poinDidapat: 10,
   );
 
@@ -45,7 +45,7 @@ void main() {
     idDompet: 'wallet-01',
     idKategori: 'cat-internet',
     // paymentStatus default-nya unpaid
-    tangglberakhir: DateTime.now().add(const Duration(days: 60)),
+    tanggalBerakhir: DateTime.now().add(const Duration(days: 60)),
     poinDidapat: 20,
     poinDigunakan: 5,
   );
@@ -60,7 +60,7 @@ void main() {
     idDompet: 'wallet-02',
     idKategori: 'cat-internet',
     statusPembayaran: StatusPembayaran.paid,
-    tangglberakhir:
+    tanggalBerakhir:
         DateTime.now().subtract(const Duration(days: 1)), // sudah kedaluwarsa
     poinDidapat: 5,
   );

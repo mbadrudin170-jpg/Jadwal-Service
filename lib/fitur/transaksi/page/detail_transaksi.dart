@@ -212,10 +212,10 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
                 'Masa Aktif Mulai',
                 FormatWaktuLengkap.formatSingkat(transaksi.tanggalMulai!),
               ),
-            if (transaksi.tangglberakhir != null)
+            if (transaksi.tanggalBerakhir != null)
               _buildDetailRow(
                 'Masa Aktif Berakhir',
-                FormatWaktuLengkap.formatSingkat(transaksi.tangglberakhir!),
+                FormatWaktuLengkap.formatSingkat(transaksi.tanggalBerakhir!),
               ),
             if (transaksi.durasiBonus > 0 && transaksi.tipeDurasiBonus != null)
               _buildDetailRow('Bonus',

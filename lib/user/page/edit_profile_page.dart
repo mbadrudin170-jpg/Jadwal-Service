@@ -45,7 +45,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     super.initState();
     _nameController = TextEditingController(text: widget.customer.nama);
     _phoneController = TextEditingController(text: widget.customer.telepon);
-    _passwordController = TextEditingController(text: widget.customer.password);
+    _passwordController = TextEditingController(text: widget.customer.kataSandi);
   }
 
   Future<void> _saveChanges() async {
@@ -67,7 +67,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         final updatedCustomer = widget.customer.copyWith(
           nama: _nameController.text,
           telepon: _phoneController.text,
-          password: _passwordController.text,
+          kataSandi: _passwordController.text,
         );
         final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
         await customerOpFirebase.updatePelanggan(updatedCustomer);

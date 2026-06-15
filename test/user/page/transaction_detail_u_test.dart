@@ -18,7 +18,7 @@ void main() {
     tipe: TipeTransaksi.purchase,
     statusPembayaran: StatusPembayaran.paid,
     tanggalMulai: DateTime(2023, 1, 1),
-    tangglberakhir: DateTime(2023, 1, 31),
+    tanggalBerakhir: DateTime(2023, 1, 31),
     poinDidapat: 10,
     poinDigunakan: 0,
   );

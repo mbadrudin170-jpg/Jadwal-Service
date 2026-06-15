@@ -17,7 +17,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
   const TransaksiModel._(); // Private constructor untuk method custom
 
   const factory TransaksiModel({
-    @Default('') String id,
+    required String id,
     required DateTime tanggal,
     required String deskripsi,
     required double jumlah,
@@ -39,7 +39,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
     @Default(0) int durasiBonus,
     TipeDurasiPaket? tipeDurasiBonus,
     DateTime? tanggalMulai,
-    DateTime? tangglberakhir,
+    DateTime? tanggalBerakhir,
     @Default(false) bool statusAktivasi,
   }) = _TransaksiModel;
 
@@ -94,7 +94,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
         map[NamaKolom.tipeDurasiBonus],
       ),
       tanggalMulai: ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]),
-      tangglberakhir: ParserUtil.parseDateTime(map[NamaKolom.tangglberakhir]),
+      tanggalBerakhir: ParserUtil.parseDateTime(map[NamaKolom.tangglberakhir]),
       statusAktivasi: ParserUtil.parseBool(map[NamaKolom.statusAktivasi]),
     );
   }
@@ -124,7 +124,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       NamaKolom.durasiBonus: durasiBonus,
       NamaKolom.tipeDurasiBonus: tipeDurasiBonus?.name,
       NamaKolom.tanggalMulai: tanggalMulai?.millisecondsSinceEpoch,
-      NamaKolom.tangglberakhir: tangglberakhir?.millisecondsSinceEpoch,
+      NamaKolom.tangglberakhir: tanggalBerakhir?.millisecondsSinceEpoch,
       NamaKolom.statusAktivasi: statusAktivasi ? 1 : 0,
     };
   }
@@ -165,7 +165,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
         data[NamaKolom.tipeDurasiBonus],
       ),
       tanggalMulai: ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]),
-      tangglberakhir: ParserUtil.parseDateTime(data[NamaKolom.tangglberakhir]),
+      tanggalBerakhir: ParserUtil.parseDateTime(data[NamaKolom.tangglberakhir]),
       statusAktivasi: ParserUtil.parseBool(data[NamaKolom.statusAktivasi]),
     );
   }
@@ -199,8 +199,8 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       NamaKolom.tanggalMulai: tanggalMulai != null
           ? Timestamp.fromDate(tanggalMulai!.toUtc())
           : null,
-      NamaKolom.tangglberakhir: tangglberakhir != null
-          ? Timestamp.fromDate(tangglberakhir!.toUtc())
+      NamaKolom.tangglberakhir: tanggalBerakhir != null
+          ? Timestamp.fromDate(tanggalBerakhir!.toUtc())
           : null,
       NamaKolom.statusAktivasi: statusAktivasi,
     };

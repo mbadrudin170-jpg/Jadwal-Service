@@ -33,7 +33,7 @@ void main() {
         idPelanggan: userId, // Menggunakan customerId
         statusPembayaran: StatusPembayaran.paid,
         tanggalMulai: DateTime.now().subtract(const Duration(days: 15)),
-        tangglberakhir: DateTime.now().add(const Duration(days: 15)),
+        tanggalBerakhir: DateTime.now().add(const Duration(days: 15)),
         tanggal: DateTime.now(),
         deskripsi: 'Sewa paket 30 hari',
         jumlah: 50000,

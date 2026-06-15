@@ -1,24 +1,23 @@
 // path: lib/data_dummy/data_dummy.dart
 
-import 'package:wifi/fitur/order/model/order_model.dart';
-import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
-import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
-import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
-import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
-import 'package:wifi/shared/model/notifikasi_model.dart';
-import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
-import 'package:wifi/fitur/dompet/model/dompet_model.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/order/model/order_model.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
-import 'package:wifi/fitur/feedback/model/feedback_model.dart';
-import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/enum/status_order_enum.dart';
+import 'package:wifi/shared/export/model.dart';
 
 /// Kelas penyedia data dummy untuk keperluan testing UI dan pengembangan.
 class DataDummy {
@@ -152,7 +151,8 @@ class DataDummy {
   /// Daftar dummy untuk [DompetModel]
   static List<DompetModel> get wallets => [
         const DompetModel(id: walletBudiId, nama: 'Dompet Budi', saldo: 500000),
-        const DompetModel(id: walletSitiId, nama: 'Dompet Siti', saldo: 1000000),
+        const DompetModel(
+            id: walletSitiId, nama: 'Dompet Siti', saldo: 1000000),
       ];
 
   /// Daftar dummy untuk [TransaksiModel]
@@ -224,23 +224,12 @@ class DataDummy {
   static List<VersiApkModel> get apkVersions => [
         const VersiApkModel(
             id: apkAdminV1Id,
-            versi: '1.0.0',
+            versiTerkahir: '1.0.0',
             catatanRilis: 'Versi pertama aplikasi admin.',
-            nomorBuild: {ArsitekturApk.arm64: 1},
-            linkUnduhan: {
-              ArsitekturApk.arm64: '/path/to/admin-v1.0.0.apk'
-            },
+            nomorBuildTerakhir: {ArsitekturApk.arm64: 1},
+            linkDownload: {ArsitekturApk.arm64: '/path/to/admin-v1.0.0.apk'},
             wajibUpdate: true,
-            namaFile: 'app-admin-v1.0.0.apk'),
-        const VersiApkModel(
-            id: apkUserV1Id,
-            versi: '1.0.1',
-            catatanRilis: 'Perbaikan bug dan peningkatan performa.',
-            nomorBuild: {ArsitekturApk.arm64: 2},
-            linkUnduhan: {
-              ArsitekturApk.arm64: '/path/to/user-v1.0.1.apk'
-            },
-            namaFile: 'app-user-v1.0.1.apk'),
+            linkYoutubeTutorial: 'https://youtu.be/dQw4w9WgXcQ'),
       ];
 
   /// Data dummy untuk [SettingsModel]

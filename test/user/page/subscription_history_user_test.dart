@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/user/page/subscription_history_user.dart';
+import 'package:wifi/fitur/transaksi/page/transaksi_u.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
 // Mocks
@@ -28,14 +28,14 @@ void main() {
       idPelanggan: '1',
       idPaket: '1',
       tanggalMulai: DateTime(2023, 1, 1),
-      tangglberakhir: DateTime(2023, 1, 31),
+      tanggalBerakhir: DateTime(2023, 1, 31),
     ),
     TransaksiModel(
       id: '2',
       idPelanggan: '1',
       idPaket: '2',
       tanggalMulai: DateTime(2023, 2, 1),
-      tangglberakhir: DateTime(2023, 2, 28),
+      tanggalBerakhir: DateTime(2023, 2, 28),
     ),
   ];
 
@@ -47,7 +47,7 @@ void main() {
         userIdProvider.overrideWith((ref) => Future.value('testUserId')),
       ],
       child: MaterialApp(
-        home: const SubscriptionHistoryPage(),
+        home: const TransaksiU(),
         navigatorObservers: [mockNavigatorObserver],
       ),
     );

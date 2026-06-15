@@ -119,8 +119,8 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
         _buildDetailRow('Alamat', widget.pelanggan.alamat, () async {
           await _copyData('Alamat', widget.pelanggan.alamat);
         }),
-        _buildDetailRow('Password', widget.pelanggan.password, () async {
-          await _copyData('Password', widget.pelanggan.password);
+        _buildDetailRow('Password', widget.pelanggan.kataSandi, () async {
+          await _copyData('Password', widget.pelanggan.kataSandi);
         }),
         _buildDetailRow('MAC Address', widget.pelanggan.macAddress, () async {
           await _copyData('MAC Address', widget.pelanggan.macAddress);
