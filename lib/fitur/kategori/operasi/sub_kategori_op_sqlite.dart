@@ -132,14 +132,14 @@ class SubKategoriOpSqlite {
   /// Melakukan soft delete pada sub-kategori berdasarkan [id].
   Future<void> softDelete(
     final String id, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai soft delete untuk sub-kategori ID: $id');
     try {
       await baseOpSqlite.softDelete(
         _tableName,
         id,
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil soft delete sub-kategori ID: $id.');
     } on Exception catch (e, st) {

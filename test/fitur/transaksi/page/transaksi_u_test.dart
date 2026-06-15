@@ -10,6 +10,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_u.dart';
@@ -17,39 +18,61 @@ import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaksi_op_firebase.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 // Mocks
 class MockCustomerOpFirebase extends Mock implements CustomerOpFirebase {}
+
 class MockPaketOpFirebase extends Mock implements PaketOpFirebase {}
+
 class MockTransaksiOpFirebase extends Mock implements TransaksiOpFirebase {}
+
 class MockInterstitialAdService extends Mock implements InterstitialAdService {}
+
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
 void main() {
   // Data Mocks
-  final mockUser = PelangganModel(id: 'user1', nama: 'User Test');
+  final mockUser = PelangganModel(
+      id: 'user1', nama: 'User Test', alamat: '', telepon: '', macAddress: '', kataSandi: '');
   final mockTx1 = TransaksiModel(
-      id: 'tx1',
-      idPelanggan: 'user1',
-      deskripsi: 'Lunas, berakhir nanti',
-      tanggalBerakhir: DateTime.now().add(const Duration(days: 5)),
-      statusPembayaran: StatusPembayaran.paid);
+    id: 'tx1',
+    idPelanggan: 'user1',
+    deskripsi: 'Lunas, berakhir nanti',
+    tanggalBerakhir: DateTime.now().add(const Duration(days: 5)),
+    statusPembayaran: StatusPembayaran.paid,
+    jumlah: 50000,
+    tipe: TipeTransaksi.expense,
+    idDompet: 'd1',
+    idKategori: 'k1',
+    tanggal: DateTime.now(),
+  );
   final mockTx2 = TransaksiModel(
-      id: 'tx2',
-      idPelanggan: 'user1',
-      deskripsi: 'Belum lunas, berakhir dulu',
-      tanggalBerakhir: DateTime.now().subtract(const Duration(days: 5)),
-      statusPembayaran: StatusPembayaran.unpaid);
+    id: 'tx2',
+    idPelanggan: 'user1',
+    deskripsi: 'Belum lunas, berakhir dulu',
+    tanggalBerakhir: DateTime.now().subtract(const Duration(days: 5)),
+    statusPembayaran: StatusPembayaran.unpaid,
+    jumlah: 25000,
+    tipe: TipeTransaksi.expense,
+    idDompet: 'd1',
+    idKategori: 'k2',
+    tanggal: DateTime.now(),
+  );
 
   late MockCustomerOpFirebase mockCustomerOp;
   late MockPaketOpFirebase mockPaketOp;
   late MockTransaksiOpFirebase mockTransaksiOp;
   late MockInterstitialAdService mockAdService;
   late MockNavigatorObserver mockNavigatorObserver;
-  late ProviderContainer container;
+
+  setUpAll(() {
+    registerFallbackValue(PelangganModel(
+        id: 'id', nama: 'nama', alamat: '', telepon: '', macAddress: '', kataSandi: ''));
+  });
 
   setUp(() {
     mockCustomerOp = MockCustomerOpFirebase();
@@ -59,24 +82,24 @@ void main() {
     mockNavigatorObserver = MockNavigatorObserver();
 
     when(() => mockCustomerOp.getById(any())).thenAnswer((_) async => mockUser);
-    when(() => mockCustomerOp.getStreamPelanggan(any())).thenAnswer((_) => Stream.value(mockUser));
-    when(() => mockTransaksiOp.ambilBerdasarkanIdPelanggan(any())).thenAnswer((_) async => [mockTx1, mockTx2]);
+    when(() => mockCustomerOp.getStreamPelanggan(any()))
+        .thenAnswer((_) => Stream.value(mockUser));
+    when(() => mockTransaksiOp.ambilBerdasarkanIdPelanggan(any()))
+        .thenAnswer((_) async => [mockTx1, mockTx2]);
     when(() => mockAdService.show()).thenAnswer((_) async {});
-    when(() => mockPaketOp.ambilBerdasarkanId(any())).thenAnswer((_) async => PaketModel(id: 'p1', nama: 'Paket'));
+    when(() => mockPaketOp.ambilBerdasarkanId(any())).thenAnswer((_) async =>
+        PaketModel(id: 'p1', nama: 'Paket', harga: 50000, durasi: 30, tipe: 'reguler'));
+  });
 
-    container = ProviderContainer(
+  Widget createWidgetUnderTest() {
+    return ProviderScope(
       overrides: [
         userIdProvider.overrideWith((ref) => Future.value('user1')),
         pelangganOpFirebaseProvider.overrideWithValue(mockCustomerOp),
         paketOpFirebaseProvider.overrideWithValue(mockPaketOp),
+        transaksiOpFirebaseProvider.overrideWithValue(mockTransaksiOp),
         interstitialAdServiceProvider.overrideWithValue(mockAdService),
       ],
-    );
-  });
-
-   Widget createWidgetUnderTest() {
-    return ProviderScope(
-      parent: container,
       child: MaterialApp(
         home: const TransaksiU(),
         navigatorObservers: [mockNavigatorObserver],
@@ -85,40 +108,51 @@ void main() {
   }
 
   group('Rendering State', () {
-    testWidgets('01. harus menampilkan CircularProgressIndicator saat memuat pelanggan', (tester) async {
+    testWidgets(
+        '01. harus menampilkan CircularProgressIndicator saat memuat pelanggan',
+        (tester) async {
       final completer = Completer<PelangganModel?>();
-      when(() => mockCustomerOp.getStreamPelanggan(any())).thenAnswer((_) => completer.stream);
-      
+      when(() => mockCustomerOp.getStreamPelanggan(any()))
+          .thenAnswer((_) => completer.stream);
+
       await tester.pumpWidget(createWidgetUnderTest());
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      
+
       completer.complete(mockUser);
       await tester.pumpAndSettle();
     });
 
-    testWidgets('03. harus menampilkan "Data pelanggan tidak ditemukan." jika tidak ada pelanggan', (tester) async {
-      when(() => mockCustomerOp.getStreamPelanggan(any())).thenAnswer((_) => Stream.value(null));
+    testWidgets(
+        '03. harus menampilkan "Data pelanggan tidak ditemukan." jika tidak ada pelanggan',
+        (tester) async {
+      when(() => mockCustomerOp.getStreamPelanggan(any()))
+          .thenAnswer((_) => Stream.value(null));
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
       expect(find.text('Data pelanggan tidak ditemukan.'), findsOneWidget);
     });
 
-    testWidgets('05. harus menampilkan "Tidak ada riwayat." jika transaksi kosong', (tester) async {
-       when(() => mockTransaksiOp.ambilBerdasarkanIdPelanggan(any())).thenAnswer((_) async => []);
-       await tester.pumpWidget(createWidgetUnderTest());
-       await tester.pumpAndSettle();
-       expect(find.text('Tidak ada riwayat.'), findsOneWidget);
+    testWidgets('05. harus menampilkan "Tidak ada riwayat." jika transaksi kosong',
+        (tester) async {
+      when(() => mockTransaksiOp.ambilBerdasarkanIdPelanggan(any()))
+          .thenAnswer((_) async => []);
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+      expect(find.text('Tidak ada riwayat.'), findsOneWidget);
     });
   });
 
   group('Fungsionalitas Pengurutan', () {
-     testWidgets('07. harus menampilkan PopupMenuButton untuk pengurutan', (tester) async {
+    testWidgets('07. harus menampilkan PopupMenuButton untuk pengurutan',
+        (tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.sort), findsOneWidget);
+      expect(find.byIcon(TIcons.sort), findsOneWidget);
     });
 
-    testWidgets('08. harus mengurutkan berdasarkan "Tanggal Berakhir (Terbaru)" secara default', (tester) async {
+    testWidgets(
+        '08. harus mengurutkan berdasarkan "Tanggal Berakhir (Terbaru)" secara default',
+        (tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
       final listTiles = tester.widgetList<Card>(find.byType(Card));
@@ -126,10 +160,12 @@ void main() {
       expect(firstKey.value, 'tx1'); // Berakhir nanti
     });
 
-    testWidgets('09. harus mengurutkan ulang saat "Tanggal Berakhir (Terlama)" dipilih', (tester) async {
+    testWidgets(
+        '09. harus mengurutkan ulang saat "Tanggal Berakhir (Terlama)" dipilih',
+        (tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.sort));
+      await tester.tap(find.byIcon(TIcons.sort));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Tanggal Berakhir (Terlama)'));
       await tester.pumpAndSettle();
@@ -141,7 +177,8 @@ void main() {
   });
 
   group('Interaksi & Navigasi', () {
-    testWidgets('12. harus navigasi ke DetailTransaksiU saat item di-tap', (tester) async {
+    testWidgets('12. harus navigasi ke DetailTransaksiU saat item di-tap',
+        (tester) async {
       when(() => mockNavigatorObserver.didPush(any(), any())).thenReturn(null);
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
@@ -149,14 +186,18 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('tx1')));
       await tester.pumpAndSettle();
 
-      verify(() => mockNavigatorObserver.didPush(any(that: isA<MaterialPageRoute>()), any()));
+      verify(() =>
+          mockNavigatorObserver.didPush(any(that: isA<MaterialPageRoute>()), any()));
       expect(find.byType(DetailTransaksiU), findsOneWidget);
     });
 
-    testWidgets('13. harus menampilkan iklan sebelum dan sesudah navigasi ke detail', (tester) async {
-      when(() => mockNavigatorObserver.didPush(any(), any())).thenAnswer((invocation) {
-          final route = invocation.positionalArguments[0] as MaterialPageRoute;
-          Future.delayed(Duration.zero, () => route.navigator?.pop());
+    testWidgets(
+        '13. harus menampilkan iklan sebelum dan sesudah navigasi ke detail',
+        (tester) async {
+      when(() => mockNavigatorObserver.didPush(any(), any()))
+          .thenAnswer((invocation) {
+        final route = invocation.positionalArguments[0] as MaterialPageRoute;
+        Future.delayed(Duration.zero, () => route.navigator?.pop());
       });
 
       await tester.pumpWidget(createWidgetUnderTest());
@@ -168,4 +209,3 @@ void main() {
     });
   });
 }
-
