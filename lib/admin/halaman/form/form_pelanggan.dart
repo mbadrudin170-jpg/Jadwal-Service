@@ -1,5 +1,3 @@
-// path: lib/admin/halaman/form/customer_form.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -13,12 +11,9 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-/// Halaman form untuk menambah atau mengedit data pelanggan.
 class FormPelanggan extends ConsumerStatefulWidget {
-  /// Model pelanggan yang akan diedit. Jika null, maka form dalam mode tambah baru.
   final PelangganModel? pelanggan;
 
-  /// Konstruktor untuk CustomerForm.
   const FormPelanggan({super.key, this.pelanggan});
 
   @override
@@ -90,7 +85,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         id: _modeEdit ? widget.pelanggan!.id : const Uuid().v4(),
         name: _namaController.text.trim(),
         phone: _teleponController.text.trim(),
-        address: _alamatController.text.trim(),
+        address: _alamatController.text.trim(), 
         password: _passwordController.text, // No trim for password
         macAddress: _macAddressController.text.trim().toUpperCase(),
       );
