@@ -6,7 +6,7 @@ import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/data/sync/download_data.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/kategori_model.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
@@ -150,8 +150,8 @@ void main() {
           lastDownloadTime: lastSync,
           fromFirebase: (final id, final data) => KategoriModel(
             id: id,
-            name: 'Test Category',
-            type: TipeKategori.income,
+            nama: 'Test Category',
+            tipe: TipeKategori.income,
           ),
           batchOperation: (final data) =>
               mockCategoryOperation.insertOrUpdateBatch(data, fromServer: true),
@@ -173,8 +173,8 @@ void main() {
           lastDownloadTime: lastSync,
           fromFirebase: (final id, final data) => KategoriModel(
             id: id,
-            name: 'Test Category',
-            type: TipeKategori.income,
+            nama: 'Test Category',
+            tipe: TipeKategori.income,
           ),
           batchOperation: (final data) =>
               mockCategoryOperation.insertOrUpdateBatch(data, fromServer: true),

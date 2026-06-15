@@ -128,10 +128,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
       final semuaKategori = results[3] as List<KategoriModel>;
       final kategoriPemasukanList = semuaKategori
-          .where((k) => k.type == TipeKategori.income && !k.isDeleted)
+          .where((k) => k.tipe == TipeKategori.income && !k.diHapus)
           .toList();
       final kategoriPengeluaranList = semuaKategori
-          .where((k) => k.type == TipeKategori.expense && !k.isDeleted)
+          .where((k) => k.tipe == TipeKategori.expense && !k.diHapus)
           .toList();
 
       final transaksiTerkait =
@@ -223,7 +223,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     }
     if (_kategoriPemasukanList.isNotEmpty) {
       _kategoriDipilih = _kategoriPemasukanList.firstWhereOrNull(
-              (k) => k.name.toLowerCase() == 'aktivasi paket') ??
+              (k) => k.nama.toLowerCase() == 'aktivasi paket') ??
           _kategoriPemasukanList.first;
     }
   }
@@ -596,10 +596,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           labelText: 'Pilih Kategori Transaksi', border: OutlineInputBorder()),
       initialValue: _kategoriDipilih,
       items: _kategoriList
-          .map((k) => DropdownMenuItem(value: k, child: Text(k.name)))
+          .map((k) => DropdownMenuItem(value: k, child: Text(k.nama)))
           .toList(),
       onChanged: (newValue) {
-        Log.info('Kategori dipilih: id=${newValue?.id} nama=${newValue?.name}');
+        Log.info('Kategori dipilih: id=${newValue?.id} nama=${newValue?.nama}');
         setState(() => _kategoriDipilih = newValue);
       },
       validator: (v) => v == null ? 'Kategori tidak boleh kosong' : null,

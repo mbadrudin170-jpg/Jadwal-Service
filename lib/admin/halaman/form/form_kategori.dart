@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/tipe_kategori.dart';
-import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -46,7 +46,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
   final List<TextEditingController> _subKategoriControllers = [];
   final List<SubCategoryModel?> _subKategoriModels = [];
 
-  bool get _isEditMode => widget.kategori != null || widget.subKategori != null;
+  bool get _modeEdit => widget.kategori != null || widget.subKategori != null;
   bool get _isSubKategoriMode =>
       widget.subKategori != null || widget.idKategoriInduk != null;
 
@@ -58,7 +58,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
         widget.subKategori != null || widget.idKategoriInduk != null;
 
     Log.info(
-      '''Membuat state untuk CategoryForm. Mode: ${isEditMode ? "EDIT" : "TAMBAH BARU"}, Jenis: ${isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}, ${widget.kategori != null ? "Kategori: ${widget.kategori!.name} (ID: ${widget.kategori!.id})" : ""}${widget.subKategori != null ? "Sub-Kategori: ${widget.subKategori!.name} (ID: ${widget.subKategori!.id})" : ""}${widget.idKategoriInduk != null ? "ID Kategori Induk: ${widget.idKategoriInduk}" : ""}''',
+      '''Membuat state untuk CategoryForm. Mode: ${isEditMode ? "EDIT" : "TAMBAH BARU"}, Jenis: ${isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}, ${widget.kategori != null ? "Kategori: ${widget.kategori!.nama} (ID: ${widget.kategori!.id})" : ""}${widget.subKategori != null ? "Sub-Kategori: ${widget.subKategori!.name} (ID: ${widget.subKategori!.id})" : ""}${widget.idKategoriInduk != null ? "ID Kategori Induk: ${widget.idKategoriInduk}" : ""}''',
     );
 
     Log.info('========================================');
@@ -80,24 +80,24 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
       Log.info('MODE EDIT KATEGORI UTAMA terdeteksi.');
       Log.info('Data kategori yang akan diedit:');
       Log.info('  - ID: ${widget.kategori!.id}');
-      Log.info('  - Nama: ${widget.kategori!.name}');
-      Log.info('  - Tipe: ${widget.kategori!.type}');
+      Log.info('  - Nama: ${widget.kategori!.nama}');
+      Log.info('  - Tipe: ${widget.kategori!.tipe}');
       Log.info(
-        '  - Jumlah Sub-Kategori: ${widget.kategori!.subCategories.length}',
+        '  - Jumlah Sub-Kategori: ${widget.kategori!.idSubKategori.length}',
       );
-      Log.info('  - Diperbarui: ${widget.kategori!.updatedAt}');
-      Log.info('  - isDeleted: ${widget.kategori!.isDeleted}');
-      Log.info('  - Diarsipkan: ${widget.kategori!.archivedAt ?? "NULL"}');
+      Log.info('  - Diperbarui: ${widget.kategori!.diperbaruiPada}');
+      Log.info('  - isDeleted: ${widget.kategori!.diHapus}');
+      Log.info('  - Diarsipkan: ${widget.kategori!.diarsipkanPada ?? "NULL"}');
 
       Log.info(
-        'Mengisi TextEditingController dengan nama kategori: "${widget.kategori!.name}"',
+        'Mengisi TextEditingController dengan nama kategori: "${widget.kategori!.nama}"',
       );
-      _namaController.text = widget.kategori!.name;
-      _tipe = widget.kategori!.type;
-      Log.info('Tipe kategori diatur ke: ${widget.kategori!.type}');
+      _namaController.text = widget.kategori!.nama;
+      _tipe = widget.kategori!.tipe;
+      Log.info('Tipe kategori diatur ke: ${widget.kategori!.tipe}');
 
       Log.info('Memuat sub-kategori yang sudah ada untuk diedit.');
-      for (final sub in widget.kategori!.subCategories) {
+      for (final sub in widget.kategori!.idSubKategori) {
         _subKategoriControllers.add(TextEditingController(text: sub.name));
         _subKategoriModels.add(sub);
       }
@@ -221,13 +221,13 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
   }
 
   Future<void> _saveForm() async {
-    final kategoriOperasi = ref.read(kategoriOpSqliteProvider);
-    Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');
+    final kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
+    Log.info('Mode: ${_modeEdit ? "EDIT" : "TAMBAH BARU"}');
     Log.info(
       'Jenis: ${_isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',
     );
     Log.info('Nama yang akan disimpan: "${_namaController.text}"');
-    if (!_isSubKategoriMode || !_isEditMode) {
+    if (!_isSubKategoriMode || !_modeEdit) {
       Log.info('Tipe kategori: $_tipe');
     }
 
@@ -236,7 +236,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
       Log.info('Validasi form BERHASIL. Semua input valid.');
 
       try {
-        if (_isEditMode && widget.subKategori != null) {
+        if (_modeEdit && widget.subKategori != null) {
           final String parentCategoryId = widget.subKategori!.categoryId;
 
           Log.info('Data sub-kategori sebelum update:');
@@ -248,7 +248,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           Log.info(
             'Mengambil data kategori induk dengan ID: $parentCategoryId',
           );
-          final kategoriInduk = await kategoriOperasi
+          final kategoriInduk = await kategoriOpSqlite
               .ambilKategoriBerdasarkanId(parentCategoryId) as KategoriModel?;
 
           if (kategoriInduk == null) {
@@ -256,39 +256,39 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           }
 
           Log.info(
-            'Kategori induk ditemukan: ${kategoriInduk.name} (memiliki ${kategoriInduk.subCategories.length} sub-kategori).',
+            'Kategori induk ditemukan: ${kategoriInduk.nama} (memiliki ${kategoriInduk.idSubKategori.length} sub-kategori).',
           );
           Log.info(
             'Mencari index sub-kategori dengan ID: ${widget.subKategori!.id} dalam daftar sub-kategori.',
           );
 
-          final subKategoriIndex = kategoriInduk.subCategories
+          final subKategoriIndex = kategoriInduk.idSubKategori
               .indexWhere((final s) => s.id == widget.subKategori!.id);
 
           if (subKategoriIndex != -1) {
             Log.info('Sub-kategori ditemukan pada index: $subKategoriIndex');
             Log.info(
-              'Nama sub-kategori sebelum update: "${kategoriInduk.subCategories[subKategoriIndex].name}"',
+              'Nama sub-kategori sebelum update: "${kategoriInduk.idSubKategori[subKategoriIndex].name}"',
             );
 
             Log.info(
               'Membuat salinan sub-kategori dengan nama baru.',
             );
             final subKategoriDiperbarui =
-                kategoriInduk.subCategories[subKategoriIndex].copyWith(
+                kategoriInduk.idSubKategori[subKategoriIndex].copyWith(
               name: _namaController.text,
             );
 
             Log.info(
               'Mengganti sub-kategori pada index $subKategoriIndex dengan data baru.',
             );
-            kategoriInduk.subCategories[subKategoriIndex] =
+            kategoriInduk.idSubKategori[subKategoriIndex] =
                 subKategoriDiperbarui;
 
             Log.info(
               'Memanggil _kategoriOperasi.updateCategory() untuk menyimpan perubahan kategori induk.',
             );
-            await kategoriOperasi.updateKategori(kategoriInduk);
+            await kategoriOpSqlite.updateKategori(kategoriInduk);
 
             Log.info('Update sub-kategori BERHASIL.');
             Log.info(
@@ -300,7 +300,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
             );
             throw Exception('Sub-kategori tidak ditemukan untuk diedit.');
           }
-        } else if (_isEditMode && widget.kategori != null) {
+        } else if (_modeEdit && widget.kategori != null) {
           Log.info('========================================');
           Log.info('PROSES UPDATE KATEGORI UTAMA (MODE EDIT KATEGORI)');
           Log.info('========================================');
@@ -327,23 +327,18 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           }
 
           final kategoriDiperbarui = widget.kategori!.copyWith(
-            name: _namaController.text,
-            type: _tipe,
-            subCategories: newSubCategoryList,
+            nama: _namaController.text,
+            tipe: _tipe,
+            idSubKategori: newSubCategoryList,
           );
 
           Log.info(
             'Memanggil _kategoriOperasi.updateCategory() untuk menyimpan perubahan.',
           );
-          await kategoriOperasi.updateKategori(kategoriDiperbarui);
+          await kategoriOpSqlite.updateKategori(kategoriDiperbarui);
 
           Log.info('Update kategori utama BERHASIL.');
         } else {
-          Log.info('========================================');
-          Log.info('PROSES TAMBAH KATEGORI BARU (MODE TAMBAH)');
-          Log.info('========================================');
-
-          Log.info('Menggenerate UUID v4 untuk ID kategori baru.');
           final String kategoriId = const Uuid().v4();
           Log.info('UUID berhasil digenerate: $kategoriId');
 
@@ -383,24 +378,24 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           Log.info('Membuat objek CategoryModel baru.');
           final kategoriBaru = KategoriModel(
             id: kategoriId,
-            name: _namaController.text,
-            type: _tipe,
-            subCategories: subKategoriList,
+            nama: _namaController.text,
+            tipe: _tipe,
+            idSubKategori: subKategoriList,
           );
 
           Log.info('Objek CategoryModel berhasil dibuat:');
           Log.info('  - ID: ${kategoriBaru.id}');
-          Log.info('  - Nama: ${kategoriBaru.name}');
-          Log.info('  - Tipe: ${kategoriBaru.type}');
+          Log.info('  - Nama: ${kategoriBaru.nama}');
+          Log.info('  - Tipe: ${kategoriBaru.tipe}');
           Log.info(
-            '  - Jumlah Sub-Kategori: ${kategoriBaru.subCategories.length}',
+            '  - Jumlah Sub-Kategori: ${kategoriBaru.idSubKategori.length}',
           );
           Log.info('  - Diperbarui: Akan diatur oleh lapisan Operasi Data.');
 
           Log.info(
             'Memanggil _kategoriOperasi.createCategory() untuk menyimpan kategori baru.',
           );
-          await kategoriOperasi.tambahKategori(kategoriBaru);
+          await kategoriOpSqlite.tambahKategori(kategoriBaru);
         }
 
         if (!mounted) {
@@ -429,7 +424,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
         }
       } on Exception catch (e, s) {
         Log.error(
-          'Gagal menyimpan ${_isSubKategoriMode ? 'sub-kategori' : 'kategori'}. Proses ${_isEditMode ? 'update' : 'create'} mengalami kegagalan. Kemungkinan penyebab: koneksi database gagal, constraint violation, data tidak valid, atau terjadi error saat operasi database.',
+          'Gagal menyimpan ${_isSubKategoriMode ? 'sub-kategori' : 'kategori'}. Proses ${_modeEdit ? 'update' : 'create'} mengalami kegagalan. Kemungkinan penyebab: koneksi database gagal, constraint violation, data tidak valid, atau terjadi error saat operasi database.',
           e: e,
           s: s,
         );
@@ -461,19 +456,19 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
   @override
   Widget build(final BuildContext context) {
     String judul = 'Form Kategori';
-    if (_isEditMode && widget.kategori != null) judul = 'Edit Kategori';
-    if (_isEditMode && widget.subKategori != null) judul = 'Edit Sub-Kategori';
-    if (!_isEditMode && widget.idKategoriInduk != null) {
+    if (_modeEdit && widget.kategori != null) judul = 'Edit Kategori';
+    if (_modeEdit && widget.subKategori != null) judul = 'Edit Sub-Kategori';
+    if (!_modeEdit && widget.idKategoriInduk != null) {
       judul = 'Tambah Sub-Kategori';
     }
-    if (!_isEditMode && widget.kategori == null && widget.subKategori == null) {
+    if (!_modeEdit && widget.kategori == null && widget.subKategori == null) {
       judul = 'Tambah Kategori Baru';
     }
 
     Log.info('========================================');
     Log.info('LIFECYCLE: build() - Membangun UI CategoryForm');
     Log.info('Judul halaman: "$judul"');
-    Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');
+    Log.info('Mode: ${_modeEdit ? "EDIT" : "TAMBAH BARU"}');
     Log.info(
       'Jenis: ${_isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',
     );

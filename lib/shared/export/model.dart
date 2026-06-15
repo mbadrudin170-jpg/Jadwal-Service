@@ -5,7 +5,7 @@ export '../../fitur/feedback/model/feedback_model.dart';
 export '../../fitur/pelanggan/model/customer_model.dart';
 export '../model/pelanggan_aktif_model.dart';
 export '../../fitur/versi_apk/model/versi_apk_model.dart';
-export '../model/kategori_model.dart';
+export '../../fitur/kategori/model/kategori_model.dart';
 export '../model/event_model.dart';
 export '../model/has_id.dart';
 export '../model/notifikasi_model.dart';

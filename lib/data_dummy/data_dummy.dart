@@ -103,10 +103,10 @@ class DataDummy {
   static List<KategoriModel> get categories => [
         KategoriModel(
             id: kategoriPembayaranId,
-            name: 'Pembayaran',
-            type: TipeKategori.income),
+            nama: 'Pembayaran',
+            tipe: TipeKategori.income),
         KategoriModel(
-            id: kategoriLainnyaId, name: 'Lainnya', type: TipeKategori.expense),
+            id: kategoriLainnyaId, nama: 'Lainnya', tipe: TipeKategori.expense),
       ];
 
   /// Daftar dummy untuk [SubCategoryModel]

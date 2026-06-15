@@ -6,7 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
-import 'package:wifi/shared/model/kategori_model.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/dompet_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/kategori_op_firebase.dart';
@@ -74,7 +74,7 @@ void main() {
     when(() => mockKategoriOpFirebase.ambilSemuaKategori())
         .thenAnswer((_) async => [
               KategoriModel(
-                  id: '1', name: 'Test Category', type: TipeKategori.income),
+                  id: '1', nama: 'Test Category', tipe: TipeKategori.income),
             ]);
     await tester.pumpWidget(createTestWidget(transaction: testTransaction));
     await tester.pumpAndSettle();

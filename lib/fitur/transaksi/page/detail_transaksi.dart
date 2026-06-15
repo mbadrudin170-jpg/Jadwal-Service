@@ -55,7 +55,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
       if (model != null) {
         String? name;
         if (model is DompetModel) name = model.nama;
-        if (model is KategoriModel) name = model.name;
+        if (model is KategoriModel) name = model.nama;
         if (model is SubCategoryModel) name = model.name;
         if (model is PelangganModel) name = model.name;
         if (model is PaketModel) name = model.nama;

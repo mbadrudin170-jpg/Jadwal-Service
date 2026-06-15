@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi/admin/halaman/lainnya/apk_version_page.dart';
-import 'package:wifi/admin/halaman/lainnya/kategori.dart';
+import 'package:wifi/fitur/kategori/page/kategori.dart';
 import 'package:wifi/admin/halaman/lainnya/event_page_a.dart';
 import 'package:wifi/admin/halaman/lainnya/paket.dart';
 import 'package:wifi/admin/halaman/lainnya/riwayat_aktivasi_paket.dart';
@@ -98,7 +98,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
             context: context,
             icon: TIcons.filter,
             title: 'Kategori',
-            onTap: () => _navigateTo(const CategoryPage(), 'Kategori'),
+            onTap: () => _navigateTo(const KategoriPage(), 'Kategori'),
           ),
           _buildMenuItem(
             context: context,

@@ -1,12 +1,12 @@
-// path: lib/admin/halaman/lainnya/kategori.dart
+// path: lib/fitur/kategori/page/kategori.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/form/form_kategori.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/tipe_kategori.dart';
-import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
@@ -14,15 +14,15 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-class CategoryPage extends ConsumerStatefulWidget {
-  const CategoryPage({super.key});
+class KategoriPage extends ConsumerStatefulWidget {
+  const KategoriPage({super.key});
 
   @override
-  ConsumerState<CategoryPage> createState() => _CategoryPageState();
+  ConsumerState<KategoriPage> createState() => _KategoriPageState();
 }
 
-/// State untuk [CategoryPage].
-class _CategoryPageState extends ConsumerState<CategoryPage> {
+/// State untuk [KategoriPage].
+class _KategoriPageState extends ConsumerState<KategoriPage> {
   late final KategoriOpSqlite _kategoriOpSqlite;
   late final SubKategoriOpSqlite _subKategoriOpSqlite;
   late Future<List<KategoriModel>> _categoryListFuture;
@@ -71,7 +71,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
     }
   }
 
-  Future<void> _navigateToEditCategory(final KategoriModel category) async {
+  Future<void> _navigasiKeEditKategori(final KategoriModel category) async {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
@@ -130,7 +130,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
   Future<void> _softDeleteCategory(final KategoriModel category) async {
     final confirm = await _showConfirmDialog(
       'Arsipkan Kategori',
-      'Anda yakin ingin mengarsipkan "${category.name}"? Ini juga akan mengarsipkan semua sub-kategorinya.',
+      'Anda yakin ingin mengarsipkan "${category.nama}"? Ini juga akan mengarsipkan semua sub-kategorinya.',
     );
     if (!mounted || !confirm) return;
 
@@ -138,7 +138,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
       await _kategoriOpSqlite.softDeleteKategori(category.id);
       if (!mounted) return;
       ToastUtil.success(
-          context, 'Kategori "${category.name}" berhasil diarsipkan.');
+          context, 'Kategori "${category.nama}" berhasil diarsipkan.');
       _loadData();
     } on Exception catch (e, st) {
       if (!mounted) return;
@@ -262,7 +262,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
 
                 final filteredKategori = snapshot.data!
                     .where((final k) =>
-                        k.type == _selectedType && k.archivedAt == null)
+                        k.tipe == _selectedType && k.diarsipkanPada == null)
                     .toList();
 
                 return ListView.builder(
@@ -272,12 +272,12 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
                     return Card(
                       margin: const EdgeInsets.all(8.0),
                       child: ExpansionTile(
-                        title: Text(kategori.name),
+                        title: Text(kategori.nama),
                         trailing: _isEdit
                             ? IconButton(
                                 icon: const Icon(TIcons.edit),
                                 onPressed: () =>
-                                    _navigateToEditCategory(kategori),
+                                    _navigasiKeEditKategori(kategori),
                               )
                             : _isArchiveMode
                                 ? IconButton(
@@ -286,7 +286,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
                                         _softDeleteCategory(kategori),
                                   )
                                 : null,
-                        children: kategori.subCategories
+                        children: kategori.idSubKategori
                             .where((final sub) => sub.archivedAt == null)
                             .map((final sub) {
                           return ListTile(

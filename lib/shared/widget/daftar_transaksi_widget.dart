@@ -94,7 +94,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
       final kategori = await _kategoriOpSqlite.ambilKategoriBerdasarkanId(
         widget.transaksi.idKategori,
       );
-      return kategori.name;
+      return kategori.nama;
     } on Exception catch (e, st) {
       Log.error(
         'Gagal mendapatkan nama kategori untuk ID: ${widget.transaksi.idKategori}',

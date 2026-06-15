@@ -5,7 +5,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/enum/tipe_kategori.dart';
-import 'package:wifi/shared/model/kategori_model.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
 
@@ -36,8 +36,8 @@ void main() {
   group('CategoryOperation', () {
     final tCategory = KategoriModel(
       id: '1',
-      name: 'Test Category',
-      type: TipeKategori.expense,
+      nama: 'Test Category',
+      tipe: TipeKategori.expense,
     );
     final tCategoryMap = tCategory.toSqlite();
 
