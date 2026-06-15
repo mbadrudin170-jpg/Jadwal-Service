@@ -25,7 +25,7 @@ void main() {
   late MockNavigatorObserver mockNavigatorObserver;
   late ProviderContainer container;
 
-  final tVersi = VersiApkModel(
+  const tVersi = VersiApkModel(
     id: '1',
     version: '1.0.0',
     buildNumber: {
