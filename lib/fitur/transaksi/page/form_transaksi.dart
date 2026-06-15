@@ -48,7 +48,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
 
   late final DompetOpSqlite _dompetOpSlite;
   late final KategoriOpSqlite _kategoriOpSqlite;
-  late final TransaksiOpsqlite _transaksiOpSqlite;
+  late final TransaksiOpSqlite _transaksiOpSqlite;
 
   List<KategoriModel> _daftarKategori = [];
   List<DompetModel> _daftarDompet = [];

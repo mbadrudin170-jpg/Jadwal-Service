@@ -82,8 +82,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     try {
       await _pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
     } catch (e) {
-      Log.error('Gagal menjalankan arsip otomatis saat aplikasi dibuka',
-          e: e);
+      Log.error('Gagal menjalankan arsip otomatis saat aplikasi dibuka', e: e);
     }
 
     if (mounted) {
@@ -100,7 +99,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
 
   PelangganAktifOpSqlite get _pelangganAktifOpSqlite =>
       ref.read(pelangganAktifOpSqliteProvider);
-  TransaksiOpsqlite get _transaksiOpsqlite =>
+  TransaksiOpSqlite get _transaksiOpsqlite =>
       ref.read(transaksiOpSqliteProvider);
 
   void _onSearchChanged() {
@@ -325,7 +324,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
   }
 
   @override
-  Widget build( BuildContext context) {
+  Widget build(BuildContext context) {
     super.build(context);
     final pelangganAktifAsync = ref.watch(pelangganAktifProvider);
 

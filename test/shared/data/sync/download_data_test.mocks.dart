@@ -1165,7 +1165,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
 /// A class which mocks [TransaksiOpsqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTransaksiOpsqlite extends _i1.Mock implements _i23.TransaksiOpsqlite {
+class MockTransaksiOpsqlite extends _i1.Mock implements _i23.TransaksiOpSqlite {
   MockTransaksiOpsqlite() {
     _i1.throwOnMissingStub(this);
   }

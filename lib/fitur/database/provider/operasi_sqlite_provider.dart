@@ -35,14 +35,14 @@ PaketOpSqlite paketOpSqlite(Ref ref) {
   );
 }
 
-/// Provider untuk menyediakan instance dari [TransaksiOpsqlite].
+/// Provider untuk menyediakan instance dari [TransaksiOpSqlite].
 @Riverpod(keepAlive: true)
-TransaksiOpsqlite transaksiOpSqlite(Ref ref) {
+TransaksiOpSqlite transaksiOpSqlite(Ref ref) {
   Log.info('Membuat instance TransactionOperation via @riverpod...');
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
-  return TransaksiOpsqlite(
+  return TransaksiOpSqlite(
     sqliteDb: sqliteDb,
     baseOpSqlite: baseOpSqlite,
   );

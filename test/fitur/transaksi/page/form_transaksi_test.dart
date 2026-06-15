@@ -1,4 +1,3 @@
-
 // path: test/fitur/transaksi/page/form_transaksi_test.dart
 
 import 'package:flutter/material.dart';
@@ -23,11 +22,13 @@ class MockDompetOpSqlite extends Mock implements DompetOpSqlite {}
 
 class MockKategoriOpSqlite extends Mock implements KategoriOpSqlite {}
 
-class MockTransaksiOpSqlite extends Mock implements TransaksiOpsqlite {}
+class MockTransaksiOpSqlite extends Mock implements TransaksiOpSqlite {}
 
-class MockKoneksiInternetService extends Mock implements KoneksiInternetService {}
+class MockKoneksiInternetService extends Mock
+    implements KoneksiInternetService {}
 
-class MockLayananCekSinkronisasi extends Mock implements LayananCekSinkronisasi {}
+class MockLayananCekSinkronisasi extends Mock
+    implements LayananCekSinkronisasi {}
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
@@ -64,10 +65,12 @@ void main() {
     mockNavigatorObserver = MockNavigatorObserver();
 
     // Default behaviors
-    when(() => mockDompetOp.ambilSemua()).thenAnswer((_) async => [dompet1, dompet2]);
+    when(() => mockDompetOp.ambilSemua())
+        .thenAnswer((_) async => [dompet1, dompet2]);
     when(() => mockKategoriOp.ambilSemua())
         .thenAnswer((_) async => [kategoriPemasukan, kategoriPengeluaran]);
-    when(() => mockTransaksiOp.tambahTransaksi(any())).thenAnswer((_) async => 1);
+    when(() => mockTransaksiOp.tambahTransaksi(any()))
+        .thenAnswer((_) async => 1);
     when(() => mockTransaksiOp.updateTransaction(any(), any()))
         .thenAnswer((_) async => Future.value());
     when(() => mockKoneksiService.cekKoneksiLokal())

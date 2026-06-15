@@ -11,14 +11,14 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data transaksi di database lokal.
-class TransaksiOpsqlite {
+class TransaksiOpSqlite {
   final SqliteDatabase sqliteDb;
   final BaseOpSqlite baseOpSqlite;
   final String _tabel = NamaTabel.transaksi;
   final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
   final _nowUtc = DateTime.now().toUtc();
 
-  TransaksiOpsqlite({
+  TransaksiOpSqlite({
     required this.sqliteDb,
     required this.baseOpSqlite,
   });

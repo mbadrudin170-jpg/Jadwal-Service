@@ -1,4 +1,3 @@
-
 // path: test/fitur/transaksi/page/detail_transaksi_test.dart
 
 import 'package:flutter/material.dart';
@@ -32,7 +31,7 @@ class MockPaketOpSqlite extends Mock implements PaketOpSqlite {}
 
 class MockSubKategoriOpSqlite extends Mock implements SubKategoriOpSqlite {}
 
-class MockTransaksiOpSqlite extends Mock implements TransaksiOpsqlite {}
+class MockTransaksiOpSqlite extends Mock implements TransaksiOpSqlite {}
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
@@ -41,9 +40,18 @@ void main() {
   final mockDompet = DompetModel(id: 'd1', nama: 'Dompet Utama', saldo: 50000);
   final mockKategori = KategoriModel(id: 'k1', nama: 'Internet');
   final mockPelanggan = PelangganModel(
-      id: 'p1', nama: 'Budi', alamat: '', telepon: '', macAddress: '', kataSandi: '');
+      id: 'p1',
+      nama: 'Budi',
+      alamat: '',
+      telepon: '',
+      macAddress: '',
+      kataSandi: '');
   final mockPaket = PaketModel(
-      id: 'pkt1', nama: 'Paket Cepat', harga: 25000, durasi: 30, tipe: 'regular');
+      id: 'pkt1',
+      nama: 'Paket Cepat',
+      harga: 25000,
+      durasi: 30,
+      tipe: 'regular');
 
   final mockTransaksi = TransaksiModel(
     id: 't1',
@@ -78,12 +86,14 @@ void main() {
     mockNavigatorObserver = MockNavigatorObserver();
 
     // Setup default when clauses
-    when(() => mockDompetOp.ambilBerdasarkanId(any())).thenAnswer((_) async => null);
+    when(() => mockDompetOp.ambilBerdasarkanId(any()))
+        .thenAnswer((_) async => null);
     when(() => mockKategoriOp.ambilKategoriBerdasarkanId(any()))
         .thenAnswer((_) async => null);
     when(() => mockPelangganOp.ambilBerdasarkanId(any()))
         .thenAnswer((_) async => null);
-    when(() => mockPaketOp.ambilBerdasarkanId(any())).thenAnswer((_) async => null);
+    when(() => mockPaketOp.ambilBerdasarkanId(any()))
+        .thenAnswer((_) async => null);
     when(() => mockTransaksiOp.ambilBerdasarkanId(any()))
         .thenAnswer((_) async => mockTransaksi);
   });
@@ -166,7 +176,8 @@ void main() {
     testWidgets(
         '05. harus menampilkan "Data tidak ditemukan" jika data dinamis tidak ada',
         (tester) async {
-      when(() => mockDompetOp.ambilBerdasarkanId('d1')).thenAnswer((_) async => null);
+      when(() => mockDompetOp.ambilBerdasarkanId('d1'))
+          .thenAnswer((_) async => null);
 
       await tester.pumpWidget(createWidgetUnderTest(mockTransaksi));
       await tester.pumpAndSettle();
@@ -227,7 +238,8 @@ void main() {
   });
 
   group('Interaksi & Navigasi', () {
-    testWidgets('09. harus menavigasi ke FormTransaksi saat tombol edit ditekan',
+    testWidgets(
+        '09. harus menavigasi ke FormTransaksi saat tombol edit ditekan',
         (tester) async {
       when(() => mockNavigatorObserver.didPush(any(), any())).thenReturn(null);
       await tester.pumpWidget(createWidgetUnderTest(mockTransaksi));
@@ -243,7 +255,8 @@ void main() {
     testWidgets(
         '10. harus memuat ulang data saat kembali dari form dengan hasil true',
         (tester) async {
-      final updatedTransaksi = mockTransaksi.copyWith(deskripsi: 'Updated Wifi');
+      final updatedTransaksi =
+          mockTransaksi.copyWith(deskripsi: 'Updated Wifi');
 
       when(() => mockTransaksiOp.ambilBerdasarkanId('t1'))
           .thenAnswer((_) async => updatedTransaksi);
@@ -307,7 +320,8 @@ void main() {
       // And we assume the log and toast were called.
     });
 
-    testWidgets('13. harus keluar halaman jika data tidak ditemukan setelah edit',
+    testWidgets(
+        '13. harus keluar halaman jika data tidak ditemukan setelah edit',
         (tester) async {
       when(() => mockTransaksiOp.ambilBerdasarkanId('t1'))
           .thenAnswer((_) async => null);
@@ -357,7 +371,8 @@ void main() {
       expect(popResult, isTrue);
     });
 
-    testWidgets('15. harus mengembalikan false saat pop jika tidak ada pembaruan',
+    testWidgets(
+        '15. harus mengembalikan false saat pop jika tidak ada pembaruan',
         (tester) async {
       bool? popResult;
       when(() => mockNavigatorObserver.didPop(any(), any())).thenAnswer((inv) {

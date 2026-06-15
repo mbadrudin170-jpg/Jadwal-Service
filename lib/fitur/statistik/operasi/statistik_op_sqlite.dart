@@ -30,13 +30,13 @@ class StatistikOpSqlite {
   final PelangganAktifOpSqlite _pelangganAktifOpSqlite;
   final FeedbackOperation _statistikOpSliteProvider;
   final PaketOpSqlite _paketOpsqlite;
-  final TransaksiOpsqlite _transaksiOpSlite;
+  final TransaksiOpSqlite _transaksiOpSlite;
 
   StatistikOpSqlite({
     required PelangganAktifOpSqlite pelangganAktifOpSqlite,
     required FeedbackOperation feedbackOpSqlite,
     required PaketOpSqlite paketOpSqlite,
-    required TransaksiOpsqlite transaksiOpSqlite,
+    required TransaksiOpSqlite transaksiOpSqlite,
   })  : _pelangganAktifOpSqlite = pelangganAktifOpSqlite,
         _statistikOpSliteProvider = feedbackOpSqlite,
         _paketOpsqlite = paketOpSqlite,

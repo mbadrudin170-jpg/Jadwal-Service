@@ -16,7 +16,7 @@ import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 
 // Mocks
-class MockTransaksiOpSqlite extends Mock implements TransaksiOpsqlite {}
+class MockTransaksiOpSqlite extends Mock implements TransaksiOpSqlite {}
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
 void main() {

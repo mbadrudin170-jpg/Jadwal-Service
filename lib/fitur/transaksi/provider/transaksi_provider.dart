@@ -28,7 +28,7 @@ abstract class TransaksiState with _$TransaksiState {
 @riverpod
 class Transaksi extends _$Transaksi {
   // PERBAIKAN 1: Gunakan ref.watch agar reaktif dan aman sesuai standar resmi
-  TransaksiOpsqlite get _transaksiOpSqlite =>
+  TransaksiOpSqlite get _transaksiOpSqlite =>
       ref.watch(transaksiOpSqliteProvider);
 
   @override

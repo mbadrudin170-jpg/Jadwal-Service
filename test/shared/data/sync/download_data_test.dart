@@ -29,7 +29,7 @@ import 'download_data_test.mocks.dart';
   PaketOpSqlite,
   PelangganOpSqlite,
   PelangganAktifOpSqlite,
-  TransaksiOpsqlite,
+  TransaksiOpSqlite,
   FeedbackOperation,
   OrderOpsqlite,
   SubKategoriOpSqlite,
