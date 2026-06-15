@@ -8,8 +8,8 @@ import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/sub_category_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
+import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
+import 'package:wifi/fitur/kategori/operasi/sub_kategori_op_sqlite.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -85,7 +85,7 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
   }
 
   Future<void> _navigateToEditSubCategory(
-    final SubCategoryModel subCategory,
+    final SubKategoriModel subCategory,
     final String categoryId,
   ) async {
     final result = await Navigator.push<bool>(
@@ -148,10 +148,10 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
   }
 
   Future<void> _softDeleteSubCategory(
-      final SubCategoryModel subCategory) async {
+      final SubKategoriModel subCategory) async {
     final confirm = await _showConfirmDialog(
       'Arsipkan Sub-Kategori',
-      'Anda yakin ingin mengarsipkan sub-kategori "${subCategory.name}"?',
+      'Anda yakin ingin mengarsipkan sub-kategori "${subCategory.nama}"?',
     );
     if (!mounted || !confirm) return;
 
@@ -159,7 +159,7 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
       await _subKategoriOpSqlite.softDelete(subCategory.id);
       if (!mounted) return;
       ToastUtil.success(
-          context, 'Sub-kategori "${subCategory.name}" berhasil diarsipkan.');
+          context, 'Sub-kategori "${subCategory.nama}" berhasil diarsipkan.');
       _loadData();
     } on Exception catch (e, st) {
       if (!mounted) return;
@@ -287,10 +287,10 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
                                   )
                                 : null,
                         children: kategori.idSubKategori
-                            .where((final sub) => sub.archivedAt == null)
+                            .where((final sub) => sub.diarsipkanPada == null)
                             .map((final sub) {
                           return ListTile(
-                            title: Text(sub.name),
+                            title: Text(sub.nama),
                             trailing: _isEdit
                                 ? IconButton(
                                     icon: const Icon(TIcons.edit),

@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/poin/page/points_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
@@ -22,7 +22,7 @@ class DetailPelanggan extends ConsumerWidget {
   Future<void> _editCustomer(
       BuildContext context, PelangganModel? pelanggan) async {
     if (pelanggan == null) return;
-    Log.info('Navigasi ke form edit pelanggan: ${pelanggan.name}');
+    Log.info('Navigasi ke form edit pelanggan: ${pelanggan.nama}');
     await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
@@ -33,11 +33,11 @@ class DetailPelanggan extends ConsumerWidget {
 
   Future<void> _copyAllInfo(
       BuildContext context, PelangganModel customer) async {
-    Log.info('Menyalin info pelanggan: ${customer.name}');
+    Log.info('Menyalin info pelanggan: ${customer.nama}');
     final info = '''
-Nama : ${customer.name}
-No HP : ${customer.phone}
-Alamat : ${customer.address}
+Nama : ${customer.nama}
+No HP : ${customer.telepon}
+Alamat : ${customer.alamat}
 Password : ${customer.password}
 MAC : ${customer.macAddress}
 '''
@@ -52,7 +52,7 @@ MAC : ${customer.macAddress}
   Future<void> _navigasiKePoin(
       BuildContext context, PelangganModel? pelanggan) async {
     if (pelanggan == null) return;
-    Log.info('Navigasi ke halaman poin pelanggan: ${pelanggan.name}');
+    Log.info('Navigasi ke halaman poin pelanggan: ${pelanggan.nama}');
 
     await Navigator.push<void>(
       context,

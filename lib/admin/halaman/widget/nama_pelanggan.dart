@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 /// Sebuah widget untuk menampilkan nama pelanggan berdasarkan ID pelanggan.
@@ -49,8 +49,8 @@ class CustomerNameWidget extends ConsumerWidget {
 
         final customer = snapshot.data!;
         Log.info(
-            'Berhasil memuat pelanggan: ${customer.name} (ID: $customerId)');
-        return Text(customer.name, style: style);
+            'Berhasil memuat pelanggan: ${customer.nama} (ID: $customerId)');
+        return Text(customer.nama, style: style);
       },
     );
   }

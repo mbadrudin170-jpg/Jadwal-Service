@@ -4,6 +4,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -220,7 +221,7 @@ class PelangganAktifOpSqlite {
 
       final pelanggan = await _pelangganOpSqlite
           .ambilBerdasarkanId(activeCustomer.idPelanggan);
-      final customerName = pelanggan?.name ?? 'Tanpa Nama';
+      final customerName = pelanggan?.nama ?? 'Tanpa Nama';
 
       await _layananNotifikasi.batalNotifikasi(activeCustomer.id.hashCode);
       await _layananNotifikasi

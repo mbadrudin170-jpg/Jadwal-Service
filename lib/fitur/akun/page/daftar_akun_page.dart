@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
@@ -49,9 +49,9 @@ class DaftarAkunPage extends ConsumerWidget {
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: ListTile(
                       leading: CircleAvatar(
-                        child: Text(akun.name.isNotEmpty ? akun.name[0] : ''),
+                        child: Text(akun.nama.isNotEmpty ? akun.nama[0] : ''),
                       ),
-                      title: Text(akun.name),
+                      title: Text(akun.nama),
                       onTap: () async {
                         await _pilihAkun(context, ref, akun);
                       },
@@ -112,7 +112,7 @@ class DaftarAkunPage extends ConsumerWidget {
       final activityService =
           await ref.read(userActivityServiceProvider.future);
       Log.info('Mulai memilih akun',
-          {'customer_id': customer.id, 'nama': customer.name});
+          {'customer_id': customer.id, 'nama': customer.nama});
 
       await activityService.pingActivity(customer.id, force: true);
 
@@ -136,7 +136,7 @@ class DaftarAkunPage extends ConsumerWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Hapus Akun'),
-        content: Text('Anda yakin ingin menghapus akun ${customer.name}?'),
+        content: Text('Anda yakin ingin menghapus akun ${customer.nama}?'),
         actions: <Widget>[
           TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
@@ -160,7 +160,7 @@ class DaftarAkunPage extends ConsumerWidget {
                       context, navigator, ref, customer);
                 } else {
                   Log.info('Menghapus akun tersimpan',
-                      {'customer_id': customer.id, 'nama': customer.name});
+                      {'customer_id': customer.id, 'nama': customer.nama});
                   await ref
                       .read(pengelolaAkunProvider.notifier)
                       .hapusAkun(customer.id);
@@ -191,7 +191,7 @@ class DaftarAkunPage extends ConsumerWidget {
   ) async {
     Log.info(
       'akun yang di hapus ternyata akun yang sedang login',
-      {'customer_id': customer.id, 'nama': customer.name},
+      {'customer_id': customer.id, 'nama': customer.nama},
     );
 
     await ref.read(pengelolaAkunProvider.notifier).hapusAkun(customer.id);

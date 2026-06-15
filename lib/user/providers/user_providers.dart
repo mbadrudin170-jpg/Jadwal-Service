@@ -30,7 +30,7 @@ Future<String?> userId(Ref ref) async {
 
 @riverpod
 Future<UserActivityService> userActivityService(Ref ref) async {
-  final customerOp = ref.watch(customerOpFirebaseProvider);
+  final customerOp = ref.watch(pelangganOpFirebaseProvider);
   final prefs = ref.watch(sharedPreferencesProvider.future);
   return UserActivityService(
     customerOpFirebase: customerOp,

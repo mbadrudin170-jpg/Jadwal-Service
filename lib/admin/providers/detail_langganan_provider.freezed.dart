@@ -59,6 +59,7 @@ abstract mixin class $DetailLanggananStateCopyWith<$Res> {
       PaketModel? package});
 
   $TransaksiModelCopyWith<$Res>? get transaction;
+  $PelangganModelCopyWith<$Res>? get customer;
   $PaketModelCopyWith<$Res>? get package;
 }
 
@@ -106,6 +107,20 @@ class _$DetailLanggananStateCopyWithImpl<$Res>
 
     return $TransaksiModelCopyWith<$Res>(_self.transaction!, (value) {
       return _then(_self.copyWith(transaction: value));
+    });
+  }
+
+  /// Create a copy of DetailLanggananState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $PelangganModelCopyWith<$Res>? get customer {
+    if (_self.customer == null) {
+      return null;
+    }
+
+    return $PelangganModelCopyWith<$Res>(_self.customer!, (value) {
+      return _then(_self.copyWith(customer: value));
     });
   }
 
@@ -345,6 +360,8 @@ abstract mixin class _$DetailLanggananStateCopyWith<$Res>
   @override
   $TransaksiModelCopyWith<$Res>? get transaction;
   @override
+  $PelangganModelCopyWith<$Res>? get customer;
+  @override
   $PaketModelCopyWith<$Res>? get package;
 }
 
@@ -392,6 +409,20 @@ class __$DetailLanggananStateCopyWithImpl<$Res>
 
     return $TransaksiModelCopyWith<$Res>(_self.transaction!, (value) {
       return _then(_self.copyWith(transaction: value));
+    });
+  }
+
+  /// Create a copy of DetailLanggananState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $PelangganModelCopyWith<$Res>? get customer {
+    if (_self.customer == null) {
+      return null;
+    }
+
+    return $PelangganModelCopyWith<$Res>(_self.customer!, (value) {
+      return _then(_self.copyWith(customer: value));
     });
   }
 

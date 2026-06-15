@@ -10,15 +10,17 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
+import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
+import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/settings/model/settings_model.dart';
+import 'package:wifi/fitur/settings/operasi/settings_op_firebase.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/fitur/versi_apk/service/update_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/settings_op_firebase.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/maintenance_page.dart';
@@ -177,7 +179,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
 
   Future<SettingsModel?> _checkMaintenanceMode() async {
     try {
-      final settingsMap = await _settingsOp.getSettings();
+      final settingsMap = await _settingsOp.ambilPengaturan();
       final settings = SettingsModel.fromFirebase(settingsMap);
       if (settings.modeMaintenance) {
         return settings;

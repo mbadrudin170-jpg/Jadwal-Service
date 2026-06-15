@@ -2,17 +2,18 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
+import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_firebase.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/active_customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
-import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 
 part 'firebase_operation_provider.g.dart';
 
@@ -41,12 +42,12 @@ BaseOpFirebase baseOpFirebase(Ref ref) {
   );
 }
 
-/// Provider untuk menyediakan instance dari [ActiveCustomerOpFirebase].
+/// Provider untuk menyediakan instance dari [PelangganAktifOpFirebase].
 @Riverpod(keepAlive: true)
-ActiveCustomerOpFirebase activeCustomerOpFirebase(Ref ref) {
+PelangganAktifOpFirebase activeCustomerOpFirebase(Ref ref) {
   Log.info('Membuat instance ActiveCustomerOpFirebase via @riverpod...');
   final firestoreInstance = ref.watch(firestoreProvider);
-  return ActiveCustomerOpFirebase(firestore: firestoreInstance);
+  return PelangganAktifOpFirebase(firestore: firestoreInstance);
 }
 
 @Riverpod(keepAlive: true)
@@ -67,18 +68,18 @@ Stream<List<FeedbackModel>> feedbackStream(Ref ref, String userId) {
 }
 
 @Riverpod(keepAlive: true)
-CustomerOpFirebase customerOpFirebase(Ref ref) {
+CustomerOpFirebase pelangganOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
   final baseOp = ref.watch(baseOpFirebaseProvider);
 
   return CustomerOpFirebase(
     firestore: firestoreInstance,
-    baseOp: baseOp,
+    baseOpFirebase: baseOp,
   );
 }
 
 @Riverpod(keepAlive: true)
-PaketOpFirebase packageOpFirebase(Ref ref) {
+PaketOpFirebase paketOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
 
   return PaketOpFirebase(
@@ -87,7 +88,7 @@ PaketOpFirebase packageOpFirebase(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
-TransaksiOpFirebase transactionOpFirebase(Ref ref) {
+TransaksiOpFirebase transaksiOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
   return TransaksiOpFirebase(
     firestore: firestoreInstance,

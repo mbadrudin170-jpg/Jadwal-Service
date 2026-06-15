@@ -4,6 +4,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/ui/user/detail_pelanggan_u.dart';
 import 'package:wifi/fitur/poin/page/points_page.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
@@ -16,7 +19,6 @@ import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/user/page/user_customer_detail.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
@@ -56,9 +58,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   void initState() {
     super.initState();
     unawaited(ref.read(interstitialAdServiceProvider).preloadAd());
-    _customerOp = ref.read(customerOpFirebaseProvider);
-    _transactionOp = ref.read(transactionOpFirebaseProvider);
-    _packageOp = ref.read(packageOpFirebaseProvider);
+    _customerOp = ref.read(pelangganOpFirebaseProvider);
+    _transactionOp = ref.read(transaksiOpFirebaseProvider);
+    _packageOp = ref.read(paketOpFirebaseProvider);
     _futureProfileData = _loadProfileData();
   }
 
@@ -75,7 +77,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       if (customer == null) {
         throw Exception('Pelanggan dengan ID  tidak ditemukan.');
       }
-      Log.info('Data pelanggan berhasil diambil: ${customer.name}.');
+      Log.info('Data pelanggan berhasil diambil: ${customer.nama}.');
 
       final results = await Future.wait([
         _transactionOp.ambilTotalPoin(customer.id),
@@ -175,7 +177,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     _InfoItem(
                       icon: TIcons.personOutlined,
                       label: 'Nama Lengkap',
-                      value: customer.name,
+                      value: customer.nama,
                       trailingIcon: TIcons.chevronRight,
                       onTap: () => _navigateToDetail(customer.id),
                     ),
@@ -298,7 +300,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Future<void> _navigateToPointsPage(String customerId) async {
     await ref.read(interstitialAdServiceProvider).show();
     try {
-      final hasChanged = await Navigator.push<bool>(
+      await Navigator.push<void>(
         context,
         MaterialPageRoute<bool>(
           builder: (context) => PoinPage(
@@ -308,9 +310,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         ),
       );
       await ref.read(interstitialAdServiceProvider).show();
-      if (hasChanged ?? false) {
-        _reloadData();
-      }
     } on Exception catch (e, st) {
       Log.error('Gagal navigasi ke halaman poin.', e: e, s: st);
       if (mounted) ToastUtil.error(context, 'Gagal membuka halaman poin.');

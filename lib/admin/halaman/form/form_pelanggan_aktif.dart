@@ -6,19 +6,30 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/enum/tipe_notifikasi_enum.dart';
+import 'package:wifi/shared/model/notifikasi_model.dart';
+import 'package:wifi/shared/model/save_result_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -118,7 +129,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       }
 
       final pelangganList = (results[0] as List<PelangganModel>)
-        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        ..sort((a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
 
       final paketList = (results[1] as List<PaketModel>)
         ..sort((a, b) =>
@@ -535,7 +546,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           labelText: 'Pilih Pelanggan', border: OutlineInputBorder()),
       initialValue: _pelangganDipilih,
       items: _pelangganList
-          .map((p) => DropdownMenuItem(value: p, child: Text(p.name)))
+          .map((p) => DropdownMenuItem(value: p, child: Text(p.nama)))
           .toList(),
       onChanged: (newValue) async {
         if (newValue == null) {
@@ -545,7 +556,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         if (mounted) {
           setState(() {
             Log.info(
-                'Pelanggan dipilih: id=${newValue.id} nama=${newValue.name}, saldoPoin=$saldoPoin');
+                'Pelanggan dipilih: id=${newValue.id} nama=${newValue.nama}, saldoPoin=$saldoPoin');
             _pelangganDipilih = newValue;
             _saldoPoinPelanggan = saldoPoin;
           });
@@ -770,7 +781,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             ref.invalidate(activeCustomerOpFirebaseProvider);
             ref.invalidate(pelangganAktifOpSqliteProvider);
             ref.invalidate(transaksiOpSqliteProvider);
-            ref.invalidate(transactionOpFirebaseProvider);
+            ref.invalidate(transaksiOpFirebaseProvider);
             ref.invalidate(dompetOpSqliteProvider);
             ref.invalidate(statistikProvider);
             navigator.pop();

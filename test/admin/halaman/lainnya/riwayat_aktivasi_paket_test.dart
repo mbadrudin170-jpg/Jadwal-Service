@@ -7,7 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
 import 'package:wifi/admin/halaman/lainnya/riwayat_aktivasi_paket.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
@@ -56,9 +56,9 @@ void main() {
 
   final c1 = PelangganModel(
     id: 'c1',
-    name: 'Budi Utomo',
-    phone: '08123',
-    address: 'Alamat',
+    nama: 'Budi Utomo',
+    telepon: '08123',
+    alamat: 'Alamat',
     password: 'pwd',
     registrationDate: DateTime.now(),
     fcmToken: '',

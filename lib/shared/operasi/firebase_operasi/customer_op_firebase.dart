@@ -1,97 +1,76 @@
-// path: lib/shared/operasi/firebase_operasi/customer_op_firebase.dart
-// direfaktor total: Semua operasi tulis (create, update, delete, soft delete)
-//                 sekarang sepenuhnya didelegasikan ke BaseOpFirebase.
-
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
-/// Kelas ini menangani semua operasi terkait data pelanggan di Firestore.
-/// Bertindak sebagai lapisan "intent" yang mendelegasikan implementasi
-/// ke BaseOpFirebase.
 class CustomerOpFirebase {
   final FirebaseFirestore _firestore;
-  final BaseOpFirebase _baseOp;
-  final String _collectionName = NamaTabel.pelanggan;
+  final BaseOpFirebase _baseOpFirebase;
+  final String _namaKoleksi = NamaTabel.pelanggan;
 
-  /// Konstruktor untuk inisialisasi.
   CustomerOpFirebase({
     required FirebaseFirestore firestore,
-    required BaseOpFirebase baseOp,
+    required BaseOpFirebase baseOpFirebase,
   })  : _firestore = firestore,
-        _baseOp = baseOp {
+        _baseOpFirebase = baseOpFirebase {
     Log.info('CustomerOpFirebase diinisialisasi.');
   }
 
-  /// Referensi ke koleksi pelanggan.
-  CollectionReference get _customerCollection =>
-      _firestore.collection(_collectionName);
+  CollectionReference get _koleksiPelanggan =>
+      _firestore.collection(_namaKoleksi);
 
-  /// Membuat pelanggan baru di Firestore.
   Future<void> addPelanggan(PelangganModel pelanggan) async {
     Log.info('Mendelegasikan pembuatan pelanggan: ${pelanggan.id}');
-    await _baseOp.sisipkan(
-      _collectionName,
+    await _baseOpFirebase.sisipkan(
+      _namaKoleksi,
       pelanggan.id,
       pelanggan.toFirebase(),
     );
   }
 
-  /// Memperbarui data pelanggan yang ada di Firestore.
   Future<void> updatePelanggan(PelangganModel pelanggan) async {
     Log.info('Mendelegasikan pembaruan pelanggan: ${pelanggan.id}');
-    await _baseOp.update(
-      _collectionName,
+    await _baseOpFirebase.update(
+      _namaKoleksi,
       pelanggan.id,
       pelanggan.toFirebase(),
     );
   }
 
-  /// Melakukan soft delete pada pelanggan di Firestore.
   Future<void> softDelete(String id) async {
     Log.info('Mendelegasikan soft delete pelanggan: $id');
-    await _baseOp.hapusSementara(_collectionName, id);
+    await _baseOpFirebase.hapusSementara(_namaKoleksi, id);
   }
 
-  /// Menghapus pelanggan dari Firestore secara permanen.
-  /// PERHATIAN: Operasi ini tidak bisa dibatalkan!
   Future<void> hapusPelangganPermanen(String idPelanggan) async {
     Log.warning('Mendelegasikan penghapusan permanen pelanggan: $idPelanggan');
-    await _baseOp.hapusPermanen(_collectionName, idPelanggan);
+    await _baseOpFirebase.hapusPermanen(_namaKoleksi, idPelanggan);
   }
 
-  /// Memperbarui waktu terakhir pengguna aktif.
   Future<void> perbaruiTerakhirAktif(String id) async {
     Log.info('Mendelegasikan update last active untuk: $id');
-    await _baseOp.update(_collectionName, id, {
+    await _baseOpFirebase.update(_namaKoleksi, id, {
       NamaKolom.terkahirAktif: FieldValue.serverTimestamp(),
     });
   }
 
-  /// Menyimpan atau memperbarui token FCM pengguna.
   Future<void> simpanTokenFCM(String id, String? token) async {
     if (token == null || token.isEmpty) {
       Log.warning('Token FCM kosong, penyimpanan dibatalkan.');
       return;
     }
     Log.info('Mendelegasikan penyimpanan token FCM untuk: $id');
-    await _baseOp.update(_collectionName, id, {'fcmToken': token});
+    await _baseOpFirebase.update(_namaKoleksi, id, {'fcmToken': token});
   }
 
-  // =======================================================================
-  // OPERASI BACA (Tidak didelegasikan karena spesifik untuk model)
-  // =======================================================================
-
-  /// Mengambil semua data pelanggan yang tidak di-soft-delete.
   Future<List<PelangganModel>> getAllPelanggan() async {
     Log.info('Mengambil semua pelanggan aktif...');
     try {
-      final querySnapshot = await _customerCollection
+      final querySnapshot = await _koleksiPelanggan
           .where(NamaKolom.diHapus, isEqualTo: false)
           .get();
 
@@ -111,14 +90,13 @@ class CustomerOpFirebase {
       return pelanggan;
     } on Exception catch (e, s) {
       Log.error('Gagal mengambil semua pelanggan', e: e, s: s);
-      return []; // Kembalikan list kosong jika terjadi error
+      return [];
     }
   }
 
-  /// Mengambil data pelanggan secara real-time (stream).
   Stream<PelangganModel?> getStreamPelanggan(String idPengguna) {
     Log.info('Streaming data pelanggan untuk: $idPengguna');
-    return _customerCollection.doc(idPengguna).snapshots().map((snapshot) {
+    return _koleksiPelanggan.doc(idPengguna).snapshots().map((snapshot) {
       if (snapshot.exists) {
         return PelangganModel.fromFirebase(
           snapshot.id,
@@ -131,10 +109,9 @@ class CustomerOpFirebase {
     });
   }
 
-  /// Mengambil data pelanggan sekali (one-time fetch).
   Future<PelangganModel?> getById(String idPengguna) async {
     try {
-      final doc = await _customerCollection.doc(idPengguna).get();
+      final doc = await _koleksiPelanggan.doc(idPengguna).get();
       if (doc.exists) {
         return PelangganModel.fromFirebase(
           doc.id,

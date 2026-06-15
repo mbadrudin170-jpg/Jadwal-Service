@@ -8,7 +8,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart';
 import 'package:wifi/admin/providers/detail_langganan_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/enum/enum.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -29,7 +29,7 @@ class FakeRoute extends Fake implements Route<dynamic> {}
 
 void main() {
   // Data dummy
-  final tCustomer = PelangganModel(
+  const tCustomer = PelangganModel(
     id: 'cust1',
     nama: 'John Doe',
     telepon: '081234567890',
@@ -37,7 +37,7 @@ void main() {
     alamat: '123 Main St',
   );
 
-  final tPackage = PaketModel(
+  const tPackage = PaketModel(
     id: 'pkg1',
     nama: 'Paket Kencang',
     harga: 100000,

@@ -3,11 +3,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
+import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/settings/model/settings_model.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 class UploadDataService {
@@ -219,7 +230,7 @@ class UploadDataService {
         NamaTabel.pelangganAktif,
         NamaTabel.pelangganAktif,
         PelangganAktifModel.fromSqlite,
-        (final m) => m.toFirebase(),
+        (m) => m.toFirebase(),
         time,
       );
       Log.info('Proses unggah data pelanggan_aktif selesai dengan sukses.');
@@ -339,10 +350,10 @@ class UploadDataService {
         'Waktu sinkronisasi terakhir untuk sub_kategori: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
-      await uploadGenericData<SubCategoryModel>(
+      await uploadGenericData<SubKategoriModel>(
         NamaTabel.subKategori,
         NamaTabel.subKategori,
-        SubCategoryModel.fromSqlite,
+        SubKategoriModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
       );
@@ -405,7 +416,7 @@ class UploadDataService {
         NamaTabel.versiApkUser,
         NamaTabel.versiApkUser,
         VersiApkModel.fromSqlite,
-        (final m) => m.toFirebase(),
+        (m) => m.toFirebase(),
         time,
       );
       Log.info('Proses unggah data versi_apk_user selesai dengan sukses.');
@@ -505,6 +516,15 @@ class UploadDataService {
             'Mengkonversi data SQLite menjadi model $T menggunakan fungsi fromSqlite.',
           );
           final T data = fromSqlite(map);
+
+          if (data.id.isEmpty) {
+            Log.warning(
+              'Melewati data ke-${i + 1} dari tabel $tableName karena ID kosong. Data: $map',
+            );
+            failedData.add(map);
+            continue;
+          }
+
           Log.info(
             'Konversi berhasil. ID data: ${data.id}. '
             'Membuat referensi dokumen Firestore pada koleksi $collectionName dengan ID ${data.id}.',

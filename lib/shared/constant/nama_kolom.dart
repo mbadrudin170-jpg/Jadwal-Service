@@ -33,7 +33,7 @@ abstract final class NamaKolom {
   static const String statusPublik = 'is_public';
   static const String telepon = 'phone';
   static const String alamat = 'address';
-  static const String password = 'password';
+  static const String kataSandi = 'password';
   static const String macAddress = 'mac_address';
   static const String status = 'status';
   static const String isi = 'content';

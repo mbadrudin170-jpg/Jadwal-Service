@@ -6,14 +6,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
+import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
+import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
+import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -37,7 +41,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
   TimeOfDay? _jamDipilih;
 
   KategoriModel? _kategoriDipilih;
-  SubCategoryModel? _subKategoriDipilih;
+  SubKategoriModel? _subKategoriDipilih;
   TipeTransaksi _tipe = TipeTransaksi.income;
   DompetModel? _dompetDipilih;
   DompetModel? _dompetTujuanDipilih;
@@ -131,7 +135,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
 
           if (trx.idSubKategori != null && _kategoriDipilih != null) {
             _subKategoriDipilih = _kategoriDipilih!.idSubKategori
-                .cast<SubCategoryModel?>()
+                .cast<SubKategoriModel?>()
                 .firstWhere(
               (final sk) => sk?.id == trx.idSubKategori,
               orElse: () {
@@ -514,8 +518,8 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                       ),
                     if (_kategoriDipilih != null &&
                         _kategoriDipilih!.idSubKategori.isNotEmpty)
-                      DropdownButtonFormField<SubCategoryModel>(
-                        key: ValueKey<SubCategoryModel?>(_subKategoriDipilih),
+                      DropdownButtonFormField<SubKategoriModel>(
+                        key: ValueKey<SubKategoriModel?>(_subKategoriDipilih),
                         initialValue: _subKategoriDipilih,
                         decoration: const InputDecoration(
                           labelText: 'Sub Kategori',
@@ -523,12 +527,12 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                         items: _kategoriDipilih!.idSubKategori.map((sub) {
                           return DropdownMenuItem(
                             value: sub,
-                            child: Text(sub.name),
+                            child: Text(sub.nama),
                           );
                         }).toList(),
                         onChanged: (val) {
                           Log.info(
-                            'Pengguna memilih sub-kategori: ${val?.name ?? "null"}',
+                            'Pengguna memilih sub-kategori: ${val?.nama ?? "null"}',
                           );
                           setState(() => _subKategoriDipilih = val);
                         },

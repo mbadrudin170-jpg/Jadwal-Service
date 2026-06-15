@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 
@@ -16,7 +16,7 @@ class TransactionWithCustomer {
 
   TransactionWithCustomer({required this.transaksi, this.pelanggan});
 
-  String get customerName => pelanggan?.name ?? 'Tidak diketahui';
+  String get customerName => pelanggan?.nama ?? 'Tidak diketahui';
 }
 
 enum SortOption {

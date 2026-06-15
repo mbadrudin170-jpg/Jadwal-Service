@@ -10,14 +10,14 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/admin/halaman/detail/detail_paket.dart';
 import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
-import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/whatsapp/info_paket.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
@@ -152,7 +152,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(pelanggan?.name ?? 'Detail Pelanggan'),
+        title: Text(pelanggan?.nama ?? 'Detail Pelanggan'),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -181,7 +181,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                           onPressed: () {
                             if (pelanggan != null) {
                               Log.info(
-                                  'Navigasi ke detail pelanggan: ${pelanggan.name}');
+                                  'Navigasi ke detail pelanggan: ${pelanggan.nama}');
                               unawaited(Navigator.push<void>(
                                 context,
                                 MaterialPageRoute(
@@ -193,7 +193,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                             }
                           },
                           child: Text(
-                            pelanggan?.name ?? pelangganAktif.idPelanggan,
+                            pelanggan?.nama ?? pelangganAktif.idPelanggan,
                             textAlign: TextAlign.center,
                             style: Theme.of(context)
                                 .textTheme
@@ -207,7 +207,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                       _buildWhatsAppInfoRow(
                         context,
                         'No HP',
-                        pelanggan?.phone ?? 'Tidak ditemukan',
+                        pelanggan?.telepon ?? 'Tidak ditemukan',
                       ),
                       InkWell(
                         onTap: () {

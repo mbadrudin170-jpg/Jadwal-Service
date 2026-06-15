@@ -3,42 +3,47 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i9;
-import 'dart:typed_data' as _i30;
+import 'dart:async' as _i11;
+import 'dart:typed_data' as _i34;
 
-import 'package:cloud_firestore/cloud_firestore.dart' as _i8;
+import 'package:cloud_firestore/cloud_firestore.dart' as _i10;
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart'
-    as _i7;
-import 'package:firebase_core/firebase_core.dart' as _i6;
+    as _i9;
+import 'package:firebase_core/firebase_core.dart' as _i8;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i29;
+import 'package:mockito/src/dummies.dart' as _i33;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
-import 'package:wifi/fitur/dompet/model/dompet_model.dart' as _i12;
-import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart' as _i11;
-import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart' as _i22;
-import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart' as _i14;
+import 'package:wifi/fitur/dompet/model/dompet_model.dart' as _i14;
+import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart' as _i13;
+import 'package:wifi/fitur/feedback/model/feedback_model.dart' as _i6;
+import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart' as _i24;
+import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart' as _i16;
 import 'package:wifi/fitur/kategori/model/kategori_model.dart' as _i3;
-import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart' as _i13;
-import 'package:wifi/fitur/order/model/order_model.dart' as _i25;
-import 'package:wifi/fitur/paket/model/paket_model.dart' as _i16;
-import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart' as _i15;
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart' as _i18;
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart' as _i17;
+import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart' as _i29;
+import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart' as _i15;
+import 'package:wifi/fitur/kategori/operasi/sub_kategori_op_sqlite.dart'
+    as _i28;
+import 'package:wifi/fitur/order/model/order_model.dart' as _i27;
+import 'package:wifi/fitur/paket/model/paket_model.dart' as _i18;
+import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart' as _i17;
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart' as _i20;
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart' as _i19;
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart'
+    as _i5;
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart'
-    as _i19;
-import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart' as _i28;
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart' as _i21;
-import 'package:wifi/shared/export/enum.dart' as _i24;
-import 'package:wifi/shared/export/model.dart' as _i5;
-import 'package:wifi/shared/model/active_customer_detail_model.dart' as _i20;
+    as _i21;
+import 'package:wifi/fitur/settings/model/settings_model.dart' as _i7;
+import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart' as _i32;
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart' as _i23;
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart' as _i31;
+import 'package:wifi/shared/export/enum.dart' as _i26;
+import 'package:wifi/shared/export/model.dart' as _i22;
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart'
-    as _i27;
+    as _i30;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i4;
 import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart'
-    as _i23;
-import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart'
-    as _i26;
-import 'package:wifi/shared/utils/sync_manager.dart' as _i10;
+    as _i25;
+import 'package:wifi/shared/utils/sync_manager.dart' as _i12;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -107,7 +112,7 @@ class _FakePelangganAktifModel_4 extends _i1.SmartFake
         );
 }
 
-class _FakeFeedbackModel_5 extends _i1.SmartFake implements _i5.FeedbackModel {
+class _FakeFeedbackModel_5 extends _i1.SmartFake implements _i6.FeedbackModel {
   _FakeFeedbackModel_5(
     Object parent,
     Invocation parentInvocation,
@@ -117,7 +122,7 @@ class _FakeFeedbackModel_5 extends _i1.SmartFake implements _i5.FeedbackModel {
         );
 }
 
-class _FakeSettingsModel_6 extends _i1.SmartFake implements _i5.SettingsModel {
+class _FakeSettingsModel_6 extends _i1.SmartFake implements _i7.SettingsModel {
   _FakeSettingsModel_6(
     Object parent,
     Invocation parentInvocation,
@@ -127,7 +132,7 @@ class _FakeSettingsModel_6 extends _i1.SmartFake implements _i5.SettingsModel {
         );
 }
 
-class _FakeFirebaseApp_7 extends _i1.SmartFake implements _i6.FirebaseApp {
+class _FakeFirebaseApp_7 extends _i1.SmartFake implements _i8.FirebaseApp {
   _FakeFirebaseApp_7(
     Object parent,
     Invocation parentInvocation,
@@ -137,7 +142,7 @@ class _FakeFirebaseApp_7 extends _i1.SmartFake implements _i6.FirebaseApp {
         );
 }
 
-class _FakeSettings_8 extends _i1.SmartFake implements _i7.Settings {
+class _FakeSettings_8 extends _i1.SmartFake implements _i9.Settings {
   _FakeSettings_8(
     Object parent,
     Invocation parentInvocation,
@@ -148,7 +153,7 @@ class _FakeSettings_8 extends _i1.SmartFake implements _i7.Settings {
 }
 
 class _FakeCollectionReference_9<T extends Object?> extends _i1.SmartFake
-    implements _i8.CollectionReference<T> {
+    implements _i10.CollectionReference<T> {
   _FakeCollectionReference_9(
     Object parent,
     Invocation parentInvocation,
@@ -158,7 +163,7 @@ class _FakeCollectionReference_9<T extends Object?> extends _i1.SmartFake
         );
 }
 
-class _FakeWriteBatch_10 extends _i1.SmartFake implements _i8.WriteBatch {
+class _FakeWriteBatch_10 extends _i1.SmartFake implements _i10.WriteBatch {
   _FakeWriteBatch_10(
     Object parent,
     Invocation parentInvocation,
@@ -169,7 +174,7 @@ class _FakeWriteBatch_10 extends _i1.SmartFake implements _i8.WriteBatch {
 }
 
 class _FakeLoadBundleTask_11 extends _i1.SmartFake
-    implements _i8.LoadBundleTask {
+    implements _i10.LoadBundleTask {
   _FakeLoadBundleTask_11(
     Object parent,
     Invocation parentInvocation,
@@ -180,7 +185,7 @@ class _FakeLoadBundleTask_11 extends _i1.SmartFake
 }
 
 class _FakeQuerySnapshot_12<T1 extends Object?> extends _i1.SmartFake
-    implements _i8.QuerySnapshot<T1> {
+    implements _i10.QuerySnapshot<T1> {
   _FakeQuerySnapshot_12(
     Object parent,
     Invocation parentInvocation,
@@ -191,7 +196,7 @@ class _FakeQuerySnapshot_12<T1 extends Object?> extends _i1.SmartFake
 }
 
 class _FakeQuery_13<T extends Object?> extends _i1.SmartFake
-    implements _i8.Query<T> {
+    implements _i10.Query<T> {
   _FakeQuery_13(
     Object parent,
     Invocation parentInvocation,
@@ -202,7 +207,7 @@ class _FakeQuery_13<T extends Object?> extends _i1.SmartFake
 }
 
 class _FakeDocumentReference_14<T extends Object?> extends _i1.SmartFake
-    implements _i8.DocumentReference<T> {
+    implements _i10.DocumentReference<T> {
   _FakeDocumentReference_14(
     Object parent,
     Invocation parentInvocation,
@@ -212,7 +217,7 @@ class _FakeDocumentReference_14<T extends Object?> extends _i1.SmartFake
         );
 }
 
-class _FakeFuture_15<T1> extends _i1.SmartFake implements _i9.Future<T1> {
+class _FakeFuture_15<T1> extends _i1.SmartFake implements _i11.Future<T1> {
   _FakeFuture_15(
     Object parent,
     Invocation parentInvocation,
@@ -223,7 +228,7 @@ class _FakeFuture_15<T1> extends _i1.SmartFake implements _i9.Future<T1> {
 }
 
 class _FakePipelineSource_16 extends _i1.SmartFake
-    implements _i8.PipelineSource {
+    implements _i10.PipelineSource {
   _FakePipelineSource_16(
     Object parent,
     Invocation parentInvocation,
@@ -234,7 +239,7 @@ class _FakePipelineSource_16 extends _i1.SmartFake
 }
 
 class _FakeFirebaseFirestore_17 extends _i1.SmartFake
-    implements _i8.FirebaseFirestore {
+    implements _i10.FirebaseFirestore {
   _FakeFirebaseFirestore_17(
     Object parent,
     Invocation parentInvocation,
@@ -245,7 +250,7 @@ class _FakeFirebaseFirestore_17 extends _i1.SmartFake
 }
 
 class _FakeAggregateQuery_18 extends _i1.SmartFake
-    implements _i8.AggregateQuery {
+    implements _i10.AggregateQuery {
   _FakeAggregateQuery_18(
     Object parent,
     Invocation parentInvocation,
@@ -256,7 +261,7 @@ class _FakeAggregateQuery_18 extends _i1.SmartFake
 }
 
 class _FakeSnapshotMetadata_19 extends _i1.SmartFake
-    implements _i8.SnapshotMetadata {
+    implements _i10.SnapshotMetadata {
   _FakeSnapshotMetadata_19(
     Object parent,
     Invocation parentInvocation,
@@ -267,7 +272,7 @@ class _FakeSnapshotMetadata_19 extends _i1.SmartFake
 }
 
 class _FakeDocumentSnapshot_20<T1 extends Object?> extends _i1.SmartFake
-    implements _i8.DocumentSnapshot<T1> {
+    implements _i10.DocumentSnapshot<T1> {
   _FakeDocumentSnapshot_20(
     Object parent,
     Invocation parentInvocation,
@@ -280,78 +285,78 @@ class _FakeDocumentSnapshot_20<T1 extends Object?> extends _i1.SmartFake
 /// A class which mocks [SyncManager].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSyncManager extends _i1.Mock implements _i10.SyncManager {
+class MockSyncManager extends _i1.Mock implements _i12.SyncManager {
   MockSyncManager() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i9.Future<DateTime> ambilWaktuTerakhirDownload() => (super.noSuchMethod(
+  _i11.Future<DateTime> ambilWaktuTerakhirDownload() => (super.noSuchMethod(
         Invocation.method(
           #ambilWaktuTerakhirDownload,
           [],
         ),
-        returnValue: _i9.Future<DateTime>.value(_FakeDateTime_0(
+        returnValue: _i11.Future<DateTime>.value(_FakeDateTime_0(
           this,
           Invocation.method(
             #ambilWaktuTerakhirDownload,
             [],
           ),
         )),
-      ) as _i9.Future<DateTime>);
+      ) as _i11.Future<DateTime>);
 
   @override
-  _i9.Future<void> simpanWaktuTerakhirunduh(DateTime? time) =>
+  _i11.Future<void> simpanWaktuTerakhirunduh(DateTime? time) =>
       (super.noSuchMethod(
         Invocation.method(
           #simpanWaktuTerakhirunduh,
           [time],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<DateTime> ambilWaktuTerakhirUnggah() => (super.noSuchMethod(
+  _i11.Future<DateTime> ambilWaktuTerakhirUnggah() => (super.noSuchMethod(
         Invocation.method(
           #ambilWaktuTerakhirUnggah,
           [],
         ),
-        returnValue: _i9.Future<DateTime>.value(_FakeDateTime_0(
+        returnValue: _i11.Future<DateTime>.value(_FakeDateTime_0(
           this,
           Invocation.method(
             #ambilWaktuTerakhirUnggah,
             [],
           ),
         )),
-      ) as _i9.Future<DateTime>);
+      ) as _i11.Future<DateTime>);
 
   @override
-  _i9.Future<void> simpanWaktuTerkahirUnggah(DateTime? time) =>
+  _i11.Future<void> simpanWaktuTerkahirUnggah(DateTime? time) =>
       (super.noSuchMethod(
         Invocation.method(
           #simpanWaktuTerkahirUnggah,
           [time],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> resetWaktuSinkronisasi() => (super.noSuchMethod(
+  _i11.Future<void> resetWaktuSinkronisasi() => (super.noSuchMethod(
         Invocation.method(
           #resetWaktuSinkronisasi,
           [],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 }
 
 /// A class which mocks [DompetOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
+class MockDompetOpSqlite extends _i1.Mock implements _i13.DompetOpSqlite {
   MockDompetOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
@@ -366,8 +371,8 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
       ) as _i2.SqliteDatabase);
 
   @override
-  _i9.Future<void> tambahDompet(
-    _i12.DompetModel? wallet, {
+  _i11.Future<void> tambahDompet(
+    _i14.DompetModel? wallet, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -376,12 +381,13 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
           [wallet],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i12.DompetModel>> ambilSemua({bool? showArchived = false}) =>
+  _i11.Future<List<_i14.DompetModel>> ambilSemua(
+          {bool? showArchived = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilSemua,
@@ -389,22 +395,22 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
           {#showArchived: showArchived},
         ),
         returnValue:
-            _i9.Future<List<_i12.DompetModel>>.value(<_i12.DompetModel>[]),
-      ) as _i9.Future<List<_i12.DompetModel>>);
+            _i11.Future<List<_i14.DompetModel>>.value(<_i14.DompetModel>[]),
+      ) as _i11.Future<List<_i14.DompetModel>>);
 
   @override
-  _i9.Future<_i12.DompetModel?> ambilBerdasarkanId(String? id) =>
+  _i11.Future<_i14.DompetModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilBerdasarkanId,
           [id],
         ),
-        returnValue: _i9.Future<_i12.DompetModel?>.value(),
-      ) as _i9.Future<_i12.DompetModel?>);
+        returnValue: _i11.Future<_i14.DompetModel?>.value(),
+      ) as _i11.Future<_i14.DompetModel?>);
 
   @override
-  _i9.Future<void> updateDompet(
-    _i12.DompetModel? wallet, {
+  _i11.Future<void> updateDompet(
+    _i14.DompetModel? wallet, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -413,12 +419,12 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
           [wallet],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> softDelete(
+  _i11.Future<void> softDelete(
     String? id, {
     bool? fromServer = false,
   }) =>
@@ -428,51 +434,51 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
           [id],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<int> softDeleteAll({bool? fromServer = false}) =>
+  _i11.Future<int> softDeleteAll({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #softDeleteAll,
           [],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<double> ambilTotalsaldo() => (super.noSuchMethod(
+  _i11.Future<double> ambilTotalsaldo() => (super.noSuchMethod(
         Invocation.method(
           #ambilTotalsaldo,
           [],
         ),
-        returnValue: _i9.Future<double>.value(0.0),
-      ) as _i9.Future<double>);
+        returnValue: _i11.Future<double>.value(0.0),
+      ) as _i11.Future<double>);
 
   @override
-  _i9.Future<double> ambilSaldoPositif() => (super.noSuchMethod(
+  _i11.Future<double> ambilSaldoPositif() => (super.noSuchMethod(
         Invocation.method(
           #ambilSaldoPositif,
           [],
         ),
-        returnValue: _i9.Future<double>.value(0.0),
-      ) as _i9.Future<double>);
+        returnValue: _i11.Future<double>.value(0.0),
+      ) as _i11.Future<double>);
 
   @override
-  _i9.Future<double> ambilSaldoNegatif() => (super.noSuchMethod(
+  _i11.Future<double> ambilSaldoNegatif() => (super.noSuchMethod(
         Invocation.method(
           #ambilSaldoNegatif,
           [],
         ),
-        returnValue: _i9.Future<double>.value(0.0),
-      ) as _i9.Future<double>);
+        returnValue: _i11.Future<double>.value(0.0),
+      ) as _i11.Future<double>);
 
   @override
-  _i9.Future<void> insertOrUpdateBatch(
-    List<_i12.DompetModel>? items, {
+  _i11.Future<void> insertOrUpdateBatch(
+    List<_i14.DompetModel>? items, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -481,15 +487,15 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
           [items],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 }
 
 /// A class which mocks [KategoriOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockKategoriOpSqlite extends _i1.Mock implements _i13.KategoriOpSqlite {
+class MockKategoriOpSqlite extends _i1.Mock implements _i15.KategoriOpSqlite {
   MockKategoriOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
@@ -504,7 +510,7 @@ class MockKategoriOpSqlite extends _i1.Mock implements _i13.KategoriOpSqlite {
       ) as _i2.SqliteDatabase);
 
   @override
-  _i9.Future<_i3.KategoriModel> tambahKategori(
+  _i11.Future<_i3.KategoriModel> tambahKategori(
     _i3.KategoriModel? category, {
     bool? fromServer = false,
   }) =>
@@ -514,7 +520,7 @@ class MockKategoriOpSqlite extends _i1.Mock implements _i13.KategoriOpSqlite {
           [category],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<_i3.KategoriModel>.value(_FakeKategoriModel_2(
+        returnValue: _i11.Future<_i3.KategoriModel>.value(_FakeKategoriModel_2(
           this,
           Invocation.method(
             #tambahKategori,
@@ -522,48 +528,48 @@ class MockKategoriOpSqlite extends _i1.Mock implements _i13.KategoriOpSqlite {
             {#fromServer: fromServer},
           ),
         )),
-      ) as _i9.Future<_i3.KategoriModel>);
+      ) as _i11.Future<_i3.KategoriModel>);
 
   @override
-  _i9.Future<List<_i3.KategoriModel>> ambilSemua() => (super.noSuchMethod(
+  _i11.Future<List<_i3.KategoriModel>> ambilSemua() => (super.noSuchMethod(
         Invocation.method(
           #ambilSemua,
           [],
         ),
         returnValue:
-            _i9.Future<List<_i3.KategoriModel>>.value(<_i3.KategoriModel>[]),
-      ) as _i9.Future<List<_i3.KategoriModel>>);
+            _i11.Future<List<_i3.KategoriModel>>.value(<_i3.KategoriModel>[]),
+      ) as _i11.Future<List<_i3.KategoriModel>>);
 
   @override
-  _i9.Future<_i3.KategoriModel> ambilKategoriBerdasarkanId(String? id) =>
+  _i11.Future<_i3.KategoriModel> ambilKategoriBerdasarkanId(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilKategoriBerdasarkanId,
           [id],
         ),
-        returnValue: _i9.Future<_i3.KategoriModel>.value(_FakeKategoriModel_2(
+        returnValue: _i11.Future<_i3.KategoriModel>.value(_FakeKategoriModel_2(
           this,
           Invocation.method(
             #ambilKategoriBerdasarkanId,
             [id],
           ),
         )),
-      ) as _i9.Future<_i3.KategoriModel>);
+      ) as _i11.Future<_i3.KategoriModel>);
 
   @override
-  _i9.Future<List<_i3.KategoriModel>> ambilKategoriBerdasarkanTipe(
-          _i14.TipeKategori? type) =>
+  _i11.Future<List<_i3.KategoriModel>> ambilKategoriBerdasarkanTipe(
+          _i16.TipeKategori? type) =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilKategoriBerdasarkanTipe,
           [type],
         ),
         returnValue:
-            _i9.Future<List<_i3.KategoriModel>>.value(<_i3.KategoriModel>[]),
-      ) as _i9.Future<List<_i3.KategoriModel>>);
+            _i11.Future<List<_i3.KategoriModel>>.value(<_i3.KategoriModel>[]),
+      ) as _i11.Future<List<_i3.KategoriModel>>);
 
   @override
-  _i9.Future<void> updateKategori(
+  _i11.Future<void> updateKategori(
     _i3.KategoriModel? category, {
     bool? dariServer = false,
   }) =>
@@ -573,12 +579,12 @@ class MockKategoriOpSqlite extends _i1.Mock implements _i13.KategoriOpSqlite {
           [category],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> softDeleteKategori(
+  _i11.Future<void> softDeleteKategori(
     String? id, {
     bool? dariServer = false,
   }) =>
@@ -588,23 +594,23 @@ class MockKategoriOpSqlite extends _i1.Mock implements _i13.KategoriOpSqlite {
           [id],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<int> softDeleteAllKategori({bool? dariServer = false}) =>
+  _i11.Future<int> softDeleteAllKategori({bool? dariServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #softDeleteAllKategori,
           [],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<void> insertOrUpdateBatch(
+  _i11.Future<void> insertOrUpdateBatch(
     List<_i3.KategoriModel>? items, {
     bool? fromServer = false,
   }) =>
@@ -614,26 +620,26 @@ class MockKategoriOpSqlite extends _i1.Mock implements _i13.KategoriOpSqlite {
           [items],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i3.KategoriModel>> getCategoriesByIds(List<String>? ids) =>
+  _i11.Future<List<_i3.KategoriModel>> getCategoriesByIds(List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
           #getCategoriesByIds,
           [ids],
         ),
         returnValue:
-            _i9.Future<List<_i3.KategoriModel>>.value(<_i3.KategoriModel>[]),
-      ) as _i9.Future<List<_i3.KategoriModel>>);
+            _i11.Future<List<_i3.KategoriModel>>.value(<_i3.KategoriModel>[]),
+      ) as _i11.Future<List<_i3.KategoriModel>>);
 }
 
 /// A class which mocks [PaketOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPaketOpSqlite extends _i1.Mock implements _i15.PaketOpSqlite {
+class MockPaketOpSqlite extends _i1.Mock implements _i17.PaketOpSqlite {
   MockPaketOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
@@ -657,8 +663,8 @@ class MockPaketOpSqlite extends _i1.Mock implements _i15.PaketOpSqlite {
       ) as _i4.BaseOpSqlite);
 
   @override
-  _i9.Future<void> tambahPaket(
-    _i16.PaketModel? paket, {
+  _i11.Future<void> tambahPaket(
+    _i18.PaketModel? paket, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -667,54 +673,54 @@ class MockPaketOpSqlite extends _i1.Mock implements _i15.PaketOpSqlite {
           [paket],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i16.PaketModel>> ambilSemua() => (super.noSuchMethod(
+  _i11.Future<List<_i18.PaketModel>> ambilSemua() => (super.noSuchMethod(
         Invocation.method(
           #ambilSemua,
           [],
         ),
         returnValue:
-            _i9.Future<List<_i16.PaketModel>>.value(<_i16.PaketModel>[]),
-      ) as _i9.Future<List<_i16.PaketModel>>);
+            _i11.Future<List<_i18.PaketModel>>.value(<_i18.PaketModel>[]),
+      ) as _i11.Future<List<_i18.PaketModel>>);
 
   @override
-  _i9.Future<List<_i16.PaketModel>> ambilBerdasarkanAktif() =>
+  _i11.Future<List<_i18.PaketModel>> ambilBerdasarkanAktif() =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilBerdasarkanAktif,
           [],
         ),
         returnValue:
-            _i9.Future<List<_i16.PaketModel>>.value(<_i16.PaketModel>[]),
-      ) as _i9.Future<List<_i16.PaketModel>>);
+            _i11.Future<List<_i18.PaketModel>>.value(<_i18.PaketModel>[]),
+      ) as _i11.Future<List<_i18.PaketModel>>);
 
   @override
-  _i9.Future<List<_i16.PaketModel>> ambilPaketPublik() => (super.noSuchMethod(
+  _i11.Future<List<_i18.PaketModel>> ambilPaketPublik() => (super.noSuchMethod(
         Invocation.method(
           #ambilPaketPublik,
           [],
         ),
         returnValue:
-            _i9.Future<List<_i16.PaketModel>>.value(<_i16.PaketModel>[]),
-      ) as _i9.Future<List<_i16.PaketModel>>);
+            _i11.Future<List<_i18.PaketModel>>.value(<_i18.PaketModel>[]),
+      ) as _i11.Future<List<_i18.PaketModel>>);
 
   @override
-  _i9.Future<_i16.PaketModel?> ambilBerdasarkanId(String? id) =>
+  _i11.Future<_i18.PaketModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilBerdasarkanId,
           [id],
         ),
-        returnValue: _i9.Future<_i16.PaketModel?>.value(),
-      ) as _i9.Future<_i16.PaketModel?>);
+        returnValue: _i11.Future<_i18.PaketModel?>.value(),
+      ) as _i11.Future<_i18.PaketModel?>);
 
   @override
-  _i9.Future<void> perbaruiPaket(
-    _i16.PaketModel? paket, {
+  _i11.Future<void> perbaruiPaket(
+    _i18.PaketModel? paket, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -723,12 +729,12 @@ class MockPaketOpSqlite extends _i1.Mock implements _i15.PaketOpSqlite {
           [paket],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> hapusSementara(
+  _i11.Future<void> hapusSementara(
     String? id, {
     bool? dariServer = false,
   }) =>
@@ -738,23 +744,23 @@ class MockPaketOpSqlite extends _i1.Mock implements _i15.PaketOpSqlite {
           [id],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<int> hapusSementaraSemua({bool? dariServer = false}) =>
+  _i11.Future<int> hapusSementaraSemua({bool? dariServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #hapusSementaraSemua,
           [],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<void> hapus(
+  _i11.Future<void> hapus(
     String? id, {
     bool? dariServer = false,
   }) =>
@@ -764,36 +770,36 @@ class MockPaketOpSqlite extends _i1.Mock implements _i15.PaketOpSqlite {
           [id],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> hapusSemua({bool? dariServer = false}) =>
+  _i11.Future<void> hapusSemua({bool? dariServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #hapusSemua,
           [],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i16.PaketModel>> ambilPerubahanSejak(DateTime? since) =>
+  _i11.Future<List<_i18.PaketModel>> ambilPerubahanSejak(DateTime? since) =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilPerubahanSejak,
           [since],
         ),
         returnValue:
-            _i9.Future<List<_i16.PaketModel>>.value(<_i16.PaketModel>[]),
-      ) as _i9.Future<List<_i16.PaketModel>>);
+            _i11.Future<List<_i18.PaketModel>>.value(<_i18.PaketModel>[]),
+      ) as _i11.Future<List<_i18.PaketModel>>);
 
   @override
-  _i9.Future<void> sisipkanAtauPerbaruiBatch(
-    List<_i16.PaketModel>? items, {
+  _i11.Future<void> sisipkanAtauPerbaruiBatch(
+    List<_i18.PaketModel>? items, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -802,12 +808,12 @@ class MockPaketOpSqlite extends _i1.Mock implements _i15.PaketOpSqlite {
           [items],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i16.PaketModel>> ambilBerdasarkanBeberapaId(
+  _i11.Future<List<_i18.PaketModel>> ambilBerdasarkanBeberapaId(
           List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -815,14 +821,14 @@ class MockPaketOpSqlite extends _i1.Mock implements _i15.PaketOpSqlite {
           [ids],
         ),
         returnValue:
-            _i9.Future<List<_i16.PaketModel>>.value(<_i16.PaketModel>[]),
-      ) as _i9.Future<List<_i16.PaketModel>>);
+            _i11.Future<List<_i18.PaketModel>>.value(<_i18.PaketModel>[]),
+      ) as _i11.Future<List<_i18.PaketModel>>);
 }
 
 /// A class which mocks [PelangganOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPelangganOpSqlite extends _i1.Mock implements _i17.PelangganOpSqlite {
+class MockPelangganOpSqlite extends _i1.Mock implements _i19.PelangganOpSqlite {
   MockPelangganOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
@@ -837,8 +843,8 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i17.PelangganOpSqlite {
       ) as _i2.SqliteDatabase);
 
   @override
-  _i9.Future<void> tambahPelanggan(
-    _i18.PelangganModel? customer, {
+  _i11.Future<void> tambahPelanggan(
+    _i20.PelangganModel? customer, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -847,44 +853,45 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i17.PelangganOpSqlite {
           [customer],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i18.PelangganModel>> ambilPelanggan() => (super.noSuchMethod(
+  _i11.Future<List<_i20.PelangganModel>> ambilPelanggan() =>
+      (super.noSuchMethod(
         Invocation.method(
           #ambilPelanggan,
           [],
         ),
-        returnValue: _i9.Future<List<_i18.PelangganModel>>.value(
-            <_i18.PelangganModel>[]),
-      ) as _i9.Future<List<_i18.PelangganModel>>);
+        returnValue: _i11.Future<List<_i20.PelangganModel>>.value(
+            <_i20.PelangganModel>[]),
+      ) as _i11.Future<List<_i20.PelangganModel>>);
 
   @override
-  _i9.Future<List<_i18.PelangganModel>> ambilSemuaPelanggan() =>
+  _i11.Future<List<_i20.PelangganModel>> ambilSemuaPelanggan() =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilSemuaPelanggan,
           [],
         ),
-        returnValue: _i9.Future<List<_i18.PelangganModel>>.value(
-            <_i18.PelangganModel>[]),
-      ) as _i9.Future<List<_i18.PelangganModel>>);
+        returnValue: _i11.Future<List<_i20.PelangganModel>>.value(
+            <_i20.PelangganModel>[]),
+      ) as _i11.Future<List<_i20.PelangganModel>>);
 
   @override
-  _i9.Future<_i18.PelangganModel?> ambilBerdasarkanId(String? id) =>
+  _i11.Future<_i20.PelangganModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilBerdasarkanId,
           [id],
         ),
-        returnValue: _i9.Future<_i18.PelangganModel?>.value(),
-      ) as _i9.Future<_i18.PelangganModel?>);
+        returnValue: _i11.Future<_i20.PelangganModel?>.value(),
+      ) as _i11.Future<_i20.PelangganModel?>);
 
   @override
-  _i9.Future<void> perbaruiPelanggan(
-    _i18.PelangganModel? customer, {
+  _i11.Future<void> perbaruiPelanggan(
+    _i20.PelangganModel? customer, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -893,12 +900,12 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i17.PelangganOpSqlite {
           [customer],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> hapusSementara(
+  _i11.Future<void> hapusSementara(
     String? id, {
     bool? dariServer = false,
   }) =>
@@ -908,35 +915,35 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i17.PelangganOpSqlite {
           [id],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<int> hapusSementaraSemua({bool? dariServer = false}) =>
+  _i11.Future<int> hapusSementaraSemua({bool? dariServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #hapusSementaraSemua,
           [],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<List<_i18.PelangganModel>> ambilPerubahanSejak(DateTime? since) =>
+  _i11.Future<List<_i20.PelangganModel>> ambilPerubahanSejak(DateTime? since) =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilPerubahanSejak,
           [since],
         ),
-        returnValue: _i9.Future<List<_i18.PelangganModel>>.value(
-            <_i18.PelangganModel>[]),
-      ) as _i9.Future<List<_i18.PelangganModel>>);
+        returnValue: _i11.Future<List<_i20.PelangganModel>>.value(
+            <_i20.PelangganModel>[]),
+      ) as _i11.Future<List<_i20.PelangganModel>>);
 
   @override
-  _i9.Future<void> sisipkanAtauPerbaruiBatch(
-    List<_i18.PelangganModel>? items, {
+  _i11.Future<void> sisipkanAtauPerbaruiBatch(
+    List<_i20.PelangganModel>? items, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -945,28 +952,28 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i17.PelangganOpSqlite {
           [items],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i18.PelangganModel>> ambilPelangganBerdasarkanId(
+  _i11.Future<List<_i20.PelangganModel>> ambilPelangganBerdasarkanId(
           List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilPelangganBerdasarkanId,
           [ids],
         ),
-        returnValue: _i9.Future<List<_i18.PelangganModel>>.value(
-            <_i18.PelangganModel>[]),
-      ) as _i9.Future<List<_i18.PelangganModel>>);
+        returnValue: _i11.Future<List<_i20.PelangganModel>>.value(
+            <_i20.PelangganModel>[]),
+      ) as _i11.Future<List<_i20.PelangganModel>>);
 }
 
 /// A class which mocks [PelangganAktifOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPelangganAktifOpSqlite extends _i1.Mock
-    implements _i19.PelangganAktifOpSqlite {
+    implements _i21.PelangganAktifOpSqlite {
   MockPelangganAktifOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
@@ -981,28 +988,29 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
       ) as _i2.SqliteDatabase);
 
   @override
-  _i9.Future<void> rescheduleAllNotifications() => (super.noSuchMethod(
+  _i11.Future<void> rescheduleAllNotifications() => (super.noSuchMethod(
         Invocation.method(
           #rescheduleAllNotifications,
           [],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i20.DetailPelangganAktifModel>>
+  _i11.Future<List<_i22.DetailPelangganAktifModel>>
       getAllActiveCustomersWithDetails() => (super.noSuchMethod(
             Invocation.method(
               #getAllActiveCustomersWithDetails,
               [],
             ),
-            returnValue: _i9.Future<List<_i20.DetailPelangganAktifModel>>.value(
-                <_i20.DetailPelangganAktifModel>[]),
-          ) as _i9.Future<List<_i20.DetailPelangganAktifModel>>);
+            returnValue:
+                _i11.Future<List<_i22.DetailPelangganAktifModel>>.value(
+                    <_i22.DetailPelangganAktifModel>[]),
+          ) as _i11.Future<List<_i22.DetailPelangganAktifModel>>);
 
   @override
-  _i9.Future<_i5.PelangganAktifModel> tambahPelangganAktif(
+  _i11.Future<_i5.PelangganAktifModel> tambahPelangganAktif(
     _i5.PelangganAktifModel? pelangganAktif, {
     bool? fromServer = false,
   }) =>
@@ -1012,7 +1020,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
           [pelangganAktif],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<_i5.PelangganAktifModel>.value(
+        returnValue: _i11.Future<_i5.PelangganAktifModel>.value(
             _FakePelangganAktifModel_4(
           this,
           Invocation.method(
@@ -1021,30 +1029,30 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
             {#fromServer: fromServer},
           ),
         )),
-      ) as _i9.Future<_i5.PelangganAktifModel>);
+      ) as _i11.Future<_i5.PelangganAktifModel>);
 
   @override
-  _i9.Future<List<_i5.PelangganAktifModel>> getALl() => (super.noSuchMethod(
+  _i11.Future<List<_i5.PelangganAktifModel>> getALl() => (super.noSuchMethod(
         Invocation.method(
           #getALl,
           [],
         ),
-        returnValue: _i9.Future<List<_i5.PelangganAktifModel>>.value(
+        returnValue: _i11.Future<List<_i5.PelangganAktifModel>>.value(
             <_i5.PelangganAktifModel>[]),
-      ) as _i9.Future<List<_i5.PelangganAktifModel>>);
+      ) as _i11.Future<List<_i5.PelangganAktifModel>>);
 
   @override
-  _i9.Future<_i5.PelangganAktifModel?> getById(String? id) =>
+  _i11.Future<_i5.PelangganAktifModel?> getById(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
           #getById,
           [id],
         ),
-        returnValue: _i9.Future<_i5.PelangganAktifModel?>.value(),
-      ) as _i9.Future<_i5.PelangganAktifModel?>);
+        returnValue: _i11.Future<_i5.PelangganAktifModel?>.value(),
+      ) as _i11.Future<_i5.PelangganAktifModel?>);
 
   @override
-  _i9.Future<_i5.PelangganAktifModel> updateActiveCustomer(
+  _i11.Future<_i5.PelangganAktifModel> updateActiveCustomer(
     _i5.PelangganAktifModel? activeCustomer, {
     bool? fromServer = false,
   }) =>
@@ -1054,7 +1062,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
           [activeCustomer],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<_i5.PelangganAktifModel>.value(
+        returnValue: _i11.Future<_i5.PelangganAktifModel>.value(
             _FakePelangganAktifModel_4(
           this,
           Invocation.method(
@@ -1063,22 +1071,22 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
             {#fromServer: fromServer},
           ),
         )),
-      ) as _i9.Future<_i5.PelangganAktifModel>);
+      ) as _i11.Future<_i5.PelangganAktifModel>);
 
   @override
-  _i9.Future<void> scheduleNotification(
+  _i11.Future<void> scheduleNotification(
           _i5.PelangganAktifModel? activeCustomer) =>
       (super.noSuchMethod(
         Invocation.method(
           #scheduleNotification,
           [activeCustomer],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> insertOrUpdateBatch(
+  _i11.Future<void> insertOrUpdateBatch(
     List<_i5.PelangganAktifModel>? items, {
     bool? fromServer = false,
   }) =>
@@ -1088,12 +1096,12 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
           [items],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> softDelete(
+  _i11.Future<void> softDelete(
     String? id, {
     bool? fromServer = false,
   }) =>
@@ -1103,61 +1111,61 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
           [id],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> hapusPermanenDataSoftDelete({bool? fromServer = false}) =>
+  _i11.Future<void> hapusPermanenDataSoftDelete({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #hapusPermanenDataSoftDelete,
           [],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<int> arsipkanLanggananKadaluarsa({bool? fromServer = false}) =>
+  _i11.Future<int> arsipkanLanggananKadaluarsa({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #arsipkanLanggananKadaluarsa,
           [],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<int> softDeleteAll({bool? fromServer = false}) =>
+  _i11.Future<int> softDeleteAll({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #softDeleteAll,
           [],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<List<_i5.PelangganAktifModel>> ambilBerdasarkanIds(
+  _i11.Future<List<_i5.PelangganAktifModel>> ambilBerdasarkanIds(
           List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilBerdasarkanIds,
           [ids],
         ),
-        returnValue: _i9.Future<List<_i5.PelangganAktifModel>>.value(
+        returnValue: _i11.Future<List<_i5.PelangganAktifModel>>.value(
             <_i5.PelangganAktifModel>[]),
-      ) as _i9.Future<List<_i5.PelangganAktifModel>>);
+      ) as _i11.Future<List<_i5.PelangganAktifModel>>);
 }
 
 /// A class which mocks [TransaksiOpsqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTransaksiOpsqlite extends _i1.Mock implements _i21.TransaksiOpsqlite {
+class MockTransaksiOpsqlite extends _i1.Mock implements _i23.TransaksiOpsqlite {
   MockTransaksiOpsqlite() {
     _i1.throwOnMissingStub(this);
   }
@@ -1181,8 +1189,8 @@ class MockTransaksiOpsqlite extends _i1.Mock implements _i21.TransaksiOpsqlite {
       ) as _i4.BaseOpSqlite);
 
   @override
-  _i9.Future<int> tambahTransaksi(
-    _i5.TransaksiModel? transaction, {
+  _i11.Future<int> tambahTransaksi(
+    _i22.TransaksiModel? transaction, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1191,79 +1199,79 @@ class MockTransaksiOpsqlite extends _i1.Mock implements _i21.TransaksiOpsqlite {
           [transaction],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<List<_i5.TransaksiModel>> getAllTransactions() =>
+  _i11.Future<List<_i22.TransaksiModel>> getAllTransactions() =>
       (super.noSuchMethod(
         Invocation.method(
           #getAllTransactions,
           [],
         ),
-        returnValue:
-            _i9.Future<List<_i5.TransaksiModel>>.value(<_i5.TransaksiModel>[]),
-      ) as _i9.Future<List<_i5.TransaksiModel>>);
+        returnValue: _i11.Future<List<_i22.TransaksiModel>>.value(
+            <_i22.TransaksiModel>[]),
+      ) as _i11.Future<List<_i22.TransaksiModel>>);
 
   @override
-  _i9.Future<_i5.TransaksiModel?> ambilBerdasarkanId(String? id) =>
+  _i11.Future<_i22.TransaksiModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilBerdasarkanId,
           [id],
         ),
-        returnValue: _i9.Future<_i5.TransaksiModel?>.value(),
-      ) as _i9.Future<_i5.TransaksiModel?>);
+        returnValue: _i11.Future<_i22.TransaksiModel?>.value(),
+      ) as _i11.Future<_i22.TransaksiModel?>);
 
   @override
-  _i9.Future<_i5.TransaksiModel?> getLatestPaidTransactionByUserId(
+  _i11.Future<_i22.TransaksiModel?> getLatestPaidTransactionByUserId(
           String? customerId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getLatestPaidTransactionByUserId,
           [customerId],
         ),
-        returnValue: _i9.Future<_i5.TransaksiModel?>.value(),
-      ) as _i9.Future<_i5.TransaksiModel?>);
+        returnValue: _i11.Future<_i22.TransaksiModel?>.value(),
+      ) as _i11.Future<_i22.TransaksiModel?>);
 
   @override
-  _i9.Future<List<_i5.TransaksiModel>> getByIdPelanggan(String? customerId) =>
+  _i11.Future<List<_i22.TransaksiModel>> getByIdPelanggan(String? customerId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getByIdPelanggan,
           [customerId],
         ),
-        returnValue:
-            _i9.Future<List<_i5.TransaksiModel>>.value(<_i5.TransaksiModel>[]),
-      ) as _i9.Future<List<_i5.TransaksiModel>>);
+        returnValue: _i11.Future<List<_i22.TransaksiModel>>.value(
+            <_i22.TransaksiModel>[]),
+      ) as _i11.Future<List<_i22.TransaksiModel>>);
 
   @override
-  _i9.Future<List<_i5.TransaksiModel>> getTransactionsByWalletId(
+  _i11.Future<List<_i22.TransaksiModel>> getTransactionsByWalletId(
           String? walletId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTransactionsByWalletId,
           [walletId],
         ),
-        returnValue:
-            _i9.Future<List<_i5.TransaksiModel>>.value(<_i5.TransaksiModel>[]),
-      ) as _i9.Future<List<_i5.TransaksiModel>>);
+        returnValue: _i11.Future<List<_i22.TransaksiModel>>.value(
+            <_i22.TransaksiModel>[]),
+      ) as _i11.Future<List<_i22.TransaksiModel>>);
 
   @override
-  _i9.Future<List<_i5.TransaksiModel>> getTransactionsByPackageActivation() =>
+  _i11.Future<List<_i22.TransaksiModel>> getTransactionsByPackageActivation() =>
       (super.noSuchMethod(
         Invocation.method(
           #getTransactionsByPackageActivation,
           [],
         ),
-        returnValue:
-            _i9.Future<List<_i5.TransaksiModel>>.value(<_i5.TransaksiModel>[]),
-      ) as _i9.Future<List<_i5.TransaksiModel>>);
+        returnValue: _i11.Future<List<_i22.TransaksiModel>>.value(
+            <_i22.TransaksiModel>[]),
+      ) as _i11.Future<List<_i22.TransaksiModel>>);
 
   @override
-  _i9.Future<void> updateTransaction(
+  _i11.Future<void> updateTransaction(
     String? id,
-    _i5.TransaksiModel? newTransaction, {
+    _i22.TransaksiModel? newTransaction, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1275,12 +1283,12 @@ class MockTransaksiOpsqlite extends _i1.Mock implements _i21.TransaksiOpsqlite {
           ],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> softDelete(
+  _i11.Future<void> softDelete(
     String? id, {
     bool? fromServer = false,
   }) =>
@@ -1290,78 +1298,78 @@ class MockTransaksiOpsqlite extends _i1.Mock implements _i21.TransaksiOpsqlite {
           [id],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<int> softDeleteAll({bool? fromServer = false}) =>
+  _i11.Future<int> softDeleteAll({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #softDeleteAll,
           [],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<double> getTotalIncome() => (super.noSuchMethod(
+  _i11.Future<double> getTotalIncome() => (super.noSuchMethod(
         Invocation.method(
           #getTotalIncome,
           [],
         ),
-        returnValue: _i9.Future<double>.value(0.0),
-      ) as _i9.Future<double>);
+        returnValue: _i11.Future<double>.value(0.0),
+      ) as _i11.Future<double>);
 
   @override
-  _i9.Future<double> getTotalExpense() => (super.noSuchMethod(
+  _i11.Future<double> getTotalExpense() => (super.noSuchMethod(
         Invocation.method(
           #getTotalExpense,
           [],
         ),
-        returnValue: _i9.Future<double>.value(0.0),
-      ) as _i9.Future<double>);
+        returnValue: _i11.Future<double>.value(0.0),
+      ) as _i11.Future<double>);
 
   @override
-  _i9.Future<double> getNetTotal() => (super.noSuchMethod(
+  _i11.Future<double> getNetTotal() => (super.noSuchMethod(
         Invocation.method(
           #getNetTotal,
           [],
         ),
-        returnValue: _i9.Future<double>.value(0.0),
-      ) as _i9.Future<double>);
+        returnValue: _i11.Future<double>.value(0.0),
+      ) as _i11.Future<double>);
 
   @override
-  _i9.Future<int> getEarnedPoints(String? customerId) => (super.noSuchMethod(
+  _i11.Future<int> getEarnedPoints(String? customerId) => (super.noSuchMethod(
         Invocation.method(
           #getEarnedPoints,
           [customerId],
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<int> getUsedPoints(String? customerId) => (super.noSuchMethod(
+  _i11.Future<int> getUsedPoints(String? customerId) => (super.noSuchMethod(
         Invocation.method(
           #getUsedPoints,
           [customerId],
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<int> ambilTotalPoin(String? customerId) => (super.noSuchMethod(
+  _i11.Future<int> ambilTotalPoin(String? customerId) => (super.noSuchMethod(
         Invocation.method(
           #ambilTotalPoin,
           [customerId],
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<void> insertOrUpdateBatch(
-    List<_i5.TransaksiModel>? items, {
+  _i11.Future<void> insertOrUpdateBatch(
+    List<_i22.TransaksiModel>? items, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1370,27 +1378,27 @@ class MockTransaksiOpsqlite extends _i1.Mock implements _i21.TransaksiOpsqlite {
           [items],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i5.TransaksiModel>> getTransactionsByIds(
+  _i11.Future<List<_i22.TransaksiModel>> getTransactionsByIds(
           List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTransactionsByIds,
           [ids],
         ),
-        returnValue:
-            _i9.Future<List<_i5.TransaksiModel>>.value(<_i5.TransaksiModel>[]),
-      ) as _i9.Future<List<_i5.TransaksiModel>>);
+        returnValue: _i11.Future<List<_i22.TransaksiModel>>.value(
+            <_i22.TransaksiModel>[]),
+      ) as _i11.Future<List<_i22.TransaksiModel>>);
 }
 
 /// A class which mocks [FeedbackOperation].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFeedbackOperation extends _i1.Mock implements _i22.FeedbackOperation {
+class MockFeedbackOperation extends _i1.Mock implements _i24.FeedbackOperation {
   MockFeedbackOperation() {
     _i1.throwOnMissingStub(this);
   }
@@ -1414,8 +1422,8 @@ class MockFeedbackOperation extends _i1.Mock implements _i22.FeedbackOperation {
       ) as _i4.BaseOpSqlite);
 
   @override
-  _i9.Future<void> add(
-    _i5.FeedbackModel? feedback, {
+  _i11.Future<void> add(
+    _i6.FeedbackModel? feedback, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1424,60 +1432,60 @@ class MockFeedbackOperation extends _i1.Mock implements _i22.FeedbackOperation {
           [feedback],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i5.FeedbackModel>> getAll() => (super.noSuchMethod(
+  _i11.Future<List<_i6.FeedbackModel>> getAll() => (super.noSuchMethod(
         Invocation.method(
           #getAll,
           [],
         ),
         returnValue:
-            _i9.Future<List<_i5.FeedbackModel>>.value(<_i5.FeedbackModel>[]),
-      ) as _i9.Future<List<_i5.FeedbackModel>>);
+            _i11.Future<List<_i6.FeedbackModel>>.value(<_i6.FeedbackModel>[]),
+      ) as _i11.Future<List<_i6.FeedbackModel>>);
 
   @override
-  _i9.Future<List<_i5.FeedbackModel>> getAllActiveFeedback() =>
+  _i11.Future<List<_i6.FeedbackModel>> getAllActiveFeedback() =>
       (super.noSuchMethod(
         Invocation.method(
           #getAllActiveFeedback,
           [],
         ),
         returnValue:
-            _i9.Future<List<_i5.FeedbackModel>>.value(<_i5.FeedbackModel>[]),
-      ) as _i9.Future<List<_i5.FeedbackModel>>);
+            _i11.Future<List<_i6.FeedbackModel>>.value(<_i6.FeedbackModel>[]),
+      ) as _i11.Future<List<_i6.FeedbackModel>>);
 
   @override
-  _i9.Future<_i5.FeedbackModel> getById(String? id) => (super.noSuchMethod(
+  _i11.Future<_i6.FeedbackModel> getById(String? id) => (super.noSuchMethod(
         Invocation.method(
           #getById,
           [id],
         ),
-        returnValue: _i9.Future<_i5.FeedbackModel>.value(_FakeFeedbackModel_5(
+        returnValue: _i11.Future<_i6.FeedbackModel>.value(_FakeFeedbackModel_5(
           this,
           Invocation.method(
             #getById,
             [id],
           ),
         )),
-      ) as _i9.Future<_i5.FeedbackModel>);
+      ) as _i11.Future<_i6.FeedbackModel>);
 
   @override
-  _i9.Future<List<_i5.FeedbackModel>> getChanges(DateTime? lastSync) =>
+  _i11.Future<List<_i6.FeedbackModel>> getChanges(DateTime? lastSync) =>
       (super.noSuchMethod(
         Invocation.method(
           #getChanges,
           [lastSync],
         ),
         returnValue:
-            _i9.Future<List<_i5.FeedbackModel>>.value(<_i5.FeedbackModel>[]),
-      ) as _i9.Future<List<_i5.FeedbackModel>>);
+            _i11.Future<List<_i6.FeedbackModel>>.value(<_i6.FeedbackModel>[]),
+      ) as _i11.Future<List<_i6.FeedbackModel>>);
 
   @override
-  _i9.Future<void> insertOrUpdateBatch(
-    List<_i5.FeedbackModel>? feedbackList, {
+  _i11.Future<void> insertOrUpdateBatch(
+    List<_i6.FeedbackModel>? feedbackList, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1486,12 +1494,12 @@ class MockFeedbackOperation extends _i1.Mock implements _i22.FeedbackOperation {
           [feedbackList],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> delete(
+  _i11.Future<void> delete(
     String? id, {
     bool? fromServer = false,
   }) =>
@@ -1501,12 +1509,12 @@ class MockFeedbackOperation extends _i1.Mock implements _i22.FeedbackOperation {
           [id],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> softDelete(
+  _i11.Future<void> softDelete(
     String? id, {
     bool? fromServer = false,
   }) =>
@@ -1516,34 +1524,35 @@ class MockFeedbackOperation extends _i1.Mock implements _i22.FeedbackOperation {
           [id],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<int> softDeleteAll({bool? fromServer = false}) =>
+  _i11.Future<int> softDeleteAll({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #softDeleteAll,
           [],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<void> deleteAll({bool? fromServer = false}) => (super.noSuchMethod(
+  _i11.Future<void> deleteAll({bool? fromServer = false}) =>
+      (super.noSuchMethod(
         Invocation.method(
           #deleteAll,
           [],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> deleteByUserId(
+  _i11.Future<void> deleteByUserId(
     String? userId, {
     bool? fromServer = false,
   }) =>
@@ -1553,26 +1562,26 @@ class MockFeedbackOperation extends _i1.Mock implements _i22.FeedbackOperation {
           [userId],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i5.FeedbackModel>> getByIds(List<String>? ids) =>
+  _i11.Future<List<_i6.FeedbackModel>> getByIds(List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
           #getByIds,
           [ids],
         ),
         returnValue:
-            _i9.Future<List<_i5.FeedbackModel>>.value(<_i5.FeedbackModel>[]),
-      ) as _i9.Future<List<_i5.FeedbackModel>>);
+            _i11.Future<List<_i6.FeedbackModel>>.value(<_i6.FeedbackModel>[]),
+      ) as _i11.Future<List<_i6.FeedbackModel>>);
 }
 
 /// A class which mocks [OrderOpsqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockOrderOpsqlite extends _i1.Mock implements _i23.OrderOpsqlite {
+class MockOrderOpsqlite extends _i1.Mock implements _i25.OrderOpsqlite {
   MockOrderOpsqlite() {
     _i1.throwOnMissingStub(this);
   }
@@ -1596,18 +1605,18 @@ class MockOrderOpsqlite extends _i1.Mock implements _i23.OrderOpsqlite {
       ) as _i4.BaseOpSqlite);
 
   @override
-  _i9.Future<int> getJumlahByStatus(_i24.StatusOrderEnum? status) =>
+  _i11.Future<int> getJumlahByStatus(_i26.StatusOrderEnum? status) =>
       (super.noSuchMethod(
         Invocation.method(
           #getJumlahByStatus,
           [status],
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<void> tambahOrder(
-    _i25.OrderModel? order, {
+  _i11.Future<void> tambahOrder(
+    _i27.OrderModel? order, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1616,46 +1625,46 @@ class MockOrderOpsqlite extends _i1.Mock implements _i23.OrderOpsqlite {
           [order],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i25.OrderModel>> ambilSemuaOrder() => (super.noSuchMethod(
+  _i11.Future<List<_i27.OrderModel>> ambilSemuaOrder() => (super.noSuchMethod(
         Invocation.method(
           #ambilSemuaOrder,
           [],
         ),
         returnValue:
-            _i9.Future<List<_i25.OrderModel>>.value(<_i25.OrderModel>[]),
-      ) as _i9.Future<List<_i25.OrderModel>>);
+            _i11.Future<List<_i27.OrderModel>>.value(<_i27.OrderModel>[]),
+      ) as _i11.Future<List<_i27.OrderModel>>);
 
   @override
-  _i9.Stream<List<_i25.OrderModel>> getAllActiveOrdersStream() =>
+  _i11.Stream<List<_i27.OrderModel>> getAllActiveOrdersStream() =>
       (super.noSuchMethod(
         Invocation.method(
           #getAllActiveOrdersStream,
           [],
         ),
-        returnValue: _i9.Stream<List<_i25.OrderModel>>.empty(),
-      ) as _i9.Stream<List<_i25.OrderModel>>);
+        returnValue: _i11.Stream<List<_i27.OrderModel>>.empty(),
+      ) as _i11.Stream<List<_i27.OrderModel>>);
 
   @override
-  _i9.Future<List<_i25.OrderModel>> ambilOrderBerdasarkanStatus(
-          _i24.StatusOrderEnum? status) =>
+  _i11.Future<List<_i27.OrderModel>> ambilOrderBerdasarkanStatus(
+          _i26.StatusOrderEnum? status) =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilOrderBerdasarkanStatus,
           [status],
         ),
         returnValue:
-            _i9.Future<List<_i25.OrderModel>>.value(<_i25.OrderModel>[]),
-      ) as _i9.Future<List<_i25.OrderModel>>);
+            _i11.Future<List<_i27.OrderModel>>.value(<_i27.OrderModel>[]),
+      ) as _i11.Future<List<_i27.OrderModel>>);
 
   @override
-  _i9.Future<void> updateStatusOrder(
+  _i11.Future<void> updateStatusOrder(
     String? id,
-    _i24.StatusOrderEnum? status, {
+    _i26.StatusOrderEnum? status, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1667,12 +1676,12 @@ class MockOrderOpsqlite extends _i1.Mock implements _i23.OrderOpsqlite {
           ],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> deleteOrder(
+  _i11.Future<void> deleteOrder(
     String? id, {
     bool? fromServer = false,
   }) =>
@@ -1682,12 +1691,12 @@ class MockOrderOpsqlite extends _i1.Mock implements _i23.OrderOpsqlite {
           [id],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> softDeleteorder(
+  _i11.Future<void> softDeleteorder(
     String? id, {
     bool? dariServer = false,
   }) =>
@@ -1697,24 +1706,24 @@ class MockOrderOpsqlite extends _i1.Mock implements _i23.OrderOpsqlite {
           [id],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<int> softDeleteAllOrder({bool? fromServer = false}) =>
+  _i11.Future<int> softDeleteAllOrder({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #softDeleteAllOrder,
           [],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<void> insertOrUpdateBatch(
-    List<_i25.OrderModel>? items, {
+  _i11.Future<void> insertOrUpdateBatch(
+    List<_i27.OrderModel>? items, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1723,27 +1732,27 @@ class MockOrderOpsqlite extends _i1.Mock implements _i23.OrderOpsqlite {
           [items],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i25.OrderModel>> getOrdersByIds(List<String>? ids) =>
+  _i11.Future<List<_i27.OrderModel>> getOrdersByIds(List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
           #getOrdersByIds,
           [ids],
         ),
         returnValue:
-            _i9.Future<List<_i25.OrderModel>>.value(<_i25.OrderModel>[]),
-      ) as _i9.Future<List<_i25.OrderModel>>);
+            _i11.Future<List<_i27.OrderModel>>.value(<_i27.OrderModel>[]),
+      ) as _i11.Future<List<_i27.OrderModel>>);
 }
 
 /// A class which mocks [SubKategoriOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockSubKategoriOpSqlite extends _i1.Mock
-    implements _i26.SubKategoriOpSqlite {
+    implements _i28.SubKategoriOpSqlite {
   MockSubKategoriOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
@@ -1767,8 +1776,8 @@ class MockSubKategoriOpSqlite extends _i1.Mock
       ) as _i4.BaseOpSqlite);
 
   @override
-  _i9.Future<void> createSubCategory(
-    _i5.SubCategoryModel? subCategory, {
+  _i11.Future<void> createSubCategory(
+    _i29.SubKategoriModel? subCategory, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1777,35 +1786,35 @@ class MockSubKategoriOpSqlite extends _i1.Mock
           [subCategory],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i5.SubCategoryModel>> getSubCategoryByCategoryId(
+  _i11.Future<List<_i29.SubKategoriModel>> getSubCategoryByCategoryId(
           String? categoryId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getSubCategoryByCategoryId,
           [categoryId],
         ),
-        returnValue: _i9.Future<List<_i5.SubCategoryModel>>.value(
-            <_i5.SubCategoryModel>[]),
-      ) as _i9.Future<List<_i5.SubCategoryModel>>);
+        returnValue: _i11.Future<List<_i29.SubKategoriModel>>.value(
+            <_i29.SubKategoriModel>[]),
+      ) as _i11.Future<List<_i29.SubKategoriModel>>);
 
   @override
-  _i9.Future<_i5.SubCategoryModel?> getSubCategoryById(String? id) =>
+  _i11.Future<_i29.SubKategoriModel?> getSubCategoryById(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
           #getSubCategoryById,
           [id],
         ),
-        returnValue: _i9.Future<_i5.SubCategoryModel?>.value(),
-      ) as _i9.Future<_i5.SubCategoryModel?>);
+        returnValue: _i11.Future<_i29.SubKategoriModel?>.value(),
+      ) as _i11.Future<_i29.SubKategoriModel?>);
 
   @override
-  _i9.Future<void> updateSubCategory(
-    _i5.SubCategoryModel? subCategory, {
+  _i11.Future<void> updateSubCategory(
+    _i29.SubKategoriModel? subCategory, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1814,12 +1823,12 @@ class MockSubKategoriOpSqlite extends _i1.Mock
           [subCategory],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> delete(
+  _i11.Future<void> delete(
     String? id, {
     bool? fromServer = false,
   }) =>
@@ -1829,12 +1838,12 @@ class MockSubKategoriOpSqlite extends _i1.Mock
           [id],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> softDelete(
+  _i11.Future<void> softDelete(
     String? id, {
     bool? fromServer = false,
   }) =>
@@ -1844,24 +1853,24 @@ class MockSubKategoriOpSqlite extends _i1.Mock
           [id],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<int> softDeleteAll({bool? fromServer = false}) =>
+  _i11.Future<int> softDeleteAll({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #softDeleteAll,
           [],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<void> insertOrUpdateBatch(
-    List<_i5.SubCategoryModel>? items, {
+  _i11.Future<void> insertOrUpdateBatch(
+    List<_i29.SubKategoriModel>? items, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1870,28 +1879,28 @@ class MockSubKategoriOpSqlite extends _i1.Mock
           [items],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i5.SubCategoryModel>> getSubCategoryByIds(
+  _i11.Future<List<_i29.SubKategoriModel>> getSubCategoryByIds(
           List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
           #getSubCategoryByIds,
           [ids],
         ),
-        returnValue: _i9.Future<List<_i5.SubCategoryModel>>.value(
-            <_i5.SubCategoryModel>[]),
-      ) as _i9.Future<List<_i5.SubCategoryModel>>);
+        returnValue: _i11.Future<List<_i29.SubKategoriModel>>.value(
+            <_i29.SubKategoriModel>[]),
+      ) as _i11.Future<List<_i29.SubKategoriModel>>);
 }
 
 /// A class which mocks [ApkVersionOperation].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockApkVersionOperation extends _i1.Mock
-    implements _i27.ApkVersionOperation {
+    implements _i30.ApkVersionOperation {
   MockApkVersionOperation() {
     _i1.throwOnMissingStub(this);
   }
@@ -1906,8 +1915,8 @@ class MockApkVersionOperation extends _i1.Mock
       ) as _i2.SqliteDatabase);
 
   @override
-  _i9.Future<void> addApkVersion(
-    _i5.VersiApkModel? apkVersion, {
+  _i11.Future<void> addApkVersion(
+    _i31.VersiApkModel? apkVersion, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1916,13 +1925,13 @@ class MockApkVersionOperation extends _i1.Mock
           [apkVersion],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> updateApkVersion(
-    _i5.VersiApkModel? apkVersion, {
+  _i11.Future<void> updateApkVersion(
+    _i31.VersiApkModel? apkVersion, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1931,12 +1940,12 @@ class MockApkVersionOperation extends _i1.Mock
           [apkVersion],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> softDelete(
+  _i11.Future<void> softDelete(
     String? id, {
     bool? fromServer = false,
   }) =>
@@ -1946,24 +1955,24 @@ class MockApkVersionOperation extends _i1.Mock
           [id],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<int> softDeleteAll({bool? fromServer = false}) =>
+  _i11.Future<int> softDeleteAll({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #softDeleteAll,
           [],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i11.Future<int>.value(0),
+      ) as _i11.Future<int>);
 
   @override
-  _i9.Future<void> insertOrUpdateBatch(
-    List<_i5.VersiApkModel>? modelList, {
+  _i11.Future<void> insertOrUpdateBatch(
+    List<_i31.VersiApkModel>? modelList, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1972,56 +1981,56 @@ class MockApkVersionOperation extends _i1.Mock
           [modelList],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<List<_i5.VersiApkModel>> getAllApkVersions() =>
+  _i11.Future<List<_i31.VersiApkModel>> getAllApkVersions() =>
       (super.noSuchMethod(
         Invocation.method(
           #getAllApkVersions,
           [],
         ),
         returnValue:
-            _i9.Future<List<_i5.VersiApkModel>>.value(<_i5.VersiApkModel>[]),
-      ) as _i9.Future<List<_i5.VersiApkModel>>);
+            _i11.Future<List<_i31.VersiApkModel>>.value(<_i31.VersiApkModel>[]),
+      ) as _i11.Future<List<_i31.VersiApkModel>>);
 
   @override
-  _i9.Future<List<_i5.VersiApkModel>> getAllActiveApkVersions() =>
+  _i11.Future<List<_i31.VersiApkModel>> getAllActiveApkVersions() =>
       (super.noSuchMethod(
         Invocation.method(
           #getAllActiveApkVersions,
           [],
         ),
         returnValue:
-            _i9.Future<List<_i5.VersiApkModel>>.value(<_i5.VersiApkModel>[]),
-      ) as _i9.Future<List<_i5.VersiApkModel>>);
+            _i11.Future<List<_i31.VersiApkModel>>.value(<_i31.VersiApkModel>[]),
+      ) as _i11.Future<List<_i31.VersiApkModel>>);
 
   @override
-  _i9.Future<_i5.VersiApkModel?> getLatestApkVersion() => (super.noSuchMethod(
+  _i11.Future<_i31.VersiApkModel?> getLatestApkVersion() => (super.noSuchMethod(
         Invocation.method(
           #getLatestApkVersion,
           [],
         ),
-        returnValue: _i9.Future<_i5.VersiApkModel?>.value(),
-      ) as _i9.Future<_i5.VersiApkModel?>);
+        returnValue: _i11.Future<_i31.VersiApkModel?>.value(),
+      ) as _i11.Future<_i31.VersiApkModel?>);
 
   @override
-  _i9.Future<_i5.VersiApkModel?> getApkVersionById(String? id) =>
+  _i11.Future<_i31.VersiApkModel?> getApkVersionById(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
           #getApkVersionById,
           [id],
         ),
-        returnValue: _i9.Future<_i5.VersiApkModel?>.value(),
-      ) as _i9.Future<_i5.VersiApkModel?>);
+        returnValue: _i11.Future<_i31.VersiApkModel?>.value(),
+      ) as _i11.Future<_i31.VersiApkModel?>);
 }
 
 /// A class which mocks [SettingsOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSettingsOpSqlite extends _i1.Mock implements _i28.SettingsOpSqlite {
+class MockSettingsOpSqlite extends _i1.Mock implements _i32.SettingsOpSqlite {
   MockSettingsOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
@@ -2036,23 +2045,23 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i28.SettingsOpSqlite {
       ) as _i2.SqliteDatabase);
 
   @override
-  _i9.Future<_i5.SettingsModel> getSettings() => (super.noSuchMethod(
+  _i11.Future<_i7.SettingsModel> getSettings() => (super.noSuchMethod(
         Invocation.method(
           #getSettings,
           [],
         ),
-        returnValue: _i9.Future<_i5.SettingsModel>.value(_FakeSettingsModel_6(
+        returnValue: _i11.Future<_i7.SettingsModel>.value(_FakeSettingsModel_6(
           this,
           Invocation.method(
             #getSettings,
             [],
           ),
         )),
-      ) as _i9.Future<_i5.SettingsModel>);
+      ) as _i11.Future<_i7.SettingsModel>);
 
   @override
-  _i9.Future<void> saveOrUpdateSettings(
-    _i5.SettingsModel? settings, {
+  _i11.Future<void> saveOrUpdateSettings(
+    _i7.SettingsModel? settings, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -2061,12 +2070,12 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i28.SettingsOpSqlite {
           [settings],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> updateSettings(
+  _i11.Future<void> updateSettings(
     Map<String, dynamic>? data, {
     bool? dariServer = false,
   }) =>
@@ -2076,13 +2085,13 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i28.SettingsOpSqlite {
           [data],
           {#dariServer: dariServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> saveOrUpdateSettingsWithBatch(
-    _i5.SettingsModel? settings, {
+  _i11.Future<void> saveOrUpdateSettingsWithBatch(
+    _i7.SettingsModel? settings, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -2091,48 +2100,48 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i28.SettingsOpSqlite {
           [settings],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 }
 
 /// A class which mocks [FirebaseFirestore].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
+class MockFirebaseFirestore extends _i1.Mock implements _i10.FirebaseFirestore {
   MockFirebaseFirestore() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i6.FirebaseApp get app => (super.noSuchMethod(
+  _i8.FirebaseApp get app => (super.noSuchMethod(
         Invocation.getter(#app),
         returnValue: _FakeFirebaseApp_7(
           this,
           Invocation.getter(#app),
         ),
-      ) as _i6.FirebaseApp);
+      ) as _i8.FirebaseApp);
 
   @override
   String get databaseId => (super.noSuchMethod(
         Invocation.getter(#databaseId),
-        returnValue: _i29.dummyValue<String>(
+        returnValue: _i33.dummyValue<String>(
           this,
           Invocation.getter(#databaseId),
         ),
       ) as String);
 
   @override
-  _i7.Settings get settings => (super.noSuchMethod(
+  _i9.Settings get settings => (super.noSuchMethod(
         Invocation.getter(#settings),
         returnValue: _FakeSettings_8(
           this,
           Invocation.getter(#settings),
         ),
-      ) as _i7.Settings);
+      ) as _i9.Settings);
 
   @override
-  set app(_i6.FirebaseApp? value) => super.noSuchMethod(
+  set app(_i8.FirebaseApp? value) => super.noSuchMethod(
         Invocation.setter(
           #app,
           value,
@@ -2150,7 +2159,7 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
       );
 
   @override
-  set settings(_i7.Settings? settings) => super.noSuchMethod(
+  set settings(_i9.Settings? settings) => super.noSuchMethod(
         Invocation.setter(
           #settings,
           settings,
@@ -2165,7 +2174,7 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
       ) as Map<dynamic, dynamic>);
 
   @override
-  _i8.CollectionReference<Map<String, dynamic>> collection(
+  _i10.CollectionReference<Map<String, dynamic>> collection(
           String? collectionPath) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -2179,10 +2188,10 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
             [collectionPath],
           ),
         ),
-      ) as _i8.CollectionReference<Map<String, dynamic>>);
+      ) as _i10.CollectionReference<Map<String, dynamic>>);
 
   @override
-  _i8.WriteBatch batch() => (super.noSuchMethod(
+  _i10.WriteBatch batch() => (super.noSuchMethod(
         Invocation.method(
           #batch,
           [],
@@ -2194,20 +2203,20 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
             [],
           ),
         ),
-      ) as _i8.WriteBatch);
+      ) as _i10.WriteBatch);
 
   @override
-  _i9.Future<void> clearPersistence() => (super.noSuchMethod(
+  _i11.Future<void> clearPersistence() => (super.noSuchMethod(
         Invocation.method(
           #clearPersistence,
           [],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i8.LoadBundleTask loadBundle(_i30.Uint8List? bundle) => (super.noSuchMethod(
+  _i10.LoadBundleTask loadBundle(_i34.Uint8List? bundle) => (super.noSuchMethod(
         Invocation.method(
           #loadBundle,
           [bundle],
@@ -2219,7 +2228,7 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
             [bundle],
           ),
         ),
-      ) as _i8.LoadBundleTask);
+      ) as _i10.LoadBundleTask);
 
   @override
   void useFirestoreEmulator(
@@ -2244,11 +2253,11 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
       );
 
   @override
-  _i9.Future<_i8.QuerySnapshot<T>> namedQueryWithConverterGet<T>(
+  _i11.Future<_i10.QuerySnapshot<T>> namedQueryWithConverterGet<T>(
     String? name, {
-    _i7.GetOptions? options = const _i7.GetOptions(),
-    required _i8.FromFirestore<T>? fromFirestore,
-    required _i8.ToFirestore<T>? toFirestore,
+    _i9.GetOptions? options = const _i9.GetOptions(),
+    required _i10.FromFirestore<T>? fromFirestore,
+    required _i10.ToFirestore<T>? toFirestore,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -2261,7 +2270,7 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
           },
         ),
         returnValue:
-            _i9.Future<_i8.QuerySnapshot<T>>.value(_FakeQuerySnapshot_12<T>(
+            _i11.Future<_i10.QuerySnapshot<T>>.value(_FakeQuerySnapshot_12<T>(
           this,
           Invocation.method(
             #namedQueryWithConverterGet,
@@ -2273,12 +2282,12 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
             },
           ),
         )),
-      ) as _i9.Future<_i8.QuerySnapshot<T>>);
+      ) as _i11.Future<_i10.QuerySnapshot<T>>);
 
   @override
-  _i9.Future<_i8.QuerySnapshot<Map<String, dynamic>>> namedQueryGet(
+  _i11.Future<_i10.QuerySnapshot<Map<String, dynamic>>> namedQueryGet(
     String? name, {
-    _i7.GetOptions? options = const _i7.GetOptions(),
+    _i9.GetOptions? options = const _i9.GetOptions(),
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -2286,8 +2295,9 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
           [name],
           {#options: options},
         ),
-        returnValue: _i9.Future<_i8.QuerySnapshot<Map<String, dynamic>>>.value(
-            _FakeQuerySnapshot_12<Map<String, dynamic>>(
+        returnValue:
+            _i11.Future<_i10.QuerySnapshot<Map<String, dynamic>>>.value(
+                _FakeQuerySnapshot_12<Map<String, dynamic>>(
           this,
           Invocation.method(
             #namedQueryGet,
@@ -2295,10 +2305,10 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
             {#options: options},
           ),
         )),
-      ) as _i9.Future<_i8.QuerySnapshot<Map<String, dynamic>>>);
+      ) as _i11.Future<_i10.QuerySnapshot<Map<String, dynamic>>>);
 
   @override
-  _i8.Query<Map<String, dynamic>> collectionGroup(String? collectionPath) =>
+  _i10.Query<Map<String, dynamic>> collectionGroup(String? collectionPath) =>
       (super.noSuchMethod(
         Invocation.method(
           #collectionGroup,
@@ -2311,20 +2321,20 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
             [collectionPath],
           ),
         ),
-      ) as _i8.Query<Map<String, dynamic>>);
+      ) as _i10.Query<Map<String, dynamic>>);
 
   @override
-  _i9.Future<void> disableNetwork() => (super.noSuchMethod(
+  _i11.Future<void> disableNetwork() => (super.noSuchMethod(
         Invocation.method(
           #disableNetwork,
           [],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i8.DocumentReference<Map<String, dynamic>> doc(String? documentPath) =>
+  _i10.DocumentReference<Map<String, dynamic>> doc(String? documentPath) =>
       (super.noSuchMethod(
         Invocation.method(
           #doc,
@@ -2337,30 +2347,30 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
             [documentPath],
           ),
         ),
-      ) as _i8.DocumentReference<Map<String, dynamic>>);
+      ) as _i10.DocumentReference<Map<String, dynamic>>);
 
   @override
-  _i9.Future<void> enableNetwork() => (super.noSuchMethod(
+  _i11.Future<void> enableNetwork() => (super.noSuchMethod(
         Invocation.method(
           #enableNetwork,
           [],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Stream<void> snapshotsInSync() => (super.noSuchMethod(
+  _i11.Stream<void> snapshotsInSync() => (super.noSuchMethod(
         Invocation.method(
           #snapshotsInSync,
           [],
         ),
-        returnValue: _i9.Stream<void>.empty(),
-      ) as _i9.Stream<void>);
+        returnValue: _i11.Stream<void>.empty(),
+      ) as _i11.Stream<void>);
 
   @override
-  _i9.Future<T> runTransaction<T>(
-    _i8.TransactionHandler<T>? transactionHandler, {
+  _i11.Future<T> runTransaction<T>(
+    _i10.TransactionHandler<T>? transactionHandler, {
     Duration? timeout = const Duration(seconds: 30),
     int? maxAttempts = 5,
   }) =>
@@ -2373,8 +2383,8 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
             #maxAttempts: maxAttempts,
           },
         ),
-        returnValue: _i29.ifNotNull(
-              _i29.dummyValueOrNull<T>(
+        returnValue: _i33.ifNotNull(
+              _i33.dummyValueOrNull<T>(
                 this,
                 Invocation.method(
                   #runTransaction,
@@ -2385,7 +2395,7 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
                   },
                 ),
               ),
-              (T v) => _i9.Future<T>.value(v),
+              (T v) => _i11.Future<T>.value(v),
             ) ??
             _FakeFuture_15<T>(
               this,
@@ -2398,30 +2408,30 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
                 },
               ),
             ),
-      ) as _i9.Future<T>);
+      ) as _i11.Future<T>);
 
   @override
-  _i9.Future<void> terminate() => (super.noSuchMethod(
+  _i11.Future<void> terminate() => (super.noSuchMethod(
         Invocation.method(
           #terminate,
           [],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> waitForPendingWrites() => (super.noSuchMethod(
+  _i11.Future<void> waitForPendingWrites() => (super.noSuchMethod(
         Invocation.method(
           #waitForPendingWrites,
           [],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i8.PipelineSource pipeline() => (super.noSuchMethod(
+  _i10.PipelineSource pipeline() => (super.noSuchMethod(
         Invocation.method(
           #pipeline,
           [],
@@ -2433,18 +2443,18 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
             [],
           ),
         ),
-      ) as _i8.PipelineSource);
+      ) as _i10.PipelineSource);
 
   @override
-  _i9.Future<void> setIndexConfigurationFromJSON(String? json) =>
+  _i11.Future<void> setIndexConfigurationFromJSON(String? json) =>
       (super.noSuchMethod(
         Invocation.method(
           #setIndexConfigurationFromJSON,
           [json],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 }
 
 /// A class which mocks [CollectionReference].
@@ -2452,7 +2462,7 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
 /// See the documentation for Mockito's code generation for more information.
 // ignore: must_be_immutable
 class MockCollectionReference<T extends Object?> extends _i1.Mock
-    implements _i8.CollectionReference<T> {
+    implements _i10.CollectionReference<T> {
   MockCollectionReference() {
     _i1.throwOnMissingStub(this);
   }
@@ -2460,7 +2470,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
   @override
   String get id => (super.noSuchMethod(
         Invocation.getter(#id),
-        returnValue: _i29.dummyValue<String>(
+        returnValue: _i33.dummyValue<String>(
           this,
           Invocation.getter(#id),
         ),
@@ -2469,20 +2479,20 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
   @override
   String get path => (super.noSuchMethod(
         Invocation.getter(#path),
-        returnValue: _i29.dummyValue<String>(
+        returnValue: _i33.dummyValue<String>(
           this,
           Invocation.getter(#path),
         ),
       ) as String);
 
   @override
-  _i8.FirebaseFirestore get firestore => (super.noSuchMethod(
+  _i10.FirebaseFirestore get firestore => (super.noSuchMethod(
         Invocation.getter(#firestore),
         returnValue: _FakeFirebaseFirestore_17(
           this,
           Invocation.getter(#firestore),
         ),
-      ) as _i8.FirebaseFirestore);
+      ) as _i10.FirebaseFirestore);
 
   @override
   Map<String, dynamic> get parameters => (super.noSuchMethod(
@@ -2491,12 +2501,12 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
       ) as Map<String, dynamic>);
 
   @override
-  _i9.Future<_i8.DocumentReference<T>> add(T? data) => (super.noSuchMethod(
+  _i11.Future<_i10.DocumentReference<T>> add(T? data) => (super.noSuchMethod(
         Invocation.method(
           #add,
           [data],
         ),
-        returnValue: _i9.Future<_i8.DocumentReference<T>>.value(
+        returnValue: _i11.Future<_i10.DocumentReference<T>>.value(
             _FakeDocumentReference_14<T>(
           this,
           Invocation.method(
@@ -2504,10 +2514,10 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             [data],
           ),
         )),
-      ) as _i9.Future<_i8.DocumentReference<T>>);
+      ) as _i11.Future<_i10.DocumentReference<T>>);
 
   @override
-  _i8.DocumentReference<T> doc([String? path]) => (super.noSuchMethod(
+  _i10.DocumentReference<T> doc([String? path]) => (super.noSuchMethod(
         Invocation.method(
           #doc,
           [path],
@@ -2519,12 +2529,12 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             [path],
           ),
         ),
-      ) as _i8.DocumentReference<T>);
+      ) as _i10.DocumentReference<T>);
 
   @override
-  _i8.CollectionReference<R> withConverter<R extends Object?>({
-    required _i8.FromFirestore<R>? fromFirestore,
-    required _i8.ToFirestore<R>? toFirestore,
+  _i10.CollectionReference<R> withConverter<R extends Object?>({
+    required _i10.FromFirestore<R>? fromFirestore,
+    required _i10.ToFirestore<R>? toFirestore,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -2546,10 +2556,11 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             },
           ),
         ),
-      ) as _i8.CollectionReference<R>);
+      ) as _i10.CollectionReference<R>);
 
   @override
-  _i8.Query<T> endAtDocument(_i8.DocumentSnapshot<Object?>? documentSnapshot) =>
+  _i10.Query<T> endAtDocument(
+          _i10.DocumentSnapshot<Object?>? documentSnapshot) =>
       (super.noSuchMethod(
         Invocation.method(
           #endAtDocument,
@@ -2562,10 +2573,10 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             [documentSnapshot],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> endAt(Iterable<Object?>? values) => (super.noSuchMethod(
+  _i10.Query<T> endAt(Iterable<Object?>? values) => (super.noSuchMethod(
         Invocation.method(
           #endAt,
           [values],
@@ -2577,11 +2588,11 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             [values],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> endBeforeDocument(
-          _i8.DocumentSnapshot<Object?>? documentSnapshot) =>
+  _i10.Query<T> endBeforeDocument(
+          _i10.DocumentSnapshot<Object?>? documentSnapshot) =>
       (super.noSuchMethod(
         Invocation.method(
           #endBeforeDocument,
@@ -2594,10 +2605,10 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             [documentSnapshot],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> endBefore(Iterable<Object?>? values) => (super.noSuchMethod(
+  _i10.Query<T> endBefore(Iterable<Object?>? values) => (super.noSuchMethod(
         Invocation.method(
           #endBefore,
           [values],
@@ -2609,27 +2620,27 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             [values],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i9.Future<_i8.QuerySnapshot<T>> get([_i7.GetOptions? options]) =>
+  _i11.Future<_i10.QuerySnapshot<T>> get([_i9.GetOptions? options]) =>
       (super.noSuchMethod(
         Invocation.method(
           #get,
           [options],
         ),
         returnValue:
-            _i9.Future<_i8.QuerySnapshot<T>>.value(_FakeQuerySnapshot_12<T>(
+            _i11.Future<_i10.QuerySnapshot<T>>.value(_FakeQuerySnapshot_12<T>(
           this,
           Invocation.method(
             #get,
             [options],
           ),
         )),
-      ) as _i9.Future<_i8.QuerySnapshot<T>>);
+      ) as _i11.Future<_i10.QuerySnapshot<T>>);
 
   @override
-  _i8.Query<T> limit(int? limit) => (super.noSuchMethod(
+  _i10.Query<T> limit(int? limit) => (super.noSuchMethod(
         Invocation.method(
           #limit,
           [limit],
@@ -2641,10 +2652,10 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             [limit],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> limitToLast(int? limit) => (super.noSuchMethod(
+  _i10.Query<T> limitToLast(int? limit) => (super.noSuchMethod(
         Invocation.method(
           #limitToLast,
           [limit],
@@ -2656,12 +2667,12 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             [limit],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i9.Stream<_i8.QuerySnapshot<T>> snapshots({
+  _i11.Stream<_i10.QuerySnapshot<T>> snapshots({
     bool? includeMetadataChanges = false,
-    _i7.ListenSource? source = _i7.ListenSource.defaultSource,
+    _i9.ListenSource? source = _i9.ListenSource.defaultSource,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -2672,11 +2683,11 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             #source: source,
           },
         ),
-        returnValue: _i9.Stream<_i8.QuerySnapshot<T>>.empty(),
-      ) as _i9.Stream<_i8.QuerySnapshot<T>>);
+        returnValue: _i11.Stream<_i10.QuerySnapshot<T>>.empty(),
+      ) as _i11.Stream<_i10.QuerySnapshot<T>>);
 
   @override
-  _i8.Query<T> orderBy(
+  _i10.Query<T> orderBy(
     Object? field, {
     bool? descending = false,
   }) =>
@@ -2694,11 +2705,11 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             {#descending: descending},
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> startAfterDocument(
-          _i8.DocumentSnapshot<Object?>? documentSnapshot) =>
+  _i10.Query<T> startAfterDocument(
+          _i10.DocumentSnapshot<Object?>? documentSnapshot) =>
       (super.noSuchMethod(
         Invocation.method(
           #startAfterDocument,
@@ -2711,10 +2722,10 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             [documentSnapshot],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> startAfter(Iterable<Object?>? values) => (super.noSuchMethod(
+  _i10.Query<T> startAfter(Iterable<Object?>? values) => (super.noSuchMethod(
         Invocation.method(
           #startAfter,
           [values],
@@ -2726,11 +2737,11 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             [values],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> startAtDocument(
-          _i8.DocumentSnapshot<Object?>? documentSnapshot) =>
+  _i10.Query<T> startAtDocument(
+          _i10.DocumentSnapshot<Object?>? documentSnapshot) =>
       (super.noSuchMethod(
         Invocation.method(
           #startAtDocument,
@@ -2743,10 +2754,10 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             [documentSnapshot],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> startAt(Iterable<Object?>? values) => (super.noSuchMethod(
+  _i10.Query<T> startAt(Iterable<Object?>? values) => (super.noSuchMethod(
         Invocation.method(
           #startAt,
           [values],
@@ -2758,10 +2769,10 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             [values],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> where(
+  _i10.Query<T> where(
     Object? field, {
     Object? isEqualTo,
     Object? isNotEqualTo,
@@ -2813,10 +2824,10 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             },
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.AggregateQuery count() => (super.noSuchMethod(
+  _i10.AggregateQuery count() => (super.noSuchMethod(
         Invocation.method(
           #count,
           [],
@@ -2828,40 +2839,40 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             [],
           ),
         ),
-      ) as _i8.AggregateQuery);
+      ) as _i10.AggregateQuery);
 
   @override
-  _i8.AggregateQuery aggregate(
-    _i7.AggregateField? aggregateField1, [
-    _i7.AggregateField? aggregateField2,
-    _i7.AggregateField? aggregateField3,
-    _i7.AggregateField? aggregateField4,
-    _i7.AggregateField? aggregateField5,
-    _i7.AggregateField? aggregateField6,
-    _i7.AggregateField? aggregateField7,
-    _i7.AggregateField? aggregateField8,
-    _i7.AggregateField? aggregateField9,
-    _i7.AggregateField? aggregateField10,
-    _i7.AggregateField? aggregateField11,
-    _i7.AggregateField? aggregateField12,
-    _i7.AggregateField? aggregateField13,
-    _i7.AggregateField? aggregateField14,
-    _i7.AggregateField? aggregateField15,
-    _i7.AggregateField? aggregateField16,
-    _i7.AggregateField? aggregateField17,
-    _i7.AggregateField? aggregateField18,
-    _i7.AggregateField? aggregateField19,
-    _i7.AggregateField? aggregateField20,
-    _i7.AggregateField? aggregateField21,
-    _i7.AggregateField? aggregateField22,
-    _i7.AggregateField? aggregateField23,
-    _i7.AggregateField? aggregateField24,
-    _i7.AggregateField? aggregateField25,
-    _i7.AggregateField? aggregateField26,
-    _i7.AggregateField? aggregateField27,
-    _i7.AggregateField? aggregateField28,
-    _i7.AggregateField? aggregateField29,
-    _i7.AggregateField? aggregateField30,
+  _i10.AggregateQuery aggregate(
+    _i9.AggregateField? aggregateField1, [
+    _i9.AggregateField? aggregateField2,
+    _i9.AggregateField? aggregateField3,
+    _i9.AggregateField? aggregateField4,
+    _i9.AggregateField? aggregateField5,
+    _i9.AggregateField? aggregateField6,
+    _i9.AggregateField? aggregateField7,
+    _i9.AggregateField? aggregateField8,
+    _i9.AggregateField? aggregateField9,
+    _i9.AggregateField? aggregateField10,
+    _i9.AggregateField? aggregateField11,
+    _i9.AggregateField? aggregateField12,
+    _i9.AggregateField? aggregateField13,
+    _i9.AggregateField? aggregateField14,
+    _i9.AggregateField? aggregateField15,
+    _i9.AggregateField? aggregateField16,
+    _i9.AggregateField? aggregateField17,
+    _i9.AggregateField? aggregateField18,
+    _i9.AggregateField? aggregateField19,
+    _i9.AggregateField? aggregateField20,
+    _i9.AggregateField? aggregateField21,
+    _i9.AggregateField? aggregateField22,
+    _i9.AggregateField? aggregateField23,
+    _i9.AggregateField? aggregateField24,
+    _i9.AggregateField? aggregateField25,
+    _i9.AggregateField? aggregateField26,
+    _i9.AggregateField? aggregateField27,
+    _i9.AggregateField? aggregateField28,
+    _i9.AggregateField? aggregateField29,
+    _i9.AggregateField? aggregateField30,
   ]) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -2937,26 +2948,26 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
             ],
           ),
         ),
-      ) as _i8.AggregateQuery);
+      ) as _i10.AggregateQuery);
 }
 
 /// A class which mocks [Query].
 ///
 /// See the documentation for Mockito's code generation for more information.
 // ignore: must_be_immutable
-class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
+class MockQuery<T extends Object?> extends _i1.Mock implements _i10.Query<T> {
   MockQuery() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i8.FirebaseFirestore get firestore => (super.noSuchMethod(
+  _i10.FirebaseFirestore get firestore => (super.noSuchMethod(
         Invocation.getter(#firestore),
         returnValue: _FakeFirebaseFirestore_17(
           this,
           Invocation.getter(#firestore),
         ),
-      ) as _i8.FirebaseFirestore);
+      ) as _i10.FirebaseFirestore);
 
   @override
   Map<String, dynamic> get parameters => (super.noSuchMethod(
@@ -2965,7 +2976,8 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
       ) as Map<String, dynamic>);
 
   @override
-  _i8.Query<T> endAtDocument(_i8.DocumentSnapshot<Object?>? documentSnapshot) =>
+  _i10.Query<T> endAtDocument(
+          _i10.DocumentSnapshot<Object?>? documentSnapshot) =>
       (super.noSuchMethod(
         Invocation.method(
           #endAtDocument,
@@ -2978,10 +2990,10 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             [documentSnapshot],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> endAt(Iterable<Object?>? values) => (super.noSuchMethod(
+  _i10.Query<T> endAt(Iterable<Object?>? values) => (super.noSuchMethod(
         Invocation.method(
           #endAt,
           [values],
@@ -2993,11 +3005,11 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             [values],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> endBeforeDocument(
-          _i8.DocumentSnapshot<Object?>? documentSnapshot) =>
+  _i10.Query<T> endBeforeDocument(
+          _i10.DocumentSnapshot<Object?>? documentSnapshot) =>
       (super.noSuchMethod(
         Invocation.method(
           #endBeforeDocument,
@@ -3010,10 +3022,10 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             [documentSnapshot],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> endBefore(Iterable<Object?>? values) => (super.noSuchMethod(
+  _i10.Query<T> endBefore(Iterable<Object?>? values) => (super.noSuchMethod(
         Invocation.method(
           #endBefore,
           [values],
@@ -3025,27 +3037,27 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             [values],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i9.Future<_i8.QuerySnapshot<T>> get([_i7.GetOptions? options]) =>
+  _i11.Future<_i10.QuerySnapshot<T>> get([_i9.GetOptions? options]) =>
       (super.noSuchMethod(
         Invocation.method(
           #get,
           [options],
         ),
         returnValue:
-            _i9.Future<_i8.QuerySnapshot<T>>.value(_FakeQuerySnapshot_12<T>(
+            _i11.Future<_i10.QuerySnapshot<T>>.value(_FakeQuerySnapshot_12<T>(
           this,
           Invocation.method(
             #get,
             [options],
           ),
         )),
-      ) as _i9.Future<_i8.QuerySnapshot<T>>);
+      ) as _i11.Future<_i10.QuerySnapshot<T>>);
 
   @override
-  _i8.Query<T> limit(int? limit) => (super.noSuchMethod(
+  _i10.Query<T> limit(int? limit) => (super.noSuchMethod(
         Invocation.method(
           #limit,
           [limit],
@@ -3057,10 +3069,10 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             [limit],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> limitToLast(int? limit) => (super.noSuchMethod(
+  _i10.Query<T> limitToLast(int? limit) => (super.noSuchMethod(
         Invocation.method(
           #limitToLast,
           [limit],
@@ -3072,12 +3084,12 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             [limit],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i9.Stream<_i8.QuerySnapshot<T>> snapshots({
+  _i11.Stream<_i10.QuerySnapshot<T>> snapshots({
     bool? includeMetadataChanges = false,
-    _i7.ListenSource? source = _i7.ListenSource.defaultSource,
+    _i9.ListenSource? source = _i9.ListenSource.defaultSource,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -3088,11 +3100,11 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             #source: source,
           },
         ),
-        returnValue: _i9.Stream<_i8.QuerySnapshot<T>>.empty(),
-      ) as _i9.Stream<_i8.QuerySnapshot<T>>);
+        returnValue: _i11.Stream<_i10.QuerySnapshot<T>>.empty(),
+      ) as _i11.Stream<_i10.QuerySnapshot<T>>);
 
   @override
-  _i8.Query<T> orderBy(
+  _i10.Query<T> orderBy(
     Object? field, {
     bool? descending = false,
   }) =>
@@ -3110,11 +3122,11 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             {#descending: descending},
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> startAfterDocument(
-          _i8.DocumentSnapshot<Object?>? documentSnapshot) =>
+  _i10.Query<T> startAfterDocument(
+          _i10.DocumentSnapshot<Object?>? documentSnapshot) =>
       (super.noSuchMethod(
         Invocation.method(
           #startAfterDocument,
@@ -3127,10 +3139,10 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             [documentSnapshot],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> startAfter(Iterable<Object?>? values) => (super.noSuchMethod(
+  _i10.Query<T> startAfter(Iterable<Object?>? values) => (super.noSuchMethod(
         Invocation.method(
           #startAfter,
           [values],
@@ -3142,11 +3154,11 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             [values],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> startAtDocument(
-          _i8.DocumentSnapshot<Object?>? documentSnapshot) =>
+  _i10.Query<T> startAtDocument(
+          _i10.DocumentSnapshot<Object?>? documentSnapshot) =>
       (super.noSuchMethod(
         Invocation.method(
           #startAtDocument,
@@ -3159,10 +3171,10 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             [documentSnapshot],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> startAt(Iterable<Object?>? values) => (super.noSuchMethod(
+  _i10.Query<T> startAt(Iterable<Object?>? values) => (super.noSuchMethod(
         Invocation.method(
           #startAt,
           [values],
@@ -3174,10 +3186,10 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             [values],
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<T> where(
+  _i10.Query<T> where(
     Object? field, {
     Object? isEqualTo,
     Object? isNotEqualTo,
@@ -3229,12 +3241,12 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             },
           ),
         ),
-      ) as _i8.Query<T>);
+      ) as _i10.Query<T>);
 
   @override
-  _i8.Query<R> withConverter<R>({
-    required _i8.FromFirestore<R>? fromFirestore,
-    required _i8.ToFirestore<R>? toFirestore,
+  _i10.Query<R> withConverter<R>({
+    required _i10.FromFirestore<R>? fromFirestore,
+    required _i10.ToFirestore<R>? toFirestore,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -3256,10 +3268,10 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             },
           ),
         ),
-      ) as _i8.Query<R>);
+      ) as _i10.Query<R>);
 
   @override
-  _i8.AggregateQuery count() => (super.noSuchMethod(
+  _i10.AggregateQuery count() => (super.noSuchMethod(
         Invocation.method(
           #count,
           [],
@@ -3271,40 +3283,40 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             [],
           ),
         ),
-      ) as _i8.AggregateQuery);
+      ) as _i10.AggregateQuery);
 
   @override
-  _i8.AggregateQuery aggregate(
-    _i7.AggregateField? aggregateField1, [
-    _i7.AggregateField? aggregateField2,
-    _i7.AggregateField? aggregateField3,
-    _i7.AggregateField? aggregateField4,
-    _i7.AggregateField? aggregateField5,
-    _i7.AggregateField? aggregateField6,
-    _i7.AggregateField? aggregateField7,
-    _i7.AggregateField? aggregateField8,
-    _i7.AggregateField? aggregateField9,
-    _i7.AggregateField? aggregateField10,
-    _i7.AggregateField? aggregateField11,
-    _i7.AggregateField? aggregateField12,
-    _i7.AggregateField? aggregateField13,
-    _i7.AggregateField? aggregateField14,
-    _i7.AggregateField? aggregateField15,
-    _i7.AggregateField? aggregateField16,
-    _i7.AggregateField? aggregateField17,
-    _i7.AggregateField? aggregateField18,
-    _i7.AggregateField? aggregateField19,
-    _i7.AggregateField? aggregateField20,
-    _i7.AggregateField? aggregateField21,
-    _i7.AggregateField? aggregateField22,
-    _i7.AggregateField? aggregateField23,
-    _i7.AggregateField? aggregateField24,
-    _i7.AggregateField? aggregateField25,
-    _i7.AggregateField? aggregateField26,
-    _i7.AggregateField? aggregateField27,
-    _i7.AggregateField? aggregateField28,
-    _i7.AggregateField? aggregateField29,
-    _i7.AggregateField? aggregateField30,
+  _i10.AggregateQuery aggregate(
+    _i9.AggregateField? aggregateField1, [
+    _i9.AggregateField? aggregateField2,
+    _i9.AggregateField? aggregateField3,
+    _i9.AggregateField? aggregateField4,
+    _i9.AggregateField? aggregateField5,
+    _i9.AggregateField? aggregateField6,
+    _i9.AggregateField? aggregateField7,
+    _i9.AggregateField? aggregateField8,
+    _i9.AggregateField? aggregateField9,
+    _i9.AggregateField? aggregateField10,
+    _i9.AggregateField? aggregateField11,
+    _i9.AggregateField? aggregateField12,
+    _i9.AggregateField? aggregateField13,
+    _i9.AggregateField? aggregateField14,
+    _i9.AggregateField? aggregateField15,
+    _i9.AggregateField? aggregateField16,
+    _i9.AggregateField? aggregateField17,
+    _i9.AggregateField? aggregateField18,
+    _i9.AggregateField? aggregateField19,
+    _i9.AggregateField? aggregateField20,
+    _i9.AggregateField? aggregateField21,
+    _i9.AggregateField? aggregateField22,
+    _i9.AggregateField? aggregateField23,
+    _i9.AggregateField? aggregateField24,
+    _i9.AggregateField? aggregateField25,
+    _i9.AggregateField? aggregateField26,
+    _i9.AggregateField? aggregateField27,
+    _i9.AggregateField? aggregateField28,
+    _i9.AggregateField? aggregateField29,
+    _i9.AggregateField? aggregateField30,
   ]) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -3380,38 +3392,38 @@ class MockQuery<T extends Object?> extends _i1.Mock implements _i8.Query<T> {
             ],
           ),
         ),
-      ) as _i8.AggregateQuery);
+      ) as _i10.AggregateQuery);
 }
 
 /// A class which mocks [QuerySnapshot].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockQuerySnapshot<T extends Object?> extends _i1.Mock
-    implements _i8.QuerySnapshot<T> {
+    implements _i10.QuerySnapshot<T> {
   MockQuerySnapshot() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  List<_i8.QueryDocumentSnapshot<T>> get docs => (super.noSuchMethod(
+  List<_i10.QueryDocumentSnapshot<T>> get docs => (super.noSuchMethod(
         Invocation.getter(#docs),
-        returnValue: <_i8.QueryDocumentSnapshot<T>>[],
-      ) as List<_i8.QueryDocumentSnapshot<T>>);
+        returnValue: <_i10.QueryDocumentSnapshot<T>>[],
+      ) as List<_i10.QueryDocumentSnapshot<T>>);
 
   @override
-  List<_i8.DocumentChange<T>> get docChanges => (super.noSuchMethod(
+  List<_i10.DocumentChange<T>> get docChanges => (super.noSuchMethod(
         Invocation.getter(#docChanges),
-        returnValue: <_i8.DocumentChange<T>>[],
-      ) as List<_i8.DocumentChange<T>>);
+        returnValue: <_i10.DocumentChange<T>>[],
+      ) as List<_i10.DocumentChange<T>>);
 
   @override
-  _i8.SnapshotMetadata get metadata => (super.noSuchMethod(
+  _i10.SnapshotMetadata get metadata => (super.noSuchMethod(
         Invocation.getter(#metadata),
         returnValue: _FakeSnapshotMetadata_19(
           this,
           Invocation.getter(#metadata),
         ),
-      ) as _i8.SnapshotMetadata);
+      ) as _i10.SnapshotMetadata);
 
   @override
   int get size => (super.noSuchMethod(
@@ -3424,7 +3436,7 @@ class MockQuerySnapshot<T extends Object?> extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockQueryDocumentSnapshot<T extends Object?> extends _i1.Mock
-    implements _i8.QueryDocumentSnapshot<T> {
+    implements _i10.QueryDocumentSnapshot<T> {
   MockQueryDocumentSnapshot() {
     _i1.throwOnMissingStub(this);
   }
@@ -3432,29 +3444,29 @@ class MockQueryDocumentSnapshot<T extends Object?> extends _i1.Mock
   @override
   String get id => (super.noSuchMethod(
         Invocation.getter(#id),
-        returnValue: _i29.dummyValue<String>(
+        returnValue: _i33.dummyValue<String>(
           this,
           Invocation.getter(#id),
         ),
       ) as String);
 
   @override
-  _i8.DocumentReference<T> get reference => (super.noSuchMethod(
+  _i10.DocumentReference<T> get reference => (super.noSuchMethod(
         Invocation.getter(#reference),
         returnValue: _FakeDocumentReference_14<T>(
           this,
           Invocation.getter(#reference),
         ),
-      ) as _i8.DocumentReference<T>);
+      ) as _i10.DocumentReference<T>);
 
   @override
-  _i8.SnapshotMetadata get metadata => (super.noSuchMethod(
+  _i10.SnapshotMetadata get metadata => (super.noSuchMethod(
         Invocation.getter(#metadata),
         returnValue: _FakeSnapshotMetadata_19(
           this,
           Invocation.getter(#metadata),
         ),
-      ) as _i8.SnapshotMetadata);
+      ) as _i10.SnapshotMetadata);
 
   @override
   bool get exists => (super.noSuchMethod(
@@ -3468,7 +3480,7 @@ class MockQueryDocumentSnapshot<T extends Object?> extends _i1.Mock
           #data,
           [],
         ),
-        returnValue: _i29.dummyValue<T>(
+        returnValue: _i33.dummyValue<T>(
           this,
           Invocation.method(
             #data,
@@ -3495,49 +3507,49 @@ class MockQueryDocumentSnapshot<T extends Object?> extends _i1.Mock
 /// See the documentation for Mockito's code generation for more information.
 // ignore: must_be_immutable
 class MockDocumentReference<T extends Object?> extends _i1.Mock
-    implements _i8.DocumentReference<T> {
+    implements _i10.DocumentReference<T> {
   MockDocumentReference() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i8.FirebaseFirestore get firestore => (super.noSuchMethod(
+  _i10.FirebaseFirestore get firestore => (super.noSuchMethod(
         Invocation.getter(#firestore),
         returnValue: _FakeFirebaseFirestore_17(
           this,
           Invocation.getter(#firestore),
         ),
-      ) as _i8.FirebaseFirestore);
+      ) as _i10.FirebaseFirestore);
 
   @override
   String get id => (super.noSuchMethod(
         Invocation.getter(#id),
-        returnValue: _i29.dummyValue<String>(
+        returnValue: _i33.dummyValue<String>(
           this,
           Invocation.getter(#id),
         ),
       ) as String);
 
   @override
-  _i8.CollectionReference<T> get parent => (super.noSuchMethod(
+  _i10.CollectionReference<T> get parent => (super.noSuchMethod(
         Invocation.getter(#parent),
         returnValue: _FakeCollectionReference_9<T>(
           this,
           Invocation.getter(#parent),
         ),
-      ) as _i8.CollectionReference<T>);
+      ) as _i10.CollectionReference<T>);
 
   @override
   String get path => (super.noSuchMethod(
         Invocation.getter(#path),
-        returnValue: _i29.dummyValue<String>(
+        returnValue: _i33.dummyValue<String>(
           this,
           Invocation.getter(#path),
         ),
       ) as String);
 
   @override
-  _i8.CollectionReference<Map<String, dynamic>> collection(
+  _i10.CollectionReference<Map<String, dynamic>> collection(
           String? collectionPath) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -3551,36 +3563,36 @@ class MockDocumentReference<T extends Object?> extends _i1.Mock
             [collectionPath],
           ),
         ),
-      ) as _i8.CollectionReference<Map<String, dynamic>>);
+      ) as _i10.CollectionReference<Map<String, dynamic>>);
 
   @override
-  _i9.Future<void> delete() => (super.noSuchMethod(
+  _i11.Future<void> delete() => (super.noSuchMethod(
         Invocation.method(
           #delete,
           [],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<void> update(Map<Object, Object?>? data) => (super.noSuchMethod(
+  _i11.Future<void> update(Map<Object, Object?>? data) => (super.noSuchMethod(
         Invocation.method(
           #update,
           [data],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i9.Future<_i8.DocumentSnapshot<T>> get([_i7.GetOptions? options]) =>
+  _i11.Future<_i10.DocumentSnapshot<T>> get([_i9.GetOptions? options]) =>
       (super.noSuchMethod(
         Invocation.method(
           #get,
           [options],
         ),
-        returnValue: _i9.Future<_i8.DocumentSnapshot<T>>.value(
+        returnValue: _i11.Future<_i10.DocumentSnapshot<T>>.value(
             _FakeDocumentSnapshot_20<T>(
           this,
           Invocation.method(
@@ -3588,12 +3600,12 @@ class MockDocumentReference<T extends Object?> extends _i1.Mock
             [options],
           ),
         )),
-      ) as _i9.Future<_i8.DocumentSnapshot<T>>);
+      ) as _i11.Future<_i10.DocumentSnapshot<T>>);
 
   @override
-  _i9.Stream<_i8.DocumentSnapshot<T>> snapshots({
+  _i11.Stream<_i10.DocumentSnapshot<T>> snapshots({
     bool? includeMetadataChanges = false,
-    _i7.ListenSource? source = _i7.ListenSource.defaultSource,
+    _i9.ListenSource? source = _i9.ListenSource.defaultSource,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -3604,13 +3616,13 @@ class MockDocumentReference<T extends Object?> extends _i1.Mock
             #source: source,
           },
         ),
-        returnValue: _i9.Stream<_i8.DocumentSnapshot<T>>.empty(),
-      ) as _i9.Stream<_i8.DocumentSnapshot<T>>);
+        returnValue: _i11.Stream<_i10.DocumentSnapshot<T>>.empty(),
+      ) as _i11.Stream<_i10.DocumentSnapshot<T>>);
 
   @override
-  _i9.Future<void> set(
+  _i11.Future<void> set(
     T? data, [
-    _i7.SetOptions? options,
+    _i9.SetOptions? options,
   ]) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -3620,14 +3632,14 @@ class MockDocumentReference<T extends Object?> extends _i1.Mock
             options,
           ],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
 
   @override
-  _i8.DocumentReference<R> withConverter<R>({
-    required _i8.FromFirestore<R>? fromFirestore,
-    required _i8.ToFirestore<R>? toFirestore,
+  _i10.DocumentReference<R> withConverter<R>({
+    required _i10.FromFirestore<R>? fromFirestore,
+    required _i10.ToFirestore<R>? toFirestore,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -3649,14 +3661,14 @@ class MockDocumentReference<T extends Object?> extends _i1.Mock
             },
           ),
         ),
-      ) as _i8.DocumentReference<R>);
+      ) as _i10.DocumentReference<R>);
 }
 
 /// A class which mocks [DocumentSnapshot].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockDocumentSnapshot<T extends Object?> extends _i1.Mock
-    implements _i8.DocumentSnapshot<T> {
+    implements _i10.DocumentSnapshot<T> {
   MockDocumentSnapshot() {
     _i1.throwOnMissingStub(this);
   }
@@ -3664,29 +3676,29 @@ class MockDocumentSnapshot<T extends Object?> extends _i1.Mock
   @override
   String get id => (super.noSuchMethod(
         Invocation.getter(#id),
-        returnValue: _i29.dummyValue<String>(
+        returnValue: _i33.dummyValue<String>(
           this,
           Invocation.getter(#id),
         ),
       ) as String);
 
   @override
-  _i8.DocumentReference<T> get reference => (super.noSuchMethod(
+  _i10.DocumentReference<T> get reference => (super.noSuchMethod(
         Invocation.getter(#reference),
         returnValue: _FakeDocumentReference_14<T>(
           this,
           Invocation.getter(#reference),
         ),
-      ) as _i8.DocumentReference<T>);
+      ) as _i10.DocumentReference<T>);
 
   @override
-  _i8.SnapshotMetadata get metadata => (super.noSuchMethod(
+  _i10.SnapshotMetadata get metadata => (super.noSuchMethod(
         Invocation.getter(#metadata),
         returnValue: _FakeSnapshotMetadata_19(
           this,
           Invocation.getter(#metadata),
         ),
-      ) as _i8.SnapshotMetadata);
+      ) as _i10.SnapshotMetadata);
 
   @override
   bool get exists => (super.noSuchMethod(

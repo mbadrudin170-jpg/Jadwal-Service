@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
@@ -36,30 +36,30 @@ final filteredCustomersProvider =
   return daftarPelanggan.when(
     data: (customersWithPoints) {
       final filtered = customersWithPoints
-          .where((tuple) => tuple.$1.name.toLowerCase().contains(searchQuery))
+          .where((tuple) => tuple.$1.nama.toLowerCase().contains(searchQuery))
           .toList();
 
       switch (sortOption) {
         case UrutanPelanggan.namaAZ:
           filtered.sort((a, b) =>
-              a.$1.name.toLowerCase().compareTo(b.$1.name.toLowerCase()));
+              a.$1.nama.toLowerCase().compareTo(b.$1.nama.toLowerCase()));
           break;
         case UrutanPelanggan.namaZa:
           filtered.sort((a, b) =>
-              b.$1.name.toLowerCase().compareTo(a.$1.name.toLowerCase()));
+              b.$1.nama.toLowerCase().compareTo(a.$1.nama.toLowerCase()));
           break;
         case UrutanPelanggan.terakhirOnline:
           filtered.sort((a, b) {
-            if (a.$1.lastActiveAt == null) return 1;
-            if (b.$1.lastActiveAt == null) return -1;
-            return b.$1.lastActiveAt!.compareTo(a.$1.lastActiveAt!);
+            if (a.$1.terkahirAktif == null) return 1;
+            if (b.$1.terkahirAktif == null) return -1;
+            return b.$1.terkahirAktif!.compareTo(a.$1.terkahirAktif!);
           });
           break;
         case UrutanPelanggan.terbaruOnline:
           filtered.sort((a, b) {
-            if (a.$1.lastActiveAt == null) return -1;
-            if (b.$1.lastActiveAt == null) return 1;
-            return a.$1.lastActiveAt!.compareTo(b.$1.lastActiveAt!);
+            if (a.$1.terkahirAktif == null) return -1;
+            if (b.$1.terkahirAktif == null) return 1;
+            return a.$1.terkahirAktif!.compareTo(b.$1.terkahirAktif!);
           });
           break;
         case UrutanPelanggan.poinTerbanyak:
@@ -171,13 +171,13 @@ class Pelanggan extends ConsumerWidget {
             return Card(
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: ListTile(
-                title: Text(pelanggan.name,
+                title: Text(pelanggan.nama,
                     style: const TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text(
-                  pelanggan.lastActiveAt == null
+                  pelanggan.terkahirAktif == null
                       ? '-'
                       : FormatWaktuLengkap.formatSingkat(
-                          pelanggan.lastActiveAt!),
+                          pelanggan.terkahirAktif!),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -271,7 +271,7 @@ class Pelanggan extends ConsumerWidget {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(pelanggan.name),
+        title: Text(pelanggan.nama),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -316,7 +316,7 @@ class Pelanggan extends ConsumerWidget {
       builder: (context) => AlertDialog(
         title: const Text('Konfirmasi Arsip'),
         content: Text(
-          'Apakah Anda yakin ingin mengarsipkan pelanggan "${customer.name}"?',
+          'Apakah Anda yakin ingin mengarsipkan pelanggan "${customer.nama}"?',
         ),
         actions: <Widget>[
           TextButton(

@@ -1,8 +1,24 @@
 // path: lib/data_dummy/data_dummy.dart
 
 import 'package:wifi/fitur/order/model/order_model.dart';
-import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
+import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
+import 'package:wifi/shared/model/notifikasi_model.dart';
 import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
+import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
+import 'package:wifi/fitur/settings/model/settings_model.dart';
+import 'package:wifi/shared/enum/status_order_enum.dart';
 
 /// Kelas penyedia data dummy untuk keperluan testing UI dan pengembangan.
 class DataDummy {
@@ -54,24 +70,30 @@ class DataDummy {
 
   /// Daftar dummy untuk [PelangganModel]
   static List<PelangganModel> get customers => [
-        PelangganModel(
-            id: customerBudiId,
-            name: 'Budi Santoso',
-            phone: '081234567890',
-            password: 'password123',
-            address: 'Jl. Merdeka No. 10, Jakarta'),
-        PelangganModel(
-            id: customerSitiId,
-            name: 'Siti Aminah',
-            phone: '087654321098',
-            password: 'password456',
-            address: 'Jl. Pahlawan No. 25, Surabaya'),
-        PelangganModel(
-            id: agusSetiawanId,
-            name: 'Agus Setiawan',
-            phone: '089987654321',
-            password: 'password789',
-            address: 'Jl. Kemerdekaan No. 5, Bandung'),
+        const PelangganModel(
+          id: customerBudiId,
+          nama: 'Budi Santoso',
+          telepon: '081234567890',
+          kataSandi: 'password123',
+          alamat: 'Jl. Merdeka No. 10, Jakarta',
+          macAddress: '00:1B:44:11:3A:B7',
+        ),
+        const PelangganModel(
+          id: customerSitiId,
+          nama: 'Siti Aminah',
+          telepon: '087654321098',
+          kataSandi: 'password456',
+          alamat: 'Jl. Pahlawan No. 25, Surabaya',
+          macAddress: '00:1B:44:11:3A:B8',
+        ),
+        const PelangganModel(
+          id: agusSetiawanId,
+          nama: 'Agus Setiawan',
+          telepon: '089987654321',
+          kataSandi: 'password789',
+          alamat: 'Jl. Kemerdekaan No. 5, Bandung',
+          macAddress: '00:1B:44:11:3A:B9',
+        ),
       ];
 
   /// Daftar dummy untuk [PaketModel]
@@ -104,22 +126,26 @@ class DataDummy {
         const KategoriModel(
             id: kategoriPembayaranId,
             nama: 'Pembayaran',
-            tipe: TipeKategori.income),
+            tipe: TipeKategori.income,
+            idSubKategori: []),
         const KategoriModel(
-            id: kategoriLainnyaId, nama: 'Lainnya', tipe: TipeKategori.expense),
+            id: kategoriLainnyaId,
+            nama: 'Lainnya',
+            tipe: TipeKategori.expense,
+            idSubKategori: []),
       ];
 
   /// Daftar dummy untuk [SubCategoryModel]
-  static List<SubCategoryModel> get subCategories => [
-        SubCategoryModel(
+  static List<SubKategoriModel> get subCategories => [
+        const SubKategoriModel(
           id: subKategoriInternetId,
-          categoryId: kategoriPembayaranId,
-          name: 'Internet',
+          idKategori: kategoriPembayaranId,
+          nama: 'Internet',
         ),
-        SubCategoryModel(
+        const SubKategoriModel(
           id: subKategoriTransportId,
-          categoryId: kategoriLainnyaId,
-          name: 'Transportasi',
+          idKategori: kategoriLainnyaId,
+          nama: 'Transportasi',
         ),
       ];
 
@@ -132,24 +158,27 @@ class DataDummy {
   /// Daftar dummy untuk [TransaksiModel]
   static List<TransaksiModel> get transactions => [
         TransaksiModel(
-          id: transactionBudiId,
-          idDompet: walletBudiId,
-          idKategori: kategoriPembayaranId,
-          idSubKategori: subKategoriInternetId,
-          tipe: TipeTransaksi.expense,
-          jumlah: 150000,
-          deskripsi: 'Pembayaran paket hemat',
-          tanggal: DateTime.now(),
-        ),
+            id: transactionBudiId,
+            idDompet: walletBudiId,
+            idKategori: kategoriPembayaranId,
+            tipe: TipeTransaksi.expense,
+            jumlah: 150000,
+            deskripsi: 'Pembayaran paket hemat',
+            tanggal: DateTime.now(),
+            statusPembayaran: StatusPembayaran.paid,
+            idPelanggan: customerBudiId,
+            idPaket: paketHematId),
         TransaksiModel(
           id: transactionSitiId,
           idDompet: walletSitiId,
           idKategori: kategoriPembayaranId,
-          idSubKategori: subKategoriInternetId,
           tipe: TipeTransaksi.expense,
           jumlah: 350000,
           deskripsi: 'Pembayaran paket premium',
           tanggal: DateTime.now().subtract(const Duration(days: 1)),
+          statusPembayaran: StatusPembayaran.paid,
+          idPelanggan: customerSitiId,
+          idPaket: paketPremiumId,
         ),
       ];
 
@@ -162,6 +191,7 @@ class DataDummy {
           tanggalMulai: DateTime.now().subtract(const Duration(days: 10)),
           tanggalBerakhir: DateTime.now().add(const Duration(days: 20)),
           status: StatusPembayaran.paid,
+          idTransaksi: transactionBudiId,
         ),
         PelangganAktifModel(
           id: activeCustomerSitiId,
@@ -170,6 +200,7 @@ class DataDummy {
           tanggalMulai: DateTime.now().subtract(const Duration(days: 5)),
           tanggalBerakhir: DateTime.now().add(const Duration(days: 25)),
           status: StatusPembayaran.paid,
+          idTransaksi: transactionSitiId,
         ),
       ];
 
@@ -192,22 +223,24 @@ class DataDummy {
   /// Daftar dummy untuk [VersiApkModel]
   static List<VersiApkModel> get apkVersions => [
         const VersiApkModel(
-          id: apkAdminV1Id,
-          versiTerkahir: '1.0.0',
-          catatanRilis: 'Versi pertama aplikasi admin.',
-          nomorBuildTerakhir: {ArsitekturApk.arm64: 1},
-          linkDownload: {
-            ArsitekturApk.arm64: '/path/to/admin-v1.0.0.apk'
-          },
-          wajibUpdate: true,
-        ),
+            id: apkAdminV1Id,
+            versi: '1.0.0',
+            catatanRilis: 'Versi pertama aplikasi admin.',
+            nomorBuild: {ArsitekturApk.arm64: 1},
+            linkUnduhan: {
+              ArsitekturApk.arm64: '/path/to/admin-v1.0.0.apk'
+            },
+            wajibUpdate: true,
+            namaFile: 'app-admin-v1.0.0.apk'),
         const VersiApkModel(
-          id: apkUserV1Id,
-          versiTerkahir: '1.0.1',
-          catatanRilis: 'Perbaikan bug dan peningkatan performa.',
-          nomorBuildTerakhir: {ArsitekturApk.arm64: 2},
-          linkDownload: {ArsitekturApk.arm64: '/path/to/user-v1.0.1.apk'},
-        ),
+            id: apkUserV1Id,
+            versi: '1.0.1',
+            catatanRilis: 'Perbaikan bug dan peningkatan performa.',
+            nomorBuild: {ArsitekturApk.arm64: 2},
+            linkUnduhan: {
+              ArsitekturApk.arm64: '/path/to/user-v1.0.1.apk'
+            },
+            namaFile: 'app-user-v1.0.1.apk'),
       ];
 
   /// Data dummy untuk [SettingsModel]

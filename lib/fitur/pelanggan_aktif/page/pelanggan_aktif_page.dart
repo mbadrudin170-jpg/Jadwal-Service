@@ -63,20 +63,32 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
   bool get wantKeepAlive => true;
 
   @override
-  Future<void> initState() async {
+  void initState() {
     super.initState();
     Log.info('ActiveCustomerPage initState');
     _searchController.addListener(_onSearchChanged);
 
-    Future.microtask(() async {
-      try {
-        await _pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
-      } catch (e) {
-        Log.error('Gagal menjalankan arsip otomatis saat aplikasi dibuka',
-            e: e);
+    // Menjalankan operasi asinkron setelah frame pertama selesai dibangun.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        unawaited(_inisialisasiAwal());
       }
-      await ref.read(pelangganAktifProvider.notifier).fetchActiveCustomers();
     });
+  }
+
+  /// Melakukan inisialisasi data awal, seperti mengarsipkan pelanggan
+  /// kadaluarsa dan mengambil daftar pelanggan aktif.
+  Future<void> _inisialisasiAwal() async {
+    try {
+      await _pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
+    } catch (e) {
+      Log.error('Gagal menjalankan arsip otomatis saat aplikasi dibuka',
+          e: e);
+    }
+
+    if (mounted) {
+      await ref.read(pelangganAktifProvider.notifier).fetchActiveCustomers();
+    }
   }
 
   @override

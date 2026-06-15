@@ -288,7 +288,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                           gapH12,
                           Expanded(
                             child: NamaPelangganWidget(
-                              customerId: kritikSaran.userId,
+                              idPelanggan: kritikSaran.userId,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,

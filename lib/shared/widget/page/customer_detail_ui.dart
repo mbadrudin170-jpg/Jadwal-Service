@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/card/point_card.dart';
 
@@ -60,7 +60,7 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
   @override
   Widget build(final BuildContext context) {
     Log.info(
-      'Membangun CustomerDetailUI untuk pelanggan: ${widget.pelanggan.name}',
+      'Membangun CustomerDetailUI untuk pelanggan: ${widget.pelanggan.nama}',
     );
     return Scaffold(
       appBar: AppBar(
@@ -110,14 +110,14 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
   Widget _buildCustomerInfoSection() {
     return Column(
       children: [
-        _buildDetailRow('Nama', widget.pelanggan.name, () async {
-          await _copyData('Nama', widget.pelanggan.name);
+        _buildDetailRow('Nama', widget.pelanggan.nama, () async {
+          await _copyData('Nama', widget.pelanggan.nama);
         }),
-        _buildDetailRow('Telepon', widget.pelanggan.phone, () async {
-          await _copyData('No Telepon', widget.pelanggan.phone);
+        _buildDetailRow('Telepon', widget.pelanggan.telepon, () async {
+          await _copyData('No Telepon', widget.pelanggan.telepon);
         }),
-        _buildDetailRow('Alamat', widget.pelanggan.address, () async {
-          await _copyData('Alamat', widget.pelanggan.address);
+        _buildDetailRow('Alamat', widget.pelanggan.alamat, () async {
+          await _copyData('Alamat', widget.pelanggan.alamat);
         }),
         _buildDetailRow('Password', widget.pelanggan.password, () async {
           await _copyData('Password', widget.pelanggan.password);

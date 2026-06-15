@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
@@ -69,7 +69,7 @@ class PesanInfoPaket {
         paymentStatus,
       );
 
-      await _sendViaWhatsApp(customer.phone, message);
+      await _sendViaWhatsApp(customer.telepon, message);
     } on Exception catch (e, s) {
       Log.error(
         'Terjadi kesalahan fatal saat proses kirimRincianPaket.',
@@ -85,7 +85,7 @@ class PesanInfoPaket {
     PelangganAktifModel pelangganAktif,
     String paymentStatus,
   ) {
-    final namaPelanggan = pelanggan.name;
+    final namaPelanggan = pelanggan.nama;
     final namaPaket = paket.nama;
     final hargaPaket = FormatUang.formatMataUang(paket.harga.toDouble());
     final tanggalMulai =

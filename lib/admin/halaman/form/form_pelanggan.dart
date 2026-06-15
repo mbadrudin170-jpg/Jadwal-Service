@@ -1,8 +1,9 @@
+// path: lib/admin/halaman/form/form_pelanggan.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
@@ -48,10 +49,10 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       Log.info(
         'Mode Edit: Mempopulasikan form dengan data pelanggan ID: ${widget.pelanggan!.id}',
       );
-      _namaController.text = widget.pelanggan!.name;
-      _teleponController.text = widget.pelanggan!.phone;
-      _alamatController.text = widget.pelanggan!.address;
-      _passwordController.text = widget.pelanggan!.password;
+      _namaController.text = widget.pelanggan!.nama;
+      _teleponController.text = widget.pelanggan!.telepon;
+      _alamatController.text = widget.pelanggan!.alamat;
+      _passwordController.text = widget.pelanggan!.kataSandi;
       _macAddressController.text = widget.pelanggan!.macAddress;
     }
   }
@@ -83,10 +84,10 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
 
       final pelangganBaru = PelangganModel(
         id: _modeEdit ? widget.pelanggan!.id : const Uuid().v4(),
-        name: _namaController.text.trim(),
-        phone: _teleponController.text.trim(),
-        address: _alamatController.text.trim(),
-        password: _passwordController.text, // No trim for password
+        nama: _namaController.text.trim(),
+        telepon: _teleponController.text.trim(),
+        alamat: _alamatController.text.trim(),
+        kataSandi: _passwordController.text, // No trim for password
         macAddress: _macAddressController.text.trim().toUpperCase(),
       );
 
@@ -101,11 +102,11 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           await pelangganOpSqlite.perbaruiPelanggan(pelangganBaru);
         } else {
           Log.info(
-            'Menjalankan operasi CREATE untuk pelanggan baru: ${pelangganBaru.name}',
+            'Menjalankan operasi CREATE untuk pelanggan baru: ${pelangganBaru.nama}',
           );
           await pelangganOpSqlite.tambahPelanggan(pelangganBaru);
         }
-        ref.invalidate(daftarPelangganProvider);
+
         if (!mounted) return;
 
         final cekKoneksi =
@@ -124,6 +125,9 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                 'Koneksi offline. Data disimpan lokal, akan sinkron saat online.');
           }
         }
+
+        // Membatalkan provider setelah menampilkan toast dan sebelum pop
+        ref.invalidate(daftarPelangganProvider);
 
         if (mounted) {
           Navigator.pop(context);

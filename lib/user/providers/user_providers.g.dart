@@ -167,4 +167,4 @@ final class UserActivityServiceProvider extends $FunctionalProvider<
 }
 
 String _$userActivityServiceHash() =>
-    r'7f5ad796551860f2e2cd3b41bfd77187555773d8';
+    r'beeebd312a110d9ea13af5ffad86273caa048a21';

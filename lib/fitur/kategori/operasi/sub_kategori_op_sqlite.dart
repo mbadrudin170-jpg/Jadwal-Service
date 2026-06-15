@@ -1,10 +1,10 @@
-// path: lib/shared/operasi/sub_category_operation.dart
+// path: lib/fitur/kategori/operasi/sub_kategori_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/sub_category_model.dart';
+import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data sub-kategori di database lokal.
@@ -22,15 +22,16 @@ class SubKategoriOpSqlite {
     required this.baseOpSqlite,
   });
 
-  /// Menyimpan [SubCategoryModel] baru ke dalam database.
+  /// Menyimpan [SubKategoriModel] baru ke dalam database.
   Future<void> createSubCategory(
-    final SubCategoryModel subCategory, {
+    final SubKategoriModel subCategory, {
     final bool fromServer = false,
   }) async {
-    Log.info('Membuat sub-kategori baru: ${subCategory.name}');
+    Log.info('Membuat sub-kategori baru: ${subCategory.nama}');
     try {
-      final data =
-          subCategory.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+      final data = subCategory
+          .copyWith(diperbaruiPada: DateTime.now().toUtc())
+          .toSqlite();
       await baseOpSqlite.sisipkan(
         _tableName,
         data,
@@ -44,7 +45,7 @@ class SubKategoriOpSqlite {
   }
 
   /// Mengambil semua sub-kategori yang terkait dengan [categoryId].
-  Future<List<SubCategoryModel>> getSubCategoryByCategoryId(
+  Future<List<SubKategoriModel>> getSubCategoryByCategoryId(
     final String categoryId,
   ) async {
     Log.info('Mengambil sub-kategori untuk kategori ID: $categoryId');
@@ -57,7 +58,7 @@ class SubKategoriOpSqlite {
       );
       Log.info('Berhasil mengambil ${maps.length} sub-kategori aktif.');
       return List.generate(maps.length, (final i) {
-        return SubCategoryModel.fromSqlite(maps[i]);
+        return SubKategoriModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, s) {
       Log.error('Gagal mengambil sub-kategori berdasarkan kategori ID.',
@@ -66,8 +67,8 @@ class SubKategoriOpSqlite {
     }
   }
 
-  /// Mengambil [SubCategoryModel] berdasarkan [id].
-  Future<SubCategoryModel?> getSubCategoryById(final String id) async {
+  /// Mengambil [SubKategoriModel] berdasarkan [id].
+  Future<SubKategoriModel?> getSubCategoryById(final String id) async {
     Log.info('Mengambil sub-kategori dengan ID: $id');
     try {
       final db = await sqliteDb.database;
@@ -79,7 +80,7 @@ class SubKategoriOpSqlite {
 
       if (maps.isNotEmpty) {
         Log.info('Sub-kategori dengan ID: $id ditemukan.');
-        return SubCategoryModel.fromSqlite(maps.first);
+        return SubKategoriModel.fromSqlite(maps.first);
       }
       Log.warning('Sub-kategori dengan ID: $id tidak ditemukan.');
       return null;
@@ -89,15 +90,16 @@ class SubKategoriOpSqlite {
     }
   }
 
-  /// Memperbarui [SubCategoryModel] yang ada di database.
+  /// Memperbarui [SubKategoriModel] yang ada di database.
   Future<void> updateSubCategory(
-    final SubCategoryModel subCategory, {
+    final SubKategoriModel subCategory, {
     final bool fromServer = false,
   }) async {
-    Log.info('Memperbarui sub-kategori: ${subCategory.name}');
+    Log.info('Memperbarui sub-kategori: ${subCategory.nama}');
     try {
-      final data =
-          subCategory.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+      final data = subCategory
+          .copyWith(diperbaruiPada: DateTime.now().toUtc())
+          .toSqlite();
       await baseOpSqlite.update(
         _tableName,
         data,
@@ -111,7 +113,7 @@ class SubKategoriOpSqlite {
     }
   }
 
-  /// Menghapus [SubCategoryModel] dari database secara permanen.
+  /// Menghapus [SubKategoriModel] dari database secara permanen.
   Future<void> delete(final String id, {final bool fromServer = false}) async {
     Log.warning('PERINGATAN: Menghapus sub-kategori ID: $id secara permanen');
     try {
@@ -164,9 +166,9 @@ class SubKategoriOpSqlite {
     }
   }
 
-  /// Menyisipkan atau memperbarui sekumpulan [SubCategoryModel] dalam satu batch.
+  /// Menyisipkan atau memperbarui sekumpulan [SubKategoriModel] dalam satu batch.
   Future<void> insertOrUpdateBatch(
-    final List<SubCategoryModel> items, {
+    final List<SubKategoriModel> items, {
     final bool fromServer = false,
   }) async {
     Log.info(
@@ -180,7 +182,7 @@ class SubKategoriOpSqlite {
       final data = items
           .map(
             (final item) =>
-                item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
+                item.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
       await baseOpSqlite.insertOrUpdateBatch(
@@ -195,8 +197,8 @@ class SubKategoriOpSqlite {
     }
   }
 
-  /// Mengambil beberapa [SubCategoryModel] berdasarkan daftar [ids].
-  Future<List<SubCategoryModel>> getSubCategoryByIds(
+  /// Mengambil beberapa [SubKategoriModel] berdasarkan daftar [ids].
+  Future<List<SubKategoriModel>> getSubCategoryByIds(
     final List<String> ids,
   ) async {
     Log.info('Mengambil sub-kategori untuk ${ids.length} ID.');
@@ -214,7 +216,7 @@ class SubKategoriOpSqlite {
       );
       Log.info('Berhasil mengambil ${maps.length} sub-kategori dari list ID.');
       return List.generate(maps.length, (final i) {
-        return SubCategoryModel.fromSqlite(maps[i]);
+        return SubKategoriModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, s) {
       Log.error('Gagal mengambil sub-kategori berdasarkan list ID.',

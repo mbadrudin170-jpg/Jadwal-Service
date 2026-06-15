@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -23,8 +23,8 @@ void main() {
   // Data dummy
   const customer = PelangganModel(
     id: 'user1',
-    name: 'John Doe',
-    phone: '081234567890',
+    nama: 'John Doe',
+    telepon: '081234567890',
     password: 'password123',
     email: 'john.doe@example.com',
   );
@@ -167,7 +167,7 @@ void main() {
           verify(() => mockCustomerOpFirebase.updateCustomer(captureAny()))
               .captured
               .single as PelangganModel;
-      expect(captured.name, 'Jane Doe');
+      expect(captured.nama, 'Jane Doe');
 
       verify(() => mockNavigatorObserver.didPop(any(), any())).called(1);
     });

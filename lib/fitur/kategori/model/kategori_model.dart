@@ -5,11 +5,11 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
+import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
-import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/utils/parser_util.dart';
 
 part 'kategori_model.freezed.dart';
@@ -22,7 +22,7 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
     @Default('') String id,
     required String nama,
     required TipeKategori tipe,
-    @Default(<SubCategoryModel>[]) List<SubCategoryModel> idSubKategori,
+    @Default(<SubKategoriModel>[]) List<SubKategoriModel> idSubKategori,
     DateTime? diperbaruiPada,
     @Default(false) bool diHapus,
     DateTime? diarsipkanPada,
@@ -32,7 +32,7 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
   factory KategoriModel.createNew({
     required String nama,
     required TipeKategori tipe,
-    List<SubCategoryModel> idSubKategori = const [],
+    List<SubKategoriModel> idSubKategori = const [],
     DateTime? diperbaruiPada,
     bool diHapus = false,
     DateTime? diarsipkanPada,
@@ -72,7 +72,7 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
   // =========================
 
   factory KategoriModel.fromSqlite(final Map<String, dynamic> map) {
-    List<SubCategoryModel> parseSubCategories(final dynamic data) {
+    List<SubKategoriModel> parseSubCategories(final dynamic data) {
       if (data == null) return [];
       try {
         if (data is String && data.isNotEmpty) {
@@ -80,11 +80,11 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
           return list
               .map((final item) {
                 if (item is Map<String, dynamic>) {
-                  return SubCategoryModel.fromSqlite(item);
+                  return SubKategoriModel.fromSqlite(item);
                 }
                 return null;
               })
-              .whereType<SubCategoryModel>()
+              .whereType<SubKategoriModel>()
               .toList();
         }
         return [];
@@ -129,18 +129,18 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
     final String id,
     final Map<String, dynamic> data,
   ) {
-    List<SubCategoryModel> parseSubCategories(final dynamic subCategoryData) {
+    List<SubKategoriModel> parseSubCategories(final dynamic subCategoryData) {
       if (subCategoryData is List) {
         return subCategoryData
             .map((final item) {
               if (item is Map<String, dynamic>) {
                 final String subId =
                     item[NamaKolom.id] as String? ?? const Uuid().v4();
-                return SubCategoryModel.fromFirebase(subId, item);
+                return SubKategoriModel.fromFirebase(subId, item);
               }
               return null;
             })
-            .whereType<SubCategoryModel>()
+            .whereType<SubKategoriModel>()
             .toList();
       }
       return [];

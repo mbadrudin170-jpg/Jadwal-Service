@@ -2,6 +2,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/poin/operasi/firebase_points_data_source.dart';
 import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
 import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';

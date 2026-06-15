@@ -4,7 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 class LayananPenyimpananLokal {
@@ -49,7 +49,7 @@ class LayananPenyimpananLokal {
 
   Future<void> simpanAkun(PelangganModel pelanggan) async {
     Log.info(
-        '[Simpan Akun] Menyimpan atau memperbarui akun: ${pelanggan.name}.');
+        '[Simpan Akun] Menyimpan atau memperbarui akun: ${pelanggan.nama}.');
     final daftarAkunJson = prefs.getString(_kunciDaftarAkun);
     final List<dynamic> daftarAkun = daftarAkunJson != null
         ? jsonDecode(daftarAkunJson) as List<dynamic>
@@ -61,10 +61,10 @@ class LayananPenyimpananLokal {
 
     if (indeksAkunYangAda != -1) {
       daftarAkun[indeksAkunYangAda] = pelanggan.toSqlite();
-      Log.info('[Simpan Akun] Akun ${pelanggan.name} berhasil diperbarui.');
+      Log.info('[Simpan Akun] Akun ${pelanggan.nama} berhasil diperbarui.');
     } else {
       daftarAkun.add(pelanggan.toSqlite());
-      Log.info('[Simpan Akun] Akun ${pelanggan.name} berhasil ditambahkan.');
+      Log.info('[Simpan Akun] Akun ${pelanggan.nama} berhasil ditambahkan.');
     }
 
     await prefs.setString(_kunciDaftarAkun, jsonEncode(daftarAkun));
@@ -72,12 +72,12 @@ class LayananPenyimpananLokal {
 
   Future<void> simpanAkunSaatIni(PelangganModel pelanggan) async {
     Log.info(
-        '[Simpan Akun Aktif] Mengatur ${pelanggan.name} sebagai akun aktif.');
+        '[Simpan Akun Aktif] Mengatur ${pelanggan.nama} sebagai akun aktif.');
     await hapusTokenLogin();
     await prefs.setString(_kunciIdPengguna, pelanggan.id);
     await simpanAkun(pelanggan);
     Log.info(
-      '[Simpan Akun Aktif] Akun ${pelanggan.name} berhasil diatur sebagai akun aktif.',
+      '[Simpan Akun Aktif] Akun ${pelanggan.nama} berhasil diatur sebagai akun aktif.',
     );
   }
 
@@ -173,7 +173,7 @@ class LayananPenyimpananLokal {
       }
       final pelanggan = PelangganModel.fromSqlite(akunJson);
       Log.info(
-        '[Ambil Akun Saat Ini] Akun ${pelanggan.name} berhasil diambil.',
+        '[Ambil Akun Saat Ini] Akun ${pelanggan.nama} berhasil diambil.',
       );
       return pelanggan;
     } catch (e, st) {

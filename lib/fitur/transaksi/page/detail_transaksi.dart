@@ -3,9 +3,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
+import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -56,8 +61,8 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
         String? name;
         if (model is DompetModel) name = model.nama;
         if (model is KategoriModel) name = model.nama;
-        if (model is SubCategoryModel) name = model.name;
-        if (model is PelangganModel) name = model.name;
+        if (model is SubKategoriModel) name = model.nama;
+        if (model is PelangganModel) name = model.nama;
         if (model is PaketModel) name = model.nama;
         return name ?? 'Nama tidak tersedia';
       }

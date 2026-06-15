@@ -7,8 +7,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/widget/poin_page_ui.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -19,7 +22,6 @@ import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
-import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
@@ -56,7 +58,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
         const Text('Poin: '),
         Expanded(
           child: NamaPelangganWidget(
-            customerId: widget.customerId,
+            idPelanggan: widget.customerId,
             useFirebase: isFirebase,
           ),
         ),
@@ -136,7 +138,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
               endDate: now,
               tanggalTampil: now,
               title: 'Order Paket',
-              description: 'pelanggan ${dataPelanggan?.name} melakukan order',
+              description: 'pelanggan ${dataPelanggan?.nama} melakukan order',
               type: TipeNotifikasiEnum.order,
               updatedAt: now,
               idTujuan: idOrder,

@@ -438,7 +438,7 @@ class SqliteDatabase {
   }
 
   /// Membuat tabel-tabel database (untuk database baru).
-  Future<void> membuatTabel( Database db,  int version) async {
+  Future<void> membuatTabel(Database db, int version) async {
     Log.info('========================================');
     Log.info(
         'MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version');
@@ -637,7 +637,7 @@ class SqliteDatabase {
       ${NamaKolom.nama} TEXT NOT NULL,
       ${NamaKolom.telepon} TEXT NOT NULL,
       ${NamaKolom.alamat} TEXT NOT NULL,
-      ${NamaKolom.password} TEXT NOT NULL,
+      ${NamaKolom.kataSandi} TEXT NOT NULL,
       ${NamaKolom.macAddress} TEXT NOT NULL,
       ${NamaKolom.status} TEXT NOT NULL DEFAULT 'aktif',
       ${NamaKolom.diperbaruiPada} INTEGER,

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
@@ -40,15 +40,15 @@ void main() {
 
   final customer = PelangganModel(
     id: 'test-user-id',
-    name: 'Test User',
-    phone: '123456789',
+    nama: 'Test User',
+    telepon: '123456789',
     password: 'password',
     registrationDate: now,
     fcmToken: '',
     appVersion: '',
     platform: '',
     lastActive: now,
-    address: '',
+    alamat: '',
   );
 
   final transaction = TransaksiModel(

@@ -6,7 +6,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -80,7 +80,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       final querySnapshot = await firestore
           .collection(NamaTabel.pelanggan)
           .where(NamaKolom.telepon, isEqualTo: phone)
-          .where(NamaKolom.password, isEqualTo: password)
+          .where(NamaKolom.kataSandi, isEqualTo: password)
           .where(NamaKolom.diHapus, isEqualTo: false)
           .limit(1)
           .get();
@@ -90,7 +90,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         final userDoc = querySnapshot.docs.first;
         final customer =
             PelangganModel.fromFirebase(userDoc.id, userDoc.data());
-        Log.info('Pengguna berhasil login: ${customer.name}');
+        Log.info('Pengguna berhasil login: ${customer.nama}');
 
         // 1. Simpan sesi (kritis)
         await ref.read(pengelolaAkunProvider.notifier).login(customer);

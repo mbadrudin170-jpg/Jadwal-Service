@@ -66,7 +66,7 @@ class FirebaseMigrationService {
       'nama': NamaKolom.nama,
       'telepon': NamaKolom.telepon,
       'alamat': NamaKolom.alamat,
-      'password': NamaKolom.password,
+      'password': NamaKolom.kataSandi,
       'mac_address': NamaKolom.macAddress,
       'status': NamaKolom.status,
       'diperbarui': NamaKolom.diperbaruiPada,

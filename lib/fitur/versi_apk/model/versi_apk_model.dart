@@ -4,9 +4,9 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart';
 
@@ -17,7 +17,7 @@ abstract class VersiApkModel with _$VersiApkModel implements HasId {
   const VersiApkModel._(); // Private constructor untuk method custom
 
   const factory VersiApkModel({
-    required String id, // ID harus diisi manual saat membuat instance baru
+    required String id,
     @Default('') String catatanRilis,
     @Default(<ArsitekturApk, int>{}) Map<ArsitekturApk, int> nomorBuildTerakhir,
     @Default(<ArsitekturApk, String>{}) Map<ArsitekturApk, String> linkDownload,
@@ -104,7 +104,7 @@ abstract class VersiApkModel with _$VersiApkModel implements HasId {
 
   factory VersiApkModel.fromSqlite(Map<String, dynamic> map) {
     return VersiApkModel(
-      id: map[NamaKolom.id] as String? ?? '', // ID dari DB atau string kosong
+      id: map[NamaKolom.id] as String,
       catatanRilis: map[NamaKolom.catatanRilis] as String? ?? '',
       versiTerkahir: map[NamaKolom.versiTerkahir] as String? ?? '',
       linkYoutubeTutorial: map[NamaKolom.linkYoutubeTutorial] as String? ?? '',
@@ -143,7 +143,7 @@ abstract class VersiApkModel with _$VersiApkModel implements HasId {
 
   factory VersiApkModel.fromFirebase(String id, Map<String, dynamic> map) {
     return VersiApkModel(
-      id: map[NamaKolom.id] as String? ?? '',
+      id: id,
       catatanRilis: map[NamaKolom.catatanRilis] as String? ?? '',
       versiTerkahir: map[NamaKolom.versiTerkahir] as String? ?? '',
       linkYoutubeTutorial: map[NamaKolom.linkYoutubeTutorial] as String? ?? '',

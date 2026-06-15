@@ -15,7 +15,7 @@ import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
+import 'package:wifi/fitur/kategori/operasi/sub_kategori_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';

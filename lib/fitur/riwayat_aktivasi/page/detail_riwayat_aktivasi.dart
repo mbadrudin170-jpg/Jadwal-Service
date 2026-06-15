@@ -76,7 +76,7 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                           ),
                   children: [
                     _buildRow(
-                        'Nama Pelanggan', customer?.name ?? 'Tidak Diketahui'),
+                        'Nama Pelanggan', customer?.nama ?? 'Tidak Diketahui'),
                   ],
                 ),
                 gapH16,

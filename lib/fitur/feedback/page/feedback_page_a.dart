@@ -50,7 +50,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           await ref.read(pelangganOpSqliteProvider).ambilPelanggan();
       if (mounted) {
         setState(() {
-          _mapNamaUser = {for (var p in pelangganList) p.id: p.name};
+          _mapNamaUser = {for (var p in pelangganList) p.id: p.nama};
         });
       }
     } catch (e) {
@@ -169,7 +169,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          NamaPelangganWidget(customerId: item.userId),
+                          NamaPelangganWidget(idPelanggan: item.userId),
                           gapH12,
                           Text(
                             item.content,

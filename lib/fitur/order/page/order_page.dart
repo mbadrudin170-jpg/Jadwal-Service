@@ -302,7 +302,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           return const Center(child: Text('Belum ada pesanan ditemukan.'));
         }
 
-        final paketOpFirebase = ref.watch(packageOpFirebaseProvider);
+        final paketOpFirebase = ref.watch(paketOpFirebaseProvider);
         return ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),

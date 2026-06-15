@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -43,8 +43,8 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.customer.name);
-    _phoneController = TextEditingController(text: widget.customer.phone);
+    _nameController = TextEditingController(text: widget.customer.nama);
+    _phoneController = TextEditingController(text: widget.customer.telepon);
     _passwordController = TextEditingController(text: widget.customer.password);
   }
 
@@ -65,18 +65,18 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         }
 
         final updatedCustomer = widget.customer.copyWith(
-          name: _nameController.text,
-          phone: _phoneController.text,
+          nama: _nameController.text,
+          telepon: _phoneController.text,
           password: _passwordController.text,
         );
-        final customerOpFirebase = ref.read(customerOpFirebaseProvider);
+        final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
         await customerOpFirebase.updatePelanggan(updatedCustomer);
-        ref.invalidate(customerOpFirebaseProvider);
+        ref.invalidate(pelangganOpFirebaseProvider);
         if (!mounted) return;
 
         ToastUtil.success(context, 'Profil berhasil diperbarui.');
 
-        navigator.pop(true);
+        navigator.pop(context);
       } on Exception catch (e, st) {
         Log.error(
           'Gagal menyimpan perubahan profil',

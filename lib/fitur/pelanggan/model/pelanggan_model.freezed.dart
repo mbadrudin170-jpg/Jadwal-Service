@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'kategori_model.dart';
+part of 'pelanggan_model.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,38 +13,46 @@ part of 'kategori_model.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$KategoriModel {
+mixin _$PelangganModel {
   String get id;
   String get nama;
-  TipeKategori get tipe;
-  List<SubKategoriModel> get idSubKategori;
+  String get telepon;
+  String get alamat;
+  String get kataSandi;
+  String get macAddress;
   DateTime? get diperbaruiPada;
   bool get diHapus;
   DateTime? get diarsipkanPada;
+  DateTime? get terkahirAktif;
 
-  /// Create a copy of KategoriModel
+  /// Create a copy of PelangganModel
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $KategoriModelCopyWith<KategoriModel> get copyWith =>
-      _$KategoriModelCopyWithImpl<KategoriModel>(
-          this as KategoriModel, _$identity);
+  $PelangganModelCopyWith<PelangganModel> get copyWith =>
+      _$PelangganModelCopyWithImpl<PelangganModel>(
+          this as PelangganModel, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is KategoriModel &&
+            other is PelangganModel &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.nama, nama) || other.nama == nama) &&
-            (identical(other.tipe, tipe) || other.tipe == tipe) &&
-            const DeepCollectionEquality()
-                .equals(other.idSubKategori, idSubKategori) &&
+            (identical(other.telepon, telepon) || other.telepon == telepon) &&
+            (identical(other.alamat, alamat) || other.alamat == alamat) &&
+            (identical(other.kataSandi, kataSandi) ||
+                other.kataSandi == kataSandi) &&
+            (identical(other.macAddress, macAddress) ||
+                other.macAddress == macAddress) &&
             (identical(other.diperbaruiPada, diperbaruiPada) ||
                 other.diperbaruiPada == diperbaruiPada) &&
             (identical(other.diHapus, diHapus) || other.diHapus == diHapus) &&
             (identical(other.diarsipkanPada, diarsipkanPada) ||
-                other.diarsipkanPada == diarsipkanPada));
+                other.diarsipkanPada == diarsipkanPada) &&
+            (identical(other.terkahirAktif, terkahirAktif) ||
+                other.terkahirAktif == terkahirAktif));
   }
 
   @override
@@ -52,54 +60,63 @@ mixin _$KategoriModel {
       runtimeType,
       id,
       nama,
-      tipe,
-      const DeepCollectionEquality().hash(idSubKategori),
+      telepon,
+      alamat,
+      kataSandi,
+      macAddress,
       diperbaruiPada,
       diHapus,
-      diarsipkanPada);
+      diarsipkanPada,
+      terkahirAktif);
 
   @override
   String toString() {
-    return 'KategoriModel(id: $id, nama: $nama, tipe: $tipe, idSubKategori: $idSubKategori, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada)';
+    return 'PelangganModel(id: $id, nama: $nama, telepon: $telepon, alamat: $alamat, kataSandi: $kataSandi, macAddress: $macAddress, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada, terkahirAktif: $terkahirAktif)';
   }
 }
 
 /// @nodoc
-abstract mixin class $KategoriModelCopyWith<$Res> {
-  factory $KategoriModelCopyWith(
-          KategoriModel value, $Res Function(KategoriModel) _then) =
-      _$KategoriModelCopyWithImpl;
+abstract mixin class $PelangganModelCopyWith<$Res> {
+  factory $PelangganModelCopyWith(
+          PelangganModel value, $Res Function(PelangganModel) _then) =
+      _$PelangganModelCopyWithImpl;
   @useResult
   $Res call(
       {String id,
       String nama,
-      TipeKategori tipe,
-      List<SubKategoriModel> idSubKategori,
+      String telepon,
+      String alamat,
+      String kataSandi,
+      String macAddress,
       DateTime? diperbaruiPada,
       bool diHapus,
-      DateTime? diarsipkanPada});
+      DateTime? diarsipkanPada,
+      DateTime? terkahirAktif});
 }
 
 /// @nodoc
-class _$KategoriModelCopyWithImpl<$Res>
-    implements $KategoriModelCopyWith<$Res> {
-  _$KategoriModelCopyWithImpl(this._self, this._then);
+class _$PelangganModelCopyWithImpl<$Res>
+    implements $PelangganModelCopyWith<$Res> {
+  _$PelangganModelCopyWithImpl(this._self, this._then);
 
-  final KategoriModel _self;
-  final $Res Function(KategoriModel) _then;
+  final PelangganModel _self;
+  final $Res Function(PelangganModel) _then;
 
-  /// Create a copy of KategoriModel
+  /// Create a copy of PelangganModel
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? id = null,
     Object? nama = null,
-    Object? tipe = null,
-    Object? idSubKategori = null,
+    Object? telepon = null,
+    Object? alamat = null,
+    Object? kataSandi = null,
+    Object? macAddress = null,
     Object? diperbaruiPada = freezed,
     Object? diHapus = null,
     Object? diarsipkanPada = freezed,
+    Object? terkahirAktif = freezed,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -110,14 +127,22 @@ class _$KategoriModelCopyWithImpl<$Res>
           ? _self.nama
           : nama // ignore: cast_nullable_to_non_nullable
               as String,
-      tipe: null == tipe
-          ? _self.tipe
-          : tipe // ignore: cast_nullable_to_non_nullable
-              as TipeKategori,
-      idSubKategori: null == idSubKategori
-          ? _self.idSubKategori
-          : idSubKategori // ignore: cast_nullable_to_non_nullable
-              as List<SubKategoriModel>,
+      telepon: null == telepon
+          ? _self.telepon
+          : telepon // ignore: cast_nullable_to_non_nullable
+              as String,
+      alamat: null == alamat
+          ? _self.alamat
+          : alamat // ignore: cast_nullable_to_non_nullable
+              as String,
+      kataSandi: null == kataSandi
+          ? _self.kataSandi
+          : kataSandi // ignore: cast_nullable_to_non_nullable
+              as String,
+      macAddress: null == macAddress
+          ? _self.macAddress
+          : macAddress // ignore: cast_nullable_to_non_nullable
+              as String,
       diperbaruiPada: freezed == diperbaruiPada
           ? _self.diperbaruiPada
           : diperbaruiPada // ignore: cast_nullable_to_non_nullable
@@ -130,12 +155,16 @@ class _$KategoriModelCopyWithImpl<$Res>
           ? _self.diarsipkanPada
           : diarsipkanPada // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      terkahirAktif: freezed == terkahirAktif
+          ? _self.terkahirAktif
+          : terkahirAktif // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
 
-/// Adds pattern-matching-related methods to [KategoriModel].
-extension KategoriModelPatterns on KategoriModel {
+/// Adds pattern-matching-related methods to [PelangganModel].
+extension PelangganModelPatterns on PelangganModel {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
@@ -150,12 +179,12 @@ extension KategoriModelPatterns on KategoriModel {
 
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>(
-    TResult Function(_KategoriModel value)? $default, {
+    TResult Function(_PelangganModel value)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _KategoriModel() when $default != null:
+      case _PelangganModel() when $default != null:
         return $default(_that);
       case _:
         return orElse();
@@ -177,11 +206,11 @@ extension KategoriModelPatterns on KategoriModel {
 
   @optionalTypeArgs
   TResult map<TResult extends Object?>(
-    TResult Function(_KategoriModel value) $default,
+    TResult Function(_PelangganModel value) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _KategoriModel():
+      case _PelangganModel():
         return $default(_that);
       case _:
         throw StateError('Unexpected subclass');
@@ -202,11 +231,11 @@ extension KategoriModelPatterns on KategoriModel {
 
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_KategoriModel value)? $default,
+    TResult? Function(_PelangganModel value)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _KategoriModel() when $default != null:
+      case _PelangganModel() when $default != null:
         return $default(_that);
       case _:
         return null;
@@ -230,19 +259,31 @@ extension KategoriModelPatterns on KategoriModel {
     TResult Function(
             String id,
             String nama,
-            TipeKategori tipe,
-            List<SubKategoriModel> idSubKategori,
+            String telepon,
+            String alamat,
+            String kataSandi,
+            String macAddress,
             DateTime? diperbaruiPada,
             bool diHapus,
-            DateTime? diarsipkanPada)?
+            DateTime? diarsipkanPada,
+            DateTime? terkahirAktif)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _KategoriModel() when $default != null:
-        return $default(_that.id, _that.nama, _that.tipe, _that.idSubKategori,
-            _that.diperbaruiPada, _that.diHapus, _that.diarsipkanPada);
+      case _PelangganModel() when $default != null:
+        return $default(
+            _that.id,
+            _that.nama,
+            _that.telepon,
+            _that.alamat,
+            _that.kataSandi,
+            _that.macAddress,
+            _that.diperbaruiPada,
+            _that.diHapus,
+            _that.diarsipkanPada,
+            _that.terkahirAktif);
       case _:
         return orElse();
     }
@@ -266,18 +307,30 @@ extension KategoriModelPatterns on KategoriModel {
     TResult Function(
             String id,
             String nama,
-            TipeKategori tipe,
-            List<SubKategoriModel> idSubKategori,
+            String telepon,
+            String alamat,
+            String kataSandi,
+            String macAddress,
             DateTime? diperbaruiPada,
             bool diHapus,
-            DateTime? diarsipkanPada)
+            DateTime? diarsipkanPada,
+            DateTime? terkahirAktif)
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _KategoriModel():
-        return $default(_that.id, _that.nama, _that.tipe, _that.idSubKategori,
-            _that.diperbaruiPada, _that.diHapus, _that.diarsipkanPada);
+      case _PelangganModel():
+        return $default(
+            _that.id,
+            _that.nama,
+            _that.telepon,
+            _that.alamat,
+            _that.kataSandi,
+            _that.macAddress,
+            _that.diperbaruiPada,
+            _that.diHapus,
+            _that.diarsipkanPada,
+            _that.terkahirAktif);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -300,18 +353,30 @@ extension KategoriModelPatterns on KategoriModel {
     TResult? Function(
             String id,
             String nama,
-            TipeKategori tipe,
-            List<SubKategoriModel> idSubKategori,
+            String telepon,
+            String alamat,
+            String kataSandi,
+            String macAddress,
             DateTime? diperbaruiPada,
             bool diHapus,
-            DateTime? diarsipkanPada)?
+            DateTime? diarsipkanPada,
+            DateTime? terkahirAktif)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _KategoriModel() when $default != null:
-        return $default(_that.id, _that.nama, _that.tipe, _that.idSubKategori,
-            _that.diperbaruiPada, _that.diHapus, _that.diarsipkanPada);
+      case _PelangganModel() when $default != null:
+        return $default(
+            _that.id,
+            _that.nama,
+            _that.telepon,
+            _that.alamat,
+            _that.kataSandi,
+            _that.macAddress,
+            _that.diperbaruiPada,
+            _that.diHapus,
+            _that.diarsipkanPada,
+            _that.terkahirAktif);
       case _:
         return null;
     }
@@ -320,34 +385,32 @@ extension KategoriModelPatterns on KategoriModel {
 
 /// @nodoc
 
-class _KategoriModel extends KategoriModel {
-  const _KategoriModel(
-      {this.id = '',
+class _PelangganModel extends PelangganModel {
+  const _PelangganModel(
+      {required this.id,
       required this.nama,
-      required this.tipe,
-      final List<SubKategoriModel> idSubKategori = const <SubKategoriModel>[],
+      required this.telepon,
+      required this.alamat,
+      required this.kataSandi,
+      required this.macAddress,
       this.diperbaruiPada,
       this.diHapus = false,
-      this.diarsipkanPada})
-      : _idSubKategori = idSubKategori,
-        super._();
+      this.diarsipkanPada,
+      this.terkahirAktif})
+      : super._();
 
   @override
-  @JsonKey()
   final String id;
   @override
   final String nama;
   @override
-  final TipeKategori tipe;
-  final List<SubKategoriModel> _idSubKategori;
+  final String telepon;
   @override
-  @JsonKey()
-  List<SubKategoriModel> get idSubKategori {
-    if (_idSubKategori is EqualUnmodifiableListView) return _idSubKategori;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_idSubKategori);
-  }
-
+  final String alamat;
+  @override
+  final String kataSandi;
+  @override
+  final String macAddress;
   @override
   final DateTime? diperbaruiPada;
   @override
@@ -355,30 +418,37 @@ class _KategoriModel extends KategoriModel {
   final bool diHapus;
   @override
   final DateTime? diarsipkanPada;
+  @override
+  final DateTime? terkahirAktif;
 
-  /// Create a copy of KategoriModel
+  /// Create a copy of PelangganModel
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$KategoriModelCopyWith<_KategoriModel> get copyWith =>
-      __$KategoriModelCopyWithImpl<_KategoriModel>(this, _$identity);
+  _$PelangganModelCopyWith<_PelangganModel> get copyWith =>
+      __$PelangganModelCopyWithImpl<_PelangganModel>(this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _KategoriModel &&
+            other is _PelangganModel &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.nama, nama) || other.nama == nama) &&
-            (identical(other.tipe, tipe) || other.tipe == tipe) &&
-            const DeepCollectionEquality()
-                .equals(other._idSubKategori, _idSubKategori) &&
+            (identical(other.telepon, telepon) || other.telepon == telepon) &&
+            (identical(other.alamat, alamat) || other.alamat == alamat) &&
+            (identical(other.kataSandi, kataSandi) ||
+                other.kataSandi == kataSandi) &&
+            (identical(other.macAddress, macAddress) ||
+                other.macAddress == macAddress) &&
             (identical(other.diperbaruiPada, diperbaruiPada) ||
                 other.diperbaruiPada == diperbaruiPada) &&
             (identical(other.diHapus, diHapus) || other.diHapus == diHapus) &&
             (identical(other.diarsipkanPada, diarsipkanPada) ||
-                other.diarsipkanPada == diarsipkanPada));
+                other.diarsipkanPada == diarsipkanPada) &&
+            (identical(other.terkahirAktif, terkahirAktif) ||
+                other.terkahirAktif == terkahirAktif));
   }
 
   @override
@@ -386,58 +456,67 @@ class _KategoriModel extends KategoriModel {
       runtimeType,
       id,
       nama,
-      tipe,
-      const DeepCollectionEquality().hash(_idSubKategori),
+      telepon,
+      alamat,
+      kataSandi,
+      macAddress,
       diperbaruiPada,
       diHapus,
-      diarsipkanPada);
+      diarsipkanPada,
+      terkahirAktif);
 
   @override
   String toString() {
-    return 'KategoriModel(id: $id, nama: $nama, tipe: $tipe, idSubKategori: $idSubKategori, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada)';
+    return 'PelangganModel(id: $id, nama: $nama, telepon: $telepon, alamat: $alamat, kataSandi: $kataSandi, macAddress: $macAddress, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada, terkahirAktif: $terkahirAktif)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$KategoriModelCopyWith<$Res>
-    implements $KategoriModelCopyWith<$Res> {
-  factory _$KategoriModelCopyWith(
-          _KategoriModel value, $Res Function(_KategoriModel) _then) =
-      __$KategoriModelCopyWithImpl;
+abstract mixin class _$PelangganModelCopyWith<$Res>
+    implements $PelangganModelCopyWith<$Res> {
+  factory _$PelangganModelCopyWith(
+          _PelangganModel value, $Res Function(_PelangganModel) _then) =
+      __$PelangganModelCopyWithImpl;
   @override
   @useResult
   $Res call(
       {String id,
       String nama,
-      TipeKategori tipe,
-      List<SubKategoriModel> idSubKategori,
+      String telepon,
+      String alamat,
+      String kataSandi,
+      String macAddress,
       DateTime? diperbaruiPada,
       bool diHapus,
-      DateTime? diarsipkanPada});
+      DateTime? diarsipkanPada,
+      DateTime? terkahirAktif});
 }
 
 /// @nodoc
-class __$KategoriModelCopyWithImpl<$Res>
-    implements _$KategoriModelCopyWith<$Res> {
-  __$KategoriModelCopyWithImpl(this._self, this._then);
+class __$PelangganModelCopyWithImpl<$Res>
+    implements _$PelangganModelCopyWith<$Res> {
+  __$PelangganModelCopyWithImpl(this._self, this._then);
 
-  final _KategoriModel _self;
-  final $Res Function(_KategoriModel) _then;
+  final _PelangganModel _self;
+  final $Res Function(_PelangganModel) _then;
 
-  /// Create a copy of KategoriModel
+  /// Create a copy of PelangganModel
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $Res call({
     Object? id = null,
     Object? nama = null,
-    Object? tipe = null,
-    Object? idSubKategori = null,
+    Object? telepon = null,
+    Object? alamat = null,
+    Object? kataSandi = null,
+    Object? macAddress = null,
     Object? diperbaruiPada = freezed,
     Object? diHapus = null,
     Object? diarsipkanPada = freezed,
+    Object? terkahirAktif = freezed,
   }) {
-    return _then(_KategoriModel(
+    return _then(_PelangganModel(
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -446,14 +525,22 @@ class __$KategoriModelCopyWithImpl<$Res>
           ? _self.nama
           : nama // ignore: cast_nullable_to_non_nullable
               as String,
-      tipe: null == tipe
-          ? _self.tipe
-          : tipe // ignore: cast_nullable_to_non_nullable
-              as TipeKategori,
-      idSubKategori: null == idSubKategori
-          ? _self._idSubKategori
-          : idSubKategori // ignore: cast_nullable_to_non_nullable
-              as List<SubKategoriModel>,
+      telepon: null == telepon
+          ? _self.telepon
+          : telepon // ignore: cast_nullable_to_non_nullable
+              as String,
+      alamat: null == alamat
+          ? _self.alamat
+          : alamat // ignore: cast_nullable_to_non_nullable
+              as String,
+      kataSandi: null == kataSandi
+          ? _self.kataSandi
+          : kataSandi // ignore: cast_nullable_to_non_nullable
+              as String,
+      macAddress: null == macAddress
+          ? _self.macAddress
+          : macAddress // ignore: cast_nullable_to_non_nullable
+              as String,
       diperbaruiPada: freezed == diperbaruiPada
           ? _self.diperbaruiPada
           : diperbaruiPada // ignore: cast_nullable_to_non_nullable
@@ -465,6 +552,10 @@ class __$KategoriModelCopyWithImpl<$Res>
       diarsipkanPada: freezed == diarsipkanPada
           ? _self.diarsipkanPada
           : diarsipkanPada // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      terkahirAktif: freezed == terkahirAktif
+          ? _self.terkahirAktif
+          : terkahirAktif // ignore: cast_nullable_to_non_nullable
               as DateTime?,
     ));
   }

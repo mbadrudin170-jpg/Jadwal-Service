@@ -7,10 +7,11 @@ import 'dart:async' as _i5;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart'
+    as _i3;
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart'
     as _i4;
-import 'package:wifi/shared/export/model.dart' as _i3;
-import 'package:wifi/shared/model/active_customer_detail_model.dart' as _i6;
+import 'package:wifi/shared/export/model.dart' as _i6;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values

@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
@@ -13,7 +13,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 /// maka akan mengambil data dari Firebase secara real-time.
 class NamaPelangganWidget extends ConsumerWidget {
   /// ID pelanggan yang akan dicari namanya.
-  final String customerId;
+  final String idPelanggan;
 
   /// Gaya teks opsional untuk nama yang ditampilkan.
   final TextStyle? style;
@@ -23,7 +23,7 @@ class NamaPelangganWidget extends ConsumerWidget {
 
   const NamaPelangganWidget({
     super.key,
-    required this.customerId,
+    required this.idPelanggan,
     this.style,
     this.useFirebase = false,
   });
@@ -38,16 +38,16 @@ class NamaPelangganWidget extends ConsumerWidget {
 
   /// Membangun widget menggunakan data dari Firebase (Stream).
   Widget _buildFromFirebase(WidgetRef ref) {
-    final customerOpFirebase = ref.read(customerOpFirebaseProvider);
+    final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
     return StreamBuilder<PelangganModel?>(
-      stream: customerOpFirebase.getStreamPelanggan(customerId),
-      builder: (final context, final snapshot) {
+      stream: customerOpFirebase.getStreamPelanggan(idPelanggan),
+      builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Text('...', style: style);
         }
         if (snapshot.hasError) {
           Log.error(
-            'Error di CustomerNameWidget (Firebase) untuk ID: $customerId',
+            'Error di CustomerNameWidget (Firebase) untuk ID: $idPelanggan',
             e: snapshot.error,
             s: snapshot.stackTrace,
           );
@@ -58,7 +58,7 @@ class NamaPelangganWidget extends ConsumerWidget {
         }
         if (snapshot.hasData && snapshot.data != null) {
           return Text(
-            snapshot.data!.name,
+            snapshot.data!.nama,
             style: style,
             overflow: TextOverflow.ellipsis,
           );
@@ -75,14 +75,14 @@ class NamaPelangganWidget extends ConsumerWidget {
   Widget _buildFromSqlite(WidgetRef ref) {
     final customerOperation = ref.read(pelangganOpSqliteProvider);
     return FutureBuilder<PelangganModel?>(
-      future: customerOperation.ambilBerdasarkanId(customerId),
+      future: customerOperation.ambilBerdasarkanId(idPelanggan),
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Text('...', style: style);
         }
         if (snapshot.hasError) {
           Log.error(
-            'Error di CustomerNameWidget (SQLite) untuk ID: $customerId',
+            'Error di CustomerNameWidget (SQLite) untuk ID: $idPelanggan',
             e: snapshot.error,
             s: snapshot.stackTrace,
           );
@@ -93,7 +93,7 @@ class NamaPelangganWidget extends ConsumerWidget {
         }
         if (snapshot.hasData && snapshot.data != null) {
           return Text(
-            snapshot.data!.name,
+            snapshot.data!.nama,
             style: style,
             overflow: TextOverflow.ellipsis,
           );

@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -26,9 +26,9 @@ void main() {
   // Customer dummies
   final c1 = PelangganModel(
     id: 'c1',
-    name: 'Charlie',
-    phone: '',
-    address: '',
+    nama: 'Charlie',
+    telepon: '',
+    alamat: '',
     password: '',
     registrationDate: now,
     fcmToken: '',
@@ -38,9 +38,9 @@ void main() {
   );
   final c2 = PelangganModel(
     id: 'c2',
-    name: 'Alpha',
-    phone: '',
-    address: '',
+    nama: 'Alpha',
+    telepon: '',
+    alamat: '',
     password: '',
     registrationDate: now,
     fcmToken: '',
@@ -50,9 +50,9 @@ void main() {
   );
   final c3 = PelangganModel(
     id: 'c3',
-    name: 'Bravo',
-    phone: '',
-    address: '',
+    nama: 'Bravo',
+    telepon: '',
+    alamat: '',
     password: '',
     registrationDate: now,
     fcmToken: '',

@@ -3,7 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
@@ -19,32 +19,32 @@ void main() {
   setUp(() {
     fakeFirestore = FakeFirebaseFirestore();
     baseOpFirebase = BaseOpFirebase(firestore: fakeFirestore);
-    customerOpFirebase =
-        CustomerOpFirebase(firestore: fakeFirestore, baseOp: baseOpFirebase);
+    customerOpFirebase = CustomerOpFirebase(
+        firestore: fakeFirestore, baseOpFirebase: baseOpFirebase);
   });
 
   // Data model pelanggan untuk digunakan dalam tes
   final c1 = PelangganModel(
     id: 'cust-001',
-    name: 'Pelanggan Satu',
-    phone: '0811111111',
-    address: 'Jalan Satu',
+    nama: 'Pelanggan Satu',
+    telepon: '0811111111',
+    alamat: 'Jalan Satu',
     password: 'password',
   );
 
   final c2 = PelangganModel(
     id: 'cust-002',
-    name: 'Pelanggan Dua',
-    phone: '0822222222',
-    address: 'Jalan Dua',
+    nama: 'Pelanggan Dua',
+    telepon: '0822222222',
+    alamat: 'Jalan Dua',
     password: 'password',
-    isDeleted: true, // soft-deleted
+    diHapus: true, // soft-deleted
   );
   final c3 = PelangganModel(
     id: 'cust-003',
-    name: 'Pelanggan Tiga',
-    phone: '0833333333',
-    address: 'Jalan Tiga',
+    nama: 'Pelanggan Tiga',
+    telepon: '0833333333',
+    alamat: 'Jalan Tiga',
     password: 'password',
   );
 
@@ -55,7 +55,7 @@ void main() {
       final snapshot =
           await fakeFirestore.collection(customerCollection).doc(c1.id).get();
       expect(snapshot.exists, isTrue);
-      expect(snapshot.data()![NamaKolom.nama], c1.name);
+      expect(snapshot.data()![NamaKolom.nama], c1.nama);
     });
 
     test('2.2. harus bisa memperbarui data pelanggan', () async {
@@ -154,7 +154,7 @@ void main() {
 
       expect(customer, isNotNull);
       expect(customer!.id, c1.id);
-      expect(customer.name, c1.name);
+      expect(customer.nama, c1.nama);
     });
 
     test(
@@ -178,10 +178,10 @@ void main() {
         stream,
         emitsInOrder([
           // Matcher untuk data pertama
-          isA<PelangganModel>().having((c) => c.name, 'name', c1.name),
+          isA<PelangganModel>().having((c) => c.nama, 'name', c1.nama),
           // Matcher untuk data kedua setelah update
           isA<PelangganModel>()
-              .having((c) => c.name, 'name', 'Nama Baru dari Stream'),
+              .having((c) => c.nama, 'name', 'Nama Baru dari Stream'),
         ]),
       );
 

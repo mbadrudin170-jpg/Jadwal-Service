@@ -16,7 +16,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
+import 'package:wifi/fitur/kategori/operasi/sub_kategori_op_sqlite.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 
 part 'operasi_sqlite_provider.g.dart';

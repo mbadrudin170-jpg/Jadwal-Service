@@ -1,31 +1,22 @@
-// path: lib/shared/operasi/firebase_operasi/settings_op_firebase.dart
-// diubah: Rename kelas ke SettingsOpFirebase, menggunakan TableNameValue
-//         dan ColumnNames untuk semua referensi koleksi dan kolom.
-// diperbaiki: Menambahkan logging inisialisasi.
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/model.dart';
 
-/// Kelas untuk mengelola operasi terkait data pengaturan di Firestore.
 class SettingsOpFirebase {
   final FirebaseFirestore _db;
 
-  /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
-  SettingsOpFirebase({final FirebaseFirestore? firestore})
+  SettingsOpFirebase({FirebaseFirestore? firestore})
       : _db = firestore ?? FirebaseFirestore.instance {
     Log.info('SettingsOpFirebase diinisialisasi.');
   }
 
-  /// Mendapatkan referensi ke koleksi setting.
-  CollectionReference get _collection => _db.collection(NamaTabel.settings);
+  CollectionReference get _koleksi => _db.collection(NamaTabel.settings);
 
-  /// Mengambil pengaturan aplikasi dari Firestore.
-  Future<Map<String, dynamic>> getSettings() async {
+  Future<Map<String, dynamic>> ambilPengaturan() async {
     try {
-      final doc = await _collection.doc(idGlobalSetting).get();
+      final doc = await _koleksi.doc(idGlobalSetting).get();
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>?;
         Log.info('Pengaturan dari Firestore berhasil diambil.', data);

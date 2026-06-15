@@ -1,7 +1,7 @@
 // path: lib/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -28,7 +28,7 @@ class PelangganOpSqlite {
     Log.info('Memulai pembuatan customer dengan ID: ${customer.id}');
     try {
       final pelangganBaru = customer.copyWith(
-        updatedAt: DateTime.now().toUtc(),
+        diperbaruiPada: DateTime.now().toUtc(),
       );
       final data = pelangganBaru.toSqlite();
 
@@ -115,7 +115,7 @@ class PelangganOpSqlite {
     Log.info('Memulai pembaruan untuk customer ID: ${customer.id}');
     try {
       final data =
-          customer.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+          customer.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite();
 
       await _baseOpSqlite.update(
         _tabel,
@@ -199,7 +199,7 @@ class PelangganOpSqlite {
     Log.info('Memulai batch insert/update untuk ${items.length} customer.');
     try {
       final data = items.map((item) {
-        return item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+        return item.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite();
       }).toList();
 
       await _baseOpSqlite.insertOrUpdateBatch(

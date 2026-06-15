@@ -1,7 +1,7 @@
 // path: lib/user/page/user_customer_detail.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/poin/page/points_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
@@ -45,8 +45,8 @@ class _UserCustomerDetailPageState
   Future<_ProfileData> _loadData() async {
     try {
       Log.info('Mengambil data pelanggan dari Firestore...');
-      final pelangganOpFirebase = ref.read(customerOpFirebaseProvider);
-      final transaksiOpFirebase = ref.read(transactionOpFirebaseProvider);
+      final pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
+      final transaksiOpFirebase = ref.read(transaksiOpFirebaseProvider);
       final pelanggan = await pelangganOpFirebase.getById(widget.userId);
       if (pelanggan == null) {
         throw Exception(
@@ -54,7 +54,7 @@ class _UserCustomerDetailPageState
         );
       }
       Log.info(
-        'Pelanggan ditemukan: ${pelanggan.name}. Mengambil riwayat transaksi...',
+        'Pelanggan ditemukan: ${pelanggan.nama}. Mengambil riwayat transaksi...',
       );
       final totalPoin = await transaksiOpFirebase.ambilTotalPoin(pelanggan.id);
       Log.info('Perhitungan poin selesai. Total Poin: $totalPoin');

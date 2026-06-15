@@ -52,6 +52,8 @@ abstract mixin class $AkunStateCopyWith<$Res> {
   @useResult
   $Res call(
       {PelangganModel? akunSaatIni, List<PelangganModel> daftarAkunTersimpan});
+
+  $PelangganModelCopyWith<$Res>? get akunSaatIni;
 }
 
 /// @nodoc
@@ -79,6 +81,20 @@ class _$AkunStateCopyWithImpl<$Res> implements $AkunStateCopyWith<$Res> {
           : daftarAkunTersimpan // ignore: cast_nullable_to_non_nullable
               as List<PelangganModel>,
     ));
+  }
+
+  /// Create a copy of AkunState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $PelangganModelCopyWith<$Res>? get akunSaatIni {
+    if (_self.akunSaatIni == null) {
+      return null;
+    }
+
+    return $PelangganModelCopyWith<$Res>(_self.akunSaatIni!, (value) {
+      return _then(_self.copyWith(akunSaatIni: value));
+    });
   }
 }
 
@@ -304,6 +320,9 @@ abstract mixin class _$AkunStateCopyWith<$Res>
   @useResult
   $Res call(
       {PelangganModel? akunSaatIni, List<PelangganModel> daftarAkunTersimpan});
+
+  @override
+  $PelangganModelCopyWith<$Res>? get akunSaatIni;
 }
 
 /// @nodoc
@@ -331,6 +350,20 @@ class __$AkunStateCopyWithImpl<$Res> implements _$AkunStateCopyWith<$Res> {
           : daftarAkunTersimpan // ignore: cast_nullable_to_non_nullable
               as List<PelangganModel>,
     ));
+  }
+
+  /// Create a copy of AkunState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $PelangganModelCopyWith<$Res>? get akunSaatIni {
+    if (_self.akunSaatIni == null) {
+      return null;
+    }
+
+    return $PelangganModelCopyWith<$Res>(_self.akunSaatIni!, (value) {
+      return _then(_self.copyWith(akunSaatIni: value));
+    });
   }
 }
 

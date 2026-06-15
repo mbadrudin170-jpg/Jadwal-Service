@@ -4,15 +4,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
-import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
@@ -48,7 +50,7 @@ class _SubscriptionHistoryPageState
     final userId = await ref.watch(userIdProvider.future);
 
     if (userId == null) return [];
-    final customerOpFirebase = ref.read(customerOpFirebaseProvider);
+    final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
     final customer = await customerOpFirebase.getById(userId);
     if (customer == null) return [];
     return _transactionOpFirebase.ambilBerdasarkanIdPelanggan(customer.id);
@@ -116,8 +118,8 @@ class _SubscriptionHistoryPageState
 
   @override
   Widget build(BuildContext context) {
-    final packageOpFirebase = ref.read(packageOpFirebaseProvider);
-    final customerOpFirebase = ref.read(customerOpFirebaseProvider);
+    final packageOpFirebase = ref.read(paketOpFirebaseProvider);
+    final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
     final userId = ref.watch(userIdProvider);
     return Scaffold(
       appBar: AppBar(

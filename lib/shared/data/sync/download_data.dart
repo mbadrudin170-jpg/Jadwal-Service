@@ -3,13 +3,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
+import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/settings/model/settings_model.dart';
+import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
-import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 class DownloadDataService {
@@ -280,10 +289,10 @@ class DownloadDataService {
   Future<void> downloadSubCategoryData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [SUB CATEGORY]');
     final lastDownloadTime = await _syncManager.ambilWaktuTerakhirDownload();
-    await synchronizeCollection<SubCategoryModel>(
+    await synchronizeCollection<SubKategoriModel>(
       collectionName: NamaTabel.subKategori,
       lastDownloadTime: lastDownloadTime,
-      fromFirebase: SubCategoryModel.fromFirebase,
+      fromFirebase: SubKategoriModel.fromFirebase,
       batchOperation: (final data) =>
           _subCategoryOperation.insertOrUpdateBatch(data, fromServer: true),
     );
@@ -297,7 +306,7 @@ class DownloadDataService {
       collectionName: NamaTabel.versiApkUser,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: VersiApkModel.fromFirebase,
-      batchOperation: (final data) =>
+      batchOperation: (data) =>
           _apkVersionOperation.insertOrUpdateBatch(data, fromServer: true),
     );
   }
