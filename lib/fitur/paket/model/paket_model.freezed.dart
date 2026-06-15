@@ -401,21 +401,20 @@ extension PaketModelPatterns on PaketModel {
 
 class _PaketModel extends PaketModel {
   const _PaketModel(
-      {this.id = '',
+      {required this.id,
       required this.nama,
       required this.harga,
       required this.durasi,
       required this.tipe,
       this.poinHadiah = 0,
       this.poinPenukaran = 0,
-      this.statusPublik = true,
+      this.statusPublik = false,
       this.diperbaruiPada,
       this.statusHapus = false,
       this.diarsipkanPada})
       : super._();
 
   @override
-  @JsonKey()
   final String id;
   @override
   final String nama;

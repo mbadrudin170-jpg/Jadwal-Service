@@ -7,11 +7,11 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 
 import 'active_customer_operation_test.mocks.dart';
@@ -55,19 +55,19 @@ void main() {
     final tActiveCustomer1 = PelangganAktifModel(
       id: '1',
       idPelanggan: 'cust1',
-      packageId: 'pkg1',
-      startDate: DateTime.now().subtract(const Duration(days: 27)),
-      endDate: DateTime.now().add(const Duration(days: 3)),
-      status: PaymentStatus.paid,
+      idPaket: 'pkg1',
+      tanggalMulai: DateTime.now().subtract(const Duration(days: 27)),
+      tangglberakhir: DateTime.now().add(const Duration(days: 3)),
+      status: StatusPembayaran.paid,
     );
 
     final tActiveCustomer2 = PelangganAktifModel(
       id: '2',
       idPelanggan: 'cust2',
-      packageId: 'pkg2',
-      startDate: DateTime.now().subtract(const Duration(days: 29)),
-      endDate: DateTime.now().add(const Duration(days: 1)),
-      status: PaymentStatus.paid,
+      idPaket: 'pkg2',
+      tanggalMulai: DateTime.now().subtract(const Duration(days: 29)),
+      tangglberakhir: DateTime.now().add(const Duration(days: 1)),
+      status: StatusPembayaran.paid,
     );
 
     final tCustomer1 = PelangganModel(

@@ -61,7 +61,8 @@ void main() {
     mockAggregateQuery = MockAggregateQuery();
     mockAggregateQuerySnapshot = MockAggregateQuerySnapshot();
 
-    when(() => mockFirestore.collection(NamaTabel.customerOrder))
+    // Stubbing untuk semua pemanggilan collection yang mungkin terjadi
+    when(() => mockFirestore.collection(any()))
         .thenReturn(mockOrderCollectionReference);
 
     orderOpFirebase = OrderOpFirebase(
@@ -105,7 +106,7 @@ void main() {
   group('Grup Pengujian OrderOpFirebase', () {
     test('01. Uji penambahan pesanan baru', () async {
       when(() => mockBaseOp.sisipkan(any(), any(), any()))
-          .thenAnswer((_) => Future.value());
+          .thenAnswer((_) async => '');
       await orderOpFirebase.addOrder(order);
       verify(() =>
           mockBaseOp.sisipkan(NamaTabel.customerOrder, order.id, orderMap))
@@ -114,7 +115,7 @@ void main() {
 
     test('02. Uji pembaruan pesanan', () async {
       when(() => mockBaseOp.update(any(), any(), any()))
-          .thenAnswer((_) => Future.value());
+          .thenAnswer((_) async {});
       await orderOpFirebase.updateOrder(order);
       verify(() =>
           mockBaseOp.update(NamaTabel.customerOrder, order.id, orderMap))
@@ -124,7 +125,7 @@ void main() {
     test('03. Uji penghapusan lunak pesanan', () async {
       const orderId = 'order1';
       when(() => mockBaseOp.hapusSementara(any(), any()))
-          .thenAnswer((_) => Future.value());
+          .thenAnswer((_) async {});
 
       await orderOpFirebase.softDeleteOrder(orderId);
 
@@ -172,7 +173,7 @@ void main() {
       final mockQueryDocSnapshot = MockQueryDocumentSnapshot();
       when(() => mockQueryDocSnapshot.id).thenReturn(order.id);
       when(() => mockQueryDocSnapshot.data()).thenReturn(orderMap);
-      
+
       final streamController =
           StreamController<QuerySnapshot<Map<String, dynamic>>>();
       when(() => mockQuery.snapshots())

@@ -6,7 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 
 class MockPelangganOpSqlite extends Mock implements PelangganOpSqlite {}
 

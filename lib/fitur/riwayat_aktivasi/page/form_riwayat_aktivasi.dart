@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/form/form_riwayat_aktivasi.dart
+// path: lib/fitur/riwayat_aktivasi/page/form_riwayat_aktivasi.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,7 +7,7 @@ import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -29,7 +29,7 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
 
   late DateTime _tanggalMulai;
   late DateTime _tanggalBerakhir;
-  late PaymentStatus _statusPembayaran;
+  late StatusPembayaran _statusPembayaran;
 
   @override
   void initState() {
@@ -151,13 +151,13 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
 
   Future<void> _handleExpiryNotification({
     required LayananNotifikasi layananNotifikasi,
-    required PaymentStatus statusSebelumnya,
-    required PaymentStatus statusSekarang,
+    required StatusPembayaran statusSebelumnya,
+    required StatusPembayaran statusSekarang,
     required DateTime tanggalBerakhir,
   }) async {
     final idNotifikasi = widget.transaksi.id.hashCode;
-    final wasPaid = statusSebelumnya == PaymentStatus.paid;
-    final isNowPaid = statusSekarang == PaymentStatus.paid;
+    final wasPaid = statusSebelumnya == StatusPembayaran.paid;
+    final isNowPaid = statusSekarang == StatusPembayaran.paid;
 
     if ((!wasPaid && isNowPaid) || (wasPaid && isNowPaid)) {
       final jadwal = tanggalBerakhir;
@@ -203,15 +203,15 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
                 onPressed: () => _selectDateTime(false),
               ),
               gapH24,
-              DropdownButtonFormField<PaymentStatus>(
+              DropdownButtonFormField<StatusPembayaran>(
                 initialValue: _statusPembayaran,
                 decoration: const InputDecoration(
                   labelText: 'Status Pembayaran',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.payment),
                 ),
-                items: PaymentStatus.values.map((status) {
-                  return DropdownMenuItem<PaymentStatus>(
+                items: StatusPembayaran.values.map((status) {
+                  return DropdownMenuItem<StatusPembayaran>(
                     value: status,
                     child: Text(status.displayName.toUpperCase()),
                   );

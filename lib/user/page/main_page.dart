@@ -9,7 +9,7 @@ import 'package:wifi/fitur/speedtest/page/uji_kecepatan_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/user/page/profile_page.dart';
-import 'package:wifi/user/page/settings_page_user.dart';
+import 'package:wifi/fitur/settings/page/settings_page_u.dart';
 import 'package:wifi/user/page/subscription_history_user.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 import 'package:wifi/user/widget/ads/app_open/app_lifecycle_reactor.dart';
@@ -55,7 +55,7 @@ class _MainPageState extends ConsumerState<MainPage> {
       const SubscriptionHistoryPage(),
       const OrderPage(),
       const HalamanUjiKecepatan(),
-      const SettingsPageUser(),
+      const SettingsPageU(),
     ];
     _appLifecycleReactor =
         AppLifecycleReactor(appOpenAdService: _appOpenAdService);

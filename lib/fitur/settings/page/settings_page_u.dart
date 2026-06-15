@@ -2,20 +2,22 @@
 // diubah: Menambahkan tombol navigasi ke Halaman Tes hanya dalam mode debug.
 
 // tambahkan ini
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
+import 'package:wifi/fitur/feedback/page/feedback_page_u.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/fitur/feedback/page/feedback_page_u.dart';
 import 'package:wifi/user/page/info_apk_page_user.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
 /// Halaman pengaturan untuk pengguna.
-class SettingsPageUser extends ConsumerWidget {
-  const SettingsPageUser({
+class SettingsPageU extends ConsumerWidget {
+  const SettingsPageU({
     super.key,
   });
 
@@ -36,7 +38,7 @@ class SettingsPageUser extends ConsumerWidget {
                   data: (themeMode) => ThemeMenuWidget(
                     currentThemeMode: themeMode,
                     onThemeSelected: (mode) {
-                      ref.read(temaProvider.notifier).simpanModeTema(mode);
+                      unawaited(ref.read(temaProvider.notifier).simpanModeTema(mode));
                     },
                   ),
                   loading: () => const SizedBox.shrink(),

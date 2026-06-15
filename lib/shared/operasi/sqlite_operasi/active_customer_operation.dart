@@ -1,18 +1,15 @@
 // path: lib/shared/operasi/sqlite_operasi/active_customer_operation.dart
 
 import 'package:sqflite/sqflite.dart';
-import 'package:uuid/uuid.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
-
-const uuid = Uuid();
 
 class PelangganAktifOpSqlite {
   final SqliteDatabase sqliteDb;
@@ -90,8 +87,8 @@ class PelangganAktifOpSqlite {
         final map = maps[i];
         return DetailPelangganAktifModel(
           pelangganAktif: PelangganAktifModel.fromSqlite(map),
-          customerName: map['customer_name'] as String? ?? 'Tanpa Nama',
-          packageName: map['package_name'] as String? ?? 'Tanpa Paket',
+          namaPelanggan: map['customer_name'] as String? ?? 'Tanpa Nama',
+          namaPaket: map['package_name'] as String? ?? 'Tanpa Paket',
         );
       });
     } on Exception catch (e, st) {
@@ -108,13 +105,9 @@ class PelangganAktifOpSqlite {
     final bool fromServer = false,
   }) async {
     try {
-      final newId = activeCustomer.id.isEmpty ? uuid.v4() : activeCustomer.id;
       final customerToSave = activeCustomer.copyWith(
-        id: newId,
-        updatedAt: _nowUtc,
+        diperbaruiPada: _nowUtc,
       );
-
-      Log.info('Membuat active customer baru - ID: $newId');
 
       await _baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
@@ -130,7 +123,6 @@ class PelangganAktifOpSqlite {
 
       await scheduleNotification(customerToSave);
 
-      Log.info('Active customer ID: $newId berhasil dibuat di $_tableName');
       return customerToSave;
     } on Exception catch (e, st) {
       Log.error('Gagal membuat active customer', e: e, s: st);
@@ -191,7 +183,7 @@ class PelangganAktifOpSqlite {
   }) async {
     try {
       final customerToSave = activeCustomer.copyWith(
-        updatedAt: _nowUtc,
+        diperbaruiPada: _nowUtc,
       );
 
       Log.info('Memperbarui active customer ID: ${customerToSave.id}');
@@ -227,7 +219,7 @@ class PelangganAktifOpSqlite {
           '(RE)SCHEDULING: Menjadwalkan notifikasi untuk active customer ID: ${activeCustomer.id}');
 
       final customer = await _customerOperation
-          .ambilBerdasarkanId(activeCustomer.customerId);
+          .ambilBerdasarkanId(activeCustomer.idPelanggan);
       final customerName = customer?.name ?? 'Tanpa Nama';
 
       await _notifikasiServis.batalNotifikasi(activeCustomer.id.hashCode);
@@ -236,7 +228,7 @@ class PelangganAktifOpSqlite {
       Log.info(
           'Membatalkan notifikasi yang ada sebelum menjadwalkan ulang notifiaksi');
 
-      final exactTime = activeCustomer.endDate;
+      final exactTime = activeCustomer.tanggalBerakhir;
       if (exactTime.isAfter(DateTime.now())) {
         await _notifikasiServis.jadwalNotifikasi(
           id: (activeCustomer.id.hashCode + 2),
@@ -247,7 +239,7 @@ class PelangganAktifOpSqlite {
       }
 
       final h1Schedule =
-          activeCustomer.endDate.subtract(const Duration(days: 1));
+          activeCustomer.tanggalBerakhir.subtract(const Duration(days: 1));
       if (h1Schedule.isAfter(DateTime.now())) {
         await _notifikasiServis.jadwalNotifikasi(
           id: activeCustomer.id.hashCode,
@@ -258,7 +250,7 @@ class PelangganAktifOpSqlite {
       }
 
       final h3Schedule =
-          activeCustomer.endDate.subtract(const Duration(days: 3));
+          activeCustomer.tanggalBerakhir.subtract(const Duration(days: 3));
       if (h3Schedule.isAfter(DateTime.now())) {
         await _notifikasiServis.jadwalNotifikasi(
           id: (activeCustomer.id.hashCode + 1),
@@ -287,7 +279,7 @@ class PelangganAktifOpSqlite {
 
       final data = items
           .map(
-            (final item) => item.copyWith(updatedAt: _nowUtc).toSqlite(),
+            (final item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
           )
           .toList();
 
@@ -319,11 +311,11 @@ class PelangganAktifOpSqlite {
       }
 
       await _baseOperation.runComplexOperation<void>(
-        (final Transaction txn) async {
+        (Transaction txn) async {
           final archivedCustomer = activeCustomer.copyWith(
-            updatedAt: _nowUtc,
-            isDeleted: true,
-            archivedAt: _nowUtc,
+            diperbaruiPada: _nowUtc,
+            diHapus: true,
+            diarsipkanPada: _nowUtc,
           );
 
           await txn.update(

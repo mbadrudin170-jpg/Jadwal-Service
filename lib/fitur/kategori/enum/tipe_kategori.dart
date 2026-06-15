@@ -1,4 +1,4 @@
-// path: lib/shared/enum/tipe_kategori.dart
+// path: lib/fitur/kategori/enum/tipe_kategori.dart
 
 /// Enum untuk mendefinisikan tipe-tipe kategori transaksi.
 enum TipeKategori {

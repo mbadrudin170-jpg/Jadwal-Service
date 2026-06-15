@@ -1,4 +1,5 @@
-// paket_model.dart
+// path: lib/fitur/paket/model/paket_model.dart
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:uuid/uuid.dart';
@@ -14,19 +15,19 @@ part 'paket_model.freezed.dart';
 abstract class PaketModel with _$PaketModel implements HasId {
   const PaketModel._();
   const factory PaketModel({
-    @Default('') String id,
+    required String id,
     required String nama,
     required int harga,
     required int durasi,
     required TipeDurasiPaket tipe,
     @Default(0) int poinHadiah,
     @Default(0) int poinPenukaran,
-    @Default(true) bool statusPublik,
+    @Default(false) bool statusPublik,
     DateTime? diperbaruiPada,
     @Default(false) bool statusHapus,
     DateTime? diarsipkanPada,
   }) = _PaketModel;
-
+  
   // 👇 Method custom (tidak berubah dari kode asli Anda)
   static TipeDurasiPaket _parseType(dynamic value) {
     return TipeDurasiPaket.values.firstWhere(

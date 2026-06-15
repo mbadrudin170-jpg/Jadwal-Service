@@ -1,7 +1,7 @@
-// path: lib/shared/enum/payment_status_enum.dart
+// path: lib/fitur/transaksi/enum/status_pembayaran.dart
 
 /// Enum untuk status pembayaran transaksi atau tagihan.
-enum PaymentStatus {
+enum StatusPembayaran {
   /// Status lunas, pembayaran telah diselesaikan.
   paid,
 
@@ -11,9 +11,9 @@ enum PaymentStatus {
   /// Mengembalikan nama tampilan (display name) untuk setiap status pembayaran.
   String get displayName {
     switch (this) {
-      case PaymentStatus.paid:
+      case StatusPembayaran.paid:
         return 'Lunas';
-      case PaymentStatus.unpaid:
+      case StatusPembayaran.unpaid:
         return 'Belum Lunas';
     }
   }

@@ -49,9 +49,9 @@ class BootService {
 
       // Urutkan untuk menemukan tanggal kedaluwarsa terdekat
       activeCustomers.sort((a, b) =>
-          a.pelangganAktif.endDate.compareTo(b.pelangganAktif.endDate));
+          a.pelangganAktif.tanggalBerakhir.compareTo(b.pelangganAktif.tanggalBerakhir));
 
-      final nearestExpiryDate = activeCustomers.first.pelangganAktif.endDate;
+      final nearestExpiryDate = activeCustomers.first.pelangganAktif.tanggalBerakhir;
 
       // Jadwalkan alarm sekali jalan
       await alarmScheduler.oneShotAt(

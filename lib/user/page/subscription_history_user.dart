@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
@@ -74,15 +74,15 @@ class _SubscriptionHistoryPageState
         break;
       case SortMode.statusPaid:
         history.sort((a, b) {
-          final statusA = a.statusPembayaran == PaymentStatus.paid ? 0 : 1;
-          final statusB = b.statusPembayaran == PaymentStatus.paid ? 0 : 1;
+          final statusA = a.statusPembayaran == StatusPembayaran.paid ? 0 : 1;
+          final statusB = b.statusPembayaran == StatusPembayaran.paid ? 0 : 1;
           return statusA.compareTo(statusB);
         });
         break;
       case SortMode.statusUnpaid:
         history.sort((a, b) {
-          final statusA = a.statusPembayaran == PaymentStatus.unpaid ? 0 : 1;
-          final statusB = b.statusPembayaran == PaymentStatus.unpaid ? 0 : 1;
+          final statusA = a.statusPembayaran == StatusPembayaran.unpaid ? 0 : 1;
+          final statusB = b.statusPembayaran == StatusPembayaran.unpaid ? 0 : 1;
           return statusA.compareTo(statusB);
         });
         break;
@@ -217,7 +217,7 @@ class _SubscriptionHistoryPageState
                                         'Status: ${tx.statusPembayaran.displayName}',
                                         style: TextStyle(
                                             color: tx.statusPembayaran ==
-                                                    PaymentStatus.paid
+                                                    StatusPembayaran.paid
                                                 ? Colors.green
                                                 : Colors.red)),
                                     Text('Masa Aktif: $activeText',

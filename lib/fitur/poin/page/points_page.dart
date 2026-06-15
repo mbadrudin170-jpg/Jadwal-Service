@@ -311,7 +311,8 @@ class _PointsPageState extends ConsumerState<PoinPage> {
             final pointsValue = isAddition ? tx.poinDidapat : tx.poinDigunakan;
             final pointsStr = isAddition ? '+$pointsValue' : '-$pointsValue';
 
-            final bool isUnpaid = tx.statusPembayaran == PaymentStatus.unpaid;
+            final bool isUnpaid =
+                tx.statusPembayaran == StatusPembayaran.unpaid;
             final Color pointColor = isUnpaid
                 ? Colors.grey
                 : isAddition

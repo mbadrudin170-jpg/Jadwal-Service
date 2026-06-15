@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -102,7 +102,7 @@ void main() {
             tipe: TipeTransaksi.income,
             jumlah: 5000,
             idPelanggan: customerId,
-            statusPembayaran: PaymentStatus.paid,
+            statusPembayaran: StatusPembayaran.paid,
             idDompet: 'wallet1',
             idKategori: 'cat1'),
         TransaksiModel(
@@ -113,7 +113,7 @@ void main() {
             tipe: TipeTransaksi.expense,
             jumlah: 0,
             idPelanggan: customerId,
-            statusPembayaran: PaymentStatus.paid,
+            statusPembayaran: StatusPembayaran.paid,
             idDompet: 'wallet1',
             idKategori: 'cat1'),
         // Transaksi ini harus diabaikan karena tidak ada poin yang didapat atau digunakan
@@ -124,7 +124,7 @@ void main() {
             tipe: TipeTransaksi.income,
             jumlah: 50000,
             idPelanggan: customerId,
-            statusPembayaran: PaymentStatus.paid,
+            statusPembayaran: StatusPembayaran.paid,
             idDompet: 'wallet1',
             idKategori: 'cat1'),
       ];

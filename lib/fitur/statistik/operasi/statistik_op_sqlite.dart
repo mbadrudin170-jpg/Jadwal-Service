@@ -10,7 +10,7 @@ import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
@@ -84,8 +84,8 @@ class StatistikOpSqlite {
     try {
       final db = await SqliteDatabase.instance.database;
       const String namaTabel = '"${NamaTabel.transactions}"';
-      final String statusLunas = PaymentStatus.paid.name;
-      final String statusBelumLunas = PaymentStatus.unpaid.name;
+      final String statusLunas = StatusPembayaran.paid.name;
+      final String statusBelumLunas = StatusPembayaran.unpaid.name;
 
       final List<Map<String, dynamic>> hasil = await db.rawQuery(
         '''

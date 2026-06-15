@@ -1,39 +1,32 @@
-// path: lib/shared/operasi/category_operation.dart
+// path: lib/fitur/kategori/operasi/kategori_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/tipe_kategori.dart';
-import 'package:wifi/fitur/kategori/model/kategori_model.dart';
+import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
-/// Kelas untuk operasi terkait data kategori di database lokal.
 class KategoriOpSqlite {
-  /// Instance dari DatabaseHelper untuk mengakses database.
   final SqliteDatabase sqlitedb;
 
-  /// Instance dari BaseOperation untuk operasi database umum.
   final BaseOpSqlite _baseOpSqlite;
 
   final String _tableName = NamaTabel.category;
 
-  /// Konstruktor untuk CategoryOperation.
   KategoriOpSqlite({
     required this.sqlitedb,
     required final BaseOpSqlite baseOpSqlite,
-  }) : _baseOpSqlite = baseOpSqlite {
-    Log.info('CategoryOperation instance dibuat.');
-  }
+  }) : _baseOpSqlite = baseOpSqlite;
 
-  /// Membuat [KategoriModel] baru di database.
   Future<KategoriModel> tambahKategori(
     final KategoriModel category, {
     final bool fromServer = false,
   }) async {
     Log.info('Memulai createCategory untuk category: ${category.toSqlite()}');
     try {
-      final kategoriBaru = category.copyWith(updatedAt: DateTime.now().toUtc());
+      final kategoriBaru = category.copyWith(diperbaruiPada: DateTime.now().toUtc());
       final data = kategoriBaru.toSqlite();
 
       await _baseOpSqlite.sisipkan(
@@ -49,7 +42,6 @@ class KategoriOpSqlite {
     }
   }
 
-  /// Mengambil semua kategori yang tidak diarsipkan.
   Future<List<KategoriModel>> ambilSemua() async {
     Log.info(
         'Memulai getCategories (mengambil semua kategori yang tidak diarsipkan).');
@@ -71,7 +63,6 @@ class KategoriOpSqlite {
     }
   }
 
-  /// Mengambil [KategoriModel] berdasarkan [id].
   Future<KategoriModel> ambilKategoriBerdasarkanId(final String id) async {
     Log.info('Memulai getCategoryById untuk ID: $id');
     try {
@@ -99,7 +90,6 @@ class KategoriOpSqlite {
     }
   }
 
-  /// Mengambil semua kategori berdasarkan [TipeKategori].
   Future<List<KategoriModel>> ambilKategoriBerdasarkanTipe(
       final TipeKategori type) async {
     Log.info('Memulai getCategoriesByType untuk tipe: ${type.name}');
@@ -128,7 +118,6 @@ class KategoriOpSqlite {
     }
   }
 
-  /// Memperbarui [KategoriModel] yang ada di database.
   Future<void> updateKategori(
     final KategoriModel category, {
     final bool dariServer = false,
@@ -136,7 +125,7 @@ class KategoriOpSqlite {
     Log.info('Memulai updateCategory untuk category ID: ${category.id}');
     try {
       final data =
-          category.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+          category.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite();
       await _baseOpSqlite.update(
         _tableName,
         data,
@@ -154,7 +143,6 @@ class KategoriOpSqlite {
     }
   }
 
-  /// Melakukan soft delete pada satu kategori berdasarkan [id].
   Future<void> softDeleteKategori(
     final String id, {
     final bool dariServer = false,
@@ -177,7 +165,6 @@ class KategoriOpSqlite {
     }
   }
 
-  /// Melakukan soft delete pada semua kategori.
   Future<int> softDeleteAllKategori({
     final bool dariServer = false,
   }) async {
@@ -199,7 +186,6 @@ class KategoriOpSqlite {
     }
   }
 
-  /// Menyisipkan atau memperbarui sekumpulan [KategoriModel] dalam satu batch.
   Future<void> insertOrUpdateBatch(
     final List<KategoriModel> items, {
     final bool fromServer = false,
@@ -215,7 +201,7 @@ class KategoriOpSqlite {
       final data = items
           .map(
             (final item) =>
-                item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
+                item.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
       await _baseOpSqlite.insertOrUpdateBatch(
@@ -232,7 +218,6 @@ class KategoriOpSqlite {
     }
   }
 
-  /// Mengambil beberapa [KategoriModel] berdasarkan daftar [ids].
   Future<List<KategoriModel>> getCategoriesByIds(final List<String> ids) async {
     Log.info('Memulai getCategoriesByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {

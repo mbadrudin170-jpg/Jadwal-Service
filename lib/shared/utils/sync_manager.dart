@@ -50,7 +50,7 @@ class SyncManager {
   }
 
   /// Mereset semua timestamp sinkronisasi (unduh dan unggah).
-  Future<void> resetSyncTime() async {
+  Future<void> resetWaktuSinkronisasi() async {
     Log.warning('MERESET WAKTU SINKRONISASI (UNDUH & UNGGAH)');
     await PreferenceService.resetSyncTime();
     Log.info('Waktu sinkronisasi (unduh dan unggah) berhasil di-reset.');

@@ -664,9 +664,9 @@ class MockSyncManager extends _i1.Mock implements _i10.SyncManager {
       ) as _i6.Future<void>);
 
   @override
-  _i6.Future<void> resetSyncTime() => (super.noSuchMethod(
+  _i6.Future<void> resetWaktuSinkronisasi() => (super.noSuchMethod(
         Invocation.method(
-          #resetSyncTime,
+          #resetWaktuSinkronisasi,
           [],
         ),
         returnValue: _i6.Future<void>.value(),

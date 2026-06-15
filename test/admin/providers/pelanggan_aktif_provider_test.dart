@@ -2,12 +2,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/admin/providers/pelanggan_aktif_provider.dart';
+import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
-import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
@@ -77,40 +77,40 @@ void main() {
   final activeCust1 = DetailPelangganAktifModel(
     pelangganAktif: PelangganAktifModel(
       id: 'ac1',
-      customerId: 'cust1',
-      packageId: 'pkg1',
-      startDate: twoDaysAgo,
-      endDate: today,
-      status: PaymentStatus.unpaid,
+      idPelanggan: 'cust1',
+      idPaket: 'pkg1',
+      tanggalMulai: twoDaysAgo,
+      tangglberakhir: today,
+      status: StatusPembayaran.unpaid,
     ),
-    customerName: customer1.name,
-    packageName: package1.nama,
+    namaPelanggan: customer1.name,
+    namaPaket: package1.nama,
   );
 
   final activeCust2 = DetailPelangganAktifModel(
     pelangganAktif: PelangganAktifModel(
       id: 'ac2',
-      customerId: 'cust2',
-      packageId: 'pkg1',
-      startDate: yesterday,
-      endDate: tomorrow,
-      status: PaymentStatus.paid,
+      idPelanggan: 'cust2',
+      idPaket: 'pkg1',
+      tanggalMulai: yesterday,
+      tangglberakhir: tomorrow,
+      status: StatusPembayaran.paid,
     ),
-    customerName: customer2.name,
-    packageName: package1.nama,
+    namaPelanggan: customer2.name,
+    namaPaket: package1.nama,
   );
 
   final activeCust3 = DetailPelangganAktifModel(
     pelangganAktif: PelangganAktifModel(
       id: 'ac3',
-      customerId: 'cust3',
-      packageId: 'pkg1',
-      startDate: today,
-      endDate: tomorrow.add(const Duration(days: 1)),
-      status: PaymentStatus.paid,
+      idPelanggan: 'cust3',
+      idPaket: 'pkg1',
+      tanggalMulai: today,
+      tangglberakhir: tomorrow.add(const Duration(days: 1)),
+      status: StatusPembayaran.paid,
     ),
-    customerName: customer3.name,
-    packageName: package1.nama,
+    namaPelanggan: customer3.name,
+    namaPaket: package1.nama,
   );
 
   final mockList = [activeCust1, activeCust2, activeCust3];
@@ -207,7 +207,11 @@ void main() {
         final state = container.read(pelangganAktifProvider).value!;
         expect(
             state.activeCustomers.map((e) => e.pelangganAktif.status).toList(),
-            [PaymentStatus.paid, PaymentStatus.paid, PaymentStatus.unpaid]);
+            [
+              StatusPembayaran.paid,
+              StatusPembayaran.paid,
+              StatusPembayaran.unpaid
+            ]);
       });
 
       test('06. Urutkan berdasarkan belumLunas', () {
@@ -217,7 +221,11 @@ void main() {
         final state = container.read(pelangganAktifProvider).value!;
         expect(
             state.activeCustomers.map((e) => e.pelangganAktif.status).toList(),
-            [PaymentStatus.unpaid, PaymentStatus.paid, PaymentStatus.paid]);
+            [
+              StatusPembayaran.unpaid,
+              StatusPembayaran.paid,
+              StatusPembayaran.paid
+            ]);
       });
 
       test('07. Urutkan berdasarkan tanggalBerakhir (terbaru ke terlama)', () {

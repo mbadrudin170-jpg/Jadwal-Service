@@ -33,7 +33,7 @@ final class PelangganAktifProvider
   PelangganAktif create() => PelangganAktif();
 }
 
-String _$pelangganAktifHash() => r'63b0b7dfd0b085ca257af1da8a5771208c1337ed';
+String _$pelangganAktifHash() => r'30023aae7e2a26b6c160721f0625087050893939';
 
 abstract class _$PelangganAktif extends $AsyncNotifier<PelangganAktifState> {
   FutureOr<PelangganAktifState> build();

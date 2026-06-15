@@ -4,11 +4,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/detail/detail_riwayat_aktivasi.dart';
+
 import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
@@ -51,7 +52,7 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
               final item = state.items[index];
               final transaction = item.transaksi;
               final paymentStatusColor =
-                  transaction.statusPembayaran == PaymentStatus.paid
+                  transaction.statusPembayaran == StatusPembayaran.paid
                       ? Colors.green
                       : Colors.red;
               return Card(

@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
@@ -227,7 +227,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final Color activePeriodColor = PerhitunganUtil.ambilWarnaSisaMasaAktif(
         lastSubscription.tangglberakhir!);
     final Color paymentStatusColor =
-        lastSubscription.statusPembayaran == PaymentStatus.paid
+        lastSubscription.statusPembayaran == StatusPembayaran.paid
             ? Colors.green
             : Colors.red;
 

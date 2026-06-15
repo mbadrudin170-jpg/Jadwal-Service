@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/admin/halaman/form/form_riwayat_aktivasi.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/page/form_riwayat_aktivasi.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
@@ -35,7 +35,7 @@ void main() {
     idKategori: 'category1',
     idPelanggan: 'customer1',
     idPaket: 'package1',
-    statusPembayaran: PaymentStatus.paid,
+    statusPembayaran: StatusPembayaran.paid,
   );
 
   setUp(() {

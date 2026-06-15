@@ -8,9 +8,9 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/model/settings_model.dart' as model;
+import 'package:wifi/fitur/settings/model/settings_model.dart' as model;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
+import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 
 import 'settings_operation_test.mocks.dart';
 
@@ -62,7 +62,7 @@ void main() {
       final result = await settingsOperation.getSettings();
 
       // Periksa
-      expect(result.autoSyncInterval, 48);
+      expect(result.waktuOtomatisSinkroniasi, 48);
       expect(result.maintenanceMode, true);
       verify(mockDatabase.query(tableName,
           where: 'id = ?', whereArgs: [globalSettingsId])).called(1);
@@ -89,7 +89,8 @@ void main() {
       final defaultSettings = model.SettingsModel();
 
       // Periksa
-      expect(result.autoSyncInterval, defaultSettings.autoSyncInterval);
+      expect(result.waktuOtomatisSinkroniasi,
+          defaultSettings.waktuOtomatisSinkroniasi);
 
       verify(mockDatabase.query(tableName,
           where: 'id = ?', whereArgs: [globalSettingsId])).called(1);
@@ -111,8 +112,8 @@ void main() {
         () async {
       // Atur
       final settings = model.SettingsModel(
-        autoSyncInterval: 12,
-        updatedAt: DateTime(2023, 10, 26),
+        waktuOtomatisSinkroniasi: 12,
+        diperbaruiPada: DateTime(2023, 10, 26),
       );
 
       // Mengembalikan ID yang benar (string)

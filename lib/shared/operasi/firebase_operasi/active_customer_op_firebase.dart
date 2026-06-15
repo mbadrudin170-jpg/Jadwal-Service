@@ -28,20 +28,20 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
   Future<void> setActiveCustomer(
       final PelangganAktifModel activeCustomer) async {
     Log.info(
-        'Menambah/memperbarui pelanggan aktif: ${activeCustomer.customerId}');
+        'Menambah/memperbarui pelanggan aktif: ${activeCustomer.idPelanggan}');
     try {
       // ID dokumen di koleksi active_customers adalah ID pelanggan itu sendiri.
       await sisipkan(
         NamaTabel
             .activeCustomer, // Diperbaiki: Menggunakan properti statis NamaTabel
-        activeCustomer.customerId,
+        activeCustomer.idPelanggan,
         activeCustomer.toFirebase(),
       );
       Log.info(
-          'Berhasil menambah/memperbarui pelanggan aktif: ${activeCustomer.customerId}');
+          'Berhasil menambah/memperbarui pelanggan aktif: ${activeCustomer.idPelanggan}');
     } on FirebaseException catch (e, s) {
       Log.error(
-          'Gagal menambah/memperbarui pelanggan aktif: ${activeCustomer.customerId}',
+          'Gagal menambah/memperbarui pelanggan aktif: ${activeCustomer.idPelanggan}',
           e: e,
           s: s);
       rethrow;

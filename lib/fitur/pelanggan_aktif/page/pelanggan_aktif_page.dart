@@ -4,12 +4,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/detail/detail_pelanggan_aktif.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
-import 'package:wifi/admin/providers/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart';
+import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -20,7 +20,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 
 enum AdvancedOption {
   softDeleteAll,
-  archiveExpired,
+  arsipkanKadaluarsa,
   cancel,
 }
 
@@ -56,7 +56,7 @@ class PelangganAktifPage extends ConsumerStatefulWidget {
 
 class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     with AutomaticKeepAliveClientMixin<PelangganAktifPage> {
-  bool _isSearching = false;
+  bool _mencari = false;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -106,14 +106,14 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
 
   Future<void> _softDeleteCustomer(
       final DetailPelangganAktifModel customer) async {
-    final customerId = customer.pelangganAktif.id;
-    final customerName = customer.customerName;
-    final transactionId = customer.pelangganAktif.transactionId;
+    final idPelanggan = customer.pelangganAktif.id;
+    final namaPelanggan = customer.namaPelanggan;
+    final idTransaksi = customer.pelangganAktif.idTransaksi;
     final bool? konfirmasi = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Konfirmasi Arsipkan'),
-        content: Text('Yakin ingin mengarsipkan pelanggan "$customerName"?'),
+        content: Text('Yakin ingin mengarsipkan pelanggan "$namaPelanggan"?'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -131,24 +131,24 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
 
     if (konfirmasi ?? false) {
       try {
-        await _pelangganAktifOpSqlite.softDelete(customerId);
-        if (transactionId != null) {
-          await _transaksiOpsqlite.softDelete(transactionId);
+        await _pelangganAktifOpSqlite.softDelete(idPelanggan);
+        if (idTransaksi != null) {
+          await _transaksiOpsqlite.softDelete(idTransaksi);
         }
-        Log.info('Berhasil soft delete pelanggan ID: $customerId');
+        Log.info('Berhasil soft delete pelanggan ID: $idPelanggan');
         if (mounted) {
           ToastUtil.success(
-              context, 'Pelanggan "$customerName" berhasil diarsipkan.');
+              context, 'Pelanggan "$namaPelanggan" berhasil diarsipkan.');
         }
         await ref.read(pelangganAktifProvider.notifier).fetchActiveCustomers();
       } on Exception catch (e, s) {
-        Log.error('Gagal soft delete pelanggan ID: $customerId', e: e, s: s);
+        Log.error('Gagal soft delete pelanggan ID: $idPelanggan', e: e, s: s);
         if (mounted) {
           ToastUtil.error(context, 'Gagal mengarsipkan pelanggan: $e');
         }
       }
     } else {
-      Log.info('Soft delete pelanggan ID: $customerId dibatalkan oleh user');
+      Log.info('Soft delete pelanggan ID: $idPelanggan dibatalkan oleh user');
     }
   }
 
@@ -218,7 +218,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     );
   }
 
-  Future<void> _addActiveCustomer() async {
+  Future<void> _navigasiKeForm() async {
     Log.info('Navigasi ke form tambah pelanggan aktif');
     await Navigator.push<bool>(
         context, MaterialPageRoute(builder: (_) => const FormPelangganAktif()));
@@ -233,7 +233,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
         children: [
           SimpleDialogOption(
               onPressed: () =>
-                  Navigator.pop(ctx, AdvancedOption.archiveExpired),
+                  Navigator.pop(ctx, AdvancedOption.arsipkanKadaluarsa),
               child: const Text('Arsipkan pelanggan kadaluarsa')),
           SimpleDialogOption(
               onPressed: () => Navigator.pop(ctx, AdvancedOption.softDeleteAll),
@@ -286,7 +286,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
           }
         }
         break;
-      case AdvancedOption.archiveExpired:
+      case AdvancedOption.arsipkanKadaluarsa:
         try {
           Log.info('Mulai arsipkan pelanggan kadaluarsa');
           final count =
@@ -313,32 +313,32 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build( BuildContext context) {
     super.build(context);
-    final activeCustomerAsync = ref.watch(pelangganAktifProvider);
+    final pelangganAktifAsync = ref.watch(pelangganAktifProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: _isSearching
+        title: _mencari
             ? TextField(
                 controller: _searchController,
                 autofocus: true,
                 decoration: const InputDecoration(
                     hintText: 'Cari nama...', border: InputBorder.none))
             : const Text('Pelanggan Aktif'),
-        actions: _isSearching
+        actions: _mencari
             ? [
                 IconButton(
                     icon: const Icon(TIcons.close),
                     onPressed: () {
-                      setState(() => _isSearching = false);
+                      setState(() => _mencari = false);
                       _searchController.clear();
                     })
               ]
             : [
                 IconButton(
                     icon: const Icon(TIcons.search),
-                    onPressed: () => setState(() => _isSearching = true)),
+                    onPressed: () => setState(() => _mencari = true)),
                 IconButton(
                     icon: const Icon(TIcons.filter),
                     onPressed: _showSortDialog),
@@ -349,7 +349,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
       ),
       body: RefreshIndicator(
         onRefresh: refreshData,
-        child: activeCustomerAsync.when(
+        child: pelangganAktifAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) {
             Log.error('Error UI Pelanggan Aktif', e: error, s: stack);
@@ -359,7 +359,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
             final customersFromProvider = state.daftarPelangganAktif;
             final query = _searchController.text.toLowerCase();
             final displayedCustomers = customersFromProvider
-                .where((c) => c.customerName.toLowerCase().contains(query))
+                .where((c) => c.namaPelanggan.toLowerCase().contains(query))
                 .toList();
 
             if (displayedCustomers.isEmpty) {
@@ -388,7 +388,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                     },
                     child: ListTile(
                       title: Text(
-                        detail.customerName,
+                        detail.namaPelanggan,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
@@ -397,21 +397,21 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(detail.packageName),
+                          Text(detail.namaPaket),
                           Text('Pembayaran: ${c.status.displayName}',
                               style: TextStyle(
-                                  color: c.status == PaymentStatus.paid
+                                  color: c.status == StatusPembayaran.paid
                                       ? Colors.green
                                       : Colors.red,
                                   fontWeight: FontWeight.bold)),
                           Text(
-                              'Status: ${PerhitunganUtil.ambilTeksSisaMasaAktif(c.endDate)}',
+                              'Status: ${PerhitunganUtil.ambilTeksSisaMasaAktif(c.tanggalBerakhir)}',
                               style: TextStyle(
                                   color:
                                       PerhitunganUtil.ambilWarnaSisaMasaAktif(
-                                          c.endDate))),
+                                          c.tanggalBerakhir))),
                           Text(
-                              'Berakhir: ${FormatTanggal.formatDasar(c.endDate)} ${FormatJam.formatJamMenit(c.endDate)}'),
+                              'Berakhir: ${FormatTanggal.formatDasar(c.tanggalBerakhir)} ${FormatJam.formatJamMenit(c.tanggalBerakhir)}'),
                         ],
                       ),
                       trailing: const Icon(TIcons.chevronRight),
@@ -425,7 +425,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
       ),
       floatingActionButton: FloatingActionButton(
           heroTag: 'fab_active_customer',
-          onPressed: _addActiveCustomer,
+          onPressed: _navigasiKeForm,
           child: const Icon(TIcons.add)),
     );
   }

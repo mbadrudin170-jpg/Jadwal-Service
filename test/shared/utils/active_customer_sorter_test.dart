@@ -1,9 +1,9 @@
 // path: test/shared/utils/active_customer_sorter_test.dart
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
-import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/utils/active_customer_sorter.dart';
 
 void main() {
@@ -11,58 +11,58 @@ void main() {
   final now = DateTime.now();
 
   final customer1 = DetailPelangganAktifModel(
-    customerName: 'Charlie',
-    packageName: 'Bulanan',
+    namaPelanggan: 'Charlie',
+    namaPaket: 'Bulanan',
     pelangganAktif: PelangganAktifModel(
       id: '1',
       idPelanggan: 'c1',
-      packageId: 'p1',
-      startDate: now.subtract(const Duration(days: 20)),
-      endDate: now.add(const Duration(days: 10)), // Aktif, sisa 10 hari
-      status: PaymentStatus.paid,
-      updatedAt: now.subtract(const Duration(hours: 5)),
+      idPaket: 'p1',
+      tanggalMulai: now.subtract(const Duration(days: 20)),
+      tangglberakhir: now.add(const Duration(days: 10)), // Aktif, sisa 10 hari
+      status: StatusPembayaran.paid,
+      diperbaruiPada: now.subtract(const Duration(hours: 5)),
     ),
   );
 
   final customer2 = DetailPelangganAktifModel(
-    customerName: 'Alice',
-    packageName: 'Mingguan',
+    namaPelanggan: 'Alice',
+    namaPaket: 'Mingguan',
     pelangganAktif: PelangganAktifModel(
       id: '2',
       idPelanggan: 'c2',
-      packageId: 'p2',
-      startDate: now.subtract(const Duration(days: 5)),
-      endDate: now.add(const Duration(days: 2)), // Aktif, sisa 2 hari
-      status: PaymentStatus.unpaid, // Belum Lunas
-      updatedAt: now.subtract(const Duration(hours: 1)), // Paling baru
+      idPaket: 'p2',
+      tanggalMulai: now.subtract(const Duration(days: 5)),
+      tangglberakhir: now.add(const Duration(days: 2)), // Aktif, sisa 2 hari
+      status: StatusPembayaran.unpaid, // Belum Lunas
+      diperbaruiPada: now.subtract(const Duration(hours: 1)), // Paling baru
     ),
   );
 
   final customer3 = DetailPelangganAktifModel(
-    customerName: 'Bob',
-    packageName: 'Harian',
+    namaPelanggan: 'Bob',
+    namaPaket: 'Harian',
     pelangganAktif: PelangganAktifModel(
       id: '3',
       idPelanggan: 'c3',
-      packageId: 'p3',
-      startDate: now.subtract(const Duration(days: 2)),
-      endDate: now.subtract(const Duration(days: 1)), // Tidak Aktif
-      status: PaymentStatus.paid,
-      updatedAt: now.subtract(const Duration(hours: 10)),
+      idPaket: 'p3',
+      tanggalMulai: now.subtract(const Duration(days: 2)),
+      tangglberakhir: now.subtract(const Duration(days: 1)), // Tidak Aktif
+      status: StatusPembayaran.paid,
+      diperbaruiPada: now.subtract(const Duration(hours: 10)),
     ),
   );
 
   final customer4 = DetailPelangganAktifModel(
-    customerName: 'Zebra',
-    packageName: 'Harian',
+    namaPelanggan: 'Zebra',
+    namaPaket: 'Harian',
     pelangganAktif: PelangganAktifModel(
       id: '4',
       idPelanggan: 'c4',
-      packageId: 'p4',
-      startDate: now.subtract(const Duration(days: 1)),
-      endDate: now.add(const Duration(days: 20)), // Aktif, sisa 20 hari
-      status: PaymentStatus.unpaid, // Belum Lunas
-      updatedAt: now.subtract(const Duration(hours: 2)),
+      idPaket: 'p4',
+      tanggalMulai: now.subtract(const Duration(days: 1)),
+      tangglberakhir: now.add(const Duration(days: 20)), // Aktif, sisa 20 hari
+      status: StatusPembayaran.unpaid, // Belum Lunas
+      diperbaruiPada: now.subtract(const Duration(hours: 2)),
     ),
   );
 
@@ -76,13 +76,13 @@ void main() {
   group('ActiveCustomerSorter', () {
     test('harus mengurutkan berdasarkan nama A-Z (nameAZ)', () {
       final sorted = ActiveCustomerSorter.sort(customers, SortOption.nameAZ);
-      expect(sorted.map((c) => c.customerName).toList(),
+      expect(sorted.map((c) => c.namaPelanggan).toList(),
           ['Alice', 'Bob', 'Charlie', 'Zebra']);
     });
 
     test('harus mengurutkan berdasarkan nama Z-A (nameZA)', () {
       final sorted = ActiveCustomerSorter.sort(customers, SortOption.nameZA);
-      expect(sorted.map((c) => c.customerName).toList(),
+      expect(sorted.map((c) => c.namaPelanggan).toList(),
           ['Zebra', 'Charlie', 'Bob', 'Alice']);
     });
 
@@ -116,13 +116,13 @@ void main() {
       // Alice(+2d), Zebra(+20d)
       final statuses = sorted.map((c) => c.pelangganAktif.status).toList();
       expect(statuses, [
-        PaymentStatus.paid,
-        PaymentStatus.paid,
-        PaymentStatus.unpaid,
-        PaymentStatus.unpaid
+        StatusPembayaran.paid,
+        StatusPembayaran.paid,
+        StatusPembayaran.unpaid,
+        StatusPembayaran.unpaid
       ]);
       // Cek urutan sekunder (endDate)
-      expect(sorted.map((c) => c.customerName).toList(),
+      expect(sorted.map((c) => c.namaPelanggan).toList(),
           ['Bob', 'Charlie', 'Alice', 'Zebra']);
     });
 
@@ -133,13 +133,13 @@ void main() {
       // Bob(-1d), Charlie(+10d)
       final statuses = sorted.map((c) => c.pelangganAktif.status).toList();
       expect(statuses, [
-        PaymentStatus.unpaid,
-        PaymentStatus.unpaid,
-        PaymentStatus.paid,
-        PaymentStatus.paid
+        StatusPembayaran.unpaid,
+        StatusPembayaran.unpaid,
+        StatusPembayaran.paid,
+        StatusPembayaran.paid
       ]);
       // Cek urutan sekunder (endDate)
-      expect(sorted.map((c) => c.customerName).toList(),
+      expect(sorted.map((c) => c.namaPelanggan).toList(),
           ['Alice', 'Zebra', 'Bob', 'Charlie']);
     });
 
@@ -151,7 +151,7 @@ void main() {
       final ids = sorted.map((c) => c.pelangganAktif.id).toList();
       expect(ids, ['2', '1', '4', '3']);
       // Pastikan Bob (inaktif) ada di paling akhir
-      expect(sorted.last.customerName, 'Bob');
+      expect(sorted.last.namaPelanggan, 'Bob');
     });
 
     test('harus mengurutkan dengan paket Tidak Aktif di atas (inactivePackage)',
@@ -163,7 +163,7 @@ void main() {
       final ids = sorted.map((c) => c.pelangganAktif.id).toList();
       expect(ids, ['3', '2', '1', '4']);
       // Pastikan Bob (inaktif) ada di paling awal
-      expect(sorted.first.customerName, 'Bob');
+      expect(sorted.first.namaPelanggan, 'Bob');
     });
   });
 }

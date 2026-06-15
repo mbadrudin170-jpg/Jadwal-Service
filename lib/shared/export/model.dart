@@ -3,7 +3,7 @@
 // Tujuan: Mengekspor semua model dari satu file untuk impor yang lebih bersih.
 export '../../fitur/feedback/model/feedback_model.dart';
 export '../../fitur/pelanggan/model/customer_model.dart';
-export '../model/pelanggan_aktif_model.dart';
+export '../../fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 export '../../fitur/versi_apk/model/versi_apk_model.dart';
 export '../../fitur/kategori/model/kategori_model.dart';
 export '../model/event_model.dart';
@@ -12,7 +12,7 @@ export '../model/notifikasi_model.dart';
 export '../model/order_model_ok.dart';
 export '../../fitur/paket/model/paket_model.dart';
 export '../model/save_result_model.dart';
-export '../model/settings_model.dart';
+export '../../fitur/settings/model/settings_model.dart';
 export '../model/status_model.dart';
 export '../model/sub_category_model.dart';
 export '../../fitur/transaksi/model/transaksi_model.dart';

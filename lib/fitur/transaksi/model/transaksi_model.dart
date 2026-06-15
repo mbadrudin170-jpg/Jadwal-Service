@@ -26,7 +26,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
     String? idPelanggan,
     String? idPaket,
     String? idSubKategori,
-    @Default(PaymentStatus.unpaid) PaymentStatus statusPembayaran,
+    @Default(StatusPembayaran.unpaid) StatusPembayaran statusPembayaran,
     @Default(0) int poinDidapat,
     @Default(0) int poinDigunakan,
     DateTime? diperbaruiPada,
@@ -53,12 +53,12 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
         return value;
       }
     }
-    Log.warning('Failed to parse enum for type $T', name);
+    Log.warning('Gagal mengurai enum untuk tipe $T', name);
     return null;
   }
 
   factory TransaksiModel.fromSqlite(final Map<String, dynamic> map) {
-    Log.info('Creating TransactionModel from SQLite: ${map[NamaKolom.id]}');
+    Log.info('Membuat TransaksiModel dari SQLite: ${map[NamaKolom.id]}');
     return TransaksiModel(
       id: map[NamaKolom.id] as String? ?? const Uuid().v4(),
       tanggal:
@@ -74,10 +74,10 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       idPaket: map[NamaKolom.idPaket] as String?,
       idSubKategori: map[NamaKolom.idSubKategori] as String?,
       statusPembayaran: _safeParseEnum(
-            PaymentStatus.values,
+            StatusPembayaran.values,
             map[NamaKolom.statusPembayaran],
           ) ??
-          PaymentStatus.unpaid,
+          StatusPembayaran.unpaid,
       poinDidapat: (map[NamaKolom.poinDidapat] as num? ?? 0).toInt(),
       poinDigunakan: (map[NamaKolom.poinDigunakan] as num? ?? 0).toInt(),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
@@ -129,7 +129,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
 
   factory TransaksiModel.fromFirebase(
       final String id, final Map<String, dynamic> data) {
-    Log.info('Creating TransactionModel from Firebase: $id');
+    Log.info('Membuat TransaksiModel dari Firebase: $id');
     return TransaksiModel(
       id: id,
       tanggal:
@@ -145,10 +145,10 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       idPaket: data[NamaKolom.idPaket] as String?,
       idSubKategori: data[NamaKolom.idSubKategori] as String?,
       statusPembayaran: _safeParseEnum(
-            PaymentStatus.values,
+            StatusPembayaran.values,
             data[NamaKolom.statusPembayaran],
           ) ??
-          PaymentStatus.unpaid,
+          StatusPembayaran.unpaid,
       poinDidapat: (data[NamaKolom.poinDidapat] as num? ?? 0).toInt(),
       poinDigunakan: (data[NamaKolom.poinDigunakan] as num? ?? 0).toInt(),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),

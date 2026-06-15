@@ -7,7 +7,7 @@ import 'package:wifi/admin/halaman/form/form_kategori.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/shared/enum/enum.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
+import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 
 class MockKategoriOpSqlite extends Mock implements KategoriOpSqlite {}
 

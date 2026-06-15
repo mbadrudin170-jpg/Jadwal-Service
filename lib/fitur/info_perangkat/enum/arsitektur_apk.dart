@@ -1,4 +1,4 @@
-// path: lib/shared/enum/arsitektur_apk.dart
+// path: lib/fitur/info_perangkat/enum/arsitektur_apk.dart
 
 enum ArsitekturApk {
   bit32,

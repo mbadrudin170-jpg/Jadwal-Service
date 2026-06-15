@@ -10,7 +10,7 @@
 //   - lib/shared/debug/log.dart (Log)
 
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 
@@ -84,8 +84,8 @@ class ActiveCustomerSorter {
       case SortOption.nameAZ:
       case SortOption.nameZA:
         comparator = (final a, final b) {
-          final nameA = a.customerName;
-          final nameB = b.customerName;
+          final nameA = a.namaPelanggan;
+          final nameB = b.namaPelanggan;
           return sortOption == SortOption.nameAZ
               ? nameA.compareTo(nameB)
               : nameB.compareTo(nameA);
@@ -94,8 +94,8 @@ class ActiveCustomerSorter {
       case SortOption.paid:
       case SortOption.unpaid:
         comparator = (final a, final b) {
-          final isPaidA = a.pelangganAktif.status == PaymentStatus.paid;
-          final isPaidB = b.pelangganAktif.status == PaymentStatus.paid;
+          final isPaidA = a.pelangganAktif.status == StatusPembayaran.paid;
+          final isPaidB = b.pelangganAktif.status == StatusPembayaran.paid;
           if (isPaidA == isPaidB) {
             return a.pelangganAktif.endDate.compareTo(b.pelangganAktif.endDate);
           }

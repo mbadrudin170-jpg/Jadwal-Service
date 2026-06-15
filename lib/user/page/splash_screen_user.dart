@@ -112,7 +112,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => MaintenancePage(
-            maintenanceInfo: maintenanceSettings.maintenanceInfo,
+            maintenanceInfo: maintenanceSettings.infoMaintenance,
             onRefresh: _initializeApp,
             onExit: SystemNavigator.pop,
           ),
@@ -179,7 +179,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     try {
       final settingsMap = await _settingsOp.getSettings();
       final settings = SettingsModel.fromFirebase(settingsMap);
-      if (settings.maintenanceMode) {
+      if (settings.modeMaintenance) {
         return settings;
       }
       return null;

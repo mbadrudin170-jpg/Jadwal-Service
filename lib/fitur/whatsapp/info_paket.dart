@@ -6,9 +6,9 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 final pesanInfoPaketProvider = Provider<PesanInfoPaket>((ref) {
@@ -38,25 +38,25 @@ class PesanInfoPaket {
 
     try {
       Log.info(
-          'Mengambil data pelanggan dengan ID: ${activeCustomer.customerId}');
+          'Mengambil data pelanggan dengan ID: ${activeCustomer.idPelanggan}');
       final PelangganModel? customer =
           await _customerOperation.ambilBerdasarkanId(
-        activeCustomer.customerId,
+        activeCustomer.idPelanggan,
       );
-      Log.info('Mengambil data paket dengan ID: ${activeCustomer.packageId}');
+      Log.info('Mengambil data paket dengan ID: ${activeCustomer.idPaket}');
       final PaketModel? package = await _packageOperation.ambilBerdasarkanId(
-        activeCustomer.packageId,
+        activeCustomer.idPaket,
       );
 
       if (customer == null) {
         Log.warning(
-          'Pengiriman pesan dibatalkan. Pelanggan dengan ID ${activeCustomer.customerId} tidak ditemukan.',
+          'Pengiriman pesan dibatalkan. Pelanggan dengan ID ${activeCustomer.idPelanggan} tidak ditemukan.',
         );
         return;
       }
       if (package == null) {
         Log.warning(
-          'Pengiriman pesan dibatalkan. Paket dengan ID ${activeCustomer.packageId} tidak ditemukan.',
+          'Pengiriman pesan dibatalkan. Paket dengan ID ${activeCustomer.idPaket} tidak ditemukan.',
         );
         return;
       }
@@ -80,37 +80,38 @@ class PesanInfoPaket {
   }
 
   String _buildMessage(
-    PelangganModel customer,
-    PaketModel package,
-    PelangganAktifModel activeCustomer,
+    PelangganModel pelanggan,
+    PaketModel paket,
+    PelangganAktifModel pelangganAktif,
     String paymentStatus,
   ) {
-    final customerName = customer.name;
-    final packageName = package.nama;
-    final packagePrice = FormatUang.formatMataUang(package.harga.toDouble());
-    final startDate =
-        FormatWaktuLengkap.formatSingkat(activeCustomer.startDate);
-    final endDate = FormatWaktuLengkap.formatSingkat(activeCustomer.endDate);
+    final namaPelanggan = pelanggan.name;
+    final namaPaket = paket.nama;
+    final hargaPaket = FormatUang.formatMataUang(paket.harga.toDouble());
+    final tanggalMulai =
+        FormatWaktuLengkap.formatSingkat(pelangganAktif.tanggalMulai);
+    final tanggalBerakhir =
+        FormatWaktuLengkap.formatSingkat(pelangganAktif.tanggalBerakhir);
 
-    final message = '''
+    final pesan = '''
 *-- Rincian Aktivasi Paket --*
 
-Halo, *$customerName*.
+Halo, *$namaPelanggan*.
 Terima kasih telah melakukan aktivasi.
 
 Berikut adalah detail paket Anda:
 -----------------------------------
 📦 *Paket:*
-  $packageName
+  $namaPaket
 
 💰 *Harga:*
-  $packagePrice
+  $hargaPaket
 
 ▶️ *Mulai Aktif:*
-  $startDate
+  $tanggalMulai
 
 ⏹️ *Berakhir Pada:*
-  $endDate
+  $tanggalBerakhir
 
 ✅ *Status Pembayaran:*
   $paymentStatus
@@ -119,29 +120,29 @@ Berikut adalah detail paket Anda:
 Semoga harimu menyenangkan!
 ''';
     Log.info('Konten pesan berhasil dibuat.');
-    return message;
+    return pesan;
   }
 
-  Future<void> _sendViaWhatsApp(String phoneNumber, String message) async {
-    Log.info('Memformat nomor telepon: $phoneNumber');
-    String formattedNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
-    if (formattedNumber.startsWith('0')) {
-      formattedNumber = '62${formattedNumber.substring(1)}';
-    } else if (!formattedNumber.startsWith('62')) {
-      formattedNumber = '62$formattedNumber';
+  Future<void> _sendViaWhatsApp(String telepon, String pesan) async {
+    Log.info('Memformat nomor telepon: $telepon');
+    String formatNomor = telepon.replaceAll(RegExp(r'[^0-9]'), '');
+    if (formatNomor.startsWith('0')) {
+      formatNomor = '62${formatNomor.substring(1)}';
+    } else if (!formatNomor.startsWith('62')) {
+      formatNomor = '62$formatNomor';
     }
-    Log.info('Nomor telepon setelah diformat: $formattedNumber');
+    Log.info('Nomor telepon setelah diformat: $formatNomor');
 
-    final whatsappUri = Uri(
+    final urlWatsapp = Uri(
       scheme: 'https',
       host: 'wa.me',
-      path: formattedNumber,
-      queryParameters: {'text': message},
+      path: formatNomor,
+      queryParameters: {'text': pesan},
     );
 
     try {
-      if (await canLaunchUrl(whatsappUri)) {
-        await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
+      if (await canLaunchUrl(urlWatsapp)) {
+        await launchUrl(urlWatsapp, mode: LaunchMode.externalApplication);
         Log.info('Berhasil membuka aplikasi WhatsApp.');
       } else {
         Log.error(

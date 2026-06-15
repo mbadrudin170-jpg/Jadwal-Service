@@ -1,6 +1,5 @@
 // path: lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart
 
-
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -182,7 +181,7 @@ class TransaksiOpsqlite {
         _tabel,
         where:
             '${NamaKolom.idPelanggan} = ? AND ${NamaKolom.statusPembayaran} = ? AND ${NamaKolom.diHapus} = ?',
-        whereArgs: [customerId, PaymentStatus.paid.name, 0],
+        whereArgs: [customerId, StatusPembayaran.paid.name, 0],
         orderBy: '${NamaKolom.tangglberakhir} DESC',
         limit: 1,
       );
@@ -463,7 +462,7 @@ class TransaksiOpsqlite {
       Log.info('Menghitung poin yang dihasilkan Customer: $customerId');
       final result = await db.rawQuery(
           'SELECT SUM(${NamaKolom.poinDidapat}) as total FROM $_tabel WHERE ${NamaKolom.idPelanggan} = ? AND ${NamaKolom.diHapus} = 0 AND ${NamaKolom.statusPembayaran} = ?',
-          [customerId, PaymentStatus.paid.name]);
+          [customerId, StatusPembayaran.paid.name]);
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin dihasilkan: $total');
       return total;
@@ -480,7 +479,7 @@ class TransaksiOpsqlite {
       Log.info('Menghitung poin yang digunakan Customer: $customerId');
       final result = await db.rawQuery(
           'SELECT SUM(${NamaKolom.poinDigunakan}) as total FROM $_tabel WHERE ${NamaKolom.idPelanggan} = ? AND ${NamaKolom.diHapus} = 0 AND ${NamaKolom.statusPembayaran} = ?',
-          [customerId, PaymentStatus.paid.name]);
+          [customerId, StatusPembayaran.paid.name]);
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin digunakan: $total');
       return total;

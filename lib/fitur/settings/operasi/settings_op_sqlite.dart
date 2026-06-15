@@ -1,10 +1,10 @@
-// path: lib/shared/operasi/settings_operation.dart
+// path: lib/fitur/settings/operasi/settings_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 class SettingsOpSqlite {
@@ -15,10 +15,9 @@ class SettingsOpSqlite {
   ///
   /// Memungkinkan injeksi dependensi untuk [sqliteDb] dan [_baseOpSqlite] guna memfasilitasi pengujian.
   SettingsOpSqlite({
-    required final SqliteDatabase sqliteDb,
+    required this.sqliteDb,
     required final BaseOpSqlite baseOpSqlite,
-  })  : sqliteDb = sqliteDb,
-        _baseOpSqlite = baseOpSqlite;
+  }) : _baseOpSqlite = baseOpSqlite;
 
   final String _namaTabel = NamaTabel.settings;
 
@@ -46,7 +45,7 @@ class SettingsOpSqlite {
           'Tidak ditemukan data pengaturan, membuat pengaturan default.',
         );
         final defaultSettings = SettingsModel(
-          updatedAt: DateTime.now().toUtc(),
+          diperbaruiPada: DateTime.now().toUtc(),
         );
         await saveOrUpdateSettings(
           defaultSettings,
@@ -61,7 +60,7 @@ class SettingsOpSqlite {
         s: st,
       );
       Log.warning('Mengembalikan SettingsModel default sebagai fallback.');
-      return SettingsModel();
+      return const SettingsModel();
     }
   }
 
@@ -73,7 +72,7 @@ class SettingsOpSqlite {
     try {
       final settingsToSave = settings.copyWith(
         id: idGlobalSetting,
-        updatedAt: DateTime.now().toUtc(),
+        diperbaruiPada: DateTime.now().toUtc(),
       );
 
       Log.info(
@@ -139,7 +138,7 @@ class SettingsOpSqlite {
       Log.info('Memulai penyimpanan pengaturan dengan batch operation.');
       final dataToSave = settings.copyWith(
         id: idGlobalSetting,
-        updatedAt: DateTime.now().toUtc(),
+        diperbaruiPada: DateTime.now().toUtc(),
       );
       final data = dataToSave.toSqlite();
       await _baseOpSqlite.insertOrUpdateBatch(

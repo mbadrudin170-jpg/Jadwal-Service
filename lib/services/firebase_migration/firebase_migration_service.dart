@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/settings_model.dart';
+import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/shared/model/status_model.dart';
 
 /// Layanan untuk menangani migrasi data di Firebase.

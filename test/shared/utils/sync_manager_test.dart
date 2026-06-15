@@ -73,7 +73,7 @@ void main() {
       expect(lastUpload.isAtSameMomentAs(epochTime), isFalse);
 
       // 3. Panggil metode reset
-      await syncManager.resetSyncTime();
+      await syncManager.resetWaktuSinkronisasi();
 
       // 4. Periksa apakah kedua waktu kembali ke epoch
       lastDownload = await syncManager.ambilTanggalTerakhirDownload();

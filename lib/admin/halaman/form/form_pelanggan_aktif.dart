@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/form/active_customer_form.dart
+// path: lib/admin/halaman/form/form_pelanggan_aktif.dart
 
 import 'dart:async';
 
@@ -6,10 +6,11 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/admin/providers/pelanggan_aktif_provider.dart';
+
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -18,8 +19,8 @@ import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
-import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/date_time_picker_widget.dart';
 import 'package:wifi/shared/widget/input/input_angka.dart';
@@ -50,12 +51,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   bool _isLoading = true;
   bool _gunakanPoin = false;
   late TextEditingController _bonusDurationController;
-  TipeDurasiPaket _bonusDurationType = TipeDurasiPaket.minutes;
+  TipeDurasiPaket _tipeBonusDurasi = TipeDurasiPaket.minutes;
   bool _isBonus = false;
   int _saldoPoinPelanggan = 0;
   DateTime? _pilihTanggal;
   TimeOfDay? _pilihJam;
-  PaymentStatus _statusPembayaran = PaymentStatus.paid;
+  StatusPembayaran _statusPembayaran = StatusPembayaran.paid;
   bool get _modeEdit => widget.pelangganAktif != null;
   int hitungPoinEfektif() {
     if (_paketDipilih == null) {
@@ -100,8 +101,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     final kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
     try {
       final pa = widget.pelangganAktif;
-      final transaksiTerkaitFuture = pa?.transactionId != null
-          ? transaksiOperasi.ambilBerdasarkanId(pa!.transactionId!)
+      final transaksiTerkaitFuture = pa?.idTransaksi != null
+          ? transaksiOperasi.ambilBerdasarkanId(pa!.idTransaksi!)
           : Future<TransaksiModel?>.value();
 
       final results = await Future.wait<Object?>([
@@ -170,8 +171,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
 
     _pelangganDipilih =
-        _pelangganList.firstWhereOrNull((p) => p.id == pa.customerId);
-    _paketDipilih = _paketList.firstWhereOrNull((p) => p.id == pa.packageId);
+        _pelangganList.firstWhereOrNull((p) => p.id == pa.idPelanggan);
+    _paketDipilih = _paketList.firstWhereOrNull((p) => p.id == pa.idPaket);
 
     if (transaksi != null) {
       Log.info(
@@ -187,7 +188,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       if (transaksi.durasiBonus > 0) {
         _isBonus = true;
         _bonusDurationController.text = transaksi.durasiBonus.toString();
-        _bonusDurationType = transaksi.tipeDurasiBonus ?? TipeDurasiPaket.hours;
+        _tipeBonusDurasi = transaksi.tipeDurasiBonus ?? TipeDurasiPaket.hours;
       }
     } else {
       Log.warning(
@@ -198,8 +199,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       }
     }
 
-    _pilihTanggal = pa.startDate;
-    _pilihJam = TimeOfDay.fromDateTime(pa.startDate);
+    _pilihTanggal = pa.tanggalMulai;
+    _pilihJam = TimeOfDay.fromDateTime(pa.tanggalMulai);
     _statusPembayaran = pa.status;
 
     if (_pelangganDipilih != null) {
@@ -287,31 +288,31 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     try {
       final tanggalMulai = DateTime(_pilihTanggal!.year, _pilihTanggal!.month,
           _pilihTanggal!.day, _pilihJam!.hour, _pilihJam!.minute);
-      final int nilaiBonus =
+      final int durasiBonus =
           _isBonus ? (int.tryParse(_bonusDurationController.text) ?? 0) : 0;
       final DateTime tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
         tanggalMulai,
         _paketDipilih!,
-        durasiBonus: nilaiBonus,
-        tipeDurasiBonus: _isBonus ? _bonusDurationType : null,
+        durasiBonus: durasiBonus,
+        tipeDurasiBonus: _isBonus ? _tipeBonusDurasi : null,
       );
 
-      final transaksiId =
-          (_modeEdit && widget.pelangganAktif?.transactionId != null)
-              ? widget.pelangganAktif!.transactionId!
+      final idTransaksi =
+          (_modeEdit && widget.pelangganAktif?.idTransaksi != null)
+              ? widget.pelangganAktif!.idTransaksi!
               : const Uuid().v4();
 
       final pelangganAktifData = PelangganAktifModel(
-          id: _modeEdit ? widget.pelangganAktif!.id : '',
-          customerId: _pelangganDipilih!.id,
-          packageId: _paketDipilih!.id,
-          startDate: tanggalMulai,
-          endDate: tanggalBerakhir,
+          id: _modeEdit ? widget.pelangganAktif!.id : const Uuid().v4(),
+          idPelanggan: _pelangganDipilih!.id,
+          idPaket: _paketDipilih!.id,
+          tanggalMulai: tanggalMulai,
+          tanggalBerakhir: tanggalBerakhir,
           status: _statusPembayaran,
-          transactionId: transaksiId);
+          idTransaksi: idTransaksi);
 
       final transaksiData = TransaksiModel(
-        id: transaksiId,
+        id: idTransaksi,
         tanggal: tanggalMulai,
         deskripsi: 'Aktivasi Paket: ${_paketDipilih!.nama}',
         jumlah: _gunakanPoin ? 0 : _paketDipilih!.harga.toDouble(),
@@ -325,14 +326,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         poinDigunakan: _gunakanPoin ? _paketDipilih!.poinPenukaran : 0,
         durasiPaket: _paketDipilih!.durasi,
         tipeDurasiPaket: _paketDipilih!.tipe,
-        durasiBonus: nilaiBonus,
-        tipeDurasiBonus: _isBonus ? _bonusDurationType : null,
+        durasiBonus: durasiBonus,
+        tipeDurasiBonus: _isBonus ? _tipeBonusDurasi : null,
         tanggalMulai: tanggalMulai,
         tangglberakhir: tanggalBerakhir,
         statusAktivasi: true,
       );
       Log.info(
-          'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$transaksiId');
+          'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$idTransaksi');
 
       PelangganAktifModel pelangganAktifHasil;
       if (_modeEdit) {
@@ -341,7 +342,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         await ref
             .read(transaksiProvider.notifier)
             .updateTransaction(transaksiData);
-        notifikasiOpFirebase.deleteByTransactionId(transaksiId);
+        notifikasiOpFirebase.deleteByTransactionId(idTransaksi);
         Log.info(
             'menghapus data notifikasi dalam mode edit agar data selalu terbaru');
       } else {
@@ -369,7 +370,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           title: 'Info: Setengah Perjalanan Paket',
           description:
               'Anda telah menggunakan 50% dari masa aktif paket ${_paketDipilih!.nama}.',
-          idTujuan: transaksiId,
+          idTujuan: idTransaksi,
           type: TipeNotifikasiEnum.transaksi,
           updatedAt: DateTime.now().toUtc(),
         ),
@@ -382,7 +383,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           title: 'Pengingat: Masa Aktif Segera Habis',
           description:
               'Masa aktif paket ${_paketDipilih!.nama} Anda akan berakhir besok.',
-          idTujuan: transaksiId,
+          idTujuan: idTransaksi,
           type: TipeNotifikasiEnum.transaksi,
           updatedAt: DateTime.now().toUtc(),
         ),
@@ -395,7 +396,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           title: 'Masa Aktif Paket Habis',
           description:
               'Masa aktif untuk paket ${_paketDipilih!.nama} telah berakhir hari ini.',
-          idTujuan: transaksiId,
+          idTujuan: idTransaksi,
           type: TipeNotifikasiEnum.transaksi,
           updatedAt: DateTime.now().toUtc(),
         ),
@@ -408,7 +409,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           title: 'Masa Aktif Telah Berakhir',
           description:
               'Masa aktif untuk paket ${_paketDipilih!.nama} telah berakhir kemarin. Silakan perpanjang.',
-          idTujuan: transaksiId,
+          idTujuan: idTransaksi,
           type: TipeNotifikasiEnum.transaksi,
           updatedAt: DateTime.now().toUtc(),
         ),
@@ -611,30 +612,30 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       Expanded(
           child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor: _statusPembayaran == PaymentStatus.paid
+                  backgroundColor: _statusPembayaran == StatusPembayaran.paid
                       ? Theme.of(context).primaryColor
                       : Colors.grey[200],
-                  foregroundColor: _statusPembayaran == PaymentStatus.paid
+                  foregroundColor: _statusPembayaran == StatusPembayaran.paid
                       ? Colors.white
                       : Colors.black),
               onPressed: () {
                 Log.info('Status pembayaran diubah: paid');
-                setState(() => _statusPembayaran = PaymentStatus.paid);
+                setState(() => _statusPembayaran = StatusPembayaran.paid);
               },
               child: const Text('Lunas'))),
       gapW8,
       Expanded(
           child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor: _statusPembayaran == PaymentStatus.unpaid
+                  backgroundColor: _statusPembayaran == StatusPembayaran.unpaid
                       ? Theme.of(context).primaryColor
                       : Colors.grey[200],
-                  foregroundColor: _statusPembayaran == PaymentStatus.unpaid
+                  foregroundColor: _statusPembayaran == StatusPembayaran.unpaid
                       ? Colors.white
                       : Colors.black),
               onPressed: () {
                 Log.info('Status pembayaran diubah: unpaid');
-                setState(() => _statusPembayaran = PaymentStatus.unpaid);
+                setState(() => _statusPembayaran = StatusPembayaran.unpaid);
               },
               child: const Text('Belum Lunas'))),
     ]);
@@ -675,7 +676,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
               startDate,
               _paketDipilih!,
               durasiBonus: nilaiBonus,
-              tipeDurasiBonus: _isBonus ? _bonusDurationType : null,
+              tipeDurasiBonus: _isBonus ? _tipeBonusDurasi : null,
             );
 
             return FormatWaktuLengkap.formatSingkat(endDate);
@@ -727,7 +728,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             Expanded(
               child: DropdownButtonFormField<TipeDurasiPaket>(
                 key: const Key('dropdown_bonus_duration_type'),
-                initialValue: _bonusDurationType,
+                initialValue: _tipeBonusDurasi,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 ),
@@ -740,8 +741,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                 onChanged: (newValue) {
                   if (newValue != null) {
                     setState(() {
-                      _bonusDurationType = newValue;
-                      Log.info('Tipe durasi bonus diubah: $_bonusDurationType');
+                      _tipeBonusDurasi = newValue;
+                      Log.info('Tipe durasi bonus diubah: $_tipeBonusDurasi');
                     });
                   }
                 },

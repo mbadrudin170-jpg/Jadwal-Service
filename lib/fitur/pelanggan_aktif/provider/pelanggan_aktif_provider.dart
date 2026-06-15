@@ -58,9 +58,9 @@ class PelangganAktif extends _$PelangganAktif {
       switch (sortBy) {
         case SortOption.berakhirHariIni:
           final sisaHariA =
-              a.pelangganAktif.endDate.difference(now).inMilliseconds;
+              a.pelangganAktif.tanggalBerakhir.difference(now).inMilliseconds;
           final sisaHariB =
-              b.pelangganAktif.endDate.difference(now).inMilliseconds;
+              b.pelangganAktif.tanggalBerakhir.difference(now).inMilliseconds;
 
           final lewatA = sisaHariA < 0;
           final lewatB = sisaHariB < 0;
@@ -74,19 +74,20 @@ class PelangganAktif extends _$PelangganAktif {
 
         case SortOption.terbaru:
           return _compareNullableDates(
-              a.pelangganAktif.updatedAt, b.pelangganAktif.updatedAt,
+              a.pelangganAktif.diperbaruiPada, b.pelangganAktif.diperbaruiPada,
               ascending: false); // Terbaru di atas (descending)
 
         case SortOption.terlama:
-          return _compareNullableDates(a.pelangganAktif.updatedAt,
-              b.pelangganAktif.updatedAt); // Terlama di atas (ascending)
+          return _compareNullableDates(a.pelangganAktif.diperbaruiPada,
+              b.pelangganAktif.diperbaruiPada); // Terlama di atas (ascending)
 
         case SortOption.tanggalMulai:
-          return a.pelangganAktif.startDate
-              .compareTo(b.pelangganAktif.startDate);
+          return a.pelangganAktif.tanggalMulai
+              .compareTo(b.pelangganAktif.tanggalMulai);
 
         case SortOption.tanggalBerakhir:
-          return b.pelangganAktif.endDate.compareTo(a.pelangganAktif.endDate);
+          return b.pelangganAktif.tanggalBerakhir
+              .compareTo(a.pelangganAktif.tanggalBerakhir);
 
         case SortOption.lunas:
           return a.pelangganAktif.status.index
@@ -97,14 +98,14 @@ class PelangganAktif extends _$PelangganAktif {
               .compareTo(a.pelangganAktif.status.index);
 
         case SortOption.namaAZ:
-          return a.customerName
+          return a.namaPelanggan
               .toLowerCase()
-              .compareTo(b.customerName.toLowerCase());
+              .compareTo(b.namaPelanggan.toLowerCase());
 
         case SortOption.namaZA:
-          return b.customerName
+          return b.namaPelanggan
               .toLowerCase()
-              .compareTo(a.customerName.toLowerCase());
+              .compareTo(a.namaPelanggan.toLowerCase());
       }
     });
     return sorted;

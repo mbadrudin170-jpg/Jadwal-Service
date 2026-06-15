@@ -3,9 +3,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
 
 // Mock DompetOpSqlite
 class MockDompetOpSqlite extends Mock implements DompetOpSqlite {}
@@ -16,11 +17,11 @@ void main() {
     late ProviderContainer container;
 
     // Data dummy
-    final dompet1 = WalletModel(id: '1', name: 'Dompet Utama', balance: 1000.0);
+    final dompet1 = DompetModel(id: '1', nama: 'Dompet Utama', saldo: 1000.0);
     final dompet2 =
-        WalletModel(id: '2', name: 'Dompet Cadangan', balance: -500.0);
+        DompetModel(id: '2', nama: 'Dompet Cadangan', saldo: -500.0);
     final dompetBaru =
-        WalletModel(id: '3', name: 'Dompet Baru', balance: 200.0);
+        DompetModel(id: '3', nama: 'Dompet Baru', saldo: 200.0);
 
     setUp(() {
       mockDompetOpSqlite = MockDompetOpSqlite();
@@ -38,27 +39,26 @@ void main() {
 
     // Helper untuk mock _loadData
     void mockLoadDataSuccess({
-      List<WalletModel>? wallets,
+      List<DompetModel>? wallets,
       double? totalPositif,
       double? totalNegatif,
       double? totalSaldo,
     }) {
-      when(() => mockDompetOpSqlite.ambilSemua(showArchived: false))
+      when(() => mockDompetOpSqlite.ambilSemua())
           .thenAnswer((_) async => wallets ?? [dompet1, dompet2]);
       when(() => mockDompetOpSqlite.ambilSaldoPositif())
           .thenAnswer((_) async => totalPositif ?? 1000.0);
       when(() => mockDompetOpSqlite.ambilSaldoNegatif())
           .thenAnswer((_) async => totalNegatif ?? -500.0);
-      when(() => mockDompetOpSqlite.ambilTotalsaldo())
+      when(() => mockDompetOpSqlite.ambilTotalSaldo())
           .thenAnswer((_) async => totalSaldo ?? 500.0);
     }
 
     void mockLoadDataFailure(Exception exception) {
-      when(() => mockDompetOpSqlite.ambilSemua(showArchived: false))
-          .thenThrow(exception);
+      when(() => mockDompetOpSqlite.ambilSemua()).thenThrow(exception);
       when(() => mockDompetOpSqlite.ambilSaldoPositif()).thenThrow(exception);
       when(() => mockDompetOpSqlite.ambilSaldoNegatif()).thenThrow(exception);
-      when(() => mockDompetOpSqlite.ambilTotalsaldo()).thenThrow(exception);
+      when(() => mockDompetOpSqlite.ambilTotalSaldo()).thenThrow(exception);
     }
 
     test(
@@ -102,7 +102,7 @@ void main() {
       await container.read(dompetProvider.future); // Tunggu build selesai
 
       when(() => mockDompetOpSqlite.tambahDompet(dompetBaru))
-          .thenAnswer((_) async {});
+          .thenAnswer((_) async => 1);
       // Mock data setelah ditambah
       mockLoadDataSuccess(
         wallets: [dompet1, dompet2, dompetBaru],
@@ -145,12 +145,12 @@ void main() {
         '05. harus memanggil updateDompet pada repositori dan memuat ulang data saat sukses',
         () async {
       // Arrange
-      final dompetUpdate = dompet1.copyWith(balance: 1500.0);
+      final dompetUpdate = dompet1.copyWith(saldo: 1500.0);
       mockLoadDataSuccess();
       await container.read(dompetProvider.future);
 
       when(() => mockDompetOpSqlite.updateDompet(dompetUpdate))
-          .thenAnswer((_) async {});
+          .thenAnswer((_) async => 1);
       // Mock data setelah diupdate
       mockLoadDataSuccess(
         wallets: [dompetUpdate, dompet2],
@@ -173,7 +173,7 @@ void main() {
         () async {
       // Arrange
       final exception = Exception('Gagal update');
-      final dompetUpdate = dompet1.copyWith(balance: 1500.0);
+      final dompetUpdate = dompet1.copyWith(saldo: 1500.0);
       mockLoadDataSuccess();
       await container.read(dompetProvider.future);
 
@@ -197,7 +197,7 @@ void main() {
       mockLoadDataSuccess();
       await container.read(dompetProvider.future);
 
-      when(() => mockDompetOpSqlite.softDelete('1')).thenAnswer((_) async {});
+      when(() => mockDompetOpSqlite.softDelete('1')).thenAnswer((_) async => 1);
       // Mock data setelah dihapus
       mockLoadDataSuccess(
         wallets: [dompet2],
@@ -289,7 +289,7 @@ void main() {
 
       // Data baru setelah refresh
       final dompetRefreshed =
-          WalletModel(id: 'refreshed', name: 'Refreshed', balance: 999);
+          DompetModel(id: 'refreshed', nama: 'Refreshed', saldo: 999);
       mockLoadDataSuccess(
         wallets: [dompetRefreshed],
         totalPositif: 999,

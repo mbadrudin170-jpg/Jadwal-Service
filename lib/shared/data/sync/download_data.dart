@@ -9,7 +9,7 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
+import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 class DownloadDataService {

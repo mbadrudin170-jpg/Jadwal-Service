@@ -76,21 +76,21 @@ class DataDummy {
 
   /// Daftar dummy untuk [PaketModel]
   static List<PaketModel> get packages => [
-        PaketModel(
+        const PaketModel(
           id: paketHematId,
           nama: 'Paket Hemat 10 Mbps',
           harga: 150000,
           durasi: 30,
           tipe: TipeDurasiPaket.days,
         ),
-        PaketModel(
+        const PaketModel(
           id: paketPremiumId,
           nama: 'Paket Premium 50 Mbps',
           harga: 350000,
           durasi: 30,
           tipe: TipeDurasiPaket.days,
         ),
-        PaketModel(
+        const PaketModel(
           id: paketGamerId,
           nama: 'Paket Gamer 100 Mbps',
           harga: 500000,
@@ -101,11 +101,11 @@ class DataDummy {
 
   /// Daftar dummy untuk [KategoriModel]
   static List<KategoriModel> get categories => [
-        KategoriModel(
+        const KategoriModel(
             id: kategoriPembayaranId,
             nama: 'Pembayaran',
             tipe: TipeKategori.income),
-        KategoriModel(
+        const KategoriModel(
             id: kategoriLainnyaId, nama: 'Lainnya', tipe: TipeKategori.expense),
       ];
 
@@ -125,8 +125,8 @@ class DataDummy {
 
   /// Daftar dummy untuk [DompetModel]
   static List<DompetModel> get wallets => [
-        DompetModel(id: walletBudiId, nama: 'Dompet Budi', saldo: 500000),
-        DompetModel(id: walletSitiId, nama: 'Dompet Siti', saldo: 1000000),
+        const DompetModel(id: walletBudiId, nama: 'Dompet Budi', saldo: 500000),
+        const DompetModel(id: walletSitiId, nama: 'Dompet Siti', saldo: 1000000),
       ];
 
   /// Daftar dummy untuk [TransaksiModel]
@@ -157,19 +157,19 @@ class DataDummy {
   static List<PelangganAktifModel> get activeCustomers => [
         PelangganAktifModel(
           id: activeCustomerBudiId,
-          customerId: customerBudiId,
-          packageId: paketHematId,
-          startDate: DateTime.now().subtract(const Duration(days: 10)),
-          endDate: DateTime.now().add(const Duration(days: 20)),
-          status: PaymentStatus.paid,
+          idPelanggan: customerBudiId,
+          idPaket: paketHematId,
+          tanggalMulai: DateTime.now().subtract(const Duration(days: 10)),
+          tanggalBerakhir: DateTime.now().add(const Duration(days: 20)),
+          status: StatusPembayaran.paid,
         ),
         PelangganAktifModel(
           id: activeCustomerSitiId,
-          customerId: customerSitiId,
-          packageId: paketPremiumId,
-          startDate: DateTime.now().subtract(const Duration(days: 5)),
-          endDate: DateTime.now().add(const Duration(days: 25)),
-          status: PaymentStatus.paid,
+          idPelanggan: customerSitiId,
+          idPaket: paketPremiumId,
+          tanggalMulai: DateTime.now().subtract(const Duration(days: 5)),
+          tanggalBerakhir: DateTime.now().add(const Duration(days: 25)),
+          status: StatusPembayaran.paid,
         ),
       ];
 
@@ -191,28 +191,28 @@ class DataDummy {
 
   /// Daftar dummy untuk [VersiApkModel]
   static List<VersiApkModel> get apkVersions => [
-        VersiApkModel(
+        const VersiApkModel(
           id: apkAdminV1Id,
           versiTerkahir: '1.0.0',
           catatanRilis: 'Versi pertama aplikasi admin.',
-          nomorBuildTerakhir: const {ArsitekturApk.arm64: 1},
-          linkDownload: const {
+          nomorBuildTerakhir: {ArsitekturApk.arm64: 1},
+          linkDownload: {
             ArsitekturApk.arm64: '/path/to/admin-v1.0.0.apk'
           },
           wajibUpdate: true,
         ),
-        VersiApkModel(
+        const VersiApkModel(
           id: apkUserV1Id,
           versiTerkahir: '1.0.1',
           catatanRilis: 'Perbaikan bug dan peningkatan performa.',
-          nomorBuildTerakhir: const {ArsitekturApk.arm64: 2},
-          linkDownload: const {ArsitekturApk.arm64: '/path/to/user-v1.0.1.apk'},
+          nomorBuildTerakhir: {ArsitekturApk.arm64: 2},
+          linkDownload: {ArsitekturApk.arm64: '/path/to/user-v1.0.1.apk'},
         ),
       ];
 
   /// Data dummy untuk [SettingsModel]
-  static SettingsModel get settings => SettingsModel(
-        autoSyncInterval: 12,
-        autoDeleteArchiveDays: 90,
+  static SettingsModel get settings => const SettingsModel(
+        waktuOtomatisSinkroniasi: 12,
+        waktuOtomatisHapusDataArsip: 90,
       );
 }

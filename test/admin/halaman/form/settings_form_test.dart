@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/admin/halaman/form/settings_form.dart';
+import 'package:wifi/fitur/settings/page/form_settings.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/model/settings_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
+import 'package:wifi/fitur/settings/model/settings_model.dart';
+import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 
 class MockSettingsOperation extends Mock implements SettingsOpSqlite {}
 
@@ -18,10 +18,10 @@ void main() {
     mockSettingsOperation = MockSettingsOperation();
     testSettings = SettingsModel(
       id: 1,
-      autoSyncInterval: 24,
-      autoDeleteArchiveDays: 30,
-      maintenanceMode: false,
-      maintenanceInfo: '',
+      waktuOtomatisSinkroniasi: 24,
+      waktuOtomatisHapusDataArsip: 30,
+      modeMaintenance: false,
+      infoMaintenance: '',
     );
   });
 
@@ -31,7 +31,7 @@ void main() {
         settingsOperationProvider.overrideWithValue(mockSettingsOperation),
       ],
       child: MaterialApp(
-        home: SettingsForm(settings: testSettings),
+        home: FormSettings(settings: testSettings),
       ),
     );
   }

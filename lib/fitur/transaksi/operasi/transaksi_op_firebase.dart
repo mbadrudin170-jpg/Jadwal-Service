@@ -5,7 +5,7 @@ import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
 /// Kelas untuk mengelola operasi terkait data transaksi di Firestore.
@@ -45,7 +45,8 @@ class TransaksiOpFirebase extends BaseOpFirebase {
           'Mencari transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan');
       final querySnapshot = await _koleksi
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
-          .where(NamaKolom.statusPembayaran, isEqualTo: PaymentStatus.paid.name)
+          .where(NamaKolom.statusPembayaran,
+              isEqualTo: StatusPembayaran.paid.name)
           .where(NamaKolom.diHapus, isEqualTo: false)
           .orderBy(NamaKolom.tangglberakhir, descending: true)
           .limit(1)
@@ -101,7 +102,8 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       final querySnapshot = await _koleksi
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           .where(NamaKolom.diHapus, isEqualTo: false)
-          .where(NamaKolom.statusPembayaran, isEqualTo: PaymentStatus.paid.name)
+          .where(NamaKolom.statusPembayaran,
+              isEqualTo: StatusPembayaran.paid.name)
           .get();
 
       int totalPoin = 0;

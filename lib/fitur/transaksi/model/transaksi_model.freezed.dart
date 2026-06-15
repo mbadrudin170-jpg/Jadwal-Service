@@ -25,7 +25,7 @@ mixin _$TransaksiModel {
   String? get idPelanggan;
   String? get idPaket;
   String? get idSubKategori;
-  PaymentStatus get statusPembayaran;
+  StatusPembayaran get statusPembayaran;
   int get poinDidapat;
   int get poinDigunakan;
   DateTime? get diperbaruiPada;
@@ -149,7 +149,7 @@ abstract mixin class $TransaksiModelCopyWith<$Res> {
       String? idPelanggan,
       String? idPaket,
       String? idSubKategori,
-      PaymentStatus statusPembayaran,
+      StatusPembayaran statusPembayaran,
       int poinDidapat,
       int poinDigunakan,
       DateTime? diperbaruiPada,
@@ -250,7 +250,7 @@ class _$TransaksiModelCopyWithImpl<$Res>
       statusPembayaran: null == statusPembayaran
           ? _self.statusPembayaran
           : statusPembayaran // ignore: cast_nullable_to_non_nullable
-              as PaymentStatus,
+              as StatusPembayaran,
       poinDidapat: null == poinDidapat
           ? _self.poinDidapat
           : poinDidapat // ignore: cast_nullable_to_non_nullable
@@ -408,7 +408,7 @@ extension TransaksiModelPatterns on TransaksiModel {
             String? idPelanggan,
             String? idPaket,
             String? idSubKategori,
-            PaymentStatus statusPembayaran,
+            StatusPembayaran statusPembayaran,
             int poinDidapat,
             int poinDigunakan,
             DateTime? diperbaruiPada,
@@ -484,7 +484,7 @@ extension TransaksiModelPatterns on TransaksiModel {
             String? idPelanggan,
             String? idPaket,
             String? idSubKategori,
-            PaymentStatus statusPembayaran,
+            StatusPembayaran statusPembayaran,
             int poinDidapat,
             int poinDigunakan,
             DateTime? diperbaruiPada,
@@ -558,7 +558,7 @@ extension TransaksiModelPatterns on TransaksiModel {
             String? idPelanggan,
             String? idPaket,
             String? idSubKategori,
-            PaymentStatus statusPembayaran,
+            StatusPembayaran statusPembayaran,
             int poinDidapat,
             int poinDigunakan,
             DateTime? diperbaruiPada,
@@ -622,7 +622,7 @@ class _TransaksiModel extends TransaksiModel {
       this.idPelanggan,
       this.idPaket,
       this.idSubKategori,
-      this.statusPembayaran = PaymentStatus.unpaid,
+      this.statusPembayaran = StatusPembayaran.unpaid,
       this.poinDidapat = 0,
       this.poinDigunakan = 0,
       this.diperbaruiPada,
@@ -662,7 +662,7 @@ class _TransaksiModel extends TransaksiModel {
   final String? idSubKategori;
   @override
   @JsonKey()
-  final PaymentStatus statusPembayaran;
+  final StatusPembayaran statusPembayaran;
   @override
   @JsonKey()
   final int poinDidapat;
@@ -805,7 +805,7 @@ abstract mixin class _$TransaksiModelCopyWith<$Res>
       String? idPelanggan,
       String? idPaket,
       String? idSubKategori,
-      PaymentStatus statusPembayaran,
+      StatusPembayaran statusPembayaran,
       int poinDidapat,
       int poinDigunakan,
       DateTime? diperbaruiPada,
@@ -906,7 +906,7 @@ class __$TransaksiModelCopyWithImpl<$Res>
       statusPembayaran: null == statusPembayaran
           ? _self.statusPembayaran
           : statusPembayaran // ignore: cast_nullable_to_non_nullable
-              as PaymentStatus,
+              as StatusPembayaran,
       poinDidapat: null == poinDidapat
           ? _self.poinDidapat
           : poinDidapat // ignore: cast_nullable_to_non_nullable

@@ -5,10 +5,10 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
 // 1. Buat mock class menggunakan mocktail
@@ -67,7 +67,7 @@ void main() {
     idPelanggan: 'c1',
     tanggal: yesterday,
     tangglberakhir: today,
-    statusPembayaran: PaymentStatus.paid,
+    statusPembayaran: StatusPembayaran.paid,
     deskripsi: '',
     jumlah: 0,
     tipe: TipeTransaksi.income,
@@ -89,7 +89,7 @@ void main() {
     idPelanggan: 'c3',
     tanggal: yesterday.subtract(const Duration(days: 1)),
     tangglberakhir: yesterday,
-    statusPembayaran: PaymentStatus.paid,
+    statusPembayaran: StatusPembayaran.paid,
     deskripsi: '',
     jumlah: 0,
     tipe: TipeTransaksi.income,
@@ -243,8 +243,8 @@ void main() {
       // Verifikasi: yang lunas (t1, t3) di atas, diurutkan berdasarkan tanggal terbaru
       final ids = state.items.map((item) => item.transaksi.id).toList();
       expect(ids, ['1', '3', '2', '4']);
-      expect(state.items[0].transaksi.statusPembayaran, PaymentStatus.paid);
-      expect(state.items[1].transaksi.statusPembayaran, PaymentStatus.paid);
+      expect(state.items[0].transaksi.statusPembayaran, StatusPembayaran.paid);
+      expect(state.items[1].transaksi.statusPembayaran, StatusPembayaran.paid);
       expect(state.sortBy, SortOption.paid);
     });
 
@@ -261,10 +261,12 @@ void main() {
       // Verifikasi: yang belum lunas (t2, t4) di atas, diurutkan berdasarkan tanggal terbaru
       final ids = state.items.map((item) => item.transaksi.id).toList();
       expect(ids, ['2', '4', '1', '3']);
-      expect(state.items[0].transaksi.statusPembayaran, PaymentStatus.unpaid);
-      expect(state.items[1].transaksi.statusPembayaran, PaymentStatus.unpaid);
-      expect(state.items[2].transaksi.statusPembayaran, PaymentStatus.paid);
-      expect(state.items[3].transaksi.statusPembayaran, PaymentStatus.paid);
+      expect(
+          state.items[0].transaksi.statusPembayaran, StatusPembayaran.unpaid);
+      expect(
+          state.items[1].transaksi.statusPembayaran, StatusPembayaran.unpaid);
+      expect(state.items[2].transaksi.statusPembayaran, StatusPembayaran.paid);
+      expect(state.items[3].transaksi.statusPembayaran, StatusPembayaran.paid);
 
       expect(state.sortBy, SortOption.unpaid);
     });

@@ -1,33 +1,28 @@
-// path: lib/admin/halaman/form/settings_form.dart
+// path: lib/fitur/settings/page/form_settings.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/settings/model/settings_model.dart';
+import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/settings_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-/// Form untuk mengubah pengaturan aplikasi.
-///
-/// Form ini memungkinkan administrator untuk mengubah berbagai parameter
-/// aplikasi seperti interval sinkronisasi, kebijakan penghapusan arsip,
-/// dan mode pemeliharaan.
-class SettingsForm extends ConsumerStatefulWidget {
+class FormSettings extends ConsumerStatefulWidget {
   final SettingsModel settings;
 
-  const SettingsForm({super.key, required this.settings});
+  const FormSettings({super.key, required this.settings});
 
   @override
-  ConsumerState<SettingsForm> createState() => _SettingsFormState();
+  ConsumerState<FormSettings> createState() => _FormSettingsState();
 }
 
-class _SettingsFormState extends ConsumerState<SettingsForm> {
+class _FormSettingsState extends ConsumerState<FormSettings> {
   final _formKey = GlobalKey<FormState>();
-  late final SettingsOpSqlite _settingsOperation;
+  late final SettingsOpSqlite _settingsOpSqlite;
   late TextEditingController _intervalController;
   late TextEditingController _hapusArsipController;
   late TextEditingController _infoPemeliharaanController;
@@ -36,22 +31,22 @@ class _SettingsFormState extends ConsumerState<SettingsForm> {
   @override
   void initState() {
     super.initState();
-    _settingsOperation = ref.read(settingsOpSqliteProvider);
+    _settingsOpSqlite = ref.read(settingsOpSqliteProvider);
     Log.info('Menginisialisasi SettingsForm.', {
-      'interval': widget.settings.autoSyncInterval,
-      'hapus_arsip': widget.settings.autoDeleteArchiveDays,
-      'mode_pemeliharaan': widget.settings.maintenanceMode,
-      'diperbarui': widget.settings.updatedAt,
+      'interval': widget.settings.waktuOtomatisSinkroniasi,
+      'hapus_arsip': widget.settings.waktuOtomatisHapusDataArsip,
+      'mode_pemeliharaan': widget.settings.modeMaintenance,
+      'diperbarui': widget.settings.diperbaruiPada,
     });
     _intervalController = TextEditingController(
-      text: '${widget.settings.autoSyncInterval}',
+      text: '${widget.settings.waktuOtomatisSinkroniasi}',
     );
     _hapusArsipController = TextEditingController(
-      text: '${widget.settings.autoDeleteArchiveDays}',
+      text: '${widget.settings.waktuOtomatisHapusDataArsip}',
     );
     _infoPemeliharaanController =
-        TextEditingController(text: widget.settings.maintenanceInfo);
-    _modePemeliharaan = widget.settings.maintenanceMode;
+        TextEditingController(text: widget.settings.infoMaintenance);
+    _modePemeliharaan = widget.settings.modeMaintenance;
   }
 
   @override
@@ -69,13 +64,15 @@ class _SettingsFormState extends ConsumerState<SettingsForm> {
       try {
         final newSettings = SettingsModel(
           id: widget.settings.id,
-          autoSyncInterval: int.tryParse(_intervalController.text) ?? 24,
-          autoDeleteArchiveDays: int.tryParse(_hapusArsipController.text) ?? 30,
-          maintenanceMode: _modePemeliharaan,
-          maintenanceInfo: _infoPemeliharaanController.text,
+          waktuOtomatisSinkroniasi:
+              int.tryParse(_intervalController.text) ?? 24,
+          waktuOtomatisHapusDataArsip:
+              int.tryParse(_hapusArsipController.text) ?? 30,
+          modeMaintenance: _modePemeliharaan,
+          infoMaintenance: _infoPemeliharaanController.text,
         );
 
-        await _settingsOperation.saveOrUpdateSettings(newSettings);
+        await _settingsOpSqlite.saveOrUpdateSettings(newSettings);
         Log.info('Pengaturan berhasil diperbarui di database.');
         final internetConnectionService =
             ref.read(koneksiInternetServiceProvider);
@@ -95,7 +92,7 @@ class _SettingsFormState extends ConsumerState<SettingsForm> {
         }
 
         if (mounted) {
-          Navigator.pop(context, true); // Kembali dengan hasil true
+          Navigator.pop(context, true);
         }
       } on Exception catch (e, st) {
         Log.error('Gagal menyimpan pengaturan.', e: e, s: st);

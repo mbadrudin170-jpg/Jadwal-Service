@@ -1,4 +1,3 @@
-
 // path: test/user/page/settings_page_user_test.dart
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +8,7 @@ import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page_u.dart';
 import 'package:wifi/shared/theme/app_themes.dart';
 import 'package:wifi/user/page/info_apk_page_user.dart';
-import 'package:wifi/user/page/settings_page_user.dart';
+import 'package:wifi/fitur/settings/page/settings_page_u.dart';
 
 // Mock NavigatorObserver untuk melacak navigasi
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
@@ -26,7 +25,7 @@ void main() {
         themeProvider.overrideWith((ref) => ref.watch(themeNotifierProvider)),
       ],
       child: MaterialApp(
-        home: const SettingsPageUser(),
+        home: const SettingsPageU(),
         navigatorObservers: [mockObserver],
       ),
     );

@@ -4,9 +4,9 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/active_customer_op_firebase.dart';
 
 void main() {
@@ -24,10 +24,10 @@ void main() {
   final activeCustomer = PelangganAktifModel(
     id: 'cust1',
     idPelanggan: 'cust1',
-    packageId: 'pkg1',
-    startDate: DateTime(2023),
-    endDate: DateTime(2023, 2),
-    status: PaymentStatus.paid,
+    idPaket: 'pkg1',
+    tanggalMulai: DateTime(2023),
+    tangglberakhir: DateTime(2023, 2),
+    status: StatusPembayaran.paid,
   );
 
   test('1. Uji coba setActiveCustomer harus berhasil menambahkan data',
@@ -57,7 +57,7 @@ void main() {
     // Assert
     expect(result, isA<PelangganAktifModel>());
     expect(result?.idPelanggan, 'cust1');
-    expect(result?.packageId, 'pkg1');
+    expect(result?.idPaket, 'pkg1');
   });
 
   test('3. Uji coba deleteActiveCustomer harus berhasil menghapus data',

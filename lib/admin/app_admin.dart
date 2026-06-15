@@ -101,7 +101,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
         final dataPengaturan =
             await ref.read(settingsOpSqliteProvider).getSettings();
-        final retentionDays = dataPengaturan.autoDeleteArchiveDays;
+        final retentionDays = dataPengaturan.waktuOtomatisHapusDataArsip;
         final dataCleaningOperation = ref.read(dataCleaningOperationProvider);
         await dataCleaningOperation
             .hapusPermanentDataYangDiarsip(retentionDays: retentionDays)

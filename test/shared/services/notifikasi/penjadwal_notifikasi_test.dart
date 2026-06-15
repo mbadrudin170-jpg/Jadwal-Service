@@ -31,7 +31,7 @@ void main() {
       final mockTransaction = TransaksiModel(
         id: 'trans1',
         idPelanggan: userId, // Menggunakan customerId
-        statusPembayaran: PaymentStatus.paid,
+        statusPembayaran: StatusPembayaran.paid,
         tanggalMulai: DateTime.now().subtract(const Duration(days: 15)),
         tangglberakhir: DateTime.now().add(const Duration(days: 15)),
         tanggal: DateTime.now(),

@@ -1,12 +1,12 @@
-// path: lib/admin/halaman/lainnya/settings_page_a.dart
+// path: lib/fitur/settings/page/settings_page_a.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/form/settings_form.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/settings/model/settings_model.dart';
+import 'package:wifi/fitur/settings/page/form_settings.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
@@ -16,34 +16,32 @@ final settingsProvider = FutureProvider<SettingsModel>((ref) async {
   return await settingsOp.getSettings();
 });
 
-/// Halaman untuk menampilkan dan mengelola konfigurasi pengaturan aplikasi.
 class SettingsAdminPage extends ConsumerWidget {
   const SettingsAdminPage({super.key});
 
-  // Fungsi untuk menavigasi ke halaman form edit dan memuat ulang data jika ada perubahan.
   Future<void> _editSettings(
     BuildContext context,
     WidgetRef ref,
-    SettingsModel currentSettings,
+    SettingsModel settings,
   ) async {
     Log.info('Navigasi ke halaman Form Edit Pengaturan');
-    final result = await Navigator.push<bool>(
+    final hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (context) => SettingsForm(settings: currentSettings),
+        builder: (context) => FormSettings(settings: settings),
       ),
     );
 
-    if ((result ?? false) && context.mounted) {
+    if ((hasil ?? false) && context.mounted) {
       Log.info('Pengaturan diperbarui, memuat ulang data...');
       ref.invalidate(settingsOpSqliteProvider);
     }
   }
 
-  // Fungsi untuk mereset waktu sinkronisasi
-  Future<void> _resetSyncTime(BuildContext context, WidgetRef ref) async {
+  Future<void> _resetWaktuSinkroniasi(
+      BuildContext context, WidgetRef ref) async {
     Log.info('Tombol Reset Waktu Sinkronisasi ditekan.');
-    final confirm = await showDialog<bool>(
+    final konfirmasi = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Konfirmasi Reset'),
@@ -63,9 +61,9 @@ class SettingsAdminPage extends ConsumerWidget {
       ),
     );
 
-    if ((confirm ?? false) && context.mounted) {
+    if ((konfirmasi ?? false) && context.mounted) {
       try {
-        await ref.read(syncManagerProvider).resetSyncTime();
+        await ref.read(syncManagerProvider).resetWaktuSinkronisasi();
         if (context.mounted) {
           ToastUtil.success(context, 'Waktu sinkronisasi berhasil di-reset.');
         }
@@ -82,7 +80,7 @@ class SettingsAdminPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Log.info('Membangun UI halaman Pengaturan Aplikasi');
     final settingsAsyncValue = ref.watch(settingsProvider);
-    final currentThemeMode = ref.watch(temaProvider);
+    final tema = ref.watch(temaProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pengaturan Aplikasi'),
@@ -99,14 +97,14 @@ class SettingsAdminPage extends ConsumerWidget {
                     children: [
                       _buildInfoCard(
                         judul: 'Sinkronisasi Otomatis',
-                        nilai: '${settings.autoSyncInterval} Jam',
+                        nilai: '${settings.waktuOtomatisSinkroniasi} Jam',
                         ikon: Icons.sync,
                         context: context,
                       ),
                       gapH12,
                       _buildInfoCard(
                         judul: 'Hapus Arsip Otomatis',
-                        nilai: '${settings.autoDeleteArchiveDays} Hari',
+                        nilai: '${settings.waktuOtomatisHapusDataArsip} Hari',
                         ikon: Icons.auto_delete_outlined,
                         context: context,
                       ),
@@ -122,8 +120,7 @@ class SettingsAdminPage extends ConsumerWidget {
                           title: const Text('Mode Tema Aplikasi',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                           trailing: ThemeMenuWidget(
-                            currentThemeMode:
-                                currentThemeMode.value ?? ThemeMode.system,
+                            currentThemeMode: tema.value ?? ThemeMode.system,
                             onThemeSelected: (theme) async {
                               await ref
                                   .read(temaProvider.notifier)
@@ -146,22 +143,22 @@ class SettingsAdminPage extends ConsumerWidget {
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               subtitle: Text(
-                                settings.maintenanceMode
+                                settings.modeMaintenance
                                     ? 'Aplikasi dalam mode pemeliharaan'
                                     : 'Aplikasi berjalan normal',
                               ),
-                              value: settings.maintenanceMode,
-                              onChanged: null, // Read-only
+                              value: settings.modeMaintenance,
+                              onChanged: null,
                               secondary: Icon(
-                                settings.maintenanceMode
+                                settings.modeMaintenance
                                     ? Icons.construction
                                     : Icons.check_circle_outline,
-                                color: settings.maintenanceMode
+                                color: settings.modeMaintenance
                                     ? Colors.orange
                                     : Colors.green,
                               ),
                             ),
-                            if (settings.maintenanceMode)
+                            if (settings.modeMaintenance)
                               ListTile(
                                 leading: const Icon(Icons.info_outline),
                                 title: const Text(
@@ -169,8 +166,8 @@ class SettingsAdminPage extends ConsumerWidget {
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                                 subtitle: Text(
-                                  settings.maintenanceInfo.isNotEmpty
-                                      ? settings.maintenanceInfo
+                                  settings.infoMaintenance.isNotEmpty
+                                      ? settings.infoMaintenance
                                       : '(Tidak ada pesan diatur)',
                                 ),
                                 isThreeLine: true,
@@ -182,7 +179,7 @@ class SettingsAdminPage extends ConsumerWidget {
                       ElevatedButton.icon(
                         icon: const Icon(Icons.sync_problem),
                         label: const Text('Reset Waktu Sinkronisasi'),
-                        onPressed: () => _resetSyncTime(context, ref),
+                        onPressed: () => _resetWaktuSinkroniasi(context, ref),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange,
                           foregroundColor: Colors.white,
@@ -206,13 +203,13 @@ class SettingsAdminPage extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) {
+        error: (e, s) {
           Log.error(
             'Gagal memuat pengaturan',
-            e: error,
-            s: stackTrace,
+            e: e,
+            s: s,
           );
-          return Center(child: Text('Error: $error'));
+          return Center(child: Text('Error: $e'));
         },
       ),
     );

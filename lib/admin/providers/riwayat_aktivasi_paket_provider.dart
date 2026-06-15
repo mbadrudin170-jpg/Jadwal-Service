@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 
 part 'riwayat_aktivasi_paket_provider.g.dart';
@@ -172,8 +172,8 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
         });
       case SortOption.paid:
         list.sort((a, b) {
-          final isPaidA = a.transaksi.statusPembayaran == PaymentStatus.paid;
-          final isPaidB = b.transaksi.statusPembayaran == PaymentStatus.paid;
+          final isPaidA = a.transaksi.statusPembayaran == StatusPembayaran.paid;
+          final isPaidB = b.transaksi.statusPembayaran == StatusPembayaran.paid;
           if (isPaidA && !isPaidB) return -1;
           if (!isPaidA && isPaidB) return 1;
           return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal)
@@ -182,9 +182,9 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
       case SortOption.unpaid:
         list.sort((a, b) {
           final isUnpaidA =
-              a.transaksi.statusPembayaran == PaymentStatus.unpaid;
+              a.transaksi.statusPembayaran == StatusPembayaran.unpaid;
           final isUnpaidB =
-              b.transaksi.statusPembayaran == PaymentStatus.unpaid;
+              b.transaksi.statusPembayaran == StatusPembayaran.unpaid;
           if (isUnpaidA && !isUnpaidB) return -1;
           if (!isUnpaidA && isUnpaidB) return 1;
           return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal)

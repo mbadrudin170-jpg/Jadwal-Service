@@ -4,7 +4,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -30,7 +30,7 @@ void main() {
     tipe: TipeTransaksi.expense, // DIUBAH
     idDompet: 'wallet-01',
     idKategori: 'cat-internet',
-    statusPembayaran: PaymentStatus.paid,
+    statusPembayaran: StatusPembayaran.paid,
     tangglberakhir: DateTime.now().add(const Duration(days: 30)),
     poinDidapat: 10,
   );
@@ -59,7 +59,7 @@ void main() {
     tipe: TipeTransaksi.expense, // DIUBAH
     idDompet: 'wallet-02',
     idKategori: 'cat-internet',
-    statusPembayaran: PaymentStatus.paid,
+    statusPembayaran: StatusPembayaran.paid,
     tangglberakhir:
         DateTime.now().subtract(const Duration(days: 1)), // sudah kedaluwarsa
     poinDidapat: 5,
@@ -135,7 +135,7 @@ void main() {
         final trx1 = TransaksiModel(
             id: 'trx-p1',
             idPelanggan: customerId,
-            statusPembayaran: PaymentStatus.paid,
+            statusPembayaran: StatusPembayaran.paid,
             poinDidapat: 100,
             poinDigunakan: 10,
             tanggal: DateTime.now(),
@@ -149,7 +149,7 @@ void main() {
         final trx2 = TransaksiModel(
             id: 'trx-p2',
             idPelanggan: customerId,
-            statusPembayaran: PaymentStatus.paid,
+            statusPembayaran: StatusPembayaran.paid,
             poinDidapat: 50,
             tipe: TipeTransaksi.expense,
             poinDigunakan: 5,
@@ -175,7 +175,7 @@ void main() {
         final trx4 = TransaksiModel(
             id: 'trx-p4',
             idPelanggan: customerId,
-            statusPembayaran: PaymentStatus.paid,
+            statusPembayaran: StatusPembayaran.paid,
             poinDidapat: 75,
             diHapus: true,
             tanggal: DateTime.now(),
@@ -189,7 +189,7 @@ void main() {
         final trx5 = TransaksiModel(
             id: 'trx-p5',
             idPelanggan: 'cust-other',
-            statusPembayaran: PaymentStatus.paid,
+            statusPembayaran: StatusPembayaran.paid,
             poinDidapat: 40,
             tanggal: DateTime.now(),
             deskripsi: '',
