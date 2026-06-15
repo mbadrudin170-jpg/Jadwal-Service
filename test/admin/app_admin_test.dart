@@ -1,3 +1,4 @@
+
 // path: test/admin/app_admin_test.dart
 import 'dart:async';
 
@@ -7,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/app_admin.dart';
@@ -15,7 +15,8 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/notifikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/notifikasi/notifikasi_service_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
@@ -25,8 +26,9 @@ import 'package:wifi/shared/data/sync/upload_data.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
+import 'package:wifi/shared/storage/layanan_penyimpanan_lokal.dart';
+import 'package:wifi/shared/storage/penyimpanan_lokal_provider.dart';
 import 'package:wifi/shared/theme/tema_provider.dart';
-import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 import 'package:workmanager/workmanager.dart';
 
 // Mocks
@@ -35,7 +37,7 @@ class MockSharedPreferences extends Mock implements SharedPreferences {}
 class MockKoneksiInternetService extends Mock
     implements KoneksiInternetService {}
 
-class MockNotifikasiServis extends Mock implements LayananNotifikasi {}
+class MockLayananNotifikasi extends Mock implements LayananNotifikasi {}
 
 class MockUnduhanAwalService extends Mock implements UnduhanAwalService {}
 
@@ -129,7 +131,7 @@ class MockWorkmanagerPlatform extends Mock
 void main() {
   late MockSharedPreferences mockPrefs;
   late MockKoneksiInternetService mockKoneksiInternetService;
-  late MockNotifikasiServis mockNotifikasiServis;
+  late MockLayananNotifikasi mockNotifikasiServis;
   late MockUnduhanAwalService mockUnduhanAwalService;
   late MockPelangganAktifOpSqlite mockPelangganAktifOpSqlite;
   late MockSettingsOpSqlite mockSettingsOpSqlite;
@@ -150,7 +152,7 @@ void main() {
   setUp(() {
     mockPrefs = MockSharedPreferences();
     mockKoneksiInternetService = MockKoneksiInternetService();
-    mockNotifikasiServis = MockNotifikasiServis();
+    mockNotifikasiServis = MockLayananNotifikasi();
     mockUnduhanAwalService = MockUnduhanAwalService();
     mockPelangganAktifOpSqlite = MockPelangganAktifOpSqlite();
     mockSettingsOpSqlite = MockSettingsOpSqlite();
@@ -207,7 +209,7 @@ void main() {
         sharedPreferencesProvider.overrideWith((ref) => mockPrefs),
         koneksiInternetServiceProvider
             .overrideWithValue(mockKoneksiInternetService),
-        notifikasiServisProvider.overrideWithValue(mockNotifikasiServis),
+        notifikasiServiceProvider.overrideWithValue(mockNotifikasiServis),
         unduhanAwalServiceProvider.overrideWithValue(mockUnduhanAwalService),
         pelangganAktifOpSqliteProvider
             .overrideWithValue(mockPelangganAktifOpSqlite),
@@ -215,7 +217,7 @@ void main() {
         dataCleaningOperationProvider
             .overrideWithValue(mockDataCleaningOperation),
         sqliteDatabaseProvider.overrideWithValue(mockDatabaseHelper),
-        localStorageServiceProvider.overrideWithValue(mockLocalStorage),
+        layananPenyimpananLokalProvider.overrideWithValue(mockLocalStorage),
         uploadDataServiceProvider.overrideWithValue(mockUploadDataService),
         layananCekSinkronisasiProvider.overrideWithValue(mockSyncCheckService),
         ...overrides,

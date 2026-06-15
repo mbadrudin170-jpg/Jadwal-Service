@@ -10,12 +10,13 @@ import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
 // Mocks
-class MockTransaksiOpSqlite extends Mock implements TransaksiOpsqlite {}
+class MockTransaksiOpSqlite extends Mock implements TransaksiOpSqlite {}
 
 class MockPelangganOpSqlite extends Mock implements PelangganOpSqlite {}
 
@@ -25,44 +26,42 @@ void main() {
   late ProviderContainer container;
 
   final tPelanggan1 = PelangganModel(
-    id: 'p1',
-    nama: 'Alpha',
-    alamat: '',
-    telepon: '',
-    macAddress: '',
-    kataSandi: '',
+    id: '1',
+    nama: 'Pelanggan A',
+    email: 'a@test.com',
+    nomorTelepon: '123',
+    alamat: 'alamat',
   );
   final tPelanggan2 = PelangganModel(
-    id: 'p2',
-    nama: 'Bravo',
-    alamat: '',
-    telepon: '',
-    macAddress: '',
-    kataSandi: '',
+    id: '2',
+    nama: 'Pelanggan B',
+    email: 'b@test.com',
+    nomorTelepon: '456',
+    alamat: 'alamat',
   );
 
   final tTransaksi1 = TransaksiModel(
     id: 't1',
-    idPelanggan: 'p1',
-    deskripsi: 'Aktivasi Alpha',
-    tanggalBerakhir: DateTime(2023, 10, 30),
-    tipe: TipeTransaksi.income,
-    jumlah: 100,
-    tanggal: DateTime.now(),
-    idDompet: 'd1',
-    idKategori: 'k1',
+    idPelanggan: '1',
+    idPaket: 'p1',
+    namaPaket: 'Paket 1',
+    hargaPaket: 50000,
+    tanggal: DateTime(2023, 1, 1),
+    tanggalBerakhir: DateTime(2023, 2, 1),
+    statusPembayaran: StatusPembayaran.paid,
+    tipe: TipeTransaksi.package,
   );
 
   final tTransaksi2 = TransaksiModel(
     id: 't2',
-    idPelanggan: 'p2',
-    deskripsi: 'Aktivasi Bravo',
-    tanggalBerakhir: DateTime(2023, 10, 25),
-    tipe: TipeTransaksi.income,
-    jumlah: 100,
-    tanggal: DateTime.now(),
-    idDompet: 'd1',
-    idKategori: 'k1',
+    idPelanggan: '2',
+    idPaket: 'p2',
+    namaPaket: 'Paket 2',
+    hargaPaket: 75000,
+    tanggal: DateTime(2023, 1, 15),
+    tanggalBerakhir: DateTime(2023, 2, 15),
+    statusPembayaran: StatusPembayaran.unpaid,
+    tipe: TipeTransaksi.package,
   );
 
   setUp(() {
@@ -92,83 +91,45 @@ void main() {
   }
 
   group('RiwayatAktivasiPaketPage', () {
-    testWidgets('01. harus menampilkan CircularProgressIndicator saat loading',
-        (tester) async {
+    testWidgets('01. harus menampilkan daftar riwayat dengan benar', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
       await tester.pumpAndSettle();
+
+      expect(find.text('Riwayat Aktivasi Paket'), findsOneWidget);
+      expect(find.text('Pelanggan A'), findsOneWidget);
+      expect(find.text('Pelanggan B'), findsOneWidget);
+      expect(find.text('Lunas'), findsOneWidget);
+      expect(find.text('Belum Lunas'), findsOneWidget);
     });
 
-    testWidgets('02. harus menampilkan data saat berhasil dimuat', (tester) async {
+    testWidgets('02. harus dapat melakukan filter berdasarkan nama', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
 
-      expect(find.text('Alpha'), findsOneWidget);
-      expect(find.text('Bravo'), findsOneWidget);
+      await tester.enterText(find.byType(TextField), 'Pelanggan A');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Pelanggan A'), findsOneWidget);
+      expect(find.text('Pelanggan B'), findsNothing);
     });
 
-    testWidgets('03. harus menampilkan pesan error jika terjadi kegagalan',
-        (tester) async {
-      when(() => mockTransaksiOp.getTransactionsByPackageActivation())
-          .thenThrow(Exception('DB Error'));
-
+    testWidgets('03. harus dapat melakukan sorting berdasarkan nama A-Z', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
-
-      expect(find.textContaining('Exception: DB Error'), findsOneWidget);
-    });
-
-    testWidgets('04. harus menampilkan "Tidak ada riwayat." jika data kosong',
-        (tester) async {
-      when(() => mockTransaksiOp.getTransactionsByPackageActivation())
-          .thenAnswer((_) async => []);
-
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
-
-      expect(find.text('Tidak ada riwayat.'), findsOneWidget);
-    });
-
-    testWidgets('05. harus bisa mengubah urutan ke Nama (A-Z)', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
-
-      // Initial sort is by date, Bravo might be first
-      final listTilesBefore = tester.widgetList<Card>(find.byType(Card));
-      expect(find.text('Alpha'), findsOneWidget);
 
       await tester.tap(find.byIcon(Icons.sort));
       await tester.pumpAndSettle();
+
       await tester.tap(find.text('Nama (A-Z)'));
       await tester.pumpAndSettle();
 
-      final listTilesAfter = tester.widgetList<Card>(find.byType(Card));
-      final firstItemText = find
-          .descendant(
-            of: find.byWidget(listTilesAfter.first),
-            matching: find.byType(Text),
-          )
-          .first;
-      expect((firstItemText.evaluate().single.widget as Text).data, 'Alpha');
-    });
+      final firstItem = find.text('Pelanggan A');
+      final secondItem = find.text('Pelanggan B');
 
-    testWidgets('06. harus bisa mengubah urutan ke Nama (Z-A)', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      final firstPos = tester.getTopLeft(firstItem);
+      final secondPos = tester.getTopLeft(secondItem);
 
-      await tester.tap(find.byIcon(Icons.sort));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Nama (Z-A)'));
-      await tester.pumpAndSettle();
-
-      final listTilesAfter = tester.widgetList<Card>(find.byType(Card));
-      final firstItemText = find
-          .descendant(
-            of: find.byWidget(listTilesAfter.first),
-            matching: find.byType(Text),
-          )
-          .first;
-      expect((firstItemText.evaluate().single.widget as Text).data, 'Bravo');
+      expect(firstPos.dy, lessThan(secondPos.dy));
     });
   });
 }

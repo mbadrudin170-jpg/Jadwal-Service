@@ -8,9 +8,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/lainnya/manage_announcement_page.dart';
+import 'package:wifi/fitur/notifikasi/notifikasi_service_provider.dart';
+import 'package:wifi/shared/enum/tipe_notifikasi_enum.dart';
 import 'package:wifi/shared/model/notifikasi_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 
 // Mocks
 class MockNotifikasiOpFirebase extends Mock implements NotifikasiOpFirebase {}
@@ -21,123 +23,112 @@ void main() {
   late MockNotifikasiOpFirebase mockNotifikasiOp;
   late MockNavigatorObserver mockNavigatorObserver;
   late ProviderContainer container;
+  final testDate = DateTime(2023, 10, 26);
 
-  final tPengumuman1 = NotifikasiModel(
+  final tPengumuman = NotifikasiModel(
     id: '1',
-    judul: 'Pengumuman 1',
-    isi: 'Isi Pengumuman 1',
-    tanggalTampil: DateTime(2023, 1, 1),
-  );
-
-  final tPengumuman2 = NotifikasiModel(
-    id: '2',
-    judul: 'Pengumuman 2',
-    isi: 'Isi Pengumuman 2',
-    tanggalTampil: DateTime(2023, 1, 2),
+    title: 'Judul Lama',
+    description: 'Deskripsi Lama',
+    type: TipeNotifikasi.pengumuman.name,
+    createdAt: testDate,
+    updatedAt: testDate,
   );
 
   setUp(() {
     mockNotifikasiOp = MockNotifikasiOpFirebase();
     mockNavigatorObserver = MockNavigatorObserver();
+
     container = ProviderContainer(
       overrides: [
         notifikasiOpFirebaseProvider.overrideWithValue(mockNotifikasiOp),
       ],
     );
 
-    when(() => mockNotifikasiOp.getKhususAdmin())
-        .thenAnswer((_) => Stream.value([tPengumuman1, tPengumuman2]));
-    when(() => mockNotifikasiOp.addNotifikasi(any())).thenAnswer((_) async {});
-    when(() => mockNotifikasiOp.deleteNotif(any())).thenAnswer((_) async {});
+    when(() => mockNotifikasiOp.add(any())).thenAnswer((_) async => 'new_id');
+    when(() => mockNotifikasiOp.update(any())).thenAnswer((_) async {});
 
-    registerFallbackValue(tPengumuman1);
+    registerFallbackValue(tPengumuman);
   });
 
-  Widget createWidgetUnderTest() {
+  Widget createWidgetUnderTest({NotifikasiModel? announcement}) {
     return ProviderScope(
       parent: container,
       child: MaterialApp(
-        home: const ManageAnnouncementPage(),
+        home: ManageAnnouncementPage(announcement: announcement),
         navigatorObservers: [mockNavigatorObserver],
       ),
     );
   }
 
   group('ManageAnnouncementPage', () {
-    testWidgets('01. harus menampilkan CircularProgressIndicator saat loading',
+    testWidgets('01. harus menampilkan form tambah dengan benar', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+      expect(find.text('Buat Pengumuman'), findsOneWidget);
+      expect(find.byType(TextFormField), findsNWidgets(2));
+    });
+
+    testWidgets('02. harus menampilkan form edit dengan data yang terisi',
         (tester) async {
-      final completer = StreamController<List<NotifikasiModel>>();
-      when(() => mockNotifikasiOp.getKhususAdmin())
-          .thenAnswer((_) => completer.stream);
-
-      await tester.pumpWidget(createWidgetUnderTest());
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-      completer.add([]); // Complete the stream
-      await tester.pumpAndSettle();
+      await tester.pumpWidget(createWidgetUnderTest(announcement: tPengumuman));
+      expect(find.text('Edit Pengumuman'), findsOneWidget);
+      expect(find.text('Judul Lama'), findsOneWidget);
+      expect(find.text('Deskripsi Lama'), findsOneWidget);
     });
 
-    testWidgets('02. harus menampilkan data saat berhasil dimuat', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
-
-      expect(find.text('Pengumuman 1'), findsOneWidget);
-      expect(find.text('Pengumuman 2'), findsOneWidget);
-    });
-
-    testWidgets('03. harus menampilkan pesan error jika terjadi kegagalan',
+    testWidgets('03. harus menampilkan error jika field kosong saat disimpan',
         (tester) async {
-      when(() => mockNotifikasiOp.getKhususAdmin())
-          .thenAnswer((_) => Stream.error('Error'));
-
       await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      await tester.tap(find.text('Kirim Notifikasi'));
+      await tester.pump();
 
-      expect(find.textContaining('Error'), findsOneWidget);
+      expect(find.text('Judul tidak boleh kosong'), findsOneWidget);
+      expect(find.text('Deskripsi tidak boleh kosong'), findsOneWidget);
     });
 
-    testWidgets('04. harus menampilkan "Tidak ada pengumuman." jika data kosong',
-        (tester) async {
-      when(() => mockNotifikasiOp.getKhususAdmin())
-          .thenAnswer((_) => Stream.value([]));
-
+    testWidgets('04. harus memanggil add saat mode tambah', (tester) async {
+      when(() => mockNavigatorObserver.didPop(any(), any())).thenReturn(null);
       await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
-
-      expect(find.text('Tidak ada pengumuman.'), findsOneWidget);
-    });
-
-    testWidgets('05. harus bisa menambahkan pengumuman baru', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byIcon(Icons.add));
-      await tester.pumpAndSettle();
 
       await tester.enterText(find.byKey(const Key('judul')), 'Judul Baru');
-      await tester.enterText(find.byKey(const Key('isi')), 'Isi Baru');
-      await tester.tap(find.text('Simpan'));
+      await tester.enterText(
+          find.byKey(const Key('deskripsi')), 'Deskripsi Baru');
+
+      await tester.tap(find.text('Kirim Notifikasi'));
       await tester.pumpAndSettle();
 
-      verify(() => mockNotifikasiOp.addNotifikasi(any(
-          that: isA<NotifikasiModel>()
-            ..having((a) => a.judul, 'judul', 'Judul Baru')))).called(1);
+      verify(() => mockNotifikasiOp.add(any(that: isA<NotifikasiModel>())))      .called(1);
+      verify(() => mockNavigatorObserver.didPop(any(), any())).called(1);
     });
 
-    testWidgets('06. harus bisa menghapus pengumuman', (tester) async {
+    testWidgets('05. harus memanggil update saat mode edit', (tester) async {
+      when(() => mockNavigatorObserver.didPop(any(), any())).thenReturn(null);
+      await tester.pumpWidget(createWidgetUnderTest(announcement: tPengumuman));
+
+      await tester.enterText(find.byKey(const Key('judul')), 'Judul Update');
+      await tester.tap(find.text('Simpan Perubahan'));
+      await tester.pumpAndSettle();
+
+      verify(() => mockNotifikasiOp.update(any(
+              that: isA<NotifikasiModel>()
+                ..having((n) => n.title, 'title', 'Judul Update'))))
+          .called(1);
+      verify(() => mockNavigatorObserver.didPop(any(), any())).called(1);
+    });
+
+    testWidgets('06. harus menampilkan snackbar error jika terjadi kegagalan',
+        (tester) async {
+      when(() => mockNotifikasiOp.add(any())).thenThrow(Exception('Error'));
+
       await tester.pumpWidget(createWidgetUnderTest());
+      await tester.enterText(find.byKey(const Key('judul')), 'Judul Baru');
+      await tester.enterText(
+          find.byKey(const Key('deskripsi')), 'Deskripsi Baru');
+
+      await tester.tap(find.text('Kirim Notifikasi'));
       await tester.pumpAndSettle();
 
-      await tester.longPress(find.text('Pengumuman 1'));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Hapus'));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Hapus').last);
-      await tester.pumpAndSettle();
-
-      verify(() => mockNotifikasiOp.deleteNotif('1')).called(1);
+      expect(find.text('Gagal mengirim notifikasi'), findsOneWidget);
+      verifyNever(() => mockNavigatorObserver.didPop(any(), any()));
     });
   });
 }

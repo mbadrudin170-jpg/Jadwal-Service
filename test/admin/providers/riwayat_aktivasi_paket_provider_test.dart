@@ -1,3 +1,4 @@
+
 // path: test/admin/providers/riwayat_aktivasi_paket_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,14 +6,14 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
 // 1. Buat mock class menggunakan mocktail
-class MockTransaksiOpsqlite extends Mock implements TransaksiOpsqlite {}
+class MockTransaksiOpsqlite extends Mock implements TransaksiOpSqlite {}
 
 class MockPelangganOpSqlite extends Mock implements PelangganOpSqlite {}
 
@@ -27,63 +28,55 @@ void main() {
   final c1 = PelangganModel(
     id: 'c1',
     nama: 'Charlie',
-    telepon: '',
-    alamat: '',
-    password: '',
-    registrationDate: now,
-    fcmToken: '',
-    appVersion: '',
-    platform: '',
-    lastActive: now,
+    email: 'charlie@gmail.com',
+    nomorTelepon: '123',
+    alamat: 'alamat',
   );
   final c2 = PelangganModel(
     id: 'c2',
     nama: 'Alpha',
-    telepon: '',
-    alamat: '',
-    password: '',
-    registrationDate: now,
-    fcmToken: '',
-    appVersion: '',
-    platform: '',
-    lastActive: now,
+    email: 'alpha@gmail.com',
+    nomorTelepon: '456',
+    alamat: 'alamat',
   );
   final c3 = PelangganModel(
     id: 'c3',
     nama: 'Bravo',
-    telepon: '',
-    alamat: '',
-    password: '',
-    registrationDate: now,
-    fcmToken: '',
-    appVersion: '',
-    platform: '',
-    lastActive: now,
+    email: 'bravo@gmail.com',
+    nomorTelepon: '789',
+    alamat: 'alamat',
   );
 
   // Transaction dummies
   final t1 = TransaksiModel(
-    id: '1',
-    idPelanggan: 'c1',
-    tanggal: yesterday,
-    tanggalBerakhir: today,
-    statusPembayaran: StatusPembayaran.paid,
+      id: '1',
+      idPelanggan: 'c1',
+      tanggal: yesterday,
+      tanggalBerakhir: today,
+      statusPembayaran: StatusPembayaran.paid,
+      deskripsi: '',
+      jumlah: 0,
+      tipe: TipeTransaksi.income,
+      idDompet: '',
+      idKategori: '',
+      idPaket: '',
+      namaPaket: '',
+      hargaPaket: 0);
+  final t2 = TransaksiModel(
+    id: '2',
+    idPelanggan: 'c2',
+    tanggal: today,
+    tanggalBerakhir: tomorrow,
     deskripsi: '',
     jumlah: 0,
     tipe: TipeTransaksi.income,
     idDompet: '',
     idKategori: '',
+    statusPembayaran: StatusPembayaran.unpaid,
+    idPaket: '',
+    namaPaket: '',
+    hargaPaket: 0,
   );
-  final t2 = TransaksiModel(
-      id: '2',
-      idPelanggan: 'c2',
-      tanggal: today,
-      tanggalBerakhir: tomorrow,
-      deskripsi: '',
-      jumlah: 0,
-      tipe: TipeTransaksi.income,
-      idDompet: '',
-      idKategori: '');
   final t3 = TransaksiModel(
     id: '3',
     idPelanggan: 'c3',
@@ -95,6 +88,9 @@ void main() {
     tipe: TipeTransaksi.income,
     idDompet: '',
     idKategori: '',
+    idPaket: '',
+    namaPaket: '',
+    hargaPaket: 0,
   );
   // Transaksi tanpa customerId yang cocok untuk menguji kasus 'Tidak diketahui'
   final t4 = TransaksiModel(
@@ -106,6 +102,10 @@ void main() {
     tipe: TipeTransaksi.income,
     idDompet: '',
     idKategori: '',
+    statusPembayaran: StatusPembayaran.unpaid,
+    idPaket: '',
+    namaPaket: '',
+    hargaPaket: 0,
     // Waktu sama, menit berbeda
   );
 
@@ -131,9 +131,9 @@ void main() {
     );
 
     // Atur mock untuk mengembalikan data dummy menggunakan syntax mocktail
-    when(() => mockTransaksiOpsqlite.ambilTransaksiAktivasiPaket())
+    when(() => mockTransaksiOpsqlite.getTransactionsByPackageActivation())
         .thenAnswer((_) async => List.from(mockTransactions));
-    when(() => mockPelangganOpSqlite.ambilSemuaPelanggan())
+    when(() => mockPelangganOpSqlite.ambilPelanggan())
         .thenAnswer((_) async => List.from(mockCustomers));
   });
 
@@ -184,40 +184,8 @@ void main() {
       expect(state.sortBy, SortOption.nameZA);
     });
 
-    // test(
-    //     '04. newest harus mengurutkan list updateAt yang terbaru ke yang terlama',
-    //     () async {
-    //   await container.read(riwayatAktivasiPaketProvider.future);
-    //   container
-    //       .read(riwayatAktivasiPaketProvider.notifier)
-    //       .changeSort(SortOption.updatedAtAZ);
-
-    //   final state = container.read(riwayatAktivasiPaketProvider).value!;
-
-    //   // Verifikasi urutan berdasarkan tanggal terbaru: t2, t4, t1, t3
-    //   expect(state.items.map((item) => item.transaksi.id).toList(),
-    //       ['2', '4', '1', '3']);
-    //   expect(state.sortBy, SortOption.updatedAtAZ);
-    // });
-
-    // test(
-    //     '05. oldest harus mengurutkan list updateAt yang terlama ke yang terbaru',
-    //     () async {
-    //   await container.read(riwayatAktivasiPaketProvider.future);
-    //   container
-    //       .read(riwayatAktivasiPaketProvider.notifier)
-    //       .changeSort(SortOption.updatedAtZA);
-
-    //   final state = container.read(riwayatAktivasiPaketProvider).value!;
-
-    //   // Verifikasi urutan berdasarkan tanggal terlama: t3, t1, t4, t2
-    //   expect(state.items.map((item) => item.transaksi.id).toList(),
-    //       ['3', '1', '4', '2']);
-    //   expect(state.sortBy, SortOption.updatedAtZA);
-    // });
-
     test(
-        '06. endingToday harus mengurutkan list yang berakhir hari ini ke paling lama',
+        '04. endingToday harus mengurutkan list yang berakhir hari ini ke paling lama',
         () async {
       await container.read(riwayatAktivasiPaketProvider.future);
       container
@@ -231,7 +199,7 @@ void main() {
       expect(state.sortBy, SortOption.endingToday);
     });
 
-    test('07. paid harus mengurutkan list dari yang lunas ke yang belum lunas',
+    test('05. paid harus mengurutkan list dari yang lunas ke yang belum lunas',
         () async {
       await container.read(riwayatAktivasiPaketProvider.future);
       container
@@ -249,7 +217,7 @@ void main() {
     });
 
     test(
-        '08. unpaid harus mengurutkan list dari yang belum lunas ke yang lunas',
+        '06. unpaid harus mengurutkan list dari yang belum lunas ke yang lunas',
         () async {
       await container.read(riwayatAktivasiPaketProvider.future);
       container

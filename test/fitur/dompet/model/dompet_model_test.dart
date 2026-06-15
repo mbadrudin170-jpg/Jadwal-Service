@@ -13,7 +13,6 @@ void main() {
       nama: 'Dompet Utama',
       saldo: 150000.0,
       diperbaruiPada: tanggalSekarang,
-      diHapus: false,
       diarsipkanPada: tanggalSekarang,
     );
 
@@ -29,7 +28,7 @@ void main() {
     test('02. harus membuat instance DompetModel dengan id yang disediakan',
         () {
       final dompet =
-          DompetModel(id: 'custom-id', nama: 'Dompet Custom', saldo: 0);
+          DompetModel(id: 'custom-id', nama: 'Dompet Custom');
       expect(dompet.id, 'custom-id');
       expect(dompet.nama, 'Dompet Custom');
     });
@@ -37,7 +36,7 @@ void main() {
     test(
         '03. harus membuat instance DompetModel dengan nilai default untuk isDeleted dan archivedAt',
         () {
-      final dompet = DompetModel(nama: 'Dompet Default', saldo: 0);
+      final dompet = DompetModel(nama: 'Dompet Default');
       expect(dompet.diHapus, false);
       expect(dompet.diarsipkanPada, isNull);
     });
@@ -84,7 +83,7 @@ void main() {
     });
 
     test('09. harus menyalin objek dengan updatedAt yang diperbarui', () {
-      final tanggalUpdate = DateTime(2024, 1, 1);
+      final tanggalUpdate = DateTime(2024, 1);
       final salinanDompet =
           dataDompetLengkap.copyWith(updatedAt: tanggalUpdate);
       expect(salinanDompet.diperbaruiPada, tanggalUpdate);
@@ -96,7 +95,7 @@ void main() {
     });
 
     test('11. harus menyalin objek dengan archivedAt yang diperbarui', () {
-      final tanggalArsip = DateTime(2025, 1, 1);
+      final tanggalArsip = DateTime(2025, 1);
       final salinanDompet =
           dataDompetLengkap.copyWith(archivedAt: tanggalArsip);
       expect(salinanDompet.diarsipkanPada, tanggalArsip);
@@ -193,9 +192,9 @@ void main() {
       test('17. harus mengubah isDeleted menjadi 1 jika true dan 0 jika false',
           () {
         final dompetDihapus =
-            DompetModel(nama: 'Hapus', saldo: 0, diHapus: true);
+            DompetModel(nama: 'Hapus', diHapus: true);
         final dompetTidakDihapus =
-            DompetModel(nama: 'Tidak Hapus', saldo: 0, diHapus: false);
+            DompetModel(nama: 'Tidak Hapus');
 
         expect(dompetDihapus.toSqlite()[NamaKolom.diHapus], 1);
         expect(dompetTidakDihapus.toSqlite()[NamaKolom.diHapus], 0);
@@ -283,7 +282,7 @@ void main() {
           '23. harus mengubah archivedAt menjadi Timestamp UTC jika tidak null',
           () {
         final dompetDenganArsip = DompetModel(
-            nama: 'Arsip', saldo: 0, diarsipkanPada: tanggalSekarang);
+            nama: 'Arsip', diarsipkanPada: tanggalSekarang);
         final peta = dompetDenganArsip.toFirebase();
 
         expect(peta[NamaKolom.diarsipkanPada], isA<Timestamp>());

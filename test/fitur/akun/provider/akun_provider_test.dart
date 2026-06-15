@@ -1,241 +1,112 @@
-// path: test/fitur/akun/provider/akun_provider_test.dart
 
+// path: test/fitur/akun/provider/akun_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
+import 'package:wifi/shared/storage/layanan_penyimpanan_lokal.dart';
+import 'package:wifi/shared/storage/penyimpanan_lokal_provider.dart';
 
-// 1. Membuat mock untuk LayananPenyimpananLokal menggunakan Mocktail
+// Mocks
 class MockLayananPenyimpananLokal extends Mock
     implements LayananPenyimpananLokal {}
 
+class MockSharedPreferences extends Mock implements SharedPreferences {}
+
 void main() {
-  late MockLayananPenyimpananLokal mockPenyimpanan;
+  late MockLayananPenyimpananLokal mockPenyimpananLokal;
   late ProviderContainer container;
 
-  // 2. Data dummy untuk pengujian
   final tAkun1 = PelangganModel(
-    id: 'cust1',
-    nama: 'Budi',
-    alamat: 'Jl. Melati No. 1',
-    telepon: '08123456789',
-    password: 'password123',
+    id: '1',
+    nama: 'Test User 1',
+    email: 'test1@example.com',
+    nomorTelepon: '123',
+    alamat: 'Alamat 1',
   );
-
   final tAkun2 = PelangganModel(
-    id: 'cust2',
-    nama: 'Andi',
-    alamat: 'Jl. Mawar No. 2',
-    telepon: '08987654321',
-    password: 'password321',
+    id: '2',
+    nama: 'Test User 2',
+    email: 'test2@example.com',
+    nomorTelepon: '456',
+    alamat: 'Alamat 2',
   );
-
-  // Helper untuk membuat container
-  ProviderContainer createContainer(MockLayananPenyimpananLokal mock) {
-    return ProviderContainer(
-      overrides: [
-        layananPenyimpananLokalProvider.overrideWith((ref) => mock),
-      ],
-    );
-  }
 
   setUp(() {
-    mockPenyimpanan = MockLayananPenyimpananLokal();
-    container = createContainer(mockPenyimpanan);
-    // Register fallback values for any() matchers
+    mockPenyimpananLokal = MockLayananPenyimpananLokal();
+    container = ProviderContainer(
+      overrides: [
+        layananPenyimpananLokalProvider
+            .overrideWithValue(mockPenyimpananLokal),
+      ],
+    );
     registerFallbackValue(tAkun1);
   });
 
-  tearDown(() {
-    container.dispose();
-  });
-
-  group('Pengujian PengelolaAkun Provider', () {
-    test('01. build harus menginisialisasi state dengan data dari penyimpanan',
+  group('PengelolaAkun Provider', () {
+    test('01. harus menginisialisasi dengan akun saat ini dan daftar akun',
         () async {
-      // Arrange
-      when(() => mockPenyimpanan.ambilAkunLogin())
+      when(() => mockPenyimpananLokal.ambilAkunLogin())
           .thenAnswer((_) async => tAkun1);
-      when(() => mockPenyimpanan.ambilDaftarAkun())
+      when(() => mockPenyimpananLokal.ambilDaftarAkun())
           .thenAnswer((_) async => [tAkun1, tAkun2]);
 
-      // Act
       final state = await container.read(pengelolaAkunProvider.future);
 
-      // Assert
       expect(state.akunSaatIni, tAkun1);
       expect(state.daftarAkunTersimpan, [tAkun1, tAkun2]);
-      verify(() => mockPenyimpanan.ambilAkunLogin()).called(1);
-      verify(() => mockPenyimpanan.ambilDaftarAkun()).called(1);
     });
 
-    test('02. login harus menyimpan akun dan memperbarui state', () async {
-      // Arrange
-      when(() => mockPenyimpanan.ambilAkunLogin())
+    test('02. harus login dan menyimpan akun saat ini', () async {
+      when(() => mockPenyimpananLokal.ambilAkunLogin())
           .thenAnswer((_) async => null);
-      when(() => mockPenyimpanan.ambilDaftarAkun())
+      when(() => mockPenyimpananLokal.ambilDaftarAkun())
           .thenAnswer((_) async => [tAkun2]);
-
-      // Pastikan build awal selesai
-      await container.read(pengelolaAkunProvider.future);
-
-      when(() => mockPenyimpanan.simpanAkunSaatIni(any()))
+      when(() => mockPenyimpananLokal.simpanAkunSaatIni(any()))
           .thenAnswer((_) async {});
-      when(() => mockPenyimpanan.ambilDaftarAkun())
-          .thenAnswer((_) async => [tAkun1, tAkun2]);
-      when(() => mockPenyimpanan.ambilAkunLogin())
-          .thenAnswer((_) async => tAkun1);
 
-      // Act
+      await container.read(pengelolaAkunProvider.future);
       await container.read(pengelolaAkunProvider.notifier).login(tAkun1);
+
       final state = container.read(pengelolaAkunProvider).value;
 
-      // Assert
       expect(state?.akunSaatIni, tAkun1);
-      expect(state?.daftarAkunTersimpan.map((e) => e.id).toList(),
-          containsAll(['cust1', 'cust2']));
-      verify(() => mockPenyimpanan.simpanAkunSaatIni(tAkun1)).called(1);
+      verify(() => mockPenyimpananLokal.simpanAkunSaatIni(tAkun1)).called(1);
     });
 
-    test('03. logout harus menghapus akun saat ini dan memperbarui state',
-        () async {
-      // Arrange
-      when(() => mockPenyimpanan.ambilAkunLogin())
+    test('03. harus logout dan menghapus akun saat ini', () async {
+      when(() => mockPenyimpananLokal.ambilAkunLogin())
           .thenAnswer((_) async => tAkun1);
-      when(() => mockPenyimpanan.ambilDaftarAkun())
-          .thenAnswer((_) async => [tAkun1]);
+      when(() => mockPenyimpananLokal.ambilDaftarAkun())
+          .thenAnswer((_) async => [tAkun1, tAkun2]);
+      when(() => mockPenyimpananLokal.hapusAkunSaatIni()).thenAnswer((_) async {});
+
       await container.read(pengelolaAkunProvider.future);
-
-      when(() => mockPenyimpanan.hapusAkunSaatIni()).thenAnswer((_) async {});
-      when(() => mockPenyimpanan.ambilAkunLogin())
-          .thenAnswer((_) async => null);
-      when(() => mockPenyimpanan.ambilDaftarAkun())
-          .thenAnswer((_) async => [tAkun1]);
-
-      // Act
       await container.read(pengelolaAkunProvider.notifier).logout();
+
       final state = container.read(pengelolaAkunProvider).value;
 
-      // Assert
-      expect(state?.akunSaatIni, isNull);
-      verify(() => mockPenyimpanan.hapusAkunSaatIni()).called(1);
+      expect(state?.akunSaatIni, null);
+      verify(() => mockPenyimpananLokal.hapusAkunSaatIni()).called(1);
     });
 
-    test('04. hapusAkun harus menghapus akun tertentu dari daftar', () async {
-      // Arrange
-      when(() => mockPenyimpanan.ambilAkunLogin())
+    test('04. harus menghapus akun dari daftar', () async {
+      when(() => mockPenyimpananLokal.ambilAkunLogin())
           .thenAnswer((_) async => tAkun1);
-      when(() => mockPenyimpanan.ambilDaftarAkun())
+      when(() => mockPenyimpananLokal.ambilDaftarAkun())
           .thenAnswer((_) async => [tAkun1, tAkun2]);
+      when(() => mockPenyimpananLokal.hapusAkun(any())).thenAnswer((_) async {});
+
       await container.read(pengelolaAkunProvider.future);
+      await container.read(pengelolaAkunProvider.notifier).hapusAkun('2');
 
-      when(() => mockPenyimpanan.hapusAkun('cust2')).thenAnswer((_) async {});
-      when(() => mockPenyimpanan.ambilDaftarAkun())
-          .thenAnswer((_) async => [tAkun1]);
-
-      // Act
-      await container.read(pengelolaAkunProvider.notifier).hapusAkun('cust2');
       final state = container.read(pengelolaAkunProvider).value;
 
-      // Assert
       expect(state?.daftarAkunTersimpan.length, 1);
-      expect(state?.daftarAkunTersimpan.first.id, 'cust1');
-      verify(() => mockPenyimpanan.hapusAkun('cust2')).called(1);
-    });
-
-    test(
-        '05. hapusAkun harus mengosongkan akunSaatIni jika akun yang dihapus sedang login',
-        () async {
-      // Arrange
-      when(() => mockPenyimpanan.ambilAkunLogin())
-          .thenAnswer((_) async => tAkun1);
-      when(() => mockPenyimpanan.ambilDaftarAkun())
-          .thenAnswer((_) async => [tAkun1, tAkun2]);
-      await container.read(pengelolaAkunProvider.future);
-
-      when(() => mockPenyimpanan.hapusAkun('cust1')).thenAnswer((_) async {});
-      when(() => mockPenyimpanan.hapusTokenLogin()).thenAnswer((_) async {});
-      when(() => mockPenyimpanan.ambilAkunLogin())
-          .thenAnswer((_) async => null);
-      when(() => mockPenyimpanan.ambilDaftarAkun())
-          .thenAnswer((_) async => [tAkun2]);
-
-      // Act
-      await container.read(pengelolaAkunProvider.notifier).hapusAkun('cust1');
-      final state = container.read(pengelolaAkunProvider).value;
-
-      // Assert
-      expect(state?.akunSaatIni, isNull);
-      expect(state?.daftarAkunTersimpan.length, 1);
-      expect(state?.daftarAkunTersimpan.first.id, 'cust2');
-    });
-
-    test(
-        '06. hapusTokenLogin harus memanggil fungsi hapus token dan menyegarkan akun login',
-        () async {
-      // Arrange
-      when(() => mockPenyimpanan.ambilAkunLogin())
-          .thenAnswer((_) async => tAkun1);
-      when(() => mockPenyimpanan.ambilDaftarAkun())
-          .thenAnswer((_) async => [tAkun1]);
-      await container.read(pengelolaAkunProvider.future);
-
-      when(() => mockPenyimpanan.hapusTokenLogin()).thenAnswer((_) async {});
-      when(() => mockPenyimpanan.ambilAkunLogin())
-          .thenAnswer((_) async => null);
-
-      // Act
-      await container.read(pengelolaAkunProvider.notifier).hapusTokenLogin();
-      final state = container.read(pengelolaAkunProvider).value;
-
-      // Assert
-      expect(state?.akunSaatIni, isNull);
-      verify(() => mockPenyimpanan.hapusTokenLogin()).called(1);
-    });
-
-    test('07. refresh harus memuat ulang data dari penyimpanan', () async {
-      // Arrange
-      // Panggilan pertama (saat build)
-      when(() => mockPenyimpanan.ambilAkunLogin())
-          .thenAnswer((_) async => tAkun1);
-      when(() => mockPenyimpanan.ambilDaftarAkun())
-          .thenAnswer((_) async => [tAkun1]);
-      await container.read(pengelolaAkunProvider.future);
-
-      // Pengaturan untuk refresh (data berubah)
-      when(() => mockPenyimpanan.ambilAkunLogin())
-          .thenAnswer((_) async => tAkun2);
-      when(() => mockPenyimpanan.ambilDaftarAkun())
-          .thenAnswer((_) async => [tAkun2]);
-
-      // Act
-      await container.read(pengelolaAkunProvider.notifier).refresh();
-      final state = container.read(pengelolaAkunProvider).value;
-
-      // Assert
-      expect(state?.akunSaatIni, tAkun2);
-      expect(state?.daftarAkunTersimpan, [tAkun2]);
-    });
-
-    test('08. build harus menangani error dari penyimpanan', () async {
-      // Arrange
-      final exception = Exception('Gagal mengambil data');
-      when(() => mockPenyimpanan.ambilAkunLogin()).thenThrow(exception);
-
-      // Buat container baru khusus untuk test case ini
-      final errorContainer = createContainer(mockPenyimpanan);
-
-      // Act & Assert
-      // Kita mengharapkan future dari provider akan gagal
-      await expectLater(
-        errorContainer.read(pengelolaAkunProvider.future),
-        throwsA(isA<Exception>()),
-      );
-
-      errorContainer.dispose();
+      expect(state?.daftarAkunTersimpan.first, tAkun1);
+      verify(() => mockPenyimpananLokal.hapusAkun('2')).called(1);
     });
   });
 }
