@@ -73,32 +73,32 @@ class UnduhanAwalService {
   }
 
   Future<void> _unduhDataPaketJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.package,
+        namaTabel: NamaTabel.paket,
         fungsiUnduh: _downloadDataService.downloadPackageData,
       );
 
   Future<void> _unduhDataKategoriJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.category,
+        namaTabel: NamaTabel.kategori,
         fungsiUnduh: _downloadDataService.downloadCategoryData,
       );
 
   Future<void> _unduhDataSubKategoriJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.subCategory,
+        namaTabel: NamaTabel.subKategori,
         fungsiUnduh: _downloadDataService.downloadSubCategoryData,
       );
 
   Future<void> _unduhDataDompetJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.wallet,
+        namaTabel: NamaTabel.dompet,
         fungsiUnduh: _downloadDataService.downloadWalletData,
       );
 
   Future<void> _unduhDataPelangganJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.customer,
+        namaTabel: NamaTabel.pelanggan,
         fungsiUnduh: _downloadDataService.downloadCustomerData,
       );
 
   Future<void> _unduhDataVersiApkJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.userApkVersion,
+        namaTabel: NamaTabel.versiApkUser,
         fungsiUnduh: _downloadDataService.downloadApkVersionData,
       );
 
@@ -108,12 +108,12 @@ class UnduhanAwalService {
       );
 
   Future<void> _unduhDataPelangganAktifJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.activeCustomer,
+        namaTabel: NamaTabel.pelangganAktif,
         fungsiUnduh: _downloadDataService.downloadActiveCustomerData,
       );
 
   Future<void> _unduhDataTransaksiJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.transactions,
+        namaTabel: NamaTabel.transaksi,
         fungsiUnduh: _downloadDataService.downloadTransactionData,
       );
 
@@ -123,7 +123,7 @@ class UnduhanAwalService {
       );
 
   Future<void> _unduhDataPesananJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.customerOrder,
+        namaTabel: NamaTabel.pesananPelanggan,
         fungsiUnduh: _downloadDataService.downloadOrderData,
       );
 }

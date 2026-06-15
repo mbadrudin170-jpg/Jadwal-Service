@@ -15,7 +15,7 @@ class SubKategoriOpSqlite {
   /// Instance dari [BaseOpSqlite] untuk operasi CRUD dasar.
   final BaseOpSqlite baseOpSqlite;
 
-  final String _tableName = NamaTabel.subCategory;
+  final String _tableName = NamaTabel.subKategori;
 
   SubKategoriOpSqlite({
     required this.sqliteDb,

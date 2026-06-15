@@ -20,7 +20,7 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
 
   /// Mendapatkan referensi ke koleksi active_customers.
   CollectionReference get _collection => _firestore.collection(NamaTabel
-      .activeCustomer); // Diperbaiki: Menggunakan properti statis NamaTabel
+      .pelangganAktif); // Diperbaiki: Menggunakan properti statis NamaTabel
 
   /// Menambah atau memperbarui data pelanggan aktif.
   /// Fungsi ini menggunakan ID pelanggan sebagai ID dokumen untuk memastikan
@@ -33,7 +33,7 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
       // ID dokumen di koleksi active_customers adalah ID pelanggan itu sendiri.
       await sisipkan(
         NamaTabel
-            .activeCustomer, // Diperbaiki: Menggunakan properti statis NamaTabel
+            .pelangganAktif, // Diperbaiki: Menggunakan properti statis NamaTabel
         activeCustomer.idPelanggan,
         activeCustomer.toFirebase(),
       );
@@ -78,7 +78,7 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
     Log.warning('Memulai penghapusan pelanggan aktif: $customerId');
     try {
       // Menggunakan fungsi delete dari BaseOpFirebase
-      await hapusPermanen(NamaTabel.activeCustomer,
+      await hapusPermanen(NamaTabel.pelangganAktif,
           customerId); // Diperbaiki: Menggunakan properti statis NamaTabel
       Log.info('Berhasil menghapus pelanggan aktif: $customerId');
     } on FirebaseException catch (e, s) {

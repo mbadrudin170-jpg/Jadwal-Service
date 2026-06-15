@@ -17,7 +17,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 class CustomerOpFirebase {
   final FirebaseFirestore _firestore;
   final BaseOpFirebase _baseOp;
-  final String _collectionName = NamaTabel.customer;
+  final String _collectionName = NamaTabel.pelanggan;
 
   /// Konstruktor untuk inisialisasi.
   CustomerOpFirebase({

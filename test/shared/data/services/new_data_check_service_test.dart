@@ -79,7 +79,7 @@ void main() {
         syncManager: mockSyncManager,
         uploadStatusOperation: mockUploadStatusOperation,
       );
-      when(mockSyncManager.ambilTanggalTerakhirDownload())
+      when(mockSyncManager.ambilWaktuTerakhirDownload())
           .thenAnswer((_) async => lastDownloadTime);
 
       final newDataTime = lastDownloadTime.add(const Duration(hours: 1));
@@ -91,7 +91,7 @@ void main() {
           namaKoleksi: testCollection, idDokumen: testDocument);
 
       expect(result, isTrue);
-      verify(mockSyncManager.ambilTanggalTerakhirDownload()).called(1);
+      verify(mockSyncManager.ambilWaktuTerakhirDownload()).called(1);
     });
 
     test('harus mengembalikan false jika tidak ada data baru di Firebase',
@@ -102,7 +102,7 @@ void main() {
         syncManager: mockSyncManager,
         uploadStatusOperation: mockUploadStatusOperation,
       );
-      when(mockSyncManager.ambilTanggalTerakhirDownload())
+      when(mockSyncManager.ambilWaktuTerakhirDownload())
           .thenAnswer((_) async => lastDownloadTime);
 
       final oldDataTime = lastDownloadTime.subtract(const Duration(hours: 1));
@@ -114,12 +114,12 @@ void main() {
           namaKoleksi: testCollection, idDokumen: testDocument);
 
       expect(result, isFalse);
-      verify(mockSyncManager.ambilTanggalTerakhirDownload()).called(1);
+      verify(mockSyncManager.ambilWaktuTerakhirDownload()).called(1);
     });
 
     // Tes yang gagal sebelumnya, sekarang diperbaiki dengan mock yang digenerate
     test('harus mengembalikan false jika terjadi error saat query', () async {
-      when(mockSyncManager.ambilTanggalTerakhirDownload())
+      when(mockSyncManager.ambilWaktuTerakhirDownload())
           .thenAnswer((_) async => lastDownloadTime);
 
       // Menggunakan Mocks yang digenerate untuk seluruh rantai panggilan Firestore
@@ -146,7 +146,7 @@ void main() {
       expect(result, isFalse, reason: 'Harusnya false karena ada exception');
 
       // Verifikasi bahwa semua metode yang diharapkan dipanggil
-      verify(mockSyncManager.ambilTanggalTerakhirDownload()).called(1);
+      verify(mockSyncManager.ambilWaktuTerakhirDownload()).called(1);
       verify(mockFirestore.collection(testCollection)).called(1);
       verify(mockCollection.doc(testDocument)).called(1);
       verify(mockDocument.get(any)).called(1);

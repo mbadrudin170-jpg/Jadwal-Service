@@ -13,8 +13,8 @@ void main() {
     test('awalnya harus mengembalikan null untuk waktu unduh dan unggah',
         () async {
       // JALANKAN & VERIFIKASI
-      expect(await PreferenceService.getLastDownload(), isNull);
-      expect(await PreferenceService.getLastUpload(), isNull);
+      expect(await PreferenceService.ambilWaktuTerakhirDownload(), isNull);
+      expect(await PreferenceService.ambilWaktuTerakhirUnggah(), isNull);
     });
 
     test('harus bisa menyimpan dan mengambil waktu terakhir unduh dengan benar',
@@ -23,8 +23,9 @@ void main() {
       final testTime = DateTime(2023, 10, 27, 10, 30);
 
       // JALANKAN
-      await PreferenceService.setLastDownload(testTime);
-      final retrievedTime = await PreferenceService.getLastDownload();
+      await PreferenceService.simpanWaktuTerakhirunduh(testTime);
+      final retrievedTime =
+          await PreferenceService.ambilWaktuTerakhirDownload();
 
       // VERIFIKASI
       // Kita membandingkan dalam UTC untuk memastikan konsistensi
@@ -39,8 +40,8 @@ void main() {
       final testTime = DateTime(2023, 11, 15, 14);
 
       // JALANKAN
-      await PreferenceService.setLastUpload(testTime);
-      final retrievedTime = await PreferenceService.getLastUpload();
+      await PreferenceService.simpanWaktuTerkahirUnggah(testTime);
+      final retrievedTime = await PreferenceService.ambilWaktuTerakhirUnggah();
 
       // VERIFIKASI
       expect(retrievedTime, isNotNull);
@@ -51,20 +52,20 @@ void main() {
       // ATUR
       final downloadTime = DateTime(2023);
       final uploadTime = DateTime(2023, 2, 2);
-      await PreferenceService.setLastDownload(downloadTime);
-      await PreferenceService.setLastUpload(uploadTime);
+      await PreferenceService.simpanWaktuTerakhirunduh(downloadTime);
+      await PreferenceService.simpanWaktuTerkahirUnggah(uploadTime);
 
       // Pastikan data sudah tersimpan sebelum direset
-      expect(await PreferenceService.getLastDownload(), isNotNull);
-      expect(await PreferenceService.getLastUpload(), isNotNull);
+      expect(await PreferenceService.ambilWaktuTerakhirDownload(), isNotNull);
+      expect(await PreferenceService.ambilWaktuTerakhirUnggah(), isNotNull);
 
       // JALANKAN
-      await PreferenceService.resetSyncTime();
+      await PreferenceService.resetWaktuSinkronisasi();
 
       // VERIFIKASI
       // Pastikan kedua data sudah terhapus
-      expect(await PreferenceService.getLastDownload(), isNull);
-      expect(await PreferenceService.getLastUpload(), isNull);
+      expect(await PreferenceService.ambilWaktuTerakhirDownload(), isNull);
+      expect(await PreferenceService.ambilWaktuTerakhirUnggah(), isNull);
     });
   });
 }

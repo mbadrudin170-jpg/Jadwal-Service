@@ -1,4 +1,4 @@
-// path: lib/shared/operasi/sqlite_operasi/active_customer_operation.dart
+// path: lib/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
@@ -13,12 +13,12 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 class PelangganAktifOpSqlite {
   final SqliteDatabase sqliteDb;
-  final BaseOpSqlite _baseOperation;
-  final LayananNotifikasi _notifikasiServis;
-  final PelangganOpSqlite _customerOperation;
-  final String _tableName = NamaTabel.activeCustomer;
-  final String _customerTableName = NamaTabel.customer;
-  final String _packageTableName = NamaTabel.package;
+  final BaseOpSqlite _baseOpSqlite;
+  final LayananNotifikasi _layananNotifikasi;
+  final PelangganOpSqlite _pelangganOpSqlite;
+  final String _tableName = NamaTabel.pelangganAktif;
+  final String _namaTabelCustomer = NamaTabel.pelanggan;
+  final String _namaTabelPaket = NamaTabel.paket;
 
   DateTime get _nowUtc => DateTime.now().toUtc();
 
@@ -27,26 +27,26 @@ class PelangganAktifOpSqlite {
     required BaseOpSqlite baseOpSqlite,
     required PelangganOpSqlite pelangganOpSqlite,
     required LayananNotifikasi layananNotifikasi,
-  })  : _baseOperation = baseOpSqlite,
-        _customerOperation = pelangganOpSqlite,
-        _notifikasiServis = layananNotifikasi {
+  })  : _baseOpSqlite = baseOpSqlite,
+        _pelangganOpSqlite = pelangganOpSqlite,
+        _layananNotifikasi = layananNotifikasi {
     Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_tableName');
   }
 
   Future<void> rescheduleAllNotifications() async {
     Log.info('MEMULAI PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI...');
     try {
-      final List<PelangganAktifModel> allActiveCustomers = await getALl();
+      final List<PelangganAktifModel> pelangganAktif = await getALl();
 
-      if (allActiveCustomers.isEmpty) {
+      if (pelangganAktif.isEmpty) {
         Log.info('Tidak ada pelanggan aktif untuk dijadwalkan ulang.');
         return;
       }
 
       Log.info(
-          'Ditemukan ${allActiveCustomers.length} pelanggan aktif. Menjadwalkan ulang satu per satu...');
+          'Ditemukan ${pelangganAktif.length} pelanggan aktif. Menjadwalkan ulang satu per satu...');
 
-      for (final activeCustomer in allActiveCustomers) {
+      for (final activeCustomer in pelangganAktif) {
         await scheduleNotification(activeCustomer);
       }
 
@@ -69,8 +69,8 @@ class PelangganAktifOpSqlite {
         c.${NamaKolom.nama} as customer_name,
         p.${NamaKolom.nama} as package_name
       FROM $_tableName ac
-      LEFT JOIN $_customerTableName c ON ac.${NamaKolom.idPelanggan} = c.${NamaKolom.id}
-      LEFT JOIN $_packageTableName p ON ac.${NamaKolom.idPaket} = p.${NamaKolom.id}
+      LEFT JOIN $_namaTabelCustomer c ON ac.${NamaKolom.idPelanggan} = c.${NamaKolom.id}
+      LEFT JOIN $_namaTabelPaket p ON ac.${NamaKolom.idPaket} = p.${NamaKolom.id}
       WHERE ac.${NamaKolom.diHapus} = 0
         AND ac.${NamaKolom.tangglberakhir} >= ?
     ''';
@@ -101,15 +101,15 @@ class PelangganAktifOpSqlite {
   }
 
   Future<PelangganAktifModel> tambahPelangganAktif(
-    final PelangganAktifModel activeCustomer, {
+    final PelangganAktifModel pelangganAktif, {
     final bool fromServer = false,
   }) async {
     try {
-      final customerToSave = activeCustomer.copyWith(
+      final customerToSave = pelangganAktif.copyWith(
         diperbaruiPada: _nowUtc,
       );
 
-      await _baseOperation.runComplexOperation<void>(
+      await _baseOpSqlite.runComplexOperation<void>(
         (final Transaction txn) async {
           final data = customerToSave.toSqlite();
           await txn.insert(
@@ -188,7 +188,7 @@ class PelangganAktifOpSqlite {
 
       Log.info('Memperbarui active customer ID: ${customerToSave.id}');
 
-      await _baseOperation.runComplexOperation<void>(
+      await _baseOpSqlite.runComplexOperation<void>(
         (final Transaction txn) async {
           final data = customerToSave.toSqlite();
           await txn.update(
@@ -218,51 +218,53 @@ class PelangganAktifOpSqlite {
       Log.info(
           '(RE)SCHEDULING: Menjadwalkan notifikasi untuk active customer ID: ${activeCustomer.id}');
 
-      final customer = await _customerOperation
+      final pelanggan = await _pelangganOpSqlite
           .ambilBerdasarkanId(activeCustomer.idPelanggan);
-      final customerName = customer?.name ?? 'Tanpa Nama';
+      final customerName = pelanggan?.name ?? 'Tanpa Nama';
 
-      await _notifikasiServis.batalNotifikasi(activeCustomer.id.hashCode);
-      await _notifikasiServis.batalNotifikasi((activeCustomer.id.hashCode + 1));
-      await _notifikasiServis.batalNotifikasi((activeCustomer.id.hashCode + 2));
+      await _layananNotifikasi.batalNotifikasi(activeCustomer.id.hashCode);
+      await _layananNotifikasi
+          .batalNotifikasi((activeCustomer.id.hashCode + 1));
+      await _layananNotifikasi
+          .batalNotifikasi((activeCustomer.id.hashCode + 2));
       Log.info(
           'Membatalkan notifikasi yang ada sebelum menjadwalkan ulang notifiaksi');
 
-      final exactTime = activeCustomer.tanggalBerakhir;
-      if (exactTime.isAfter(DateTime.now())) {
-        await _notifikasiServis.jadwalNotifikasi(
+      final tanggalBerakhir = activeCustomer.tanggalBerakhir;
+      if (tanggalBerakhir.isAfter(DateTime.now())) {
+        await _layananNotifikasi.jadwalNotifikasi(
           id: (activeCustomer.id.hashCode + 2),
           title: 'Masa Aktif Habis!',
           body: 'Paket WiFi untuk $customerName telah berakhir sekarang.',
-          jadwal: exactTime,
+          jadwal: tanggalBerakhir,
         );
       }
 
-      final h1Schedule =
+      final jadwalH1 =
           activeCustomer.tanggalBerakhir.subtract(const Duration(days: 1));
-      if (h1Schedule.isAfter(DateTime.now())) {
-        await _notifikasiServis.jadwalNotifikasi(
+      if (jadwalH1.isAfter(DateTime.now())) {
+        await _layananNotifikasi.jadwalNotifikasi(
           id: activeCustomer.id.hashCode,
           title: 'Paket Akan Segera Berakhir',
           body: 'Paket untuk pelanggan $customerName akan berakhir besok.',
-          jadwal: h1Schedule,
+          jadwal: jadwalH1,
         );
       }
 
-      final h3Schedule =
+      final jadwalH3 =
           activeCustomer.tanggalBerakhir.subtract(const Duration(days: 3));
-      if (h3Schedule.isAfter(DateTime.now())) {
-        await _notifikasiServis.jadwalNotifikasi(
+      if (jadwalH3.isAfter(DateTime.now())) {
+        await _layananNotifikasi.jadwalNotifikasi(
           id: (activeCustomer.id.hashCode + 1),
           title: 'Pengingat Paket',
           body:
               'Paket untuk pelanggan $customerName akan berakhir dalam 3 hari.',
-          jadwal: h3Schedule,
+          jadwal: jadwalH3,
         );
       }
 
       Log.info('Penjadwalan notifikasi selesai untuk ID: ${activeCustomer.id}',
-          {'h3': h3Schedule, 'h1': h1Schedule, 'h0': exactTime});
+          {'h3': jadwalH3, 'h1': jadwalH1, 'h0': tanggalBerakhir});
     } on Exception catch (e, st) {
       Log.error('Gagal menjadwalkan notifikasi untuk ID: ${activeCustomer.id}',
           e: e, s: st);
@@ -283,7 +285,7 @@ class PelangganAktifOpSqlite {
           )
           .toList();
 
-      await _baseOperation.insertOrUpdateBatch(
+      await _baseOpSqlite.insertOrUpdateBatch(
         _tableName,
         data,
         dariServer: fromServer,
@@ -310,7 +312,7 @@ class PelangganAktifOpSqlite {
         return;
       }
 
-      await _baseOperation.runComplexOperation<void>(
+      await _baseOpSqlite.runComplexOperation<void>(
         (Transaction txn) async {
           final archivedCustomer = activeCustomer.copyWith(
             diperbaruiPada: _nowUtc,
@@ -325,9 +327,9 @@ class PelangganAktifOpSqlite {
             whereArgs: [id],
           );
 
-          await _notifikasiServis.batalNotifikasi(id.hashCode);
-          await _notifikasiServis.batalNotifikasi((id.hashCode + 1));
-          await _notifikasiServis.batalNotifikasi((id.hashCode + 2));
+          await _layananNotifikasi.batalNotifikasi(id.hashCode);
+          await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
+          await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
           Log.info('Notifikasi telah di batalkan pada fungsi softDelete');
         },
         fromServer: fromServer,
@@ -344,7 +346,7 @@ class PelangganAktifOpSqlite {
     final bool fromServer = false,
   }) async {
     try {
-      await _baseOperation.runComplexOperation<void>(
+      await _baseOpSqlite.runComplexOperation<void>(
         (final Transaction txn) async {
           final deadline = _nowUtc.subtract(const Duration(days: 30));
 
@@ -402,7 +404,7 @@ class PelangganAktifOpSqlite {
       final idsToArchive =
           expiredCustomers.map((final p) => p[NamaKolom.id] as String).toList();
 
-      await _baseOperation.runComplexOperation<void>(
+      await _baseOpSqlite.runComplexOperation<void>(
         (final Transaction txn) async {
           await txn.update(
             _tableName,
@@ -417,9 +419,9 @@ class PelangganAktifOpSqlite {
           );
 
           for (final id in idsToArchive) {
-            await _notifikasiServis.batalNotifikasi(id.hashCode);
-            await _notifikasiServis.batalNotifikasi((id.hashCode + 1));
-            await _notifikasiServis.batalNotifikasi((id.hashCode + 2));
+            await _layananNotifikasi.batalNotifikasi(id.hashCode);
+            await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
+            await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
           }
         },
         fromServer: fromServer,
@@ -446,7 +448,7 @@ class PelangganAktifOpSqlite {
 
       final idsToArchive = allCustomers.map((final p) => p.id).toList();
 
-      await _baseOperation.runComplexOperation<void>(
+      await _baseOpSqlite.runComplexOperation<void>(
         (final Transaction txn) async {
           await txn.update(
             _tableName,
@@ -461,9 +463,9 @@ class PelangganAktifOpSqlite {
           );
 
           for (final id in idsToArchive) {
-            await _notifikasiServis.batalNotifikasi(id.hashCode);
-            await _notifikasiServis.batalNotifikasi((id.hashCode + 1));
-            await _notifikasiServis.batalNotifikasi((id.hashCode + 2));
+            await _layananNotifikasi.batalNotifikasi(id.hashCode);
+            await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
+            await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
           }
         },
         fromServer: fromServer,

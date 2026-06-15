@@ -15,7 +15,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/dompet_op_sqlite.dart';
 import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
+import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/notifikasi_op_sqlite.dart';
 
 // Mocks

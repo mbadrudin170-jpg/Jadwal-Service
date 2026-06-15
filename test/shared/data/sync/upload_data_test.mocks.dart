@@ -614,24 +614,25 @@ class MockSyncManager extends _i1.Mock implements _i10.SyncManager {
   }
 
   @override
-  _i6.Future<DateTime> ambilTanggalTerakhirDownload() => (super.noSuchMethod(
+  _i6.Future<DateTime> ambilWaktuTerakhirDownload() => (super.noSuchMethod(
         Invocation.method(
-          #ambilTanggalTerakhirDownload,
+          #ambilWaktuTerakhirDownload,
           [],
         ),
         returnValue: _i6.Future<DateTime>.value(_FakeDateTime_11(
           this,
           Invocation.method(
-            #ambilTanggalTerakhirDownload,
+            #ambilWaktuTerakhirDownload,
             [],
           ),
         )),
       ) as _i6.Future<DateTime>);
 
   @override
-  _i6.Future<void> setLastDownload(DateTime? time) => (super.noSuchMethod(
+  _i6.Future<void> simpanWaktuTerakhirunduh(DateTime? time) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #setLastDownload,
+          #simpanWaktuTerakhirunduh,
           [time],
         ),
         returnValue: _i6.Future<void>.value(),
@@ -639,24 +640,25 @@ class MockSyncManager extends _i1.Mock implements _i10.SyncManager {
       ) as _i6.Future<void>);
 
   @override
-  _i6.Future<DateTime> getLastUpload() => (super.noSuchMethod(
+  _i6.Future<DateTime> ambilWaktuTerakhirUnggah() => (super.noSuchMethod(
         Invocation.method(
-          #getLastUpload,
+          #ambilWaktuTerakhirUnggah,
           [],
         ),
         returnValue: _i6.Future<DateTime>.value(_FakeDateTime_11(
           this,
           Invocation.method(
-            #getLastUpload,
+            #ambilWaktuTerakhirUnggah,
             [],
           ),
         )),
       ) as _i6.Future<DateTime>);
 
   @override
-  _i6.Future<void> setLastUpload(DateTime? time) => (super.noSuchMethod(
+  _i6.Future<void> simpanWaktuTerkahirUnggah(DateTime? time) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #setLastUpload,
+          #simpanWaktuTerkahirUnggah,
           [time],
         ),
         returnValue: _i6.Future<void>.value(),

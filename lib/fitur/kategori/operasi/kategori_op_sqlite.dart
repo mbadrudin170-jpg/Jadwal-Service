@@ -1,11 +1,11 @@
 // path: lib/fitur/kategori/operasi/kategori_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 class KategoriOpSqlite {
@@ -13,7 +13,7 @@ class KategoriOpSqlite {
 
   final BaseOpSqlite _baseOpSqlite;
 
-  final String _tableName = NamaTabel.category;
+  final String _tableName = NamaTabel.kategori;
 
   KategoriOpSqlite({
     required this.sqlitedb,
@@ -26,7 +26,8 @@ class KategoriOpSqlite {
   }) async {
     Log.info('Memulai createCategory untuk category: ${category.toSqlite()}');
     try {
-      final kategoriBaru = category.copyWith(diperbaruiPada: DateTime.now().toUtc());
+      final kategoriBaru =
+          category.copyWith(diperbaruiPada: DateTime.now().toUtc());
       final data = kategoriBaru.toSqlite();
 
       await _baseOpSqlite.sisipkan(
@@ -200,8 +201,9 @@ class KategoriOpSqlite {
     try {
       final data = items
           .map(
-            (final item) =>
-                item.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite(),
+            (final item) => item
+                .copyWith(diperbaruiPada: DateTime.now().toUtc())
+                .toSqlite(),
           )
           .toList();
       await _baseOpSqlite.insertOrUpdateBatch(

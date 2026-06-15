@@ -1,29 +1,17 @@
 // path: lib/shared/utils/toast_util.dart
-// diubah: Mempercepat animasi agar tidak terasa delay.
 
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-/// Tipe Toast yang tersedia.
 enum ToastType {
-  /// Toast sukses.
   success,
-
-  /// Toast error.
   error,
-
-  /// Toast peringatan.
   warning,
-
-  /// Toast informasi.
   info,
 }
 
-/// Kelas utilitas untuk menampilkan Toast dengan gaya yang konsisten
-/// sekaligus mencatat log otomatis menggunakan [Log].
 class ToastUtil {
-  /// Menampilkan Toast.
   static void _show(
     final BuildContext context,
     final String message, {
@@ -35,7 +23,6 @@ class ToastUtil {
     _createToast(context, message, type, logData, duration);
   }
 
-  /// Membuat dan menampilkan Toast berdasarkan tipe dan pesan.
   static void _createToast(
     final BuildContext context,
     final String message,
@@ -86,7 +73,6 @@ class ToastUtil {
     );
   }
 
-  /// Menampilkan Toast sukses via BuildContext.
   static void success(
     final BuildContext context,
     final String message, {
@@ -101,7 +87,6 @@ class ToastUtil {
         logData: logData,
       );
 
-  /// Menampilkan Toast error via BuildContext.
   static void error(
     final BuildContext context,
     final String message, {
@@ -116,7 +101,6 @@ class ToastUtil {
         logData: logData,
       );
 
-  /// Menampilkan Toast peringatan via BuildContext.
   static void warning(
     final BuildContext context,
     final String message, {
@@ -131,7 +115,6 @@ class ToastUtil {
         logData: logData,
       );
 
-  /// Menampilkan Toast informasi via BuildContext.
   static void info(
     final BuildContext context,
     final String message, {

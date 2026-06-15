@@ -16,15 +16,14 @@ class TransaksiOpFirebase extends BaseOpFirebase {
   }
 
   /// Mendapatkan referensi ke koleksi transaction.
-  CollectionReference get _koleksi =>
-      firestore.collection(NamaTabel.transactions);
+  CollectionReference get _koleksi => firestore.collection(NamaTabel.transaksi);
 
   /// Menambahkan transaksi baru ke Firestore.
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     Log.info('Menambahkan transaksi baru: ${transaksi.id}');
     try {
       await sisipkan(
-        NamaTabel.transactions,
+        NamaTabel.transaksi,
         transaksi.id,
         transaksi.toFirebase(),
       );
@@ -125,7 +124,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
     Log.warning(
         'Memulai penghapusan permanen transaksi di Firestore: $idTransaksi');
     try {
-      await hapusPermanen(NamaTabel.transactions, idTransaksi);
+      await hapusPermanen(NamaTabel.transaksi, idTransaksi);
       Log.info('Penghapusan permanen transaksi berhasil: $idTransaksi');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal menghapus transaksi secara permanen: $idTransaksi',
@@ -138,7 +137,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
   Future<void> hapusSementaraTransaksi(String idTransaksi) async {
     Log.info('Memulai soft delete transaksi di Firestore: $idTransaksi');
     try {
-      await hapusSementara(NamaTabel.transactions, idTransaksi);
+      await hapusSementara(NamaTabel.transaksi, idTransaksi);
       Log.info('Soft delete transaksi berhasil: $idTransaksi');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal melakukan soft delete transaksi: $idTransaksi',

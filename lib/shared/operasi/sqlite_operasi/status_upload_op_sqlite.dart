@@ -42,7 +42,7 @@ class StatusUploadOpSqlite {
       );
 
       await db.insert(
-        NamaTabel.uploadStatus,
+        NamaTabel.statusUnggah,
         data.toSqlite(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
@@ -59,7 +59,7 @@ class StatusUploadOpSqlite {
     try {
       final db = await _sqliteDb.database;
       final query = await db.query(
-        NamaTabel.uploadStatus,
+        NamaTabel.statusUnggah,
         where: 'id = ?',
         whereArgs: [UploadStatusModel.idNeedUpload],
       );
@@ -94,7 +94,7 @@ class StatusUploadOpSqlite {
     try {
       final db = await _sqliteDb.database;
       final query = await db.query(
-        NamaTabel.uploadStatus,
+        NamaTabel.statusUnggah,
         where: 'id = ?',
         whereArgs: [UploadStatusModel.idNeedUpload],
       );

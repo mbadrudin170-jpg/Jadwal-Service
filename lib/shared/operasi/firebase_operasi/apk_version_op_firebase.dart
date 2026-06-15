@@ -15,7 +15,7 @@ class ApkVersionOpFirebase {
 
   /// Referensi koleksi dengan konverter untuk `ApkVersionModel`.
   late final CollectionReference<VersiApkModel> _colection = _firestore
-      .collection(NamaTabel.userApkVersion)
+      .collection(NamaTabel.versiApkUser)
       .withConverter<VersiApkModel>(
         fromFirestore: (snapshot, _) =>
             VersiApkModel.fromFirebase(snapshot.id, snapshot.data()!),

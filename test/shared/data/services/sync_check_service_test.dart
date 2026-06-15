@@ -47,8 +47,10 @@ void main() {
     // Atur perilaku default untuk mock agar tidak terjadi error null
     when(mockUploadService.uploadSemuaData()).thenAnswer((_) async => {});
     when(mockDownloadService.downloadAllData()).thenAnswer((_) async => {});
-    when(mockSyncManager.setLastUpload(any)).thenAnswer((_) async => {});
-    when(mockSyncManager.setLastDownload(any)).thenAnswer((_) async => {});
+    when(mockSyncManager.simpanWaktuTerkahirUnggah(any))
+        .thenAnswer((_) async => {});
+    when(mockSyncManager.simpanWaktuTerakhirunduh(any))
+        .thenAnswer((_) async => {});
     when(mockNewDataCheck.resetNeedUpload()).thenAnswer((_) async => {});
   });
 
@@ -71,7 +73,7 @@ void main() {
       // Pastikan proses unggah terpicu
       verify(mockNewDataCheck.apakahSqliteAdaDataBaru()).called(1);
       verify(mockUploadService.uploadSemuaData()).called(1);
-      verify(mockSyncManager.setLastUpload(any)).called(1);
+      verify(mockSyncManager.simpanWaktuTerkahirUnggah(any)).called(1);
       verify(mockNewDataCheck.resetNeedUpload()).called(1);
 
       // Pastikan status global diperbarui karena ada unggahan
@@ -88,7 +90,7 @@ void main() {
               idDokumen: globalStatusId))
           .called(1);
       verify(mockDownloadService.downloadAllData()).called(1);
-      verify(mockSyncManager.setLastDownload(any)).called(1);
+      verify(mockSyncManager.simpanWaktuTerakhirunduh(any)).called(1);
     });
 
     test('harus menjalankan upload saja jika hanya ada data baru di lokal',
@@ -107,7 +109,7 @@ void main() {
       // VERIFIKASI
       // Pastikan proses unggah terpicu
       verify(mockUploadService.uploadSemuaData()).called(1);
-      verify(mockSyncManager.setLastUpload(any)).called(1);
+      verify(mockSyncManager.simpanWaktuTerkahirUnggah(any)).called(1);
 
       // Pastikan proses unduh diperiksa tapi tidak dieksekusi
       verify(mockNewDataCheck.apakahFirebaseAdaDataBaru(
@@ -115,7 +117,7 @@ void main() {
               idDokumen: globalStatusId))
           .called(1);
       verifyNever(mockDownloadService.downloadAllData());
-      verifyNever(mockSyncManager.setLastDownload(any));
+      verifyNever(mockSyncManager.simpanWaktuTerakhirunduh(any));
     });
 
     test('harus menjalankan download saja jika hanya ada data baru di server',
@@ -135,7 +137,7 @@ void main() {
       // Pastikan proses unggah diperiksa tapi tidak dieksekusi
       verify(mockNewDataCheck.apakahSqliteAdaDataBaru()).called(1);
       verifyNever(mockUploadService.uploadSemuaData());
-      verifyNever(mockSyncManager.setLastUpload(any));
+      verifyNever(mockSyncManager.simpanWaktuTerkahirUnggah(any));
 
       // Pastikan status global tidak diperbarui
       final statusDoc = await mockFirestore
@@ -146,7 +148,7 @@ void main() {
 
       // Pastikan proses unduh terpicu
       verify(mockDownloadService.downloadAllData()).called(1);
-      verify(mockSyncManager.setLastDownload(any)).called(1);
+      verify(mockSyncManager.simpanWaktuTerakhirunduh(any)).called(1);
     });
 
     test('tidak melakukan apa-apa jika tidak ada data baru sama sekali',
@@ -197,7 +199,7 @@ void main() {
       verify(mockUploadService.uploadSemuaData()).called(1);
 
       // Pastikan metadata tidak diperbarui karena ada error
-      verifyNever(mockSyncManager.setLastUpload(any));
+      verifyNever(mockSyncManager.simpanWaktuTerkahirUnggah(any));
       verifyNever(mockNewDataCheck.resetNeedUpload());
       final statusDoc = await mockFirestore
           .collection(NamaTabel.get(TableName.statusGlobal))
@@ -229,7 +231,7 @@ void main() {
 
       // VERIFIKASI
       verify(mockDownloadService.downloadAllData()).called(1);
-      verifyNever(mockSyncManager.setLastDownload(any));
+      verifyNever(mockSyncManager.simpanWaktuTerakhirunduh(any));
     });
   });
 }

@@ -3,7 +3,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
+import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
 import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
 
 import 'expired_subscription_check_service_test.mocks.dart';

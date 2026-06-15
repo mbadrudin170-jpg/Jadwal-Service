@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
-import 'package:wifi/user/page/info_apk_page_user.dart';
+import 'package:wifi/fitur/info_perangkat/page/info_apk_page_user.dart';
 
 void main() {
   // Mock data untuk PackageInfo

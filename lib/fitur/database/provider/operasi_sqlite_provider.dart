@@ -1,21 +1,22 @@
 // path: lib/fitur/database/provider/operasi_sqlite_provider.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
+import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
+import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
+import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart';
-import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 
 part 'operasi_sqlite_provider.g.dart';

@@ -11,7 +11,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 class NotifikasiOpFirebase {
   final FirebaseFirestore _firestore;
   final BaseOpFirebase _baseOp;
-  final String _collection = NamaTabel.notification;
+  final String _collection = NamaTabel.notifikasi;
 
   NotifikasiOpFirebase({
     required FirebaseFirestore firestore,

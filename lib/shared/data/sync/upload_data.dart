@@ -87,14 +87,14 @@ class UploadDataService {
       'Memulai proses unggah data dompet. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final time = await _syncManager.getLastUpload();
+      final time = await _syncManager.ambilWaktuTerakhirUnggah();
       Log.info(
         'Waktu sinkronisasi terakhir untuk dompet: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<DompetModel>(
-        NamaTabel.wallet,
-        NamaTabel.wallet,
+        NamaTabel.dompet,
+        NamaTabel.dompet,
         DompetModel.fromSqlite,
         (m) => m.toFirebase(),
         time,
@@ -117,14 +117,14 @@ class UploadDataService {
       'Memulai proses unggah data kategori. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final time = await _syncManager.getLastUpload();
+      final time = await _syncManager.ambilWaktuTerakhirUnggah();
       Log.info(
         'Waktu sinkronisasi terakhir untuk kategori: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<KategoriModel>(
-        NamaTabel.category,
-        NamaTabel.category,
+        NamaTabel.kategori,
+        NamaTabel.kategori,
         KategoriModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -148,7 +148,7 @@ class UploadDataService {
       'Memulai proses unggah data kritik_saran. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final terkahirUpload = await _syncManager.getLastUpload();
+      final terkahirUpload = await _syncManager.ambilWaktuTerakhirUnggah();
       Log.info(
         'Waktu sinkronisasi terakhir untuk kritik_saran: ${terkahirUpload.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -179,14 +179,14 @@ class UploadDataService {
       'Memulai proses unggah data paket. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final time = await _syncManager.getLastUpload();
+      final time = await _syncManager.ambilWaktuTerakhirUnggah();
       Log.info(
         'Waktu sinkronisasi terakhir untuk paket: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<PaketModel>(
-        NamaTabel.package,
-        NamaTabel.package,
+        NamaTabel.paket,
+        NamaTabel.paket,
         PaketModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -210,14 +210,14 @@ class UploadDataService {
       'Memulai proses unggah data pelanggan_aktif. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final time = await _syncManager.getLastUpload();
+      final time = await _syncManager.ambilWaktuTerakhirUnggah();
       Log.info(
         'Waktu sinkronisasi terakhir untuk pelanggan_aktif: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<PelangganAktifModel>(
-        NamaTabel.activeCustomer,
-        NamaTabel.activeCustomer,
+        NamaTabel.pelangganAktif,
+        NamaTabel.pelangganAktif,
         PelangganAktifModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -241,14 +241,14 @@ class UploadDataService {
       'Memulai proses unggah data pelanggan. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final time = await _syncManager.getLastUpload();
+      final time = await _syncManager.ambilWaktuTerakhirUnggah();
       Log.info(
         'Waktu sinkronisasi terakhir untuk pelanggan: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<PelangganModel>(
-        NamaTabel.customer,
-        NamaTabel.customer,
+        NamaTabel.pelanggan,
+        NamaTabel.pelanggan,
         PelangganModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -272,14 +272,14 @@ class UploadDataService {
       'Memulai proses unggah data pesanan. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final time = await _syncManager.getLastUpload();
+      final time = await _syncManager.ambilWaktuTerakhirUnggah();
       Log.info(
         'Waktu sinkronisasi terakhir untuk pesanan: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<OrderModel>(
-        NamaTabel.customerOrder,
-        NamaTabel.customerOrder,
+        NamaTabel.pesananPelanggan,
+        NamaTabel.pesananPelanggan,
         OrderModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -303,14 +303,14 @@ class UploadDataService {
       'Memulai proses unggah data transaksi. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final time = await _syncManager.getLastUpload();
+      final time = await _syncManager.ambilWaktuTerakhirUnggah();
       Log.info(
         'Waktu sinkronisasi terakhir untuk transaksi: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<TransaksiModel>(
-        NamaTabel.transactions,
-        NamaTabel.transactions,
+        NamaTabel.transaksi,
+        NamaTabel.transaksi,
         TransaksiModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -334,14 +334,14 @@ class UploadDataService {
       'Memulai proses unggah data sub_kategori. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final time = await _syncManager.getLastUpload();
+      final time = await _syncManager.ambilWaktuTerakhirUnggah();
       Log.info(
         'Waktu sinkronisasi terakhir untuk sub_kategori: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<SubCategoryModel>(
-        NamaTabel.subCategory,
-        NamaTabel.subCategory,
+        NamaTabel.subKategori,
+        NamaTabel.subKategori,
         SubCategoryModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -365,7 +365,7 @@ class UploadDataService {
       'Memulai proses unggah data pengaturan. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final time = await _syncManager.getLastUpload();
+      final time = await _syncManager.ambilWaktuTerakhirUnggah();
       Log.info(
         'Waktu sinkronisasi terakhir untuk pengaturan: ${time.toIso8601String()}. '
         'Data pengaturan akan selalu diunggah, jadi waktu ini akan diabaikan pada level query.',
@@ -396,14 +396,14 @@ class UploadDataService {
       'Memulai proses unggah data versi_apk_user. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final time = await _syncManager.getLastUpload();
+      final time = await _syncManager.ambilWaktuTerakhirUnggah();
       Log.info(
         'Waktu sinkronisasi terakhir untuk versi_apk_user: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<VersiApkModel>(
-        NamaTabel.userApkVersion,
-        NamaTabel.userApkVersion,
+        NamaTabel.versiApkUser,
+        NamaTabel.versiApkUser,
         VersiApkModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -453,7 +453,7 @@ class UploadDataService {
 
       List<Map<String, dynamic>> dataToUpload = [];
 
-      if (tableName == NamaTabel.userApkVersion) {
+      if (tableName == NamaTabel.versiApkUser) {
         Log.info(
           'Tabel $tableName adalah tabel khusus. Mengambil semua data tanpa filter waktu.',
         );

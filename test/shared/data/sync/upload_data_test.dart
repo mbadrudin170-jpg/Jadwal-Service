@@ -49,7 +49,8 @@ void main() {
     final lastSync = DateTime(2023);
 
     setUp(() {
-      when(mockSyncManager.getLastUpload()).thenAnswer((_) async => lastSync);
+      when(mockSyncManager.ambilWaktuTerakhirUnggah())
+          .thenAnswer((_) async => lastSync);
     });
 
     test('1. uploadAllData harus mengoordinasikan semua metode unggah individu',
@@ -62,7 +63,8 @@ void main() {
 
       await uploadDataService.uploadSemuaData();
 
-      verify(mockSyncManager.getLastUpload()).called(greaterThanOrEqualTo(10));
+      verify(mockSyncManager.ambilWaktuTerakhirUnggah())
+          .called(greaterThanOrEqualTo(10));
     });
 
     test(

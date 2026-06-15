@@ -1,4 +1,4 @@
-// path: lib/fitur/paket/operasi/paket_op_Sqlite.dart
+// path: lib/fitur/paket/operasi/paket_op_sqlite.dart
 
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart';
@@ -17,7 +17,7 @@ class PaketOpSqlite {
 
   /// Instance dari [BaseOpSqlite] untuk operasi CRUD dasar.
   final BaseOpSqlite basOpSqlite;
-  final String _tabel = NamaTabel.package;
+  final String _tabel = NamaTabel.paket;
   final _nowUtc = DateTime.now().toUtc();
 
   PaketOpSqlite({

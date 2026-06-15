@@ -1,5 +1,7 @@
 // path: lib/fitur/order/page/order_page.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
@@ -116,7 +118,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                   TextButton(
                     onPressed: () {
                       Navigator.of(dialogContext).pop();
-                      _ubahStatus(context, order, ref);
+                      unawaited(_ubahStatus(context, order, ref));
                     },
                     child: const Text('Ubah Status'),
                   ),

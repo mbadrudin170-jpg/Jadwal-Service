@@ -11,7 +11,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 class DompetOpSqlite {
   final SqliteDatabase sqliteDb;
   final BaseOpSqlite _baseOperation;
-  final String _tableName = NamaTabel.wallet;
+  final String _tabelDompet = NamaTabel.dompet;
   final _nowUtc = DateTime.now().toUtc();
 
   /// Konstruktor dengan injeksi dependensi untuk pengujian.
@@ -28,7 +28,7 @@ class DompetOpSqlite {
     try {
       final data = wallet.copyWith(diperbaruiPada: _nowUtc).toSqlite();
       await _baseOperation.sisipkan(
-        _tableName,
+        _tabelDompet,
         data,
         dariServer: fromServer,
       );
@@ -52,7 +52,7 @@ class DompetOpSqlite {
           ? null
           : '${NamaKolom.diHapus} = 0 AND ${NamaKolom.diarsipkanPada} IS NULL';
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _tabelDompet,
         where: query,
       );
 
@@ -74,7 +74,7 @@ class DompetOpSqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _tabelDompet,
         where: '${NamaKolom.id} = ? AND ${NamaKolom.diHapus} = 0',
         whereArgs: [id],
       );
@@ -106,7 +106,7 @@ class DompetOpSqlite {
     try {
       final data = wallet.copyWith(diarsipkanPada: _nowUtc).toSqlite();
       await _baseOperation.update(
-        _tableName,
+        _tabelDompet,
         data,
         wallet.id,
         dariServer: fromServer,
@@ -128,7 +128,7 @@ class DompetOpSqlite {
     Log.info('Memulai soft delete untuk wallet ID: $id');
     try {
       await _baseOperation.softDelete(
-        _tableName,
+        _tabelDompet,
         id,
         dariServer: fromServer,
       );
@@ -150,7 +150,7 @@ class DompetOpSqlite {
     Log.info('Memulai soft delete untuk semua dompet');
     try {
       final count = await _baseOperation.softDeleteAll(
-        _tableName,
+        _tabelDompet,
         dariServer: fromServer,
       );
       Log.info('Berhasil soft delete semua dompet. Total: $count item.');
@@ -172,7 +172,7 @@ class DompetOpSqlite {
     try {
       final db = await sqliteDb.database;
       final result = await db.rawQuery(
-        'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tableName WHERE ${NamaKolom.diHapus} = 0',
+        'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tabelDompet WHERE ${NamaKolom.diHapus} = 0',
       );
 
       double total = 0.0;
@@ -195,7 +195,7 @@ class DompetOpSqlite {
     try {
       final db = await sqliteDb.database;
       final result = await db.rawQuery(
-        'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tableName WHERE ${NamaKolom.saldo} > 0 AND ${NamaKolom.diHapus} = 0',
+        'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tabelDompet WHERE ${NamaKolom.saldo} > 0 AND ${NamaKolom.diHapus} = 0',
       );
 
       double total = 0.0;
@@ -218,7 +218,7 @@ class DompetOpSqlite {
     try {
       final db = await sqliteDb.database;
       final result = await db.rawQuery(
-        'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tableName WHERE ${NamaKolom.saldo} < 0 AND ${NamaKolom.diHapus} = 0',
+        'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tabelDompet WHERE ${NamaKolom.saldo} < 0 AND ${NamaKolom.diHapus} = 0',
       );
 
       double total = 0.0;
@@ -251,7 +251,7 @@ class DompetOpSqlite {
           )
           .toList();
       await _baseOperation.insertOrUpdateBatch(
-        _tableName,
+        _tabelDompet,
         data,
         dariServer: fromServer,
       );

@@ -11,8 +11,8 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart';
+import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
 final statistikOpSliteProvider = Provider<StatistikOpSqlite>((ref) {
@@ -83,7 +83,7 @@ class StatistikOpSqlite {
         'Mulai mengambil pendapatan bersih (paid-unpaid) bulan ini dari SQLite.');
     try {
       final db = await SqliteDatabase.instance.database;
-      const String namaTabel = '"${NamaTabel.transactions}"';
+      const String namaTabel = '"${NamaTabel.transaksi}"';
       final String statusLunas = StatusPembayaran.paid.name;
       final String statusBelumLunas = StatusPembayaran.unpaid.name;
 
@@ -123,7 +123,7 @@ class StatistikOpSqlite {
     Log.info('Mulai mengambil total jumlah pelanggan dari SQLite.');
     try {
       final db = await SqliteDatabase.instance.database;
-      const String namaTabel = '"${NamaTabel.customer}"';
+      const String namaTabel = '"${NamaTabel.pelanggan}"';
 
       final result = await db.rawQuery(
         '''

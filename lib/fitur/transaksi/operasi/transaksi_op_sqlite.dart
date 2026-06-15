@@ -13,7 +13,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 class TransaksiOpsqlite {
   final SqliteDatabase sqliteDb;
   final BaseOpSqlite baseOpSqlite;
-  final String _tabel = NamaTabel.transactions;
+  final String _tabel = NamaTabel.transaksi;
   final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
   final _nowUtc = DateTime.now().toUtc();
 
@@ -67,7 +67,7 @@ class TransaksiOpsqlite {
           (totalResult.first['total'] as num?)?.toDouble() ?? 0.0;
 
       await txn.update(
-        NamaTabel.wallet,
+        NamaTabel.dompet,
         {
           NamaKolom.saldo: totalBalance,
           NamaKolom.diperbaruiPada: _nowEpoch,
@@ -387,7 +387,7 @@ class TransaksiOpsqlite {
           Log.info('$rowsAffected transaksi telah ditandai sebagai dihapus');
 
           await txn.update(
-            NamaTabel.wallet,
+            NamaTabel.dompet,
             {
               NamaKolom.saldo: 0,
               NamaKolom.diperbaruiPada: _nowEpoch,

@@ -232,7 +232,7 @@ class _ManageAnnouncementPageState
       final storageService = ref.read(imageStorageServiceProvider);
       try {
         final String uploadUrl =
-            await storageService.uploadImage(_selectedImage!, NamaTabel.events);
+            await storageService.uploadImage(_selectedImage!, NamaTabel.event);
         imageUrl = uploadUrl;
         if (imageUrl.isEmpty) {
           throw Exception('URL gambar kosong dari storage service.');

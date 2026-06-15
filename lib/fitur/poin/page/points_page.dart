@@ -19,7 +19,7 @@ import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
-import 'package:wifi/user/page/transaction_detail_u.dart';
+import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
@@ -183,9 +183,9 @@ class _PointsPageState extends ConsumerState<PoinPage> {
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (context) => TransactionDetailPage(
-          transaction: transaction,
-          package: package,
+        builder: (context) => DetailTransaksiU(
+          transaksi: transaction,
+          paket: package,
         ),
       ),
     );

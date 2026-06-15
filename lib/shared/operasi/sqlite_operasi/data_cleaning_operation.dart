@@ -35,17 +35,17 @@ class DataCleaningOperation {
 
     // Daftar nama tabel untuk SQLite dan koleksi untuk Firestore
     final List<String> daftarTabelDanKoleksi = [
-      NamaTabel.customer,
-      NamaTabel.activeCustomer,
-      NamaTabel.package,
-      NamaTabel.category,
-      NamaTabel.subCategory,
-      NamaTabel.transactions,
-      NamaTabel.wallet,
-      NamaTabel.customerOrder,
-      NamaTabel.userApkVersion,
+      NamaTabel.pelanggan,
+      NamaTabel.pelangganAktif,
+      NamaTabel.paket,
+      NamaTabel.kategori,
+      NamaTabel.subKategori,
+      NamaTabel.transaksi,
+      NamaTabel.dompet,
+      NamaTabel.pesananPelanggan,
+      NamaTabel.versiApkUser,
       NamaTabel.feedback,
-      NamaTabel.notification
+      NamaTabel.notifikasi
     ];
 
     // --- Langkah 1: Hapus dari Database Lokal (SQLite) ---

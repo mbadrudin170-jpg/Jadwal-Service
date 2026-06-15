@@ -13,7 +13,7 @@ class PaketOpFirebase {
     Log.info('PackageOpFirebase diinisialisasi.');
   }
 
-  CollectionReference get _collection => db.collection(NamaTabel.package);
+  CollectionReference get _collection => db.collection(NamaTabel.paket);
 
   Future<List<PaketModel>> ambilPaketPublik() async {
     try {

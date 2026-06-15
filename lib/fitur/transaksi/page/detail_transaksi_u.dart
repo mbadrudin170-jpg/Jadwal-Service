@@ -1,23 +1,22 @@
-// path: lib/user/page/transaction_detail_user.dart
+// path: lib/fitur/transaksi/page/detail_transaksi_u.dart
 
 import 'package:flutter/material.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart'; // DIUBAH
 
-class TransactionDetailPage extends StatelessWidget {
-  final TransaksiModel transaction;
-  final PaketModel? package;
+class DetailTransaksiU extends StatelessWidget {
+  final TransaksiModel transaksi;
+  final PaketModel? paket;
 
-  const TransactionDetailPage(
-      {super.key, required this.transaction, this.package});
+  const DetailTransaksiU({super.key, required this.transaksi, this.paket});
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     Log.info(
-      'Membangun halaman TransactionDetailPage untuk transaksi ID: ${transaction.id}',
+      'Membangun halaman TransactionDetailPage untuk transaksi ID: ${transaksi.id}',
     );
     return Scaffold(
       appBar: AppBar(
@@ -30,44 +29,43 @@ class TransactionDetailPage extends StatelessWidget {
           children: [
             _buildInfoRow(
               'Tanggal:',
-              FormatWaktuLengkap.formatSingkat(transaction.tanggal),
+              FormatWaktuLengkap.formatSingkat(transaksi.tanggal),
             ),
-            _buildInfoRow('Keterangan:', transaction.deskripsi),
+            _buildInfoRow('Keterangan:', transaksi.deskripsi),
             _buildInfoRow(
               'Jumlah:',
-              FormatUang.formatMataUang(transaction.jumlah),
+              FormatUang.formatMataUang(transaksi.jumlah),
             ),
-            _buildInfoRow('Tipe:', transaction.tipe.displayName),
-            if (package != null)
-              _buildInfoRow('Paket:', package!.nama)
-            else if (transaction.idPaket != null)
+            _buildInfoRow('Tipe:', transaksi.tipe.displayName),
+            if (paket != null)
+              _buildInfoRow('Paket:', paket!.nama)
+            else if (transaksi.idPaket != null)
               _buildInfoRow('Paket:', 'Memuat...'),
             _buildInfoRow(
               'Status Pembayaran:',
-              transaction.statusPembayaran.displayName,
+              transaksi.statusPembayaran.displayName,
             ),
-            if (transaction.tanggalMulai != null)
+            if (transaksi.tanggalMulai != null)
               _buildInfoRow(
                 'Tanggal Mulai:',
-                FormatWaktuLengkap.formatSingkat(transaction.tanggalMulai!),
+                FormatWaktuLengkap.formatSingkat(transaksi.tanggalMulai!),
               ),
-            if (transaction.tangglberakhir != null)
+            if (transaksi.tangglberakhir != null)
               _buildInfoRow(
                 'Tanggal Berakhir:',
-                FormatWaktuLengkap.formatSingkat(transaction.tangglberakhir!),
+                FormatWaktuLengkap.formatSingkat(transaksi.tangglberakhir!),
               ),
             _buildInfoRow(
               'Poin didapat:',
-              transaction.poinDidapat.toString(),
+              transaksi.poinDidapat.toString(),
             ),
             _buildInfoRow(
               'Poin digunakan:',
-              transaction.poinDigunakan.toString(),
+              transaksi.poinDigunakan.toString(),
             ),
-            if (transaction.durasiBonus! > 0 &&
-                transaction.tipeDurasiBonus != null)
+            if (transaksi.durasiBonus > 0 && transaksi.tipeDurasiBonus != null)
               _buildInfoRow('Bonus',
-                  '${transaction.durasiBonus} ${transaction.tipeDurasiBonus!.displayName}')
+                  '${transaksi.durasiBonus} ${transaksi.tipeDurasiBonus!.displayName}')
           ],
         ),
       ),

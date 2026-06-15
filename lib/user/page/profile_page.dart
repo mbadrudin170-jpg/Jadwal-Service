@@ -4,18 +4,18 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/fitur/poin/page/points_page.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
-import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/fitur/poin/page/points_page.dart';
 import 'package:wifi/user/page/user_customer_detail.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
@@ -55,7 +55,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    ref.read(interstitialAdServiceProvider).preloadAd();
+    unawaited(ref.read(interstitialAdServiceProvider).preloadAd());
     _customerOp = ref.read(customerOpFirebaseProvider);
     _transactionOp = ref.read(transactionOpFirebaseProvider);
     _packageOp = ref.read(packageOpFirebaseProvider);
@@ -265,7 +265,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               .toUpperCase(),
           valueColor: paymentStatusColor,
         ),
-        if (lastSubscription.durasiBonus! > 0 &&
+        if (lastSubscription.durasiBonus > 0 &&
             lastSubscription.tipeDurasiBonus != null)
           _InfoItem(
               icon: TIcons.bonus,

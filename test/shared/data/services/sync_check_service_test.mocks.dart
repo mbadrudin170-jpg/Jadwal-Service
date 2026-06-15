@@ -47,24 +47,25 @@ class MockSyncManager extends _i1.Mock implements _i2.SyncManager {
   }
 
   @override
-  _i3.Future<DateTime> ambilTanggalTerakhirDownload() => (super.noSuchMethod(
+  _i3.Future<DateTime> ambilWaktuTerakhirDownload() => (super.noSuchMethod(
         Invocation.method(
-          #ambilTanggalTerakhirDownload,
+          #ambilWaktuTerakhirDownload,
           [],
         ),
         returnValue: _i3.Future<DateTime>.value(_FakeDateTime_0(
           this,
           Invocation.method(
-            #ambilTanggalTerakhirDownload,
+            #ambilWaktuTerakhirDownload,
             [],
           ),
         )),
       ) as _i3.Future<DateTime>);
 
   @override
-  _i3.Future<void> setLastDownload(DateTime? time) => (super.noSuchMethod(
+  _i3.Future<void> simpanWaktuTerakhirunduh(DateTime? time) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #setLastDownload,
+          #simpanWaktuTerakhirunduh,
           [time],
         ),
         returnValue: _i3.Future<void>.value(),
@@ -72,24 +73,25 @@ class MockSyncManager extends _i1.Mock implements _i2.SyncManager {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<DateTime> getLastUpload() => (super.noSuchMethod(
+  _i3.Future<DateTime> ambilWaktuTerakhirUnggah() => (super.noSuchMethod(
         Invocation.method(
-          #getLastUpload,
+          #ambilWaktuTerakhirUnggah,
           [],
         ),
         returnValue: _i3.Future<DateTime>.value(_FakeDateTime_0(
           this,
           Invocation.method(
-            #getLastUpload,
+            #ambilWaktuTerakhirUnggah,
             [],
           ),
         )),
       ) as _i3.Future<DateTime>);
 
   @override
-  _i3.Future<void> setLastUpload(DateTime? time) => (super.noSuchMethod(
+  _i3.Future<void> simpanWaktuTerkahirUnggah(DateTime? time) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #setLastUpload,
+          #simpanWaktuTerkahirUnggah,
           [time],
         ),
         returnValue: _i3.Future<void>.value(),

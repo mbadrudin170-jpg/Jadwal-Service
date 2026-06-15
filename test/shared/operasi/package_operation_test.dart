@@ -9,7 +9,7 @@ import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 
 import 'package_operation_test.mocks.dart';
 

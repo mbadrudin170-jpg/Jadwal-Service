@@ -57,7 +57,7 @@ class LayananCekSinkronisasi {
       if (adaDataUntukUnggah) {
         await _layananUnggah.uploadSemuaData();
         final DateTime sekarang = DateTime.now();
-        await _pengelolaSinkronisasi.setLastUpload(sekarang);
+        await _pengelolaSinkronisasi.simpanWaktuTerkahirUnggah(sekarang);
         await _pengecekanDataBaru.resetButuhUpload();
         Log.info('Metadata sinkronisasi berhasil diperbarui: $sekarang.');
         return true;
@@ -98,7 +98,7 @@ class LayananCekSinkronisasi {
       if (adaDataBaruDiServer) {
         await _layananUnduh.downloadAllData();
         final DateTime sekarang = DateTime.now();
-        await _pengelolaSinkronisasi.setLastDownload(sekarang);
+        await _pengelolaSinkronisasi.simpanWaktuTerakhirunduh(sekarang);
         Log.info('Sinkronisasi masuk selesai: $sekarang.');
       } else {
         Log.info('Cloud tidak memiliki pembaruan data.');

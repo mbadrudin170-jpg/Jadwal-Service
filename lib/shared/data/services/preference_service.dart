@@ -17,7 +17,7 @@ class PreferenceService {
   /// Mengambil timestamp terakhir unduh.
   ///
   /// Mengembalikan [DateTime] atau `null` jika belum pernah disimpan.
-  static Future<DateTime?> getLastDownload() async {
+  static Future<DateTime?> ambilWaktuTerakhirDownload() async {
     Log.info(
       'Mengambil timestamp terakhir unduh dengan key: $_keyLastDownload',
     );
@@ -27,7 +27,7 @@ class PreferenceService {
   }
 
   /// Menyimpan timestamp terakhir unduh.
-  static Future<void> setLastDownload(DateTime time) async {
+  static Future<void> simpanWaktuTerakhirunduh(DateTime time) async {
     Log.info(
       'Menyiapkan penyimpanan timestamp terakhir unduh: $time $_keyLastDownload',
     );
@@ -38,7 +38,7 @@ class PreferenceService {
   /// Mengambil timestamp terakhir unggah.
   ///
   /// Mengembalikan [DateTime] atau `null` jika belum pernah disimpan.
-  static Future<DateTime?> getLastUpload() async {
+  static Future<DateTime?> ambilWaktuTerakhirUnggah() async {
     Log.info(
       'Mengambil timestamp terakhir unggah dengan key: $_keyLastUpload',
     );
@@ -48,7 +48,7 @@ class PreferenceService {
   }
 
   /// Menyimpan timestamp terakhir unggah.
-  static Future<void> setLastUpload(DateTime time) async {
+  static Future<void> simpanWaktuTerkahirUnggah(DateTime time) async {
     Log.info(
       'Menyiapkan penyimpanan timestamp terakhir unggah: $time $_keyLastUpload',
     );
@@ -92,7 +92,7 @@ class PreferenceService {
   }
 
   /// Mereset semua timestamp sinkronisasi (unduh dan unggah).
-  static Future<void> resetSyncTime() async {
+  static Future<void> resetWaktuSinkronisasi() async {
     final prefs = await _prefs;
     Log.warning('Menghapus timestamp terakhir unduh ($_keyLastDownload)');
     await prefs.remove(_keyLastDownload);

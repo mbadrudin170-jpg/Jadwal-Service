@@ -140,8 +140,10 @@ class FeedbackHistoryUser extends ConsumerWidget {
         final feedbackOp = ref.read(feedbackOpFirebaseProvider);
         await feedbackOp.softDeleteFeedback(docId);
         ref.invalidate(feedbackStreamProvider(userId));
+        if (!context.mounted) return;
         ToastUtil.success(context, 'Masukan berhasil dihapus.');
       } on Exception catch (e) {
+        if (!context.mounted) return;
         ToastUtil.error(context, 'Gagal menghapus: $e');
       }
     }

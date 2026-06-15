@@ -127,8 +127,7 @@ class DownloadDataService {
   Future<void> downloadSettingsData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [SETTINGS]');
     try {
-      final lastDownloadTime =
-          await _syncManager.ambilTanggalTerakhirDownload();
+      final lastDownloadTime = await _syncManager.ambilWaktuTerakhirDownload();
       // Menggunakan konstanta NamaTabel.settings untuk nama koleksi
       const collectionName = NamaTabel.settings;
       // Menggunakan globalSettingsId dari settings_model.dart
@@ -176,9 +175,9 @@ class DownloadDataService {
   /// Mengunduh data dompet dari Firebase.
   Future<void> downloadWalletData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [WALLET]');
-    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
+    final lastDownloadTime = await _syncManager.ambilWaktuTerakhirDownload();
     await synchronizeCollection<DompetModel>(
-      collectionName: NamaTabel.wallet,
+      collectionName: NamaTabel.dompet,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: DompetModel.fromFirebase,
       batchOperation: (final data) =>
@@ -189,9 +188,9 @@ class DownloadDataService {
   /// Mengunduh data kategori dari Firebase.
   Future<void> downloadCategoryData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [CATEGORY]');
-    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
+    final lastDownloadTime = await _syncManager.ambilWaktuTerakhirDownload();
     await synchronizeCollection<KategoriModel>(
-      collectionName: NamaTabel.category,
+      collectionName: NamaTabel.kategori,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: KategoriModel.fromFirebase,
       batchOperation: (final data) =>
@@ -202,9 +201,9 @@ class DownloadDataService {
   /// Mengunduh data paket dari Firebase.
   Future<void> downloadPackageData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PACKAGE]');
-    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
+    final lastDownloadTime = await _syncManager.ambilWaktuTerakhirDownload();
     await synchronizeCollection<PaketModel>(
-      collectionName: NamaTabel.package,
+      collectionName: NamaTabel.paket,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: PaketModel.fromFirebase,
       batchOperation: (final data) =>
@@ -215,9 +214,9 @@ class DownloadDataService {
   /// Mengunduh data pelanggan dari Firebase.
   Future<void> downloadCustomerData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [CUSTOMER]');
-    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
+    final lastDownloadTime = await _syncManager.ambilWaktuTerakhirDownload();
     await synchronizeCollection<PelangganModel>(
-      collectionName: NamaTabel.customer,
+      collectionName: NamaTabel.pelanggan,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: PelangganModel.fromFirebase,
       batchOperation: (final data) =>
@@ -228,9 +227,9 @@ class DownloadDataService {
   /// Mengunduh data pelanggan aktif dari Firebase.
   Future<void> downloadActiveCustomerData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [ACTIVE CUSTOMER]');
-    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
+    final lastDownloadTime = await _syncManager.ambilWaktuTerakhirDownload();
     await synchronizeCollection<PelangganAktifModel>(
-      collectionName: NamaTabel.activeCustomer,
+      collectionName: NamaTabel.pelangganAktif,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: PelangganAktifModel.fromFirebase,
       batchOperation: (final data) =>
@@ -241,9 +240,9 @@ class DownloadDataService {
   /// Mengunduh data transaksi dari Firebase.
   Future<void> downloadTransactionData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [TRANSACTION]');
-    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
+    final lastDownloadTime = await _syncManager.ambilWaktuTerakhirDownload();
     await synchronizeCollection<TransaksiModel>(
-      collectionName: NamaTabel.transactions,
+      collectionName: NamaTabel.transaksi,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: TransaksiModel.fromFirebase,
       batchOperation: (final data) =>
@@ -254,7 +253,7 @@ class DownloadDataService {
   /// Mengunduh data kritik dan saran dari Firebase.
   Future<void> downloadFeedbackData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [FEEDBACK]');
-    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
+    final lastDownloadTime = await _syncManager.ambilWaktuTerakhirDownload();
     await synchronizeCollection<FeedbackModel>(
       collectionName: NamaTabel.feedback,
       lastDownloadTime: lastDownloadTime,
@@ -267,9 +266,9 @@ class DownloadDataService {
   /// Mengunduh data pesanan dari Firebase.
   Future<void> downloadOrderData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [ORDER]');
-    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
+    final lastDownloadTime = await _syncManager.ambilWaktuTerakhirDownload();
     await synchronizeCollection<OrderModel>(
-      collectionName: NamaTabel.customerOrder,
+      collectionName: NamaTabel.pesananPelanggan,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: OrderModel.fromFirebase,
       batchOperation: (final data) =>
@@ -280,9 +279,9 @@ class DownloadDataService {
   /// Mengunduh data sub-kategori dari Firebase.
   Future<void> downloadSubCategoryData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [SUB CATEGORY]');
-    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
+    final lastDownloadTime = await _syncManager.ambilWaktuTerakhirDownload();
     await synchronizeCollection<SubCategoryModel>(
-      collectionName: NamaTabel.subCategory,
+      collectionName: NamaTabel.subKategori,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: SubCategoryModel.fromFirebase,
       batchOperation: (final data) =>
@@ -293,9 +292,9 @@ class DownloadDataService {
   /// Mengunduh data versi APK user dari Firebase.
   Future<void> downloadApkVersionData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [APK VERSION]');
-    final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
+    final lastDownloadTime = await _syncManager.ambilWaktuTerakhirDownload();
     await synchronizeCollection<VersiApkModel>(
-      collectionName: NamaTabel.userApkVersion,
+      collectionName: NamaTabel.versiApkUser,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: VersiApkModel.fromFirebase,
       batchOperation: (final data) =>

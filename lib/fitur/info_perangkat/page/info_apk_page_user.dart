@@ -1,5 +1,4 @@
-// path: lib/user/page/info_apk_page_user.dart
-
+// path: lib/fitur/info_perangkat/page/info_apk_page_user.dart
 
 import 'dart:async';
 
@@ -16,7 +15,7 @@ class InfoApkPageUser extends StatefulWidget {
 }
 
 class _InfoApkPageUserState extends State<InfoApkPageUser> {
-  String _version = '...';
+  String _versi = '...';
 
   @override
   void initState() {
@@ -25,16 +24,16 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
   }
 
   Future<void> _initPackageInfo() async {
-    final packageInfo = await PackageInfo.fromPlatform();
+    final infoPerangkat = await PackageInfo.fromPlatform();
     if (mounted) {
       setState(() {
-        _version = packageInfo.version.split('-').first;
+        _versi = infoPerangkat.version.split('-').first;
       });
     }
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Info Aplikasi'),
@@ -50,7 +49,7 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
                   unawaited(Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (final context) => const HalamanTes(),
+                      builder: (context) => const HalamanTes(),
                     ),
                   ));
                 },
@@ -71,7 +70,7 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
               ),
               gapH8,
               Text(
-                'Versi $_version',
+                'Versi $_versi',
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.grey,

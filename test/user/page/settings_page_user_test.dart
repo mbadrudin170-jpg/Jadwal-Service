@@ -7,7 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page_u.dart';
 import 'package:wifi/shared/theme/app_themes.dart';
-import 'package:wifi/user/page/info_apk_page_user.dart';
+import 'package:wifi/fitur/info_perangkat/page/info_apk_page_user.dart';
 import 'package:wifi/fitur/settings/page/settings_page_u.dart';
 
 // Mock NavigatorObserver untuk melacak navigasi

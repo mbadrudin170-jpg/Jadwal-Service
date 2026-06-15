@@ -21,16 +21,16 @@ import 'package:wifi/fitur/kategori/model/kategori_model.dart' as _i3;
 import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart' as _i13;
 import 'package:wifi/fitur/order/model/order_model.dart' as _i25;
 import 'package:wifi/fitur/paket/model/paket_model.dart' as _i16;
-import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart' as _i15;
+import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart' as _i15;
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart' as _i18;
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart' as _i17;
+import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart'
+    as _i19;
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart' as _i28;
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart' as _i21;
 import 'package:wifi/shared/export/enum.dart' as _i24;
 import 'package:wifi/shared/export/model.dart' as _i5;
 import 'package:wifi/shared/model/active_customer_detail_model.dart' as _i20;
-import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart'
-    as _i19;
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart'
     as _i27;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i4;
@@ -286,24 +286,25 @@ class MockSyncManager extends _i1.Mock implements _i10.SyncManager {
   }
 
   @override
-  _i9.Future<DateTime> ambilTanggalTerakhirDownload() => (super.noSuchMethod(
+  _i9.Future<DateTime> ambilWaktuTerakhirDownload() => (super.noSuchMethod(
         Invocation.method(
-          #ambilTanggalTerakhirDownload,
+          #ambilWaktuTerakhirDownload,
           [],
         ),
         returnValue: _i9.Future<DateTime>.value(_FakeDateTime_0(
           this,
           Invocation.method(
-            #ambilTanggalTerakhirDownload,
+            #ambilWaktuTerakhirDownload,
             [],
           ),
         )),
       ) as _i9.Future<DateTime>);
 
   @override
-  _i9.Future<void> setLastDownload(DateTime? time) => (super.noSuchMethod(
+  _i9.Future<void> simpanWaktuTerakhirunduh(DateTime? time) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #setLastDownload,
+          #simpanWaktuTerakhirunduh,
           [time],
         ),
         returnValue: _i9.Future<void>.value(),
@@ -311,24 +312,25 @@ class MockSyncManager extends _i1.Mock implements _i10.SyncManager {
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<DateTime> getLastUpload() => (super.noSuchMethod(
+  _i9.Future<DateTime> ambilWaktuTerakhirUnggah() => (super.noSuchMethod(
         Invocation.method(
-          #getLastUpload,
+          #ambilWaktuTerakhirUnggah,
           [],
         ),
         returnValue: _i9.Future<DateTime>.value(_FakeDateTime_0(
           this,
           Invocation.method(
-            #getLastUpload,
+            #ambilWaktuTerakhirUnggah,
             [],
           ),
         )),
       ) as _i9.Future<DateTime>);
 
   @override
-  _i9.Future<void> setLastUpload(DateTime? time) => (super.noSuchMethod(
+  _i9.Future<void> simpanWaktuTerkahirUnggah(DateTime? time) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #setLastUpload,
+          #simpanWaktuTerkahirUnggah,
           [time],
         ),
         returnValue: _i9.Future<void>.value(),
@@ -1001,13 +1003,13 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
 
   @override
   _i9.Future<_i5.PelangganAktifModel> tambahPelangganAktif(
-    _i5.PelangganAktifModel? activeCustomer, {
+    _i5.PelangganAktifModel? pelangganAktif, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #tambahPelangganAktif,
-          [activeCustomer],
+          [pelangganAktif],
           {#fromServer: fromServer},
         ),
         returnValue: _i9.Future<_i5.PelangganAktifModel>.value(
@@ -1015,7 +1017,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
           this,
           Invocation.method(
             #tambahPelangganAktif,
-            [activeCustomer],
+            [pelangganAktif],
             {#fromServer: fromServer},
           ),
         )),

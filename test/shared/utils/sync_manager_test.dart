@@ -25,14 +25,14 @@ void main() {
     test(
         'getLastDownload harus mengembalikan epoch ketika tidak ada data yang tersimpan',
         () async {
-      final result = await syncManager.ambilTanggalTerakhirDownload();
+      final result = await syncManager.ambilWaktuTerakhirDownload();
       expect(result, epochTime);
     });
 
     test('setLastDownload harus menyimpan waktu unduh dengan benar', () async {
       final testDate = DateTime.now();
-      await syncManager.setLastDownload(testDate);
-      final result = await syncManager.ambilTanggalTerakhirDownload();
+      await syncManager.simpanWaktuTerakhirunduh(testDate);
+      final result = await syncManager.ambilWaktuTerakhirDownload();
 
       // Membandingkan milidetik karena SharedPreferences dapat kehilangan presisi mikrosaat
       expect(
@@ -44,14 +44,14 @@ void main() {
     test(
         'getLastUpload harus mengembalikan epoch ketika tidak ada data yang tersimpan',
         () async {
-      final result = await syncManager.getLastUpload();
+      final result = await syncManager.ambilWaktuTerakhirUnggah();
       expect(result, epochTime);
     });
 
     test('setLastUpload harus menyimpan waktu unggah dengan benar', () async {
       final testDate = DateTime.now();
-      await syncManager.setLastUpload(testDate);
-      final result = await syncManager.getLastUpload();
+      await syncManager.simpanWaktuTerkahirUnggah(testDate);
+      final result = await syncManager.ambilWaktuTerakhirUnggah();
 
       expect(
         result.millisecondsSinceEpoch,
@@ -63,12 +63,12 @@ void main() {
       // 1. Atur beberapa waktu awal
       final downloadTime = DateTime.now().subtract(const Duration(hours: 1));
       final uploadTime = DateTime.now().subtract(const Duration(minutes: 30));
-      await syncManager.setLastDownload(downloadTime);
-      await syncManager.setLastUpload(uploadTime);
+      await syncManager.simpanWaktuTerakhirunduh(downloadTime);
+      await syncManager.simpanWaktuTerkahirUnggah(uploadTime);
 
       // 2. Pastikan waktu telah diatur
-      var lastDownload = await syncManager.ambilTanggalTerakhirDownload();
-      var lastUpload = await syncManager.getLastUpload();
+      var lastDownload = await syncManager.ambilWaktuTerakhirDownload();
+      var lastUpload = await syncManager.ambilWaktuTerakhirUnggah();
       expect(lastDownload.isAtSameMomentAs(epochTime), isFalse);
       expect(lastUpload.isAtSameMomentAs(epochTime), isFalse);
 
@@ -76,8 +76,8 @@ void main() {
       await syncManager.resetWaktuSinkronisasi();
 
       // 4. Periksa apakah kedua waktu kembali ke epoch
-      lastDownload = await syncManager.ambilTanggalTerakhirDownload();
-      lastUpload = await syncManager.getLastUpload();
+      lastDownload = await syncManager.ambilWaktuTerakhirDownload();
+      lastUpload = await syncManager.ambilWaktuTerakhirUnggah();
       expect(lastDownload, epochTime);
       expect(lastUpload, epochTime);
     });

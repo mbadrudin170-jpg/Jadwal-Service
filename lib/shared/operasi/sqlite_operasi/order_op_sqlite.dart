@@ -23,7 +23,7 @@ class OrderOpsqlite {
   });
 
   /// Mendapatkan nama tabel pesanan dari konstanta.
-  String get _tableName => NamaTabel.customerOrder;
+  String get _tableName => NamaTabel.pesananPelanggan;
 
   Future<int> getJumlahByStatus(StatusOrderEnum status) async {
     Log.info('Menghitung pesanan dengan status: ${status.name}');

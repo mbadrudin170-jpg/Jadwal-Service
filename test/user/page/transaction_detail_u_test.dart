@@ -5,7 +5,7 @@ import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/user/page/transaction_detail_u.dart';
+import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 
 void main() {
   final transaction = TransaksiModel(
@@ -31,9 +31,9 @@ void main() {
 
   Widget createWidgetUnderTest() {
     return MaterialApp(
-      home: TransactionDetailPage(
-        transaction: transaction,
-        package: package,
+      home: DetailTransaksiU(
+        transaksi: transaction,
+        paket: package,
       ),
     );
   }

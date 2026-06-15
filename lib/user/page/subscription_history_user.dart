@@ -12,7 +12,7 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
-import 'package:wifi/user/page/transaction_detail_u.dart';
+import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
@@ -105,9 +105,9 @@ class _SubscriptionHistoryPageState
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (context) => TransactionDetailPage(
-          transaction: tx,
-          package: package,
+        builder: (context) => DetailTransaksiU(
+          transaksi: tx,
+          paket: package,
         ),
       ),
     );

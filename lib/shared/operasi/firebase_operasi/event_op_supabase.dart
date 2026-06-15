@@ -10,7 +10,7 @@ import 'package:wifi/shared/model/event_model.dart';
 class EventOpSupabase {
   EventOpSupabase({SupabaseClient? supabase})
       : _supabase = supabase ?? Supabase.instance.client;
-  final String _tableName = NamaTabel.events;
+  final String _tableName = NamaTabel.event;
   final SupabaseClient _supabase;
 
   Future<List<EventModel>> getAll() async {

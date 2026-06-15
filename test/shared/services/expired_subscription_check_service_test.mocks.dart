@@ -7,10 +7,10 @@ import 'dart:async' as _i5;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
+import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart'
+    as _i4;
 import 'package:wifi/shared/export/model.dart' as _i3;
 import 'package:wifi/shared/model/active_customer_detail_model.dart' as _i6;
-import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart'
-    as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -90,13 +90,13 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
 
   @override
   _i5.Future<_i3.PelangganAktifModel> tambahPelangganAktif(
-    _i3.PelangganAktifModel? activeCustomer, {
+    _i3.PelangganAktifModel? pelangganAktif, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #tambahPelangganAktif,
-          [activeCustomer],
+          [pelangganAktif],
           {#fromServer: fromServer},
         ),
         returnValue: _i5.Future<_i3.PelangganAktifModel>.value(
@@ -104,7 +104,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
           this,
           Invocation.method(
             #tambahPelangganAktif,
-            [activeCustomer],
+            [pelangganAktif],
             {#fromServer: fromServer},
           ),
         )),

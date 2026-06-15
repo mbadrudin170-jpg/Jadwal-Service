@@ -75,27 +75,29 @@ void main() {
 
   group('ActiveCustomerSorter', () {
     test('harus mengurutkan berdasarkan nama A-Z (nameAZ)', () {
-      final sorted = ActiveCustomerSorter.sort(customers, SortOption.nameAZ);
+      final sorted = ActiveCustomerSorter.sort(customers, SortOption.namaAZ);
       expect(sorted.map((c) => c.namaPelanggan).toList(),
           ['Alice', 'Bob', 'Charlie', 'Zebra']);
     });
 
     test('harus mengurutkan berdasarkan nama Z-A (nameZA)', () {
-      final sorted = ActiveCustomerSorter.sort(customers, SortOption.nameZA);
+      final sorted = ActiveCustomerSorter.sort(customers, SortOption.namaZA);
       expect(sorted.map((c) => c.namaPelanggan).toList(),
           ['Zebra', 'Charlie', 'Bob', 'Alice']);
     });
 
     test('harus mengurutkan berdasarkan tanggal berakhir terdekat (endDate)',
         () {
-      final sorted = ActiveCustomerSorter.sort(customers, SortOption.endDate);
+      final sorted =
+          ActiveCustomerSorter.sort(customers, SortOption.tanggalBerakhir);
       // Bob (-1d), Alice (+2d), Charlie (+10d), Zebra (+20d)
       expect(sorted.map((c) => c.pelangganAktif.id).toList(),
           ['3', '2', '1', '4']);
     });
 
     test('harus mengurutkan berdasarkan tanggal mulai terlama (startDate)', () {
-      final sorted = ActiveCustomerSorter.sort(customers, SortOption.startDate);
+      final sorted =
+          ActiveCustomerSorter.sort(customers, SortOption.tanggalMulai);
       // Charlie (-20d), Alice (-5d), Bob (-2d), Zebra (-1d)
       expect(sorted.map((c) => c.pelangganAktif.id).toList(),
           ['1', '2', '3', '4']);
@@ -103,14 +105,14 @@ void main() {
 
     test('harus mengurutkan berdasarkan pembaruan terakhir (lastUpdated)', () {
       final sorted =
-          ActiveCustomerSorter.sort(customers, SortOption.lastUpdated);
+          ActiveCustomerSorter.sort(customers, SortOption.terakhirDiperbarui);
       // Alice (-1h), Zebra (-2h), Charlie (-5h), Bob (-10h)
       expect(sorted.map((c) => c.pelangganAktif.id).toList(),
           ['2', '4', '1', '3']);
     });
 
     test('harus mengurutkan dengan yang Lunas di atas (paid)', () {
-      final sorted = ActiveCustomerSorter.sort(customers, SortOption.paid);
+      final sorted = ActiveCustomerSorter.sort(customers, SortOption.lunas);
       // Paid: Bob, Charlie. Unpaid: Alice, Zebra.
       // Secondary sort: endDate. Bob(-1d), Charlie(+10d)
       // Alice(+2d), Zebra(+20d)
@@ -127,7 +129,8 @@ void main() {
     });
 
     test('harus mengurutkan dengan yang Belum Lunas di atas (unpaid)', () {
-      final sorted = ActiveCustomerSorter.sort(customers, SortOption.unpaid);
+      final sorted =
+          ActiveCustomerSorter.sort(customers, SortOption.belumLunas);
       // Unpaid: Alice, Zebra. Paid: Bob, Charlie.
       // Secondary sort: endDate. Alice(+2d), Zebra(+20d)
       // Bob(-1d), Charlie(+10d)
@@ -145,7 +148,7 @@ void main() {
 
     test('harus mengurutkan dengan paket Aktif di atas (activePackage)', () {
       final sorted =
-          ActiveCustomerSorter.sort(customers, SortOption.activePackage);
+          ActiveCustomerSorter.sort(customers, SortOption.paketAktif);
       // Active: Alice, Charlie, Zebra. Inactive: Bob.
       // Secondary sort: endDate. Alice(+2d), Charlie(+10d), Zebra(+20d)
       final ids = sorted.map((c) => c.pelangganAktif.id).toList();

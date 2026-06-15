@@ -1,56 +1,21 @@
-// path: lib/shared/utils/active_customer_sorter.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan untuk mengurutkan daftar pelanggan aktif di halaman admin.
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/enum/payment_status_enum.dart (PaymentStatus)
-//   - lib/shared/model/active_customer_detail_model.dart (ActiveCustomerDetailModel)
-//   - lib/shared/utils/calculation_util.dart (CalculationUtil)
-//   - lib/shared/debug/log.dart (Log)
-
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 
-/// Opsi pengurutan untuk daftar pelanggan aktif.
 enum SortOption {
-  /// Urutkan berdasarkan tanggal berakhir (ascending).
-  endDate,
-
-  /// Urutkan berdasarkan tanggal mulai (ascending).
-  startDate,
-
-  /// Urutkan berdasarkan waktu terakhir diperbarui (descending).
-  lastUpdated,
-
-  /// Urutkan berdasarkan nama pelanggan A-Z.
-  nameAZ,
-
-  /// Urutkan berdasarkan nama pelanggan Z-A.
-  nameZA,
-
-  /// Urutkan dengan pelanggan lunas di atas.
-  paid,
-
-  /// Urutkan dengan pelanggan belum lunas di atas.
-  unpaid,
-
-  /// Urutkan dengan paket aktif di atas.
-  activePackage,
-
-  /// Urutkan dengan paket tidak aktif di atas.
+  tanggalBerakhir,
+  tanggalMulai,
+  terakhirDiperbarui,
+  namaAZ,
+  namaZA,
+  lunas,
+  belumLunas,
+  paketAktif,
   inactivePackage,
 }
 
-/// Utility untuk mengurutkan daftar pelanggan aktif.
-///
-/// Mendukung berbagai opsi pengurutan melalui [SortOption].
 class ActiveCustomerSorter {
-  /// Mengurutkan daftar [customers] berdasarkan [sortOption] yang dipilih.
-  ///
-  /// Mengembalikan list baru yang sudah terurut.
   static List<DetailPelangganAktifModel> sort(
     final List<DetailPelangganAktifModel> customers,
     final SortOption sortOption,
@@ -64,57 +29,59 @@ class ActiveCustomerSorter {
         comparator;
 
     switch (sortOption) {
-      case SortOption.endDate:
-        comparator = (final a, final b) =>
-            a.pelangganAktif.endDate.compareTo(b.pelangganAktif.endDate);
+      case SortOption.tanggalBerakhir:
+        comparator = (final a, final b) => a.pelangganAktif.tanggalBerakhir
+            .compareTo(b.pelangganAktif.tanggalBerakhir);
         break;
-      case SortOption.startDate:
-        comparator = (final a, final b) =>
-            a.pelangganAktif.startDate.compareTo(b.pelangganAktif.startDate);
+      case SortOption.tanggalMulai:
+        comparator = (final a, final b) => a.pelangganAktif.tanggalMulai
+            .compareTo(b.pelangganAktif.tanggalMulai);
         break;
-      case SortOption.lastUpdated:
+      case SortOption.terakhirDiperbarui:
         comparator = (final a, final b) {
-          final dateA =
-              a.pelangganAktif.updatedAt ?? a.pelangganAktif.startDate;
-          final dateB =
-              b.pelangganAktif.updatedAt ?? b.pelangganAktif.startDate;
-          return dateB.compareTo(dateA);
+          final dateA = a.pelangganAktif.diperbaruiPada ??
+              a.pelangganAktif.diperbaruiPada;
+          final dateB = b.pelangganAktif.diperbaruiPada ??
+              b.pelangganAktif.diperbaruiPada;
+          return dateB!.compareTo(dateA!);
         };
         break;
-      case SortOption.nameAZ:
-      case SortOption.nameZA:
+      case SortOption.namaAZ:
+      case SortOption.namaZA:
         comparator = (final a, final b) {
           final nameA = a.namaPelanggan;
           final nameB = b.namaPelanggan;
-          return sortOption == SortOption.nameAZ
+          return sortOption == SortOption.namaAZ
               ? nameA.compareTo(nameB)
               : nameB.compareTo(nameA);
         };
         break;
-      case SortOption.paid:
-      case SortOption.unpaid:
+      case SortOption.lunas:
+      case SortOption.belumLunas:
         comparator = (final a, final b) {
           final isPaidA = a.pelangganAktif.status == StatusPembayaran.paid;
           final isPaidB = b.pelangganAktif.status == StatusPembayaran.paid;
           if (isPaidA == isPaidB) {
-            return a.pelangganAktif.endDate.compareTo(b.pelangganAktif.endDate);
+            return a.pelangganAktif.tanggalBerakhir
+                .compareTo(b.pelangganAktif.tanggalBerakhir);
           }
-          return (sortOption == SortOption.paid)
+          return (sortOption == SortOption.lunas)
               ? (isPaidA ? -1 : 1)
               : (isPaidA ? 1 : -1);
         };
         break;
-      case SortOption.activePackage:
+      case SortOption.paketAktif:
       case SortOption.inactivePackage:
         comparator = (final a, final b) {
           final isActiveA =
-              PerhitunganUtil.sisaHari(a.pelangganAktif.endDate) >= 0;
+              PerhitunganUtil.sisaHari(a.pelangganAktif.tanggalBerakhir) >= 0;
           final isActiveB =
-              PerhitunganUtil.sisaHari(b.pelangganAktif.endDate) >= 0;
+              PerhitunganUtil.sisaHari(b.pelangganAktif.tanggalBerakhir) >= 0;
           if (isActiveA == isActiveB) {
-            return a.pelangganAktif.endDate.compareTo(b.pelangganAktif.endDate);
+            return a.pelangganAktif.tanggalBerakhir
+                .compareTo(b.pelangganAktif.tanggalBerakhir);
           }
-          return (sortOption == SortOption.activePackage)
+          return (sortOption == SortOption.paketAktif)
               ? (isActiveA ? -1 : 1)
               : (isActiveA ? 1 : -1);
         };

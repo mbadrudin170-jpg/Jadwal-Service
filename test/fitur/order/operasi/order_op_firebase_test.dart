@@ -108,9 +108,8 @@ void main() {
       when(() => mockBaseOp.sisipkan(any(), any(), any()))
           .thenAnswer((_) async => '');
       await orderOpFirebase.addOrder(order);
-      verify(() =>
-          mockBaseOp.sisipkan(NamaTabel.customerOrder, order.id, orderMap))
-          .called(1);
+      verify(() => mockBaseOp.sisipkan(
+          NamaTabel.pesananPelanggan, order.id, orderMap)).called(1);
     });
 
     test('02. Uji pembaruan pesanan', () async {
@@ -118,7 +117,7 @@ void main() {
           .thenAnswer((_) async {});
       await orderOpFirebase.updateOrder(order);
       verify(() =>
-          mockBaseOp.update(NamaTabel.customerOrder, order.id, orderMap))
+              mockBaseOp.update(NamaTabel.pesananPelanggan, order.id, orderMap))
           .called(1);
     });
 
@@ -130,7 +129,7 @@ void main() {
       await orderOpFirebase.softDeleteOrder(orderId);
 
       verify(() =>
-          mockBaseOp.hapusSementara(NamaTabel.customerOrder, orderId))
+              mockBaseOp.hapusSementara(NamaTabel.pesananPelanggan, orderId))
           .called(1);
     });
 
@@ -208,10 +207,10 @@ void main() {
 
       expect(
           resultStream,
-          emits(isA<List<OrderModel>>().
-              having((list) => list.isNotEmpty, 'not empty', true).
-              having((list) => list.first.status, 'status', StatusOrderEnum.baru)
-          ));
+          emits(isA<List<OrderModel>>()
+              .having((list) => list.isNotEmpty, 'not empty', true)
+              .having((list) => list.first.status, 'status',
+                  StatusOrderEnum.baru)));
 
       streamController.add(mockQuerySnapshot);
       streamController.close();

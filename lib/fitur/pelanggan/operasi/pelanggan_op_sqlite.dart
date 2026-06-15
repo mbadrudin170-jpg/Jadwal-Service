@@ -12,7 +12,7 @@ class PelangganOpSqlite {
 
   final BaseOpSqlite _baseOpSqlite;
 
-  final String _tabel = NamaTabel.customer;
+  final String _tabel = NamaTabel.pelanggan;
 
   PelangganOpSqlite({
     required this.sqliteDb,
