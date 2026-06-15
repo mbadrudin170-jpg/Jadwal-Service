@@ -14,8 +14,8 @@ final sqliteDatabaseProvider = Provider<SqliteDatabase>((ref) {
   return SqliteDatabase.instance;
 });
 final sqliteProvider = FutureProvider((ref) async {
-  final dbHelper = ref.read(sqliteDatabaseProvider);
-  final db = await dbHelper.database;
+  final sqliteDb = ref.read(sqliteDatabaseProvider);
+  final db = await sqliteDb.database;
   return db;
 });
 
