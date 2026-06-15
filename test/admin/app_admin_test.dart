@@ -188,7 +188,7 @@ void main() {
 
     when(() => mockPelangganAktifOpSqlite.arsipkanLanggananKadaluarsa())
         .thenAnswer((_) async => 0);
-    when(() => mockSettingsOpSqlite.getSettings())
+    when(() => mockSettingsOpSqlite.ambilSettings())
         .thenAnswer((_) async => SettingsModel());
     when(() => mockDataCleaningOperation.hapusPermanentDataYangDiarsip(
         retentionDays: any(named: 'retentionDays'))).thenAnswer((_) async => 0);

@@ -1791,7 +1791,7 @@ class MockSubKategoriOpSqlite extends _i1.Mock
       ) as _i11.Future<void>);
 
   @override
-  _i11.Future<List<_i29.SubKategoriModel>> getSubCategoryByCategoryId(
+  _i11.Future<List<_i29.SubKategoriModel>> ambilBerdasarkanIdPelanggan(
           String? categoryId) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -2045,7 +2045,7 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i32.SettingsOpSqlite {
       ) as _i2.SqliteDatabase);
 
   @override
-  _i11.Future<_i7.SettingsModel> getSettings() => (super.noSuchMethod(
+  _i11.Future<_i7.SettingsModel> ambilSettings() => (super.noSuchMethod(
         Invocation.method(
           #getSettings,
           [],

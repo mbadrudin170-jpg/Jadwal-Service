@@ -1,4 +1,3 @@
-
 // path: test/fitur/settings/operasi/settings_op_sqlite_test.dart
 
 import 'package:flutter_test/flutter_test.dart';
@@ -29,7 +28,8 @@ void main() {
     mockDatabase = MockDatabase();
     mockBaseOpSqlite = MockBaseOpSqlite();
 
-    when(() => mockSqliteDatabase.database).thenAnswer((_) async => mockDatabase);
+    when(() => mockSqliteDatabase.database)
+        .thenAnswer((_) async => mockDatabase);
 
     settingsOpSqlite = SettingsOpSqlite(
       sqliteDb: mockSqliteDatabase,
@@ -63,7 +63,7 @@ void main() {
               )).thenAnswer((_) async => [tSettingsMap]);
 
           // Act
-          final result = await settingsOpSqlite.getSettings();
+          final result = await settingsOpSqlite.ambilSettings();
 
           // Assert
           expect(result, isA<SettingsModel>());
@@ -93,7 +93,7 @@ void main() {
               )).thenAnswer((_) async => Future.value());
 
           // Act
-          final result = await settingsOpSqlite.getSettings();
+          final result = await settingsOpSqlite.ambilSettings();
 
           // Assert
           expect(result, isA<SettingsModel>());
@@ -122,7 +122,7 @@ void main() {
               )).thenThrow(Exception('DB Error'));
 
           // Act
-          final result = await settingsOpSqlite.getSettings();
+          final result = await settingsOpSqlite.ambilSettings();
 
           // Assert
           expect(result, const SettingsModel());
@@ -228,7 +228,8 @@ void main() {
                 dariServer: false,
               )).captured.last as Map<String, dynamic>;
 
-          expect(captured[NamaKolom.modeMaintenance], updateData[NamaKolom.modeMaintenance]);
+          expect(captured[NamaKolom.modeMaintenance],
+              updateData[NamaKolom.modeMaintenance]);
           expect(captured.containsKey(NamaKolom.diperbaruiPada), isTrue);
         },
       );
