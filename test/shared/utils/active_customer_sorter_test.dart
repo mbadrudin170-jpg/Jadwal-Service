@@ -18,7 +18,7 @@ void main() {
       idPelanggan: 'c1',
       idPaket: 'p1',
       tanggalMulai: now.subtract(const Duration(days: 20)),
-      tangglberakhir: now.add(const Duration(days: 10)), // Aktif, sisa 10 hari
+      tanggalBerakhir: now.add(const Duration(days: 10)), // Aktif, sisa 10 hari
       status: StatusPembayaran.paid,
       diperbaruiPada: now.subtract(const Duration(hours: 5)),
     ),
@@ -32,7 +32,7 @@ void main() {
       idPelanggan: 'c2',
       idPaket: 'p2',
       tanggalMulai: now.subtract(const Duration(days: 5)),
-      tangglberakhir: now.add(const Duration(days: 2)), // Aktif, sisa 2 hari
+      tanggalBerakhir: now.add(const Duration(days: 2)), // Aktif, sisa 2 hari
       status: StatusPembayaran.unpaid, // Belum Lunas
       diperbaruiPada: now.subtract(const Duration(hours: 1)), // Paling baru
     ),
@@ -46,7 +46,7 @@ void main() {
       idPelanggan: 'c3',
       idPaket: 'p3',
       tanggalMulai: now.subtract(const Duration(days: 2)),
-      tangglberakhir: now.subtract(const Duration(days: 1)), // Tidak Aktif
+      tanggalBerakhir: now.subtract(const Duration(days: 1)), // Tidak Aktif
       status: StatusPembayaran.paid,
       diperbaruiPada: now.subtract(const Duration(hours: 10)),
     ),
@@ -60,7 +60,7 @@ void main() {
       idPelanggan: 'c4',
       idPaket: 'p4',
       tanggalMulai: now.subtract(const Duration(days: 1)),
-      tangglberakhir: now.add(const Duration(days: 20)), // Aktif, sisa 20 hari
+      tanggalBerakhir: now.add(const Duration(days: 20)), // Aktif, sisa 20 hari
       status: StatusPembayaran.unpaid, // Belum Lunas
       diperbaruiPada: now.subtract(const Duration(hours: 2)),
     ),

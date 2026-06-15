@@ -118,7 +118,7 @@ void main() {
       when(() => mockKoneksiInternetService.cekKoneksiLokal())
           .thenAnswer((_) async => true);
       when(() => mockLayananCekSinkronisasi.jalankanCekSinkronisasi())
-          .thenReturn(null);
+          .thenAnswer((_) async {});
 
       await tester.pumpWidget(createWidgetUnderTest());
 
@@ -128,7 +128,7 @@ void main() {
       await tester.pumpAndSettle();
 
       verify(() => mockSettingsOpSqlite.saveOrUpdateSettings(any(that: isA<SettingsModel>()
-          .having((s) => s.waktuOtomatisSinkronisasi, 'waktuOtomatisSinkronisasi', 12))))
+          .having((s) => s.waktuOtomatisSinkroniasi, 'waktuOtomatisSinkroniasi', 12))))
           .called(1);
       verify(() => mockKoneksiInternetService.cekKoneksiLokal()).called(1);
       verify(() => mockLayananCekSinkronisasi.jalankanCekSinkronisasi()).called(1);
@@ -176,7 +176,7 @@ void main() {
       when(() => mockKoneksiInternetService.cekKoneksiLokal())
           .thenAnswer((_) async => true);
       when(() => mockLayananCekSinkronisasi.jalankanCekSinkronisasi())
-          .thenReturn(null);
+          .thenAnswer((_) async {});
 
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.tap(find.byType(ElevatedButton));

@@ -14,7 +14,10 @@ import 'package:wifi/shared/utils/sync_manager.dart';
 // Mocks
 class MockSettingsModel extends Mock implements SettingsModel {}
 class MockSyncManager extends Mock implements SyncManager {}
-class MockTemaNotifier extends Mock implements TemaNotifier {}
+class MockTemaNotifier extends StateNotifier<AsyncValue<ThemeMode>> with Mock 
+    implements TemaNotifier {
+  MockTemaNotifier(super.state);
+}
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
 void main() {
@@ -30,7 +33,7 @@ void main() {
         waktuOtomatisHapusDataArsip: 30, 
         modeMaintenance: false);
     mockSyncManager = MockSyncManager();
-    mockTemaNotifier = MockTemaNotifier();
+    mockTemaNotifier = MockTemaNotifier(const AsyncData(ThemeMode.system));
     mockNavigatorObserver = MockNavigatorObserver();
 
     container = ProviderContainer(
@@ -174,8 +177,7 @@ void main() {
     
     testWidgets('10. harus mengubah tema saat opsi tema dipilih', (tester) async {
       when(() => mockTemaNotifier.simpanModeTema(any())).thenAnswer((_) async {});
-      when(() => mockTemaNotifier.value).thenReturn(ThemeMode.system);
-      
+
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
       

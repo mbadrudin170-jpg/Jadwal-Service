@@ -108,14 +108,14 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     switch (option) {
       case SortOption.endDate:
         list.sort((a, b) {
-          if (a.transaksi.tangglberakhir == null &&
-              b.transaksi.tangglberakhir == null) {
+          if (a.transaksi.tanggalBerakhir == null &&
+              b.transaksi.tanggalBerakhir == null) {
             return 0;
           }
-          if (a.transaksi.tangglberakhir == null) return 1;
-          if (b.transaksi.tangglberakhir == null) return -1;
-          final dateCompare = b.transaksi.tangglberakhir!
-              .compareTo(a.transaksi.tangglberakhir!);
+          if (a.transaksi.tanggalBerakhir == null) return 1;
+          if (b.transaksi.tanggalBerakhir == null) return -1;
+          final dateCompare = b.transaksi.tanggalBerakhir!
+              .compareTo(a.transaksi.tanggalBerakhir!);
           if (dateCompare != 0) return dateCompare;
           return a.transaksi.id.compareTo(b.transaksi.id);
         });
@@ -149,26 +149,26 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
       case SortOption.endingToday:
         final now = DateTime.now();
         list.sort((a, b) {
-          final isTodayA = a.transaksi.tangglberakhir != null &&
-              a.transaksi.tangglberakhir!.year == now.year &&
-              a.transaksi.tangglberakhir!.month == now.month &&
-              a.transaksi.tangglberakhir!.day == now.day;
-          final isTodayB = b.transaksi.tangglberakhir != null &&
-              b.transaksi.tangglberakhir!.year == now.year &&
-              b.transaksi.tangglberakhir!.month == now.month &&
-              b.transaksi.tangglberakhir!.day == now.day;
+          final isTodayA = a.transaksi.tanggalBerakhir != null &&
+              a.transaksi.tanggalBerakhir!.year == now.year &&
+              a.transaksi.tanggalBerakhir!.month == now.month &&
+              a.transaksi.tanggalBerakhir!.day == now.day;
+          final isTodayB = b.transaksi.tanggalBerakhir != null &&
+              b.transaksi.tanggalBerakhir!.year == now.year &&
+              b.transaksi.tanggalBerakhir!.month == now.month &&
+              b.transaksi.tanggalBerakhir!.day == now.day;
 
           if (isTodayA && !isTodayB) return -1;
           if (!isTodayA && isTodayB) return 1;
 
-          if (a.transaksi.tangglberakhir == null &&
-              b.transaksi.tangglberakhir == null) {
+          if (a.transaksi.tanggalBerakhir == null &&
+              b.transaksi.tanggalBerakhir == null) {
             return 0;
           }
-          if (a.transaksi.tangglberakhir == null) return 1;
-          if (b.transaksi.tangglberakhir == null) return -1;
-          return a.transaksi.tangglberakhir!
-              .compareTo(b.transaksi.tangglberakhir!);
+          if (a.transaksi.tanggalBerakhir == null) return 1;
+          if (b.transaksi.tanggalBerakhir == null) return -1;
+          return a.transaksi.tanggalBerakhir!
+              .compareTo(b.transaksi.tanggalBerakhir!);
         });
       case SortOption.paid:
         list.sort((a, b) {
