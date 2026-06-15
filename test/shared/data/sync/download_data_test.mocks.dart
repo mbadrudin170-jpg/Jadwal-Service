@@ -21,8 +21,6 @@ import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart' as _i16;
 import 'package:wifi/fitur/kategori/model/kategori_model.dart' as _i3;
 import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart' as _i29;
 import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart' as _i15;
-import 'package:wifi/fitur/kategori/operasi/sub_kategori_op_sqlite.dart'
-    as _i28;
 import 'package:wifi/fitur/order/model/order_model.dart' as _i27;
 import 'package:wifi/fitur/paket/model/paket_model.dart' as _i18;
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart' as _i17;
@@ -43,6 +41,8 @@ import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart'
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i4;
 import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart'
     as _i25;
+import 'package:wifi/fitur/kategori/operasi/sub_kategori_op_sqlite.dart'
+    as _i28;
 import 'package:wifi/shared/utils/sync_manager.dart' as _i12;
 
 // ignore_for_file: type=lint
