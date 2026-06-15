@@ -111,21 +111,21 @@ DataCleaningOperation dataCleaningOperation(Ref ref) {
   return DataCleaningOperation();
 }
 
-/// Provider untuk menyediakan instance dari [FeedbackOperation].
+/// Provider untuk menyediakan instance dari [FeedbackOpSqlite].
 @Riverpod(keepAlive: true)
-FeedbackOperation feedbackOperation(Ref ref) {
+FeedbackOpSqlite feedbackOpSqlite(Ref ref) {
   Log.info('Membuat instance FeedbackOperation via @riverpod...');
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
-  return FeedbackOperation(
+  return FeedbackOpSqlite(
     sqliteDb: sqliteDb,
     baseOpSqlite: baseOpSqlite,
   );
 }
 
 @Riverpod(keepAlive: true)
-OrderOpsqlite orderOperation(Ref ref) {
+OrderOpsqlite orderOpSqlite(Ref ref) {
   Log.info('Membuat instance OrderOperation via @riverpod...');
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);

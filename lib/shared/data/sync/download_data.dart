@@ -30,7 +30,7 @@ class DownloadDataService {
   final PelangganOpSqlite _pelangganOpSqlite;
   final PelangganAktifOpSqlite _activeCustomerOperation;
   final TransaksiOpSqlite _transactionOperation;
-  final FeedbackOperation _feedbackOperation;
+  final FeedbackOpSqlite _feedbackOperation;
   final OrderOpsqlite _orderOperation;
   final SubKategoriOpSqlite _subCategoryOperation;
   final ApkVersionOperation _apkVersionOperation;
@@ -46,7 +46,7 @@ class DownloadDataService {
     required PelangganOpSqlite pelangganOpSqlite,
     required PelangganAktifOpSqlite activeCustomerOperation,
     required TransaksiOpSqlite transactionOperation,
-    required FeedbackOperation feedbackOperation,
+    required FeedbackOpSqlite feedbackOperation,
     required OrderOpsqlite orderOperation,
     required SubKategoriOpSqlite subCategoryOperation,
     required ApkVersionOperation apkVersionOperation,
@@ -77,7 +77,7 @@ class DownloadDataService {
     required final PelangganOpSqlite customerOperation,
     required final PelangganAktifOpSqlite activeCustomerOperation,
     required final TransaksiOpSqlite transactionOperation,
-    required final FeedbackOperation feedbackOperation,
+    required final FeedbackOpSqlite feedbackOperation,
     required final OrderOpsqlite orderOperation,
     required final SubKategoriOpSqlite subCategoryOperation,
     required final ApkVersionOperation apkVersionOperation,

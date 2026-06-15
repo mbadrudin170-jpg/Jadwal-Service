@@ -25,26 +25,29 @@ void main() {
   final tomorrow = today.add(const Duration(days: 1));
 
   // Customer dummies
-  final c1 = PelangganModel(
+  const c1 = PelangganModel(
     id: 'c1',
     nama: 'Charlie',
-    email: 'charlie@gmail.com',
-    nomorTelepon: '123',
+    telepon: '123',
     alamat: 'alamat',
+    kataSandi: 'pass123',
+    macAddress: '00:11:22:33:44:55',
   );
-  final c2 = PelangganModel(
+  const c2 = PelangganModel(
     id: 'c2',
     nama: 'Alpha',
-    email: 'alpha@gmail.com',
-    nomorTelepon: '456',
+    telepon: '456',
     alamat: 'alamat',
+    kataSandi: 'pass123',
+    macAddress: '00:11:22:33:44:56',
   );
-  final c3 = PelangganModel(
+  const c3 = PelangganModel(
     id: 'c3',
     nama: 'Bravo',
-    email: 'bravo@gmail.com',
-    nomorTelepon: '789',
+    telepon: '789',
     alamat: 'alamat',
+    kataSandi: 'pass123',
+    macAddress: '00:11:22:33:44:57',
   );
 
   // Transaction dummies
@@ -59,9 +62,7 @@ void main() {
       tipe: TipeTransaksi.income,
       idDompet: '',
       idKategori: '',
-      idPaket: '',
-      namaPaket: '',
-      hargaPaket: 0);
+      idPaket: '');
   final t2 = TransaksiModel(
     id: '2',
     idPelanggan: 'c2',
@@ -72,10 +73,7 @@ void main() {
     tipe: TipeTransaksi.income,
     idDompet: '',
     idKategori: '',
-    statusPembayaran: StatusPembayaran.unpaid,
     idPaket: '',
-    namaPaket: '',
-    hargaPaket: 0,
   );
   final t3 = TransaksiModel(
     id: '3',
@@ -89,8 +87,6 @@ void main() {
     idDompet: '',
     idKategori: '',
     idPaket: '',
-    namaPaket: '',
-    hargaPaket: 0,
   );
   // Transaksi tanpa customerId yang cocok untuk menguji kasus 'Tidak diketahui'
   final t4 = TransaksiModel(
@@ -102,10 +98,7 @@ void main() {
     tipe: TipeTransaksi.income,
     idDompet: '',
     idKategori: '',
-    statusPembayaran: StatusPembayaran.unpaid,
     idPaket: '',
-    namaPaket: '',
-    hargaPaket: 0,
     // Waktu sama, menit berbeda
   );
 

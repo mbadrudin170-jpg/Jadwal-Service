@@ -1,45 +1,45 @@
-
-// path: test/fitur/akun/provider/akun_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/shared/storage/layanan_penyimpanan_lokal.dart';
-import 'package:wifi/shared/storage/penyimpanan_lokal_provider.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
+import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
 // Mocks
 class MockLayananPenyimpananLokal extends Mock
     implements LayananPenyimpananLokal {}
 
-class MockSharedPreferences extends Mock implements SharedPreferences {}
-
 void main() {
   late MockLayananPenyimpananLokal mockPenyimpananLokal;
   late ProviderContainer container;
 
-  final tAkun1 = PelangganModel(
+  // Perbaiki parameter PelangganModel - gunakan parameter yang benar
+  const tAkun1 = PelangganModel(
     id: '1',
     nama: 'Test User 1',
-    email: 'test1@example.com',
-    nomorTelepon: '123',
+    telepon: '08123456789',      // ganti dari email/nomorTelepon
     alamat: 'Alamat 1',
+    kataSandi: 'password123',    // wajib
+    macAddress: 'AA:BB:CC:DD:EE:FF', // wajib
   );
-  final tAkun2 = PelangganModel(
+  
+  const tAkun2 = PelangganModel(
     id: '2',
     nama: 'Test User 2',
-    email: 'test2@example.com',
-    nomorTelepon: '456',
+    telepon: '08987654321',      // ganti dari email/nomorTelepon
     alamat: 'Alamat 2',
+    kataSandi: 'rahasia',        // wajib
+    macAddress: '11:22:33:44:55:66', // wajib
   );
 
   setUp(() {
     mockPenyimpananLokal = MockLayananPenyimpananLokal();
     container = ProviderContainer(
       overrides: [
-        layananPenyimpananLokalProvider
-            .overrideWithValue(mockPenyimpananLokal),
+        // Perbaiki nama provider - sesuai dengan yang didefinisikan di akun_provider.dart
+        // Asumsikan provider bernama layananPenyimpananLokalProvider
+        layananPenyimpananLokalProvider.overrideWithValue(AsyncValue.data(mockPenyimpananLokal)),
       ],
     );
     registerFallbackValue(tAkun1);
@@ -81,7 +81,8 @@ void main() {
           .thenAnswer((_) async => tAkun1);
       when(() => mockPenyimpananLokal.ambilDaftarAkun())
           .thenAnswer((_) async => [tAkun1, tAkun2]);
-      when(() => mockPenyimpananLokal.hapusAkunSaatIni()).thenAnswer((_) async {});
+      when(() => mockPenyimpananLokal.hapusAkunSaatIni())
+          .thenAnswer((_) async {});
 
       await container.read(pengelolaAkunProvider.future);
       await container.read(pengelolaAkunProvider.notifier).logout();
@@ -97,7 +98,8 @@ void main() {
           .thenAnswer((_) async => tAkun1);
       when(() => mockPenyimpananLokal.ambilDaftarAkun())
           .thenAnswer((_) async => [tAkun1, tAkun2]);
-      when(() => mockPenyimpananLokal.hapusAkun(any())).thenAnswer((_) async {});
+      when(() => mockPenyimpananLokal.hapusAkun(any()))
+          .thenAnswer((_) async {});
 
       await container.read(pengelolaAkunProvider.future);
       await container.read(pengelolaAkunProvider.notifier).hapusAkun('2');

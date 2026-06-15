@@ -5,14 +5,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
 import 'package:wifi/fitur/feedback/provider/feedback_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 // Mock kelas-kelas yang diperlukan
-class MockFeedbackOperation extends Mock implements FeedbackOperation {}
-class MockCustomerOperation extends Mock implements CustomerOperation {}
+class MockFeedbackOperation extends Mock implements FeedbackOpSqlite {}
+
+class MockCustomerOperation extends Mock implements PelangganOpSqlite {}
 
 // Data dummy
 final dummyFeedbackList = [
@@ -31,8 +35,8 @@ final dummyFeedbackList = [
 ];
 
 final dummyCustomerList = [
-  CustomerModel(id: 'user1', name: 'Budi Santoso'),
-  CustomerModel(id: 'user2', name: 'Siti Aminah'),
+  PelangganModel(id: 'user1', name: 'Budi Santoso'),
+  PelangganModel(id: 'user2', name: 'Siti Aminah'),
 ];
 
 void main() {
@@ -52,7 +56,8 @@ void main() {
         ),
       ],
     );
-    when(() => mockCustomerOp.getAll()).thenAnswer((_) async => dummyCustomerList);
+    when(() => mockCustomerOp.getAll())
+        .thenAnswer((_) async => dummyCustomerList);
   });
 
   tearDown(() {
@@ -61,7 +66,8 @@ void main() {
 
   group('FeedbackPage', () {
     // Test 1: Menampilkan judul "Kritik & Saran" di AppBar
-    testWidgets('1. Menampilkan judul "Kritik & Saran" di AppBar', (tester) async {
+    testWidgets('1. Menampilkan judul "Kritik & Saran" di AppBar',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: ProviderScope(
@@ -76,7 +82,8 @@ void main() {
     });
 
     // Test 2: Menampilkan indikator loading saat data loading
-    testWidgets('2. Menampilkan indikator loading saat data loading', (tester) async {
+    testWidgets('2. Menampilkan indikator loading saat data loading',
+        (tester) async {
       container = ProviderContainer(
         overrides: [
           activeFeedbackListProvider.overrideWith(
@@ -98,7 +105,8 @@ void main() {
     });
 
     // Test 3: Menampilkan pesan error saat gagal memuat data
-    testWidgets('3. Menampilkan pesan error saat gagal memuat data', (tester) async {
+    testWidgets('3. Menampilkan pesan error saat gagal memuat data',
+        (tester) async {
       final errorMessage = 'Gagal koneksi database';
       container = ProviderContainer(
         overrides: [
@@ -117,11 +125,13 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('Gagal memuat data: $errorMessage'), findsOneWidget);
+      expect(find.textContaining('Gagal memuat data: $errorMessage'),
+          findsOneWidget);
     });
 
     // Test 4: Menampilkan daftar feedback jika ada data
-    testWidgets('4. Menampilkan daftar feedback dalam bentuk card', (tester) async {
+    testWidgets('4. Menampilkan daftar feedback dalam bentuk card',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: ProviderScope(
@@ -140,7 +150,8 @@ void main() {
     });
 
     // Test 5: Menampilkan nama pelanggan dari CustomerNameWidget
-    testWidgets('5. Menampilkan nama pelanggan yang mengirim feedback', (tester) async {
+    testWidgets('5. Menampilkan nama pelanggan yang mengirim feedback',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: ProviderScope(
@@ -158,7 +169,9 @@ void main() {
     });
 
     // Test 6: Menampilkan pesan "Belum ada kritik dan saran" saat data kosong
-    testWidgets('6. Menampilkan pesan "Belum ada kritik dan saran" saat data kosong', (tester) async {
+    testWidgets(
+        '6. Menampilkan pesan "Belum ada kritik dan saran" saat data kosong',
+        (tester) async {
       container = ProviderContainer(
         overrides: [
           activeFeedbackListProvider.overrideWith(
@@ -182,7 +195,8 @@ void main() {
     });
 
     // Test 7: Membuka mode pencarian saat menekan ikon pencarian
-    testWidgets('7. Membuka mode pencarian saat menekan ikon pencarian', (tester) async {
+    testWidgets('7. Membuka mode pencarian saat menekan ikon pencarian',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: ProviderScope(
@@ -227,7 +241,8 @@ void main() {
     });
 
     // Test 9: Filter pencarian berdasarkan nama pelanggan
-    testWidgets('9. Filter pencarian berdasarkan nama pelanggan', (tester) async {
+    testWidgets('9. Filter pencarian berdasarkan nama pelanggan',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: ProviderScope(
@@ -274,7 +289,8 @@ void main() {
     });
 
     // Test 11: Menekan card feedback menavigasi ke halaman detail
-    testWidgets('11. Menekan card feedback menavigasi ke halaman detail', (tester) async {
+    testWidgets('11. Menekan card feedback menavigasi ke halaman detail',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: ProviderScope(
@@ -296,7 +312,8 @@ void main() {
     });
 
     // Test 12: Long press pada card menampilkan dialog konfirmasi hapus
-    testWidgets('12. Long press pada card menampilkan dialog konfirmasi hapus', (tester) async {
+    testWidgets('12. Long press pada card menampilkan dialog konfirmasi hapus',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: ProviderScope(
@@ -322,7 +339,9 @@ void main() {
     });
 
     // Test 13: Konfirmasi hapus memanggil softDelete dan refresh
-    testWidgets('13. Konfirmasi hapus memanggil softDelete dan refresh provider', (tester) async {
+    testWidgets(
+        '13. Konfirmasi hapus memanggil softDelete dan refresh provider',
+        (tester) async {
       when(() => mockFeedbackOp.softDelete(any())).thenAnswer((_) async {});
 
       await tester.pumpWidget(

@@ -21,6 +21,8 @@ import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart' as _i16;
 import 'package:wifi/fitur/kategori/model/kategori_model.dart' as _i3;
 import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart' as _i29;
 import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart' as _i15;
+import 'package:wifi/fitur/kategori/operasi/sub_kategori_op_sqlite.dart'
+    as _i28;
 import 'package:wifi/fitur/order/model/order_model.dart' as _i27;
 import 'package:wifi/fitur/paket/model/paket_model.dart' as _i18;
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart' as _i17;
@@ -41,8 +43,6 @@ import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart'
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i4;
 import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart'
     as _i25;
-import 'package:wifi/fitur/kategori/operasi/sub_kategori_op_sqlite.dart'
-    as _i28;
 import 'package:wifi/shared/utils/sync_manager.dart' as _i12;
 
 // ignore_for_file: type=lint
@@ -1162,11 +1162,11 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
       ) as _i11.Future<List<_i5.PelangganAktifModel>>);
 }
 
-/// A class which mocks [TransaksiOpsqlite].
+/// A class which mocks [TransaksiOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTransaksiOpsqlite extends _i1.Mock implements _i23.TransaksiOpSqlite {
-  MockTransaksiOpsqlite() {
+class MockTransaksiOpSqlite extends _i1.Mock implements _i23.TransaksiOpSqlite {
+  MockTransaksiOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -1395,11 +1395,11 @@ class MockTransaksiOpsqlite extends _i1.Mock implements _i23.TransaksiOpSqlite {
       ) as _i11.Future<List<_i22.TransaksiModel>>);
 }
 
-/// A class which mocks [FeedbackOperation].
+/// A class which mocks [FeedbackOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFeedbackOperation extends _i1.Mock implements _i24.FeedbackOperation {
-  MockFeedbackOperation() {
+class MockFeedbackOpSqlite extends _i1.Mock implements _i24.FeedbackOpSqlite {
+  MockFeedbackOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -1777,13 +1777,13 @@ class MockSubKategoriOpSqlite extends _i1.Mock
 
   @override
   _i11.Future<void> createSubCategory(
-    _i29.SubKategoriModel? subCategory, {
+    _i29.SubKategoriModel? subKategori, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #createSubCategory,
-          [subCategory],
+          [subKategori],
           {#fromServer: fromServer},
         ),
         returnValue: _i11.Future<void>.value(),
@@ -1795,7 +1795,7 @@ class MockSubKategoriOpSqlite extends _i1.Mock
           String? categoryId) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getSubCategoryByCategoryId,
+          #ambilBerdasarkanIdPelanggan,
           [categoryId],
         ),
         returnValue: _i11.Future<List<_i29.SubKategoriModel>>.value(
@@ -1814,13 +1814,13 @@ class MockSubKategoriOpSqlite extends _i1.Mock
 
   @override
   _i11.Future<void> updateSubCategory(
-    _i29.SubKategoriModel? subCategory, {
+    _i29.SubKategoriModel? subKategori, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #updateSubCategory,
-          [subCategory],
+          [subKategori],
           {#fromServer: fromServer},
         ),
         returnValue: _i11.Future<void>.value(),
@@ -1845,13 +1845,13 @@ class MockSubKategoriOpSqlite extends _i1.Mock
   @override
   _i11.Future<void> softDelete(
     String? id, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #softDelete,
           [id],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
@@ -2047,13 +2047,13 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i32.SettingsOpSqlite {
   @override
   _i11.Future<_i7.SettingsModel> ambilSettings() => (super.noSuchMethod(
         Invocation.method(
-          #getSettings,
+          #ambilSettings,
           [],
         ),
         returnValue: _i11.Future<_i7.SettingsModel>.value(_FakeSettingsModel_6(
           this,
           Invocation.method(
-            #getSettings,
+            #ambilSettings,
             [],
           ),
         )),

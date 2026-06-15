@@ -9,12 +9,12 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data kritik dan saran di database lokal.
-class FeedbackOperation {
+class FeedbackOpSqlite {
   final SqliteDatabase sqliteDb;
   final BaseOpSqlite baseOpSqlite;
   final String _tableName = NamaTabel.feedback;
 
-  FeedbackOperation({
+  FeedbackOpSqlite({
     required this.sqliteDb,
     required this.baseOpSqlite,
   });

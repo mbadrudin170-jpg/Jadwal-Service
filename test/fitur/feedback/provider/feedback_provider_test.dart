@@ -1,4 +1,3 @@
-
 // path: test/fitur/feedback/provider/feedback_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,7 +7,7 @@ import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
 import 'package:wifi/fitur/feedback/provider/feedback_provider.dart';
 
-class MockFeedbackOperation extends Mock implements FeedbackOperation {}
+class MockFeedbackOperation extends Mock implements FeedbackOpSqlite {}
 
 void main() {
   late MockFeedbackOperation mockFeedbackOperation;

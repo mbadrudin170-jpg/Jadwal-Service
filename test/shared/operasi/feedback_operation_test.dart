@@ -22,7 +22,7 @@ void main() {
   late MockBaseOperation mockBaseOperation;
   late MockDatabase mockDatabase;
   late MockTransaction mockTransaction;
-  late FeedbackOperation feedbackOperation;
+  late FeedbackOpSqlite feedbackOperation;
   final tableName = NamaTabel.get(TableName.feedback);
 
   // 3. Siapkan instance sebelum setiap test
@@ -31,7 +31,7 @@ void main() {
     mockBaseOperation = MockBaseOperation();
     mockDatabase = MockDatabase();
     mockTransaction = MockTransaction();
-    feedbackOperation = FeedbackOperation(
+    feedbackOperation = FeedbackOpSqlite(
       sqliteDb: mockDbHelper,
       baseOpSqlite: mockBaseOperation,
     );

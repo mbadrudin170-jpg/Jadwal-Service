@@ -56,10 +56,10 @@ void main() {
     test('05. harus menyalin objek dengan field yang diperbarui', () {
       final tanggalBaru = DateTime(2025);
       final salinanDompet = dataDompetLengkap.copyWith(
-        name: 'Dompet Terupdate',
-        balance: 200000.0,
-        isDeleted: true,
-        archivedAt: tanggalBaru,
+        nama: 'Dompet Terupdate',
+        saldo: 200000.0,
+        diHapus: true,
+        diarsipkanPada: tanggalBaru,
       );
       expect(salinanDompet.nama, 'Dompet Terupdate');
       expect(salinanDompet.saldo, 200000.0);
@@ -73,31 +73,31 @@ void main() {
     });
 
     test('07. harus menyalin objek dengan name yang diperbarui', () {
-      final salinanDompet = dataDompetLengkap.copyWith(name: 'Dompet Liburan');
+      final salinanDompet = dataDompetLengkap.copyWith(nama: 'Dompet Liburan');
       expect(salinanDompet.nama, 'Dompet Liburan');
     });
 
     test('08. harus menyalin objek dengan balance yang diperbarui', () {
-      final salinanDompet = dataDompetLengkap.copyWith(balance: 50.0);
+      final salinanDompet = dataDompetLengkap.copyWith(saldo: 50.0);
       expect(salinanDompet.saldo, 50.0);
     });
 
     test('09. harus menyalin objek dengan updatedAt yang diperbarui', () {
       final tanggalUpdate = DateTime(2024, 1);
       final salinanDompet =
-          dataDompetLengkap.copyWith(updatedAt: tanggalUpdate);
+          dataDompetLengkap.copyWith(diperbaruiPada: tanggalUpdate);
       expect(salinanDompet.diperbaruiPada, tanggalUpdate);
     });
 
     test('10. harus menyalin objek dengan isDeleted yang diperbarui', () {
-      final salinanDompet = dataDompetLengkap.copyWith(isDeleted: true);
+      final salinanDompet = dataDompetLengkap.copyWith(diHapus: true);
       expect(salinanDompet.diHapus, true);
     });
 
     test('11. harus menyalin objek dengan archivedAt yang diperbarui', () {
       final tanggalArsip = DateTime(2025, 1);
       final salinanDompet =
-          dataDompetLengkap.copyWith(archivedAt: tanggalArsip);
+          dataDompetLengkap.copyWith(diarsipkanPada: tanggalArsip);
       expect(salinanDompet.diarsipkanPada, tanggalArsip);
     });
 

@@ -34,7 +34,7 @@ class FeedbackDetailPage extends ConsumerStatefulWidget {
 
 /// State untuk [FeedbackDetailPage].
 class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
-  late final FeedbackOperation _feedbackOperation;
+  late final FeedbackOpSqlite _feedbackOperation;
 
   late Future<FeedbackModel> _feedbackFuture;
 

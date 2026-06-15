@@ -28,13 +28,13 @@ final statistikOpSliteProvider = Provider<StatistikOpSqlite>((ref) {
 /// Repos
 class StatistikOpSqlite {
   final PelangganAktifOpSqlite _pelangganAktifOpSqlite;
-  final FeedbackOperation _statistikOpSliteProvider;
+  final FeedbackOpSqlite _statistikOpSliteProvider;
   final PaketOpSqlite _paketOpsqlite;
   final TransaksiOpSqlite _transaksiOpSlite;
 
   StatistikOpSqlite({
     required PelangganAktifOpSqlite pelangganAktifOpSqlite,
-    required FeedbackOperation feedbackOpSqlite,
+    required FeedbackOpSqlite feedbackOpSqlite,
     required PaketOpSqlite paketOpSqlite,
     required TransaksiOpSqlite transaksiOpSqlite,
   })  : _pelangganAktifOpSqlite = pelangganAktifOpSqlite,
