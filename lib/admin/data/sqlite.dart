@@ -67,7 +67,7 @@ class SqliteDatabase {
           inMemoryDatabasePath,
           options: OpenDatabaseOptions(
             version: _databaseVersion,
-            onCreate: createTables,
+            onCreate: membuatTabel,
             onUpgrade: _onUpgrade,
           ),
         );
@@ -83,7 +83,7 @@ class SqliteDatabase {
       return openDatabase(
         path,
         version: _databaseVersion,
-        onCreate: createTables,
+        onCreate: membuatTabel,
         onUpgrade: _onUpgrade,
       );
     } on Exception catch (e, st) {
@@ -438,13 +438,13 @@ class SqliteDatabase {
   }
 
   /// Membuat tabel-tabel database (untuk database baru).
-  Future<void> createTables(final Database db, final int version) async {
+  Future<void> membuatTabel( Database db,  int version) async {
     Log.info('========================================');
     Log.info(
         'MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version');
     Log.info('========================================');
     final batch = db.batch();
-    _createAllTables(batch);
+    _membuatSemuaTabel(batch);
     try {
       await batch.commit(noResult: true);
       Log.info('PROSES PEMBUATAN TABEL & INDEX SELESAI');
@@ -454,20 +454,20 @@ class SqliteDatabase {
     }
   }
 
-  void _createAllTables(final Batch batch) {
-    batch.execute(_tabelCategory);
-    batch.execute(_tabelSubCategory);
-    batch.execute(_tabelPackage);
-    batch.execute(_tabelCustomer);
-    batch.execute(_tabelActiveCustomer);
-    batch.execute(_tabelTransaction);
-    batch.execute(_tabelWallet);
+  void _membuatSemuaTabel(Batch batch) {
+    batch.execute(_tabelKategori);
+    batch.execute(_tabelSubKategori);
+    batch.execute(_tabelPaket);
+    batch.execute(_tabelPelanggan);
+    batch.execute(_tabelPelangganAktif);
+    batch.execute(_tabelTransaksi);
+    batch.execute(_tabelDompet);
     batch.execute(_tabelFeedback);
     batch.execute(_tabelOrder);
-    batch.execute(_tabelUserApkVersion);
+    batch.execute(_tabelVersiApkUser);
     batch.execute(_tabelSetting);
-    batch.execute(_tabelUploadStatus);
-    batch.execute(_tabelMessage);
+    batch.execute(_tabelStatusUnggah);
+    batch.execute(_tabelPesan);
     batch
         .execute(_tabelNotification); // 2. Tambahkan pembuatan tabel notifikasi
     Log.info('Semua 14 definisi tabel (v52) ditambahkan ke batch.');
@@ -507,7 +507,7 @@ class SqliteDatabase {
   // DEFINISI TABEL v51 (snake_case nama tabel + nama kolom via konstanta)
   // ============================================================
 
-  static const String _tabelWallet = '''
+  static const String _tabelDompet = '''
     CREATE TABLE ${NamaTabel.dompet}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.nama} TEXT NOT NULL,
@@ -518,7 +518,7 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelTransaction = '''
+  static const String _tabelTransaksi = '''
     CREATE TABLE "${NamaTabel.transaksi}" (
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.deskripsi} TEXT NOT NULL,
@@ -547,7 +547,7 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelUserApkVersion = '''
+  static const String _tabelVersiApkUser = '''
     CREATE TABLE ${NamaTabel.versiApkUser}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.catatanRilis} TEXT NOT NULL,
@@ -562,7 +562,7 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelUploadStatus = '''
+  static const String _tabelStatusUnggah = '''
     CREATE TABLE ${NamaTabel.statusUnggah}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.value} TEXT NOT NULL,
@@ -570,7 +570,7 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelMessage = '''
+  static const String _tabelPesan = '''
     CREATE TABLE ${NamaTabel.pesan}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.isi} TEXT NOT NULL,
@@ -590,7 +590,7 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelCategory = '''
+  static const String _tabelKategori = '''
     CREATE TABLE ${NamaTabel.kategori}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.nama} TEXT NOT NULL,
@@ -602,7 +602,7 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelSubCategory = '''
+  static const String _tabelSubKategori = '''
     CREATE TABLE ${NamaTabel.subKategori}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.nama} TEXT NOT NULL,
@@ -614,7 +614,7 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelPackage = '''
+  static const String _tabelPaket = '''
     CREATE TABLE ${NamaTabel.paket}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.nama} TEXT NOT NULL,
@@ -631,7 +631,7 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelCustomer = '''
+  static const String _tabelPelanggan = '''
     CREATE TABLE ${NamaTabel.pelanggan}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.nama} TEXT NOT NULL,
@@ -647,7 +647,7 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelActiveCustomer = '''
+  static const String _tabelPelangganAktif = '''
     CREATE TABLE ${NamaTabel.pelangganAktif}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.idPelanggan} TEXT NOT NULL,

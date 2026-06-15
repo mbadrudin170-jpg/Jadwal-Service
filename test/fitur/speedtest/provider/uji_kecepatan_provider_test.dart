@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_test_plus/flutter_speed_test_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:wifi/fitur/speedtest/provider/ping_provider.dart';
 import 'package:wifi/fitur/speedtest/provider/uji_kecepatan_provider.dart';
 

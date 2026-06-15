@@ -237,13 +237,13 @@ class MockSqliteDatabase extends _i1.Mock implements _i7.SqliteDatabase {
       );
 
   @override
-  _i6.Future<void> createTables(
+  _i6.Future<void> membuatTabel(
     _i2.Database? db,
     int? version,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
-          #createTables,
+          #membuatTabel,
           [
             db,
             version,
