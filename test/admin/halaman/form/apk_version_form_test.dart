@@ -1,4 +1,6 @@
+
 // path: test/admin/halaman/form/apk_version_form_test.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,52 +9,134 @@ import 'package:wifi/admin/halaman/form/apk_version_form.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
+// Mocks
 class MockApkVersionOperation extends Mock implements ApkVersionOperation {}
 
+class MockBaseOpSqlite extends Mock implements BaseOpSqlite {}
+
+class MockNavigatorObserver extends Mock implements NavigatorObserver {}
+
 void main() {
-  late MockApkVersionOperation mockApkVersionOperation;
-  late VersiApkModel testApkVersion;
+  late MockApkVersionOperation mockApkVersionOp;
+  late MockBaseOpSqlite mockBaseOp;
+  late MockNavigatorObserver mockNavigatorObserver;
+  late ProviderContainer container;
+
+  final tVersi = VersiApkModel(
+    id: '1',
+    version: '1.0.0',
+    buildNumber: 1,
+    appName: 'user',
+    platform: 'android',
+    downloadUrl: 'url',
+    releaseNotes: 'notes',
+    isMandatory: false,
+  );
 
   setUp(() {
-    mockApkVersionOperation = MockApkVersionOperation();
-    testApkVersion = VersiApkModel(
-      id: '1',
-      versiTerbaru: '1.0.0',
-      nomorBuildTerbaru: 1,
-      catatanRilis: 'Initial release',
-      tautanUnduhan: {},
-      isPembaruanWajib: false,
-      tutorialYoutube: '',
+    mockApkVersionOp = MockApkVersionOperation();
+    mockBaseOp = MockBaseOpSqlite();
+    mockNavigatorObserver = MockNavigatorObserver();
+
+    container = ProviderContainer(
+      overrides: [
+        apkVersionOperationProvider.overrideWithValue(mockApkVersionOp),
+        baseOpSqliteProvider.overrideWithValue(mockBaseOp),
+      ],
     );
+
+    // Default mock responses
+    when(() => mockApkVersionOp.addApkVersion(any())).thenAnswer((_) async {});
+    when(() => mockApkVersionOp.updateApkVersion(any())).thenAnswer((_) async {});
+
+    registerFallbackValue(tVersi);
   });
 
-  Widget createTestWidget({VersiApkModel? apkVersion}) {
+  Widget createWidgetUnderTest({VersiApkModel? apkVersion}) {
     return ProviderScope(
-      overrides: [
-        apkVersionOperationProvider.overrideWithValue(mockApkVersionOperation),
-      ],
+      parent: container,
       child: MaterialApp(
         home: ApkVersionForm(apkVersion: apkVersion),
+        navigatorObservers: [mockNavigatorObserver],
       ),
     );
   }
 
-  testWidgets('01. ApkVersionForm should display add form correctly',
-      (tester) async {
-    when(() => mockApkVersionOperation.getLatestApkVersion())
-        .thenAnswer((_) async => null);
-    await tester.pumpWidget(createTestWidget());
-    await tester.pumpAndSettle();
-    expect(find.text('Tambah Versi APK'), findsOneWidget);
-  });
+  group('ApkVersionForm', () {
+    testWidgets('01. harus menampilkan form tambah dengan benar', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+      expect(find.text('Tambah Versi APK'), findsOneWidget);
+      expect(find.byType(TextFormField), findsNWidgets(4)); // version, build, url, notes
+    });
 
-  testWidgets('02. ApkVersionForm should display edit form correctly',
-      (tester) async {
-    await tester.pumpWidget(createTestWidget(apkVersion: testApkVersion));
-    await tester.pumpAndSettle();
-    expect(find.text('Edit Versi APK'), findsOneWidget);
-    expect(find.text('1.0.0'), findsOneWidget);
-    expect(find.text('Initial release'), findsOneWidget);
+    testWidgets('02. harus menampilkan form edit dengan data yang terisi',
+        (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest(apkVersion: tVersi));
+      expect(find.text('Edit Versi APK'), findsOneWidget);
+      expect(find.text('1.0.0'), findsOneWidget);
+      expect(find.text('1'), findsOneWidget);
+      expect(find.text('url'), findsOneWidget);
+      expect(find.text('notes'), findsOneWidget);
+      expect(find.byType(Switch), findsOneWidget);
+    });
+
+    testWidgets('03. harus menampilkan error jika field kosong saat disimpan',
+        (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.tap(find.text('Simpan'));
+      await tester.pump();
+
+      expect(find.text('Versi tidak boleh kosong'), findsOneWidget);
+      expect(find.text('Build number tidak boleh kosong'), findsOneWidget);
+    });
+
+    testWidgets('04. harus memanggil addApkVersion saat mode tambah',
+        (tester) async {
+      when(() => mockNavigatorObserver.didPop(any(), any())).thenReturn(null);
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      await tester.enterText(find.byKey(const Key('version')), '1.0.1');
+      await tester.enterText(find.byKey(const Key('buildNumber')), '2');
+      await tester.enterText(find.byKey(const Key('downloadUrl')), 'new_url');
+
+      await tester.tap(find.text('Simpan'));
+      await tester.pumpAndSettle();
+
+      verify(() => mockApkVersionOp.addApkVersion(any(that: isA<VersiApkModel>()))) .called(1);
+      verify(() => mockNavigatorObserver.didPop(any(), any())).called(1);
+    });
+
+    testWidgets('05. harus memanggil updateApkVersion saat mode edit',
+        (tester) async {
+      when(() => mockNavigatorObserver.didPop(any(), any())).thenReturn(null);
+      await tester.pumpWidget(createWidgetUnderTest(apkVersion: tVersi));
+
+      await tester.enterText(find.byKey(const Key('version')), '1.0.2');
+      await tester.tap(find.text('Simpan'));
+      await tester.pumpAndSettle();
+
+      verify(() => mockApkVersionOp.updateApkVersion(any( 
+              that: isA<VersiApkModel>()
+                ..having((v) => v.version, 'version', '1.0.2'))))
+          .called(1);
+      verify(() => mockNavigatorObserver.didPop(any(), any())).called(1);
+    });
+
+    testWidgets('06. harus menampilkan snackbar error jika terjadi kegagalan',
+        (tester) async {
+      when(() => mockApkVersionOp.addApkVersion(any()))
+          .thenThrow(Exception('Error'));
+
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.enterText(find.byKey(const Key('version')), '1.0.1');
+      await tester.enterText(find.byKey(const Key('buildNumber')), '2');
+      await tester.tap(find.text('Simpan'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Gagal menyimpan versi APK'), findsOneWidget);
+      verifyNever(() => mockNavigatorObserver.didPop(any(), any()));
+    });
   });
 }

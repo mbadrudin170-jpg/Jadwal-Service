@@ -1,67 +1,73 @@
 
-// path: test/admin/halaman/detail/detail_dompet_test.dart
+// path: test/admin/halaman/detail/detail_paket_test.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/admin/halaman/detail/detail_dompet.dart';
+import 'package:wifi/admin/halaman/detail/detail_paket.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/dompet/model/dompet_model.dart';
-import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
-import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 // Mocks
-class MockDompetOpSqlite extends Mock implements DompetOpSqlite {}
+class MockPaketOpSqlite extends Mock implements PaketOpSqlite {}
+
+class MockBaseOpSqlite extends Mock implements BaseOpSqlite {}
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
 void main() {
-  late MockDompetOpSqlite mockDompetOp;
+  late MockPaketOpSqlite mockPaketOp;
+  late MockBaseOpSqlite mockBaseOp;
   late MockNavigatorObserver mockNavigatorObserver;
   late ProviderContainer container;
 
-  final tDompet = DompetModel(
+  final tPaket = PaketModel(
     id: '1',
-    nama: 'Dompet Utama',
-    saldo: 100000,
-    deskripsi: 'Untuk pengeluaran sehari-hari',
+    nama: 'Paket Test',
+    harga: 50000,
+    durasi: 30,
+    tipe: 'reguler',
   );
 
   setUp(() {
-    mockDompetOp = MockDompetOpSqlite();
+    mockPaketOp = MockPaketOpSqlite();
+    mockBaseOp = MockBaseOpSqlite();
     mockNavigatorObserver = MockNavigatorObserver();
+
     container = ProviderContainer(
       overrides: [
-        dompetOpSqliteProvider.overrideWithValue(mockDompetOp),
+        paketOpSqliteProvider.overrideWithValue(mockPaketOp),
+        baseOpSqliteProvider.overrideWithValue(mockBaseOp),
       ],
     );
 
-    when(() => mockDompetOp.softDelete(any())).thenAnswer((_) async {});
-    when(() => mockDompetOp.ambilSemua()).thenAnswer((_) async => [tDompet]);
-    when(() => mockDompetOp.ambilSaldoPositif()).thenAnswer((_) async => 100000);
-    when(() => mockDompetOp.ambilSaldoNegatif()).thenAnswer((_) async => 0);
-    when(() => mockDompetOp.ambilTotalsaldo()).thenAnswer((_) async => 100000);
+    when(() => mockPaketOp.softDelete(any())).thenAnswer((_) async {});
+    when(() => mockPaketOp.updatePaket(any())).thenAnswer((_) async {});
+
+    registerFallbackValue(tPaket);
   });
 
   Widget createWidgetUnderTest() {
     return ProviderScope(
       parent: container,
       child: MaterialApp(
-        home: DetailDompetPage(wallet: tDompet),
+        home: DetailPaketPage(paket: tPaket),
         navigatorObservers: [mockNavigatorObserver],
       ),
     );
   }
 
-  group('DetailDompetPage', () {
-    testWidgets('01. harus menampilkan detail dompet dengan benar', (tester) async {
+  group('DetailPaketPage', () {
+    testWidgets('01. harus menampilkan detail paket dengan benar', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
 
-      expect(find.text('Detail Dompet'), findsOneWidget);
-      expect(find.text('Dompet Utama'), findsOneWidget);
-      expect(find.text('Rp 100.000'), findsOneWidget);
-      expect(find.text('Untuk pengeluaran sehari-hari'), findsOneWidget);
+      expect(find.text('Detail Paket'), findsOneWidget);
+      expect(find.text('Paket Test'), findsOneWidget);
+      expect(find.text('Rp 50.000'), findsOneWidget);
+      expect(find.text('30 hari'), findsOneWidget);
     });
 
     testWidgets('02. harus memanggil delete dan pop saat tombol hapus ditekan',
@@ -75,7 +81,7 @@ void main() {
       await tester.tap(find.text('Hapus'));
       await tester.pumpAndSettle();
 
-      verify(() => container.read(dompetProvider.notifier).softDelete('1')).called(1);
+      verify(() => mockPaketOp.softDelete('1')).called(1);
       verify(() => mockNavigatorObserver.didPop(any(), any())).called(2);
     });
 
@@ -92,8 +98,7 @@ void main() {
 
     testWidgets('04. harus menampilkan snackbar error saat hapus gagal',
         (tester) async {
-      when(() => container.read(dompetProvider.notifier).softDelete(any()))
-          .thenThrow(Exception('Error'));
+      when(() => mockPaketOp.softDelete(any())).thenThrow(Exception('Error'));
       await tester.pumpWidget(createWidgetUnderTest());
 
       await tester.tap(find.byIcon(Icons.delete));
@@ -102,7 +107,7 @@ void main() {
       await tester.tap(find.text('Hapus'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Gagal menghapus dompet'), findsOneWidget);
+      expect(find.text('Gagal menghapus paket'), findsOneWidget);
     });
   });
 }
