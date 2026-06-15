@@ -23,7 +23,7 @@ class SettingsOpSqlite {
 
   /// Mengambil data pengaturan dari database.
   /// Jika tidak ada, akan membuat pengaturan default.
-  Future<SettingsModel> getSettings() async {
+  Future<SettingsModel> ambilSettings() async {
     try {
       Log.info(
         'Memulai proses pengambilan data pengaturan dari database - method: getSettings, tabel: ${NamaTabel.settings}',

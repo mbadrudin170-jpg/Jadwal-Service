@@ -13,7 +13,7 @@ import 'package:wifi/user/widget/theme_menu_widget.dart';
 
 final settingsProvider = FutureProvider<SettingsModel>((ref) async {
   final settingsOp = ref.read(settingsOpSqliteProvider);
-  return await settingsOp.getSettings();
+  return await settingsOp.ambilSettings();
 });
 
 class SettingsAdminPage extends ConsumerWidget {
