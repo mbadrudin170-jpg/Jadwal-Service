@@ -94,16 +94,16 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}');
 
       try {
-        if (!_modeEdit) {
-          Log.info(
-            'Menjalankan operasi CREATE untuk pelanggan baru: ${pelangganBaru.name}',
-          );
-          await pelangganOpSqlite.tambahPelanggan(pelangganBaru);
-        } else {
+        if (_modeEdit) {
           Log.info(
             'Menjalankan operasi UPDATE untuk pelanggan ID: ${pelangganBaru.id}',
           );
           await pelangganOpSqlite.perbaruiPelanggan(pelangganBaru);
+        } else {
+          Log.info(
+            'Menjalankan operasi CREATE untuk pelanggan baru: ${pelangganBaru.name}',
+          );
+          await pelangganOpSqlite.tambahPelanggan(pelangganBaru);
         }
         ref.invalidate(daftarPelangganProvider);
         if (!mounted) return;
@@ -126,12 +126,9 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         }
 
         if (mounted) {
-          Log.info(
-            'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
-          );
           Navigator.pop(context);
         }
-      } on Exception catch (e, s) {
+      } catch (e, s) {
         Log.error('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
         if (mounted) {
           ToastUtil.error(context, 'Gagal menyimpan data: $e');
@@ -176,7 +173,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                   label: 'Nama Pelanggan',
                   icon: TIcons.personOutlined,
                   nextFocus: _teleponFocusNode,
-                  validator: (final v) => (v == null || v.isEmpty)
+                  validator: (v) => (v == null || v.isEmpty)
                       ? 'Nama tidak boleh kosong'
                       : null,
                 ),
@@ -188,7 +185,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                   icon: TIcons.phoneAndroid,
                   keyboard: TextInputType.phone,
                   nextFocus: _alamatFocusNode,
-                  validator: (final v) => (v == null || v.isEmpty)
+                  validator: (v) => (v == null || v.isEmpty)
                       ? 'Telepon tidak boleh kosong'
                       : null,
                 ),
@@ -199,7 +196,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                   label: 'Alamat Lengkap',
                   icon: TIcons.home,
                   nextFocus: _passwordFocusNode,
-                  validator: (final v) => (v == null || v.isEmpty)
+                  validator: (v) => (v == null || v.isEmpty)
                       ? 'Alamat tidak boleh kosong'
                       : null,
                 ),
