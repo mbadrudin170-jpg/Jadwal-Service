@@ -1,106 +1,143 @@
+
 // path: test/admin/halaman/lainnya/manage_announcement_page_test.dart
 
-import 'dart:io';
-import 'dart:typed_data';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:toastification/toastification.dart';
 import 'package:wifi/admin/halaman/lainnya/manage_announcement_page.dart';
-import 'package:wifi/shared/model/event_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
-import 'package:wifi/shared/services/image_storage_service.dart';
+import 'package:wifi/shared/model/notifikasi_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
 
-// Mock kelas-kelas yang diperlukan
-class MockEventOpSupabase extends Mock implements EventOpSupabase {}
-class MockImageStorageService extends Mock implements ImageStorageService {}
+// Mocks
+class MockNotifikasiOpFirebase extends Mock implements NotifikasiOpFirebase {}
 
-// Fake File untuk testing
-class FakeFile extends Fake implements File {
-  @override
-  String get path => '/fake/path.jpg';
-  @override
-  Future<Uint8List> readAsBytes() async => Uint8List(0);
-}
+class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
 void main() {
-  late MockEventOpSupabase mockEventOp;
-  late MockImageStorageService mockStorageService;
+  late MockNotifikasiOpFirebase mockNotifikasiOp;
+  late MockNavigatorObserver mockNavigatorObserver;
+  late ProviderContainer container;
 
-  setUpAll(() async {
-    registerFallbackValue(FakeFile());
-    await initializeDateFormatting('id_ID');
-  });
+  final tPengumuman1 = NotifikasiModel(
+    id: '1',
+    judul: 'Pengumuman 1',
+    isi: 'Isi Pengumuman 1',
+    tanggalTampil: DateTime(2023, 1, 1),
+  );
+
+  final tPengumuman2 = NotifikasiModel(
+    id: '2',
+    judul: 'Pengumuman 2',
+    isi: 'Isi Pengumuman 2',
+    tanggalTampil: DateTime(2023, 1, 2),
+  );
 
   setUp(() {
-    mockEventOp = MockEventOpSupabase();
-    mockStorageService = MockImageStorageService();
-    // Default mock behavior
-    when(() => mockEventOp.getAll()).thenAnswer((_) async => []);
+    mockNotifikasiOp = MockNotifikasiOpFirebase();
+    mockNavigatorObserver = MockNavigatorObserver();
+    container = ProviderContainer(
+      overrides: [
+        notifikasiOpFirebaseProvider.overrideWithValue(mockNotifikasiOp),
+      ],
+    );
+
+    when(() => mockNotifikasiOp.getKhususAdmin())
+        .thenAnswer((_) => Stream.value([tPengumuman1, tPengumuman2]));
+    when(() => mockNotifikasiOp.addNotifikasi(any())).thenAnswer((_) async {});
+    when(() => mockNotifikasiOp.deleteNotif(any())).thenAnswer((_) async {});
+
+    registerFallbackValue(tPengumuman1);
   });
 
-  Widget buatWidgetTes({EventModel? event}) {
+  Widget createWidgetUnderTest() {
     return ProviderScope(
-      overrides: [
-        eventOpSupabaseProvider.overrideWithValue(mockEventOp),
-        imageStorageServiceProvider.overrideWithValue(mockStorageService),
-      ],
-      child: ToastificationWrapper(
-        child: MaterialApp(
-          home: ManageAnnouncementPage(event: event),
-        ),
+      parent: container,
+      child: MaterialApp(
+        home: const ManageAnnouncementPage(),
+        navigatorObservers: [mockNavigatorObserver],
       ),
     );
   }
 
   group('ManageAnnouncementPage', () {
-    testWidgets('1. Menampilkan halaman kelola pengumuman dalam mode tambah', (tester) async {
-      await tester.pumpWidget(buatWidgetTes());
-      await tester.pumpAndSettle();
+    testWidgets('01. harus menampilkan CircularProgressIndicator saat loading',
+        (tester) async {
+      final completer = StreamController<List<NotifikasiModel>>();
+      when(() => mockNotifikasiOp.getKhususAdmin())
+          .thenAnswer((_) => completer.stream);
 
-      expect(find.text('Kelola Pengumuman'), findsOneWidget);
-      expect(find.text('Detail Pengumuman'), findsOneWidget);
-      expect(find.text('Pilih Gambar'), findsOneWidget);
-      expect(find.text('Simpan Pengumuman'), findsOneWidget);
+      await tester.pumpWidget(createWidgetUnderTest());
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      completer.add([]); // Complete the stream
+      await tester.pumpAndSettle();
     });
 
-    testWidgets('2. Menampilkan data event yang sudah ada saat mode edit', (tester) async {
-      final existingEvent = EventModel(
-        id: 'event1',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        imageUrl: 'https://example.com/image.jpg',
-        isActive: true,
-        startDate: DateTime.now(),
-        endDate: DateTime.now().add(const Duration(days: 7)),
-      );
-      
-      await tester.pumpWidget(buatWidgetTes(event: existingEvent));
+    testWidgets('02. harus menampilkan data saat berhasil dimuat', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
 
-      expect(find.text('Perbarui Pengumuman'), findsOneWidget);
-      final switchFinder = find.byType(SwitchListTile);
-      expect(switchFinder, findsOneWidget);
-      final switchListTile = tester.widget<SwitchListTile>(switchFinder);
-      expect(switchListTile.value, true);
+      expect(find.text('Pengumuman 1'), findsOneWidget);
+      expect(find.text('Pengumuman 2'), findsOneWidget);
     });
 
-    testWidgets('3. Menampilkan error jika tanggal tidak dipilih saat simpan', (tester) async {
-      await tester.pumpWidget(buatWidgetTes());
+    testWidgets('03. harus menampilkan pesan error jika terjadi kegagalan',
+        (tester) async {
+      when(() => mockNotifikasiOp.getKhususAdmin())
+          .thenAnswer((_) => Stream.error('Error'));
+
+      await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
 
-      final saveButton = find.text('Simpan Pengumuman');
-      await tester.tap(saveButton);
-      // Pump and settle dengan durasi cukup lama untuk membersihkan timer toastification
-      await tester.pumpAndSettle(const Duration(seconds: 5)); 
-
-      expect(find.text('Harap pilih tanggal mulai dan selesai'), findsOneWidget);
+      expect(find.textContaining('Error'), findsOneWidget);
     });
 
-    testWidgets('4. Menampilkan error jika gambar belum dipilih', (tester) async {
-       expect(true, true); 
+    testWidgets('04. harus menampilkan "Tidak ada pengumuman." jika data kosong',
+        (tester) async {
+      when(() => mockNotifikasiOp.getKhususAdmin())
+          .thenAnswer((_) => Stream.value([]));
+
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tidak ada pengumuman.'), findsOneWidget);
+    });
+
+    testWidgets('05. harus bisa menambahkan pengumuman baru', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.add));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(const Key('judul')), 'Judul Baru');
+      await tester.enterText(find.byKey(const Key('isi')), 'Isi Baru');
+      await tester.tap(find.text('Simpan'));
+      await tester.pumpAndSettle();
+
+      verify(() => mockNotifikasiOp.addNotifikasi(any(
+          that: isA<NotifikasiModel>()
+            ..having((a) => a.judul, 'judul', 'Judul Baru')))).called(1);
+    });
+
+    testWidgets('06. harus bisa menghapus pengumuman', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      await tester.longPress(find.text('Pengumuman 1'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Hapus'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Hapus').last);
+      await tester.pumpAndSettle();
+
+      verify(() => mockNotifikasiOp.deleteNotif('1')).called(1);
     });
   });
 }
