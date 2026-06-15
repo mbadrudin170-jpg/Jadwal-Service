@@ -74,7 +74,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
     super.dispose();
   }
 
-  Future<void> _saveForm() async {
+  Future<void> _simpanPelanggan() async {
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
     Log.info('Tombol "Simpan" ditekan.');
     if (_formKey.currentState!.validate()) {
@@ -85,7 +85,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         id: _modeEdit ? widget.pelanggan!.id : const Uuid().v4(),
         name: _namaController.text.trim(),
         phone: _teleponController.text.trim(),
-        address: _alamatController.text.trim(), 
+        address: _alamatController.text.trim(),
         password: _passwordController.text, // No trim for password
         macAddress: _macAddressController.text.trim().toUpperCase(),
       );
@@ -108,12 +108,11 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         ref.invalidate(daftarPelangganProvider);
         if (!mounted) return;
 
-        final cekKoneksi = ref.read(koneksiInternetServiceProvider);
-        final hasConnection = await cekKoneksi.cekKoneksiLokal();
-        if (hasConnection) {
+        final cekKoneksi =
+            await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
+        if (cekKoneksi) {
           Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
-          final syncCheckService = ref.read(layananCekSinkronisasiProvider);
-          syncCheckService.jalankanCekSinkronisasi();
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
           if (mounted) {
             ToastUtil.success(
                 context, 'Data pelanggan berhasil disimpan & disinkronkan.');
@@ -130,7 +129,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           Log.info(
             'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
           );
-          Navigator.pop(context, true);
+          Navigator.pop(context);
         }
       } on Exception catch (e, s) {
         Log.error('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
@@ -249,7 +248,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                 ),
                 gapH32,
                 ElevatedButton(
-                  onPressed: _menyimpan ? null : _saveForm,
+                  onPressed: _menyimpan ? null : _simpanPelanggan,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(

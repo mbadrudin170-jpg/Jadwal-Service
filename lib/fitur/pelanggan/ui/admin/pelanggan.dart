@@ -192,7 +192,7 @@ class Pelanggan extends ConsumerWidget {
                     ),
                   ],
                 ),
-                onTap: () => _navigasiKeetail(context, ref, pelanggan.id),
+                onTap: () => _navigasiKeDetail(context, ref, pelanggan.id),
                 onLongPress: () => _dialogOpsi(context, ref, pelanggan),
               ),
             );
@@ -249,19 +249,13 @@ class Pelanggan extends ConsumerWidget {
   }
 
   Future<void> _naviagsiKeForm(BuildContext context, WidgetRef ref) async {
-    final hasil = await Navigator.push<bool>(
+    await Navigator.push<void>(
       context,
       MaterialPageRoute(builder: (context) => const FormPelanggan()),
     );
-    if (hasil ?? false) {
-      ref.invalidate(daftarPelangganProvider);
-      if (context.mounted) {
-        ToastUtil.success(context, 'Pelanggan berhasil ditambahkan.');
-      }
-    }
   }
 
-  Future<void> _navigasiKeetail(
+  Future<void> _navigasiKeDetail(
       BuildContext context, WidgetRef ref, String idPelanggan) async {
     await Navigator.push<void>(
       context,
