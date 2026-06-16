@@ -8,47 +8,47 @@ import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:workmanager/workmanager.dart';
 
-const String syncTaskName = 'syncDataTask';
-const String rescheduleNotificationsTaskName = 'rescheduleNotificationsTask';
+const String namaTugasSinkronisasi = 'syncDataTask';
+const String namaTugasJadwalUlangNotifikasi = 'rescheduleNotificationsTask';
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
-  Workmanager().executeTask((final task, final inputData) async {
-    Log.info('Background task dimulai: $task');
+  Workmanager().executeTask((tugas, dataMasukan) async {
+    Log.info('Background task dimulai: $tugas');
 
-    await _initializeBackgroundIsolate();
+    await _inisialisasiIsolatLatarBelakang();
 
     final container = ProviderContainer();
 
     try {
-      switch (task) {
-        case syncTaskName:
+      switch (tugas) {
+        case namaTugasSinkronisasi:
           try {
-            final syncCheckService =
+            final layananCekSinkronisasi =
                 container.read(layananCekSinkronisasiProvider);
-            await syncCheckService.jalankanCekSinkronisasi();
-            Log.info('Background task "$task" selesai dengan sukses.');
+            await layananCekSinkronisasi.jalankanCekSinkronisasi();
+            Log.info('Background task "$tugas" selesai dengan sukses.');
             return true;
-          } on Object catch (e, st) {
+          } catch (e, st) {
             Log.error(
-              'Error saat menjalankan background task "$task"',
+              'Error saat menjalankan background task "$tugas"',
               e: e,
               s: st,
             );
             return false;
           }
 
-        case rescheduleNotificationsTaskName:
+        case namaTugasJadwalUlangNotifikasi:
           try {
-            final activeCustomerOp =
+            final pelangganAktifOpSqlite =
                 container.read(pelangganAktifOpSqliteProvider);
-            await activeCustomerOp.rescheduleAllNotifications();
+            await pelangganAktifOpSqlite.rescheduleAllNotifications();
             Log.info(
-                'Background task "$task" (reschedule) selesai dengan sukses.');
+                'Background task "$tugas" (reschedule) selesai dengan sukses.');
             return true;
           } on Object catch (e, st) {
             Log.error(
-              'Error saat menjalankan background task "$task" (reschedule)',
+              'Error saat menjalankan background task "$tugas" (reschedule)',
               e: e,
               s: st,
             );
@@ -56,18 +56,19 @@ void callbackDispatcher() {
           }
 
         default:
-          Log.warning('Task tidak dikenal: $task');
+          Log.warning('Task tidak dikenal: $tugas');
           return false;
       }
     } finally {
       container.dispose();
-      Log.info('$container sudah dispos penting agar memori tidak leak');
+      Log.info(
+          'ProviderContainer berhasil di-dispose untuk mencegah kebocoran memori.');
     }
   });
 }
 
 /// Helper untuk inisialisasi di dalam background isolate.
-Future<void> _initializeBackgroundIsolate() async {
+Future<void> _inisialisasiIsolatLatarBelakang() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
     if (Firebase.apps.isEmpty) {
@@ -79,16 +80,16 @@ Future<void> _initializeBackgroundIsolate() async {
   }
 }
 
-class BackgroundService {
-  static Future<void> init() async {
+class LayananLatarBelakang {
+  static Future<void> inisialisasi() async {
     try {
       await Workmanager().initialize(
         callbackDispatcher,
       );
       Log.info('Workmanager berhasil diinisialisasi.');
 
-      await daftarSinkronisasiPeriodik();
-      await daftarPenjadwalanUlangPeriodik();
+      await daftarTugasSinkronisasiPeriodik();
+      await daftarTugasJadwalUlangPeriodik();
     } on Exception catch (e, st) {
       Log.error('Gagal menginisialisasi background services.', e: e, s: st);
     }
@@ -98,13 +99,14 @@ class BackgroundService {
   static Future<void> periksaDanArsipkanPelangganKedaluwarsa() async {
     Log.info(
         'Alarm terpicu: Memulai pemeriksaan dan pengarsipan pelanggan kedaluwarsa.');
-    await _initializeBackgroundIsolate();
+    await _inisialisasiIsolatLatarBelakang();
     final container = ProviderContainer();
     try {
-      final activeCustomerOp = container.read(pelangganAktifOpSqliteProvider);
-      final count = await activeCustomerOp.arsipkanLanggananKadaluarsa();
+      final pelangganAktifOpsqlite =
+          container.read(pelangganAktifOpSqliteProvider);
+      final jumlah = await pelangganAktifOpsqlite.arsipkanLanggananKadaluarsa();
       Log.info(
-          'Proses pengarsipan selesai. $count pelanggan kedaluwarsa telah diarsipkan.');
+          'Proses pengarsipan selesai. $jumlah pelanggan kedaluwarsa telah diarsipkan.');
     } on Exception catch (e, st) {
       Log.error(
         'Gagal menjalankan periksaDanArsipkanPelangganKedaluwarsa di background',
@@ -113,15 +115,15 @@ class BackgroundService {
       );
     } finally {
       container.dispose();
-      Log.info('$container sudah dispose agar memori tidak leak');
+      Log.info('ProviderContainer (Alarm) berhasil di-dispose.');
     }
   }
 
-  static Future<void> daftarSinkronisasiPeriodik() async {
+  static Future<void> daftarTugasSinkronisasiPeriodik() async {
     try {
       await Workmanager().registerPeriodicTask(
-        syncTaskName,
-        syncTaskName,
+        namaTugasSinkronisasi,
+        namaTugasSinkronisasi,
         frequency: const Duration(minutes: 15),
         existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
         initialDelay: const Duration(minutes: 1),
@@ -130,18 +132,18 @@ class BackgroundService {
         ),
       );
       Log.info(
-        'Tugas sinkronisasi periodik ($syncTaskName) berhasil didaftarkan.',
+        'Tugas sinkronisasi periodik ($namaTugasSinkronisasi) berhasil didaftarkan.',
       );
     } on Exception catch (e, st) {
       Log.error('Gagal mendaftarkan tugas periodik sync.', e: e, s: st);
     }
   }
 
-  static Future<void> daftarPenjadwalanUlangPeriodik() async {
+  static Future<void> daftarTugasJadwalUlangPeriodik() async {
     try {
       await Workmanager().registerPeriodicTask(
-        rescheduleNotificationsTaskName,
-        rescheduleNotificationsTaskName,
+        namaTugasJadwalUlangNotifikasi,
+        namaTugasJadwalUlangNotifikasi,
         frequency: const Duration(hours: 24),
         existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
         initialDelay: const Duration(minutes: 5),
@@ -150,7 +152,7 @@ class BackgroundService {
         ),
       );
       Log.info(
-        'Tugas penjadwalan ulang notifikasi ($rescheduleNotificationsTaskName) berhasil didaftarkan.',
+        'Tugas penjadwalan ulang notifikasi ($namaTugasJadwalUlangNotifikasi) berhasil didaftarkan.',
       );
     } on Exception catch (e, st) {
       Log.error('Gagal mendaftarkan tugas penjadwalan ulang notifikasi.',

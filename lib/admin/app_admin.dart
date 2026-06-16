@@ -7,7 +7,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:toastification/toastification.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
-import 'package:wifi/fitur/background/background_service.dart';
+import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/data/services/layanan_navigasi.dart';
 import 'package:wifi/shared/data/sync/layanan_unduhan_awal.dart';
@@ -57,7 +57,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
     final koneksiInternetService = ref.read(koneksiInternetServiceProvider);
     final sqliteDb = ref.read(sqliteDatabaseProvider);
     try {
-      await BackgroundService.init();
+      await LayananLatarBelakang.inisialisasi();
 
       await notifikasiServis.inisialisasiNotifikasi(
           iconName: 'ic_notification');

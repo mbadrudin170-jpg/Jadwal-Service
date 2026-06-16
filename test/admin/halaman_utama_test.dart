@@ -11,7 +11,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/admin/halaman_utama.dart';
-import 'package:wifi/fitur/background/background_service.dart';
+import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
@@ -135,7 +135,7 @@ void main() {
       verify(mockSyncService.jalankanCekSinkronisasi()).called(1);
       verify(mockWorkmanager.registerPeriodicTask(
         '1',
-        syncTaskName,
+        namaTugasSinkronisasi,
         frequency: const Duration(minutes: 15),
         constraints: anyNamed('constraints'),
       )).called(1);

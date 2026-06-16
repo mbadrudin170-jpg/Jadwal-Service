@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gma_mediation_unity/gma_mediation_unity.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:wifi/fitur/background/background_service.dart';
+import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
 import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
@@ -48,7 +48,7 @@ void main() async {
 
   // Baris yang ditambahkan: Mengaktifkan service notifikasi untuk aplikasi user
   Log.info('Menginisialisasi workmanager');
-  await BackgroundService.init();
+  await LayananLatarBelakang.inisialisasi();
 
   Log.info('Menginisialisasi GmaMediationUnity');
   // Konfigurasi consent GDPR dan CCPA untuk Unity Ads Mediation.

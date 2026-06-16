@@ -12,8 +12,8 @@ import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/fitur/background/background_service.dart';
-import 'package:wifi/fitur/background/boot_service.dart';
+import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
+import 'package:wifi/fitur/background/layanan_peluncuran.dart';
 
 /// Fungsi utama untuk menjalankan aplikasi admin dalam mode pengembangan (dev).
 void main() async {
@@ -48,7 +48,7 @@ void main() async {
 
   // Inisialisasi semua service background
   Log.info('Menginisialisasi Background Services...');
-  await BackgroundService.init();
+  await LayananLatarBelakang.inisialisasi();
   Log.info('Inisialisasi Background Services selesai.');
 
   // Buat container sementara untuk tugas startup
@@ -56,7 +56,7 @@ void main() async {
   try {
     // Menjadwalkan tugas pengarsipan periodik
     Log.info('Menjadwalkan tugas pengarsipan pelanggan kedaluwarsa...');
-    await BootService().schedulePeriodicArchiveTask(container);
+    await LayananPeluncuran().jadwalkanTugasArsipPeriodik(container);
     Log.info('Tugas pengarsipan berhasil dijadwalkan.');
   } finally {
     // Pastikan untuk membuang container sementara setelah digunakan

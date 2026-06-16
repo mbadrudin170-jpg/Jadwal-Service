@@ -1,14 +1,14 @@
 // path: test/fitur/alarm/android_alarm_scheduler_test.dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/fitur/alarm/android_alarm_scheduler.dart';
+import 'package:wifi/fitur/alarm/penjadwal_alarm_android.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   group('AndroidAlarmScheduler', () {
-    late AndroidAlarmScheduler scheduler;
+    late PenjadwalAlarmAndroid scheduler;
 
     setUp(() {
-      scheduler = AndroidAlarmScheduler();
+      scheduler = PenjadwalAlarmAndroid();
     });
 
     test('01. initialize should not throw', () async {
@@ -21,8 +21,8 @@ void main() {
       void callback() {}
 
       await expectLater(
-          scheduler.scheduleOneShot(time, id, callback,
-              wakeup: true, exact: true),
+          scheduler.jadwalkanSekali(time, id, callback,
+              bangunkan: true, tepatWaktu: true),
           completes);
     });
 
@@ -32,14 +32,14 @@ void main() {
       void callback() {}
 
       await expectLater(
-          scheduler.schedulePeriodic(duration, id, callback,
-              exact: true, wakeup: true, rescheduleOnReboot: true),
+          scheduler.jadwalkanPeriodik(duration, id, callback,
+              tepatWaktu: true, bangunkan: true, jadwalkanUlangSaatBoot: true),
           completes);
     });
 
     test('04. cancel should not throw', () async {
       const id = 1;
-      await expectLater(scheduler.cancel(id), completes);
+      await expectLater(scheduler.batalkan(id), completes);
     });
   });
 }
