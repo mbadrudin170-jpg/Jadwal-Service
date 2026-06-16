@@ -11,7 +11,7 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
-import 'package:wifi/shared/services/image_storage_service.dart';
+import 'package:wifi/shared/services/layanan_penyimpanan_gambar.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -229,10 +229,10 @@ class _ManageAnnouncementPageState
 
     // 2. Proses upload gambar ke storage jika admin memilih file gambar baru
     if (_selectedImage != null) {
-      final storageService = ref.read(imageStorageServiceProvider);
+      final storageService = ref.read(layananPenyimpananGambarProvider);
       try {
         final String uploadUrl =
-            await storageService.uploadImage(_selectedImage!, NamaTabel.event);
+            await storageService.unggahGambar(_selectedImage!, NamaTabel.event);
         imageUrl = uploadUrl;
         if (imageUrl.isEmpty) {
           throw Exception('URL gambar kosong dari storage service.');

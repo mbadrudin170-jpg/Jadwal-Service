@@ -1,24 +1,17 @@
-// path: lib/shared/services/device_info_service.dart
+// path: lib/fitur/info_perangkat/service/layanan_info_perangkat.dart
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-/// Kelas layanan untuk mendapatkan informasi tentang perangkat.
-class DeviceInfoService {
-  /// Instance dari [DeviceInfoPlugin] untuk mendapatkan informasi perangkat.
-  final DeviceInfoPlugin deviceInfo;
+class LayananInfoPerangkat {
+  final DeviceInfoPlugin infoPerangkat;
 
-  /// Konstruktor untuk DeviceInfoService.
-  ///
-  /// Membutuhkan instance [DeviceInfoPlugin] untuk diinjeksi,
-  /// yang memungkinkan untuk pengujian dengan mock.
-  DeviceInfoService(this.deviceInfo) {
+  LayananInfoPerangkat(this.infoPerangkat) {
     Log.info('DeviceInfoService diinisialisasi.');
   }
 
-  /// Mendapatkan arsitektur perangkat.
-  Future<Map<String, dynamic>> getDeviceArchitecture() async {
+  Future<Map<String, dynamic>> ambilArsitekturPerangkat() async {
     Log.info('Memulai pengambilan informasi arsitektur perangkat.');
     if (kIsWeb) {
       Log.warning('Tidak dapat mendeteksi arsitektur di platform web.');
@@ -30,19 +23,19 @@ class DeviceInfoService {
       if (defaultTargetPlatform == TargetPlatform.android) {
         Log.info(
             'Platform terdeteksi: Android. Mengambil AndroidDeviceInfo...');
-        final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-        final result = {
-          'supportedAbis': androidInfo.supportedAbis,
-          'isPhysicalDevice': androidInfo.isPhysicalDevice,
+        final AndroidDeviceInfo infoAndroid = await infoPerangkat.androidInfo;
+        final hasilArsitektur = {
+          'supportedAbis': infoAndroid.supportedAbis,
+          'isPhysicalDevice': infoAndroid.isPhysicalDevice,
         };
-        Log.info('Informasi Android berhasil didapatkan:', result);
-        return result;
+        Log.info('Informasi Android berhasil didapatkan:', hasilArsitektur);
+        return hasilArsitektur;
       } else if (defaultTargetPlatform == TargetPlatform.iOS) {
         Log.info('Platform terdeteksi: iOS. Mengambil IosDeviceInfo...');
-        final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        final IosDeviceInfo infoIos = await infoPerangkat.iosInfo;
         final result = {
-          'utsname.machine': iosInfo.utsname.machine,
-          'isPhysicalDevice': iosInfo.isPhysicalDevice,
+          'utsname.machine': infoIos.utsname.machine,
+          'isPhysicalDevice': infoIos.isPhysicalDevice,
         };
         Log.info('Informasi iOS berhasil didapatkan:', result);
         return result;

@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wifi/fitur/info_perangkat/service/device_info_service.dart';
+import 'package:wifi/fitur/info_perangkat/service/layanan_info_perangkat.dart';
 import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
 import 'package:wifi/fitur/info_perangkat/service/package_info_service.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
@@ -25,14 +25,14 @@ class UpdateCheckService {
   final LayananPenyimpananLokal localStorageService;
 
   final PackageInfoService _packageInfoService = PackageInfoService();
-  final DeviceInfoService _deviceInfoService;
+  final LayananInfoPerangkat _deviceInfoService;
   final ApkVersionOpFirebase _apkVersionOp = ApkVersionOpFirebase();
 
   UpdateCheckService({
     this.context,
     required this.prefs,
     required this.localStorageService,
-  }) : _deviceInfoService = DeviceInfoService(DeviceInfoPlugin()) {
+  }) : _deviceInfoService = LayananInfoPerangkat(DeviceInfoPlugin()) {
     Log.info('UpdateCheckService diinisialisasi.');
   }
 
@@ -57,7 +57,7 @@ class UpdateCheckService {
         );
       }
 
-      final deviceInfo = await _deviceInfoService.getDeviceArchitecture();
+      final deviceInfo = await _deviceInfoService.ambilArsitekturPerangkat();
       final architecture = _determineArchitecture(deviceInfo);
       if (architecture == null) {
         Log.warning('Gagal menentukan arsitektur.');

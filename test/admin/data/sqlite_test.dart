@@ -1,18 +1,16 @@
 // path: test/admin/data/sqlite_test.dart
 import 'dart:io';
 
-import 'package:flutter/services.dart' show MethodCall, MethodChannel;
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:path/path.dart' as p;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:path/path.dart' as p;
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
-import 'package:wifi/shared/constant/column_names.dart';
 
 import 'sqlite_test.mocks.dart';
 
@@ -37,7 +35,6 @@ void main() {
     originalFactory = databaseFactory;
     databaseFactory = mockFactory;
 
-    sqliteDatabase = DatabaseHelper.instance;
     sqliteDatabase = SqliteDatabase.instance;
     sqliteDatabase.debugSetDatabaseNull();
 
@@ -68,40 +65,34 @@ void main() {
     });
   }
 
-  group('01. DatabaseHelper Singleton & Provider', () {
   group('01. SqliteDatabase Singleton & Provider', () {
     test(
         '01. instance harus selalu mengembalikan instance yang sama (singleton)',
         () {
-      final instance1 = DatabaseHelper.instance;
-      final instance2 = DatabaseHelper.instance;
       final instance1 = SqliteDatabase.instance;
       final instance2 = SqliteDatabase.instance;
       expect(identical(instance1, instance2), isTrue);
     });
 
-    test('02. databaseHelperProvider harus menyediakan instance DatabaseHelper',
     test('02. sqliteDatabaseProvider harus menyediakan instance SqliteDatabase',
         () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
-      expect(container.read(databaseHelperProvider), isA<DatabaseHelper>());
       expect(container.read(sqliteDatabaseProvider), isA<SqliteDatabase>());
     });
 
-    test('03. databaseProvider harus menyediakan Future<Database>', () async {
+    test('03. sqliteProvider harus menyediakan Future<Database>', () async {
       stubOpenDatabase();
       final container = ProviderContainer(overrides: [
-        databaseHelperProvider.overrideWithValue(sqliteDatabase),
         sqliteDatabaseProvider.overrideWithValue(sqliteDatabase),
       ]);
       addTearDown(container.dispose);
 
-      expect(container.read(databaseProvider), isA<AsyncLoading>());
+      expect(container.read(sqliteProvider), isA<AsyncLoading>());
 
-      await expectLater(container.read(databaseProvider.future), completes);
+      await expectLater(container.read(sqliteProvider.future), completes);
 
-      final dbValue = container.read(databaseProvider);
+      final dbValue = container.read(sqliteProvider);
       expect(dbValue, isA<AsyncData<Database>>());
       expect(dbValue.value, isA<Database>());
     });
@@ -182,67 +173,39 @@ void main() {
       await sqliteDatabase.database;
 
       verify(mockBatch.execute(
-              argThat(contains('CREATE TABLE ${NamaTabel.category}'))
-              argThat(contains('CREATE TABLE ${TableNameValue.get(TableName.category)}'))
-                  as String))
+              argThat(contains('CREATE TABLE ${NamaTabel.kategori}'))))
           .called(1);
       verify(mockBatch.execute(
-              argThat(contains('CREATE TABLE ${NamaTabel.subCategory}'))
-              argThat(contains('CREATE TABLE ${TableNameValue.get(TableName.subCategory)}'))
-                  as String))
-          .called(1);
-      verify(mockBatch.execute(
-              argThat(contains('CREATE TABLE ${NamaTabel.package}')) as String))
-              argThat(contains('CREATE TABLE ${TableNameValue.get(TableName.package)}')) as String))
+              argThat(contains('CREATE TABLE ${NamaTabel.subKategori}'))))
           .called(1);
       verify(mockBatch
-              .execute(argThat(contains('CREATE TABLE ${NamaTabel.customer}'))))
-              .execute(argThat(contains('CREATE TABLE ${TableNameValue.get(TableName.customer)}')) as String))
+              .execute(argThat(contains('CREATE TABLE ${NamaTabel.paket}'))))
           .called(1);
       verify(mockBatch.execute(
-              argThat(contains('CREATE TABLE ${NamaTabel.activeCustomer}'))))
-              argThat(contains('CREATE TABLE ${TableNameValue.get(TableName.activeCustomer)}')) as String))
-          .called(1);
+          argThat(contains('CREATE TABLE ${NamaTabel.pelanggan}'))));
       verify(mockBatch.execute(
-              argThat(contains('CREATE TABLE "${NamaTabel.transactions}"'))))
-              argThat(contains('CREATE TABLE "${TableNameValue.get(TableName.transactions)}"')) as String))
-          .called(1);
+          argThat(contains('CREATE TABLE ${NamaTabel.pelangganAktif}'))));
+      verify(mockBatch.execute(
+          argThat(contains('CREATE TABLE "${NamaTabel.transaksi}"'))));
       verify(mockBatch
-              .execute(argThat(contains('CREATE TABLE ${NamaTabel.wallet}'))))
-              .execute(argThat(contains('CREATE TABLE ${TableNameValue.get(TableName.wallet)}')) as String))
-          .called(1);
+          .execute(argThat(contains('CREATE TABLE ${NamaTabel.dompet}'))));
       verify(mockBatch
-              .execute(argThat(contains('CREATE TABLE ${NamaTabel.feedback}'))))
-              .execute(argThat(contains('CREATE TABLE ${TableNameValue.get(TableName.feedback)}')) as String))
-          .called(1);
+          .execute(argThat(contains('CREATE TABLE ${NamaTabel.feedback}'))));
       verify(mockBatch.execute(
-              argThat(contains('CREATE TABLE "${NamaTabel.customerOrder}"'))))
-              argThat(contains('CREATE TABLE "${TableNameValue.get(TableName.customerOrder)}"')) as String))
-          .called(1);
+          argThat(contains('CREATE TABLE "${NamaTabel.pesananPelanggan}"'))));
       verify(mockBatch.execute(
-              argThat(contains('CREATE TABLE ${NamaTabel.userApkVersion}'))))
-              argThat(contains('CREATE TABLE ${TableNameValue.get(TableName.userApkVersion)}')) as String))
-          .called(1);
+          argThat(contains('CREATE TABLE ${NamaTabel.versiApkUser}'))));
       verify(mockBatch
-              .execute(argThat(contains('CREATE TABLE ${NamaTabel.settings}'))))
-              .execute(argThat(contains('CREATE TABLE ${TableNameValue.get(TableName.settings)}')) as String))
-          .called(1);
+          .execute(argThat(contains('CREATE TABLE ${NamaTabel.settings}'))));
       verify(mockBatch.execute(
-              argThat(contains('CREATE TABLE ${NamaTabel.uploadStatus}'))))
-              argThat(contains('CREATE TABLE ${TableNameValue.get(TableName.uploadStatus)}')) as String))
-          .called(1);
+          argThat(contains('CREATE TABLE ${NamaTabel.statusUnggah}'))));
       verify(mockBatch
-              .execute(argThat(contains('CREATE TABLE ${NamaTabel.message}'))))
-              .execute(argThat(contains('CREATE TABLE ${TableNameValue.get(TableName.message)}')) as String))
-          .called(1);
+          .execute(argThat(contains('CREATE TABLE ${NamaTabel.pesan}'))));
       verify(mockBatch.execute(
-              argThat(contains('CREATE TABLE ${NamaTabel.notification}'))))
-              argThat(contains('CREATE TABLE ${TableNameValue.get(TableName.notification)}')) as String))
-          .called(1);
+          argThat(contains('CREATE TABLE ${NamaTabel.notifikasi}'))));
 
-      verify(mockBatch.execute(argThat(contains(
-              'CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id'))))
-              'CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id')) as String))
+      verify(mockBatch.execute(argThat(
+              contains('CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id'))))
           .called(1);
 
       verify(mockBatch.commit(noResult: true)).called(1);
@@ -269,28 +232,24 @@ void main() {
       verify(mockDatabase.execute('DROP TABLE IF EXISTS pengaturan')).called(1);
       verify(mockDatabase.execute(contains('CREATE TABLE pengaturan')))
           .called(1);
-      verify(mockDatabase.execute('DROP TABLE IF EXISTS category')).called(1);
+      verify(mockDatabase.execute('DROP TABLE IF EXISTS kategori')).called(1);
       verify(mockDatabase.execute(
               'ALTER TABLE status_aplikasi ADD COLUMN diperbarui INTEGER'))
           .called(1);
       verify(mockDatabase
               .execute('ALTER TABLE dompet RENAME COLUMN namaDompet TO name'))
           .called(1);
-      verify(mockDatabase
-              .execute('ALTER TABLE dompet RENAME TO ${NamaTabel.dompet}'))
-              .execute('ALTER TABLE dompet RENAME TO ${TableNameValue.get(TableName.wallet)}'))
+      verify(mockDatabase.execute(
+              'ALTER TABLE dompet RENAME TO ${NamaTabel.dompet}'))
           .called(1);
       verify(mockDatabase.execute(
-              argThat(contains('ADD COLUMN ${ColumnNames.lastActiveAt}'))))
-              argThat(contains('ADD COLUMN ${ColumnNames.lastActiveAt}')) as String))
+              argThat(contains('ADD COLUMN ${NamaKolom.terkahirAktif}'))))
           .called(1);
       verify(mockDatabase.execute(
-              argThat(contains('CREATE TABLE ${NamaTabel.notification}'))))
-              argThat(contains('CREATE TABLE ${TableNameValue.get(TableName.notification)}')) as String))
+              argThat(contains('CREATE TABLE ${NamaTabel.notifikasi}'))))
           .called(1);
       verify(mockDatabase.execute(
-              argThat(contains('ADD COLUMN ${ColumnNames.durasiBonus}'))))
-              argThat(contains('ADD COLUMN ${ColumnNames.durasiBonus}')) as String))
+              argThat(contains('ADD COLUMN ${NamaKolom.durasiBonus}'))))
           .called(1);
     });
 
@@ -300,16 +259,13 @@ void main() {
       verifyNever(mockDatabase.execute('DROP TABLE IF EXISTS pengaturan'));
 
       verify(mockDatabase.execute(
-              argThat(contains('ADD COLUMN ${ColumnNames.lastActiveAt}'))))
-              argThat(contains('ADD COLUMN ${ColumnNames.lastActiveAt}')) as String))
+              argThat(contains('ADD COLUMN ${NamaKolom.terkahirAktif}'))))
           .called(1);
       verify(mockDatabase.execute(
-              argThat(contains('CREATE TABLE ${NamaTabel.notification}'))))
-              argThat(contains('CREATE TABLE ${TableNameValue.get(TableName.notification)}')) as String))
+              argThat(contains('CREATE TABLE ${NamaTabel.notifikasi}'))))
           .called(1);
       verify(mockDatabase.execute(
-              argThat(contains('ADD COLUMN ${ColumnNames.durasiBonus}'))))
-              argThat(contains('ADD COLUMN ${ColumnNames.durasiBonus}')) as String))
+              argThat(contains('ADD COLUMN ${NamaKolom.durasiBonus}'))))
           .called(1);
     });
 
@@ -320,8 +276,7 @@ void main() {
     });
 
     test('04. _migrateToV53 harus menambahkan kolom jika belum ada', () async {
-      when(mockDatabase.rawQuery('PRAGMA table_info("${NamaTabel.transaksi}")'))
-      final String trxTable = TableNameValue.get(TableName.transactions);
+      const String trxTable = NamaTabel.transaksi;
       when(mockDatabase.rawQuery('PRAGMA table_info("$trxTable")'))
           .thenAnswer((_) async => [
                 {'name': 'id'},
@@ -331,36 +286,29 @@ void main() {
       await sqliteDatabase.testMigrateToV53(mockDatabase);
 
       verify(mockDatabase.execute(
-              'ALTER TABLE "${NamaTabel.transaksi}" ADD COLUMN durasi_bonus INTEGER'))
-              'ALTER TABLE "$trxTable" ADD COLUMN ${ColumnNames.durasiBonus} INTEGER'))
+              'ALTER TABLE "$trxTable" ADD COLUMN ${NamaKolom.durasiBonus} INTEGER'))
           .called(1);
       verify(mockDatabase.execute(
-              'ALTER TABLE "${NamaTabel.transaksi}" ADD COLUMN tipe_durasi_bonus TEXT'))
-              'ALTER TABLE "$trxTable" ADD COLUMN ${ColumnNames.durasiBonusType} TEXT'))
+              'ALTER TABLE "$trxTable" ADD COLUMN ${NamaKolom.tipeDurasiBonus} TEXT'))
           .called(1);
     });
 
     test('05. _migrateToV53 tidak boleh menambahkan kolom jika sudah ada',
         () async {
-      when(mockDatabase.rawQuery('PRAGMA table_info("${NamaTabel.transaksi}")'))
-      final String trxTable = TableNameValue.get(TableName.transactions);
+      const String trxTable = NamaTabel.transaksi;
       when(mockDatabase.rawQuery('PRAGMA table_info("$trxTable")'))
           .thenAnswer((_) async => [
                 {'name': 'id'},
-                {'name': 'durasi_bonus'},
-                {'name': 'tipe_durasi_bonus'},
-                {'name': ColumnNames.durasiBonus},
-                {'name': ColumnNames.durasiBonusType},
+                {'name': NamaKolom.durasiBonus},
+                {'name': NamaKolom.tipeDurasiBonus},
               ]);
 
       await sqliteDatabase.testMigrateToV53(mockDatabase);
 
       verifyNever(mockDatabase.execute(
-          'ALTER TABLE "${NamaTabel.transaksi}" ADD COLUMN durasi_bonus INTEGER'));
-          'ALTER TABLE "$trxTable" ADD COLUMN ${ColumnNames.durasiBonus} INTEGER'));
+          'ALTER TABLE "$trxTable" ADD COLUMN ${NamaKolom.durasiBonus} INTEGER'));
       verifyNever(mockDatabase.execute(
-          'ALTER TABLE "${NamaTabel.transaksi}" ADD COLUMN tipe_durasi_bonus TEXT'));
-          'ALTER TABLE "$trxTable" ADD COLUMN ${ColumnNames.durasiBonusType} TEXT'));
+          'ALTER TABLE "$trxTable" ADD COLUMN ${NamaKolom.tipeDurasiBonus} TEXT'));
     });
   });
 
@@ -380,14 +328,12 @@ void main() {
 }
 
 // Extension to expose private methods for testing
-extension TestSqliteDatabase on DatabaseHelper {
 extension TestSqliteDatabase on SqliteDatabase {
   Future<void> testOnUpgrade(Database db, int oldVersion, int newVersion) {
     return _onUpgrade(db, oldVersion, newVersion);
   }
 
   Future<void> testMigrateToV53(Database db) {
-    return _migrateToV53(db); // Diperbaiki: ini adalah method private
     return _migrateToV53(db);
   }
 }

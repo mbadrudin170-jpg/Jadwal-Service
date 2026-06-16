@@ -19,21 +19,21 @@ class KoneksiInternetService {
   KoneksiInternetService({
     Connectivity? connectivity,
     http.Client? httpClient,
-    String? lookupUrl,
-    Duration? timeoutDuration,
+    String? urlPencarian,
+    Duration? durasiBatasWaktu,
   }) : _connectivity = connectivity ?? Connectivity() {
-    Log.info('InternetConnectionService diinisialisasi.');
+    Log.info('KoneksiInternetService diinisialisasi.');
   }
 
   /// mengecek apakah perangkat terhubung ke wifi ataupun data
   Future<bool> cekKoneksiLokal() async {
     Log.info('[Lokal] Memulai pemeriksaan status koneksi perangkat...');
     try {
-      final connectivityResult = await _connectivity.checkConnectivity();
-      Log.info('[Lokal] Hasil mentah konektivitas: $connectivityResult');
+      final hasilKoneksi = await _connectivity.checkConnectivity();
+      Log.info('[Lokal] Hasil mentah konektivitas: $hasilKoneksi');
 
-      final isOnline = connectivityResult.contains(ConnectivityResult.mobile) ||
-          connectivityResult.contains(ConnectivityResult.wifi);
+      final isOnline = hasilKoneksi.contains(ConnectivityResult.mobile) ||
+          hasilKoneksi.contains(ConnectivityResult.wifi);
 
       if (isOnline) {
         Log.info('[Lokal] ✅ Sukses: Perangkat terhubung ke jaringan lokal.');
@@ -59,8 +59,8 @@ class KoneksiInternetService {
       return false;
     }
     try {
-      final pingData = await ref.read(pingProvider.future);
-      final berhasil = pingData.response?.time != null;
+      final hasilPing = await ref.read(pingProvider.future);
+      final berhasil = hasilPing.response?.time != null;
       Log.info(berhasil ? 'Ping berhasil' : 'Ping gagal (timeout)');
       return berhasil;
     } catch (e) {
