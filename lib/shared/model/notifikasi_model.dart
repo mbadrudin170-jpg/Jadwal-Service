@@ -9,71 +9,26 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart';
 
-class NotifikasiModel implements HasId {
-  @override
-  final String id;
-  final DateTime tanggalMulai;
-  final DateTime tangglberakhir;
-  final DateTime tanggalTampil;
-  final String judul;
-  final String deskripsi;
-  final bool setatusDibaca;
-  final TipeNotifikasiEnum tipe;
-  final DateTime diperbaruiPada;
-  final String idTujuan;
-  final String userId;
-  final bool dihapus;
-  final DateTime? diarsipkanPada;
+part 'notifikasi_model.freezed.dart';
 
-  NotifikasiModel({
-    final String? id,
-    required this.tanggalMulai,
-    required this.tangglberakhir,
-    required this.tanggalTampil,
-    required this.judul,
-    required this.deskripsi,
-    this.setatusDibaca = false,
-    required this.tipe,
-    required this.diperbaruiPada,
-    required this.idTujuan,
-    required this.userId,
-    this.dihapus = false,
-    this.diarsipkanPada,
-  }) : id = id ?? const Uuid().v4() {
-    Log.info('NotifikasiModel created: $id, title: $judul');
-  }
-
-  NotifikasiModel copyWith({
-    final String? id,
-    final DateTime? startDate,
-    final DateTime? endDate,
-    final DateTime? tanggalTampil,
-    final String? title,
-    final String? description,
-    final bool? isRead,
-    final TipeNotifikasiEnum? type,
-    final DateTime? updatedAt,
-    final String? idTujuan,
-    final String? userId,
-    final bool? isDeleted,
-    final DateTime? archivedAt,
-  }) {
-    return NotifikasiModel(
-      id: id ?? this.id,
-      tanggalMulai: startDate ?? this.tanggalMulai,
-      tangglberakhir: endDate ?? this.tangglberakhir,
-      judul: title ?? this.judul,
-      deskripsi: description ?? this.deskripsi,
-      setatusDibaca: isRead ?? this.setatusDibaca,
-      tipe: type ?? this.tipe,
-      diperbaruiPada: updatedAt ?? this.diperbaruiPada,
-      idTujuan: idTujuan ?? this.idTujuan,
-      userId: userId ?? this.userId,
-      dihapus: isDeleted ?? this.dihapus,
-      diarsipkanPada: archivedAt ?? this.diarsipkanPada,
-      tanggalTampil: tanggalTampil ?? this.tanggalTampil,
-    );
-  }
+@freezed
+abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
+  const NotifikasiModel._();
+  const factory NotifikasiModel({
+    required String id,
+    required DateTime tanggalMulai,
+    required DateTime tangglberakhir,
+    required DateTime tanggalTampil,
+    required String judul,
+    required String deskripsi,
+    @Default(false) bool setatusDibaca,
+    required TipeNotifikasiEnum tipe,
+    DateTime? diperbaruiPada,
+    required String idTujuan,
+    required String userId,
+    @Default(false) bool dihapus,
+    DateTime? diarsipkanPada,
+  }) = _NotifikasiModel;
 
   static T? _safeParseEnum<T extends Enum>(
     final List<T> values,
@@ -91,10 +46,10 @@ class NotifikasiModel implements HasId {
     return null;
   }
 
-  factory NotifikasiModel.fromSqlite(final Map<String, dynamic> map) {
+  factory NotifikasiModel.fromSqlite(Map<String, dynamic> map) {
     Log.info('Creating NotifikasiModel from SQLite: ${map[NamaKolom.id]}');
     return NotifikasiModel(
-      id: map[NamaKolom.id] as String?,
+      id: map[NamaKolom.id] as String? ?? const Uuid().v4(),
       tanggalMulai: ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]) ??
           DateTime.now(),
       tangglberakhir: ParserUtil.parseDateTime(map[NamaKolom.tangglberakhir]) ??
@@ -127,7 +82,7 @@ class NotifikasiModel implements HasId {
       NamaKolom.deskripsi: deskripsi,
       NamaKolom.setatusDibaca: setatusDibaca ? 1 : 0,
       NamaKolom.tipe: tipe.name,
-      NamaKolom.diperbaruiPada: diperbaruiPada.millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada: diperbaruiPada?.millisecondsSinceEpoch,
       NamaKolom.idTujuan: idTujuan,
       NamaKolom.userId: userId,
       NamaKolom.dihapus: dihapus ? 1 : 0,
@@ -175,7 +130,7 @@ class NotifikasiModel implements HasId {
       NamaKolom.deskripsi: deskripsi,
       NamaKolom.setatusDibaca: setatusDibaca,
       NamaKolom.tipe: tipe.name,
-      NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada.toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada!.toUtc()),
       NamaKolom.idTujuan: idTujuan,
       NamaKolom.userId: userId,
       NamaKolom.dihapus: dihapus,

@@ -238,7 +238,7 @@ final class FeedbackOpFirebaseProvider extends $FunctionalProvider<
 }
 
 String _$feedbackOpFirebaseHash() =>
-    r'3c193febabd074229daf73794f7242e9c5eb7738';
+    r'aa7c6b16b01795839bb8c201262975d321216b4b';
 
 @ProviderFor(feedbackStream)
 final feedbackStreamProvider = FeedbackStreamFamily._();
@@ -297,7 +297,7 @@ final class FeedbackStreamProvider extends $FunctionalProvider<
   }
 }
 
-String _$feedbackStreamHash() => r'191d6b4412ddf719315c7d1895f7fe57e42f125d';
+String _$feedbackStreamHash() => r'884555dea084c9141158cb14b5c2489604da030d';
 
 final class FeedbackStreamFamily extends $Family
     with $FunctionalFamilyOverride<Stream<List<FeedbackModel>>, String> {
