@@ -4,13 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/data/services/preference_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-final syncManagerProvider = Provider<SyncManager>((ref) {
+final providerPengelolaSinkronisasi = Provider<PengelolaSinkronisasi>((ref) {
   Log.info('Membuat instance SyncManager melalui Riverpod provider');
-  return SyncManager();
+  return PengelolaSinkronisasi();
 });
 
-class SyncManager {
-  Future<DateTime> ambilWaktuTerakhirDownload() async {
+class PengelolaSinkronisasi {
+  Future<DateTime> ambilWaktuTerakhirUnduh() async {
     Log.info('Meminta timestamp terakhir unduh dari PreferenceService');
     final hasil = await PreferenceService.ambilWaktuTerakhirDownload();
     final waktuTerakhir =
@@ -19,9 +19,9 @@ class SyncManager {
     return waktuTerakhir;
   }
 
-  Future<void> simpanWaktuTerakhirunduh(DateTime time) async {
-    Log.info('Menyimpan timestamp terakhir unduh: $time');
-    await PreferenceService.simpanWaktuTerakhirunduh(time);
+  Future<void> simpanWaktuTerakhirUnduh(DateTime waktu) async {
+    Log.info('Menyimpan timestamp terakhir unduh: $waktu');
+    await PreferenceService.simpanWaktuTerakhirunduh(waktu);
     Log.info('Timestamp terakhir unduh berhasil disimpan');
   }
 
@@ -34,9 +34,9 @@ class SyncManager {
     return waktuTerakhir;
   }
 
-  Future<void> simpanWaktuTerkahirUnggah(DateTime time) async {
-    Log.info('Menyimpan timestamp terakhir unggah: $time');
-    await PreferenceService.simpanWaktuTerkahirUnggah(time);
+  Future<void> simpanWaktuTerakhirUnggah(DateTime waktu) async {
+    Log.info('Menyimpan timestamp terakhir unggah: $waktu');
+    await PreferenceService.simpanWaktuTerkahirUnggah(waktu);
     Log.info('Timestamp terakhir unggah berhasil disimpan');
   }
 

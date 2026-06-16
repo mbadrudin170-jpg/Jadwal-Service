@@ -16,7 +16,7 @@ import 'package:sqflite/sqflite.dart' as _i10;
 import 'package:wifi/shared/model/status_unggah_model.dart' as _i11;
 import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart'
     as _i9;
-import 'package:wifi/shared/utils/sync_manager.dart' as _i8;
+import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart' as _i8;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -547,13 +547,13 @@ class MockFirebaseFirestore extends _i1.Mock implements _i4.FirebaseFirestore {
 /// A class which mocks [SyncManager].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSyncManager extends _i1.Mock implements _i8.SyncManager {
+class MockSyncManager extends _i1.Mock implements _i8.PengelolaSinkronisasi {
   MockSyncManager() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<DateTime> ambilWaktuTerakhirDownload() => (super.noSuchMethod(
+  _i5.Future<DateTime> ambilWaktuTerakhirUnduh() => (super.noSuchMethod(
         Invocation.method(
           #ambilWaktuTerakhirDownload,
           [],
@@ -568,7 +568,7 @@ class MockSyncManager extends _i1.Mock implements _i8.SyncManager {
       ) as _i5.Future<DateTime>);
 
   @override
-  _i5.Future<void> simpanWaktuTerakhirunduh(DateTime? time) =>
+  _i5.Future<void> simpanWaktuTerakhirUnduh(DateTime? time) =>
       (super.noSuchMethod(
         Invocation.method(
           #simpanWaktuTerakhirunduh,
@@ -594,7 +594,7 @@ class MockSyncManager extends _i1.Mock implements _i8.SyncManager {
       ) as _i5.Future<DateTime>);
 
   @override
-  _i5.Future<void> simpanWaktuTerkahirUnggah(DateTime? time) =>
+  _i5.Future<void> simpanWaktuTerakhirUnggah(DateTime? time) =>
       (super.noSuchMethod(
         Invocation.method(
           #simpanWaktuTerkahirUnggah,

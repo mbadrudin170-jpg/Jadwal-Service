@@ -6,16 +6,16 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 import 'package:wifi/shared/utils/parser_util.dart';
-import 'package:wifi/shared/utils/sync_manager.dart';
+import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
 class PengecekanDataBaruService {
   final FirebaseFirestore _firestore;
-  final SyncManager _syncManager;
+  final PengelolaSinkronisasi _syncManager;
   final StatusUploadOpSqlite _statusUploadOpSqlite;
 
   PengecekanDataBaruService({
     required FirebaseFirestore firestore,
-    required SyncManager syncManager,
+    required PengelolaSinkronisasi syncManager,
     required StatusUploadOpSqlite uploadStatusOperation,
   })  : _firestore = firestore,
         _syncManager = syncManager,
@@ -81,7 +81,7 @@ class PengecekanDataBaruService {
         'Mengambil metadata waktu unduhan terakhir dari penyimpanan preferensi lokal melalui SyncManager.',
       );
       final DateTime tanggalTerakhirDownload =
-          await _syncManager.ambilWaktuTerakhirDownload();
+          await _syncManager.ambilWaktuTerakhirUnduh();
       Log.info(
         'Timestamp unduhan lokal terakhir yang tercatat adalah: $tanggalTerakhirDownload',
       );
@@ -158,7 +158,7 @@ final pengecekanDataBaruServiceProvider =
     Provider<PengecekanDataBaruService>((ref) {
   return PengecekanDataBaruService(
     firestore: FirebaseFirestore.instance,
-    syncManager: ref.read(syncManagerProvider),
+    syncManager: ref.read(providerPengelolaSinkronisasi),
     uploadStatusOperation: ref.read(statusUploadOpSlite),
   );
 });

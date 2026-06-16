@@ -6,13 +6,13 @@ import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/data/services/pengecekan_data_baru_service.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
-import 'package:wifi/shared/utils/sync_manager.dart';
+import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
 import 'pengecekan_data_baru_service_test.mocks.dart';
 
 @GenerateMocks([
   FirebaseFirestore,
-  SyncManager,
+  PengelolaSinkronisasi,
   StatusUploadOpSqlite,
   CollectionReference,
   DocumentReference,
@@ -105,7 +105,7 @@ void main() {
         Timestamp.fromDate(waktuLokal.subtract(const Duration(minutes: 5)));
 
     setUp(() {
-      when(mockSyncManager.ambilWaktuTerakhirDownload())
+      when(mockSyncManager.ambilWaktuTerakhirUnduh())
           .thenAnswer((_) async => waktuLokal);
     });
 

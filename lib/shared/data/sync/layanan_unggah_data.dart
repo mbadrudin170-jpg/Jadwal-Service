@@ -19,17 +19,17 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
-import 'package:wifi/shared/utils/sync_manager.dart';
+import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
 class LayananUnggahData {
   final SqliteDatabase _sqliteDb;
   final FirebaseFirestore _firestore;
-  final SyncManager _syncManager;
+  final PengelolaSinkronisasi _syncManager;
 
   LayananUnggahData({
     required SqliteDatabase sqliteDb,
     required FirebaseFirestore firestore,
-    required SyncManager syncManager,
+    required PengelolaSinkronisasi syncManager,
   })  : _sqliteDb = sqliteDb,
         _firestore = firestore,
         _syncManager = syncManager {
@@ -613,6 +613,6 @@ final layananUnggahDataProvider = Provider<LayananUnggahData>((ref) {
   return LayananUnggahData(
     sqliteDb: ref.read(sqliteDatabaseProvider),
     firestore: FirebaseFirestore.instance,
-    syncManager: ref.read(syncManagerProvider),
+    syncManager: ref.read(providerPengelolaSinkronisasi),
   );
 });

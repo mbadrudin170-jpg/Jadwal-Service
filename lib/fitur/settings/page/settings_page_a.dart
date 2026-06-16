@@ -7,7 +7,7 @@ import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/page/form_settings.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/utils/sync_manager.dart';
+import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
@@ -63,7 +63,7 @@ class SettingsAdminPage extends ConsumerWidget {
 
     if ((konfirmasi ?? false) && context.mounted) {
       try {
-        await ref.read(syncManagerProvider).resetWaktuSinkronisasi();
+        await ref.read(providerPengelolaSinkronisasi).resetWaktuSinkronisasi();
         if (context.mounted) {
           ToastUtil.success(context, 'Waktu sinkronisasi berhasil di-reset.');
         }

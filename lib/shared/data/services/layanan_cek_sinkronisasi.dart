@@ -9,11 +9,11 @@ import 'package:wifi/shared/data/sync/layanan_unduh_data.dart';
 import 'package:wifi/shared/data/sync/layanan_unggah_data.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/shared/utils/sync_manager.dart';
+import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
 /// Layanan untuk mengorkestrasi proses sinkronisasi data.
 class LayananCekSinkronisasi {
-  final SyncManager _pengelolaSinkronisasi;
+  final PengelolaSinkronisasi _pengelolaSinkronisasi;
   final LayananUnggahData _layananUnggah;
   final LayananUnduhData _layananUnduh;
   final PengecekanDataBaruService _pengecekanDataBaru;
@@ -21,7 +21,7 @@ class LayananCekSinkronisasi {
 
   /// Konstruktor dengan injeksi dependensi (wajib).
   LayananCekSinkronisasi({
-    required SyncManager pengelolaSinkronisasi,
+    required PengelolaSinkronisasi pengelolaSinkronisasi,
     required LayananUnggahData layananUnggah,
     required LayananUnduhData layananUnduh,
     required PengecekanDataBaruService pengecekanDataBaru,
@@ -57,7 +57,7 @@ class LayananCekSinkronisasi {
       if (adaDataUntukUnggah) {
         await _layananUnggah.unggahSemuaData();
         final DateTime sekarang = DateTime.now();
-        await _pengelolaSinkronisasi.simpanWaktuTerkahirUnggah(sekarang);
+        await _pengelolaSinkronisasi.simpanWaktuTerakhirUnggah(sekarang);
         await _pengecekanDataBaru.resetButuhUpload();
         Log.info('Metadata sinkronisasi berhasil diperbarui: $sekarang.');
         return true;
@@ -98,7 +98,7 @@ class LayananCekSinkronisasi {
       if (adaDataBaruDiServer) {
         await _layananUnduh.downloadAllData();
         final DateTime sekarang = DateTime.now();
-        await _pengelolaSinkronisasi.simpanWaktuTerakhirunduh(sekarang);
+        await _pengelolaSinkronisasi.simpanWaktuTerakhirUnduh(sekarang);
         Log.info('Sinkronisasi masuk selesai: $sekarang.');
       } else {
         Log.info('Cloud tidak memiliki pembaruan data.');
@@ -114,7 +114,7 @@ class LayananCekSinkronisasi {
 // ============================================================
 final layananCekSinkronisasiProvider = Provider<LayananCekSinkronisasi>((ref) {
   return LayananCekSinkronisasi(
-    pengelolaSinkronisasi: ref.read(syncManagerProvider),
+    pengelolaSinkronisasi: ref.read(providerPengelolaSinkronisasi),
     layananUnggah: ref.read(layananUnggahDataProvider), // harus sudah ada
     layananUnduh: ref.read(downloadDataServiceProvider), // sudah ada
     pengecekanDataBaru:

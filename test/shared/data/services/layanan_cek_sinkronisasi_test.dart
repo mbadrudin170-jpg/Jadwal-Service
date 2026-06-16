@@ -8,12 +8,12 @@ import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/data/services/pengecekan_data_baru_service.dart';
 import 'package:wifi/shared/data/sync/layanan_unduh_data.dart';
 import 'package:wifi/shared/data/sync/layanan_unggah_data.dart';
-import 'package:wifi/shared/utils/sync_manager.dart';
+import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
 import 'layanan_cek_sinkronisasi_test.mocks.dart';
 
 @GenerateMocks([
-  SyncManager,
+  PengelolaSinkronisasi,
   LayananUnggahData,
   LayananUnduhData,
   PengecekanDataBaruService,
@@ -80,13 +80,13 @@ void main() {
   void aturAksiSinkronisasiBerhasil() {
     when(mockLayananUnggah.unggahSemuaData())
         .thenAnswer((_) async => Future.value());
-    when(mockPengelolaSinkronisasi.simpanWaktuTerkahirUnggah(any))
+    when(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any))
         .thenAnswer((_) async => Future.value());
     when(mockPengecekanDataBaru.resetButuhUpload())
         .thenAnswer((_) async => Future.value());
     when(mockLayananUnduh.downloadAllData())
         .thenAnswer((_) async => Future.value());
-    when(mockPengelolaSinkronisasi.simpanWaktuTerakhirunduh(any))
+    when(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any))
         .thenAnswer((_) async => Future.value());
   }
 
@@ -99,7 +99,7 @@ void main() {
       await layananCekSinkronisasi.jalankanCekSinkronisasi();
 
       verify(() => mockLayananUnggah.unggahSemuaData()).called(1);
-      verify(() => mockPengelolaSinkronisasi.simpanWaktuTerkahirUnggah(any()))
+      verify(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any()))
           .called(1);
       verify(() => mockPengecekanDataBaru.resetButuhUpload()).called(1);
       verify(() => mockDocumentReference.set(
@@ -107,7 +107,7 @@ void main() {
             SetOptions(merge: true),
           )).called(1);
       verify(() => mockLayananUnduh.downloadAllData()).called(1);
-      verify(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirunduh(any()))
+      verify(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any()))
           .called(1);
     });
 
@@ -118,7 +118,7 @@ void main() {
       await layananCekSinkronisasi.jalankanCekSinkronisasi();
 
       verify(() => mockLayananUnggah.unggahSemuaData()).called(1);
-      verify(() => mockPengelolaSinkronisasi.simpanWaktuTerkahirUnggah(any()))
+      verify(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any()))
           .called(1);
       verify(() => mockPengecekanDataBaru.resetButuhUpload()).called(1);
       verify(() => mockDocumentReference.set(
@@ -128,7 +128,7 @@ void main() {
 
       verifyNever(() => mockLayananUnduh.downloadAllData());
       verifyNever(
-          () => mockPengelolaSinkronisasi.simpanWaktuTerakhirunduh(any()));
+          () => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any()));
     });
 
     test('03. harus unduh saja jika hanya ada data baru di server', () async {
@@ -139,12 +139,12 @@ void main() {
 
       verifyNever(() => mockLayananUnggah.unggahSemuaData());
       verifyNever(
-          () => mockPengelolaSinkronisasi.simpanWaktuTerkahirUnggah(any()));
+          () => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any()));
       verifyNever(() => mockPengecekanDataBaru.resetButuhUpload());
       verifyNever(() => mockDocumentReference.set(any(), any()));
 
       verify(() => mockLayananUnduh.downloadAllData()).called(1);
-      verify(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirunduh(any()))
+      verify(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any()))
           .called(1);
     });
 
@@ -170,11 +170,11 @@ void main() {
 
       verifyNever(() => mockLayananUnggah.unggahSemuaData());
       verifyNever(
-          () => mockPengelolaSinkronisasi.simpanWaktuTerkahirUnggah(any()));
+          () => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any()));
       verifyNever(() => mockDocumentReference.set(any(), any()));
 
       verify(() => mockLayananUnduh.downloadAllData()).called(1);
-      verify(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirunduh(any()))
+      verify(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any()))
           .called(1);
     });
 
@@ -191,7 +191,7 @@ void main() {
       verifyNever(() => mockLayananUnggah.unggahSemuaData());
       verifyNever(() => mockLayananUnduh.downloadAllData());
       verifyNever(
-          () => mockPengelolaSinkronisasi.simpanWaktuTerakhirunduh(any()));
+          () => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any()));
     });
 
     test('07. harus menangani error saat memperbarui status global', () async {

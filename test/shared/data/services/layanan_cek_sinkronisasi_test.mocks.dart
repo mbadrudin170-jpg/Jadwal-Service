@@ -15,7 +15,7 @@ import 'package:wifi/shared/data/services/pengecekan_data_baru_service.dart'
 import 'package:wifi/shared/data/sync/layanan_unduh_data.dart' as _i8;
 import 'package:wifi/shared/data/sync/layanan_unggah_data.dart' as _i6;
 import 'package:wifi/shared/model/has_id.dart' as _i7;
-import 'package:wifi/shared/utils/sync_manager.dart' as _i5;
+import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -184,13 +184,13 @@ class _FakeDocumentSnapshot_13<T1 extends Object?> extends _i1.SmartFake
 /// A class which mocks [SyncManager].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSyncManager extends _i1.Mock implements _i5.SyncManager {
+class MockSyncManager extends _i1.Mock implements _i5.PengelolaSinkronisasi {
   MockSyncManager() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<DateTime> ambilWaktuTerakhirDownload() => (super.noSuchMethod(
+  _i4.Future<DateTime> ambilWaktuTerakhirUnduh() => (super.noSuchMethod(
         Invocation.method(
           #ambilWaktuTerakhirDownload,
           [],
@@ -205,7 +205,7 @@ class MockSyncManager extends _i1.Mock implements _i5.SyncManager {
       ) as _i4.Future<DateTime>);
 
   @override
-  _i4.Future<void> simpanWaktuTerakhirunduh(DateTime? time) =>
+  _i4.Future<void> simpanWaktuTerakhirUnduh(DateTime? time) =>
       (super.noSuchMethod(
         Invocation.method(
           #simpanWaktuTerakhirunduh,
@@ -231,7 +231,7 @@ class MockSyncManager extends _i1.Mock implements _i5.SyncManager {
       ) as _i4.Future<DateTime>);
 
   @override
-  _i4.Future<void> simpanWaktuTerkahirUnggah(DateTime? time) =>
+  _i4.Future<void> simpanWaktuTerakhirUnggah(DateTime? time) =>
       (super.noSuchMethod(
         Invocation.method(
           #simpanWaktuTerkahirUnggah,
