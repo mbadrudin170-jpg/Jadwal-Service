@@ -128,9 +128,9 @@ class _PointsPageState extends ConsumerState<PoinPage> {
 
           final orderData = OrderModel(
               id: idOrder,
-              customerId: widget.customerId,
-              packageId: reward.id,
-              date: now);
+              idPelanggan: widget.customerId,
+              idPaket: reward.id,
+              tanggal: now);
 
           final notifikasiData = NotifikasiModel(
               id: const Uuid().v4(),

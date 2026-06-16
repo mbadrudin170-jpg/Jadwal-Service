@@ -47,22 +47,22 @@ class DataDummy {
   static List<OrderModel> get orders => [
         OrderModel(
           id: 'ORD-001',
-          customerId: customerBudiId,
-          packageId: paketHematId,
-          date: DateTime.now().subtract(const Duration(hours: 2)),
+          idPelanggan: customerBudiId,
+          idPaket: paketHematId,
+          tanggal: DateTime.now().subtract(const Duration(hours: 2)),
         ),
         OrderModel(
           id: 'ORD-002',
-          customerId: customerSitiId,
-          packageId: paketPremiumId,
-          date: DateTime.now().subtract(const Duration(days: 1)),
+          idPelanggan: customerSitiId,
+          idPaket: paketPremiumId,
+          tanggal: DateTime.now().subtract(const Duration(days: 1)),
           status: StatusOrderEnum.diproses,
         ),
         OrderModel(
           id: 'ORD-003',
-          customerId: agusSetiawanId,
-          packageId: paketGamerId,
-          date: DateTime.now().subtract(const Duration(days: 2)),
+          idPelanggan: agusSetiawanId,
+          idPaket: paketGamerId,
+          tanggal: DateTime.now().subtract(const Duration(days: 2)),
           status: StatusOrderEnum.selesai,
         ),
       ];

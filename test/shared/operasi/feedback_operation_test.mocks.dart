@@ -269,7 +269,7 @@ class MockBaseOpSqlite extends _i1.Mock implements _i5.BaseOpSqlite {
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #insertOrUpdateBatch,
+          #sisipkanAtauPerbaruiBatch,
           [
             table,
             dataList,

@@ -95,10 +95,10 @@ void main() {
 
   final order = OrderModel(
     id: 'order1',
-    customerId: 'cust1',
-    packageId: 'pkg1',
-    date: DateTime(2023, 1),
-    updatedAt: DateTime(2023, 1),
+    idPelanggan: 'cust1',
+    idPaket: 'pkg1',
+    tanggal: DateTime(2023, 1),
+    diperbaruiPada: DateTime(2023, 1),
   );
 
   final orderMap = order.toFirebase();

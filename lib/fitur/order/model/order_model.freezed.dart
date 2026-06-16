@@ -19,9 +19,9 @@ mixin _$OrderModel {
   String get packageId;
   DateTime get date;
   StatusOrderEnum get status;
-  DateTime? get updatedAt;
-  bool get isDeleted;
-  DateTime? get archivedAt;
+  DateTime? get diperbaruiPada;
+  bool get diHapus;
+  DateTime? get diarsipkanPada;
 
   /// Create a copy of OrderModel
   /// with the given fields replaced by the non-null parameter values.
@@ -42,21 +42,20 @@ mixin _$OrderModel {
                 other.packageId == packageId) &&
             (identical(other.date, date) || other.date == date) &&
             (identical(other.status, status) || other.status == status) &&
-            (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt) &&
-            (identical(other.isDeleted, isDeleted) ||
-                other.isDeleted == isDeleted) &&
-            (identical(other.archivedAt, archivedAt) ||
-                other.archivedAt == archivedAt));
+            (identical(other.diperbaruiPada, diperbaruiPada) ||
+                other.diperbaruiPada == diperbaruiPada) &&
+            (identical(other.diHapus, diHapus) || other.diHapus == diHapus) &&
+            (identical(other.diarsipkanPada, diarsipkanPada) ||
+                other.diarsipkanPada == diarsipkanPada));
   }
 
   @override
   int get hashCode => Object.hash(runtimeType, id, customerId, packageId, date,
-      status, updatedAt, isDeleted, archivedAt);
+      status, diperbaruiPada, diHapus, diarsipkanPada);
 
   @override
   String toString() {
-    return 'OrderModel(id: $id, customerId: $customerId, packageId: $packageId, date: $date, status: $status, updatedAt: $updatedAt, isDeleted: $isDeleted, archivedAt: $archivedAt)';
+    return 'OrderModel(id: $id, customerId: $customerId, packageId: $packageId, date: $date, status: $status, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada)';
   }
 }
 
@@ -72,9 +71,9 @@ abstract mixin class $OrderModelCopyWith<$Res> {
       String packageId,
       DateTime date,
       StatusOrderEnum status,
-      DateTime? updatedAt,
-      bool isDeleted,
-      DateTime? archivedAt});
+      DateTime? diperbaruiPada,
+      bool diHapus,
+      DateTime? diarsipkanPada});
 }
 
 /// @nodoc
@@ -94,9 +93,9 @@ class _$OrderModelCopyWithImpl<$Res> implements $OrderModelCopyWith<$Res> {
     Object? packageId = null,
     Object? date = null,
     Object? status = null,
-    Object? updatedAt = freezed,
-    Object? isDeleted = null,
-    Object? archivedAt = freezed,
+    Object? diperbaruiPada = freezed,
+    Object? diHapus = null,
+    Object? diarsipkanPada = freezed,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -119,17 +118,17 @@ class _$OrderModelCopyWithImpl<$Res> implements $OrderModelCopyWith<$Res> {
           ? _self.status
           : status // ignore: cast_nullable_to_non_nullable
               as StatusOrderEnum,
-      updatedAt: freezed == updatedAt
-          ? _self.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
+      diperbaruiPada: freezed == diperbaruiPada
+          ? _self.diperbaruiPada
+          : diperbaruiPada // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      isDeleted: null == isDeleted
-          ? _self.isDeleted
-          : isDeleted // ignore: cast_nullable_to_non_nullable
+      diHapus: null == diHapus
+          ? _self.diHapus
+          : diHapus // ignore: cast_nullable_to_non_nullable
               as bool,
-      archivedAt: freezed == archivedAt
-          ? _self.archivedAt
-          : archivedAt // ignore: cast_nullable_to_non_nullable
+      diarsipkanPada: freezed == diarsipkanPada
+          ? _self.diarsipkanPada
+          : diarsipkanPada // ignore: cast_nullable_to_non_nullable
               as DateTime?,
     ));
   }
@@ -234,17 +233,24 @@ extension OrderModelPatterns on OrderModel {
             String packageId,
             DateTime date,
             StatusOrderEnum status,
-            DateTime? updatedAt,
-            bool isDeleted,
-            DateTime? archivedAt)?
+            DateTime? diperbaruiPada,
+            bool diHapus,
+            DateTime? diarsipkanPada)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _OrderModel() when $default != null:
-        return $default(_that.id, _that.customerId, _that.packageId, _that.date,
-            _that.status, _that.updatedAt, _that.isDeleted, _that.archivedAt);
+        return $default(
+            _that.id,
+            _that.customerId,
+            _that.packageId,
+            _that.date,
+            _that.status,
+            _that.diperbaruiPada,
+            _that.diHapus,
+            _that.diarsipkanPada);
       case _:
         return orElse();
     }
@@ -271,16 +277,23 @@ extension OrderModelPatterns on OrderModel {
             String packageId,
             DateTime date,
             StatusOrderEnum status,
-            DateTime? updatedAt,
-            bool isDeleted,
-            DateTime? archivedAt)
+            DateTime? diperbaruiPada,
+            bool diHapus,
+            DateTime? diarsipkanPada)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _OrderModel():
-        return $default(_that.id, _that.customerId, _that.packageId, _that.date,
-            _that.status, _that.updatedAt, _that.isDeleted, _that.archivedAt);
+        return $default(
+            _that.id,
+            _that.customerId,
+            _that.packageId,
+            _that.date,
+            _that.status,
+            _that.diperbaruiPada,
+            _that.diHapus,
+            _that.diarsipkanPada);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -306,16 +319,23 @@ extension OrderModelPatterns on OrderModel {
             String packageId,
             DateTime date,
             StatusOrderEnum status,
-            DateTime? updatedAt,
-            bool isDeleted,
-            DateTime? archivedAt)?
+            DateTime? diperbaruiPada,
+            bool diHapus,
+            DateTime? diarsipkanPada)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _OrderModel() when $default != null:
-        return $default(_that.id, _that.customerId, _that.packageId, _that.date,
-            _that.status, _that.updatedAt, _that.isDeleted, _that.archivedAt);
+        return $default(
+            _that.id,
+            _that.customerId,
+            _that.packageId,
+            _that.date,
+            _that.status,
+            _that.diperbaruiPada,
+            _that.diHapus,
+            _that.diarsipkanPada);
       case _:
         return null;
     }
@@ -331,9 +351,9 @@ class _OrderModel extends OrderModel {
       required this.packageId,
       required this.date,
       this.status = StatusOrderEnum.baru,
-      this.updatedAt,
-      this.isDeleted = false,
-      this.archivedAt})
+      this.diperbaruiPada,
+      this.diHapus = false,
+      this.diarsipkanPada})
       : super._();
 
   @override
@@ -348,12 +368,12 @@ class _OrderModel extends OrderModel {
   @JsonKey()
   final StatusOrderEnum status;
   @override
-  final DateTime? updatedAt;
+  final DateTime? diperbaruiPada;
   @override
   @JsonKey()
-  final bool isDeleted;
+  final bool diHapus;
   @override
-  final DateTime? archivedAt;
+  final DateTime? diarsipkanPada;
 
   /// Create a copy of OrderModel
   /// with the given fields replaced by the non-null parameter values.
@@ -375,21 +395,20 @@ class _OrderModel extends OrderModel {
                 other.packageId == packageId) &&
             (identical(other.date, date) || other.date == date) &&
             (identical(other.status, status) || other.status == status) &&
-            (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt) &&
-            (identical(other.isDeleted, isDeleted) ||
-                other.isDeleted == isDeleted) &&
-            (identical(other.archivedAt, archivedAt) ||
-                other.archivedAt == archivedAt));
+            (identical(other.diperbaruiPada, diperbaruiPada) ||
+                other.diperbaruiPada == diperbaruiPada) &&
+            (identical(other.diHapus, diHapus) || other.diHapus == diHapus) &&
+            (identical(other.diarsipkanPada, diarsipkanPada) ||
+                other.diarsipkanPada == diarsipkanPada));
   }
 
   @override
   int get hashCode => Object.hash(runtimeType, id, customerId, packageId, date,
-      status, updatedAt, isDeleted, archivedAt);
+      status, diperbaruiPada, diHapus, diarsipkanPada);
 
   @override
   String toString() {
-    return 'OrderModel(id: $id, customerId: $customerId, packageId: $packageId, date: $date, status: $status, updatedAt: $updatedAt, isDeleted: $isDeleted, archivedAt: $archivedAt)';
+    return 'OrderModel(id: $id, customerId: $customerId, packageId: $packageId, date: $date, status: $status, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada)';
   }
 }
 
@@ -407,9 +426,9 @@ abstract mixin class _$OrderModelCopyWith<$Res>
       String packageId,
       DateTime date,
       StatusOrderEnum status,
-      DateTime? updatedAt,
-      bool isDeleted,
-      DateTime? archivedAt});
+      DateTime? diperbaruiPada,
+      bool diHapus,
+      DateTime? diarsipkanPada});
 }
 
 /// @nodoc
@@ -429,9 +448,9 @@ class __$OrderModelCopyWithImpl<$Res> implements _$OrderModelCopyWith<$Res> {
     Object? packageId = null,
     Object? date = null,
     Object? status = null,
-    Object? updatedAt = freezed,
-    Object? isDeleted = null,
-    Object? archivedAt = freezed,
+    Object? diperbaruiPada = freezed,
+    Object? diHapus = null,
+    Object? diarsipkanPada = freezed,
   }) {
     return _then(_OrderModel(
       id: null == id
@@ -454,17 +473,17 @@ class __$OrderModelCopyWithImpl<$Res> implements _$OrderModelCopyWith<$Res> {
           ? _self.status
           : status // ignore: cast_nullable_to_non_nullable
               as StatusOrderEnum,
-      updatedAt: freezed == updatedAt
-          ? _self.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
+      diperbaruiPada: freezed == diperbaruiPada
+          ? _self.diperbaruiPada
+          : diperbaruiPada // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      isDeleted: null == isDeleted
-          ? _self.isDeleted
-          : isDeleted // ignore: cast_nullable_to_non_nullable
+      diHapus: null == diHapus
+          ? _self.diHapus
+          : diHapus // ignore: cast_nullable_to_non_nullable
               as bool,
-      archivedAt: freezed == archivedAt
-          ? _self.archivedAt
-          : archivedAt // ignore: cast_nullable_to_non_nullable
+      diarsipkanPada: freezed == diarsipkanPada
+          ? _self.diarsipkanPada
+          : diarsipkanPada // ignore: cast_nullable_to_non_nullable
               as DateTime?,
     ));
   }

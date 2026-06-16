@@ -249,9 +249,7 @@ extension StatusUnggahModelPatterns on StatusUnggahModel {
 
 class _StatusUnggahModel extends StatusUnggahModel {
   _StatusUnggahModel(
-      {this.id = StatusUnggahModel.idNeedUpload,
-      required this.butuhUnggah,
-      this.diperbaruiPada})
+      {this.id = idNeedUpload, required this.butuhUnggah, this.diperbaruiPada})
       : super._();
 
   @override

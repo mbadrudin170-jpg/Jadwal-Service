@@ -1,4 +1,3 @@
-
 // path: test/fitur/order/provider/order_provider_gabungan_test.dart
 import 'dart:async';
 
@@ -28,14 +27,14 @@ void main() {
     id: '1',
     userId: 'user1',
     name: 'Order 1',
-    date: DateTime.now(),
+    tanggal: DateTime.now(),
     total: 100,
   );
   final tOrder2 = OrderModel(
     id: '2',
     userId: 'user1',
     name: 'Order 2',
-    date: DateTime.now(),
+    tanggal: DateTime.now(),
     total: 200,
   );
 

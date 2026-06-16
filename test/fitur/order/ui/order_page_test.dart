@@ -26,20 +26,20 @@ void main() {
   // 2. Data dummy
   final orderBaru = OrderModel(
     id: 'order1',
-    customerId: 'cust1',
-    packageId: 'pkg1',
+    idPelanggan: 'cust1',
+    idPaket: 'pkg1',
     status: StatusOrderEnum.baru,
-    date: DateTime.now(),
-    updatedAt: DateTime.now(),
+    tanggal: DateTime.now(),
+    diperbaruiPada: DateTime.now(),
   );
 
   final orderDiproses = OrderModel(
     id: 'order2',
-    customerId: 'cust1',
-    packageId: 'pkg2',
+    idPelanggan: 'cust1',
+    idPaket: 'pkg2',
     status: StatusOrderEnum.diproses,
-    date: DateTime.now(),
-    updatedAt: DateTime.now(),
+    tanggal: DateTime.now(),
+    diperbaruiPada: DateTime.now(),
   );
 
   final paket1 = PaketModel(
@@ -149,7 +149,8 @@ void main() {
       expect(find.text('Paket Diproses'), findsOneWidget);
     });
 
-    testWidgets('05. Admin: Long-press memunculkan dialog opsi', (tester) async {
+    testWidgets('05. Admin: Long-press memunculkan dialog opsi',
+        (tester) async {
       final initialState = OrderState(orders: [orderBaru]);
 
       await tester.pumpWidget(createTestableWidget(

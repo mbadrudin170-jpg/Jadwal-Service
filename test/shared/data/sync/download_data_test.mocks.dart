@@ -1728,7 +1728,7 @@ class MockOrderOpsqlite extends _i1.Mock implements _i25.OrderOpsqlite {
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #insertOrUpdateBatch,
+          #sisipkanAtauPerbaruiBatch,
           [items],
           {#dariServer: dariServer},
         ),

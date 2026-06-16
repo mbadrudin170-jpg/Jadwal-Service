@@ -12,18 +12,16 @@ part 'order_model.freezed.dart';
 
 @freezed
 abstract class OrderModel with _$OrderModel implements HasId {
-  const OrderModel._(); // untuk method custom tambahan jika perlu
-
-  // HAPUS @override di baris ini
+  const OrderModel._();
   const factory OrderModel({
     required String id,
-    required String customerId,
-    required String packageId,
-    required DateTime date,
+    required String idPelanggan,
+    required String idPaket,
+    required DateTime tanggal,
     @Default(StatusOrderEnum.baru) StatusOrderEnum status,
-    DateTime? updatedAt,
-    @Default(false) bool isDeleted,
-    DateTime? archivedAt,
+    DateTime? diperbaruiPada,
+    @Default(false) bool diHapus,
+    DateTime? diarsipkanPada,
   }) = _OrderModel;
 
   // ---------- SQLite ----------
@@ -31,13 +29,14 @@ abstract class OrderModel with _$OrderModel implements HasId {
     Log.info('Creating OrderModel from SQLite: ${map[NamaKolom.id]}');
     return OrderModel(
       id: map[NamaKolom.id] as String? ?? '',
-      customerId: map[NamaKolom.idPelanggan] as String? ?? '',
-      packageId: map[NamaKolom.idPaket] as String? ?? '',
-      date: ParserUtil.parseDateTime(map[NamaKolom.tanggal]) ?? DateTime.now(),
+      idPelanggan: map[NamaKolom.idPelanggan] as String? ?? '',
+      idPaket: map[NamaKolom.idPaket] as String? ?? '',
+      tanggal:
+          ParserUtil.parseDateTime(map[NamaKolom.tanggal]) ?? DateTime.now(),
       status: _parseStatus(map[NamaKolom.status]),
-      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
-      isDeleted: ParserUtil.parseBool(map[NamaKolom.diHapus]),
-      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
+      diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
+      diHapus: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
     );
   }
 
@@ -49,27 +48,25 @@ abstract class OrderModel with _$OrderModel implements HasId {
       NamaKolom.tanggal: date.millisecondsSinceEpoch,
       NamaKolom.status: status.name,
       NamaKolom.diperbaruiPada:
-          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      NamaKolom.diHapus: isDeleted ? 1 : 0,
-      NamaKolom.diarsipkanPada: archivedAt?.millisecondsSinceEpoch,
+          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.diHapus: diHapus ? 1 : 0,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
     };
   }
 
   // ---------- Firebase ----------
   factory OrderModel.fromFirebase(String id, Map<String, dynamic> data) {
     Log.info('Creating OrderModel from Firebase: $id');
-    // Kita bisa gunakan metode fromJson yang dihasilkan oleh Freezed
-    // Tapi karena Firebase pakai Timestamp, perlu konversi.
-    // Alternatif: buat dariJson manual seperti di bawah.
     return OrderModel(
       id: id,
-      customerId: data[NamaKolom.idPelanggan] as String? ?? '',
-      packageId: data[NamaKolom.idPaket] as String? ?? '',
-      date: (data[NamaKolom.tanggal] as Timestamp?)?.toDate() ?? DateTime.now(),
+      idPelanggan: data[NamaKolom.idPelanggan] as String? ?? '',
+      idPaket: data[NamaKolom.idPaket] as String? ?? '',
+      tanggal:
+          (data[NamaKolom.tanggal] as Timestamp?)?.toDate() ?? DateTime.now(),
       status: _parseStatus(data[NamaKolom.status]),
-      updatedAt: (data[NamaKolom.diperbaruiPada] as Timestamp?)?.toDate(),
-      isDeleted: data[NamaKolom.diHapus] as bool? ?? false,
-      archivedAt: (data[NamaKolom.diarsipkanPada] as Timestamp?)?.toDate(),
+      diperbaruiPada: (data[NamaKolom.diperbaruiPada] as Timestamp?)?.toDate(),
+      diHapus: data[NamaKolom.diHapus] as bool? ?? false,
+      diarsipkanPada: (data[NamaKolom.diarsipkanPada] as Timestamp?)?.toDate(),
     );
   }
 
@@ -81,10 +78,11 @@ abstract class OrderModel with _$OrderModel implements HasId {
       NamaKolom.tanggal: Timestamp.fromDate(date.toUtc()),
       NamaKolom.status: status.name,
       NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
-      NamaKolom.diHapus: isDeleted,
-      NamaKolom.diarsipkanPada:
-          archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
+          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diHapus: diHapus,
+      NamaKolom.diarsipkanPada: diarsipkanPada != null
+          ? Timestamp.fromDate(diarsipkanPada!.toUtc())
+          : null,
     };
   }
 
