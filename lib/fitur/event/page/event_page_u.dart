@@ -1,4 +1,4 @@
-// path: lib/user/page/event_page_u.dart
+// path: lib/fitur/event/page/event_page_u.dart
 
 import 'dart:async';
 

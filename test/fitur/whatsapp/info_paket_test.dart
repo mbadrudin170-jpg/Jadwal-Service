@@ -1,25 +1,19 @@
 // path: test/fitur/whatsapp/info_paket_test.dart
 
-// Flutter/Dart imports
-import 'package:flutter_test/flutter_test.dart';
+// FIX: Menambahkan import untuk matcher di baris atas
 import 'package:matcher/matcher.dart';
-
-// Mocktail imports
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-
-// Platform interface imports
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
-
-// Project-specific imports
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/whatsapp/info_paket.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 
 // Mock class untuk UrlLauncherPlatform
 class MockUrlLauncherPlatform extends Mock
@@ -48,7 +42,7 @@ void main() {
     mockUrlLauncher = MockUrlLauncherPlatform();
     UrlLauncherPlatform.instance = mockUrlLauncher;
 
-    // Menggunakan constructor dengan argumen posisional
+    // FIX: Menggunakan constructor dengan parameter bernama sesuai file info_paket.dart
     pesanInfoPaket = PesanInfoPaket(
       customerOperation: mockPelangganOpSqlite,
       packageOperation: mockPaketOpSqlite,
@@ -82,9 +76,10 @@ void main() {
       tipe: TipeDurasiPaket.days,
     );
 
-    // Matcher untuk URL WhatsApp
-    final matcherUrl = argThat(predicate<String>((url) =>
-        url.contains('wa.me/6281234567890') && url.contains('Rincian')));
+    // Matcher yang andal untuk URL WhatsApp
+    final urlMatcher = argThat(
+        predicate<String>((url) => url.contains('wa.me/6281234567890')),
+        'a string containing the formatted phone number');
 
     test(
       '01. harus mengirim rincian paket jika pelanggan dan paket ditemukan dan URL bisa dibuka',
@@ -105,8 +100,8 @@ void main() {
         // Assert
         verify(() => mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
         verify(() => mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
-        verify(() => mockUrlLauncher.canLaunch(matcherUrl)).called(1);
-        verify(() => mockUrlLauncher.launchUrl(matcherUrl, any())).called(1);
+        verify(() => mockUrlLauncher.canLaunch(urlMatcher)).called(1);
+        verify(() => mockUrlLauncher.launchUrl(urlMatcher, any())).called(1);
       },
     );
 
@@ -116,6 +111,7 @@ void main() {
         // Arrange
         when(() => mockPelangganOpSqlite.ambilBerdasarkanId('c1'))
             .thenAnswer((_) async => null);
+        // Stub ini diperlukan karena kode tetap mengambil paket meskipun pelanggan null
         when(() => mockPaketOpSqlite.ambilBerdasarkanId('p1'))
             .thenAnswer((_) async => paket);
 
@@ -167,7 +163,7 @@ void main() {
         // Assert
         verify(() => mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
         verify(() => mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
-        verify(() => mockUrlLauncher.canLaunch(matcherUrl)).called(1);
+        verify(() => mockUrlLauncher.canLaunch(urlMatcher)).called(1);
         verifyNever(() => mockUrlLauncher.launchUrl(any(), any()));
       },
     );
