@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/pelanggan/core/user_activity_service.dart';

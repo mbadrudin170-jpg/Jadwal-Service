@@ -96,7 +96,7 @@ void main() {
       when(mockKoneksiInternetService.cekKoneksiLokal())
           .thenAnswer((_) async => true);
       when(mockLayananCekSinkronisasi.jalankanCekSinkronisasi())
-          .thenAnswer((_) async {});
+          .thenAnswer((_) async => Future.value());
 
       await tester.pumpWidget(createWidget());
 
@@ -125,7 +125,7 @@ void main() {
       when(mockKoneksiInternetService.cekKoneksiLokal())
           .thenAnswer((_) async => true);
       when(mockLayananCekSinkronisasi.jalankanCekSinkronisasi())
-          .thenAnswer((_) async {});
+          .thenAnswer((_) async => Future.value());
 
       await tester.pumpWidget(createWidget(pelanggan: pelangganModel));
 

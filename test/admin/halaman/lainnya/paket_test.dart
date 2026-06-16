@@ -2,7 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:wifi/admin/halaman/lainnya/paket.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
@@ -10,13 +11,9 @@ import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 
-// Mocks
-class MockPaketOpSqlite extends Mock implements PaketOpSqlite {}
+import 'paket_test.mocks.dart';
 
-class MockNavigatorObserver extends Mock implements NavigatorObserver {}
-
-class FakeRoute extends Fake implements Route<dynamic> {}
-
+@GenerateMocks([PaketOpSqlite, NavigatorObserver])
 void main() {
   late MockPaketOpSqlite mockPaketOpSqlite;
   late MockNavigatorObserver mockNavigatorObserver;
@@ -24,7 +21,6 @@ void main() {
   setUp(() {
     mockPaketOpSqlite = MockPaketOpSqlite();
     mockNavigatorObserver = MockNavigatorObserver();
-    registerFallbackValue(FakeRoute());
   });
 
   final paketList = [
@@ -59,7 +55,7 @@ void main() {
 
   group('PackagePage Tests', () {
     testWidgets('01. should display list of packages', (tester) async {
-      when(() => mockPaketOpSqlite.ambilBerdasarkanAktif())
+      when(mockPaketOpSqlite.ambilBerdasarkanAktif())
           .thenAnswer((_) async => paketList);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
@@ -69,7 +65,7 @@ void main() {
     });
 
     testWidgets('02. should open add package form', (tester) async {
-      when(() => mockPaketOpSqlite.ambilBerdasarkanAktif())
+      when(mockPaketOpSqlite.ambilBerdasarkanAktif())
           .thenAnswer((_) async => paketList);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
@@ -77,11 +73,11 @@ void main() {
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
 
-      verify(() => mockNavigatorObserver.didPush(any(), any()));
+      verify(mockNavigatorObserver.didPush(any, any));
     });
 
     testWidgets('03. should show sort dialog', (tester) async {
-      when(() => mockPaketOpSqlite.ambilBerdasarkanAktif())
+      when(mockPaketOpSqlite.ambilBerdasarkanAktif())
           .thenAnswer((_) async => paketList);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
@@ -94,7 +90,7 @@ void main() {
 
     testWidgets('04. should show delete all confirmation dialog',
         (tester) async {
-      when(() => mockPaketOpSqlite.ambilBerdasarkanAktif())
+      when(mockPaketOpSqlite.ambilBerdasarkanAktif())
           .thenAnswer((_) async => paketList);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
@@ -106,9 +102,9 @@ void main() {
     });
 
     testWidgets('05. should delete all packages', (tester) async {
-      when(() => mockPaketOpSqlite.ambilBerdasarkanAktif())
+      when(mockPaketOpSqlite.ambilBerdasarkanAktif())
           .thenAnswer((_) async => paketList);
-      when(() => mockPaketOpSqlite.hapusSementaraSemua())
+      when(mockPaketOpSqlite.hapusSementaraSemua())
           .thenAnswer((_) async => 1);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
@@ -119,12 +115,12 @@ void main() {
       await tester.tap(find.text('Hapus Semua'));
       await tester.pumpAndSettle();
 
-      verify(() => mockPaketOpSqlite.hapusSementaraSemua()).called(1);
+      verify(mockPaketOpSqlite.hapusSementaraSemua());
     });
 
     testWidgets('06. should show edit/delete dialog on long press',
         (tester) async {
-      when(() => mockPaketOpSqlite.ambilBerdasarkanAktif())
+      when(mockPaketOpSqlite.ambilBerdasarkanAktif())
           .thenAnswer((_) async => paketList);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
