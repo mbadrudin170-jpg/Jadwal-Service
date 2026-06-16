@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/paket/page/detail_paket.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
@@ -11,9 +12,9 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/page/form_paket.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 
-// Mocks
-class MockNavigatorObserver extends Mock implements NavigatorObserver {}
+import 'detail_paket_test.mocks.dart';
 
+@GenerateMocks([NavigatorObserver])
 void main() {
   late MockNavigatorObserver mockNavigatorObserver;
 

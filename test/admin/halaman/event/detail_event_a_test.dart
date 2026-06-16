@@ -14,8 +14,14 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'detail_event_a_test.mocks.dart';
 import '../../../image_mock_http_client.dart';
 
-// Generate mocks for EventOpSupabase
-@GenerateMocks([EventOpSupabase])
+// Generate mocks for EventOpSupabase and HttpClient
+@GenerateMocks([
+  EventOpSupabase,
+  HttpClient,
+  HttpClientRequest,
+  HttpClientResponse,
+  HttpHeaders
+])
 void main() {
   late MockEventOpSupabase mockEventOpSupabase;
 
@@ -25,7 +31,7 @@ void main() {
     statusAktif: true,
     tanggalDibuat: DateTime(2023, 10, 26),
     tanggalMulai: DateTime(2023, 10, 26),
-    tangglberakhir: DateTime(2023, 11, 26),
+    tanggalBerakhir: DateTime(2023, 11, 26),
   );
 
   final eventTidakAktif = EventModel(
@@ -34,7 +40,7 @@ void main() {
     statusAktif: false,
     tanggalDibuat: DateTime(2023, 10, 25),
     tanggalMulai: DateTime(2023, 10, 25),
-    tangglberakhir: DateTime(2023, 11, 25),
+    tanggalBerakhir: DateTime(2023, 11, 25),
   );
 
   setUp(() {
@@ -56,9 +62,8 @@ void main() {
     testWidgets('01. harus menampilkan CircularProgressIndicator saat loading',
         (tester) async {
       // Arrange
-      when(mockEventOpSupabase.getById(any)).thenAnswer((_) async {
-        // Don't complete the future to keep it in loading state
-        return await Future.delayed(const Duration(seconds: 2));
+      when(mockEventOpSupabase.getById(any)).thenAnswer((_) async* {
+        // Yield nothing to keep it in loading state
       });
 
       // Act
@@ -88,7 +93,7 @@ void main() {
     testWidgets('03. harus menampilkan pesan "tidak ditemukan" jika data null',
         (tester) async {
       // Arrange
-      when(mockEventOpSupabase.getById(any)).thenAnswer((_) async => null);
+      when(mockEventOpSupabase.getById(any)).thenAnswer((_) async* {});
 
       // Act
       await tester.pumpWidget(createWidget(eventAktif));

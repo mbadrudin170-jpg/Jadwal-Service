@@ -284,7 +284,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       final hasChanged = await Navigator.push<bool>(
         context,
         MaterialPageRoute<bool>(
-          builder: (context) => UserCustomerDetailPage(userId: userId),
+          builder: (context) => DetailPelangganU(userId: userId),
         ),
       );
       await ref.read(interstitialAdServiceProvider).show();

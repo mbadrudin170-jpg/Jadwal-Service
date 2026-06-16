@@ -12,26 +12,24 @@ import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 
 /// Kelas untuk menggabungkan data yang dibutuhkan oleh UI.
-class _ProfileData {
+class _DataDetailPelanggan {
   final PelangganModel pelanggan;
   final int totalPoin;
 
-  _ProfileData({required this.pelanggan, required this.totalPoin});
+  _DataDetailPelanggan({required this.pelanggan, required this.totalPoin});
 }
 
 /// Halaman untuk menampilkan detail profil pengguna.
-class UserCustomerDetailPage extends ConsumerStatefulWidget {
+class DetailPelangganU extends ConsumerStatefulWidget {
   final String userId;
-  const UserCustomerDetailPage({super.key, required this.userId});
+  const DetailPelangganU({super.key, required this.userId});
 
   @override
-  ConsumerState<UserCustomerDetailPage> createState() =>
-      _UserCustomerDetailPageState();
+  ConsumerState<DetailPelangganU> createState() => _DetailPelangganUState();
 }
 
-class _UserCustomerDetailPageState
-    extends ConsumerState<UserCustomerDetailPage> {
-  Future<_ProfileData>? _dataFuture;
+class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
+  Future<_DataDetailPelanggan>? _dataFuture;
   bool _hasMadeChanges = false;
 
   @override
@@ -43,7 +41,7 @@ class _UserCustomerDetailPageState
     _dataFuture = _loadData();
   }
 
-  Future<_ProfileData> _loadData() async {
+  Future<_DataDetailPelanggan> _loadData() async {
     try {
       Log.info('Mengambil data pelanggan dari Firestore...');
       final pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
@@ -59,7 +57,7 @@ class _UserCustomerDetailPageState
       );
       final totalPoin = await transaksiOpFirebase.ambilTotalPoin(pelanggan.id);
       Log.info('Perhitungan poin selesai. Total Poin: $totalPoin');
-      return _ProfileData(pelanggan: pelanggan, totalPoin: totalPoin);
+      return _DataDetailPelanggan(pelanggan: pelanggan, totalPoin: totalPoin);
     } catch (e, s) {
       Log.error(
         'Gagal memuat data profil lengkap dari Firestore.',
@@ -128,7 +126,7 @@ class _UserCustomerDetailPageState
         }
         Navigator.pop(context, _hasMadeChanges);
       },
-      child: FutureBuilder<_ProfileData>(
+      child: FutureBuilder<_DataDetailPelanggan>(
         future: _dataFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
