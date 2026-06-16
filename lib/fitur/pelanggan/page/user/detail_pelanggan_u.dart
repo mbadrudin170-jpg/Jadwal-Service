@@ -1,11 +1,12 @@
-// path: lib/user/page/user_customer_detail.dart
+// path: lib/fitur/pelanggan/page/user/detail_pelanggan_u.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/poin/page/points_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
+import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
 import 'package:wifi/user/page/edit_profile_page.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
@@ -77,16 +78,16 @@ class _UserCustomerDetailPageState
   }
 
   /// Navigasi ke halaman edit profil, lalu menampilkan iklan saat kembali.
-  Future<void> _navigateToEdit(PelangganModel customer) async {
+  Future<void> _navigasiKeEdit(PelangganModel pelanggan) async {
     await ref.read(interstitialAdServiceProvider).show();
-    final bool? result = await Navigator.push<bool>(
+    final bool? hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (final context) => EditProfilePage(customer: customer),
+        builder: (final context) => EditProfilePage(customer: pelanggan),
       ),
     );
     await ref.read(interstitialAdServiceProvider).show();
-    if (result ?? false) {
+    if (hasil ?? false) {
       Log.info('Kembali dari edit, memuat ulang data.');
       setState(() {
         _hasMadeChanges = true;
@@ -95,19 +96,19 @@ class _UserCustomerDetailPageState
     }
   }
 
-  Future<void> _navigateToPoints(final String customerId) async {
+  Future<void> _navigasiKePoin(String idPelanggan) async {
     await ref.read(interstitialAdServiceProvider).show();
-    final bool? result = await Navigator.push<bool>(
+    final bool? hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (final context) => PoinPage(
-          customerId: customerId,
+        builder: (context) => PoinPage(
+          customerId: idPelanggan,
           showAd: true, // Tampilkan iklan di halaman poin untuk pengguna
         ),
       ),
     );
     await ref.read(interstitialAdServiceProvider).show();
-    if (result ?? false) {
+    if (hasil ?? false) {
       Log.info(
           'Kembali dari halaman poin dengan perubahan, memuat ulang data.');
       setState(() {
@@ -121,7 +122,7 @@ class _UserCustomerDetailPageState
   Widget build(BuildContext context) {
     return PopScope<bool>(
       canPop: false,
-      onPopInvokedWithResult: (bool didPop, bool? result) {
+      onPopInvokedWithResult: (bool didPop, bool? hasil) {
         if (didPop) {
           return;
         }
@@ -158,8 +159,8 @@ class _UserCustomerDetailPageState
             body: DetailPelangganUI(
               pelanggan: data.pelanggan,
               totalPoin: data.totalPoin,
-              navigasiKeEdit: () => _navigateToEdit(data.pelanggan),
-              navigasiKePoin: () => _navigateToPoints(data.pelanggan.id),
+              navigasiKeEdit: () => _navigasiKeEdit(data.pelanggan),
+              navigasiKePoin: () => _navigasiKePoin(data.pelanggan.id),
             ),
             bottomNavigationBar: const BannerAdsWidget(),
           );

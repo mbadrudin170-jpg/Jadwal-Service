@@ -23,6 +23,10 @@ import 'package:wifi/shared/theme/tema_provider.dart';
 
 import 'app_admin_test.mocks.dart';
 
+// Fallback generator for NotificationResponse
+NotificationResponse _fallbackNotificationResponse() =>
+    MockNotificationResponse();
+
 @GenerateMocks([
   SharedPreferences,
   LayananNotifikasi,
@@ -35,9 +39,10 @@ import 'app_admin_test.mocks.dart';
   NotificationResponse,
 ], customMocks: [
   MockSpec<NotificationAppLaunchDetails>(
-    unsupportedMembers: {#notificationResponse},
-    fallbackGenerators: {#notificationResponse: _fallbackNotificationResponse},
-  )
+      unsupportedMembers: {#notificationResponse},
+      fallbackGenerators: {
+        #notificationResponse: _fallbackNotificationResponse
+      })
 ])
 // Subclass TemaNotifier untuk keperluan test agar bisa menerima initial theme
 class _TestTemaNotifier extends TemaNotifier {
@@ -65,8 +70,6 @@ void main() {
     (ThemeMode.system);
     (const SettingsModel());
     (const Duration());
-    // Hapus setter navigatorKey karena final
-    // LayananNavigasi.navigatorKey = GlobalKey<NavigatorState>(debugLabel: 'test');
   });
 
   setUp(() {
@@ -86,7 +89,7 @@ void main() {
         .thenAnswer((_) async => true);
     when(mockSharedPreferences.remove(any)).thenAnswer((_) async => true);
     when(mockLayananNotifikasi.inisialisasiNotifikasi(
-            iconName: any(named: 'iconName')))
+            iconName: anyNamed('iconName')))
         .thenAnswer((_) async {});
     when(mockLayananNotifikasi.mintaIzin()).thenAnswer((_) async {});
     when(mockLayananNotifikasi.getDetailPeluncuranNotifikasi())
@@ -102,7 +105,7 @@ void main() {
     when(mockSettingsOpSqlite.ambilSettings()).thenAnswer(
         (_) async => const SettingsModel(waktuOtomatisHapusDataArsip: 30));
     when(mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-            retentionDays: any(named: 'retentionDays')))
+            retentionDays: anyNamed('retentionDays')))
         .thenAnswer((_) async => 1);
   });
 
@@ -113,9 +116,11 @@ void main() {
   }) {
     final container = ProviderContainer(
       overrides: [
-        sharedPreferencesProvider.overrideWithValue(
-            (sharedPrefsValue.asData?.value ?? mockSharedPreferences)
-                as AsyncValue<SharedPreferences>),
+        sharedPreferencesProvider.overrideWith((ref) => sharedPrefsValue.when(
+              data: (prefs) => Future.value(prefs),
+              loading: () => Future.value(mockSharedPreferences),
+              error: (e, s) => Future.error(e, s),
+            )),
         layananNotifikasiProvider.overrideWithValue(mockLayananNotifikasi),
         koneksiInternetServiceProvider
             .overrideWithValue(mockKoneksiInternetService),
@@ -125,12 +130,10 @@ void main() {
         providerLayananUnduhanAwal.overrideWithValue(mockUnduhanAwalService),
         settingsOpSqliteProvider.overrideWithValue(mockSettingsOpSqlite),
         appRoleProvider.overrideWithValue(role),
-        // TODO: pastikan nama provider ini benar, atau cari file definisi provider pembersihanDataOperasi
         pembersihanDataOperasiProvider
             .overrideWithValue(mockPembersihanDataOperasi),
-        // Ganti temaNotifierProvider menjadi temaProvider dan gunakan _TestTemaNotifier
-        temaProvider.overrideWith(() =>
-            _TestTemaNotifier(themeValue.asData?.value ?? ThemeMode.system)),
+        temaProvider
+            .overrideWith(() => _TestTemaNotifier(themeValue.asData?.value ?? ThemeMode.system)),
       ],
     );
     return container;
@@ -183,7 +186,7 @@ void main() {
         (tester) async {
       final container = makeProviderContainer(
         sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
-        themeValue: AsyncValue.data(ThemeMode.light),
+        themeValue:.data(ThemeMode.light),
       );
 
       await tester.pumpWidget(
@@ -247,7 +250,7 @@ void main() {
 
       verifyNever(mockUnduhanAwalService.jalankanUnduhanAwal());
       verifyNever(mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-          retentionDays: any(named: 'retentionDays')));
+          retentionDays: anyNamed('retentionDays')));
     });
 
     testWidgets('04. inisialisasi gagal dengan exception', (tester) async {
@@ -385,6 +388,3 @@ void main() {
     });
   });
 }
-
-NotificationResponse _fallbackNotificationResponse() =>
-    MockNotificationResponse();

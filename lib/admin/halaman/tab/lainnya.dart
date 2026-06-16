@@ -15,7 +15,7 @@ import 'package:wifi/admin/halaman/lainnya/tentang_aplikasi.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
 import 'package:wifi/fitur/kategori/page/kategori.dart';
-import 'package:wifi/fitur/pelanggan/ui/admin/pelanggan.dart';
+import 'package:wifi/fitur/pelanggan/page/admin/pelanggan.dart';
 import 'package:wifi/fitur/settings/page/settings_page_a.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';

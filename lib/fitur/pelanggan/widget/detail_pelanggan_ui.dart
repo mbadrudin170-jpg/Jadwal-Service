@@ -1,4 +1,5 @@
-// path: lib/shared/widget/page/customer_detail_ui.dart
+// path: lib/fitur/pelanggan/widget/detail_pelanggan_ui.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi/shared/debug/log.dart';

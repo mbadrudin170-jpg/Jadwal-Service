@@ -1,4 +1,4 @@
-// path: lib/fitur/pelanggan/ui/admin/detail_pelanggan_a.dart
+// path: lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
 
 import 'dart:async';
 
@@ -12,7 +12,7 @@ import 'package:wifi/fitur/poin/page/points_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
+import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
 
 class DetailPelanggan extends ConsumerWidget {
   final String idPelanggan;
