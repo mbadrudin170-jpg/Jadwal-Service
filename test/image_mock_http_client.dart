@@ -89,10 +89,13 @@ class MockImageHttpClient extends Mock implements HttpClient {
     final request = MockHttpClientRequest();
     final response = MockHttpClientResponse();
 
+    // ✅ abaikan error null untuk any<Uri>()
+    // ignore: invalid_use_of_null_value
     when(client.getUrl(any<Uri>())).thenAnswer((_) async => request);
     when(request.close()).thenAnswer((_) async => response);
     when(response.statusCode).thenReturn(HttpStatus.notFound);
     when(response.reasonPhrase).thenReturn('Not Found');
+
     when(
       response.listen(
         any,
@@ -102,12 +105,21 @@ class MockImageHttpClient extends Mock implements HttpClient {
       ),
     ).thenAnswer((invocation) {
       final onError = invocation.namedArguments[#onError] as Function;
-      // Panggil onError dengan exception
-      onError(Exception('Image load failed'), StackTrace.current);
-      final onDone = invocation.namedArguments[#onDone] as Function?;
-      onDone?.call();
-      // Kembalikan stream kosong
-      return Stream<List<int>>.empty();
+      // ✅ cast langsung ke void Function()?
+      final onDone = invocation.namedArguments[#onDone] as void Function()?;
+
+      // Buat stream yang memancarkan error
+      final stream = Stream<List<int>>.error(
+        Exception('Image load failed'),
+        StackTrace.current,
+      );
+      // Panggil listen dan return subscription
+      final subscription = stream.listen(
+        (_) {}, // onData tidak dipanggil karena error
+        onError: onError,
+        onDone: onDone,
+      );
+      return subscription;
     });
     return client;
   }
@@ -119,11 +131,14 @@ HttpClient createMockImageHttpClient(SecurityContext? _) {
   final response = MockHttpClientResponse();
   final headers = MockHttpHeaders();
 
+  // ✅ abaikan error null untuk any<Uri>()
+  // ignore: invalid_use_of_null_value
   when(client.getUrl(any<Uri>())).thenAnswer((_) async => request);
   when(request.headers).thenReturn(headers);
   when(request.close()).thenAnswer((_) async => response);
   when(response.statusCode).thenReturn(HttpStatus.ok);
   when(response.contentLength).thenReturn(kTransparentImage.length);
+
   when(
     response.listen(
       any,
@@ -134,13 +149,18 @@ HttpClient createMockImageHttpClient(SecurityContext? _) {
   ).thenAnswer((invocation) {
     final onData =
         invocation.positionalArguments[0] as void Function(List<int>);
+    // ✅ cast langsung ke void Function()?
     final onDone = invocation.namedArguments[#onDone] as void Function()?;
-    // Kirim data ke onData
-    onData(kTransparentImage);
-    // Panggil onDone jika ada
-    onDone?.call();
-    // Kembalikan Stream yang berisi data yang sama
-    return Stream<List<int>>.value(kTransparentImage);
+
+    // Buat stream yang mengeluarkan data
+    final stream = Stream<List<int>>.value(kTransparentImage);
+    // Panggil listen dan return subscription
+    final subscription = stream.listen(
+      onData,
+      onError: invocation.namedArguments[#onError] as Function?,
+      onDone: onDone,
+    );
+    return subscription;
   });
   return client;
 }

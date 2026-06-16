@@ -9,7 +9,6 @@ import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/pelanggan/core/user_activity_service.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/user/providers/user_providers.dart';
-import 'package:mockito/src/fallback_values.dart';
 
 import 'daftar_akun_page_test.mocks.dart';
 
@@ -17,9 +16,6 @@ class FakeRoute<T> extends Fake implements Route<T> {}
 
 @GenerateMocks([PengelolaAkun, UserActivityService, NavigatorObserver])
 void main() {
-  setUpAll(() {
-    registerFallbackValue(FakeRoute());
-  });
   late MockPengelolaAkun mockPengelolaAkun;
   late MockUserActivityService mockUserActivityService;
   late MockNavigatorObserver mockNavigatorObserver;
