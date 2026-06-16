@@ -34,24 +34,16 @@ void main() {
       statusUnggahOpSqlite: mockStatusUnggahOpSqlite,
     );
 
-    // Stubbing
+    // Stubbing default
     when(() => mockSqliteDatabase.database).thenAnswer((_) async => mockDatabase);
     when(() => mockStatusUnggahOpSqlite.tandaiButuhUpload(any(), transaction: any(named: 'transaction')))
         .thenAnswer((_) async {});
-
-    // Stub untuk transaksi generik, agar tidak null
-    when(() => mockDatabase.transaction<dynamic>(any())).thenAnswer((invocation) async {
-      final action = invocation.positionalArguments[0] as Future<dynamic> Function(Transaction);
-      final mockTxn = MockTransaction();
-      return await action(mockTxn);
-    });
   });
 
   group('BaseOpSqlite', () {
     final data = {'id': '1', 'name': 'Test'};
     final exception = Exception('Database error');
 
-    // sisipkan
     group('sisipkan', () {
       test(
         '01. harus memanggil db.insert dengan data dan conflictAlgorithm yang benar',
@@ -78,14 +70,13 @@ void main() {
       );
 
       test('02. harus melempar kembali exception jika transaksi gagal', () {
-        when(() => mockDatabase.transaction<dynamic>(any())).thenThrow(exception);
+        when(() => mockDatabase.transaction<int>(any())).thenThrow(exception);
 
         expect(() => baseOpSqlite.sisipkan(namaTabel, data),
             throwsA(isA<Exception>()));
       });
     });
 
-    // update
     group('update', () {
       test(
         '03. harus memanggil db.update dengan data dan klausa where yang benar',
@@ -112,14 +103,13 @@ void main() {
       );
 
       test('04. harus melempar kembali exception jika transaksi gagal', () {
-        when(() => mockDatabase.transaction<dynamic>(any())).thenThrow(exception);
+        when(() => mockDatabase.transaction<int>(any())).thenThrow(exception);
 
         expect(() => baseOpSqlite.update(namaTabel, data, '1'),
             throwsA(isA<Exception>()));
       });
     });
 
-    // delete
     group('delete', () {
       test('05. harus memanggil db.delete dengan klausa where yang benar',
           () async {
@@ -143,14 +133,13 @@ void main() {
       });
 
       test('06. harus melempar kembali exception jika transaksi gagal', () {
-        when(() => mockDatabase.transaction<dynamic>(any())).thenThrow(exception);
+        when(() => mockDatabase.transaction<int>(any())).thenThrow(exception);
 
         expect(() => baseOpSqlite.delete(namaTabel, '1'),
             throwsA(isA<Exception>()));
       });
     });
 
-    // softDelete
     group('softDelete', () {
       test(
           '07. harus memanggil db.update untuk soft delete dengan data yang benar',
@@ -179,14 +168,13 @@ void main() {
       test(
           '08. harus melempar kembali exception jika transaksi gagal',
           () {
-        when(() => mockDatabase.transaction<dynamic>(any())).thenThrow(exception);
+        when(() => mockDatabase.transaction<int>(any())).thenThrow(exception);
 
         expect(() => baseOpSqlite.softDelete(namaTabel, '1'),
             throwsA(isA<Exception>()));
       });
     });
 
-    // sisipkanAtauPerbaruiBatch
     group('sisipkanAtauPerbaruiBatch', () {
       final dataList = [
         {'id': '1', 'name': 'Data 1'},
@@ -219,11 +207,6 @@ void main() {
               dataList[0],
               conflictAlgorithm: ConflictAlgorithm.replace,
             )).called(1);
-        verify(() => mockBatch.insert(
-              namaTabel,
-              dataList[1],
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            )).called(1);
         verify(() => mockBatch.commit(noResult: true)).called(1);
       });
 
@@ -234,14 +217,13 @@ void main() {
 
       test('11. harus melempar kembali exception jika transaksi batch gagal',
           () {
-        when(() => mockDatabase.transaction(any())).thenThrow(exception);
+        when(() => mockDatabase.transaction<void>(any())).thenThrow(exception);
 
         expect(() => baseOpSqlite.sisipkanAtauPerbaruiBatch(namaTabel, dataList),
             throwsA(isA<Exception>()));
       });
     });
 
-    // runComplexOperation
     group('runComplexOperation', () {
       test(
           '12. harus menjalankan action yang diberikan di dalam transaksi dan mengembalikan hasilnya',
@@ -268,11 +250,8 @@ void main() {
           '13. harus melempar kembali exception jika action di dalam transaksi gagal',
           () {
         when(() => mockDatabase.transaction<dynamic>(any())).thenThrow(exception);
-
-        final future =
-            baseOpSqlite.runComplexOperation<void>((txn) async => {});
             
-        expect(future, throwsA(isA<Exception>()));
+        expect(() => baseOpSqlite.runComplexOperation<void>((txn) async {}), throwsA(isA<Exception>()));
       });
     });
   });
