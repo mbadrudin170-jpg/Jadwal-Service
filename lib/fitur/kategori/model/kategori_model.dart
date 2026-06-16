@@ -101,7 +101,7 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
           TipeKategori.expense,
       idSubKategori: parseSubCategories(map[NamaKolom.idSubKategori]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
-      diHapus: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
     );
   }
@@ -116,7 +116,7 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
       ),
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
-      NamaKolom.diHapus: diHapus ? 1 : 0,
+      NamaKolom.dihapus: diHapus ? 1 : 0,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
     };
   }
@@ -153,7 +153,7 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
           TipeKategori.expense,
       idSubKategori: parseSubCategories(data[NamaKolom.idSubKategori]),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
-      diHapus: ParserUtil.parseBool(data[NamaKolom.diHapus]),
+      diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
   }
@@ -165,7 +165,7 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
       NamaKolom.tipe: tipe.name,
       NamaKolom.idSubKategori:
           idSubKategori.map((sub) => sub.toFirebase()).toList(),
-      NamaKolom.diHapus: diHapus,
+      NamaKolom.dihapus: diHapus,
       NamaKolom.diperbaruiPada:
           Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
       NamaKolom.diarsipkanPada: diarsipkanPada != null

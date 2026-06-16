@@ -18,7 +18,7 @@ mixin _$DompetModel {
   String get nama;
   double get saldo;
   DateTime? get diperbaruiPada;
-  bool get diHapus;
+  bool get dihapus;
   DateTime? get diarsipkanPada;
 
   /// Create a copy of DompetModel
@@ -38,18 +38,18 @@ mixin _$DompetModel {
             (identical(other.saldo, saldo) || other.saldo == saldo) &&
             (identical(other.diperbaruiPada, diperbaruiPada) ||
                 other.diperbaruiPada == diperbaruiPada) &&
-            (identical(other.diHapus, diHapus) || other.diHapus == diHapus) &&
+            (identical(other.dihapus, dihapus) || other.dihapus == dihapus) &&
             (identical(other.diarsipkanPada, diarsipkanPada) ||
                 other.diarsipkanPada == diarsipkanPada));
   }
 
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, nama, saldo, diperbaruiPada, diHapus, diarsipkanPada);
+      runtimeType, id, nama, saldo, diperbaruiPada, dihapus, diarsipkanPada);
 
   @override
   String toString() {
-    return 'DompetModel(id: $id, nama: $nama, saldo: $saldo, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada)';
+    return 'DompetModel(id: $id, nama: $nama, saldo: $saldo, diperbaruiPada: $diperbaruiPada, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada)';
   }
 }
 
@@ -64,7 +64,7 @@ abstract mixin class $DompetModelCopyWith<$Res> {
       String nama,
       double saldo,
       DateTime? diperbaruiPada,
-      bool diHapus,
+      bool dihapus,
       DateTime? diarsipkanPada});
 }
 
@@ -84,7 +84,7 @@ class _$DompetModelCopyWithImpl<$Res> implements $DompetModelCopyWith<$Res> {
     Object? nama = null,
     Object? saldo = null,
     Object? diperbaruiPada = freezed,
-    Object? diHapus = null,
+    Object? dihapus = null,
     Object? diarsipkanPada = freezed,
   }) {
     return _then(_self.copyWith(
@@ -104,9 +104,9 @@ class _$DompetModelCopyWithImpl<$Res> implements $DompetModelCopyWith<$Res> {
           ? _self.diperbaruiPada
           : diperbaruiPada // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      diHapus: null == diHapus
-          ? _self.diHapus
-          : diHapus // ignore: cast_nullable_to_non_nullable
+      dihapus: null == dihapus
+          ? _self.dihapus
+          : dihapus // ignore: cast_nullable_to_non_nullable
               as bool,
       diarsipkanPada: freezed == diarsipkanPada
           ? _self.diarsipkanPada
@@ -210,7 +210,7 @@ extension DompetModelPatterns on DompetModel {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(String id, String nama, double saldo,
-            DateTime? diperbaruiPada, bool diHapus, DateTime? diarsipkanPada)?
+            DateTime? diperbaruiPada, bool dihapus, DateTime? diarsipkanPada)?
         $default, {
     required TResult orElse(),
   }) {
@@ -218,7 +218,7 @@ extension DompetModelPatterns on DompetModel {
     switch (_that) {
       case _DompetModel() when $default != null:
         return $default(_that.id, _that.nama, _that.saldo, _that.diperbaruiPada,
-            _that.diHapus, _that.diarsipkanPada);
+            _that.dihapus, _that.diarsipkanPada);
       case _:
         return orElse();
     }
@@ -240,14 +240,14 @@ extension DompetModelPatterns on DompetModel {
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
     TResult Function(String id, String nama, double saldo,
-            DateTime? diperbaruiPada, bool diHapus, DateTime? diarsipkanPada)
+            DateTime? diperbaruiPada, bool dihapus, DateTime? diarsipkanPada)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _DompetModel():
         return $default(_that.id, _that.nama, _that.saldo, _that.diperbaruiPada,
-            _that.diHapus, _that.diarsipkanPada);
+            _that.dihapus, _that.diarsipkanPada);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -268,14 +268,14 @@ extension DompetModelPatterns on DompetModel {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(String id, String nama, double saldo,
-            DateTime? diperbaruiPada, bool diHapus, DateTime? diarsipkanPada)?
+            DateTime? diperbaruiPada, bool dihapus, DateTime? diarsipkanPada)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _DompetModel() when $default != null:
         return $default(_that.id, _that.nama, _that.saldo, _that.diperbaruiPada,
-            _that.diHapus, _that.diarsipkanPada);
+            _that.dihapus, _that.diarsipkanPada);
       case _:
         return null;
     }
@@ -286,16 +286,15 @@ extension DompetModelPatterns on DompetModel {
 
 class _DompetModel extends DompetModel {
   const _DompetModel(
-      {this.id = '',
+      {required this.id,
       required this.nama,
       this.saldo = 0.0,
       this.diperbaruiPada,
-      this.diHapus = false,
+      this.dihapus = false,
       this.diarsipkanPada})
       : super._();
 
   @override
-  @JsonKey()
   final String id;
   @override
   final String nama;
@@ -306,7 +305,7 @@ class _DompetModel extends DompetModel {
   final DateTime? diperbaruiPada;
   @override
   @JsonKey()
-  final bool diHapus;
+  final bool dihapus;
   @override
   final DateTime? diarsipkanPada;
 
@@ -328,18 +327,18 @@ class _DompetModel extends DompetModel {
             (identical(other.saldo, saldo) || other.saldo == saldo) &&
             (identical(other.diperbaruiPada, diperbaruiPada) ||
                 other.diperbaruiPada == diperbaruiPada) &&
-            (identical(other.diHapus, diHapus) || other.diHapus == diHapus) &&
+            (identical(other.dihapus, dihapus) || other.dihapus == dihapus) &&
             (identical(other.diarsipkanPada, diarsipkanPada) ||
                 other.diarsipkanPada == diarsipkanPada));
   }
 
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, nama, saldo, diperbaruiPada, diHapus, diarsipkanPada);
+      runtimeType, id, nama, saldo, diperbaruiPada, dihapus, diarsipkanPada);
 
   @override
   String toString() {
-    return 'DompetModel(id: $id, nama: $nama, saldo: $saldo, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada)';
+    return 'DompetModel(id: $id, nama: $nama, saldo: $saldo, diperbaruiPada: $diperbaruiPada, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada)';
   }
 }
 
@@ -356,7 +355,7 @@ abstract mixin class _$DompetModelCopyWith<$Res>
       String nama,
       double saldo,
       DateTime? diperbaruiPada,
-      bool diHapus,
+      bool dihapus,
       DateTime? diarsipkanPada});
 }
 
@@ -376,7 +375,7 @@ class __$DompetModelCopyWithImpl<$Res> implements _$DompetModelCopyWith<$Res> {
     Object? nama = null,
     Object? saldo = null,
     Object? diperbaruiPada = freezed,
-    Object? diHapus = null,
+    Object? dihapus = null,
     Object? diarsipkanPada = freezed,
   }) {
     return _then(_DompetModel(
@@ -396,9 +395,9 @@ class __$DompetModelCopyWithImpl<$Res> implements _$DompetModelCopyWith<$Res> {
           ? _self.diperbaruiPada
           : diperbaruiPada // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      diHapus: null == diHapus
-          ? _self.diHapus
-          : diHapus // ignore: cast_nullable_to_non_nullable
+      dihapus: null == dihapus
+          ? _self.dihapus
+          : dihapus // ignore: cast_nullable_to_non_nullable
               as bool,
       diarsipkanPada: freezed == diarsipkanPada
           ? _self.diarsipkanPada

@@ -76,7 +76,7 @@ void main() {
       final snapshot =
           await fakeFirestore.collection(customerCollection).doc(c1.id).get();
       expect(snapshot.exists, isTrue);
-      expect(snapshot.data()![NamaKolom.diHapus], isTrue);
+      expect(snapshot.data()![NamaKolom.dihapus], isTrue);
     });
 
     test('2.4. harus bisa menghapus pelanggan secara permanen', () async {

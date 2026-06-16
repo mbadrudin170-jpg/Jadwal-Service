@@ -85,7 +85,7 @@ class PaketOpSqlite {
             ELSE 999999
           END as urutan
         FROM $_tabel
-        WHERE ${NamaKolom.diHapus} = 0
+        WHERE ${NamaKolom.dihapus} = 0
         ORDER BY urutan ASC
       ''');
 
@@ -113,7 +113,7 @@ class PaketOpSqlite {
             ELSE 999999
           END as urutan
         FROM $_tabel
-        WHERE ${NamaKolom.diHapus} = 0 AND ${NamaKolom.statusPublik} = 1
+        WHERE ${NamaKolom.dihapus} = 0 AND ${NamaKolom.statusPublik} = 1
         ORDER BY urutan ASC
       ''');
 

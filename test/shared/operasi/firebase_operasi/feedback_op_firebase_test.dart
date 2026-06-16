@@ -97,7 +97,7 @@ void main() {
       // Arrange
       final docRef = await fakeFirestore.collection(collectionName).add({
         NamaKolom.pesan: 'Akan di-soft-delete',
-        NamaKolom.diHapus: false,
+        NamaKolom.dihapus: false,
       });
 
       // Act
@@ -105,7 +105,7 @@ void main() {
 
       // Assert
       final updatedDoc = await docRef.get();
-      expect(updatedDoc.data()?[NamaKolom.diHapus], isTrue);
+      expect(updatedDoc.data()?[NamaKolom.dihapus], isTrue);
       expect(updatedDoc.data()?[NamaKolom.diarsipkanPada], isNotNull);
     });
   });

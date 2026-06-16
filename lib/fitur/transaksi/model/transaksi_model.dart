@@ -84,7 +84,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       poinDigunakan: (map[NamaKolom.poinDigunakan] as num? ?? 0).toInt(),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
-      diHapus: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       durasiPaket: (map[NamaKolom.durasiPaket] as num?)?.toInt(),
       tipeDurasiPaket: _safeParseEnum(
           TipeDurasiPaket.values, map[NamaKolom.tipeDurasiPaket]),
@@ -118,7 +118,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
-      NamaKolom.diHapus: diHapus ? 1 : 0,
+      NamaKolom.dihapus: diHapus ? 1 : 0,
       NamaKolom.durasiPaket: durasiPaket,
       NamaKolom.tipeDurasiPaket: tipeDurasiPaket?.name,
       NamaKolom.durasiBonus: durasiBonus,
@@ -155,7 +155,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       poinDigunakan: (data[NamaKolom.poinDigunakan] as num? ?? 0).toInt(),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
-      diHapus: ParserUtil.parseBool(data[NamaKolom.diHapus]),
+      diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       durasiPaket: (data[NamaKolom.durasiPaket] as num?)?.toInt(),
       tipeDurasiPaket: _safeParseEnum(
           TipeDurasiPaket.values, data[NamaKolom.tipeDurasiPaket]),
@@ -191,7 +191,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,
-      NamaKolom.diHapus: diHapus,
+      NamaKolom.dihapus: diHapus,
       NamaKolom.durasiPaket: durasiPaket,
       NamaKolom.tipeDurasiPaket: tipeDurasiPaket?.name,
       NamaKolom.durasiBonus: durasiBonus,

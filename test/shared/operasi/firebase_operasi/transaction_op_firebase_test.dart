@@ -234,7 +234,7 @@ void main() {
           .doc(t1.id)
           .get();
       expect(snapshot.exists, isTrue);
-      expect(snapshot.data()![NamaKolom.diHapus], isTrue);
+      expect(snapshot.data()![NamaKolom.dihapus], isTrue);
     });
 
     test('1.9. harus bisa mendapatkan paket aktif pelanggan', () async {

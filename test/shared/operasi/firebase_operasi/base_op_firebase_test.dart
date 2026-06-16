@@ -102,7 +102,7 @@ void main() {
         'softDelete() harus mengatur isDeleted dan memanggil updateGlobalStatus',
         () async {
       const docId = 'doc_to_soft_delete';
-      final data = <String, dynamic>{'id': docId, NamaKolom.diHapus: false};
+      final data = <String, dynamic>{'id': docId, NamaKolom.dihapus: false};
       await fakeFirestore.collection(collectionName).doc(docId).set(data);
 
       await baseOpFirebase.hapusSementara(collectionName, docId);
@@ -111,7 +111,7 @@ void main() {
           await fakeFirestore.collection(collectionName).doc(docId).get();
       final docData = dataAsMap(doc.data());
       expect(doc.exists, isTrue);
-      expect(docData?[NamaKolom.diHapus], isTrue);
+      expect(docData?[NamaKolom.dihapus], isTrue);
       expect(docData?.containsKey(NamaKolom.diarsipkanPada), isTrue);
       verify(mockStatusOpFirebase.updateGlobalStatus()).called(1);
     });
@@ -148,13 +148,13 @@ void main() {
       await fakeFirestore
           .collection(collectionName)
           .doc('doc1')
-          .set({'id': 'doc1', NamaKolom.diHapus: false});
+          .set({'id': 'doc1', NamaKolom.dihapus: false});
       await fakeFirestore
           .collection(collectionName)
           .doc('doc2')
-          .set({'id': 'doc2', NamaKolom.diHapus: false});
+          .set({'id': 'doc2', NamaKolom.dihapus: false});
       await fakeFirestore.collection(collectionName).doc('doc3').set(
-          {'id': 'doc3', NamaKolom.diHapus: true}); // Ini tidak akan tersentuh
+          {'id': 'doc3', NamaKolom.dihapus: true}); // Ini tidak akan tersentuh
 
       // JALANKAN
       final count = await baseOpFirebase.hapusSementaraSemua(collectionName);
@@ -167,10 +167,10 @@ void main() {
       final doc2 =
           await fakeFirestore.collection(collectionName).doc('doc2').get();
 
-      expect(dataAsMap(doc1.data())?[NamaKolom.diHapus], isTrue);
+      expect(dataAsMap(doc1.data())?[NamaKolom.dihapus], isTrue);
       expect(dataAsMap(doc1.data())?.containsKey(NamaKolom.diarsipkanPada),
           isTrue);
-      expect(dataAsMap(doc2.data())?[NamaKolom.diHapus], isTrue);
+      expect(dataAsMap(doc2.data())?[NamaKolom.dihapus], isTrue);
       expect(dataAsMap(doc2.data())?.containsKey(NamaKolom.diarsipkanPada),
           isTrue);
 

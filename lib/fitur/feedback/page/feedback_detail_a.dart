@@ -1,4 +1,4 @@
-// path: lib/fitur/feedback/page/feedback_detail_page_a.dart
+// path: lib/fitur/feedback/page/feedback_detail_a.dart
 
 import 'dart:async';
 
@@ -18,22 +18,22 @@ import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 ///
 /// Pengguna dapat melihat isi pesan, pengirim, dan tanggal.
 /// Terdapat juga opsi untuk menghapus item ini dari database.
-class FeedbackDetailPage extends ConsumerStatefulWidget {
+class FeedbackDetailA extends ConsumerStatefulWidget {
   /// ID unik dari dokumen kritik dan saran di Firestore.
   final String id;
 
-  /// Konstruktor untuk membuat instance [FeedbackDetailPage].
-  const FeedbackDetailPage({
+  /// Konstruktor untuk membuat instance [FeedbackDetailA].
+  const FeedbackDetailA({
     super.key,
     required this.id,
   });
 
   @override
-  ConsumerState<FeedbackDetailPage> createState() => _FeedbackDetailPageState();
+  ConsumerState<FeedbackDetailA> createState() => _FeedbackDetailPageState();
 }
 
-/// State untuk [FeedbackDetailPage].
-class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
+/// State untuk [FeedbackDetailA].
+class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
   late final FeedbackOpSqlite _feedbackOperation;
 
   late Future<FeedbackModel> _feedbackFuture;

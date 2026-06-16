@@ -35,7 +35,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       kataSandi: map[NamaKolom.kataSandi] as String? ?? '',
       macAddress: map[NamaKolom.macAddress] as String? ?? '',
       // DIUBAH: Menggunakan ParserUtil
-      diHapus: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
       terkahirAktif: ParserUtil.parseDateTime(map[NamaKolom.terkahirAktif]),
@@ -51,7 +51,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.alamat: alamat,
       NamaKolom.kataSandi: kataSandi,
       NamaKolom.macAddress: macAddress,
-      NamaKolom.diHapus: diHapus ? 1 : 0,
+      NamaKolom.dihapus: diHapus ? 1 : 0,
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
@@ -69,7 +69,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       alamat: data[NamaKolom.alamat] as String? ?? '',
       kataSandi: data[NamaKolom.kataSandi] as String? ?? '',
       macAddress: data[NamaKolom.macAddress] as String? ?? '',
-      diHapus: ParserUtil.parseBool(data[NamaKolom.diHapus]),
+      diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
       terkahirAktif: ParserUtil.parseDateTime(data[NamaKolom.terkahirAktif]),
@@ -85,7 +85,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.alamat: alamat,
       NamaKolom.kataSandi: kataSandi,
       NamaKolom.macAddress: macAddress,
-      NamaKolom.diHapus: diHapus,
+      NamaKolom.dihapus: diHapus,
       // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       NamaKolom.diperbaruiPada:
           Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),

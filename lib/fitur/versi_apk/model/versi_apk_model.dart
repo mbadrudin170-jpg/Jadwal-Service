@@ -109,7 +109,7 @@ abstract class VersiApkModel with _$VersiApkModel implements HasId {
       versiTerkahir: map[NamaKolom.versiTerkahir] as String? ?? '',
       linkYoutubeTutorial: map[NamaKolom.linkYoutubeTutorial] as String? ?? '',
       wajibUpdate: ParserUtil.parseBool(map[NamaKolom.wajibUpdate]),
-      diHapus: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       nomorBuildTerakhir: _parseBuildNumber(map[NamaKolom.nomorBuildTerakhir]),
       linkDownload: _parseDownloadLinks(map[NamaKolom.linkDownload]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
@@ -133,7 +133,7 @@ abstract class VersiApkModel with _$VersiApkModel implements HasId {
         linkDownload.map((key, value) => MapEntry(key.name, value)),
       ),
       NamaKolom.wajibUpdate: wajibUpdate ? 1 : 0,
-      NamaKolom.diHapus: diHapus ? 1 : 0,
+      NamaKolom.dihapus: diHapus ? 1 : 0,
     };
   }
 
@@ -148,7 +148,7 @@ abstract class VersiApkModel with _$VersiApkModel implements HasId {
       versiTerkahir: map[NamaKolom.versiTerkahir] as String? ?? '',
       linkYoutubeTutorial: map[NamaKolom.linkYoutubeTutorial] as String? ?? '',
       wajibUpdate: ParserUtil.parseBool(map[NamaKolom.wajibUpdate]),
-      diHapus: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       nomorBuildTerakhir: _parseBuildNumber(map[NamaKolom.nomorBuildTerakhir]),
       linkDownload: _parseDownloadLinks(map[NamaKolom.linkDownload]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
@@ -174,7 +174,7 @@ abstract class VersiApkModel with _$VersiApkModel implements HasId {
         (key, value) => MapEntry(key.name, value),
       ),
       NamaKolom.wajibUpdate: wajibUpdate,
-      NamaKolom.diHapus: diHapus,
+      NamaKolom.dihapus: diHapus,
     };
   }
 }

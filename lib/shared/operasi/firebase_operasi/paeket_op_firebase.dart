@@ -21,7 +21,7 @@ class PaketOpFirebase {
       final querySnapshot = await _collection
           .where(NamaKolom.statusPublik, isEqualTo: true)
           .where(NamaKolom.poinPenukaran, isGreaterThan: 0)
-          .where(NamaKolom.diHapus, isEqualTo: false)
+          .where(NamaKolom.dihapus, isEqualTo: false)
           .get();
       Log.info(
           'Menemukan ${querySnapshot.docs.length} paket publik yang tidak dihapus.');
@@ -85,7 +85,7 @@ class PaketOpFirebase {
     Log.info('Memulai soft delete paket di Firestore: $id');
     try {
       await _collection.doc(id).update({
-        NamaKolom.diHapus: true,
+        NamaKolom.dihapus: true,
         NamaKolom.diarsipkanPada: FieldValue.serverTimestamp(),
         NamaKolom.diperbaruiPada: FieldValue.serverTimestamp(),
       });

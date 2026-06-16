@@ -136,7 +136,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)));
 
       final daftarDompet =
-          (results[2] as List<DompetModel>).where((d) => !d.diHapus).toList();
+          (results[2] as List<DompetModel>).where((d) => !d.dihapus).toList();
 
       final semuaKategori = results[3] as List<KategoriModel>;
       final kategoriPemasukanList = semuaKategori
@@ -680,9 +680,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                 _pilihTanggal!.day,
                 _pilihJam!.hour,
                 _pilihJam!.minute);
-            final int nilaiBonus = _bonus
-                ? (int.tryParse(_bonusDurationController.text) ?? 0)
-                : 0;
+            final int nilaiBonus =
+                _bonus ? (int.tryParse(_bonusDurationController.text) ?? 0) : 0;
             final DateTime endDate = PerhitunganUtil.hitungTanggalBerakhir(
               startDate,
               _paketDipilih!,

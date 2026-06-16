@@ -50,7 +50,7 @@ class DompetOpSqlite {
       final db = await sqliteDb.database;
       final query = showArchived
           ? null
-          : '${NamaKolom.diHapus} = 0 AND ${NamaKolom.diarsipkanPada} IS NULL';
+          : '${NamaKolom.dihapus} = 0 AND ${NamaKolom.diarsipkanPada} IS NULL';
       final List<Map<String, dynamic>> maps = await db.query(
         _tabelDompet,
         where: query,
@@ -75,7 +75,7 @@ class DompetOpSqlite {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tabelDompet,
-        where: '${NamaKolom.id} = ? AND ${NamaKolom.diHapus} = 0',
+        where: '${NamaKolom.id} = ? AND ${NamaKolom.dihapus} = 0',
         whereArgs: [id],
       );
 
@@ -172,7 +172,7 @@ class DompetOpSqlite {
     try {
       final db = await sqliteDb.database;
       final result = await db.rawQuery(
-        'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tabelDompet WHERE ${NamaKolom.diHapus} = 0',
+        'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tabelDompet WHERE ${NamaKolom.dihapus} = 0',
       );
 
       double total = 0.0;
@@ -195,7 +195,7 @@ class DompetOpSqlite {
     try {
       final db = await sqliteDb.database;
       final result = await db.rawQuery(
-        'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tabelDompet WHERE ${NamaKolom.saldo} > 0 AND ${NamaKolom.diHapus} = 0',
+        'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tabelDompet WHERE ${NamaKolom.saldo} > 0 AND ${NamaKolom.dihapus} = 0',
       );
 
       double total = 0.0;
@@ -218,7 +218,7 @@ class DompetOpSqlite {
     try {
       final db = await sqliteDb.database;
       final result = await db.rawQuery(
-        'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tabelDompet WHERE ${NamaKolom.saldo} < 0 AND ${NamaKolom.diHapus} = 0',
+        'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tabelDompet WHERE ${NamaKolom.saldo} < 0 AND ${NamaKolom.dihapus} = 0',
       );
 
       double total = 0.0;

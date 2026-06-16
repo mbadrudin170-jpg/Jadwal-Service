@@ -30,7 +30,7 @@ class OrderOpsqlite {
     try {
       final db = await sqliteDb.database;
       final result = await db.rawQuery(
-        'SELECT COUNT(*) FROM $_tableName WHERE ${NamaKolom.status} = ? AND ${NamaKolom.diHapus} = 0',
+        'SELECT COUNT(*) FROM $_tableName WHERE ${NamaKolom.status} = ? AND ${NamaKolom.dihapus} = 0',
         [status.name],
       );
       final count = result.first.values.first as int? ?? 0;
@@ -88,7 +88,7 @@ class OrderOpsqlite {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${NamaKolom.diHapus} = 0',
+        where: '${NamaKolom.dihapus} = 0',
         orderBy: '${NamaKolom.tanggal} DESC',
       );
       Log.info('Berhasil mengambil ${maps.length} data pesanan aktif.');
@@ -107,7 +107,7 @@ class OrderOpsqlite {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${NamaKolom.status} = ? AND ${NamaKolom.diHapus} = 0',
+        where: '${NamaKolom.status} = ? AND ${NamaKolom.dihapus} = 0',
         whereArgs: [status.name],
         orderBy: '${NamaKolom.tanggal} DESC',
       );
@@ -225,8 +225,9 @@ class OrderOpsqlite {
     try {
       final data = items
           .map(
-            (item) =>
-                item.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite(),
+            (item) => item
+                .copyWith(diperbaruiPada: DateTime.now().toUtc())
+                .toSqlite(),
           )
           .toList();
       await baseOpSqlite.sisipkanAtauPerbaruiBatch(
@@ -253,7 +254,7 @@ class OrderOpsqlite {
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where:
-            '${NamaKolom.id} IN (${List.filled(ids.length, '?').join(',')}) AND ${NamaKolom.diHapus} = 0',
+            '${NamaKolom.id} IN (${List.filled(ids.length, '?').join(',')}) AND ${NamaKolom.dihapus} = 0',
         whereArgs: ids,
       );
       Log.info(

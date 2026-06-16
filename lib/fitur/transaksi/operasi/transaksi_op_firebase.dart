@@ -46,7 +46,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           .where(NamaKolom.statusPembayaran,
               isEqualTo: StatusPembayaran.paid.name)
-          .where(NamaKolom.diHapus, isEqualTo: false)
+          .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.tangglberakhir, descending: true)
           .limit(1)
           .get();
@@ -79,7 +79,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       Log.info('Mengambil semua transaksi untuk: $idPelanggan');
       final querySnapshot = await _koleksi
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
-          .where(NamaKolom.diHapus, isEqualTo: false)
+          .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.tanggal, descending: true)
           .get();
 
@@ -100,7 +100,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       Log.info('Menghitung total poin untuk: $idPelanggan');
       final querySnapshot = await _koleksi
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
-          .where(NamaKolom.diHapus, isEqualTo: false)
+          .where(NamaKolom.dihapus, isEqualTo: false)
           .where(NamaKolom.statusPembayaran,
               isEqualTo: StatusPembayaran.paid.name)
           .get();
@@ -160,7 +160,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
           // 1. Cari transaksi milik pelanggan yang benar
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           // 2. Pastikan transaksi tidak dihapus
-          .where(NamaKolom.diHapus, isEqualTo: false)
+          .where(NamaKolom.dihapus, isEqualTo: false)
           // 3. Filter utama: endDate harus lebih besar dari waktu sekarang
           .where(NamaKolom.tangglberakhir, isGreaterThan: now)
           .get();

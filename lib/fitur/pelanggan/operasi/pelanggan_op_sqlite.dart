@@ -54,7 +54,7 @@ class PelangganOpSqlite {
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
         where:
-            '${NamaKolom.diarsipkanPada} IS NULL AND ${NamaKolom.diHapus} = ?',
+            '${NamaKolom.diarsipkanPada} IS NULL AND ${NamaKolom.dihapus} = ?',
         whereArgs: [0],
       );
 

@@ -27,8 +27,7 @@ void main() {
 
     test('02. harus membuat instance DompetModel dengan id yang disediakan',
         () {
-      final dompet =
-          DompetModel(id: 'custom-id', nama: 'Dompet Custom');
+      final dompet = DompetModel(id: 'custom-id', nama: 'Dompet Custom');
       expect(dompet.id, 'custom-id');
       expect(dompet.nama, 'Dompet Custom');
     });
@@ -109,7 +108,7 @@ void main() {
           NamaKolom.nama: 'Dompet SQLite',
           NamaKolom.saldo: 75000.0,
           NamaKolom.diperbaruiPada: tanggalSekarang.millisecondsSinceEpoch,
-          NamaKolom.diHapus: 1,
+          NamaKolom.dihapus: 1,
           NamaKolom.diarsipkanPada: tanggalSekarang.millisecondsSinceEpoch,
         };
 
@@ -175,7 +174,7 @@ void main() {
         expect(peta[NamaKolom.saldo], 150000.0);
         expect(peta[NamaKolom.diperbaruiPada],
             tanggalSekarang.millisecondsSinceEpoch);
-        expect(peta[NamaKolom.diHapus], 0);
+        expect(peta[NamaKolom.dihapus], 0);
         expect(peta[NamaKolom.diarsipkanPada],
             tanggalSekarang.millisecondsSinceEpoch);
       });
@@ -191,13 +190,11 @@ void main() {
 
       test('17. harus mengubah isDeleted menjadi 1 jika true dan 0 jika false',
           () {
-        final dompetDihapus =
-            DompetModel(nama: 'Hapus', diHapus: true);
-        final dompetTidakDihapus =
-            DompetModel(nama: 'Tidak Hapus');
+        final dompetDihapus = DompetModel(nama: 'Hapus', dihapus: true);
+        final dompetTidakDihapus = DompetModel(nama: 'Tidak Hapus');
 
-        expect(dompetDihapus.toSqlite()[NamaKolom.diHapus], 1);
-        expect(dompetTidakDihapus.toSqlite()[NamaKolom.diHapus], 0);
+        expect(dompetDihapus.toSqlite()[NamaKolom.dihapus], 1);
+        expect(dompetTidakDihapus.toSqlite()[NamaKolom.dihapus], 0);
       });
     });
 
@@ -211,7 +208,7 @@ void main() {
           NamaKolom.nama: 'Dompet Firebase',
           NamaKolom.saldo: 250000.0,
           NamaKolom.diperbaruiPada: timestampFirebase,
-          NamaKolom.diHapus: true,
+          NamaKolom.dihapus: true,
           NamaKolom.diarsipkanPada: timestampFirebase,
         };
         final dompet = DompetModel.fromFirebase('fb-1', dataFirebase);
@@ -264,7 +261,7 @@ void main() {
         expect(peta[NamaKolom.id], 'dompet-123');
         expect(peta[NamaKolom.nama], 'Dompet Utama');
         expect(peta[NamaKolom.saldo], 150000.0);
-        expect(peta[NamaKolom.diHapus], false);
+        expect(peta[NamaKolom.dihapus], false);
         expect(peta[NamaKolom.diperbaruiPada], timestampUTC);
         expect(peta[NamaKolom.diarsipkanPada], timestampUTC);
       });
@@ -281,8 +278,8 @@ void main() {
       test(
           '23. harus mengubah archivedAt menjadi Timestamp UTC jika tidak null',
           () {
-        final dompetDenganArsip = DompetModel(
-            nama: 'Arsip', diarsipkanPada: tanggalSekarang);
+        final dompetDenganArsip =
+            DompetModel(nama: 'Arsip', diarsipkanPada: tanggalSekarang);
         final peta = dompetDenganArsip.toFirebase();
 
         expect(peta[NamaKolom.diarsipkanPada], isA<Timestamp>());

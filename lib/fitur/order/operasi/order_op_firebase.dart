@@ -48,7 +48,7 @@ class OrderOpFirebase extends BaseOpFirebase {
     Log.info('Mendapatkan stream semua pesanan');
     return _firestore
         .collection(_collectionName)
-        .where(NamaKolom.diHapus, isEqualTo: false)
+        .where(NamaKolom.dihapus, isEqualTo: false)
         .orderBy(NamaKolom.diperbaruiPada, descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
@@ -90,7 +90,7 @@ class OrderOpFirebase extends BaseOpFirebase {
     try {
       return _firestore
           .collection(_collectionName)
-          .where(NamaKolom.diHapus, isEqualTo: false)
+          .where(NamaKolom.dihapus, isEqualTo: false)
           .where(NamaKolom.idPelanggan, isEqualTo: userId)
           .snapshots()
           .map((snapshot) => snapshot.docs
@@ -112,7 +112,7 @@ class OrderOpFirebase extends BaseOpFirebase {
     return _firestore
         .collection(_collectionName)
         .where(NamaKolom.status, isEqualTo: status.name)
-        .where(NamaKolom.diHapus, isEqualTo: false)
+        .where(NamaKolom.dihapus, isEqualTo: false)
         .orderBy(NamaKolom.diperbaruiPada, descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
@@ -136,7 +136,7 @@ class OrderOpFirebase extends BaseOpFirebase {
       final snapshot = await _firestore
           .collection(_collectionName)
           .where(NamaKolom.status, isEqualTo: status.name)
-          .where(NamaKolom.diHapus, isEqualTo: false)
+          .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.diperbaruiPada, descending: true)
           .get();
       return snapshot.docs
@@ -161,7 +161,7 @@ class OrderOpFirebase extends BaseOpFirebase {
       Query query = _firestore
           .collection(_collectionName)
           .where(NamaKolom.status, isEqualTo: status.name)
-          .where(NamaKolom.diHapus, isEqualTo: false);
+          .where(NamaKolom.dihapus, isEqualTo: false);
 
       // Jika userId disediakan (bukan admin), filter berdasarkan customerId
       if (userId.isNotEmpty) {

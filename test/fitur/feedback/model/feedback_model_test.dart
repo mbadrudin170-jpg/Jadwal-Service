@@ -74,7 +74,7 @@ void main() {
         NamaKolom.userId: 'user123',
         NamaKolom.tanggal: tanggal.millisecondsSinceEpoch,
         NamaKolom.diperbaruiPada: diperbaruiPada.millisecondsSinceEpoch,
-        NamaKolom.diHapus: 1,
+        NamaKolom.dihapus: 1,
         NamaKolom.diarsipkanPada: diarsipkanPada.millisecondsSinceEpoch,
       };
 
@@ -100,7 +100,7 @@ void main() {
           NamaKolom.userId: null,
           NamaKolom.tanggal: null,
           NamaKolom.diperbaruiPada: null,
-          NamaKolom.diHapus: null,
+          NamaKolom.dihapus: null,
           NamaKolom.diarsipkanPada: null,
         };
 
@@ -125,7 +125,7 @@ void main() {
         expect(map[NamaKolom.tanggal], tanggal.millisecondsSinceEpoch);
         expect(map[NamaKolom.diperbaruiPada],
             diperbaruiPada.millisecondsSinceEpoch);
-        expect(map[NamaKolom.diHapus], 0);
+        expect(map[NamaKolom.dihapus], 0);
         expect(map[NamaKolom.diarsipkanPada],
             diarsipkanPada.millisecondsSinceEpoch);
       });
@@ -142,7 +142,7 @@ void main() {
         expect(map[NamaKolom.tanggal], isA<int>());
         expect(map[NamaKolom.diperbaruiPada], isA<int>());
         expect(map[NamaKolom.diarsipkanPada], isNull);
-        expect(map[NamaKolom.diHapus], 0);
+        expect(map[NamaKolom.dihapus], 0);
       });
     });
 
@@ -152,7 +152,7 @@ void main() {
         NamaKolom.userId: 'user123',
         NamaKolom.tanggal: Timestamp.fromDate(tanggal),
         NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada),
-        NamaKolom.diHapus: false,
+        NamaKolom.dihapus: false,
         NamaKolom.diarsipkanPada: Timestamp.fromDate(diarsipkanPada),
       };
 
@@ -174,7 +174,7 @@ void main() {
           NamaKolom.userId: null,
           NamaKolom.tanggal: null,
           NamaKolom.diperbaruiPada: null,
-          NamaKolom.diHapus: null,
+          NamaKolom.dihapus: null,
           NamaKolom.diarsipkanPada: null,
         };
 
@@ -199,7 +199,7 @@ void main() {
         expect(map[NamaKolom.tanggal], Timestamp.fromDate(tanggal.toUtc()));
         expect(map[NamaKolom.diperbaruiPada],
             Timestamp.fromDate(diperbaruiPada.toUtc()));
-        expect(map[NamaKolom.diHapus], false);
+        expect(map[NamaKolom.dihapus], false);
         expect(map[NamaKolom.diarsipkanPada],
             Timestamp.fromDate(diarsipkanPada.toUtc()));
       });
@@ -216,7 +216,7 @@ void main() {
         expect(map[NamaKolom.tanggal], isA<Timestamp>());
         expect(map[NamaKolom.diperbaruiPada], isA<Timestamp>());
         expect(map[NamaKolom.diarsipkanPada], isNull);
-        expect(map[NamaKolom.diHapus], false);
+        expect(map[NamaKolom.dihapus], false);
       });
     });
   });

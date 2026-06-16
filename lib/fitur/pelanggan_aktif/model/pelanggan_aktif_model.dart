@@ -52,7 +52,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
           orElse: () => StatusPembayaran.paid,
         ),
         diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
-        diHapus: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+        diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
         diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
       );
       Log.info('ActiveCustomerModel loaded from SQLite: ${model.id}');
@@ -74,7 +74,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
       NamaKolom.status: status.name,
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
-      NamaKolom.diHapus: diHapus ? 1 : 0,
+      NamaKolom.dihapus: diHapus ? 1 : 0,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
     };
   }
@@ -107,7 +107,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
         ),
         diperbaruiPada:
             ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
-        diHapus: ParserUtil.parseBool(data[NamaKolom.diHapus]),
+        diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
         diarsipkanPada:
             ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
       );
@@ -129,7 +129,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
       NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai.toUtc()),
       NamaKolom.tangglberakhir: Timestamp.fromDate(tanggalBerakhir.toUtc()),
       NamaKolom.status: status.name,
-      NamaKolom.diHapus: diHapus,
+      NamaKolom.dihapus: diHapus,
       NamaKolom.diperbaruiPada:
           Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
       NamaKolom.diarsipkanPada: diarsipkanPada != null

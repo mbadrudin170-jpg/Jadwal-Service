@@ -2,7 +2,7 @@
 
 abstract final class NamaKolom {
   static const String id = 'id';
-  static const String diHapus = 'is_deleted';
+  static const String dihapus = 'is_deleted';
   static const String diperbaruiPada = 'updated_at';
   static const String diarsipkanPada = 'archived_at';
   static const String nama = 'name';

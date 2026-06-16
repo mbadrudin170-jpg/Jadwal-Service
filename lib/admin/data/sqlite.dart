@@ -481,7 +481,7 @@ class SqliteDatabase {
       'CREATE INDEX IF NOT EXISTS idx_transaction_destination_wallet_id ON $trxTable(${NamaKolom.idDompetTujuan})',
     );
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaction_is_deleted ON $trxTable(${NamaKolom.diHapus})',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_is_deleted ON $trxTable(${NamaKolom.dihapus})',
     );
     Log.info('Semua 3 definisi index (v51) ditambahkan ke batch.');
   }
@@ -513,7 +513,7 @@ class SqliteDatabase {
       ${NamaKolom.nama} TEXT NOT NULL,
       ${NamaKolom.saldo} REAL NOT NULL,
       ${NamaKolom.diperbaruiPada} INTEGER,
-      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.diarsipkanPada} INTEGER
     )
   ''';
@@ -532,7 +532,7 @@ class SqliteDatabase {
       ${NamaKolom.idPaket} TEXT,
       ${NamaKolom.diperbaruiPada} INTEGER,
       ${NamaKolom.diarsipkanPada} INTEGER,
-      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.idDompetTujuan} TEXT,
       ${NamaKolom.poinDidapat} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.poinDigunakan} INTEGER NOT NULL DEFAULT 0,
@@ -556,7 +556,7 @@ class SqliteDatabase {
       ${NamaKolom.versiTerkahir} TEXT NOT NULL,
       ${NamaKolom.wajibUpdate} INTEGER NOT NULL,
       ${NamaKolom.linkYoutubeTutorial} TEXT NOT NULL,
-      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.diarsipkanPada} INTEGER,
       ${NamaKolom.diperbaruiPada} INTEGER
     )
@@ -597,7 +597,7 @@ class SqliteDatabase {
       ${NamaKolom.tipe} TEXT NOT NULL,
       ${NamaKolom.idSubKategori} TEXT,
       ${NamaKolom.diperbaruiPada} INTEGER,
-      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.diarsipkanPada} INTEGER
     )
   ''';
@@ -608,7 +608,7 @@ class SqliteDatabase {
       ${NamaKolom.nama} TEXT NOT NULL,
       ${NamaKolom.idKategori} TEXT NOT NULL,
       ${NamaKolom.diperbaruiPada} INTEGER,
-      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.diarsipkanPada} INTEGER,
       FOREIGN KEY (${NamaKolom.idKategori}) REFERENCES ${NamaTabel.kategori} (${NamaKolom.id}) ON DELETE CASCADE
     )
@@ -623,7 +623,7 @@ class SqliteDatabase {
       ${NamaKolom.tipe} TEXT NOT NULL,
       ${NamaKolom.poinDidapat} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.diperbaruiPada} INTEGER,
-      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.diarsipkanPada} INTEGER,
       ${NamaKolom.poinHadiah} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.poinPenukaran} INTEGER NOT NULL DEFAULT 0,
@@ -642,7 +642,7 @@ class SqliteDatabase {
       ${NamaKolom.status} TEXT NOT NULL DEFAULT 'aktif',
       ${NamaKolom.diperbaruiPada} INTEGER,
       ${NamaKolom.diarsipkanPada} INTEGER,
-      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.terkahirAktif} INTEGER
     )
   ''';
@@ -657,7 +657,7 @@ class SqliteDatabase {
       ${NamaKolom.tangglberakhir} INTEGER,
       ${NamaKolom.status} TEXT NOT NULL,
       ${NamaKolom.diperbaruiPada} INTEGER,
-      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.diarsipkanPada} INTEGER,
       FOREIGN KEY (${NamaKolom.idPelanggan}) REFERENCES ${NamaTabel.pelanggan} (${NamaKolom.id}) ON DELETE CASCADE ON UPDATE CASCADE,
       FOREIGN KEY (${NamaKolom.idPaket}) REFERENCES ${NamaTabel.paket} (${NamaKolom.id}) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -672,7 +672,7 @@ class SqliteDatabase {
       ${NamaKolom.tanggal} INTEGER NOT NULL,
       ${NamaKolom.userId} TEXT NOT NULL,
       ${NamaKolom.diperbaruiPada} INTEGER,
-      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.diarsipkanPada} INTEGER,
       FOREIGN KEY (${NamaKolom.userId}) REFERENCES ${NamaTabel.pelanggan} (${NamaKolom.id}) ON DELETE CASCADE
     )
@@ -686,7 +686,7 @@ class SqliteDatabase {
       ${NamaKolom.tanggal} INTEGER NOT NULL,
       ${NamaKolom.status} TEXT,
       ${NamaKolom.diperbaruiPada} INTEGER,
-      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.diarsipkanPada} INTEGER,
       FOREIGN KEY (${NamaKolom.idPelanggan}) REFERENCES ${NamaTabel.pelanggan} (${NamaKolom.id}) ON DELETE CASCADE,
       FOREIGN KEY (${NamaKolom.idPaket}) REFERENCES ${NamaTabel.paket} (${NamaKolom.id}) ON DELETE CASCADE
@@ -701,7 +701,7 @@ class SqliteDatabase {
       ${NamaKolom.tanggal} INTEGER NOT NULL,
       ${NamaKolom.status} TEXT NOT NULL,
       ${NamaKolom.diperbaruiPada} INTEGER,
-      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.diarsipkanPada} INTEGER
     )
   ''';

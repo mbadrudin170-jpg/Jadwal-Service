@@ -32,7 +32,7 @@ class FirebaseMigrationService {
       'saldo': NamaKolom.saldo,
       'diperbarui': NamaKolom.diperbaruiPada,
       'diarsipkan': NamaKolom.diarsipkanPada,
-      'isDeleted': NamaKolom.diHapus,
+      'isDeleted': NamaKolom.dihapus,
     },
     NamaTabel.kategori: {
       'nama': NamaKolom.nama,
@@ -40,14 +40,14 @@ class FirebaseMigrationService {
       'id_sub_kategori': NamaKolom.idSubKategori,
       'diperbarui': NamaKolom.diperbaruiPada,
       'diarsipkan': NamaKolom.diarsipkanPada,
-      'isDeleted': NamaKolom.diHapus,
+      'isDeleted': NamaKolom.dihapus,
     },
     NamaTabel.subKategori: {
       'nama': NamaKolom.nama,
       'id_kategori': NamaKolom.idKategori,
       'diperbarui': NamaKolom.diperbaruiPada,
       'diarsipkan': NamaKolom.diarsipkanPada,
-      'isDeleted': NamaKolom.diHapus,
+      'isDeleted': NamaKolom.dihapus,
     },
     NamaTabel.paket: {
       'nama': NamaKolom.nama,
@@ -60,7 +60,7 @@ class FirebaseMigrationService {
       'poin_hadiah': NamaKolom.poinHadiah,
       'poin_penukaran': NamaKolom.poinPenukaran,
       'isPublic': NamaKolom.statusPublik,
-      'isDeleted': NamaKolom.diHapus,
+      'isDeleted': NamaKolom.dihapus,
     },
     NamaTabel.pelanggan: {
       'nama': NamaKolom.nama,
@@ -71,7 +71,7 @@ class FirebaseMigrationService {
       'status': NamaKolom.status,
       'diperbarui': NamaKolom.diperbaruiPada,
       'diarsipkan': NamaKolom.diarsipkanPada,
-      'isDeleted': NamaKolom.diHapus,
+      'isDeleted': NamaKolom.dihapus,
     },
     NamaTabel.pelangganAktif: {
       'id_pelanggan': NamaKolom.idPelanggan,
@@ -86,7 +86,7 @@ class FirebaseMigrationService {
       'status': NamaKolom.status,
       'diperbarui': NamaKolom.diperbaruiPada,
       'diarsipkan': NamaKolom.diarsipkanPada,
-      'isDeleted': NamaKolom.diHapus,
+      'isDeleted': NamaKolom.dihapus,
     },
     NamaTabel.transaksi: {
       'keterangan': NamaKolom.deskripsi,
@@ -115,7 +115,7 @@ class FirebaseMigrationService {
       'tipeDurasiPaket': NamaKolom.tipeDurasiPaket,
       'aktivasiPaket': NamaKolom.statusAktivasi,
       'durasiPaket': NamaKolom.durasiPaket,
-      'isDeleted': NamaKolom.diHapus,
+      'isDeleted': NamaKolom.dihapus,
     },
     NamaTabel.feedback: {
       'isi': NamaKolom.pesan,
@@ -123,7 +123,7 @@ class FirebaseMigrationService {
       'userId': NamaKolom.userId,
       'diperbarui': NamaKolom.diperbaruiPada,
       'diarsipkan': NamaKolom.diarsipkanPada,
-      'isDeleted': NamaKolom.diHapus,
+      'isDeleted': NamaKolom.dihapus,
     },
     NamaTabel.pesananPelanggan: {
       'id_pelanggan': NamaKolom.idPelanggan,
@@ -132,7 +132,7 @@ class FirebaseMigrationService {
       'status': NamaKolom.status,
       'diperbarui': NamaKolom.diperbaruiPada,
       'diarsipkan': NamaKolom.diarsipkanPada,
-      'isDeleted': NamaKolom.diHapus,
+      'isDeleted': NamaKolom.dihapus,
     },
     NamaTabel.versiApkUser: {
       'catatan_rilis': NamaKolom.catatanRilis,
@@ -143,7 +143,7 @@ class FirebaseMigrationService {
       'youtube_tutorial': NamaKolom.linkYoutubeTutorial,
       'diperbarui': NamaKolom.diperbaruiPada,
       'diarsipkan': NamaKolom.diarsipkanPada,
-      'isDeleted': NamaKolom.diHapus,
+      'isDeleted': NamaKolom.dihapus,
     },
     NamaTabel.settings: {
       'interval_sinkronisasi_otomatis': NamaKolom.waktuOtomatisSinkroniasi,

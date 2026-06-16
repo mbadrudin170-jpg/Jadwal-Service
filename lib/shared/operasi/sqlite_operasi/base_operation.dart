@@ -241,7 +241,7 @@ class BaseOpSqlite {
           final rowsAffected = await txn.update(
             table,
             {
-              NamaKolom.diHapus: 1,
+              NamaKolom.dihapus: 1,
               NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
               NamaKolom.diperbaruiPada: now.millisecondsSinceEpoch,
             },
@@ -287,11 +287,11 @@ class BaseOpSqlite {
           final rowsAffected = await txn.update(
             table,
             {
-              NamaKolom.diHapus: 1,
+              NamaKolom.dihapus: 1,
               NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
               NamaKolom.diperbaruiPada: now.millisecondsSinceEpoch,
             },
-            where: '${NamaKolom.diHapus} = 0',
+            where: '${NamaKolom.dihapus} = 0',
           );
 
           Log.info(

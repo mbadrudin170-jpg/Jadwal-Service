@@ -97,7 +97,7 @@ class StatistikOpSqlite {
           END
         ) as total
         FROM $namaTabel
-        WHERE ${NamaKolom.diHapus} = 0
+        WHERE ${NamaKolom.dihapus} = 0
         ''',
         [statusLunas, statusBelumLunas],
       );
@@ -129,7 +129,7 @@ class StatistikOpSqlite {
         '''
         SELECT COUNT(*) 
         FROM $namaTabel 
-        WHERE ${NamaKolom.diHapus} = 0
+        WHERE ${NamaKolom.dihapus} = 0
         ''',
       );
 

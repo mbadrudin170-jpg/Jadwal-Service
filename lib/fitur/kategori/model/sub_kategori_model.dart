@@ -26,7 +26,7 @@ abstract class SubKategoriModel with _$SubKategoriModel implements HasId {
       nama: map[NamaKolom.nama] as String? ?? '',
       idKategori: map[NamaKolom.idKategori] as String? ?? '',
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
-      diHapus: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
     );
   }
@@ -38,7 +38,7 @@ abstract class SubKategoriModel with _$SubKategoriModel implements HasId {
       NamaKolom.idKategori: idKategori,
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
-      NamaKolom.diHapus: diHapus ? 1 : 0,
+      NamaKolom.dihapus: diHapus ? 1 : 0,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
     };
   }
@@ -50,7 +50,7 @@ abstract class SubKategoriModel with _$SubKategoriModel implements HasId {
       nama: data[NamaKolom.nama] as String? ?? '',
       idKategori: data[NamaKolom.idKategori] as String? ?? '',
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
-      diHapus: ParserUtil.parseBool(data[NamaKolom.diHapus]),
+      diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
   }
@@ -62,7 +62,7 @@ abstract class SubKategoriModel with _$SubKategoriModel implements HasId {
       NamaKolom.idKategori: idKategori,
       NamaKolom.diperbaruiPada:
           Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
-      NamaKolom.diHapus: diHapus,
+      NamaKolom.dihapus: diHapus,
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,

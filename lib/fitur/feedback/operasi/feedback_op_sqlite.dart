@@ -71,7 +71,7 @@ class FeedbackOpSqlite {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _namaTabel,
-        where: '${NamaKolom.diHapus} = 0',
+        where: '${NamaKolom.dihapus} = 0',
         orderBy: '${NamaKolom.tanggal} DESC',
       );
       final feedbackList = List.generate(

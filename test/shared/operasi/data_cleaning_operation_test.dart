@@ -40,7 +40,7 @@ void main() {
       CREATE TABLE $testTable (
         id TEXT PRIMARY KEY,
         name TEXT,
-        ${NamaKolom.diHapus} INTEGER DEFAULT 0,
+        ${NamaKolom.dihapus} INTEGER DEFAULT 0,
         ${NamaKolom.diarsipkanPada} INTEGER
       )
     ''');
@@ -76,12 +76,12 @@ void main() {
     await mockDatabase.insert(testTable, {
       'id': oldDataIdSqlite,
       'name': 'Old User SQLite',
-      NamaKolom.diHapus: 1,
+      NamaKolom.dihapus: 1,
       NamaKolom.diarsipkanPada:
           timeLimit.subtract(const Duration(days: 1)).millisecondsSinceEpoch,
     });
     await fakeFirestore.collection(testTable).doc(oldDataIdFirestore).set({
-      NamaKolom.diHapus: true,
+      NamaKolom.dihapus: true,
       NamaKolom.diarsipkanPada: Timestamp.fromDate(
         timeLimit.subtract(const Duration(days: 1)),
       ),
@@ -93,11 +93,11 @@ void main() {
     await mockDatabase.insert(testTable, {
       'id': newDataIdSqlite,
       'name': 'New User SQLite',
-      NamaKolom.diHapus: 1,
+      NamaKolom.dihapus: 1,
       NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
     });
     await fakeFirestore.collection(testTable).doc(newDataIdFirestore).set({
-      NamaKolom.diHapus: true,
+      NamaKolom.dihapus: true,
       NamaKolom.diarsipkanPada: Timestamp.now(),
     });
 

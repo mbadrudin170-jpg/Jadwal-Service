@@ -35,7 +35,7 @@ abstract class OrderModel with _$OrderModel implements HasId {
           ParserUtil.parseDateTime(map[NamaKolom.tanggal]) ?? DateTime.now(),
       status: _parseStatus(map[NamaKolom.status]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
-      diHapus: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
     );
   }
@@ -49,7 +49,7 @@ abstract class OrderModel with _$OrderModel implements HasId {
       NamaKolom.status: status.name,
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
-      NamaKolom.diHapus: diHapus ? 1 : 0,
+      NamaKolom.dihapus: diHapus ? 1 : 0,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
     };
   }
@@ -65,7 +65,7 @@ abstract class OrderModel with _$OrderModel implements HasId {
           (data[NamaKolom.tanggal] as Timestamp?)?.toDate() ?? DateTime.now(),
       status: _parseStatus(data[NamaKolom.status]),
       diperbaruiPada: (data[NamaKolom.diperbaruiPada] as Timestamp?)?.toDate(),
-      diHapus: data[NamaKolom.diHapus] as bool? ?? false,
+      diHapus: data[NamaKolom.dihapus] as bool? ?? false,
       diarsipkanPada: (data[NamaKolom.diarsipkanPada] as Timestamp?)?.toDate(),
     );
   }
@@ -79,7 +79,7 @@ abstract class OrderModel with _$OrderModel implements HasId {
       NamaKolom.status: status.name,
       NamaKolom.diperbaruiPada:
           Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
-      NamaKolom.diHapus: diHapus,
+      NamaKolom.dihapus: diHapus,
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,

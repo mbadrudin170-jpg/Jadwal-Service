@@ -110,7 +110,7 @@ class NotifikasiModel implements HasId {
           DateTime.now(),
       idTujuan: map[NamaKolom.idTujuan] as String? ?? '',
       userId: map[NamaKolom.userId] as String? ?? '',
-      isDeleted: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       archivedAt: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
       tanggalTampil: ParserUtil.parseDateTime(map[NamaKolom.tanggalTampil]) ??
           DateTime.now(),
@@ -129,7 +129,7 @@ class NotifikasiModel implements HasId {
       NamaKolom.diperbaruiPada: updatedAt.millisecondsSinceEpoch,
       NamaKolom.idTujuan: idTujuan,
       NamaKolom.userId: userId,
-      NamaKolom.diHapus: isDeleted ? 1 : 0,
+      NamaKolom.dihapus: isDeleted ? 1 : 0,
       NamaKolom.diarsipkanPada: archivedAt?.millisecondsSinceEpoch,
       NamaKolom.tanggalTampil: tanggalTampil.millisecondsSinceEpoch,
     };
@@ -158,7 +158,7 @@ class NotifikasiModel implements HasId {
           DateTime.now(),
       idTujuan: data[NamaKolom.idTujuan] as String? ?? '',
       userId: data[NamaKolom.userId] as String? ?? '',
-      isDeleted: ParserUtil.parseBool(data[NamaKolom.diHapus]),
+      isDeleted: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       archivedAt: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
   }
@@ -175,7 +175,7 @@ class NotifikasiModel implements HasId {
       NamaKolom.diperbaruiPada: Timestamp.fromDate(updatedAt.toUtc()),
       NamaKolom.idTujuan: idTujuan,
       NamaKolom.userId: userId,
-      NamaKolom.diHapus: isDeleted,
+      NamaKolom.dihapus: isDeleted,
       NamaKolom.tanggalTampil: Timestamp.fromDate(tanggalTampil.toUtc()),
       NamaKolom.diarsipkanPada:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,

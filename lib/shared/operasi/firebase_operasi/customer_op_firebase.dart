@@ -71,7 +71,7 @@ class CustomerOpFirebase {
     Log.info('Mengambil semua pelanggan aktif...');
     try {
       final querySnapshot = await _koleksiPelanggan
-          .where(NamaKolom.diHapus, isEqualTo: false)
+          .where(NamaKolom.dihapus, isEqualTo: false)
           .get();
 
       if (querySnapshot.docs.isEmpty) {

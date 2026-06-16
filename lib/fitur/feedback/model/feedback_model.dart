@@ -32,7 +32,7 @@ abstract class FeedbackModel with _$FeedbackModel implements HasId {
       userId: map[NamaKolom.userId] as String? ?? '',
       tanggal: ParserUtil.parseDateTime(map[NamaKolom.tanggal]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
-      dihapus: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      dihapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
     );
   }
@@ -45,7 +45,7 @@ abstract class FeedbackModel with _$FeedbackModel implements HasId {
       NamaKolom.tanggal: (tanggal ?? DateTime.now()).millisecondsSinceEpoch,
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
-      NamaKolom.diHapus: dihapus ? 1 : 0,
+      NamaKolom.dihapus: dihapus ? 1 : 0,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
     };
   }
@@ -59,7 +59,7 @@ abstract class FeedbackModel with _$FeedbackModel implements HasId {
       userId: data[NamaKolom.userId] as String? ?? '',
       tanggal: ParserUtil.parseDateTime(data[NamaKolom.tanggal]),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
-      dihapus: ParserUtil.parseBool(data[NamaKolom.diHapus]),
+      dihapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
   }
@@ -72,7 +72,7 @@ abstract class FeedbackModel with _$FeedbackModel implements HasId {
       NamaKolom.tanggal: tanggal != null
           ? Timestamp.fromDate(tanggal!.toUtc())
           : DateTime.now().toUtc(),
-      NamaKolom.diHapus: dihapus,
+      NamaKolom.dihapus: dihapus,
       NamaKolom.diperbaruiPada:
           Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
       NamaKolom.diarsipkanPada: diarsipkanPada != null

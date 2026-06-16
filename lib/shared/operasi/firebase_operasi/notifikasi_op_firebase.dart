@@ -24,7 +24,7 @@ class NotifikasiOpFirebase {
     final now = DateTime.now();
     return _firestore
         .collection(_collection)
-        .where(NamaKolom.diHapus, isEqualTo: false)
+        .where(NamaKolom.dihapus, isEqualTo: false)
         .where(NamaKolom.setatusDibaca, isEqualTo: false)
         .where(NamaKolom.tanggalTampil,
             isLessThanOrEqualTo: Timestamp.fromDate(now))
@@ -42,7 +42,7 @@ class NotifikasiOpFirebase {
         .collection(_collection)
         .where(NamaKolom.userId,
             isEqualTo: userId) // Diperbaiki dari idTujuan ke userId
-        .where(NamaKolom.diHapus, isEqualTo: false)
+        .where(NamaKolom.dihapus, isEqualTo: false)
         .where(NamaKolom.setatusDibaca, isEqualTo: false)
         .snapshots()
         .map((snapshot) => snapshot.docs
@@ -58,7 +58,7 @@ class NotifikasiOpFirebase {
         .map((snapshot) {
       if (!snapshot.exists) return [];
       final data = snapshot.data()!;
-      if (data[NamaKolom.diHapus] == true ||
+      if (data[NamaKolom.dihapus] == true ||
           data[NamaKolom.setatusDibaca] == true) {
         return [];
       }
@@ -75,7 +75,7 @@ class NotifikasiOpFirebase {
           TipeNotifikasiEnum.transaksi.name
         ])
         .where(NamaKolom.setatusDibaca, isEqualTo: false)
-        .where(NamaKolom.diHapus, isEqualTo: false)
+        .where(NamaKolom.dihapus, isEqualTo: false)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => NotifikasiModel.fromFirebase(doc.id, doc.data()))

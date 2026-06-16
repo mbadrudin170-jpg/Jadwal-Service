@@ -105,7 +105,7 @@ class PembersihanDataOperasi {
         // Ini membutuhkan composite index di Firestore: (isDeleted, archivedAt).
         return _firestore
             .collection(namaKleksi)
-            .where(NamaKolom.diHapus, isEqualTo: true)
+            .where(NamaKolom.dihapus, isEqualTo: true)
             .where(NamaKolom.diarsipkanPada, isLessThanOrEqualTo: timeLimit)
             .get();
       }).toList();

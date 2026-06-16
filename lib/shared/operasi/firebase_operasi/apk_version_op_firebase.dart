@@ -29,7 +29,7 @@ class ApkVersionOpFirebase {
     Log.info('Memulai mengambil versi APK terbaru');
     try {
       final query = await _colection
-          .where(NamaKolom.diHapus, isEqualTo: false)
+          .where(NamaKolom.dihapus, isEqualTo: false)
           .where(NamaKolom.diarsipkanPada, isNull: true)
           .orderBy(NamaKolom.diperbaruiPada, descending: true)
           .limit(1)

@@ -113,7 +113,7 @@ void main() {
 
         when(() => mockCollectionReference
             .where(NamaKolom.userId, isEqualTo: userId)
-            .where(NamaKolom.diHapus, isEqualTo: false)
+            .where(NamaKolom.dihapus, isEqualTo: false)
             .orderBy(NamaKolom.tanggal, descending: true)
             .snapshots()).thenAnswer((_) => Stream.value(mockQuerySnapshot));
 
@@ -134,7 +134,7 @@ void main() {
 
         when(() => mockCollectionReference
             .where(NamaKolom.userId, isEqualTo: userId)
-            .where(NamaKolom.diHapus, isEqualTo: false)
+            .where(NamaKolom.dihapus, isEqualTo: false)
             .orderBy(NamaKolom.tanggal, descending: true)
             .snapshots()).thenAnswer((_) => Stream.value(mockQuerySnapshot));
 
@@ -150,7 +150,7 @@ void main() {
 
         when(() => mockCollectionReference
             .where(NamaKolom.userId, isEqualTo: userId)
-            .where(NamaKolom.diHapus, isEqualTo: false)
+            .where(NamaKolom.dihapus, isEqualTo: false)
             .orderBy(NamaKolom.tanggal, descending: true)
             .snapshots()).thenAnswer((_) => Stream.error(error));
 

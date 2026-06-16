@@ -64,7 +64,7 @@ class FeedbackOpFirebase {
     Log.info('Memuat feedback untuk userId: $userId');
     return _collection
         .where(NamaKolom.userId, isEqualTo: userId)
-        .where(NamaKolom.diHapus, isEqualTo: false)
+        .where(NamaKolom.dihapus, isEqualTo: false)
         .orderBy(NamaKolom.tanggal, descending: true)
         .snapshots()
         .map((snapshot) {

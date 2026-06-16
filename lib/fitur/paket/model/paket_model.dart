@@ -27,7 +27,7 @@ abstract class PaketModel with _$PaketModel implements HasId {
     @Default(false) bool statusHapus,
     DateTime? diarsipkanPada,
   }) = _PaketModel;
-  
+
   // 👇 Method custom (tidak berubah dari kode asli Anda)
   static TipeDurasiPaket _parseType(dynamic value) {
     return TipeDurasiPaket.values.firstWhere(
@@ -47,7 +47,7 @@ abstract class PaketModel with _$PaketModel implements HasId {
       poinHadiah: map[NamaKolom.poinHadiah] as int? ?? 0,
       poinPenukaran: map[NamaKolom.poinPenukaran] as int? ?? 0,
       statusPublik: ParserUtil.parseBool(map[NamaKolom.statusPublik]),
-      statusHapus: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      statusHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
     );
@@ -63,7 +63,7 @@ abstract class PaketModel with _$PaketModel implements HasId {
       NamaKolom.poinHadiah: poinHadiah,
       NamaKolom.poinPenukaran: poinPenukaran,
       NamaKolom.statusPublik: statusPublik ? 1 : 0,
-      NamaKolom.diHapus: statusHapus ? 1 : 0,
+      NamaKolom.dihapus: statusHapus ? 1 : 0,
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).toUtc().millisecondsSinceEpoch,
       NamaKolom.diarsipkanPada: diarsipkanPada?.toUtc().millisecondsSinceEpoch,
@@ -81,7 +81,7 @@ abstract class PaketModel with _$PaketModel implements HasId {
       poinHadiah: data[NamaKolom.poinHadiah] as int? ?? 0,
       poinPenukaran: data[NamaKolom.poinPenukaran] as int? ?? 0,
       statusPublik: ParserUtil.parseBool(data[NamaKolom.statusPublik]),
-      statusHapus: ParserUtil.parseBool(data[NamaKolom.diHapus]),
+      statusHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
@@ -97,7 +97,7 @@ abstract class PaketModel with _$PaketModel implements HasId {
       NamaKolom.poinHadiah: poinHadiah,
       NamaKolom.poinPenukaran: poinPenukaran,
       NamaKolom.statusPublik: statusPublik,
-      NamaKolom.diHapus: statusHapus,
+      NamaKolom.dihapus: statusHapus,
       NamaKolom.diperbaruiPada:
           Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
       NamaKolom.diarsipkanPada: diarsipkanPada != null

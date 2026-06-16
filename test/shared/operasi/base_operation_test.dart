@@ -115,7 +115,7 @@ void main() {
       )).captured;
 
       final capturedMap = captured.first as Map<String, Object?>;
-      expect(capturedMap[NamaKolom.diHapus], 1);
+      expect(capturedMap[NamaKolom.dihapus], 1);
       expect(capturedMap.containsKey(NamaKolom.diarsipkanPada), isTrue);
       verify(mockUploadStatusOperation.tandaiButuhUpload(true,
               transaction: mockTxn))

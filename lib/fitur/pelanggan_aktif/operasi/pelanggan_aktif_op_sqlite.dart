@@ -72,7 +72,7 @@ class PelangganAktifOpSqlite {
       FROM $_tableName ac
       LEFT JOIN $_namaTabelCustomer c ON ac.${NamaKolom.idPelanggan} = c.${NamaKolom.id}
       LEFT JOIN $_namaTabelPaket p ON ac.${NamaKolom.idPaket} = p.${NamaKolom.id}
-      WHERE ac.${NamaKolom.diHapus} = 0
+      WHERE ac.${NamaKolom.dihapus} = 0
         AND ac.${NamaKolom.tangglberakhir} >= ?
     ''';
 
@@ -138,7 +138,7 @@ class PelangganAktifOpSqlite {
 
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${NamaKolom.diHapus} = ?',
+        where: '${NamaKolom.dihapus} = ?',
         whereArgs: [0],
       );
 
@@ -393,7 +393,7 @@ class PelangganAktifOpSqlite {
 
       final List<Map<String, dynamic>> expiredCustomers = await db.query(
         _tableName,
-        where: '${NamaKolom.tangglberakhir} < ? AND ${NamaKolom.diHapus} = 0',
+        where: '${NamaKolom.tangglberakhir} < ? AND ${NamaKolom.dihapus} = 0',
         whereArgs: [_nowUtc.millisecondsSinceEpoch],
       );
 
@@ -410,7 +410,7 @@ class PelangganAktifOpSqlite {
           await txn.update(
             _tableName,
             {
-              NamaKolom.diHapus: 1,
+              NamaKolom.dihapus: 1,
               NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
               NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
             },
@@ -454,7 +454,7 @@ class PelangganAktifOpSqlite {
           await txn.update(
             _tableName,
             {
-              NamaKolom.diHapus: 1,
+              NamaKolom.dihapus: 1,
               NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
               NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
             },

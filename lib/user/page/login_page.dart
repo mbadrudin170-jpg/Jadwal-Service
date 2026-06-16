@@ -81,7 +81,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           .collection(NamaTabel.pelanggan)
           .where(NamaKolom.telepon, isEqualTo: phone)
           .where(NamaKolom.kataSandi, isEqualTo: password)
-          .where(NamaKolom.diHapus, isEqualTo: false)
+          .where(NamaKolom.dihapus, isEqualTo: false)
           .limit(1)
           .get();
       if (!mounted) return;

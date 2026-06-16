@@ -107,7 +107,7 @@ class BaseOpFirebase {
     try {
       final docRef = firestore.collection(collectionName).doc(docId);
       await docRef.update({
-        NamaKolom.diHapus: true,
+        NamaKolom.dihapus: true,
         NamaKolom.diperbaruiPada: FieldValue.serverTimestamp(),
         NamaKolom.diarsipkanPada: FieldValue.serverTimestamp(),
       });
@@ -149,7 +149,7 @@ class BaseOpFirebase {
     try {
       final querySnapshot = await firestore
           .collection(collectionName)
-          .where(NamaKolom.diHapus, isEqualTo: false)
+          .where(NamaKolom.dihapus, isEqualTo: false)
           .get();
 
       if (querySnapshot.docs.isEmpty) {
@@ -160,7 +160,7 @@ class BaseOpFirebase {
       final batch = firestore.batch();
       for (final doc in querySnapshot.docs) {
         batch.update(doc.reference, {
-          NamaKolom.diHapus: true,
+          NamaKolom.dihapus: true,
           NamaKolom.diarsipkanPada: FieldValue.serverTimestamp(),
           NamaKolom.diperbaruiPada: FieldValue.serverTimestamp(),
         });

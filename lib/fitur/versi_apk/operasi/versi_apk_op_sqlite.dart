@@ -214,12 +214,12 @@ class VersiApkOpSqlite {
   /// Mengambil semua versi APK yang aktif dari database.
   Future<List<VersiApkModel>> ambilSemuaVersiApkAktif() async {
     Log.info(
-      'Mengambil semua versi APK aktif (${NamaKolom.diHapus} = 0) dari tabel $_namaTabel',
+      'Mengambil semua versi APK aktif (${NamaKolom.dihapus} = 0) dari tabel $_namaTabel',
     );
 
     try {
       final db = await sqliteDb.database;
-      const where = '${NamaKolom.diHapus} = 0';
+      const where = '${NamaKolom.dihapus} = 0';
       const orderBy = '${NamaKolom.diperbaruiPada} DESC';
       Log.info(
           'Query: SELECT * FROM $_namaTabel WHERE $where ORDER BY $orderBy');
@@ -260,7 +260,7 @@ class VersiApkOpSqlite {
 
     try {
       final db = await sqliteDb.database;
-      const where = '${NamaKolom.diHapus} = 0';
+      const where = '${NamaKolom.dihapus} = 0';
       const orderBy = '${NamaKolom.diperbaruiPada} DESC';
       Log.info(
           'Query: SELECT * FROM $_namaTabel WHERE $where ORDER BY $orderBy LIMIT 1');
@@ -299,7 +299,7 @@ class VersiApkOpSqlite {
 
     try {
       final db = await sqliteDb.database;
-      const where = 'id = ? AND ${NamaKolom.diHapus} = 0';
+      const where = 'id = ? AND ${NamaKolom.dihapus} = 0';
       Log.info('Query: SELECT * FROM $_namaTabel WHERE $where');
 
       final maps = await db.query(

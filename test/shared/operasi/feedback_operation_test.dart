@@ -115,7 +115,7 @@ void main() {
       expect(result.first.isDeleted, false);
       verify(mockDatabase.query(
         tableName,
-        where: '${NamaKolom.diHapus} = 0',
+        where: '${NamaKolom.dihapus} = 0',
         orderBy: '${NamaKolom.tanggal} DESC',
       )).called(1);
     });

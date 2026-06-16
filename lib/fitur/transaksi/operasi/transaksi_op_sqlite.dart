@@ -59,7 +59,7 @@ class TransaksiOpSqlite {
             END
           ), 0) as total
         FROM $_tabel
-        WHERE ${NamaKolom.diHapus} = 0 AND (${NamaKolom.idDompet} = ? OR ${NamaKolom.idDompetTujuan} = ?)
+        WHERE ${NamaKolom.dihapus} = 0 AND (${NamaKolom.idDompet} = ? OR ${NamaKolom.idDompetTujuan} = ?)
         ''',
         [idDompet, idDompet, idDompet, idDompet, idDompet, idDompet],
       );
@@ -130,7 +130,7 @@ class TransaksiOpSqlite {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
-        where: '${NamaKolom.diHapus} = ?',
+        where: '${NamaKolom.dihapus} = ?',
         whereArgs: [0],
         orderBy: '${NamaKolom.tanggal} DESC',
       );
@@ -181,7 +181,7 @@ class TransaksiOpSqlite {
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
         where:
-            '${NamaKolom.idPelanggan} = ? AND ${NamaKolom.statusPembayaran} = ? AND ${NamaKolom.diHapus} = ?',
+            '${NamaKolom.idPelanggan} = ? AND ${NamaKolom.statusPembayaran} = ? AND ${NamaKolom.dihapus} = ?',
         whereArgs: [customerId, StatusPembayaran.paid.name, 0],
         orderBy: '${NamaKolom.tangglberakhir} DESC',
         limit: 1,
@@ -214,7 +214,7 @@ class TransaksiOpSqlite {
       Log.info('Mengambil transaksi untuk Customer ID: $customerId');
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
-        where: '${NamaKolom.idPelanggan} = ? AND ${NamaKolom.diHapus} = ?',
+        where: '${NamaKolom.idPelanggan} = ? AND ${NamaKolom.dihapus} = ?',
         whereArgs: [customerId, 0],
         orderBy: '${NamaKolom.tanggal} DESC',
       );
@@ -238,7 +238,7 @@ class TransaksiOpSqlite {
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
         where:
-            '(${NamaKolom.idDompet} = ? OR ${NamaKolom.idDompetTujuan} = ?) AND ${NamaKolom.diHapus} = ?',
+            '(${NamaKolom.idDompet} = ? OR ${NamaKolom.idDompetTujuan} = ?) AND ${NamaKolom.dihapus} = ?',
         whereArgs: [walletId, walletId, 0],
         orderBy: '${NamaKolom.tanggal} DESC',
       );
@@ -259,7 +259,7 @@ class TransaksiOpSqlite {
       Log.info('Mengambil transaksi dengan status isActivated = 1');
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
-        where: '${NamaKolom.statusAktivasi} = ? AND ${NamaKolom.diHapus} = ?',
+        where: '${NamaKolom.statusAktivasi} = ? AND ${NamaKolom.dihapus} = ?',
         whereArgs: [1, 0],
         orderBy: '${NamaKolom.tanggal} DESC',
       );
@@ -342,7 +342,7 @@ class TransaksiOpSqlite {
           await txn.update(
             _tabel,
             {
-              NamaKolom.diHapus: 1,
+              NamaKolom.dihapus: 1,
               NamaKolom.diperbaruiPada: _nowEpoch,
               NamaKolom.diarsipkanPada: _nowEpoch,
             },
@@ -378,11 +378,11 @@ class TransaksiOpSqlite {
           final rowsAffected = await txn.update(
             _tabel,
             {
-              NamaKolom.diHapus: 1,
+              NamaKolom.dihapus: 1,
               NamaKolom.diperbaruiPada: _nowEpoch,
               NamaKolom.diarsipkanPada: _nowEpoch,
             },
-            where: '${NamaKolom.diHapus} = ?',
+            where: '${NamaKolom.dihapus} = ?',
             whereArgs: [0],
           );
           Log.info('$rowsAffected transaksi telah ditandai sebagai dihapus');
@@ -414,7 +414,7 @@ class TransaksiOpSqlite {
       final db = await _sqliteDb;
       Log.info('Menghitung total seluruh pemasukan');
       final result = await db.rawQuery(
-          "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabel WHERE ${NamaKolom.tipe} = 'income' AND ${NamaKolom.diHapus} = 0");
+          "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabel WHERE ${NamaKolom.tipe} = 'income' AND ${NamaKolom.dihapus} = 0");
       double total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
@@ -433,7 +433,7 @@ class TransaksiOpSqlite {
       final db = await _sqliteDb;
       Log.info('Menghitung total seluruh pengeluaran');
       final result = await db.rawQuery(
-          "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabel WHERE ${NamaKolom.tipe} = 'expense' AND ${NamaKolom.diHapus} = 0");
+          "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabel WHERE ${NamaKolom.tipe} = 'expense' AND ${NamaKolom.dihapus} = 0");
       double total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
@@ -462,7 +462,7 @@ class TransaksiOpSqlite {
       final db = await sqliteDb.database;
       Log.info('Menghitung poin yang dihasilkan Customer: $customerId');
       final result = await db.rawQuery(
-          'SELECT SUM(${NamaKolom.poinDidapat}) as total FROM $_tabel WHERE ${NamaKolom.idPelanggan} = ? AND ${NamaKolom.diHapus} = 0 AND ${NamaKolom.statusPembayaran} = ?',
+          'SELECT SUM(${NamaKolom.poinDidapat}) as total FROM $_tabel WHERE ${NamaKolom.idPelanggan} = ? AND ${NamaKolom.dihapus} = 0 AND ${NamaKolom.statusPembayaran} = ?',
           [customerId, StatusPembayaran.paid.name]);
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin dihasilkan: $total');
@@ -479,7 +479,7 @@ class TransaksiOpSqlite {
       final db = await sqliteDb.database;
       Log.info('Menghitung poin yang digunakan Customer: $customerId');
       final result = await db.rawQuery(
-          'SELECT SUM(${NamaKolom.poinDigunakan}) as total FROM $_tabel WHERE ${NamaKolom.idPelanggan} = ? AND ${NamaKolom.diHapus} = 0 AND ${NamaKolom.statusPembayaran} = ?',
+          'SELECT SUM(${NamaKolom.poinDigunakan}) as total FROM $_tabel WHERE ${NamaKolom.idPelanggan} = ? AND ${NamaKolom.dihapus} = 0 AND ${NamaKolom.statusPembayaran} = ?',
           [customerId, StatusPembayaran.paid.name]);
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin digunakan: $total');
