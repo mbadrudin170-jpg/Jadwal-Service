@@ -31,7 +31,7 @@ void main() {
     mockUserActivityService = MockUserActivityService();
     mockNavigatorObserver = MockNavigatorObserver();
 
-    // ✅ Perbaikan: Stub untuk getter navigator agar tidak error
+    // Stub getter navigator agar tidak error
     when(mockNavigatorObserver.navigator).thenReturn(null);
 
     pelanggan1 = const PelangganModel(
@@ -55,13 +55,14 @@ void main() {
   Widget createWidgetUnderTest({String? currentUserId}) {
     return ProviderScope(
       overrides: [
-        // ✅ Perbaikan: overrideWith untuk Provider<PengelolaAkun> (tanpa parameter)
+        // ✅ Correct: overrideWith for FutureProvider
         pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
-        // ✅ Sudah benar
-        userActivityServiceProvider
-            .overrideWithValue(AsyncValue.data(mockUserActivityService)),
-        // ✅ Perbaikan: userIdProvider bertipe AsyncValue<String?>, bungkus dengan AsyncValue.data
-        userIdProvider.overrideWithValue(AsyncValue.data(currentUserId)),
+        // ✅ Correct: overrideWith for FutureProvider
+        userActivityServiceProvider.overrideWith(
+          (ref) => Future.value(mockUserActivityService),
+        ),
+        // ✅ Correct: overrideWith for FutureProvider
+        userIdProvider.overrideWith((ref) => Future.value(currentUserId)),
       ],
       child: MaterialApp(
         home: const DaftarAkunPage(),
@@ -77,6 +78,7 @@ void main() {
         when(mockPengelolaAkun.state).thenReturn(const AsyncValue.loading());
 
         await tester.pumpWidget(createWidgetUnderTest());
+        await tester.pump();
 
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
       },
@@ -106,7 +108,7 @@ void main() {
       );
 
       await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       expect(
         find.text('Belum ada riwayat login di perangkat ini.'),
@@ -124,7 +126,7 @@ void main() {
       );
 
       await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       expect(find.byType(ListView), findsOneWidget);
       expect(find.byType(Card), findsNWidgets(2));
@@ -248,6 +250,10 @@ void main() {
       await tester.tap(find.widgetWithText(ElevatedButton, 'Keluar'));
       await tester.pumpAndSettle();
 
+      // Pastikan dialog muncul
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.widgetWithText(TextButton, 'Keluar'), findsOneWidget);
+
       await tester.tap(find.widgetWithText(TextButton, 'Keluar'));
       await tester.pumpAndSettle();
 
@@ -270,6 +276,10 @@ void main() {
 
       await tester.tap(find.widgetWithText(ElevatedButton, 'Keluar'));
       await tester.pumpAndSettle();
+
+      // Pastikan dialog muncul
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.text('Keluar & Hapus Akun'), findsOneWidget);
 
       await tester.tap(find.text('Keluar & Hapus Akun'));
       await tester.pumpAndSettle();
