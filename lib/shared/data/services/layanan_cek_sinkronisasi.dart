@@ -96,7 +96,7 @@ class LayananCekSinkronisasi {
       );
 
       if (adaDataBaruDiServer) {
-        await _layananUnduh.downloadAllData();
+        await _layananUnduh.unduhSemuaData();
         final DateTime sekarang = DateTime.now();
         await _pengelolaSinkronisasi.simpanWaktuTerakhirUnduh(sekarang);
         Log.info('Sinkronisasi masuk selesai: $sekarang.');
@@ -116,7 +116,7 @@ final layananCekSinkronisasiProvider = Provider<LayananCekSinkronisasi>((ref) {
   return LayananCekSinkronisasi(
     pengelolaSinkronisasi: ref.read(providerPengelolaSinkronisasi),
     layananUnggah: ref.read(layananUnggahDataProvider), // harus sudah ada
-    layananUnduh: ref.read(downloadDataServiceProvider), // sudah ada
+    layananUnduh: ref.read(layananUnduhDataProvider), // sudah ada
     pengecekanDataBaru:
         ref.read(pengecekanDataBaruServiceProvider), // harus sudah ada
     firestore: FirebaseFirestore.instance,
