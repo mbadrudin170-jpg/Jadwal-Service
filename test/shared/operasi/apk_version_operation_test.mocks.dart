@@ -721,7 +721,7 @@ class MockBaseOpSqlite extends _i1.Mock implements _i6.BaseOpSqlite {
       ) as _i3.Future<int>);
 
   @override
-  _i3.Future<void> insertOrUpdateBatch(
+  _i3.Future<void> sisipkanAtauPerbaruiBatch(
     String? table,
     List<Map<String, dynamic>>? dataList, {
     bool? dariServer = false,

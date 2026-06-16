@@ -282,7 +282,7 @@ void main() {
         '10. harus memanggil _baseOpSqlite.insertOrUpdateBatch dengan data yang benar',
         () async {
           // Arrange
-          when(() => mockBaseOpSqlite.insertOrUpdateBatch(
+          when(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
                 any(),
                 any(),
                 dariServer: any(named: 'dariServer'),
@@ -292,11 +292,12 @@ void main() {
           await settingsOpSqlite.saveOrUpdateSettingsWithBatch(tSettingsModel);
 
           // Assert
-          final captured = verify(() => mockBaseOpSqlite.insertOrUpdateBatch(
-                NamaTabel.settings,
-                captureAny(),
-                dariServer: false,
-              )).captured.last as List<Map<String, dynamic>>;
+          final captured =
+              verify(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+                    NamaTabel.settings,
+                    captureAny(),
+                    dariServer: false,
+                  )).captured.last as List<Map<String, dynamic>>;
 
           expect(captured.length, 1);
           expect(captured.first[NamaKolom.id], idGlobalSetting);
@@ -308,7 +309,7 @@ void main() {
         () async {
           // Arrange
           final exception = Exception('Failed to batch update');
-          when(() => mockBaseOpSqlite.insertOrUpdateBatch(
+          when(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
                 any(),
                 any(),
                 dariServer: any(named: 'dariServer'),

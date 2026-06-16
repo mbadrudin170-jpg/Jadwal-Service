@@ -144,7 +144,7 @@ class VersiApkOpSqlite {
 
     try {
       final mapList = modelList.map((final model) => model.toSqlite()).toList();
-      await _baseOpSqlite.insertOrUpdateBatch(
+      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
         _namaTabel,
         mapList,
         dariServer: dariServer,

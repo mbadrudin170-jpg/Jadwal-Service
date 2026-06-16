@@ -186,7 +186,7 @@ class SubKategoriOpSqlite {
                 .toSqlite(),
           )
           .toList();
-      await baseOpSqlite.insertOrUpdateBatch(
+      await baseOpSqlite.sisipkanAtauPerbaruiBatch(
         _tableName,
         data,
         dariServer: fromServer,

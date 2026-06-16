@@ -168,7 +168,7 @@ class FeedbackOpSqlite {
                 item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
-      await baseOpSqlite.insertOrUpdateBatch(
+      await baseOpSqlite.sisipkanAtauPerbaruiBatch(
         _tableName,
         data,
         dariServer: fromServer,

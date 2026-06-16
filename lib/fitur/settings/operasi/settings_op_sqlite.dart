@@ -141,7 +141,7 @@ class SettingsOpSqlite {
         diperbaruiPada: DateTime.now().toUtc(),
       );
       final data = dataToSave.toSqlite();
-      await _baseOpSqlite.insertOrUpdateBatch(
+      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
         _namaTabel,
         [data],
         dariServer: fromServer,

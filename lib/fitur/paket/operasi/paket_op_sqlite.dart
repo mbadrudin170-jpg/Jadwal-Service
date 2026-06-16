@@ -272,7 +272,7 @@ class PaketOpSqlite {
             (item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
           )
           .toList();
-      await basOpSqlite.insertOrUpdateBatch(
+      await basOpSqlite.sisipkanAtauPerbaruiBatch(
         _tabel,
         dataList,
         dariServer: dariServer,

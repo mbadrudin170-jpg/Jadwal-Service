@@ -202,7 +202,7 @@ class PelangganOpSqlite {
         return item.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite();
       }).toList();
 
-      await _baseOpSqlite.insertOrUpdateBatch(
+      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
         _tabel,
         data,
         dariServer: dariServer,

@@ -143,7 +143,7 @@ void main() {
         {'id': '2', 'name': 'test2'},
       ];
 
-      await baseOperation.insertOrUpdateBatch(table, dataList);
+      await baseOperation.sisipkanAtauPerbaruiBatch(table, dataList);
 
       verify(mockTxn.batch()).called(1);
       verify(mockBatch.insert(any, any,

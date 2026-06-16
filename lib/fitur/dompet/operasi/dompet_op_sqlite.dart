@@ -250,7 +250,7 @@ class DompetOpSqlite {
             (final item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
           )
           .toList();
-      await _baseOperation.insertOrUpdateBatch(
+      await _baseOperation.sisipkanAtauPerbaruiBatch(
         _tabelDompet,
         data,
         dariServer: fromServer,

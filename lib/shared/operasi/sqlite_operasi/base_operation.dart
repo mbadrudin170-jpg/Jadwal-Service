@@ -314,7 +314,7 @@ class BaseOpSqlite {
   }
 
   /// Menyisipkan atau memperbarui sekumpulan data dalam satu batch.
-  Future<void> insertOrUpdateBatch(
+  Future<void> sisipkanAtauPerbaruiBatch(
     final String table,
     final List<Map<String, dynamic>> dataList, {
     final bool dariServer = false,

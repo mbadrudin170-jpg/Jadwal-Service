@@ -206,7 +206,7 @@ class KategoriOpSqlite {
                 .toSqlite(),
           )
           .toList();
-      await _baseOpSqlite.insertOrUpdateBatch(
+      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
         _tableName,
         data,
         dariServer: fromServer,
