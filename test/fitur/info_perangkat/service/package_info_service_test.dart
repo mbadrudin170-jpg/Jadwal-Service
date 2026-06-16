@@ -6,19 +6,19 @@ import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
 import 'package:wifi/fitur/info_perangkat/service/package_info_service.dart';
 
 void main() {
-  late PackageInfoService packageInfoService;
+  late LayananInfoPaket packageInfoService;
 
   // Inisialisasi binding sekali untuk semua tes
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    packageInfoService = PackageInfoService();
+    packageInfoService = LayananInfoPaket();
     // Membersihkan handler sebelum setiap tes untuk memastikan isolasi
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('dev.flutter.plugins/package_info'),
-      null,
-    );
+          const MethodChannel('dev.flutter.plugins/package_info'),
+          null,
+        );
   });
 
   group('PackageInfoService', () {
@@ -33,19 +33,19 @@ void main() {
       // Siapkan method channel untuk melempar exception.
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('dev.flutter.plugins/package_info'),
-        (MethodCall methodCall) async {
-          if (methodCall.method == 'getAll') {
-            throw PlatformException(
-              code: 'ERROR',
-              message: 'Gagal mendapatkan info paket',
-            );
-          }
-          return null;
-        },
-      );
+            const MethodChannel('dev.flutter.plugins/package_info'),
+            (MethodCall methodCall) async {
+              if (methodCall.method == 'getAll') {
+                throw PlatformException(
+                  code: 'ERROR',
+                  message: 'Gagal mendapatkan info paket',
+                );
+              }
+              return null;
+            },
+          );
 
-      final result = await packageInfoService.getPackageInfo();
+      final result = await packageInfoService.ambilInfoPaket();
 
       // Verifikasi hasilnya null karena exception ditangani.
       expect(result, isNull);
@@ -63,7 +63,7 @@ void main() {
         buildSignature: 'mock_signature',
       );
 
-      final result = await packageInfoService.getPackageInfo();
+      final result = await packageInfoService.ambilInfoPaket();
 
       // Verifikasi bahwa hasilnya adalah model yang benar dengan data yang benar.
       expect(result, isA<InfoPerangkatModel>());

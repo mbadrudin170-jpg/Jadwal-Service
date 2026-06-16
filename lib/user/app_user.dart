@@ -30,7 +30,9 @@ class AppUser extends ConsumerWidget {
     if (firstError.hasError) {
       // Perbaikan 2: Gunakan properti `stackTrace` yang benar.
       return _ErrorApp(
-          error: firstError.error, stackTrace: firstError.stackTrace);
+        error: firstError.error,
+        stackTrace: firstError.stackTrace,
+      );
     }
 
     // 3. Cek apakah ada provider yang masih loading.
@@ -49,7 +51,7 @@ class AppUser extends ConsumerWidget {
         themeMode: themeAsync.asData!.value,
         home: SplashScreenUser(
           prefs: prefsAsync.asData!.value,
-          localStorageService: localStorageAsync.asData!.value,
+          penyimpananLokal: localStorageAsync.asData!.value,
         ),
       ),
     );
@@ -63,11 +65,7 @@ class _LoadingApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      ),
+      home: Scaffold(body: Center(child: CircularProgressIndicator())),
     );
   }
 }

@@ -42,12 +42,12 @@ typedef UpdateInfoRecord = ({
 
 class SplashScreenUser extends ConsumerStatefulWidget {
   final SharedPreferences prefs;
-  final LayananPenyimpananLokal localStorageService;
+  final LayananPenyimpananLokal penyimpananLokal;
 
   const SplashScreenUser({
     super.key,
     required this.prefs,
-    required this.localStorageService,
+    required this.penyimpananLokal,
   });
 
   @override
@@ -174,12 +174,17 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     if (!mounted) return null;
     final updateService = UpdateCheckService(
       prefs: widget.prefs,
-      localStorageService: widget.localStorageService,
+      penyimpananLokal: widget.penyimpananLokal,
       context: context,
     );
-    final updateInfo = await updateService.getUpdateInfo();
-    if (updateInfo.isUpdateRequired) {
-      return updateInfo;
+    final updateInfo = await updateService.ambilInfoUpdate();
+    if (updateInfo.perluUpdate) {
+      return (
+        isUpdateRequired: updateInfo.perluUpdate,
+        apkInfo: updateInfo.infoApk,
+        packageInfo: updateInfo.infoPaket,
+        architecture: updateInfo.arsitektur,
+      );
     }
     return null;
   }
