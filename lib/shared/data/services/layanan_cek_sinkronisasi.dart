@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/data/services/pengecekan_data_baru_service.dart';
+import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart';
 import 'package:wifi/shared/data/sync/layanan_unduh_data.dart';
 import 'package:wifi/shared/data/sync/layanan_unggah_data.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -16,7 +16,7 @@ class LayananCekSinkronisasi {
   final PengelolaSinkronisasi _pengelolaSinkronisasi;
   final LayananUnggahData _layananUnggah;
   final LayananUnduhData _layananUnduh;
-  final PengecekanDataBaruService _pengecekanDataBaru;
+  final LayananPengecekanDataBaru _pengecekanDataBaru;
   final FirebaseFirestore _firestore;
 
   /// Konstruktor dengan injeksi dependensi (wajib).
@@ -24,7 +24,7 @@ class LayananCekSinkronisasi {
     required PengelolaSinkronisasi pengelolaSinkronisasi,
     required LayananUnggahData layananUnggah,
     required LayananUnduhData layananUnduh,
-    required PengecekanDataBaruService pengecekanDataBaru,
+    required LayananPengecekanDataBaru pengecekanDataBaru,
     required FirebaseFirestore firestore,
   })  : _pengelolaSinkronisasi = pengelolaSinkronisasi,
         _layananUnggah = layananUnggah,

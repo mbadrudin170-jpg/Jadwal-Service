@@ -10,7 +10,7 @@ import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/data/services/layanan_navigasi.dart';
-import 'package:wifi/shared/data/sync/unduhan_awal_service.dart';
+import 'package:wifi/shared/data/sync/layanan_unduhan_awal.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
@@ -88,7 +88,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
 
-        final unduhanAwalService = ref.read(unduhanAwalServiceProvider);
+        final unduhanAwalService = ref.read(providerLayananUnduhanAwal);
         try {
           await unduhanAwalService.jalankanUnduhanAwal().timeout(
                 const Duration(seconds: 30),

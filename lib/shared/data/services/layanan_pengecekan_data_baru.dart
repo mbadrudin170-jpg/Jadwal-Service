@@ -8,17 +8,17 @@ import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart'
 import 'package:wifi/shared/utils/parser_util.dart';
 import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
-class PengecekanDataBaruService {
+class LayananPengecekanDataBaru {
   final FirebaseFirestore _firestore;
-  final PengelolaSinkronisasi _syncManager;
+  final PengelolaSinkronisasi _pengelolaSinkronisasi;
   final StatusUploadOpSqlite _statusUploadOpSqlite;
 
-  PengecekanDataBaruService({
+  LayananPengecekanDataBaru({
     required FirebaseFirestore firestore,
     required PengelolaSinkronisasi syncManager,
     required StatusUploadOpSqlite uploadStatusOperation,
   })  : _firestore = firestore,
-        _syncManager = syncManager,
+        _pengelolaSinkronisasi = syncManager,
         _statusUploadOpSqlite = uploadStatusOperation {
     Log.info('NewDataCheckService diinisialisasi dengan dependency injection.');
   }
@@ -81,7 +81,7 @@ class PengecekanDataBaruService {
         'Mengambil metadata waktu unduhan terakhir dari penyimpanan preferensi lokal melalui SyncManager.',
       );
       final DateTime tanggalTerakhirDownload =
-          await _syncManager.ambilWaktuTerakhirUnduh();
+          await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
       Log.info(
         'Timestamp unduhan lokal terakhir yang tercatat adalah: $tanggalTerakhirDownload',
       );
@@ -155,8 +155,8 @@ class PengecekanDataBaruService {
 }
 
 final pengecekanDataBaruServiceProvider =
-    Provider<PengecekanDataBaruService>((ref) {
-  return PengecekanDataBaruService(
+    Provider<LayananPengecekanDataBaru>((ref) {
+  return LayananPengecekanDataBaru(
     firestore: FirebaseFirestore.instance,
     syncManager: ref.read(providerPengelolaSinkronisasi),
     uploadStatusOperation: ref.read(statusUploadOpSlite),

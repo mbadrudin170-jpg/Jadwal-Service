@@ -19,7 +19,7 @@ import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dar
     as _i13;
 import 'package:wifi/fitur/settings/model/settings_model.dart' as _i6;
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart' as _i16;
-import 'package:wifi/shared/data/sync/unduhan_awal_service.dart' as _i15;
+import 'package:wifi/shared/data/sync/layanan_unduhan_awal.dart' as _i15;
 import 'package:wifi/shared/export/model.dart' as _i14;
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart'
     as _i10;
@@ -736,7 +736,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockUnduhanAwalService extends _i1.Mock
-    implements _i15.UnduhanAwalService {
+    implements _i15.LayananUnduhanAwal {
   MockUnduhanAwalService() {
     _i1.throwOnMissingStub(this);
   }

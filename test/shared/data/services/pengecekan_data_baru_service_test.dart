@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
-import 'package:wifi/shared/data/services/pengecekan_data_baru_service.dart';
+import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
@@ -19,7 +19,7 @@ import 'pengecekan_data_baru_service_test.mocks.dart';
   DocumentSnapshot,
 ])
 void main() {
-  late PengecekanDataBaruService pengecekanDataBaruService;
+  late LayananPengecekanDataBaru pengecekanDataBaruService;
   late MockFirebaseFirestore mockFirestore;
   late MockSyncManager mockSyncManager;
   late MockStatusUploadOpSqlite mockStatusUploadOpSqlite;
@@ -35,7 +35,7 @@ void main() {
     mockDocumentReference = MockDocumentReference<Map<String, dynamic>>();
     mockDocumentSnapshot = MockDocumentSnapshot<Map<String, dynamic>>();
 
-    pengecekanDataBaruService = PengecekanDataBaruService(
+    pengecekanDataBaruService = LayananPengecekanDataBaru(
       firestore: mockFirestore,
       syncManager: mockSyncManager,
       uploadStatusOperation: mockStatusUploadOpSqlite,

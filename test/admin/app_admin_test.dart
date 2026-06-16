@@ -16,7 +16,7 @@ import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
-import 'package:wifi/shared/data/sync/unduhan_awal_service.dart';
+import 'package:wifi/shared/data/sync/layanan_unduhan_awal.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
@@ -31,7 +31,7 @@ import 'app_admin_test.mocks.dart';
   KoneksiInternetService,
   SqliteDatabase,
   PelangganAktifOpSqlite,
-  UnduhanAwalService,
+  LayananUnduhanAwal,
   SettingsOpSqlite,
   PembersihanDataOperasi,
   NotificationResponse,
@@ -125,7 +125,7 @@ void main() {
         sqliteDatabaseProvider.overrideWithValue(mockSqliteDatabase),
         pelangganAktifOpSqliteProvider
             .overrideWithValue(mockPelangganAktifOpSqlite),
-        unduhanAwalServiceProvider.overrideWithValue(mockUnduhanAwalService),
+        providerLayananUnduhanAwal.overrideWithValue(mockUnduhanAwalService),
         settingsOpSqliteProvider.overrideWithValue(mockSettingsOpSqlite),
         appRoleProvider.overrideWithValue(role),
         // TODO: pastikan nama provider ini benar, atau cari file definisi provider pembersihanDataOperasi
