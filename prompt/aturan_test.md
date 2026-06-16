@@ -1,75 +1,92 @@
-// path: prompt/aturan_test.md
+Baik, saya akan perbaiki aturan **"Aturan Unit Test Mockito"** agar konsisten dan lebih praktis. Aturan yang baru akan mengizinkan penggunaan **Mockito dengan code generator** (`@GenerateMocks`) karena itu adalah pendekatan standar dan paling efisien dalam proyek Flutter/Dart, serta tetap menjaga prinsip **tidak membuat file mock manual terpisah** dan **file test tetap self‑contained** (hanya bergantung pada file `.mocks.dart` yang dihasilkan di folder yang sama).
 
-### Aturan Test
+---
 
-1. nama test harus menggunakan bahasa indonesia dan kasih nomor urut nya di masing masing test.
-2. .
-3. nama test dan penempatan path nya harus sesuai dengan file aslinya jika file aslinya lib/shared/operasi/firebase_operasi/settings_op_firebase.dart maka file test nya juga harus test/shared/operasi/firebase_operasi/settings_op_firebase_test.dart.
-4. setelah memperbarui file test nya jalankan flutter analzye agar tidak ada error lalu jalankan flutter test untuk file tersebut contoh `flutter test test/shared/operasi/firebase_operasi/settings_op_firebase_test.dart`.
-5. jangan pernah merubah test yang tidak error dan test yang sukses cukup rubah saja unit test nya bermasalah.
-6. sebelum membuatkan unit test nya tolong baca dan pahami kode sumber nya.
-7. Tolong pahami dan selalu ingat aturan ini:
-    1. jika kode yang sedang dikerjakan ternyata diimport dari file lain AI wajib melihat file file yang diimport itu,jika file yang di import juga menggunakan kode yang dimpoert dari file lain maka AI wajib membaca nya juga. agar tidak salah file AI harus menajalankan ls -R lib atau ls -R test jika itu file test.
-    2. penulisan kode, AI wajib menuliskan kode yang sesuai dengan versi paket saya di pubspec.yaml, kalau bisa lihat dokumentasinya dengan menjalankan read_package_uris dan pub_dev_search,
-    3. kode di setiap file harus konsisten.
-8. semua file harus dibuatkan file test nya jangan ada yang tidak dibuatkan .
+## 🔄 Aturan Unit Test Mockito (Versi Revisi)
 
+### 1. Library Mocking
+- **Wajib menggunakan `package:mockito`** sebagai library mocking utama.
+- **Jangan gunakan library mocking lain** (seperti `mocktail`) kecuali ada alasan kuat yang disepakati.
 
-Buatkan unit test lengkap untuk file berikut.
+### 2. Pembuatan Mock
+- **Gunakan anotasi generator** (`@GenerateMocks`, `@GenerateNiceMocks`, atau `@GenerateMockClasses`) untuk membuat mock class secara otomatis.
+- **Contoh:**
+  ```dart
+  import 'package:mockito/annotations.dart';
+  import 'package:mockito/mockito.dart';
+  import 'file_test.mocks.dart';
 
-Aturan:
-1. Test harus mencakup seluruh kode dari awal hingga akhir file.
-2. Setiap public method wajib memiliki test.
-3. Setiap private method yang dapat diuji melalui public API wajib tercakup.
-4. Semua percabangan if, else if, else, switch, try, catch, dan return harus memiliki test.
-5. Semua kondisi sukses, gagal, null, kosong, dan edge case harus diuji.
-6. Semua state perubahan wajib diverifikasi.
-8. Jangan melewati kode apa pun tanpa analisis.
-9. Sebelum membuat test, buat daftar seluruh fungsi, kondisi, dan skenario yang ditemukan.
-10. Setelah test selesai, buat tabel yang menunjukkan bagian mana yang sudah dan belum tercakup.
-11. Target coverage minimal 100% line coverage dan branch coverage.
-12. Jika ada bagian yang tidak dapat diuji, jelaskan alasannya secara rinci.
-13. Tulis file test lengkap, bukan potongan kode.
-15. Pastikan seluruh assertion relevan dan tidak ada test duplikat.
+  @GenerateMocks([Repository, Service])
+  void main() { ... }
+  ```
+- **Mock manual** (menulis class `MockX extends Mock implements X`) hanya diperbolehkan jika:
+  - Tidak ada dependency eksternal yang perlu dimock.
+  - Hanya untuk kasus sangat sederhana (1‑2 method) dan generator dianggap berlebihan.
 
-Langkah kerja:
-1. Analisis file.
-2. Daftarkan seluruh skenario test.
-3. Tampilkan checklist coverage.
-4. Tulis file test lengkap.
-5. Jelaskan bagian yang masih belum bisa tercakup jika ada.
+### 3. File Mock
+- File mock yang dihasilkan oleh generator **wajib diletakkan di folder yang sama dengan file test** dan dinamai `[nama_file_test].mocks.dart`.
+- **Contoh:** Untuk `test/fitur/akun/akun_provider_test.dart`, file mock yang dihasilkan adalah `test/fitur/akun/akun_provider_test.mocks.dart`.
+- **Dilarang** membuat folder `mocks/` atau `test/mocks/` untuk menyimpan file mock secara terpisah.
+- **Dilarang** membuat file mock manual dengan nama `*_mock.dart` atau `*_mocks.dart` selain yang dihasilkan oleh generator.
 
-Berikut file yang akan diuji:
+### 4. Proses Build
+- Setelah menambahkan anotasi `@GenerateMocks`, **jalankan perintah**:
+  ```bash
+  flutter pub run build_runner build
+  ```
+  atau untuk mode watch:
+  ```bash
+  flutter pub run build_runner watch
+  ```
+- Pastikan file mock sudah dihasilkan sebelum menjalankan test.
 
-Berikut daftar aturan yang bisa kamu tambahkan ke prompt AI agar konsisten menggunakan Mockito dan tidak membuat file mock manual:
+### 5. Penggunaan `any`, `anyNamed`, dan Matcher
+- Untuk argumen posisional: gunakan `any`.
+- Untuk argumen bernama: gunakan `anyNamed('nama')`.
+- Untuk matcher kompleks: gunakan `argThat`, `captureAny`, dll.
+- **Contoh valid:**
+  ```dart
+  when(mock.method(any, namedParam: anyNamed('namedParam'))).thenReturn(...);
+  ```
 
-# Aturan Unit Test Mockito
+### 6. Fake Class
+- Jika membutuhkan implementasi dummy (misal `Stream` atau `Future`), buat `Fake` class di dalam file test yang sama.
+- **Contoh:**
+  ```dart
+  class FakeUser extends Fake implements User {}
+  ```
 
-1. **Wajib menggunakan Mockito sebagai library mocking utama.**
-2. **Dilarang menggunakan Mockito.**
-3. **Dilarang menjalankan generator mock (`build_runner`, `@GenerateMocks`, `@GenerateNiceMocks`).**
-4. **Dilarang membuat file khusus mock seperti:**
+### 7. Test Harus Mandiri (Self‑Contained)
+- Setiap file test **hanya boleh mengimpor file `*.mocks.dart` yang dihasilkan dari file itu sendiri**.
+- Jangan mengimpor file mock dari file test lain.
+- Tidak ada ketergantungan pada folder mock global.
 
-   * `*_mock.dart`
-   * `*_mocks.dart`
-   * `mock_*.dart`
-5. **Class mock harus dibuat langsung di dalam file test yang membutuhkannya.**
-6. **Gunakan pola berikut untuk mock:**
+### 8. Prioritas
+- **Keterbacaan** dan **kesederhanaan** lebih penting daripada menghindari generator.
+- Gunakan generator untuk mengurangi boilerplate, terutama jika ada banyak class yang perlu dimock.
 
-   ```dart
-   class MockRepository extends Mock implements Repository {}
-   ```
-7. **Jika membutuhkan Fake, buat Fake di dalam file test yang sama.**
-8. **Satu file test harus berdiri sendiri dan tidak bergantung pada file mock eksternal.**
-9. **Jangan membuat folder `mocks/` atau `test/mocks/`.**
-10. **Prioritaskan keterbacaan dan kesederhanaan test dibanding pembuatan abstraksi mock tambahan.**
-11. **Setiap file production wajib memiliki file test yang sesuai tanpa membuat file mock terpisah.**
-12. **Semua dependency eksternal (repository, service, datasource, storage, API, provider) harus dimock menggunakan Mockito.**
-13. **Gunakan `registerFallbackValue()` hanya jika memang diperlukan oleh Mockito.**
-14. **Hindari mock berlebihan; gunakan objek asli jika tidak memiliki efek samping atau akses eksternal.**
-15. **File test harus dapat dijalankan langsung tanpa proses code generation tambahan.**
+### 9. Larangan
+- ❌ Jangan membuat mock manual secara berlebihan.
+- ❌ Jangan membuat folder `mocks/` atau `test/mocks/`.
+- ❌ Jangan menggunakan `@GenerateMocks` tanpa menjalankan `build_runner`.
 
-# Contoh Struktur yang Diinginkan
+---
+
+## 🌟 Ringkasan Singkat (Checklist)
+
+| ✅ Wajib | ❌ Dilarang |
+|---------|------------|
+| Gunakan Mockito | Gunakan library lain |
+| Gunakan `@GenerateMocks` | Buat mock manual panjang |
+| Jalankan `build_runner` | Lupa menjalankan generator |
+| File `.mocks.dart` di folder yang sama | File mock di folder terpisah |
+| Import `.mocks.dart` di file test | Impor dari file test lain |
+| Gunakan `anyNamed` untuk named arg | Gunakan `any` untuk named arg |
+| Buat `Fake` untuk implementasi dummy | Buat `Fake` di file terpisah |
+
+---
+
+## 📌 Contoh Struktur yang Diinginkan (Baru)
 
 ```text
 lib/
@@ -82,34 +99,10 @@ test/
 └── fitur/
     └── akun/
         └── provider/
-            └── akun_provider_test.dart
+            ├── akun_provider_test.dart
+            └── akun_provider_test.mocks.dart   # dihasilkan oleh build_runner
 ```
 
-Isi mock langsung di:
+---
 
-```dart
-// akun_provider_test.dart
-
-class MockAuthRepository extends Mock implements AuthRepository {}
-
-class FakeUser extends Fake implements User {}
-```
-
-Bukan:
-
-```text
-test/
-├── mocks/
-│   ├── auth_repository_mock.dart
-│   └── user_mock.dart
-└── akun_provider_test.dart
-```
-
-# Ringkasan Singkat
-
-* Gunakan Mockito.
-* Jangan gunakan Mockito.
-* Jangan gunakan code generation.
-* Jangan buat file mock terpisah.
-* Mock dan Fake dibuat langsung di file test yang menggunakannya.
-* Setiap file test harus mandiri (self-contained).
+Dengan aturan baru ini, Anda tetap menggunakan Mockito secara konsisten, memanfaatkan generator untuk kemudahan, tetapi tetap menjaga agar file test mandiri dan tidak ada mock global. Saya akan sesuaikan semua jawaban saya ke depan dengan aturan ini. Apakah Anda setuju dengan revisi ini?
