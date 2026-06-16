@@ -645,8 +645,7 @@ Seluruh nama **fungsi, variabel, props, parameter, file, dan class** wajib ditul
 
 **4. Penggunaan Ikon Wajib dari `AppIcons`**
 - Semua ikon dalam aplikasi **harus diambil dari class `AppIcons`** (`lib/shared/theme/app_icons.dart`), **tidak boleh** menggunakan `Icons.xxx` secara langsung di widget.
-- Jika ikon yang dibutuhkan **belum tersedia** di `AppIcons`, **wajib menambahkannya terlebih dahulu** sebagai properti `static const` baru dengan nama yang deskriptif dalam Bahasa Inggris, lalu gunakan properti tersebut.
-- Tujuan: menjaga konsistensi ikon di seluruh aplikasi dan memudahkan penggantian ikon secara terpusat.
+\- Tujuan: menjaga konsistensi ikon di seluruh aplikasi dan memudahkan penggantian ikon secara terpusat.
 
 **5. Komentar Path di Awal Setiap File**
 - Setiap file kode Dart **wajib** diawali dengan komentar yang menyebutkan path file relatif terhadap root proyek, contoh: `// path: lib/screens/home_screen.dart` dan harus sesuai dengan path aslinya jangan sampai komentar path nya ini tidak sesuai dengan tempat file nya berada.
@@ -671,8 +670,6 @@ Dilarang menggunakan `withOpacity`. Gunakan `withValues` atau `withAlpha` untuk 
 
 ## Nama Variabel, fungsi dan parameter
 1. nama nya harus dalam bahasa indonesia, dan jangan lupa harus pendek tapi jelas agar hanya dengan membaca nama nya saja kita bisa tahu tujuan kode ini dibuat.
-2. kalau ada yang masih dalam bahasa inggris tandai dengan komentar // TODO : nama masih dalam bahasa inggris.
-3. terkecuali untuk kata yang sudah lumrah di indonesia boleh menggunakan bahasa inggris.
 4. dan untuk kata dibawah ini tidak boleh dirubah ke indonesia
  - context
  - icon
