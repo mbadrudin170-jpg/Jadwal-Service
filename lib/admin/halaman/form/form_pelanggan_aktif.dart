@@ -864,12 +864,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           }
           if (hasil.success) {
             ToastUtil.success(context, hasil.message);
-            ref.invalidate(activeCustomerOpFirebaseProvider);
+            ref.invalidate(pelangganAktifOpFirebaseProvider);
             ref.invalidate(pelangganAktifOpSqliteProvider);
             ref.invalidate(transaksiOpSqliteProvider);
             ref.invalidate(transaksiOpFirebaseProvider);
             ref.invalidate(dompetOpSqliteProvider);
             ref.invalidate(statistikProvider);
+            ref.invalidate(pelangganAktifProvider);
             navigator.pop();
             Log.info(
               'Form berhasil disimpan, memicu refresh dompet, statistik, dan menutup halaman.',

@@ -160,11 +160,11 @@ String _$baseOpFirebaseHash() => r'a1e4d359b3e36266674737cc7d0a79a371480ee1';
 /// Provider untuk menyediakan instance dari [PelangganAktifOpFirebase].
 
 @ProviderFor(pelangganAktifOpFirebase)
-final activeCustomerOpFirebaseProvider = ActiveCustomerOpFirebaseProvider._();
+final pelangganAktifOpFirebaseProvider = PelangganAktifOpFirebaseProvider._();
 
 /// Provider untuk menyediakan instance dari [PelangganAktifOpFirebase].
 
-final class ActiveCustomerOpFirebaseProvider
+final class PelangganAktifOpFirebaseProvider
     extends
         $FunctionalProvider<
           PelangganAktifOpFirebase,
@@ -173,19 +173,19 @@ final class ActiveCustomerOpFirebaseProvider
         >
     with $Provider<PelangganAktifOpFirebase> {
   /// Provider untuk menyediakan instance dari [PelangganAktifOpFirebase].
-  ActiveCustomerOpFirebaseProvider._()
+  PelangganAktifOpFirebaseProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'activeCustomerOpFirebaseProvider',
+        name: r'pelangganAktifOpFirebaseProvider',
         isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$activeCustomerOpFirebaseHash();
+  String debugGetCreateSourceHash() => _$pelangganAktifOpFirebaseHash();
 
   @$internal
   @override
@@ -207,8 +207,8 @@ final class ActiveCustomerOpFirebaseProvider
   }
 }
 
-String _$activeCustomerOpFirebaseHash() =>
-    r'54ccbf6ac12e9c8cdf679e041a66db4fb4b6068f';
+String _$pelangganAktifOpFirebaseHash() =>
+    r'f295ab240e0211ff4454b603acda9a3bf185f047';
 
 @ProviderFor(feedbackOpFirebase)
 final feedbackOpFirebaseProvider = FeedbackOpFirebaseProvider._();
