@@ -4,7 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
-import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';

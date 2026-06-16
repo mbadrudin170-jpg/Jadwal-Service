@@ -573,7 +573,7 @@ class SqliteDatabase {
   static const String _tabelPesan = '''
     CREATE TABLE ${NamaTabel.pesan}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.isi} TEXT NOT NULL,
+      ${NamaKolom.pesan} TEXT NOT NULL,
       ${NamaKolom.tanggal} INTEGER NOT NULL,
       ${NamaKolom.status} TEXT NOT NULL
     )
@@ -668,7 +668,7 @@ class SqliteDatabase {
   static const String _tabelFeedback = '''
     CREATE TABLE ${NamaTabel.feedback}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.isi} TEXT NOT NULL,
+      ${NamaKolom.pesan} TEXT NOT NULL,
       ${NamaKolom.tanggal} INTEGER NOT NULL,
       ${NamaKolom.userId} TEXT NOT NULL,
       ${NamaKolom.diperbaruiPada} INTEGER,
@@ -697,7 +697,7 @@ class SqliteDatabase {
   static const String _tabelNotification = '''
     CREATE TABLE ${NamaTabel.notifikasi}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.isi} TEXT NOT NULL,
+      ${NamaKolom.pesan} TEXT NOT NULL,
       ${NamaKolom.tanggal} INTEGER NOT NULL,
       ${NamaKolom.status} TEXT NOT NULL,
       ${NamaKolom.diperbaruiPada} INTEGER,

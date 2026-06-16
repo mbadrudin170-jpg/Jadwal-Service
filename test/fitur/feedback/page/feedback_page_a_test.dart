@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
-import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
 import 'package:wifi/fitur/feedback/provider/feedback_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
@@ -23,14 +23,14 @@ final dummyFeedbackList = [
   FeedbackModel(
     id: 'fb1',
     userId: 'user1',
-    content: 'Pelayanan sangat baik',
-    date: DateTime(2025, 1, 15),
+    pesan: 'Pelayanan sangat baik',
+    tanggal: DateTime(2025, 1, 15),
   ),
   FeedbackModel(
     id: 'fb2',
     userId: 'user2',
-    content: 'Jaringan sering putus',
-    date: DateTime(2025, 1, 20),
+    pesan: 'Jaringan sering putus',
+    tanggal: DateTime(2025, 1, 20),
   ),
 ];
 

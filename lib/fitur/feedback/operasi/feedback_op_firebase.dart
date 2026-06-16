@@ -39,7 +39,7 @@ class FeedbackOpFirebase {
   Future<void> update(String docId, String newContent) async {
     Log.info('Mendelegasikan pembaruan feedback: $docId');
     await _baseOp.update(_collectionName, docId, {
-      NamaKolom.isi: newContent,
+      NamaKolom.pesan: newContent,
     });
   }
 

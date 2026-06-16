@@ -52,7 +52,7 @@ class _FormKritikDanSaranState extends ConsumerState<FormKritikDanSaran> {
         } else {
           final dataBaru = FeedbackModel(
             id: const Uuid().v4(),
-            content: _feedbackController.text,
+            pesan: _feedbackController.text,
             userId: userId,
           );
           await feedbackOpFirebase.create(dataBaru);

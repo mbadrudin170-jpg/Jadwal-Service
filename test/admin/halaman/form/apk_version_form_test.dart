@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/admin/halaman/form/apk_version_form.dart';
+import 'package:wifi/fitur/versi_apk/page/form_versi_apk.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
@@ -58,7 +58,7 @@ void main() {
     return ProviderScope(
       parent: container,
       child: MaterialApp(
-        home: ApkVersionForm(apkVersion: apkVersion),
+        home: FormVersiApk(versiApk: apkVersion),
         navigatorObservers: [mockNavigatorObserver],
       ),
     );

@@ -263,13 +263,13 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
       ) as _i5.Future<void>);
 
   @override
-  _i5.Future<void> insertOrUpdateBatch(
+  _i5.Future<void> sisipkanAtauPerbaruiBatch(
     List<_i3.PelangganAktifModel>? items, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #insertOrUpdateBatch,
+          #sisipkanAtauPerbaruiBatch,
           [items],
           {#fromServer: fromServer},
         ),

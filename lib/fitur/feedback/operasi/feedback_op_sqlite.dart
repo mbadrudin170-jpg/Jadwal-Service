@@ -1,4 +1,4 @@
-// path: lib/fitur/feedback/operasi/feedback_operation.dart
+// path: lib/fitur/feedback/operasi/feedback_op_sqlite.dart
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
@@ -12,7 +12,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 class FeedbackOpSqlite {
   final SqliteDatabase sqliteDb;
   final BaseOpSqlite baseOpSqlite;
-  final String _tableName = NamaTabel.feedback;
+  final String _namaTabel = NamaTabel.feedback;
 
   FeedbackOpSqlite({
     required this.sqliteDb,
@@ -22,17 +22,17 @@ class FeedbackOpSqlite {
   /// Menyimpan [FeedbackModel] baru ke dalam database.
   Future<void> add(
     final FeedbackModel feedback, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai createFeedback untuk data: ${feedback.toSqlite()}');
     try {
       final data =
-          feedback.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+          feedback.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite();
 
       await baseOpSqlite.sisipkan(
-        _tableName,
+        _namaTabel,
         data,
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil membuat kritik_saran dengan ID: ${feedback.id}');
     } on Exception catch (e, st) {
@@ -49,7 +49,7 @@ class FeedbackOpSqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         orderBy: '${NamaKolom.tanggal} DESC',
       );
       final feedbackList = List.generate(
@@ -70,7 +70,7 @@ class FeedbackOpSqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.diHapus} = 0',
         orderBy: '${NamaKolom.tanggal} DESC',
       );
@@ -92,7 +92,7 @@ class FeedbackOpSqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: 'id = ?',
         whereArgs: [id],
       );
@@ -125,7 +125,7 @@ class FeedbackOpSqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.diperbaruiPada} > ?',
         whereArgs: [lastSync.millisecondsSinceEpoch],
       );
@@ -148,9 +148,9 @@ class FeedbackOpSqlite {
   }
 
   /// Menyisipkan atau memperbarui sekumpulan [FeedbackModel] dalam satu batch.
-  Future<void> insertOrUpdateBatch(
+  Future<void> sisipkanAtauPerbaruiBatch(
     final List<FeedbackModel> feedbackList, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     Log.info(
       'Memulai insertOrUpdateBatch untuk ${feedbackList.length} item kritik_saran.',
@@ -164,14 +164,15 @@ class FeedbackOpSqlite {
     try {
       final data = feedbackList
           .map(
-            (final item) =>
-                item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
+            (final item) => item
+                .copyWith(diperbaruiPada: DateTime.now().toUtc())
+                .toSqlite(),
           )
           .toList();
       await baseOpSqlite.sisipkanAtauPerbaruiBatch(
-        _tableName,
+        _namaTabel,
         data,
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info(
         'Berhasil menyelesaikan insertOrUpdateBatch untuk ${feedbackList.length} item.',
@@ -200,7 +201,7 @@ class FeedbackOpSqlite {
     );
     try {
       await baseOpSqlite.delete(
-        _tableName,
+        _namaTabel,
         id,
         dariServer: fromServer,
       );
@@ -223,7 +224,7 @@ class FeedbackOpSqlite {
     Log.info('Memulai soft delete untuk feedback ID: $id');
     try {
       await baseOpSqlite.softDelete(
-        _tableName,
+        _namaTabel,
         id,
         dariServer: fromServer,
       );
@@ -245,7 +246,7 @@ class FeedbackOpSqlite {
     Log.info('Memulai soft delete untuk semua feedback');
     try {
       final count = await baseOpSqlite.softDeleteAll(
-        _tableName,
+        _namaTabel,
         dariServer: fromServer,
       );
       Log.info('Berhasil soft delete semua feedback. Total: $count item.');
@@ -269,7 +270,7 @@ class FeedbackOpSqlite {
       await baseOpSqlite.runComplexOperation<int>(
         (final Transaction txn) async {
           final int count = await txn.delete(
-            _tableName,
+            _namaTabel,
           );
           Log.info(
             'Berhasil deleteAllFeedback. Total baris yang dihapus: $count',
@@ -296,7 +297,7 @@ class FeedbackOpSqlite {
       await baseOpSqlite.runComplexOperation<int>(
         (final Transaction txn) async {
           final int deletedCount = await txn.delete(
-            _tableName,
+            _namaTabel,
             where: '${NamaKolom.userId} = ?',
             whereArgs: [userId],
           );
@@ -329,7 +330,7 @@ class FeedbackOpSqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: 'id IN (${List.filled(ids.length, '?').join(',')})',
         whereArgs: ids,
       );

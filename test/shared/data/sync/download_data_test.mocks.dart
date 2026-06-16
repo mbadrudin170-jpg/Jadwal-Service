@@ -16,7 +16,7 @@ import 'package:wifi/admin/data/sqlite.dart' as _i2;
 import 'package:wifi/fitur/dompet/model/dompet_model.dart' as _i14;
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart' as _i13;
 import 'package:wifi/fitur/feedback/model/feedback_model.dart' as _i6;
-import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart' as _i24;
+import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart' as _i24;
 import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart' as _i16;
 import 'package:wifi/fitur/kategori/model/kategori_model.dart' as _i3;
 import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart' as _i29;
@@ -1086,13 +1086,13 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
       ) as _i11.Future<void>);
 
   @override
-  _i11.Future<void> insertOrUpdateBatch(
+  _i11.Future<void> sisipkanAtauPerbaruiBatch(
     List<_i5.PelangganAktifModel>? items, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #insertOrUpdateBatch,
+          #sisipkanAtauPerbaruiBatch,
           [items],
           {#fromServer: fromServer},
         ),
@@ -1424,13 +1424,13 @@ class MockFeedbackOpSqlite extends _i1.Mock implements _i24.FeedbackOpSqlite {
   @override
   _i11.Future<void> add(
     _i6.FeedbackModel? feedback, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #add,
           [feedback],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
@@ -1486,13 +1486,13 @@ class MockFeedbackOpSqlite extends _i1.Mock implements _i24.FeedbackOpSqlite {
   @override
   _i11.Future<void> insertOrUpdateBatch(
     List<_i6.FeedbackModel>? feedbackList, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #insertOrUpdateBatch,
           [feedbackList],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
@@ -1976,7 +1976,7 @@ class MockVersiApkOpSqlite extends _i1.Mock implements _i30.VersiApkOpSqlite {
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #insertOrUpdateBatch,
+          #sisipkanAtauPerbaruiBatch,
           [modelList],
           {#dariServer: dariServer},
         ),
@@ -2007,9 +2007,10 @@ class MockVersiApkOpSqlite extends _i1.Mock implements _i30.VersiApkOpSqlite {
       ) as _i11.Future<List<_i31.VersiApkModel>>);
 
   @override
-  _i11.Future<_i31.VersiApkModel?> getLatestApkVersion() => (super.noSuchMethod(
+  _i11.Future<_i31.VersiApkModel?> ambilVersiApkTerakhir() =>
+      (super.noSuchMethod(
         Invocation.method(
-          #getLatestApkVersion,
+          #ambilVersiApkTerakhir,
           [],
         ),
         returnValue: _i11.Future<_i31.VersiApkModel?>.value(),

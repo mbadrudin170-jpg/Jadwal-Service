@@ -36,7 +36,7 @@ abstract final class NamaKolom {
   static const String kataSandi = 'password';
   static const String macAddress = 'mac_address';
   static const String status = 'status';
-  static const String isi = 'content';
+  static const String pesan = 'content';
   static const String userId = 'user_id';
   static const String catatanRilis = 'release_notes';
   static const String nomorBuildTerakhir = 'latest_build_number';

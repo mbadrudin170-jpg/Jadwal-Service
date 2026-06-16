@@ -1,17 +1,16 @@
-// path: lib/admin/halaman/form/apk_version_form.dart
+// path: lib/fitur/versi_apk/page/form_versi_apk.dart
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
+import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -23,20 +22,20 @@ import 'package:wifi/shared/utils/toast_util.dart';
 /// Form ini digunakan untuk menambah atau mengubah informasi mengenai
 /// versi APK yang tersedia untuk diunduh oleh pengguna, termasuk nomor build,
 /// tautan unduhan, dan catatan rilis.
-class ApkVersionForm extends ConsumerStatefulWidget {
+class FormVersiApk extends ConsumerStatefulWidget {
   /// Model data versi APK yang akan diedit. Jika `null`, form akan berada dalam mode tambah baru.
-  final VersiApkModel? apkVersion;
+  final VersiApkModel? versiApk;
 
-  const ApkVersionForm(
-      {super.key, this.apkVersion, final VersiApkOpSqlite? operasi});
+  const FormVersiApk(
+      {super.key, this.versiApk, final VersiApkOpSqlite? versiApkOpSqlite});
   @override
-  ConsumerState<ApkVersionForm> createState() => _ApkVersionFormState();
+  ConsumerState<FormVersiApk> createState() => _FormVersiApkState();
 }
 
-class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
+class _FormVersiApkState extends ConsumerState<FormVersiApk> {
   final _formKey = GlobalKey<FormState>();
   bool _loading = false;
-  bool get _modeEdit => widget.apkVersion != null;
+  bool get _modeEdit => widget.versiApk != null;
   late TextEditingController _releaseNotesController;
   late TextEditingController _latestVersionController;
   late TextEditingController _youtubeTutorialController;
@@ -76,18 +75,18 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
     _link32Controller = TextEditingController();
     _link64Controller = TextEditingController();
     if (_modeEdit) {
-      _populateControllers(widget.apkVersion!);
+      _populateControllers(widget.versiApk!);
     } else {
       unawaited(_muatDataVersiTerakhir());
     }
   }
 
   Future<void> _muatDataVersiTerakhir() async {
-    final apkVersionOperasi = ref.read(apkVersionOperationProvider);
+    final apkVersionOperasi = ref.read(versiApkOpSqliteProvider);
     Log.info('Memuat data rilis terakhir untuk otomatisasi input.');
     setState(() => _loading = true);
     try {
-      final versiTerakhir = await apkVersionOperasi.getLatestApkVersion();
+      final versiTerakhir = await apkVersionOperasi.ambilVersiApkTerakhir();
       if (versiTerakhir != null && mounted) {
         _latestVersionController.text = versiTerakhir.versiTerkahir;
         _youtubeTutorialController.text = versiTerakhir.linkYoutubeTutorial;
@@ -156,7 +155,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
   }
 
   Future<void> _saveForm() async {
-    final apkVersionOperasi = ref.read(apkVersionOperationProvider);
+    final apkVersionOperasi = ref.read(versiApkOpSqliteProvider);
     if (!_formKey.currentState!.validate()) {
       _scrollController.animateTo(
         0.0, // Scroll ke atas halaman
@@ -230,7 +229,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
         tautanUnduhan[ArsitekturApk.bit64] = _link64Controller.text;
       }
       final dataToSave = VersiApkModel(
-        id: widget.apkVersion?.id ?? const Uuid().v4(),
+        id: widget.versiApk?.id ?? const Uuid().v4(),
         catatanRilis: _releaseNotesController.text,
         versiTerkahir: _latestVersionController.text,
         linkYoutubeTutorial: _youtubeTutorialController.text,
@@ -273,7 +272,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
   }
 
   @override
-  Widget build( BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(_modeEdit ? 'Edit Versi APK' : 'Tambah Versi APK'),

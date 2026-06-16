@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
-import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 import 'package:wifi/fitur/feedback/provider/feedback_provider.dart';
 
 class MockFeedbackOperation extends Mock implements FeedbackOpSqlite {}

@@ -43,12 +43,12 @@ class FeedbackHistoryUser extends ConsumerWidget {
                 child: ListTile(
                   onTap: () =>
                       _showOptionsDialog(context, ref, feedback, userId),
-                  title: Text(feedback.content),
+                  title: Text(feedback.pesan),
                   subtitle: Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
-                      feedback.date != null
-                          ? FormatWaktuLengkap.formatSingkat(feedback.date!)
+                      feedback.tanggal != null
+                          ? FormatWaktuLengkap.formatSingkat(feedback.tanggal!)
                           : '',
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
@@ -96,7 +96,7 @@ class FeedbackHistoryUser extends ConsumerWidget {
                   MaterialPageRoute<void>(
                     builder: (_) => FormKritikDanSaran(
                       kritikId: feedback.id,
-                      content: feedback.content,
+                      content: feedback.pesan,
                     ),
                   ),
                 );

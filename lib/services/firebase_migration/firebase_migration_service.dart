@@ -118,7 +118,7 @@ class FirebaseMigrationService {
       'isDeleted': NamaKolom.diHapus,
     },
     NamaTabel.feedback: {
-      'isi': NamaKolom.isi,
+      'isi': NamaKolom.pesan,
       'tanggal': NamaKolom.tanggal,
       'userId': NamaKolom.userId,
       'diperbarui': NamaKolom.diperbaruiPada,
@@ -160,7 +160,7 @@ class FirebaseMigrationService {
       'diperbarui': NamaKolom.diperbaruiPada,
     },
     NamaTabel.pesan: {
-      'isi': NamaKolom.isi,
+      'isi': NamaKolom.pesan,
       'tanggal': NamaKolom.tanggal,
       'status': NamaKolom.status,
     },

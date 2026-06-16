@@ -1,11 +1,11 @@
 // path: lib/fitur/versi_apk/operasi/apk_version_operation.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
-import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data versi APK user di database lokal.
@@ -112,13 +112,13 @@ class VersiApkOpSqlite {
   Future<int> softDeleteAll({final bool dariServer = false}) async {
     Log.info('Memulai proses soft delete untuk SEMUA versi APK aktif');
     try {
-      final count = await _baseOpSqlite.softDeleteAll(
+      final jumlah = await _baseOpSqlite.softDeleteAll(
         _namaTabel,
         dariServer: dariServer,
       );
-      Log.info('Proses soft delete semua APK versions selesai. Total: $count');
-      return count;
-    } on Exception catch (e, st) {
+      Log.info('Proses soft delete semua APK versions selesai. Total: $jumlah');
+      return jumlah;
+    } catch (e, st) {
       Log.error(
         'Gagal melakukan soft delete untuk semua APK versions',
         e: e,
@@ -201,7 +201,7 @@ class VersiApkOpSqlite {
         'Berhasil mengambil ${hasil.length} data versi APK - Aktif: $jumlahAktif, Diarsipkan: $jumlahArsip',
       );
       return hasil;
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengambil semua data versi APK dari tabel $_namaTabel, mengembalikan list kosong',
         e: e,
@@ -245,18 +245,17 @@ class VersiApkOpSqlite {
       }
 
       return hasil;
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error(
-        'Gagal mengambil versi APK aktif dari tabel $_namaTabel, mengembalikan list kosong',
-        e: e,
-        s: st,
-      );
+          'Gagal mengambil versi APK aktif dari tabel $_namaTabel, mengembalikan list kosong',
+          e: e,
+          s: st);
       return [];
     }
   }
 
   /// Mengambil versi APK terbaru yang aktif dari database.
-  Future<VersiApkModel?> getLatestApkVersion() async {
+  Future<VersiApkModel?> ambilVersiApkTerakhir() async {
     Log.info('Mengambil versi APK terbaru (aktif) dari tabel $_namaTabel');
 
     try {
@@ -285,12 +284,11 @@ class VersiApkOpSqlite {
         );
         return null;
       }
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error(
-        'Gagal mengambil versi APK terbaru dari tabel $_namaTabel, mengembalikan null',
-        e: e,
-        s: st,
-      );
+          'Gagal mengambil versi APK terbaru dari tabel $_namaTabel, mengembalikan null',
+          e: e,
+          s: st);
       return null;
     }
   }

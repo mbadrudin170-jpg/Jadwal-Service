@@ -62,7 +62,7 @@ void main() {
               limit: anyNamed('limit')))
           .thenAnswer((_) async => [tApkVersionMap]);
 
-      final result = await apkVersionOperation.getLatestApkVersion();
+      final result = await apkVersionOperation.ambilVersiApkTerakhir();
 
       expect(result, isA<VersiApkModel>());
       expect(result?.id, tApkVersion.id);

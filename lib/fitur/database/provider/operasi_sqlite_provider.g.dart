@@ -293,18 +293,18 @@ final class KategoriOpSqliteProvider extends $FunctionalProvider<
 
 String _$kategoriOpSqliteHash() => r'ccf68283b35458e7bfbfd4f3a6612fac4e17d4d8';
 
-/// Provider untuk menyediakan instance dari [DataCleaningOperation].
+/// Provider untuk menyediakan instance dari [PembersihanDataOperasi].
 
 @ProviderFor(dataCleaningOperation)
 final dataCleaningOperationProvider = DataCleaningOperationProvider._();
 
-/// Provider untuk menyediakan instance dari [DataCleaningOperation].
+/// Provider untuk menyediakan instance dari [PembersihanDataOperasi].
 
 final class DataCleaningOperationProvider extends $FunctionalProvider<
-    DataCleaningOperation,
-    DataCleaningOperation,
-    DataCleaningOperation> with $Provider<DataCleaningOperation> {
-  /// Provider untuk menyediakan instance dari [DataCleaningOperation].
+    PembersihanDataOperasi,
+    PembersihanDataOperasi,
+    PembersihanDataOperasi> with $Provider<PembersihanDataOperasi> {
+  /// Provider untuk menyediakan instance dari [PembersihanDataOperasi].
   DataCleaningOperationProvider._()
       : super(
           from: null,
@@ -321,26 +321,26 @@ final class DataCleaningOperationProvider extends $FunctionalProvider<
 
   @$internal
   @override
-  $ProviderElement<DataCleaningOperation> $createElement(
+  $ProviderElement<PembersihanDataOperasi> $createElement(
           $ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  DataCleaningOperation create(Ref ref) {
+  PembersihanDataOperasi create(Ref ref) {
     return dataCleaningOperation(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(DataCleaningOperation value) {
+  Override overrideWithValue(PembersihanDataOperasi value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<DataCleaningOperation>(value),
+      providerOverride: $SyncValueProvider<PembersihanDataOperasi>(value),
     );
   }
 }
 
 String _$dataCleaningOperationHash() =>
-    r'9ee8450a097ed913cf6923d563a2ebfe0442c784';
+    r'd7f2f50d1c41e0e9504b94de9504fb3550793f96';
 
 /// Provider untuk menyediakan instance dari [FeedbackOpSqlite].
 

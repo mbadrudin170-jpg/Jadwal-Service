@@ -12,12 +12,12 @@ void main() {
 
     final modelLengkap = FeedbackModel(
       id: 'feedback123',
-      content: 'Ini adalah feedback.',
+      pesan: 'Ini adalah feedback.',
       userId: 'user123',
-      date: tanggal,
-      updatedAt: diperbaruiPada,
-      isDeleted: false,
-      archivedAt: diarsipkanPada,
+      tanggal: tanggal,
+      diperbaruiPada: diperbaruiPada,
+      dihapus: false,
+      diarsipkanPada: diarsipkanPada,
     );
 
     test('01. harus membuat instance dengan benar', () {
@@ -32,7 +32,7 @@ void main() {
 
     test('02. harus menghasilkan id unik jika tidak disediakan', () {
       final modelTanpaId = FeedbackModel(
-        content: 'Feedback tanpa ID.',
+        pesan: 'Feedback tanpa ID.',
         userId: 'user456',
       );
       expect(modelTanpaId.id, isNotNull);
@@ -70,7 +70,7 @@ void main() {
     group('fromSqlite', () {
       final mapSqlite = {
         NamaKolom.id: 'feedback123',
-        NamaKolom.isi: 'Ini dari SQLite.',
+        NamaKolom.pesan: 'Ini dari SQLite.',
         NamaKolom.userId: 'user123',
         NamaKolom.tanggal: tanggal.millisecondsSinceEpoch,
         NamaKolom.diperbaruiPada: diperbaruiPada.millisecondsSinceEpoch,
@@ -96,7 +96,7 @@ void main() {
       test('06. harus menangani nilai null dari map SQLite', () {
         final mapKosong = {
           NamaKolom.id: 'feedback456',
-          NamaKolom.isi: null,
+          NamaKolom.pesan: null,
           NamaKolom.userId: null,
           NamaKolom.tanggal: null,
           NamaKolom.diperbaruiPada: null,
@@ -120,7 +120,7 @@ void main() {
         final map = modelLengkap.toSqlite();
 
         expect(map[NamaKolom.id], 'feedback123');
-        expect(map[NamaKolom.isi], 'Ini adalah feedback.');
+        expect(map[NamaKolom.pesan], 'Ini adalah feedback.');
         expect(map[NamaKolom.userId], 'user123');
         expect(map[NamaKolom.tanggal], tanggal.millisecondsSinceEpoch);
         expect(map[NamaKolom.diperbaruiPada],
@@ -133,7 +133,7 @@ void main() {
       test('08. harus menangani nilai null saat konversi ke map SQLite', () {
         final modelKosong = FeedbackModel(
           id: 'kosong123',
-          content: '',
+          pesan: '',
           userId: '',
         );
         final map = modelKosong.toSqlite();
@@ -148,7 +148,7 @@ void main() {
 
     group('fromFirebase', () {
       final mapFirebase = {
-        NamaKolom.isi: 'Ini dari Firebase.',
+        NamaKolom.pesan: 'Ini dari Firebase.',
         NamaKolom.userId: 'user123',
         NamaKolom.tanggal: Timestamp.fromDate(tanggal),
         NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada),
@@ -170,7 +170,7 @@ void main() {
 
       test('10. harus menangani nilai null dari map Firebase', () {
         final mapKosong = {
-          NamaKolom.isi: null,
+          NamaKolom.pesan: null,
           NamaKolom.userId: null,
           NamaKolom.tanggal: null,
           NamaKolom.diperbaruiPada: null,
@@ -194,7 +194,7 @@ void main() {
         final map = modelLengkap.toFirebase();
 
         expect(map[NamaKolom.id], 'feedback123');
-        expect(map[NamaKolom.isi], 'Ini adalah feedback.');
+        expect(map[NamaKolom.pesan], 'Ini adalah feedback.');
         expect(map[NamaKolom.userId], 'user123');
         expect(map[NamaKolom.tanggal], Timestamp.fromDate(tanggal.toUtc()));
         expect(map[NamaKolom.diperbaruiPada],
@@ -204,11 +204,10 @@ void main() {
             Timestamp.fromDate(diarsipkanPada.toUtc()));
       });
 
-      test('12. harus menangani nilai null saat konversi ke map Firebase',
-          () {
+      test('12. harus menangani nilai null saat konversi ke map Firebase', () {
         final modelKosong = FeedbackModel(
           id: 'kosong123',
-          content: '',
+          pesan: '',
           userId: '',
         );
         final map = modelKosong.toFirebase();

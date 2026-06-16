@@ -30,9 +30,9 @@ void main() {
         () async {
       // Arrange
       final feedback = FeedbackModel(
-          content: 'Ini adalah feedback pertama.',
+          pesan: 'Ini adalah feedback pertama.',
           userId: 'user123',
-          updatedAt: DateTime.now().toUtc());
+          diperbaruiPada: DateTime.now().toUtc());
 
       // Act
       await feedbackOp.create(feedback);
@@ -43,7 +43,7 @@ void main() {
       expect(snapshot.docs.length, 1, reason: 'Harus ada 1 dokumen di koleksi');
 
       final doc = snapshot.docs.first;
-      expect(doc.data()[NamaKolom.isi], 'Ini adalah feedback pertama.');
+      expect(doc.data()[NamaKolom.pesan], 'Ini adalah feedback pertama.');
       expect(doc.data()[NamaKolom.userId], 'user123');
       // FakeFirestore secara otomatis menangani FieldValue.serverTimestamp()
       // dengan mengisi waktu saat ini, jadi kita hanya perlu memastikan itu tidak null.
@@ -54,7 +54,7 @@ void main() {
     test('update() harus memperbarui konten dokumen yang ada', () async {
       // Arrange - Buat dokumen awal
       final docRef = await fakeFirestore.collection(collectionName).add({
-        NamaKolom.isi: 'Konten lama',
+        NamaKolom.pesan: 'Konten lama',
         NamaKolom.userId: 'user456',
         NamaKolom.tanggal: DateTime(2023),
       });
@@ -68,7 +68,7 @@ void main() {
       final updatedDoc =
           await fakeFirestore.collection(collectionName).doc(docRef.id).get();
       expect(updatedDoc.exists, isTrue);
-      expect(updatedDoc.data()?[NamaKolom.isi], newContent);
+      expect(updatedDoc.data()?[NamaKolom.pesan], newContent);
       // Pastikan field lain tidak berubah
       expect(updatedDoc.data()?[NamaKolom.userId], 'user456');
       expect(updatedDoc.data()?[NamaKolom.diperbaruiPada], isNotNull);
@@ -96,7 +96,7 @@ void main() {
         () async {
       // Arrange
       final docRef = await fakeFirestore.collection(collectionName).add({
-        NamaKolom.isi: 'Akan di-soft-delete',
+        NamaKolom.pesan: 'Akan di-soft-delete',
         NamaKolom.diHapus: false,
       });
 

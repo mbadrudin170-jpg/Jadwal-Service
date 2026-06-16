@@ -43,7 +43,7 @@ void main() {
   });
 
   group('FeedbackOpFirebase', () {
-    final feedback = FeedbackModel(content: 'Test content', userId: 'user1');
+    final feedback = FeedbackModel(pesan: 'Test content', userId: 'user1');
     const docId = 'feedback1';
 
     test('01. harus mendelegasikan pembuatan feedback ke BaseOpFirebase',
@@ -56,7 +56,9 @@ void main() {
 
       await feedbackOpFirebase.create(feedback);
 
-      verify(() => mockBaseOp.tambah(NamaTabel.feedback, any(that: isA<Map<String, dynamic>>()))).called(1);
+      verify(() => mockBaseOp.tambah(
+              NamaTabel.feedback, any(that: isA<Map<String, dynamic>>())))
+          .called(1);
     });
 
     test('02. harus mendelegasikan pembaruan feedback ke BaseOpFirebase',
@@ -68,7 +70,7 @@ void main() {
       await feedbackOpFirebase.update(docId, newContent);
 
       verify(() => mockBaseOp.update(
-          NamaTabel.feedback, docId, {NamaKolom.isi: newContent})).called(1);
+          NamaTabel.feedback, docId, {NamaKolom.pesan: newContent})).called(1);
     });
 
     test('03. harus mendelegasikan penghapusan permanen ke BaseOpFirebase',
@@ -104,18 +106,16 @@ void main() {
         'updatedAt': Timestamp.fromDate(now),
       };
 
-      test(
-          '05. harus mengembalikan stream list FeedbackModel saat data ada',
+      test('05. harus mengembalikan stream list FeedbackModel saat data ada',
           () {
         final mockQuerySnapshot = MockQuerySnapshot();
         final mockDocSnapshot = MockQueryDocumentSnapshot();
 
         when(() => mockCollectionReference
-                .where(NamaKolom.userId, isEqualTo: userId)
-                .where(NamaKolom.diHapus, isEqualTo: false)
-                .orderBy(NamaKolom.tanggal, descending: true)
-                .snapshots())
-            .thenAnswer((_) => Stream.value(mockQuerySnapshot));
+            .where(NamaKolom.userId, isEqualTo: userId)
+            .where(NamaKolom.diHapus, isEqualTo: false)
+            .orderBy(NamaKolom.tanggal, descending: true)
+            .snapshots()).thenAnswer((_) => Stream.value(mockQuerySnapshot));
 
         when(() => mockQuerySnapshot.docs).thenReturn([mockDocSnapshot]);
         when(() => mockDocSnapshot.id).thenReturn('fb1');
@@ -125,19 +125,18 @@ void main() {
 
         expect(
             stream,
-            emits(isA<List<FeedbackModel>>()..having(
-                (list) => list.first.id, 'ID sama', 'fb1')));
+            emits(isA<List<FeedbackModel>>()
+              ..having((list) => list.first.id, 'ID sama', 'fb1')));
       });
 
       test('06. harus mengembalikan stream kosong saat tidak ada data', () {
         final mockQuerySnapshot = MockQuerySnapshot();
 
         when(() => mockCollectionReference
-                .where(NamaKolom.userId, isEqualTo: userId)
-                .where(NamaKolom.diHapus, isEqualTo: false)
-                .orderBy(NamaKolom.tanggal, descending: true)
-                .snapshots())
-            .thenAnswer((_) => Stream.value(mockQuerySnapshot));
+            .where(NamaKolom.userId, isEqualTo: userId)
+            .where(NamaKolom.diHapus, isEqualTo: false)
+            .orderBy(NamaKolom.tanggal, descending: true)
+            .snapshots()).thenAnswer((_) => Stream.value(mockQuerySnapshot));
 
         when(() => mockQuerySnapshot.docs).thenReturn([]);
 
@@ -150,11 +149,10 @@ void main() {
         final error = Exception('Firestore error');
 
         when(() => mockCollectionReference
-                .where(NamaKolom.userId, isEqualTo: userId)
-                .where(NamaKolom.diHapus, isEqualTo: false)
-                .orderBy(NamaKolom.tanggal, descending: true)
-                .snapshots())
-            .thenAnswer((_) => Stream.error(error));
+            .where(NamaKolom.userId, isEqualTo: userId)
+            .where(NamaKolom.diHapus, isEqualTo: false)
+            .orderBy(NamaKolom.tanggal, descending: true)
+            .snapshots()).thenAnswer((_) => Stream.error(error));
 
         final stream = feedbackOpFirebase.getByUser(userId);
 

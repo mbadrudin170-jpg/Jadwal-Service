@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
-import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -307,7 +307,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                       ),
                       gapH8,
                       Text(
-                        kritikSaran.content,
+                        kritikSaran.pesan,
                         style: const TextStyle(
                           fontSize: 16,
                           height: 1.5,
@@ -319,9 +319,9 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: Text(
-                          kritikSaran.date != null
+                          kritikSaran.tanggal != null
                               ? FormatWaktuLengkap.formatSingkat(
-                                  kritikSaran.date!,
+                                  kritikSaran.tanggal!,
                                 )
                               : 'Tanggal tidak tersedia',
                           style: TextStyle(

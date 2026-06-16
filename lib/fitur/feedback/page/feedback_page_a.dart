@@ -62,7 +62,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   void _applyFilter(List<FeedbackModel> allFeedback) {
     final query = _searchController.text.toLowerCase();
     _hasilFilter = allFeedback.where((item) {
-      final isi = item.content.toLowerCase();
+      final isi = item.pesan.toLowerCase();
       final namaPengirim = _mapNamaUser[item.userId]?.toLowerCase() ?? '';
       return isi.contains(query) || namaPengirim.contains(query);
     }).toList();
@@ -172,7 +172,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                           NamaPelangganWidget(idPelanggan: item.userId),
                           gapH12,
                           Text(
-                            item.content,
+                            item.pesan,
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -180,8 +180,8 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: Text(
-                              item.date != null
-                                  ? FormatWaktuLengkap.formatSingkat(item.date!)
+                              item.tanggal != null
+                                  ? FormatWaktuLengkap.formatSingkat(item.tanggal!)
                                   : 'Tanggal tidak tersedia',
                               style: TextStyle(
                                 fontSize: 12,

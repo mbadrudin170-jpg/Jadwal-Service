@@ -272,7 +272,7 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<void> insertOrUpdateBatch(
+  Future<void> sisipkanAtauPerbaruiBatch(
     final List<PelangganAktifModel> items, {
     final bool fromServer = false,
   }) async {

@@ -10,7 +10,7 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 
 import 'feedback_operation_test.mocks.dart';
 
@@ -51,16 +51,16 @@ void main() {
   final feedback1 = FeedbackModel(
     id: 'id1',
     userId: 'user1',
-    content: 'Feedback pertama',
-    date: DateTime(2023),
+    pesan: 'Feedback pertama',
+    tanggal: DateTime(2023),
   );
 
   final feedback2 = FeedbackModel(
     id: 'id2',
     userId: 'user2',
-    content: 'Feedback kedua',
-    date: DateTime(2023, 1, 2),
-    isDeleted: true,
+    pesan: 'Feedback kedua',
+    tanggal: DateTime(2023, 1, 2),
+    dihapus: true,
   );
 
   final feedbackMap1 = feedback1.toSqlite();
@@ -188,7 +188,7 @@ void main() {
       // `when` tidak diperlukan jika return type-nya void
 
       // Act
-      await feedbackOperation.insertOrUpdateBatch(feedbackList);
+      await feedbackOperation.sisipkanAtauPerbaruiBatch(feedbackList);
 
       // Assert
       verify(mockBaseOperation.insertOrUpdateBatch(
@@ -201,7 +201,7 @@ void main() {
         '8. insertOrUpdateBatch dengan list kosong tidak boleh memanggil baseOperation',
         () async {
       // Act
-      await feedbackOperation.insertOrUpdateBatch([]);
+      await feedbackOperation.sisipkanAtauPerbaruiBatch([]);
 
       // Assert
       verifyNever(mockBaseOperation.insertOrUpdateBatch(any, any));

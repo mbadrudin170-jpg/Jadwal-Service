@@ -111,13 +111,14 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(
-                  context,
-                  ref,
-                  'Pelanggan Aktif',
-                  DataDummy.activeCustomers,
-                  ref
-                      .read(pelangganAktifOpSqliteProvider)
-                      .sisipkanAtauPerbaruiBatch);
+                context,
+                ref,
+                'Pelanggan Aktif',
+                DataDummy.activeCustomers,
+                (data, {dariServer = false}) => ref
+                    .read(pelangganAktifOpSqliteProvider)
+                    .sisipkanAtauPerbaruiBatch(data, fromServer: dariServer),
+              );
               ref.invalidate(pelangganAktifProvider);
             },
             label: 'Tambah Pelanggan Aktif Dummy',

@@ -1,36 +1,34 @@
-// path: lib/admin/halaman/detail/apk_version_detail.dart
+// path: lib/fitur/versi_apk/page/detail_versi_apk.dart
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:wifi/admin/halaman/form/apk_version_form.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
+import 'package:wifi/fitur/versi_apk/page/form_versi_apk.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-class ApkVersionDetailPage extends ConsumerStatefulWidget {
+class DetailVersiApk extends ConsumerStatefulWidget {
   final VersiApkModel versiApk;
-  final VersiApkOpSqlite? operasi;
+  final VersiApkOpSqlite? versiApkOPSqlite;
 
-  const ApkVersionDetailPage({
+  const DetailVersiApk({
     super.key,
     required this.versiApk,
-    this.operasi,
+    this.versiApkOPSqlite,
   });
 
   @override
-  ConsumerState<ApkVersionDetailPage> createState() =>
-      _ApkVersionDetailPageState();
+  ConsumerState<DetailVersiApk> createState() => _DetailVersiApkState();
 }
 
-class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
+class _DetailVersiApkState extends ConsumerState<DetailVersiApk> {
   late VersiApkModel _currentApkVersion;
   late final VersiApkOpSqlite _apkVersionOperation;
 
@@ -39,23 +37,23 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
     super.initState();
     _currentApkVersion = widget.versiApk;
     _apkVersionOperation =
-        widget.operasi ?? ref.read(apkVersionOperationProvider);
+        widget.versiApkOPSqlite ?? ref.read(versiApkOpSqliteProvider);
   }
 
-  Future<void> _navigateToEditForm() async {
+  Future<void> _navigasiKeEdit() async {
     Log.info(
         'Tombol edit APK ditekan, versi=${_currentApkVersion.versiTerkahir}');
-    final result = await Navigator.push<bool>(
+    final hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (final context) => ApkVersionForm(
-          apkVersion: _currentApkVersion,
-          operasi: _apkVersionOperation,
+        builder: (context) => FormVersiApk(
+          versiApk: _currentApkVersion,
+          versiApkOpSqlite: _apkVersionOperation,
         ),
       ),
     );
 
-    if ((result ?? false) && mounted) {
+    if ((hasil ?? false) && mounted) {
       Log.info('Edit APK selesai dengan perubahan, memuat ulang data...');
       unawaited(_reloadData());
     } else {
@@ -99,7 +97,7 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
           IconButton(
             icon: const Icon(TIcons.edit),
             tooltip: 'Edit Data',
-            onPressed: _navigateToEditForm,
+            onPressed: _navigasiKeEdit,
           ),
         ],
       ),
@@ -118,8 +116,7 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
             ),
           ),
           ..._currentApkVersion.nomorBuildTerakhir.entries.map(
-            (final entry) =>
-                _buildInfoRow(entry.key.name, entry.value.toString()),
+            (entry) => _buildInfoRow(entry.key.name, entry.value.toString()),
           ),
           gapH16,
           Text(
@@ -129,7 +126,7 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
             ),
           ),
           ..._currentApkVersion.linkDownload.entries.map(
-            (final entry) => _buildInfoRow(entry.key.name, entry.value),
+            (entry) => _buildInfoRow(entry.key.name, entry.value),
           ),
           gapH16,
           _buildInfoRow(

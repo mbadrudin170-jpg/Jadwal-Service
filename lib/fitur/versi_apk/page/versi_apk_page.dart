@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:wifi/admin/halaman/detail/apk_version_detail.dart';
-import 'package:wifi/admin/halaman/form/apk_version_form.dart';
+import 'package:wifi/fitur/versi_apk/page/detail_versi_apk.dart';
+import 'package:wifi/fitur/versi_apk/page/form_versi_apk.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
@@ -22,7 +22,7 @@ enum SortOrder {
 
 class VersiApkPage extends ConsumerStatefulWidget {
   final VersiApkOpSqlite? operation;
-  
+
   const VersiApkPage({super.key, this.operation});
 
   @override
@@ -96,9 +96,9 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (final context) => ApkVersionDetailPage(
+        builder: (final context) => DetailVersiApk(
           versiApk: versiApk,
-          operasi: _versiApkOpSqlite,
+          versiApkOPSqlite: _versiApkOpSqlite,
         ),
       ),
     );
@@ -111,9 +111,9 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (context) => ApkVersionForm(
-          apkVersion: versiApk,
-          operasi: _versiApkOpSqlite,
+        builder: (context) => FormVersiApk(
+          versiApk: versiApk,
+          versiApkOpSqlite: _versiApkOpSqlite,
         ),
       ),
     );
@@ -128,7 +128,8 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (final context) => ApkVersionForm(operasi: _versiApkOpSqlite),
+        builder: (final context) =>
+            FormVersiApk(versiApkOpSqlite: _versiApkOpSqlite),
       ),
     );
     if ((result ?? false) && mounted) {
@@ -260,7 +261,7 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
   }
 
   @override
-  Widget build( BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Daftar Versi APK'),
@@ -312,7 +313,7 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
       onRefresh: _loadData,
       child: ListView.builder(
         itemCount: _daftarVersiApk.length,
-        itemBuilder: ( context,  index) {
+        itemBuilder: (context, index) {
           final apkVersion = _daftarVersiApk[index];
           final buildUniversal =
               apkVersion.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0;

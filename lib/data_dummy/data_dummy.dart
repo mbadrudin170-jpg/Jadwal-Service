@@ -209,14 +209,14 @@ class DataDummy {
         FeedbackModel(
           id: feedbackBudiId,
           userId: customerBudiId,
-          content: 'Koneksi internet sangat stabil, terima kasih!',
-          date: DateTime.now().subtract(const Duration(days: 3)),
+          pesan: 'Koneksi internet sangat stabil, terima kasih!',
+          tanggal: DateTime.now().subtract(const Duration(days: 3)),
         ),
         FeedbackModel(
           id: feedbackSitiId,
           userId: customerSitiId,
-          content: 'Kecepatan download kadang melambat di malam hari.',
-          date: DateTime.now().subtract(const Duration(hours: 12)),
+          pesan: 'Kecepatan download kadang melambat di malam hari.',
+          tanggal: DateTime.now().subtract(const Duration(hours: 12)),
         ),
       ];
 
