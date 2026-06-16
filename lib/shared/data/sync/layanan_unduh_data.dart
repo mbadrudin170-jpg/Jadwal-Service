@@ -281,7 +281,7 @@ class LayananUnduhData {
       lastDownloadTime: lastDownloadTime,
       fromFirebase: OrderModel.fromFirebase,
       batchOperation: (final data) =>
-          _orderOperation.insertOrUpdateBatch(data, dariServer: true),
+          _orderOperation.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 

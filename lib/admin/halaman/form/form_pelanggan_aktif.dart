@@ -63,7 +63,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   bool _gunakanPoin = false;
   late TextEditingController _bonusDurationController;
   TipeDurasiPaket _tipeBonusDurasi = TipeDurasiPaket.minutes;
-  bool _isBonus = false;
+  bool _bonus = false;
   int _saldoPoinPelanggan = 0;
   DateTime? _pilihTanggal;
   TimeOfDay? _pilihJam;
@@ -197,7 +197,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           kategoriSumber.firstWhereOrNull((k) => k.id == transaksi.idKategori);
 
       if (transaksi.durasiBonus > 0) {
-        _isBonus = true;
+        _bonus = true;
         _bonusDurationController.text = transaksi.durasiBonus.toString();
         _tipeBonusDurasi = transaksi.tipeDurasiBonus ?? TipeDurasiPaket.hours;
       }
@@ -300,12 +300,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final tanggalMulai = DateTime(_pilihTanggal!.year, _pilihTanggal!.month,
           _pilihTanggal!.day, _pilihJam!.hour, _pilihJam!.minute);
       final int durasiBonus =
-          _isBonus ? (int.tryParse(_bonusDurationController.text) ?? 0) : 0;
+          _bonus ? (int.tryParse(_bonusDurationController.text) ?? 0) : 0;
       final DateTime tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
         tanggalMulai,
         _paketDipilih!,
         durasiBonus: durasiBonus,
-        tipeDurasiBonus: _isBonus ? _tipeBonusDurasi : null,
+        tipeDurasiBonus: _bonus ? _tipeBonusDurasi : null,
       );
 
       final idTransaksi =
@@ -338,7 +338,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         durasiPaket: _paketDipilih!.durasi,
         tipeDurasiPaket: _paketDipilih!.tipe,
         durasiBonus: durasiBonus,
-        tipeDurasiBonus: _isBonus ? _tipeBonusDurasi : null,
+        tipeDurasiBonus: _bonus ? _tipeBonusDurasi : null,
         tanggalMulai: tanggalMulai,
         tanggalBerakhir: tanggalBerakhir,
         statusAktivasi: true,
@@ -680,14 +680,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                 _pilihTanggal!.day,
                 _pilihJam!.hour,
                 _pilihJam!.minute);
-            final int nilaiBonus = _isBonus
+            final int nilaiBonus = _bonus
                 ? (int.tryParse(_bonusDurationController.text) ?? 0)
                 : 0;
             final DateTime endDate = PerhitunganUtil.hitungTanggalBerakhir(
               startDate,
               _paketDipilih!,
               durasiBonus: nilaiBonus,
-              tipeDurasiBonus: _isBonus ? _tipeBonusDurasi : null,
+              tipeDurasiBonus: _bonus ? _tipeBonusDurasi : null,
             );
 
             return FormatWaktuLengkap.formatSingkat(endDate);
@@ -705,11 +705,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       children: [
         const TeksIsiBesar('Bonus'),
         Switch(
-          value: _isBonus,
+          value: _bonus,
           onChanged: (value) {
             setState(() {
-              _isBonus = value;
-              Log.info('Status bonus diubah: $_isBonus');
+              _bonus = value;
+              Log.info('Status bonus diubah: $_bonus');
             });
           },
         ),
@@ -718,7 +718,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Widget _buildDurasiBonus() {
-    if (!_isBonus) return const SizedBox.shrink();
+    if (!_bonus) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -731,7 +731,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
               child: InputAngka(
                 controller: _bonusDurationController,
                 label: 'Durasi Bonus ',
-                validasi: _isBonus,
+                validasi: _bonus,
                 prefixIcon: TIcons.timer,
               ),
             ),

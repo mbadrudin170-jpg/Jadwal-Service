@@ -8,7 +8,7 @@ class NavigasiServis {
 
   static BuildContext? get context => navigatorKey.currentContext;
 
-  static Future<dynamic>? navigateTo(final String routeName, {final Object? arguments}) {
+  static Future<dynamic>? navigateTo(String routeName, {Object? arguments}) {
     return navigatorKey.currentState?.pushNamed(
       routeName,
       arguments: arguments,

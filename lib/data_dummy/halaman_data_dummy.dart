@@ -24,7 +24,7 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(context, ref, 'Pesanan', DataDummy.orders,
-                  ref.read(orderOpSqliteProvider).insertOrUpdateBatch);
+                  ref.read(orderOpSqliteProvider).sisipkanAtauPerbaruiBatch);
               ref.invalidate(orderOpSqliteProvider);
             },
             label: 'Tambah Pesanan Dummy',
@@ -59,8 +59,12 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData(context, ref, 'Kategori', DataDummy.categories,
-                  ref.read(kategoriOpSqliteProvider).insertOrUpdateBatch);
+              await _tambahData(
+                  context,
+                  ref,
+                  'Kategori',
+                  DataDummy.categories,
+                  ref.read(kategoriOpSqliteProvider).sisipkanAtauPerbaruiBatch);
               ref.invalidate(kategoriOpSqliteProvider);
             },
             label: 'Tambah Kategori Dummy',
@@ -74,7 +78,9 @@ class HalamanDataDummy extends ConsumerWidget {
                   ref,
                   'Sub Kategori',
                   DataDummy.subCategories,
-                  ref.read(subKategoriOpSqliteProvider).insertOrUpdateBatch);
+                  ref
+                      .read(subKategoriOpSqliteProvider)
+                      .sisipkanAtauPerbaruiBatch);
               ref.invalidate(subKategoriOpSqliteProvider);
             },
             label: 'Tambah Sub Kategori Dummy',
@@ -84,7 +90,7 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(context, ref, 'Dompet', DataDummy.wallets,
-                  ref.read(dompetOpSqliteProvider).insertOrUpdateBatch);
+                  ref.read(dompetOpSqliteProvider).sisipkanAtauPerbaruiBatch);
               ref.invalidate(dompetOpSqliteProvider);
             },
             label: 'Tambah Dompet Dummy',
@@ -94,11 +100,12 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(
-                  context,
-                  ref,
-                  'Transaksi',
-                  DataDummy.transactions,
-                  ref.read(transaksiOpSqliteProvider).insertOrUpdateBatch,);
+                context,
+                ref,
+                'Transaksi',
+                DataDummy.transactions,
+                ref.read(transaksiOpSqliteProvider).sisipkanAtauPerbaruiBatch,
+              );
               ref.invalidate(transaksiOpSqliteProvider);
             },
             label: 'Tambah Transaksi Dummy',
@@ -112,7 +119,9 @@ class HalamanDataDummy extends ConsumerWidget {
                   ref,
                   'Pelanggan Aktif',
                   DataDummy.activeCustomers,
-                  ref.read(pelangganAktifOpSqliteProvider).insertOrUpdateBatch);
+                  ref
+                      .read(pelangganAktifOpSqliteProvider)
+                      .sisipkanAtauPerbaruiBatch);
               ref.invalidate(pelangganAktifProvider);
             },
             label: 'Tambah Pelanggan Aktif Dummy',
@@ -122,7 +131,7 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(context, ref, 'Feedback', DataDummy.feedbacks,
-                  ref.read(feedbackOpSqliteProvider).insertOrUpdateBatch);
+                  ref.read(feedbackOpSqliteProvider).sisipkanAtauPerbaruiBatch);
               ref.invalidate(feedbackOpSqliteProvider);
             },
             label: 'Tambah Feedback Dummy',
@@ -136,7 +145,7 @@ class HalamanDataDummy extends ConsumerWidget {
                   ref,
                   'Versi APK',
                   DataDummy.apkVersions,
-                  ref.read(apkVersionOperationProvider).insertOrUpdateBatch);
+                  ref.read(apkVersionOperationProvider).sisipkanAtauPerbaruiBatch);
               ref.invalidate(apkVersionOperationProvider);
             },
             label: 'Tambah Versi APK Dummy',

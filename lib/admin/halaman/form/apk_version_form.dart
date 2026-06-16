@@ -35,8 +35,8 @@ class ApkVersionForm extends ConsumerStatefulWidget {
 
 class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
   final _formKey = GlobalKey<FormState>();
-  bool _isLoading = false;
-  bool get _isEdit => widget.apkVersion != null;
+  bool _loading = false;
+  bool get _modeEdit => widget.apkVersion != null;
   late TextEditingController _releaseNotesController;
   late TextEditingController _latestVersionController;
   late TextEditingController _youtubeTutorialController;
@@ -63,7 +63,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
   void initState() {
     super.initState();
     Log.info(
-      'Menginisialisasi ApkVersionForm (Mode: ${_isEdit ? 'Edit' : 'Tambah'})',
+      'Menginisialisasi ApkVersionForm (Mode: ${_modeEdit ? 'Edit' : 'Tambah'})',
     );
     _releaseNotesController = TextEditingController();
     _latestVersionController = TextEditingController();
@@ -75,7 +75,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
     _universalLinkController = TextEditingController();
     _link32Controller = TextEditingController();
     _link64Controller = TextEditingController();
-    if (_isEdit) {
+    if (_modeEdit) {
       _populateControllers(widget.apkVersion!);
     } else {
       unawaited(_muatDataVersiTerakhir());
@@ -85,7 +85,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
   Future<void> _muatDataVersiTerakhir() async {
     final apkVersionOperasi = ref.read(apkVersionOperationProvider);
     Log.info('Memuat data rilis terakhir untuk otomatisasi input.');
-    setState(() => _isLoading = true);
+    setState(() => _loading = true);
     try {
       final versiTerakhir = await apkVersionOperasi.getLatestApkVersion();
       if (versiTerakhir != null && mounted) {
@@ -108,7 +108,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
     } on Exception catch (e, s) {
       Log.error('Gagal memuat data versi terakhir', e: e, s: s);
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -199,7 +199,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
         return;
       }
       if (!mounted) return;
-      setState(() => _isLoading = true);
+      setState(() => _loading = true);
       Log.info('Sedang memproses penyimpanan ke database...');
 
       final nomorBuild = <ArsitekturApk, int>{};
@@ -240,18 +240,17 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
       );
       Log.info('Model Versi APK yang akan disimpan: ${dataToSave.toSqlite()}');
       try {
-        if (_isEdit) {
+        if (_modeEdit) {
           Log.info('Menjalankan perintah update data...');
-          await apkVersionOperasi.updateApkVersion(dataToSave);
+          await apkVersionOperasi.perbaruiVersiApk(dataToSave);
         } else {
           Log.info('Menjalankan perintah tambah data baru...');
-          await apkVersionOperasi.addApkVersion(dataToSave);
+          await apkVersionOperasi.tambahVersiApk(dataToSave);
         }
 
         final isonline = await KoneksiInternetService().cekKoneksiLokal();
         if (isonline) {
-          final syncCheckService = ref.read(layananCekSinkronisasiProvider);
-          unawaited(syncCheckService.jalankanCekSinkronisasi());
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
         } else {
           Log.info('Tidak ada koneksi internet, melewati proses sinkronisasi.');
           if (mounted) {
@@ -268,16 +267,16 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
         if (!mounted) return;
         ToastUtil.error(context, 'Gagal menyimpan data: $e');
       } finally {
-        if (mounted) setState(() => _isLoading = false);
+        if (mounted) setState(() => _loading = false);
       }
     }
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build( BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'Edit Versi APK' : 'Tambah Versi APK'),
+        title: Text(_modeEdit ? 'Edit Versi APK' : 'Tambah Versi APK'),
       ),
       body: Stack(
         children: [
@@ -387,7 +386,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
               ),
             ),
           ),
-          if (_isLoading)
+          if (_loading)
             ColoredBox(
               color: Colors.black.withAlpha(128),
               child: Center(
@@ -410,7 +409,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(TSizes.p16),
         child: ElevatedButton(
-          onPressed: _isLoading ? null : _saveForm,
+          onPressed: _loading ? null : _saveForm,
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: TSizes.p16),
           ),

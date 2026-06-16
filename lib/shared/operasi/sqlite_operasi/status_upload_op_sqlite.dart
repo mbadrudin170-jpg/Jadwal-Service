@@ -36,9 +36,9 @@ class StatusUploadOpSqlite {
     try {
       final db = transaction ?? await _sqliteDb.database;
       final data = StatusUnggahModel(
-        id: StatusUnggahModel.idNeedUpload,
+        id: idNeedUpload,
         butuhUnggah: needUpload,
-        updatedAt: DateTime.now().toUtc(),
+        diperbaruiPada: DateTime.now().toUtc(),
       );
 
       await db.insert(
@@ -61,7 +61,7 @@ class StatusUploadOpSqlite {
       final query = await db.query(
         NamaTabel.statusUnggah,
         where: 'id = ?',
-        whereArgs: [StatusUnggahModel.idNeedUpload],
+        whereArgs: [idNeedUpload],
       );
       if (query.isNotEmpty) {
         final needUpload =
@@ -97,7 +97,7 @@ class StatusUploadOpSqlite {
       final query = await db.query(
         NamaTabel.statusUnggah,
         where: 'id = ?',
-        whereArgs: [StatusUnggahModel.idNeedUpload],
+        whereArgs: [idNeedUpload],
       );
       if (query.isNotEmpty) {
         final data = StatusUnggahModel.fromSqlite(query.first);

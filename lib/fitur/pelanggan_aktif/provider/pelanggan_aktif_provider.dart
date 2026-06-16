@@ -41,7 +41,6 @@ class PelangganAktif extends _$PelangganAktif {
     return _loadData();
   }
 
-  // Helper untuk perbandingan DateTime nullable
   int _compareNullableDates(DateTime? a, DateTime? b, {bool ascending = true}) {
     if (a == null && b == null) return 0;
     if (a == null) return 1; // null dianggap paling besar/lama
@@ -75,11 +74,11 @@ class PelangganAktif extends _$PelangganAktif {
         case SortOption.terbaru:
           return _compareNullableDates(
               a.pelangganAktif.diperbaruiPada, b.pelangganAktif.diperbaruiPada,
-              ascending: false); // Terbaru di atas (descending)
+              ascending: false);
 
         case SortOption.terlama:
-          return _compareNullableDates(a.pelangganAktif.diperbaruiPada,
-              b.pelangganAktif.diperbaruiPada); // Terlama di atas (ascending)
+          return _compareNullableDates(
+              a.pelangganAktif.diperbaruiPada, b.pelangganAktif.diperbaruiPada);
 
         case SortOption.tanggalMulai:
           return a.pelangganAktif.tanggalMulai
@@ -133,7 +132,7 @@ class PelangganAktif extends _$PelangganAktif {
       final sortedData = _sortData(data, currentSortBy);
       state = AsyncValue.data(PelangganAktifState(
           daftarPelangganAktif: sortedData, sortBy: currentSortBy));
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error('Gagal mengambil data pelanggan aktif.', e: e, s: st);
       final context = navigatorKey.currentContext;
       if (context!.mounted) {
@@ -145,7 +144,6 @@ class PelangganAktif extends _$PelangganAktif {
     }
   }
 
-  // 5. Mengatur kriteria pengurutan
   void setSortBy(SortOption urutanBaru) {
     final currentState = state.value;
     if (currentState == null || currentState.sortBy == urutanBaru) {

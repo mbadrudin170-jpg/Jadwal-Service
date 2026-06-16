@@ -213,7 +213,7 @@ class OrderOpsqlite {
   }
 
   /// Menyisipkan atau memperbarui sekumpulan [OrderModel] dalam satu batch.
-  Future<void> insertOrUpdateBatch(
+  Future<void> sisipkanAtauPerbaruiBatch(
     final List<OrderModel> items, {
     final bool dariServer = false,
   }) async {

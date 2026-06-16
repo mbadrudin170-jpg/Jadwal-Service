@@ -1722,7 +1722,7 @@ class MockOrderOpsqlite extends _i1.Mock implements _i25.OrderOpsqlite {
       ) as _i11.Future<int>);
 
   @override
-  _i11.Future<void> insertOrUpdateBatch(
+  _i11.Future<void> sisipkanAtauPerbaruiBatch(
     List<_i27.OrderModel>? items, {
     bool? dariServer = false,
   }) =>
