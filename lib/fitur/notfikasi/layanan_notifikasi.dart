@@ -1,6 +1,5 @@
 // path: lib/fitur/notfikasi/layanan_notifikasi.dart
 
-
 import 'dart:async';
 import 'dart:io'; // untuk Platform
 import 'dart:math';
@@ -197,8 +196,8 @@ class LayananNotifikasi {
       for (final notifikasi in listNotifikasi) {
         if (!_idNotifikasiTampil.contains(notifikasi.id)) {
           await tampilkanNotifikasiLangsung(
-            title: notifikasi.title,
-            body: notifikasi.description,
+            title: notifikasi.judul,
+            body: notifikasi.deskripsi,
             payload: 'notifikasi_id_${notifikasi.id}',
           );
           _idNotifikasiTampil.add(notifikasi.id);
@@ -222,10 +221,10 @@ class LayananNotifikasi {
           // Hanya tampilkan notifikasi jika ID-nya belum pernah ditampilkan sebelumnya
           if (!_idNotifikasiTampil.contains(notifikasi.id)) {
             Log.info(
-                'Menampilkan notifikasi baru: ${notifikasi.id} - ${notifikasi.title}');
+                'Menampilkan notifikasi baru: ${notifikasi.id} - ${notifikasi.judul}');
             await tampilkanNotifikasiLangsung(
-              title: notifikasi.title,
-              body: notifikasi.description,
+              title: notifikasi.judul,
+              body: notifikasi.deskripsi,
               payload: 'notifikasi_id_${notifikasi.id}',
             );
             // Tandai notifikasi ini sebagai sudah ditampilkan

@@ -374,55 +374,55 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final List<NotifikasiModel> daftarNotifikasi = [
         NotifikasiModel(
           id: const Uuid().v4(),
-          startDate: tanggalMulai,
-          endDate: tanggalBerakhir,
+          tanggalMulai: tanggalMulai,
+          tangglberakhir: tanggalBerakhir,
           userId: _pelangganDipilih!.id,
           tanggalTampil: tanggalNotifikasiSetengahJalan,
-          title: 'Info: Setengah Perjalanan Paket',
-          description:
+          judul: 'Info: Setengah Perjalanan Paket',
+          deskripsi:
               'Anda telah menggunakan 50% dari masa aktif paket ${_paketDipilih!.nama}.',
           idTujuan: idTransaksi,
-          type: TipeNotifikasiEnum.transaksi,
-          updatedAt: DateTime.now().toUtc(),
+          tipe: TipeNotifikasiEnum.transaksi,
+          diperbaruiPada: DateTime.now().toUtc(),
         ),
         NotifikasiModel(
           id: const Uuid().v4(),
-          startDate: tanggalMulai,
-          endDate: tanggalBerakhir,
+          tanggalMulai: tanggalMulai,
+          tangglberakhir: tanggalBerakhir,
           userId: _pelangganDipilih!.id,
           tanggalTampil: tanggalBerakhir.subtract(const Duration(days: 1)),
-          title: 'Pengingat: Masa Aktif Segera Habis',
-          description:
+          judul: 'Pengingat: Masa Aktif Segera Habis',
+          deskripsi:
               'Masa aktif paket ${_paketDipilih!.nama} Anda akan berakhir besok.',
           idTujuan: idTransaksi,
-          type: TipeNotifikasiEnum.transaksi,
-          updatedAt: DateTime.now().toUtc(),
+          tipe: TipeNotifikasiEnum.transaksi,
+          diperbaruiPada: DateTime.now().toUtc(),
         ),
         NotifikasiModel(
           id: const Uuid().v4(),
-          startDate: tanggalMulai,
-          endDate: tanggalBerakhir,
+          tanggalMulai: tanggalMulai,
+          tangglberakhir: tanggalBerakhir,
           userId: _pelangganDipilih!.id,
           tanggalTampil: tanggalBerakhir,
-          title: 'Masa Aktif Paket Habis',
-          description:
+          judul: 'Masa Aktif Paket Habis',
+          deskripsi:
               'Masa aktif untuk paket ${_paketDipilih!.nama} telah berakhir hari ini.',
           idTujuan: idTransaksi,
-          type: TipeNotifikasiEnum.transaksi,
-          updatedAt: DateTime.now().toUtc(),
+          tipe: TipeNotifikasiEnum.transaksi,
+          diperbaruiPada: DateTime.now().toUtc(),
         ),
         NotifikasiModel(
           id: const Uuid().v4(),
-          startDate: tanggalMulai,
-          endDate: tanggalBerakhir,
+          tanggalMulai: tanggalMulai,
+          tangglberakhir: tanggalBerakhir,
           userId: _pelangganDipilih!.id,
           tanggalTampil: tanggalBerakhir.add(const Duration(days: 1)),
-          title: 'Masa Aktif Telah Berakhir',
-          description:
+          judul: 'Masa Aktif Telah Berakhir',
+          deskripsi:
               'Masa aktif untuk paket ${_paketDipilih!.nama} telah berakhir kemarin. Silakan perpanjang.',
           idTujuan: idTransaksi,
-          type: TipeNotifikasiEnum.transaksi,
-          updatedAt: DateTime.now().toUtc(),
+          tipe: TipeNotifikasiEnum.transaksi,
+          diperbaruiPada: DateTime.now().toUtc(),
         ),
       ];
       Log.info('data notifikasi untuk masa aktif paket telah dibuat,');

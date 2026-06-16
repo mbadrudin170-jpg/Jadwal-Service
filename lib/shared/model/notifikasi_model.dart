@@ -1,6 +1,7 @@
 // path: lib/shared/model/notifikasi_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -11,35 +12,35 @@ import 'package:wifi/shared/utils/parser_util.dart';
 class NotifikasiModel implements HasId {
   @override
   final String id;
-  final DateTime startDate;
-  final DateTime endDate;
+  final DateTime tanggalMulai;
+  final DateTime tangglberakhir;
   final DateTime tanggalTampil;
-  final String title;
-  final String description;
-  final bool isRead;
-  final TipeNotifikasiEnum type;
-  final DateTime updatedAt;
+  final String judul;
+  final String deskripsi;
+  final bool setatusDibaca;
+  final TipeNotifikasiEnum tipe;
+  final DateTime diperbaruiPada;
   final String idTujuan;
   final String userId;
-  final bool isDeleted;
-  final DateTime? archivedAt;
+  final bool dihapus;
+  final DateTime? diarsipkanPada;
 
   NotifikasiModel({
     final String? id,
-    required this.startDate,
-    required this.endDate,
+    required this.tanggalMulai,
+    required this.tangglberakhir,
     required this.tanggalTampil,
-    required this.title,
-    required this.description,
-    this.isRead = false,
-    required this.type,
-    required this.updatedAt,
+    required this.judul,
+    required this.deskripsi,
+    this.setatusDibaca = false,
+    required this.tipe,
+    required this.diperbaruiPada,
     required this.idTujuan,
     required this.userId,
-    this.isDeleted = false,
-    this.archivedAt,
+    this.dihapus = false,
+    this.diarsipkanPada,
   }) : id = id ?? const Uuid().v4() {
-    Log.info('NotifikasiModel created: $id, title: $title');
+    Log.info('NotifikasiModel created: $id, title: $judul');
   }
 
   NotifikasiModel copyWith({
@@ -59,17 +60,17 @@ class NotifikasiModel implements HasId {
   }) {
     return NotifikasiModel(
       id: id ?? this.id,
-      startDate: startDate ?? this.startDate,
-      endDate: endDate ?? this.endDate,
-      title: title ?? this.title,
-      description: description ?? this.description,
-      isRead: isRead ?? this.isRead,
-      type: type ?? this.type,
-      updatedAt: updatedAt ?? this.updatedAt,
+      tanggalMulai: startDate ?? this.tanggalMulai,
+      tangglberakhir: endDate ?? this.tangglberakhir,
+      judul: title ?? this.judul,
+      deskripsi: description ?? this.deskripsi,
+      setatusDibaca: isRead ?? this.setatusDibaca,
+      tipe: type ?? this.tipe,
+      diperbaruiPada: updatedAt ?? this.diperbaruiPada,
       idTujuan: idTujuan ?? this.idTujuan,
       userId: userId ?? this.userId,
-      isDeleted: isDeleted ?? this.isDeleted,
-      archivedAt: archivedAt ?? this.archivedAt,
+      dihapus: isDeleted ?? this.dihapus,
+      diarsipkanPada: archivedAt ?? this.diarsipkanPada,
       tanggalTampil: tanggalTampil ?? this.tanggalTampil,
     );
   }
@@ -94,24 +95,24 @@ class NotifikasiModel implements HasId {
     Log.info('Creating NotifikasiModel from SQLite: ${map[NamaKolom.id]}');
     return NotifikasiModel(
       id: map[NamaKolom.id] as String?,
-      startDate: ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]) ??
+      tanggalMulai: ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]) ??
           DateTime.now(),
-      endDate: ParserUtil.parseDateTime(map[NamaKolom.tangglberakhir]) ??
+      tangglberakhir: ParserUtil.parseDateTime(map[NamaKolom.tangglberakhir]) ??
           DateTime.now(),
-      title: map[NamaKolom.judul] as String? ?? '',
-      description: map[NamaKolom.deskripsi] as String? ?? '',
-      isRead: ParserUtil.parseBool(map[NamaKolom.setatusDibaca]),
-      type: _safeParseEnum(
+      judul: map[NamaKolom.judul] as String? ?? '',
+      deskripsi: map[NamaKolom.deskripsi] as String? ?? '',
+      setatusDibaca: ParserUtil.parseBool(map[NamaKolom.setatusDibaca]),
+      tipe: _safeParseEnum(
             TipeNotifikasiEnum.values,
             map[NamaKolom.tipe],
           ) ??
           TipeNotifikasiEnum.transaksi,
-      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]) ??
+      diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]) ??
           DateTime.now(),
       idTujuan: map[NamaKolom.idTujuan] as String? ?? '',
       userId: map[NamaKolom.userId] as String? ?? '',
-      isDeleted: ParserUtil.parseBool(map[NamaKolom.dihapus]),
-      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
+      dihapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
+      diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
       tanggalTampil: ParserUtil.parseDateTime(map[NamaKolom.tanggalTampil]) ??
           DateTime.now(),
     );
@@ -120,17 +121,17 @@ class NotifikasiModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
-      NamaKolom.tanggalMulai: startDate.millisecondsSinceEpoch,
-      NamaKolom.tangglberakhir: endDate.millisecondsSinceEpoch,
-      NamaKolom.judul: title,
-      NamaKolom.deskripsi: description,
-      NamaKolom.setatusDibaca: isRead ? 1 : 0,
-      NamaKolom.tipe: type.name,
-      NamaKolom.diperbaruiPada: updatedAt.millisecondsSinceEpoch,
+      NamaKolom.tanggalMulai: tanggalMulai.millisecondsSinceEpoch,
+      NamaKolom.tangglberakhir: tangglberakhir.millisecondsSinceEpoch,
+      NamaKolom.judul: judul,
+      NamaKolom.deskripsi: deskripsi,
+      NamaKolom.setatusDibaca: setatusDibaca ? 1 : 0,
+      NamaKolom.tipe: tipe.name,
+      NamaKolom.diperbaruiPada: diperbaruiPada.millisecondsSinceEpoch,
       NamaKolom.idTujuan: idTujuan,
       NamaKolom.userId: userId,
-      NamaKolom.dihapus: isDeleted ? 1 : 0,
-      NamaKolom.diarsipkanPada: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.dihapus: dihapus ? 1 : 0,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
       NamaKolom.tanggalTampil: tanggalTampil.millisecondsSinceEpoch,
     };
   }
@@ -140,45 +141,48 @@ class NotifikasiModel implements HasId {
     Log.info('Creating NotifikasiModel from Firebase: $id');
     return NotifikasiModel(
       id: id,
-      startDate: ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]) ??
+      tanggalMulai: ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]) ??
           DateTime.now(),
-      endDate: ParserUtil.parseDateTime(data[NamaKolom.tangglberakhir]) ??
-          DateTime.now(),
+      tangglberakhir:
+          ParserUtil.parseDateTime(data[NamaKolom.tangglberakhir]) ??
+              DateTime.now(),
       tanggalTampil: ParserUtil.parseDateTime(data[NamaKolom.tanggalTampil]) ??
           DateTime.now(),
-      title: data[NamaKolom.judul] as String? ?? '',
-      description: data[NamaKolom.deskripsi] as String? ?? '',
-      isRead: ParserUtil.parseBool(data[NamaKolom.setatusDibaca]),
-      type: _safeParseEnum(
+      judul: data[NamaKolom.judul] as String? ?? '',
+      deskripsi: data[NamaKolom.deskripsi] as String? ?? '',
+      setatusDibaca: ParserUtil.parseBool(data[NamaKolom.setatusDibaca]),
+      tipe: _safeParseEnum(
             TipeNotifikasiEnum.values,
             data[NamaKolom.tipe],
           ) ??
           TipeNotifikasiEnum.transaksi,
-      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]) ??
-          DateTime.now(),
+      diperbaruiPada:
+          ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]) ??
+              DateTime.now(),
       idTujuan: data[NamaKolom.idTujuan] as String? ?? '',
       userId: data[NamaKolom.userId] as String? ?? '',
-      isDeleted: ParserUtil.parseBool(data[NamaKolom.dihapus]),
-      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
+      dihapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
+      diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
   }
 
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
-      NamaKolom.tanggalMulai: Timestamp.fromDate(startDate.toUtc()),
-      NamaKolom.tangglberakhir: Timestamp.fromDate(endDate.toUtc()),
-      NamaKolom.judul: title,
-      NamaKolom.deskripsi: description,
-      NamaKolom.setatusDibaca: isRead,
-      NamaKolom.tipe: type.name,
-      NamaKolom.diperbaruiPada: Timestamp.fromDate(updatedAt.toUtc()),
+      NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai.toUtc()),
+      NamaKolom.tangglberakhir: Timestamp.fromDate(tangglberakhir.toUtc()),
+      NamaKolom.judul: judul,
+      NamaKolom.deskripsi: deskripsi,
+      NamaKolom.setatusDibaca: setatusDibaca,
+      NamaKolom.tipe: tipe.name,
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada.toUtc()),
       NamaKolom.idTujuan: idTujuan,
       NamaKolom.userId: userId,
-      NamaKolom.dihapus: isDeleted,
+      NamaKolom.dihapus: dihapus,
       NamaKolom.tanggalTampil: Timestamp.fromDate(tanggalTampil.toUtc()),
-      NamaKolom.diarsipkanPada:
-          archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
+      NamaKolom.diarsipkanPada: diarsipkanPada != null
+          ? Timestamp.fromDate(diarsipkanPada!.toUtc())
+          : null,
     };
   }
 }
