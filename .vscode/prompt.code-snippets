@@ -14,7 +14,7 @@
 	"Promp buatkan test": {
 		"prefix": "/buatkan file test",
 		"body": [
-			"jalankan ls -R lib test dan buatkan file testnya untuk file yang belum ada file test buatkan dulu 5 file test lalu setelah dibuatkan 5 file test nya jalankan flutter analyze kalau ke 5 file test itu sudah tidak error dan warning kemudian jalnkan flutter test",
+			"jalankan ls -R lib test dan buatkan unit testnya untuk file yang belum ada file test buatkan dulu 5 file test lalu setelah dibuatkan 5 file test nya jalankan flutter analyze kalau ke 5 file test itu sudah tidak error dan warning kemudian jalnkan flutter test",
 		],
 		"description": " prompt untuk membuat file test",
 	}
