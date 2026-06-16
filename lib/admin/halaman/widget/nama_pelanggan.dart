@@ -1,6 +1,4 @@
 // path: lib/admin/halaman/widget/nama_pelanggan.dart
-// diubah: Refactor ke Bahasa Inggris (class, method, variabel) dengan komentar Bahasa Indonesia.
-// diubah: Memperbaiki import path yang salah.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

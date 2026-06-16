@@ -1,5 +1,4 @@
 // path: lib/shared/services/device_info_service.dart
-// diperbaiki: Mengubah nama file ke Bahasa Inggris sesuai aturan.
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
