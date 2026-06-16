@@ -63,7 +63,7 @@ void main() {
         // Arrange
         when(
           mockEventOpSupabase.getById(any),
-        ).thenAnswer((_) => Stream.value(null));
+        ).thenAnswer((_) async => null);
 
         // Act
         await tester.pumpWidget(createWidget(eventAktif));
@@ -98,7 +98,7 @@ void main() {
         // Arrange
         when(
           mockEventOpSupabase.getById(any),
-        ).thenAnswer((_) => Stream.value(null));
+        ).thenAnswer((_) async => null);
 
         // Act
         await tester.pumpWidget(createWidget(eventAktif));
@@ -115,7 +115,7 @@ void main() {
         // Arrange
         when(
           mockEventOpSupabase.getById(any),
-        ).thenAnswer((_) => Stream.value(eventAktif));
+        ).thenAnswer((_) async => eventAktif);
 
         // Act
         await HttpOverrides.runZoned(() async {
@@ -143,7 +143,7 @@ void main() {
         // Arrange
         when(
           mockEventOpSupabase.getById(any),
-        ).thenAnswer((_) => Stream.value(eventTidakAktif));
+        ).thenAnswer((_) async => eventTidakAktif);
 
         // Act
         await tester.pumpWidget(createWidget(eventTidakAktif));
@@ -168,7 +168,7 @@ void main() {
         // Arrange
         when(
           mockEventOpSupabase.getById(any),
-        ).thenAnswer((_) => Stream.value(eventAktif));
+        ).thenAnswer((_) async => eventAktif);
 
         // Act
         // Run with an HTTP client that fails all requests
@@ -179,7 +179,7 @@ void main() {
 
         // Assert
         expect(find.byType(Image), findsNothing);
-        expect(find.byIcon(AppIcons.error), findsOneWidget);
+        expect(find.byIcon(TIcons.error), findsOneWidget);
       },
     );
 
@@ -189,7 +189,7 @@ void main() {
       // Arrange
       when(
         mockEventOpSupabase.getById(any),
-      ).thenAnswer((_) => Stream.value(eventAktif));
+      ).thenAnswer((_) async => eventAktif);
 
       // Act
       await tester.pumpWidget(createWidget(eventAktif));

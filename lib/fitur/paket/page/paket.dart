@@ -31,7 +31,7 @@ class PackagePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncPackages = ref.watch(daftarPaketProvider);
+    final paketAsync = ref.watch(daftarPaketProvider);
     final urutanSaatIni = ref.watch(urutanPaketStateProvider);
 
     return Scaffold(
@@ -50,7 +50,7 @@ class PackagePage extends ConsumerWidget {
           ),
         ],
       ),
-      body: asyncPackages.when(
+      body: paketAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) {
           Log.error('Terjadi error saat memuat data paket', e: err, s: stack);
@@ -78,10 +78,12 @@ class PackagePage extends ConsumerWidget {
                     ),
                   );
                 },
-                onLongPress: () => _showEditDeleteDialog(context, ref, paket),
+                onLongPress: () => _tamplkanDialogHapusEdit(context, ref, paket),
                 child: Card(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   child: ListTile(
                     title: Text(
                       paket.nama,
@@ -102,9 +104,7 @@ class PackagePage extends ConsumerWidget {
         onPressed: () async {
           await Navigator.push(
             context,
-            MaterialPageRoute<void>(
-              builder: (context) => const FormPaket(),
-            ),
+            MaterialPageRoute<void>(builder: (context) => const FormPaket()),
           );
         },
         tooltip: 'Tambah Paket',
@@ -116,35 +116,39 @@ class PackagePage extends ConsumerWidget {
 
 // --- FUNGSI UTAS / HELPER DI LUAR WIDGET CLASS ---
 
-void _urutkanList(List<PaketModel> paketList, UrutanPaket urutan) {
+void _urutkanList(List<PaketModel> daftarPaket, UrutanPaket urutan) {
   switch (urutan) {
     case UrutanPaket.namaAZ:
-      paketList
-          .sort((a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
+      daftarPaket.sort(
+        (a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()),
+      );
       break;
     case UrutanPaket.namaZA:
-      paketList
-          .sort((a, b) => b.nama.toLowerCase().compareTo(a.nama.toLowerCase()));
+      daftarPaket.sort(
+        (a, b) => b.nama.toLowerCase().compareTo(a.nama.toLowerCase()),
+      );
       break;
     case UrutanPaket.hargaTertinggi:
-      paketList.sort((a, b) => b.harga.compareTo(a.harga));
+      daftarPaket.sort((a, b) => b.harga.compareTo(a.harga));
       break;
     case UrutanPaket.hargaTerendah:
-      paketList.sort((a, b) => a.harga.compareTo(b.harga));
+      daftarPaket.sort((a, b) => a.harga.compareTo(b.harga));
       break;
     case UrutanPaket.poinTertinggi:
-      paketList.sort((a, b) => b.poinHadiah.compareTo(a.poinHadiah));
+      daftarPaket.sort((a, b) => b.poinHadiah.compareTo(a.poinHadiah));
       break;
     case UrutanPaket.poinTerendah:
-      paketList.sort((a, b) => a.poinHadiah.compareTo(b.poinHadiah));
+      daftarPaket.sort((a, b) => a.poinHadiah.compareTo(b.poinHadiah));
       break;
     case UrutanPaket.durasiTerpendek:
-      paketList.sort((a, b) =>
-          _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)));
+      daftarPaket.sort(
+        (a, b) => _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)),
+      );
       break;
     case UrutanPaket.durasiTerlama:
-      paketList.sort((a, b) =>
-          _getDurationInMinutes(b).compareTo(_getDurationInMinutes(a)));
+      daftarPaket.sort(
+        (a, b) => _getDurationInMinutes(b).compareTo(_getDurationInMinutes(a)),
+      );
       break;
   }
 }
@@ -163,21 +167,25 @@ int _getDurationInMinutes(PaketModel paket) {
 }
 
 Future<void> _tampilkanDialogUrutkan(
-    BuildContext context, WidgetRef ref) async {
+  BuildContext context,
+  WidgetRef ref,
+) async {
   final urutanSaatIni = ref.read(urutanPaketStateProvider);
 
   final hasil = await showDialog<UrutanPaket>(
     context: context,
     builder: (context) {
       Widget buildOption(String text, UrutanPaket value) {
-        final isSelected = urutanSaatIni == value;
+        final urutanTerpilih = urutanSaatIni == value;
         return SimpleDialogOption(
           onPressed: () => Navigator.pop(context, value),
           child: Container(
             padding: const EdgeInsets.symmetric(
-                vertical: TSizes.p8, horizontal: TSizes.p4),
+              vertical: TSizes.p8,
+              horizontal: TSizes.p4,
+            ),
             decoration: BoxDecoration(
-              color: isSelected ? TColors.pointBackground : null,
+              color: urutanTerpilih ? TColors.pointBackground : null,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(text, textAlign: TextAlign.center),
@@ -206,8 +214,11 @@ Future<void> _tampilkanDialogUrutkan(
   }
 }
 
-Future<void> _showEditDeleteDialog(
-    BuildContext context, WidgetRef ref, PaketModel paket) async {
+Future<void> _tamplkanDialogHapusEdit(
+  BuildContext context,
+  WidgetRef ref,
+  PaketModel paket,
+) async {
   await showDialog<void>(
     context: context,
     builder: (dialogContext) {
@@ -230,7 +241,7 @@ Future<void> _showEditDeleteDialog(
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
-              unawaited(_showDeleteConfirmationDialog(context, ref, paket));
+              unawaited(_tampilkanDialogKonfirmasiHapus(context, ref, paket));
             },
             child: const Text('Hapus'),
           ),
@@ -240,8 +251,11 @@ Future<void> _showEditDeleteDialog(
   );
 }
 
-Future<void> _showDeleteConfirmationDialog(
-    BuildContext context, WidgetRef ref, PaketModel paket) async {
+Future<void> _tampilkanDialogKonfirmasiHapus(
+  BuildContext context,
+  WidgetRef ref,
+  PaketModel paket,
+) async {
   final paketOpSqlite = ref.read(paketOpSqliteProvider);
 
   await showDialog<void>(

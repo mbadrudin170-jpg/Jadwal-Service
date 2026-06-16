@@ -462,20 +462,20 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final isOnline = await ref
           .read(koneksiInternetServiceProvider)
           .cekKoneksiLokal();
-      String successMessage;
+      String pesanSukses;
       if (isOnline) {
         Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
 
         ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
-        successMessage = 'Berhasil disimpan. Sinkronisasi dimulai...';
+        pesanSukses = 'Berhasil disimpan. Sinkronisasi dimulai...';
       } else {
         Log.warning('Koneksi offline, sinkronisasi akan dijalankan nanti.');
-        successMessage = 'Berhasil disimpan (offline).';
+        pesanSukses = 'Berhasil disimpan (offline).';
       }
       Log.info('Berhasil menyimpan, id hasil=${pelangganAktifHasil.id}');
       return SaveResultModel(
         success: true,
-        message: successMessage,
+        message: pesanSukses,
         data: pelangganAktifHasil,
       );
     } on Exception catch (e, s) {

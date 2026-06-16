@@ -159,7 +159,7 @@ String _$baseOpFirebaseHash() => r'a1e4d359b3e36266674737cc7d0a79a371480ee1';
 
 /// Provider untuk menyediakan instance dari [PelangganAktifOpFirebase].
 
-@ProviderFor(activeCustomerOpFirebase)
+@ProviderFor(pelangganAktifOpFirebase)
 final activeCustomerOpFirebaseProvider = ActiveCustomerOpFirebaseProvider._();
 
 /// Provider untuk menyediakan instance dari [PelangganAktifOpFirebase].
@@ -195,7 +195,7 @@ final class ActiveCustomerOpFirebaseProvider
 
   @override
   PelangganAktifOpFirebase create(Ref ref) {
-    return activeCustomerOpFirebase(ref);
+    return pelangganAktifOpFirebase(ref);
   }
 
   /// {@macro riverpod.override_with_value}

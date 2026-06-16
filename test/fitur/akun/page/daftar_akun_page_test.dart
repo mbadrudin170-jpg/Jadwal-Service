@@ -20,15 +20,14 @@ class FakeRoute<T> extends Fake implements Route<T> {}
   NavigatorObserver,
 ])
 void main() {
+  setUpAll(() {
+    registerFallbackValue(FakeRoute());
+  });
   late MockPengelolaAkun mockPengelolaAkun;
   late MockUserActivityService mockUserActivityService;
   late MockNavigatorObserver mockNavigatorObserver;
   late PelangganModel pelanggan1;
   late PelangganModel pelanggan2;
-
-  setUpAll(() {
-    registerFallbackValue(FakeRoute());
-  });
 
   setUp(() {
     mockPengelolaAkun = MockPengelolaAkun();

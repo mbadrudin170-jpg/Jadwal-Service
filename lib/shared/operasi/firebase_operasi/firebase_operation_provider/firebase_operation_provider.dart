@@ -44,7 +44,7 @@ BaseOpFirebase baseOpFirebase(Ref ref) {
 
 /// Provider untuk menyediakan instance dari [PelangganAktifOpFirebase].
 @Riverpod(keepAlive: true)
-PelangganAktifOpFirebase activeCustomerOpFirebase(Ref ref) {
+PelangganAktifOpFirebase pelangganAktifOpFirebase(Ref ref) {
   Log.info('Membuat instance ActiveCustomerOpFirebase via @riverpod...');
   final firestoreInstance = ref.watch(firestoreProvider);
   return PelangganAktifOpFirebase(firestore: firestoreInstance);
@@ -82,17 +82,13 @@ CustomerOpFirebase pelangganOpFirebase(Ref ref) {
 PaketOpFirebase paketOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
 
-  return PaketOpFirebase(
-    firestore: firestoreInstance,
-  );
+  return PaketOpFirebase(firestore: firestoreInstance);
 }
 
 @Riverpod(keepAlive: true)
 TransaksiOpFirebase transaksiOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
-  return TransaksiOpFirebase(
-    firestore: firestoreInstance,
-  );
+  return TransaksiOpFirebase(firestore: firestoreInstance);
 }
 
 @Riverpod(keepAlive: true)
@@ -100,20 +96,14 @@ NotifikasiOpFirebase notifikasiOpFirebase(Ref ref) {
   Log.info('Membuat instance NotifikasiOpFirebase via @riverpod...');
   final firestoreInstance = ref.watch(firestoreProvider);
   final baseOp = ref.watch(baseOpFirebaseProvider);
-  return NotifikasiOpFirebase(
-    firestore: firestoreInstance,
-    baseOp: baseOp,
-  );
+  return NotifikasiOpFirebase(firestore: firestoreInstance, baseOp: baseOp);
 }
 
 @Riverpod(keepAlive: true)
 OrderOpFirebase orderOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
   final baseOp = ref.watch(baseOpFirebaseProvider);
-  return OrderOpFirebase(
-    firestore: firestoreInstance,
-    baseOp: baseOp,
-  );
+  return OrderOpFirebase(firestore: firestoreInstance, baseOp: baseOp);
 }
 
 @riverpod

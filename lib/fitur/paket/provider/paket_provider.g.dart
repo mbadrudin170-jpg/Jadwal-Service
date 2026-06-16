@@ -53,7 +53,7 @@ final class DaftarPaketProvider
   }
 }
 
-String _$daftarPaketHash() => r'5f7b60eb9383b14133f0811c663a1420194510f9';
+String _$daftarPaketHash() => r'c2b30ada63f2acc51cad95d5495d9188c1136beb';
 
 /// Provider untuk menyimpan state opsi urutan paket yang dipilih oleh user.
 
@@ -167,7 +167,7 @@ final class DetailPaketProvider
   }
 }
 
-String _$detailPaketHash() => r'757039184b3b2f1b33c654d5211b18ee9d1b915e';
+String _$detailPaketHash() => r'e85da754aee33b5837d869b7cc36ea2865dca91a';
 
 final class DetailPaketFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<PaketModel>, String> {

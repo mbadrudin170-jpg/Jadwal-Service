@@ -49,17 +49,21 @@ class PelangganAktif extends _$PelangganAktif {
   }
 
   List<DetailPelangganAktifModel> _sortData(
-      List<DetailPelangganAktifModel> data, SortOption sortBy) {
+    List<DetailPelangganAktifModel> data,
+    SortOption sortBy,
+  ) {
     final sorted = List<DetailPelangganAktifModel>.from(data);
     final now = DateTime.now();
 
     sorted.sort((a, b) {
       switch (sortBy) {
         case SortOption.berakhirHariIni:
-          final sisaHariA =
-              a.pelangganAktif.tanggalBerakhir.difference(now).inMilliseconds;
-          final sisaHariB =
-              b.pelangganAktif.tanggalBerakhir.difference(now).inMilliseconds;
+          final sisaHariA = a.pelangganAktif.tanggalBerakhir
+              .difference(now)
+              .inMilliseconds;
+          final sisaHariB = b.pelangganAktif.tanggalBerakhir
+              .difference(now)
+              .inMilliseconds;
 
           final lewatA = sisaHariA < 0;
           final lewatB = sisaHariB < 0;
@@ -73,38 +77,46 @@ class PelangganAktif extends _$PelangganAktif {
 
         case SortOption.terbaru:
           return _compareNullableDates(
-              a.pelangganAktif.diperbaruiPada, b.pelangganAktif.diperbaruiPada,
-              ascending: false);
+            a.pelangganAktif.diperbaruiPada,
+            b.pelangganAktif.diperbaruiPada,
+            ascending: false,
+          );
 
         case SortOption.terlama:
           return _compareNullableDates(
-              a.pelangganAktif.diperbaruiPada, b.pelangganAktif.diperbaruiPada);
+            a.pelangganAktif.diperbaruiPada,
+            b.pelangganAktif.diperbaruiPada,
+          );
 
         case SortOption.tanggalMulai:
-          return a.pelangganAktif.tanggalMulai
-              .compareTo(b.pelangganAktif.tanggalMulai);
+          return a.pelangganAktif.tanggalMulai.compareTo(
+            b.pelangganAktif.tanggalMulai,
+          );
 
         case SortOption.tanggalBerakhir:
-          return b.pelangganAktif.tanggalBerakhir
-              .compareTo(a.pelangganAktif.tanggalBerakhir);
+          return b.pelangganAktif.tanggalBerakhir.compareTo(
+            a.pelangganAktif.tanggalBerakhir,
+          );
 
         case SortOption.lunas:
-          return a.pelangganAktif.status.index
-              .compareTo(b.pelangganAktif.status.index);
+          return a.pelangganAktif.status.index.compareTo(
+            b.pelangganAktif.status.index,
+          );
 
         case SortOption.belumLunas:
-          return b.pelangganAktif.status.index
-              .compareTo(a.pelangganAktif.status.index);
+          return b.pelangganAktif.status.index.compareTo(
+            a.pelangganAktif.status.index,
+          );
 
         case SortOption.namaAZ:
-          return a.namaPelanggan
-              .toLowerCase()
-              .compareTo(b.namaPelanggan.toLowerCase());
+          return a.namaPelanggan.toLowerCase().compareTo(
+            b.namaPelanggan.toLowerCase(),
+          );
 
         case SortOption.namaZA:
-          return b.namaPelanggan
-              .toLowerCase()
-              .compareTo(a.namaPelanggan.toLowerCase());
+          return b.namaPelanggan.toLowerCase().compareTo(
+            a.namaPelanggan.toLowerCase(),
+          );
       }
     });
     return sorted;
@@ -116,9 +128,7 @@ class PelangganAktif extends _$PelangganAktif {
       operation.getAllActiveCustomersWithDetails(),
     ]);
 
-    return PelangganAktifState(
-      daftarPelangganAktif: results[0],
-    );
+    return PelangganAktifState(daftarPelangganAktif: results[0]);
   }
 
   Future<void> fetchActiveCustomers() async {
@@ -130,8 +140,12 @@ class PelangganAktif extends _$PelangganAktif {
           .read(pelangganAktifOpSqliteProvider)
           .getAllActiveCustomersWithDetails();
       final sortedData = _sortData(data, currentSortBy);
-      state = AsyncValue.data(PelangganAktifState(
-          daftarPelangganAktif: sortedData, sortBy: currentSortBy));
+      state = AsyncValue.data(
+        PelangganAktifState(
+          daftarPelangganAktif: sortedData,
+          sortBy: currentSortBy,
+        ),
+      );
     } catch (e, st) {
       Log.error('Gagal mengambil data pelanggan aktif.', e: e, s: st);
       final context = navigatorKey.currentContext;
@@ -150,8 +164,10 @@ class PelangganAktif extends _$PelangganAktif {
       return;
     }
 
-    final pelangganTerurut =
-        _sortData(currentState.daftarPelangganAktif, urutanBaru);
+    final pelangganTerurut = _sortData(
+      currentState.daftarPelangganAktif,
+      urutanBaru,
+    );
     state = AsyncValue.data(
       currentState.copyWith(
         daftarPelangganAktif: pelangganTerurut,

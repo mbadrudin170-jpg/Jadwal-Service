@@ -140,16 +140,16 @@ class WidgetRingkasanKeuangan extends StatelessWidget {
 
 extension EkstensiRingkasanKeuangan on BuildContext {
   void showFinancialSummarySnackbar({
-    required final double pendapatan,
+    required final double pemasukan,
     required final double pengeluaran,
     required final double total,
   }) {
     Log.info(
-      'Menampilkan snackbar ringkasan keuangan: income=$pendapatan, expense=$pengeluaran, total=$total',
+      'Menampilkan snackbar ringkasan keuangan: income=$pemasukan, expense=$pengeluaran, total=$total',
     );
 
     final message =
-        '📊 Ringkasan: ${FormatUang.formatMataUang(pendapatan)} | '
+        '📊 Ringkasan: ${FormatUang.formatMataUang(pemasukan)} | '
         '${FormatUang.formatMataUang(pengeluaran.abs())} | '
         '${FormatUang.formatMataUang(total)}';
 
