@@ -1,4 +1,4 @@
-'''// path: test/admin/app_admin_test.dart
+// path: test/admin/app_admin_test.dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -16,8 +16,8 @@ import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
-import 'package:wifi/shared/data/services/layanan_navigasi.dart';
 import 'package:wifi/shared/data/sync/unduhan_awal_service.dart';
+import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -36,11 +36,21 @@ import 'app_admin_test.mocks.dart';
   PembersihanDataOperasi,
   NotificationResponse,
 ], customMocks: [
-  MockSpec<LaunchDetails>(
+  MockSpec<NotificationAppLaunchDetails>(
     unsupportedMembers: {#notificationResponse},
     fallbackGenerators: {#notificationResponse: _fallbackNotificationResponse},
   )
 ])
+
+// Subclass TemaNotifier untuk keperluan test agar bisa menerima initial theme
+class _TestTemaNotifier extends TemaNotifier {
+  final ThemeMode initialTheme;
+  _TestTemaNotifier(this.initialTheme);
+
+  @override
+  Future<ThemeMode> build() async => initialTheme;
+}
+
 void main() {
   late MockSharedPreferences mockSharedPreferences;
   late MockLayananNotifikasi mockLayananNotifikasi;
@@ -50,15 +60,16 @@ void main() {
   late MockUnduhanAwalService mockUnduhanAwalService;
   late MockSettingsOpSqlite mockSettingsOpSqlite;
   late MockPembersihanDataOperasi mockPembersihanDataOperasi;
-  late MockLaunchDetails mockLaunchDetails;
+  late MockNotificationAppLaunchDetails mockLaunchDetails;
   late MockNotificationResponse mockNotificationResponse;
 
   setUpAll(() {
-    registerFallbackValue(ThemeMode.system);
-    registerFallbackValue(const SettingsModel());
-    registerFallbackValue(const Duration());
-    LayananNavigasi.navigatorKey =
-        GlobalKey<NavigatorState>(debugLabel: 'test');
+    (AppRole.admin);
+    (ThemeMode.system);
+    (const SettingsModel());
+    (const Duration());
+    // Hapus setter navigatorKey karena final
+    // LayananNavigasi.navigatorKey = GlobalKey<NavigatorState>(debugLabel: 'test');
   });
 
   setUp(() {
@@ -70,7 +81,7 @@ void main() {
     mockUnduhanAwalService = MockUnduhanAwalService();
     mockSettingsOpSqlite = MockSettingsOpSqlite();
     mockPembersihanDataOperasi = MockPembersihanDataOperasi();
-    mockLaunchDetails = MockLaunchDetails();
+    mockLaunchDetails = MockNotificationAppLaunchDetails();
     mockNotificationResponse = MockNotificationResponse();
 
     when(mockSharedPreferences.getString(any)).thenReturn(null);
@@ -101,11 +112,13 @@ void main() {
   ProviderContainer makeProviderContainer({
     AsyncValue<SharedPreferences> sharedPrefsValue = const AsyncValue.loading(),
     AsyncValue<ThemeMode> themeValue = const AsyncValue.loading(),
+    AppRole role = AppRole.admin,
   }) {
     final container = ProviderContainer(
       overrides: [
-        sharedPreferencesProvider
-            .overrideWithValue(sharedPrefsValue.valueOrNull ?? mockSharedPreferences),
+        sharedPreferencesProvider.overrideWithValue(
+            (sharedPrefsValue.asData?.value ?? mockSharedPreferences)
+                as AsyncValue<SharedPreferences>),
         layananNotifikasiProvider.overrideWithValue(mockLayananNotifikasi),
         koneksiInternetServiceProvider
             .overrideWithValue(mockKoneksiInternetService),
@@ -114,10 +127,13 @@ void main() {
             .overrideWithValue(mockPelangganAktifOpSqlite),
         unduhanAwalServiceProvider.overrideWithValue(mockUnduhanAwalService),
         settingsOpSqliteProvider.overrideWithValue(mockSettingsOpSqlite),
+        appRoleProvider.overrideWithValue(role),
+        // TODO: pastikan nama provider ini benar, atau cari file definisi provider pembersihanDataOperasi
         pembersihanDataOperasiProvider
             .overrideWithValue(mockPembersihanDataOperasi),
-        temaNotifierProvider.overrideWith(
-            () => TemaNotifier(themeValue.value ?? ThemeMode.system)),
+        // Ganti temaNotifierProvider menjadi temaProvider dan gunakan _TestTemaNotifier
+        temaProvider.overrideWith(() =>
+            _TestTemaNotifier(themeValue.asData?.value ?? ThemeMode.system)),
       ],
     );
     return container;
@@ -373,5 +389,5 @@ void main() {
   });
 }
 
-NotificationResponse _fallbackNotificationResponse() => MockNotificationResponse();
-''
+NotificationResponse _fallbackNotificationResponse() =>
+    MockNotificationResponse();

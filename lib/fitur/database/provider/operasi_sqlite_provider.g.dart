@@ -295,29 +295,29 @@ String _$kategoriOpSqliteHash() => r'ccf68283b35458e7bfbfd4f3a6612fac4e17d4d8';
 
 /// Provider untuk menyediakan instance dari [PembersihanDataOperasi].
 
-@ProviderFor(dataCleaningOperation)
-final dataCleaningOperationProvider = DataCleaningOperationProvider._();
+@ProviderFor(pembersihanDataOperasi)
+final pembersihanDataOperasiProvider = PembersihanDataOperasiProvider._();
 
 /// Provider untuk menyediakan instance dari [PembersihanDataOperasi].
 
-final class DataCleaningOperationProvider extends $FunctionalProvider<
+final class PembersihanDataOperasiProvider extends $FunctionalProvider<
     PembersihanDataOperasi,
     PembersihanDataOperasi,
     PembersihanDataOperasi> with $Provider<PembersihanDataOperasi> {
   /// Provider untuk menyediakan instance dari [PembersihanDataOperasi].
-  DataCleaningOperationProvider._()
+  PembersihanDataOperasiProvider._()
       : super(
           from: null,
           argument: null,
           retry: null,
-          name: r'dataCleaningOperationProvider',
+          name: r'pembersihanDataOperasiProvider',
           isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
 
   @override
-  String debugGetCreateSourceHash() => _$dataCleaningOperationHash();
+  String debugGetCreateSourceHash() => _$pembersihanDataOperasiHash();
 
   @$internal
   @override
@@ -327,7 +327,7 @@ final class DataCleaningOperationProvider extends $FunctionalProvider<
 
   @override
   PembersihanDataOperasi create(Ref ref) {
-    return dataCleaningOperation(ref);
+    return pembersihanDataOperasi(ref);
   }
 
   /// {@macro riverpod.override_with_value}
@@ -339,8 +339,8 @@ final class DataCleaningOperationProvider extends $FunctionalProvider<
   }
 }
 
-String _$dataCleaningOperationHash() =>
-    r'd7f2f50d1c41e0e9504b94de9504fb3550793f96';
+String _$pembersihanDataOperasiHash() =>
+    r'c88535329f7a19b00b0e23cb97e08d384e59690d';
 
 /// Provider untuk menyediakan instance dari [FeedbackOpSqlite].
 

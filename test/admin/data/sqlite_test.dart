@@ -6,24 +6,17 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:path/path.dart' as p;
 import 'package:wifi/shared/constant/nama_tabel.dart';
 
-// Mocks
-class MockDatabase extends Mock implements Database {}
+import 'sqlite_test.mocks.dart';
 
-class MockBatch extends Mock implements Batch {}
-
-class MockDatabaseFactory extends Mock implements DatabaseFactory {}
-
-class FakeDatabase extends Fake implements Database {}
-
-class FakeOpenDatabaseOptions extends Fake implements OpenDatabaseOptions {}
-
+@GenerateMocks([Database, Batch, DatabaseFactory])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -32,13 +25,7 @@ void main() {
   late MockBatch mockBatch;
   late MockDatabaseFactory mockFactory;
 
-  // This is the original factory, we save it to restore it later.
   late DatabaseFactory originalFactory;
-
-  setUpAll(() {
-    registerFallbackValue(FakeDatabase());
-    registerFallbackValue(FakeOpenDatabaseOptions());
-  });
 
   setUp(() {
     sqfliteFfiInit();
@@ -53,10 +40,10 @@ void main() {
     sqliteDatabase = SqliteDatabase.instance;
     sqliteDatabase.debugSetDatabaseNull();
 
-    when(() => mockDatabase.batch()).thenReturn(mockBatch);
-    when(() => mockBatch.commit(noResult: any(named: 'noResult')))
+    when(mockDatabase.batch()).thenReturn(mockBatch);
+    when(mockBatch.commit(noResult: anyNamed('noResult')))
         .thenAnswer((_) async => []);
-    when(() => mockDatabase.close()).thenAnswer((_) async {});
+    when(mockDatabase.close()).thenAnswer((_) async {});
   });
 
   tearDown(() {
@@ -64,12 +51,12 @@ void main() {
   });
 
   void stubOpenDatabase() {
-    when(() => mockFactory.openDatabase(
-          any(),
-          options: any(named: 'options'),
-        )).thenAnswer((invocation) async {
+    when(mockFactory.openDatabase(
+      any,
+      options: anyNamed('options'),
+    )).thenAnswer((invocation) async {
       final options =
-          invocation.namedArguments[#options] as OpenDatabaseOptions?;
+          invocation.namedArguments[const Symbol('options')] as OpenDatabaseOptions?;
       if (options?.onCreate != null) {
         await options!.onCreate!(mockDatabase, options.version!);
       }
@@ -121,8 +108,7 @@ void main() {
       final db2 = await sqliteDatabase.database;
 
       expect(identical(db1, db2), isTrue);
-      verify(() =>
-              mockFactory.openDatabase(any(), options: any(named: 'options')))
+      verify(mockFactory.openDatabase(any, options: anyNamed('options')))
           .called(1);
     });
 
@@ -133,8 +119,8 @@ void main() {
 
       await sqliteDatabase.database;
 
-      verify(() => mockFactory.openDatabase(inMemoryDatabasePath,
-          options: any(named: 'options'))).called(1);
+      verify(mockFactory.openDatabase(inMemoryDatabasePath,
+          options: anyNamed('options'))).called(1);
       Platform.environment.remove('FLUTTER_TEST');
     });
 
@@ -167,14 +153,13 @@ void main() {
 
       await sqliteDatabase.database;
 
-      verify(() =>
-              mockFactory.openDatabase(dbPath, options: any(named: 'options')))
+      verify(mockFactory.openDatabase(dbPath, options: anyNamed('options')))
           .called(1);
     });
 
     test('04. harus melempar exception jika _initDB gagal', () async {
       final exception = Exception('Gagal membuka DB');
-      when(() => mockFactory.openDatabase(any(), options: any(named: 'options')))
+      when(mockFactory.openDatabase(any, options: anyNamed('options')))
           .thenThrow(exception);
 
       expect(sqliteDatabase.database, throwsA(exception));
@@ -187,41 +172,41 @@ void main() {
 
       await sqliteDatabase.database;
 
-      verify(() => mockBatch.execute(contains('CREATE TABLE ${NamaTabel.kategori}')))
+      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.kategori}')))
           .called(1);
-      verify(() => mockBatch.execute(contains('CREATE TABLE ${NamaTabel.subKategori}')))
+      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.subKategori}')))
           .called(1);
-      verify(() => mockBatch.execute(contains('CREATE TABLE ${NamaTabel.paket}')))
+      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.paket}')))
           .called(1);
-      verify(() => mockBatch.execute(contains('CREATE TABLE ${NamaTabel.pelanggan}')))
+      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.pelanggan}')))
           .called(1);
-      verify(() => mockBatch.execute(contains('CREATE TABLE ${NamaTabel.pelangganAktif}')))
+      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.pelangganAktif}')))
           .called(1);
       verify(
-              () => mockBatch.execute(contains('CREATE TABLE "${NamaTabel.transaksi}"')))
+              mockBatch.execute(contains('CREATE TABLE "${NamaTabel.transaksi}"')))
           .called(1);
-      verify(() => mockBatch.execute(contains('CREATE TABLE ${NamaTabel.dompet}')))
+      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.dompet}')))
           .called(1);
-      verify(() => mockBatch.execute(contains('CREATE TABLE ${NamaTabel.feedback}')))
+      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.feedback}')))
           .called(1);
-      verify(() => mockBatch
+      verify(mockBatch
               .execute(contains('CREATE TABLE "${NamaTabel.pesananPelanggan}"')))
           .called(1);
-      verify(() => mockBatch.execute(contains('CREATE TABLE ${NamaTabel.versiApkUser}')))
+      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.versiApkUser}')))
           .called(1);
-      verify(() => mockBatch.execute(contains('CREATE TABLE ${NamaTabel.settings}')))
+      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.settings}')))
           .called(1);
-      verify(() => mockBatch.execute(contains('CREATE TABLE ${NamaTabel.statusUnggah}')))
+      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.statusUnggah}')))
           .called(1);
-      verify(() => mockBatch.execute(contains('CREATE TABLE ${NamaTabel.pesan}')))
+      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.pesan}')))
           .called(1);
-      verify(() => mockBatch.execute(contains('CREATE TABLE ${NamaTabel.notifikasi}')))
+      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.notifikasi}')))
           .called(1);
 
-      verify(() => mockBatch.execute(
+      verify(mockBatch.execute(
           contains('CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id'))).called(1);
 
-      verify(() => mockBatch.commit(noResult: true)).called(1);
+      verify(mockBatch.commit(noResult: true)).called(1);
     });
   });
 
@@ -235,35 +220,35 @@ void main() {
     }
 
     setUp(() {
-      when(() => mockDatabase.execute(any())).thenAnswer((_) async {});
-      when(() => mockDatabase.rawQuery(any())).thenAnswer((_) async => []);
+      when(mockDatabase.execute(any)).thenAnswer((_) async {});
+      when(mockDatabase.rawQuery(any)).thenAnswer((_) async => []);
     });
 
     test('01. harus menjalankan semua migrasi dari versi < 45 ke 53', () async {
       await runUpgrade(44, 53);
 
-      verify(() => mockDatabase.execute('DROP TABLE IF EXISTS pengaturan'))
+      verify(mockDatabase.execute('DROP TABLE IF EXISTS pengaturan'))
           .called(1);
-      verify(() => mockDatabase.execute(contains('CREATE TABLE pengaturan')))
+      verify(mockDatabase.execute(contains('CREATE TABLE pengaturan')))
           .called(1);
-      verify(() => mockDatabase.execute('DROP TABLE IF EXISTS kategori'))
+      verify(mockDatabase.execute('DROP TABLE IF EXISTS kategori'))
           .called(1);
-      verify(() => mockDatabase
+      verify(mockDatabase
               .execute('ALTER TABLE status_aplikasi ADD COLUMN diperbarui INTEGER'))
           .called(1);
-      verify(() => mockDatabase
+      verify(mockDatabase
               .execute('ALTER TABLE dompet RENAME COLUMN namaDompet TO name'))
           .called(1);
-      verify(() => mockDatabase
+      verify(mockDatabase
               .execute('ALTER TABLE dompet RENAME TO ${NamaTabel.dompet}'))
           .called(1);
-      verify(() => mockDatabase.execute(
+      verify(mockDatabase.execute(
               'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN terkahir_aktif INTEGER'))
           .called(1);
-      verify(() =>
+      verify(
               mockDatabase.execute(contains('CREATE TABLE ${NamaTabel.notifikasi}')))
           .called(1);
-      verify(() => mockDatabase.execute(
+      verify(mockDatabase.execute(
               'ALTER TABLE "${NamaTabel.transaksi}" ADD COLUMN durasi_bonus INTEGER'))
           .called(1);
     });
@@ -271,17 +256,17 @@ void main() {
     test('02. harus menjalankan migrasi dari versi 50 ke 53', () async {
       await runUpgrade(50, 53);
 
-      verifyNever(() => mockDatabase.execute('DROP TABLE IF EXISTS pengaturan'));
-      verifyNever(() => mockDatabase
+      verifyNever(mockDatabase.execute('DROP TABLE IF EXISTS pengaturan'));
+      verifyNever(mockDatabase
           .execute('ALTER TABLE dompet RENAME TO ${NamaTabel.dompet}'));
 
-      verify(() => mockDatabase.execute(
+      verify(mockDatabase.execute(
               'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN terkahir_aktif INTEGER'))
           .called(1);
-      verify(() =>
+      verify(
               mockDatabase.execute(contains('CREATE TABLE ${NamaTabel.notifikasi}')))
           .called(1);
-      verify(() => mockDatabase.execute(
+      verify(mockDatabase.execute(
               'ALTER TABLE "${NamaTabel.transaksi}" ADD COLUMN durasi_bonus INTEGER'))
           .called(1);
     });
@@ -289,11 +274,11 @@ void main() {
     test('03. tidak boleh menjalankan migrasi jika versi sama', () async {
       await runUpgrade(53, 53);
 
-      verifyNever(() => mockDatabase.execute(any()));
+      verifyNever(mockDatabase.execute(any));
     });
 
     test('04. _migrateToV53 harus menambahkan kolom jika belum ada', () async {
-      when(() =>
+      when(
               mockDatabase.rawQuery('PRAGMA table_info("${NamaTabel.transaksi}")'))
           .thenAnswer((_) async => [
                 {'name': 'id'},
@@ -302,17 +287,17 @@ void main() {
 
       await sqliteDatabase.testMigrateToV53(mockDatabase);
 
-      verify(() => mockDatabase.execute(
+      verify(mockDatabase.execute(
               'ALTER TABLE "${NamaTabel.transaksi}" ADD COLUMN durasi_bonus INTEGER'))
           .called(1);
-      verify(() => mockDatabase.execute(
+      verify(mockDatabase.execute(
               'ALTER TABLE "${NamaTabel.transaksi}" ADD COLUMN tipe_durasi_bonus TEXT'))
           .called(1);
     });
 
     test('05. _migrateToV53 tidak boleh menambahkan kolom jika sudah ada',
         () async {
-      when(() =>
+      when(
               mockDatabase.rawQuery('PRAGMA table_info("${NamaTabel.transaksi}")'))
           .thenAnswer((_) async => [
                 {'name': 'id'},
@@ -322,9 +307,9 @@ void main() {
 
       await sqliteDatabase.testMigrateToV53(mockDatabase);
 
-      verifyNever(() => mockDatabase.execute(
+      verifyNever(mockDatabase.execute(
           'ALTER TABLE "${NamaTabel.transaksi}" ADD COLUMN durasi_bonus INTEGER'));
-      verifyNever(() => mockDatabase.execute(
+      verifyNever(mockDatabase.execute(
           'ALTER TABLE "${NamaTabel.transaksi}" ADD COLUMN tipe_durasi_bonus TEXT'));
     });
   });
@@ -338,8 +323,7 @@ void main() {
 
       await sqliteDatabase.database;
 
-      verify(() =>
-              mockFactory.openDatabase(any(), options: any(named: 'options')))
+      verify(mockFactory.openDatabase(any, options: anyNamed('options')))
           .called(2);
     });
   });

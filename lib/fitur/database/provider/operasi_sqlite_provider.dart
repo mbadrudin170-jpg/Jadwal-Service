@@ -106,7 +106,7 @@ KategoriOpSqlite kategoriOpSqlite(Ref ref) {
 
 /// Provider untuk menyediakan instance dari [PembersihanDataOperasi].
 @Riverpod(keepAlive: true)
-PembersihanDataOperasi dataCleaningOperation(Ref ref) {
+PembersihanDataOperasi pembersihanDataOperasi(Ref ref) {
   Log.info('Membuat instance DataCleaningOperation via @riverpod...');
   return PembersihanDataOperasi();
 }
