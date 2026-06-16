@@ -11,7 +11,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/notifikasi_model.dart';
+import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
 
 @pragma('vm:entry-point')

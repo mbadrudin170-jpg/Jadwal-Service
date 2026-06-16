@@ -1,11 +1,6 @@
-// path: lib/shared/enum/tipe_notifikasi_enum.dart
+// path: lib/fitur/notfikasi/enum/tipe_notifikasi_enum.dart
 
-enum TipeNotifikasiEnum {
-  transaksi,
-  events,
-  order,
-  info
-}
+enum TipeNotifikasiEnum { transaksi, events, order, info }
 
 extension TipeNotifikasiExtension on TipeNotifikasiEnum {
   String get displayName {
@@ -16,8 +11,8 @@ extension TipeNotifikasiExtension on TipeNotifikasiEnum {
         return 'Event';
       case TipeNotifikasiEnum.order:
         return 'Pesanan';
-        case TipeNotifikasiEnum.info:
+      case TipeNotifikasiEnum.info:
         return 'Info';
-      }
+    }
   }
 }

@@ -4,12 +4,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/enum/tipe_notifikasi_enum.dart';
-import 'package:wifi/shared/model/notifikasi_model.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
 
 class MockBaseOpFirebase extends Mock implements BaseOpFirebase {}
+
+// Fallback value untuk NotifikasiModel
+class FakeNotifikasiModel extends Fake implements NotifikasiModel {}
 
 void main() {
   late FakeFirebaseFirestore firestore;
@@ -23,17 +26,7 @@ void main() {
       firestore: firestore,
       baseOp: mockBaseOp,
     );
-    registerFallbackValue(NotifikasiModel(
-      tanggalMulai: DateTime.now(),
-      tangglberakhir: DateTime.now(),
-      tanggalTampil: DateTime.now(),
-      judul: '',
-      deskripsi: '',
-      tipe: TipeNotifikasiEnum.info,
-      diperbaruiPada: DateTime.now(),
-      idTujuan: '',
-      userId: '',
-    ));
+    registerFallbackValue(FakeNotifikasiModel());
   });
 
   final now = DateTime.now();
@@ -43,7 +36,7 @@ void main() {
     judul: 'Judul 1',
     deskripsi: 'Pesan 1',
     tanggalMulai: now,
-    tangglberakhir: now,
+    tangglberakhir: now.add(const Duration(days: 1)),
     tanggalTampil: now.subtract(const Duration(hours: 1)),
     diperbaruiPada: now,
     idTujuan: 'tujuan1',
@@ -57,14 +50,14 @@ void main() {
     judul: 'Judul 2',
     deskripsi: 'Pesan 2',
     tanggalMulai: now,
-    tangglberakhir: now,
+    tangglberakhir: now.add(const Duration(days: 1)),
     tanggalTampil: now.subtract(const Duration(hours: 1)),
     diperbaruiPada: now,
     idTujuan: 'tujuan2',
   );
 
-  final notifDihapus = notif1.copyWith(id: '3', isDeleted: true);
-  final notifDibaca = notif1.copyWith(id: '4', isRead: true);
+  final notifDihapus = notif1.copyWith(id: '3', dihapus: true);
+  final notifDibaca = notif1.copyWith(id: '4', setatusDibaca: true);
   final notifMasaDepan =
       notif1.copyWith(id: '5', tanggalTampil: now.add(const Duration(days: 1)));
 
@@ -91,8 +84,7 @@ void main() {
                   containsAll([notif1.id, notif2.id]))));
     });
 
-    test(
-        '02. harus mengembalikan stream kosong jika tidak ada notifikasi aktif',
+    test('02. harus mengembalikan stream kosong jika tidak ada notifikasi aktif',
         () async {
       final stream = notifikasiOp.getNotifAktif();
       expect(stream, emits(isEmpty));
@@ -254,12 +246,10 @@ void main() {
   });
 
   group('getKhususAdmin', () {
-    final notifOrder =
-        notif2.copyWith(id: 'order1', type: TipeNotifikasiEnum.order);
+    final notifOrder = notif2.copyWith(id: 'order1', tipe: TipeNotifikasiEnum.order);
     final notifTransaksi =
-        notif1.copyWith(id: 'transaksi1', type: TipeNotifikasiEnum.transaksi);
-    final notifInfo =
-        notif1.copyWith(id: 'info1', type: TipeNotifikasiEnum.info);
+        notif1.copyWith(id: 'transaksi1', tipe: TipeNotifikasiEnum.transaksi);
+    final notifInfo = notif1.copyWith(id: 'info1', tipe: TipeNotifikasiEnum.info);
 
     test(
         '15. harus mengembalikan notifikasi khusus admin (tipe order atau transaksi) yang aktif',
@@ -468,8 +458,8 @@ void main() {
             any(),
           )).thenThrow(exception);
 
-      expect(
-          () => notifikasiOp.tandaiSudahDibaca('notif-id'), throwsA(exception));
+      expect(() => notifikasiOp.tandaiSudahDibaca('notif-id'),
+          throwsA(exception));
     });
   });
 }

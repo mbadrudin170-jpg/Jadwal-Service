@@ -1,4 +1,4 @@
-// path: lib/shared/model/notifikasi_model.dart
+// path: lib/fitur/notfikasi/model/notifikasi_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
