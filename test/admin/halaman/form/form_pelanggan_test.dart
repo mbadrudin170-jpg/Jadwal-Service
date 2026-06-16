@@ -92,7 +92,7 @@ void main() {
     testWidgets('04. should add new customer when form is valid',
         (tester) async {
       when(mockPelangganOpSqlite.tambahPelanggan(any))
-          .thenAnswer((_) async => 1);
+          .thenAnswer((_) async => Future.value());
       when(mockKoneksiInternetService.cekKoneksiLokal())
           .thenAnswer((_) async => true);
       when(mockLayananCekSinkronisasi.jalankanCekSinkronisasi())
@@ -121,7 +121,7 @@ void main() {
     testWidgets('05. should update existing customer when form is valid',
         (tester) async {
       when(mockPelangganOpSqlite.perbaruiPelanggan(any))
-          .thenAnswer((_) async => 1);
+          .thenAnswer((_) async => Future.value());
       when(mockKoneksiInternetService.cekKoneksiLokal())
           .thenAnswer((_) async => true);
       when(mockLayananCekSinkronisasi.jalankanCekSinkronisasi())
@@ -141,7 +141,6 @@ void main() {
      testWidgets('06. should show CircularProgressIndicator while saving', (WidgetTester tester) async {
       when(mockPelangganOpSqlite.tambahPelanggan(any)).thenAnswer((_) async {
         await Future.delayed(const Duration(seconds: 1));
-        return 1;
       });
       when(mockKoneksiInternetService.cekKoneksiLokal()).thenAnswer((_) async => false);
       
