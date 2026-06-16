@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
-import 'package:wifi/fitur/info_perangkat/service/package_info_service.dart';
+import 'package:wifi/fitur/info_perangkat/service/layanan_info_paket.dart';
 
 void main() {
   late LayananInfoPaket packageInfoService;

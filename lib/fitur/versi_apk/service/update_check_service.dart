@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/info_perangkat/service/layanan_info_perangkat.dart';
 import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
-import 'package:wifi/fitur/info_perangkat/service/package_info_service.dart';
+import 'package:wifi/fitur/info_perangkat/service/layanan_info_paket.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
