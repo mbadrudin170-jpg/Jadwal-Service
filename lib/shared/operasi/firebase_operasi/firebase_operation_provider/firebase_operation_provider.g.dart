@@ -15,19 +15,25 @@ final firestoreProvider = FirestoreProvider._();
 
 /// Provider utama untuk menyediakan instance global dari [FirebaseFirestore].
 
-final class FirestoreProvider extends $FunctionalProvider<FirebaseFirestore,
-    FirebaseFirestore, FirebaseFirestore> with $Provider<FirebaseFirestore> {
+final class FirestoreProvider
+    extends
+        $FunctionalProvider<
+          FirebaseFirestore,
+          FirebaseFirestore,
+          FirebaseFirestore
+        >
+    with $Provider<FirebaseFirestore> {
   /// Provider utama untuk menyediakan instance global dari [FirebaseFirestore].
   FirestoreProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'firestoreProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'firestoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$firestoreHash();
@@ -35,8 +41,8 @@ final class FirestoreProvider extends $FunctionalProvider<FirebaseFirestore,
   @$internal
   @override
   $ProviderElement<FirebaseFirestore> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   FirebaseFirestore create(Ref ref) {
@@ -61,21 +67,25 @@ final statusOpFirebaseProvider = StatusOpFirebaseProvider._();
 
 /// Provider untuk menyediakan instance dari [StatusOpFirebase].
 
-final class StatusOpFirebaseProvider extends $FunctionalProvider<
-    StatusOpFirebase,
-    StatusOpFirebase,
-    StatusOpFirebase> with $Provider<StatusOpFirebase> {
+final class StatusOpFirebaseProvider
+    extends
+        $FunctionalProvider<
+          StatusOpFirebase,
+          StatusOpFirebase,
+          StatusOpFirebase
+        >
+    with $Provider<StatusOpFirebase> {
   /// Provider untuk menyediakan instance dari [StatusOpFirebase].
   StatusOpFirebaseProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'statusOpFirebaseProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'statusOpFirebaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$statusOpFirebaseHash();
@@ -113,15 +123,15 @@ final class BaseOpFirebaseProvider
     with $Provider<BaseOpFirebase> {
   /// Provider untuk menyediakan instance dari [BaseOpFirebase].
   BaseOpFirebaseProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'baseOpFirebaseProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'baseOpFirebaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$baseOpFirebaseHash();
@@ -154,21 +164,25 @@ final activeCustomerOpFirebaseProvider = ActiveCustomerOpFirebaseProvider._();
 
 /// Provider untuk menyediakan instance dari [PelangganAktifOpFirebase].
 
-final class ActiveCustomerOpFirebaseProvider extends $FunctionalProvider<
-    PelangganAktifOpFirebase,
-    PelangganAktifOpFirebase,
-    PelangganAktifOpFirebase> with $Provider<PelangganAktifOpFirebase> {
+final class ActiveCustomerOpFirebaseProvider
+    extends
+        $FunctionalProvider<
+          PelangganAktifOpFirebase,
+          PelangganAktifOpFirebase,
+          PelangganAktifOpFirebase
+        >
+    with $Provider<PelangganAktifOpFirebase> {
   /// Provider untuk menyediakan instance dari [PelangganAktifOpFirebase].
   ActiveCustomerOpFirebaseProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'activeCustomerOpFirebaseProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'activeCustomerOpFirebaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$activeCustomerOpFirebaseHash();
@@ -176,8 +190,8 @@ final class ActiveCustomerOpFirebaseProvider extends $FunctionalProvider<
   @$internal
   @override
   $ProviderElement<PelangganAktifOpFirebase> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   PelangganAktifOpFirebase create(Ref ref) {
@@ -199,20 +213,24 @@ String _$activeCustomerOpFirebaseHash() =>
 @ProviderFor(feedbackOpFirebase)
 final feedbackOpFirebaseProvider = FeedbackOpFirebaseProvider._();
 
-final class FeedbackOpFirebaseProvider extends $FunctionalProvider<
-    FeedbackOpFirebase,
-    FeedbackOpFirebase,
-    FeedbackOpFirebase> with $Provider<FeedbackOpFirebase> {
+final class FeedbackOpFirebaseProvider
+    extends
+        $FunctionalProvider<
+          FeedbackOpFirebase,
+          FeedbackOpFirebase,
+          FeedbackOpFirebase
+        >
+    with $Provider<FeedbackOpFirebase> {
   FeedbackOpFirebaseProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'feedbackOpFirebaseProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'feedbackOpFirebaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$feedbackOpFirebaseHash();
@@ -220,8 +238,8 @@ final class FeedbackOpFirebaseProvider extends $FunctionalProvider<
   @$internal
   @override
   $ProviderElement<FeedbackOpFirebase> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   FeedbackOpFirebase create(Ref ref) {
@@ -243,23 +261,26 @@ String _$feedbackOpFirebaseHash() =>
 @ProviderFor(feedbackStream)
 final feedbackStreamProvider = FeedbackStreamFamily._();
 
-final class FeedbackStreamProvider extends $FunctionalProvider<
-        AsyncValue<List<FeedbackModel>>,
-        List<FeedbackModel>,
-        Stream<List<FeedbackModel>>>
+final class FeedbackStreamProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<FeedbackModel>>,
+          List<FeedbackModel>,
+          Stream<List<FeedbackModel>>
+        >
     with
         $FutureModifier<List<FeedbackModel>>,
         $StreamProvider<List<FeedbackModel>> {
-  FeedbackStreamProvider._(
-      {required FeedbackStreamFamily super.from,
-      required String super.argument})
-      : super(
-          retry: null,
-          name: r'feedbackStreamProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+  FeedbackStreamProvider._({
+    required FeedbackStreamFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'feedbackStreamProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
   String debugGetCreateSourceHash() => _$feedbackStreamHash();
@@ -274,16 +295,13 @@ final class FeedbackStreamProvider extends $FunctionalProvider<
   @$internal
   @override
   $StreamProviderElement<List<FeedbackModel>> $createElement(
-          $ProviderPointer pointer) =>
-      $StreamProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
 
   @override
   Stream<List<FeedbackModel>> create(Ref ref) {
     final argument = this.argument as String;
-    return feedbackStream(
-      ref,
-      argument,
-    );
+    return feedbackStream(ref, argument);
   }
 
   @override
@@ -302,17 +320,15 @@ String _$feedbackStreamHash() => r'884555dea084c9141158cb14b5c2489604da030d';
 final class FeedbackStreamFamily extends $Family
     with $FunctionalFamilyOverride<Stream<List<FeedbackModel>>, String> {
   FeedbackStreamFamily._()
-      : super(
-          retry: null,
-          name: r'feedbackStreamProvider',
-          dependencies: null,
-          $allTransitiveDependencies: null,
-          isAutoDispose: true,
-        );
+    : super(
+        retry: null,
+        name: r'feedbackStreamProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
 
-  FeedbackStreamProvider call(
-    String userId,
-  ) =>
+  FeedbackStreamProvider call(String userId) =>
       FeedbackStreamProvider._(argument: userId, from: this);
 
   @override
@@ -322,20 +338,24 @@ final class FeedbackStreamFamily extends $Family
 @ProviderFor(pelangganOpFirebase)
 final pelangganOpFirebaseProvider = PelangganOpFirebaseProvider._();
 
-final class PelangganOpFirebaseProvider extends $FunctionalProvider<
-    CustomerOpFirebase,
-    CustomerOpFirebase,
-    CustomerOpFirebase> with $Provider<CustomerOpFirebase> {
+final class PelangganOpFirebaseProvider
+    extends
+        $FunctionalProvider<
+          CustomerOpFirebase,
+          CustomerOpFirebase,
+          CustomerOpFirebase
+        >
+    with $Provider<CustomerOpFirebase> {
   PelangganOpFirebaseProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'pelangganOpFirebaseProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pelangganOpFirebaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$pelangganOpFirebaseHash();
@@ -343,8 +363,8 @@ final class PelangganOpFirebaseProvider extends $FunctionalProvider<
   @$internal
   @override
   $ProviderElement<CustomerOpFirebase> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   CustomerOpFirebase create(Ref ref) {
@@ -366,18 +386,20 @@ String _$pelangganOpFirebaseHash() =>
 @ProviderFor(paketOpFirebase)
 final paketOpFirebaseProvider = PaketOpFirebaseProvider._();
 
-final class PaketOpFirebaseProvider extends $FunctionalProvider<PaketOpFirebase,
-    PaketOpFirebase, PaketOpFirebase> with $Provider<PaketOpFirebase> {
+final class PaketOpFirebaseProvider
+    extends
+        $FunctionalProvider<PaketOpFirebase, PaketOpFirebase, PaketOpFirebase>
+    with $Provider<PaketOpFirebase> {
   PaketOpFirebaseProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'paketOpFirebaseProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'paketOpFirebaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$paketOpFirebaseHash();
@@ -406,20 +428,24 @@ String _$paketOpFirebaseHash() => r'9b5525426ad36fd4aeadb5cabf7d8ecae7ba79ec';
 @ProviderFor(transaksiOpFirebase)
 final transaksiOpFirebaseProvider = TransaksiOpFirebaseProvider._();
 
-final class TransaksiOpFirebaseProvider extends $FunctionalProvider<
-    TransaksiOpFirebase,
-    TransaksiOpFirebase,
-    TransaksiOpFirebase> with $Provider<TransaksiOpFirebase> {
+final class TransaksiOpFirebaseProvider
+    extends
+        $FunctionalProvider<
+          TransaksiOpFirebase,
+          TransaksiOpFirebase,
+          TransaksiOpFirebase
+        >
+    with $Provider<TransaksiOpFirebase> {
   TransaksiOpFirebaseProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'transaksiOpFirebaseProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'transaksiOpFirebaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$transaksiOpFirebaseHash();
@@ -427,8 +453,8 @@ final class TransaksiOpFirebaseProvider extends $FunctionalProvider<
   @$internal
   @override
   $ProviderElement<TransaksiOpFirebase> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   TransaksiOpFirebase create(Ref ref) {
@@ -450,20 +476,24 @@ String _$transaksiOpFirebaseHash() =>
 @ProviderFor(notifikasiOpFirebase)
 final notifikasiOpFirebaseProvider = NotifikasiOpFirebaseProvider._();
 
-final class NotifikasiOpFirebaseProvider extends $FunctionalProvider<
-    NotifikasiOpFirebase,
-    NotifikasiOpFirebase,
-    NotifikasiOpFirebase> with $Provider<NotifikasiOpFirebase> {
+final class NotifikasiOpFirebaseProvider
+    extends
+        $FunctionalProvider<
+          NotifikasiOpFirebase,
+          NotifikasiOpFirebase,
+          NotifikasiOpFirebase
+        >
+    with $Provider<NotifikasiOpFirebase> {
   NotifikasiOpFirebaseProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'notifikasiOpFirebaseProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'notifikasiOpFirebaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$notifikasiOpFirebaseHash();
@@ -471,8 +501,8 @@ final class NotifikasiOpFirebaseProvider extends $FunctionalProvider<
   @$internal
   @override
   $ProviderElement<NotifikasiOpFirebase> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   NotifikasiOpFirebase create(Ref ref) {
@@ -494,18 +524,20 @@ String _$notifikasiOpFirebaseHash() =>
 @ProviderFor(orderOpFirebase)
 final orderOpFirebaseProvider = OrderOpFirebaseProvider._();
 
-final class OrderOpFirebaseProvider extends $FunctionalProvider<OrderOpFirebase,
-    OrderOpFirebase, OrderOpFirebase> with $Provider<OrderOpFirebase> {
+final class OrderOpFirebaseProvider
+    extends
+        $FunctionalProvider<OrderOpFirebase, OrderOpFirebase, OrderOpFirebase>
+    with $Provider<OrderOpFirebase> {
   OrderOpFirebaseProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'orderOpFirebaseProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'orderOpFirebaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$orderOpFirebaseHash();
@@ -534,23 +566,26 @@ String _$orderOpFirebaseHash() => r'91a84983dc0ee49d1317fca190b73daaf5369c6d';
 @ProviderFor(activeNotificationsStream)
 final activeNotificationsStreamProvider = ActiveNotificationsStreamProvider._();
 
-final class ActiveNotificationsStreamProvider extends $FunctionalProvider<
-        AsyncValue<List<NotifikasiModel>>,
-        List<NotifikasiModel>,
-        Stream<List<NotifikasiModel>>>
+final class ActiveNotificationsStreamProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<NotifikasiModel>>,
+          List<NotifikasiModel>,
+          Stream<List<NotifikasiModel>>
+        >
     with
         $FutureModifier<List<NotifikasiModel>>,
         $StreamProvider<List<NotifikasiModel>> {
   ActiveNotificationsStreamProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'activeNotificationsStreamProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'activeNotificationsStreamProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$activeNotificationsStreamHash();
@@ -558,8 +593,8 @@ final class ActiveNotificationsStreamProvider extends $FunctionalProvider<
   @$internal
   @override
   $StreamProviderElement<List<NotifikasiModel>> $createElement(
-          $ProviderPointer pointer) =>
-      $StreamProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
 
   @override
   Stream<List<NotifikasiModel>> create(Ref ref) {

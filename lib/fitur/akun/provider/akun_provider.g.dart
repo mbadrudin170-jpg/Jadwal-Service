@@ -15,15 +15,15 @@ final pengelolaAkunProvider = PengelolaAkunProvider._();
 final class PengelolaAkunProvider
     extends $AsyncNotifierProvider<PengelolaAkun, AkunState> {
   PengelolaAkunProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'pengelolaAkunProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pengelolaAkunProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$pengelolaAkunHash();
@@ -41,11 +41,14 @@ abstract class _$PengelolaAkun extends $AsyncNotifier<AkunState> {
   @override
   WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<AkunState>, AkunState>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<AsyncValue<AkunState>, AkunState>,
-        AsyncValue<AkunState>,
-        Object?,
-        Object?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<AkunState>, AkunState>,
+              AsyncValue<AkunState>,
+              Object?,
+              Object?
+            >;
     return element.handleCreate(ref, build);
   }
 }

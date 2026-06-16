@@ -14,15 +14,15 @@ final appReadinessProvider = AppReadinessProvider._();
 
 final class AppReadinessProvider extends $NotifierProvider<AppReadiness, bool> {
   AppReadinessProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'appReadinessProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'appReadinessProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$appReadinessHash();
@@ -48,8 +48,14 @@ abstract class _$AppReadiness extends $Notifier<bool> {
   @override
   WhenComplete runBuild() {
     final ref = this.ref as $Ref<bool, bool>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<bool, bool>, bool, Object?, Object?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
     return element.handleCreate(ref, build);
   }
 }
@@ -57,20 +63,24 @@ abstract class _$AppReadiness extends $Notifier<bool> {
 @ProviderFor(notifikasiServis)
 final notifikasiServisProvider = NotifikasiServisProvider._();
 
-final class NotifikasiServisProvider extends $FunctionalProvider<
-    LayananNotifikasi,
-    LayananNotifikasi,
-    LayananNotifikasi> with $Provider<LayananNotifikasi> {
+final class NotifikasiServisProvider
+    extends
+        $FunctionalProvider<
+          LayananNotifikasi,
+          LayananNotifikasi,
+          LayananNotifikasi
+        >
+    with $Provider<LayananNotifikasi> {
   NotifikasiServisProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'notifikasiServisProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'notifikasiServisProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$notifikasiServisHash();
@@ -78,8 +88,8 @@ final class NotifikasiServisProvider extends $FunctionalProvider<
   @$internal
   @override
   $ProviderElement<LayananNotifikasi> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   LayananNotifikasi create(Ref ref) {
@@ -104,15 +114,15 @@ final class UserIdProvider
     extends $FunctionalProvider<AsyncValue<String?>, String?, FutureOr<String?>>
     with $FutureModifier<String?>, $FutureProvider<String?> {
   UserIdProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'userIdProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'userIdProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$userIdHash();
@@ -133,23 +143,26 @@ String _$userIdHash() => r'99159f4d22bbc50c367bcbb1bf5f8ce4a1958fad';
 @ProviderFor(userActivityService)
 final userActivityServiceProvider = UserActivityServiceProvider._();
 
-final class UserActivityServiceProvider extends $FunctionalProvider<
-        AsyncValue<UserActivityService>,
-        UserActivityService,
-        FutureOr<UserActivityService>>
+final class UserActivityServiceProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<UserActivityService>,
+          UserActivityService,
+          FutureOr<UserActivityService>
+        >
     with
         $FutureModifier<UserActivityService>,
         $FutureProvider<UserActivityService> {
   UserActivityServiceProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'userActivityServiceProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'userActivityServiceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$userActivityServiceHash();
@@ -157,8 +170,8 @@ final class UserActivityServiceProvider extends $FunctionalProvider<
   @$internal
   @override
   $FutureProviderElement<UserActivityService> $createElement(
-          $ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
   FutureOr<UserActivityService> create(Ref ref) {

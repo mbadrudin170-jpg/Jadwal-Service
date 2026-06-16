@@ -14,15 +14,15 @@ final dompetProvider = DompetProvider._();
 
 final class DompetProvider extends $AsyncNotifierProvider<Dompet, DompetState> {
   DompetProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'dompetProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'dompetProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$dompetHash();
@@ -40,11 +40,14 @@ abstract class _$Dompet extends $AsyncNotifier<DompetState> {
   @override
   WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<DompetState>, DompetState>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<AsyncValue<DompetState>, DompetState>,
-        AsyncValue<DompetState>,
-        Object?,
-        Object?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<DompetState>, DompetState>,
+              AsyncValue<DompetState>,
+              Object?,
+              Object?
+            >;
     return element.handleCreate(ref, build);
   }
 }

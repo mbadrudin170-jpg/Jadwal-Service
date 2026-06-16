@@ -13,20 +13,16 @@ part of 'poin_provider.dart';
 final poinProvider = PoinFamily._();
 
 final class PoinProvider extends $AsyncNotifierProvider<Poin, PoinState> {
-  PoinProvider._(
-      {required PoinFamily super.from,
-      required (
-        Ref,
-        String,
-      )
-          super.argument})
-      : super(
-          retry: null,
-          name: r'poinProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+  PoinProvider._({
+    required PoinFamily super.from,
+    required (Ref, String) super.argument,
+  }) : super(
+         retry: null,
+         name: r'poinProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
   String debugGetCreateSourceHash() => _$poinHash();
@@ -58,83 +54,71 @@ String _$poinHash() => r'e6a66d42809f4e8bc3071870a6da5bf8c6988edc';
 final class PoinFamily extends $Family
     with
         $ClassFamilyOverride<
-            Poin,
-            AsyncValue<PoinState>,
-            PoinState,
-            FutureOr<PoinState>,
-            (
-              Ref,
-              String,
-            )> {
+          Poin,
+          AsyncValue<PoinState>,
+          PoinState,
+          FutureOr<PoinState>,
+          (Ref, String)
+        > {
   PoinFamily._()
-      : super(
-          retry: null,
-          name: r'poinProvider',
-          dependencies: null,
-          $allTransitiveDependencies: null,
-          isAutoDispose: true,
-        );
+    : super(
+        retry: null,
+        name: r'poinProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
 
-  PoinProvider call(
-    Ref ref,
-    String customerId,
-  ) =>
-      PoinProvider._(argument: (
-        ref,
-        customerId,
-      ), from: this);
+  PoinProvider call(Ref ref, String customerId) =>
+      PoinProvider._(argument: (ref, customerId), from: this);
 
   @override
   String toString() => r'poinProvider';
 }
 
 abstract class _$Poin extends $AsyncNotifier<PoinState> {
-  late final _$args = ref.$arg as (
-    Ref,
-    String,
-  );
+  late final _$args = ref.$arg as (Ref, String);
   Ref get ref => _$args.$1;
   String get customerId => _$args.$2;
 
-  FutureOr<PoinState> build(
-    Ref ref,
-    String customerId,
-  );
+  FutureOr<PoinState> build(Ref ref, String customerId);
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<PoinState>, PoinState>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<AsyncValue<PoinState>, PoinState>,
-        AsyncValue<PoinState>,
-        Object?,
-        Object?>;
-    return element.handleCreate(
-        ref,
-        () => build(
-              _$args.$1,
-              _$args.$2,
-            ));
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<PoinState>, PoinState>,
+              AsyncValue<PoinState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, () => build(_$args.$1, _$args.$2));
   }
 }
 
 @ProviderFor(pointsDataSource)
 final pointsDataSourceProvider = PointsDataSourceProvider._();
 
-final class PointsDataSourceProvider extends $FunctionalProvider<
-    PointsPageDataSource,
-    PointsPageDataSource,
-    PointsPageDataSource> with $Provider<PointsPageDataSource> {
+final class PointsDataSourceProvider
+    extends
+        $FunctionalProvider<
+          PointsPageDataSource,
+          PointsPageDataSource,
+          PointsPageDataSource
+        >
+    with $Provider<PointsPageDataSource> {
   PointsDataSourceProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'pointsDataSourceProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pointsDataSourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$pointsDataSourceHash();
@@ -142,8 +126,8 @@ final class PointsDataSourceProvider extends $FunctionalProvider<
   @$internal
   @override
   $ProviderElement<PointsPageDataSource> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   PointsPageDataSource create(Ref ref) {
@@ -164,19 +148,24 @@ String _$pointsDataSourceHash() => r'9feb7a5adaf71fc41220f2264cb5907c2ed38059';
 @ProviderFor(pointsPageData)
 final pointsPageDataProvider = PointsPageDataFamily._();
 
-final class PointsPageDataProvider extends $FunctionalProvider<
-        AsyncValue<PointsPageData>, PointsPageData, FutureOr<PointsPageData>>
+final class PointsPageDataProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<PointsPageData>,
+          PointsPageData,
+          FutureOr<PointsPageData>
+        >
     with $FutureModifier<PointsPageData>, $FutureProvider<PointsPageData> {
-  PointsPageDataProvider._(
-      {required PointsPageDataFamily super.from,
-      required String super.argument})
-      : super(
-          retry: null,
-          name: r'pointsPageDataProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+  PointsPageDataProvider._({
+    required PointsPageDataFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'pointsPageDataProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
   String debugGetCreateSourceHash() => _$pointsPageDataHash();
@@ -191,16 +180,13 @@ final class PointsPageDataProvider extends $FunctionalProvider<
   @$internal
   @override
   $FutureProviderElement<PointsPageData> $createElement(
-          $ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
   FutureOr<PointsPageData> create(Ref ref) {
     final argument = this.argument as String;
-    return pointsPageData(
-      ref,
-      argument,
-    );
+    return pointsPageData(ref, argument);
   }
 
   @override
@@ -219,17 +205,15 @@ String _$pointsPageDataHash() => r'b1649862381c7d14126a1724896af09c087cc58b';
 final class PointsPageDataFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<PointsPageData>, String> {
   PointsPageDataFamily._()
-      : super(
-          retry: null,
-          name: r'pointsPageDataProvider',
-          dependencies: null,
-          $allTransitiveDependencies: null,
-          isAutoDispose: true,
-        );
+    : super(
+        retry: null,
+        name: r'pointsPageDataProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
 
-  PointsPageDataProvider call(
-    String customerId,
-  ) =>
+  PointsPageDataProvider call(String customerId) =>
       PointsPageDataProvider._(argument: customerId, from: this);
 
   @override
@@ -239,22 +223,26 @@ final class PointsPageDataFamily extends $Family
 @ProviderFor(pointsHistory)
 final pointsHistoryProvider = PointsHistoryFamily._();
 
-final class PointsHistoryProvider extends $FunctionalProvider<
-        AsyncValue<List<TransaksiModel>>,
-        List<TransaksiModel>,
-        FutureOr<List<TransaksiModel>>>
+final class PointsHistoryProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<TransaksiModel>>,
+          List<TransaksiModel>,
+          FutureOr<List<TransaksiModel>>
+        >
     with
         $FutureModifier<List<TransaksiModel>>,
         $FutureProvider<List<TransaksiModel>> {
-  PointsHistoryProvider._(
-      {required PointsHistoryFamily super.from, required String super.argument})
-      : super(
-          retry: null,
-          name: r'pointsHistoryProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+  PointsHistoryProvider._({
+    required PointsHistoryFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'pointsHistoryProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
   String debugGetCreateSourceHash() => _$pointsHistoryHash();
@@ -269,16 +257,13 @@ final class PointsHistoryProvider extends $FunctionalProvider<
   @$internal
   @override
   $FutureProviderElement<List<TransaksiModel>> $createElement(
-          $ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
   FutureOr<List<TransaksiModel>> create(Ref ref) {
     final argument = this.argument as String;
-    return pointsHistory(
-      ref,
-      argument,
-    );
+    return pointsHistory(ref, argument);
   }
 
   @override
@@ -297,17 +282,15 @@ String _$pointsHistoryHash() => r'0821fe98315b076f5495d3698e386cb61db4b144';
 final class PointsHistoryFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<TransaksiModel>>, String> {
   PointsHistoryFamily._()
-      : super(
-          retry: null,
-          name: r'pointsHistoryProvider',
-          dependencies: null,
-          $allTransitiveDependencies: null,
-          isAutoDispose: true,
-        );
+    : super(
+        retry: null,
+        name: r'pointsHistoryProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
 
-  PointsHistoryProvider call(
-    String customerId,
-  ) =>
+  PointsHistoryProvider call(String customerId) =>
       PointsHistoryProvider._(argument: customerId, from: this);
 
   @override

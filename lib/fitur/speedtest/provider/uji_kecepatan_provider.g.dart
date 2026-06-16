@@ -15,15 +15,15 @@ final ujiKecepatanProvider = UjiKecepatanProvider._();
 final class UjiKecepatanProvider
     extends $NotifierProvider<UjiKecepatan, UjiKecepatanState> {
   UjiKecepatanProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'ujiKecepatanProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ujiKecepatanProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$ujiKecepatanHash();
@@ -49,11 +49,14 @@ abstract class _$UjiKecepatan extends $Notifier<UjiKecepatanState> {
   @override
   WhenComplete runBuild() {
     final ref = this.ref as $Ref<UjiKecepatanState, UjiKecepatanState>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<UjiKecepatanState, UjiKecepatanState>,
-        UjiKecepatanState,
-        Object?,
-        Object?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<UjiKecepatanState, UjiKecepatanState>,
+              UjiKecepatanState,
+              Object?,
+              Object?
+            >;
     return element.handleCreate(ref, build);
   }
 }

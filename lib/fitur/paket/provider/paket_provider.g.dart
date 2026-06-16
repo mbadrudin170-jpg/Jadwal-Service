@@ -17,23 +17,26 @@ final daftarPaketProvider = DaftarPaketProvider._();
 /// Provider asinkron untuk mengambil data daftar paket yang aktif dari SQLite.
 /// Menggunakan autoDispose (default generator) agar otomatis reset saat halaman ditinggalkan.
 
-final class DaftarPaketProvider extends $FunctionalProvider<
-        AsyncValue<List<PaketModel>>,
-        List<PaketModel>,
-        FutureOr<List<PaketModel>>>
+final class DaftarPaketProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<PaketModel>>,
+          List<PaketModel>,
+          FutureOr<List<PaketModel>>
+        >
     with $FutureModifier<List<PaketModel>>, $FutureProvider<List<PaketModel>> {
   /// Provider asinkron untuk mengambil data daftar paket yang aktif dari SQLite.
   /// Menggunakan autoDispose (default generator) agar otomatis reset saat halaman ditinggalkan.
   DaftarPaketProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'daftarPaketProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'daftarPaketProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$daftarPaketHash();
@@ -41,8 +44,8 @@ final class DaftarPaketProvider extends $FunctionalProvider<
   @$internal
   @override
   $FutureProviderElement<List<PaketModel>> $createElement(
-          $ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
   FutureOr<List<PaketModel>> create(Ref ref) {
@@ -62,15 +65,15 @@ final class UrutanPaketStateProvider
     extends $NotifierProvider<UrutanPaketState, UrutanPaket> {
   /// Provider untuk menyimpan state opsi urutan paket yang dipilih oleh user.
   UrutanPaketStateProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'urutanPaketStateProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'urutanPaketStateProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$urutanPaketStateHash();
@@ -98,8 +101,14 @@ abstract class _$UrutanPaketState extends $Notifier<UrutanPaket> {
   @override
   WhenComplete runBuild() {
     final ref = this.ref as $Ref<UrutanPaket, UrutanPaket>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<UrutanPaket, UrutanPaket>, UrutanPaket, Object?, Object?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<UrutanPaket, UrutanPaket>,
+              UrutanPaket,
+              Object?,
+              Object?
+            >;
     return element.handleCreate(ref, build);
   }
 }

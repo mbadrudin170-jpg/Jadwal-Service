@@ -14,15 +14,15 @@ final orderProvider = OrderProvider._();
 
 final class OrderProvider extends $AsyncNotifierProvider<Order, OrderState> {
   OrderProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'orderProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'orderProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$orderHash();
@@ -40,11 +40,14 @@ abstract class _$Order extends $AsyncNotifier<OrderState> {
   @override
   WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<OrderState>, OrderState>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<AsyncValue<OrderState>, OrderState>,
-        AsyncValue<OrderState>,
-        Object?,
-        Object?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<OrderState>, OrderState>,
+              AsyncValue<OrderState>,
+              Object?,
+              Object?
+            >;
     return element.handleCreate(ref, build);
   }
 }
@@ -52,21 +55,24 @@ abstract class _$Order extends $AsyncNotifier<OrderState> {
 @ProviderFor(daftarPesanan)
 final daftarPesananProvider = DaftarPesananProvider._();
 
-final class DaftarPesananProvider extends $FunctionalProvider<
-        AsyncValue<List<OrderModel>>,
-        List<OrderModel>,
-        FutureOr<List<OrderModel>>>
+final class DaftarPesananProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<OrderModel>>,
+          List<OrderModel>,
+          FutureOr<List<OrderModel>>
+        >
     with $FutureModifier<List<OrderModel>>, $FutureProvider<List<OrderModel>> {
   DaftarPesananProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'daftarPesananProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'daftarPesananProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$daftarPesananHash();
@@ -74,8 +80,8 @@ final class DaftarPesananProvider extends $FunctionalProvider<
   @$internal
   @override
   $FutureProviderElement<List<OrderModel>> $createElement(
-          $ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
   FutureOr<List<OrderModel>> create(Ref ref) {

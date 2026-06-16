@@ -15,69 +15,39 @@ final daftarPelangganProvider = DaftarPelangganProvider._();
 
 /// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
 
-final class DaftarPelangganProvider extends $FunctionalProvider<
-        AsyncValue<
-            List<
-                (
-                  PelangganModel,
-                  int,
-                )>>,
-        List<
-            (
-              PelangganModel,
-              int,
-            )>,
-        FutureOr<
-            List<
-                (
-                  PelangganModel,
-                  int,
-                )>>>
+final class DaftarPelangganProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<(PelangganModel, int)>>,
+          List<(PelangganModel, int)>,
+          FutureOr<List<(PelangganModel, int)>>
+        >
     with
-        $FutureModifier<
-            List<
-                (
-                  PelangganModel,
-                  int,
-                )>>,
-        $FutureProvider<
-            List<
-                (
-                  PelangganModel,
-                  int,
-                )>> {
+        $FutureModifier<List<(PelangganModel, int)>>,
+        $FutureProvider<List<(PelangganModel, int)>> {
   /// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
   DaftarPelangganProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'daftarPelangganProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'daftarPelangganProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$daftarPelangganHash();
 
   @$internal
   @override
-  $FutureProviderElement<
-      List<
-          (
-            PelangganModel,
-            int,
-          )>> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+  $FutureProviderElement<List<(PelangganModel, int)>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<
-      List<
-          (
-            PelangganModel,
-            int,
-          )>> create(Ref ref) {
+  FutureOr<List<(PelangganModel, int)>> create(Ref ref) {
     return daftarPelanggan(ref);
   }
 }
@@ -94,15 +64,15 @@ final class UrutanPelangganStateProvider
     extends $NotifierProvider<UrutanPelangganState, UrutanPelanggan> {
   /// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
   UrutanPelangganStateProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'urutanPelangganStateProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'urutanPelangganStateProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$urutanPelangganStateHash();
@@ -131,11 +101,14 @@ abstract class _$UrutanPelangganState extends $Notifier<UrutanPelanggan> {
   @override
   WhenComplete runBuild() {
     final ref = this.ref as $Ref<UrutanPelanggan, UrutanPelanggan>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<UrutanPelanggan, UrutanPelanggan>,
-        UrutanPelanggan,
-        Object?,
-        Object?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<UrutanPelanggan, UrutanPelanggan>,
+              UrutanPelanggan,
+              Object?,
+              Object?
+            >;
     return element.handleCreate(ref, build);
   }
 }
@@ -159,15 +132,15 @@ final class IsSearchingPelangganProvider
   /// =========================================================================
   /// Provider generator modern untuk status mode pencarian aktif/tidak
   IsSearchingPelangganProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'isSearchingPelangganProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'isSearchingPelangganProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$isSearchingPelangganHash();
@@ -199,8 +172,14 @@ abstract class _$IsSearchingPelanggan extends $Notifier<bool> {
   @override
   WhenComplete runBuild() {
     final ref = this.ref as $Ref<bool, bool>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<bool, bool>, bool, Object?, Object?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
     return element.handleCreate(ref, build);
   }
 }
@@ -215,15 +194,15 @@ final class SearchQueryPelangganProvider
     extends $NotifierProvider<SearchQueryPelanggan, String> {
   /// Provider generator modern untuk menyimpan text query pencarian pelanggan
   SearchQueryPelangganProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'searchQueryPelangganProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'searchQueryPelangganProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$searchQueryPelangganHash();
@@ -252,8 +231,14 @@ abstract class _$SearchQueryPelanggan extends $Notifier<String> {
   @override
   WhenComplete runBuild() {
     final ref = this.ref as $Ref<String, String>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<String, String>, String, Object?, Object?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<String, String>,
+              String,
+              Object?,
+              Object?
+            >;
     return element.handleCreate(ref, build);
   }
 }
@@ -265,43 +250,27 @@ final pelangganDetailProvider = PelangganDetailFamily._();
 
 /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 
-final class PelangganDetailProvider extends $FunctionalProvider<
-        AsyncValue<
-            (
-              PelangganModel?,
-              int,
-            )>,
-        (
-          PelangganModel?,
-          int,
-        ),
-        FutureOr<
-            (
-              PelangganModel?,
-              int,
-            )>>
+final class PelangganDetailProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<(PelangganModel?, int)>,
+          (PelangganModel?, int),
+          FutureOr<(PelangganModel?, int)>
+        >
     with
-        $FutureModifier<
-            (
-              PelangganModel?,
-              int,
-            )>,
-        $FutureProvider<
-            (
-              PelangganModel?,
-              int,
-            )> {
+        $FutureModifier<(PelangganModel?, int)>,
+        $FutureProvider<(PelangganModel?, int)> {
   /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
-  PelangganDetailProvider._(
-      {required PelangganDetailFamily super.from,
-      required String super.argument})
-      : super(
-          retry: null,
-          name: r'pelangganDetailProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+  PelangganDetailProvider._({
+    required PelangganDetailFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'pelangganDetailProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
   String debugGetCreateSourceHash() => _$pelangganDetailHash();
@@ -315,25 +284,14 @@ final class PelangganDetailProvider extends $FunctionalProvider<
 
   @$internal
   @override
-  $FutureProviderElement<
-      (
-        PelangganModel?,
-        int,
-      )> $createElement(
-          $ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+  $FutureProviderElement<(PelangganModel?, int)> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<
-      (
-        PelangganModel?,
-        int,
-      )> create(Ref ref) {
+  FutureOr<(PelangganModel?, int)> create(Ref ref) {
     final argument = this.argument as String;
-    return pelangganDetail(
-      ref,
-      argument,
-    );
+    return pelangganDetail(ref, argument);
   }
 
   @override
@@ -352,28 +310,19 @@ String _$pelangganDetailHash() => r'f035ec5051457c1093e90687ba33b06fe986510c';
 /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 
 final class PelangganDetailFamily extends $Family
-    with
-        $FunctionalFamilyOverride<
-            FutureOr<
-                (
-                  PelangganModel?,
-                  int,
-                )>,
-            String> {
+    with $FunctionalFamilyOverride<FutureOr<(PelangganModel?, int)>, String> {
   PelangganDetailFamily._()
-      : super(
-          retry: null,
-          name: r'pelangganDetailProvider',
-          dependencies: null,
-          $allTransitiveDependencies: null,
-          isAutoDispose: true,
-        );
+    : super(
+        retry: null,
+        name: r'pelangganDetailProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
 
   /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 
-  PelangganDetailProvider call(
-    String id,
-  ) =>
+  PelangganDetailProvider call(String id) =>
       PelangganDetailProvider._(argument: id, from: this);
 
   @override

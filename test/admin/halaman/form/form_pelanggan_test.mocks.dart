@@ -31,13 +31,8 @@ import 'package:wifi/shared/services/koneksi_internet_service.dart' as _i6;
 
 class _FakeSqliteDatabase_0 extends _i1.SmartFake
     implements _i2.SqliteDatabase {
-  _FakeSqliteDatabase_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeSqliteDatabase_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 /// A class which mocks [PelangganOpSqlite].
@@ -49,13 +44,15 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i3.PelangganOpSqlite {
   }
 
   @override
-  _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
-        Invocation.getter(#sqliteDb),
-        returnValue: _FakeSqliteDatabase_0(
-          this,
-          Invocation.getter(#sqliteDb),
-        ),
-      ) as _i2.SqliteDatabase);
+  _i2.SqliteDatabase get sqliteDb =>
+      (super.noSuchMethod(
+            Invocation.getter(#sqliteDb),
+            returnValue: _FakeSqliteDatabase_0(
+              this,
+              Invocation.getter(#sqliteDb),
+            ),
+          )
+          as _i2.SqliteDatabase);
 
   @override
   _i4.Future<void> tambahPelanggan(
@@ -63,45 +60,43 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i3.PelangganOpSqlite {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #tambahPelanggan,
-          [customer],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+            Invocation.method(
+              #tambahPelanggan,
+              [customer],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 
   @override
-  _i4.Future<List<_i5.PelangganModel>> ambilPelanggan() => (super.noSuchMethod(
-        Invocation.method(
-          #ambilPelanggan,
-          [],
-        ),
-        returnValue:
-            _i4.Future<List<_i5.PelangganModel>>.value(<_i5.PelangganModel>[]),
-      ) as _i4.Future<List<_i5.PelangganModel>>);
+  _i4.Future<List<_i5.PelangganModel>> ambilPelanggan() =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilPelanggan, []),
+            returnValue: _i4.Future<List<_i5.PelangganModel>>.value(
+              <_i5.PelangganModel>[],
+            ),
+          )
+          as _i4.Future<List<_i5.PelangganModel>>);
 
   @override
   _i4.Future<List<_i5.PelangganModel>> ambilSemuaPelanggan() =>
       (super.noSuchMethod(
-        Invocation.method(
-          #ambilSemuaPelanggan,
-          [],
-        ),
-        returnValue:
-            _i4.Future<List<_i5.PelangganModel>>.value(<_i5.PelangganModel>[]),
-      ) as _i4.Future<List<_i5.PelangganModel>>);
+            Invocation.method(#ambilSemuaPelanggan, []),
+            returnValue: _i4.Future<List<_i5.PelangganModel>>.value(
+              <_i5.PelangganModel>[],
+            ),
+          )
+          as _i4.Future<List<_i5.PelangganModel>>);
 
   @override
   _i4.Future<_i5.PelangganModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #ambilBerdasarkanId,
-          [id],
-        ),
-        returnValue: _i4.Future<_i5.PelangganModel?>.value(),
-      ) as _i4.Future<_i5.PelangganModel?>);
+            Invocation.method(#ambilBerdasarkanId, [id]),
+            returnValue: _i4.Future<_i5.PelangganModel?>.value(),
+          )
+          as _i4.Future<_i5.PelangganModel?>);
 
   @override
   _i4.Future<void> perbaruiPelanggan(
@@ -109,51 +104,44 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i3.PelangganOpSqlite {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #perbaruiPelanggan,
-          [customer],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+            Invocation.method(
+              #perbaruiPelanggan,
+              [customer],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 
   @override
-  _i4.Future<void> hapusSementara(
-    String? id, {
-    bool? dariServer = false,
-  }) =>
+  _i4.Future<void> hapusSementara(String? id, {bool? dariServer = false}) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #hapusSementara,
-          [id],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+            Invocation.method(#hapusSementara, [id], {#dariServer: dariServer}),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 
   @override
   _i4.Future<int> hapusSementaraSemua({bool? dariServer = false}) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #hapusSementaraSemua,
-          [],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i4.Future<int>.value(0),
-      ) as _i4.Future<int>);
+            Invocation.method(#hapusSementaraSemua, [], {
+              #dariServer: dariServer,
+            }),
+            returnValue: _i4.Future<int>.value(0),
+          )
+          as _i4.Future<int>);
 
   @override
   _i4.Future<List<_i5.PelangganModel>> ambilPerubahanSejak(DateTime? since) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #ambilPerubahanSejak,
-          [since],
-        ),
-        returnValue:
-            _i4.Future<List<_i5.PelangganModel>>.value(<_i5.PelangganModel>[]),
-      ) as _i4.Future<List<_i5.PelangganModel>>);
+            Invocation.method(#ambilPerubahanSejak, [since]),
+            returnValue: _i4.Future<List<_i5.PelangganModel>>.value(
+              <_i5.PelangganModel>[],
+            ),
+          )
+          as _i4.Future<List<_i5.PelangganModel>>);
 
   @override
   _i4.Future<void> sisipkanAtauPerbaruiBatch(
@@ -161,26 +149,27 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i3.PelangganOpSqlite {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #sisipkanAtauPerbaruiBatch,
-          [items],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+            Invocation.method(
+              #sisipkanAtauPerbaruiBatch,
+              [items],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 
   @override
   _i4.Future<List<_i5.PelangganModel>> ambilPelangganBerdasarkanId(
-          List<String>? ids) =>
+    List<String>? ids,
+  ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #ambilPelangganBerdasarkanId,
-          [ids],
-        ),
-        returnValue:
-            _i4.Future<List<_i5.PelangganModel>>.value(<_i5.PelangganModel>[]),
-      ) as _i4.Future<List<_i5.PelangganModel>>);
+            Invocation.method(#ambilPelangganBerdasarkanId, [ids]),
+            returnValue: _i4.Future<List<_i5.PelangganModel>>.value(
+              <_i5.PelangganModel>[],
+            ),
+          )
+          as _i4.Future<List<_i5.PelangganModel>>);
 }
 
 /// A class which mocks [KoneksiInternetService].
@@ -193,22 +182,20 @@ class MockKoneksiInternetService extends _i1.Mock
   }
 
   @override
-  _i4.Future<bool> cekKoneksiLokal() => (super.noSuchMethod(
-        Invocation.method(
-          #cekKoneksiLokal,
-          [],
-        ),
-        returnValue: _i4.Future<bool>.value(false),
-      ) as _i4.Future<bool>);
+  _i4.Future<bool> cekKoneksiLokal() =>
+      (super.noSuchMethod(
+            Invocation.method(#cekKoneksiLokal, []),
+            returnValue: _i4.Future<bool>.value(false),
+          )
+          as _i4.Future<bool>);
 
   @override
-  _i4.Future<bool> cekInternet(_i7.WidgetRef? ref) => (super.noSuchMethod(
-        Invocation.method(
-          #cekInternet,
-          [ref],
-        ),
-        returnValue: _i4.Future<bool>.value(false),
-      ) as _i4.Future<bool>);
+  _i4.Future<bool> cekInternet(_i7.WidgetRef? ref) =>
+      (super.noSuchMethod(
+            Invocation.method(#cekInternet, [ref]),
+            returnValue: _i4.Future<bool>.value(false),
+          )
+          as _i4.Future<bool>);
 }
 
 /// A class which mocks [LayananCekSinkronisasi].
@@ -221,14 +208,13 @@ class MockLayananCekSinkronisasi extends _i1.Mock
   }
 
   @override
-  _i4.Future<void> jalankanCekSinkronisasi() => (super.noSuchMethod(
-        Invocation.method(
-          #jalankanCekSinkronisasi,
-          [],
-        ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+  _i4.Future<void> jalankanCekSinkronisasi() =>
+      (super.noSuchMethod(
+            Invocation.method(#jalankanCekSinkronisasi, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 }
 
 /// A class which mocks [NavigatorObserver].
@@ -240,34 +226,16 @@ class MockNavigatorObserver extends _i1.Mock implements _i9.NavigatorObserver {
   }
 
   @override
-  void didPush(
-    _i9.Route<dynamic>? route,
-    _i9.Route<dynamic>? previousRoute,
-  ) =>
+  void didPush(_i9.Route<dynamic>? route, _i9.Route<dynamic>? previousRoute) =>
       super.noSuchMethod(
-        Invocation.method(
-          #didPush,
-          [
-            route,
-            previousRoute,
-          ],
-        ),
+        Invocation.method(#didPush, [route, previousRoute]),
         returnValueForMissingStub: null,
       );
 
   @override
-  void didPop(
-    _i9.Route<dynamic>? route,
-    _i9.Route<dynamic>? previousRoute,
-  ) =>
+  void didPop(_i9.Route<dynamic>? route, _i9.Route<dynamic>? previousRoute) =>
       super.noSuchMethod(
-        Invocation.method(
-          #didPop,
-          [
-            route,
-            previousRoute,
-          ],
-        ),
+        Invocation.method(#didPop, [route, previousRoute]),
         returnValueForMissingStub: null,
       );
 
@@ -275,73 +243,44 @@ class MockNavigatorObserver extends _i1.Mock implements _i9.NavigatorObserver {
   void didRemove(
     _i9.Route<dynamic>? route,
     _i9.Route<dynamic>? previousRoute,
-  ) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #didRemove,
-          [
-            route,
-            previousRoute,
-          ],
-        ),
-        returnValueForMissingStub: null,
-      );
+  ) => super.noSuchMethod(
+    Invocation.method(#didRemove, [route, previousRoute]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void didReplace({
     _i9.Route<dynamic>? newRoute,
     _i9.Route<dynamic>? oldRoute,
-  }) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #didReplace,
-          [],
-          {
-            #newRoute: newRoute,
-            #oldRoute: oldRoute,
-          },
-        ),
-        returnValueForMissingStub: null,
-      );
+  }) => super.noSuchMethod(
+    Invocation.method(#didReplace, [], {
+      #newRoute: newRoute,
+      #oldRoute: oldRoute,
+    }),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void didChangeTop(
     _i9.Route<dynamic>? topRoute,
     _i9.Route<dynamic>? previousTopRoute,
-  ) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #didChangeTop,
-          [
-            topRoute,
-            previousTopRoute,
-          ],
-        ),
-        returnValueForMissingStub: null,
-      );
+  ) => super.noSuchMethod(
+    Invocation.method(#didChangeTop, [topRoute, previousTopRoute]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void didStartUserGesture(
     _i9.Route<dynamic>? route,
     _i9.Route<dynamic>? previousRoute,
-  ) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #didStartUserGesture,
-          [
-            route,
-            previousRoute,
-          ],
-        ),
-        returnValueForMissingStub: null,
-      );
+  ) => super.noSuchMethod(
+    Invocation.method(#didStartUserGesture, [route, previousRoute]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void didStopUserGesture() => super.noSuchMethod(
-        Invocation.method(
-          #didStopUserGesture,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.method(#didStopUserGesture, []),
+    returnValueForMissingStub: null,
+  );
 }

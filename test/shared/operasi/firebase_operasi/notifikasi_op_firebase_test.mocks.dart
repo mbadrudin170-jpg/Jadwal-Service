@@ -27,24 +27,14 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart'
 
 class _FakeFirebaseFirestore_0 extends _i1.SmartFake
     implements _i2.FirebaseFirestore {
-  _FakeFirebaseFirestore_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeFirebaseFirestore_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeDocumentReference_1<T extends Object?> extends _i1.SmartFake
     implements _i2.DocumentReference<T> {
-  _FakeDocumentReference_1(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeDocumentReference_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 /// A class which mocks [BaseOpFirebase].
@@ -56,13 +46,15 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
   }
 
   @override
-  _i2.FirebaseFirestore get firestore => (super.noSuchMethod(
-        Invocation.getter(#firestore),
-        returnValue: _FakeFirebaseFirestore_0(
-          this,
-          Invocation.getter(#firestore),
-        ),
-      ) as _i2.FirebaseFirestore);
+  _i2.FirebaseFirestore get firestore =>
+      (super.noSuchMethod(
+            Invocation.getter(#firestore),
+            returnValue: _FakeFirebaseFirestore_0(
+              this,
+              Invocation.getter(#firestore),
+            ),
+          )
+          as _i2.FirebaseFirestore);
 
   @override
   _i4.Future<_i2.DocumentReference<Object?>> tambah(
@@ -70,25 +62,15 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #tambah,
-          [
-            collectionName,
-            data,
-          ],
-        ),
-        returnValue: _i4.Future<_i2.DocumentReference<Object?>>.value(
-            _FakeDocumentReference_1<Object?>(
-          this,
-          Invocation.method(
-            #tambah,
-            [
-              collectionName,
-              data,
-            ],
-          ),
-        )),
-      ) as _i4.Future<_i2.DocumentReference<Object?>>);
+            Invocation.method(#tambah, [collectionName, data]),
+            returnValue: _i4.Future<_i2.DocumentReference<Object?>>.value(
+              _FakeDocumentReference_1<Object?>(
+                this,
+                Invocation.method(#tambah, [collectionName, data]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.DocumentReference<Object?>>);
 
   @override
   _i4.Future<void> sisipkan(
@@ -97,17 +79,11 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #sisipkan,
-          [
-            collectionName,
-            docId,
-            data,
-          ],
-        ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+            Invocation.method(#sisipkan, [collectionName, docId, data]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 
   @override
   _i4.Future<void> update(
@@ -116,61 +92,37 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #update,
-          [
-            collectionName,
-            docId,
-            data,
-          ],
-        ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+            Invocation.method(#update, [collectionName, docId, data]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 
   @override
-  _i4.Future<void> hapusSementara(
-    String? collectionName,
-    String? docId,
-  ) =>
+  _i4.Future<void> hapusSementara(String? collectionName, String? docId) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #hapusSementara,
-          [
-            collectionName,
-            docId,
-          ],
-        ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+            Invocation.method(#hapusSementara, [collectionName, docId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 
   @override
-  _i4.Future<void> hapusPermanen(
-    String? collectionName,
-    String? docId,
-  ) =>
+  _i4.Future<void> hapusPermanen(String? collectionName, String? docId) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #hapusPermanen,
-          [
-            collectionName,
-            docId,
-          ],
-        ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+            Invocation.method(#hapusPermanen, [collectionName, docId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 
   @override
   _i4.Future<int> hapusSementaraSemua(String? collectionName) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #hapusSementaraSemua,
-          [collectionName],
-        ),
-        returnValue: _i4.Future<int>.value(0),
-      ) as _i4.Future<int>);
+            Invocation.method(#hapusSementaraSemua, [collectionName]),
+            returnValue: _i4.Future<int>.value(0),
+          )
+          as _i4.Future<int>);
 
   @override
   _i4.Future<void> insertOrUpdateBatch(
@@ -179,15 +131,13 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
     String? idKey,
   ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #insertOrUpdateBatch,
-          [
-            collectionName,
-            items,
-            idKey,
-          ],
-        ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+            Invocation.method(#insertOrUpdateBatch, [
+              collectionName,
+              items,
+              idKey,
+            ]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 }

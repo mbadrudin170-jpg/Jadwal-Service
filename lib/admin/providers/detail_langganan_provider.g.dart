@@ -12,23 +12,26 @@ part of 'detail_langganan_provider.dart';
 @ProviderFor(ambilDetailLangganan)
 final ambilDetailLanggananProvider = AmbilDetailLanggananFamily._();
 
-final class AmbilDetailLanggananProvider extends $FunctionalProvider<
-        AsyncValue<DetailLanggananState?>,
-        DetailLanggananState?,
-        FutureOr<DetailLanggananState?>>
+final class AmbilDetailLanggananProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<DetailLanggananState?>,
+          DetailLanggananState?,
+          FutureOr<DetailLanggananState?>
+        >
     with
         $FutureModifier<DetailLanggananState?>,
         $FutureProvider<DetailLanggananState?> {
-  AmbilDetailLanggananProvider._(
-      {required AmbilDetailLanggananFamily super.from,
-      required String super.argument})
-      : super(
-          retry: null,
-          name: r'ambilDetailLanggananProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+  AmbilDetailLanggananProvider._({
+    required AmbilDetailLanggananFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'ambilDetailLanggananProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
   String debugGetCreateSourceHash() => _$ambilDetailLanggananHash();
@@ -43,16 +46,13 @@ final class AmbilDetailLanggananProvider extends $FunctionalProvider<
   @$internal
   @override
   $FutureProviderElement<DetailLanggananState?> $createElement(
-          $ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
   FutureOr<DetailLanggananState?> create(Ref ref) {
     final argument = this.argument as String;
-    return ambilDetailLangganan(
-      ref,
-      argument,
-    );
+    return ambilDetailLangganan(ref, argument);
   }
 
   @override
@@ -72,17 +72,15 @@ String _$ambilDetailLanggananHash() =>
 final class AmbilDetailLanggananFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<DetailLanggananState?>, String> {
   AmbilDetailLanggananFamily._()
-      : super(
-          retry: null,
-          name: r'ambilDetailLanggananProvider',
-          dependencies: null,
-          $allTransitiveDependencies: null,
-          isAutoDispose: true,
-        );
+    : super(
+        retry: null,
+        name: r'ambilDetailLanggananProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
 
-  AmbilDetailLanggananProvider call(
-    String idTransaksi,
-  ) =>
+  AmbilDetailLanggananProvider call(String idTransaksi) =>
       AmbilDetailLanggananProvider._(argument: idTransaksi, from: this);
 
   @override

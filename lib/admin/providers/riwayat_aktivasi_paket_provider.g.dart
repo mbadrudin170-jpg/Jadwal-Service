@@ -12,18 +12,22 @@ part of 'riwayat_aktivasi_paket_provider.dart';
 @ProviderFor(RiwayatAktivasiPaket)
 final riwayatAktivasiPaketProvider = RiwayatAktivasiPaketProvider._();
 
-final class RiwayatAktivasiPaketProvider extends $AsyncNotifierProvider<
-    RiwayatAktivasiPaket, RiwayatAktivasiPaketState> {
+final class RiwayatAktivasiPaketProvider
+    extends
+        $AsyncNotifierProvider<
+          RiwayatAktivasiPaket,
+          RiwayatAktivasiPaketState
+        > {
   RiwayatAktivasiPaketProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'riwayatAktivasiPaketProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'riwayatAktivasiPaketProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$riwayatAktivasiPaketHash();
@@ -42,14 +46,23 @@ abstract class _$RiwayatAktivasiPaket
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref = this.ref as $Ref<AsyncValue<RiwayatAktivasiPaketState>,
-        RiwayatAktivasiPaketState>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<AsyncValue<RiwayatAktivasiPaketState>,
-            RiwayatAktivasiPaketState>,
-        AsyncValue<RiwayatAktivasiPaketState>,
-        Object?,
-        Object?>;
+    final ref =
+        this.ref
+            as $Ref<
+              AsyncValue<RiwayatAktivasiPaketState>,
+              RiwayatAktivasiPaketState
+            >;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                AsyncValue<RiwayatAktivasiPaketState>,
+                RiwayatAktivasiPaketState
+              >,
+              AsyncValue<RiwayatAktivasiPaketState>,
+              Object?,
+              Object?
+            >;
     return element.handleCreate(ref, build);
   }
 }

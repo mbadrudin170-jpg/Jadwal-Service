@@ -12,19 +12,20 @@ part of 'ping_provider.dart';
 @ProviderFor(ping)
 final pingProvider = PingProvider._();
 
-final class PingProvider extends $FunctionalProvider<AsyncValue<PingData>,
-        PingData, FutureOr<PingData>>
+final class PingProvider
+    extends
+        $FunctionalProvider<AsyncValue<PingData>, PingData, FutureOr<PingData>>
     with $FutureModifier<PingData>, $FutureProvider<PingData> {
   PingProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'pingProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pingProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$pingHash();

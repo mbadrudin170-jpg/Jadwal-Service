@@ -32,23 +32,13 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart' as _i3;
 
 class _FakeSqliteDatabase_0 extends _i1.SmartFake
     implements _i2.SqliteDatabase {
-  _FakeSqliteDatabase_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeSqliteDatabase_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeBaseOpSqlite_1 extends _i1.SmartFake implements _i3.BaseOpSqlite {
-  _FakeBaseOpSqlite_1(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeBaseOpSqlite_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 /// A class which mocks [PelangganOpSqlite].
@@ -60,13 +50,15 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i4.PelangganOpSqlite {
   }
 
   @override
-  _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
-        Invocation.getter(#sqliteDb),
-        returnValue: _FakeSqliteDatabase_0(
-          this,
-          Invocation.getter(#sqliteDb),
-        ),
-      ) as _i2.SqliteDatabase);
+  _i2.SqliteDatabase get sqliteDb =>
+      (super.noSuchMethod(
+            Invocation.getter(#sqliteDb),
+            returnValue: _FakeSqliteDatabase_0(
+              this,
+              Invocation.getter(#sqliteDb),
+            ),
+          )
+          as _i2.SqliteDatabase);
 
   @override
   _i5.Future<void> tambahPelanggan(
@@ -74,45 +66,43 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i4.PelangganOpSqlite {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #tambahPelanggan,
-          [customer],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+            Invocation.method(
+              #tambahPelanggan,
+              [customer],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 
   @override
-  _i5.Future<List<_i6.PelangganModel>> ambilPelanggan() => (super.noSuchMethod(
-        Invocation.method(
-          #ambilPelanggan,
-          [],
-        ),
-        returnValue:
-            _i5.Future<List<_i6.PelangganModel>>.value(<_i6.PelangganModel>[]),
-      ) as _i5.Future<List<_i6.PelangganModel>>);
+  _i5.Future<List<_i6.PelangganModel>> ambilPelanggan() =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilPelanggan, []),
+            returnValue: _i5.Future<List<_i6.PelangganModel>>.value(
+              <_i6.PelangganModel>[],
+            ),
+          )
+          as _i5.Future<List<_i6.PelangganModel>>);
 
   @override
   _i5.Future<List<_i6.PelangganModel>> ambilSemuaPelanggan() =>
       (super.noSuchMethod(
-        Invocation.method(
-          #ambilSemuaPelanggan,
-          [],
-        ),
-        returnValue:
-            _i5.Future<List<_i6.PelangganModel>>.value(<_i6.PelangganModel>[]),
-      ) as _i5.Future<List<_i6.PelangganModel>>);
+            Invocation.method(#ambilSemuaPelanggan, []),
+            returnValue: _i5.Future<List<_i6.PelangganModel>>.value(
+              <_i6.PelangganModel>[],
+            ),
+          )
+          as _i5.Future<List<_i6.PelangganModel>>);
 
   @override
   _i5.Future<_i6.PelangganModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #ambilBerdasarkanId,
-          [id],
-        ),
-        returnValue: _i5.Future<_i6.PelangganModel?>.value(),
-      ) as _i5.Future<_i6.PelangganModel?>);
+            Invocation.method(#ambilBerdasarkanId, [id]),
+            returnValue: _i5.Future<_i6.PelangganModel?>.value(),
+          )
+          as _i5.Future<_i6.PelangganModel?>);
 
   @override
   _i5.Future<void> perbaruiPelanggan(
@@ -120,51 +110,44 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i4.PelangganOpSqlite {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #perbaruiPelanggan,
-          [customer],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+            Invocation.method(
+              #perbaruiPelanggan,
+              [customer],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 
   @override
-  _i5.Future<void> hapusSementara(
-    String? id, {
-    bool? dariServer = false,
-  }) =>
+  _i5.Future<void> hapusSementara(String? id, {bool? dariServer = false}) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #hapusSementara,
-          [id],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+            Invocation.method(#hapusSementara, [id], {#dariServer: dariServer}),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 
   @override
   _i5.Future<int> hapusSementaraSemua({bool? dariServer = false}) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #hapusSementaraSemua,
-          [],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i5.Future<int>.value(0),
-      ) as _i5.Future<int>);
+            Invocation.method(#hapusSementaraSemua, [], {
+              #dariServer: dariServer,
+            }),
+            returnValue: _i5.Future<int>.value(0),
+          )
+          as _i5.Future<int>);
 
   @override
   _i5.Future<List<_i6.PelangganModel>> ambilPerubahanSejak(DateTime? since) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #ambilPerubahanSejak,
-          [since],
-        ),
-        returnValue:
-            _i5.Future<List<_i6.PelangganModel>>.value(<_i6.PelangganModel>[]),
-      ) as _i5.Future<List<_i6.PelangganModel>>);
+            Invocation.method(#ambilPerubahanSejak, [since]),
+            returnValue: _i5.Future<List<_i6.PelangganModel>>.value(
+              <_i6.PelangganModel>[],
+            ),
+          )
+          as _i5.Future<List<_i6.PelangganModel>>);
 
   @override
   _i5.Future<void> sisipkanAtauPerbaruiBatch(
@@ -172,26 +155,27 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i4.PelangganOpSqlite {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #sisipkanAtauPerbaruiBatch,
-          [items],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+            Invocation.method(
+              #sisipkanAtauPerbaruiBatch,
+              [items],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 
   @override
   _i5.Future<List<_i6.PelangganModel>> ambilPelangganBerdasarkanId(
-          List<String>? ids) =>
+    List<String>? ids,
+  ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #ambilPelangganBerdasarkanId,
-          [ids],
-        ),
-        returnValue:
-            _i5.Future<List<_i6.PelangganModel>>.value(<_i6.PelangganModel>[]),
-      ) as _i5.Future<List<_i6.PelangganModel>>);
+            Invocation.method(#ambilPelangganBerdasarkanId, [ids]),
+            returnValue: _i5.Future<List<_i6.PelangganModel>>.value(
+              <_i6.PelangganModel>[],
+            ),
+          )
+          as _i5.Future<List<_i6.PelangganModel>>);
 }
 
 /// A class which mocks [PaketOpSqlite].
@@ -203,22 +187,26 @@ class MockPaketOpSqlite extends _i1.Mock implements _i7.PaketOpSqlite {
   }
 
   @override
-  _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
-        Invocation.getter(#sqliteDb),
-        returnValue: _FakeSqliteDatabase_0(
-          this,
-          Invocation.getter(#sqliteDb),
-        ),
-      ) as _i2.SqliteDatabase);
+  _i2.SqliteDatabase get sqliteDb =>
+      (super.noSuchMethod(
+            Invocation.getter(#sqliteDb),
+            returnValue: _FakeSqliteDatabase_0(
+              this,
+              Invocation.getter(#sqliteDb),
+            ),
+          )
+          as _i2.SqliteDatabase);
 
   @override
-  _i3.BaseOpSqlite get basOpSqlite => (super.noSuchMethod(
-        Invocation.getter(#basOpSqlite),
-        returnValue: _FakeBaseOpSqlite_1(
-          this,
-          Invocation.getter(#basOpSqlite),
-        ),
-      ) as _i3.BaseOpSqlite);
+  _i3.BaseOpSqlite get basOpSqlite =>
+      (super.noSuchMethod(
+            Invocation.getter(#basOpSqlite),
+            returnValue: _FakeBaseOpSqlite_1(
+              this,
+              Invocation.getter(#basOpSqlite),
+            ),
+          )
+          as _i3.BaseOpSqlite);
 
   @override
   _i5.Future<void> tambahPaket(
@@ -226,52 +214,49 @@ class MockPaketOpSqlite extends _i1.Mock implements _i7.PaketOpSqlite {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #tambahPaket,
-          [paket],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+            Invocation.method(#tambahPaket, [paket], {#dariServer: dariServer}),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 
   @override
-  _i5.Future<List<_i8.PaketModel>> ambilSemua() => (super.noSuchMethod(
-        Invocation.method(
-          #ambilSemua,
-          [],
-        ),
-        returnValue: _i5.Future<List<_i8.PaketModel>>.value(<_i8.PaketModel>[]),
-      ) as _i5.Future<List<_i8.PaketModel>>);
+  _i5.Future<List<_i8.PaketModel>> ambilSemua() =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilSemua, []),
+            returnValue: _i5.Future<List<_i8.PaketModel>>.value(
+              <_i8.PaketModel>[],
+            ),
+          )
+          as _i5.Future<List<_i8.PaketModel>>);
 
   @override
   _i5.Future<List<_i8.PaketModel>> ambilBerdasarkanAktif() =>
       (super.noSuchMethod(
-        Invocation.method(
-          #ambilBerdasarkanAktif,
-          [],
-        ),
-        returnValue: _i5.Future<List<_i8.PaketModel>>.value(<_i8.PaketModel>[]),
-      ) as _i5.Future<List<_i8.PaketModel>>);
+            Invocation.method(#ambilBerdasarkanAktif, []),
+            returnValue: _i5.Future<List<_i8.PaketModel>>.value(
+              <_i8.PaketModel>[],
+            ),
+          )
+          as _i5.Future<List<_i8.PaketModel>>);
 
   @override
-  _i5.Future<List<_i8.PaketModel>> ambilPaketPublik() => (super.noSuchMethod(
-        Invocation.method(
-          #ambilPaketPublik,
-          [],
-        ),
-        returnValue: _i5.Future<List<_i8.PaketModel>>.value(<_i8.PaketModel>[]),
-      ) as _i5.Future<List<_i8.PaketModel>>);
+  _i5.Future<List<_i8.PaketModel>> ambilPaketPublik() =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilPaketPublik, []),
+            returnValue: _i5.Future<List<_i8.PaketModel>>.value(
+              <_i8.PaketModel>[],
+            ),
+          )
+          as _i5.Future<List<_i8.PaketModel>>);
 
   @override
   _i5.Future<_i8.PaketModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #ambilBerdasarkanId,
-          [id],
-        ),
-        returnValue: _i5.Future<_i8.PaketModel?>.value(),
-      ) as _i5.Future<_i8.PaketModel?>);
+            Invocation.method(#ambilBerdasarkanId, [id]),
+            returnValue: _i5.Future<_i8.PaketModel?>.value(),
+          )
+          as _i5.Future<_i8.PaketModel?>);
 
   @override
   _i5.Future<void> perbaruiPaket(
@@ -279,77 +264,62 @@ class MockPaketOpSqlite extends _i1.Mock implements _i7.PaketOpSqlite {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #perbaruiPaket,
-          [paket],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+            Invocation.method(
+              #perbaruiPaket,
+              [paket],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 
   @override
-  _i5.Future<void> hapusSementara(
-    String? id, {
-    bool? dariServer = false,
-  }) =>
+  _i5.Future<void> hapusSementara(String? id, {bool? dariServer = false}) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #hapusSementara,
-          [id],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+            Invocation.method(#hapusSementara, [id], {#dariServer: dariServer}),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 
   @override
   _i5.Future<int> hapusSementaraSemua({bool? dariServer = false}) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #hapusSementaraSemua,
-          [],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i5.Future<int>.value(0),
-      ) as _i5.Future<int>);
+            Invocation.method(#hapusSementaraSemua, [], {
+              #dariServer: dariServer,
+            }),
+            returnValue: _i5.Future<int>.value(0),
+          )
+          as _i5.Future<int>);
 
   @override
-  _i5.Future<void> hapus(
-    String? id, {
-    bool? dariServer = false,
-  }) =>
+  _i5.Future<void> hapus(String? id, {bool? dariServer = false}) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #hapus,
-          [id],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+            Invocation.method(#hapus, [id], {#dariServer: dariServer}),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 
   @override
   _i5.Future<void> hapusSemua({bool? dariServer = false}) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #hapusSemua,
-          [],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+            Invocation.method(#hapusSemua, [], {#dariServer: dariServer}),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 
   @override
   _i5.Future<List<_i8.PaketModel>> ambilPerubahanSejak(DateTime? since) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #ambilPerubahanSejak,
-          [since],
-        ),
-        returnValue: _i5.Future<List<_i8.PaketModel>>.value(<_i8.PaketModel>[]),
-      ) as _i5.Future<List<_i8.PaketModel>>);
+            Invocation.method(#ambilPerubahanSejak, [since]),
+            returnValue: _i5.Future<List<_i8.PaketModel>>.value(
+              <_i8.PaketModel>[],
+            ),
+          )
+          as _i5.Future<List<_i8.PaketModel>>);
 
   @override
   _i5.Future<void> sisipkanAtauPerbaruiBatch(
@@ -357,25 +327,27 @@ class MockPaketOpSqlite extends _i1.Mock implements _i7.PaketOpSqlite {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #sisipkanAtauPerbaruiBatch,
-          [items],
-          {#dariServer: dariServer},
-        ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+            Invocation.method(
+              #sisipkanAtauPerbaruiBatch,
+              [items],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 
   @override
   _i5.Future<List<_i8.PaketModel>> ambilBerdasarkanBeberapaId(
-          List<String>? ids) =>
+    List<String>? ids,
+  ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #ambilBerdasarkanBeberapaId,
-          [ids],
-        ),
-        returnValue: _i5.Future<List<_i8.PaketModel>>.value(<_i8.PaketModel>[]),
-      ) as _i5.Future<List<_i8.PaketModel>>);
+            Invocation.method(#ambilBerdasarkanBeberapaId, [ids]),
+            returnValue: _i5.Future<List<_i8.PaketModel>>.value(
+              <_i8.PaketModel>[],
+            ),
+          )
+          as _i5.Future<List<_i8.PaketModel>>);
 }
 
 /// A class which mocks [UrlLauncherPlatform].
@@ -388,13 +360,12 @@ class MockUrlLauncherPlatform extends _i1.Mock
   }
 
   @override
-  _i5.Future<bool> canLaunch(String? url) => (super.noSuchMethod(
-        Invocation.method(
-          #canLaunch,
-          [url],
-        ),
-        returnValue: _i5.Future<bool>.value(false),
-      ) as _i5.Future<bool>);
+  _i5.Future<bool> canLaunch(String? url) =>
+      (super.noSuchMethod(
+            Invocation.method(#canLaunch, [url]),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
 
   @override
   _i5.Future<bool> launch(
@@ -408,65 +379,53 @@ class MockUrlLauncherPlatform extends _i1.Mock
     String? webOnlyWindowName,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #launch,
-          [url],
-          {
-            #useSafariVC: useSafariVC,
-            #useWebView: useWebView,
-            #enableJavaScript: enableJavaScript,
-            #enableDomStorage: enableDomStorage,
-            #universalLinksOnly: universalLinksOnly,
-            #headers: headers,
-            #webOnlyWindowName: webOnlyWindowName,
-          },
-        ),
-        returnValue: _i5.Future<bool>.value(false),
-      ) as _i5.Future<bool>);
+            Invocation.method(
+              #launch,
+              [url],
+              {
+                #useSafariVC: useSafariVC,
+                #useWebView: useWebView,
+                #enableJavaScript: enableJavaScript,
+                #enableDomStorage: enableDomStorage,
+                #universalLinksOnly: universalLinksOnly,
+                #headers: headers,
+                #webOnlyWindowName: webOnlyWindowName,
+              },
+            ),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
 
   @override
-  _i5.Future<bool> launchUrl(
-    String? url,
-    _i9.LaunchOptions? options,
-  ) =>
+  _i5.Future<bool> launchUrl(String? url, _i9.LaunchOptions? options) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #launchUrl,
-          [
-            url,
-            options,
-          ],
-        ),
-        returnValue: _i5.Future<bool>.value(false),
-      ) as _i5.Future<bool>);
+            Invocation.method(#launchUrl, [url, options]),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
 
   @override
-  _i5.Future<void> closeWebView() => (super.noSuchMethod(
-        Invocation.method(
-          #closeWebView,
-          [],
-        ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+  _i5.Future<void> closeWebView() =>
+      (super.noSuchMethod(
+            Invocation.method(#closeWebView, []),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 
   @override
   _i5.Future<bool> supportsMode(_i9.PreferredLaunchMode? mode) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #supportsMode,
-          [mode],
-        ),
-        returnValue: _i5.Future<bool>.value(false),
-      ) as _i5.Future<bool>);
+            Invocation.method(#supportsMode, [mode]),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
 
   @override
   _i5.Future<bool> supportsCloseForMode(_i9.PreferredLaunchMode? mode) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #supportsCloseForMode,
-          [mode],
-        ),
-        returnValue: _i5.Future<bool>.value(false),
-      ) as _i5.Future<bool>);
+            Invocation.method(#supportsCloseForMode, [mode]),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
 }

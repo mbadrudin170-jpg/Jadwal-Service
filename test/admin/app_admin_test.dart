@@ -27,23 +27,27 @@ import 'app_admin_test.mocks.dart';
 NotificationResponse _fallbackNotificationResponse() =>
     MockNotificationResponse();
 
-@GenerateMocks([
-  SharedPreferences,
-  LayananNotifikasi,
-  KoneksiInternetService,
-  SqliteDatabase,
-  PelangganAktifOpSqlite,
-  LayananUnduhanAwal,
-  SettingsOpSqlite,
-  PembersihanDataOperasi,
-  NotificationResponse,
-], customMocks: [
-  MockSpec<NotificationAppLaunchDetails>(
+@GenerateMocks(
+  [
+    SharedPreferences,
+    LayananNotifikasi,
+    KoneksiInternetService,
+    SqliteDatabase,
+    PelangganAktifOpSqlite,
+    LayananUnduhanAwal,
+    SettingsOpSqlite,
+    PembersihanDataOperasi,
+    NotificationResponse,
+  ],
+  customMocks: [
+    MockSpec<NotificationAppLaunchDetails>(
       unsupportedMembers: {#notificationResponse},
       fallbackGenerators: {
-        #notificationResponse: _fallbackNotificationResponse
-      })
-])
+        #notificationResponse: _fallbackNotificationResponse,
+      },
+    ),
+  ],
+)
 // Subclass TemaNotifier untuk keperluan test agar bisa menerima initial theme
 class _TestTemaNotifier extends TemaNotifier {
   final ThemeMode initialTheme;
@@ -85,28 +89,38 @@ void main() {
     mockNotificationResponse = MockNotificationResponse();
 
     when(mockSharedPreferences.getString(any)).thenReturn(null);
-    when(mockSharedPreferences.setString(any, any))
-        .thenAnswer((_) async => true);
+    when(
+      mockSharedPreferences.setString(any, any),
+    ).thenAnswer((_) async => true);
     when(mockSharedPreferences.remove(any)).thenAnswer((_) async => true);
-    when(mockLayananNotifikasi.inisialisasiNotifikasi(
-            iconName: anyNamed('iconName')))
-        .thenAnswer((_) async {});
+    when(
+      mockLayananNotifikasi.inisialisasiNotifikasi(
+        iconName: anyNamed('iconName'),
+      ),
+    ).thenAnswer((_) async {});
     when(mockLayananNotifikasi.mintaIzin()).thenAnswer((_) async {});
-    when(mockLayananNotifikasi.getDetailPeluncuranNotifikasi())
-        .thenAnswer((_) async => mockLaunchDetails);
+    when(
+      mockLayananNotifikasi.getDetailPeluncuranNotifikasi(),
+    ).thenAnswer((_) async => mockLaunchDetails);
     when(mockLaunchDetails.didNotificationLaunchApp).thenReturn(false);
-    when(mockSqliteDatabase.database)
-        .thenAnswer((_) async => throw UnimplementedError());
-    when(mockPelangganAktifOpSqlite.hapusPermanenDataSoftDelete())
-        .thenAnswer((_) async => 1);
-    when(mockKoneksiInternetService.cekInternet(any))
-        .thenAnswer((_) async => true);
+    when(
+      mockSqliteDatabase.database,
+    ).thenAnswer((_) async => throw UnimplementedError());
+    when(
+      mockPelangganAktifOpSqlite.hapusPermanenDataSoftDelete(),
+    ).thenAnswer((_) async => 1);
+    when(
+      mockKoneksiInternetService.cekInternet(any),
+    ).thenAnswer((_) async => true);
     when(mockUnduhanAwalService.jalankanUnduhanAwal()).thenAnswer((_) async {});
     when(mockSettingsOpSqlite.ambilSettings()).thenAnswer(
-        (_) async => const SettingsModel(waktuOtomatisHapusDataArsip: 30));
-    when(mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-            retentionDays: anyNamed('retentionDays')))
-        .thenAnswer((_) async => 1);
+      (_) async => const SettingsModel(waktuOtomatisHapusDataArsip: 30),
+    );
+    when(
+      mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
+        retentionDays: anyNamed('retentionDays'),
+      ),
+    ).thenAnswer((_) async => 1);
   });
 
   ProviderContainer makeProviderContainer({
@@ -116,24 +130,30 @@ void main() {
   }) {
     final container = ProviderContainer(
       overrides: [
-        sharedPreferencesProvider.overrideWith((ref) => sharedPrefsValue.when(
-              data: (prefs) => Future.value(prefs),
-              loading: () => Future.value(mockSharedPreferences),
-              error: (e, s) => Future.error(e, s),
-            )),
+        sharedPreferencesProvider.overrideWith(
+          (ref) => sharedPrefsValue.when(
+            data: (prefs) => Future.value(prefs),
+            loading: () => Future.value(mockSharedPreferences),
+            error: (e, s) => Future.error(e, s),
+          ),
+        ),
         layananNotifikasiProvider.overrideWithValue(mockLayananNotifikasi),
-        koneksiInternetServiceProvider
-            .overrideWithValue(mockKoneksiInternetService),
+        koneksiInternetServiceProvider.overrideWithValue(
+          mockKoneksiInternetService,
+        ),
         sqliteDatabaseProvider.overrideWithValue(mockSqliteDatabase),
-        pelangganAktifOpSqliteProvider
-            .overrideWithValue(mockPelangganAktifOpSqlite),
+        pelangganAktifOpSqliteProvider.overrideWithValue(
+          mockPelangganAktifOpSqlite,
+        ),
         providerLayananUnduhanAwal.overrideWithValue(mockUnduhanAwalService),
         settingsOpSqliteProvider.overrideWithValue(mockSettingsOpSqlite),
         appRoleProvider.overrideWithValue(role),
-        pembersihanDataOperasiProvider
-            .overrideWithValue(mockPembersihanDataOperasi),
-        temaProvider
-            .overrideWith(() => _TestTemaNotifier(themeValue.asData?.value ?? ThemeMode.system)),
+        pembersihanDataOperasiProvider.overrideWithValue(
+          mockPembersihanDataOperasi,
+        ),
+        temaProvider.overrideWith(
+          () => _TestTemaNotifier(themeValue.asData?.value ?? ThemeMode.system),
+        ),
       ],
     );
     return container;
@@ -148,61 +168,69 @@ void main() {
 
   group('01. AppAdmin Widget', () {
     testWidgets(
-        '01. harus menampilkan CircularProgressIndicator saat SharedPreferences loading',
-        (tester) async {
-      final container =
-          makeProviderContainer(sharedPrefsValue: const AsyncValue.loading());
-      await tester.pumpWidget(createWidget(container));
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    });
+      '01. harus menampilkan CircularProgressIndicator saat SharedPreferences loading',
+      (tester) async {
+        final container = makeProviderContainer(
+          sharedPrefsValue: const AsyncValue.loading(),
+        );
+        await tester.pumpWidget(createWidget(container));
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      },
+    );
 
     testWidgets(
-        '02. harus menampilkan pesan error saat SharedPreferences gagal dimuat',
-        (tester) async {
-      final container = makeProviderContainer(
-        sharedPrefsValue: AsyncValue.error('Gagal', StackTrace.current),
-      );
-      await tester.pumpWidget(createWidget(container));
-      await tester.pump();
-      expect(
-          find.text('Error memuat SharedPreferences: Gagal'), findsOneWidget);
-    });
+      '02. harus menampilkan pesan error saat SharedPreferences gagal dimuat',
+      (tester) async {
+        final container = makeProviderContainer(
+          sharedPrefsValue: AsyncValue.error('Gagal', StackTrace.current),
+        );
+        await tester.pumpWidget(createWidget(container));
+        await tester.pump();
+        expect(
+          find.text('Error memuat SharedPreferences: Gagal'),
+          findsOneWidget,
+        );
+      },
+    );
 
     testWidgets(
-        '03. harus merender AppInitializer saat SharedPreferences berhasil dimuat',
-        (tester) async {
-      final container = makeProviderContainer(
-        sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
-        themeValue: AsyncValue.data(ThemeMode.light),
-      );
-      await tester.pumpWidget(createWidget(container));
-      expect(find.byType(AppInitializer), findsOneWidget);
-    });
+      '03. harus merender AppInitializer saat SharedPreferences berhasil dimuat',
+      (tester) async {
+        final container = makeProviderContainer(
+          sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
+          themeValue: AsyncValue.data(ThemeMode.light),
+        );
+        await tester.pumpWidget(createWidget(container));
+        expect(find.byType(AppInitializer), findsOneWidget);
+      },
+    );
   });
 
   group('02. AppInitializer Widget', () {
     testWidgets(
-        '01. harus menampilkan CircularProgressIndicator selama inisialisasi',
-        (tester) async {
-      final container = makeProviderContainer(
-        sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
-        themeValue:.data(ThemeMode.light),
-      );
+      '01. harus menampilkan CircularProgressIndicator selama inisialisasi',
+      (tester) async {
+        final container = makeProviderContainer(
+          sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
+          themeValue: .data(ThemeMode.light),
+        );
 
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: const AppInitializer(),
-        ),
-      );
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: const AppInitializer(),
+          ),
+        );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      await tester.pumpAndSettle();
-    });
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+        await tester.pumpAndSettle();
+      },
+    );
 
     testWidgets('02. inisialisasi berhasil saat online', (tester) async {
-      when(mockKoneksiInternetService.cekInternet(any))
-          .thenAnswer((_) async => true);
+      when(
+        mockKoneksiInternetService.cekInternet(any),
+      ).thenAnswer((_) async => true);
 
       final container = makeProviderContainer(
         sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
@@ -222,14 +250,17 @@ void main() {
       expect(appMaterial.isOffline, isFalse);
 
       verify(mockUnduhanAwalService.jalankanUnduhanAwal()).called(1);
-      verify(mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-              retentionDays: 30))
-          .called(1);
+      verify(
+        mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
+          retentionDays: 30,
+        ),
+      ).called(1);
     });
 
     testWidgets('03. inisialisasi berhasil saat offline', (tester) async {
-      when(mockKoneksiInternetService.cekInternet(any))
-          .thenAnswer((_) async => false);
+      when(
+        mockKoneksiInternetService.cekInternet(any),
+      ).thenAnswer((_) async => false);
 
       final container = makeProviderContainer(
         sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
@@ -249,14 +280,18 @@ void main() {
       expect(appMaterial.isOffline, isTrue);
 
       verifyNever(mockUnduhanAwalService.jalankanUnduhanAwal());
-      verifyNever(mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-          retentionDays: anyNamed('retentionDays')));
+      verifyNever(
+        mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
+          retentionDays: anyNamed('retentionDays'),
+        ),
+      );
     });
 
     testWidgets('04. inisialisasi gagal dengan exception', (tester) async {
       final exception = Exception('Error Kritis');
-      when(mockPelangganAktifOpSqlite.hapusPermanenDataSoftDelete())
-          .thenThrow(exception);
+      when(
+        mockPelangganAktifOpSqlite.hapusPermanenDataSoftDelete(),
+      ).thenThrow(exception);
 
       final container = makeProviderContainer(
         sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
@@ -278,8 +313,9 @@ void main() {
 
     testWidgets('05. inisialisasi dengan notification payload', (tester) async {
       when(mockLaunchDetails.didNotificationLaunchApp).thenReturn(true);
-      when(mockLaunchDetails.notificationResponse)
-          .thenReturn(mockNotificationResponse);
+      when(
+        mockLaunchDetails.notificationResponse,
+      ).thenReturn(mockNotificationResponse);
       when(mockNotificationResponse.payload).thenReturn('test_payload');
 
       final container = makeProviderContainer(
@@ -295,14 +331,18 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      verify(mockSharedPreferences.setString(
-              'initial_notification_payload', 'test_payload'))
-          .called(1);
+      verify(
+        mockSharedPreferences.setString(
+          'initial_notification_payload',
+          'test_payload',
+        ),
+      ).called(1);
     });
 
     testWidgets('06. jalankanUnduhanAwal timeout', (tester) async {
-      when(mockUnduhanAwalService.jalankanUnduhanAwal())
-          .thenAnswer((_) => Future.delayed(const Duration(seconds: 40)));
+      when(
+        mockUnduhanAwalService.jalankanUnduhanAwal(),
+      ).thenAnswer((_) => Future.delayed(const Duration(seconds: 40)));
 
       final container = makeProviderContainer(
         sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
@@ -323,21 +363,24 @@ void main() {
 
   group('03. AppMaterial Widget', () {
     testWidgets(
-        '01. harus menampilkan CircularProgressIndicator saat tema loading',
-        (tester) async {
-      final container =
-          makeProviderContainer(themeValue: const AsyncValue.loading());
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: const AppMaterial(isOffline: false),
-        ),
-      );
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    });
+      '01. harus menampilkan CircularProgressIndicator saat tema loading',
+      (tester) async {
+        final container = makeProviderContainer(
+          themeValue: const AsyncValue.loading(),
+        );
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: const AppMaterial(isOffline: false),
+          ),
+        );
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      },
+    );
 
-    testWidgets('02. harus menampilkan pesan error saat tema gagal dimuat',
-        (tester) async {
+    testWidgets('02. harus menampilkan pesan error saat tema gagal dimuat', (
+      tester,
+    ) async {
       final container = makeProviderContainer(
         themeValue: AsyncValue.error('Gagal', StackTrace.current),
       );
@@ -352,26 +395,30 @@ void main() {
     });
 
     testWidgets(
-        '03. harus merender MaterialApp dengan tema yang benar saat data tersedia',
-        (tester) async {
-      final container = makeProviderContainer(
-        themeValue: AsyncValue.data(ThemeMode.dark),
-      );
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: const AppMaterial(isOffline: false),
-        ),
-      );
+      '03. harus merender MaterialApp dengan tema yang benar saat data tersedia',
+      (tester) async {
+        final container = makeProviderContainer(
+          themeValue: AsyncValue.data(ThemeMode.dark),
+        );
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: const AppMaterial(isOffline: false),
+          ),
+        );
 
-      final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
-      expect(materialApp.themeMode, ThemeMode.dark);
-      expect(materialApp.title, 'Admin Wifi');
-      expect(materialApp.home, isA<HalamanUtama>());
-    });
+        final materialApp = tester.widget<MaterialApp>(
+          find.byType(MaterialApp),
+        );
+        expect(materialApp.themeMode, ThemeMode.dark);
+        expect(materialApp.title, 'Admin Wifi');
+        expect(materialApp.home, isA<HalamanUtama>());
+      },
+    );
 
-    testWidgets('04. HalamanUtama harus menerima isOffline = true',
-        (tester) async {
+    testWidgets('04. HalamanUtama harus menerima isOffline = true', (
+      tester,
+    ) async {
       final container = makeProviderContainer(
         themeValue: AsyncValue.data(ThemeMode.light),
       );
@@ -382,8 +429,9 @@ void main() {
         ),
       );
 
-      final halamanUtama =
-          tester.widget<HalamanUtama>(find.byType(HalamanUtama));
+      final halamanUtama = tester.widget<HalamanUtama>(
+        find.byType(HalamanUtama),
+      );
       expect(halamanUtama.isOffline, isTrue);
     });
   });

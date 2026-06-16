@@ -40,20 +40,14 @@ class MockPenjadwalAlarm extends _i1.Mock implements _i2.PenjadwalAlarm {
     bool? tepatWaktu,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #jadwalkanSekali,
-          [
-            waktu,
-            id,
-            panggilBalik,
-          ],
-          {
-            #bangunkan: bangunkan,
-            #tepatWaktu: tepatWaktu,
-          },
-        ),
-        returnValue: _i3.Future<bool>.value(false),
-      ) as _i3.Future<bool>);
+            Invocation.method(
+              #jadwalkanSekali,
+              [waktu, id, panggilBalik],
+              {#bangunkan: bangunkan, #tepatWaktu: tepatWaktu},
+            ),
+            returnValue: _i3.Future<bool>.value(false),
+          )
+          as _i3.Future<bool>);
 
   @override
   _i3.Future<bool> jadwalkanPeriodik(
@@ -66,22 +60,19 @@ class MockPenjadwalAlarm extends _i1.Mock implements _i2.PenjadwalAlarm {
     bool? jadwalkanUlangSaatBoot,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #jadwalkanPeriodik,
-          [
-            durasi,
-            id,
-            panggilBalik,
-          ],
-          {
-            #mulaiPada: mulaiPada,
-            #tepatWaktu: tepatWaktu,
-            #bangunkan: bangunkan,
-            #jadwalkanUlangSaatBoot: jadwalkanUlangSaatBoot,
-          },
-        ),
-        returnValue: _i3.Future<bool>.value(false),
-      ) as _i3.Future<bool>);
+            Invocation.method(
+              #jadwalkanPeriodik,
+              [durasi, id, panggilBalik],
+              {
+                #mulaiPada: mulaiPada,
+                #tepatWaktu: tepatWaktu,
+                #bangunkan: bangunkan,
+                #jadwalkanUlangSaatBoot: jadwalkanUlangSaatBoot,
+              },
+            ),
+            returnValue: _i3.Future<bool>.value(false),
+          )
+          as _i3.Future<bool>);
 
   @override
   _i3.Future<bool> jadwalkanSekaliPada(
@@ -93,28 +84,24 @@ class MockPenjadwalAlarm extends _i1.Mock implements _i2.PenjadwalAlarm {
     bool? jadwalkanUlangSaatBoot = false,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #jadwalkanSekaliPada,
-          [
-            waktu,
-            id,
-            panggilBalik,
-          ],
-          {
-            #tepatWaktu: tepatWaktu,
-            #bangunkan: bangunkan,
-            #jadwalkanUlangSaatBoot: jadwalkanUlangSaatBoot,
-          },
-        ),
-        returnValue: _i3.Future<bool>.value(false),
-      ) as _i3.Future<bool>);
+            Invocation.method(
+              #jadwalkanSekaliPada,
+              [waktu, id, panggilBalik],
+              {
+                #tepatWaktu: tepatWaktu,
+                #bangunkan: bangunkan,
+                #jadwalkanUlangSaatBoot: jadwalkanUlangSaatBoot,
+              },
+            ),
+            returnValue: _i3.Future<bool>.value(false),
+          )
+          as _i3.Future<bool>);
 
   @override
-  _i3.Future<bool> batalkan(int? id) => (super.noSuchMethod(
-        Invocation.method(
-          #batalkan,
-          [id],
-        ),
-        returnValue: _i3.Future<bool>.value(false),
-      ) as _i3.Future<bool>);
+  _i3.Future<bool> batalkan(int? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#batalkan, [id]),
+            returnValue: _i3.Future<bool>.value(false),
+          )
+          as _i3.Future<bool>);
 }

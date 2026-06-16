@@ -23,15 +23,15 @@ final class AppRoleProvider
   /// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
   /// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
   AppRoleProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'appRoleProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'appRoleProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$appRoleHash();
@@ -60,23 +60,26 @@ String _$appRoleHash() => r'cb30ce59264980d6e8d623c1c86512db1c3caf35';
 @ProviderFor(sharedPreferences)
 final sharedPreferencesProvider = SharedPreferencesProvider._();
 
-final class SharedPreferencesProvider extends $FunctionalProvider<
-        AsyncValue<SharedPreferences>,
-        SharedPreferences,
-        FutureOr<SharedPreferences>>
+final class SharedPreferencesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<SharedPreferences>,
+          SharedPreferences,
+          FutureOr<SharedPreferences>
+        >
     with
         $FutureModifier<SharedPreferences>,
         $FutureProvider<SharedPreferences> {
   SharedPreferencesProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'sharedPreferencesProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'sharedPreferencesProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$sharedPreferencesHash();
@@ -84,8 +87,8 @@ final class SharedPreferencesProvider extends $FunctionalProvider<
   @$internal
   @override
   $FutureProviderElement<SharedPreferences> $createElement(
-          $ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
   FutureOr<SharedPreferences> create(Ref ref) {
@@ -98,23 +101,26 @@ String _$sharedPreferencesHash() => r'48e60558ea6530114ea20ea03e69b9fb339ab129';
 @ProviderFor(layananPenyimpananLokal)
 final layananPenyimpananLokalProvider = LayananPenyimpananLokalProvider._();
 
-final class LayananPenyimpananLokalProvider extends $FunctionalProvider<
-        AsyncValue<LayananPenyimpananLokal>,
-        LayananPenyimpananLokal,
-        FutureOr<LayananPenyimpananLokal>>
+final class LayananPenyimpananLokalProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<LayananPenyimpananLokal>,
+          LayananPenyimpananLokal,
+          FutureOr<LayananPenyimpananLokal>
+        >
     with
         $FutureModifier<LayananPenyimpananLokal>,
         $FutureProvider<LayananPenyimpananLokal> {
   LayananPenyimpananLokalProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'layananPenyimpananLokalProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'layananPenyimpananLokalProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$layananPenyimpananLokalHash();
@@ -122,8 +128,8 @@ final class LayananPenyimpananLokalProvider extends $FunctionalProvider<
   @$internal
   @override
   $FutureProviderElement<LayananPenyimpananLokal> $createElement(
-          $ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
   FutureOr<LayananPenyimpananLokal> create(Ref ref) {
@@ -141,21 +147,25 @@ final layananNotifikasiProvider = LayananNotifikasiProvider._();
 
 /// Provider sederhana yang hanya membuat instance NotifikasiServis.
 
-final class LayananNotifikasiProvider extends $FunctionalProvider<
-    LayananNotifikasi,
-    LayananNotifikasi,
-    LayananNotifikasi> with $Provider<LayananNotifikasi> {
+final class LayananNotifikasiProvider
+    extends
+        $FunctionalProvider<
+          LayananNotifikasi,
+          LayananNotifikasi,
+          LayananNotifikasi
+        >
+    with $Provider<LayananNotifikasi> {
   /// Provider sederhana yang hanya membuat instance NotifikasiServis.
   LayananNotifikasiProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'layananNotifikasiProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'layananNotifikasiProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$layananNotifikasiHash();
@@ -163,8 +173,8 @@ final class LayananNotifikasiProvider extends $FunctionalProvider<
   @$internal
   @override
   $ProviderElement<LayananNotifikasi> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   LayananNotifikasi create(Ref ref) {
@@ -192,19 +202,20 @@ final pengontrolNotifikasiProvider = PengontrolNotifikasiProvider._();
 /// Tonton provider ini dari UI untuk menginisialisasi listener.
 
 final class PengontrolNotifikasiProvider
-    extends $FunctionalProvider<void, void, void> with $Provider<void> {
+    extends $FunctionalProvider<void, void, void>
+    with $Provider<void> {
   /// Controller utama untuk notifikasi.
   /// Tonton provider ini dari UI untuk menginisialisasi listener.
   PengontrolNotifikasiProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'pengontrolNotifikasiProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pengontrolNotifikasiProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$pengontrolNotifikasiHash();

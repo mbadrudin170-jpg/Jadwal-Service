@@ -42,14 +42,13 @@ class MockLayananCekSinkronisasi extends _i1.Mock
   }
 
   @override
-  _i3.Future<void> jalankanCekSinkronisasi() => (super.noSuchMethod(
-        Invocation.method(
-          #jalankanCekSinkronisasi,
-          [],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> jalankanCekSinkronisasi() =>
+      (super.noSuchMethod(
+            Invocation.method(#jalankanCekSinkronisasi, []),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 }
 
 /// A class which mocks [ArsipLanggananKadaluarsaService].
@@ -62,14 +61,13 @@ class MockArsipLanggananKadaluarsaService extends _i1.Mock
   }
 
   @override
-  _i3.Future<void> prosesArsipLanggananKadaluarsa() => (super.noSuchMethod(
-        Invocation.method(
-          #prosesArsipLanggananKadaluarsa,
-          [],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> prosesArsipLanggananKadaluarsa() =>
+      (super.noSuchMethod(
+            Invocation.method(#prosesArsipLanggananKadaluarsa, []),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 }
 
 /// A class which mocks [Workmanager].
@@ -86,22 +84,20 @@ class MockWorkmanager extends _i1.Mock implements _i5.Workmanager {
     bool? isInDebugMode = false,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #initialize,
-          [callbackDispatcher],
-          {#isInDebugMode: isInDebugMode},
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+            Invocation.method(
+              #initialize,
+              [callbackDispatcher],
+              {#isInDebugMode: isInDebugMode},
+            ),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 
   @override
   void executeTask(_i5.BackgroundTaskHandler? backgroundTaskHandler) =>
       super.noSuchMethod(
-        Invocation.method(
-          #executeTask,
-          [backgroundTaskHandler],
-        ),
+        Invocation.method(#executeTask, [backgroundTaskHandler]),
         returnValueForMissingStub: null,
       );
 
@@ -119,26 +115,24 @@ class MockWorkmanager extends _i1.Mock implements _i5.Workmanager {
     _i6.OutOfQuotaPolicy? outOfQuotaPolicy,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #registerOneOffTask,
-          [
-            uniqueName,
-            taskName,
-          ],
-          {
-            #inputData: inputData,
-            #initialDelay: initialDelay,
-            #constraints: constraints,
-            #existingWorkPolicy: existingWorkPolicy,
-            #backoffPolicy: backoffPolicy,
-            #backoffPolicyDelay: backoffPolicyDelay,
-            #tag: tag,
-            #outOfQuotaPolicy: outOfQuotaPolicy,
-          },
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+            Invocation.method(
+              #registerOneOffTask,
+              [uniqueName, taskName],
+              {
+                #inputData: inputData,
+                #initialDelay: initialDelay,
+                #constraints: constraints,
+                #existingWorkPolicy: existingWorkPolicy,
+                #backoffPolicy: backoffPolicy,
+                #backoffPolicyDelay: backoffPolicyDelay,
+                #tag: tag,
+                #outOfQuotaPolicy: outOfQuotaPolicy,
+              },
+            ),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 
   @override
   _i3.Future<void> registerPeriodicTask(
@@ -155,37 +149,33 @@ class MockWorkmanager extends _i1.Mock implements _i5.Workmanager {
     String? tag,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #registerPeriodicTask,
-          [
-            uniqueName,
-            taskName,
-          ],
-          {
-            #frequency: frequency,
-            #flexInterval: flexInterval,
-            #inputData: inputData,
-            #initialDelay: initialDelay,
-            #constraints: constraints,
-            #existingWorkPolicy: existingWorkPolicy,
-            #backoffPolicy: backoffPolicy,
-            #backoffPolicyDelay: backoffPolicyDelay,
-            #tag: tag,
-          },
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+            Invocation.method(
+              #registerPeriodicTask,
+              [uniqueName, taskName],
+              {
+                #frequency: frequency,
+                #flexInterval: flexInterval,
+                #inputData: inputData,
+                #initialDelay: initialDelay,
+                #constraints: constraints,
+                #existingWorkPolicy: existingWorkPolicy,
+                #backoffPolicy: backoffPolicy,
+                #backoffPolicyDelay: backoffPolicyDelay,
+                #tag: tag,
+              },
+            ),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 
   @override
   _i3.Future<bool> isScheduledByUniqueName(String? uniqueName) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #isScheduledByUniqueName,
-          [uniqueName],
-        ),
-        returnValue: _i3.Future<bool>.value(false),
-      ) as _i3.Future<bool>);
+            Invocation.method(#isScheduledByUniqueName, [uniqueName]),
+            returnValue: _i3.Future<bool>.value(false),
+          )
+          as _i3.Future<bool>);
 
   @override
   _i3.Future<void> registerProcessingTask(
@@ -196,67 +186,59 @@ class MockWorkmanager extends _i1.Mock implements _i5.Workmanager {
     _i6.Constraints? constraints,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #registerProcessingTask,
-          [
-            uniqueName,
-            taskName,
-          ],
-          {
-            #initialDelay: initialDelay,
-            #inputData: inputData,
-            #constraints: constraints,
-          },
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+            Invocation.method(
+              #registerProcessingTask,
+              [uniqueName, taskName],
+              {
+                #initialDelay: initialDelay,
+                #inputData: inputData,
+                #constraints: constraints,
+              },
+            ),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 
   @override
   _i3.Future<void> cancelByUniqueName(String? uniqueName) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #cancelByUniqueName,
-          [uniqueName],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+            Invocation.method(#cancelByUniqueName, [uniqueName]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 
   @override
-  _i3.Future<void> cancelByTag(String? tag) => (super.noSuchMethod(
-        Invocation.method(
-          #cancelByTag,
-          [tag],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> cancelByTag(String? tag) =>
+      (super.noSuchMethod(
+            Invocation.method(#cancelByTag, [tag]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 
   @override
-  _i3.Future<void> cancelAll() => (super.noSuchMethod(
-        Invocation.method(
-          #cancelAll,
-          [],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> cancelAll() =>
+      (super.noSuchMethod(
+            Invocation.method(#cancelAll, []),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 
   @override
-  _i3.Future<String> printScheduledTasks() => (super.noSuchMethod(
-        Invocation.method(
-          #printScheduledTasks,
-          [],
-        ),
-        returnValue: _i3.Future<String>.value(_i7.dummyValue<String>(
-          this,
-          Invocation.method(
-            #printScheduledTasks,
-            [],
-          ),
-        )),
-      ) as _i3.Future<String>);
+  _i3.Future<String> printScheduledTasks() =>
+      (super.noSuchMethod(
+            Invocation.method(#printScheduledTasks, []),
+            returnValue: _i3.Future<String>.value(
+              _i7.dummyValue<String>(
+                this,
+                Invocation.method(#printScheduledTasks, []),
+              ),
+            ),
+          )
+          as _i3.Future<String>);
 }
 
 /// A class which mocks [Connectivity].
@@ -270,18 +252,18 @@ class MockConnectivity extends _i1.Mock implements _i8.Connectivity {
   @override
   _i3.Stream<List<_i9.ConnectivityResult>> get onConnectivityChanged =>
       (super.noSuchMethod(
-        Invocation.getter(#onConnectivityChanged),
-        returnValue: _i3.Stream<List<_i9.ConnectivityResult>>.empty(),
-      ) as _i3.Stream<List<_i9.ConnectivityResult>>);
+            Invocation.getter(#onConnectivityChanged),
+            returnValue: _i3.Stream<List<_i9.ConnectivityResult>>.empty(),
+          )
+          as _i3.Stream<List<_i9.ConnectivityResult>>);
 
   @override
   _i3.Future<List<_i9.ConnectivityResult>> checkConnectivity() =>
       (super.noSuchMethod(
-        Invocation.method(
-          #checkConnectivity,
-          [],
-        ),
-        returnValue: _i3.Future<List<_i9.ConnectivityResult>>.value(
-            <_i9.ConnectivityResult>[]),
-      ) as _i3.Future<List<_i9.ConnectivityResult>>);
+            Invocation.method(#checkConnectivity, []),
+            returnValue: _i3.Future<List<_i9.ConnectivityResult>>.value(
+              <_i9.ConnectivityResult>[],
+            ),
+          )
+          as _i3.Future<List<_i9.ConnectivityResult>>);
 }

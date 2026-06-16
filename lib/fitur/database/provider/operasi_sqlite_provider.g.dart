@@ -20,15 +20,15 @@ final class PaketOpSqliteProvider
     with $Provider<PaketOpSqlite> {
   /// Provider untuk menyediakan instance dari [PaketOpSqlite].
   PaketOpSqliteProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'paketOpSqliteProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'paketOpSqliteProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$paketOpSqliteHash();
@@ -61,21 +61,25 @@ final transaksiOpSqliteProvider = TransaksiOpSqliteProvider._();
 
 /// Provider untuk menyediakan instance dari [TransaksiOpSqlite].
 
-final class TransaksiOpSqliteProvider extends $FunctionalProvider<
-    TransaksiOpSqlite,
-    TransaksiOpSqlite,
-    TransaksiOpSqlite> with $Provider<TransaksiOpSqlite> {
+final class TransaksiOpSqliteProvider
+    extends
+        $FunctionalProvider<
+          TransaksiOpSqlite,
+          TransaksiOpSqlite,
+          TransaksiOpSqlite
+        >
+    with $Provider<TransaksiOpSqlite> {
   /// Provider untuk menyediakan instance dari [TransaksiOpSqlite].
   TransaksiOpSqliteProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'transaksiOpSqliteProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'transaksiOpSqliteProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$transaksiOpSqliteHash();
@@ -83,8 +87,8 @@ final class TransaksiOpSqliteProvider extends $FunctionalProvider<
   @$internal
   @override
   $ProviderElement<TransaksiOpSqlite> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   TransaksiOpSqlite create(Ref ref) {
@@ -109,21 +113,25 @@ final pelangganOpSqliteProvider = PelangganOpSqliteProvider._();
 
 /// Provider untuk menyediakan instance dari [PelangganOpSqlite].
 
-final class PelangganOpSqliteProvider extends $FunctionalProvider<
-    PelangganOpSqlite,
-    PelangganOpSqlite,
-    PelangganOpSqlite> with $Provider<PelangganOpSqlite> {
+final class PelangganOpSqliteProvider
+    extends
+        $FunctionalProvider<
+          PelangganOpSqlite,
+          PelangganOpSqlite,
+          PelangganOpSqlite
+        >
+    with $Provider<PelangganOpSqlite> {
   /// Provider untuk menyediakan instance dari [PelangganOpSqlite].
   PelangganOpSqliteProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'pelangganOpSqliteProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pelangganOpSqliteProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$pelangganOpSqliteHash();
@@ -131,8 +139,8 @@ final class PelangganOpSqliteProvider extends $FunctionalProvider<
   @$internal
   @override
   $ProviderElement<PelangganOpSqlite> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   PelangganOpSqlite create(Ref ref) {
@@ -157,21 +165,25 @@ final pelangganAktifOpSqliteProvider = PelangganAktifOpSqliteProvider._();
 
 /// Provider untuk menyediakan instance dari [PelangganAktifOpSqlite].
 
-final class PelangganAktifOpSqliteProvider extends $FunctionalProvider<
-    PelangganAktifOpSqlite,
-    PelangganAktifOpSqlite,
-    PelangganAktifOpSqlite> with $Provider<PelangganAktifOpSqlite> {
+final class PelangganAktifOpSqliteProvider
+    extends
+        $FunctionalProvider<
+          PelangganAktifOpSqlite,
+          PelangganAktifOpSqlite,
+          PelangganAktifOpSqlite
+        >
+    with $Provider<PelangganAktifOpSqlite> {
   /// Provider untuk menyediakan instance dari [PelangganAktifOpSqlite].
   PelangganAktifOpSqliteProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'pelangganAktifOpSqliteProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pelangganAktifOpSqliteProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$pelangganAktifOpSqliteHash();
@@ -179,8 +191,8 @@ final class PelangganAktifOpSqliteProvider extends $FunctionalProvider<
   @$internal
   @override
   $ProviderElement<PelangganAktifOpSqlite> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   PelangganAktifOpSqlite create(Ref ref) {
@@ -206,21 +218,25 @@ final versiApkOpSqliteProvider = VersiApkOpSqliteProvider._();
 
 /// Provider untuk menyediakan instance dari [VersiApkOpSqlite].
 
-final class VersiApkOpSqliteProvider extends $FunctionalProvider<
-    VersiApkOpSqlite,
-    VersiApkOpSqlite,
-    VersiApkOpSqlite> with $Provider<VersiApkOpSqlite> {
+final class VersiApkOpSqliteProvider
+    extends
+        $FunctionalProvider<
+          VersiApkOpSqlite,
+          VersiApkOpSqlite,
+          VersiApkOpSqlite
+        >
+    with $Provider<VersiApkOpSqlite> {
   /// Provider untuk menyediakan instance dari [VersiApkOpSqlite].
   VersiApkOpSqliteProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'versiApkOpSqliteProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'versiApkOpSqliteProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$versiApkOpSqliteHash();
@@ -253,21 +269,25 @@ final kategoriOpSqliteProvider = KategoriOpSqliteProvider._();
 
 /// Provider untuk menyediakan instance dari [KategoriOpSqlite].
 
-final class KategoriOpSqliteProvider extends $FunctionalProvider<
-    KategoriOpSqlite,
-    KategoriOpSqlite,
-    KategoriOpSqlite> with $Provider<KategoriOpSqlite> {
+final class KategoriOpSqliteProvider
+    extends
+        $FunctionalProvider<
+          KategoriOpSqlite,
+          KategoriOpSqlite,
+          KategoriOpSqlite
+        >
+    with $Provider<KategoriOpSqlite> {
   /// Provider untuk menyediakan instance dari [KategoriOpSqlite].
   KategoriOpSqliteProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'kategoriOpSqliteProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'kategoriOpSqliteProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$kategoriOpSqliteHash();
@@ -300,21 +320,25 @@ final pembersihanDataOperasiProvider = PembersihanDataOperasiProvider._();
 
 /// Provider untuk menyediakan instance dari [PembersihanDataOperasi].
 
-final class PembersihanDataOperasiProvider extends $FunctionalProvider<
-    PembersihanDataOperasi,
-    PembersihanDataOperasi,
-    PembersihanDataOperasi> with $Provider<PembersihanDataOperasi> {
+final class PembersihanDataOperasiProvider
+    extends
+        $FunctionalProvider<
+          PembersihanDataOperasi,
+          PembersihanDataOperasi,
+          PembersihanDataOperasi
+        >
+    with $Provider<PembersihanDataOperasi> {
   /// Provider untuk menyediakan instance dari [PembersihanDataOperasi].
   PembersihanDataOperasiProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'pembersihanDataOperasiProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pembersihanDataOperasiProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$pembersihanDataOperasiHash();
@@ -322,8 +346,8 @@ final class PembersihanDataOperasiProvider extends $FunctionalProvider<
   @$internal
   @override
   $ProviderElement<PembersihanDataOperasi> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   PembersihanDataOperasi create(Ref ref) {
@@ -349,21 +373,25 @@ final feedbackOpSqliteProvider = FeedbackOpSqliteProvider._();
 
 /// Provider untuk menyediakan instance dari [FeedbackOpSqlite].
 
-final class FeedbackOpSqliteProvider extends $FunctionalProvider<
-    FeedbackOpSqlite,
-    FeedbackOpSqlite,
-    FeedbackOpSqlite> with $Provider<FeedbackOpSqlite> {
+final class FeedbackOpSqliteProvider
+    extends
+        $FunctionalProvider<
+          FeedbackOpSqlite,
+          FeedbackOpSqlite,
+          FeedbackOpSqlite
+        >
+    with $Provider<FeedbackOpSqlite> {
   /// Provider untuk menyediakan instance dari [FeedbackOpSqlite].
   FeedbackOpSqliteProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'feedbackOpSqliteProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'feedbackOpSqliteProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$feedbackOpSqliteHash();
@@ -396,15 +424,15 @@ final class OrderOpSqliteProvider
     extends $FunctionalProvider<OrderOpsqlite, OrderOpsqlite, OrderOpsqlite>
     with $Provider<OrderOpsqlite> {
   OrderOpSqliteProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'orderOpSqliteProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'orderOpSqliteProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$orderOpSqliteHash();
@@ -437,21 +465,25 @@ final settingsOpSqliteProvider = SettingsOpSqliteProvider._();
 
 /// Provider untuk menyediakan instance dari [SettingsOpSqlite].
 
-final class SettingsOpSqliteProvider extends $FunctionalProvider<
-    SettingsOpSqlite,
-    SettingsOpSqlite,
-    SettingsOpSqlite> with $Provider<SettingsOpSqlite> {
+final class SettingsOpSqliteProvider
+    extends
+        $FunctionalProvider<
+          SettingsOpSqlite,
+          SettingsOpSqlite,
+          SettingsOpSqlite
+        >
+    with $Provider<SettingsOpSqlite> {
   /// Provider untuk menyediakan instance dari [SettingsOpSqlite].
   SettingsOpSqliteProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'settingsOpSqliteProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'settingsOpSqliteProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$settingsOpSqliteHash();
@@ -484,21 +516,25 @@ final subKategoriOpSqliteProvider = SubKategoriOpSqliteProvider._();
 
 /// Provider untuk menyediakan instance dari [SubKategoriOpSqlite].
 
-final class SubKategoriOpSqliteProvider extends $FunctionalProvider<
-    SubKategoriOpSqlite,
-    SubKategoriOpSqlite,
-    SubKategoriOpSqlite> with $Provider<SubKategoriOpSqlite> {
+final class SubKategoriOpSqliteProvider
+    extends
+        $FunctionalProvider<
+          SubKategoriOpSqlite,
+          SubKategoriOpSqlite,
+          SubKategoriOpSqlite
+        >
+    with $Provider<SubKategoriOpSqlite> {
   /// Provider untuk menyediakan instance dari [SubKategoriOpSqlite].
   SubKategoriOpSqliteProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'subKategoriOpSqliteProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'subKategoriOpSqliteProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$subKategoriOpSqliteHash();
@@ -506,8 +542,8 @@ final class SubKategoriOpSqliteProvider extends $FunctionalProvider<
   @$internal
   @override
   $ProviderElement<SubKategoriOpSqlite> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   SubKategoriOpSqlite create(Ref ref) {
@@ -538,15 +574,15 @@ final class DompetOpSqliteProvider
     with $Provider<DompetOpSqlite> {
   /// Provider untuk menyediakan instance dari [DompetOpSqlite].
   DompetOpSqliteProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'dompetOpSqliteProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'dompetOpSqliteProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$dompetOpSqliteHash();

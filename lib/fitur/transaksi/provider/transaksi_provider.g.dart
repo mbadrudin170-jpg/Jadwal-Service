@@ -15,15 +15,15 @@ final transaksiProvider = TransaksiProvider._();
 final class TransaksiProvider
     extends $AsyncNotifierProvider<Transaksi, TransaksiState> {
   TransaksiProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'transaksiProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'transaksiProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$transaksiHash();
@@ -41,11 +41,14 @@ abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   @override
   WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<TransaksiState>, TransaksiState>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<AsyncValue<TransaksiState>, TransaksiState>,
-        AsyncValue<TransaksiState>,
-        Object?,
-        Object?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<TransaksiState>, TransaksiState>,
+              AsyncValue<TransaksiState>,
+              Object?,
+              Object?
+            >;
     return element.handleCreate(ref, build);
   }
 }
