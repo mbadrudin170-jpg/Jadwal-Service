@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show MethodCall, MethodChannel;
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,6 +12,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/admin/halaman_utama.dart';
+import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
@@ -32,16 +34,12 @@ void main() {
   late MockConnectivity mockConnectivity;
   late StreamController<List<ConnectivityResult>> connectivityStreamController;
 
-  // We need to create a dummy main to avoid errors
-  // This is because FlutterNativeSplash.remove() is called in initState
-  void main() => runApp(const MaterialApp(home: HalamanUtama()));
-
   setUpAll(() {
     // This is required to mock SharedPreferences
     SharedPreferences.setMockInitialValues({});
     // This is required to mock FlutterNativeSplash
     TestWidgetsFlutterBinding.ensureInitialized();
-    final originalMethod = FlutterNativeSplash.remove;
+
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('flutter_native_splash'),

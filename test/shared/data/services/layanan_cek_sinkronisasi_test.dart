@@ -49,12 +49,10 @@ void main() {
     );
 
     // Stubbing untuk Firestore
-    when(() => mockFirestore.collection(any()))
-        .thenReturn(mockCollectionReference);
-    when(() => mockCollectionReference.doc(any()))
-        .thenReturn(mockDocumentReference);
-    when(() => mockDocumentReference.set(any(), any()))
-        .thenAnswer((_) async {});
+    when(mockFirestore.collection(any)).thenReturn(mockCollectionReference);
+    when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
+    when(mockDocumentReference.set(any, any))
+        .thenAnswer((_) async => Future.value());
   });
 
   tearDown(() {
@@ -71,23 +69,25 @@ void main() {
     required bool adaDataLokal,
     required bool adaDataServer,
   }) {
-    when(() => mockPengecekanDataBaru.apakahSqliteAdaDataBaru())
+    when(mockPengecekanDataBaru.apakahSqliteAdaDataBaru())
         .thenAnswer((_) async => adaDataLokal);
-    when(() => mockPengecekanDataBaru.apakahFirebaseAdaDataBaru(
-          namaKoleksi: anyNamed('namaKoleksi'),
-          idDokumen: anyNamed('idDokumen'),
-        )).thenAnswer((_) async => adaDataServer);
+    when(mockPengecekanDataBaru.apakahFirebaseAdaDataBaru(
+      namaKoleksi: anyNamed('namaKoleksi'),
+      idDokumen: anyNamed('idDokumen'),
+    )).thenAnswer((_) async => adaDataServer);
   }
 
   void aturAksiSinkronisasiBerhasil() {
-    when(() => mockLayananUnggah.unggahSemuaData()).thenAnswer((_) async {});
-    when(() => mockPengelolaSinkronisasi.simpanWaktuTerkahirUnggah(any()))
-        .thenAnswer((_) async {});
-    when(() => mockPengecekanDataBaru.resetButuhUpload())
-        .thenAnswer((_) async {});
-    when(() => mockLayananUnduh.downloadAllData()).thenAnswer((_) async {});
-    when(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirunduh(any()))
-        .thenAnswer((_) async {});
+    when(mockLayananUnggah.unggahSemuaData())
+        .thenAnswer((_) async => Future.value());
+    when(mockPengelolaSinkronisasi.simpanWaktuTerkahirUnggah(any))
+        .thenAnswer((_) async => Future.value());
+    when(mockPengecekanDataBaru.resetButuhUpload())
+        .thenAnswer((_) async => Future.value());
+    when(mockLayananUnduh.downloadAllData())
+        .thenAnswer((_) async => Future.value());
+    when(mockPengelolaSinkronisasi.simpanWaktuTerakhirunduh(any))
+        .thenAnswer((_) async => Future.value());
   }
 
   group('LayananCekSinkronisasi', () {

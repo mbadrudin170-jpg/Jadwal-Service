@@ -1,4 +1,3 @@
-
 // path: test/admin/halaman/event/detail_event_a_test.dart
 import 'dart:io';
 
@@ -25,6 +24,8 @@ void main() {
     imageUrl: 'https://example.com/image.png',
     isActive: true,
     createdAt: DateTime(2023, 10, 26),
+    startDate: DateTime(2023, 10, 26),
+    endDate: DateTime(2023, 11, 26),
   );
 
   final eventTidakAktif = EventModel(
@@ -32,6 +33,8 @@ void main() {
     imageUrl: '',
     isActive: false,
     createdAt: DateTime(2023, 10, 25),
+    startDate: DateTime(2023, 10, 25),
+    endDate: DateTime(2023, 11, 25),
   );
 
   setUp(() {
@@ -99,7 +102,8 @@ void main() {
         '04. harus menampilkan detail dengan benar untuk event aktif dengan gambar',
         (tester) async {
       // Arrange
-      when(mockEventOpSupabase.getById(any)).thenAnswer((_) async => eventAktif);
+      when(mockEventOpSupabase.getById(any))
+          .thenAnswer((_) async => eventAktif);
 
       // Act
       await HttpOverrides.runZoned(() async {
@@ -146,7 +150,8 @@ void main() {
     testWidgets('06. harus menampilkan error builder saat gambar gagal dimuat',
         (tester) async {
       // Arrange
-      when(mockEventOpSupabase.getById(any)).thenAnswer((_) async => eventAktif);
+      when(mockEventOpSupabase.getById(any))
+          .thenAnswer((_) async => eventAktif);
 
       // Act
       // Run with an HTTP client that fails all requests
@@ -163,7 +168,8 @@ void main() {
     testWidgets('07. harus memiliki tombol Edit dan bisa ditekan',
         (tester) async {
       // Arrange
-      when(mockEventOpSupabase.getById(any)).thenAnswer((_) async => eventAktif);
+      when(mockEventOpSupabase.getById(any))
+          .thenAnswer((_) async => eventAktif);
 
       // Act
       await tester.pumpWidget(createWidget(eventAktif));

@@ -5,10 +5,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
-import 'package:wifi/fitur/akun/provider/akun_provider.dart';
+import 'package:wifi/fitur/akun/akun_provider.dart';
 import 'package:wifi/fitur/pelanggan/core/user_activity_service.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
+import 'package:wifi/user/providers/user_providers.dart';
 
 import 'daftar_akun_page_test.mocks.dart';
 
@@ -16,9 +17,9 @@ import 'daftar_akun_page_test.mocks.dart';
 class FakeRoute<T> extends Fake implements Route<T> {}
 
 @GenerateMocks([
-  MockSpec<PengelolaAkun>(),
-  MockSpec<UserActivityService>(),
-  MockSpec<NavigatorObserver>(),
+  PengelolaAkun,
+  UserActivityService,
+  NavigatorObserver,
 ])
 void main() {
   late MockPengelolaAkun mockPengelolaAkun;
@@ -29,8 +30,7 @@ void main() {
 
   // Daftarkan fallback value untuk tipe data kustom sebelum semua tes berjalan
   setUpAll(() {
-    registerFallbackValue(const AsyncValue<AkunState>.loading());
-    registerFallbackValue(FakeRoute());
+    // Mockito tidak butuh registerFallbackValue untuk argumen standar
   });
 
   setUp(() {
@@ -62,7 +62,7 @@ void main() {
   }) {
     return ProviderScope(
       overrides: [
-        pengelolaAkunProvider.overrideWith((_) => mockPengelolaAkun),
+        pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
         userActivityServiceProvider.overrideWithValue(mockUserActivityService),
         userIdProvider.overrideWith((ref) => currentUserId),
       ],

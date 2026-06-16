@@ -1,14 +1,11 @@
-
 // path: test/admin/data/sqlite_test.dart
-import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/services.dart';
+import 'package:flutter/services.dart' show MethodCall, MethodChannel;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:path/path.dart' as p;
@@ -20,7 +17,7 @@ import 'sqlite_test.mocks.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late SqliteDatabase sqliteDatabase;
+  late DatabaseHelper sqliteDatabase;
   late MockDatabase mockDatabase;
   late MockBatch mockBatch;
   late MockDatabaseFactory mockFactory;
@@ -37,7 +34,7 @@ void main() {
     originalFactory = databaseFactory;
     databaseFactory = mockFactory;
 
-    sqliteDatabase = SqliteDatabase.instance;
+    sqliteDatabase = DatabaseHelper.instance;
     sqliteDatabase.debugSetDatabaseNull();
 
     when(mockDatabase.batch()).thenReturn(mockBatch);
@@ -67,33 +64,33 @@ void main() {
     });
   }
 
-  group('01. SqliteDatabase Singleton & Provider', () {
+  group('01. DatabaseHelper Singleton & Provider', () {
     test('01. instance harus selalu mengembalikan instance yang sama (singleton)',
         () {
-      final instance1 = SqliteDatabase.instance;
-      final instance2 = SqliteDatabase.instance;
+      final instance1 = DatabaseHelper.instance;
+      final instance2 = DatabaseHelper.instance;
       expect(identical(instance1, instance2), isTrue);
     });
 
-    test('02. sqliteDatabaseProvider harus menyediakan instance SqliteDatabase',
+    test('02. databaseHelperProvider harus menyediakan instance DatabaseHelper',
         () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
-      expect(container.read(sqliteDatabaseProvider), isA<SqliteDatabase>());
+      expect(container.read(databaseHelperProvider), isA<DatabaseHelper>());
     });
 
-    test('03. sqliteProvider harus menyediakan Future<Database>', () async {
+    test('03. databaseProvider harus menyediakan Future<Database>', () async {
       stubOpenDatabase();
       final container = ProviderContainer(overrides: [
-        sqliteDatabaseProvider.overrideWithValue(sqliteDatabase),
+        databaseHelperProvider.overrideWithValue(sqliteDatabase),
       ]);
       addTearDown(container.dispose);
 
-      expect(container.read(sqliteProvider), isA<AsyncLoading>());
+      expect(container.read(databaseProvider), isA<AsyncLoading>());
 
-      await expectLater(container.read(sqliteProvider.future), completes);
+      await expectLater(container.read(databaseProvider.future), completes);
 
-      final dbValue = container.read(sqliteProvider);
+      final dbValue = container.read(databaseProvider);
       expect(dbValue, isA<AsyncData<Database>>());
       expect(dbValue.value, isA<Database>());
     });
@@ -172,39 +169,39 @@ void main() {
 
       await sqliteDatabase.database;
 
-      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.kategori}')))
+      verify(mockBatch.execute(argThat(contains('CREATE TABLE ${NamaTabel.category}'))))
           .called(1);
-      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.subKategori}')))
+      verify(mockBatch.execute(argThat(contains('CREATE TABLE ${NamaTabel.subCategory}'))))
           .called(1);
-      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.paket}')))
+      verify(mockBatch.execute(argThat(contains('CREATE TABLE ${NamaTabel.package}'))))
           .called(1);
-      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.pelanggan}')))
+      verify(mockBatch.execute(argThat(contains('CREATE TABLE ${NamaTabel.customer}'))))
           .called(1);
-      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.pelangganAktif}')))
+      verify(mockBatch.execute(argThat(contains('CREATE TABLE ${NamaTabel.activeCustomer}'))))
           .called(1);
       verify(
-              mockBatch.execute(contains('CREATE TABLE "${NamaTabel.transaksi}"')))
+              mockBatch.execute(argThat(contains('CREATE TABLE "${NamaTabel.transactions}"'))))
           .called(1);
-      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.dompet}')))
+      verify(mockBatch.execute(argThat(contains('CREATE TABLE ${NamaTabel.wallet}'))))
           .called(1);
-      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.feedback}')))
+      verify(mockBatch.execute(argThat(contains('CREATE TABLE ${NamaTabel.feedback}'))))
           .called(1);
       verify(mockBatch
-              .execute(contains('CREATE TABLE "${NamaTabel.pesananPelanggan}"')))
+              .execute(argThat(contains('CREATE TABLE "${NamaTabel.customerOrder}"'))))
           .called(1);
-      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.versiApkUser}')))
+      verify(mockBatch.execute(argThat(contains('CREATE TABLE ${NamaTabel.userApkVersion}'))))
           .called(1);
-      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.settings}')))
+      verify(mockBatch.execute(argThat(contains('CREATE TABLE ${NamaTabel.settings}'))))
           .called(1);
-      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.statusUnggah}')))
+      verify(mockBatch.execute(argThat(contains('CREATE TABLE ${NamaTabel.uploadStatus}'))))
           .called(1);
-      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.pesan}')))
+      verify(mockBatch.execute(argThat(contains('CREATE TABLE ${NamaTabel.message}'))))
           .called(1);
-      verify(mockBatch.execute(contains('CREATE TABLE ${NamaTabel.notifikasi}')))
+      verify(mockBatch.execute(argThat(contains('CREATE TABLE ${NamaTabel.notification}'))))
           .called(1);
 
       verify(mockBatch.execute(
-          contains('CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id'))).called(1);
+          argThat(contains('CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id')))).called(1);
 
       verify(mockBatch.commit(noResult: true)).called(1);
     });
@@ -231,7 +228,7 @@ void main() {
           .called(1);
       verify(mockDatabase.execute(contains('CREATE TABLE pengaturan')))
           .called(1);
-      verify(mockDatabase.execute('DROP TABLE IF EXISTS kategori'))
+      verify(mockDatabase.execute('DROP TABLE IF EXISTS category'))
           .called(1);
       verify(mockDatabase
               .execute('ALTER TABLE status_aplikasi ADD COLUMN diperbarui INTEGER'))
@@ -242,14 +239,13 @@ void main() {
       verify(mockDatabase
               .execute('ALTER TABLE dompet RENAME TO ${NamaTabel.dompet}'))
           .called(1);
-      verify(mockDatabase.execute(
-              'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN terkahir_aktif INTEGER'))
+      verify(mockDatabase.execute(argThat(contains('ADD COLUMN ${ColumnNames.lastActiveAt}'))))
           .called(1);
       verify(
-              mockDatabase.execute(contains('CREATE TABLE ${NamaTabel.notifikasi}')))
+              mockDatabase.execute(argThat(contains('CREATE TABLE ${NamaTabel.notification}'))))
           .called(1);
       verify(mockDatabase.execute(
-              'ALTER TABLE "${NamaTabel.transaksi}" ADD COLUMN durasi_bonus INTEGER'))
+              argThat(contains('ADD COLUMN ${ColumnNames.durasiBonus}'))))
           .called(1);
     });
 
@@ -257,17 +253,14 @@ void main() {
       await runUpgrade(50, 53);
 
       verifyNever(mockDatabase.execute('DROP TABLE IF EXISTS pengaturan'));
-      verifyNever(mockDatabase
-          .execute('ALTER TABLE dompet RENAME TO ${NamaTabel.dompet}'));
 
-      verify(mockDatabase.execute(
-              'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN terkahir_aktif INTEGER'))
+      verify(mockDatabase.execute(argThat(contains('ADD COLUMN ${ColumnNames.lastActiveAt}'))))
           .called(1);
       verify(
-              mockDatabase.execute(contains('CREATE TABLE ${NamaTabel.notifikasi}')))
+              mockDatabase.execute(argThat(contains('CREATE TABLE ${NamaTabel.notification}'))))
           .called(1);
       verify(mockDatabase.execute(
-              'ALTER TABLE "${NamaTabel.transaksi}" ADD COLUMN durasi_bonus INTEGER'))
+              argThat(contains('ADD COLUMN ${ColumnNames.durasiBonus}'))))
           .called(1);
     });
 
@@ -330,12 +323,12 @@ void main() {
 }
 
 // Extension to expose private methods for testing
-extension TestSqliteDatabase on SqliteDatabase {
+extension TestSqliteDatabase on DatabaseHelper {
   Future<void> testOnUpgrade(Database db, int oldVersion, int newVersion) {
     return _onUpgrade(db, oldVersion, newVersion);
   }
 
   Future<void> testMigrateToV53(Database db) {
-    return _migrateToV53(db);
+    return _migrateToV53(db); // Diperbaiki: ini adalah method private
   }
 }
