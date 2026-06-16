@@ -17,6 +17,7 @@ Berikut aturan naming versi **ringkas, jelas, dan siap dipakai** (Indonesia clea
 * `SinkronisasiData`
 
 ---
+
 ## 2. VARIABEL → “Menyimpan apa”
 
 * Gunakan **kata benda**
@@ -104,7 +105,6 @@ hapus kata final pada sebuah parameter dan ubah nama fungsi menjadi bahasa indon
     2. penulisan kode, AI wajib menuliskan kode yang sesuai dengan versi paket saya di pubspec.yaml, kalau bisa lihat dokumentasinya dengan menjalankan read_package_uris dan pub_dev_search,
     3. kode di setiap file harus konsisten.
 8. semua file harus dibuatkan file test nya jangan ada yang tidak dibuatkan .
-9. setiap file test harus menggunakan mocktail jangan gunakan mockito, lalu cek versi yang terpasang di pubspec.yaml agar penulisan kode nua sesuai dengan versi yang terpasang.
 
 
 Buatkan unit test lengkap untuk file berikut.
@@ -116,14 +116,12 @@ Aturan:
 4. Semua percabangan if, else if, else, switch, try, catch, dan return harus memiliki test.
 5. Semua kondisi sukses, gagal, null, kosong, dan edge case harus diuji.
 6. Semua state perubahan wajib diverifikasi.
-7. Semua dependency eksternal harus dimock menggunakan Mocktail.
 8. Jangan melewati kode apa pun tanpa analisis.
 9. Sebelum membuat test, buat daftar seluruh fungsi, kondisi, dan skenario yang ditemukan.
 10. Setelah test selesai, buat tabel yang menunjukkan bagian mana yang sudah dan belum tercakup.
 11. Target coverage minimal 100% line coverage dan branch coverage.
 12. Jika ada bagian yang tidak dapat diuji, jelaskan alasannya secara rinci.
 13. Tulis file test lengkap, bukan potongan kode.
-14. Gunakan Flutter Test dan Mocktail.
 15. Pastikan seluruh assertion relevan dan tidak ada test duplikat.
 
 Langkah kerja:
@@ -135,11 +133,11 @@ Langkah kerja:
 
 Berikut file yang akan diuji:
 
-Berikut daftar aturan yang bisa kamu tambahkan ke prompt AI agar konsisten menggunakan Mocktail dan tidak membuat file mock manual:
+Berikut daftar aturan yang bisa kamu tambahkan ke prompt AI agar konsisten menggunakan Mockito dan tidak membuat file mock manual:
 
-# Aturan Unit Test Mocktail
+# Aturan Unit Test Mockito
 
-1. **Wajib menggunakan Mocktail sebagai library mocking utama.**
+1. **Wajib menggunakan Mockito sebagai library mocking utama.**
 2. **Dilarang menggunakan Mockito.**
 3. **Dilarang menjalankan generator mock (`build_runner`, `@GenerateMocks`, `@GenerateNiceMocks`).**
 4. **Dilarang membuat file khusus mock seperti:**
@@ -158,8 +156,8 @@ Berikut daftar aturan yang bisa kamu tambahkan ke prompt AI agar konsisten mengg
 9. **Jangan membuat folder `mocks/` atau `test/mocks/`.**
 10. **Prioritaskan keterbacaan dan kesederhanaan test dibanding pembuatan abstraksi mock tambahan.**
 11. **Setiap file production wajib memiliki file test yang sesuai tanpa membuat file mock terpisah.**
-12. **Semua dependency eksternal (repository, service, datasource, storage, API, provider) harus dimock menggunakan Mocktail.**
-13. **Gunakan `registerFallbackValue()` hanya jika memang diperlukan oleh Mocktail.**
+12. **Semua dependency eksternal (repository, service, datasource, storage, API, provider) harus dimock menggunakan Mockito.**
+13. **Gunakan `registerFallbackValue()` hanya jika memang diperlukan oleh Mockito.**
 14. **Hindari mock berlebihan; gunakan objek asli jika tidak memiliki efek samping atau akses eksternal.**
 15. **File test harus dapat dijalankan langsung tanpa proses code generation tambahan.**
 
@@ -201,7 +199,7 @@ test/
 
 # Ringkasan Singkat
 
-* Gunakan Mocktail.
+* Gunakan Mockito.
 * Jangan gunakan Mockito.
 * Jangan gunakan code generation.
 * Jangan buat file mock terpisah.

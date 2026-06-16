@@ -1,7 +1,8 @@
 // path: test/fitur/settings/operasi/settings_op_sqlite_test.dart
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
@@ -10,13 +11,9 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
-// Mocks
-class MockSqliteDatabase extends Mock implements SqliteDatabase {}
+import 'settings_op_sqlite_test.mocks.dart';
 
-class MockBaseOpSqlite extends Mock implements BaseOpSqlite {}
-
-class MockDatabase extends Mock implements Database {}
-
+@GenerateMocks([SqliteDatabase, BaseOpSqlite, Database])
 void main() {
   late SettingsOpSqlite settingsOpSqlite;
   late MockSqliteDatabase mockSqliteDb;
@@ -34,7 +31,7 @@ void main() {
     );
 
     // Stubbing
-    when(() => mockSqliteDb.database).thenAnswer((_) async => mockDb);
+    when(mockSqliteDb.database).thenAnswer((_) async => mockDb);
   });
 
   const String namaTabel = NamaTabel.settings;
@@ -55,11 +52,11 @@ void main() {
         NamaKolom.diperbaruiPada: DateTime(2023).millisecondsSinceEpoch,
       };
 
-      when(() => mockDb.query(
-            namaTabel,
-            where: any(named: 'where'),
-            whereArgs: any(named: 'whereArgs'),
-          )).thenAnswer((_) async => [dbData]);
+      when(mockDb.query(
+        namaTabel,
+        where: anyNamed('where'),
+        whereArgs: anyNamed('whereArgs'),
+      )).thenAnswer((_) async => [dbData]);
 
       // Act
       final result = await settingsOpSqlite.ambilSettings();
@@ -67,7 +64,7 @@ void main() {
       // Assert
       expect(result.id, id);
       expect(result.waktuOtomatisSinkronisasi, 48);
-      verify(() => mockDb.query(namaTabel, where: 'id = ?', whereArgs: [id]))
+      verify(mockDb.query(namaTabel, where: 'id = ?', whereArgs: [id]))
           .called(1);
     });
 
@@ -75,17 +72,17 @@ void main() {
         '02. harus membuat, menyimpan, dan mengembalikan pengaturan default jika tidak ada di DB',
         () async {
       // Arrange
-      when(() => mockDb.query(
-            namaTabel,
-            where: any(named: 'where'),
-            whereArgs: any(named: 'whereArgs'),
-          )).thenAnswer((_) async => []); // Mengembalikan list kosong
+      when(mockDb.query(
+        namaTabel,
+        where: anyNamed('where'),
+        whereArgs: anyNamed('whereArgs'),
+      )).thenAnswer((_) async => []); // Mengembalikan list kosong
 
-      when(() => mockBaseOpSqlite.sisipkan(
-            any(),
-            any(),
-            dariServer: any(named: 'dariServer'),
-          )).thenAnswer((_) async {});
+      when(mockBaseOpSqlite.sisipkan(
+        any,
+        any,
+        dariServer: anyNamed('dariServer'),
+      )).thenAnswer((_) async {});
 
       // Act
       final result = await settingsOpSqlite.ambilSettings();
@@ -93,23 +90,23 @@ void main() {
       // Assert
       expect(result.id, id); // Harusnya di-set ke id global
       expect(result.modeMaintenance, false);
-      verify(() => mockDb.query(namaTabel, where: 'id = ?', whereArgs: [id]))
+      verify(mockDb.query(namaTabel, where: 'id = ?', whereArgs: [id]))
           .called(1);
-      verify(() => mockBaseOpSqlite.sisipkan(
-            namaTabel,
-            any(that: isA<Map<String, dynamic>>()),
-            dariServer: false,
-          )).called(1);
+      verify(mockBaseOpSqlite.sisipkan(
+        namaTabel,
+        argThat(isA<Map<String, dynamic>>()),
+        dariServer: false,
+      )).called(1);
     });
 
     test('03. harus mengembalikan model default saat terjadi Exception',
         () async {
       // Arrange
-      when(() => mockDb.query(
-            any(),
-            where: any(named: 'where'),
-            whereArgs: any(named: 'whereArgs'),
-          )).thenThrow(Exception('DB Error'));
+      when(mockDb.query(
+        any,
+        where: anyNamed('where'),
+        whereArgs: anyNamed('whereArgs'),
+      )).thenThrow(Exception('DB Error'));
 
       // Act
       final result = await settingsOpSqlite.ambilSettings();
@@ -123,23 +120,23 @@ void main() {
     test('04. harus memanggil baseOpSqlite.sisipkan dengan data yang benar',
         () async {
       // Arrange
-      when(() => mockBaseOpSqlite.sisipkan(
-            any(),
-            any(),
-            dariServer: any(named: 'dariServer'),
-          )).thenAnswer((_) async {});
+      when(mockBaseOpSqlite.sisipkan(
+        any,
+        any,
+        dariServer: anyNamed('dariServer'),
+      )).thenAnswer((_) async {});
 
       // Act
       await settingsOpSqlite.saveOrUpdateSettings(settingsModel);
 
       // Assert
-      final captured = verify(() => mockBaseOpSqlite.sisipkan(
-            namaTabel,
-            captureAny(),
-            dariServer: false,
-          )).captured;
+      final captured = verify(mockBaseOpSqlite.sisipkan(
+        namaTabel,
+        captureAny,
+        dariServer: false,
+      )).captured;
 
-      final Map<String, dynamic> capturedData = captured.first;
+      final Map<String, dynamic> capturedData = captured.first as Map<String, dynamic>;
       expect(capturedData[NamaKolom.id], id);
       expect(capturedData[NamaKolom.waktuOtomatisSinkronisasi], 48);
     });
@@ -147,11 +144,11 @@ void main() {
     test('05. harus melempar kembali Exception jika baseOpSqlite gagal',
         () async {
       // Arrange
-      when(() => mockBaseOpSqlite.sisipkan(
-            any(),
-            any(),
-            dariServer: any(named: 'dariServer'),
-          )).thenThrow(Exception('Insert failed'));
+      when(mockBaseOpSqlite.sisipkan(
+        any,
+        any,
+        dariServer: anyNamed('dariServer'),
+      )).thenThrow(Exception('Insert failed'));
 
       // Act & Assert
       expect(
@@ -167,25 +164,25 @@ void main() {
         () async {
       // Arrange
       final partialData = {NamaKolom.modeMaintenance: true};
-      when(() => mockBaseOpSqlite.update(
-            any(),
-            any(),
-            any(),
-            dariServer: any(named: 'dariServer'),
-          )).thenAnswer((_) async {});
+      when(mockBaseOpSqlite.update(
+        any,
+        any,
+        any,
+        dariServer: anyNamed('dariServer'),
+      )).thenAnswer((_) async {});
 
       // Act
       await settingsOpSqlite.updateSettings(partialData);
 
       // Assert
-      final captured = verify(() => mockBaseOpSqlite.update(
-            namaTabel,
-            captureAny(),
-            id,
-            dariServer: false,
-          )).captured;
+      final captured = verify(mockBaseOpSqlite.update(
+        namaTabel,
+        captureAny,
+        id,
+        dariServer: false,
+      )).captured;
 
-      final Map<String, dynamic> capturedData = captured.first;
+      final Map<String, dynamic> capturedData = captured.first as Map<String, dynamic>;
       expect(capturedData[NamaKolom.modeMaintenance], true);
       expect(capturedData.containsKey(NamaKolom.diperbaruiPada), isTrue);
     });
@@ -193,12 +190,12 @@ void main() {
     test('07. harus melempar kembali Exception jika baseOpSqlite gagal',
         () async {
       // Arrange
-      when(() => mockBaseOpSqlite.update(
-            any(),
-            any(),
-            any(),
-            dariServer: any(named: 'dariServer'),
-          )).thenThrow(Exception('Update failed'));
+      when(mockBaseOpSqlite.update(
+        any,
+        any,
+        any,
+        dariServer: anyNamed('dariServer'),
+      )).thenThrow(Exception('Update failed'));
 
       // Act & Assert
       expect(
@@ -213,23 +210,23 @@ void main() {
         '08. harus memanggil baseOpSqlite.sisipkanAtauPerbaruiBatch dengan data yang benar',
         () async {
       // Arrange
-      when(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
-            any(),
-            any(),
-            dariServer: any(named: 'dariServer'),
-          )).thenAnswer((_) async {});
+      when(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+        any,
+        any,
+        dariServer: anyNamed('dariServer'),
+      )).thenAnswer((_) async {});
 
       // Act
       await settingsOpSqlite.saveOrUpdateSettingsWithBatch(settingsModel);
 
       // Assert
-      final captured = verify(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
-            namaTabel,
-            captureAny(),
-            dariServer: false,
-          )).captured;
+      final captured = verify(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+        namaTabel,
+        captureAny,
+        dariServer: false,
+      )).captured;
 
-      final List<Map<String, dynamic>> capturedList = captured.first;
+      final List<Map<String, dynamic>> capturedList = captured.first as List<Map<String, dynamic>>;
       expect(capturedList.length, 1);
       expect(capturedList[0][NamaKolom.id], id);
       expect(capturedList[0][NamaKolom.waktuOtomatisSinkronisasi], 48);
@@ -238,11 +235,11 @@ void main() {
     test('09. harus melempar kembali Exception jika baseOpSqlite gagal',
         () async {
       // Arrange
-      when(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
-            any(),
-            any(),
-            dariServer: any(named: 'dariServer'),
-          )).thenThrow(Exception('Batch failed'));
+      when(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+        any,
+        any,
+        dariServer: anyNamed('dariServer'),
+      )).thenThrow(Exception('Batch failed'));
 
       // Act & Assert
       expect(

@@ -1,19 +1,18 @@
 // path: test/shared/operasi/firebase_operasi/notifikasi_op_firebase_test.dart
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
 
-class MockBaseOpFirebase extends Mock implements BaseOpFirebase {}
+import 'notifikasi_op_firebase_test.mocks.dart';
 
-// Fallback value untuk NotifikasiModel
-class FakeNotifikasiModel extends Fake implements NotifikasiModel {}
-
+@GenerateMocks([BaseOpFirebase])
 void main() {
   late FakeFirebaseFirestore firestore;
   late MockBaseOpFirebase mockBaseOp;
@@ -26,7 +25,6 @@ void main() {
       firestore: firestore,
       baseOp: mockBaseOp,
     );
-    registerFallbackValue(FakeNotifikasiModel());
   });
 
   final now = DateTime.now();
@@ -84,7 +82,8 @@ void main() {
                   containsAll([notif1.id, notif2.id]))));
     });
 
-    test('02. harus mengembalikan stream kosong jika tidak ada notifikasi aktif',
+    test(
+        '02. harus mengembalikan stream kosong jika tidak ada notifikasi aktif',
         () async {
       final stream = notifikasiOp.getNotifAktif();
       expect(stream, emits(isEmpty));
@@ -246,10 +245,12 @@ void main() {
   });
 
   group('getKhususAdmin', () {
-    final notifOrder = notif2.copyWith(id: 'order1', tipe: TipeNotifikasiEnum.order);
+    final notifOrder =
+        notif2.copyWith(id: 'order1', tipe: TipeNotifikasiEnum.order);
     final notifTransaksi =
         notif1.copyWith(id: 'transaksi1', tipe: TipeNotifikasiEnum.transaksi);
-    final notifInfo = notif1.copyWith(id: 'info1', tipe: TipeNotifikasiEnum.info);
+    final notifInfo =
+        notif1.copyWith(id: 'info1', tipe: TipeNotifikasiEnum.info);
 
     test(
         '15. harus mengembalikan notifikasi khusus admin (tipe order atau transaksi) yang aktif',
@@ -311,30 +312,30 @@ void main() {
   group('addNotifikasi', () {
     test('19. harus memanggil _baseOp.sisipkan dengan parameter yang benar',
         () async {
-      when(() => mockBaseOp.sisipkan(
-            any(),
-            any(),
-            any(),
-          )).thenAnswer((_) async {});
+      when(mockBaseOp.sisipkan(
+        NamaTabel.notifikasi,
+        notif1.id,
+        notif1.toFirebase(),
+      )).thenAnswer((_) async {});
 
       await notifikasiOp.addNotifikasi(notif1);
 
-      verify(() => mockBaseOp.sisipkan(
-            NamaTabel.notifikasi,
-            notif1.id,
-            notif1.toFirebase(),
-          )).called(1);
+      verify(mockBaseOp.sisipkan(
+        NamaTabel.notifikasi,
+        notif1.id,
+        notif1.toFirebase(),
+      )).called(1);
     });
 
     test(
         '20. harus melempar kembali (rethrow) exception jika _baseOp.sisipkan gagal',
         () async {
       final exception = Exception('Gagal simpan');
-      when(() => mockBaseOp.sisipkan(
-            any(),
-            any(),
-            any(),
-          )).thenThrow(exception);
+      when(mockBaseOp.sisipkan(
+        NamaTabel.notifikasi,
+        notif1.id,
+        notif1.toFirebase(),
+      )).thenThrow(exception);
 
       expect(() => notifikasiOp.addNotifikasi(notif1), throwsA(exception));
     });
@@ -343,30 +344,30 @@ void main() {
   group('updateNotif', () {
     test('21. harus memanggil _baseOp.update dengan parameter yang benar',
         () async {
-      when(() => mockBaseOp.update(
-            any(),
-            any(),
-            any(),
-          )).thenAnswer((_) async {});
+      when(mockBaseOp.update(
+        NamaTabel.notifikasi,
+        notif1.id,
+        notif1.toFirebase(),
+      )).thenAnswer((_) async {});
 
       await notifikasiOp.updateNotif(notif1);
 
-      verify(() => mockBaseOp.update(
-            NamaTabel.notifikasi,
-            notif1.id,
-            notif1.toFirebase(),
-          )).called(1);
+      verify(mockBaseOp.update(
+        NamaTabel.notifikasi,
+        notif1.id,
+        notif1.toFirebase(),
+      )).called(1);
     });
 
     test(
         '22. harus melempar kembali (rethrow) exception jika _baseOp.update gagal',
         () async {
       final exception = Exception('Gagal update');
-      when(() => mockBaseOp.update(
-            any(),
-            any(),
-            any(),
-          )).thenThrow(exception);
+      when(mockBaseOp.update(
+        NamaTabel.notifikasi,
+        notif1.id,
+        notif1.toFirebase(),
+      )).thenThrow(exception);
 
       expect(() => notifikasiOp.updateNotif(notif1), throwsA(exception));
     });
@@ -376,12 +377,12 @@ void main() {
     test(
         '23. harus memanggil _baseOp.hapusPermanen dengan parameter yang benar',
         () async {
-      when(() => mockBaseOp.hapusPermanen(any(), any()))
+      when(mockBaseOp.hapusPermanen(NamaTabel.notifikasi, 'notif-id'))
           .thenAnswer((_) async {});
 
       await notifikasiOp.deleteNotif('notif-id');
 
-      verify(() => mockBaseOp.hapusPermanen(NamaTabel.notifikasi, 'notif-id'))
+      verify(mockBaseOp.hapusPermanen(NamaTabel.notifikasi, 'notif-id'))
           .called(1);
     });
 
@@ -389,7 +390,8 @@ void main() {
         '24. harus melempar kembali (rethrow) exception jika _baseOp.hapusPermanen gagal',
         () async {
       final exception = Exception('Gagal hapus');
-      when(() => mockBaseOp.hapusPermanen(any(), any())).thenThrow(exception);
+      when(mockBaseOp.hapusPermanen(NamaTabel.notifikasi, 'notif-id'))
+          .thenThrow(exception);
 
       expect(() => notifikasiOp.deleteNotif('notif-id'), throwsA(exception));
     });
@@ -433,33 +435,33 @@ void main() {
     test(
         '28. harus memanggil _baseOp.update untuk menandai notifikasi sebagai sudah dibaca',
         () async {
-      when(() => mockBaseOp.update(
-            any(),
-            any(),
-            any(),
-          )).thenAnswer((_) async {});
+      when(mockBaseOp.update(
+        NamaTabel.notifikasi,
+        'notif-id',
+        {NamaKolom.setatusDibaca: true},
+      )).thenAnswer((_) async {});
 
       await notifikasiOp.tandaiSudahDibaca('notif-id');
 
-      verify(() => mockBaseOp.update(
-            NamaTabel.notifikasi,
-            'notif-id',
-            {NamaKolom.setatusDibaca: true},
-          )).called(1);
+      verify(mockBaseOp.update(
+        NamaTabel.notifikasi,
+        'notif-id',
+        {NamaKolom.setatusDibaca: true},
+      )).called(1);
     });
 
     test(
         '29. harus melempar kembali (rethrow) exception jika _baseOp.update gagal',
         () async {
       final exception = Exception('Gagal tandai dibaca');
-      when(() => mockBaseOp.update(
-            any(),
-            any(),
-            any(),
-          )).thenThrow(exception);
+      when(mockBaseOp.update(
+        NamaTabel.notifikasi,
+        'notif-id',
+        {NamaKolom.setatusDibaca: true},
+      )).thenThrow(exception);
 
-      expect(() => notifikasiOp.tandaiSudahDibaca('notif-id'),
-          throwsA(exception));
+      expect(
+          () => notifikasiOp.tandaiSudahDibaca('notif-id'), throwsA(exception));
     });
   });
 }
