@@ -135,7 +135,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
           final notifikasiData = NotifikasiModel(
               id: const Uuid().v4(),
               tanggalMulai: now,
-              tangglberakhir: now,
+              tanggalBerakhir: now,
               tanggalTampil: now,
               judul: 'Order Paket',
               deskripsi: 'pelanggan ${dataPelanggan?.nama} melakukan order',

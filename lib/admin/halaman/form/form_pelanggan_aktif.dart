@@ -375,7 +375,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         NotifikasiModel(
           id: const Uuid().v4(),
           tanggalMulai: tanggalMulai,
-          tangglberakhir: tanggalBerakhir,
+          tanggalBerakhir: tanggalBerakhir,
           userId: _pelangganDipilih!.id,
           tanggalTampil: tanggalNotifikasiSetengahJalan,
           judul: 'Info: Setengah Perjalanan Paket',
@@ -388,7 +388,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         NotifikasiModel(
           id: const Uuid().v4(),
           tanggalMulai: tanggalMulai,
-          tangglberakhir: tanggalBerakhir,
+          tanggalBerakhir: tanggalBerakhir,
           userId: _pelangganDipilih!.id,
           tanggalTampil: tanggalBerakhir.subtract(const Duration(days: 1)),
           judul: 'Pengingat: Masa Aktif Segera Habis',
@@ -401,7 +401,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         NotifikasiModel(
           id: const Uuid().v4(),
           tanggalMulai: tanggalMulai,
-          tangglberakhir: tanggalBerakhir,
+          tanggalBerakhir: tanggalBerakhir,
           userId: _pelangganDipilih!.id,
           tanggalTampil: tanggalBerakhir,
           judul: 'Masa Aktif Paket Habis',
@@ -414,7 +414,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         NotifikasiModel(
           id: const Uuid().v4(),
           tanggalMulai: tanggalMulai,
-          tangglberakhir: tanggalBerakhir,
+          tanggalBerakhir: tanggalBerakhir,
           userId: _pelangganDipilih!.id,
           tanggalTampil: tanggalBerakhir.add(const Duration(days: 1)),
           judul: 'Masa Aktif Telah Berakhir',

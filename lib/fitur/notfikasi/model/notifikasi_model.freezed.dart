@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 mixin _$NotifikasiModel {
   String get id;
   DateTime get tanggalMulai;
-  DateTime get tangglberakhir;
+  DateTime get tanggalBerakhir;
   DateTime get tanggalTampil;
   String get judul;
   String get deskripsi;
@@ -44,8 +44,8 @@ mixin _$NotifikasiModel {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.tanggalMulai, tanggalMulai) ||
                 other.tanggalMulai == tanggalMulai) &&
-            (identical(other.tangglberakhir, tangglberakhir) ||
-                other.tangglberakhir == tangglberakhir) &&
+            (identical(other.tanggalBerakhir, tanggalBerakhir) ||
+                other.tanggalBerakhir == tanggalBerakhir) &&
             (identical(other.tanggalTampil, tanggalTampil) ||
                 other.tanggalTampil == tanggalTampil) &&
             (identical(other.judul, judul) || other.judul == judul) &&
@@ -69,7 +69,7 @@ mixin _$NotifikasiModel {
       runtimeType,
       id,
       tanggalMulai,
-      tangglberakhir,
+      tanggalBerakhir,
       tanggalTampil,
       judul,
       deskripsi,
@@ -83,7 +83,7 @@ mixin _$NotifikasiModel {
 
   @override
   String toString() {
-    return 'NotifikasiModel(id: $id, tanggalMulai: $tanggalMulai, tangglberakhir: $tangglberakhir, tanggalTampil: $tanggalTampil, judul: $judul, deskripsi: $deskripsi, setatusDibaca: $setatusDibaca, tipe: $tipe, diperbaruiPada: $diperbaruiPada, idTujuan: $idTujuan, userId: $userId, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada)';
+    return 'NotifikasiModel(id: $id, tanggalMulai: $tanggalMulai, tanggalBerakhir: $tanggalBerakhir, tanggalTampil: $tanggalTampil, judul: $judul, deskripsi: $deskripsi, setatusDibaca: $setatusDibaca, tipe: $tipe, diperbaruiPada: $diperbaruiPada, idTujuan: $idTujuan, userId: $userId, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada)';
   }
 }
 
@@ -96,7 +96,7 @@ abstract mixin class $NotifikasiModelCopyWith<$Res> {
   $Res call(
       {String id,
       DateTime tanggalMulai,
-      DateTime tangglberakhir,
+      DateTime tanggalBerakhir,
       DateTime tanggalTampil,
       String judul,
       String deskripsi,
@@ -124,7 +124,7 @@ class _$NotifikasiModelCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? tanggalMulai = null,
-    Object? tangglberakhir = null,
+    Object? tanggalBerakhir = null,
     Object? tanggalTampil = null,
     Object? judul = null,
     Object? deskripsi = null,
@@ -145,9 +145,9 @@ class _$NotifikasiModelCopyWithImpl<$Res>
           ? _self.tanggalMulai
           : tanggalMulai // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      tangglberakhir: null == tangglberakhir
-          ? _self.tangglberakhir
-          : tangglberakhir // ignore: cast_nullable_to_non_nullable
+      tanggalBerakhir: null == tanggalBerakhir
+          ? _self.tanggalBerakhir
+          : tanggalBerakhir // ignore: cast_nullable_to_non_nullable
               as DateTime,
       tanggalTampil: null == tanggalTampil
           ? _self.tanggalTampil
@@ -289,7 +289,7 @@ extension NotifikasiModelPatterns on NotifikasiModel {
     TResult Function(
             String id,
             DateTime tanggalMulai,
-            DateTime tangglberakhir,
+            DateTime tanggalBerakhir,
             DateTime tanggalTampil,
             String judul,
             String deskripsi,
@@ -309,7 +309,7 @@ extension NotifikasiModelPatterns on NotifikasiModel {
         return $default(
             _that.id,
             _that.tanggalMulai,
-            _that.tangglberakhir,
+            _that.tanggalBerakhir,
             _that.tanggalTampil,
             _that.judul,
             _that.deskripsi,
@@ -343,7 +343,7 @@ extension NotifikasiModelPatterns on NotifikasiModel {
     TResult Function(
             String id,
             DateTime tanggalMulai,
-            DateTime tangglberakhir,
+            DateTime tanggalBerakhir,
             DateTime tanggalTampil,
             String judul,
             String deskripsi,
@@ -362,7 +362,7 @@ extension NotifikasiModelPatterns on NotifikasiModel {
         return $default(
             _that.id,
             _that.tanggalMulai,
-            _that.tangglberakhir,
+            _that.tanggalBerakhir,
             _that.tanggalTampil,
             _that.judul,
             _that.deskripsi,
@@ -395,7 +395,7 @@ extension NotifikasiModelPatterns on NotifikasiModel {
     TResult? Function(
             String id,
             DateTime tanggalMulai,
-            DateTime tangglberakhir,
+            DateTime tanggalBerakhir,
             DateTime tanggalTampil,
             String judul,
             String deskripsi,
@@ -414,7 +414,7 @@ extension NotifikasiModelPatterns on NotifikasiModel {
         return $default(
             _that.id,
             _that.tanggalMulai,
-            _that.tangglberakhir,
+            _that.tanggalBerakhir,
             _that.tanggalTampil,
             _that.judul,
             _that.deskripsi,
@@ -437,7 +437,7 @@ class _NotifikasiModel extends NotifikasiModel {
   const _NotifikasiModel(
       {required this.id,
       required this.tanggalMulai,
-      required this.tangglberakhir,
+      required this.tanggalBerakhir,
       required this.tanggalTampil,
       required this.judul,
       required this.deskripsi,
@@ -455,7 +455,7 @@ class _NotifikasiModel extends NotifikasiModel {
   @override
   final DateTime tanggalMulai;
   @override
-  final DateTime tangglberakhir;
+  final DateTime tanggalBerakhir;
   @override
   final DateTime tanggalTampil;
   @override
@@ -495,8 +495,8 @@ class _NotifikasiModel extends NotifikasiModel {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.tanggalMulai, tanggalMulai) ||
                 other.tanggalMulai == tanggalMulai) &&
-            (identical(other.tangglberakhir, tangglberakhir) ||
-                other.tangglberakhir == tangglberakhir) &&
+            (identical(other.tanggalBerakhir, tanggalBerakhir) ||
+                other.tanggalBerakhir == tanggalBerakhir) &&
             (identical(other.tanggalTampil, tanggalTampil) ||
                 other.tanggalTampil == tanggalTampil) &&
             (identical(other.judul, judul) || other.judul == judul) &&
@@ -520,7 +520,7 @@ class _NotifikasiModel extends NotifikasiModel {
       runtimeType,
       id,
       tanggalMulai,
-      tangglberakhir,
+      tanggalBerakhir,
       tanggalTampil,
       judul,
       deskripsi,
@@ -534,7 +534,7 @@ class _NotifikasiModel extends NotifikasiModel {
 
   @override
   String toString() {
-    return 'NotifikasiModel(id: $id, tanggalMulai: $tanggalMulai, tangglberakhir: $tangglberakhir, tanggalTampil: $tanggalTampil, judul: $judul, deskripsi: $deskripsi, setatusDibaca: $setatusDibaca, tipe: $tipe, diperbaruiPada: $diperbaruiPada, idTujuan: $idTujuan, userId: $userId, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada)';
+    return 'NotifikasiModel(id: $id, tanggalMulai: $tanggalMulai, tanggalBerakhir: $tanggalBerakhir, tanggalTampil: $tanggalTampil, judul: $judul, deskripsi: $deskripsi, setatusDibaca: $setatusDibaca, tipe: $tipe, diperbaruiPada: $diperbaruiPada, idTujuan: $idTujuan, userId: $userId, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada)';
   }
 }
 
@@ -549,7 +549,7 @@ abstract mixin class _$NotifikasiModelCopyWith<$Res>
   $Res call(
       {String id,
       DateTime tanggalMulai,
-      DateTime tangglberakhir,
+      DateTime tanggalBerakhir,
       DateTime tanggalTampil,
       String judul,
       String deskripsi,
@@ -577,7 +577,7 @@ class __$NotifikasiModelCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? tanggalMulai = null,
-    Object? tangglberakhir = null,
+    Object? tanggalBerakhir = null,
     Object? tanggalTampil = null,
     Object? judul = null,
     Object? deskripsi = null,
@@ -598,9 +598,9 @@ class __$NotifikasiModelCopyWithImpl<$Res>
           ? _self.tanggalMulai
           : tanggalMulai // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      tangglberakhir: null == tangglberakhir
-          ? _self.tangglberakhir
-          : tangglberakhir // ignore: cast_nullable_to_non_nullable
+      tanggalBerakhir: null == tanggalBerakhir
+          ? _self.tanggalBerakhir
+          : tanggalBerakhir // ignore: cast_nullable_to_non_nullable
               as DateTime,
       tanggalTampil: null == tanggalTampil
           ? _self.tanggalTampil

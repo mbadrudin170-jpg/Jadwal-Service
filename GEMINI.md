@@ -83,7 +83,6 @@ Kalau “tidak yakin” → ganti nama.
 # // path: prompt/aturan_analisis_error.md
 
 
-hapus kata final pada sebuah parameter dan ubah nama fungsi menjadi bahasa indoneisa
 ---
 
 ### Aturan Analisis error

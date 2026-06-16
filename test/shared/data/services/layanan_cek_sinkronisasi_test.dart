@@ -1,35 +1,26 @@
-
 // path: test/shared/data/services/layanan_cek_sinkronisasi_test.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
-import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/data/services/pengecekan_data_baru_service.dart';
 import 'package:wifi/shared/data/sync/layanan_unduh_data.dart';
 import 'package:wifi/shared/data/sync/layanan_unggah_data.dart';
-import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
-// Mock classes
-class MockSyncManager extends Mock implements SyncManager {}
+import 'layanan_cek_sinkronisasi_test.mocks.dart';
 
-class MockLayananUnggahData extends Mock implements LayananUnggahData {}
-
-class MockLayananUnduhData extends Mock implements LayananUnduhData {}
-
-class MockPengecekanDataBaruService extends Mock
-    implements PengecekanDataBaruService {}
-
-class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
-
-class MockCollectionReference extends Mock
-    implements CollectionReference<Map<String, dynamic>> {}
-
-class MockDocumentReference extends Mock
-    implements DocumentReference<Map<String, dynamic>> {}
-
+@GenerateMocks([
+  SyncManager,
+  LayananUnggahData,
+  LayananUnduhData,
+  PengecekanDataBaruService,
+  FirebaseFirestore,
+  CollectionReference,
+  DocumentReference,
+])
 void main() {
   late LayananCekSinkronisasi layananCekSinkronisasi;
   late MockSyncManager mockPengelolaSinkronisasi;
@@ -37,8 +28,8 @@ void main() {
   late MockLayananUnduhData mockLayananUnduh;
   late MockPengecekanDataBaruService mockPengecekanDataBaru;
   late MockFirebaseFirestore mockFirestore;
-  late MockCollectionReference mockCollectionReference;
-  late MockDocumentReference mockDocumentReference;
+  late MockCollectionReference<Map<String, dynamic>> mockCollectionReference;
+  late MockDocumentReference<Map<String, dynamic>> mockDocumentReference;
 
   setUp(() {
     mockPengelolaSinkronisasi = MockSyncManager();
@@ -46,8 +37,8 @@ void main() {
     mockLayananUnduh = MockLayananUnduhData();
     mockPengecekanDataBaru = MockPengecekanDataBaruService();
     mockFirestore = MockFirebaseFirestore();
-    mockCollectionReference = MockCollectionReference();
-    mockDocumentReference = MockDocumentReference();
+    mockCollectionReference = MockCollectionReference<Map<String, dynamic>>();
+    mockDocumentReference = MockDocumentReference<Map<String, dynamic>>();
 
     layananCekSinkronisasi = LayananCekSinkronisasi(
       pengelolaSinkronisasi: mockPengelolaSinkronisasi,
@@ -57,11 +48,13 @@ void main() {
       firestore: mockFirestore,
     );
 
-    // Stubbing for Firestore
-    when(() => mockFirestore.collection(any())).thenReturn(mockCollectionReference);
+    // Stubbing untuk Firestore
+    when(() => mockFirestore.collection(any()))
+        .thenReturn(mockCollectionReference);
     when(() => mockCollectionReference.doc(any()))
         .thenReturn(mockDocumentReference);
-    when(() => mockDocumentReference.set(any(), any())).thenAnswer((_) async {});
+    when(() => mockDocumentReference.set(any(), any()))
+        .thenAnswer((_) async {});
   });
 
   tearDown(() {
@@ -81,8 +74,8 @@ void main() {
     when(() => mockPengecekanDataBaru.apakahSqliteAdaDataBaru())
         .thenAnswer((_) async => adaDataLokal);
     when(() => mockPengecekanDataBaru.apakahFirebaseAdaDataBaru(
-          namaKoleksi: any(named: 'namaKoleksi'),
-          idDokumen: any(named: 'idDokumen'),
+          namaKoleksi: anyNamed('namaKoleksi'),
+          idDokumen: anyNamed('idDokumen'),
         )).thenAnswer((_) async => adaDataServer);
   }
 
@@ -134,7 +127,8 @@ void main() {
           )).called(1);
 
       verifyNever(() => mockLayananUnduh.downloadAllData());
-      verifyNever(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirunduh(any()));
+      verifyNever(
+          () => mockPengelolaSinkronisasi.simpanWaktuTerakhirunduh(any()));
     });
 
     test('03. harus unduh saja jika hanya ada data baru di server', () async {
@@ -144,7 +138,8 @@ void main() {
       await layananCekSinkronisasi.jalankanCekSinkronisasi();
 
       verifyNever(() => mockLayananUnggah.unggahSemuaData());
-      verifyNever(() => mockPengelolaSinkronisasi.simpanWaktuTerkahirUnggah(any()));
+      verifyNever(
+          () => mockPengelolaSinkronisasi.simpanWaktuTerkahirUnggah(any()));
       verifyNever(() => mockPengecekanDataBaru.resetButuhUpload());
       verifyNever(() => mockDocumentReference.set(any(), any()));
 
@@ -169,15 +164,15 @@ void main() {
       final exception = Exception('Gagal unggah');
       when(() => mockPengecekanDataBaru.apakahSqliteAdaDataBaru())
           .thenThrow(exception);
-      aturAksiSinkronisasiBerhasil(); // Untuk unduh
+      aturAksiSinkronisasiBerhasil();
 
       await layananCekSinkronisasi.jalankanCekSinkronisasi();
 
       verifyNever(() => mockLayananUnggah.unggahSemuaData());
-      verifyNever(() => mockPengelolaSinkronisasi.simpanWaktuTerkahirUnggah(any()));
+      verifyNever(
+          () => mockPengelolaSinkronisasi.simpanWaktuTerkahirUnggah(any()));
       verifyNever(() => mockDocumentReference.set(any(), any()));
 
-      // Proses unduh harus tetap berjalan
       verify(() => mockLayananUnduh.downloadAllData()).called(1);
       verify(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirunduh(any()))
           .called(1);
@@ -187,15 +182,16 @@ void main() {
       aturPengecekanData(adaDataLokal: false, adaDataServer: true);
       final exception = Exception('Gagal unduh');
       when(() => mockPengecekanDataBaru.apakahFirebaseAdaDataBaru(
-            namaKoleksi: any(named: 'namaKoleksi'),
-            idDokumen: any(named: 'idDokumen'),
+            namaKoleksi: anyNamed('namaKoleksi'),
+            idDokumen: anyNamed('idDokumen'),
           )).thenThrow(exception);
 
       await layananCekSinkronisasi.jalankanCekSinkronisasi();
 
       verifyNever(() => mockLayananUnggah.unggahSemuaData());
       verifyNever(() => mockLayananUnduh.downloadAllData());
-      verifyNever(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirunduh(any()));
+      verifyNever(
+          () => mockPengelolaSinkronisasi.simpanWaktuTerakhirunduh(any()));
     });
 
     test('07. harus menangani error saat memperbarui status global', () async {
@@ -204,12 +200,9 @@ void main() {
       final exception = Exception('Gagal update Firestore');
       when(() => mockDocumentReference.set(any(), any())).thenThrow(exception);
 
-      // Tidak ada error yang dilempar keluar dari fungsi
       expect(layananCekSinkronisasi.jalankanCekSinkronisasi(), completes);
 
-      // Verifikasi bahwa unggah tetap terjadi
       verify(() => mockLayananUnggah.unggahSemuaData()).called(1);
     });
   });
 }
-

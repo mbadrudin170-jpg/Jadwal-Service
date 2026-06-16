@@ -1,4 +1,3 @@
-
 // path: test/fitur/info_perangkat/service/package_info_service_test.dart
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -40,27 +39,28 @@ void main() {
     });
 
     test('02. harus mengembalikan null saat terjadi exception', () async {
-      // Atur MethodChannel untuk melempar exception saat dipanggil
+      // Persiapan binding untuk mocking MethodChannel
       TestWidgetsFlutterBinding.ensureInitialized();
       const channel = MethodChannel('dev.flutter.plugins/package_info');
-      
-      // Simpan handler asli
-      final originalHandler = channel.getMockMethodCallHandler();
+      final binding = TestDefaultBinaryMessengerBinding.instance;
 
-      // Atur handler mock untuk melempar PlatformException
-      channel.setMockMethodCallHandler((MethodCall methodCall) async {
-        if (methodCall.method == 'getAll') {
-          throw PlatformException(code: 'ERROR', message: 'Gagal mendapatkan info paket');
-        }
-        return null;
-      });
+      // Atur mock handler untuk melempar PlatformException
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        channel,
+        (MethodCall methodCall) async {
+          if (methodCall.method == 'getAll') {
+            throw PlatformException(code: 'ERROR', message: 'Gagal mendapatkan info paket');
+          }
+          return null;
+        },
+      );
 
       final result = await packageInfoService.getPackageInfo();
 
       expect(result, isNull);
 
-      // Kembalikan handler asli setelah tes selesai
-      channel.setMockMethodCallHandler(originalHandler);
+      // Reset handler setelah test agar tidak mempengaruhi test lain
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
     });
   });
 }

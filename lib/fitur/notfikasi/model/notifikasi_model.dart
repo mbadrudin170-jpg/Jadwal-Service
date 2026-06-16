@@ -17,7 +17,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
   const factory NotifikasiModel({
     required String id,
     required DateTime tanggalMulai,
-    required DateTime tangglberakhir,
+    required DateTime tanggalBerakhir,
     required DateTime tanggalTampil,
     required String judul,
     required String deskripsi,
@@ -52,8 +52,9 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
       id: map[NamaKolom.id] as String? ?? const Uuid().v4(),
       tanggalMulai: ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]) ??
           DateTime.now(),
-      tangglberakhir: ParserUtil.parseDateTime(map[NamaKolom.tangglberakhir]) ??
-          DateTime.now(),
+      tanggalBerakhir:
+          ParserUtil.parseDateTime(map[NamaKolom.tangglberakhir]) ??
+              DateTime.now(),
       judul: map[NamaKolom.judul] as String? ?? '',
       deskripsi: map[NamaKolom.deskripsi] as String? ?? '',
       setatusDibaca: ParserUtil.parseBool(map[NamaKolom.setatusDibaca]),
@@ -77,7 +78,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
     return {
       NamaKolom.id: id,
       NamaKolom.tanggalMulai: tanggalMulai.millisecondsSinceEpoch,
-      NamaKolom.tangglberakhir: tangglberakhir.millisecondsSinceEpoch,
+      NamaKolom.tangglberakhir: tanggalBerakhir.millisecondsSinceEpoch,
       NamaKolom.judul: judul,
       NamaKolom.deskripsi: deskripsi,
       NamaKolom.setatusDibaca: setatusDibaca ? 1 : 0,
@@ -98,7 +99,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
       id: id,
       tanggalMulai: ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]) ??
           DateTime.now(),
-      tangglberakhir:
+      tanggalBerakhir:
           ParserUtil.parseDateTime(data[NamaKolom.tangglberakhir]) ??
               DateTime.now(),
       tanggalTampil: ParserUtil.parseDateTime(data[NamaKolom.tanggalTampil]) ??
@@ -125,7 +126,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
     return {
       NamaKolom.id: id,
       NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai.toUtc()),
-      NamaKolom.tangglberakhir: Timestamp.fromDate(tangglberakhir.toUtc()),
+      NamaKolom.tangglberakhir: Timestamp.fromDate(tanggalBerakhir.toUtc()),
       NamaKolom.judul: judul,
       NamaKolom.deskripsi: deskripsi,
       NamaKolom.setatusDibaca: setatusDibaca,

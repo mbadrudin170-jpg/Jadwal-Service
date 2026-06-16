@@ -1,15 +1,368 @@
-
 // path: test/admin/app_admin_test.dart
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/admin/app_admin.dart';
+import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
+import 'package:wifi/fitur/background/background_service.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
+import 'package:wifi/fitur/settings/model/settings_model.dart';
+import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
+import 'package:wifi/shared/data/services/layanan_navigasi.dart';
+import 'package:wifi/shared/data/sync/unduhan_awal_service.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
+import 'package:wifi/shared/theme/tema_provider.dart';
 
+import 'app_admin_test.mocks.dart';
+
+@GenerateMocks([
+  SharedPreferences,
+  LayananNotifikasi,
+  KoneksiInternetService,
+  SqliteDatabase,
+  PelangganAktifOpSqlite,
+  UnduhanAwalService,
+  SettingsOpSqlite,
+  PembersihanDataOperasi,
+  NotificationResponse,
+  LaunchDetails,
+])
 void main() {
-  group('AppAdmin', () {
-    testWidgets('01. harus menampilkan HalamanUtama', (WidgetTester tester) async {
-      await tester.pumpWidget(const AppAdmin());
+  late MockSharedPreferences mockSharedPreferences;
+  late MockLayananNotifikasi mockLayananNotifikasi;
+  late MockKoneksiInternetService mockKoneksiInternetService;
+  late MockSqliteDatabase mockSqliteDatabase;
+  late MockPelangganAktifOpSqlite mockPelangganAktifOpSqlite;
+  late MockUnduhanAwalService mockUnduhanAwalService;
+  late MockSettingsOpSqlite mockSettingsOpSqlite;
+  late MockPembersihanDataOperasi mockPembersihanDataOperasi;
+  late MockLaunchDetails mockLaunchDetails;
+  late MockNotificationResponse mockNotificationResponse;
 
-      expect(find.byType(HalamanUtama), findsOneWidget);
+  setUpAll(() {
+    // Register fallback values untuk Mockito
+    registerFallbackValue(ThemeMode.system);
+    registerFallbackValue(const SettingsModel());
+    registerFallbackValue(const Duration());
+    LayananNavigasi.navigatorKey = GlobalKey<NavigatorState>();
+  });
+
+  setUp(() {
+    mockSharedPreferences = MockSharedPreferences();
+    mockLayananNotifikasi = MockLayananNotifikasi();
+    mockKoneksiInternetService = MockKoneksiInternetService();
+    mockSqliteDatabase = MockSqliteDatabase();
+    mockPelangganAktifOpSqlite = MockPelangganAktifOpSqlite();
+    mockUnduhanAwalService = MockUnduhanAwalService();
+    mockSettingsOpSqlite = MockSettingsOpSqlite();
+    mockPembersihanDataOperasi = MockPembersihanDataOperasi();
+    mockLaunchDetails = MockLaunchDetails();
+    mockNotificationResponse = MockNotificationResponse();
+
+    // Default stubbing
+    when(mockSharedPreferences.getString(any)).thenReturn(null);
+    when(mockSharedPreferences.setString(any, any))
+        .thenAnswer((_) async => true);
+    when(mockSharedPreferences.remove(any)).thenAnswer((_) async => true);
+    when(mockLayananNotifikasi.inisialisasiNotifikasi(
+            iconName: anyNamed('iconName')))
+        .thenAnswer((_) async {});
+    when(mockLayananNotifikasi.mintaIzin()).thenAnswer((_) async {});
+    when(mockLayananNotifikasi.getDetailPeluncuranNotifikasi())
+        .thenAnswer((_) async => mockLaunchDetails);
+    when(mockLaunchDetails.didNotificationLaunchApp).thenReturn(false);
+    when(mockSqliteDatabase.database)
+        .thenAnswer((_) async => throw UnimplementedError());
+    when(mockPelangganAktifOpSqlite.hapusPermanenDataSoftDelete())
+        .thenAnswer((_) async => 1);
+    when(mockKoneksiInternetService.cekInternet(any))
+        .thenAnswer((_) async => true);
+    when(mockUnduhanAwalService.jalankanUnduhanAwal()).thenAnswer((_) async {});
+    when(mockSettingsOpSqlite.ambilSettings()).thenAnswer(
+        (_) async => const SettingsModel(waktuOtomatisHapusDataArsip: 30));
+    when(mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
+            retentionDays: anyNamed('retentionDays')))
+        .thenAnswer((_) async => 1);
+  });
+
+  ProviderContainer makeProviderContainer({
+    AsyncValue<SharedPreferences> sharedPrefsValue = const AsyncValue.loading(),
+    AsyncValue<ThemeMode> themeValue = const AsyncValue.loading(),
+  }) {
+    final container = ProviderContainer(
+      overrides: [
+        sharedPreferencesProvider.overrideWith((_) => sharedPrefsValue),
+        layananNotifikasiProvider.overrideWithValue(mockLayananNotifikasi),
+        koneksiInternetServiceProvider
+            .overrideWithValue(mockKoneksiInternetService),
+        sqliteDatabaseProvider.overrideWithValue(mockSqliteDatabase),
+        pelangganAktifOpSqliteProvider
+            .overrideWithValue(mockPelangganAktifOpSqlite),
+        unduhanAwalServiceProvider.overrideWithValue(mockUnduhanAwalService),
+        settingsOpSqliteProvider.overrideWithValue(mockSettingsOpSqlite),
+        dataCleaningOperationProvider
+            .overrideWithValue(mockPembersihanDataOperasi),
+        temaProvider.overrideWith((_) => themeValue),
+      ],
+    );
+    return container;
+  }
+
+  Widget createWidget(ProviderContainer container) {
+    return ProviderScope(
+      parent: container,
+      child: const AppAdmin(),
+    );
+  }
+
+  group('01. AppAdmin Widget', () {
+    testWidgets(
+        '01. harus menampilkan CircularProgressIndicator saat SharedPreferences loading',
+        (tester) async {
+      final container =
+          makeProviderContainer(sharedPrefsValue: const AsyncValue.loading());
+      await tester.pumpWidget(createWidget(container));
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
+
+    testWidgets(
+        '02. harus menampilkan pesan error saat SharedPreferences gagal dimuat',
+        (tester) async {
+      final container = makeProviderContainer(
+        sharedPrefsValue: AsyncValue.error('Gagal', StackTrace.current),
+      );
+      await tester.pumpWidget(createWidget(container));
+      await tester.pump();
+      expect(
+          find.text('Error memuat SharedPreferences: Gagal'), findsOneWidget);
+    });
+
+    testWidgets(
+        '03. harus merender AppInitializer saat SharedPreferences berhasil dimuat',
+        (tester) async {
+      final container = makeProviderContainer(
+        sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
+      );
+      await tester.pumpWidget(createWidget(container));
+      expect(find.byType(AppInitializer), findsOneWidget);
+    });
+  });
+
+  group('02. AppInitializer Widget', () {
+    testWidgets(
+        '01. harus menampilkan CircularProgressIndicator selama inisialisasi',
+        (tester) async {
+      final container = makeProviderContainer(
+        sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
+        themeValue: AsyncValue.data(ThemeMode.light),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          parent: container,
+          child: const AppInitializer(),
+        ),
+      );
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('02. inisialisasi berhasil saat online', (tester) async {
+      when(mockKoneksiInternetService.cekInternet(any))
+          .thenAnswer((_) async => true);
+
+      final container = makeProviderContainer(
+        sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
+        themeValue: AsyncValue.data(ThemeMode.light),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          parent: container,
+          child: const AppInitializer(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AppMaterial), findsOneWidget);
+      final appMaterial = tester.widget<AppMaterial>(find.byType(AppMaterial));
+      expect(appMaterial.isOffline, isFalse);
+
+      verify(mockUnduhanAwalService.jalankanUnduhanAwal()).called(1);
+      verify(mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
+              retentionDays: 30))
+          .called(1);
+    });
+
+    testWidgets('03. inisialisasi berhasil saat offline', (tester) async {
+      when(mockKoneksiInternetService.cekInternet(any))
+          .thenAnswer((_) async => false);
+
+      final container = makeProviderContainer(
+        sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
+        themeValue: AsyncValue.data(ThemeMode.light),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          parent: container,
+          child: const AppInitializer(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AppMaterial), findsOneWidget);
+      final appMaterial = tester.widget<AppMaterial>(find.byType(AppMaterial));
+      expect(appMaterial.isOffline, isTrue);
+
+      verifyNever(mockUnduhanAwalService.jalankanUnduhanAwal());
+      verifyNever(mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
+          retentionDays: anyNamed('retentionDays')));
+    });
+
+    testWidgets('04. inisialisasi gagal dengan exception', (tester) async {
+      final exception = Exception('Error Kritis');
+      when(mockPelangganAktifOpSqlite.hapusPermanenDataSoftDelete())
+          .thenThrow(exception);
+
+      final container = makeProviderContainer(
+        sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
+        themeValue: AsyncValue.data(ThemeMode.light),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          parent: container,
+          child: const AppInitializer(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AppMaterial), findsOneWidget);
+      final appMaterial = tester.widget<AppMaterial>(find.byType(AppMaterial));
+      expect(appMaterial.isOffline, isTrue);
+    });
+
+    testWidgets('05. inisialisasi dengan notification payload', (tester) async {
+      when(mockLaunchDetails.didNotificationLaunchApp).thenReturn(true);
+      when(mockLaunchDetails.notificationResponse)
+          .thenReturn(mockNotificationResponse);
+      when(mockNotificationResponse.payload).thenReturn('test_payload');
+
+      final container = makeProviderContainer(
+        sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
+        themeValue: AsyncValue.data(ThemeMode.light),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          parent: container,
+          child: const AppInitializer(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      verify(mockSharedPreferences.setString(
+              'initial_notification_payload', 'test_payload'))
+          .called(1);
+    });
+
+    testWidgets('06. jalankanUnduhanAwal timeout', (tester) async {
+      when(mockUnduhanAwalService.jalankanUnduhanAwal())
+          .thenAnswer((_) => Future.delayed(const Duration(seconds: 40)));
+
+      final container = makeProviderContainer(
+        sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
+        themeValue: AsyncValue.data(ThemeMode.light),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          parent: container,
+          child: const AppInitializer(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AppMaterial), findsOneWidget);
+    });
+  });
+
+  group('03. AppMaterial Widget', () {
+    testWidgets(
+        '01. harus menampilkan CircularProgressIndicator saat tema loading',
+        (tester) async {
+      final container =
+          makeProviderContainer(themeValue: const AsyncValue.loading());
+      await tester.pumpWidget(
+        ProviderScope(
+          parent: container,
+          child: const AppMaterial(isOffline: false),
+        ),
+      );
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
+
+    testWidgets('02. harus menampilkan pesan error saat tema gagal dimuat',
+        (tester) async {
+      final container = makeProviderContainer(
+        themeValue: AsyncValue.error('Gagal', StackTrace.current),
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          parent: container,
+          child: const AppMaterial(isOffline: false),
+        ),
+      );
+      await tester.pump();
+      expect(find.text('Gagal memuat tema: Gagal'), findsOneWidget);
+    });
+
+    testWidgets(
+        '03. harus merender MaterialApp dengan tema yang benar saat data tersedia',
+        (tester) async {
+      final container = makeProviderContainer(
+        themeValue: AsyncValue.data(ThemeMode.dark),
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          parent: container,
+          child: const AppMaterial(isOffline: false),
+        ),
+      );
+
+      final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
+      expect(materialApp.themeMode, ThemeMode.dark);
+      expect(materialApp.title, 'Admin Wifi');
+      expect(materialApp.home, isA<HalamanUtama>());
+    });
+
+    testWidgets('04. HalamanUtama harus menerima isOffline = true',
+        (tester) async {
+      final container = makeProviderContainer(
+        themeValue: AsyncValue.data(ThemeMode.light),
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          parent: container,
+          child: const AppMaterial(isOffline: true),
+        ),
+      );
+
+      final halamanUtama =
+          tester.widget<HalamanUtama>(find.byType(HalamanUtama));
+      expect(halamanUtama.isOffline, isTrue);
     });
   });
 }
