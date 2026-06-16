@@ -43,9 +43,9 @@ abstract class OrderModel with _$OrderModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
-      NamaKolom.idPelanggan: customerId,
-      NamaKolom.idPaket: packageId,
-      NamaKolom.tanggal: date.millisecondsSinceEpoch,
+      NamaKolom.idPelanggan: idPelanggan,
+      NamaKolom.idPaket: idPaket,
+      NamaKolom.tanggal: tanggal.millisecondsSinceEpoch,
       NamaKolom.status: status.name,
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
@@ -73,9 +73,9 @@ abstract class OrderModel with _$OrderModel implements HasId {
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
-      NamaKolom.idPelanggan: customerId,
-      NamaKolom.idPaket: packageId,
-      NamaKolom.tanggal: Timestamp.fromDate(date.toUtc()),
+      NamaKolom.idPelanggan: idPelanggan,
+      NamaKolom.idPaket: idPaket,
+      NamaKolom.tanggal: Timestamp.fromDate(tanggal.toUtc()),
       NamaKolom.status: status.name,
       NamaKolom.diperbaruiPada:
           Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),

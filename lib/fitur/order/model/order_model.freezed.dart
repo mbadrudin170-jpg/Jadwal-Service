@@ -15,9 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$OrderModel {
   String get id;
-  String get customerId;
-  String get packageId;
-  DateTime get date;
+  String get idPelanggan;
+  String get idPaket;
+  DateTime get tanggal;
   StatusOrderEnum get status;
   DateTime? get diperbaruiPada;
   bool get diHapus;
@@ -36,11 +36,10 @@ mixin _$OrderModel {
         (other.runtimeType == runtimeType &&
             other is OrderModel &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.customerId, customerId) ||
-                other.customerId == customerId) &&
-            (identical(other.packageId, packageId) ||
-                other.packageId == packageId) &&
-            (identical(other.date, date) || other.date == date) &&
+            (identical(other.idPelanggan, idPelanggan) ||
+                other.idPelanggan == idPelanggan) &&
+            (identical(other.idPaket, idPaket) || other.idPaket == idPaket) &&
+            (identical(other.tanggal, tanggal) || other.tanggal == tanggal) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.diperbaruiPada, diperbaruiPada) ||
                 other.diperbaruiPada == diperbaruiPada) &&
@@ -50,12 +49,12 @@ mixin _$OrderModel {
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, id, customerId, packageId, date,
-      status, diperbaruiPada, diHapus, diarsipkanPada);
+  int get hashCode => Object.hash(runtimeType, id, idPelanggan, idPaket,
+      tanggal, status, diperbaruiPada, diHapus, diarsipkanPada);
 
   @override
   String toString() {
-    return 'OrderModel(id: $id, customerId: $customerId, packageId: $packageId, date: $date, status: $status, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada)';
+    return 'OrderModel(id: $id, idPelanggan: $idPelanggan, idPaket: $idPaket, tanggal: $tanggal, status: $status, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada)';
   }
 }
 
@@ -67,9 +66,9 @@ abstract mixin class $OrderModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      String customerId,
-      String packageId,
-      DateTime date,
+      String idPelanggan,
+      String idPaket,
+      DateTime tanggal,
       StatusOrderEnum status,
       DateTime? diperbaruiPada,
       bool diHapus,
@@ -89,9 +88,9 @@ class _$OrderModelCopyWithImpl<$Res> implements $OrderModelCopyWith<$Res> {
   @override
   $Res call({
     Object? id = null,
-    Object? customerId = null,
-    Object? packageId = null,
-    Object? date = null,
+    Object? idPelanggan = null,
+    Object? idPaket = null,
+    Object? tanggal = null,
     Object? status = null,
     Object? diperbaruiPada = freezed,
     Object? diHapus = null,
@@ -102,17 +101,17 @@ class _$OrderModelCopyWithImpl<$Res> implements $OrderModelCopyWith<$Res> {
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      customerId: null == customerId
-          ? _self.customerId
-          : customerId // ignore: cast_nullable_to_non_nullable
+      idPelanggan: null == idPelanggan
+          ? _self.idPelanggan
+          : idPelanggan // ignore: cast_nullable_to_non_nullable
               as String,
-      packageId: null == packageId
-          ? _self.packageId
-          : packageId // ignore: cast_nullable_to_non_nullable
+      idPaket: null == idPaket
+          ? _self.idPaket
+          : idPaket // ignore: cast_nullable_to_non_nullable
               as String,
-      date: null == date
-          ? _self.date
-          : date // ignore: cast_nullable_to_non_nullable
+      tanggal: null == tanggal
+          ? _self.tanggal
+          : tanggal // ignore: cast_nullable_to_non_nullable
               as DateTime,
       status: null == status
           ? _self.status
@@ -229,9 +228,9 @@ extension OrderModelPatterns on OrderModel {
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(
             String id,
-            String customerId,
-            String packageId,
-            DateTime date,
+            String idPelanggan,
+            String idPaket,
+            DateTime tanggal,
             StatusOrderEnum status,
             DateTime? diperbaruiPada,
             bool diHapus,
@@ -244,9 +243,9 @@ extension OrderModelPatterns on OrderModel {
       case _OrderModel() when $default != null:
         return $default(
             _that.id,
-            _that.customerId,
-            _that.packageId,
-            _that.date,
+            _that.idPelanggan,
+            _that.idPaket,
+            _that.tanggal,
             _that.status,
             _that.diperbaruiPada,
             _that.diHapus,
@@ -273,9 +272,9 @@ extension OrderModelPatterns on OrderModel {
   TResult when<TResult extends Object?>(
     TResult Function(
             String id,
-            String customerId,
-            String packageId,
-            DateTime date,
+            String idPelanggan,
+            String idPaket,
+            DateTime tanggal,
             StatusOrderEnum status,
             DateTime? diperbaruiPada,
             bool diHapus,
@@ -287,9 +286,9 @@ extension OrderModelPatterns on OrderModel {
       case _OrderModel():
         return $default(
             _that.id,
-            _that.customerId,
-            _that.packageId,
-            _that.date,
+            _that.idPelanggan,
+            _that.idPaket,
+            _that.tanggal,
             _that.status,
             _that.diperbaruiPada,
             _that.diHapus,
@@ -315,9 +314,9 @@ extension OrderModelPatterns on OrderModel {
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(
             String id,
-            String customerId,
-            String packageId,
-            DateTime date,
+            String idPelanggan,
+            String idPaket,
+            DateTime tanggal,
             StatusOrderEnum status,
             DateTime? diperbaruiPada,
             bool diHapus,
@@ -329,9 +328,9 @@ extension OrderModelPatterns on OrderModel {
       case _OrderModel() when $default != null:
         return $default(
             _that.id,
-            _that.customerId,
-            _that.packageId,
-            _that.date,
+            _that.idPelanggan,
+            _that.idPaket,
+            _that.tanggal,
             _that.status,
             _that.diperbaruiPada,
             _that.diHapus,
@@ -347,9 +346,9 @@ extension OrderModelPatterns on OrderModel {
 class _OrderModel extends OrderModel {
   const _OrderModel(
       {required this.id,
-      required this.customerId,
-      required this.packageId,
-      required this.date,
+      required this.idPelanggan,
+      required this.idPaket,
+      required this.tanggal,
       this.status = StatusOrderEnum.baru,
       this.diperbaruiPada,
       this.diHapus = false,
@@ -359,11 +358,11 @@ class _OrderModel extends OrderModel {
   @override
   final String id;
   @override
-  final String customerId;
+  final String idPelanggan;
   @override
-  final String packageId;
+  final String idPaket;
   @override
-  final DateTime date;
+  final DateTime tanggal;
   @override
   @JsonKey()
   final StatusOrderEnum status;
@@ -389,11 +388,10 @@ class _OrderModel extends OrderModel {
         (other.runtimeType == runtimeType &&
             other is _OrderModel &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.customerId, customerId) ||
-                other.customerId == customerId) &&
-            (identical(other.packageId, packageId) ||
-                other.packageId == packageId) &&
-            (identical(other.date, date) || other.date == date) &&
+            (identical(other.idPelanggan, idPelanggan) ||
+                other.idPelanggan == idPelanggan) &&
+            (identical(other.idPaket, idPaket) || other.idPaket == idPaket) &&
+            (identical(other.tanggal, tanggal) || other.tanggal == tanggal) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.diperbaruiPada, diperbaruiPada) ||
                 other.diperbaruiPada == diperbaruiPada) &&
@@ -403,12 +401,12 @@ class _OrderModel extends OrderModel {
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, id, customerId, packageId, date,
-      status, diperbaruiPada, diHapus, diarsipkanPada);
+  int get hashCode => Object.hash(runtimeType, id, idPelanggan, idPaket,
+      tanggal, status, diperbaruiPada, diHapus, diarsipkanPada);
 
   @override
   String toString() {
-    return 'OrderModel(id: $id, customerId: $customerId, packageId: $packageId, date: $date, status: $status, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada)';
+    return 'OrderModel(id: $id, idPelanggan: $idPelanggan, idPaket: $idPaket, tanggal: $tanggal, status: $status, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada)';
   }
 }
 
@@ -422,9 +420,9 @@ abstract mixin class _$OrderModelCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      String customerId,
-      String packageId,
-      DateTime date,
+      String idPelanggan,
+      String idPaket,
+      DateTime tanggal,
       StatusOrderEnum status,
       DateTime? diperbaruiPada,
       bool diHapus,
@@ -444,9 +442,9 @@ class __$OrderModelCopyWithImpl<$Res> implements _$OrderModelCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   $Res call({
     Object? id = null,
-    Object? customerId = null,
-    Object? packageId = null,
-    Object? date = null,
+    Object? idPelanggan = null,
+    Object? idPaket = null,
+    Object? tanggal = null,
     Object? status = null,
     Object? diperbaruiPada = freezed,
     Object? diHapus = null,
@@ -457,17 +455,17 @@ class __$OrderModelCopyWithImpl<$Res> implements _$OrderModelCopyWith<$Res> {
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      customerId: null == customerId
-          ? _self.customerId
-          : customerId // ignore: cast_nullable_to_non_nullable
+      idPelanggan: null == idPelanggan
+          ? _self.idPelanggan
+          : idPelanggan // ignore: cast_nullable_to_non_nullable
               as String,
-      packageId: null == packageId
-          ? _self.packageId
-          : packageId // ignore: cast_nullable_to_non_nullable
+      idPaket: null == idPaket
+          ? _self.idPaket
+          : idPaket // ignore: cast_nullable_to_non_nullable
               as String,
-      date: null == date
-          ? _self.date
-          : date // ignore: cast_nullable_to_non_nullable
+      tanggal: null == tanggal
+          ? _self.tanggal
+          : tanggal // ignore: cast_nullable_to_non_nullable
               as DateTime,
       status: null == status
           ? _self.status
