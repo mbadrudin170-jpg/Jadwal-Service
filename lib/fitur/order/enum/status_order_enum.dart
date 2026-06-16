@@ -1,4 +1,4 @@
-// path: lib/shared/enum/status_order_enum.dart
+// path: lib/fitur/order/enum/status_order_enum.dart
 
 enum StatusOrderEnum {
   baru,

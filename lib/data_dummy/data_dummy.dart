@@ -16,7 +16,7 @@ import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
-import 'package:wifi/shared/enum/status_order_enum.dart';
+import 'package:wifi/fitur/order/enum/status_order_enum.dart';
 import 'package:wifi/shared/export/model.dart';
 
 /// Kelas penyedia data dummy untuk keperluan testing UI dan pengembangan.
