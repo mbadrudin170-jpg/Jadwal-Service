@@ -2,6 +2,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
@@ -14,10 +15,15 @@ import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 
 import 'info_paket_test.mocks.dart';
 
+// 1. Buat Mock manual untuk UrlLauncherPlatform
+class MockUrlLauncher extends Mock
+    with MockPlatformInterfaceMixin
+    implements UrlLauncherPlatform {}
+
+// 2. Hapus UrlLauncherPlatform dari @GenerateMocks
 @GenerateMocks([
   PelangganOpSqlite,
   PaketOpSqlite,
-  UrlLauncherPlatform,
 ])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -25,18 +31,24 @@ void main() {
   late PesanInfoPaket pesanInfoPaket;
   late MockPelangganOpSqlite mockPelangganOpSqlite;
   late MockPaketOpSqlite mockPaketOpSqlite;
-  late MockUrlLauncherPlatform mockUrlLauncher;
+  // 3. Gunakan Mock manual yang baru
+  late MockUrlLauncher mockUrlLauncher;
 
   setUp(() {
     mockPelangganOpSqlite = MockPelangganOpSqlite();
     mockPaketOpSqlite = MockPaketOpSqlite();
-    mockUrlLauncher = MockUrlLauncherPlatform();
+    mockUrlLauncher = MockUrlLauncher(); // Instansiasi mock manual
     UrlLauncherPlatform.instance = mockUrlLauncher;
 
     pesanInfoPaket = PesanInfoPaket(
       customerOperation: mockPelangganOpSqlite,
       packageOperation: mockPaketOpSqlite,
     );
+  });
+
+  tearDown(() {
+    // Bersihkan instance setelah setiap tes
+    UrlLauncherPlatform.instance = null;
   });
 
   group('kirimRincianPaket', () {

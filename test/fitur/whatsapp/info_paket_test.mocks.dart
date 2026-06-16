@@ -6,8 +6,6 @@
 import 'dart:async' as _i5;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart'
-    as _i9;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
 import 'package:wifi/fitur/paket/model/paket_model.dart' as _i8;
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart' as _i7;
@@ -348,84 +346,4 @@ class MockPaketOpSqlite extends _i1.Mock implements _i7.PaketOpSqlite {
             ),
           )
           as _i5.Future<List<_i8.PaketModel>>);
-}
-
-/// A class which mocks [UrlLauncherPlatform].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockUrlLauncherPlatform extends _i1.Mock
-    implements _i9.UrlLauncherPlatform {
-  MockUrlLauncherPlatform() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i5.Future<bool> canLaunch(String? url) =>
-      (super.noSuchMethod(
-            Invocation.method(#canLaunch, [url]),
-            returnValue: _i5.Future<bool>.value(false),
-          )
-          as _i5.Future<bool>);
-
-  @override
-  _i5.Future<bool> launch(
-    String? url, {
-    required bool? useSafariVC,
-    required bool? useWebView,
-    required bool? enableJavaScript,
-    required bool? enableDomStorage,
-    required bool? universalLinksOnly,
-    required Map<String, String>? headers,
-    String? webOnlyWindowName,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #launch,
-              [url],
-              {
-                #useSafariVC: useSafariVC,
-                #useWebView: useWebView,
-                #enableJavaScript: enableJavaScript,
-                #enableDomStorage: enableDomStorage,
-                #universalLinksOnly: universalLinksOnly,
-                #headers: headers,
-                #webOnlyWindowName: webOnlyWindowName,
-              },
-            ),
-            returnValue: _i5.Future<bool>.value(false),
-          )
-          as _i5.Future<bool>);
-
-  @override
-  _i5.Future<bool> launchUrl(String? url, _i9.LaunchOptions? options) =>
-      (super.noSuchMethod(
-            Invocation.method(#launchUrl, [url, options]),
-            returnValue: _i5.Future<bool>.value(false),
-          )
-          as _i5.Future<bool>);
-
-  @override
-  _i5.Future<void> closeWebView() =>
-      (super.noSuchMethod(
-            Invocation.method(#closeWebView, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
-
-  @override
-  _i5.Future<bool> supportsMode(_i9.PreferredLaunchMode? mode) =>
-      (super.noSuchMethod(
-            Invocation.method(#supportsMode, [mode]),
-            returnValue: _i5.Future<bool>.value(false),
-          )
-          as _i5.Future<bool>);
-
-  @override
-  _i5.Future<bool> supportsCloseForMode(_i9.PreferredLaunchMode? mode) =>
-      (super.noSuchMethod(
-            Invocation.method(#supportsCloseForMode, [mode]),
-            returnValue: _i5.Future<bool>.value(false),
-          )
-          as _i5.Future<bool>);
 }
