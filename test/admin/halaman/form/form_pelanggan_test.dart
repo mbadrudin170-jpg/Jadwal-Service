@@ -1,9 +1,9 @@
-
 // path: test/admin/halaman/form/form_pelanggan_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
@@ -11,17 +11,15 @@ import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 
-// Mocks
-class MockPelangganOpSqlite extends Mock implements PelangganOpSqlite {}
+import 'form_pelanggan_test.mocks.dart';
 
-class MockKoneksiInternetService extends Mock implements KoneksiInternetService {}
-
-class MockLayananCekSinkronisasi extends Mock implements LayananCekSinkronisasi {}
-
-class MockNavigatorObserver extends Mock implements NavigatorObserver {}
-
-class FakeRoute extends Fake implements Route<dynamic> {}
-
+// The GenerateMocks annotation is necessary for mockito to generate the mock classes.
+@GenerateMocks([
+  PelangganOpSqlite,
+  KoneksiInternetService,
+  LayananCekSinkronisasi,
+  NavigatorObserver
+])
 void main() {
   late MockPelangganOpSqlite mockPelangganOpSqlite;
   late MockKoneksiInternetService mockKoneksiInternetService;
@@ -33,7 +31,6 @@ void main() {
     mockKoneksiInternetService = MockKoneksiInternetService();
     mockLayananCekSinkronisasi = MockLayananCekSinkronisasi();
     mockNavigatorObserver = MockNavigatorObserver();
-    registerFallbackValue(FakeRoute());
   });
 
   final pelangganModel = PelangganModel(
@@ -94,11 +91,11 @@ void main() {
 
     testWidgets('04. should add new customer when form is valid',
         (tester) async {
-      when(() => mockPelangganOpSqlite.tambahPelanggan(any()))
+      when(mockPelangganOpSqlite.tambahPelanggan(any))
           .thenAnswer((_) async => 1);
-      when(() => mockKoneksiInternetService.cekKoneksiLokal())
+      when(mockKoneksiInternetService.cekKoneksiLokal())
           .thenAnswer((_) async => true);
-      when(() => mockLayananCekSinkronisasi.jalankanCekSinkronisasi())
+      when(mockLayananCekSinkronisasi.jalankanCekSinkronisasi())
           .thenAnswer((_) async {});
 
       await tester.pumpWidget(createWidget());
@@ -116,18 +113,18 @@ void main() {
           find.widgetWithText(TextFormField, 'MAC Address'), '66:77:88:99:AA:BB');
 
       await tester.tap(find.text('SIMPAN'));
-      await tester.pump();
+      await tester.pumpAndSettle(); // Use pumpAndSettle to wait for futures to complete
 
-      verify(() => mockPelangganOpSqlite.tambahPelanggan(any())).called(1);
+      verify(mockPelangganOpSqlite.tambahPelanggan(any));
     });
 
     testWidgets('05. should update existing customer when form is valid',
         (tester) async {
-      when(() => mockPelangganOpSqlite.perbaruiPelanggan(any()))
+      when(mockPelangganOpSqlite.perbaruiPelanggan(any))
           .thenAnswer((_) async => 1);
-      when(() => mockKoneksiInternetService.cekKoneksiLokal())
+      when(mockKoneksiInternetService.cekKoneksiLokal())
           .thenAnswer((_) async => true);
-      when(() => mockLayananCekSinkronisasi.jalankanCekSinkronisasi())
+      when(mockLayananCekSinkronisasi.jalankanCekSinkronisasi())
           .thenAnswer((_) async {});
 
       await tester.pumpWidget(createWidget(pelanggan: pelangganModel));
@@ -136,16 +133,17 @@ void main() {
           find.widgetWithText(TextFormField, 'Nama Pelanggan'), 'John Doe Updated');
       
       await tester.tap(find.text('SIMPAN'));
-      await tester.pump();
+      await tester.pumpAndSettle(); // Use pumpAndSettle
 
-      verify(() => mockPelangganOpSqlite.perbaruiPelanggan(any())).called(1);
+      verify(mockPelangganOpSqlite.perbaruiPelanggan(any));
     });
 
      testWidgets('06. should show CircularProgressIndicator while saving', (WidgetTester tester) async {
-      when(() => mockPelangganOpSqlite.tambahPelanggan(any())).thenAnswer((_) async {
+      when(mockPelangganOpSqlite.tambahPelanggan(any)).thenAnswer((_) async {
         await Future.delayed(const Duration(seconds: 1));
+        return 1;
       });
-      when(() => mockKoneksiInternetService.cekKoneksiLokal()).thenAnswer((_) async => false);
+      when(mockKoneksiInternetService.cekKoneksiLokal()).thenAnswer((_) async => false);
       
       await tester.pumpWidget(createWidget());
 
@@ -165,11 +163,14 @@ void main() {
 
     testWidgets('07. should pop navigator on back button press', (WidgetTester tester) async {
       await tester.pumpWidget(createWidget());
-
-      await tester.tap(find.byType(BackButton));
+      
+      final backButton = find.byType(BackButton);
+      expect(backButton, findsOneWidget);
+      
+      await tester.tap(backButton);
       await tester.pumpAndSettle();
 
-      verify(() => mockNavigatorObserver.didPop(any(), any())).called(1);
+      verify(mockNavigatorObserver.didPop(any, any));
     });
   });
 }
