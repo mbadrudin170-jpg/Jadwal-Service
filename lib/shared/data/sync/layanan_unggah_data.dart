@@ -613,6 +613,6 @@ final layananUnggahDataProvider = Provider<LayananUnggahData>((ref) {
   return LayananUnggahData(
     sqliteDb: ref.read(sqliteDatabaseProvider),
     firestore: FirebaseFirestore.instance,
-    syncManager: ref.read(providerPengelolaSinkronisasi),
+    syncManager: ref.read(PengelolaSinkronisasiProvider),
   );
 });

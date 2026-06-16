@@ -158,7 +158,7 @@ final pengecekanDataBaruServiceProvider =
     Provider<LayananPengecekanDataBaru>((ref) {
   return LayananPengecekanDataBaru(
     firestore: FirebaseFirestore.instance,
-    syncManager: ref.read(providerPengelolaSinkronisasi),
+    syncManager: ref.read(PengelolaSinkronisasiProvider),
     uploadStatusOperation: ref.read(statusUploadOpSlite),
   );
 });

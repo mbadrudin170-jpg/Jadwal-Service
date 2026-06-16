@@ -114,7 +114,7 @@ class LayananCekSinkronisasi {
 // ============================================================
 final layananCekSinkronisasiProvider = Provider<LayananCekSinkronisasi>((ref) {
   return LayananCekSinkronisasi(
-    pengelolaSinkronisasi: ref.read(providerPengelolaSinkronisasi),
+    pengelolaSinkronisasi: ref.read(PengelolaSinkronisasiProvider),
     layananUnggah: ref.read(layananUnggahDataProvider), // harus sudah ada
     layananUnduh: ref.read(layananUnduhDataProvider), // sudah ada
     pengecekanDataBaru:

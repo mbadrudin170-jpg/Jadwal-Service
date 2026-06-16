@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/data/services/layanan_preferensi.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-final providerPengelolaSinkronisasi = Provider<PengelolaSinkronisasi>((ref) {
+final PengelolaSinkronisasiProvider = Provider<PengelolaSinkronisasi>((ref) {
   Log.info('Membuat instance SyncManager melalui Riverpod provider');
   return PengelolaSinkronisasi();
 });

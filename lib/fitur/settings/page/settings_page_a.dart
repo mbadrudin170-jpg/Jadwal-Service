@@ -63,7 +63,7 @@ class SettingsAdminPage extends ConsumerWidget {
 
     if ((konfirmasi ?? false) && context.mounted) {
       try {
-        await ref.read(providerPengelolaSinkronisasi).resetWaktuSinkronisasi();
+        await ref.read(PengelolaSinkronisasiProvider).resetWaktuSinkronisasi();
         if (context.mounted) {
           ToastUtil.success(context, 'Waktu sinkronisasi berhasil di-reset.');
         }

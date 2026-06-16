@@ -370,7 +370,7 @@ class LayananUnduhData {
 final layananUnduhDataProvider = Provider<LayananUnduhData>((ref) {
   return LayananUnduhData(
     firestore: FirebaseFirestore.instance,
-    syncManager: ref.read(providerPengelolaSinkronisasi),
+    syncManager: ref.read(PengelolaSinkronisasiProvider),
     operasiDompet: ref.read(dompetOpSqliteProvider),
     operasiKategori: ref.read(kategoriOpSqliteProvider),
     operasiPaket: ref.read(paketOpSqliteProvider),
@@ -382,5 +382,6 @@ final layananUnduhDataProvider = Provider<LayananUnduhData>((ref) {
     operasiSubKategori: ref.read(subKategoriOpSqliteProvider),
     operasiVersiApk: ref.read(versiApkOpSqliteProvider),
     operasiPengaturan: ref.read(settingsOpSqliteProvider),
+    pengelolaSinkronisasi: ref.read(PengelolaSinkronisasiProvider),
   );
 });
