@@ -26,11 +26,11 @@ class LayananCekSinkronisasi {
     required LayananUnduhData layananUnduh,
     required LayananPengecekanDataBaru pengecekanDataBaru,
     required FirebaseFirestore firestore,
-  })  : _pengelolaSinkronisasi = pengelolaSinkronisasi,
-        _layananUnggah = layananUnggah,
-        _layananUnduh = layananUnduh,
-        _pengecekanDataBaru = pengecekanDataBaru,
-        _firestore = firestore {
+  }) : _pengelolaSinkronisasi = pengelolaSinkronisasi,
+       _layananUnggah = layananUnggah,
+       _layananUnduh = layananUnduh,
+       _pengecekanDataBaru = pengecekanDataBaru,
+       _firestore = firestore {
     Log.info('SyncCheckService diinisialisasi dengan dependency injection.');
   }
 
@@ -43,7 +43,8 @@ class LayananCekSinkronisasi {
 
     if (sudahUnggahData) {
       Log.info(
-          'Pemicu sinkronisasi: Ada data baru yang berhasil diunggah ke server.');
+        'Pemicu sinkronisasi: Ada data baru yang berhasil diunggah ke server.',
+      );
       await _perbaruiStatusGlobal();
     }
     Log.info('Seluruh siklus runSyncCheck() telah berakhir dengan sukses.');
@@ -51,8 +52,8 @@ class LayananCekSinkronisasi {
 
   Future<bool> _periksaDanJalankanUnggah() async {
     try {
-      final bool adaDataUntukUnggah =
-          await _pengecekanDataBaru.apakahSqliteAdaDataBaru();
+      final bool adaDataUntukUnggah = await _pengecekanDataBaru
+          .apakahSqliteAdaDataBaru();
 
       if (adaDataUntukUnggah) {
         await _layananUnggah.unggahSemuaData();
@@ -76,24 +77,26 @@ class LayananCekSinkronisasi {
       await _firestore
           .collection(NamaTabel.statusGlobal)
           .doc(globalStatusId)
-          .set(
-        {NamaKolom.diperbaruiPada: FieldValue.serverTimestamp()},
-        SetOptions(merge: true),
-      );
+          .set({
+            NamaKolom.diperbaruiPada: FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
       Log.info('Dokumen ${NamaTabel.statusGlobal}/global berhasil diperbarui.');
     } on Exception catch (e, s) {
-      Log.error('Gagal memperbarui dokumen ${NamaTabel.statusGlobal}/global.',
-          e: e, s: s);
+      Log.error(
+        'Gagal memperbarui dokumen ${NamaTabel.statusGlobal}/global.',
+        e: e,
+        s: s,
+      );
     }
   }
 
   Future<void> _periksaDanJalankanUnduh() async {
     try {
-      final bool adaDataBaruDiServer =
-          await _pengecekanDataBaru.apakahFirebaseAdaDataBaru(
-        namaKoleksi: NamaTabel.statusGlobal,
-        idDokumen: globalStatusId,
-      );
+      final bool adaDataBaruDiServer = await _pengecekanDataBaru
+          .apakahFirebaseAdaDataBaru(
+            namaKoleksi: NamaTabel.statusGlobal,
+            idDokumen: globalStatusId,
+          );
 
       if (adaDataBaruDiServer) {
         await _layananUnduh.unduhSemuaData();
@@ -117,8 +120,9 @@ final layananCekSinkronisasiProvider = Provider<LayananCekSinkronisasi>((ref) {
     pengelolaSinkronisasi: ref.read(PengelolaSinkronisasiProvider),
     layananUnggah: ref.read(layananUnggahDataProvider), // harus sudah ada
     layananUnduh: ref.read(layananUnduhDataProvider), // sudah ada
-    pengecekanDataBaru:
-        ref.read(pengecekanDataBaruServiceProvider), // harus sudah ada
+    pengecekanDataBaru: ref.read(
+      pengecekanDataBaruServiceProvider,
+    ), // harus sudah ada
     firestore: FirebaseFirestore.instance,
   );
 });
