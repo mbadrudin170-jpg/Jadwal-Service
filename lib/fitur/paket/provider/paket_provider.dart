@@ -25,7 +25,7 @@ class UrutanPaketState extends _$UrutanPaketState {
   @override
   UrutanPaket build() {
     return UrutanPaket.durasiTerpendek;
-}
+  }
 
   /// Fungsi untuk mengubah status urutan dari UI
   void ubahUrutan(UrutanPaket urutanBaru) {

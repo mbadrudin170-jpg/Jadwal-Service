@@ -3,15 +3,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
-// Mocks
-class MockBaseOpFirebase extends Mock implements BaseOpFirebase {}
+import 'feedback_op_firebase_test.mocks.dart';
 
 // Firestore yang rusak untuk simulasi error
 class BrokenFirebaseFirestore extends FakeFirebaseFirestore {
@@ -24,9 +24,10 @@ class BrokenFirebaseFirestore extends FakeFirebaseFirestore {
   }
 }
 
+@GenerateMocks([BaseOpFirebase])
 void main() {
   late FeedbackOpFirebase feedbackOpFirebase;
-  late BaseOpFirebase mockBaseOp;
+  late MockBaseOpFirebase mockBaseOp;
   late FirebaseFirestore fakeFirestore;
   late DocumentReference<Map<String, dynamic>> fakeDocRef;
 
@@ -46,34 +47,34 @@ void main() {
       firestore: fakeFirestore,
       baseOpFirebase: mockBaseOp,
     );
-
-    // Register fallback value for FieldValue
-    registerFallbackValue(FieldValue.serverTimestamp());
   });
 
   group('FeedbackOpFirebase', () {
     test('01. create - harus mendelegasikan ke baseOp.tambah', () async {
       // Arrange
-      when(() => mockBaseOp.tambah(any(), any()))
-          .thenAnswer((_) async => fakeDocRef);
-
-      final data = feedback.toFirebase();
-      data[NamaKolom.tanggal] = FieldValue.serverTimestamp();
+      when(mockBaseOp.tambah(
+        NamaTabel.feedback,
+        any,
+      )).thenAnswer((_) async => fakeDocRef);
 
       // Act
       await feedbackOpFirebase.tambahFeedback(feedback);
 
       // Assert
-      verify(() => mockBaseOp.tambah(
-            NamaTabel.feedback,
-            any(that: isA<Map<String, dynamic>>()),
-          )).called(1);
+      verify(mockBaseOp.tambah(
+        NamaTabel.feedback,
+        any,
+      )).called(1);
     });
 
     test('02. update - harus mendelegasikan ke baseOp.update', () async {
       // Arrange
-      when(() => mockBaseOp.update(any(), any(), any()))
-          .thenAnswer((_) async {});
+      when(mockBaseOp.update(
+        NamaTabel.feedback,
+        'feedback1',
+        {NamaKolom.pesan: 'Pesan baru'},
+      )).thenAnswer((_) async => Future.value());
+
       const docId = 'feedback1';
       const newContent = 'Pesan baru';
 
@@ -81,41 +82,51 @@ void main() {
       await feedbackOpFirebase.perbaruiFeedback(docId, newContent);
 
       // Assert
-      verify(() => mockBaseOp.update(
-            NamaTabel.feedback,
-            docId,
-            {NamaKolom.pesan: newContent},
-          )).called(1);
+      verify(mockBaseOp.update(
+        NamaTabel.feedback,
+        docId,
+        {NamaKolom.pesan: newContent},
+      )).called(1);
     });
 
     test('03. delete - harus mendelegasikan ke baseOp.hapusPermanen', () async {
       // Arrange
-      when(() => mockBaseOp.hapusPermanen(any(), any()))
-          .thenAnswer((_) async {});
+      when(mockBaseOp.hapusPermanen(
+        NamaTabel.feedback,
+        'feedback1',
+      )).thenAnswer((_) async => Future.value());
+
       const docId = 'feedback1';
 
       // Act
       await feedbackOpFirebase.delete(docId);
 
       // Assert
-      verify(() => mockBaseOp.hapusPermanen(NamaTabel.feedback, docId))
-          .called(1);
+      verify(mockBaseOp.hapusPermanen(
+        NamaTabel.feedback,
+        docId,
+      )).called(1);
     });
 
     test(
         '04. softDeleteFeedback - harus mendelegasikan ke baseOp.hapusSementara',
         () async {
       // Arrange
-      when(() => mockBaseOp.hapusSementara(any(), any()))
-          .thenAnswer((_) async {});
+      when(mockBaseOp.hapusSementara(
+        NamaTabel.feedback,
+        'feedback1',
+      )).thenAnswer((_) async => Future.value());
+
       const docId = 'feedback1';
 
       // Act
       await feedbackOpFirebase.softDeleteFeedback(docId);
 
       // Assert
-      verify(() => mockBaseOp.hapusSementara(NamaTabel.feedback, docId))
-          .called(1);
+      verify(mockBaseOp.hapusSementara(
+        NamaTabel.feedback,
+        docId,
+      )).called(1);
     });
 
     group('getByUser', () {

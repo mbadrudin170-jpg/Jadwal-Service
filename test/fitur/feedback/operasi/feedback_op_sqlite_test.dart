@@ -1,7 +1,8 @@
 // path: test/fitur/feedback/operasi/feedback_op_sqlite_test.dart
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
@@ -10,15 +11,9 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
-// Mocks
-class MockSqliteDatabase extends Mock implements SqliteDatabase {}
+import 'feedback_op_sqlite_test.mocks.dart';
 
-class MockBaseOpSqlite extends Mock implements BaseOpSqlite {}
-
-class MockDatabase extends Mock implements Database {}
-
-class MockTransaction extends Mock implements Transaction {}
-
+@GenerateMocks([SqliteDatabase, BaseOpSqlite, Database, Transaction])
 void main() {
   late FeedbackOpSqlite feedbackOpSqlite;
   late MockSqliteDatabase mockSqliteDb;
@@ -34,9 +29,9 @@ void main() {
       baseOpSqlite: mockBaseOpSqlite,
     );
 
-    when(() => mockSqliteDb.database).thenAnswer((_) async => mockDb);
+    when(mockSqliteDb.database).thenAnswer((_) async => mockDb);
     // Atur default stub untuk runComplexOperation
-    when(() => mockBaseOpSqlite.runComplexOperation<dynamic>(any(), dariServer: any(named: 'dariServer')))
+    when(mockBaseOpSqlite.runComplexOperation(any, dariServer: anyNamed('dariServer')))
         .thenAnswer((_) async {});
   });
 
@@ -50,52 +45,52 @@ void main() {
 
   group('Operasi Tulis (Delegasi ke BaseOpSqlite)', () {
     test('01. add harus memanggil baseOpSqlite.sisipkan', () async {
-      when(() => mockBaseOpSqlite.sisipkan(any(), any(), dariServer: any(named: 'dariServer')))
+      when(mockBaseOpSqlite.sisipkan(namaTabel, any, dariServer: false))
           .thenAnswer((_) async {});
 
       await feedbackOpSqlite.add(feedback);
 
-      verify(() => mockBaseOpSqlite.sisipkan(
-            namaTabel,
-            any(that: isA<Map<String, dynamic>>()),
-            dariServer: false,
-          )).called(1);
+      verify(mockBaseOpSqlite.sisipkan(
+        namaTabel,
+        argThat(isA<Map<String, dynamic>>()),
+        dariServer: false,
+      )).called(1);
     });
 
     test('02. delete harus memanggil baseOpSqlite.delete', () async {
-      when(() => mockBaseOpSqlite.delete(any(), any(), dariServer: any(named: 'dariServer')))
+      when(mockBaseOpSqlite.delete(namaTabel, 'fb1', dariServer: false))
           .thenAnswer((_) async {});
 
       await feedbackOpSqlite.delete('fb1');
 
-      verify(() => mockBaseOpSqlite.delete(namaTabel, 'fb1', dariServer: false))
+      verify(mockBaseOpSqlite.delete(namaTabel, 'fb1', dariServer: false))
           .called(1);
     });
 
     test('03. softDelete harus memanggil baseOpSqlite.softDelete', () async {
-      when(() => mockBaseOpSqlite.softDelete(any(), any(), dariServer: any(named: 'dariServer')))
+      when(mockBaseOpSqlite.softDelete(namaTabel, 'fb1', dariServer: false))
           .thenAnswer((_) async {});
 
       await feedbackOpSqlite.softDelete('fb1');
 
-      verify(() => mockBaseOpSqlite.softDelete(namaTabel, 'fb1', dariServer: false))
+      verify(mockBaseOpSqlite.softDelete(namaTabel, 'fb1', dariServer: false))
           .called(1);
     });
 
     test(
         '04. sisipkanAtauPerbaruiBatch harus memanggil baseOpSqlite.sisipkanAtauPerbaruiBatch',
         () async {
-      when(() =>
-              mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(any(), any(), dariServer: any(named: 'dariServer')))
+      when(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+              namaTabel, any, dariServer: false))
           .thenAnswer((_) async {});
 
       await feedbackOpSqlite.sisipkanAtauPerbaruiBatch([feedback]);
 
-      verify(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
-            namaTabel,
-            any(that: isA<List<Map<String, dynamic>>>()),
-            dariServer: false,
-          )).called(1);
+      verify(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+        namaTabel,
+        argThat(isA<List<Map<String, dynamic>>>()),
+        dariServer: false,
+      )).called(1);
     });
 
     test(
@@ -103,7 +98,8 @@ void main() {
         () async {
       await feedbackOpSqlite.sisipkanAtauPerbaruiBatch([]);
 
-      verifyNever(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(any(), any(), dariServer: any(named: 'dariServer')));
+      verifyNever(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+          any, any, dariServer: anyNamed('dariServer')));
     });
 
     test(
@@ -111,18 +107,18 @@ void main() {
         () async {
       final mockTxn = MockTransaction();
       // Konfigurasi ulang mock untuk mengembalikan hasil dari action
-      when(() => mockBaseOpSqlite.runComplexOperation<int>(any(), dariServer: any(named: 'dariServer')))
+      when(mockBaseOpSqlite.runComplexOperation(any, dariServer: anyNamed('dariServer')))
           .thenAnswer((invocation) async {
         final action = invocation.positionalArguments[0] as Future<int> Function(Transaction);
         return action(mockTxn);
       });
 
-      when(() => mockTxn.delete(namaTabel)).thenAnswer((_) async => 5);
+      when(mockTxn.delete(namaTabel)).thenAnswer((_) async => 5);
 
       await feedbackOpSqlite.deleteAll();
 
-      // Cukup verifikasi bahwa `runComplexOperation` dipanggil
-      verify(() => mockBaseOpSqlite.runComplexOperation<int>(any(), dariServer: false))
+      // Verifikasi bahwa runComplexOperation dipanggil
+      verify(mockBaseOpSqlite.runComplexOperation(any, dariServer: false))
           .called(1);
     });
   });
@@ -131,7 +127,7 @@ void main() {
     final feedbackMap = feedback.toSqlite();
 
     test('07. getAll harus mengembalikan list FeedbackModel', () async {
-      when(() => mockDb.query(namaTabel, orderBy: any(named: 'orderBy')))
+      when(mockDb.query(namaTabel, orderBy: anyNamed('orderBy')))
           .thenAnswer((_) async => [feedbackMap]);
 
       final result = await feedbackOpSqlite.getAll();
@@ -144,42 +140,44 @@ void main() {
     test(
         '08. getAllActiveFeedback harus query dengan where isDeleted = 0',
         () async {
-      when(() => mockDb.query(
-            namaTabel,
-            where: any(named: 'where'),
-            orderBy: any(named: 'orderBy'),
-          )).thenAnswer((_) async => [feedbackMap]);
+      when(mockDb.query(
+        namaTabel,
+        where: anyNamed('where'),
+        orderBy: anyNamed('orderBy'),
+      )).thenAnswer((_) async => [feedbackMap]);
 
       await feedbackOpSqlite.getAllActiveFeedback();
 
-      verify(() => mockDb.query(
-            namaTabel,
-            where: '${NamaKolom.dihapus} = 0',
-            orderBy: '${NamaKolom.tanggal} DESC',
-          )).called(1);
+      verify(mockDb.query(
+        namaTabel,
+        where: '${NamaKolom.dihapus} = 0',
+        orderBy: '${NamaKolom.tanggal} DESC',
+      )).called(1);
     });
 
     test('09. getById harus mengembalikan FeedbackModel jika ditemukan', () async {
-      when(() => mockDb.query(
-            any(),
-            where: any(named: 'where'),
-            whereArgs: any(named: 'whereArgs'),
-          )).thenAnswer((_) async => [feedbackMap]);
+      when(mockDb.query(
+        any,
+        where: anyNamed('where'),
+        whereArgs: anyNamed('whereArgs'),
+      )).thenAnswer((_) async => [feedbackMap]);
 
       final result = await feedbackOpSqlite.getById('fb1');
 
       expect(result.id, 'fb1');
-      verify(() =>
-              mockDb.query(namaTabel, where: 'id = ?', whereArgs: ['fb1']))
-          .called(1);
+      verify(mockDb.query(
+        namaTabel,
+        where: 'id = ?',
+        whereArgs: ['fb1'],
+      )).called(1);
     });
 
     test('10. getById harus melempar Exception jika tidak ditemukan', () async {
-      when(() => mockDb.query(
-            any(),
-            where: any(named: 'where'),
-            whereArgs: any(named: 'whereArgs'),
-          )).thenAnswer((_) async => []); // List kosong
+      when(mockDb.query(
+        any,
+        where: anyNamed('where'),
+        whereArgs: anyNamed('whereArgs'),
+      )).thenAnswer((_) async => []); // List kosong
 
       expect(
         () => feedbackOpSqlite.getById('tidak-ada'),
@@ -189,46 +187,46 @@ void main() {
 
     test('11. getChanges harus query dengan where diperbaruiPada > ?', () async {
       final lastSync = DateTime(2023);
-      when(() => mockDb.query(
-            any(),
-            where: any(named: 'where'),
-            whereArgs: any(named: 'whereArgs'),
-          )).thenAnswer((_) async => [feedbackMap]);
+      when(mockDb.query(
+        any,
+        where: anyNamed('where'),
+        whereArgs: anyNamed('whereArgs'),
+      )).thenAnswer((_) async => [feedbackMap]);
 
       await feedbackOpSqlite.getChanges(lastSync);
 
-      verify(() => mockDb.query(
-            namaTabel,
-            where: '${NamaKolom.diperbaruiPada} > ?',
-            whereArgs: [lastSync.millisecondsSinceEpoch],
-          )).called(1);
+      verify(mockDb.query(
+        namaTabel,
+        where: '${NamaKolom.diperbaruiPada} > ?',
+        whereArgs: [lastSync.millisecondsSinceEpoch],
+      )).called(1);
     });
 
     test('12. getByIds harus query dengan klausa IN (...)', () async {
       final ids = ['fb1', 'fb2'];
-      when(() => mockDb.query(
-            any(),
-            where: any(named: 'where'),
-            whereArgs: any(named: 'whereArgs'),
-          )).thenAnswer((_) async => [feedbackMap]);
+      when(mockDb.query(
+        any,
+        where: anyNamed('where'),
+        whereArgs: anyNamed('whereArgs'),
+      )).thenAnswer((_) async => [feedbackMap]);
 
       await feedbackOpSqlite.getByIds(ids);
 
-      verify(() => mockDb.query(
-            namaTabel,
-            where: 'id IN (?,?)',
-            whereArgs: ids,
-          )).called(1);
+      verify(mockDb.query(
+        namaTabel,
+        where: 'id IN (?,?)',
+        whereArgs: ids,
+      )).called(1);
     });
 
     test('13. getByIds harus mengembalikan list kosong jika input kosong', () async {
       final result = await feedbackOpSqlite.getByIds([]);
       expect(result, isEmpty);
-      verifyNever(() => mockDb.query(
-            any(),
-            where: any(named: 'where'),
-            whereArgs: any(named: 'whereArgs'),
-          ));
+      verifyNever(mockDb.query(
+        any,
+        where: anyNamed('where'),
+        whereArgs: anyNamed('whereArgs'),
+      ));
     });
   });
 }

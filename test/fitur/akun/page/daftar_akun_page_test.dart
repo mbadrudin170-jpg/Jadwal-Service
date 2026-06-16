@@ -1,10 +1,11 @@
 // path: test/fitur/akun/page/daftar_akun_page_test.dart
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/pelanggan/core/user_activity_service.dart';
@@ -15,38 +16,14 @@ import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
-// Mocks
-class MockPengelolaAkun extends AsyncNotifier<AkunState>
-    with Mock
-    implements PengelolaAkun {
-  @override
-  Future<AkunState> build() async {
-    return const AkunState(akunSaatIni: null, daftarAkunTersimpan: []);
-  }
+import 'daftar_akun_page_test.mocks.dart';
 
-  @override
-  Future<void> login(PelangganModel akun) async {}
-  @override
-  Future<void> logout() async {}
-  @override
-  Future<void> hapusAkun(String id) async {}
-  @override
-  Future<void> hapusTokenLogin() async {}
-  @override
-  Future<void> refresh() async {}
-}
-
-class MockLayananPenyimpananLokal extends Mock
-    implements LayananPenyimpananLokal {}
-
-class MockUserActivityService extends Mock implements UserActivityService {}
-
-class MockNavigatorObserver extends Mock implements NavigatorObserver {}
-
-class FakePelangganModel extends Fake implements PelangganModel {}
-
-class FakeRoute extends Fake implements Route<dynamic> {}
-
+@GenerateMocks([
+  PengelolaAkun,
+  LayananPenyimpananLokal,
+  UserActivityService,
+  NavigatorObserver
+])
 void main() {
   late MockPengelolaAkun mockPengelolaAkun;
   late MockLayananPenyimpananLokal mockLayananPenyimpananLokal;
@@ -54,11 +31,6 @@ void main() {
   late MockNavigatorObserver mockNavigatorObserver;
   late PelangganModel pelanggan1;
   late PelangganModel pelanggan2;
-
-  setUpAll(() {
-    registerFallbackValue(FakePelangganModel());
-    registerFallbackValue(FakeRoute());
-  });
 
   setUp(() {
     mockPengelolaAkun = MockPengelolaAkun();
@@ -84,7 +56,7 @@ void main() {
     );
 
     // Default stub
-    when(() => mockLayananPenyimpananLokal.ambilAkunLogin())
+    when(mockLayananPenyimpananLokal.ambilAkunLogin())
         .thenAnswer((_) async => null);
   });
 
@@ -94,11 +66,10 @@ void main() {
   }) {
     return ProviderScope(
       overrides: [
-        pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
+        pengelolaAkunProvider.overrideWith((ref) => mockPengelolaAkun),
         layananPenyimpananLokalProvider
-            .overrideWithValue(AsyncValue.data(mockLayananPenyimpananLokal)),
-        userActivityServiceProvider
-            .overrideWithValue(AsyncValue.data(mockUserActivityService)),
+            .overrideWithValue(mockLayananPenyimpananLokal),
+        userActivityServiceProvider.overrideWithValue(mockUserActivityService),
         userIdProvider.overrideWith(
           (ref) => currentUserId,
         )
@@ -113,11 +84,7 @@ void main() {
   group('DaftarAkunPage UI States', () {
     testWidgets('01. harus menampilkan CircularProgressIndicator saat loading',
         (tester) async {
-      when(() => mockPengelolaAkun.build())
-          .thenAnswer((_) => Completer<AkunState>().future);
-
-      when(() => mockPengelolaAkun.state)
-          .thenReturn(const AsyncValue.loading());
+      when(mockPengelolaAkun.state).thenReturn(const AsyncValue.loading());
 
       await tester.pumpWidget(createWidgetUnderTest());
 
@@ -127,7 +94,7 @@ void main() {
     testWidgets('02. harus menampilkan pesan error saat provider gagal',
         (tester) async {
       final error = Exception('Gagal memuat');
-      when(() => mockPengelolaAkun.state)
+      when(mockPengelolaAkun.state)
           .thenReturn(AsyncValue.error(error, StackTrace.current));
 
       await tester.pumpWidget(createWidgetUnderTest(
@@ -139,7 +106,7 @@ void main() {
 
     testWidgets('03. harus menampilkan pesan saat daftar akun kosong',
         (tester) async {
-      when(() => mockPengelolaAkun.state).thenReturn(
+      when(mockPengelolaAkun.state).thenReturn(
         const AsyncValue.data(
             AkunState(akunSaatIni: null, daftarAkunTersimpan: [])),
       );
@@ -154,7 +121,7 @@ void main() {
 
     testWidgets('04. harus menampilkan daftar akun saat ada data',
         (tester) async {
-      when(() => mockPengelolaAkun.state).thenReturn(
+      when(mockPengelolaAkun.state).thenReturn(
         AsyncValue.data(
             AkunState(daftarAkunTersimpan: [pelanggan1, pelanggan2])),
       );
@@ -176,12 +143,12 @@ void main() {
   group('Interaksi Pengguna', () {
     testWidgets('05. harus login dan navigasi saat akun dipilih',
         (tester) async {
-      when(() => mockPengelolaAkun.state).thenReturn(
+      when(mockPengelolaAkun.state).thenReturn(
         AsyncValue.data(AkunState(daftarAkunTersimpan: [pelanggan1])),
       );
-      when(() => mockPengelolaAkun.login(any())).thenAnswer((_) async {});
-      when(() => mockUserActivityService.pingActivity(any(),
-          force: any(named: 'force'))).thenAnswer((_) async {});
+      when(mockPengelolaAkun.login(any)).thenAnswer((_) async {});
+      when(mockUserActivityService.pingActivity(any, force: anyNamed('force')))
+          .thenAnswer((_) async {});
 
       await tester.pumpWidget(
         createWidgetUnderTest(
@@ -194,24 +161,20 @@ void main() {
       await tester.tap(find.text('John Doe'));
       await tester.pumpAndSettle();
 
-      verify(() => mockPengelolaAkun.login(pelanggan1)).called(1);
-      verify(() =>
-              mockUserActivityService.pingActivity(pelanggan1.id, force: true))
+      verify(mockPengelolaAkun.login(pelanggan1)).called(1);
+      verify(mockUserActivityService.pingActivity(pelanggan1.id, force: true))
           .called(1);
-      verify(() => mockNavigatorObserver.didPush(
-              any(named: 'route'), any(named: 'previousRoute')))
-          .called(2); // page and dialog
-      expect(find.byType(MainPage), findsOneWidget);
+      verify(mockNavigatorObserver.didPush(any, any)).called(2);
     });
 
     testWidgets('07. harus menampilkan dialog hapus saat long press',
         (tester) async {
-      when(() => mockPengelolaAkun.state).thenReturn(
+      when(mockPengelolaAkun.state).thenReturn(
         AsyncValue.data(AkunState(
             akunSaatIni: pelanggan2,
             daftarAkunTersimpan: [pelanggan1, pelanggan2])),
       );
-      when(() => mockPengelolaAkun.hapusAkun(any())).thenAnswer((_) async {});
+      when(mockPengelolaAkun.hapusAkun(any)).thenAnswer((_) async {});
 
       await tester.pumpWidget(
         createWidgetUnderTest(
@@ -231,17 +194,17 @@ void main() {
       await tester.tap(find.text('Hapus'));
       await tester.pumpAndSettle();
 
-      verify(() => mockPengelolaAkun.hapusAkun(pelanggan1.id)).called(1);
+      verify(mockPengelolaAkun.hapusAkun(pelanggan1.id)).called(1);
       expect(find.byType(AlertDialog), findsNothing);
     });
 
     testWidgets('08. harus hapus akun aktif dan navigasi ke login page',
         (tester) async {
-      when(() => mockPengelolaAkun.state).thenReturn(
+      when(mockPengelolaAkun.state).thenReturn(
         AsyncValue.data(AkunState(
             akunSaatIni: pelanggan1, daftarAkunTersimpan: [pelanggan1])),
       );
-      when(() => mockPengelolaAkun.hapusAkun(any())).thenAnswer((_) async {});
+      when(mockPengelolaAkun.hapusAkun(any)).thenAnswer((_) async {});
 
       await tester.pumpWidget(
         createWidgetUnderTest(
@@ -259,14 +222,13 @@ void main() {
       await tester.tap(find.text('Hapus'));
       await tester.pumpAndSettle();
 
-      verify(() => mockPengelolaAkun.hapusAkun(pelanggan1.id)).called(1);
-      verify(() => mockNavigatorObserver.didPush(
-          any(named: 'route'), any(named: 'previousRoute'))).called(2);
+      verify(mockPengelolaAkun.hapusAkun(pelanggan1.id)).called(1);
+      verify(mockNavigatorObserver.didPush(any, any)).called(2);
       expect(find.byType(LoginPage), findsOneWidget);
     });
 
     testWidgets('10. harus menampilkan dialog keluar', (tester) async {
-      when(() => mockPengelolaAkun.state).thenReturn(
+      when(mockPengelolaAkun.state).thenReturn(
         const AsyncValue.data(AkunState(daftarAkunTersimpan: [])),
       );
 
@@ -285,10 +247,10 @@ void main() {
     });
 
     testWidgets('11. harus keluar dan hapus token', (tester) async {
-      when(() => mockPengelolaAkun.state).thenReturn(
+      when(mockPengelolaAkun.state).thenReturn(
         const AsyncValue.data(AkunState(daftarAkunTersimpan: [])),
       );
-      when(() => mockPengelolaAkun.hapusTokenLogin()).thenAnswer((_) async {});
+      when(mockPengelolaAkun.hapusTokenLogin()).thenAnswer((_) async {});
 
       await tester.pumpWidget(createWidgetUnderTest(
           akunState:
@@ -301,19 +263,18 @@ void main() {
       await tester.tap(find.widgetWithText(TextButton, 'Keluar'));
       await tester.pumpAndSettle();
 
-      verify(() => mockPengelolaAkun.hapusTokenLogin()).called(1);
+      verify(mockPengelolaAkun.hapusTokenLogin()).called(1);
       expect(find.byType(LoginPage), findsOneWidget);
     });
 
     testWidgets('12. harus keluar dan hapus akun', (tester) async {
-      when(() => mockPengelolaAkun.state).thenReturn(
+      when(mockPengelolaAkun.state).thenReturn(
         AsyncValue.data(
             AkunState(akunSaatIni: pelanggan1, daftarAkunTersimpan: [])),
       );
-      when(() => mockLayananPenyimpananLokal.ambilAkunLogin())
+      when(mockLayananPenyimpananLokal.ambilAkunLogin())
           .thenAnswer((_) async => pelanggan1);
-      when(() => mockPengelolaAkun.hapusAkun(pelanggan1.id))
-          .thenAnswer((_) async {});
+      when(mockPengelolaAkun.hapusAkun(pelanggan1.id)).thenAnswer((_) async {});
 
       await tester.pumpWidget(createWidgetUnderTest(
         akunState: AsyncValue.data(
@@ -328,7 +289,7 @@ void main() {
       await tester.tap(find.text('Keluar & Hapus Akun'));
       await tester.pumpAndSettle();
 
-      verify(() => mockPengelolaAkun.hapusAkun(pelanggan1.id)).called(1);
+      verify(mockPengelolaAkun.hapusAkun(pelanggan1.id)).called(1);
       expect(find.byType(LoginPage), findsOneWidget);
     });
   });

@@ -104,8 +104,7 @@ void main() {
     testWidgets('05. should delete all packages', (tester) async {
       when(mockPaketOpSqlite.ambilBerdasarkanAktif())
           .thenAnswer((_) async => paketList);
-      when(mockPaketOpSqlite.hapusSementaraSemua())
-          .thenAnswer((_) async => 1);
+      when(mockPaketOpSqlite.hapusSementaraSemua()).thenAnswer((_) async => 1);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
@@ -128,8 +127,7 @@ void main() {
       await tester.longPress(find.text('Paket A'));
       await tester.pumpAndSettle();
 
-      expect(
-          find.text('Pilih aksi yang ingin Anda lakukan.'), findsOneWidget);
+      expect(find.text('Pilih aksi yang ingin Anda lakukan.'), findsOneWidget);
     });
   });
 }
