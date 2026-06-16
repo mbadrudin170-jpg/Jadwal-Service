@@ -1,6 +1,4 @@
-// path: test/admin/app_admin_test.dart
-import 'dart:async';
-
+"""// path: test/admin/app_admin_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,7 +39,6 @@ import 'app_admin_test.mocks.dart';
     fallbackGenerators: {#notificationResponse: _fallbackNotificationResponse},
   )
 ])
-
 // Subclass TemaNotifier untuk keperluan test agar bisa menerima initial theme
 class _TestTemaNotifier extends TemaNotifier {
   final ThemeMode initialTheme;
@@ -57,7 +54,7 @@ void main() {
   late MockKoneksiInternetService mockKoneksiInternetService;
   late MockSqliteDatabase mockSqliteDatabase;
   late MockPelangganAktifOpSqlite mockPelangganAktifOpSqlite;
-  late MockUnduhanAwalService mockUnduhanAwalService;
+  late MockLayananUnduhanAwal mockUnduhanAwalService;
   late MockSettingsOpSqlite mockSettingsOpSqlite;
   late MockPembersihanDataOperasi mockPembersihanDataOperasi;
   late MockNotificationAppLaunchDetails mockLaunchDetails;
@@ -78,7 +75,7 @@ void main() {
     mockKoneksiInternetService = MockKoneksiInternetService();
     mockSqliteDatabase = MockSqliteDatabase();
     mockPelangganAktifOpSqlite = MockPelangganAktifOpSqlite();
-    mockUnduhanAwalService = MockUnduhanAwalService();
+    mockUnduhanAwalService = MockLayananUnduhanAwal();
     mockSettingsOpSqlite = MockSettingsOpSqlite();
     mockPembersihanDataOperasi = MockPembersihanDataOperasi();
     mockLaunchDetails = MockNotificationAppLaunchDetails();
@@ -391,3 +388,4 @@ void main() {
 
 NotificationResponse _fallbackNotificationResponse() =>
     MockNotificationResponse();
+""

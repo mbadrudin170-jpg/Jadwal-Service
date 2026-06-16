@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:wifi/admin/halaman/detail/detail_paket.dart';
+import 'package:wifi/fitur/paket/page/detail_paket.dart';
 import 'package:wifi/fitur/pelanggan/ui/admin/detail_pelanggan_a.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';

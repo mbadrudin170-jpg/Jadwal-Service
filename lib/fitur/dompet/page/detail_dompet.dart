@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/detail/detail_dompet.dart
+// path: lib/fitur/dompet/page/detail_dompet.dart
 
 import 'dart:async';
 
@@ -17,42 +17,25 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/widget/summary_info_widget.dart';
 
-/// Kelas data untuk detail dompet.
-class DetailDompetData {
-  /// Model dompet yang sedang ditampilkan.
+class DataDetailDompet {
   final DompetModel dompet;
-
-  /// Daftar transaksi yang terkait dengan dompet.
   final List<TransaksiModel> transaksi;
+  final double totalPemasukan;
+  final double totalPengeluaran;
 
-  /// Total pendapatan dari transaksi.
-  final double totalIncome;
-
-  /// Total pengeluaran dari transaksi.
-  final double totalExpense;
-
-  /// Membuat instance [DetailDompetData].
-  DetailDompetData({
+  DataDetailDompet({
     required this.dompet,
     required this.transaksi,
-    required this.totalIncome,
-    required this.totalExpense,
+    required this.totalPemasukan,
+    required this.totalPengeluaran,
   });
 }
 
-/// Halaman yang menampilkan detail dari sebuah dompet,
-/// termasuk ringkasan saldo dan daftar transaksinya.
 class DetailDompet extends ConsumerStatefulWidget {
-  /// Model dompet yang akan ditampilkan.
   final DompetModel dompet;
-
-  /// Operasi untuk mengelola data dompet.
   final DompetOpSqlite? dompetOpSqlite;
-
-  /// Operasi untuk mengelola data transaksi.
   final TransaksiOpSqlite? transaksiOpSqlite;
 
-  /// Membuat instance [DetailDompet].
   const DetailDompet({
     super.key,
     required this.dompet,
@@ -61,33 +44,33 @@ class DetailDompet extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<DetailDompet> createState() => _WalletDetailState();
+  ConsumerState<DetailDompet> createState() => _DetailDompetState();
 }
 
-class _WalletDetailState extends ConsumerState<DetailDompet> {
-  late Future<DetailDompetData> _futureDetailData;
-  String? _latestWalletName;
+class _DetailDompetState extends ConsumerState<DetailDompet> {
+  late Future<DataDetailDompet> _futureDataDetail;
+  String? _namaDompetTerbaru;
 
   @override
   void initState() {
     super.initState();
     Log.info('Membuat state untuk WalletDetail. ID: ${widget.dompet.id}');
-    _futureDetailData = _muatData();
+    _futureDataDetail = _muatData();
   }
 
-  Future<DetailDompetData> _muatData() async {
+  Future<DataDetailDompet> _muatData() async {
     Log.info('Memuat data detail dompet ID: ${widget.dompet.id}');
     final dompetOpSqlite = ref.read(dompetOpSqliteProvider);
     final transaksiOpsqlite = ref.read(transaksiOpSqliteProvider);
 
     try {
-      final results = await Future.wait([
+      final hasil = await Future.wait([
         dompetOpSqlite.ambilBerdasarkanId(widget.dompet.id),
         transaksiOpsqlite.getTransactionsByWalletId(widget.dompet.id),
       ]);
 
-      final dompet = results[0] as DompetModel?;
-      final daftarTransaksi = results[1] as List<TransaksiModel>;
+      final dompet = hasil[0] as DompetModel?;
+      final daftarTransaksi = hasil[1] as List<TransaksiModel>;
 
       if (dompet == null) {
         throw Exception('Dompet tidak ditemukan.');
@@ -95,26 +78,26 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
 
       if (mounted) {
         setState(() {
-          _latestWalletName = dompet.nama;
+          _namaDompetTerbaru = dompet.nama;
         });
       }
 
-      double income = 0;
-      double expense = 0;
+      double pemasukan = 0;
+      double pengeluaran = 0;
 
       for (final trx in daftarTransaksi) {
         if (trx.tipe == TipeTransaksi.income) {
-          income += trx.jumlah;
+          pemasukan += trx.jumlah;
         } else if (trx.tipe == TipeTransaksi.expense) {
-          expense += trx.jumlah;
+          pengeluaran += trx.jumlah;
         }
       }
 
-      return DetailDompetData(
+      return DataDetailDompet(
         dompet: dompet,
         transaksi: daftarTransaksi,
-        totalIncome: income,
-        totalExpense: expense,
+        totalPemasukan: pemasukan,
+        totalPengeluaran: pengeluaran,
       );
     } catch (e, s) {
       Log.error('Gagal memuat data detail dompet.', e: e, s: s);
@@ -125,7 +108,7 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
   void _muatUlangData() {
     Log.info('Memicu pemuatan ulang data untuk WalletDetail.');
     setState(() {
-      _futureDetailData = _muatData();
+      _futureDataDetail = _muatData();
     });
   }
 
@@ -135,14 +118,14 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
     Log.info(
       'Navigasi ke TransactionDetailPage dari WalletDetail untuk transaksi ID: ${transaction.id}',
     );
-    final result = await Navigator.push<bool>(
+    final hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (context) => DetailTransaksi(transaksi: transaction),
       ),
     );
 
-    if (result ?? false) {
+    if (hasil ?? false) {
       Log.info(
         'Kembali dari halaman detail transaksi dengan sinyal reload. Memuat ulang data dompet.',
       );
@@ -153,19 +136,19 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
   }
 
   Future<void> _navigasiKeFormTransaksi({
-    TransaksiModel? transaction,
+    TransaksiModel? transaksi,
   }) async {
     Log.info(
-      'Membuka FormTransaksiPage untuk mengedit transaksi ID: ${transaction?.id} dari WalletDetail.',
+      'Membuka FormTransaksiPage untuk mengedit transaksi ID: ${transaksi?.id} dari WalletDetail.',
     );
-    final result = await Navigator.push<bool>(
+    final hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (context) => FormTransaksi(transaksi: transaction),
+        builder: (context) => FormTransaksi(transaksi: transaksi),
       ),
     );
 
-    if (result ?? false) {
+    if (hasil ?? false) {
       Log.info(
         'Kembali dari form edit dengan sinyal reload. Memuat ulang data dompet.',
       );
@@ -179,14 +162,14 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_latestWalletName ?? widget.dompet.nama),
+        title: Text(_namaDompetTerbaru ?? widget.dompet.nama),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context, true),
         ),
       ),
-      body: FutureBuilder<DetailDompetData>(
-        future: _futureDetailData,
+      body: FutureBuilder<DataDetailDompet>(
+        future: _futureDataDetail,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -211,13 +194,13 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
                     buildSummaryInfo(
                       context: context,
                       label: 'Pemasukan',
-                      amount: data.totalIncome,
+                      amount: data.totalPemasukan,
                       color: Colors.green,
                     ),
                     buildSummaryInfo(
                       context: context,
                       label: 'Pengeluaran',
-                      amount: data.totalExpense,
+                      amount: data.totalPengeluaran,
                       color: Colors.red,
                     ),
                     buildSummaryInfo(
@@ -243,15 +226,15 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
   }
 
   Widget _bangunDaftarTransaksi(List<TransaksiModel> transactionData) {
-    final groupedTransactions = groupTransactionsByDate(transactionData);
-    final transactionOperation = ref.read(transaksiOpSqliteProvider);
+    final transaksiPerTanggal = kelompokkanTransaksiPerTanggal(transactionData);
+    final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
     return ListView.builder(
-      itemCount: groupedTransactions.length,
+      itemCount: transaksiPerTanggal.length,
       itemBuilder: (context, index) {
-        final date = groupedTransactions.keys.elementAt(index);
-        final transactionsOnDate = groupedTransactions[date]!;
+        final tanggal = transaksiPerTanggal.keys.elementAt(index);
+        final transaksiPadaTanggal = transaksiPerTanggal[tanggal]!;
 
-        final dailyTotal = transactionsOnDate.fold<double>(
+        final totalHarian = transaksiPadaTanggal.fold<double>(
           0.0,
           (sum, item) =>
               sum +
@@ -261,20 +244,20 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            buildSectionHeader(date, dailyTotal),
-            ...transactionsOnDate.map(
-              (transaction) => buildTransactionItem(
+            bangunHeaderBagian(tanggal, totalHarian),
+            ...transaksiPadaTanggal.map(
+              (transaction) => bangunItemTransaksi(
                 context,
                 transaction,
                 onTap: () {
                   unawaited(_navigasiKeDetailTransaksi(transaction));
                 },
                 onEdit: () {
-                  unawaited(_navigasiKeFormTransaksi(transaction: transaction));
+                  unawaited(_navigasiKeFormTransaksi(transaksi: transaction));
                 },
                 onDelete: () async {
                   Log.info('Hapus transaksi: ${transaction.id}');
-                  await transactionOperation.softDelete(transaction.id);
+                  await transaksiOpSqlite.softDelete(transaction.id);
                   _muatUlangData();
                 },
               ),

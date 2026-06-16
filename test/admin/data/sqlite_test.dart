@@ -39,7 +39,7 @@ void main() {
     sqliteDatabase.debugSetDatabaseNull();
 
     when(mockDatabase.batch()).thenReturn(mockBatch);
-    when(mockBatch.commit(noResult: anyNamed('noResult')))
+    when(mockBatch.commit(noResult: any(named: 'noResult')))
         .thenAnswer((_) async => []);
     when(mockDatabase.close()).thenAnswer((_) async {});
   });
@@ -51,7 +51,7 @@ void main() {
   void stubOpenDatabase() {
     when(mockFactory.openDatabase(
       any,
-      options: anyNamed('options'),
+      options: any(named: 'options'),
     )).thenAnswer((invocation) async {
       final options = invocation.namedArguments[const Symbol('options')]
           as OpenDatabaseOptions?;
@@ -107,7 +107,7 @@ void main() {
       final db2 = await sqliteDatabase.database;
 
       expect(identical(db1, db2), isTrue);
-      verify(mockFactory.openDatabase(any, options: anyNamed('options')))
+      verify(mockFactory.openDatabase(any, options: any(named: 'options')))
           .called(1);
     });
 
@@ -119,7 +119,7 @@ void main() {
       await sqliteDatabase.database;
 
       verify(mockFactory.openDatabase(inMemoryDatabasePath,
-              options: anyNamed('options')))
+              options: any(named: 'options')))
           .called(1);
       Platform.environment.remove('FLUTTER_TEST');
     });
@@ -153,13 +153,13 @@ void main() {
 
       await sqliteDatabase.database;
 
-      verify(mockFactory.openDatabase(dbPath, options: anyNamed('options')))
+      verify(mockFactory.openDatabase(dbPath, options: any(named: 'options')))
           .called(1);
     });
 
     test('04. harus melempar exception jika _initDB gagal', () async {
       final exception = Exception('Gagal membuka DB');
-      when(mockFactory.openDatabase(any, options: anyNamed('options')))
+      when(mockFactory.openDatabase(any, options: any(named: 'options')))
           .thenThrow(exception);
 
       expect(sqliteDatabase.database, throwsA(exception));
@@ -172,8 +172,8 @@ void main() {
 
       await sqliteDatabase.database;
 
-      verify(mockBatch.execute(
-              argThat(contains('CREATE TABLE ${NamaTabel.kategori}'))))
+      verify(mockBatch
+              .execute(argThat(contains('CREATE TABLE ${NamaTabel.kategori}'))))
           .called(1);
       verify(mockBatch.execute(
               argThat(contains('CREATE TABLE ${NamaTabel.subKategori}'))))
@@ -181,12 +181,12 @@ void main() {
       verify(mockBatch
               .execute(argThat(contains('CREATE TABLE ${NamaTabel.paket}'))))
           .called(1);
-      verify(mockBatch.execute(
-          argThat(contains('CREATE TABLE ${NamaTabel.pelanggan}'))));
+      verify(mockBatch
+          .execute(argThat(contains('CREATE TABLE ${NamaTabel.pelanggan}'))));
       verify(mockBatch.execute(
           argThat(contains('CREATE TABLE ${NamaTabel.pelangganAktif}'))));
-      verify(mockBatch.execute(
-          argThat(contains('CREATE TABLE "${NamaTabel.transaksi}"'))));
+      verify(mockBatch
+          .execute(argThat(contains('CREATE TABLE "${NamaTabel.transaksi}"'))));
       verify(mockBatch
           .execute(argThat(contains('CREATE TABLE ${NamaTabel.dompet}'))));
       verify(mockBatch
@@ -201,11 +201,11 @@ void main() {
           argThat(contains('CREATE TABLE ${NamaTabel.statusUnggah}'))));
       verify(mockBatch
           .execute(argThat(contains('CREATE TABLE ${NamaTabel.pesan}'))));
-      verify(mockBatch.execute(
-          argThat(contains('CREATE TABLE ${NamaTabel.notifikasi}'))));
+      verify(mockBatch
+          .execute(argThat(contains('CREATE TABLE ${NamaTabel.notifikasi}'))));
 
-      verify(mockBatch.execute(argThat(
-              contains('CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id'))))
+      verify(mockBatch.execute(argThat(contains(
+              'CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id'))))
           .called(1);
 
       verify(mockBatch.commit(noResult: true)).called(1);
@@ -213,21 +213,33 @@ void main() {
   });
 
   group('04. Upgrade Database (_onUpgrade)', () {
-    Future<void> runUpgrade(int oldVersion, int newVersion) async {
-      final options = OpenDatabaseOptions(
-        version: newVersion,
-        onUpgrade: sqliteDatabase.testOnUpgrade,
-      );
-      await options.onUpgrade!(mockDatabase, oldVersion, newVersion);
-    }
+    late Future<void> Function(Database, int, int) onUpgradeCallback;
 
-    setUp(() {
+    setUp(() async {
+      // Capture the onUpgrade callback provided to openDatabase
+      when(mockFactory.openDatabase(
+        any,
+        options: any(named: 'options'),
+      )).thenAnswer((invocation) async {
+        final options = invocation.namedArguments[const Symbol('options')]
+            as OpenDatabaseOptions?;
+        if (options?.onUpgrade != null) {
+          onUpgradeCallback = options.onUpgrade!;
+        }
+        return mockDatabase;
+      });
+
+      sqliteDatabase.debugSetDatabaseNull();
+      await sqliteDatabase.database; // This triggers the openDatabase mock
+
+      // Common stubs for upgrade tests
+      clearInteractions(mockDatabase); // Clear interactions from the initial open
       when(mockDatabase.execute(any)).thenAnswer((_) async {});
       when(mockDatabase.rawQuery(any)).thenAnswer((_) async => []);
     });
 
     test('01. harus menjalankan semua migrasi dari versi < 45 ke 53', () async {
-      await runUpgrade(44, 53);
+      await onUpgradeCallback(mockDatabase, 44, 53);
 
       verify(mockDatabase.execute('DROP TABLE IF EXISTS pengaturan')).called(1);
       verify(mockDatabase.execute(contains('CREATE TABLE pengaturan')))
@@ -239,8 +251,8 @@ void main() {
       verify(mockDatabase
               .execute('ALTER TABLE dompet RENAME COLUMN namaDompet TO name'))
           .called(1);
-      verify(mockDatabase.execute(
-              'ALTER TABLE dompet RENAME TO ${NamaTabel.dompet}'))
+      verify(mockDatabase
+              .execute('ALTER TABLE dompet RENAME TO ${NamaTabel.dompet}'))
           .called(1);
       verify(mockDatabase.execute(
               argThat(contains('ADD COLUMN ${NamaKolom.terkahirAktif}'))))
@@ -254,7 +266,7 @@ void main() {
     });
 
     test('02. harus menjalankan migrasi dari versi 50 ke 53', () async {
-      await runUpgrade(50, 53);
+      await onUpgradeCallback(mockDatabase, 50, 53);
 
       verifyNever(mockDatabase.execute('DROP TABLE IF EXISTS pengaturan'));
 
@@ -270,12 +282,12 @@ void main() {
     });
 
     test('03. tidak boleh menjalankan migrasi jika versi sama', () async {
-      await runUpgrade(53, 53);
+      await onUpgradeCallback(mockDatabase, 53, 53);
 
       verifyNever(mockDatabase.execute(any));
     });
 
-    test('04. _migrateToV53 harus menambahkan kolom jika belum ada', () async {
+    test('04. migrasi v53 harus menambahkan kolom jika belum ada', () async {
       const String trxTable = NamaTabel.transaksi;
       when(mockDatabase.rawQuery('PRAGMA table_info("$trxTable")'))
           .thenAnswer((_) async => [
@@ -283,7 +295,7 @@ void main() {
                 {'name': 'description'},
               ]);
 
-      await sqliteDatabase.testMigrateToV53(mockDatabase);
+      await onUpgradeCallback(mockDatabase, 52, 53);
 
       verify(mockDatabase.execute(
               'ALTER TABLE "$trxTable" ADD COLUMN ${NamaKolom.durasiBonus} INTEGER'))
@@ -293,7 +305,7 @@ void main() {
           .called(1);
     });
 
-    test('05. _migrateToV53 tidak boleh menambahkan kolom jika sudah ada',
+    test('05. migrasi v53 tidak boleh menambahkan kolom jika sudah ada',
         () async {
       const String trxTable = NamaTabel.transaksi;
       when(mockDatabase.rawQuery('PRAGMA table_info("$trxTable")'))
@@ -303,7 +315,7 @@ void main() {
                 {'name': NamaKolom.tipeDurasiBonus},
               ]);
 
-      await sqliteDatabase.testMigrateToV53(mockDatabase);
+      await onUpgradeCallback(mockDatabase, 52, 53);
 
       verifyNever(mockDatabase.execute(
           'ALTER TABLE "$trxTable" ADD COLUMN ${NamaKolom.durasiBonus} INTEGER'));
@@ -321,19 +333,8 @@ void main() {
 
       await sqliteDatabase.database;
 
-      verify(mockFactory.openDatabase(any, options: anyNamed('options')))
+      verify(mockFactory.openDatabase(any, options: any(named: 'options')))
           .called(2);
     });
   });
-}
-
-// Extension to expose private methods for testing
-extension TestSqliteDatabase on SqliteDatabase {
-  Future<void> testOnUpgrade(Database db, int oldVersion, int newVersion) {
-    return _onUpgrade(db, oldVersion, newVersion);
-  }
-
-  Future<void> testMigrateToV53(Database db) {
-    return _migrateToV53(db);
-  }
 }

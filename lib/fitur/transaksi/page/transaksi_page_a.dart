@@ -226,7 +226,7 @@ class _TransactionListView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final groupedTransactions = groupTransactionsByDate(transactions);
+    final groupedTransactions = kelompokkanTransaksiPerTanggal(transactions);
 
     return ListView.builder(
       key: const PageStorageKey('transaction_list_key'),
@@ -244,8 +244,8 @@ class _TransactionListView extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            buildSectionHeader(date, dailyTotal),
-            ...transactionsOnDate.map((transaction) => buildTransactionItem(
+            bangunHeaderBagian(date, dailyTotal),
+            ...transactionsOnDate.map((transaction) => bangunItemTransaksi(
                   context,
                   transaction,
                   onTap: () => _navigasiKeDetailTransaksi(context, transaction),

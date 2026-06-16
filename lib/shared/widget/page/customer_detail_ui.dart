@@ -7,28 +7,13 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/card/point_card.dart';
 
-/// Halaman UI untuk menampilkan detail profil pelanggan.
-///
-/// Menampilkan informasi lengkap pelanggan seperti nama, telepon, alamat,
-/// password, MAC address, dan total poin. Setiap informasi dapat disalin
-/// ke clipboard.
 class CustomerDetailUI extends StatefulWidget {
-  /// Data pelanggan yang akan ditampilkan.
   final PelangganModel pelanggan;
-
-  /// Total poin yang dimiliki pelanggan.
   final int totalPoin;
-
-  /// Callback saat tombol edit ditekan.
   final VoidCallback? navigasiKeEdit;
-
-  /// Callback saat kartu poin ditekan untuk navigasi.
   final VoidCallback? navigasiKePoin;
-
-  /// Callback saat tombol salin semua info ditekan.
   final VoidCallback? onCopyAll;
 
-  /// Membuat halaman [CustomerDetailUI].
   const CustomerDetailUI({
     super.key,
     required this.pelanggan,
@@ -93,7 +78,6 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
     );
   }
 
-  /// Membangun kartu yang menampilkan total poin pelanggan.
   Widget _buildPointCard() {
     return TotalPointCard(
       points: widget.totalPoin,
@@ -106,7 +90,6 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
     );
   }
 
-  /// Membangun bagian yang menampilkan semua detail informasi pelanggan.
   Widget _buildCustomerInfoSection() {
     return Column(
       children: [
@@ -129,7 +112,6 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
     );
   }
 
-  /// Membangun tombol untuk menyalin semua informasi pelanggan.
   Widget _buildCopyAllButton() {
     return ElevatedButton.icon(
       onPressed: () {
@@ -144,7 +126,6 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
     );
   }
 
-  /// Membangun baris detail individu (misal: Nama, Telepon).
   Widget _buildDetailRow(
     final String title,
     final String detail,

@@ -645,7 +645,7 @@ Seluruh nama **fungsi, variabel, props, parameter, file, dan class** wajib ditul
 
 **4. Penggunaan Ikon Wajib dari `AppIcons`**
 - Semua ikon dalam aplikasi **harus diambil dari class `AppIcons`** (`lib/shared/theme/app_icons.dart`), **tidak boleh** menggunakan `Icons.xxx` secara langsung di widget.
-\- Tujuan: menjaga konsistensi ikon di seluruh aplikasi dan memudahkan penggantian ikon secara terpusat.
+- Tujuan: menjaga konsistensi ikon di seluruh aplikasi dan memudahkan penggantian ikon secara terpusat.
 
 **5. Komentar Path di Awal Setiap File**
 - Setiap file kode Dart **wajib** diawali dengan komentar yang menyebutkan path file relatif terhadap root proyek, contoh: `// path: lib/screens/home_screen.dart` dan harus sesuai dengan path aslinya jangan sampai komentar path nya ini tidak sesuai dengan tempat file nya berada.

@@ -1,7 +1,7 @@
 // path: lib/shared/operasi/sqlite_operasi/operasi_sqlite_provider/paket_provider.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/admin/halaman/lainnya/paket.dart';
+import 'package:wifi/fitur/paket/page/paket.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/debug/log.dart';

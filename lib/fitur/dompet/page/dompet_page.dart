@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import 'package:wifi/admin/halaman/detail/detail_dompet.dart';
+import 'package:wifi/fitur/dompet/page/detail_dompet.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/dompet/page/form_dompet.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';

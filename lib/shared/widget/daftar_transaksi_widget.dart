@@ -14,21 +14,22 @@ import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 /// Mengelompokkan daftar transaksi berdasarkan tanggal (tanpa jam).
-Map<DateTime, List<TransaksiModel>> groupTransactionsByDate(
-  final List<TransaksiModel> transactions,
+Map<DateTime, List<TransaksiModel>> kelompokkanTransaksiPerTanggal(
+  final List<TransaksiModel> transaksi,
 ) {
-  final Map<DateTime, List<TransaksiModel>> grouped = {};
-  for (final t in transactions) {
-    final date = DateTime(t.tanggal.year, t.tanggal.month, t.tanggal.day);
-    grouped[date] ??= [];
-    grouped[date]!.add(t);
+  final Map<DateTime, List<TransaksiModel>> kelompok = {};
+  for (final transaksi in transaksi) {
+    final tanggal = DateTime(
+        transaksi.tanggal.year, transaksi.tanggal.month, transaksi.tanggal.day);
+    kelompok[tanggal] ??= [];
+    kelompok[tanggal]!.add(transaksi);
   }
-  return grouped;
+  return kelompok;
 }
 
 /// Membangun widget header untuk sebuah seksi transaksi berdasarkan tanggal.
-Widget buildSectionHeader(final DateTime date, final double total) {
-  return Builder(builder: (final context) {
+Widget bangunHeaderBagian(DateTime date, double total) {
+  return Builder(builder: (context) {
     final textTheme = Theme.of(context).textTheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -53,13 +54,13 @@ Widget buildSectionHeader(final DateTime date, final double total) {
 }
 
 /// Widget tile untuk menampilkan satu transaksi dalam daftar.
-class TransactionTile extends ConsumerStatefulWidget {
+class TileTransaksi extends ConsumerStatefulWidget {
   final TransaksiModel transaksi;
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
-  const TransactionTile({
+  const TileTransaksi({
     super.key,
     required this.transaksi,
     this.onTap,
@@ -68,10 +69,10 @@ class TransactionTile extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<TransactionTile> createState() => _TransactionTileState();
+  ConsumerState<TileTransaksi> createState() => _StateTileTransaksi();
 }
 
-class _TransactionTileState extends ConsumerState<TransactionTile> {
+class _StateTileTransaksi extends ConsumerState<TileTransaksi> {
   late final KategoriOpSqlite _kategoriOpSqlite;
   late final DompetOpSqlite _dompetOpSqlite;
 
@@ -89,13 +90,13 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
     super.dispose();
   }
 
-  Future<String> _getCategoryName() async {
+  Future<String> ambilNamaKategori() async {
     try {
       final kategori = await _kategoriOpSqlite.ambilKategoriBerdasarkanId(
         widget.transaksi.idKategori,
       );
       return kategori.nama;
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error(
         'Gagal mendapatkan nama kategori untuk ID: ${widget.transaksi.idKategori}',
         e: e,
@@ -105,13 +106,13 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
     }
   }
 
-  Future<String> _getWalletName() async {
+  Future<String> _ambilNamaDompet() async {
     try {
       final dompet = await _dompetOpSqlite.ambilBerdasarkanId(
         widget.transaksi.idDompet,
       );
       return dompet?.nama ?? 'Dompet Dihapus';
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error(
         'Gagal mendapatkan nama dompet untuk ID: ${widget.transaksi.idDompet}',
         e: e,
@@ -122,16 +123,16 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final IconData iconData;
-    final Color iconColor;
+    final IconData ikon;
+    final Color warnaIkon;
     if (widget.transaksi.tipe == TipeTransaksi.income) {
-      iconData = Icons.arrow_downward;
-      iconColor = Colors.green;
+      ikon = Icons.arrow_downward;
+      warnaIkon = Colors.green;
     } else {
-      iconData = Icons.arrow_upward;
-      iconColor = Colors.red;
+      ikon = Icons.arrow_upward;
+      warnaIkon = Colors.red;
     }
 
     return Card(
@@ -173,12 +174,12 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
           );
         },
         leading: CircleAvatar(
-          backgroundColor: iconColor.withAlpha(25),
-          child: Icon(iconData, color: iconColor),
+          backgroundColor: warnaIkon.withAlpha(25),
+          child: Icon(ikon, color: warnaIkon),
         ),
         title: Text(widget.transaksi.deskripsi),
         subtitle: FutureBuilder<List<String>>(
-          future: Future.wait([_getCategoryName(), _getWalletName()]),
+          future: Future.wait([ambilNamaKategori(), _ambilNamaDompet()]),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text('Memuat...');
@@ -205,7 +206,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
               FormatUang.formatMataUang(widget.transaksi.jumlah),
               style: textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: iconColor,
+                color: warnaIkon,
               ),
             ),
             gapH4,
@@ -220,15 +221,15 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
   }
 }
 
-/// Membangun widget [TransactionTile] dengan parameter yang diberikan.
-Widget buildTransactionItem(
+/// Membangun widget [TileTransaksi] dengan parameter yang diberikan.
+Widget bangunItemTransaksi(
   final BuildContext context,
   final TransaksiModel transaksi, {
   final VoidCallback? onTap,
   final VoidCallback? onEdit,
   final VoidCallback? onDelete,
 }) {
-  return TransactionTile(
+  return TileTransaksi(
     transaksi: transaksi,
     onTap: onTap,
     onEdit: onEdit,
