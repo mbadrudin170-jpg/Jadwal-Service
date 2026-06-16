@@ -46,10 +46,10 @@ class _ManageAnnouncementPageState
     super.initState();
     if (_isEditMode) {
       _selectedAnnouncement = widget.event;
-      _imageUrlController.text = widget.event!.imageUrl;
-      _isSwitched = widget.event!.isActive;
-      _selectedStartDate = widget.event!.startDate;
-      _selectedEndDate = widget.event!.endDate;
+      _imageUrlController.text = widget.event!.linkGambar;
+      _isSwitched = widget.event!.statusAktif;
+      _selectedStartDate = widget.event!.tanggalMulai;
+      _selectedEndDate = widget.event!.tanggalBerakhir;
     } else {
       _isSwitched = false;
     }
@@ -71,7 +71,7 @@ class _ManageAnnouncementPageState
       final announcements = await operator.getAll();
       final EventModel? activeAnnouncement =
           announcements.cast<EventModel?>().firstWhere(
-        (ann) => ann?.isActive ?? false,
+        (ann) => ann?.statusAktif ?? false,
         orElse: () {
           Log.info('Tidak ada pengumuman aktif ditemukan untuk dimuat.');
           return null;
@@ -80,10 +80,10 @@ class _ManageAnnouncementPageState
 
       setState(() {
         _selectedAnnouncement = activeAnnouncement;
-        _imageUrlController.text = activeAnnouncement?.imageUrl ?? '';
-        _isSwitched = activeAnnouncement?.isActive ?? false;
-        _selectedStartDate = activeAnnouncement?.startDate;
-        _selectedEndDate = activeAnnouncement?.endDate;
+        _imageUrlController.text = activeAnnouncement?.linkGambar ?? '';
+        _isSwitched = activeAnnouncement?.statusAktif ?? false;
+        _selectedStartDate = activeAnnouncement?.tanggalMulai;
+        _selectedEndDate = activeAnnouncement?.tanggalBerakhir;
       });
     } on Exception catch (e, st) {
       Log.error('Gagal memuat pengumuman', e: e, s: st);
@@ -256,20 +256,20 @@ class _ManageAnnouncementPageState
     // Menjamin kolom 'not null' di Supabase selalu terisi dengan data terbaru dari UI
     final EventModel announcementToSave = _isEditMode
         ? _selectedAnnouncement!.copyWith(
-            imageUrl: imageUrl,
-            isActive: isActive,
-            startDate: _selectedStartDate,
-            endDate: _selectedEndDate,
-            updatedAt: now,
+            linkGambar: imageUrl,
+            statusAktif: isActive,
+            tanggalMulai: _selectedStartDate!,
+            tanggalBerakhir: _selectedEndDate!,
+            diperbaruiPada: now,
           )
         : EventModel(
             id: const Uuid().v4(),
-            createdAt: now,
-            updatedAt: now,
-            imageUrl: imageUrl,
-            isActive: isActive,
-            startDate: _selectedStartDate!,
-            endDate: _selectedEndDate!,
+            tanggalDibuat: now,
+            diperbaruiPada: now,
+            linkGambar: imageUrl,
+            statusAktif: isActive,
+            tanggalMulai: _selectedStartDate!,
+            tanggalBerakhir: _selectedEndDate!,
           );
 
     // 4. Manajemen status aktif (Hanya izinkan satu pengumuman yang aktif secara simultan)
@@ -279,7 +279,7 @@ class _ManageAnnouncementPageState
         if (currentActive != null &&
             currentActive.id != announcementToSave.id) {
           final oldActive =
-              currentActive.copyWith(isActive: false, updatedAt: now);
+              currentActive.copyWith(statusAktif: false, diperbaruiPada: now);
           await eventOpSupabase.update(oldActive);
         }
       } catch (e, st) {

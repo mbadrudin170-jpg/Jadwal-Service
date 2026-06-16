@@ -40,7 +40,7 @@ class DetailEventA extends ConsumerWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(TSizes.p12),
               child: CachedNetworkImage(
-                imageUrl: event.imageUrl,
+                imageUrl: event.linkGambar,
                 placeholder: (context, url) => const SizedBox(
                   height: 200,
                   child: Center(child: CircularProgressIndicator()),
@@ -53,17 +53,18 @@ class DetailEventA extends ConsumerWidget {
             gapH24,
             _buildInfoRow('ID Pengumuman', event.id),
             const Divider(),
-            _buildInfoRow('Status', event.isActive ? 'Aktif' : 'Tidak Aktif',
-                color: event.isActive ? Colors.green : Colors.red),
+            _buildInfoRow('Status', event.statusAktif ? 'Aktif' : 'Tidak Aktif',
+                color: event.statusAktif ? Colors.green : Colors.red),
             const Divider(),
-            _buildInfoRow('Mulai', event.startDate.toLocal().toString()),
+            _buildInfoRow('Mulai', event.tanggalMulai.toLocal().toString()),
             const Divider(),
-            _buildInfoRow('Selesai', event.endDate.toLocal().toString()),
+            _buildInfoRow('Selesai', event.tanggalBerakhir.toLocal().toString()),
             const Divider(),
-            _buildInfoRow('Dibuat pada', event.createdAt.toLocal().toString()),
+            _buildInfoRow(
+                'Dibuat pada', event.tanggalDibuat.toLocal().toString()),
             const Divider(),
             _buildInfoRow('Terakhir Diperbarui',
-                event.updatedAt?.toLocal().toString() ?? '-'),
+                event.diperbaruiPada?.toLocal().toString() ?? '-'),
           ],
         ),
       ),

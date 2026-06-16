@@ -76,17 +76,17 @@ class EventPageA extends ConsumerWidget {
                 return Card(
                   margin: const EdgeInsets.only(bottom: TSizes.p16),
                   child: ListTile(
-                    leading: announcement.imageUrl.isNotEmpty
+                    leading: announcement.linkGambar.isNotEmpty
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(8.0),
                             child: Image.network(
-                              announcement.imageUrl,
+                              announcement.linkGambar,
                               width: 60,
                               height: 60,
                               fit: BoxFit.cover,
                               errorBuilder: (context, e, st) {
                                 Log.error(
-                                    'Gagal memuat gambar: ${announcement.imageUrl}',
+                                    'Gagal memuat gambar: ${announcement.linkGambar}',
                                     e: e,
                                     s: st);
                                 return const Icon(TIcons.error);
@@ -103,21 +103,22 @@ class EventPageA extends ConsumerWidget {
                       children: [
                         gapH8,
                         Text(
-                            'Dibuat: ${announcement.createdAt.toLocal().toString().split(' ')[0]}'),
+                            'Dibuat: ${announcement.tanggalDibuat.toLocal().toString().split(' ')[0]}'),
                         gapH4,
                         Chip(
-                          label: Text(
-                              announcement.isActive ? 'Aktif' : 'Tidak Aktif'),
+                          label: Text(announcement.statusAktif
+                              ? 'Aktif'
+                              : 'Tidak Aktif'),
                           avatar: Icon(
-                            announcement.isActive
+                            announcement.statusAktif
                                 ? TIcons.toggleOn
                                 : TIcons.toggleOff,
                             size: 18,
-                            color: announcement.isActive
+                            color: announcement.statusAktif
                                 ? Colors.green
                                 : Colors.grey,
                           ),
-                          backgroundColor: announcement.isActive
+                          backgroundColor: announcement.statusAktif
                               ? Colors.green.withValues(alpha: 0.08)
                               : Colors.grey.withValues(alpha: 0.08),
                           padding: const EdgeInsets.symmetric(horizontal: 4),

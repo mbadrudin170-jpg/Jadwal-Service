@@ -21,20 +21,20 @@ void main() {
 
   final eventAktif = EventModel(
     id: 'event-123',
-    imageUrl: 'https://example.com/image.png',
-    isActive: true,
-    createdAt: DateTime(2023, 10, 26),
-    startDate: DateTime(2023, 10, 26),
-    endDate: DateTime(2023, 11, 26),
+    linkGambar: 'https://example.com/image.png',
+    statusAktif: true,
+    tanggalDibuat: DateTime(2023, 10, 26),
+    tanggalMulai: DateTime(2023, 10, 26),
+    tangglberakhir: DateTime(2023, 11, 26),
   );
 
   final eventTidakAktif = EventModel(
     id: 'event-456',
-    imageUrl: '',
-    isActive: false,
-    createdAt: DateTime(2023, 10, 25),
-    startDate: DateTime(2023, 10, 25),
-    endDate: DateTime(2023, 11, 25),
+    linkGambar: '',
+    statusAktif: false,
+    tanggalDibuat: DateTime(2023, 10, 25),
+    tanggalMulai: DateTime(2023, 10, 25),
+    tangglberakhir: DateTime(2023, 11, 25),
   );
 
   setUp(() {

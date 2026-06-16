@@ -42,17 +42,17 @@ class DetailEventA extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (detailedEvent.imageUrl.isNotEmpty)
+                if (detailedEvent.linkGambar.isNotEmpty)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12.0),
                     child: Image.network(
-                      detailedEvent.imageUrl,
+                      detailedEvent.linkGambar,
                       width: double.infinity,
                       height: 200,
                       fit: BoxFit.cover,
                       errorBuilder: (context, e, st) {
                         Log.error(
-                            'Gagal memuat gambar detail: ${detailedEvent.imageUrl}',
+                            'Gagal memuat gambar detail: ${detailedEvent.linkGambar}',
                             e: e,
                             s: st);
                         return Container(
@@ -68,19 +68,20 @@ class DetailEventA extends ConsumerWidget {
                   children: [
                     Chip(
                       label: Text(
-                          detailedEvent.isActive ? 'Aktif' : 'Tidak Aktif'),
-                      backgroundColor: detailedEvent.isActive
+                          detailedEvent.statusAktif ? 'Aktif' : 'Tidak Aktif'),
+                      backgroundColor: detailedEvent.statusAktif
                           ? Colors.green.withAlpha(25) // Menggunakan withAlpha
                           : Colors.grey.withAlpha(25), // Menggunakan withAlpha
                       labelStyle: TextStyle(
-                        color:
-                            detailedEvent.isActive ? Colors.green : Colors.grey,
+                        color: detailedEvent.statusAktif
+                            ? Colors.green
+                            : Colors.grey,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const Spacer(),
                     Text(
-                      'Dibuat: ${detailedEvent.createdAt.toLocal().toString().split(' ')[0]}',
+                      'Dibuat: ${detailedEvent.tanggalDibuat.toLocal().toString().split(' ')[0]}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],

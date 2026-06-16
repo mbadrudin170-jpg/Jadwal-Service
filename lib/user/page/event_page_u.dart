@@ -61,7 +61,7 @@ class _EventPageUState extends ConsumerState<EventPageU> {
       fit: StackFit.expand,
       children: [
         CachedNetworkImage(
-          imageUrl: data.imageUrl,
+          imageUrl: data.linkGambar,
           fit: BoxFit.cover,
         ),
         Positioned(
