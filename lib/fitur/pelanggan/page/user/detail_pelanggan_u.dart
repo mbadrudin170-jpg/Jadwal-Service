@@ -83,7 +83,7 @@ class _UserCustomerDetailPageState
     final bool? hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (final context) => EditProfilePage(customer: pelanggan),
+        builder: (context) => EditProfilePage(customer: pelanggan),
       ),
     );
     await ref.read(interstitialAdServiceProvider).show();
