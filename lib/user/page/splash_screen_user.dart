@@ -116,7 +116,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => MaintenancePage(
-              maintenanceInfo: maintenanceSettings.infoMaintenance,
+              infoMaintenance: maintenanceSettings.infoMaintenance,
               onRefresh: _initializeApp,
               onExit: SystemNavigator.pop,
             ),

@@ -11,13 +11,13 @@ import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman yang ditampilkan saat aplikasi dalam mode pemeliharaan (maintenance).
 class MaintenancePage extends StatefulWidget {
-  final String maintenanceInfo;
+  final String infoMaintenance;
   final FutureOr<void> Function() onRefresh;
   final VoidCallback onExit;
 
   const MaintenancePage({
     super.key,
-    required this.maintenanceInfo,
+    required this.infoMaintenance,
     required this.onRefresh,
     required this.onExit,
   });
@@ -36,7 +36,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
     Log.info('[Init] MaintenancePage diinisialisasi.');
   }
 
-  Future<void> _handleRefresh() async {
+  Future<void> _refreshData() async {
     if (_isLoading) return;
 
     Log.info('[Aksi Pengguna] Tombol "Coba Lagi" ditekan.');
@@ -64,7 +64,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
   @override
   Widget build(BuildContext context) {
     Log.info(
-      '[Build UI] Membangun MaintenancePage dengan info: "${widget.maintenanceInfo}"',
+      '[Build UI] Membangun MaintenancePage dengan info: "${widget.infoMaintenance}"',
     );
     return Scaffold(
       appBar: AppBar(
@@ -72,9 +72,9 @@ class _MaintenancePageState extends State<MaintenancePage> {
         automaticallyImplyLeading: false,
       ),
       body: _MaintenanceContent(
-        maintenanceInfo: widget.maintenanceInfo,
+        infoMaintenance: widget.infoMaintenance,
         isLoading: _isLoading,
-        onRefresh: _handleRefresh,
+        onRefresh: _refreshData,
         onExit: widget.onExit,
       ),
     );
@@ -83,13 +83,13 @@ class _MaintenancePageState extends State<MaintenancePage> {
 
 /// Widget private yang bertanggung jawab untuk menampilkan konten UI halaman maintenance.
 class _MaintenanceContent extends StatelessWidget {
-  final String maintenanceInfo;
+  final String infoMaintenance;
   final bool isLoading;
   final VoidCallback onRefresh;
   final VoidCallback onExit;
 
   const _MaintenanceContent({
-    required this.maintenanceInfo,
+    required this.infoMaintenance,
     required this.isLoading,
     required this.onRefresh,
     required this.onExit,
@@ -104,7 +104,8 @@ class _MaintenanceContent extends StatelessWidget {
             width: 24, // Nilai ini spesifik untuk ukuran ikon, jadi tetap
             height: 24,
             padding: const EdgeInsets.all(
-                2.0), // Padding kecil untuk alignment indicator
+              2.0,
+            ), // Padding kecil untuk alignment indicator
             child: const CircularProgressIndicator(
               color: Colors.white,
               strokeWidth: 3,
@@ -118,21 +119,18 @@ class _MaintenanceContent extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              TIcons.warningAmber,
-              size: 80,
-              color: Colors.orange,
-            ),
+            const Icon(TIcons.warningAmber, size: 80, color: Colors.orange),
             gapH24, // Menggunakan gapH
             Text(
               'Pemberitahuan Pemeliharaan',
-              style: textTheme.headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              style: textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
               textAlign: TextAlign.center,
             ),
             gapH16, // Menggunakan gapH
             Text(
-              maintenanceInfo,
+              infoMaintenance,
               textAlign: TextAlign.center,
               style: textTheme.bodyLarge,
             ),
