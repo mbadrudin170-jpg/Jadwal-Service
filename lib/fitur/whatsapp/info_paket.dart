@@ -13,21 +13,21 @@ import 'package:wifi/shared/utils/format_util.dart';
 
 final pesanInfoPaketProvider = Provider<PesanInfoPaket>((ref) {
   return PesanInfoPaket(
-    customerOperation: ref.read(pelangganOpSqliteProvider),
-    packageOperation: ref.read(paketOpSqliteProvider),
+    pelangganAktifOpSqlite: ref.read(pelangganOpSqliteProvider),
+    paketOpSqlite: ref.read(paketOpSqliteProvider),
   );
 });
 
 /// Kelas untuk mengirim pesan informasi paket melalui WhatsApp.
 class PesanInfoPaket {
-  final PelangganOpSqlite _customerOperation;
-  final PaketOpSqlite _packageOperation;
+  final PelangganOpSqlite _pelangganAktifOpSqlite;
+  final PaketOpSqlite _paketOpSqlite;
 
   PesanInfoPaket({
-    required PelangganOpSqlite customerOperation,
-    required PaketOpSqlite packageOperation,
-  })  : _customerOperation = customerOperation,
-        _packageOperation = packageOperation;
+    required PelangganOpSqlite pelangganAktifOpSqlite,
+    required PaketOpSqlite paketOpSqlite,
+  }) : _pelangganAktifOpSqlite = pelangganAktifOpSqlite,
+       _paketOpSqlite = paketOpSqlite;
 
   /// Mengambil detail pelanggan dan paket, membuat pesan,
   /// lalu mengirimkannya melalui WhatsApp.
@@ -38,13 +38,12 @@ class PesanInfoPaket {
 
     try {
       Log.info(
-          'Mengambil data pelanggan dengan ID: ${activeCustomer.idPelanggan}');
-      final PelangganModel? customer =
-          await _customerOperation.ambilBerdasarkanId(
-        activeCustomer.idPelanggan,
+        'Mengambil data pelanggan dengan ID: ${activeCustomer.idPelanggan}',
       );
+      final PelangganModel? customer = await _pelangganAktifOpSqlite
+          .ambilBerdasarkanId(activeCustomer.idPelanggan);
       Log.info('Mengambil data paket dengan ID: ${activeCustomer.idPaket}');
-      final PaketModel? package = await _packageOperation.ambilBerdasarkanId(
+      final PaketModel? package = await _paketOpSqlite.ambilBerdasarkanId(
         activeCustomer.idPaket,
       );
 
@@ -70,7 +69,7 @@ class PesanInfoPaket {
       );
 
       await _sendViaWhatsApp(customer.telepon, message);
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error(
         'Terjadi kesalahan fatal saat proses kirimRincianPaket.',
         e: e,
@@ -88,12 +87,15 @@ class PesanInfoPaket {
     final namaPelanggan = pelanggan.nama;
     final namaPaket = paket.nama;
     final hargaPaket = FormatUang.formatMataUang(paket.harga.toDouble());
-    final tanggalMulai =
-        FormatWaktuLengkap.formatSingkat(pelangganAktif.tanggalMulai);
-    final tanggalBerakhir =
-        FormatWaktuLengkap.formatSingkat(pelangganAktif.tanggalBerakhir);
+    final tanggalMulai = FormatWaktuLengkap.formatSingkat(
+      pelangganAktif.tanggalMulai,
+    );
+    final tanggalBerakhir = FormatWaktuLengkap.formatSingkat(
+      pelangganAktif.tanggalBerakhir,
+    );
 
-    final pesan = '''
+    final pesan =
+        '''
 *-- Rincian Aktivasi Paket --*
 
 Halo, *$namaPelanggan*.
@@ -149,9 +151,12 @@ Semoga harimu menyenangkan!
           'Tidak dapat membuka URL WhatsApp. Kemungkinan aplikasi WhatsApp tidak terinstal.',
         );
       }
-    } on Exception catch (e, s) {
-      Log.error('Gagal total saat mencoba meluncurkan URL WhatsApp.',
-          e: e, s: s);
+    } catch (e, s) {
+      Log.error(
+        'Gagal total saat mencoba meluncurkan URL WhatsApp.',
+        e: e,
+        s: s,
+      );
     }
   }
 }
