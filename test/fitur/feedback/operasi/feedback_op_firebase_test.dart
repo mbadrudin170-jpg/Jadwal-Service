@@ -1,0 +1,229 @@
+// path: test/fitur/feedback/operasi/feedback_op_firebase_test.dart
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
+
+// Mocks
+class MockBaseOpFirebase extends Mock implements BaseOpFirebase {}
+
+class MockCollectionReference extends Mock
+    implements CollectionReference<Map<String, dynamic>> {}
+
+class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
+
+void main() {
+  late FeedbackOpFirebase feedbackOpFirebase;
+  late BaseOpFirebase mockBaseOp;
+  late FirebaseFirestore fakeFirestore;
+
+  // Data sampel
+  final feedback = FeedbackModel(
+    id: 'feedback1',
+    pesan: 'Ini adalah feedback',
+    userId: 'user1',
+    tanggal: DateTime.now(),
+  );
+
+  setUp(() {
+    mockBaseOp = MockBaseOpFirebase();
+    fakeFirestore = FakeFirebaseFirestore();
+    feedbackOpFirebase = FeedbackOpFirebase(
+      firestore: fakeFirestore,
+      baseOp: mockBaseOp,
+    );
+
+    // Register fallback value for FieldValue
+    registerFallbackValue(FieldValue.serverTimestamp());
+  });
+
+  group('FeedbackOpFirebase', () {
+    test('01. create - harus mendelegasikan ke baseOp.tambah', () async {
+      // Arrange
+      when(() => mockBaseOp.tambah(any(), any()))
+          .thenAnswer((_) async => FakeDocumentReference());
+
+      final data = feedback.toFirebase();
+      data[NamaKolom.tanggal] = FieldValue.serverTimestamp();
+
+      // Act
+      await feedbackOpFirebase.create(feedback);
+
+      // Assert
+      verify(() => mockBaseOp.tambah(
+            NamaTabel.feedback,
+            any(that: isA<Map<String, dynamic>>()),
+          )).called(1);
+    });
+
+    test('02. update - harus mendelegasikan ke baseOp.update', () async {
+      // Arrange
+      when(() => mockBaseOp.update(any(), any(), any()))
+          .thenAnswer((_) async {});
+      const docId = 'feedback1';
+      const newContent = 'Pesan baru';
+
+      // Act
+      await feedbackOpFirebase.update(docId, newContent);
+
+      // Assert
+      verify(() => mockBaseOp.update(
+            NamaTabel.feedback,
+            docId,
+            {NamaKolom.pesan: newContent},
+          )).called(1);
+    });
+
+    test('03. delete - harus mendelegasikan ke baseOp.hapusPermanen', () async {
+      // Arrange
+      when(() => mockBaseOp.hapusPermanen(any(), any()))
+          .thenAnswer((_) async {});
+      const docId = 'feedback1';
+
+      // Act
+      await feedbackOpFirebase.delete(docId);
+
+      // Assert
+      verify(() => mockBaseOp.hapusPermanen(NamaTabel.feedback, docId))
+          .called(1);
+    });
+
+    test(
+        '04. softDeleteFeedback - harus mendelegasikan ke baseOp.hapusSementara',
+        () async {
+      // Arrange
+      when(() => mockBaseOp.hapusSementara(any(), any()))
+          .thenAnswer((_) async {});
+      const docId = 'feedback1';
+
+      // Act
+      await feedbackOpFirebase.softDeleteFeedback(docId);
+
+      // Assert
+      verify(() => mockBaseOp.hapusSementara(NamaTabel.feedback, docId))
+          .called(1);
+    });
+
+    group('getByUser', () {
+      final tgl1 = DateTime(2023, 1, 1);
+      final tgl2 = DateTime(2023, 1, 2);
+
+      final feedback1 = FeedbackModel(
+          id: 'fb1',
+          pesan: 'Feedback 1',
+          userId: 'user1',
+          tanggal: tgl1,
+          dihapus: false);
+      final feedback2 = FeedbackModel(
+          id: 'fb2',
+          pesan: 'Feedback 2',
+          userId: 'user1',
+          tanggal: tgl2,
+          dihapus: false);
+      final feedbackDihapus = FeedbackModel(
+          id: 'fb3',
+          pesan: 'Feedback 3',
+          userId: 'user1',
+          tanggal: tgl1,
+          dihapus: true);
+      final feedbackUserLain = FeedbackModel(
+          id: 'fb4',
+          pesan: 'Feedback 4',
+          userId: 'user2',
+          tanggal: tgl1,
+          dihapus: false);
+
+      test(
+          '05. harus mengembalikan stream berisi daftar feedback yang benar untuk pengguna',
+          () async {
+        // Arrange
+        await fakeFirestore
+            .collection(NamaTabel.feedback)
+            .doc(feedback1.id)
+            .set(feedback1.toFirebase());
+        await fakeFirestore
+            .collection(NamaTabel.feedback)
+            .doc(feedback2.id)
+            .set(feedback2.toFirebase());
+        await fakeFirestore
+            .collection(NamaTabel.feedback)
+            .doc(feedbackDihapus.id)
+            .set(feedbackDihapus.toFirebase());
+        await fakeFirestore
+            .collection(NamaTabel.feedback)
+            .doc(feedbackUserLain.id)
+            .set(feedbackUserLain.toFirebase());
+
+        // Act
+        final stream = feedbackOpFirebase.getByUser('user1');
+
+        // Assert
+        expect(
+            stream,
+            emits(isA<List<FeedbackModel>>()
+                .having((list) => list.length, 'panjang daftar', 2)
+                // Feedback 2 harus pertama karena tanggalnya lebih baru
+                .having((list) => list[0].id, 'id item pertama', feedback2.id)
+                .having((list) => list[1].id, 'id item kedua', feedback1.id)));
+      });
+
+      test('06. harus mengembalikan stream kosong jika tidak ada data',
+          () async {
+        // Arrange
+        // Tidak ada data yang ditambahkan ke fakeFirestore
+
+        // Act
+        final stream = feedbackOpFirebase.getByUser('user-kosong');
+
+        // Assert
+        expect(stream, emits([]));
+      });
+
+      test('07. harus menangani error dari stream firestore', () async {
+        // Arrange
+        final mockFirestore = MockFirebaseFirestore();
+        final mockCollection = MockCollectionReference();
+
+        when(() => mockFirestore.collection(NamaTabel.feedback))
+            .thenReturn(mockCollection);
+        // Atur rantai panggilan `where`
+        when(() => mockCollection.where(NamaKolom.userId, isEqualTo: 'user1'))
+            .thenReturn(mockCollection);
+        when(() => mockCollection.where(NamaKolom.dihapus, isEqualTo: false))
+            .thenReturn(mockCollection);
+        when(() =>
+                mockCollection.orderBy(NamaKolom.tanggal, descending: true))
+            .thenReturn(mockCollection);
+        // Atur `snapshots` untuk mengembalikan stream error
+        when(() => mockCollection.snapshots())
+            .thenAnswer((_) => Stream.error(Exception('Firestore error')));
+
+        feedbackOpFirebase = FeedbackOpFirebase(
+          firestore: mockFirestore,
+          baseOp: mockBaseOp,
+        );
+
+        // Act
+        final stream = feedbackOpFirebase.getByUser('user1');
+
+        // Assert
+        expect(stream, emitsError(isA<Exception>()));
+      });
+    });
+  });
+}
+
+// Kelas FakeDocumentReference diperlukan untuk mock `tambah`
+class FakeDocumentReference extends Fake implements DocumentReference {
+  @override
+  String get id => 'fake_id';
+
+  @override
+  String get path => '/feedback/fake_id';
+}

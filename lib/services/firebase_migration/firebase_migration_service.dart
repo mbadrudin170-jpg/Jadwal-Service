@@ -146,7 +146,7 @@ class FirebaseMigrationService {
       'isDeleted': NamaKolom.dihapus,
     },
     NamaTabel.settings: {
-      'interval_sinkronisasi_otomatis': NamaKolom.waktuOtomatisSinkroniasi,
+      'interval_sinkronisasi_otomatis': NamaKolom.waktuOtomatisSinkronisasi,
       'hapus_otomatis_data_arsip': NamaKolom.waktuOtomatisHapusDataArsip,
       'mode_pemeliharaan': NamaKolom.modeMaintenance,
       'info_pemeliharaan': NamaKolom.infoMaintenance,

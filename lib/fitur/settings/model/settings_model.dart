@@ -28,7 +28,7 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
     return SettingsModel(
       id: map[NamaKolom.id] as String? ?? idGlobalSetting,
       waktuOtomatisSinkroniasi:
-          map[NamaKolom.waktuOtomatisSinkroniasi] as int? ?? 24,
+          map[NamaKolom.waktuOtomatisSinkronisasi] as int? ?? 24,
       waktuOtomatisHapusDataArsip:
           map[NamaKolom.waktuOtomatisHapusDataArsip] as int? ?? 30,
       modeMaintenance: ParserUtil.parseBool(map[NamaKolom.modeMaintenance]),
@@ -40,7 +40,7 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
-      NamaKolom.waktuOtomatisSinkroniasi: waktuOtomatisSinkroniasi,
+      NamaKolom.waktuOtomatisSinkronisasi: waktuOtomatisSinkroniasi,
       NamaKolom.waktuOtomatisHapusDataArsip: waktuOtomatisHapusDataArsip,
       NamaKolom.modeMaintenance: modeMaintenance ? 1 : 0,
       NamaKolom.infoMaintenance: infoMaintenance,
@@ -53,7 +53,7 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
     return SettingsModel(
       id: data[NamaKolom.id] as String? ?? idGlobalSetting,
       waktuOtomatisSinkroniasi:
-          data[NamaKolom.waktuOtomatisSinkroniasi] as int? ?? 24,
+          data[NamaKolom.waktuOtomatisSinkronisasi] as int? ?? 24,
       waktuOtomatisHapusDataArsip:
           data[NamaKolom.waktuOtomatisHapusDataArsip] as int? ?? 30,
       modeMaintenance: ParserUtil.parseBool(data[NamaKolom.modeMaintenance]),
@@ -65,7 +65,7 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
-      NamaKolom.waktuOtomatisSinkroniasi: waktuOtomatisSinkroniasi,
+      NamaKolom.waktuOtomatisSinkronisasi: waktuOtomatisSinkroniasi,
       NamaKolom.waktuOtomatisHapusDataArsip: waktuOtomatisHapusDataArsip,
       NamaKolom.modeMaintenance: modeMaintenance,
       NamaKolom.infoMaintenance: infoMaintenance,

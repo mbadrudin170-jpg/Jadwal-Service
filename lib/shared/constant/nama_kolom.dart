@@ -45,7 +45,7 @@ abstract final class NamaKolom {
   static const String wajibUpdate = 'is_update_required';
   static const String terkahirAktif = 'last_active_at';
   static const String linkYoutubeTutorial = 'youtube_tutorial';
-  static const String waktuOtomatisSinkroniasi = 'auto_sync_interval';
+  static const String waktuOtomatisSinkronisasi = 'auto_sync_interval';
   static const String waktuOtomatisHapusDataArsip = 'auto_delete_archive_days';
   static const String modeMaintenance = 'maintenance_mode';
   static const String infoMaintenance = 'maintenance_info';

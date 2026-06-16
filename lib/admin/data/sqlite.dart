@@ -582,7 +582,7 @@ class SqliteDatabase {
   static const String _tabelSetting = '''
     CREATE TABLE ${NamaTabel.settings}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.waktuOtomatisSinkroniasi} INTEGER NOT NULL DEFAULT 24,
+      ${NamaKolom.waktuOtomatisSinkronisasi} INTEGER NOT NULL DEFAULT 24,
       ${NamaKolom.waktuOtomatisHapusDataArsip} INTEGER NOT NULL DEFAULT 30,
       ${NamaKolom.diperbaruiPada} INTEGER,
       ${NamaKolom.modeMaintenance} INTEGER NOT NULL DEFAULT 0,
