@@ -8,23 +8,23 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 
 /// Widget yang menampilkan nama paket berdasarkan Future yang diberikan.
 ///
-/// Widget ini didekopling dari sumber data. Ia hanya menerima [packageFuture]
+/// Widget ini didekopling dari sumber data. Ia hanya menerima [paketFuture]
 /// dan menampilkan hasilnya. Menampilkan indikator loading saat menunggu,
 /// atau 'Paket tidak tersedia' jika data null atau error.
 class PackageNameWidget extends StatelessWidget {
   /// Future yang mengembalikan [PaketModel] untuk ditampilkan namanya.
-  final Future<PaketModel?> packageFuture;
+  final Future<PaketModel?> paketFuture;
 
   /// Gaya teks opsional untuk nama paket.
   final TextStyle? style;
 
   /// Membuat widget [PackageNameWidget].
-  const PackageNameWidget({super.key, required this.packageFuture, this.style});
+  const PackageNameWidget({super.key, required this.paketFuture, this.style});
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<PaketModel?>(
-      future: packageFuture,
+      future: paketFuture,
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const SizedBox(

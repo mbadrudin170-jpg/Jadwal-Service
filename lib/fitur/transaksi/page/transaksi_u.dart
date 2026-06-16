@@ -206,7 +206,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                             child: ListTile(
                                 leading: const Icon(TIcons.receiptLong),
                                 title: PackageNameWidget(
-                                    packageFuture: packageFuture),
+                                    paketFuture: packageFuture),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [

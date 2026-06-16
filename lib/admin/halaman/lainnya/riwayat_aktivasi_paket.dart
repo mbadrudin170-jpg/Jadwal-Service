@@ -78,7 +78,7 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       PackageNameWidget(
-                        packageFuture: paketOpSqlite
+                        paketFuture: paketOpSqlite
                             .ambilBerdasarkanId(transaction.idPaket ?? ''),
                         style: TextStyle(color: paymentStatusColor),
                       ),

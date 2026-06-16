@@ -23,7 +23,7 @@ class OrderPage extends ConsumerStatefulWidget {
 }
 
 class _OrderPageState extends ConsumerState<OrderPage> {
-  String _filterAktif = StatusOrderEnum.selesai.name;
+  String _filterAktif = StatusOrderEnum.baru.name;
 
   Future<bool?> _konfirmasiOpsi(BuildContext context) {
     return showDialog<bool>(
@@ -191,26 +191,26 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           spacing: 12.0, // Memberi spasi antar tombol
           children: [
             _tombolTipe(StatusOrderEnum.baru,
-                isActive: _filterAktif == StatusOrderEnum.baru.name),
+                sedangAktif: _filterAktif == StatusOrderEnum.baru.name),
             _tombolTipe(StatusOrderEnum.diproses,
-                isActive: _filterAktif == StatusOrderEnum.diproses.name),
+                sedangAktif: _filterAktif == StatusOrderEnum.diproses.name),
             _tombolTipe(StatusOrderEnum.selesai,
-                isActive: _filterAktif == StatusOrderEnum.selesai.name),
+                sedangAktif: _filterAktif == StatusOrderEnum.selesai.name),
             _tombolTipe(StatusOrderEnum.ditolak,
-                isActive: _filterAktif == StatusOrderEnum.ditolak.name),
+                sedangAktif: _filterAktif == StatusOrderEnum.ditolak.name),
           ],
         ),
       ),
     );
   }
 
-  Widget _tombolTipe(StatusOrderEnum status, {required bool isActive}) {
+  Widget _tombolTipe(StatusOrderEnum status, {required bool sedangAktif}) {
     final orderAsync = ref.watch(orderProvider);
     final label = status.displayName;
 
     return InkWell(
       onTap: () {
-        if (!isActive) {
+        if (!sedangAktif) {
           setState(() {
             _filterAktif = status.name;
             Log.info('Filter pesanan diubah menjadi: $_filterAktif');
@@ -220,10 +220,11 @@ class _OrderPageState extends ConsumerState<OrderPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? Theme.of(context).primaryColor : Colors.transparent,
+          color:
+              sedangAktif ? Theme.of(context).primaryColor : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isActive
+            color: sedangAktif
                 ? Theme.of(context).primaryColor
                 : Colors.grey.shade400,
           ),
@@ -237,21 +238,21 @@ class _OrderPageState extends ConsumerState<OrderPage> {
               loading: () => const CircularProgressIndicator(),
               error: (e, s) => Text('Error: $e $s'),
               data: (orderState) {
-                final count =
+                final jumlah =
                     orderState.orders.where((o) => o.status == status).length;
-                if (count == 0) return const SizedBox.shrink();
+                if (jumlah == 0) return const SizedBox.shrink();
                 return Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: isActive
+                    color: sedangAktif
                         ? Theme.of(context).colorScheme.onPrimary
                         : Theme.of(context).colorScheme.primary,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: TeksIsiKecil(
-                    count > 99 ? '99+' : count.toString(),
-                    warna: isActive
+                    jumlah > 99 ? '99+' : jumlah.toString(),
+                    warna: sedangAktif
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onPrimary,
                   ),
@@ -260,7 +261,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
             ),
             TeksIsiBesar(
               label,
-              warna: isActive
+              warna: sedangAktif
                   ? Colors.white
                   : (Theme.of(context).brightness == Brightness.dark
                       ? Colors.white
@@ -315,7 +316,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                 children: [
                   const Text('Paket: '),
                   PackageNameWidget(
-                    packageFuture:
+                    paketFuture:
                         paketOpFirebase.ambilBerdasarkanId(order.idPaket),
                   ),
                 ],
