@@ -33,7 +33,7 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/date_time_picker_widget.dart';
+import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
 import 'package:wifi/shared/widget/input/input_angka.dart';
 
 class FormPelangganAktif extends ConsumerStatefulWidget {
@@ -132,11 +132,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         ..sort((a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
 
       final paketList = (results[1] as List<PaketModel>)
-        ..sort((a, b) =>
-            _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)));
+        ..sort(
+          (a, b) =>
+              _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)),
+        );
 
-      final daftarDompet =
-          (results[2] as List<DompetModel>).where((d) => !d.dihapus).toList();
+      final daftarDompet = (results[2] as List<DompetModel>)
+          .where((d) => !d.dihapus)
+          .toList();
 
       final semuaKategori = results[3] as List<KategoriModel>;
       final kategoriPemasukanList = semuaKategori
@@ -148,8 +151,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
       final transaksiTerkait =
           results.length > 4 && results[4] is TransaksiModel
-              ? results[4] as TransaksiModel?
-              : null;
+          ? results[4] as TransaksiModel?
+          : null;
 
       setState(() {
         _pelangganList = pelangganList;
@@ -181,20 +184,24 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     final pa = widget.pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
 
-    _pelangganDipilih =
-        _pelangganList.firstWhereOrNull((p) => p.id == pa.idPelanggan);
+    _pelangganDipilih = _pelangganList.firstWhereOrNull(
+      (p) => p.id == pa.idPelanggan,
+    );
     _paketDipilih = _paketList.firstWhereOrNull((p) => p.id == pa.idPaket);
 
     if (transaksi != null) {
       Log.info(
-          'Transaksi terkait (ID: ${transaksi.id}) ditemukan. Memetakan dompet dan kategori.');
-      _dompetDipilih =
-          _dompetList.firstWhereOrNull((d) => d.id == transaksi.idDompet);
+        'Transaksi terkait (ID: ${transaksi.id}) ditemukan. Memetakan dompet dan kategori.',
+      );
+      _dompetDipilih = _dompetList.firstWhereOrNull(
+        (d) => d.id == transaksi.idDompet,
+      );
       final kategoriSumber = transaksi.tipe == TipeTransaksi.income
           ? _kategoriPemasukanList
           : _kategoriPengeluaranList;
-      _kategoriDipilih =
-          kategoriSumber.firstWhereOrNull((k) => k.id == transaksi.idKategori);
+      _kategoriDipilih = kategoriSumber.firstWhereOrNull(
+        (k) => k.id == transaksi.idKategori,
+      );
 
       if (transaksi.durasiBonus > 0) {
         _bonus = true;
@@ -203,10 +210,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       }
     } else {
       Log.warning(
-          'Transaksi terkait untuk PelangganAktif ID: ${pa.id} tidak ditemukan.');
+        'Transaksi terkait untuk PelangganAktif ID: ${pa.id} tidak ditemukan.',
+      );
       if (mounted) {
-        ToastUtil.info(context,
-            'Info: Transaksi asli tidak ditemukan, pilih ulang dompet/kategori.');
+        ToastUtil.info(
+          context,
+          'Info: Transaksi asli tidak ditemukan, pilih ulang dompet/kategori.',
+        );
       }
     }
 
@@ -234,8 +244,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       _dompetDipilih = _dompetList.first;
     }
     if (_kategoriPemasukanList.isNotEmpty) {
-      _kategoriDipilih = _kategoriPemasukanList.firstWhereOrNull(
-              (k) => k.nama.toLowerCase() == 'aktivasi paket') ??
+      _kategoriDipilih =
+          _kategoriPemasukanList.firstWhereOrNull(
+            (k) => k.nama.toLowerCase() == 'aktivasi paket',
+          ) ??
           _kategoriPemasukanList.first;
     }
   }
@@ -261,8 +273,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       context: context,
       initialTime: initial,
       builder: (context, child) => MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-          child: child!),
+        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+        child: child!,
+      ),
     );
     if (terpilih != null && terpilih != _pilihJam) {
       setState(() => _pilihJam = terpilih);
@@ -293,14 +306,22 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         ToastUtil.error(context, 'Harap lengkapi semua data');
       }
       return SaveResultModel(
-          success: false, message: 'Harap lengkapi semua data');
+        success: false,
+        message: 'Harap lengkapi semua data',
+      );
     }
 
     try {
-      final tanggalMulai = DateTime(_pilihTanggal!.year, _pilihTanggal!.month,
-          _pilihTanggal!.day, _pilihJam!.hour, _pilihJam!.minute);
-      final int durasiBonus =
-          _bonus ? (int.tryParse(_bonusDurationController.text) ?? 0) : 0;
+      final tanggalMulai = DateTime(
+        _pilihTanggal!.year,
+        _pilihTanggal!.month,
+        _pilihTanggal!.day,
+        _pilihJam!.hour,
+        _pilihJam!.minute,
+      );
+      final int durasiBonus = _bonus
+          ? (int.tryParse(_bonusDurationController.text) ?? 0)
+          : 0;
       final DateTime tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
         tanggalMulai,
         _paketDipilih!,
@@ -310,17 +331,18 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
       final idTransaksi =
           (_modeEdit && widget.pelangganAktif?.idTransaksi != null)
-              ? widget.pelangganAktif!.idTransaksi!
-              : const Uuid().v4();
+          ? widget.pelangganAktif!.idTransaksi!
+          : const Uuid().v4();
 
       final pelangganAktifData = PelangganAktifModel(
-          id: _modeEdit ? widget.pelangganAktif!.id : const Uuid().v4(),
-          idPelanggan: _pelangganDipilih!.id,
-          idPaket: _paketDipilih!.id,
-          tanggalMulai: tanggalMulai,
-          tanggalBerakhir: tanggalBerakhir,
-          status: _statusPembayaran,
-          idTransaksi: idTransaksi);
+        id: _modeEdit ? widget.pelangganAktif!.id : const Uuid().v4(),
+        idPelanggan: _pelangganDipilih!.id,
+        idPaket: _paketDipilih!.id,
+        tanggalMulai: tanggalMulai,
+        tanggalBerakhir: tanggalBerakhir,
+        status: _statusPembayaran,
+        idTransaksi: idTransaksi,
+      );
 
       final transaksiData = TransaksiModel(
         id: idTransaksi,
@@ -344,21 +366,25 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         statusAktivasi: true,
       );
       Log.info(
-          'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$idTransaksi');
+        'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$idTransaksi',
+      );
 
       PelangganAktifModel pelangganAktifHasil;
       if (_modeEdit) {
-        pelangganAktifHasil = await pelangganAktifOpsqlite
-            .updateActiveCustomer(pelangganAktifData);
+        pelangganAktifHasil = await pelangganAktifOpsqlite.updateActiveCustomer(
+          pelangganAktifData,
+        );
         await ref
             .read(transaksiProvider.notifier)
             .updateTransaction(transaksiData);
         notifikasiOpFirebase.deleteByTransactionId(idTransaksi);
         Log.info(
-            'menghapus data notifikasi dalam mode edit agar data selalu terbaru');
+          'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
+        );
       } else {
-        pelangganAktifHasil = await pelangganAktifOpsqlite
-            .tambahPelangganAktif(pelangganAktifData);
+        pelangganAktifHasil = await pelangganAktifOpsqlite.tambahPelangganAktif(
+          pelangganAktifData,
+        );
         await ref
             .read(transaksiProvider.notifier)
             .tambahTransaksi(transaksiData);
@@ -366,10 +392,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       ref.invalidate(pelangganAktifProvider);
 
       final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
-      final durasiSetengahJalan =
-          Duration(microseconds: (totalDurasi.inMicroseconds / 2).round());
-      final tanggalNotifikasiSetengahJalan =
-          tanggalMulai.add(durasiSetengahJalan);
+      final durasiSetengahJalan = Duration(
+        microseconds: (totalDurasi.inMicroseconds / 2).round(),
+      );
+      final tanggalNotifikasiSetengahJalan = tanggalMulai.add(
+        durasiSetengahJalan,
+      );
 
       final List<NotifikasiModel> daftarNotifikasi = [
         NotifikasiModel(
@@ -431,8 +459,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         notifikasiOpFirebase.addNotifikasi(notif);
       }
 
-      final isOnline =
-          await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
+      final isOnline = await ref
+          .read(koneksiInternetServiceProvider)
+          .cekKoneksiLokal();
       String successMessage;
       if (isOnline) {
         Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
@@ -445,7 +474,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       }
       Log.info('Berhasil menyimpan, id hasil=${pelangganAktifHasil.id}');
       return SaveResultModel(
-          success: true, message: successMessage, data: pelangganAktifHasil);
+        success: true,
+        message: successMessage,
+        data: pelangganAktifHasil,
+      );
     } on Exception catch (e, s) {
       Log.error('Gagal menyimpan data pelanggan aktif.', e: e, s: s);
       if (mounted) {
@@ -459,8 +491,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text(
-              _modeEdit ? 'Edit Pelanggan Aktif' : 'Form Pelanggan Aktif')),
+        title: Text(
+          _modeEdit ? 'Edit Pelanggan Aktif' : 'Form Pelanggan Aktif',
+        ),
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -484,11 +518,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                       gapH16,
                       _buildKategoriDropdown(),
                       gapH24,
-                      DateTimePickerWidget(
-                        selectedDate: _pilihTanggal,
-                        selectedTime: _pilihJam,
-                        onSelectDate: () => _selectDate(context),
-                        onSelectTime: () => _selectTime(context),
+                      PemilihTanggalWaktuWidget(
+                        tanggalTerpilih: _pilihTanggal,
+                        waktuTerpilih: _pilihJam,
+                        onPilihTanggal: () => _selectDate(context),
+                        onPilihWaktu: () => _selectTime(context),
                       ),
                       gapH8,
                       _buildStatusPembayaranButtons(),
@@ -506,35 +540,53 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   Widget _buildPoinSwitch() {
     return Container(
       padding: const EdgeInsets.symmetric(
-          horizontal: TSizes.p16, vertical: TSizes.p8),
+        horizontal: TSizes.p16,
+        vertical: TSizes.p8,
+      ),
       decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(12)),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('Gunakan Poin',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          gapH4,
-          if (_gunakanPoin)
-            Text('Poin dipakai: ${hitungPoinEfektif()}',
-                style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-          Text('Sisa poin: ${hitungSisaPoin()}',
-              style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-        ]),
-        Switch(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Gunakan Poin',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              gapH4,
+              if (_gunakanPoin)
+                Text(
+                  'Poin dipakai: ${hitungPoinEfektif()}',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
+              Text(
+                'Sisa poin: ${hitungSisaPoin()}',
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              ),
+            ],
+          ),
+          Switch(
             value: _gunakanPoin,
             onChanged: (value) {
               setState(() {
                 _gunakanPoin = value;
                 Log.info(
-                    'Penggunaan poin diubah: $_gunakanPoin, poin efektif=${hitungPoinEfektif()}');
+                  'Penggunaan poin diubah: $_gunakanPoin, poin efektif=${hitungPoinEfektif()}',
+                );
                 if (!_kategoriList.contains(_kategoriDipilih)) {
-                  _kategoriDipilih =
-                      _kategoriList.isNotEmpty ? _kategoriList.first : null;
+                  _kategoriDipilih = _kategoriList.isNotEmpty
+                      ? _kategoriList.first
+                      : null;
                 }
               });
-            }),
-      ]),
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -543,7 +595,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     return DropdownButtonFormField<PelangganModel>(
       key: const Key('pelanggan_dropdown'),
       decoration: const InputDecoration(
-          labelText: 'Pilih Pelanggan', border: OutlineInputBorder()),
+        labelText: 'Pilih Pelanggan',
+        border: OutlineInputBorder(),
+      ),
       initialValue: _pelangganDipilih,
       items: _pelangganList
           .map((p) => DropdownMenuItem(value: p, child: Text(p.nama)))
@@ -556,7 +610,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         if (mounted) {
           setState(() {
             Log.info(
-                'Pelanggan dipilih: id=${newValue.id} nama=${newValue.nama}, saldoPoin=$saldoPoin');
+              'Pelanggan dipilih: id=${newValue.id} nama=${newValue.nama}, saldoPoin=$saldoPoin',
+            );
             _pelangganDipilih = newValue;
             _saldoPoinPelanggan = saldoPoin;
           });
@@ -570,14 +625,17 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     return DropdownButtonFormField<PaketModel>(
       key: const Key('paket_dropdown'),
       decoration: const InputDecoration(
-          labelText: 'Pilih Paket', border: OutlineInputBorder()),
+        labelText: 'Pilih Paket',
+        border: OutlineInputBorder(),
+      ),
       initialValue: _paketDipilih,
       items: _paketList
           .map((p) => DropdownMenuItem(value: p, child: Text(p.nama)))
           .toList(),
       onChanged: (newValue) {
         Log.info(
-            'Paket dipilih: id=${(newValue)?.id} nama=${(newValue)?.nama}');
+          'Paket dipilih: id=${(newValue)?.id} nama=${(newValue)?.nama}',
+        );
         setState(() => _paketDipilih = newValue);
       },
       validator: (v) => v == null ? 'Paket tidak boleh kosong' : null,
@@ -588,7 +646,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     return DropdownButtonFormField<DompetModel>(
       key: const Key('dompet_dropdown'),
       decoration: const InputDecoration(
-          labelText: 'Pilih Dompet', border: OutlineInputBorder()),
+        labelText: 'Pilih Dompet',
+        border: OutlineInputBorder(),
+      ),
       initialValue: _dompetDipilih,
       items: _dompetList
           .map((d) => DropdownMenuItem(value: d, child: Text(d.nama)))
@@ -605,7 +665,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     return DropdownButtonFormField<KategoriModel>(
       key: const Key('kategori_dropdown'),
       decoration: const InputDecoration(
-          labelText: 'Pilih Kategori Transaksi', border: OutlineInputBorder()),
+        labelText: 'Pilih Kategori Transaksi',
+        border: OutlineInputBorder(),
+      ),
       initialValue: _kategoriDipilih,
       items: _kategoriList
           .map((k) => DropdownMenuItem(value: k, child: Text(k.nama)))
@@ -619,83 +681,110 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Widget _buildStatusPembayaranButtons() {
-    return Row(children: [
-      Expanded(
+    return Row(
+      children: [
+        Expanded(
           child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: _statusPembayaran == StatusPembayaran.paid
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey[200],
-                  foregroundColor: _statusPembayaran == StatusPembayaran.paid
-                      ? Colors.white
-                      : Colors.black),
-              onPressed: () {
-                Log.info('Status pembayaran diubah: paid');
-                setState(() => _statusPembayaran = StatusPembayaran.paid);
-              },
-              child: const Text('Lunas'))),
-      gapW8,
-      Expanded(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _statusPembayaran == StatusPembayaran.paid
+                  ? Theme.of(context).primaryColor
+                  : Colors.grey[200],
+              foregroundColor: _statusPembayaran == StatusPembayaran.paid
+                  ? Colors.white
+                  : Colors.black,
+            ),
+            onPressed: () {
+              Log.info('Status pembayaran diubah: paid');
+              setState(() => _statusPembayaran = StatusPembayaran.paid);
+            },
+            child: const Text('Lunas'),
+          ),
+        ),
+        gapW8,
+        Expanded(
           child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: _statusPembayaran == StatusPembayaran.unpaid
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey[200],
-                  foregroundColor: _statusPembayaran == StatusPembayaran.unpaid
-                      ? Colors.white
-                      : Colors.black),
-              onPressed: () {
-                Log.info('Status pembayaran diubah: unpaid');
-                setState(() => _statusPembayaran = StatusPembayaran.unpaid);
-              },
-              child: const Text('Belum Lunas'))),
-    ]);
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _statusPembayaran == StatusPembayaran.unpaid
+                  ? Theme.of(context).primaryColor
+                  : Colors.grey[200],
+              foregroundColor: _statusPembayaran == StatusPembayaran.unpaid
+                  ? Colors.white
+                  : Colors.black,
+            ),
+            onPressed: () {
+              Log.info('Status pembayaran diubah: unpaid');
+              setState(() => _statusPembayaran = StatusPembayaran.unpaid);
+            },
+            child: const Text('Belum Lunas'),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildInfoTanggalBerakhir() {
-    return Column(children: [
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        const Text('Tanggal Mulai:',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        Text((_pilihTanggal == null || _pilihJam == null)
-            ? 'Pilih Tanggal & Jam'
-            : FormatWaktuLengkap.formatSingkat(DateTime(
-                _pilihTanggal!.year,
-                _pilihTanggal!.month,
-                _pilihTanggal!.day,
-                _pilihJam!.hour,
-                _pilihJam!.minute)))
-      ]),
-      gapH8,
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        const Text('Tanggal Berakhir:',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        Text((() {
-          if (_pilihTanggal != null &&
-              _pilihJam != null &&
-              _paketDipilih != null) {
-            final startDate = DateTime(
-                _pilihTanggal!.year,
-                _pilihTanggal!.month,
-                _pilihTanggal!.day,
-                _pilihJam!.hour,
-                _pilihJam!.minute);
-            final int nilaiBonus =
-                _bonus ? (int.tryParse(_bonusDurationController.text) ?? 0) : 0;
-            final DateTime endDate = PerhitunganUtil.hitungTanggalBerakhir(
-              startDate,
-              _paketDipilih!,
-              durasiBonus: nilaiBonus,
-              tipeDurasiBonus: _bonus ? _tipeBonusDurasi : null,
-            );
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Tanggal Mulai:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              (_pilihTanggal == null || _pilihJam == null)
+                  ? 'Pilih Tanggal & Jam'
+                  : FormatWaktuLengkap.formatSingkat(
+                      DateTime(
+                        _pilihTanggal!.year,
+                        _pilihTanggal!.month,
+                        _pilihTanggal!.day,
+                        _pilihJam!.hour,
+                        _pilihJam!.minute,
+                      ),
+                    ),
+            ),
+          ],
+        ),
+        gapH8,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Tanggal Berakhir:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text((() {
+              if (_pilihTanggal != null &&
+                  _pilihJam != null &&
+                  _paketDipilih != null) {
+                final startDate = DateTime(
+                  _pilihTanggal!.year,
+                  _pilihTanggal!.month,
+                  _pilihTanggal!.day,
+                  _pilihJam!.hour,
+                  _pilihJam!.minute,
+                );
+                final int nilaiBonus = _bonus
+                    ? (int.tryParse(_bonusDurationController.text) ?? 0)
+                    : 0;
+                final DateTime endDate = PerhitunganUtil.hitungTanggalBerakhir(
+                  startDate,
+                  _paketDipilih!,
+                  durasiBonus: nilaiBonus,
+                  tipeDurasiBonus: _bonus ? _tipeBonusDurasi : null,
+                );
 
-            return FormatWaktuLengkap.formatSingkat(endDate);
-          } else {
-            return 'Pilih paket & tanggal mulai';
-          }
-        }())),
-      ]),
-    ]);
+                return FormatWaktuLengkap.formatSingkat(endDate);
+              } else {
+                return 'Pilih paket & tanggal mulai';
+              }
+            }())),
+          ],
+        ),
+      ],
+    );
   }
 
   Widget _buildTombolBonus() {
@@ -739,9 +828,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
               child: DropdownButtonFormField<TipeDurasiPaket>(
                 key: const Key('dropdown_bonus_duration_type'),
                 initialValue: _tipeBonusDurasi,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
                 items: TipeDurasiPaket.values.map((type) {
                   return DropdownMenuItem(
                     value: type,
@@ -785,14 +872,16 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             ref.invalidate(statistikProvider);
             navigator.pop();
             Log.info(
-                'Form berhasil disimpan, memicu refresh dompet, statistik, dan menutup halaman.');
+              'Form berhasil disimpan, memicu refresh dompet, statistik, dan menutup halaman.',
+            );
           } else {
             ToastUtil.error(context, hasil.message);
             Log.warning('Form gagal disimpan, pesan: ${hasil.message}');
           }
         },
         style: ElevatedButton.styleFrom(
-            minimumSize: const Size(double.infinity, 50)),
+          minimumSize: const Size(double.infinity, 50),
+        ),
         child: const Text('Simpan'),
       ),
     );

@@ -13,14 +13,9 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
-import 'package:wifi/shared/widget/financial_summary_widget.dart';
+import 'package:wifi/shared/widget/widget_ringkasan_keuangan.dart';
 
-enum SortBy {
-  newest,
-  oldest,
-  highestAmount,
-  lowestAmount,
-}
+enum SortBy { newest, oldest, highestAmount, lowestAmount }
 
 /// Extension untuk memberikan fungsionalitas tambahan pada [SortBy].
 extension SortByX on SortBy {
@@ -114,31 +109,37 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 
-//
+  //
   /// Menampilkan dialog untuk memilih metode pengurutan.
   Future<void> _showSortDialog(
-      BuildContext context, WidgetRef ref, SortBy currentSortBy) async {
+    BuildContext context,
+    WidgetRef ref,
+    SortBy currentSortBy,
+  ) async {
     Log.info('Membuka dialog pengurutan transaksi.');
 
     final newSort = await showDialog<SortBy>(
-        context: context,
-        builder: (context) => SimpleDialog(
-              title: const Text('Urutkan Berdasarkan'),
-              children: [
-                RadioGroup<SortBy>(
-                  groupValue: currentSortBy,
-                  onChanged: (value) => Navigator.pop(context, value),
-                  child: Column(
-                    children: SortBy.values
-                        .map((sortBy) => RadioListTile<SortBy>(
-                              title: Text(sortBy.name),
-                              value: sortBy,
-                            ))
-                        .toList(),
-                  ),
-                ),
-              ],
-            ));
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Urutkan Berdasarkan'),
+        children: [
+          RadioGroup<SortBy>(
+            groupValue: currentSortBy,
+            onChanged: (value) => Navigator.pop(context, value),
+            child: Column(
+              children: SortBy.values
+                  .map(
+                    (sortBy) => RadioListTile<SortBy>(
+                      title: Text(sortBy.name),
+                      value: sortBy,
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        ],
+      ),
+    );
 
     if (newSort != null) {
       // Memanggil method di notifier untuk mengubah urutan
@@ -161,8 +162,9 @@ Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
       ),
       actions: [
         TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal')),
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Batal'),
+        ),
         TextButton(
           onPressed: () => Navigator.pop(context, true),
           style: TextButton.styleFrom(foregroundColor: Colors.red),
@@ -245,16 +247,18 @@ class _TransactionListView extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             bangunHeaderBagian(date, dailyTotal),
-            ...transactionsOnDate.map((transaction) => bangunItemTransaksi(
-                  context,
-                  transaction,
-                  onTap: () => _navigasiKeDetailTransaksi(context, transaction),
-                  onEdit: () =>
-                      _navigasiKeFormTransaksi(context, transaksi: transaction),
-                  onDelete: () => ref
-                      .read(transaksiProvider.notifier)
-                      .softDelete(transaction.id),
-                )),
+            ...transactionsOnDate.map(
+              (transaction) => bangunItemTransaksi(
+                context,
+                transaction,
+                onTap: () => _navigasiKeDetailTransaksi(context, transaction),
+                onEdit: () =>
+                    _navigasiKeFormTransaksi(context, transaksi: transaction),
+                onDelete: () => ref
+                    .read(transaksiProvider.notifier)
+                    .softDelete(transaction.id),
+              ),
+            ),
           ],
         );
       },
@@ -263,7 +267,9 @@ class _TransactionListView extends ConsumerWidget {
 
   /// Navigasi ke halaman detail transaksi.
   Future<void> _navigasiKeDetailTransaksi(
-      BuildContext context, TransaksiModel transaksi) async {
+    BuildContext context,
+    TransaksiModel transaksi,
+  ) async {
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
@@ -312,22 +318,22 @@ class TransactionSummary extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            buildFinancialSummaryInfo(
+            bangunRingkasanInfoKeuangan(
               context: context,
               label: 'Pemasukan',
-              amount: income,
+              jumlah: income,
               color: Colors.green,
             ),
-            buildFinancialSummaryInfo(
+            bangunRingkasanInfoKeuangan(
               context: context,
               label: 'Pengeluaran',
-              amount: expense,
+              jumlah: expense,
               color: Colors.red,
             ),
-            buildFinancialSummaryInfo(
+            bangunRingkasanInfoKeuangan(
               context: context,
               label: 'Total',
-              amount: total,
+              jumlah: total,
               color: total >= 0 ? Colors.blue : Colors.red,
             ),
           ],

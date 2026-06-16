@@ -21,7 +21,7 @@ import 'pengecekan_data_baru_service_test.mocks.dart';
 void main() {
   late LayananPengecekanDataBaru pengecekanDataBaruService;
   late MockFirebaseFirestore mockFirestore;
-  late MockSyncManager mockSyncManager;
+  late MockPengelolaSinkronisasi mockPengelolaSinkronisasi;
   late MockStatusUploadOpSqlite mockStatusUploadOpSqlite;
   late MockCollectionReference<Map<String, dynamic>> mockCollectionReference;
   late MockDocumentReference<Map<String, dynamic>> mockDocumentReference;
@@ -29,7 +29,7 @@ void main() {
 
   setUp(() {
     mockFirestore = MockFirebaseFirestore();
-    mockSyncManager = MockSyncManager();
+    mockPengelolaSinkronisasi = MockPengelolaSinkronisasi();
     mockStatusUploadOpSqlite = MockStatusUploadOpSqlite();
     mockCollectionReference = MockCollectionReference<Map<String, dynamic>>();
     mockDocumentReference = MockDocumentReference<Map<String, dynamic>>();
@@ -37,7 +37,7 @@ void main() {
 
     pengecekanDataBaruService = LayananPengecekanDataBaru(
       firestore: mockFirestore,
-      syncManager: mockSyncManager,
+      syncManager: mockPengelolaSinkronisasi,
       uploadStatusOperation: mockStatusUploadOpSqlite,
     );
 
@@ -105,7 +105,7 @@ void main() {
         Timestamp.fromDate(waktuLokal.subtract(const Duration(minutes: 5)));
 
     setUp(() {
-      when(mockSyncManager.ambilWaktuTerakhirUnduh())
+      when(mockPengelolaSinkronisasi.ambilWaktuTerakhirUnduh())
           .thenAnswer((_) async => waktuLokal);
     });
 

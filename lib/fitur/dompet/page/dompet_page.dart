@@ -14,7 +14,7 @@ import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/financial_summary_widget.dart';
+import 'package:wifi/shared/widget/widget_ringkasan_keuangan.dart';
 
 class DompetPage extends ConsumerWidget {
   const DompetPage({super.key});
@@ -55,16 +55,18 @@ class DompetPage extends ConsumerWidget {
           final wallets = walletState.wallets;
           if (wallets.isEmpty) {
             return Center(
-              child: Text('Tidak ada dompet ditemukan.',
-                  style: context.textTheme.bodyMedium),
+              child: Text(
+                'Tidak ada dompet ditemukan.',
+                style: context.textTheme.bodyMedium,
+              ),
             );
           }
 
           return Column(
             children: [
-              FinancialSummaryWidget(
-                income: walletState.totalSaldoPositif,
-                expense: walletState.totalSaldoNegatif,
+              WidgetRingkasanKeuangan(
+                pemasukan: walletState.totalSaldoPositif,
+                pengeluaran: walletState.totalSaldoNegatif,
                 total: walletState.totalSaldo,
               ),
               Expanded(
@@ -108,7 +110,10 @@ class DompetPage extends ConsumerWidget {
   }
 
   Future<void> _navigateToDetail(
-      BuildContext context, WidgetRef ref, DompetModel wallet) async {
+    BuildContext context,
+    WidgetRef ref,
+    DompetModel wallet,
+  ) async {
     Log.info('Navigasi ke detail dompet: "${wallet.nama}".');
     await Navigator.push<void>(
       context,
@@ -136,7 +141,8 @@ class DompetPage extends ConsumerWidget {
         return AlertDialog(
           title: const Text('Konfirmasi'),
           content: const Text(
-              'Apakah Anda yakin ingin menghapus semua dompet? Aksi ini tidak dapat diurungkan.'),
+            'Apakah Anda yakin ingin menghapus semua dompet? Aksi ini tidak dapat diurungkan.',
+          ),
           actions: <Widget>[
             TextButton(
               child: const Text('Batal'),
@@ -147,17 +153,27 @@ class DompetPage extends ConsumerWidget {
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 unawaited(
-                    ref.read(dompetProvider.notifier).softDeleteAll().then((_) {
-                  if (context.mounted) {
-                    ToastUtil.success(
-                        context, 'Semua dompet berhasil dihapus.');
-                  }
-                }).catchError((Object e, StackTrace s) {
-                  Log.error('Gagal menghapus semua dompet.', e: e, s: s);
-                  if (context.mounted) {
-                    ToastUtil.error(context, 'Gagal menghapus dompet: $e');
-                  }
-                }));
+                  ref
+                      .read(dompetProvider.notifier)
+                      .softDeleteAll()
+                      .then((_) {
+                        if (context.mounted) {
+                          ToastUtil.success(
+                            context,
+                            'Semua dompet berhasil dihapus.',
+                          );
+                        }
+                      })
+                      .catchError((Object e, StackTrace s) {
+                        Log.error('Gagal menghapus semua dompet.', e: e, s: s);
+                        if (context.mounted) {
+                          ToastUtil.error(
+                            context,
+                            'Gagal menghapus dompet: $e',
+                          );
+                        }
+                      }),
+                );
               },
             ),
           ],
@@ -167,14 +183,18 @@ class DompetPage extends ConsumerWidget {
   }
 
   Future<void> _showArchiveOneDialog(
-      BuildContext context, WidgetRef ref, DompetModel wallet) async {
+    BuildContext context,
+    WidgetRef ref,
+    DompetModel wallet,
+  ) async {
     await showDialog<void>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Konfirmasi Arsip'),
           content: Text(
-              'Apakah Anda yakin ingin mengarsipkan dompet "${wallet.nama}"?'),
+            'Apakah Anda yakin ingin mengarsipkan dompet "${wallet.nama}"?',
+          ),
           actions: <Widget>[
             TextButton(
               child: const Text('Batal'),
@@ -184,19 +204,25 @@ class DompetPage extends ConsumerWidget {
               child: const Text('Arsipkan'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                unawaited(ref
-                    .read(dompetProvider.notifier)
-                    .softDelete(wallet.id)
-                    .then((_) {
-                  if (context.mounted) {
-                    ToastUtil.success(context, 'Dompet berhasil diarsipkan.');
-                  }
-                }).catchError((Object e, StackTrace st) {
-                  Log.error('Gagal mengarsipkan dompet.', e: e, s: st);
-                  if (context.mounted) {
-                    ToastUtil.error(context, 'Gagal mengarsipkan: $e');
-                  }
-                }));
+                unawaited(
+                  ref
+                      .read(dompetProvider.notifier)
+                      .softDelete(wallet.id)
+                      .then((_) {
+                        if (context.mounted) {
+                          ToastUtil.success(
+                            context,
+                            'Dompet berhasil diarsipkan.',
+                          );
+                        }
+                      })
+                      .catchError((Object e, StackTrace st) {
+                        Log.error('Gagal mengarsipkan dompet.', e: e, s: st);
+                        if (context.mounted) {
+                          ToastUtil.error(context, 'Gagal mengarsipkan: $e');
+                        }
+                      }),
+                );
               },
             ),
           ],
@@ -227,7 +253,9 @@ class WalletCard extends StatelessWidget {
     return Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(
-          horizontal: TSizes.p16, vertical: TSizes.p8),
+        horizontal: TSizes.p16,
+        vertical: TSizes.p8,
+      ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         contentPadding: const EdgeInsets.all(TSizes.p16),
@@ -236,9 +264,7 @@ class WalletCard extends StatelessWidget {
           size: 40,
           color: TColors.primaryColor,
         ),
-        title: TeksJudulSedang(
-          wallet.nama,
-        ),
+        title: TeksJudulSedang(wallet.nama),
         subtitle: TeksIsiSedang(
           'Saldo: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(wallet.saldo)}',
           warna: subtitleColor,

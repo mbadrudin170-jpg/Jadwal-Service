@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-Widget buildFinancialSummaryInfo({
+Widget bangunRingkasanInfoKeuangan({
   required final BuildContext context,
   required final String label,
-  required final double amount,
+  required final double jumlah,
   final Color? color,
 }) {
   Log.info(
-      'Membangun widget FinancialSummaryInfo untuk label: "$label", amount: $amount');
+    'Membangun widget FinancialSummaryInfo untuk label: "$label", amount: $jumlah',
+  );
 
   final textColor = color ?? context.colorScheme.primary;
 
@@ -26,7 +26,7 @@ Widget buildFinancialSummaryInfo({
       ),
       gapH4,
       Text(
-        FormatUang.formatMataUang(amount),
+        FormatUang.formatMataUang(jumlah),
         style: context.textTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.bold,
           color: textColor,
@@ -36,35 +36,34 @@ Widget buildFinancialSummaryInfo({
   );
 }
 
-class FinancialSummaryWidget extends StatelessWidget {
-  final double income;
-  final double expense;
+class WidgetRingkasanKeuangan extends StatelessWidget {
+  final double pemasukan;
+  final double pengeluaran;
   final double total;
-  final bool isLoading;
-  final String? errorMessage;
+  final bool sedangLoading;
+  final String? pesanError;
   final VoidCallback? onRefresh;
 
-  const FinancialSummaryWidget({
+  const WidgetRingkasanKeuangan({
     super.key,
-    required this.income,
-    required this.expense,
+    required this.pemasukan,
+    required this.pengeluaran,
     required this.total,
-    this.isLoading = false,
-    this.errorMessage,
+    this.sedangLoading = false,
+    this.pesanError,
     this.onRefresh,
   });
 
   @override
   Widget build(final BuildContext context) {
     Log.info(
-        'Membangun FinancialSummaryWidget: income=$income, expense=$expense, total=$total, isLoading=$isLoading');
+      'Membangun FinancialSummaryWidget: income=$pemasukan, expense=$pengeluaran, total=$total, isLoading=$sedangLoading',
+    );
 
     return Card(
       margin: const EdgeInsets.all(TSizes.p12),
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: TSizes.p20),
         child: _buildContent(context),
@@ -72,10 +71,11 @@ class FinancialSummaryWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(final BuildContext context) {
-    if (errorMessage != null && errorMessage!.isNotEmpty) {
+  Widget _buildContent(BuildContext context) {
+    if (pesanError != null && pesanError!.isNotEmpty) {
       Log.warning(
-          'Menampilkan error message di FinancialSummaryWidget: $errorMessage');
+        'Menampilkan error message di FinancialSummaryWidget: $pesanError',
+      );
       return Column(
         children: [
           Icon(
@@ -85,7 +85,7 @@ class FinancialSummaryWidget extends StatelessWidget {
           ),
           gapH8,
           Text(
-            errorMessage!,
+            pesanError!,
             style: context.textTheme.bodyMedium?.copyWith(
               color: context.colorScheme.error,
             ),
@@ -97,16 +97,14 @@ class FinancialSummaryWidget extends StatelessWidget {
               onPressed: onRefresh,
               icon: const Icon(Icons.refresh),
               label: const Text('Coba Lagi'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(120, 36),
-              ),
+              style: ElevatedButton.styleFrom(minimumSize: const Size(120, 36)),
             ),
           ],
         ],
       );
     }
 
-    if (isLoading) {
+    if (sedangLoading) {
       Log.info('Menampilkan loading indicator di FinancialSummaryWidget');
       return const Center(child: CircularProgressIndicator());
     }
@@ -115,23 +113,24 @@ class FinancialSummaryWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        buildFinancialSummaryInfo(
+        bangunRingkasanInfoKeuangan(
           context: context,
           label: 'Pemasukan',
-          amount: income,
+          jumlah: pemasukan,
           color: const Color(
-              0xFF4CAF50), // Gunakan konstanta atau pindahkan ke TColors.success
+            0xFF4CAF50,
+          ), // Gunakan konstanta atau pindahkan ke TColors.success
         ),
-        buildFinancialSummaryInfo(
+        bangunRingkasanInfoKeuangan(
           context: context,
           label: 'Pengeluaran',
-          amount: expense.abs(),
+          jumlah: pengeluaran.abs(),
           color: context.colorScheme.error,
         ),
-        buildFinancialSummaryInfo(
+        bangunRingkasanInfoKeuangan(
           context: context,
           label: 'Total',
-          amount: total,
+          jumlah: total,
           color: context.colorScheme.primary,
         ),
       ],
@@ -139,24 +138,20 @@ class FinancialSummaryWidget extends StatelessWidget {
   }
 }
 
-extension FinancialSummaryExtension on BuildContext {
+extension EkstensiRingkasanKeuangan on BuildContext {
   void showFinancialSummarySnackbar({
-    required final double income,
-    required final double expense,
+    required final double pendapatan,
+    required final double pengeluaran,
     required final double total,
   }) {
     Log.info(
-        'Menampilkan snackbar ringkasan keuangan: income=$income, expense=$expense, total=$total');
-
-    final currencyFormat = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
+      'Menampilkan snackbar ringkasan keuangan: income=$pendapatan, expense=$pengeluaran, total=$total',
     );
 
-    final message = '📊 Ringkasan: ${currencyFormat.format(income)} | '
-        '${currencyFormat.format(expense.abs())} | '
-        '${currencyFormat.format(total)}';
+    final message =
+        '📊 Ringkasan: ${FormatUang.formatMataUang(pendapatan)} | '
+        '${FormatUang.formatMataUang(pengeluaran.abs())} | '
+        '${FormatUang.formatMataUang(total)}';
 
     ToastUtil.info(this, message);
   }

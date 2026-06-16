@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/fitur/akun/akun_state.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/pelanggan/core/user_activity_service.dart';
@@ -60,7 +59,8 @@ void main() {
     return ProviderScope(
       overrides: [
         pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
-        userActivityServiceProvider.overrideWithValue(mockUserActivityService),
+        userActivityServiceProvider
+            .overrideWithValue(AsyncValue.data(mockUserActivityService)),
         userIdProvider.overrideWith((ref) => currentUserId),
       ],
       child: MaterialApp(

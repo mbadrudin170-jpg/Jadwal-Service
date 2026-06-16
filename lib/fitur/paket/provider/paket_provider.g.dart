@@ -53,7 +53,7 @@ final class DaftarPaketProvider
   }
 }
 
-String _$daftarPaketHash() => r'c2b30ada63f2acc51cad95d5495d9188c1136beb';
+String _$daftarPaketHash() => r'5f7b60eb9383b14133f0811c663a1420194510f9';
 
 /// Provider untuk menyimpan state opsi urutan paket yang dipilih oleh user.
 
@@ -111,4 +111,78 @@ abstract class _$UrutanPaketState extends $Notifier<UrutanPaket> {
             >;
     return element.handleCreate(ref, build);
   }
+}
+
+@ProviderFor(detailPaket)
+final detailPaketProvider = DetailPaketFamily._();
+
+final class DetailPaketProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<PaketModel>,
+          PaketModel,
+          FutureOr<PaketModel>
+        >
+    with $FutureModifier<PaketModel>, $FutureProvider<PaketModel> {
+  DetailPaketProvider._({
+    required DetailPaketFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'detailPaketProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$detailPaketHash();
+
+  @override
+  String toString() {
+    return r'detailPaketProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<PaketModel> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<PaketModel> create(Ref ref) {
+    final argument = this.argument as String;
+    return detailPaket(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DetailPaketProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$detailPaketHash() => r'757039184b3b2f1b33c654d5211b18ee9d1b915e';
+
+final class DetailPaketFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<PaketModel>, String> {
+  DetailPaketFamily._()
+    : super(
+        retry: null,
+        name: r'detailPaketProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  DetailPaketProvider call(String id) =>
+      DetailPaketProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'detailPaketProvider';
 }

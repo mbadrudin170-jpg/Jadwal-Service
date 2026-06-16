@@ -21,7 +21,7 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/date_time_picker_widget.dart';
+import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
 
 class FormTransaksi extends ConsumerStatefulWidget {
   final TransaksiModel? transaksi;
@@ -122,8 +122,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         _filterKategoriInternal();
 
         if (trx.idKategori.isNotEmpty) {
-          _kategoriDipilih =
-              _kategoriDifilter.cast<KategoriModel?>().firstWhere(
+          _kategoriDipilih = _kategoriDifilter.cast<KategoriModel?>().firstWhere(
             (final k) => k?.id == trx.idKategori,
             orElse: () {
               Log.warning(
@@ -137,14 +136,14 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
             _subKategoriDipilih = _kategoriDipilih!.idSubKategori
                 .cast<SubKategoriModel?>()
                 .firstWhere(
-              (final sk) => sk?.id == trx.idSubKategori,
-              orElse: () {
-                Log.warning(
-                  'Sub-kategori dengan ID ${trx.idSubKategori} tidak ditemukan.',
+                  (final sk) => sk?.id == trx.idSubKategori,
+                  orElse: () {
+                    Log.warning(
+                      'Sub-kategori dengan ID ${trx.idSubKategori} tidak ditemukan.',
+                    );
+                    return null;
+                  },
                 );
-                return null;
-              },
-            );
           }
         }
         Log.info('Selesai mempopulasikan form untuk mode Edit.');
@@ -222,8 +221,9 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
       context: context,
       initialTime: initial,
       builder: (context, child) => MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-          child: child!),
+        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+        child: child!,
+      ),
     );
     if (picked != null && picked != _jamDipilih) {
       setState(() => _jamDipilih = picked);
@@ -251,8 +251,9 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         tanggal: combinedDateTime,
         tipe: _tipe,
         idDompet: _dompetDipilih!.id,
-        idDompetTujuan:
-            _tipe == TipeTransaksi.transfer ? _dompetTujuanDipilih?.id : null,
+        idDompetTujuan: _tipe == TipeTransaksi.transfer
+            ? _dompetTujuanDipilih?.id
+            : null,
         idKategori: _kategoriDipilih?.id ?? '',
         idSubKategori: _subKategoriDipilih?.id,
       );
@@ -278,30 +279,31 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
           'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
         );
 
-        final isOnline =
-            await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
+        final isOnline = await ref
+            .read(koneksiInternetServiceProvider)
+            .cekKoneksiLokal();
         if (isOnline) {
           final layananekSikronisasi = ref.read(layananCekSinkronisasiProvider);
           layananekSikronisasi.jalankanCekSinkronisasi();
           if (mounted) {
             ToastUtil.success(
-                context, 'Transaksi berhasil disimpan dan disinkronkan.');
+              context,
+              'Transaksi berhasil disimpan dan disinkronkan.',
+            );
           }
         } else {
           if (mounted) {
-            ToastUtil.info(context,
-                'Transaksi disimpan lokal. Sinkronisasi akan dilakukan saat online.');
+            ToastUtil.info(
+              context,
+              'Transaksi disimpan lokal. Sinkronisasi akan dilakukan saat online.',
+            );
           }
         }
         if (mounted) {
           Navigator.pop(context, true);
         }
       } on Exception catch (e, s) {
-        Log.error(
-          'Gagal menyimpan transaksi ke database.',
-          e: e,
-          s: s,
-        );
+        Log.error('Gagal menyimpan transaksi ke database.', e: e, s: s);
         if (!mounted) return;
         ToastUtil.error(context, 'Gagal menyimpan transaksi: $e');
       } finally {
@@ -339,53 +341,52 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                         showSelectedIcon: false,
                         style: ButtonStyle(
                           backgroundColor:
-                              WidgetStateProperty.resolveWith<Color>(
-                            (Set<WidgetState> states) {
-                              if (states.contains(WidgetState.selected)) {
-                                switch (_tipe) {
-                                  case TipeTransaksi.income:
-                                    return Colors.green.withAlpha(51);
-                                  case TipeTransaksi.expense:
-                                    return Colors.red.withAlpha(51);
-                                  case TipeTransaksi.transfer:
-                                    return Colors.blue.withAlpha(51);
+                              WidgetStateProperty.resolveWith<Color>((
+                                Set<WidgetState> states,
+                              ) {
+                                if (states.contains(WidgetState.selected)) {
+                                  switch (_tipe) {
+                                    case TipeTransaksi.income:
+                                      return Colors.green.withAlpha(51);
+                                    case TipeTransaksi.expense:
+                                      return Colors.red.withAlpha(51);
+                                    case TipeTransaksi.transfer:
+                                      return Colors.blue.withAlpha(51);
+                                  }
                                 }
-                              }
-                              return Colors.transparent;
-                            },
-                          ),
+                                return Colors.transparent;
+                              }),
                           foregroundColor:
-                              WidgetStateProperty.resolveWith<Color>(
-                            (Set<WidgetState> states) {
-                              if (states.contains(WidgetState.selected)) {
-                                switch (_tipe) {
-                                  case TipeTransaksi.income:
-                                    return Colors.green;
-                                  case TipeTransaksi.expense:
-                                    return Colors.red;
-                                  case TipeTransaksi.transfer:
-                                    return Colors.blue;
+                              WidgetStateProperty.resolveWith<Color>((
+                                Set<WidgetState> states,
+                              ) {
+                                if (states.contains(WidgetState.selected)) {
+                                  switch (_tipe) {
+                                    case TipeTransaksi.income:
+                                      return Colors.green;
+                                    case TipeTransaksi.expense:
+                                      return Colors.red;
+                                    case TipeTransaksi.transfer:
+                                      return Colors.blue;
+                                  }
                                 }
+                                return Colors.grey;
+                              }),
+                          side: WidgetStateProperty.resolveWith<BorderSide>((
+                            Set<WidgetState> states,
+                          ) {
+                            if (states.contains(WidgetState.selected)) {
+                              switch (_tipe) {
+                                case TipeTransaksi.income:
+                                  return const BorderSide(color: Colors.green);
+                                case TipeTransaksi.expense:
+                                  return const BorderSide(color: Colors.red);
+                                case TipeTransaksi.transfer:
+                                  return const BorderSide(color: Colors.blue);
                               }
-                              return Colors.grey;
-                            },
-                          ),
-                          side: WidgetStateProperty.resolveWith<BorderSide>(
-                            (Set<WidgetState> states) {
-                              if (states.contains(WidgetState.selected)) {
-                                switch (_tipe) {
-                                  case TipeTransaksi.income:
-                                    return const BorderSide(
-                                        color: Colors.green);
-                                  case TipeTransaksi.expense:
-                                    return const BorderSide(color: Colors.red);
-                                  case TipeTransaksi.transfer:
-                                    return const BorderSide(color: Colors.blue);
-                                }
-                              }
-                              return const BorderSide(color: Colors.grey);
-                            },
-                          ),
+                            }
+                            return const BorderSide(color: Colors.grey);
+                          }),
                         ),
                         segments: TipeTransaksi.values.map((
                           TipeTransaksi tipe,
@@ -438,11 +439,11 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                       },
                     ),
                     gapH24,
-                    DateTimePickerWidget(
-                      selectedDate: _tanggalDipilih,
-                      selectedTime: _jamDipilih,
-                      onSelectDate: () => _selectDate(context),
-                      onSelectTime: () => _selectTime(context),
+                    PemilihTanggalWaktuWidget(
+                      tanggalTerpilih: _tanggalDipilih,
+                      waktuTerpilih: _jamDipilih,
+                      onPilihTanggal: () => _selectDate(context),
+                      onPilihWaktu: () => _selectTime(context),
                     ),
                     DropdownButtonFormField<DompetModel>(
                       key: ValueKey<DompetModel?>(_dompetDipilih),

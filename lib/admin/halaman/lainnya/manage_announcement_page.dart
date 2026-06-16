@@ -15,7 +15,7 @@ import 'package:wifi/shared/services/layanan_penyimpanan_gambar.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/date_time_picker_widget.dart';
+import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
 
 class ManageAnnouncementPage extends ConsumerStatefulWidget {
   const ManageAnnouncementPage({super.key, this.event});
@@ -69,14 +69,15 @@ class _ManageAnnouncementPageState
     final operator = ref.read(eventOpSupabaseProvider);
     try {
       final announcements = await operator.getAll();
-      final EventModel? activeAnnouncement =
-          announcements.cast<EventModel?>().firstWhere(
-        (ann) => ann?.statusAktif ?? false,
-        orElse: () {
-          Log.info('Tidak ada pengumuman aktif ditemukan untuk dimuat.');
-          return null;
-        },
-      );
+      final EventModel? activeAnnouncement = announcements
+          .cast<EventModel?>()
+          .firstWhere(
+            (ann) => ann?.statusAktif ?? false,
+            orElse: () {
+              Log.info('Tidak ada pengumuman aktif ditemukan untuk dimuat.');
+              return null;
+            },
+          );
 
       setState(() {
         _selectedAnnouncement = activeAnnouncement;
@@ -134,8 +135,9 @@ class _ManageAnnouncementPageState
 
     if (pickedDate != null) {
       setState(() {
-        final currentDateTime =
-            isStartDate ? _selectedStartDate : _selectedEndDate;
+        final currentDateTime = isStartDate
+            ? _selectedStartDate
+            : _selectedEndDate;
         final newDateTime = DateTime(
           pickedDate!.year,
           pickedDate.month,
@@ -154,11 +156,14 @@ class _ManageAnnouncementPageState
 
   Future<void> _selectTime(bool isStartTime) async {
     TimeOfDay initialTime = TimeOfDay.now();
-    final DateTime? currentDateTime =
-        isStartTime ? _selectedStartDate : _selectedEndDate;
+    final DateTime? currentDateTime = isStartTime
+        ? _selectedStartDate
+        : _selectedEndDate;
     if (currentDateTime != null) {
-      initialTime =
-          TimeOfDay(hour: currentDateTime.hour, minute: currentDateTime.minute);
+      initialTime = TimeOfDay(
+        hour: currentDateTime.hour,
+        minute: currentDateTime.minute,
+      );
     } else {
       initialTime = TimeOfDay.now();
     }
@@ -182,8 +187,9 @@ class _ManageAnnouncementPageState
 
     if (pickedTime != null) {
       setState(() {
-        final DateTime? dateToUpdate =
-            isStartTime ? _selectedStartDate : _selectedEndDate;
+        final DateTime? dateToUpdate = isStartTime
+            ? _selectedStartDate
+            : _selectedEndDate;
         final DateTime datePart = dateToUpdate ?? DateTime.now();
 
         final newDateTime = DateTime(
@@ -211,13 +217,17 @@ class _ManageAnnouncementPageState
 
     if (_selectedImage == null && _imageUrlController.text.trim().isEmpty) {
       ToastUtil.error(
-          context, 'Harap pilih atau sediakan gambar untuk pengumuman.');
+        context,
+        'Harap pilih atau sediakan gambar untuk pengumuman.',
+      );
       return;
     }
 
     if (_selectedEndDate!.isBefore(_selectedStartDate!)) {
       ToastUtil.error(
-          context, 'Tanggal selesai tidak boleh sebelum tanggal mulai');
+        context,
+        'Tanggal selesai tidak boleh sebelum tanggal mulai',
+      );
       return;
     }
 
@@ -231,8 +241,10 @@ class _ManageAnnouncementPageState
     if (_selectedImage != null) {
       final storageService = ref.read(layananPenyimpananGambarProvider);
       try {
-        final String uploadUrl =
-            await storageService.unggahGambar(_selectedImage!, NamaTabel.event);
+        final String uploadUrl = await storageService.unggahGambar(
+          _selectedImage!,
+          NamaTabel.event,
+        );
         imageUrl = uploadUrl;
         if (imageUrl.isEmpty) {
           throw Exception('URL gambar kosong dari storage service.');
@@ -278,15 +290,19 @@ class _ManageAnnouncementPageState
         final currentActive = await eventOpSupabase.getActive();
         if (currentActive != null &&
             currentActive.id != announcementToSave.id) {
-          final oldActive =
-              currentActive.copyWith(statusAktif: false, diperbaruiPada: now);
+          final oldActive = currentActive.copyWith(
+            statusAktif: false,
+            diperbaruiPada: now,
+          );
           await eventOpSupabase.update(oldActive);
         }
       } catch (e, st) {
         Log.error('Gagal menonaktifkan pengumuman lama', e: e, s: st);
         if (!mounted) return;
         ToastUtil.error(
-            context, 'Gagal menonaktifkan pengumuman lain yang aktif.');
+          context,
+          'Gagal menonaktifkan pengumuman lain yang aktif.',
+        );
         setState(() {
           _isUploading = false;
         });
@@ -323,9 +339,7 @@ class _ManageAnnouncementPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Kelola Pengumuman'),
-      ),
+      appBar: AppBar(title: const Text('Kelola Pengumuman')),
       body: SingleChildScrollView(
         controller: _scrollController,
         padding: const EdgeInsets.all(TSizes.p16),
@@ -340,7 +354,7 @@ class _ManageAnnouncementPageState
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               gapH16,
-// Image Preview and Picker
+              // Image Preview and Picker
               Container(
                 height: 200,
                 decoration: BoxDecoration(
@@ -369,19 +383,24 @@ class _ManageAnnouncementPageState
                         height: double.infinity,
                         errorBuilder: (context, error, stackTrace) =>
                             const Center(
-                          child: Text('Gagal memuat gambar dari URL'),
-                        ),
+                              child: Text('Gagal memuat gambar dari URL'),
+                            ),
                       )
                     else
                       // Tampilan placeholder jika sama sekali belum ada gambar
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.image,
-                              size: 50, color: Colors.grey.shade400),
+                          Icon(
+                            Icons.image,
+                            size: 50,
+                            color: Colors.grey.shade400,
+                          ),
                           gapH8,
-                          Text('Belum ada gambar terpilih',
-                              style: TextStyle(color: Colors.grey.shade600)),
+                          Text(
+                            'Belum ada gambar terpilih',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
                         ],
                       ),
 
@@ -396,18 +415,23 @@ class _ManageAnnouncementPageState
                           foregroundColor: Colors.white,
                           elevation: 2,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                         ),
                         icon: Icon(
-                            _selectedImage != null ||
-                                    _imageUrlController.text.isNotEmpty
-                                ? TIcons.edit
-                                : TIcons.upload,
-                            size: 18),
-                        label: Text(_selectedImage != null ||
-                                _imageUrlController.text.isNotEmpty
-                            ? 'Ubah Gambar'
-                            : 'Pilih Gambar'),
+                          _selectedImage != null ||
+                                  _imageUrlController.text.isNotEmpty
+                              ? TIcons.edit
+                              : TIcons.upload,
+                          size: 18,
+                        ),
+                        label: Text(
+                          _selectedImage != null ||
+                                  _imageUrlController.text.isNotEmpty
+                              ? 'Ubah Gambar'
+                              : 'Pilih Gambar',
+                        ),
                       ),
                     ),
                   ],
@@ -415,26 +439,29 @@ class _ManageAnnouncementPageState
               ),
               gapH16,
 
-              DateTimePickerWidget(
-                  labelText: 'Mulai:',
-                  selectedDate: _selectedStartDate,
-                  selectedTime: _selectedStartDate == null
-                      ? null
-                      : TimeOfDay(
-                          hour: _selectedStartDate!.hour,
-                          minute: _selectedStartDate!.minute),
-                  onSelectDate: () => _selectDate(true),
-                  onSelectTime: () => _selectTime(true)),
-              DateTimePickerWidget(
-                labelText: 'Selesai:',
-                selectedDate: _selectedEndDate,
-                selectedTime: _selectedEndDate == null
+              PemilihTanggalWaktuWidget(
+                teksLabel: 'Mulai:',
+                tanggalTerpilih: _selectedStartDate,
+                waktuTerpilih: _selectedStartDate == null
+                    ? null
+                    : TimeOfDay(
+                        hour: _selectedStartDate!.hour,
+                        minute: _selectedStartDate!.minute,
+                      ),
+                onPilihTanggal: () => _selectDate(true),
+                onPilihWaktu: () => _selectTime(true),
+              ),
+              PemilihTanggalWaktuWidget(
+                teksLabel: 'Selesai:',
+                tanggalTerpilih: _selectedEndDate,
+                waktuTerpilih: _selectedEndDate == null
                     ? null
                     : TimeOfDay(
                         hour: _selectedEndDate!.hour,
-                        minute: _selectedEndDate!.minute),
-                onSelectDate: () => _selectDate(false),
-                onSelectTime: () => _selectTime(false),
+                        minute: _selectedEndDate!.minute,
+                      ),
+                onPilihTanggal: () => _selectDate(false),
+                onPilihWaktu: () => _selectTime(false),
               ),
               gapH16,
               SwitchListTile(
@@ -463,9 +490,9 @@ class _ManageAnnouncementPageState
               ? const Center(child: CircularProgressIndicator())
               : ElevatedButton.icon(
                   icon: Icon(_isEditMode ? TIcons.edit : TIcons.save),
-                  label: Text(!_isEditMode
-                      ? 'Simpan Pengumuman'
-                      : 'Perbarui Pengumuman'),
+                  label: Text(
+                    !_isEditMode ? 'Simpan Pengumuman' : 'Perbarui Pengumuman',
+                  ),
                   onPressed: _isUploading ? null : _simpanForm,
                 ),
         ),

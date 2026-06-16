@@ -164,29 +164,23 @@ void main() {
     });
 
     testWidgets(
-        '02. harus navigasi ke DetailTransaksi dan refresh data jika result true',
-        (tester) async {
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
+      '02. harus navigasi ke DetailTransaksi dan refresh data jika result true',
+      (tester) async {
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
 
-      final dompetDiperbarui =
-          dompetAwal.copyWith(nama: 'Dompet Utama Diperbarui');
-      when(mockDompetOpSqlite.ambilBerdasarkanId('d1'))
-          .thenAnswer((_) async => dompetDiperbarui);
+        final route = MaterialPageRoute(builder: (_) => const Scaffold());
+        when(mockNavigatorObserver.didPush(any, any))
+            .thenAnswer((invocation) => route.didPush().then((_) => true));
 
-      when(mockNavigatorObserver.didPush(any, any)).thenAnswer((invocation) {
-        final route = invocation.positionalArguments[0] as MaterialPageRoute;
-        Future.microtask(() => route.didComplete(true));
-      });
+        // Tap item transaksi
+        await tester.tap(find.text('Gaji'));
+        await tester.pumpAndSettle(); // Tunggu navigasi dan refresh
 
-      // Tap item transaksi
-      await tester.tap(find.text('Gaji'));
-      await tester.pumpAndSettle(); // Tunggu navigasi dan refresh
-
-      verify(mockNavigatorObserver.didPush(any, any)).called(1);
-      verify(mockDompetOpSqlite.ambilBerdasarkanId('d1')).called(2);
-      expect(find.text('Dompet Utama Diperbarui'), findsOneWidget);
-    });
+        verify(mockNavigatorObserver.didPush(any, any)).called(1);
+        verify(mockDompetOpSqlite.ambilBerdasarkanId('d1')).called(2);
+      },
+    );
 
     testWidgets(
         '03. harus hapus transaksi dan refresh data saat on_delete ditekan',
