@@ -52,7 +52,6 @@ class LayananUnduhData {
     required VersiApkOpSqlite operasiVersiApk,
     required SettingsOpSqlite operasiPengaturan,
   })  : _firestore = firestore,
-        _pengelolaSinkronisasi = syncManager,
         _operasiDompet = operasiDompet,
         _operasiKategori = operasiKategori,
         _operasiPaket = operasiPaket,
@@ -67,7 +66,6 @@ class LayananUnduhData {
     Log.info('LayananUnduhData diinisialisasi dengan dependency injection.');
   }
 
-  /// Konstruktor khusus untuk pengujian dengan dependensi mock.
   LayananUnduhData.test({
     required final FirebaseFirestore firestore,
     required final PengelolaSinkronisasi syncManager,
@@ -98,7 +96,6 @@ class LayananUnduhData {
     Log.info('LayananUnduhData berhasil diinisialisasi untuk pengujian.');
   }
 
-  /// Mengunduh semua data dari semua koleksi di Firebase.
   Future<void> unduhSemuaData() async {
     Log.info('Memulai prosedur orkestrasi unduh data massal.');
     final stopwatch = Stopwatch()..start();
@@ -138,10 +135,8 @@ class LayananUnduhData {
     try {
       final lastDownloadTime =
           await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
-      // Menggunakan konstanta NamaTabel.settings untuk nama koleksi
-      const collectionName = NamaTabel.settings;
-      // Menggunakan globalSettingsId dari settings_model.dart
-      final docRef = _firestore.collection(collectionName).doc(idGlobalSetting);
+      const namaKoleksi = NamaTabel.settings;
+      final docRef = _firestore.collection(namaKoleksi).doc(idGlobalSetting);
       final doc = await docRef.get(const GetOptions(source: Source.server));
 
       if (doc.exists && doc.data() != null) {
@@ -156,9 +151,9 @@ class LayananUnduhData {
             return;
           }
 
-          final serverUpdateTime = fieldValue.toDate();
+          final waktuPembaruanServer = fieldValue.toDate();
 
-          if (serverUpdateTime.isAfter(lastDownloadTime)) {
+          if (waktuPembaruanServer.isAfter(lastDownloadTime)) {
             Log.info('Data pengaturan server lebih baru, memperbarui lokal.');
             final settings = SettingsModel.fromFirebase(data);
             await _operasiPengaturan.saveOrUpdateSettings(
@@ -182,7 +177,6 @@ class LayananUnduhData {
     }
   }
 
-  /// Mengunduh data dompet dari Firebase.
   Future<void> unduhDataDompet() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [DOMPET]');
     final lastDownloadTime =
@@ -196,7 +190,6 @@ class LayananUnduhData {
     );
   }
 
-  /// Mengunduh data kategori dari Firebase.
   Future<void> unduhDataKategori() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [KATEGORI]');
     final lastDownloadTime =
@@ -210,7 +203,6 @@ class LayananUnduhData {
     );
   }
 
-  /// Mengunduh data paket dari Firebase.
   Future<void> unduhDataPaket() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PAKET]');
     final lastDownloadTime =
@@ -224,7 +216,6 @@ class LayananUnduhData {
     );
   }
 
-  /// Mengunduh data pelanggan dari Firebase.
   Future<void> unduhDataPelanggan() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PELANGGAN]');
     final lastDownloadTime =
@@ -238,7 +229,6 @@ class LayananUnduhData {
     );
   }
 
-  /// Mengunduh data pelanggan aktif dari Firebase.
   Future<void> unduhDataPelangganAktif() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PELANGGAN AKTIF]');
     final lastDownloadTime =
@@ -252,7 +242,6 @@ class LayananUnduhData {
     );
   }
 
-  /// Mengunduh data transaksi dari Firebase.
   Future<void> unduhDataTransaksi() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [TRANSAKSI]');
     final lastDownloadTime =
@@ -266,7 +255,6 @@ class LayananUnduhData {
     );
   }
 
-  /// Mengunduh data kritik dan saran dari Firebase.
   Future<void> unduhDataUmpanBalik() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [UMPAN BALIK]');
     final lastDownloadTime =
@@ -280,7 +268,6 @@ class LayananUnduhData {
     );
   }
 
-  /// Mengunduh data pesanan dari Firebase.
   Future<void> unduhDataPesanan() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PESANAN]');
     final lastDownloadTime =
@@ -294,7 +281,6 @@ class LayananUnduhData {
     );
   }
 
-  /// Mengunduh data sub-kategori dari Firebase.
   Future<void> unduhDataSubKategori() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [SUB KATEGORI]');
     final lastDownloadTime =
@@ -308,7 +294,6 @@ class LayananUnduhData {
     );
   }
 
-  /// Mengunduh data versi APK user dari Firebase.
   Future<void> unduhDataVersiApk() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [VERSI APK]');
     final lastDownloadTime =
@@ -322,7 +307,6 @@ class LayananUnduhData {
     );
   }
 
-  /// Menyinkronkan satu koleksi dari Firebase ke database lokal.
   Future<void> sinkronkanKoleksi<T>({
     required final String namaKoleksi,
     required final DateTime waktuTerakhirUnduh,
@@ -334,21 +318,20 @@ class LayananUnduhData {
       'Sinkronisasi Koleksi: Memeriksa [$namaKoleksi] untuk data baru sejak $waktuTerakhirUnduh.',
     );
     try {
-      // Menggunakan ColumnNames.updatedAt untuk field 'diperbarui'
-      final snapshot = await _firestore
+      final hasilSnapshot = await _firestore
           .collection(namaKoleksi)
           .where(NamaKolom.diperbaruiPada, isGreaterThan: waktuTerakhirUnduh)
           .get(const GetOptions(source: Source.server));
 
-      if (snapshot.docs.isNotEmpty) {
+      if (hasilSnapshot.docs.isNotEmpty) {
         Log.info(
-          'Ditemukan ${snapshot.docs.length} dokumen baru/diperbarui di [$namaKoleksi].',
+          'Ditemukan ${hasilSnapshot.docs.length} dokumen baru/diperbarui di [$namaKoleksi].',
         );
 
-        final List<T> dataList = [];
-        for (final doc in snapshot.docs) {
+        final List<T> daftarData = [];
+        for (final doc in hasilSnapshot.docs) {
           try {
-            dataList.add(dariFirebase(doc.id, doc.data()));
+            daftarData.add(dariFirebase(doc.id, doc.data()));
           } on Exception catch (e, s) {
             Log.error(
               'Gagal memproses dokumen ${doc.id} di koleksi $namaKoleksi',
@@ -358,9 +341,10 @@ class LayananUnduhData {
           }
         }
 
-        if (dataList.isNotEmpty) {
-          Log.info('Mengirim ${dataList.length} item ke operasi batch lokal.');
-          await operasiBatch(dataList);
+        if (daftarData.isNotEmpty) {
+          Log.info(
+              'Mengirim ${daftarData.length} item ke operasi batch lokal.');
+          await operasiBatch(daftarData);
           Log.info('Sinkronisasi masuk untuk [$namaKoleksi] berhasil.');
         } else {
           Log.warning(
