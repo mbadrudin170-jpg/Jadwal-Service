@@ -2,6 +2,7 @@
 
 // Flutter/Dart imports
 import 'package:flutter_test/flutter_test.dart';
+import 'package:matcher/matcher.dart';
 
 // Mocktail imports
 import 'package:mocktail/mocktail.dart';
@@ -47,6 +48,7 @@ void main() {
     mockUrlLauncher = MockUrlLauncherPlatform();
     UrlLauncherPlatform.instance = mockUrlLauncher;
 
+    // Menggunakan constructor dengan argumen posisional
     pesanInfoPaket = PesanInfoPaket(
       customerOperation: mockPelangganOpSqlite,
       packageOperation: mockPaketOpSqlite,
@@ -80,6 +82,10 @@ void main() {
       tipe: TipeDurasiPaket.days,
     );
 
+    // Matcher untuk URL WhatsApp
+    final matcherUrl = argThat(predicate<String>((url) =>
+        url.contains('wa.me/6281234567890') && url.contains('Rincian')));
+
     test(
       '01. harus mengirim rincian paket jika pelanggan dan paket ditemukan dan URL bisa dibuka',
       () async {
@@ -99,8 +105,8 @@ void main() {
         // Assert
         verify(() => mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
         verify(() => mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
-        verify(() => mockUrlLauncher.canLaunch(any())).called(1);
-        verify(() => mockUrlLauncher.launchUrl(any(), any())).called(1);
+        verify(() => mockUrlLauncher.canLaunch(matcherUrl)).called(1);
+        verify(() => mockUrlLauncher.launchUrl(matcherUrl, any())).called(1);
       },
     );
 
@@ -110,7 +116,6 @@ void main() {
         // Arrange
         when(() => mockPelangganOpSqlite.ambilBerdasarkanId('c1'))
             .thenAnswer((_) async => null);
-        // Stub panggilan yang tidak terduga untuk mencegah error tipe null
         when(() => mockPaketOpSqlite.ambilBerdasarkanId('p1'))
             .thenAnswer((_) async => paket);
 
@@ -119,9 +124,7 @@ void main() {
 
         // Assert
         verify(() => mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
-        // Verifikasi bahwa pengambilan paket tetap terjadi
         verify(() => mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
-        // Pastikan tidak ada URL yang coba diluncurkan
         verifyNever(() => mockUrlLauncher.canLaunch(any()));
         verifyNever(() => mockUrlLauncher.launchUrl(any(), any()));
       },
@@ -164,7 +167,7 @@ void main() {
         // Assert
         verify(() => mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
         verify(() => mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
-        verify(() => mockUrlLauncher.canLaunch(any())).called(1);
+        verify(() => mockUrlLauncher.canLaunch(matcherUrl)).called(1);
         verifyNever(() => mockUrlLauncher.launchUrl(any(), any()));
       },
     );

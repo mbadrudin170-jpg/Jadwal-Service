@@ -10,7 +10,7 @@ import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/data/services/layanan_navigasi.dart';
-import 'package:wifi/shared/data/sync/layanan_unduhan_awal.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_unduhan_awal.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';

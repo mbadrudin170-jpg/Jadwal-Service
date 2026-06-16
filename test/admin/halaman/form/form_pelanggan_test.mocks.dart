@@ -11,7 +11,7 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart' as _i5;
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart' as _i3;
-import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart' as _i8;
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart' as _i8;
 import 'package:wifi/shared/services/koneksi_internet_service.dart' as _i6;
 
 // ignore_for_file: type=lint

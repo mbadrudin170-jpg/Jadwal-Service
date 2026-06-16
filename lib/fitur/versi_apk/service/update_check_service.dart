@@ -11,7 +11,7 @@ import 'package:wifi/fitur/info_perangkat/service/package_info_service.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/versi_apk_op_firebase.dart';
+import 'package:wifi/fitur/versi_apk/operasi/versi_apk_op_firebase.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 

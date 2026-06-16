@@ -10,7 +10,7 @@ import 'package:connectivity_plus_platform_interface/connectivity_plus_platform_
     as _i9;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i7;
-import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart' as _i2;
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart' as _i2;
 import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart'
     as _i4;
 import 'package:workmanager/src/workmanager_impl.dart' as _i5;

@@ -13,63 +13,62 @@ import 'package:wifi/shared/utils/format_util.dart';
 
 final pesanInfoPaketProvider = Provider<PesanInfoPaket>((ref) {
   return PesanInfoPaket(
-    customerOperation: ref.read(pelangganOpSqliteProvider),
-    packageOperation: ref.read(paketOpSqliteProvider),
+    pelangganOpSqlite: ref.read(pelangganOpSqliteProvider),
+    paketOpSqlite: ref.read(paketOpSqliteProvider),
   );
 });
 
 /// Kelas untuk mengirim pesan informasi paket melalui WhatsApp.
 class PesanInfoPaket {
-  final PelangganOpSqlite _customerOperation;
-  final PaketOpSqlite _packageOperation;
+  final PelangganOpSqlite _pelangganOpSqlite;
+  final PaketOpSqlite _paketOpSqlite;
 
   PesanInfoPaket({
-    required PelangganOpSqlite customerOperation,
-    required PaketOpSqlite packageOperation,
-  })  : _customerOperation = customerOperation,
-        _packageOperation = packageOperation;
+    required PelangganOpSqlite pelangganOpSqlite,
+    required PaketOpSqlite paketOpSqlite,
+  }) : _pelangganOpSqlite = pelangganOpSqlite,
+       _paketOpSqlite = paketOpSqlite;
 
   /// Mengambil detail pelanggan dan paket, membuat pesan,
   /// lalu mengirimkannya melalui WhatsApp.
-  Future<void> kirimRincianPaket(PelangganAktifModel activeCustomer) async {
+  Future<void> kirimRincianPaket(PelangganAktifModel pelangganAktif) async {
     Log.info(
-      'Memulai proses pengiriman rincian paket via WhatsApp untuk pelanggan aktif ID: ${activeCustomer.id}',
+      'Memulai proses pengiriman rincian paket via WhatsApp untuk pelanggan aktif ID: ${pelangganAktif.id}',
     );
 
     try {
       Log.info(
-          'Mengambil data pelanggan dengan ID: ${activeCustomer.idPelanggan}');
-      final PelangganModel? customer =
-          await _customerOperation.ambilBerdasarkanId(
-        activeCustomer.idPelanggan,
+        'Mengambil data pelanggan dengan ID: ${pelangganAktif.idPelanggan}',
       );
-      Log.info('Mengambil data paket dengan ID: ${activeCustomer.idPaket}');
-      final PaketModel? package = await _packageOperation.ambilBerdasarkanId(
-        activeCustomer.idPaket,
+      final PelangganModel? pelanggan = await _pelangganOpSqlite
+          .ambilBerdasarkanId(pelangganAktif.idPelanggan);
+      Log.info('Mengambil data paket dengan ID: ${pelangganAktif.idPaket}');
+      final PaketModel? paket = await _paketOpSqlite.ambilBerdasarkanId(
+        pelangganAktif.idPaket,
       );
 
-      if (customer == null) {
+      if (pelanggan == null) {
         Log.warning(
-          'Pengiriman pesan dibatalkan. Pelanggan dengan ID ${activeCustomer.idPelanggan} tidak ditemukan.',
+          'Pengiriman pesan dibatalkan. Pelanggan dengan ID ${pelangganAktif.idPelanggan} tidak ditemukan.',
         );
         return;
       }
-      if (package == null) {
+      if (paket == null) {
         Log.warning(
-          'Pengiriman pesan dibatalkan. Paket dengan ID ${activeCustomer.idPaket} tidak ditemukan.',
+          'Pengiriman pesan dibatalkan. Paket dengan ID ${pelangganAktif.idPaket} tidak ditemukan.',
         );
         return;
       }
 
-      final String paymentStatus = activeCustomer.status.name;
-      final String message = _buildMessage(
-        customer,
-        package,
-        activeCustomer,
-        paymentStatus,
+      final String statusPembayaran = pelangganAktif.status.name;
+      final String pesan = _buildMessage(
+        pelanggan,
+        paket,
+        pelangganAktif,
+        statusPembayaran,
       );
 
-      await _sendViaWhatsApp(customer.telepon, message);
+      await _kirimViaWatsaap(pelanggan.telepon, pesan);
     } on Exception catch (e, s) {
       Log.error(
         'Terjadi kesalahan fatal saat proses kirimRincianPaket.',
@@ -83,17 +82,20 @@ class PesanInfoPaket {
     PelangganModel pelanggan,
     PaketModel paket,
     PelangganAktifModel pelangganAktif,
-    String paymentStatus,
+    String statusPembayaran,
   ) {
     final namaPelanggan = pelanggan.nama;
     final namaPaket = paket.nama;
     final hargaPaket = FormatUang.formatMataUang(paket.harga.toDouble());
-    final tanggalMulai =
-        FormatWaktuLengkap.formatSingkat(pelangganAktif.tanggalMulai);
-    final tanggalBerakhir =
-        FormatWaktuLengkap.formatSingkat(pelangganAktif.tanggalBerakhir);
+    final tanggalMulai = FormatWaktuLengkap.formatSingkat(
+      pelangganAktif.tanggalMulai,
+    );
+    final tanggalBerakhir = FormatWaktuLengkap.formatSingkat(
+      pelangganAktif.tanggalBerakhir,
+    );
 
-    final pesan = '''
+    final pesan =
+        '''
 *-- Rincian Aktivasi Paket --*
 
 Halo, *$namaPelanggan*.
@@ -114,7 +116,7 @@ Berikut adalah detail paket Anda:
   $tanggalBerakhir
 
 ✅ *Status Pembayaran:*
-  $paymentStatus
+  $statusPembayaran
 -----------------------------------
 
 Semoga harimu menyenangkan!
@@ -123,7 +125,7 @@ Semoga harimu menyenangkan!
     return pesan;
   }
 
-  Future<void> _sendViaWhatsApp(String telepon, String pesan) async {
+  Future<void> _kirimViaWatsaap(String telepon, String pesan) async {
     Log.info('Memformat nomor telepon: $telepon');
     String formatNomor = telepon.replaceAll(RegExp(r'[^0-9]'), '');
     if (formatNomor.startsWith('0')) {
@@ -150,8 +152,11 @@ Semoga harimu menyenangkan!
         );
       }
     } on Exception catch (e, s) {
-      Log.error('Gagal total saat mencoba meluncurkan URL WhatsApp.',
-          e: e, s: s);
+      Log.error(
+        'Gagal total saat mencoba meluncurkan URL WhatsApp.',
+        e: e,
+        s: s,
+      );
     }
   }
 }

@@ -1,4 +1,6 @@
-// path: lib/shared/operasi/firebase_operasi/apk_version_op_firebase.dart
+// path: lib/fitur/versi_apk/operasi/versi_apk_op_firebase.dart
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';

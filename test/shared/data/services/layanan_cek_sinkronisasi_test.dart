@@ -4,10 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
-import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart';
-import 'package:wifi/shared/data/sync/layanan_unduh_data.dart';
-import 'package:wifi/shared/data/sync/layanan_unggah_data.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_unduh_data.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_unggah_data.dart';
 import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
 import 'layanan_cek_sinkronisasi_test.mocks.dart';

@@ -19,7 +19,7 @@ import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dar
     as _i13;
 import 'package:wifi/fitur/settings/model/settings_model.dart' as _i6;
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart' as _i16;
-import 'package:wifi/shared/data/sync/layanan_unduhan_awal.dart' as _i15;
+import 'package:wifi/fitur/sinkronisasi/layanan_unduhan_awal.dart' as _i15;
 import 'package:wifi/shared/export/model.dart' as _i14;
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart'
     as _i10;

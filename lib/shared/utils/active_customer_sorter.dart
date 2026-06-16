@@ -1,6 +1,6 @@
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/active_customer_detail_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 
 enum SortOption {

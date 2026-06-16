@@ -1,4 +1,4 @@
-// path: lib/shared/operasi/firebase_operasi/paeket_op_firebase.dart
+// path: lib/fitur/paket/operasi/paket_op_firebase.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';

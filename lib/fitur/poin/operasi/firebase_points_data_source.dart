@@ -6,7 +6,7 @@ import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
 
 /// Implementasi [PointsPageDataSource] untuk mengambil data dari Firebase.
 class FirebasePointsDataSource implements PointsPageDataSource {
