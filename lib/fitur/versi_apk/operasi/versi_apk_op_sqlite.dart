@@ -1,4 +1,4 @@
-// path: lib/fitur/versi_apk/operasi/apk_version_operation.dart
+// path: lib/fitur/versi_apk/operasi/versi_apk_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';

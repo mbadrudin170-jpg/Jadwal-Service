@@ -3,7 +3,7 @@
 // Tujuan: Mengekspor semua kelas operasi dari satu file untuk impor yang lebih bersih.
 
 export 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
-export 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
+export 'package:wifi/fitur/versi_apk/operasi/versi_apk_op_sqlite.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 export 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 export 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';

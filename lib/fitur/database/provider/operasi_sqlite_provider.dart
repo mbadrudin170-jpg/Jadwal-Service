@@ -12,7 +12,7 @@ import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dar
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
+import 'package:wifi/fitur/versi_apk/operasi/versi_apk_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart';

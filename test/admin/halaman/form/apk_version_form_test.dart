@@ -7,7 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/versi_apk/page/form_versi_apk.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
-import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
+import 'package:wifi/fitur/versi_apk/operasi/versi_apk_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 // Mocks

@@ -16,7 +16,7 @@ import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/data/sync/layanan_unduh_data.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
+import 'package:wifi/fitur/versi_apk/operasi/versi_apk_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 

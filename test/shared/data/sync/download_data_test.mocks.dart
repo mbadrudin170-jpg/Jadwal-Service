@@ -36,8 +36,7 @@ import 'package:wifi/fitur/settings/model/settings_model.dart' as _i7;
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart' as _i32;
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart' as _i23;
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart' as _i31;
-import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart'
-    as _i30;
+import 'package:wifi/fitur/versi_apk/operasi/versi_apk_op_sqlite.dart' as _i30;
 import 'package:wifi/shared/export/enum.dart' as _i26;
 import 'package:wifi/shared/export/model.dart' as _i22;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i4;
