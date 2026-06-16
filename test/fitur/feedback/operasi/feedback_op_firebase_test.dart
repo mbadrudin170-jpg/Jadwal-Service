@@ -42,7 +42,7 @@ void main() {
     fakeFirestore = FakeFirebaseFirestore();
     feedbackOpFirebase = FeedbackOpFirebase(
       firestore: fakeFirestore,
-      baseOp: mockBaseOp,
+      baseOpFirebase: mockBaseOp,
     );
 
     // Register fallback value for FieldValue
@@ -59,7 +59,7 @@ void main() {
       data[NamaKolom.tanggal] = FieldValue.serverTimestamp();
 
       // Act
-      await feedbackOpFirebase.create(feedback);
+      await feedbackOpFirebase.tambahFeedback(feedback);
 
       // Assert
       verify(() => mockBaseOp.tambah(
@@ -76,7 +76,7 @@ void main() {
       const newContent = 'Pesan baru';
 
       // Act
-      await feedbackOpFirebase.update(docId, newContent);
+      await feedbackOpFirebase.perbaruiFeedback(docId, newContent);
 
       // Assert
       verify(() => mockBaseOp.update(
@@ -167,7 +167,7 @@ void main() {
             .set(feedbackUserLain.toFirebase());
 
         // Act
-        final stream = feedbackOpFirebase.getByUser('user1');
+        final stream = feedbackOpFirebase.ambilBerdasarkanUser('user1');
 
         // Assert
         expect(
@@ -185,7 +185,7 @@ void main() {
         // Tidak ada data yang ditambahkan ke fakeFirestore
 
         // Act
-        final stream = feedbackOpFirebase.getByUser('user-kosong');
+        final stream = feedbackOpFirebase.ambilBerdasarkanUser('user-kosong');
 
         // Assert
         expect(stream, emits([]));
@@ -195,11 +195,11 @@ void main() {
         // Arrange
         feedbackOpFirebase = FeedbackOpFirebase(
           firestore: BrokenFirebaseFirestore(),
-          baseOp: mockBaseOp,
+          baseOpFirebase: mockBaseOp,
         );
 
         // Act
-        final stream = feedbackOpFirebase.getByUser('user1');
+        final stream = feedbackOpFirebase.ambilBerdasarkanUser('user1');
 
         // Assert
         expect(stream, emitsError(isA<Exception>()));

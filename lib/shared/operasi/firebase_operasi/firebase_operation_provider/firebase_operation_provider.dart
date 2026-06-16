@@ -57,14 +57,14 @@ FeedbackOpFirebase feedbackOpFirebase(Ref ref) {
   final baseOp = ref.watch(baseOpFirebaseProvider);
   return FeedbackOpFirebase(
     firestore: firestoreInstance,
-    baseOp: baseOp,
+    baseOpFirebase: baseOp,
   );
 }
 
 @riverpod
 Stream<List<FeedbackModel>> feedbackStream(Ref ref, String userId) {
   final feedbackOp = ref.watch(feedbackOpFirebaseProvider);
-  return feedbackOp.getByUser(userId);
+  return feedbackOp.ambilBerdasarkanUser(userId);
 }
 
 @Riverpod(keepAlive: true)

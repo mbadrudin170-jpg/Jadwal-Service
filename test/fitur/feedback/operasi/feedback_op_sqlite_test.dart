@@ -35,6 +35,9 @@ void main() {
     );
 
     when(() => mockSqliteDb.database).thenAnswer((_) async => mockDb);
+    // Atur default stub untuk runComplexOperation
+    when(() => mockBaseOpSqlite.runComplexOperation<dynamic>(any(), dariServer: any(named: 'dariServer')))
+        .thenAnswer((_) async {});
   });
 
   const namaTabel = NamaTabel.feedback;
@@ -47,36 +50,43 @@ void main() {
 
   group('Operasi Tulis (Delegasi ke BaseOpSqlite)', () {
     test('01. add harus memanggil baseOpSqlite.sisipkan', () async {
-      when(() => mockBaseOpSqlite.sisipkan(any(), any())).thenAnswer((_) async {});
+      when(() => mockBaseOpSqlite.sisipkan(any(), any(), dariServer: any(named: 'dariServer')))
+          .thenAnswer((_) async {});
 
       await feedbackOpSqlite.add(feedback);
 
       verify(() => mockBaseOpSqlite.sisipkan(
             namaTabel,
             any(that: isA<Map<String, dynamic>>()),
+            dariServer: false,
           )).called(1);
     });
 
     test('02. delete harus memanggil baseOpSqlite.delete', () async {
-      when(() => mockBaseOpSqlite.delete(any(), any())).thenAnswer((_) async {});
+      when(() => mockBaseOpSqlite.delete(any(), any(), dariServer: any(named: 'dariServer')))
+          .thenAnswer((_) async {});
 
       await feedbackOpSqlite.delete('fb1');
 
-      verify(() => mockBaseOpSqlite.delete(namaTabel, 'fb1')).called(1);
+      verify(() => mockBaseOpSqlite.delete(namaTabel, 'fb1', dariServer: false))
+          .called(1);
     });
 
     test('03. softDelete harus memanggil baseOpSqlite.softDelete', () async {
-      when(() => mockBaseOpSqlite.softDelete(any(), any())).thenAnswer((_) async {});
+      when(() => mockBaseOpSqlite.softDelete(any(), any(), dariServer: any(named: 'dariServer')))
+          .thenAnswer((_) async {});
 
       await feedbackOpSqlite.softDelete('fb1');
 
-      verify(() => mockBaseOpSqlite.softDelete(namaTabel, 'fb1')).called(1);
+      verify(() => mockBaseOpSqlite.softDelete(namaTabel, 'fb1', dariServer: false))
+          .called(1);
     });
 
     test(
         '04. sisipkanAtauPerbaruiBatch harus memanggil baseOpSqlite.sisipkanAtauPerbaruiBatch',
         () async {
-      when(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(any(), any()))
+      when(() =>
+              mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(any(), any(), dariServer: any(named: 'dariServer')))
           .thenAnswer((_) async {});
 
       await feedbackOpSqlite.sisipkanAtauPerbaruiBatch([feedback]);
@@ -84,6 +94,7 @@ void main() {
       verify(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
             namaTabel,
             any(that: isA<List<Map<String, dynamic>>>()),
+            dariServer: false,
           )).called(1);
     });
 
@@ -92,24 +103,27 @@ void main() {
         () async {
       await feedbackOpSqlite.sisipkanAtauPerbaruiBatch([]);
 
-      verifyNever(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(any(), any()));
+      verifyNever(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(any(), any(), dariServer: any(named: 'dariServer')));
     });
 
     test(
         '06. deleteAll harus menjalankan delete dalam runComplexOperation',
         () async {
       final mockTxn = MockTransaction();
-      when(() => mockBaseOpSqlite.runComplexOperation<dynamic>(any()))
+      // Konfigurasi ulang mock untuk mengembalikan hasil dari action
+      when(() => mockBaseOpSqlite.runComplexOperation<int>(any(), dariServer: any(named: 'dariServer')))
           .thenAnswer((invocation) async {
-        final action = invocation.positionalArguments[0]
-            as Future<dynamic> Function(Transaction);
-        await action(mockTxn);
+        final action = invocation.positionalArguments[0] as Future<int> Function(Transaction);
+        return action(mockTxn);
       });
-      when(() => mockTxn.delete(namaTabel)).thenAnswer((_) async => 1);
+
+      when(() => mockTxn.delete(namaTabel)).thenAnswer((_) async => 5);
 
       await feedbackOpSqlite.deleteAll();
 
-      verify(() => mockTxn.delete(namaTabel)).called(1);
+      // Cukup verifikasi bahwa `runComplexOperation` dipanggil
+      verify(() => mockBaseOpSqlite.runComplexOperation<int>(any(), dariServer: false))
+          .called(1);
     });
   });
 

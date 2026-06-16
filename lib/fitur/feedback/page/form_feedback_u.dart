@@ -47,7 +47,7 @@ class _FormKritikDanSaranState extends ConsumerState<FormKritikDanSaran> {
 
       try {
         if (_isModeEdit) {
-          await feedbackOpFirebase.update(
+          await feedbackOpFirebase.perbaruiFeedback(
               widget.kritikId!, _feedbackController.text);
         } else {
           final dataBaru = FeedbackModel(
@@ -55,7 +55,7 @@ class _FormKritikDanSaranState extends ConsumerState<FormKritikDanSaran> {
             pesan: _feedbackController.text,
             userId: userId,
           );
-          await feedbackOpFirebase.create(dataBaru);
+          await feedbackOpFirebase.tambahFeedback(dataBaru);
         }
 
         if (mounted) {
