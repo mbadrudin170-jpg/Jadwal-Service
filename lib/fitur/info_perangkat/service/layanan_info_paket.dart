@@ -15,10 +15,10 @@ class LayananInfoPaket {
       final infoPaket = await PackageInfo.fromPlatform();
       final model = InfoPerangkatModel.fromPackageInfo(infoPaket);
       Log.info('Berhasil mengambil info paket.', {
-        'namaAplikasi': model.appName,
-        'namaPaket': model.packageName,
-        'versi': model.version,
-        'nomorBuild': model.buildNumber,
+        'namaAplikasi': model.namaApk,
+        'namaPaket': model.namaPaket,
+        'versi': model.versi,
+        'nomorBuild': model.nomorBuild,
       });
       return model;
     } catch (e, st) {

@@ -1,4 +1,3 @@
-
 // path: test/fitur/info_perangkat/model/info_perangkat_model_test.dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -17,24 +16,24 @@ void main() {
 
       final model = InfoPerangkatModel.fromPackageInfo(packageInfo);
 
-      expect(model.appName, 'Test App');
-      expect(model.packageName, 'com.test.app');
-      expect(model.version, '1.0.0');
-      expect(model.buildNumber, '1');
+      expect(model.namaApk, 'Test App');
+      expect(model.namaPaket, 'com.test.app');
+      expect(model.versi, '1.0.0');
+      expect(model.nomorBuild, '1');
     });
 
     test('02. constructor harus membuat instance dengan benar', () {
       const model = InfoPerangkatModel(
-        appName: 'Another App',
-        packageName: 'com.another.app',
-        version: '2.0.0',
-        buildNumber: '2',
+        namaApk: 'Another App',
+        namaPaket: 'com.another.app',
+        versi: '2.0.0',
+        nomorBuild: '2',
       );
 
-      expect(model.appName, 'Another App');
-      expect(model.packageName, 'com.another.app');
-      expect(model.version, '2.0.0');
-      expect(model.buildNumber, '2');
+      expect(model.namaApk, 'Another App');
+      expect(model.namaPaket, 'com.another.app');
+      expect(model.versi, '2.0.0');
+      expect(model.nomorBuild, '2');
     });
   });
 }

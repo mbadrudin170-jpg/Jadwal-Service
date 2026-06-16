@@ -19,15 +19,15 @@ import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
 class UpdateApkPage extends ConsumerStatefulWidget {
-  final VersiApkModel apkInfo;
-  final InfoPerangkatModel packageInfo;
-  final ArsitekturApk architecture;
+  final VersiApkModel infoApk;
+  final InfoPerangkatModel infoPaket;
+  final ArsitekturApk arsitektur;
 
   const UpdateApkPage({
     super.key,
-    required this.apkInfo,
-    required this.packageInfo,
-    required this.architecture,
+    required this.infoApk,
+    required this.infoPaket,
+    required this.arsitektur,
   });
 
   @override
@@ -45,14 +45,14 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
   // State untuk melacak progres unduhan
   bool _isDownloading = false;
   double _downloadProgress = 0.0;
-  final String _fileSize = 'Memeriksa...'; // Placeholder awal
+  final String _ukuranFile = 'Memeriksa...'; // Placeholder awal
 
   @override
   void initState() {
     super.initState();
-    _initializeAnimations();
+    _inisialisasiAnimasi();
     FlutterNativeSplash.remove();
-    _changelog = widget.apkInfo.catatanRilis
+    _changelog = widget.infoApk.catatanRilis
         .split('\n')
         .map((final e) => e.trim())
         .where((final e) => e.isNotEmpty)
@@ -61,7 +61,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
     // TODO: Implementasi pengambilan ukuran file jika memungkinkan
   }
 
-  void _initializeAnimations() {
+  void _inisialisasiAnimasi() {
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
@@ -77,12 +77,12 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
     super.dispose();
   }
 
-  Future<void> _downloadUpdate() async {
-    final String? downloadUrl =
-        widget.apkInfo.linkDownload[widget.architecture] ??
-            widget.apkInfo.linkDownload[ArsitekturApk.universal];
+  Future<void> _unduhPembaruan() async {
+    final String? urlUnduh =
+        widget.infoApk.linkDownload[widget.arsitektur] ??
+        widget.infoApk.linkDownload[ArsitekturApk.universal];
 
-    if (downloadUrl == null || downloadUrl.isEmpty) {
+    if (urlUnduh == null || urlUnduh.isEmpty) {
       if (mounted) {
         ToastUtil.error(context, 'Link download belum tersedia.');
       }
@@ -94,13 +94,13 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
       _downloadProgress = 0.0;
     });
 
-    final fileName = 'update_v${widget.apkInfo.versiTerkahir}.apk';
+    final namaFile = 'update_v${widget.infoApk.versiTerkahir}.apk';
 
     try {
       await _updateService.downloadDanInstallApk(
-        url: downloadUrl,
-        namaFile: fileName,
-        onProgress: (progress) {
+        url: urlUnduh,
+        namaFile: namaFile,
+        onProgress: (final progress) {
           setState(() {
             _downloadProgress = progress;
           });
@@ -124,8 +124,8 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
     }
   }
 
-  Future<void> _openTutorial() async {
-    final url = widget.apkInfo.linkYoutubeTutorial;
+  Future<void> _bukaTutorial() async {
+    final url = widget.infoApk.linkYoutubeTutorial;
     if (url.isEmpty) {
       if (mounted) {
         ToastUtil.info(context, 'Link tutorial belum tersedia.');
@@ -147,20 +147,18 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
     }
   }
 
-  Future<void> _skipUpdateAndNavigate() async {
+  Future<void> _lewatiUpdateDanNavigasi() async {
     final userId = await ref.watch(userIdProvider.future);
     if (userId != null) {
       Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
-      unawaited(Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const MainPage(),
+      unawaited(
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const MainPage()),
         ),
-      ));
+      );
     } else {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(
-          builder: ((context) => const LoginPage()),
-        ),
+        MaterialPageRoute<void>(builder: ((context) => const LoginPage())),
       );
     }
   }
@@ -173,13 +171,13 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
         child: Column(
           children: [
             gapH12,
-            _buildHeaderAnimation(),
+            _buildAnimasiHeader(),
             gapH32,
-            _buildVersionCard(),
+            _buildKartuVersi(),
             gapH20,
-            _buildUpdateStatusCard(),
+            _buildKartuStatusUpdate(),
             gapH24,
-            _buildActionButtons(),
+            _buildTombolAksi(),
             gapH20,
             if (_changelog.isNotEmpty) _buildChangelogCard(),
           ],
@@ -188,9 +186,9 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
     );
   }
 
-  Widget _buildActionButtons() {
-    final isUpdateRequired = widget.apkInfo.wajibUpdate;
-    final hasTutorial = widget.apkInfo.linkYoutubeTutorial.isNotEmpty;
+  Widget _buildTombolAksi() {
+    final perluUpdate = widget.infoApk.wajibUpdate;
+    final adaTutorial = widget.infoApk.linkYoutubeTutorial.isNotEmpty;
 
     return Column(
       children: [
@@ -198,7 +196,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
           width: double.infinity,
           height: 56,
           child: FilledButton.icon(
-            onPressed: _isDownloading ? null : _downloadUpdate,
+            onPressed: _isDownloading ? null : _unduhPembaruan,
             icon: _isDownloading
                 ? const SizedBox.shrink()
                 : const Icon(TIcons.downloadRounded, size: 24),
@@ -212,25 +210,27 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                   ),
             style: FilledButton.styleFrom(
-              backgroundColor:
-                  _isDownloading ? Colors.grey : const Color(0xFF6C63FF),
+              backgroundColor: _isDownloading
+                  ? Colors.grey
+                  : const Color(0xFF6C63FF),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
+                borderRadius: BorderRadius.circular(16),
+              ),
               elevation: 4,
             ),
           ),
         ),
-        if (!isUpdateRequired || hasTutorial) ...[
+        if (!perluUpdate || adaTutorial) ...[
           gapH12,
           Row(
             children: [
-              if (hasTutorial)
+              if (adaTutorial)
                 Expanded(
                   child: SizedBox(
                     height: 50,
                     child: OutlinedButton.icon(
-                      onPressed: _openTutorial,
+                      onPressed: _bukaTutorial,
                       icon: const Icon(TIcons.youtube, color: Colors.red),
                       label: const Text(
                         'Tutorial',
@@ -248,13 +248,13 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
                     ),
                   ),
                 ),
-              if (hasTutorial && !isUpdateRequired) gapW12,
-              if (!isUpdateRequired)
+              if (adaTutorial && !perluUpdate) gapW12,
+              if (!perluUpdate)
                 Expanded(
                   child: SizedBox(
                     height: 50,
                     child: OutlinedButton(
-                      onPressed: _skipUpdateAndNavigate,
+                      onPressed: _lewatiUpdateDanNavigasi,
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.grey[700],
                         side: BorderSide(color: Colors.grey[300]!),
@@ -265,7 +265,9 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
                       child: const Text(
                         'Lewati',
                         style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -277,14 +279,11 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
     );
   }
 
-  Widget _buildHeaderAnimation() {
+  Widget _buildAnimasiHeader() {
     return AnimatedBuilder(
       animation: _pulseAnimation,
       builder: (final _, final child) {
-        return Transform.scale(
-          scale: _pulseAnimation.value,
-          child: child,
-        );
+        return Transform.scale(scale: _pulseAnimation.value, child: child);
       },
       child: Container(
         width: 130,
@@ -305,17 +304,13 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
           ],
         ),
         child: const Center(
-          child: Icon(
-            TIcons.systemUpdate,
-            size: 65,
-            color: Colors.white,
-          ),
+          child: Icon(TIcons.systemUpdate, size: 65, color: Colors.white),
         ),
       ),
     );
   }
 
-  Widget _buildVersionCard() {
+  Widget _buildKartuVersi() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -332,37 +327,37 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
       ),
       child: Column(
         children: [
-          _buildVersionRow(
+          _buildBarisVersi(
             icon: TIcons.phoneAndroid,
             iconColor: const Color(0xFF6C63FF),
             label: 'Versi Saat Ini',
-            version: widget.packageInfo.version.split('-').first,
-            isCurrent: true,
+            version: widget.infoPaket.versi.split('-').first,
+            apakahSaatIni: true,
           ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
             child: Divider(height: 1, thickness: 1),
           ),
-          _buildVersionRow(
+          _buildBarisVersi(
             icon: TIcons.cloudDone,
             iconColor: Colors.orange,
             label: 'Versi Terbaru',
-            version: widget.apkInfo.versiTerkahir.split('-').first,
-            isCurrent: false,
-            badge: 'BARU',
+            version: widget.infoApk.versiTerkahir.split('-').first,
+            apakahSaatIni: false,
+            lencana: 'BARU',
           ),
         ],
       ),
     );
   }
 
-  Widget _buildVersionRow({
+  Widget _buildBarisVersi({
     required final IconData icon,
     required final Color iconColor,
     required final String label,
     required final String version,
-    required final bool isCurrent,
-    final String? badge,
+    required final bool apakahSaatIni,
+    final String? lencana,
   }) {
     return Row(
       children: [
@@ -398,11 +393,13 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
                       color: Color(0xFF2D3142),
                     ),
                   ),
-                  if (badge != null) ...[
+                  if (lencana != null) ...[
                     gapW12,
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFFFF6B6B), Color(0xFFFF8E53)],
@@ -425,7 +422,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
             ],
           ),
         ),
-        if (isCurrent)
+        if (apakahSaatIni)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
@@ -453,9 +450,9 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
     );
   }
 
-  Widget _buildUpdateStatusCard() {
+  Widget _buildKartuStatusUpdate() {
     if (_isDownloading) {
-      return _buildStatusContainer(
+      return _buildKontainerStatus(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -472,8 +469,9 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
               value: _downloadProgress,
               minHeight: 12,
               backgroundColor: Colors.grey[200],
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(Color(0xFF6C63FF)),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                Color(0xFF6C63FF),
+              ),
               borderRadius: BorderRadius.circular(6),
             ),
             gapH8,
@@ -493,7 +491,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
       );
     }
 
-    return _buildStatusContainer(
+    return _buildKontainerStatus(
       child: Row(
         children: [
           Container(
@@ -502,8 +500,11 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
               color: Colors.orange.withAlpha(26),
               shape: BoxShape.circle,
             ),
-            child:
-                const Icon(TIcons.warningAmber, color: Colors.orange, size: 22),
+            child: const Icon(
+              TIcons.warningAmber,
+              color: Colors.orange,
+              size: 22,
+            ),
           ),
           gapW12,
           Expanded(
@@ -519,7 +520,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
                   ),
                 ),
                 Text(
-                  'Ukuran: $_fileSize',
+                  'Ukuran: $_ukuranFile',
                   style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                 ),
               ],
@@ -530,7 +531,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
     );
   }
 
-  Widget _buildStatusContainer({required final Widget child}) {
+  Widget _buildKontainerStatus({required final Widget child}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
@@ -576,8 +577,11 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
                   color: const Color(0xFFFF6B6B).withAlpha(26),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(TIcons.listAlt,
-                    color: Color(0xFFFF6B6B), size: 22),
+                child: const Icon(
+                  TIcons.listAlt,
+                  color: Color(0xFFFF6B6B),
+                  size: 22,
+                ),
               ),
               gapW12,
               const Text(
@@ -591,41 +595,43 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
             ],
           ),
           gapH20,
-          ..._changelog.map((final item) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(top: 4),
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6C63FF),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF6C63FF).withAlpha(102),
-                            blurRadius: 4,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                    ),
-                    gapW16,
-                    Expanded(
-                      child: Text(
-                        item,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[700],
-                          height: 1.5,
+          ..._changelog.map(
+            (final item) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 4),
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6C63FF),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF6C63FF).withAlpha(102),
+                          blurRadius: 4,
+                          spreadRadius: 1,
                         ),
+                      ],
+                    ),
+                  ),
+                  gapW16,
+                  Expanded(
+                    child: Text(
+                      item,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[700],
+                        height: 1.5,
                       ),
                     ),
-                  ],
-                ),
-              )),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

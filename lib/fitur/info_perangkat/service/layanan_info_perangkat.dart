@@ -40,7 +40,7 @@ class LayananInfoPerangkat {
         Log.info('Informasi iOS berhasil didapatkan:', result);
         return result;
       }
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error(
         'Gagal mendapatkan info perangkat.',
         e: e,

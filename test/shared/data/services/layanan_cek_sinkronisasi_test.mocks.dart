@@ -10,10 +10,10 @@ import 'package:cloud_firestore/cloud_firestore.dart' as _i3;
 import 'package:firebase_core/firebase_core.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i10;
-import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart'
-    as _i9;
 import 'package:wifi/fitur/sinkronisasi/layanan_unduh_data.dart' as _i8;
 import 'package:wifi/fitur/sinkronisasi/layanan_unggah_data.dart' as _i6;
+import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart'
+    as _i9;
 import 'package:wifi/shared/model/has_id.dart' as _i7;
 import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart' as _i5;
 

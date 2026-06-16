@@ -1,4 +1,4 @@
-// path: lib/fitur/versi_apk/service/update_check_service.dart
+// path: lib/fitur/versi_apk/service/layanan_cek_update_apk.dart
 
 import 'dart:async';
 
@@ -16,7 +16,7 @@ import 'package:wifi/fitur/versi_apk/page/update_apk_page_u.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
 /// Kelas layanan untuk memeriksa pembaruan aplikasi.
-class UpdateCheckService {
+class LayananCekUpdateApk {
   /// Konteks build untuk navigasi.
   final BuildContext? context;
 
@@ -26,9 +26,9 @@ class UpdateCheckService {
 
   final LayananInfoPaket _layananInfoPaket = LayananInfoPaket();
   final LayananInfoPerangkat _layananInfoPerangkat;
-  final VersiApkOpFirebase _apkVersiOp = VersiApkOpFirebase();
+  final VersiApkOpFirebase _versiApkOpFirebase = VersiApkOpFirebase();
 
-  UpdateCheckService({
+  LayananCekUpdateApk({
     this.context,
     required this.prefs,
     required this.penyimpananLokal,
@@ -72,7 +72,7 @@ class UpdateCheckService {
         );
       }
 
-      final apkTerbaru = await _apkVersiOp.ambilVersiTerbaru();
+      final apkTerbaru = await _versiApkOpFirebase.ambilVersiTerbaru();
       if (apkTerbaru == null) {
         Log.info('Tidak ada data versi APK di Firebase.');
         return (
@@ -83,7 +83,7 @@ class UpdateCheckService {
         );
       }
 
-      final nomorBuildSekarang = int.tryParse(infoPaket.buildNumber) ?? 0;
+      final nomorBuildSekarang = int.tryParse(infoPaket.nomorBuild) ?? 0;
       final nomorBuildTerbaru = apkTerbaru.nomorBuildTerakhir[arsitektur] ?? 0;
       Log.info('Perbandingan versi', {
         'buildSekarang': nomorBuildSekarang,
@@ -91,10 +91,10 @@ class UpdateCheckService {
         'arsitektur': arsitektur.name,
       });
 
-      final bool isRequired = nomorBuildTerbaru > nomorBuildSekarang;
+      final bool perluUpdate = nomorBuildTerbaru > nomorBuildSekarang;
       return (
-        perluUpdate: isRequired,
-        infoApk: isRequired ? apkTerbaru : null,
+        perluUpdate: perluUpdate,
+        infoApk: perluUpdate ? apkTerbaru : null,
         infoPaket: infoPaket,
         arsitektur: arsitektur,
       );
@@ -120,20 +120,20 @@ class UpdateCheckService {
       Log.error('BuildContext tidak tersedia untuk checkUpdateAndNavigate.');
       return;
     }
-    final update = await ambilInfoUpdate();
-    if (update.perluUpdate &&
-        update.infoApk != null &&
-        update.infoPaket != null &&
-        update.arsitektur != null) {
+    final infoUpdate = await ambilInfoUpdate();
+    if (infoUpdate.perluUpdate &&
+        infoUpdate.infoApk != null &&
+        infoUpdate.infoPaket != null &&
+        infoUpdate.arsitektur != null) {
       Log.info('Pembaruan tersedia! Menavigasi ke halaman update.');
       if (context!.mounted) {
         unawaited(
           Navigator.of(context!).pushReplacement(
             MaterialPageRoute<void>(
               builder: (ctx) => UpdateApkPage(
-                apkInfo: update.infoApk!,
-                packageInfo: update.infoPaket!,
-                architecture: update.arsitektur!,
+                infoApk: infoUpdate.infoApk!,
+                infoPaket: infoUpdate.infoPaket!,
+                arsitektur: infoUpdate.arsitektur!,
               ),
             ),
           ),
@@ -149,16 +149,16 @@ class UpdateCheckService {
       return null;
     }
 
-    final supportedAbis = List<String>.from(
+    final arsitekturPerangkat = List<String>.from(
       infoPerangkat['supportedAbis'] as Iterable<dynamic>,
     );
-    if (supportedAbis.contains('arm64-v8a')) {
+    if (arsitekturPerangkat.contains('arm64-v8a')) {
       return ArsitekturApk.bit64;
-    } else if (supportedAbis.contains('armeabi-v7a')) {
+    } else if (arsitekturPerangkat.contains('armeabi-v7a')) {
       return ArsitekturApk.bit32;
     } else {
       Log.warning('Arsitektur tidak didukung (bukan 64-bit, 32-bit, ).', {
-        'supportedAbis': supportedAbis,
+        'supportedAbis': arsitekturPerangkat,
       });
       return ArsitekturApk.universal;
     }

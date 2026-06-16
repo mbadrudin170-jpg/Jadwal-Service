@@ -16,7 +16,7 @@ import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/operasi/settings_op_firebase.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
-import 'package:wifi/fitur/versi_apk/service/update_check_service.dart';
+import 'package:wifi/fitur/versi_apk/service/layanan_cek_update_apk.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -133,9 +133,9 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => UpdateApkPage(
-              apkInfo: updateInfo.apkInfo!,
-              packageInfo: updateInfo.packageInfo!,
-              architecture: updateInfo.architecture!,
+              infoApk: updateInfo.apkInfo!,
+              infoPaket: updateInfo.packageInfo!,
+              arsitektur: updateInfo.architecture!,
             ),
           ),
         ),
@@ -172,7 +172,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
 
   Future<UpdateInfoRecord?> _checkAppUpdate() async {
     if (!mounted) return null;
-    final updateService = UpdateCheckService(
+    final updateService = LayananCekUpdateApk(
       prefs: widget.prefs,
       penyimpananLokal: widget.penyimpananLokal,
       context: context,
