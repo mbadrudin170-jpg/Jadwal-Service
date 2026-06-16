@@ -1970,7 +1970,7 @@ class MockVersiApkOpSqlite extends _i1.Mock implements _i30.VersiApkOpSqlite {
       ) as _i11.Future<int>);
 
   @override
-  _i11.Future<void> insertOrUpdateBatch(
+  _i11.Future<void> sisipkanAtauPerbaruiBatch(
     List<_i31.VersiApkModel>? modelList, {
     bool? dariServer = false,
   }) =>

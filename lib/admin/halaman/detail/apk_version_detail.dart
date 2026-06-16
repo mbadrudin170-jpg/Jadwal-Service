@@ -16,13 +16,13 @@ import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 class ApkVersionDetailPage extends ConsumerStatefulWidget {
-  final VersiApkModel apkVersion;
-  final VersiApkOpSqlite? operation;
+  final VersiApkModel versiApk;
+  final VersiApkOpSqlite? operasi;
 
   const ApkVersionDetailPage({
     super.key,
-    required this.apkVersion,
-    this.operation,
+    required this.versiApk,
+    this.operasi,
   });
 
   @override
@@ -37,9 +37,9 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
   @override
   void initState() {
     super.initState();
-    _currentApkVersion = widget.apkVersion;
+    _currentApkVersion = widget.versiApk;
     _apkVersionOperation =
-        widget.operation ?? ref.read(apkVersionOperationProvider);
+        widget.operasi ?? ref.read(apkVersionOperationProvider);
   }
 
   Future<void> _navigateToEditForm() async {

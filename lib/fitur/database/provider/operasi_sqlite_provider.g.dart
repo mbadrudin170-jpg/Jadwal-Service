@@ -201,29 +201,29 @@ String _$pelangganAktifOpSqliteHash() =>
 
 /// Provider untuk menyediakan instance dari [VersiApkOpSqlite].
 
-@ProviderFor(apkVersionOperation)
-final apkVersionOperationProvider = ApkVersionOperationProvider._();
+@ProviderFor(versiApkOpSqlite)
+final versiApkOpSqliteProvider = VersiApkOpSqliteProvider._();
 
 /// Provider untuk menyediakan instance dari [VersiApkOpSqlite].
 
-final class ApkVersionOperationProvider extends $FunctionalProvider<
+final class VersiApkOpSqliteProvider extends $FunctionalProvider<
     VersiApkOpSqlite,
     VersiApkOpSqlite,
     VersiApkOpSqlite> with $Provider<VersiApkOpSqlite> {
   /// Provider untuk menyediakan instance dari [VersiApkOpSqlite].
-  ApkVersionOperationProvider._()
+  VersiApkOpSqliteProvider._()
       : super(
           from: null,
           argument: null,
           retry: null,
-          name: r'apkVersionOperationProvider',
+          name: r'versiApkOpSqliteProvider',
           isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
 
   @override
-  String debugGetCreateSourceHash() => _$apkVersionOperationHash();
+  String debugGetCreateSourceHash() => _$versiApkOpSqliteHash();
 
   @$internal
   @override
@@ -232,7 +232,7 @@ final class ApkVersionOperationProvider extends $FunctionalProvider<
 
   @override
   VersiApkOpSqlite create(Ref ref) {
-    return apkVersionOperation(ref);
+    return versiApkOpSqlite(ref);
   }
 
   /// {@macro riverpod.override_with_value}
@@ -244,8 +244,7 @@ final class ApkVersionOperationProvider extends $FunctionalProvider<
   }
 }
 
-String _$apkVersionOperationHash() =>
-    r'c2bbcf3939c1cfbce3dc192d3d33e036895cb3cf';
+String _$versiApkOpSqliteHash() => r'63606dda8187af2df6b5f8df9e9a645e5ac48123';
 
 /// Provider untuk menyediakan instance dari [KategoriOpSqlite].
 

@@ -306,8 +306,8 @@ class LayananUnduhData {
       collectionName: NamaTabel.versiApkUser,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: VersiApkModel.fromFirebase,
-      batchOperation: (data) =>
-          _apkVersionOperation.insertOrUpdateBatch(data, dariServer: true),
+      batchOperation: (data) => _apkVersionOperation
+          .sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
@@ -383,7 +383,7 @@ final downloadDataServiceProvider = Provider<LayananUnduhData>((ref) {
     feedbackOperation: ref.read(feedbackOpSqliteProvider),
     orderOperation: ref.read(orderOpSqliteProvider),
     subCategoryOperation: ref.read(subKategoriOpSqliteProvider),
-    apkVersionOperation: ref.read(apkVersionOperationProvider),
+    apkVersionOperation: ref.read(versiApkOpSqliteProvider),
     settingsOperation: ref.read(settingsOpSqliteProvider),
   );
 });

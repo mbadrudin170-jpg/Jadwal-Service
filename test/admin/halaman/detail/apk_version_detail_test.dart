@@ -60,7 +60,7 @@ void main() {
     return ProviderScope(
       parent: container,
       child: MaterialApp(
-        home: ApkVersionDetailPage(apkVersion: tVersi),
+        home: ApkVersionDetailPage(versiApk: tVersi),
         navigatorObservers: [mockNavigatorObserver],
       ),
     );

@@ -129,7 +129,7 @@ class VersiApkOpSqlite {
   }
 
   /// Menyisipkan atau memperbarui sekumpulan [VersiApkModel] dalam satu batch.
-  Future<void> insertOrUpdateBatch(
+  Future<void> sisipkanAtauPerbaruiBatch(
     final List<VersiApkModel> modelList, {
     final bool dariServer = false,
   }) async {

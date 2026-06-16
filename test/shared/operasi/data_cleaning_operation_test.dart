@@ -9,7 +9,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart';
 
 import 'data_cleaning_operation_test.mocks.dart';
 
@@ -25,7 +25,7 @@ void main() {
   late Database mockDatabase;
   late MockDatabaseHelper mockDbHelper;
   late FakeFirebaseFirestore fakeFirestore;
-  late DataCleaningOperation dataCleaningOperation;
+  late PembersihanDataOperasi dataCleaningOperation;
 
   // Nama tabel untuk pengujian
   final testTable = NamaTabel.get(TableName.customer);
@@ -52,7 +52,7 @@ void main() {
     fakeFirestore = FakeFirebaseFirestore();
 
     // Inisialisasi kelas yang diuji dengan dependensi mock
-    dataCleaningOperation = DataCleaningOperation(
+    dataCleaningOperation = PembersihanDataOperasi(
       sqliteDb: mockDbHelper,
       firestore: fakeFirestore,
     );

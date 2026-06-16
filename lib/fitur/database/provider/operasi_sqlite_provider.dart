@@ -14,7 +14,7 @@ import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart';
 import 'package:wifi/fitur/kategori/operasi/sub_kategori_op_sqlite.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
@@ -80,7 +80,7 @@ PelangganAktifOpSqlite pelangganAktifOpSqlite(Ref ref) {
 
 /// Provider untuk menyediakan instance dari [VersiApkOpSqlite].
 @Riverpod(keepAlive: true)
-VersiApkOpSqlite apkVersionOperation(Ref ref) {
+VersiApkOpSqlite versiApkOpSqlite(Ref ref) {
   Log.info('Membuat instance ApkVersionOperation via @riverpod...');
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
@@ -104,11 +104,11 @@ KategoriOpSqlite kategoriOpSqlite(Ref ref) {
   );
 }
 
-/// Provider untuk menyediakan instance dari [DataCleaningOperation].
+/// Provider untuk menyediakan instance dari [PembersihanDataOperasi].
 @Riverpod(keepAlive: true)
-DataCleaningOperation dataCleaningOperation(Ref ref) {
+PembersihanDataOperasi dataCleaningOperation(Ref ref) {
   Log.info('Membuat instance DataCleaningOperation via @riverpod...');
-  return DataCleaningOperation();
+  return PembersihanDataOperasi();
 }
 
 /// Provider untuk menyediakan instance dari [FeedbackOpSqlite].

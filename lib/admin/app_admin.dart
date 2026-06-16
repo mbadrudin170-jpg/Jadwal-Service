@@ -9,7 +9,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/data/services/navigasi_servis.dart';
+import 'package:wifi/shared/data/services/layanan_navigasi.dart';
 import 'package:wifi/shared/data/sync/unduhan_awal_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -159,7 +159,7 @@ class AppMaterial extends ConsumerWidget {
           darkTheme: AppTheme.modeGelap,
           themeMode: themeMode,
           home: HalamanUtama(isOffline: isOffline),
-          navigatorKey: NavigasiServis.navigatorKey,
+          navigatorKey: LayananNavigasi.navigatorKey,
         ),
       ),
       loading: () => const MaterialApp(

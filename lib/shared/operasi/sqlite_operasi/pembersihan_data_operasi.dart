@@ -1,4 +1,4 @@
-// path: lib/shared/operasi/data_cleaning_operation.dart
+// path: lib/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -8,12 +8,12 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 /// Kelas untuk operasi pembersihan data di database lokal (SQLite) dan remote (Firestore).
-class DataCleaningOperation {
+class PembersihanDataOperasi {
   final SqliteDatabase _sqliteDb;
   final FirebaseFirestore _firestore;
 
   /// Konstruktor untuk `DataCleaningOperation`.
-  DataCleaningOperation({
+  PembersihanDataOperasi({
     @visibleForTesting final SqliteDatabase? sqliteDb,
     @visibleForTesting final FirebaseFirestore? firestore,
   })  : _sqliteDb = sqliteDb ?? SqliteDatabase.instance,

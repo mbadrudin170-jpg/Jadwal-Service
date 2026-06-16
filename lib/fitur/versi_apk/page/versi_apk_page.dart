@@ -10,29 +10,19 @@ import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-/// Enum untuk menentukan kriteria pengurutan daftar versi APK.
 enum SortOrder {
-  /// Terbaru ke terlama
   buildZA,
-
-  /// Terlama ke terbaru
   buildAZ,
-
-  /// Versi Z-A
   versionZA,
-
-  /// Versi A-Z
   versionAZ,
 }
 
-/// Halaman untuk mengelola versi APK yang tersedia untuk pengguna.
 class VersiApkPage extends ConsumerStatefulWidget {
-  /// Operasi untuk berinteraksi dengan data versi APK.
   final VersiApkOpSqlite? operation;
-
-  /// Halaman untuk mengelola versi APK yang tersedia untuk pengguna.
+  
   const VersiApkPage({super.key, this.operation});
 
   @override
@@ -40,8 +30,8 @@ class VersiApkPage extends ConsumerStatefulWidget {
 }
 
 class _VersiApkState extends ConsumerState<VersiApkPage> {
-  late final VersiApkOpSqlite _apkVersionOperation;
-  List<VersiApkModel> _apkVersionList = [];
+  late final VersiApkOpSqlite _versiApkOpSqlite;
+  List<VersiApkModel> _daftarVersiApk = [];
   bool _loading = true;
   String? _error;
   SortOrder _currentSort = SortOrder.buildZA;
@@ -50,13 +40,13 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
   void initState() {
     super.initState();
     Log.info('Menginisialisasi halaman Versi APK User');
-    _apkVersionOperation = ref.read(apkVersionOperationProvider);
+    _versiApkOpSqlite = ref.read(versiApkOpSqliteProvider);
     unawaited(_loadData());
   }
 
   void _sortList() {
     Log.info('Mengurutkan data berdasarkan: ${_getSortName(_currentSort)}');
-    _apkVersionList.sort((final a, final b) {
+    _daftarVersiApk.sort((final a, final b) {
       final buildA = a.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0;
       final buildB = b.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0;
 
@@ -83,11 +73,11 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
     });
 
     try {
-      final versionList = await _apkVersionOperation.ambilSemuaVersiApkAktif();
-      Log.info('Berhasil memuat ${versionList.length} data versi APK aktif');
+      final daftarVersi = await _versiApkOpSqlite.ambilSemuaVersiApkAktif();
+      Log.info('Berhasil memuat ${daftarVersi.length} data versi APK aktif');
       if (!mounted) return;
       setState(() {
-        _apkVersionList = versionList;
+        _daftarVersiApk = daftarVersi;
         _sortList();
         _loading = false;
       });
@@ -101,14 +91,14 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
     }
   }
 
-  Future<void> _toDetail(final VersiApkModel apkVersion) async {
+  Future<void> _navigasiKeDetail(VersiApkModel versiApk) async {
     if (!mounted) return;
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
         builder: (final context) => ApkVersionDetailPage(
-          apkVersion: apkVersion,
-          operation: _apkVersionOperation,
+          versiApk: versiApk,
+          operasi: _versiApkOpSqlite,
         ),
       ),
     );
@@ -123,7 +113,7 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
       MaterialPageRoute(
         builder: (context) => ApkVersionForm(
           apkVersion: versiApk,
-          operasi: _apkVersionOperation,
+          operasi: _versiApkOpSqlite,
         ),
       ),
     );
@@ -133,13 +123,12 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
     }
   }
 
-  Future<void> _toAddForm() async {
+  Future<void> _navigasiKeForm() async {
     if (!mounted) return;
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (final context) =>
-            ApkVersionForm(operasi: _apkVersionOperation),
+        builder: (final context) => ApkVersionForm(operasi: _versiApkOpSqlite),
       ),
     );
     if ((result ?? false) && mounted) {
@@ -164,30 +153,30 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
     }
   }
 
-  Future<void> _showOptionsDialog(final VersiApkModel version) async {
+  Future<void> _showOptionsDialog(VersiApkModel versi) async {
     if (!mounted) return;
     await showDialog<void>(
       context: context,
-      builder: (final c) => SimpleDialog(
-        title: Text('Opsi Versi ${version.versiTerkahir}'),
+      builder: (c) => SimpleDialog(
+        title: Text('Opsi Versi ${versi.versiTerkahir}'),
         children: [
           SimpleDialogOption(
             onPressed: () {
               Navigator.pop(c);
-              unawaited(_navigasiKeEdit(version));
+              unawaited(_navigasiKeEdit(versi));
             },
             child: const ListTile(
-              leading: Icon(Icons.edit),
+              leading: Icon(TIcons.edit),
               title: Text('Edit'),
             ),
           ),
           SimpleDialogOption(
             onPressed: () {
               Navigator.pop(c);
-              unawaited(_showArchiveDialog(version));
+              unawaited(_showArchiveDialog(versi));
             },
             child: const ListTile(
-              leading: Icon(Icons.archive),
+              leading: Icon(TIcons.archive),
               title: Text('Arsipkan'),
             ),
           ),
@@ -196,14 +185,14 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
     );
   }
 
-  Future<void> _showArchiveDialog(final VersiApkModel version) async {
+  Future<void> _showArchiveDialog(VersiApkModel versi) async {
     if (!mounted) return;
-    final confirm = await showDialog<bool>(
+    final konfirmasi = await showDialog<bool>(
       context: context,
-      builder: (final c) => AlertDialog(
+      builder: (c) => AlertDialog(
         title: const Text('Arsipkan Versi APK?'),
-        content: Text(
-            'Anda yakin ingin mengarsipkan versi ${version.versiTerkahir}?'),
+        content:
+            Text('Anda yakin ingin mengarsipkan versi ${versi.versiTerkahir}?'),
         actions: [
           TextButton(
               child: const Text('Batal'),
@@ -214,18 +203,18 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
         ],
       ),
     );
-    if (confirm ?? false) {
-      unawaited(_softDelete(version));
+    if (konfirmasi ?? false) {
+      unawaited(_softDelete(versi));
     }
   }
 
   Future<void> _softDelete(final VersiApkModel version) async {
     Log.info('Memulai proses soft delete untuk ID: ${version.id}');
     try {
-      await _apkVersionOperation.softDelete(version.id);
+      await _versiApkOpSqlite.softDelete(version.id);
       if (!mounted) return;
       setState(() {
-        _apkVersionList.removeWhere((final v) => v.id == version.id);
+        _daftarVersiApk.removeWhere((final v) => v.id == version.id);
       });
       ToastUtil.success(
           context, 'Versi ${version.versiTerkahir} berhasil diarsipkan.');
@@ -238,9 +227,9 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
 
   Future<void> _softDeleteAll() async {
     if (!mounted) return;
-    final confirm = await showDialog<bool>(
+    final konfirmasi = await showDialog<bool>(
       context: context,
-      builder: (final c) => AlertDialog(
+      builder: (c) => AlertDialog(
         title: const Text('Arsipkan Semua Versi?'),
         content: const Text(
             'Anda yakin ingin mengarsipkan semua versi APK yang aktif?'),
@@ -255,14 +244,14 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
       ),
     );
 
-    if (confirm ?? false) {
+    if (konfirmasi ?? false) {
       Log.info('Memulai proses soft delete untuk semua versi APK aktif');
       try {
-        final count = await _apkVersionOperation.softDeleteAll();
+        final count = await _versiApkOpSqlite.softDeleteAll();
         if (!mounted) return;
         ToastUtil.success(context, 'Berhasil mengarsipkan $count versi APK.');
         unawaited(_loadData());
-      } on Exception catch (e, s) {
+      } catch (e, s) {
         Log.error('Gagal soft delete semua versi APK', e: e, s: s);
         if (!mounted) return;
         ToastUtil.error(context, 'Gagal mengarsipkan semua: $e');
@@ -271,7 +260,7 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build( BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Daftar Versi APK'),
@@ -294,7 +283,7 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
       ),
       body: _buildContent(),
       floatingActionButton: FloatingActionButton(
-        onPressed: _toAddForm,
+        onPressed: _navigasiKeForm,
         tooltip: 'Tambah Versi APK',
         child: const Icon(Icons.add),
       ),
@@ -315,16 +304,16 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
       );
     }
 
-    if (_apkVersionList.isEmpty) {
+    if (_daftarVersiApk.isEmpty) {
       return const Center(child: Text('Tidak ada data versi APK.'));
     }
 
     return RefreshIndicator(
       onRefresh: _loadData,
       child: ListView.builder(
-        itemCount: _apkVersionList.length,
-        itemBuilder: (final context, final index) {
-          final apkVersion = _apkVersionList[index];
+        itemCount: _daftarVersiApk.length,
+        itemBuilder: ( context,  index) {
+          final apkVersion = _daftarVersiApk[index];
           final buildUniversal =
               apkVersion.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0;
 
@@ -339,7 +328,7 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              onTap: () => _toDetail(apkVersion),
+              onTap: () => _navigasiKeDetail(apkVersion),
               onLongPress: () => _showOptionsDialog(apkVersion),
             ),
           );
@@ -349,12 +338,8 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
   }
 }
 
-/// Dialog untuk memilih kriteria pengurutan.
 class _SortDialog extends StatefulWidget {
-  /// Dialog untuk memilih kriteria pengurutan.
   const _SortDialog({required this.currentSort});
-
-  /// Kriteria pengurutan saat ini.
   final SortOrder currentSort;
 
   @override
@@ -407,7 +392,6 @@ class _SortDialogState extends State<_SortDialog> {
   }
 }
 
-/// Mendapatkan nama yang dapat dibaca manusia dari [SortOrder].
 String _getSortName(final SortOrder order) {
   switch (order) {
     case SortOrder.buildZA:
@@ -421,18 +405,10 @@ String _getSortName(final SortOrder order) {
   }
 }
 
-/// Helper widget for radio group since it's not standard in Flutter
 class RadioGroup<T> extends StatelessWidget {
-  /// Nilai grup saat ini.
   final T groupValue;
-
-  /// Callback saat nilai berubah.
   final ValueChanged<T?> onChanged;
-
-  /// Widget anak.
   final Widget child;
-
-  /// Helper widget for radio group since it's not standard in Flutter
   const RadioGroup({
     super.key,
     required this.groupValue,

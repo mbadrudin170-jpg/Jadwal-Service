@@ -23,7 +23,7 @@ import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/data/sync/layanan_unggah_data.dart';
 import 'package:wifi/shared/data/sync/unduhan_awal_service.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/storage/layanan_penyimpanan_lokal.dart';
@@ -47,7 +47,8 @@ class MockPelangganAktifOpSqlite extends Mock
 
 class MockSettingsOpSqlite extends Mock implements SettingsOpSqlite {}
 
-class MockDataCleaningOperation extends Mock implements DataCleaningOperation {}
+class MockDataCleaningOperation extends Mock
+    implements PembersihanDataOperasi {}
 
 class MockSqliteDatabase extends Mock implements SqliteDatabase {}
 

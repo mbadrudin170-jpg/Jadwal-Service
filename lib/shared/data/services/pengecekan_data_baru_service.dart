@@ -105,10 +105,10 @@ class PengecekanDataBaruService {
           Log.info(
             'Field "${NamaKolom.diperbaruiPada}" ditemukan. Mem-parsing nilai: ${data[NamaKolom.diperbaruiPada]}',
           );
-          final DateTime? tanggalUpdateAt =
+          final DateTime? diperbaruiPada =
               ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]);
 
-          if (tanggalUpdateAt == null) {
+          if (diperbaruiPada == null) {
             Log.warning(
               'Gagal mem-parsing nilai "${NamaKolom.diperbaruiPada}" dari server. '
               'Nilai tidak valid atau format tidak didukung. '
@@ -117,13 +117,13 @@ class PengecekanDataBaruService {
             return false;
           }
 
-          Log.info('Waktu pembaruan di server adalah: $tanggalUpdateAt');
+          Log.info('Waktu pembaruan di server adalah: $diperbaruiPada');
 
           final bool apakahLebihBaru =
-              tanggalUpdateAt.isAfter(tanggalTerakhirDownload);
+              diperbaruiPada.isAfter(tanggalTerakhirDownload);
           if (apakahLebihBaru) {
             Log.info(
-              'Kesimpulan: Waktu server ($tanggalUpdateAt) lebih baru daripada waktu lokal ($tanggalTerakhirDownload). PENGUNDUHAN DATA DIPERLUKAN untuk menjaga aktualitas data.',
+              'Kesimpulan: Waktu server ($diperbaruiPada) lebih baru daripada waktu lokal ($tanggalTerakhirDownload). PENGUNDUHAN DATA DIPERLUKAN untuk menjaga aktualitas data.',
             );
           } else {
             Log.info(

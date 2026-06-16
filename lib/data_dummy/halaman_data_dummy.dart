@@ -59,11 +59,7 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData(
-                  context,
-                  ref,
-                  'Kategori',
-                  DataDummy.categories,
+              await _tambahData(context, ref, 'Kategori', DataDummy.categories,
                   ref.read(kategoriOpSqliteProvider).sisipkanAtauPerbaruiBatch);
               ref.invalidate(kategoriOpSqliteProvider);
             },
@@ -145,8 +141,8 @@ class HalamanDataDummy extends ConsumerWidget {
                   ref,
                   'Versi APK',
                   DataDummy.apkVersions,
-                  ref.read(apkVersionOperationProvider).sisipkanAtauPerbaruiBatch);
-              ref.invalidate(apkVersionOperationProvider);
+                  ref.read(versiApkOpSqliteProvider).sisipkanAtauPerbaruiBatch);
+              ref.invalidate(versiApkOpSqliteProvider);
             },
             label: 'Tambah Versi APK Dummy',
             icon: Icons.system_update,
@@ -211,7 +207,8 @@ class HalamanDataDummy extends ConsumerWidget {
         s: s,
       );
       if (context.mounted) {
-        ToastUtil.error(context, 'Terjadi kesalahan saat menambah $modelName: $e');
+        ToastUtil.error(
+            context, 'Terjadi kesalahan saat menambah $modelName: $e');
       }
     }
   }

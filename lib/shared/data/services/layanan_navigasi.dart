@@ -1,8 +1,8 @@
-// path: lib/data/services/navigasi_servis.dart
+// path: lib/shared/data/services/layanan_navigasi.dart
 
 import 'package:flutter/material.dart';
 
-class NavigasiServis {
+class LayananNavigasi {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 
