@@ -131,7 +131,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                       try {
                         if (appRole == AppRole.admin) {
                           await ref
-                              .read(orderOperationProvider)
+                              .read(orderOpSqliteProvider)
                               .softDeleteorder(order.id);
                         } else {
                           await ref
@@ -341,7 +341,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         if (dikonfirmasi ?? false) {
           try {
             await ref
-                .read(orderOperationProvider)
+                .read(orderOpSqliteProvider)
                 .updateStatusOrder(order.id, status);
             ref.invalidate(orderProvider);
 

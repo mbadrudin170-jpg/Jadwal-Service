@@ -11,7 +11,7 @@ import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
+import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -28,7 +28,7 @@ class ApkVersionForm extends ConsumerStatefulWidget {
   final VersiApkModel? apkVersion;
 
   const ApkVersionForm(
-      {super.key, this.apkVersion, final ApkVersionOperation? operasi});
+      {super.key, this.apkVersion, final VersiApkOpSqlite? operasi});
   @override
   ConsumerState<ApkVersionForm> createState() => _ApkVersionFormState();
 }

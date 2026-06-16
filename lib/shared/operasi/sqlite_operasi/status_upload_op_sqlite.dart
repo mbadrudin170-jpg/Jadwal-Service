@@ -6,7 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/upload_status_model.dart';
+import 'package:wifi/shared/model/status_unggah_model.dart';
 
 final statusUploadOpSlite = Provider<StatusUploadOpSqlite>((ref) {
   Log.info('Membuat instance UploadStatusOperation...');
@@ -35,9 +35,9 @@ class StatusUploadOpSqlite {
     Log.info('Memulai setNeedUpload: needUpload=$needUpload');
     try {
       final db = transaction ?? await _sqliteDb.database;
-      final data = UploadStatusModel(
-        id: UploadStatusModel.idNeedUpload,
-        needUpload: needUpload,
+      final data = StatusUnggahModel(
+        id: StatusUnggahModel.idNeedUpload,
+        butuhUnggah: needUpload,
         updatedAt: DateTime.now().toUtc(),
       );
 
@@ -61,10 +61,11 @@ class StatusUploadOpSqlite {
       final query = await db.query(
         NamaTabel.statusUnggah,
         where: 'id = ?',
-        whereArgs: [UploadStatusModel.idNeedUpload],
+        whereArgs: [StatusUnggahModel.idNeedUpload],
       );
       if (query.isNotEmpty) {
-        final needUpload = UploadStatusModel.fromSqlite(query.first).needUpload;
+        final needUpload =
+            StatusUnggahModel.fromSqlite(query.first).butuhUnggah;
         Log.info('getNeedUpload berhasil: needUpload=$needUpload');
         return needUpload;
       }
@@ -89,19 +90,19 @@ class StatusUploadOpSqlite {
   }
 
   /// Mendapatkan model UploadStatusModel lengkap, termasuk waktu terakhir diperbarui.
-  Future<UploadStatusModel?> ambilStatusUpload() async {
+  Future<StatusUnggahModel?> ambilStatusUpload() async {
     Log.info('Memulai getUploadStatusModel');
     try {
       final db = await _sqliteDb.database;
       final query = await db.query(
         NamaTabel.statusUnggah,
         where: 'id = ?',
-        whereArgs: [UploadStatusModel.idNeedUpload],
+        whereArgs: [StatusUnggahModel.idNeedUpload],
       );
       if (query.isNotEmpty) {
-        final data = UploadStatusModel.fromSqlite(query.first);
+        final data = StatusUnggahModel.fromSqlite(query.first);
         Log.info(
-            'getUploadStatusModel berhasil: needUpload=${data.needUpload}');
+            'getUploadStatusModel berhasil: needUpload=${data.butuhUnggah}');
         return data;
       }
       Log.info('getUploadStatusModel: tidak ada data, mengembalikan null');

@@ -1,4 +1,3 @@
-
 // path: test/admin/app_admin_test.dart
 import 'dart:async';
 
@@ -15,20 +14,22 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/notifikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/notifikasi/notifikasi_service_provider.dart';
+import 'package:wifi/fitur/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
+import 'package:wifi/shared/data/sync/layanan_unggah_data.dart';
 import 'package:wifi/shared/data/sync/unduhan_awal_service.dart';
-import 'package:wifi/shared/data/sync/upload_data.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/storage/layanan_penyimpanan_lokal.dart';
 import 'package:wifi/shared/storage/penyimpanan_lokal_provider.dart';
 import 'package:wifi/shared/theme/tema_provider.dart';
+import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 import 'package:workmanager/workmanager.dart';
 
 // Mocks
@@ -60,7 +61,7 @@ class MockNotificationResponse extends Mock implements NotificationResponse {}
 class MockLayananPenyimpananLokal extends Mock
     implements LayananPenyimpananLokal {}
 
-class MockUploadDataService extends Mock implements UploadDataService {}
+class MockUploadDataService extends Mock implements LayananUnggahData {}
 
 class MockLayananCekSinkronisasi extends Mock
     implements LayananCekSinkronisasi {}
@@ -169,7 +170,7 @@ void main() {
     mockWorkmanagerPlatform = MockWorkmanagerPlatform();
     WorkmanagerPlatform.instance = mockWorkmanagerPlatform;
 
-    when(() => mockUploadDataService.uploadSemuaData())
+    when(() => mockUploadDataService.unggahSemuaData())
         .thenAnswer((_) async => true);
     when(() => mockSyncCheckService.jalankanCekSinkronisasi())
         .thenAnswer((_) async {});
@@ -218,7 +219,7 @@ void main() {
             .overrideWithValue(mockDataCleaningOperation),
         sqliteDatabaseProvider.overrideWithValue(mockDatabaseHelper),
         layananPenyimpananLokalProvider.overrideWithValue(mockLocalStorage),
-        uploadDataServiceProvider.overrideWithValue(mockUploadDataService),
+        layananUnggahDataProvider.overrideWithValue(mockUploadDataService),
         layananCekSinkronisasiProvider.overrideWithValue(mockSyncCheckService),
         ...overrides,
       ],

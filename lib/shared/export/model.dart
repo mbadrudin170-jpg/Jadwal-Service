@@ -5,4 +5,4 @@ export '../model/event_model.dart';
 export '../model/notifikasi_model.dart';
 export '../model/save_result_model.dart';
 export '../model/status_model.dart';
-export '../model/upload_status_model.dart';
+export '../model/status_unggah_model.dart';

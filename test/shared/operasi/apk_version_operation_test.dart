@@ -5,7 +5,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
+import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 
@@ -21,15 +21,15 @@ void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockDatabase mockDatabase;
   late MockBaseOperation mockBaseOperation;
-  late ApkVersionOperation apkVersionOperation;
+  late VersiApkOpSqlite apkVersionOperation;
 
   setUp(() {
     mockDbHelper = MockDatabaseHelper();
     mockDatabase = MockDatabase();
     mockBaseOperation = MockBaseOperation();
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
-    apkVersionOperation = ApkVersionOperation(
-      dbHelper: mockDbHelper,
+    apkVersionOperation = VersiApkOpSqlite(
+      sqliteDb: mockDbHelper,
       baseOpSqlite: mockBaseOperation,
     );
   });
@@ -46,7 +46,7 @@ void main() {
       when(mockDatabase.query(any, orderBy: anyNamed('orderBy')))
           .thenAnswer((_) async => [tApkVersionMap]);
 
-      final result = await apkVersionOperation.getAllApkVersions();
+      final result = await apkVersionOperation.ambilSemuaVersiApk();
 
       expect(result, isA<List<VersiApkModel>>());
       expect(result.length, 1);
@@ -71,7 +71,7 @@ void main() {
     test('3. addApkVersion harus menyisipkan versi apk baru', () async {
       when(mockBaseOperation.sisipkan(any, any)).thenAnswer((_) async {});
 
-      await apkVersionOperation.addApkVersion(tApkVersion);
+      await apkVersionOperation.tambahVersiApk(tApkVersion);
 
       verify(mockBaseOperation.sisipkan(any, any)).called(1);
     });
@@ -79,7 +79,7 @@ void main() {
     test('4. updateApkVersion harus memperbarui versi apk yang ada', () async {
       when(mockBaseOperation.update(any, any, any)).thenAnswer((_) async {});
 
-      await apkVersionOperation.updateApkVersion(tApkVersion);
+      await apkVersionOperation.perbaruiVersiApk(tApkVersion);
 
       verify(mockBaseOperation.update(any, any, any)).called(1);
     });

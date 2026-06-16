@@ -5,7 +5,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/data/sync/upload_data.dart';
+import 'package:wifi/shared/data/sync/layanan_unggah_data.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
@@ -21,7 +21,7 @@ import 'upload_data_test.mocks.dart';
   DocumentReference,
 ])
 void main() {
-  late UploadDataService uploadDataService;
+  late LayananUnggahData uploadDataService;
   late MockDatabaseHelper mockDbHelper;
   late MockFirebaseFirestore mockFirestore;
   late MockSyncManager mockSyncManager;
@@ -38,7 +38,7 @@ void main() {
     when(mockDbHelper.database).thenAnswer((_) async => mockDb);
     when(mockFirestore.batch()).thenReturn(mockBatch);
 
-    uploadDataService = UploadDataService(
+    uploadDataService = LayananUnggahData(
       sqliteDb: mockDbHelper,
       firestore: mockFirestore,
       syncManager: mockSyncManager,
@@ -61,7 +61,7 @@ void main() {
         whereArgs: anyNamed('whereArgs'),
       )).thenAnswer((_) async => []);
 
-      await uploadDataService.uploadSemuaData();
+      await uploadDataService.unggahSemuaData();
 
       verify(mockSyncManager.ambilWaktuTerakhirUnggah())
           .called(greaterThanOrEqualTo(10));

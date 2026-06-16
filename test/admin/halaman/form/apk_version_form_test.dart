@@ -1,4 +1,3 @@
-
 // path: test/admin/halaman/form/apk_version_form_test.dart
 
 import 'package:flutter/material.dart';
@@ -8,11 +7,11 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/apk_version_form.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
+import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 // Mocks
-class MockApkVersionOperation extends Mock implements ApkVersionOperation {}
+class MockApkVersionOperation extends Mock implements VersiApkOpSqlite {}
 
 class MockBaseOpSqlite extends Mock implements BaseOpSqlite {}
 
@@ -48,8 +47,9 @@ void main() {
     );
 
     // Default mock responses
-    when(() => mockApkVersionOp.addApkVersion(any())).thenAnswer((_) async {});
-    when(() => mockApkVersionOp.updateApkVersion(any())).thenAnswer((_) async {});
+    when(() => mockApkVersionOp.tambahVersiApk(any())).thenAnswer((_) async {});
+    when(() => mockApkVersionOp.perbaruiVersiApk(any()))
+        .thenAnswer((_) async {});
 
     registerFallbackValue(tVersi);
   });
@@ -65,10 +65,12 @@ void main() {
   }
 
   group('ApkVersionForm', () {
-    testWidgets('01. harus menampilkan form tambah dengan benar', (tester) async {
+    testWidgets('01. harus menampilkan form tambah dengan benar',
+        (tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
       expect(find.text('Tambah Versi APK'), findsOneWidget);
-      expect(find.byType(TextFormField), findsNWidgets(4)); // version, build, url, notes
+      expect(find.byType(TextFormField),
+          findsNWidgets(4)); // version, build, url, notes
     });
 
     testWidgets('02. harus menampilkan form edit dengan data yang terisi',
@@ -104,7 +106,9 @@ void main() {
       await tester.tap(find.text('Simpan'));
       await tester.pumpAndSettle();
 
-      verify(() => mockApkVersionOp.addApkVersion(any(that: isA<VersiApkModel>()))) .called(1);
+      verify(() =>
+              mockApkVersionOp.tambahVersiApk(any(that: isA<VersiApkModel>())))
+          .called(1);
       verify(() => mockNavigatorObserver.didPop(any(), any())).called(1);
     });
 
@@ -117,16 +121,15 @@ void main() {
       await tester.tap(find.text('Simpan'));
       await tester.pumpAndSettle();
 
-      verify(() => mockApkVersionOp.updateApkVersion(any( 
-              that: isA<VersiApkModel>()
-                ..having((v) => v.version, 'version', '1.0.2'))))
-          .called(1);
+      verify(() => mockApkVersionOp.perbaruiVersiApk(any(
+          that: isA<VersiApkModel>()
+            ..having((v) => v.versiTerkahir, 'version', '1.0.2')))).called(1);
       verify(() => mockNavigatorObserver.didPop(any(), any())).called(1);
     });
 
     testWidgets('06. harus menampilkan snackbar error jika terjadi kegagalan',
         (tester) async {
-      when(() => mockApkVersionOp.addApkVersion(any()))
+      when(() => mockApkVersionOp.tambahVersiApk(any()))
           .thenThrow(Exception('Error'));
 
       await tester.pumpWidget(createWidgetUnderTest());

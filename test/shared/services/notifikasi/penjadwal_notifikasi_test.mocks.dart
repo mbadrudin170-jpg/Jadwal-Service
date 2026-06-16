@@ -9,7 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart' as _i3;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart' as _i4;
+import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart' as _i4;
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart' as _i8;
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart' as _i7;
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart'

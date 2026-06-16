@@ -9,7 +9,7 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i5;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' as _i2;
 import 'package:wifi/admin/data/sqlite.dart' as _i4;
-import 'package:wifi/shared/model/upload_status_model.dart' as _i8;
+import 'package:wifi/shared/model/status_unggah_model.dart' as _i8;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i6;
 import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart'
     as _i7;
@@ -784,11 +784,11 @@ class MockStatusUploadOpSqlite extends _i1.Mock
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<_i8.UploadStatusModel?> ambilStatusUpload() => (super.noSuchMethod(
+  _i3.Future<_i8.StatusUnggahModel?> ambilStatusUpload() => (super.noSuchMethod(
         Invocation.method(
           #ambilStatusUpload,
           [],
         ),
-        returnValue: _i3.Future<_i8.UploadStatusModel?>.value(),
-      ) as _i3.Future<_i8.UploadStatusModel?>);
+        returnValue: _i3.Future<_i8.StatusUnggahModel?>.value(),
+      ) as _i3.Future<_i8.StatusUnggahModel?>);
 }

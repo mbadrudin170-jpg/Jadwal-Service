@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/data/services/pengecekan_data_baru_service.dart';
-import 'package:wifi/shared/data/sync/download_data.dart';
-import 'package:wifi/shared/data/sync/upload_data.dart';
+import 'package:wifi/shared/data/sync/layanan_unduh_data.dart';
+import 'package:wifi/shared/data/sync/layanan_unggah_data.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
@@ -14,16 +14,16 @@ import 'package:wifi/shared/utils/sync_manager.dart';
 /// Layanan untuk mengorkestrasi proses sinkronisasi data.
 class LayananCekSinkronisasi {
   final SyncManager _pengelolaSinkronisasi;
-  final UploadDataService _layananUnggah;
-  final DownloadDataService _layananUnduh;
+  final LayananUnggahData _layananUnggah;
+  final LayananUnduhData _layananUnduh;
   final PengecekanDataBaruService _pengecekanDataBaru;
   final FirebaseFirestore _firestore;
 
   /// Konstruktor dengan injeksi dependensi (wajib).
   LayananCekSinkronisasi({
     required SyncManager pengelolaSinkronisasi,
-    required UploadDataService layananUnggah,
-    required DownloadDataService layananUnduh,
+    required LayananUnggahData layananUnggah,
+    required LayananUnduhData layananUnduh,
     required PengecekanDataBaruService pengecekanDataBaru,
     required FirebaseFirestore firestore,
   })  : _pengelolaSinkronisasi = pengelolaSinkronisasi,
@@ -55,7 +55,7 @@ class LayananCekSinkronisasi {
           await _pengecekanDataBaru.apakahSqliteAdaDataBaru();
 
       if (adaDataUntukUnggah) {
-        await _layananUnggah.uploadSemuaData();
+        await _layananUnggah.unggahSemuaData();
         final DateTime sekarang = DateTime.now();
         await _pengelolaSinkronisasi.simpanWaktuTerkahirUnggah(sekarang);
         await _pengecekanDataBaru.resetButuhUpload();
@@ -115,7 +115,7 @@ class LayananCekSinkronisasi {
 final layananCekSinkronisasiProvider = Provider<LayananCekSinkronisasi>((ref) {
   return LayananCekSinkronisasi(
     pengelolaSinkronisasi: ref.read(syncManagerProvider),
-    layananUnggah: ref.read(uploadDataServiceProvider), // harus sudah ada
+    layananUnggah: ref.read(layananUnggahDataProvider), // harus sudah ada
     layananUnduh: ref.read(downloadDataServiceProvider), // sudah ada
     pengecekanDataBaru:
         ref.read(pengecekanDataBaruServiceProvider), // harus sudah ada

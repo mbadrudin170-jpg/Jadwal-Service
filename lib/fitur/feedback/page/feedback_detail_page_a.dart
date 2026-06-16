@@ -41,7 +41,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
   @override
   void initState() {
     super.initState();
-    _feedbackOperation = ref.watch(feedbackOperationProvider);
+    _feedbackOperation = ref.watch(feedbackOpSqliteProvider);
     Log.info(
         'Membuka halaman detail kritik dan saran dengan ID: ${widget.id}.');
     _loadData();

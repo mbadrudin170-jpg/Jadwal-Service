@@ -1,7 +1,7 @@
 // path: lib/shared/providers/shared_providers.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';

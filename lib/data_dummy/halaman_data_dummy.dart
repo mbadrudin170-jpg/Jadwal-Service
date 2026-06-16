@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:wifi/data_dummy/data_dummy.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
@@ -25,8 +24,8 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(context, ref, 'Pesanan', DataDummy.orders,
-                  ref.read(orderOperationProvider).insertOrUpdateBatch);
-              ref.invalidate(orderOperationProvider);
+                  ref.read(orderOpSqliteProvider).insertOrUpdateBatch);
+              ref.invalidate(orderOpSqliteProvider);
             },
             label: 'Tambah Pesanan Dummy',
             icon: Icons.add_shopping_cart,
@@ -123,8 +122,8 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(context, ref, 'Feedback', DataDummy.feedbacks,
-                  ref.read(feedbackOperationProvider).insertOrUpdateBatch);
-              ref.invalidate(feedbackOperationProvider);
+                  ref.read(feedbackOpSqliteProvider).insertOrUpdateBatch);
+              ref.invalidate(feedbackOpSqliteProvider);
             },
             label: 'Tambah Feedback Dummy',
             icon: Icons.feedback,
@@ -180,24 +179,30 @@ class HalamanDataDummy extends ConsumerWidget {
 
   /// 1. Menambahkan data dummy secara generik.
   Future<void> _tambahData<T>(
-      BuildContext context,
-      WidgetRef ref,
-      String modelName,
-      List<T> dataList,
-      Future<void> Function(List<T>) batchFunction) async {
+    BuildContext context,
+    WidgetRef ref,
+    String modelName,
+    List<T> dataList,
+    Future<void> Function(List<T> data, {bool dariServer}) batchFunction,
+  ) async {
     try {
       Log.info('Memulai proses penambahan data $modelName dummy');
-      await batchFunction(dataList);
+      await batchFunction(dataList, dariServer: false);
 
       if (context.mounted) {
-        ToastUtil.success(context,
-            'Berhasil menambahkan/memperbarui ${dataList.length} data $modelName dummy.');
+        ToastUtil.success(
+          context,
+          'Berhasil menambahkan/memperbarui ${dataList.length} data $modelName dummy.',
+        );
       }
-    } catch (e, st) {
-      Log.error('Gagal menambahkan data $modelName dummy', e: e, s: st);
+    } catch (e, s) {
+      Log.error(
+        'Gagal menambahkan data $modelName dummy',
+        e: e,
+        s: s,
+      );
       if (context.mounted) {
-        ToastUtil.error(
-            context, 'Terjadi kesalahan saat menambah $modelName: $e');
+        ToastUtil.error(context, 'Terjadi kesalahan saat menambah $modelName: $e');
       }
     }
   }
@@ -213,8 +218,12 @@ class HalamanDataDummy extends ConsumerWidget {
         ToastUtil.success(
             context, 'Berhasil menambahkan/memperbarui data Pengaturan dummy.');
       }
-    } catch (e, st) {
-      Log.error('Gagal menambahkan data Pengaturan dummy', e: e, s: st);
+    } catch (e, s) {
+      Log.error(
+        'Gagal menambahkan data Pengaturan dummy',
+        e: e,
+        s: s,
+      );
       if (context.mounted) {
         ToastUtil.error(
             context, 'Terjadi kesalahan saat menambah Pengaturan: $e');

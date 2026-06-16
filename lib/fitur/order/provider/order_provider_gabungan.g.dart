@@ -83,4 +83,4 @@ final class DaftarPesananProvider extends $FunctionalProvider<
   }
 }
 
-String _$daftarPesananHash() => r'4369811eda0620a407d6a40dd7bef16f1b555298';
+String _$daftarPesananHash() => r'84274bfc30b3c7dfaaef602d58e7f1607ab33880';

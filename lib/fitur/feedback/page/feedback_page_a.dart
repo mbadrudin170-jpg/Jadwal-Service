@@ -97,7 +97,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
     if ((konfirmasi ?? false) && mounted) {
       Log.info('Memproses penghapusan kritik/saran ID: ${item.id}');
       try {
-        await ref.read(feedbackOperationProvider).softDelete(item.id);
+        await ref.read(feedbackOpSqliteProvider).softDelete(item.id);
         final _ = ref.refresh(activeFeedbackListProvider);
         if (mounted) {
           ToastUtil.success(context, 'Kritik dan saran berhasil dihapus');

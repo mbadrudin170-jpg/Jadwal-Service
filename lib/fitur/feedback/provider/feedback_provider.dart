@@ -9,7 +9,7 @@ part 'feedback_provider.g.dart';
 /// Provider untuk menampung list data aktif di halaman utama (FeedbackPage)
 @riverpod
 Future<List<FeedbackModel>> activeFeedbackList(Ref ref) async {
-  final operation = ref.watch(feedbackOperationProvider);
+  final operation = ref.watch(feedbackOpSqliteProvider);
   return await operation.getAllActiveFeedback();
 }
 
@@ -17,6 +17,6 @@ Future<List<FeedbackModel>> activeFeedbackList(Ref ref) async {
 /// Menggunakan `.family` secara otomatis lewat pengenalan argumen [id]
 @riverpod
 Future<FeedbackModel> feedbackDetail(Ref ref, String id) async {
-  final operation = ref.watch(feedbackOperationProvider);
+  final operation = ref.watch(feedbackOpSqliteProvider);
   return await operation.getById(id);
 }

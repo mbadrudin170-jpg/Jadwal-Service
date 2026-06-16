@@ -37,7 +37,7 @@ class Order extends _$Order {
 Future<List<OrderModel>> daftarPesanan(Ref ref) async {
   final appRole = ref.watch(appRoleProvider);
   if (appRole == AppRole.admin) {
-    final orderOpSqlite = ref.watch(orderOperationProvider);
+    final orderOpSqlite = ref.watch(orderOpSqliteProvider);
     return await orderOpSqlite.ambilSemuaOrder();
   } else {
     final userId = ref.watch(userIdProvider).value;

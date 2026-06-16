@@ -36,10 +36,10 @@ import 'package:wifi/fitur/settings/model/settings_model.dart' as _i7;
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart' as _i32;
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart' as _i23;
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart' as _i31;
+import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart'
+    as _i30;
 import 'package:wifi/shared/export/enum.dart' as _i26;
 import 'package:wifi/shared/export/model.dart' as _i22;
-import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart'
-    as _i30;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i4;
 import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart'
     as _i25;
@@ -1896,49 +1896,48 @@ class MockSubKategoriOpSqlite extends _i1.Mock
       ) as _i11.Future<List<_i29.SubKategoriModel>>);
 }
 
-/// A class which mocks [ApkVersionOperation].
+/// A class which mocks [VersiApkOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockApkVersionOperation extends _i1.Mock
-    implements _i30.ApkVersionOperation {
-  MockApkVersionOperation() {
+class MockVersiApkOpSqlite extends _i1.Mock implements _i30.VersiApkOpSqlite {
+  MockVersiApkOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
+  _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
+        Invocation.getter(#sqliteDb),
         returnValue: _FakeSqliteDatabase_1(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
       ) as _i2.SqliteDatabase);
 
   @override
-  _i11.Future<void> addApkVersion(
+  _i11.Future<void> tambahVersiApk(
     _i31.VersiApkModel? apkVersion, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #addApkVersion,
+          #tambahVersiApk,
           [apkVersion],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
       ) as _i11.Future<void>);
 
   @override
-  _i11.Future<void> updateApkVersion(
+  _i11.Future<void> perbaruiVersiApk(
     _i31.VersiApkModel? apkVersion, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #updateApkVersion,
+          #perbaruiVersiApk,
           [apkVersion],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
@@ -1947,25 +1946,25 @@ class MockApkVersionOperation extends _i1.Mock
   @override
   _i11.Future<void> softDelete(
     String? id, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #softDelete,
           [id],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
       ) as _i11.Future<void>);
 
   @override
-  _i11.Future<int> softDeleteAll({bool? fromServer = false}) =>
+  _i11.Future<int> softDeleteAll({bool? dariServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #softDeleteAll,
           [],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i11.Future<int>.value(0),
       ) as _i11.Future<int>);
@@ -1973,23 +1972,23 @@ class MockApkVersionOperation extends _i1.Mock
   @override
   _i11.Future<void> insertOrUpdateBatch(
     List<_i31.VersiApkModel>? modelList, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #insertOrUpdateBatch,
           [modelList],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
       ) as _i11.Future<void>);
 
   @override
-  _i11.Future<List<_i31.VersiApkModel>> getAllApkVersions() =>
+  _i11.Future<List<_i31.VersiApkModel>> ambilSemuaVersiApk() =>
       (super.noSuchMethod(
         Invocation.method(
-          #getAllApkVersions,
+          #ambilSemuaVersiApk,
           [],
         ),
         returnValue:
@@ -1997,10 +1996,10 @@ class MockApkVersionOperation extends _i1.Mock
       ) as _i11.Future<List<_i31.VersiApkModel>>);
 
   @override
-  _i11.Future<List<_i31.VersiApkModel>> getAllActiveApkVersions() =>
+  _i11.Future<List<_i31.VersiApkModel>> ambilSemuaVersiApkAktif() =>
       (super.noSuchMethod(
         Invocation.method(
-          #getAllActiveApkVersions,
+          #ambilSemuaVersiApkAktif,
           [],
         ),
         returnValue:
@@ -2017,10 +2016,10 @@ class MockApkVersionOperation extends _i1.Mock
       ) as _i11.Future<_i31.VersiApkModel?>);
 
   @override
-  _i11.Future<_i31.VersiApkModel?> getApkVersionById(String? id) =>
+  _i11.Future<_i31.VersiApkModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getApkVersionById,
+          #ambilBerdasarkanId,
           [id],
         ),
         returnValue: _i11.Future<_i31.VersiApkModel?>.value(),

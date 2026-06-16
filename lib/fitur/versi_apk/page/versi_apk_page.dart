@@ -1,5 +1,3 @@
-// path: lib/admin/halaman/lainnya/apk_version_page.dart
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -11,7 +9,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
+import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Enum untuk menentukan kriteria pengurutan daftar versi APK.
@@ -30,21 +28,21 @@ enum SortOrder {
 }
 
 /// Halaman untuk mengelola versi APK yang tersedia untuk pengguna.
-class ApkVersionPage extends ConsumerStatefulWidget {
+class VersiApkPage extends ConsumerStatefulWidget {
   /// Operasi untuk berinteraksi dengan data versi APK.
-  final ApkVersionOperation? operation;
+  final VersiApkOpSqlite? operation;
 
   /// Halaman untuk mengelola versi APK yang tersedia untuk pengguna.
-  const ApkVersionPage({super.key, this.operation});
+  const VersiApkPage({super.key, this.operation});
 
   @override
-  ConsumerState<ApkVersionPage> createState() => _ApkVersionPageState();
+  ConsumerState<VersiApkPage> createState() => _VersiApkState();
 }
 
-class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
-  late final ApkVersionOperation _apkVersionOperation;
+class _VersiApkState extends ConsumerState<VersiApkPage> {
+  late final VersiApkOpSqlite _apkVersionOperation;
   List<VersiApkModel> _apkVersionList = [];
-  bool _isLoading = true;
+  bool _loading = true;
   String? _error;
   SortOrder _currentSort = SortOrder.buildZA;
 
@@ -80,25 +78,25 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
     if (!mounted) return;
 
     setState(() {
-      _isLoading = true;
+      _loading = true;
       _error = null;
     });
 
     try {
-      final versionList = await _apkVersionOperation.getAllActiveApkVersions();
+      final versionList = await _apkVersionOperation.ambilSemuaVersiApkAktif();
       Log.info('Berhasil memuat ${versionList.length} data versi APK aktif');
       if (!mounted) return;
       setState(() {
         _apkVersionList = versionList;
         _sortList();
-        _isLoading = false;
+        _loading = false;
       });
     } on Exception catch (e, s) {
       Log.error('Gagal memuat data versi APK', e: e, s: s);
       if (!mounted) return;
       setState(() {
         _error = 'Gagal memuat data: $e';
-        _isLoading = false;
+        _loading = false;
       });
     }
   }
@@ -118,13 +116,13 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
     unawaited(_loadData());
   }
 
-  Future<void> _toEditForm(final VersiApkModel apkVersion) async {
+  Future<void> _navigasiKeEdit(VersiApkModel versiApk) async {
     if (!mounted) return;
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (final context) => ApkVersionForm(
-          apkVersion: apkVersion,
+        builder: (context) => ApkVersionForm(
+          apkVersion: versiApk,
           operasi: _apkVersionOperation,
         ),
       ),
@@ -176,7 +174,7 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
           SimpleDialogOption(
             onPressed: () {
               Navigator.pop(c);
-              unawaited(_toEditForm(version));
+              unawaited(_navigasiKeEdit(version));
             },
             child: const ListTile(
               leading: Icon(Icons.edit),
@@ -304,7 +302,7 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
   }
 
   Widget _buildContent() {
-    if (_isLoading) {
+    if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
 

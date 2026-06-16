@@ -12,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
-import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/operasi/settings_op_firebase.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';

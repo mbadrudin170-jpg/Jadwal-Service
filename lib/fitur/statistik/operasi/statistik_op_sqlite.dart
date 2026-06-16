@@ -7,19 +7,19 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
+import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
 final statistikOpSliteProvider = Provider<StatistikOpSqlite>((ref) {
   Log.info('Membuat instance StatistikRepository melalui provider');
   return StatistikOpSqlite(
     pelangganAktifOpSqlite: ref.watch(pelangganAktifOpSqliteProvider),
-    feedbackOpSqlite: ref.watch(feedbackOperationProvider),
+    feedbackOpSqlite: ref.watch(feedbackOpSqliteProvider),
     paketOpSqlite: ref.watch(paketOpSqliteProvider),
     transaksiOpSqlite: ref.watch(transaksiOpSqliteProvider),
   );
@@ -30,7 +30,7 @@ class StatistikOpSqlite {
   final PelangganAktifOpSqlite _pelangganAktifOpSqlite;
   final FeedbackOpSqlite _statistikOpSliteProvider;
   final PaketOpSqlite _paketOpsqlite;
-  final TransaksiOpSqlite _transaksiOpSlite;
+  final TransaksiOpSqlite _transaksiOpSqlite;
 
   StatistikOpSqlite({
     required PelangganAktifOpSqlite pelangganAktifOpSqlite,
@@ -40,13 +40,13 @@ class StatistikOpSqlite {
   })  : _pelangganAktifOpSqlite = pelangganAktifOpSqlite,
         _statistikOpSliteProvider = feedbackOpSqlite,
         _paketOpsqlite = paketOpSqlite,
-        _transaksiOpSlite = transaksiOpSqlite;
+        _transaksiOpSqlite = transaksiOpSqlite;
 
   Future<List<BestSellingPackage>> ambilPaketTerlaris({int limit = 5}) async {
     Log.info('Mulai menghitung paket terlaris.');
     try {
       final daftarPaket = await _paketOpsqlite.ambilBerdasarkanAktif();
-      final daftartransaksi = await _transaksiOpSlite.getAllTransactions();
+      final daftartransaksi = await _transaksiOpSqlite.getAllTransactions();
 
       if (daftartransaksi.isEmpty) {
         Log.warning('Tidak ada transaksi, mengembalikan list paket kosong.');

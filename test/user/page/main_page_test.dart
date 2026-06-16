@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
 import 'package:wifi/fitur/pelanggan/core/user_activity_service.dart';
 import 'package:wifi/user/page/main_page.dart';

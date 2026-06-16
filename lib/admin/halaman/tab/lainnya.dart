@@ -5,14 +5,14 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wifi/data_dummy/halaman_data_dummy.dart';
 
-import 'package:wifi/admin/halaman/lainnya/apk_version_page.dart';
+import 'package:wifi/fitur/versi_apk/page/versi_apk_page.dart';
 import 'package:wifi/admin/halaman/lainnya/event_page_a.dart';
 import 'package:wifi/admin/halaman/lainnya/paket.dart';
 import 'package:wifi/admin/halaman/lainnya/riwayat_aktivasi_paket.dart';
 import 'package:wifi/admin/halaman/lainnya/tentang_aplikasi.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
-import 'package:wifi/data_dummy/halaman_data_dummy.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
 import 'package:wifi/fitur/kategori/page/kategori.dart';
 import 'package:wifi/fitur/pelanggan/ui/admin/pelanggan.dart';
@@ -124,7 +124,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
             context: context,
             icon: TIcons.report,
             title: 'Versi Aplikasi',
-            onTap: () => _navigateTo(const ApkVersionPage(), 'Versi Aplikasi'),
+            onTap: () => _navigateTo(const VersiApkPage(), 'Versi Aplikasi'),
           ),
           _buildMenuItem(
             context: context,

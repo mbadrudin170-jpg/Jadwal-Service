@@ -21,7 +21,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
-class DownloadDataService {
+class LayananUnduhData {
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
   final DompetOpSqlite _dompetOpSqlite;
@@ -33,11 +33,11 @@ class DownloadDataService {
   final FeedbackOpSqlite _feedbackOperation;
   final OrderOpsqlite _orderOperation;
   final SubKategoriOpSqlite _subCategoryOperation;
-  final ApkVersionOperation _apkVersionOperation;
+  final VersiApkOpSqlite _apkVersionOperation;
   final SettingsOpSqlite _settingsOperation;
 
   /// Konstruktor dengan injeksi dependensi (untuk produksi dan testing)
-  DownloadDataService({
+  LayananUnduhData({
     required FirebaseFirestore firestore,
     required SyncManager syncManager,
     required DompetOpSqlite walletOperation,
@@ -49,7 +49,7 @@ class DownloadDataService {
     required FeedbackOpSqlite feedbackOperation,
     required OrderOpsqlite orderOperation,
     required SubKategoriOpSqlite subCategoryOperation,
-    required ApkVersionOperation apkVersionOperation,
+    required VersiApkOpSqlite apkVersionOperation,
     required SettingsOpSqlite settingsOperation,
   })  : _firestore = firestore,
         _syncManager = syncManager,
@@ -68,7 +68,7 @@ class DownloadDataService {
   }
 
   /// Konstruktor khusus untuk pengujian dengan dependensi mock.
-  DownloadDataService.test({
+  LayananUnduhData.test({
     required final FirebaseFirestore firestore,
     required final SyncManager syncManager,
     required final DompetOpSqlite walletOperation,
@@ -80,7 +80,7 @@ class DownloadDataService {
     required final FeedbackOpSqlite feedbackOperation,
     required final OrderOpsqlite orderOperation,
     required final SubKategoriOpSqlite subCategoryOperation,
-    required final ApkVersionOperation apkVersionOperation,
+    required final VersiApkOpSqlite apkVersionOperation,
     required final SettingsOpSqlite settingsOperation,
   })  : _firestore = firestore,
         _syncManager = syncManager,
@@ -307,7 +307,7 @@ class DownloadDataService {
       lastDownloadTime: lastDownloadTime,
       fromFirebase: VersiApkModel.fromFirebase,
       batchOperation: (data) =>
-          _apkVersionOperation.insertOrUpdateBatch(data, fromServer: true),
+          _apkVersionOperation.insertOrUpdateBatch(data, dariServer: true),
     );
   }
 
@@ -370,8 +370,8 @@ class DownloadDataService {
   }
 }
 
-final downloadDataServiceProvider = Provider<DownloadDataService>((ref) {
-  return DownloadDataService(
+final downloadDataServiceProvider = Provider<LayananUnduhData>((ref) {
+  return LayananUnduhData(
     firestore: FirebaseFirestore.instance,
     syncManager: ref.read(syncManagerProvider),
     walletOperation: ref.read(dompetOpSqliteProvider),
@@ -380,8 +380,8 @@ final downloadDataServiceProvider = Provider<DownloadDataService>((ref) {
     pelangganOpSqlite: ref.read(pelangganOpSqliteProvider),
     activeCustomerOperation: ref.read(pelangganAktifOpSqliteProvider),
     transactionOperation: ref.read(transaksiOpSqliteProvider),
-    feedbackOperation: ref.read(feedbackOperationProvider),
-    orderOperation: ref.read(orderOperationProvider),
+    feedbackOperation: ref.read(feedbackOpSqliteProvider),
+    orderOperation: ref.read(orderOpSqliteProvider),
     subCategoryOperation: ref.read(subKategoriOpSqliteProvider),
     apkVersionOperation: ref.read(apkVersionOperationProvider),
     settingsOperation: ref.read(settingsOpSqliteProvider),

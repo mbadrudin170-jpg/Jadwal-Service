@@ -14,9 +14,9 @@ import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dar
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
-import 'package:wifi/shared/data/sync/download_data.dart';
+import 'package:wifi/shared/data/sync/layanan_unduh_data.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
+import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
@@ -33,7 +33,7 @@ import 'download_data_test.mocks.dart';
   FeedbackOpSqlite,
   OrderOpsqlite,
   SubKategoriOpSqlite,
-  ApkVersionOperation,
+  VersiApkOpSqlite,
   SettingsOpSqlite,
   FirebaseFirestore,
   CollectionReference,
@@ -44,7 +44,7 @@ import 'download_data_test.mocks.dart';
   DocumentSnapshot,
 ])
 void main() {
-  late DownloadDataService downloadDataService;
+  late LayananUnduhData downloadDataService;
   late MockFirebaseFirestore mockFirestore;
   late MockSyncManager mockSyncManager;
   late MockDompetOpSqlite mockDompetOpSqlite;
@@ -86,7 +86,7 @@ void main() {
     mockSettingsDoc = MockDocumentSnapshot<Map<String, dynamic>>();
     mockQuery = MockQuery<Map<String, dynamic>>();
 
-    downloadDataService = DownloadDataService.test(
+    downloadDataService = LayananUnduhData.test(
       firestore: mockFirestore,
       syncManager: mockSyncManager,
       walletOperation: mockDompetOpSqlite,

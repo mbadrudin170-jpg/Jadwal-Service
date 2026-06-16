@@ -49,8 +49,8 @@ void main() {
     mockCustomerOp = MockCustomerOperation();
     container = ProviderContainer(
       overrides: [
-        feedbackOperationProvider.overrideWith((ref) => mockFeedbackOp),
-        customerOperationProvider.overrideWith((ref) => mockCustomerOp),
+        feedbackOpSqliteProvider.overrideWith((ref) => mockFeedbackOp),
+        pelangganOpSqliteProvider.overrideWith((ref) => mockCustomerOp),
         activeFeedbackListProvider.overrideWith(
           (ref) => AsyncValue.data(dummyFeedbackList),
         ),

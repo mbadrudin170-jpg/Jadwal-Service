@@ -12,7 +12,7 @@ import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dar
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
+import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_op_sqlite.dart';
@@ -78,15 +78,15 @@ PelangganAktifOpSqlite pelangganAktifOpSqlite(Ref ref) {
   );
 }
 
-/// Provider untuk menyediakan instance dari [ApkVersionOperation].
+/// Provider untuk menyediakan instance dari [VersiApkOpSqlite].
 @Riverpod(keepAlive: true)
-ApkVersionOperation apkVersionOperation(Ref ref) {
+VersiApkOpSqlite apkVersionOperation(Ref ref) {
   Log.info('Membuat instance ApkVersionOperation via @riverpod...');
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
-  return ApkVersionOperation(
-    dbHelper: sqliteDb,
+  return VersiApkOpSqlite(
+    sqliteDb: sqliteDb,
     baseOpSqlite: baseOpSqlite,
   );
 }

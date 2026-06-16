@@ -50,7 +50,7 @@ final class ActiveFeedbackListProvider extends $FunctionalProvider<
 }
 
 String _$activeFeedbackListHash() =>
-    r'bc4cabfd3cd79b8750e8cf649d9a3b8fad48b03f';
+    r'c4891c7b1ba5adcb0261936985a95e728801dc6a';
 
 /// Provider untuk menampung data detail berdasarkan ID di halaman detail (FeedbackDetailPage)
 /// Menggunakan `.family` secara otomatis lewat pengenalan argumen [id]
@@ -113,7 +113,7 @@ final class FeedbackDetailProvider extends $FunctionalProvider<
   }
 }
 
-String _$feedbackDetailHash() => r'8bfda65e841e693cdfd2bc06f7edc9568a59a876';
+String _$feedbackDetailHash() => r'df13f814c77c7392e70f7e46fbd82e1053ff3ff1';
 
 /// Provider untuk menampung data detail berdasarkan ID di halaman detail (FeedbackDetailPage)
 /// Menggunakan `.family` secara otomatis lewat pengenalan argumen [id]

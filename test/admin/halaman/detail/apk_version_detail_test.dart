@@ -1,4 +1,3 @@
-
 // path: test/admin/halaman/detail/apk_version_detail_test.dart
 
 import 'package:flutter/material.dart';
@@ -9,11 +8,11 @@ import 'package:wifi/admin/halaman/detail/apk_version_detail.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
+import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 // Mocks
-class MockApkVersionOperation extends Mock implements ApkVersionOperation {}
+class MockApkVersionOperation extends Mock implements VersiApkOpSqlite {}
 
 class MockBaseOpSqlite extends Mock implements BaseOpSqlite {}
 
@@ -108,7 +107,8 @@ void main() {
 
     testWidgets('04. harus menampilkan snackbar error saat hapus gagal',
         (tester) async {
-      when(() => mockApkVersionOp.softDelete(any())).thenThrow(Exception('Error'));
+      when(() => mockApkVersionOp.softDelete(any()))
+          .thenThrow(Exception('Error'));
       await tester.pumpWidget(createWidgetUnderTest());
 
       await tester.tap(find.byIcon(Icons.delete));

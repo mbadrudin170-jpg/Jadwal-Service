@@ -9,7 +9,7 @@ import 'package:wifi/admin/halaman/form/apk_version_form.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
+import 'package:wifi/fitur/versi_apk/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
@@ -17,7 +17,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 
 class ApkVersionDetailPage extends ConsumerStatefulWidget {
   final VersiApkModel apkVersion;
-  final ApkVersionOperation? operation;
+  final VersiApkOpSqlite? operation;
 
   const ApkVersionDetailPage({
     super.key,
@@ -32,7 +32,7 @@ class ApkVersionDetailPage extends ConsumerStatefulWidget {
 
 class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
   late VersiApkModel _currentApkVersion;
-  late final ApkVersionOperation _apkVersionOperation;
+  late final VersiApkOpSqlite _apkVersionOperation;
 
   @override
   void initState() {
@@ -66,7 +66,7 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
   Future<void> _reloadData() async {
     Log.info('Memuat ulang data untuk ID: ${_currentApkVersion.id}');
     try {
-      final allData = await _apkVersionOperation.getAllActiveApkVersions();
+      final allData = await _apkVersionOperation.ambilSemuaVersiApkAktif();
       final freshData = allData.firstWhere(
         (final data) => data.id == _currentApkVersion.id,
         orElse: () => _currentApkVersion,
