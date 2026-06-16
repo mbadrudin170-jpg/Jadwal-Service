@@ -14,32 +14,30 @@ void main() {
   late MockLayananPenyimpananLokal mockPenyimpananLokal;
   late ProviderContainer container;
 
-  // Perbaiki parameter PelangganModel - gunakan parameter yang benar
   const tAkun1 = PelangganModel(
     id: '1',
     nama: 'Test User 1',
-    telepon: '08123456789',      // ganti dari email/nomorTelepon
+    telepon: '08123456789',
     alamat: 'Alamat 1',
-    kataSandi: 'password123',    // wajib
-    macAddress: 'AA:BB:CC:DD:EE:FF', // wajib
+    kataSandi: 'password123',
+    macAddress: 'AA:BB:CC:DD:EE:FF',
   );
-  
+
   const tAkun2 = PelangganModel(
     id: '2',
     nama: 'Test User 2',
-    telepon: '08987654321',      // ganti dari email/nomorTelepon
+    telepon: '08987654321',
     alamat: 'Alamat 2',
-    kataSandi: 'rahasia',        // wajib
-    macAddress: '11:22:33:44:55:66', // wajib
+    kataSandi: 'rahasia',
+    macAddress: '11:22:33:44:55:66',
   );
 
   setUp(() {
     mockPenyimpananLokal = MockLayananPenyimpananLokal();
     container = ProviderContainer(
       overrides: [
-        // Perbaiki nama provider - sesuai dengan yang didefinisikan di akun_provider.dart
-        // Asumsikan provider bernama layananPenyimpananLokalProvider
-        layananPenyimpananLokalProvider.overrideWithValue(AsyncValue.data(mockPenyimpananLokal)),
+        layananPenyimpananLokalProvider
+            .overrideWithValue(AsyncValue.data(mockPenyimpananLokal)),
       ],
     );
     registerFallbackValue(tAkun1);
@@ -77,6 +75,7 @@ void main() {
     });
 
     test('03. harus logout dan menghapus akun saat ini', () async {
+      // Atur kondisi awal
       when(() => mockPenyimpananLokal.ambilAkunLogin())
           .thenAnswer((_) async => tAkun1);
       when(() => mockPenyimpananLokal.ambilDaftarAkun())
@@ -84,12 +83,21 @@ void main() {
       when(() => mockPenyimpananLokal.hapusAkunSaatIni())
           .thenAnswer((_) async {});
 
+      // Panggil _initAwal untuk memuat state awal
       await container.read(pengelolaAkunProvider.future);
+
+      // Atur mock untuk panggilan setelah logout
+      when(() => mockPenyimpananLokal.ambilAkunLogin())
+          .thenAnswer((_) async => null);
+
+      // Lakukan logout
       await container.read(pengelolaAkunProvider.notifier).logout();
 
+      // Ambil state terbaru
       final state = container.read(pengelolaAkunProvider).value;
 
-      expect(state?.akunSaatIni, null);
+      // Verifikasi
+      expect(state?.akunSaatIni, isNull);
       verify(() => mockPenyimpananLokal.hapusAkunSaatIni()).called(1);
     });
 
