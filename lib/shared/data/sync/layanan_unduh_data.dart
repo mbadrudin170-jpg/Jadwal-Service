@@ -242,7 +242,7 @@ class LayananUnduhData {
       lastDownloadTime: lastDownloadTime,
       fromFirebase: PelangganAktifModel.fromFirebase,
       batchOperation: (final data) => _activeCustomerOperation
-          .sisipkanAtauPerbaruiBatch(data, fromServer: true),
+          .sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
@@ -254,8 +254,8 @@ class LayananUnduhData {
       collectionName: NamaTabel.transaksi,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: TransaksiModel.fromFirebase,
-      batchOperation: (final data) =>
-          _transactionOperation.insertOrUpdateBatch(data, dariServer: true),
+      batchOperation: (final data) => _transactionOperation
+          .sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 

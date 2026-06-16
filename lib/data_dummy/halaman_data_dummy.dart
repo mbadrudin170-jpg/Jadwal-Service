@@ -102,7 +102,7 @@ class HalamanDataDummy extends ConsumerWidget {
                 DataDummy.transactions,
                 (data, {dariServer = false}) => ref
                     .read(transaksiOpSqliteProvider)
-                    .insertOrUpdateBatch(data, dariServer: dariServer),
+                    .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer),
               );
               ref.invalidate(transaksiOpSqliteProvider);
             },
@@ -119,7 +119,7 @@ class HalamanDataDummy extends ConsumerWidget {
                 DataDummy.activeCustomers,
                 (data, {dariServer = false}) => ref
                     .read(pelangganAktifOpSqliteProvider)
-                    .sisipkanAtauPerbaruiBatch(data, fromServer: dariServer),
+                    .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer),
               );
               ref.invalidate(pelangganAktifProvider);
             },

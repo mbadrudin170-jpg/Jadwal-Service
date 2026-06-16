@@ -274,7 +274,7 @@ class PelangganAktifOpSqlite {
 
   Future<void> sisipkanAtauPerbaruiBatch(
     final List<PelangganAktifModel> items, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     try {
       Log.info(
@@ -289,7 +289,7 @@ class PelangganAktifOpSqlite {
       await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
         _tableName,
         data,
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
 
       Log.info('Batch ${items.length} active customer berhasil diproses');

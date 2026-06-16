@@ -502,7 +502,7 @@ class TransaksiOpSqlite {
   }
 
   /// Memasukkan atau memperbarui beberapa transaksi sekaligus (batch) dan menghitung ulang saldo dompet yang terpengaruh.
-  Future<void> insertOrUpdateBatch(
+  Future<void> sisipkanAtauPerbaruiBatch(
     final List<TransaksiModel> items, {
     final bool dariServer = false,
   }) async {

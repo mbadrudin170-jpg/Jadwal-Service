@@ -1368,15 +1368,15 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i23.TransaksiOpSqlite {
       ) as _i11.Future<int>);
 
   @override
-  _i11.Future<void> insertOrUpdateBatch(
+  _i11.Future<void> sisipkanAtauPerbaruiBatch(
     List<_i22.TransaksiModel>? items, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #insertOrUpdateBatch,
+          #sisipkanAtauPerbaruiBatch,
           [items],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
