@@ -31,44 +31,44 @@ class PesanInfoPaket {
 
   /// Mengambil detail pelanggan dan paket, membuat pesan,
   /// lalu mengirimkannya melalui WhatsApp.
-  Future<void> kirimRincianPaket(PelangganAktifModel activeCustomer) async {
+  Future<void> kirimRincianPaket(PelangganAktifModel pelangganAktif) async {
     Log.info(
-      'Memulai proses pengiriman rincian paket via WhatsApp untuk pelanggan aktif ID: ${activeCustomer.id}',
+      'Memulai proses pengiriman rincian paket via WhatsApp untuk pelanggan aktif ID: ${pelangganAktif.id}',
     );
 
     try {
       Log.info(
-        'Mengambil data pelanggan dengan ID: ${activeCustomer.idPelanggan}',
+        'Mengambil data pelanggan dengan ID: ${pelangganAktif.idPelanggan}',
       );
-      final PelangganModel? customer = await _pelangganAktifOpSqlite
-          .ambilBerdasarkanId(activeCustomer.idPelanggan);
-      Log.info('Mengambil data paket dengan ID: ${activeCustomer.idPaket}');
-      final PaketModel? package = await _paketOpSqlite.ambilBerdasarkanId(
-        activeCustomer.idPaket,
+      final PelangganModel? pelanggan = await _pelangganAktifOpSqlite
+          .ambilBerdasarkanId(pelangganAktif.idPelanggan);
+      Log.info('Mengambil data paket dengan ID: ${pelangganAktif.idPaket}');
+      final PaketModel? paket = await _paketOpSqlite.ambilBerdasarkanId(
+        pelangganAktif.idPaket,
       );
 
-      if (customer == null) {
+      if (pelanggan == null) {
         Log.warning(
-          'Pengiriman pesan dibatalkan. Pelanggan dengan ID ${activeCustomer.idPelanggan} tidak ditemukan.',
+          'Pengiriman pesan dibatalkan. Pelanggan dengan ID ${pelangganAktif.idPelanggan} tidak ditemukan.',
         );
         return;
       }
-      if (package == null) {
+      if (paket == null) {
         Log.warning(
-          'Pengiriman pesan dibatalkan. Paket dengan ID ${activeCustomer.idPaket} tidak ditemukan.',
+          'Pengiriman pesan dibatalkan. Paket dengan ID ${pelangganAktif.idPaket} tidak ditemukan.',
         );
         return;
       }
 
-      final String paymentStatus = activeCustomer.status.name;
-      final String message = _buildMessage(
-        customer,
-        package,
-        activeCustomer,
-        paymentStatus,
+      final String statusPembayaran = pelangganAktif.status.name;
+      final String pesan = _buildMessage(
+        pelanggan,
+        paket,
+        pelangganAktif,
+        statusPembayaran,
       );
 
-      await _sendViaWhatsApp(customer.telepon, message);
+      await _kirimViaWatsapp(pelanggan.telepon, pesan);
     } catch (e, s) {
       Log.error(
         'Terjadi kesalahan fatal saat proses kirimRincianPaket.',
@@ -82,7 +82,7 @@ class PesanInfoPaket {
     PelangganModel pelanggan,
     PaketModel paket,
     PelangganAktifModel pelangganAktif,
-    String paymentStatus,
+    String statusPembayaran,
   ) {
     final namaPelanggan = pelanggan.nama;
     final namaPaket = paket.nama;
@@ -116,7 +116,7 @@ Berikut adalah detail paket Anda:
   $tanggalBerakhir
 
 ✅ *Status Pembayaran:*
-  $paymentStatus
+  $statusPembayaran
 -----------------------------------
 
 Semoga harimu menyenangkan!
@@ -125,7 +125,7 @@ Semoga harimu menyenangkan!
     return pesan;
   }
 
-  Future<void> _sendViaWhatsApp(String telepon, String pesan) async {
+  Future<void> _kirimViaWatsapp(String telepon, String pesan) async {
     Log.info('Memformat nomor telepon: $telepon');
     String formatNomor = telepon.replaceAll(RegExp(r'[^0-9]'), '');
     if (formatNomor.startsWith('0')) {
