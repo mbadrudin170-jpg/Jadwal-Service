@@ -17,7 +17,7 @@ import 'sqlite_test.mocks.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late DatabaseHelper sqliteDatabase;
+  late SqliteDatabase sqliteDatabase;
   late MockDatabase mockDatabase;
   late MockBatch mockBatch;
   late MockDatabaseFactory mockFactory;
