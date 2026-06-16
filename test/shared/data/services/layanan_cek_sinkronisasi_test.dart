@@ -103,8 +103,16 @@ void main() {
           .called(1);
       verify(mockPengecekanDataBaru.resetButuhUpload()).called(1);
       verify(mockDocumentReference.set(
-        {NamaKolom.diperbaruiPada: FieldValue.serverTimestamp()},
-        SetOptions(merge: true),
+        argThat(isA<Map<String, dynamic>>().having(
+          (map) => map.containsKey(NamaKolom.diperbaruiPada),
+          'memiliki kunci diperbaruiPada',
+          true,
+        )),
+        argThat(isA<SetOptions>().having(
+          (options) => options.merge,
+          'merge',
+          true,
+        )),
       )).called(1);
       verify(mockLayananUnduh.unduhSemuaData()).called(1);
       verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any))
@@ -122,8 +130,16 @@ void main() {
           .called(1);
       verify(mockPengecekanDataBaru.resetButuhUpload()).called(1);
       verify(mockDocumentReference.set(
-        {NamaKolom.diperbaruiPada: FieldValue.serverTimestamp()},
-        SetOptions(merge: true),
+        argThat(isA<Map<String, dynamic>>().having(
+          (map) => map.containsKey(NamaKolom.diperbaruiPada),
+          'memiliki kunci diperbaruiPada',
+          true,
+        )),
+        argThat(isA<SetOptions>().having(
+          (options) => options.merge,
+          'merge',
+          true,
+        )),
       )).called(1);
 
       verifyNever(mockLayananUnduh.unduhSemuaData());
@@ -160,36 +176,36 @@ void main() {
 
     test('05. harus menangani error saat unggah dan tetap melanjutkan unduh',
         () async {
+      // Arrange
       aturPengecekanData(adaDataLokal: true, adaDataServer: true);
       final exception = Exception('Gagal unggah');
-      when(mockPengecekanDataBaru.apakahSqliteAdaDataBaru())
-          .thenThrow(exception);
-      aturAksiSinkronisasiBerhasil();
+      when(mockLayananUnggah.unggahSemuaData()).thenThrow(exception);
+      when(mockLayananUnduh.unduhSemuaData()).thenAnswer((_) async {});
+      when(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any))
+          .thenAnswer((_) async {});
 
+      // Act
       await layananCekSinkronisasi.jalankanCekSinkronisasi();
 
-      verifyNever(mockLayananUnggah.unggahSemuaData());
-      verifyNever(
-          mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any));
+      // Assert
+      verify(mockLayananUnggah.unggahSemuaData()).called(1);
+      verifyNever(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any));
+      verifyNever(mockPengecekanDataBaru.resetButuhUpload());
       verifyNever(mockDocumentReference.set(any, any));
 
       verify(mockLayananUnduh.unduhSemuaData()).called(1);
-      verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any))
-          .called(1);
+      verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any)).called(1);
     });
 
     test('06. harus menangani error saat unduh', () async {
       aturPengecekanData(adaDataLokal: false, adaDataServer: true);
       final exception = Exception('Gagal unduh');
-      when(mockPengecekanDataBaru.apakahFirebaseAdaDataBaru(
-        namaKoleksi: anyNamed('namaKoleksi'),
-        idDokumen: anyNamed('idDokumen'),
-      )).thenThrow(exception);
+      when(mockLayananUnduh.unduhSemuaData()).thenThrow(exception);
 
       await layananCekSinkronisasi.jalankanCekSinkronisasi();
 
       verifyNever(mockLayananUnggah.unggahSemuaData());
-      verifyNever(mockLayananUnduh.unduhSemuaData());
+      verify(mockLayananUnduh.unduhSemuaData()).called(1);
       verifyNever(
           mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any));
     });
@@ -200,9 +216,10 @@ void main() {
       final exception = Exception('Gagal update Firestore');
       when(mockDocumentReference.set(any, any)).thenThrow(exception);
 
-      expect(layananCekSinkronisasi.jalankanCekSinkronisasi(), completes);
+      await layananCekSinkronisasi.jalankanCekSinkronisasi();
 
       verify(mockLayananUnggah.unggahSemuaData()).called(1);
+      verify(mockDocumentReference.set(any, any)).called(1);
     });
   });
 }

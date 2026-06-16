@@ -1,24 +1,24 @@
-// path: lib/admin/halaman/event/detail_event_a.dart
+// path: lib/fitur/event/page/detail_event_a.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/event_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
+import 'package:wifi/fitur/event/model/event_model.dart';
+import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 
 class DetailEventA extends ConsumerWidget {
   final EventModel event;
   const DetailEventA({super.key, required this.event});
 
   @override
-  Widget build(final BuildContext context, final WidgetRef ref) {
-    final futureEvent = ref.watch(eventOpSupabaseProvider).getById(event.id);
+  Widget build( BuildContext context,  WidgetRef ref) {
+    final futureEvent = ref
+        .watch(eventOpSupabaseProvider)
+        .ambilBerdasarkanId(event.id);
     return Scaffold(
-      appBar: AppBar(
-        title: const TeksJudulSedang('Detail Pengumuman'),
-      ),
+      appBar: AppBar(title: const TeksJudulSedang('Detail Pengumuman')),
       body: FutureBuilder<EventModel?>(
         future: futureEvent,
         builder: (context, snapshot) {
@@ -26,8 +26,11 @@ class DetailEventA extends ConsumerWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            Log.error('Error fetching event detail',
-                e: snapshot.error, s: snapshot.stackTrace);
+            Log.error(
+              'Error fetching event detail',
+              e: snapshot.error,
+              s: snapshot.stackTrace,
+            );
             return const Center(child: Text('Gagal memuat data.'));
           }
 
@@ -52,9 +55,10 @@ class DetailEventA extends ConsumerWidget {
                       fit: BoxFit.cover,
                       errorBuilder: (context, e, st) {
                         Log.error(
-                            'Gagal memuat gambar detail: ${detailedEvent.linkGambar}',
-                            e: e,
-                            s: st);
+                          'Gagal memuat gambar detail: ${detailedEvent.linkGambar}',
+                          e: e,
+                          s: st,
+                        );
                         return Container(
                           height: 200,
                           color: Colors.grey[200],
@@ -68,7 +72,8 @@ class DetailEventA extends ConsumerWidget {
                   children: [
                     Chip(
                       label: Text(
-                          detailedEvent.statusAktif ? 'Aktif' : 'Tidak Aktif'),
+                        detailedEvent.statusAktif ? 'Aktif' : 'Tidak Aktif',
+                      ),
                       backgroundColor: detailedEvent.statusAktif
                           ? Colors.green.withAlpha(25) // Menggunakan withAlpha
                           : Colors.grey.withAlpha(25), // Menggunakan withAlpha
@@ -91,8 +96,10 @@ class DetailEventA extends ConsumerWidget {
                   'ID Pengumuman',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
-                Text(detailedEvent.id,
-                    style: Theme.of(context).textTheme.bodyMedium),
+                Text(
+                  detailedEvent.id,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 gapH16,
                 const Text(
                   'Deskripsi / Konten',

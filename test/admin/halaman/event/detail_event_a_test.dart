@@ -6,9 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/admin/halaman/event/detail_event_a.dart';
-import 'package:wifi/shared/model/event_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
+import 'package:wifi/fitur/event/page/detail_event_a.dart';
+import 'package:wifi/fitur/event/model/event_model.dart';
+import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 
 import 'detail_event_a_test.mocks.dart';
@@ -62,7 +62,7 @@ void main() {
       (tester) async {
         // Arrange
         when(
-          mockEventOpSupabase.getById(any),
+          mockEventOpSupabase.ambilBerdasarkanId(any),
         ).thenAnswer((_) async => null);
 
         // Act
@@ -81,7 +81,7 @@ void main() {
     ) async {
       // Arrange
       when(
-        mockEventOpSupabase.getById(any),
+        mockEventOpSupabase.ambilBerdasarkanId(any),
       ).thenThrow(Exception('Gagal memuat dari Supabase'));
 
       // Act
@@ -97,7 +97,7 @@ void main() {
       (tester) async {
         // Arrange
         when(
-          mockEventOpSupabase.getById(any),
+          mockEventOpSupabase.ambilBerdasarkanId(any),
         ).thenAnswer((_) async => null);
 
         // Act
@@ -114,7 +114,7 @@ void main() {
       (tester) async {
         // Arrange
         when(
-          mockEventOpSupabase.getById(any),
+          mockEventOpSupabase.ambilBerdasarkanId(any),
         ).thenAnswer((_) async => eventAktif);
 
         // Act
@@ -142,7 +142,7 @@ void main() {
       (tester) async {
         // Arrange
         when(
-          mockEventOpSupabase.getById(any),
+          mockEventOpSupabase.ambilBerdasarkanId(any),
         ).thenAnswer((_) async => eventTidakAktif);
 
         // Act
@@ -167,7 +167,7 @@ void main() {
       (tester) async {
         // Arrange
         when(
-          mockEventOpSupabase.getById(any),
+          mockEventOpSupabase.ambilBerdasarkanId(any),
         ).thenAnswer((_) async => eventAktif);
 
         // Act
@@ -188,7 +188,7 @@ void main() {
     ) async {
       // Arrange
       when(
-        mockEventOpSupabase.getById(any),
+        mockEventOpSupabase.ambilBerdasarkanId(any),
       ).thenAnswer((_) async => eventAktif);
 
       // Act

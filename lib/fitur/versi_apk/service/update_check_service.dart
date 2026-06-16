@@ -11,7 +11,7 @@ import 'package:wifi/fitur/info_perangkat/service/package_info_service.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/apk_version_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/versi_apk_op_firebase.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
@@ -26,7 +26,7 @@ class UpdateCheckService {
 
   final PackageInfoService _packageInfoService = PackageInfoService();
   final LayananInfoPerangkat _deviceInfoService;
-  final ApkVersionOpFirebase _apkVersionOp = ApkVersionOpFirebase();
+  final VersiApkOpFirebase _apkVersionOp = VersiApkOpFirebase();
 
   UpdateCheckService({
     this.context,
@@ -38,12 +38,14 @@ class UpdateCheckService {
 
   /// Memeriksa pembaruan dan mengembalikan semua informasi yang relevan.
   Future<
-      ({
-        bool isUpdateRequired,
-        VersiApkModel? apkInfo,
-        InfoPerangkatModel? packageInfo,
-        ArsitekturApk? architecture
-      })> getUpdateInfo() async {
+    ({
+      bool isUpdateRequired,
+      VersiApkModel? apkInfo,
+      InfoPerangkatModel? packageInfo,
+      ArsitekturApk? architecture,
+    })
+  >
+  getUpdateInfo() async {
     Log.info('Memulai pengecekan informasi pembaruan lengkap.');
     try {
       final packageInfo = await _packageInfoService.getPackageInfo();
@@ -53,7 +55,7 @@ class UpdateCheckService {
           isUpdateRequired: false,
           apkInfo: null,
           packageInfo: null,
-          architecture: null
+          architecture: null,
         );
       }
 
@@ -65,7 +67,7 @@ class UpdateCheckService {
           isUpdateRequired: false,
           apkInfo: null,
           packageInfo: packageInfo,
-          architecture: null
+          architecture: null,
         );
       }
 
@@ -76,7 +78,7 @@ class UpdateCheckService {
           isUpdateRequired: false,
           apkInfo: null,
           packageInfo: packageInfo,
-          architecture: architecture
+          architecture: architecture,
         );
       }
 
@@ -93,19 +95,15 @@ class UpdateCheckService {
         isUpdateRequired: isRequired,
         apkInfo: isRequired ? latestApk : null,
         packageInfo: packageInfo,
-        architecture: architecture
+        architecture: architecture,
       );
     } on Exception catch (e, st) {
-      Log.error(
-        'Terjadi kesalahan saat memeriksa getUpdateInfo.',
-        e: e,
-        s: st,
-      );
+      Log.error('Terjadi kesalahan saat memeriksa getUpdateInfo.', e: e, s: st);
       return (
         isUpdateRequired: false,
         apkInfo: null,
         packageInfo: null,
-        architecture: null
+        architecture: null,
       );
     }
   }
@@ -141,15 +139,14 @@ class UpdateCheckService {
     }
   }
 
-  ArsitekturApk? _determineArchitecture(
-    final Map<String, dynamic> deviceInfo,
-  ) {
+  ArsitekturApk? _determineArchitecture(final Map<String, dynamic> deviceInfo) {
     if (deviceInfo['error'] != null) {
       return null;
     }
 
-    final supportedAbis =
-        List<String>.from(deviceInfo['supportedAbis'] as Iterable<dynamic>);
+    final supportedAbis = List<String>.from(
+      deviceInfo['supportedAbis'] as Iterable<dynamic>,
+    );
     if (supportedAbis.contains('arm64-v8a')) {
       return ArsitekturApk.bit64;
     } else if (supportedAbis.contains('armeabi-v7a')) {

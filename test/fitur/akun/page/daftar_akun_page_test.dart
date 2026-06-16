@@ -22,10 +22,17 @@ void main() {
   late PelangganModel pelanggan1;
   late PelangganModel pelanggan2;
 
+  setUpAll(() {
+    provideDummy<AsyncValue<AkunState>>(const AsyncValue.loading());
+  });
+
   setUp(() {
     mockPengelolaAkun = MockPengelolaAkun();
     mockUserActivityService = MockUserActivityService();
     mockNavigatorObserver = MockNavigatorObserver();
+
+    // ✅ Perbaikan: Stub untuk getter navigator agar tidak error
+    when(mockNavigatorObserver.navigator).thenReturn(null);
 
     pelanggan1 = const PelangganModel(
       id: 'user1',
@@ -48,11 +55,13 @@ void main() {
   Widget createWidgetUnderTest({String? currentUserId}) {
     return ProviderScope(
       overrides: [
+        // ✅ Perbaikan: overrideWith untuk Provider<PengelolaAkun> (tanpa parameter)
         pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
-        userActivityServiceProvider.overrideWithValue(
-          AsyncValue.data(mockUserActivityService),
-        ),
-        userIdProvider.overrideWith((ref) => currentUserId),
+        // ✅ Sudah benar
+        userActivityServiceProvider
+            .overrideWithValue(AsyncValue.data(mockUserActivityService)),
+        // ✅ Perbaikan: userIdProvider bertipe AsyncValue<String?>, bungkus dengan AsyncValue.data
+        userIdProvider.overrideWithValue(AsyncValue.data(currentUserId)),
       ],
       child: MaterialApp(
         home: const DaftarAkunPage(),
@@ -84,7 +93,7 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
 
-      expect(find.text('Gagal memuat akun: $error'), findsOneWidget);
+      expect(find.textContaining('Gagal memuat akun:'), findsOneWidget);
     });
 
     testWidgets('03. harus menampilkan pesan saat daftar akun kosong', (

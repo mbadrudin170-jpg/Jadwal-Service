@@ -6,12 +6,12 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 /// Kelas untuk menangani operasi Firebase untuk `ApkVersionModel`.
-class ApkVersionOpFirebase {
+class VersiApkOpFirebase {
   final FirebaseFirestore _firestore;
 
   /// Konstruktor untuk inisialisasi dengan instansi FirebaseFirestore opsional.
-  ApkVersionOpFirebase({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  VersiApkOpFirebase({FirebaseFirestore? firestore})
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   /// Referensi koleksi dengan konverter untuk `ApkVersionModel`.
   late final CollectionReference<VersiApkModel> _colection = _firestore

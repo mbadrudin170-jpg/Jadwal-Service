@@ -9,9 +9,8 @@ import 'dart:io' as _i2;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i7;
-import 'package:wifi/shared/model/event_model.dart' as _i6;
-import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart'
-    as _i5;
+import 'package:wifi/fitur/event/model/event_model.dart' as _i6;
+import 'package:wifi/fitur/event/operasi/event_op_supabase.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -95,51 +94,51 @@ class MockEventOpSupabase extends _i1.Mock implements _i5.EventOpSupabase {
           as _i4.Future<List<_i6.EventModel>>);
 
   @override
-  _i4.Stream<List<_i6.EventModel>> getRealtimeStream() =>
+  _i4.Stream<List<_i6.EventModel>> ambilRealtimeStream() =>
       (super.noSuchMethod(
-            Invocation.method(#getRealtimeStream, []),
+            Invocation.method(#ambilRealtimeStream, []),
             returnValue: _i4.Stream<List<_i6.EventModel>>.empty(),
           )
           as _i4.Stream<List<_i6.EventModel>>);
 
   @override
-  _i4.Future<_i6.EventModel?> getActive() =>
+  _i4.Future<_i6.EventModel?> ambilEventAktif() =>
       (super.noSuchMethod(
-            Invocation.method(#getActive, []),
+            Invocation.method(#ambilEventAktif, []),
             returnValue: _i4.Future<_i6.EventModel?>.value(),
           )
           as _i4.Future<_i6.EventModel?>);
 
   @override
-  _i4.Future<_i6.EventModel?> getById(String? id) =>
+  _i4.Future<_i6.EventModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
-            Invocation.method(#getById, [id]),
+            Invocation.method(#ambilBerdasarkanId, [id]),
             returnValue: _i4.Future<_i6.EventModel?>.value(),
           )
           as _i4.Future<_i6.EventModel?>);
 
   @override
-  _i4.Future<void> addEvent(_i6.EventModel? event) =>
+  _i4.Future<void> tambahEvent(_i6.EventModel? event) =>
       (super.noSuchMethod(
-            Invocation.method(#addEvent, [event]),
+            Invocation.method(#tambahEvent, [event]),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
           as _i4.Future<void>);
 
   @override
-  _i4.Future<void> update(_i6.EventModel? event) =>
+  _i4.Future<void> perbaruiEvent(_i6.EventModel? event) =>
       (super.noSuchMethod(
-            Invocation.method(#update, [event]),
+            Invocation.method(#perbaruiEvent, [event]),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
           as _i4.Future<void>);
 
   @override
-  _i4.Future<void> deleteEvent(String? id) =>
+  _i4.Future<void> hapusEvent(String? id) =>
       (super.noSuchMethod(
-            Invocation.method(#deleteEvent, [id]),
+            Invocation.method(#hapusEvent, [id]),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )

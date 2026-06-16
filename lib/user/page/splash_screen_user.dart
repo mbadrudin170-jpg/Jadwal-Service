@@ -20,7 +20,7 @@ import 'package:wifi/fitur/versi_apk/service/update_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
+import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/maintenance_page.dart';
@@ -37,7 +37,7 @@ typedef UpdateInfoRecord = ({
   bool isUpdateRequired,
   VersiApkModel? apkInfo,
   InfoPerangkatModel? packageInfo,
-  ArsitekturApk? architecture
+  ArsitekturApk? architecture,
 });
 
 class SplashScreenUser extends ConsumerStatefulWidget {
@@ -71,8 +71,9 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       Log.info('Memulai inisialisasi dari Splash Screen...');
       await _initializeOfflineServices();
 
-      final isConnected =
-          await ref.watch(koneksiInternetServiceProvider).cekKoneksiLokal();
+      final isConnected = await ref
+          .watch(koneksiInternetServiceProvider)
+          .cekKoneksiLokal();
 
       if (isConnected) {
         await _initializeOnlineServices();
@@ -111,38 +112,43 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     final maintenanceSettings = await _checkMaintenanceMode();
     if (maintenanceSettings != null) {
       if (!mounted) return;
-      unawaited(Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => MaintenancePage(
-            maintenanceInfo: maintenanceSettings.infoMaintenance,
-            onRefresh: _initializeApp,
-            onExit: SystemNavigator.pop,
+      unawaited(
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => MaintenancePage(
+              maintenanceInfo: maintenanceSettings.infoMaintenance,
+              onRefresh: _initializeApp,
+              onExit: SystemNavigator.pop,
+            ),
           ),
         ),
-      ));
+      );
       return;
     }
 
     final updateInfo = await _checkAppUpdate();
     if (updateInfo != null) {
       if (!mounted) return;
-      unawaited(Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => UpdateApkPage(
-            apkInfo: updateInfo.apkInfo!,
-            packageInfo: updateInfo.packageInfo!,
-            architecture: updateInfo.architecture!,
+      unawaited(
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => UpdateApkPage(
+              apkInfo: updateInfo.apkInfo!,
+              packageInfo: updateInfo.packageInfo!,
+              architecture: updateInfo.architecture!,
+            ),
           ),
         ),
-      ));
+      );
       return;
     }
     await _navigateToNextPage();
   }
 
   Future<void> _initializeOfflineServices() async {
-    await LayananNotifikasi()
-        .inisialisasiNotifikasi(iconName: 'ic_notification');
+    await LayananNotifikasi().inisialisasiNotifikasi(
+      iconName: 'ic_notification',
+    );
     await LayananNotifikasi().mintaIzin();
     await initializeDateFormatting('id_ID');
   }
@@ -150,8 +156,9 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   Future<void> _initializeOnlineServices() async {
     try {
       await MobileAds.instance.initialize();
-      FirebaseFirestore.instance.settings =
-          const Settings(persistenceEnabled: true);
+      FirebaseFirestore.instance.settings = const Settings(
+        persistenceEnabled: true,
+      );
     } on Exception catch (e, st) {
       Log.error('Gagal inisialisasi layanan online', e: e, s: st);
     }
@@ -159,7 +166,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
 
   Future<EventModel?> _cekEvent() async {
     final eventOpSupabase = ref.read(eventOpSupabaseProvider);
-    final infoEvent = await eventOpSupabase.getActive();
+    final infoEvent = await eventOpSupabase.ambilEventAktif();
     return infoEvent;
   }
 
@@ -197,25 +204,29 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     final akunAktif = pengelolaAkun.akunSaatIni;
 
     if (akunAktif != null) {
-      final isConnected =
-          await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
+      final isConnected = await ref
+          .read(koneksiInternetServiceProvider)
+          .cekKoneksiLokal();
 
       if (isConnected) {
-        final userActivityService =
-            await ref.read(userActivityServiceProvider.future);
+        final userActivityService = await ref.read(
+          userActivityServiceProvider.future,
+        );
         unawaited(userActivityService.pingActivity(akunAktif.id));
       }
       if (!mounted) return;
-      unawaited(Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const MainPage(),
+      unawaited(
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const MainPage()),
         ),
-      ));
+      );
     } else {
       if (!mounted) return;
-      unawaited(Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      ));
+      unawaited(
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        ),
+      );
     }
   }
 

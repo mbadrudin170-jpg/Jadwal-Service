@@ -1,19 +1,20 @@
-// path: lib/admin/halaman/lainnya/event_page_a.dart
+// path: lib/fitur/event/page/event_page_a.dart
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/event/detail_event_a.dart';
+import 'package:wifi/fitur/event/page/detail_event_a.dart';
 import 'package:wifi/admin/halaman/lainnya/manage_announcement_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/event_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
+import 'package:wifi/fitur/event/model/event_model.dart';
+import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 
 /// Menggunakan StreamProvider dengan proteksi siklus hidup
-final announcementsStreamProvider =
-    StreamProvider.autoDispose<List<EventModel>>((ref) {
+final announcementsStreamProvider = StreamProvider.autoDispose<List<EventModel>>((
+  ref,
+) {
   final operator = ref.watch(eventOpSupabaseProvider);
 
   // Mencegah provider langsung dihancurkan saat layar sedikit bergeser/rebuild
@@ -22,11 +23,12 @@ final announcementsStreamProvider =
   // Pastikan stream ditutup bersih saat halaman BENAR-BENAR ditinggalkan (di-pop)
   ref.onDispose(() {
     Log.warning(
-        'announcementsStreamProvider: Menutup stream dan membersihkan memori.');
+      'announcementsStreamProvider: Menutup stream dan membersihkan memori.',
+    );
     link.close();
   });
 
-  return operator.getRealtimeStream();
+  return operator.ambilRealtimeStream();
 });
 
 class EventPageA extends ConsumerWidget {
@@ -38,9 +40,7 @@ class EventPageA extends ConsumerWidget {
     final announcementsAsync = ref.watch(announcementsStreamProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pengumuman Realtime'),
-      ),
+      appBar: AppBar(title: const Text('Pengumuman Realtime')),
       // 3. RefreshIndicator sekarang opsional karena data sudah otomatis realtime.
       // Namun tetap dipertahankan jika pengguna ingin memaksa pembersihan cache/sinkronisasi ulang.
       body: RefreshIndicator(
@@ -48,8 +48,11 @@ class EventPageA extends ConsumerWidget {
         child: announcementsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stackTrace) {
-            Log.error('Error saat memuat pengumuman realtime: $error',
-                e: error, s: stackTrace);
+            Log.error(
+              'Error saat memuat pengumuman realtime: $error',
+              e: error,
+              s: stackTrace,
+            );
             return const Center(
               child: Padding(
                 padding: EdgeInsets.all(TSizes.p16),
@@ -86,9 +89,10 @@ class EventPageA extends ConsumerWidget {
                               fit: BoxFit.cover,
                               errorBuilder: (context, e, st) {
                                 Log.error(
-                                    'Gagal memuat gambar: ${announcement.linkGambar}',
-                                    e: e,
-                                    s: st);
+                                  'Gagal memuat gambar: ${announcement.linkGambar}',
+                                  e: e,
+                                  s: st,
+                                );
                                 return const Icon(TIcons.error);
                               },
                             ),
@@ -103,12 +107,13 @@ class EventPageA extends ConsumerWidget {
                       children: [
                         gapH8,
                         Text(
-                            'Dibuat: ${announcement.tanggalDibuat.toLocal().toString().split(' ')[0]}'),
+                          'Dibuat: ${announcement.tanggalDibuat.toLocal().toString().split(' ')[0]}',
+                        ),
                         gapH4,
                         Chip(
-                          label: Text(announcement.statusAktif
-                              ? 'Aktif'
-                              : 'Tidak Aktif'),
+                          label: Text(
+                            announcement.statusAktif ? 'Aktif' : 'Tidak Aktif',
+                          ),
                           avatar: Icon(
                             announcement.statusAktif
                                 ? TIcons.toggleOn
@@ -126,13 +131,18 @@ class EventPageA extends ConsumerWidget {
                       ],
                     ),
                     onTap: () {
-                      Log.info('Menavigasi ke detail pengumuman.',
-                          {'id': announcement.id});
-                      unawaited(Navigator.push(
+                      Log.info('Menavigasi ke detail pengumuman.', {
+                        'id': announcement.id,
+                      });
+                      unawaited(
+                        Navigator.push(
                           context,
                           MaterialPageRoute<void>(
-                              builder: (context) =>
-                                  DetailEventA(event: announcement))));
+                            builder: (context) =>
+                                DetailEventA(event: announcement),
+                          ),
+                        ),
+                      );
                     },
                   ),
                 );
@@ -144,11 +154,14 @@ class EventPageA extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Log.info('Membuka halaman untuk mengelola pengumuman baru.');
-          unawaited(Navigator.push(
-            context,
-            MaterialPageRoute<void>(
-                builder: (context) => const ManageAnnouncementPage()),
-          ));
+          unawaited(
+            Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (context) => const ManageAnnouncementPage(),
+              ),
+            ),
+          );
         },
         child: const Icon(TIcons.add),
       ),

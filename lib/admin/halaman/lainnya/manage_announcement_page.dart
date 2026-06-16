@@ -9,8 +9,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/event_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
+import 'package:wifi/fitur/event/model/event_model.dart';
+import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 import 'package:wifi/shared/services/layanan_penyimpanan_gambar.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -287,14 +287,14 @@ class _ManageAnnouncementPageState
     // 4. Manajemen status aktif (Hanya izinkan satu pengumuman yang aktif secara simultan)
     if (isActive) {
       try {
-        final currentActive = await eventOpSupabase.getActive();
+        final currentActive = await eventOpSupabase.ambilEventAktif();
         if (currentActive != null &&
             currentActive.id != announcementToSave.id) {
           final oldActive = currentActive.copyWith(
             statusAktif: false,
             diperbaruiPada: now,
           );
-          await eventOpSupabase.update(oldActive);
+          await eventOpSupabase.perbaruiEvent(oldActive);
         }
       } catch (e, st) {
         Log.error('Gagal menonaktifkan pengumuman lama', e: e, s: st);
@@ -313,9 +313,9 @@ class _ManageAnnouncementPageState
     // 5. Eksekusi penyimpanan ke Supabase via Provider
     try {
       if (_isEditMode) {
-        await eventOpSupabase.update(announcementToSave);
+        await eventOpSupabase.perbaruiEvent(announcementToSave);
       } else {
-        await eventOpSupabase.addEvent(announcementToSave);
+        await eventOpSupabase.tambahEvent(announcementToSave);
       }
       final _ = ref.refresh(eventOpSupabaseProvider);
       if (!mounted) return;

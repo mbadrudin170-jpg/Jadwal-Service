@@ -45,15 +45,17 @@ void main() {
       final binding = TestDefaultBinaryMessengerBinding.instance;
 
       // Atur mock handler untuk melempar PlatformException
-      binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        channel,
-        (MethodCall methodCall) async {
-          if (methodCall.method == 'getAll') {
-            throw PlatformException(code: 'ERROR', message: 'Gagal mendapatkan info paket');
-          }
-          return null;
-        },
-      );
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+        MethodCall methodCall,
+      ) async {
+        if (methodCall.method == 'getAll') {
+          throw PlatformException(
+            code: 'ERROR',
+            message: 'Gagal mendapatkan info paket',
+          );
+        }
+        return null;
+      });
 
       final result = await packageInfoService.getPackageInfo();
 

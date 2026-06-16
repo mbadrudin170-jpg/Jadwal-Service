@@ -1,4 +1,4 @@
-// path: lib/shared/model/event_model.dart
+// path: lib/fitur/event/model/event_model.dart
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -28,13 +28,15 @@ abstract class EventModel with _$EventModel implements HasId {
       id: map[NamaKolom.id] as String? ?? '',
       linkGambar: map[NamaKolom.linkGambar] as String? ?? '',
       statusAktif: ParserUtil.parseBool(map[NamaKolom.statusAktif]),
-      tanggalDibuat: ParserUtil.parseDateTime(map[NamaKolom.tanggalDibuat]) ??
+      tanggalDibuat:
+          ParserUtil.parseDateTime(map[NamaKolom.tanggalDibuat]) ??
           DateTime.now(),
-      tanggalMulai: ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]) ??
+      tanggalMulai:
+          ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]) ??
           DateTime.now(),
       tanggalBerakhir:
           ParserUtil.parseDateTime(map[NamaKolom.tangglberakhir]) ??
-              DateTime.now(),
+          DateTime.now(),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
     );
   }
@@ -55,19 +57,23 @@ abstract class EventModel with _$EventModel implements HasId {
 
   /// Membuat [EventModel] dari Supabase document.
   factory EventModel.fromSupabase(
-      final String id, final Map<String, dynamic> data) {
+    final String id,
+    final Map<String, dynamic> data,
+  ) {
     Log.info('Creating EventModel from Supabase: $id');
     return EventModel(
       id: id,
       linkGambar: data[NamaKolom.linkGambar] as String? ?? '',
       statusAktif: ParserUtil.parseBool(data[NamaKolom.statusAktif]),
-      tanggalDibuat: ParserUtil.parseDateTime(data[NamaKolom.tanggalDibuat]) ??
+      tanggalDibuat:
+          ParserUtil.parseDateTime(data[NamaKolom.tanggalDibuat]) ??
           DateTime.now(),
-      tanggalMulai: ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]) ??
+      tanggalMulai:
+          ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]) ??
           DateTime.now(),
       tanggalBerakhir:
           ParserUtil.parseDateTime(data[NamaKolom.tangglberakhir]) ??
-              DateTime.now(),
+          DateTime.now(),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
     );
   }
@@ -81,8 +87,8 @@ abstract class EventModel with _$EventModel implements HasId {
       NamaKolom.tanggalMulai: tanggalMulai.toIso8601String(),
       NamaKolom.tangglberakhir: tanggalBerakhir.toIso8601String(),
       NamaKolom.tanggalDibuat: tanggalDibuat.toIso8601String(),
-      NamaKolom.diperbaruiPada:
-          (diperbaruiPada ?? DateTime.now()).toIso8601String(),
+      NamaKolom.diperbaruiPada: (diperbaruiPada ?? DateTime.now())
+          .toIso8601String(),
     };
   }
 }

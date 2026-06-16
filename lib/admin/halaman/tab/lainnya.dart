@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:wifi/data_dummy/halaman_data_dummy.dart';
 
 import 'package:wifi/fitur/versi_apk/page/versi_apk_page.dart';
-import 'package:wifi/admin/halaman/lainnya/event_page_a.dart';
+import 'package:wifi/fitur/event/page/event_page_a.dart';
 import 'package:wifi/fitur/paket/page/paket.dart';
 import 'package:wifi/admin/halaman/lainnya/riwayat_aktivasi_paket.dart';
 import 'package:wifi/admin/halaman/lainnya/tentang_aplikasi.dart';
