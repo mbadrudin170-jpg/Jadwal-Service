@@ -29,26 +29,25 @@ class DetailVersiApk extends ConsumerStatefulWidget {
 }
 
 class _DetailVersiApkState extends ConsumerState<DetailVersiApk> {
-  late VersiApkModel _currentApkVersion;
-  late final VersiApkOpSqlite _apkVersionOperation;
+  late VersiApkModel _versiApk;
+  late final VersiApkOpSqlite _versiApkOpSqlite;
 
   @override
   void initState() {
     super.initState();
-    _currentApkVersion = widget.versiApk;
-    _apkVersionOperation =
+    _versiApk = widget.versiApk;
+    _versiApkOpSqlite =
         widget.versiApkOPSqlite ?? ref.read(versiApkOpSqliteProvider);
   }
 
   Future<void> _navigasiKeEdit() async {
-    Log.info(
-        'Tombol edit APK ditekan, versi=${_currentApkVersion.versiTerkahir}');
+    Log.info('Tombol edit APK ditekan, versi=${_versiApk.versiTerkahir}');
     final hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (context) => FormVersiApk(
-          versiApk: _currentApkVersion,
-          versiApkOpSqlite: _apkVersionOperation,
+          versiApk: _versiApk,
+          versiApkOpSqlite: _versiApkOpSqlite,
         ),
       ),
     );
@@ -62,21 +61,21 @@ class _DetailVersiApkState extends ConsumerState<DetailVersiApk> {
   }
 
   Future<void> _reloadData() async {
-    Log.info('Memuat ulang data untuk ID: ${_currentApkVersion.id}');
+    Log.info('Memuat ulang data untuk ID: ${_versiApk.id}');
     try {
-      final allData = await _apkVersionOperation.ambilSemuaVersiApkAktif();
-      final freshData = allData.firstWhere(
-        (final data) => data.id == _currentApkVersion.id,
-        orElse: () => _currentApkVersion,
+      final daftarVersiApk = await _versiApkOpSqlite.ambilSemuaVersiApkAktif();
+      final freshData = daftarVersiApk.firstWhere(
+        (data) => data.id == _versiApk.id,
+        orElse: () => _versiApk,
       );
 
       if (mounted) {
         setState(() {
-          _currentApkVersion = freshData;
+          _versiApk = freshData;
         });
         ToastUtil.success(context, 'Data detail telah diperbarui.');
       }
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error('Gagal memuat ulang data APK', e: e, s: st);
       if (mounted) {
         ToastUtil.error(context, 'Gagal memuat ulang data detail.');
@@ -85,10 +84,8 @@ class _DetailVersiApkState extends ConsumerState<DetailVersiApk> {
   }
 
   @override
-  Widget build(final BuildContext context) {
-    Log.info(
-      'Membangun halaman detail versi APK: ${_currentApkVersion.versiTerkahir}.',
-    );
+  Widget build(BuildContext context) {
+    Log.info('Membangun halaman detail versi APK: ${_versiApk.versiTerkahir}.');
 
     return Scaffold(
       appBar: AppBar(
@@ -104,10 +101,9 @@ class _DetailVersiApkState extends ConsumerState<DetailVersiApk> {
       body: ListView(
         padding: const EdgeInsets.all(TSizes.p16),
         children: [
-          _buildInfoRow('Versi Terbaru', _currentApkVersion.versiTerkahir),
-          _buildInfoRow(
-              'Wajib Update', _currentApkVersion.wajibUpdate ? 'Ya' : 'Tidak'),
-          _buildInfoRow('Catatan Rilis', _currentApkVersion.catatanRilis),
+          _buildInfoRow('Versi Terbaru', _versiApk.versiTerkahir),
+          _buildInfoRow('Wajib Update', _versiApk.wajibUpdate ? 'Ya' : 'Tidak'),
+          _buildInfoRow('Catatan Rilis', _versiApk.catatanRilis),
           gapH16,
           Text(
             'Nomor Build Terbaru',
@@ -115,7 +111,7 @@ class _DetailVersiApkState extends ConsumerState<DetailVersiApk> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          ..._currentApkVersion.nomorBuildTerakhir.entries.map(
+          ..._versiApk.nomorBuildTerakhir.entries.map(
             (entry) => _buildInfoRow(entry.key.name, entry.value.toString()),
           ),
           gapH16,
@@ -125,12 +121,11 @@ class _DetailVersiApkState extends ConsumerState<DetailVersiApk> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          ..._currentApkVersion.linkDownload.entries.map(
+          ..._versiApk.linkDownload.entries.map(
             (entry) => _buildInfoRow(entry.key.name, entry.value),
           ),
           gapH16,
-          _buildInfoRow(
-              'Youtube Tutorial', _currentApkVersion.linkYoutubeTutorial),
+          _buildInfoRow('Youtube Tutorial', _versiApk.linkYoutubeTutorial),
         ],
       ),
     );
@@ -151,16 +146,8 @@ class _DetailVersiApkState extends ConsumerState<DetailVersiApk> {
               ),
             ),
           ),
-          Text(
-            ': ',
-            style: context.textTheme.bodyMedium,
-          ),
-          Flexible(
-            child: Text(
-              value,
-              style: context.textTheme.bodyMedium,
-            ),
-          ),
+          Text(': ', style: context.textTheme.bodyMedium),
+          Flexible(child: Text(value, style: context.textTheme.bodyMedium)),
         ],
       ),
     );
