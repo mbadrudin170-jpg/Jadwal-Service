@@ -100,7 +100,9 @@ class HalamanDataDummy extends ConsumerWidget {
                 ref,
                 'Transaksi',
                 DataDummy.transactions,
-                ref.read(transaksiOpSqliteProvider).sisipkanAtauPerbaruiBatch,
+                (data, {dariServer = false}) => ref
+                    .read(transaksiOpSqliteProvider)
+                    .insertOrUpdateBatch(data, dariServer: dariServer),
               );
               ref.invalidate(transaksiOpSqliteProvider);
             },

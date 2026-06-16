@@ -255,7 +255,7 @@ class LayananUnduhData {
       lastDownloadTime: lastDownloadTime,
       fromFirebase: TransaksiModel.fromFirebase,
       batchOperation: (final data) =>
-          _transactionOperation.insertOrUpdateBatch(data, fromServer: true),
+          _transactionOperation.insertOrUpdateBatch(data, dariServer: true),
     );
   }
 

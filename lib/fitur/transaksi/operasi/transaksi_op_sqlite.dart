@@ -504,7 +504,7 @@ class TransaksiOpSqlite {
   /// Memasukkan atau memperbarui beberapa transaksi sekaligus (batch) dan menghitung ulang saldo dompet yang terpengaruh.
   Future<void> insertOrUpdateBatch(
     final List<TransaksiModel> items, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     if (items.isEmpty) {
       Log.warning('Batch dibatalkan karena daftar transaksi kosong');
@@ -537,7 +537,7 @@ class TransaksiOpSqlite {
             await _recalculateAndUpdateWalletBalance(walletId, txn);
           }
         },
-        fromServer: fromServer,
+        fromServer: dariServer,
       );
       Log.info('Proses Batch transaksi berhasil sepenuhnya');
     } on Exception catch (e, st) {
