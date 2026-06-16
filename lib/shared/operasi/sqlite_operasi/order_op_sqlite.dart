@@ -51,7 +51,7 @@ class OrderOpsqlite {
     Log.info('Menyimpan pesanan baru ID: ${order.id}');
     try {
       final dataOrderBaru = order.copyWith(
-        updatedAt: DateTime.now().toUtc(),
+        diperbaruiPada: DateTime.now().toUtc(),
       );
       await baseOpSqlite.sisipkan(
         _tableName,
@@ -139,7 +139,7 @@ class OrderOpsqlite {
         final orderLama = OrderModel.fromSqlite(maps.first);
         final orderBaru = orderLama.copyWith(
           status: status,
-          updatedAt: DateTime.now().toUtc(),
+          diperbaruiPada: DateTime.now().toUtc(),
         );
         await baseOpSqlite.update(
           _tableName,
@@ -226,7 +226,7 @@ class OrderOpsqlite {
       final data = items
           .map(
             (item) =>
-                item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
+                item.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
       await baseOpSqlite.sisipkanAtauPerbaruiBatch(
