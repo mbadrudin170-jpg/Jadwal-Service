@@ -190,7 +190,7 @@ class LayananUnduhData {
       lastDownloadTime: lastDownloadTime,
       fromFirebase: DompetModel.fromFirebase,
       batchOperation: (final data) =>
-          _dompetOpSqlite.insertOrUpdateBatch(data, fromServer: true),
+          _dompetOpSqlite.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
@@ -203,7 +203,7 @@ class LayananUnduhData {
       lastDownloadTime: lastDownloadTime,
       fromFirebase: KategoriModel.fromFirebase,
       batchOperation: (final data) =>
-          _categoryOperation.insertOrUpdateBatch(data, fromServer: true),
+          _categoryOperation.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
@@ -293,8 +293,8 @@ class LayananUnduhData {
       collectionName: NamaTabel.subKategori,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: SubKategoriModel.fromFirebase,
-      batchOperation: (final data) =>
-          _subCategoryOperation.insertOrUpdateBatch(data, fromServer: true),
+      batchOperation: (final data) => _subCategoryOperation
+          .sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 

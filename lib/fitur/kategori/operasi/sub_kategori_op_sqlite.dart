@@ -167,9 +167,9 @@ class SubKategoriOpSqlite {
   }
 
   /// Menyisipkan atau memperbarui sekumpulan [SubKategoriModel] dalam satu batch.
-  Future<void> insertOrUpdateBatch(
+  Future<void> sisipkanAtauPerbaruiBatch(
     final List<SubKategoriModel> items, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     Log.info(
       'Memulai batch insert/update untuk ${items.length} sub-kategori.',
@@ -189,7 +189,7 @@ class SubKategoriOpSqlite {
       await baseOpSqlite.sisipkanAtauPerbaruiBatch(
         _tableName,
         data,
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info('Batch sub-kategori selesai diproses.');
     } on Exception catch (e, s) {

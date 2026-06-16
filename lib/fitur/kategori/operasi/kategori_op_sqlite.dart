@@ -187,9 +187,9 @@ class KategoriOpSqlite {
     }
   }
 
-  Future<void> insertOrUpdateBatch(
+  Future<void> sisipkanAtauPerbaruiBatch(
     final List<KategoriModel> items, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     Log.info(
         'Memulai insertOrUpdateBatch untuk ${items.length} item category.');
@@ -209,7 +209,7 @@ class KategoriOpSqlite {
       await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
         _tableName,
         data,
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info(
           'Berhasil menyelesaikan insertOrUpdateBatch untuk ${items.length} item category.');

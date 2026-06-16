@@ -49,7 +49,7 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData(context, ref, 'Paket', DataDummy.packages,
+              await _tambahData(context, ref, 'Paket', DataDummy.paket,
                   ref.read(paketOpSqliteProvider).sisipkanAtauPerbaruiBatch);
               ref.invalidate(paketOpSqliteProvider);
             },
@@ -59,8 +59,14 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData(context, ref, 'Kategori', DataDummy.categories,
-                  ref.read(kategoriOpSqliteProvider).sisipkanAtauPerbaruiBatch);
+              await _tambahData(
+                  context,
+                  ref,
+                  'Kategori',
+                  DataDummy.categories,
+                  (data, {dariServer = false}) => ref
+                      .read(kategoriOpSqliteProvider)
+                      .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer));
               ref.invalidate(kategoriOpSqliteProvider);
             },
             label: 'Tambah Kategori Dummy',
@@ -74,9 +80,9 @@ class HalamanDataDummy extends ConsumerWidget {
                   ref,
                   'Sub Kategori',
                   DataDummy.subCategories,
-                  ref
+                  (data, {dariServer = false}) => ref
                       .read(subKategoriOpSqliteProvider)
-                      .sisipkanAtauPerbaruiBatch);
+                      .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer));
               ref.invalidate(subKategoriOpSqliteProvider);
             },
             label: 'Tambah Sub Kategori Dummy',
@@ -85,8 +91,14 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData(context, ref, 'Dompet', DataDummy.wallets,
-                  ref.read(dompetOpSqliteProvider).sisipkanAtauPerbaruiBatch);
+              await _tambahData(
+                  context,
+                  ref,
+                  'Dompet',
+                  DataDummy.wallets,
+                  (data, {dariServer = false}) => ref
+                      .read(dompetOpSqliteProvider)
+                      .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer));
               ref.invalidate(dompetOpSqliteProvider);
             },
             label: 'Tambah Dompet Dummy',

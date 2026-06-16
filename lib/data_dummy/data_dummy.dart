@@ -96,7 +96,7 @@ class DataDummy {
       ];
 
   /// Daftar dummy untuk [PaketModel]
-  static List<PaketModel> get packages => [
+  static List<PaketModel> get paket => [
         const PaketModel(
           id: paketHematId,
           nama: 'Paket Hemat 10 Mbps',
@@ -125,16 +125,11 @@ class DataDummy {
         const KategoriModel(
             id: kategoriPembayaranId,
             nama: 'Pembayaran',
-            tipe: TipeKategori.income,
-            idSubKategori: []),
+            tipe: TipeKategori.income),
         const KategoriModel(
-            id: kategoriLainnyaId,
-            nama: 'Lainnya',
-            tipe: TipeKategori.expense,
-            idSubKategori: []),
+            id: kategoriLainnyaId, nama: 'Lainnya', tipe: TipeKategori.expense),
       ];
 
-  /// Daftar dummy untuk [SubCategoryModel]
   static List<SubKategoriModel> get subCategories => [
         const SubKategoriModel(
           id: subKategoriInternetId,

@@ -99,7 +99,7 @@ void main() {
       when(mockBaseOperation.insertOrUpdateBatch(any, any))
           .thenAnswer((_) async {});
 
-      await dompetOpSqlite.insertOrUpdateBatch([tWallet]);
+      await dompetOpSqlite.sisipkanAtauPerbaruiBatch([tWallet]);
 
       verify(mockBaseOperation.insertOrUpdateBatch(tableName, any)).called(1);
     });

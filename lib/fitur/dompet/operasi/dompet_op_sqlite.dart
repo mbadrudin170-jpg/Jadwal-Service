@@ -235,9 +235,9 @@ class DompetOpSqlite {
   }
 
   /// Menyisipkan atau memperbarui sekumpulan dompet dalam satu batch.
-  Future<void> insertOrUpdateBatch(
+  Future<void> sisipkanAtauPerbaruiBatch(
     final List<DompetModel> items, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai batch insert/update untuk ${items.length} data dompet.');
     if (items.isEmpty) {
@@ -253,7 +253,7 @@ class DompetOpSqlite {
       await _baseOperation.sisipkanAtauPerbaruiBatch(
         _tabelDompet,
         data,
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info('Batch dompet selesai diproses.');
     } on Exception catch (e, st) {

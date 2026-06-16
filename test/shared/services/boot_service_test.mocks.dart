@@ -265,13 +265,13 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   @override
   _i5.Future<void> sisipkanAtauPerbaruiBatch(
     List<_i3.PelangganAktifModel>? items, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #sisipkanAtauPerbaruiBatch,
           [items],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i5.Future<void>.value(),
         returnValueForMissingStub: _i5.Future<void>.value(),

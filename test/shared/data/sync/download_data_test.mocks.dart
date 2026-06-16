@@ -477,15 +477,15 @@ class MockDompetOpSqlite extends _i1.Mock implements _i13.DompetOpSqlite {
       ) as _i11.Future<double>);
 
   @override
-  _i11.Future<void> insertOrUpdateBatch(
+  _i11.Future<void> sisipkanAtauPerbaruiBatch(
     List<_i14.DompetModel>? items, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #insertOrUpdateBatch,
+          #sisipkanAtauPerbaruiBatch,
           [items],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
@@ -610,15 +610,15 @@ class MockKategoriOpSqlite extends _i1.Mock implements _i15.KategoriOpSqlite {
       ) as _i11.Future<int>);
 
   @override
-  _i11.Future<void> insertOrUpdateBatch(
+  _i11.Future<void> sisipkanAtauPerbaruiBatch(
     List<_i3.KategoriModel>? items, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #insertOrUpdateBatch,
+          #sisipkanAtauPerbaruiBatch,
           [items],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
@@ -1088,13 +1088,13 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   @override
   _i11.Future<void> sisipkanAtauPerbaruiBatch(
     List<_i5.PelangganAktifModel>? items, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #sisipkanAtauPerbaruiBatch,
           [items],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
@@ -1869,15 +1869,15 @@ class MockSubKategoriOpSqlite extends _i1.Mock
       ) as _i11.Future<int>);
 
   @override
-  _i11.Future<void> insertOrUpdateBatch(
+  _i11.Future<void> sisipkanAtauPerbaruiBatch(
     List<_i29.SubKategoriModel>? items, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #insertOrUpdateBatch,
+          #sisipkanAtauPerbaruiBatch,
           [items],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i11.Future<void>.value(),
         returnValueForMissingStub: _i11.Future<void>.value(),
