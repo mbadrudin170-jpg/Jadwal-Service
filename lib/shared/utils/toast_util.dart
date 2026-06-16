@@ -4,12 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-enum ToastType {
-  success,
-  error,
-  warning,
-  info,
-}
+enum ToastType { success, error, warning, info }
 
 class ToastUtil {
   static void _show(
@@ -78,53 +73,44 @@ class ToastUtil {
     final String message, {
     final Duration? duration,
     final Object? logData,
-  }) =>
-      _show(
-        context,
-        message,
-        type: ToastType.success,
-        duration: duration,
-        logData: logData,
-      );
+  }) => _show(
+    context,
+    message,
+    type: ToastType.success,
+    duration: duration,
+    logData: logData,
+  );
 
   static void error(
     final BuildContext context,
     final String message, {
     final Duration? duration,
     final Object? logData,
-  }) =>
-      _show(
-        context,
-        message,
-        type: ToastType.error,
-        duration: duration,
-        logData: logData,
-      );
+  }) => _show(
+    context,
+    message,
+    type: ToastType.error,
+    duration: duration,
+    logData: logData,
+  );
 
   static void warning(
     final BuildContext context,
     final String message, {
     final Duration? duration,
     final Object? logData,
-  }) =>
-      _show(
-        context,
-        message,
-        type: ToastType.warning,
-        duration: duration,
-        logData: logData,
-      );
+  }) => _show(
+    context,
+    message,
+    type: ToastType.warning,
+    duration: duration,
+    logData: logData,
+  );
 
   static void info(
     final BuildContext context,
     final String message, {
     final Duration? duration,
     final Object? logData,
-  }) =>
-      _show(
-        context,
-        message,
-        duration: duration,
-        logData: logData,
-      );
+  }) => _show(context, message, duration: duration, logData: logData);
 }
