@@ -7,7 +7,7 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
 /// Kelas untuk operasi terkait data paket di database lokal.
 class PaketOpSqlite {
@@ -229,7 +229,7 @@ class PaketOpSqlite {
           Log.info(
               'Berhasil menghapus semua data paket. Total terhapus: $count');
         },
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
     } catch (e, s) {
       Log.error('Gagal menghapus semua data paket', e: e, s: s);

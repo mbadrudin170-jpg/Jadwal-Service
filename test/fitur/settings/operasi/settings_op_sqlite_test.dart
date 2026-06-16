@@ -8,7 +8,7 @@ import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
 // Mocks
 class MockSqliteDatabase extends Mock implements SqliteDatabase {}
@@ -42,7 +42,7 @@ void main() {
 
   final settingsModel = SettingsModel(
     id: id,
-    waktuOtomatisSinkroniasi: 48,
+    waktuOtomatisSinkronisasi: 48,
     diperbaruiPada: DateTime(2023),
   );
 
@@ -66,7 +66,7 @@ void main() {
 
       // Assert
       expect(result.id, id);
-      expect(result.waktuOtomatisSinkroniasi, 48);
+      expect(result.waktuOtomatisSinkronisasi, 48);
       verify(() => mockDb.query(namaTabel, where: 'id = ?', whereArgs: [id]))
           .called(1);
     });

@@ -8,7 +8,7 @@ import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
 // Mocks
 class MockSqliteDatabase extends Mock implements SqliteDatabase {}
@@ -47,51 +47,43 @@ void main() {
 
   group('Operasi Tulis (Delegasi ke BaseOpSqlite)', () {
     test('01. add harus memanggil baseOpSqlite.sisipkan', () async {
-      when(() => mockBaseOpSqlite.sisipkan(any(), any(),
-          dariServer: any(named: 'dariServer'))).thenAnswer((_) async {});
+      when(() => mockBaseOpSqlite.sisipkan(any(), any())).thenAnswer((_) async {});
 
       await feedbackOpSqlite.add(feedback);
 
       verify(() => mockBaseOpSqlite.sisipkan(
             namaTabel,
             any(that: isA<Map<String, dynamic>>()),
-            dariServer: false,
           )).called(1);
     });
 
     test('02. delete harus memanggil baseOpSqlite.delete', () async {
-      when(() => mockBaseOpSqlite.delete(any(), any(),
-          dariServer: any(named: 'dariServer'))).thenAnswer((_) async {});
+      when(() => mockBaseOpSqlite.delete(any(), any())).thenAnswer((_) async {});
 
       await feedbackOpSqlite.delete('fb1');
 
-      verify(() => mockBaseOpSqlite.delete(namaTabel, 'fb1', dariServer: false))
-          .called(1);
+      verify(() => mockBaseOpSqlite.delete(namaTabel, 'fb1')).called(1);
     });
 
     test('03. softDelete harus memanggil baseOpSqlite.softDelete', () async {
-      when(() => mockBaseOpSqlite.softDelete(any(), any(),
-          dariServer: any(named: 'dariServer'))).thenAnswer((_) async {});
+      when(() => mockBaseOpSqlite.softDelete(any(), any())).thenAnswer((_) async {});
 
       await feedbackOpSqlite.softDelete('fb1');
 
-      verify(() =>
-              mockBaseOpSqlite.softDelete(namaTabel, 'fb1', dariServer: false))
-          .called(1);
+      verify(() => mockBaseOpSqlite.softDelete(namaTabel, 'fb1')).called(1);
     });
 
     test(
         '04. sisipkanAtauPerbaruiBatch harus memanggil baseOpSqlite.sisipkanAtauPerbaruiBatch',
         () async {
-      when(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(any(), any(),
-          dariServer: any(named: 'dariServer'))).thenAnswer((_) async {});
+      when(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(any(), any()))
+          .thenAnswer((_) async {});
 
       await feedbackOpSqlite.sisipkanAtauPerbaruiBatch([feedback]);
 
       verify(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
             namaTabel,
             any(that: isA<List<Map<String, dynamic>>>()),
-            dariServer: false,
           )).called(1);
     });
 
@@ -100,16 +92,14 @@ void main() {
         () async {
       await feedbackOpSqlite.sisipkanAtauPerbaruiBatch([]);
 
-      verifyNever(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(any(), any(),
-          dariServer: any(named: 'dariServer')));
+      verifyNever(() => mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(any(), any()));
     });
 
     test(
         '06. deleteAll harus menjalankan delete dalam runComplexOperation',
         () async {
       final mockTxn = MockTransaction();
-      when(() => mockBaseOpSqlite.runComplexOperation<dynamic>(any(),
-              dariServer: any(named: 'dariServer')))
+      when(() => mockBaseOpSqlite.runComplexOperation<dynamic>(any()))
           .thenAnswer((invocation) async {
         final action = invocation.positionalArguments[0]
             as Future<dynamic> Function(Transaction);

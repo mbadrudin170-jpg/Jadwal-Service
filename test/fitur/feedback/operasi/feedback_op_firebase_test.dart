@@ -13,10 +13,16 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 // Mocks
 class MockBaseOpFirebase extends Mock implements BaseOpFirebase {}
 
-class MockCollectionReference extends Mock
-    implements CollectionReference<Map<String, dynamic>> {}
-
-class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
+// Firestore yang rusak untuk simulasi error
+class BrokenFirebaseFirestore extends FakeFirebaseFirestore {
+  @override
+  CollectionReference<Map<String, dynamic>> collection(String name) {
+    if (name == NamaTabel.feedback) {
+      throw Exception('Gagal mengakses koleksi');
+    }
+    return super.collection(name);
+  }
+}
 
 void main() {
   late FeedbackOpFirebase feedbackOpFirebase;
@@ -187,25 +193,8 @@ void main() {
 
       test('07. harus menangani error dari stream firestore', () async {
         // Arrange
-        final mockFirestore = MockFirebaseFirestore();
-        final mockCollection = MockCollectionReference();
-
-        when(() => mockFirestore.collection(NamaTabel.feedback))
-            .thenReturn(mockCollection);
-        // Atur rantai panggilan `where`
-        when(() => mockCollection.where(NamaKolom.userId, isEqualTo: 'user1'))
-            .thenReturn(mockCollection);
-        when(() => mockCollection.where(NamaKolom.dihapus, isEqualTo: false))
-            .thenReturn(mockCollection);
-        when(() =>
-                mockCollection.orderBy(NamaKolom.tanggal, descending: true))
-            .thenReturn(mockCollection);
-        // Atur `snapshots` untuk mengembalikan stream error
-        when(() => mockCollection.snapshots())
-            .thenAnswer((_) => Stream.error(Exception('Firestore error')));
-
         feedbackOpFirebase = FeedbackOpFirebase(
-          firestore: mockFirestore,
+          firestore: BrokenFirebaseFirestore(),
           baseOp: mockBaseOp,
         );
 

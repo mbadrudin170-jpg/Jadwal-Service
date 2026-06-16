@@ -33,13 +33,13 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
     super.initState();
     _settingsOpSqlite = ref.read(settingsOpSqliteProvider);
     Log.info('Menginisialisasi SettingsForm.', {
-      'interval': widget.settings.waktuOtomatisSinkroniasi,
+      'interval': widget.settings.waktuOtomatisSinkronisasi,
       'hapus_arsip': widget.settings.waktuOtomatisHapusDataArsip,
       'mode_pemeliharaan': widget.settings.modeMaintenance,
       'diperbarui': widget.settings.diperbaruiPada,
     });
     _intervalController = TextEditingController(
-      text: '${widget.settings.waktuOtomatisSinkroniasi}',
+      text: '${widget.settings.waktuOtomatisSinkronisasi}',
     );
     _hapusArsipController = TextEditingController(
       text: '${widget.settings.waktuOtomatisHapusDataArsip}',
@@ -64,7 +64,7 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
       try {
         final newSettings = SettingsModel(
           id: widget.settings.id,
-          waktuOtomatisSinkroniasi:
+          waktuOtomatisSinkronisasi:
               int.tryParse(_intervalController.text) ?? 24,
           waktuOtomatisHapusDataArsip:
               int.tryParse(_hapusArsipController.text) ?? 30,

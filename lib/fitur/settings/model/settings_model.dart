@@ -16,7 +16,7 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
   const SettingsModel._();
   const factory SettingsModel({
     @Default(idGlobalSetting) String id,
-    @Default(24) int waktuOtomatisSinkroniasi,
+    @Default(24) int waktuOtomatisSinkronisasi,
     @Default(30) int waktuOtomatisHapusDataArsip,
     @Default(false) bool modeMaintenance,
     @Default('') String infoMaintenance,
@@ -27,7 +27,7 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
     Log.info('Creating SettingsModel from SQLite');
     return SettingsModel(
       id: map[NamaKolom.id] as String? ?? idGlobalSetting,
-      waktuOtomatisSinkroniasi:
+      waktuOtomatisSinkronisasi:
           map[NamaKolom.waktuOtomatisSinkronisasi] as int? ?? 24,
       waktuOtomatisHapusDataArsip:
           map[NamaKolom.waktuOtomatisHapusDataArsip] as int? ?? 30,
@@ -40,7 +40,7 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
-      NamaKolom.waktuOtomatisSinkronisasi: waktuOtomatisSinkroniasi,
+      NamaKolom.waktuOtomatisSinkronisasi: waktuOtomatisSinkronisasi,
       NamaKolom.waktuOtomatisHapusDataArsip: waktuOtomatisHapusDataArsip,
       NamaKolom.modeMaintenance: modeMaintenance ? 1 : 0,
       NamaKolom.infoMaintenance: infoMaintenance,
@@ -52,7 +52,7 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
     Log.info('Creating SettingsModel from Firebase');
     return SettingsModel(
       id: data[NamaKolom.id] as String? ?? idGlobalSetting,
-      waktuOtomatisSinkroniasi:
+      waktuOtomatisSinkronisasi:
           data[NamaKolom.waktuOtomatisSinkronisasi] as int? ?? 24,
       waktuOtomatisHapusDataArsip:
           data[NamaKolom.waktuOtomatisHapusDataArsip] as int? ?? 30,
@@ -65,7 +65,7 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
-      NamaKolom.waktuOtomatisSinkronisasi: waktuOtomatisSinkroniasi,
+      NamaKolom.waktuOtomatisSinkronisasi: waktuOtomatisSinkronisasi,
       NamaKolom.waktuOtomatisHapusDataArsip: waktuOtomatisHapusDataArsip,
       NamaKolom.modeMaintenance: modeMaintenance,
       NamaKolom.infoMaintenance: infoMaintenance,

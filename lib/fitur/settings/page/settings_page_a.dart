@@ -97,7 +97,7 @@ class SettingsAdminPage extends ConsumerWidget {
                     children: [
                       _buildInfoCard(
                         judul: 'Sinkronisasi Otomatis',
-                        nilai: '${settings.waktuOtomatisSinkroniasi} Jam',
+                        nilai: '${settings.waktuOtomatisSinkronisasi} Jam',
                         ikon: Icons.sync,
                         context: context,
                       ),

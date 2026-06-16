@@ -8,7 +8,7 @@ import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
 /// Kelas untuk operasi terkait data transaksi di database lokal.
 class TransaksiOpSqlite {
@@ -113,7 +113,7 @@ class TransaksiOpSqlite {
           }
           return newId;
         },
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Proses addTransaction ID: ${transaction.id} berhasil');
       return id;
@@ -312,7 +312,7 @@ class TransaksiOpSqlite {
             Log.warning('Update gagal: Transaksi ID $id tidak ditemukan');
           }
         },
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Proses updateTransaction ID: $id selesai');
     } on Exception catch (e, st) {
@@ -360,7 +360,7 @@ class TransaksiOpSqlite {
                 oldTransaction.idDompetTujuan!, txn);
           }
         },
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Transaksi ID: $id berhasil diarsipkan secara atomik');
     } on Exception catch (e, st) {
@@ -399,7 +399,7 @@ class TransaksiOpSqlite {
 
           return rowsAffected;
         },
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       return count;
     } on Exception catch (e, st) {
@@ -537,7 +537,7 @@ class TransaksiOpSqlite {
             await _recalculateAndUpdateWalletBalance(walletId, txn);
           }
         },
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
       Log.info('Proses Batch transaksi berhasil sepenuhnya');
     } on Exception catch (e, st) {

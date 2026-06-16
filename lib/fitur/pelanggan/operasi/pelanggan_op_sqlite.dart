@@ -5,7 +5,7 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
 class PelangganOpSqlite {
   final SqliteDatabase sqliteDb;

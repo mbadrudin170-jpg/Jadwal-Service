@@ -229,7 +229,7 @@ class DataDummy {
 
   /// Data dummy untuk [SettingsModel]
   static SettingsModel get settings => const SettingsModel(
-        waktuOtomatisSinkroniasi: 12,
+        waktuOtomatisSinkronisasi: 12,
         waktuOtomatisHapusDataArsip: 90,
       );
 }

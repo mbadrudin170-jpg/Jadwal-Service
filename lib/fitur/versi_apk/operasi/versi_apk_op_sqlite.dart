@@ -6,7 +6,7 @@ import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
 /// Kelas untuk operasi terkait data versi APK user di database lokal.
 class VersiApkOpSqlite {

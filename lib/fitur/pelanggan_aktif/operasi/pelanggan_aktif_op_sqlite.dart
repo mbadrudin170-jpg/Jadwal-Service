@@ -10,7 +10,7 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
 class PelangganAktifOpSqlite {
   final SqliteDatabase sqliteDb;
@@ -119,7 +119,7 @@ class PelangganAktifOpSqlite {
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
         },
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
 
       await scheduleNotification(customerToSave);
@@ -199,7 +199,7 @@ class PelangganAktifOpSqlite {
             whereArgs: [customerToSave.id],
           );
         },
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
 
       await scheduleNotification(customerToSave);
@@ -333,7 +333,7 @@ class PelangganAktifOpSqlite {
           await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
           Log.info('Notifikasi telah di batalkan pada fungsi softDelete');
         },
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
 
       Log.info('Active customer ID: $id berhasil diarsipkan');
@@ -377,7 +377,7 @@ class PelangganAktifOpSqlite {
           Log.info(
               '$count active customer telah dihapus permanen dari $_tableName');
         },
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
     } on Exception catch (e, st) {
       Log.error('Gagal menghapus permanen active customer diarsipkan',
@@ -425,7 +425,7 @@ class PelangganAktifOpSqlite {
             await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
           }
         },
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
 
       Log.info(
@@ -469,7 +469,7 @@ class PelangganAktifOpSqlite {
             await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
           }
         },
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
 
       Log.info('${idsToArchive.length} active customer telah diarsipkan');

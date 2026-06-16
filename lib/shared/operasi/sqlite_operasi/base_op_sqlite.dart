@@ -1,7 +1,4 @@
-// path: lib/shared/operasi/base_operation.dart
-// diubah: Menambahkan parameter `fromServer` untuk memutus siklus sinkronisasi.
-// diubah: Mengganti StatusUnggahOperasi menjadi UploadStatusOperation.
-// diubah: Mengganti nama class dari OperasiDasar menjadi BaseOperation.
+// path: lib/shared/operasi/sqlite_operasi/base_op_sqlite.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
@@ -15,18 +12,18 @@ final baseOpSqliteProvider = Provider<BaseOpSqlite>((ref) {
 
   final sqliteDb = ref.read(sqliteDatabaseProvider);
 
-  final uploadStatusOperasi = ref.read(statusUploadOpSlite);
+  final statusUnggahOpSqlite = ref.read(statusUploadOpSlite);
 
   return BaseOpSqlite(
-    dbHelper: sqliteDb,
-    uploadStatusOperasi: uploadStatusOperasi,
+    sqliteDb: sqliteDb,
+    statusUnggahOpSqlite: statusUnggahOpSqlite,
   );
 });
 
 /// Kelas ini adalah PUSAT KONTROL untuk semua operasi tulis (write) ke database.
 class BaseOpSqlite {
-  final SqliteDatabase _dbHelper;
-  final StatusUploadOpSqlite _uploadStatusOperasi;
+  final SqliteDatabase _sqliteDb;
+  final StatusUploadOpSqlite _statusUnggahOpsqlite;
   final now = DateTime.now().toUtc();
 
   /// Konstruktor untuk `BaseOperation`.
@@ -34,10 +31,10 @@ class BaseOpSqlite {
   /// Memungkinkan injeksi dependensi untuk `DatabaseHelper` dan `UploadStatusOperation`
   /// untuk memfasilitasi pengujian.
   BaseOpSqlite({
-    required final SqliteDatabase dbHelper,
-    required final StatusUploadOpSqlite uploadStatusOperasi,
-  })  : _dbHelper = dbHelper,
-        _uploadStatusOperasi = uploadStatusOperasi {
+    required final SqliteDatabase sqliteDb,
+    required final StatusUploadOpSqlite statusUnggahOpSqlite,
+  })  : _sqliteDb = sqliteDb,
+        _statusUnggahOpsqlite = statusUnggahOpSqlite {
     Log.info('BaseOperation instance dibuat.');
   }
 
@@ -54,7 +51,7 @@ class BaseOpSqlite {
     );
 
     try {
-      final db = await _dbHelper.database;
+      final db = await _sqliteDb.database;
       return await db.transaction((final txn) async {
         Log.info(
           '[TRANSAKSI AKTIF] Blok transaksi telah dimulai. Instance: ${txn.runtimeType}',
@@ -65,7 +62,7 @@ class BaseOpSqlite {
             Log.info(
               '[TRANSAKSI AKTIF] Menandai status `needUpload` menjadi TRUE (operasi lokal).',
             );
-            await _uploadStatusOperasi.tandaiButuhUpload(true,
+            await _statusUnggahOpsqlite.tandaiButuhUpload(true,
                 transaction: txn);
             Log.info(
               '[TRANSAKSI AKTIF] Status `needUpload` berhasil ditandai.',
@@ -107,10 +104,10 @@ class BaseOpSqlite {
   /// Menjalankan operasi database yang kompleks di dalam sebuah transaksi.
   Future<T> runComplexOperation<T>(
     final Future<T> Function(Transaction txn) customAction, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     Log.info('Mendelegasikan eksekusi transaksi kompleks');
-    return await _runInTransaction(customAction, dariServer: fromServer);
+    return await _runInTransaction(customAction, dariServer: dariServer);
   }
 
   /// Menyisipkan data baru ke dalam [table].

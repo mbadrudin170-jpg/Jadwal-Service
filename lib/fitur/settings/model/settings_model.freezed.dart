@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SettingsModel {
   String get id;
-  int get waktuOtomatisSinkroniasi;
+  int get waktuOtomatisSinkronisasi;
   int get waktuOtomatisHapusDataArsip;
   bool get modeMaintenance;
   String get infoMaintenance;
@@ -35,9 +35,9 @@ mixin _$SettingsModel {
         (other.runtimeType == runtimeType &&
             other is SettingsModel &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(
-                    other.waktuOtomatisSinkroniasi, waktuOtomatisSinkroniasi) ||
-                other.waktuOtomatisSinkroniasi == waktuOtomatisSinkroniasi) &&
+            (identical(other.waktuOtomatisSinkronisasi,
+                    waktuOtomatisSinkronisasi) ||
+                other.waktuOtomatisSinkronisasi == waktuOtomatisSinkronisasi) &&
             (identical(other.waktuOtomatisHapusDataArsip,
                     waktuOtomatisHapusDataArsip) ||
                 other.waktuOtomatisHapusDataArsip ==
@@ -54,7 +54,7 @@ mixin _$SettingsModel {
   int get hashCode => Object.hash(
       runtimeType,
       id,
-      waktuOtomatisSinkroniasi,
+      waktuOtomatisSinkronisasi,
       waktuOtomatisHapusDataArsip,
       modeMaintenance,
       infoMaintenance,
@@ -62,7 +62,7 @@ mixin _$SettingsModel {
 
   @override
   String toString() {
-    return 'SettingsModel(id: $id, waktuOtomatisSinkroniasi: $waktuOtomatisSinkroniasi, waktuOtomatisHapusDataArsip: $waktuOtomatisHapusDataArsip, modeMaintenance: $modeMaintenance, infoMaintenance: $infoMaintenance, diperbaruiPada: $diperbaruiPada)';
+    return 'SettingsModel(id: $id, waktuOtomatisSinkronisasi: $waktuOtomatisSinkronisasi, waktuOtomatisHapusDataArsip: $waktuOtomatisHapusDataArsip, modeMaintenance: $modeMaintenance, infoMaintenance: $infoMaintenance, diperbaruiPada: $diperbaruiPada)';
   }
 }
 
@@ -74,7 +74,7 @@ abstract mixin class $SettingsModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      int waktuOtomatisSinkroniasi,
+      int waktuOtomatisSinkronisasi,
       int waktuOtomatisHapusDataArsip,
       bool modeMaintenance,
       String infoMaintenance,
@@ -95,7 +95,7 @@ class _$SettingsModelCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? waktuOtomatisSinkroniasi = null,
+    Object? waktuOtomatisSinkronisasi = null,
     Object? waktuOtomatisHapusDataArsip = null,
     Object? modeMaintenance = null,
     Object? infoMaintenance = null,
@@ -106,9 +106,9 @@ class _$SettingsModelCopyWithImpl<$Res>
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      waktuOtomatisSinkroniasi: null == waktuOtomatisSinkroniasi
-          ? _self.waktuOtomatisSinkroniasi
-          : waktuOtomatisSinkroniasi // ignore: cast_nullable_to_non_nullable
+      waktuOtomatisSinkronisasi: null == waktuOtomatisSinkronisasi
+          ? _self.waktuOtomatisSinkronisasi
+          : waktuOtomatisSinkronisasi // ignore: cast_nullable_to_non_nullable
               as int,
       waktuOtomatisHapusDataArsip: null == waktuOtomatisHapusDataArsip
           ? _self.waktuOtomatisHapusDataArsip
@@ -225,7 +225,7 @@ extension SettingsModelPatterns on SettingsModel {
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(
             String id,
-            int waktuOtomatisSinkroniasi,
+            int waktuOtomatisSinkronisasi,
             int waktuOtomatisHapusDataArsip,
             bool modeMaintenance,
             String infoMaintenance,
@@ -238,7 +238,7 @@ extension SettingsModelPatterns on SettingsModel {
       case _SettingModel() when $default != null:
         return $default(
             _that.id,
-            _that.waktuOtomatisSinkroniasi,
+            _that.waktuOtomatisSinkronisasi,
             _that.waktuOtomatisHapusDataArsip,
             _that.modeMaintenance,
             _that.infoMaintenance,
@@ -265,7 +265,7 @@ extension SettingsModelPatterns on SettingsModel {
   TResult when<TResult extends Object?>(
     TResult Function(
             String id,
-            int waktuOtomatisSinkroniasi,
+            int waktuOtomatisSinkronisasi,
             int waktuOtomatisHapusDataArsip,
             bool modeMaintenance,
             String infoMaintenance,
@@ -277,7 +277,7 @@ extension SettingsModelPatterns on SettingsModel {
       case _SettingModel():
         return $default(
             _that.id,
-            _that.waktuOtomatisSinkroniasi,
+            _that.waktuOtomatisSinkronisasi,
             _that.waktuOtomatisHapusDataArsip,
             _that.modeMaintenance,
             _that.infoMaintenance,
@@ -303,7 +303,7 @@ extension SettingsModelPatterns on SettingsModel {
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(
             String id,
-            int waktuOtomatisSinkroniasi,
+            int waktuOtomatisSinkronisasi,
             int waktuOtomatisHapusDataArsip,
             bool modeMaintenance,
             String infoMaintenance,
@@ -315,7 +315,7 @@ extension SettingsModelPatterns on SettingsModel {
       case _SettingModel() when $default != null:
         return $default(
             _that.id,
-            _that.waktuOtomatisSinkroniasi,
+            _that.waktuOtomatisSinkronisasi,
             _that.waktuOtomatisHapusDataArsip,
             _that.modeMaintenance,
             _that.infoMaintenance,
@@ -331,7 +331,7 @@ extension SettingsModelPatterns on SettingsModel {
 class _SettingModel extends SettingsModel {
   const _SettingModel(
       {this.id = idGlobalSetting,
-      this.waktuOtomatisSinkroniasi = 24,
+      this.waktuOtomatisSinkronisasi = 24,
       this.waktuOtomatisHapusDataArsip = 30,
       this.modeMaintenance = false,
       this.infoMaintenance = '',
@@ -343,7 +343,7 @@ class _SettingModel extends SettingsModel {
   final String id;
   @override
   @JsonKey()
-  final int waktuOtomatisSinkroniasi;
+  final int waktuOtomatisSinkronisasi;
   @override
   @JsonKey()
   final int waktuOtomatisHapusDataArsip;
@@ -370,9 +370,9 @@ class _SettingModel extends SettingsModel {
         (other.runtimeType == runtimeType &&
             other is _SettingModel &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(
-                    other.waktuOtomatisSinkroniasi, waktuOtomatisSinkroniasi) ||
-                other.waktuOtomatisSinkroniasi == waktuOtomatisSinkroniasi) &&
+            (identical(other.waktuOtomatisSinkronisasi,
+                    waktuOtomatisSinkronisasi) ||
+                other.waktuOtomatisSinkronisasi == waktuOtomatisSinkronisasi) &&
             (identical(other.waktuOtomatisHapusDataArsip,
                     waktuOtomatisHapusDataArsip) ||
                 other.waktuOtomatisHapusDataArsip ==
@@ -389,7 +389,7 @@ class _SettingModel extends SettingsModel {
   int get hashCode => Object.hash(
       runtimeType,
       id,
-      waktuOtomatisSinkroniasi,
+      waktuOtomatisSinkronisasi,
       waktuOtomatisHapusDataArsip,
       modeMaintenance,
       infoMaintenance,
@@ -397,7 +397,7 @@ class _SettingModel extends SettingsModel {
 
   @override
   String toString() {
-    return 'SettingsModel(id: $id, waktuOtomatisSinkroniasi: $waktuOtomatisSinkroniasi, waktuOtomatisHapusDataArsip: $waktuOtomatisHapusDataArsip, modeMaintenance: $modeMaintenance, infoMaintenance: $infoMaintenance, diperbaruiPada: $diperbaruiPada)';
+    return 'SettingsModel(id: $id, waktuOtomatisSinkronisasi: $waktuOtomatisSinkronisasi, waktuOtomatisHapusDataArsip: $waktuOtomatisHapusDataArsip, modeMaintenance: $modeMaintenance, infoMaintenance: $infoMaintenance, diperbaruiPada: $diperbaruiPada)';
   }
 }
 
@@ -411,7 +411,7 @@ abstract mixin class _$SettingModelCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      int waktuOtomatisSinkroniasi,
+      int waktuOtomatisSinkronisasi,
       int waktuOtomatisHapusDataArsip,
       bool modeMaintenance,
       String infoMaintenance,
@@ -432,7 +432,7 @@ class __$SettingModelCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   $Res call({
     Object? id = null,
-    Object? waktuOtomatisSinkroniasi = null,
+    Object? waktuOtomatisSinkronisasi = null,
     Object? waktuOtomatisHapusDataArsip = null,
     Object? modeMaintenance = null,
     Object? infoMaintenance = null,
@@ -443,9 +443,9 @@ class __$SettingModelCopyWithImpl<$Res>
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      waktuOtomatisSinkroniasi: null == waktuOtomatisSinkroniasi
-          ? _self.waktuOtomatisSinkroniasi
-          : waktuOtomatisSinkroniasi // ignore: cast_nullable_to_non_nullable
+      waktuOtomatisSinkronisasi: null == waktuOtomatisSinkronisasi
+          ? _self.waktuOtomatisSinkronisasi
+          : waktuOtomatisSinkronisasi // ignore: cast_nullable_to_non_nullable
               as int,
       waktuOtomatisHapusDataArsip: null == waktuOtomatisHapusDataArsip
           ? _self.waktuOtomatisHapusDataArsip
