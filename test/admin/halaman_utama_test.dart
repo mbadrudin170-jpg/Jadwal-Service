@@ -3,26 +3,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:wifi/admin/halaman/tab/lainnya.dart';
 import 'package:wifi/admin/halaman_utama.dart';
-import 'package:wifi/fitur/pelanggan/ui/admin/pelanggan.dart';
-import 'package:wifi/fitur/transaksi/page/transaksi_page_a.dart';
 import 'package:wifi/fitur/dompet/page/dompet_page.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
-import 'package:wifi/admin/halaman/tab/lainnya.dart';
+import 'package:wifi/fitur/transaksi/page/transaksi_page_a.dart';
 
 void main() {
-  group('HalamanUtamaAdmin', () {
-    testWidgets('01. harus menampilkan tampilan awal dengan benar', (WidgetTester tester) async {
+  group('HalamanUtama', () {
+    testWidgets('01. harus menampilkan tampilan awal dengan benar',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(
-            home: HalamanUtamaAdmin(),
+            home: HalamanUtama(),
           ),
         ),
       );
 
       // Verifikasi bahwa tab "Pelanggan" ditampilkan secara default
-      expect(find.byType(Pelanggan), findsOneWidget);
+      expect(find.byType(PelangganAktifPage), findsOneWidget);
       expect(find.byIcon(Icons.people), findsOneWidget);
       expect(find.text('Pelanggan'), findsOneWidget);
 
@@ -37,11 +37,12 @@ void main() {
       expect(find.text('Lainnya'), findsOneWidget);
     });
 
-    testWidgets('02. harus beralih ke tab Transaksi saat diketuk', (WidgetTester tester) async {
+    testWidgets('02. harus beralih ke tab Transaksi saat diketuk',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(
-            home: HalamanUtamaAdmin(),
+            home: HalamanUtama(),
           ),
         ),
       );
@@ -52,11 +53,12 @@ void main() {
       expect(find.byType(TransaksiPageA), findsOneWidget);
     });
 
-    testWidgets('03. harus beralih ke tab Dompet saat diketuk', (WidgetTester tester) async {
+    testWidgets('03. harus beralih ke tab Dompet saat diketuk',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(
-            home: HalamanUtamaAdmin(),
+            home: HalamanUtama(),
           ),
         ),
       );
@@ -67,11 +69,12 @@ void main() {
       expect(find.byType(DompetPage), findsOneWidget);
     });
 
-    testWidgets('04. harus beralih ke tab Aktif saat diketuk', (WidgetTester tester) async {
+    testWidgets('04. harus beralih ke tab Aktif saat diketuk',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(
-            home: HalamanUtamaAdmin(),
+            home: HalamanUtama(),
           ),
         ),
       );
@@ -82,11 +85,12 @@ void main() {
       expect(find.byType(PelangganAktifPage), findsOneWidget);
     });
 
-    testWidgets('05. harus beralih ke tab Lainnya saat diketuk', (WidgetTester tester) async {
+    testWidgets('05. harus beralih ke tab Lainnya saat diketuk',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(
-            home: HalamanUtamaAdmin(),
+            home: HalamanUtama(),
           ),
         ),
       );
@@ -94,7 +98,7 @@ void main() {
       await tester.tap(find.byIcon(Icons.more_horiz));
       await tester.pumpAndSettle();
 
-      expect(find.byType(Lainnya), findsOneWidget);
+      expect(find.byType(LainnyaPage), findsOneWidget);
     });
   });
 }

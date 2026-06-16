@@ -2,16 +2,16 @@
 // path: test/admin/splash_screen_admin_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/admin/splash_screen_admin.dart';
 import 'package:wifi/admin/app_admin.dart';
+import 'package:wifi/admin/splash_screen_admin.dart';
 
 void main() {
-  group('SplashScreenAdmin', () {
+  group('SplashScreen', () {
     testWidgets('01. harus menavigasi ke AppAdmin setelah 2 detik',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: SplashScreenAdmin(),
+          home: SplashScreen(),
         ),
       );
 

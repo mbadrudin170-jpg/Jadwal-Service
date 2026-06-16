@@ -28,6 +28,7 @@ void main() {
   late FeedbackOpFirebase feedbackOpFirebase;
   late BaseOpFirebase mockBaseOp;
   late FirebaseFirestore fakeFirestore;
+  late DocumentReference<Map<String, dynamic>> fakeDocRef;
 
   // Data sampel
   final feedback = FeedbackModel(
@@ -40,6 +41,7 @@ void main() {
   setUp(() {
     mockBaseOp = MockBaseOpFirebase();
     fakeFirestore = FakeFirebaseFirestore();
+    fakeDocRef = fakeFirestore.collection(NamaTabel.feedback).doc('fake_id');
     feedbackOpFirebase = FeedbackOpFirebase(
       firestore: fakeFirestore,
       baseOpFirebase: mockBaseOp,
@@ -53,7 +55,7 @@ void main() {
     test('01. create - harus mendelegasikan ke baseOp.tambah', () async {
       // Arrange
       when(() => mockBaseOp.tambah(any(), any()))
-          .thenAnswer((_) async => FakeDocumentReference());
+          .thenAnswer((_) async => fakeDocRef);
 
       final data = feedback.toFirebase();
       data[NamaKolom.tanggal] = FieldValue.serverTimestamp();
@@ -206,13 +208,4 @@ void main() {
       });
     });
   });
-}
-
-// Kelas FakeDocumentReference diperlukan untuk mock `tambah`
-class FakeDocumentReference extends Fake implements DocumentReference {
-  @override
-  String get id => 'fake_id';
-
-  @override
-  String get path => '/feedback/fake_id';
 }

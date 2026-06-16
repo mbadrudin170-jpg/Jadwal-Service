@@ -17,7 +17,6 @@ Berikut aturan naming versi **ringkas, jelas, dan siap dipakai** (Indonesia clea
 * `SinkronisasiData`
 
 ---
-
 ## 2. VARIABEL → “Menyimpan apa”
 
 * Gunakan **kata benda**
