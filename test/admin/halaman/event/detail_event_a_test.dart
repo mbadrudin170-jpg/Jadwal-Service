@@ -20,7 +20,7 @@ import '../../../image_mock_http_client.dart';
   HttpClient,
   HttpClientRequest,
   HttpClientResponse,
-  HttpHeaders
+  HttpHeaders,
 ])
 void main() {
   late MockEventOpSupabase mockEventOpSupabase;
@@ -52,35 +52,37 @@ void main() {
       overrides: [
         eventOpSupabaseProvider.overrideWithValue(mockEventOpSupabase),
       ],
-      child: MaterialApp(
-        home: DetailEventA(event: event),
-      ),
+      child: MaterialApp(home: DetailEventA(event: event)),
     );
   }
 
   group('01. DetailEventA Widget Tests', () {
-    testWidgets('01. harus menampilkan CircularProgressIndicator saat loading',
-        (tester) async {
+    testWidgets(
+      '01. harus menampilkan CircularProgressIndicator saat loading',
+      (tester) async {
+        // Arrange
+        when(
+          mockEventOpSupabase.getById(any),
+        ).thenAnswer((_) => Stream.value(null));
+
+        // Act
+        await tester.pumpWidget(createWidget(eventAktif));
+
+        // Assert
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+        // Clean up
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets('02. harus menampilkan pesan error jika future gagal', (
+      tester,
+    ) async {
       // Arrange
-      when(mockEventOpSupabase.getById(any)).thenAnswer((_) async* {
-        // Yield nothing to keep it in loading state
-      });
-
-      // Act
-      await tester.pumpWidget(createWidget(eventAktif));
-
-      // Assert
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-      // Clean up
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('02. harus menampilkan pesan error jika future gagal',
-        (tester) async {
-      // Arrange
-      when(mockEventOpSupabase.getById(any))
-          .thenThrow(Exception('Gagal memuat dari Supabase'));
+      when(
+        mockEventOpSupabase.getById(any),
+      ).thenThrow(Exception('Gagal memuat dari Supabase'));
 
       // Act
       await tester.pumpWidget(createWidget(eventAktif));
@@ -90,91 +92,104 @@ void main() {
       expect(find.text('Gagal memuat data.'), findsOneWidget);
     });
 
-    testWidgets('03. harus menampilkan pesan "tidak ditemukan" jika data null',
-        (tester) async {
-      // Arrange
-      when(mockEventOpSupabase.getById(any)).thenAnswer((_) async* {});
-
-      // Act
-      await tester.pumpWidget(createWidget(eventAktif));
-      await tester.pumpAndSettle();
-
-      // Assert
-      expect(find.text('Pengumuman tidak ditemukan.'), findsOneWidget);
-    });
-
     testWidgets(
-        '04. harus menampilkan detail dengan benar untuk event aktif dengan gambar',
-        (tester) async {
-      // Arrange
-      when(mockEventOpSupabase.getById(any))
-          .thenAnswer((_) async => eventAktif);
+      '03. harus menampilkan pesan "tidak ditemukan" jika data null',
+      (tester) async {
+        // Arrange
+        when(
+          mockEventOpSupabase.getById(any),
+        ).thenAnswer((_) => Stream.value(null));
 
-      // Act
-      await HttpOverrides.runZoned(() async {
+        // Act
         await tester.pumpWidget(createWidget(eventAktif));
         await tester.pumpAndSettle();
-      }, createHttpClient: createMockImageHttpClient);
 
-      // Assert
-      expect(find.text('Detail Pengumuman'), findsOneWidget);
-      expect(find.byType(Image), findsOneWidget); // Gambar ditampilkan
-      expect(find.text('Aktif'), findsOneWidget); // Chip status
-      expect(find.textContaining('Dibuat: 2023-10-26'), findsOneWidget);
-      expect(find.text('event-123'), findsOneWidget); // ID
-
-      // Cek warna chip
-      final chip = tester.widget<Chip>(find.byType(Chip));
-      expect(chip.backgroundColor, Colors.green.withAlpha(25));
-      expect(chip.labelStyle?.color, Colors.green);
-    });
+        // Assert
+        expect(find.text('Pengumuman tidak ditemukan.'), findsOneWidget);
+      },
+    );
 
     testWidgets(
-        '05. harus menampilkan detail dengan benar untuk event tidak aktif tanpa gambar',
-        (tester) async {
-      // Arrange
-      when(mockEventOpSupabase.getById(any))
-          .thenAnswer((_) async => eventTidakAktif);
+      '04. harus menampilkan detail dengan benar untuk event aktif dengan gambar',
+      (tester) async {
+        // Arrange
+        when(
+          mockEventOpSupabase.getById(any),
+        ).thenAnswer((_) => Stream.value(eventAktif));
 
-      // Act
-      await tester.pumpWidget(createWidget(eventTidakAktif));
-      await tester.pumpAndSettle();
+        // Act
+        await HttpOverrides.runZoned(() async {
+          await tester.pumpWidget(createWidget(eventAktif));
+          await tester.pumpAndSettle();
+        }, createHttpClient: createMockImageHttpClient);
 
-      // Assert
-      expect(find.byType(Image), findsNothing); // Tidak ada gambar
-      expect(find.text('Tidak Aktif'), findsOneWidget); // Chip status
-      expect(find.textContaining('Dibuat: 2023-10-25'), findsOneWidget);
-      expect(find.text('event-456'), findsOneWidget); // ID
+        // Assert
+        expect(find.text('Detail Pengumuman'), findsOneWidget);
+        expect(find.byType(Image), findsOneWidget); // Gambar ditampilkan
+        expect(find.text('Aktif'), findsOneWidget); // Chip status
+        expect(find.textContaining('Dibuat: 2023-10-26'), findsOneWidget);
+        expect(find.text('event-123'), findsOneWidget); // ID
 
-      // Cek warna chip
-      final chip = tester.widget<Chip>(find.byType(Chip));
-      expect(chip.backgroundColor, Colors.grey.withAlpha(25));
-      expect(chip.labelStyle?.color, Colors.grey);
-    });
+        // Cek warna chip
+        final chip = tester.widget<Chip>(find.byType(Chip));
+        expect(chip.backgroundColor, Colors.green.withAlpha(25));
+        expect(chip.labelStyle?.color, Colors.green);
+      },
+    );
 
-    testWidgets('06. harus menampilkan error builder saat gambar gagal dimuat',
-        (tester) async {
-      // Arrange
-      when(mockEventOpSupabase.getById(any))
-          .thenAnswer((_) async => eventAktif);
+    testWidgets(
+      '05. harus menampilkan detail dengan benar untuk event tidak aktif tanpa gambar',
+      (tester) async {
+        // Arrange
+        when(
+          mockEventOpSupabase.getById(any),
+        ).thenAnswer((_) => Stream.value(eventTidakAktif));
 
-      // Act
-      // Run with an HTTP client that fails all requests
-      await HttpOverrides.runZoned(() async {
-        await tester.pumpWidget(createWidget(eventAktif));
+        // Act
+        await tester.pumpWidget(createWidget(eventTidakAktif));
         await tester.pumpAndSettle();
-      }, createHttpClient: (_) => MockImageHttpClient.failing());
 
-      // Assert
-      expect(find.byType(Image), findsNothing);
-      expect(find.byIcon(TIcons.error), findsOneWidget);
-    });
+        // Assert
+        expect(find.byType(Image), findsNothing); // Tidak ada gambar
+        expect(find.text('Tidak Aktif'), findsOneWidget); // Chip status
+        expect(find.textContaining('Dibuat: 2023-10-25'), findsOneWidget);
+        expect(find.text('event-456'), findsOneWidget); // ID
 
-    testWidgets('07. harus memiliki tombol Edit dan bisa ditekan',
-        (tester) async {
+        // Cek warna chip
+        final chip = tester.widget<Chip>(find.byType(Chip));
+        expect(chip.backgroundColor, Colors.grey.withAlpha(25));
+        expect(chip.labelStyle?.color, Colors.grey);
+      },
+    );
+
+    testWidgets(
+      '06. harus menampilkan error builder saat gambar gagal dimuat',
+      (tester) async {
+        // Arrange
+        when(
+          mockEventOpSupabase.getById(any),
+        ).thenAnswer((_) => Stream.value(eventAktif));
+
+        // Act
+        // Run with an HTTP client that fails all requests
+        await HttpOverrides.runZoned(() async {
+          await tester.pumpWidget(createWidget(eventAktif));
+          await tester.pumpAndSettle();
+        }, createHttpClient: (_) => MockImageHttpClient.failing());
+
+        // Assert
+        expect(find.byType(Image), findsNothing);
+        expect(find.byIcon(AppIcons.error), findsOneWidget);
+      },
+    );
+
+    testWidgets('07. harus memiliki tombol Edit dan bisa ditekan', (
+      tester,
+    ) async {
       // Arrange
-      when(mockEventOpSupabase.getById(any))
-          .thenAnswer((_) async => eventAktif);
+      when(
+        mockEventOpSupabase.getById(any),
+      ).thenAnswer((_) => Stream.value(eventAktif));
 
       // Act
       await tester.pumpWidget(createWidget(eventAktif));

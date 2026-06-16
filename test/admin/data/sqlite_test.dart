@@ -38,19 +38,20 @@ void main() {
 
     // Common stubs
     when(mockDatabase.batch()).thenReturn(mockBatch);
-    when(mockBatch.commit(noResult: anyNamed('noResult')))
-        .thenAnswer((_) async => []);
+    when(
+      mockBatch.commit(noResult: anyNamed('noResult')),
+    ).thenAnswer((_) async => []);
     when(mockDatabase.close()).thenAnswer((_) async {});
   });
 
   // Stub for opening the database
   void stubOpenDatabase() {
-    when(mockFactory.openDatabase(
-      any,
-      options: anyNamed('options'),
-    )).thenAnswer((invocation) async {
-      final options = invocation.namedArguments[const Symbol('options')]
-          as OpenDatabaseOptions?;
+    when(
+      mockFactory.openDatabase(any, options: anyNamed('options')),
+    ).thenAnswer((invocation) async {
+      final options =
+          invocation.namedArguments[const Symbol('options')]
+              as OpenDatabaseOptions?;
       if (options?.onCreate != null) {
         await options!.onCreate!(mockDatabase, options.version!);
       }
@@ -63,25 +64,28 @@ void main() {
 
   group('01. SqliteDatabase Singleton & Provider', () {
     test(
-        '01. instance harus selalu mengembalikan instance yang sama (singleton)',
-        () {
-      final instance1 = SqliteDatabase.instance;
-      final instance2 = SqliteDatabase.instance;
-      expect(identical(instance1, instance2), isTrue);
-    });
+      '01. instance harus selalu mengembalikan instance yang sama (singleton)',
+      () {
+        final instance1 = SqliteDatabase.instance;
+        final instance2 = SqliteDatabase.instance;
+        expect(identical(instance1, instance2), isTrue);
+      },
+    );
 
-    test('02. sqliteDatabaseProvider harus menyediakan instance SqliteDatabase',
-        () {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-      expect(container.read(sqliteDatabaseProvider), isA<SqliteDatabase>());
-    });
+    test(
+      '02. sqliteDatabaseProvider harus menyediakan instance SqliteDatabase',
+      () {
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
+        expect(container.read(sqliteDatabaseProvider), isA<SqliteDatabase>());
+      },
+    );
 
     test('03. sqliteProvider harus menyediakan Future<Database>', () async {
       stubOpenDatabase();
-      final container = ProviderContainer(overrides: [
-        sqliteDatabaseProvider.overrideWithValue(sqliteDatabase),
-      ]);
+      final container = ProviderContainer(
+        overrides: [sqliteDatabaseProvider.overrideWithValue(sqliteDatabase)],
+      );
       addTearDown(container.dispose);
 
       expect(container.read(sqliteProvider), isA<AsyncLoading>());
@@ -96,27 +100,34 @@ void main() {
 
   group('02. Inisialisasi Database (database getter dan _initDB)', () {
     test(
-        '01. harus mengembalikan database yang ada di cache jika sudah diinisialisasi',
-        () async {
-      stubOpenDatabase();
-      final db1 = await sqliteDatabase.database;
-      final db2 = await sqliteDatabase.database;
+      '01. harus mengembalikan database yang ada di cache jika sudah diinisialisasi',
+      () async {
+        stubOpenDatabase();
+        final db1 = await sqliteDatabase.database;
+        final db2 = await sqliteDatabase.database;
 
-      expect(identical(db1, db2), isTrue);
-      verify(mockFactory.openDatabase(any, options: anyNamed('options')))
-          .called(1);
-    });
+        expect(identical(db1, db2), isTrue);
+        verify(
+          mockFactory.openDatabase(any, options: anyNamed('options')),
+        ).called(1);
+      },
+    );
 
-    test('02. harus menginisialisasi database in-memory untuk testing',
-        () async {
-      stubOpenDatabase();
+    test(
+      '02. harus menginisialisasi database in-memory untuk testing',
+      () async {
+        stubOpenDatabase();
 
-      await sqliteDatabase.database;
+        await sqliteDatabase.database;
 
-      verify(mockFactory.openDatabase(inMemoryDatabasePath,
-              options: anyNamed('options')))
-          .called(1);
-    });
+        verify(
+          mockFactory.openDatabase(
+            inMemoryDatabasePath,
+            options: anyNamed('options'),
+          ),
+        ).called(1);
+      },
+    );
 
     test('03. harus menginisialisasi database fisik (non-test)', () async {
       final directory = Directory.systemTemp.createTempSync();
@@ -129,21 +140,22 @@ void main() {
 
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('plugins.flutter.io/path_provider'),
-        (MethodCall methodCall) async {
-          if (methodCall.method == 'getApplicationDocumentsDirectory') {
-            return directory.path;
-          }
-          return null;
-        },
-      );
+            const MethodChannel('plugins.flutter.io/path_provider'),
+            (MethodCall methodCall) async {
+              if (methodCall.method == 'getApplicationDocumentsDirectory') {
+                return directory.path;
+              }
+              return null;
+            },
+          );
 
       stubOpenDatabase();
 
       await sqliteDatabase.database;
 
-      verify(mockFactory.openDatabase(dbPath, options: anyNamed('options')))
-          .called(1);
+      verify(
+        mockFactory.openDatabase(dbPath, options: anyNamed('options')),
+      ).called(1);
 
       // Restore environment and cleanup
       if (originalEnv != null) {
@@ -151,13 +163,16 @@ void main() {
       }
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-              const MethodChannel('plugins.flutter.io/path_provider'), null);
+            const MethodChannel('plugins.flutter.io/path_provider'),
+            null,
+          );
     });
 
     test('04. harus melempar exception jika _initDB gagal', () async {
       final exception = Exception('Gagal membuka DB');
-      when(mockFactory.openDatabase(any, options: anyNamed('options')))
-          .thenThrow(exception);
+      when(
+        mockFactory.openDatabase(any, options: anyNamed('options')),
+      ).thenThrow(exception);
 
       expect(sqliteDatabase.database, throwsA(exception));
     });
@@ -169,29 +184,33 @@ void main() {
 
       await sqliteDatabase.database;
 
-      verify(mockBatch
-              .execute(argThat(contains('CREATE TABLE ${NamaTabel.kategori}'))))
-          .called(1);
-      verify(mockBatch.execute(
-              argThat(contains('CREATE TABLE ${NamaTabel.subKategori}'))))
-          .called(1);
+      verify(
+        mockBatch.execute(
+          argThat(contains('CREATE TABLE ${NamaTabel.kategori}')),
+        ),
+      ).called(1);
+      verify(
+        mockBatch.execute(
+          argThat(contains('CREATE TABLE ${NamaTabel.subKategori}')),
+        ),
+      ).called(1);
       // ... (verify other tables)
       verify(mockBatch.commit(noResult: true)).called(1);
     });
   });
 
   group('04. Upgrade Database (_onUpgrade)', () {
-    late Future<void> Function(Database, int, int) onUpgradeCallback;
+    late OnDatabaseVersionChangeFn onUpgradeCallback;
 
     setUp(() async {
-      when(mockFactory.openDatabase(
-        any,
-        options: anyNamed('options'),
-      )).thenAnswer((invocation) async {
-        final options = invocation.namedArguments[const Symbol('options')]
-            as OpenDatabaseOptions?;
+      when(
+        mockFactory.openDatabase(any, options: anyNamed('options')),
+      ).thenAnswer((invocation) async {
+        final options =
+            invocation.namedArguments[const Symbol('options')]
+                as OpenDatabaseOptions?;
         if (options?.onUpgrade != null) {
-          onUpgradeCallback = options.onUpgrade!;
+          onUpgradeCallback = options!.onUpgrade!;
         }
         return mockDatabase;
       });
@@ -213,9 +232,11 @@ void main() {
       await onUpgradeCallback(mockDatabase, 50, 53);
 
       verifyNever(mockDatabase.execute('DROP TABLE IF EXISTS pengaturan'));
-      verify(mockDatabase.execute(
-              argThat(contains('ADD COLUMN ${NamaKolom.terkahirAktif}'))))
-          .called(1);
+      verify(
+        mockDatabase.execute(
+          argThat(contains('ADD COLUMN ${NamaKolom.terkahirAktif}')),
+        ),
+      ).called(1);
     });
 
     test('03. tidak boleh menjalankan migrasi jika versi sama', () async {
@@ -226,17 +247,20 @@ void main() {
 
     test('04. migrasi v53 harus menambahkan kolom jika belum ada', () async {
       const String trxTable = NamaTabel.transaksi;
-      when(mockDatabase.rawQuery('PRAGMA table_info("$trxTable")'))
-          .thenAnswer((_) async => [
-                {'name': 'id'},
-                {'name': 'description'},
-              ]);
+      when(mockDatabase.rawQuery('PRAGMA table_info("$trxTable")')).thenAnswer(
+        (_) async => [
+          {'name': 'id'},
+          {'name': 'description'},
+        ],
+      );
 
       await onUpgradeCallback(mockDatabase, 52, 53);
 
-      verify(mockDatabase.execute(
-              'ALTER TABLE "$trxTable" ADD COLUMN ${NamaKolom.durasiBonus} INTEGER'))
-          .called(1);
+      verify(
+        mockDatabase.execute(
+          'ALTER TABLE "$trxTable" ADD COLUMN ${NamaKolom.durasiBonus} INTEGER',
+        ),
+      ).called(1);
     });
   });
 
@@ -247,8 +271,9 @@ void main() {
       sqliteDatabase.debugSetDatabaseNull();
       await sqliteDatabase.database;
 
-      verify(mockFactory.openDatabase(any, options: anyNamed('options')))
-          .called(2);
+      verify(
+        mockFactory.openDatabase(any, options: anyNamed('options')),
+      ).called(2);
     });
   });
 }

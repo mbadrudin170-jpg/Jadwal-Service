@@ -23,19 +23,19 @@ import 'layanan_cek_sinkronisasi_test.mocks.dart';
 ])
 void main() {
   late LayananCekSinkronisasi layananCekSinkronisasi;
-  late MockSyncManager mockPengelolaSinkronisasi;
+  late MockPengelolaSinkronisasi mockPengelolaSinkronisasi;
   late MockLayananUnggahData mockLayananUnggah;
   late MockLayananUnduhData mockLayananUnduh;
-  late MockPengecekanDataBaruService mockPengecekanDataBaru;
+  late MockLayananPengecekanDataBaru mockPengecekanDataBaru;
   late MockFirebaseFirestore mockFirestore;
   late MockCollectionReference<Map<String, dynamic>> mockCollectionReference;
   late MockDocumentReference<Map<String, dynamic>> mockDocumentReference;
 
   setUp(() {
-    mockPengelolaSinkronisasi = MockSyncManager();
+    mockPengelolaSinkronisasi = MockPengelolaSinkronisasi();
     mockLayananUnggah = MockLayananUnggahData();
     mockLayananUnduh = MockLayananUnduhData();
-    mockPengecekanDataBaru = MockPengecekanDataBaruService();
+    mockPengecekanDataBaru = MockLayananPengecekanDataBaru();
     mockFirestore = MockFirebaseFirestore();
     mockCollectionReference = MockCollectionReference<Map<String, dynamic>>();
     mockDocumentReference = MockDocumentReference<Map<String, dynamic>>();
@@ -84,7 +84,7 @@ void main() {
         .thenAnswer((_) async => Future.value());
     when(mockPengecekanDataBaru.resetButuhUpload())
         .thenAnswer((_) async => Future.value());
-    when(mockLayananUnduh.downloadAllData())
+    when(mockLayananUnduh.unduhSemuaData())
         .thenAnswer((_) async => Future.value());
     when(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any))
         .thenAnswer((_) async => Future.value());
@@ -98,16 +98,16 @@ void main() {
 
       await layananCekSinkronisasi.jalankanCekSinkronisasi();
 
-      verify(() => mockLayananUnggah.unggahSemuaData()).called(1);
-      verify(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any()))
+      verify(mockLayananUnggah.unggahSemuaData()).called(1);
+      verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any))
           .called(1);
-      verify(() => mockPengecekanDataBaru.resetButuhUpload()).called(1);
-      verify(() => mockDocumentReference.set(
-            {NamaKolom.diperbaruiPada: FieldValue.serverTimestamp()},
-            SetOptions(merge: true),
-          )).called(1);
-      verify(() => mockLayananUnduh.downloadAllData()).called(1);
-      verify(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any()))
+      verify(mockPengecekanDataBaru.resetButuhUpload()).called(1);
+      verify(mockDocumentReference.set(
+        {NamaKolom.diperbaruiPada: FieldValue.serverTimestamp()},
+        SetOptions(merge: true),
+      )).called(1);
+      verify(mockLayananUnduh.unduhSemuaData()).called(1);
+      verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any))
           .called(1);
     });
 
@@ -117,18 +117,18 @@ void main() {
 
       await layananCekSinkronisasi.jalankanCekSinkronisasi();
 
-      verify(() => mockLayananUnggah.unggahSemuaData()).called(1);
-      verify(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any()))
+      verify(mockLayananUnggah.unggahSemuaData()).called(1);
+      verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any))
           .called(1);
-      verify(() => mockPengecekanDataBaru.resetButuhUpload()).called(1);
-      verify(() => mockDocumentReference.set(
-            {NamaKolom.diperbaruiPada: FieldValue.serverTimestamp()},
-            SetOptions(merge: true),
-          )).called(1);
+      verify(mockPengecekanDataBaru.resetButuhUpload()).called(1);
+      verify(mockDocumentReference.set(
+        {NamaKolom.diperbaruiPada: FieldValue.serverTimestamp()},
+        SetOptions(merge: true),
+      )).called(1);
 
-      verifyNever(() => mockLayananUnduh.downloadAllData());
+      verifyNever(mockLayananUnduh.unduhSemuaData());
       verifyNever(
-          () => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any()));
+          mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any));
     });
 
     test('03. harus unduh saja jika hanya ada data baru di server', () async {
@@ -137,14 +137,14 @@ void main() {
 
       await layananCekSinkronisasi.jalankanCekSinkronisasi();
 
-      verifyNever(() => mockLayananUnggah.unggahSemuaData());
+      verifyNever(mockLayananUnggah.unggahSemuaData());
       verifyNever(
-          () => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any()));
-      verifyNever(() => mockPengecekanDataBaru.resetButuhUpload());
-      verifyNever(() => mockDocumentReference.set(any(), any()));
+          mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any));
+      verifyNever(mockPengecekanDataBaru.resetButuhUpload());
+      verifyNever(mockDocumentReference.set(any, any));
 
-      verify(() => mockLayananUnduh.downloadAllData()).called(1);
-      verify(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any()))
+      verify(mockLayananUnduh.unduhSemuaData()).called(1);
+      verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any))
           .called(1);
     });
 
@@ -153,56 +153,56 @@ void main() {
 
       await layananCekSinkronisasi.jalankanCekSinkronisasi();
 
-      verifyNever(() => mockLayananUnggah.unggahSemuaData());
-      verifyNever(() => mockLayananUnduh.downloadAllData());
-      verifyNever(() => mockDocumentReference.set(any(), any()));
+      verifyNever(mockLayananUnggah.unggahSemuaData());
+      verifyNever(mockLayananUnduh.unduhSemuaData());
+      verifyNever(mockDocumentReference.set(any, any));
     });
 
     test('05. harus menangani error saat unggah dan tetap melanjutkan unduh',
         () async {
       aturPengecekanData(adaDataLokal: true, adaDataServer: true);
       final exception = Exception('Gagal unggah');
-      when(() => mockPengecekanDataBaru.apakahSqliteAdaDataBaru())
+      when(mockPengecekanDataBaru.apakahSqliteAdaDataBaru())
           .thenThrow(exception);
       aturAksiSinkronisasiBerhasil();
 
       await layananCekSinkronisasi.jalankanCekSinkronisasi();
 
-      verifyNever(() => mockLayananUnggah.unggahSemuaData());
+      verifyNever(mockLayananUnggah.unggahSemuaData());
       verifyNever(
-          () => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any()));
-      verifyNever(() => mockDocumentReference.set(any(), any()));
+          mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any));
+      verifyNever(mockDocumentReference.set(any, any));
 
-      verify(() => mockLayananUnduh.downloadAllData()).called(1);
-      verify(() => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any()))
+      verify(mockLayananUnduh.unduhSemuaData()).called(1);
+      verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any))
           .called(1);
     });
 
     test('06. harus menangani error saat unduh', () async {
       aturPengecekanData(adaDataLokal: false, adaDataServer: true);
       final exception = Exception('Gagal unduh');
-      when(() => mockPengecekanDataBaru.apakahFirebaseAdaDataBaru(
-            namaKoleksi: anyNamed('namaKoleksi'),
-            idDokumen: anyNamed('idDokumen'),
-          )).thenThrow(exception);
+      when(mockPengecekanDataBaru.apakahFirebaseAdaDataBaru(
+        namaKoleksi: anyNamed('namaKoleksi'),
+        idDokumen: anyNamed('idDokumen'),
+      )).thenThrow(exception);
 
       await layananCekSinkronisasi.jalankanCekSinkronisasi();
 
-      verifyNever(() => mockLayananUnggah.unggahSemuaData());
-      verifyNever(() => mockLayananUnduh.downloadAllData());
+      verifyNever(mockLayananUnggah.unggahSemuaData());
+      verifyNever(mockLayananUnduh.unduhSemuaData());
       verifyNever(
-          () => mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any()));
+          mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any));
     });
 
     test('07. harus menangani error saat memperbarui status global', () async {
       aturPengecekanData(adaDataLokal: true, adaDataServer: false);
       aturAksiSinkronisasiBerhasil();
       final exception = Exception('Gagal update Firestore');
-      when(() => mockDocumentReference.set(any(), any())).thenThrow(exception);
+      when(mockDocumentReference.set(any, any)).thenThrow(exception);
 
       expect(layananCekSinkronisasi.jalankanCekSinkronisasi(), completes);
 
-      verify(() => mockLayananUnggah.unggahSemuaData()).called(1);
+      verify(mockLayananUnggah.unggahSemuaData()).called(1);
     });
   });
 }

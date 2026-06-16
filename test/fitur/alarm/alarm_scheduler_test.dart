@@ -9,10 +9,10 @@ import 'alarm_scheduler_test.mocks.dart';
 @GenerateMocks([PenjadwalAlarm])
 void main() {
   group('AlarmScheduler', () {
-    late MockAlarmScheduler mockAlarmScheduler;
+    late MockPenjadwalAlarm mockPenjadwalAlarm;
 
     setUp(() {
-      mockAlarmScheduler = MockAlarmScheduler();
+      mockPenjadwalAlarm = MockPenjadwalAlarm();
     });
 
     test('01. scheduleOneShot should call the underlying method', () async {
@@ -20,16 +20,16 @@ void main() {
       final time = DateTime.now();
       const id = 1;
       void callback() {}
-      when(mockAlarmScheduler.jadwalkanSekali(time, id, callback,
+      when(mockPenjadwalAlarm.jadwalkanSekali(time, id, callback,
               bangunkan: true, tepatWaktu: true))
           .thenAnswer((_) async => true);
 
       // Act
-      await mockAlarmScheduler.jadwalkanSekali(time, id, callback,
+      await mockPenjadwalAlarm.jadwalkanSekali(time, id, callback,
           bangunkan: true, tepatWaktu: true);
 
       // Assert
-      verify(mockAlarmScheduler.jadwalkanSekali(time, id, callback,
+      verify(mockPenjadwalAlarm.jadwalkanSekali(time, id, callback,
               bangunkan: true, tepatWaktu: true))
           .called(1);
     });
@@ -39,16 +39,16 @@ void main() {
       const duration = Duration(minutes: 15);
       const id = 2;
       void callback() {}
-      when(mockAlarmScheduler.jadwalkanPeriodik(duration, id, callback,
+      when(mockPenjadwalAlarm.jadwalkanPeriodik(duration, id, callback,
               tepatWaktu: true, bangunkan: true, jadwalkanUlangSaatBoot: true))
           .thenAnswer((_) async => true);
 
       // Act
-      await mockAlarmScheduler.jadwalkanPeriodik(duration, id, callback,
+      await mockPenjadwalAlarm.jadwalkanPeriodik(duration, id, callback,
           tepatWaktu: true, bangunkan: true, jadwalkanUlangSaatBoot: true);
 
       // Assert
-      verify(mockAlarmScheduler.jadwalkanPeriodik(duration, id, callback,
+      verify(mockPenjadwalAlarm.jadwalkanPeriodik(duration, id, callback,
               tepatWaktu: true, bangunkan: true, jadwalkanUlangSaatBoot: true))
           .called(1);
     });
@@ -58,16 +58,16 @@ void main() {
       final time = DateTime.now();
       const id = 3;
       void callback() {}
-      when(mockAlarmScheduler.jadwalkanSekaliPada(time, id, callback,
+      when(mockPenjadwalAlarm.jadwalkanSekaliPada(time, id, callback,
               tepatWaktu: true, bangunkan: true, jadwalkanUlangSaatBoot: true))
           .thenAnswer((_) async => true);
 
       // Act
-      await mockAlarmScheduler.jadwalkanSekaliPada(time, id, callback,
+      await mockPenjadwalAlarm.jadwalkanSekaliPada(time, id, callback,
           tepatWaktu: true, bangunkan: true, jadwalkanUlangSaatBoot: true);
 
       // Assert
-      verify(mockAlarmScheduler.jadwalkanSekaliPada(time, id, callback,
+      verify(mockPenjadwalAlarm.jadwalkanSekaliPada(time, id, callback,
               tepatWaktu: true, bangunkan: true, jadwalkanUlangSaatBoot: true))
           .called(1);
     });
@@ -75,13 +75,13 @@ void main() {
     test('04. cancel should call the underlying method', () async {
       // Arrange
       const id = 1;
-      when(mockAlarmScheduler.batalkan(id)).thenAnswer((_) async => true);
+      when(mockPenjadwalAlarm.batalkan(id)).thenAnswer((_) async => true);
 
       // Act
-      await mockAlarmScheduler.batalkan(id);
+      await mockPenjadwalAlarm.batalkan(id);
 
       // Assert
-      verify(mockAlarmScheduler.batalkan(id)).called(1);
+      verify(mockPenjadwalAlarm.batalkan(id)).called(1);
     });
   });
 }
