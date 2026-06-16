@@ -7,14 +7,14 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/card/point_card.dart';
 
-class CustomerDetailUI extends StatefulWidget {
+class DetailPelangganUI extends StatefulWidget {
   final PelangganModel pelanggan;
   final int totalPoin;
   final VoidCallback? navigasiKeEdit;
   final VoidCallback? navigasiKePoin;
   final VoidCallback? onCopyAll;
 
-  const CustomerDetailUI({
+  const DetailPelangganUI({
     super.key,
     required this.pelanggan,
     required this.totalPoin,
@@ -24,11 +24,11 @@ class CustomerDetailUI extends StatefulWidget {
   });
 
   @override
-  State<CustomerDetailUI> createState() => _CustomerDetailUIState();
+  State<DetailPelangganUI> createState() => _DetailPelangganUIState();
 }
 
-class _CustomerDetailUIState extends State<CustomerDetailUI> {
-  Future<void> _copyData(final String label, final String data) async {
+class _DetailPelangganUIState extends State<DetailPelangganUI> {
+  Future<void> _salinInformasi(final String label, final String data) async {
     if (!mounted) return;
 
     if (data.isEmpty) {
@@ -67,18 +67,18 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildPointCard(),
+            _buildKartuPoin(),
             gapH24,
-            _buildCustomerInfoSection(),
+            _buildBagianInformasiPelanggan(),
             gapH24,
-            if (widget.onCopyAll != null) _buildCopyAllButton(),
+            if (widget.onCopyAll != null) _buildTombolSalinSemua(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPointCard() {
+  Widget _buildKartuPoin() {
     return TotalPointCard(
       points: widget.totalPoin,
       onTap: () {
@@ -90,29 +90,29 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
     );
   }
 
-  Widget _buildCustomerInfoSection() {
+  Widget _buildBagianInformasiPelanggan() {
     return Column(
       children: [
-        _buildDetailRow('Nama', widget.pelanggan.nama, () async {
-          await _copyData('Nama', widget.pelanggan.nama);
+        _buildBarisDetail('Nama', widget.pelanggan.nama, () async {
+          await _salinInformasi('Nama', widget.pelanggan.nama);
         }),
-        _buildDetailRow('Telepon', widget.pelanggan.telepon, () async {
-          await _copyData('No Telepon', widget.pelanggan.telepon);
+        _buildBarisDetail('Telepon', widget.pelanggan.telepon, () async {
+          await _salinInformasi('No Telepon', widget.pelanggan.telepon);
         }),
-        _buildDetailRow('Alamat', widget.pelanggan.alamat, () async {
-          await _copyData('Alamat', widget.pelanggan.alamat);
+        _buildBarisDetail('Alamat', widget.pelanggan.alamat, () async {
+          await _salinInformasi('Alamat', widget.pelanggan.alamat);
         }),
-        _buildDetailRow('Password', widget.pelanggan.kataSandi, () async {
-          await _copyData('Password', widget.pelanggan.kataSandi);
+        _buildBarisDetail('Password', widget.pelanggan.kataSandi, () async {
+          await _salinInformasi('Password', widget.pelanggan.kataSandi);
         }),
-        _buildDetailRow('MAC Address', widget.pelanggan.macAddress, () async {
-          await _copyData('MAC Address', widget.pelanggan.macAddress);
+        _buildBarisDetail('MAC Address', widget.pelanggan.macAddress, () async {
+          await _salinInformasi('MAC Address', widget.pelanggan.macAddress);
         }),
       ],
     );
   }
 
-  Widget _buildCopyAllButton() {
+  Widget _buildTombolSalinSemua() {
     return ElevatedButton.icon(
       onPressed: () {
         Log.info('Tombol Salin Semua Info ditekan.');
@@ -126,10 +126,10 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
     );
   }
 
-  Widget _buildDetailRow(
-    final String title,
-    final String detail,
-    final VoidCallback onCopy,
+  Widget _buildBarisDetail(
+    final String judul,
+    final String isiInformasi,
+    final VoidCallback salinInformasi,
   ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -137,7 +137,7 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            title,
+            judul,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
@@ -149,15 +149,15 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
             children: [
               Expanded(
                 child: Text(
-                  detail.isEmpty ? '-' : detail,
+                  isiInformasi.isEmpty ? '-' : isiInformasi,
                   style: const TextStyle(fontSize: 16),
                 ),
               ),
               IconButton(
-                onPressed: onCopy,
+                onPressed: salinInformasi,
                 icon: const Icon(Icons.content_copy, size: 20),
                 color: Colors.grey,
-                tooltip: 'Salin $title',
+                tooltip: 'Salin $judul',
               ),
             ],
           ),

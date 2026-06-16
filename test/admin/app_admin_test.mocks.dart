@@ -732,12 +732,12 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
       ) as _i8.Future<List<_i5.PelangganAktifModel>>);
 }
 
-/// A class which mocks [UnduhanAwalService].
+/// A class which mocks [LayananUnduhanAwal].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUnduhanAwalService extends _i1.Mock
+class MockLayananUnduhanAwal extends _i1.Mock
     implements _i15.LayananUnduhanAwal {
-  MockUnduhanAwalService() {
+  MockLayananUnduhanAwal() {
     _i1.throwOnMissingStub(this);
   }
 

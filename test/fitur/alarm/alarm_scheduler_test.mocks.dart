@@ -23,33 +23,33 @@ import 'package:wifi/fitur/alarm/penjadwal_alarm.dart' as _i2;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-/// A class which mocks [AlarmScheduler].
+/// A class which mocks [PenjadwalAlarm].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAlarmScheduler extends _i1.Mock implements _i2.PenjadwalAlarm {
-  MockAlarmScheduler() {
+class MockPenjadwalAlarm extends _i1.Mock implements _i2.PenjadwalAlarm {
+  MockPenjadwalAlarm() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
   _i3.Future<bool> jadwalkanSekali(
-    DateTime? time,
+    DateTime? waktu,
     int? id,
-    void Function()? callback, {
+    void Function()? panggilBalik, {
     bool? bangunkan,
     bool? tepatWaktu,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #scheduleOneShot,
+          #jadwalkanSekali,
           [
-            time,
+            waktu,
             id,
-            callback,
+            panggilBalik,
           ],
           {
-            #wakeup: bangunkan,
-            #exact: tepatWaktu,
+            #bangunkan: bangunkan,
+            #tepatWaktu: tepatWaktu,
           },
         ),
         returnValue: _i3.Future<bool>.value(false),
@@ -57,9 +57,9 @@ class MockAlarmScheduler extends _i1.Mock implements _i2.PenjadwalAlarm {
 
   @override
   _i3.Future<bool> jadwalkanPeriodik(
-    Duration? duration,
+    Duration? durasi,
     int? id,
-    void Function()? callback, {
+    void Function()? panggilBalik, {
     DateTime? mulaiPada,
     bool? tepatWaktu,
     bool? bangunkan,
@@ -67,17 +67,17 @@ class MockAlarmScheduler extends _i1.Mock implements _i2.PenjadwalAlarm {
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #schedulePeriodic,
+          #jadwalkanPeriodik,
           [
-            duration,
+            durasi,
             id,
-            callback,
+            panggilBalik,
           ],
           {
-            #startAt: mulaiPada,
-            #exact: tepatWaktu,
-            #wakeup: bangunkan,
-            #rescheduleOnReboot: jadwalkanUlangSaatBoot,
+            #mulaiPada: mulaiPada,
+            #tepatWaktu: tepatWaktu,
+            #bangunkan: bangunkan,
+            #jadwalkanUlangSaatBoot: jadwalkanUlangSaatBoot,
           },
         ),
         returnValue: _i3.Future<bool>.value(false),
@@ -85,25 +85,25 @@ class MockAlarmScheduler extends _i1.Mock implements _i2.PenjadwalAlarm {
 
   @override
   _i3.Future<bool> jadwalkanSekaliPada(
-    DateTime? time,
+    DateTime? waktu,
     int? id,
-    void Function()? callback, {
+    void Function()? panggilBalik, {
     bool? tepatWaktu = false,
     bool? bangunkan = false,
     bool? jadwalkanUlangSaatBoot = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #oneShotAt,
+          #jadwalkanSekaliPada,
           [
-            time,
+            waktu,
             id,
-            callback,
+            panggilBalik,
           ],
           {
-            #exact: tepatWaktu,
-            #wakeup: bangunkan,
-            #rescheduleOnReboot: jadwalkanUlangSaatBoot,
+            #tepatWaktu: tepatWaktu,
+            #bangunkan: bangunkan,
+            #jadwalkanUlangSaatBoot: jadwalkanUlangSaatBoot,
           },
         ),
         returnValue: _i3.Future<bool>.value(false),
@@ -112,7 +112,7 @@ class MockAlarmScheduler extends _i1.Mock implements _i2.PenjadwalAlarm {
   @override
   _i3.Future<bool> batalkan(int? id) => (super.noSuchMethod(
         Invocation.method(
-          #cancel,
+          #batalkan,
           [id],
         ),
         returnValue: _i3.Future<bool>.value(false),

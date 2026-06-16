@@ -155,7 +155,7 @@ class _UserCustomerDetailPageState
           final data = snapshot.data!;
 
           return Scaffold(
-            body: CustomerDetailUI(
+            body: DetailPelangganUI(
               pelanggan: data.pelanggan,
               totalPoin: data.totalPoin,
               navigasiKeEdit: () => _navigateToEdit(data.pelanggan),

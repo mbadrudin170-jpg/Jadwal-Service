@@ -90,7 +90,7 @@ MAC : ${customer.macAddress}
           );
         }
 
-        return CustomerDetailUI(
+        return DetailPelangganUI(
           pelanggan: customer,
           totalPoin: totalPoin,
           navigasiKeEdit: () => _editCustomer(context, customer),

@@ -181,35 +181,36 @@ class _FakeDocumentSnapshot_13<T1 extends Object?> extends _i1.SmartFake
         );
 }
 
-/// A class which mocks [SyncManager].
+/// A class which mocks [PengelolaSinkronisasi].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSyncManager extends _i1.Mock implements _i5.PengelolaSinkronisasi {
-  MockSyncManager() {
+class MockPengelolaSinkronisasi extends _i1.Mock
+    implements _i5.PengelolaSinkronisasi {
+  MockPengelolaSinkronisasi() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
   _i4.Future<DateTime> ambilWaktuTerakhirUnduh() => (super.noSuchMethod(
         Invocation.method(
-          #ambilWaktuTerakhirDownload,
+          #ambilWaktuTerakhirUnduh,
           [],
         ),
         returnValue: _i4.Future<DateTime>.value(_FakeDateTime_0(
           this,
           Invocation.method(
-            #ambilWaktuTerakhirDownload,
+            #ambilWaktuTerakhirUnduh,
             [],
           ),
         )),
       ) as _i4.Future<DateTime>);
 
   @override
-  _i4.Future<void> simpanWaktuTerakhirUnduh(DateTime? time) =>
+  _i4.Future<void> simpanWaktuTerakhirUnduh(DateTime? waktu) =>
       (super.noSuchMethod(
         Invocation.method(
-          #simpanWaktuTerakhirunduh,
-          [time],
+          #simpanWaktuTerakhirUnduh,
+          [waktu],
         ),
         returnValue: _i4.Future<void>.value(),
         returnValueForMissingStub: _i4.Future<void>.value(),
@@ -231,11 +232,11 @@ class MockSyncManager extends _i1.Mock implements _i5.PengelolaSinkronisasi {
       ) as _i4.Future<DateTime>);
 
   @override
-  _i4.Future<void> simpanWaktuTerakhirUnggah(DateTime? time) =>
+  _i4.Future<void> simpanWaktuTerakhirUnggah(DateTime? waktu) =>
       (super.noSuchMethod(
         Invocation.method(
-          #simpanWaktuTerkahirUnggah,
-          [time],
+          #simpanWaktuTerakhirUnggah,
+          [waktu],
         ),
         returnValue: _i4.Future<void>.value(),
         returnValueForMissingStub: _i4.Future<void>.value(),
@@ -413,9 +414,9 @@ class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
   }
 
   @override
-  _i4.Future<void> downloadAllData() => (super.noSuchMethod(
+  _i4.Future<void> unduhSemuaData() => (super.noSuchMethod(
         Invocation.method(
-          #downloadAllData,
+          #unduhSemuaData,
           [],
         ),
         returnValue: _i4.Future<void>.value(),
@@ -423,9 +424,9 @@ class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> downloadSettingsData() => (super.noSuchMethod(
+  _i4.Future<void> unduhDataPengaturan() => (super.noSuchMethod(
         Invocation.method(
-          #downloadSettingsData,
+          #unduhDataPengaturan,
           [],
         ),
         returnValue: _i4.Future<void>.value(),
@@ -433,9 +434,9 @@ class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> downloadWalletData() => (super.noSuchMethod(
+  _i4.Future<void> unduhDataDompet() => (super.noSuchMethod(
         Invocation.method(
-          #downloadWalletData,
+          #unduhDataDompet,
           [],
         ),
         returnValue: _i4.Future<void>.value(),
@@ -443,9 +444,9 @@ class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> downloadCategoryData() => (super.noSuchMethod(
+  _i4.Future<void> unduhDataKategori() => (super.noSuchMethod(
         Invocation.method(
-          #downloadCategoryData,
+          #unduhDataKategori,
           [],
         ),
         returnValue: _i4.Future<void>.value(),
@@ -453,9 +454,9 @@ class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> downloadPackageData() => (super.noSuchMethod(
+  _i4.Future<void> unduhDataPaket() => (super.noSuchMethod(
         Invocation.method(
-          #downloadPackageData,
+          #unduhDataPaket,
           [],
         ),
         returnValue: _i4.Future<void>.value(),
@@ -463,9 +464,9 @@ class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> downloadCustomerData() => (super.noSuchMethod(
+  _i4.Future<void> unduhDataPelanggan() => (super.noSuchMethod(
         Invocation.method(
-          #downloadCustomerData,
+          #unduhDataPelanggan,
           [],
         ),
         returnValue: _i4.Future<void>.value(),
@@ -473,9 +474,9 @@ class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> downloadActiveCustomerData() => (super.noSuchMethod(
+  _i4.Future<void> unduhDataPelangganAktif() => (super.noSuchMethod(
         Invocation.method(
-          #downloadActiveCustomerData,
+          #unduhDataPelangganAktif,
           [],
         ),
         returnValue: _i4.Future<void>.value(),
@@ -483,9 +484,9 @@ class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> downloadTransactionData() => (super.noSuchMethod(
+  _i4.Future<void> unduhDataTransaksi() => (super.noSuchMethod(
         Invocation.method(
-          #downloadTransactionData,
+          #unduhDataTransaksi,
           [],
         ),
         returnValue: _i4.Future<void>.value(),
@@ -493,9 +494,9 @@ class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> downloadFeedbackData() => (super.noSuchMethod(
+  _i4.Future<void> unduhDataUmpanBalik() => (super.noSuchMethod(
         Invocation.method(
-          #downloadFeedbackData,
+          #unduhDataUmpanBalik,
           [],
         ),
         returnValue: _i4.Future<void>.value(),
@@ -503,9 +504,9 @@ class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> downloadOrderData() => (super.noSuchMethod(
+  _i4.Future<void> unduhDataPesanan() => (super.noSuchMethod(
         Invocation.method(
-          #downloadOrderData,
+          #unduhDataPesanan,
           [],
         ),
         returnValue: _i4.Future<void>.value(),
@@ -513,9 +514,9 @@ class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> downloadSubCategoryData() => (super.noSuchMethod(
+  _i4.Future<void> unduhDataSubKategori() => (super.noSuchMethod(
         Invocation.method(
-          #downloadSubCategoryData,
+          #unduhDataSubKategori,
           [],
         ),
         returnValue: _i4.Future<void>.value(),
@@ -523,9 +524,9 @@ class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> downloadApkVersionData() => (super.noSuchMethod(
+  _i4.Future<void> unduhDataVersiApk() => (super.noSuchMethod(
         Invocation.method(
-          #downloadApkVersionData,
+          #unduhDataVersiApk,
           [],
         ),
         returnValue: _i4.Future<void>.value(),
@@ -533,24 +534,24 @@ class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> synchronizeCollection<T>({
-    required String? collectionName,
-    required DateTime? lastDownloadTime,
+  _i4.Future<void> sinkronkanKoleksi<T>({
+    required String? namaKoleksi,
+    required DateTime? waktuTerakhirUnduh,
     required T Function(
       String,
       Map<String, dynamic>,
-    )? fromFirebase,
-    required _i4.Future<void> Function(List<T>)? batchOperation,
+    )? dariFirebase,
+    required _i4.Future<void> Function(List<T>)? operasiBatch,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #synchronizeCollection,
+          #sinkronkanKoleksi,
           [],
           {
-            #collectionName: collectionName,
-            #lastDownloadTime: lastDownloadTime,
-            #fromFirebase: fromFirebase,
-            #batchOperation: batchOperation,
+            #namaKoleksi: namaKoleksi,
+            #waktuTerakhirUnduh: waktuTerakhirUnduh,
+            #dariFirebase: dariFirebase,
+            #operasiBatch: operasiBatch,
           },
         ),
         returnValue: _i4.Future<void>.value(),
@@ -558,12 +559,12 @@ class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
       ) as _i4.Future<void>);
 }
 
-/// A class which mocks [PengecekanDataBaruService].
+/// A class which mocks [LayananPengecekanDataBaru].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPengecekanDataBaruService extends _i1.Mock
+class MockLayananPengecekanDataBaru extends _i1.Mock
     implements _i9.LayananPengecekanDataBaru {
-  MockPengecekanDataBaruService() {
+  MockLayananPengecekanDataBaru() {
     _i1.throwOnMissingStub(this);
   }
 

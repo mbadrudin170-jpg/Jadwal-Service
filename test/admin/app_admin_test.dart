@@ -1,4 +1,4 @@
-"""// path: test/admin/app_admin_test.dart
+// path: test/admin/app_admin_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -86,7 +86,7 @@ void main() {
         .thenAnswer((_) async => true);
     when(mockSharedPreferences.remove(any)).thenAnswer((_) async => true);
     when(mockLayananNotifikasi.inisialisasiNotifikasi(
-            iconName: anyNamed('iconName')))
+            iconName: any(named: 'iconName')))
         .thenAnswer((_) async {});
     when(mockLayananNotifikasi.mintaIzin()).thenAnswer((_) async {});
     when(mockLayananNotifikasi.getDetailPeluncuranNotifikasi())
@@ -102,7 +102,7 @@ void main() {
     when(mockSettingsOpSqlite.ambilSettings()).thenAnswer(
         (_) async => const SettingsModel(waktuOtomatisHapusDataArsip: 30));
     when(mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-            retentionDays: anyNamed('retentionDays')))
+            retentionDays: any(named: 'retentionDays')))
         .thenAnswer((_) async => 1);
   });
 
@@ -247,7 +247,7 @@ void main() {
 
       verifyNever(mockUnduhanAwalService.jalankanUnduhanAwal());
       verifyNever(mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-          retentionDays: anyNamed('retentionDays')));
+          retentionDays: any(named: 'retentionDays')));
     });
 
     testWidgets('04. inisialisasi gagal dengan exception', (tester) async {
@@ -388,4 +388,3 @@ void main() {
 
 NotificationResponse _fallbackNotificationResponse() =>
     MockNotificationResponse();
-""

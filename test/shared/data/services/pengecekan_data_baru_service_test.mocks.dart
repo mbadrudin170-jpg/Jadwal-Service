@@ -544,35 +544,36 @@ class MockFirebaseFirestore extends _i1.Mock implements _i4.FirebaseFirestore {
       ) as _i5.Future<void>);
 }
 
-/// A class which mocks [SyncManager].
+/// A class which mocks [PengelolaSinkronisasi].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSyncManager extends _i1.Mock implements _i8.PengelolaSinkronisasi {
-  MockSyncManager() {
+class MockPengelolaSinkronisasi extends _i1.Mock
+    implements _i8.PengelolaSinkronisasi {
+  MockPengelolaSinkronisasi() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
   _i5.Future<DateTime> ambilWaktuTerakhirUnduh() => (super.noSuchMethod(
         Invocation.method(
-          #ambilWaktuTerakhirDownload,
+          #ambilWaktuTerakhirUnduh,
           [],
         ),
         returnValue: _i5.Future<DateTime>.value(_FakeDateTime_10(
           this,
           Invocation.method(
-            #ambilWaktuTerakhirDownload,
+            #ambilWaktuTerakhirUnduh,
             [],
           ),
         )),
       ) as _i5.Future<DateTime>);
 
   @override
-  _i5.Future<void> simpanWaktuTerakhirUnduh(DateTime? time) =>
+  _i5.Future<void> simpanWaktuTerakhirUnduh(DateTime? waktu) =>
       (super.noSuchMethod(
         Invocation.method(
-          #simpanWaktuTerakhirunduh,
-          [time],
+          #simpanWaktuTerakhirUnduh,
+          [waktu],
         ),
         returnValue: _i5.Future<void>.value(),
         returnValueForMissingStub: _i5.Future<void>.value(),
@@ -594,11 +595,11 @@ class MockSyncManager extends _i1.Mock implements _i8.PengelolaSinkronisasi {
       ) as _i5.Future<DateTime>);
 
   @override
-  _i5.Future<void> simpanWaktuTerakhirUnggah(DateTime? time) =>
+  _i5.Future<void> simpanWaktuTerakhirUnggah(DateTime? waktu) =>
       (super.noSuchMethod(
         Invocation.method(
-          #simpanWaktuTerkahirUnggah,
-          [time],
+          #simpanWaktuTerakhirUnggah,
+          [waktu],
         ),
         returnValue: _i5.Future<void>.value(),
         returnValueForMissingStub: _i5.Future<void>.value(),
