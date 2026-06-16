@@ -47,14 +47,14 @@ class _HalamanUjiKecepatanState extends ConsumerState<HalamanUjiKecepatan> {
               label: 'Kecepatan Unduh',
               nilai: statusUji.kecepatanUnduh.toStringAsFixed(1),
               satuan: 'Mbps',
-              ikon: TIcons.download, // TODO : nama masih dalam bahasa inggris
+              ikon: TIcons.download,
             ),
             gapH16,
             _KartuHasilUji(
               label: 'Kecepatan Unggah',
               nilai: statusUji.kecepatanUnggah.toStringAsFixed(1),
               satuan: 'Mbps',
-              ikon: TIcons.upload, // TODO : nama masih dalam bahasa inggris
+              ikon: TIcons.upload,
             ),
             gapH16,
             _KartuHasilUji(

@@ -72,7 +72,7 @@ void main() {
       test('02. harus melempar kembali exception jika transaksi gagal', () {
         when(() => mockDatabase.transaction<int>(any())).thenThrow(exception);
 
-        expect(() => baseOpSqlite.sisipkan(namaTabel, data),
+        expect(baseOpSqlite.sisipkan(namaTabel, data),
             throwsA(isA<Exception>()));
       });
     });
@@ -105,7 +105,7 @@ void main() {
       test('04. harus melempar kembali exception jika transaksi gagal', () {
         when(() => mockDatabase.transaction<int>(any())).thenThrow(exception);
 
-        expect(() => baseOpSqlite.update(namaTabel, data, '1'),
+        expect(baseOpSqlite.update(namaTabel, data, '1'),
             throwsA(isA<Exception>()));
       });
     });
@@ -135,7 +135,7 @@ void main() {
       test('06. harus melempar kembali exception jika transaksi gagal', () {
         when(() => mockDatabase.transaction<int>(any())).thenThrow(exception);
 
-        expect(() => baseOpSqlite.delete(namaTabel, '1'),
+        expect(baseOpSqlite.delete(namaTabel, '1'),
             throwsA(isA<Exception>()));
       });
     });
@@ -170,7 +170,7 @@ void main() {
           () {
         when(() => mockDatabase.transaction<int>(any())).thenThrow(exception);
 
-        expect(() => baseOpSqlite.softDelete(namaTabel, '1'),
+        expect(baseOpSqlite.softDelete(namaTabel, '1'),
             throwsA(isA<Exception>()));
       });
     });
@@ -219,7 +219,7 @@ void main() {
           () {
         when(() => mockDatabase.transaction<void>(any())).thenThrow(exception);
 
-        expect(() => baseOpSqlite.sisipkanAtauPerbaruiBatch(namaTabel, dataList),
+        expect(baseOpSqlite.sisipkanAtauPerbaruiBatch(namaTabel, dataList),
             throwsA(isA<Exception>()));
       });
     });
@@ -249,9 +249,9 @@ void main() {
       test(
           '13. harus melempar kembali exception jika action di dalam transaksi gagal',
           () {
-        when(() => mockDatabase.transaction<dynamic>(any())).thenThrow(exception);
+        when(() => mockDatabase.transaction<void>(any())).thenThrow(exception);
             
-        expect(() => baseOpSqlite.runComplexOperation<void>((txn) async {}), throwsA(isA<Exception>()));
+        expect(baseOpSqlite.runComplexOperation<void>((txn) async {}), throwsA(isA<Exception>()));
       });
     });
   });

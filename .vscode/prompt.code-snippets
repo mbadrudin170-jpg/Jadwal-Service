@@ -1,0 +1,22 @@
+{
+	"Snippet Baru": {
+		"prefix": "/snippet baru",
+		"body": [
+			" \"$1\": {",
+			"  \"prefix\": \"$3\",",
+			"  \"body\": [",
+			"    \"$4\",],",
+			"  \"description\": \"$5\",",
+			"}"
+		],
+		"description": "Snippet Baru"
+	},
+	"Promp buatkan test": {
+		"prefix": "/buatkan file test",
+		"body": [
+			"jalankan ls -R lib test dan buatkan file testnya untuk file yang belum ada file test nya",
+			" buatkan dulu 5 file test lalu setelah dibuatkan 5 file test nya jalankan flutter analyze kalau ke 5 file test itu sudah tidak error dan warning kemudian jalnkan flutter test",
+		],
+		"description": " prompt untuk membuat file test",
+	}
+}
