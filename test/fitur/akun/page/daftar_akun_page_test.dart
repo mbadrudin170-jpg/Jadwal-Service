@@ -17,13 +17,12 @@ import 'package:wifi/user/providers/user_providers.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
 // Mocks
-class MockPengelolaAkun extends Notifier<AsyncValue<AkunState>>
+class MockPengelolaAkun extends AsyncNotifier<AkunState>
     with Mock
     implements PengelolaAkun {
   @override
-  AsyncValue<AkunState> build() {
-    return const AsyncValue.data(
-        AkunState(akunSaatIni: null, daftarAkunTersimpan: []));
+  Future<AkunState> build() async {
+    return const AkunState(akunSaatIni: null, daftarAkunTersimpan: []);
   }
 
   @override
@@ -36,9 +35,6 @@ class MockPengelolaAkun extends Notifier<AsyncValue<AkunState>>
   Future<void> hapusTokenLogin() async {}
   @override
   Future<void> refresh() async {}
-  @override
-  Future<AkunState> _initAwal(Ref ref) async =>
-      const AkunState(akunSaatIni: null, daftarAkunTersimpan: []);
 }
 
 class MockLayananPenyimpananLokal extends Mock
@@ -118,9 +114,8 @@ void main() {
   group('DaftarAkunPage UI States', () {
     testWidgets('01. harus menampilkan CircularProgressIndicator saat loading',
         (tester) async {
-      when(() => mockPengelolaAkun.build()).thenAnswer((_) {
-        return const AsyncValue<AkunState>.loading();
-      });
+      when(() => mockPengelolaAkun.build())
+          .thenAnswer((_) => Completer<AkunState>().future);
 
       when(() => mockPengelolaAkun.state)
           .thenReturn(const AsyncValue.loading());
