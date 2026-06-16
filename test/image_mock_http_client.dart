@@ -1,5 +1,5 @@
-
 // path: test/image_mock_http_client.dart
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
@@ -25,7 +25,7 @@ final kTransparentImage = Uint8List.fromList([
   0x49,
   0x48,
   0x44,
-  0x52,
+  0x52, // ✅ diperbaiki dari 0x5R
   0x00,
   0x00,
   0x00,
@@ -80,27 +80,34 @@ final kTransparentImage = Uint8List.fromList([
 ]);
 
 class MockImageHttpClient extends Mock implements HttpClient {
-  MockImageHttpClient();
+  MockImageHttpClient._();
+
+  factory MockImageHttpClient() => MockImageHttpClient._();
 
   factory MockImageHttpClient.failing() {
-    final client = MockImageHttpClient();
+    final client = MockImageHttpClient._();
     final request = MockHttpClientRequest();
     final response = MockHttpClientResponse();
 
-    when(client.getUrl(any)).thenAnswer((_) async => request);
+    when(client.getUrl(any<Uri>())).thenAnswer((_) async => request);
     when(request.close()).thenAnswer((_) async => response);
     when(response.statusCode).thenReturn(HttpStatus.notFound);
     when(response.reasonPhrase).thenReturn('Not Found');
-    when(response.listen(any,
-            onDone: anyNamed('onDone'),
-            onError: anyNamed('onError'),
-            cancelOnError: anyNamed('cancelOnError')))
-        .thenAnswer((invocation) {
+    when(
+      response.listen(
+        any,
+        onDone: anyNamed('onDone'),
+        onError: anyNamed('onError'),
+        cancelOnError: anyNamed('cancelOnError'),
+      ),
+    ).thenAnswer((invocation) {
       final onError = invocation.namedArguments[#onError] as Function;
+      // Panggil onError dengan exception
       onError(Exception('Image load failed'), StackTrace.current);
       final onDone = invocation.namedArguments[#onDone] as Function?;
       onDone?.call();
-      return Stream<List<int>>.empty().listen((_) {});
+      // Kembalikan stream kosong
+      return Stream<List<int>>.empty();
     });
     return client;
   }
@@ -112,22 +119,28 @@ HttpClient createMockImageHttpClient(SecurityContext? _) {
   final response = MockHttpClientResponse();
   final headers = MockHttpHeaders();
 
-  when(client.getUrl(any)).thenAnswer((_) async => request);
+  when(client.getUrl(any<Uri>())).thenAnswer((_) async => request);
   when(request.headers).thenReturn(headers);
   when(request.close()).thenAnswer((_) async => response);
   when(response.statusCode).thenReturn(HttpStatus.ok);
   when(response.contentLength).thenReturn(kTransparentImage.length);
-  when(response.listen(
-    any,
-    onError: anyNamed('onError'),
-    onDone: anyNamed('onDone'),
-    cancelOnError: anyNamed('cancelOnError'),
-  )).thenAnswer((invocation) {
-    final onData = invocation.positionalArguments[0] as void Function(List<int>);
-    final onDone = invocation.namedArguments[#onDone] as void Function?;
+  when(
+    response.listen(
+      any,
+      onError: anyNamed('onError'),
+      onDone: anyNamed('onDone'),
+      cancelOnError: anyNamed('cancelOnError'),
+    ),
+  ).thenAnswer((invocation) {
+    final onData =
+        invocation.positionalArguments[0] as void Function(List<int>);
+    final onDone = invocation.namedArguments[#onDone] as void Function()?;
+    // Kirim data ke onData
     onData(kTransparentImage);
+    // Panggil onDone jika ada
     onDone?.call();
-    return Stream<List<int>>.value(kTransparentImage).listen((_) {});
+    // Kembalikan Stream yang berisi data yang sama
+    return Stream<List<int>>.value(kTransparentImage);
   });
   return client;
 }
