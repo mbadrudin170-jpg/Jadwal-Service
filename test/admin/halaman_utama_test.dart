@@ -1,4 +1,3 @@
-
 // path: test/admin/halaman_utama_test.dart
 
 import 'dart:async';
@@ -157,11 +156,12 @@ void main() {
 
       // Check that payload is removed
       expect(prefs.getString('initial_notification_payload'), isNull);
-      
+
       await tester.pumpAndSettle(const Duration(seconds: 4)); // Clear toast
     });
-    
-    testWidgets('03. harus menjalankan sinkronisasi saat koneksi kembali online',
+
+    testWidgets(
+        '03. harus menjalankan sinkronisasi saat koneksi kembali online',
         (tester) async {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
@@ -182,7 +182,7 @@ void main() {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
-       // Initial sync
+      // Initial sync
       verify(mockSyncService.jalankanCekSinkronisasi()).called(1);
 
       // Simulate app lifecycle change
@@ -192,7 +192,6 @@ void main() {
       // Verify sync is called again
       verify(mockSyncService.jalankanCekSinkronisasi()).called(1);
     });
-
   });
 
   group('03. Navigasi Tab', () {
@@ -214,7 +213,7 @@ void main() {
       // Tap on 'Lainnya' tab
       await tester.tap(find.text('Lainnya'));
       await tester.pumpAndSettle();
-      
+
       final bottomNavBar2 = tester.widget<BottomNavigationBar>(
         find.byType(BottomNavigationBar),
       );

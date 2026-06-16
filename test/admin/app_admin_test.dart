@@ -1,7 +1,8 @@
-// path: test/admin/app_admin_test.dart
+'''// path: test/admin/app_admin_test.dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -10,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
-import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
@@ -35,7 +35,11 @@ import 'app_admin_test.mocks.dart';
   SettingsOpSqlite,
   PembersihanDataOperasi,
   NotificationResponse,
-  LaunchDetails,
+], customMocks: [
+  MockSpec<LaunchDetails>(
+    unsupportedMembers: {#notificationResponse},
+    fallbackGenerators: {#notificationResponse: _fallbackNotificationResponse},
+  )
 ])
 void main() {
   late MockSharedPreferences mockSharedPreferences;
@@ -50,11 +54,11 @@ void main() {
   late MockNotificationResponse mockNotificationResponse;
 
   setUpAll(() {
-    // Register fallback values untuk Mockito
     registerFallbackValue(ThemeMode.system);
     registerFallbackValue(const SettingsModel());
     registerFallbackValue(const Duration());
-    LayananNavigasi.navigatorKey = GlobalKey<NavigatorState>();
+    LayananNavigasi.navigatorKey =
+        GlobalKey<NavigatorState>(debugLabel: 'test');
   });
 
   setUp(() {
@@ -69,7 +73,6 @@ void main() {
     mockLaunchDetails = MockLaunchDetails();
     mockNotificationResponse = MockNotificationResponse();
 
-    // Default stubbing
     when(mockSharedPreferences.getString(any)).thenReturn(null);
     when(mockSharedPreferences.setString(any, any))
         .thenAnswer((_) async => true);
@@ -101,7 +104,8 @@ void main() {
   }) {
     final container = ProviderContainer(
       overrides: [
-        sharedPreferencesProvider.overrideWith((_) => sharedPrefsValue),
+        sharedPreferencesProvider
+            .overrideWithValue(sharedPrefsValue.valueOrNull ?? mockSharedPreferences),
         layananNotifikasiProvider.overrideWithValue(mockLayananNotifikasi),
         koneksiInternetServiceProvider
             .overrideWithValue(mockKoneksiInternetService),
@@ -110,17 +114,18 @@ void main() {
             .overrideWithValue(mockPelangganAktifOpSqlite),
         unduhanAwalServiceProvider.overrideWithValue(mockUnduhanAwalService),
         settingsOpSqliteProvider.overrideWithValue(mockSettingsOpSqlite),
-        dataCleaningOperationProvider
+        pembersihanDataOperasiProvider
             .overrideWithValue(mockPembersihanDataOperasi),
-        temaProvider.overrideWith((_) => themeValue),
+        temaNotifierProvider.overrideWith(
+            () => TemaNotifier(themeValue.value ?? ThemeMode.system)),
       ],
     );
     return container;
   }
 
   Widget createWidget(ProviderContainer container) {
-    return ProviderScope(
-      parent: container,
+    return UncontrolledProviderScope(
+      container: container,
       child: const AppAdmin(),
     );
   }
@@ -152,6 +157,7 @@ void main() {
         (tester) async {
       final container = makeProviderContainer(
         sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
+        themeValue: AsyncValue.data(ThemeMode.light),
       );
       await tester.pumpWidget(createWidget(container));
       expect(find.byType(AppInitializer), findsOneWidget);
@@ -168,8 +174,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        ProviderScope(
-          parent: container,
+        UncontrolledProviderScope(
+          container: container,
           child: const AppInitializer(),
         ),
       );
@@ -188,8 +194,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        ProviderScope(
-          parent: container,
+        UncontrolledProviderScope(
+          container: container,
           child: const AppInitializer(),
         ),
       );
@@ -215,8 +221,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        ProviderScope(
-          parent: container,
+        UncontrolledProviderScope(
+          container: container,
           child: const AppInitializer(),
         ),
       );
@@ -242,8 +248,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        ProviderScope(
-          parent: container,
+        UncontrolledProviderScope(
+          container: container,
           child: const AppInitializer(),
         ),
       );
@@ -266,8 +272,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        ProviderScope(
-          parent: container,
+        UncontrolledProviderScope(
+          container: container,
           child: const AppInitializer(),
         ),
       );
@@ -288,8 +294,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        ProviderScope(
-          parent: container,
+        UncontrolledProviderScope(
+          container: container,
           child: const AppInitializer(),
         ),
       );
@@ -306,8 +312,8 @@ void main() {
       final container =
           makeProviderContainer(themeValue: const AsyncValue.loading());
       await tester.pumpWidget(
-        ProviderScope(
-          parent: container,
+        UncontrolledProviderScope(
+          container: container,
           child: const AppMaterial(isOffline: false),
         ),
       );
@@ -320,8 +326,8 @@ void main() {
         themeValue: AsyncValue.error('Gagal', StackTrace.current),
       );
       await tester.pumpWidget(
-        ProviderScope(
-          parent: container,
+        UncontrolledProviderScope(
+          container: container,
           child: const AppMaterial(isOffline: false),
         ),
       );
@@ -336,8 +342,8 @@ void main() {
         themeValue: AsyncValue.data(ThemeMode.dark),
       );
       await tester.pumpWidget(
-        ProviderScope(
-          parent: container,
+        UncontrolledProviderScope(
+          container: container,
           child: const AppMaterial(isOffline: false),
         ),
       );
@@ -354,8 +360,8 @@ void main() {
         themeValue: AsyncValue.data(ThemeMode.light),
       );
       await tester.pumpWidget(
-        ProviderScope(
-          parent: container,
+        UncontrolledProviderScope(
+          container: container,
           child: const AppMaterial(isOffline: true),
         ),
       );
@@ -366,3 +372,6 @@ void main() {
     });
   });
 }
+
+NotificationResponse _fallbackNotificationResponse() => MockNotificationResponse();
+''
