@@ -18,9 +18,7 @@ import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 
 /// Halaman utama aplikasi yang berfungsi sebagai container untuk navigasi bawah.
 class MainPage extends ConsumerStatefulWidget {
-  const MainPage({
-    super.key,
-  });
+  const MainPage({super.key});
 
   @override
   ConsumerState<MainPage> createState() => _MainPageState();
@@ -39,14 +37,12 @@ class _MainPageState extends ConsumerState<MainPage> {
       final userId = await ref.read(userIdProvider.future);
       if (userId != null) {
         final notifikasiServis = ref.read(notifikasiServisProvider);
-        PenjadwalNotifikasi.aturNotifikasiLangganan(
-          notifikasiServis,
-          userId,
-        );
+        PenjadwalNotifikasi.aturNotifikasiLangganan(notifikasiServis, userId);
 
-        final userActivityService =
-            await ref.read(userActivityServiceProvider.future);
-        await userActivityService.pingActivity(userId);
+        final userActivityService = await ref.read(
+          userActivityServiceProvider.future,
+        );
+        await userActivityService.pingAktivitas(userId);
       }
     });
 
@@ -57,8 +53,9 @@ class _MainPageState extends ConsumerState<MainPage> {
       const HalamanUjiKecepatan(),
       const SettingsPageU(),
     ];
-    _appLifecycleReactor =
-        AppLifecycleReactor(appOpenAdService: _appOpenAdService);
+    _appLifecycleReactor = AppLifecycleReactor(
+      appOpenAdService: _appOpenAdService,
+    );
     _appLifecycleReactor.listenToAppStateChanges();
     FlutterNativeSplash.remove();
   }
@@ -82,10 +79,7 @@ class _MainPageState extends ConsumerState<MainPage> {
       body: Column(
         children: [
           Expanded(
-            child: IndexedStack(
-              index: _selectedIndex,
-              children: _pages,
-            ),
+            child: IndexedStack(index: _selectedIndex, children: _pages),
           ),
           const BannerAdsWidget(),
         ],
@@ -93,22 +87,10 @@ class _MainPageState extends ConsumerState<MainPage> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed, // Agar semua label terlihat
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(TIcons.person),
-            label: 'Profil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(TIcons.history),
-            label: 'Riwayat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(TIcons.pesanan),
-            label: 'Pesanan',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(TIcons.speed),
-            label: 'Uji Speed',
-          ),
+          BottomNavigationBarItem(icon: Icon(TIcons.person), label: 'Profil'),
+          BottomNavigationBarItem(icon: Icon(TIcons.history), label: 'Riwayat'),
+          BottomNavigationBarItem(icon: Icon(TIcons.pesanan), label: 'Pesanan'),
+          BottomNavigationBarItem(icon: Icon(TIcons.speed), label: 'Uji Speed'),
           BottomNavigationBarItem(
             icon: Icon(TIcons.settings),
             label: 'Pengaturan',

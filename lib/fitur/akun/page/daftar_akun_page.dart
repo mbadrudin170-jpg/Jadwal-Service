@@ -20,101 +20,106 @@ class DaftarAkunPage extends ConsumerWidget {
     final pengelolaAkun = ref.watch(pengelolaAkunProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pilih Akun Tersimpan'),
-      ),
-      body: Column(children: [
-        Expanded(
-          child: pengelolaAkun.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Center(
-              child: Text(
-                'Gagal memuat akun: $err',
-                style: const TextStyle(color: Colors.red),
-              ),
-            ),
-            data: (data) {
-              final daftarAkun = data.daftarAkunTersimpan;
-              if (daftarAkun.isEmpty) {
-                return const Center(
-                  child: Text('Belum ada riwayat login di perangkat ini.'),
-                );
-              }
-              return ListView.builder(
-                itemCount: daftarAkun.length,
-                itemBuilder: (context, index) {
-                  final akun = daftarAkun[index];
-                  return Card(
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        child: Text(akun.nama.isNotEmpty ? akun.nama[0] : ''),
-                      ),
-                      title: Text(akun.nama),
-                      onTap: () async {
-                        await _pilihAkun(context, ref, akun);
-                      },
-                      onLongPress: () =>
-                          _tampilkanDialogHapus(context, ref, akun),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-          child: SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => _tampilkanDialogKeluar(context, ref),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: TColors.errorColor.withAlpha(200),
-                foregroundColor: Colors.white,
-                elevation: 2,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+      appBar: AppBar(title: const Text('Pilih Akun Tersimpan')),
+      body: Column(
+        children: [
+          Expanded(
+            child: pengelolaAkun.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(
+                child: Text(
+                  'Gagal memuat akun: $err',
+                  style: const TextStyle(color: Colors.red),
                 ),
               ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(TIcons.logout, size: 20, color: Colors.white),
-                  gapW8,
-                  Text(
-                    'Keluar',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+              data: (data) {
+                final daftarAkun = data.daftarAkunTersimpan;
+                if (daftarAkun.isEmpty) {
+                  return const Center(
+                    child: Text('Belum ada riwayat login di perangkat ini.'),
+                  );
+                }
+                return ListView.builder(
+                  itemCount: daftarAkun.length,
+                  itemBuilder: (context, index) {
+                    final akun = daftarAkun[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          child: Text(akun.nama.isNotEmpty ? akun.nama[0] : ''),
+                        ),
+                        title: Text(akun.nama),
+                        onTap: () async {
+                          await _pilihAkun(context, ref, akun);
+                        },
+                        onLongPress: () =>
+                            _tampilkanDialogHapus(context, ref, akun),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => _tampilkanDialogKeluar(context, ref),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: TColors.errorColor.withAlpha(200),
+                  foregroundColor: Colors.white,
+                  elevation: 2,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ],
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(TIcons.logout, size: 20, color: Colors.white),
+                    gapW8,
+                    Text(
+                      'Keluar',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 
   Future<void> _pilihAkun(
     BuildContext context,
     WidgetRef ref,
-    PelangganModel customer,
+    PelangganModel pelanggan,
   ) async {
     final navigator = Navigator.of(context);
     try {
-      await ref.read(pengelolaAkunProvider.notifier).login(customer);
-      final activityService =
-          await ref.read(userActivityServiceProvider.future);
-      Log.info('Mulai memilih akun',
-          {'customer_id': customer.id, 'nama': customer.nama});
+      await ref.read(pengelolaAkunProvider.notifier).login(pelanggan);
+      final activityService = await ref.read(
+        userActivityServiceProvider.future,
+      );
+      Log.info('Mulai memilih akun', {
+        'customer_id': pelanggan.id,
+        'nama': pelanggan.nama,
+      });
 
-      await activityService.pingActivity(customer.id, force: true);
+      await activityService.pingAktivitas(pelanggan.id, force: true);
 
       if (!context.mounted) return;
       await navigator.pushAndRemoveUntil(
@@ -122,8 +127,12 @@ class DaftarAkunPage extends ConsumerWidget {
         (route) => false,
       );
     } on Exception catch (e, st) {
-      Log.error('Gagal menyimpan akun yang dipilih',
-          e: e, s: st, data: {'customer_id': customer.id});
+      Log.error(
+        'Gagal menyimpan akun yang dipilih',
+        e: e,
+        s: st,
+        data: {'customer_id': pelanggan.id},
+      );
       if (context.mounted) {
         ToastUtil.error(context, 'Gagal memilih akun', logData: e.toString());
       }
@@ -131,7 +140,10 @@ class DaftarAkunPage extends ConsumerWidget {
   }
 
   Future<void> _tampilkanDialogHapus(
-      BuildContext context, WidgetRef ref, PelangganModel customer) async {
+    BuildContext context,
+    WidgetRef ref,
+    PelangganModel customer,
+  ) async {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -139,8 +151,9 @@ class DaftarAkunPage extends ConsumerWidget {
         content: Text('Anda yakin ingin menghapus akun ${customer.nama}?'),
         actions: <Widget>[
           TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Batal')),
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Batal'),
+          ),
           TextButton(
             child: const Text('Hapus'),
             onPressed: () async {
@@ -157,10 +170,16 @@ class DaftarAkunPage extends ConsumerWidget {
 
                 if (akunLogin == customer.id) {
                   await _tanganiHapusAkunAktif(
-                      context, navigator, ref, customer);
+                    context,
+                    navigator,
+                    ref,
+                    customer,
+                  );
                 } else {
-                  Log.info('Menghapus akun tersimpan',
-                      {'customer_id': customer.id, 'nama': customer.nama});
+                  Log.info('Menghapus akun tersimpan', {
+                    'customer_id': customer.id,
+                    'nama': customer.nama,
+                  });
                   await ref
                       .read(pengelolaAkunProvider.notifier)
                       .hapusAkun(customer.id);
@@ -169,11 +188,18 @@ class DaftarAkunPage extends ConsumerWidget {
                   ToastUtil.success(context, 'Akun berhasil dihapus');
                 }
               } catch (e, st) {
-                Log.error('Gagal menghapus akun',
-                    e: e, s: st, data: {'customer_id': customer.id});
+                Log.error(
+                  'Gagal menghapus akun',
+                  e: e,
+                  s: st,
+                  data: {'customer_id': customer.id},
+                );
                 if (context.mounted) {
-                  ToastUtil.error(context, 'Gagal menghapus akun',
-                      logData: e.toString());
+                  ToastUtil.error(
+                    context,
+                    'Gagal menghapus akun',
+                    logData: e.toString(),
+                  );
                 }
               }
             },
@@ -189,10 +215,10 @@ class DaftarAkunPage extends ConsumerWidget {
     WidgetRef ref,
     PelangganModel customer,
   ) async {
-    Log.info(
-      'akun yang di hapus ternyata akun yang sedang login',
-      {'customer_id': customer.id, 'nama': customer.nama},
-    );
+    Log.info('akun yang di hapus ternyata akun yang sedang login', {
+      'customer_id': customer.id,
+      'nama': customer.nama,
+    });
 
     await ref.read(pengelolaAkunProvider.notifier).hapusAkun(customer.id);
 
@@ -207,7 +233,9 @@ class DaftarAkunPage extends ConsumerWidget {
   }
 
   Future<void> _tampilkanDialogKeluar(
-      BuildContext context, WidgetRef ref) async {
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -219,8 +247,9 @@ class DaftarAkunPage extends ConsumerWidget {
               final navigator = Navigator.of(context);
               final dialogNavigator = Navigator.of(dialogContext);
               try {
-                final penyimpananLokal =
-                    await ref.read(layananPenyimpananLokalProvider.future);
+                final penyimpananLokal = await ref.read(
+                  layananPenyimpananLokalProvider.future,
+                );
                 Log.info('Keluar & hapus akun yang sedang digunakan');
                 final akun = await penyimpananLokal.ambilAkunLogin();
                 if (akun != null) {
@@ -235,30 +264,38 @@ class DaftarAkunPage extends ConsumerWidget {
 
                 if (!context.mounted) return;
                 ToastUtil.success(
-                    context, 'Anda telah keluar dan akun dihapus');
+                  context,
+                  'Anda telah keluar dan akun dihapus',
+                );
 
                 await navigator.pushAndRemoveUntil(
                   MaterialPageRoute<void>(
-                      builder: (context) => const LoginPage()),
+                    builder: (context) => const LoginPage(),
+                  ),
                   (route) => false,
                 );
               } on Exception catch (e, st) {
                 Log.error('Gagal keluar & hapus akun', e: e, s: st);
                 if (context.mounted) {
-                  ToastUtil.error(context, 'Gagal keluar',
-                      logData: e.toString());
+                  ToastUtil.error(
+                    context,
+                    'Gagal keluar',
+                    logData: e.toString(),
+                  );
                 }
               }
             },
             style: TextButton.styleFrom(
-                backgroundColor: TColors.errorColor,
-                foregroundColor: TColors.textOnDark),
+              backgroundColor: TColors.errorColor,
+              foregroundColor: TColors.textOnDark,
+            ),
             child: const Text('Keluar & Hapus Akun'),
           ),
           TextButton(
             style: TextButton.styleFrom(
-                backgroundColor: TColors.errorColor,
-                foregroundColor: TColors.textOnDark),
+              backgroundColor: TColors.errorColor,
+              foregroundColor: TColors.textOnDark,
+            ),
             onPressed: () async {
               final navigator = Navigator.of(context);
               final dialogNavigator = Navigator.of(dialogContext);
@@ -276,14 +313,18 @@ class DaftarAkunPage extends ConsumerWidget {
 
                 await navigator.pushAndRemoveUntil(
                   MaterialPageRoute<void>(
-                      builder: (context) => const LoginPage()),
+                    builder: (context) => const LoginPage(),
+                  ),
                   (route) => false,
                 );
               } catch (e, st) {
                 Log.error('Gagal menghapus token login', e: e, s: st);
                 if (context.mounted) {
-                  ToastUtil.error(context, 'Gagal keluar',
-                      logData: e.toString());
+                  ToastUtil.error(
+                    context,
+                    'Gagal keluar',
+                    logData: e.toString(),
+                  );
                 }
               }
             },

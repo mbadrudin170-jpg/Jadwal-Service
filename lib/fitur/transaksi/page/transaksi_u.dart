@@ -18,12 +18,7 @@ import 'package:wifi/shared/widget/package_name.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
-enum SortMode {
-  endDateNewest,
-  endDateOldest,
-  statusPaid,
-  statusUnpaid,
-}
+enum SortMode { endDateNewest, endDateOldest, statusPaid, statusUnpaid }
 
 class TransaksiU extends ConsumerStatefulWidget {
   const TransaksiU({super.key});
@@ -49,7 +44,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
 
     if (userId == null) return [];
     final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
-    final customer = await customerOpFirebase.getById(userId);
+    final customer = await customerOpFirebase.ambilBerdasarkanId(userId);
     if (customer == null) return [];
     return _transactionOpFirebase.ambilBerdasarkanIdPelanggan(customer.id);
   }
@@ -105,10 +100,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (context) => DetailTransaksiU(
-          transaksi: tx,
-          paket: package,
-        ),
+        builder: (context) => DetailTransaksiU(transaksi: tx, paket: package),
       ),
     );
     await ref.read(interstitialAdServiceProvider).show();
@@ -127,16 +119,21 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
             onSelected: (SortMode result) => setState(() => _sortMode = result),
             itemBuilder: (BuildContext context) => [
               const PopupMenuItem(
-                  value: SortMode.endDateNewest,
-                  child: Text('Tanggal Berakhir (Terbaru)')),
+                value: SortMode.endDateNewest,
+                child: Text('Tanggal Berakhir (Terbaru)'),
+              ),
               const PopupMenuItem(
-                  value: SortMode.endDateOldest,
-                  child: Text('Tanggal Berakhir (Terlama)')),
+                value: SortMode.endDateOldest,
+                child: Text('Tanggal Berakhir (Terlama)'),
+              ),
               const PopupMenuItem(
-                  value: SortMode.statusPaid, child: Text('Status: Lunas')),
+                value: SortMode.statusPaid,
+                child: Text('Status: Lunas'),
+              ),
               const PopupMenuItem(
-                  value: SortMode.statusUnpaid,
-                  child: Text('Status: Belum Lunas')),
+                value: SortMode.statusUnpaid,
+                child: Text('Status: Belum Lunas'),
+              ),
             ],
             icon: const Icon(TIcons.sort),
           ),
@@ -145,7 +142,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
       body: StreamBuilder<PelangganModel?>(
         stream: userId.when(
           data: (id) => id != null
-              ? customerOpFirebase.getStreamPelanggan(id)
+              ? customerOpFirebase.ambilStreanPelanggan(id)
               : const Stream.empty(),
           loading: () => const Stream.empty(),
           error: (_, __) => const Stream.empty(),
@@ -172,15 +169,16 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                     }
                     if (historySnapshot.hasError) {
                       return Center(
-                          child:
-                              Text('Gagal memuat: ${historySnapshot.error}'));
+                        child: Text('Gagal memuat: ${historySnapshot.error}'),
+                      );
                     }
                     if (!historySnapshot.hasData ||
                         historySnapshot.data!.isEmpty) {
                       return const Center(child: Text('Tidak ada riwayat.'));
                     }
-                    final sorted =
-                        _sortHistory(List.from(historySnapshot.data!));
+                    final sorted = _sortHistory(
+                      List.from(historySnapshot.data!),
+                    );
                     return RefreshIndicator(
                       onRefresh: _refreshHistory,
                       child: ListView.builder(
@@ -188,45 +186,60 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                         itemBuilder: (context, index) {
                           final tx = sorted[index];
                           final packageFuture = tx.idPaket != null
-                              ? packageOpFirebase
-                                  .ambilBerdasarkanId(tx.idPaket!)
+                              ? packageOpFirebase.ambilBerdasarkanId(
+                                  tx.idPaket!,
+                                )
                               : Future<PaketModel?>.value();
                           final activeText = tx.tanggalBerakhir != null
                               ? PerhitunganUtil.ambilTeksSisaMasaAktif(
-                                  tx.tanggalBerakhir!)
+                                  tx.tanggalBerakhir!,
+                                )
                               : 'N/A';
                           final activeColor = tx.tanggalBerakhir != null
                               ? PerhitunganUtil.ambilWarnaSisaMasaAktif(
-                                  tx.tanggalBerakhir!)
+                                  tx.tanggalBerakhir!,
+                                )
                               : Colors.grey;
                           return Card(
                             key: ValueKey(tx.id),
                             margin: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                             child: ListTile(
-                                leading: const Icon(TIcons.receiptLong),
-                                title: PackageNameWidget(
-                                    paketFuture: packageFuture),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (tx.tanggalBerakhir != null)
-                                      Text(
-                                          'Berakhir - ${FormatWaktuLengkap.formatSingkat(tx.tanggalBerakhir!)}'),
+                              leading: const Icon(TIcons.receiptLong),
+                              title: PackageNameWidget(
+                                paketFuture: packageFuture,
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (tx.tanggalBerakhir != null)
                                     Text(
-                                        'Status: ${tx.statusPembayaran.displayName}',
-                                        style: TextStyle(
-                                            color: tx.statusPembayaran ==
-                                                    StatusPembayaran.paid
-                                                ? Colors.green
-                                                : Colors.red)),
-                                    Text('Masa Aktif: $activeText',
-                                        style: TextStyle(color: activeColor)),
-                                  ],
-                                ),
-                                trailing: const Icon(TIcons.chevronRight),
-                                onTap: () => _navigateToTransactionDetail(
-                                    tx, packageFuture)),
+                                      'Berakhir - ${FormatWaktuLengkap.formatSingkat(tx.tanggalBerakhir!)}',
+                                    ),
+                                  Text(
+                                    'Status: ${tx.statusPembayaran.displayName}',
+                                    style: TextStyle(
+                                      color:
+                                          tx.statusPembayaran ==
+                                              StatusPembayaran.paid
+                                          ? Colors.green
+                                          : Colors.red,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Masa Aktif: $activeText',
+                                    style: TextStyle(color: activeColor),
+                                  ),
+                                ],
+                              ),
+                              trailing: const Icon(TIcons.chevronRight),
+                              onTap: () => _navigateToTransactionDetail(
+                                tx,
+                                packageFuture,
+                              ),
+                            ),
                           );
                         },
                       ),

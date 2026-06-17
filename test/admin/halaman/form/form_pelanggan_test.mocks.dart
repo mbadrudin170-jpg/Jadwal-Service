@@ -115,7 +115,7 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i3.PelangganOpSqlite {
           as _i4.Future<void>);
 
   @override
-  _i4.Future<void> hapusSementara(String? id, {bool? dariServer = false}) =>
+  _i4.Future<void> softDelete(String? id, {bool? dariServer = false}) =>
       (super.noSuchMethod(
             Invocation.method(#hapusSementara, [id], {#dariServer: dariServer}),
             returnValue: _i4.Future<void>.value(),
@@ -124,7 +124,7 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i3.PelangganOpSqlite {
           as _i4.Future<void>);
 
   @override
-  _i4.Future<int> hapusSementaraSemua({bool? dariServer = false}) =>
+  _i4.Future<int> softDeleteSemua({bool? dariServer = false}) =>
       (super.noSuchMethod(
             Invocation.method(#hapusSementaraSemua, [], {
               #dariServer: dariServer,

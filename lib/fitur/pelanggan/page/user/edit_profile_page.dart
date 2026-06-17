@@ -45,7 +45,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     super.initState();
     _nameController = TextEditingController(text: widget.customer.nama);
     _phoneController = TextEditingController(text: widget.customer.telepon);
-    _passwordController = TextEditingController(text: widget.customer.kataSandi);
+    _passwordController = TextEditingController(
+      text: widget.customer.kataSandi,
+    );
   }
 
   Future<void> _saveChanges() async {
@@ -56,10 +58,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         final isOnline = await _internetConnectionService.cekInternet(ref);
         if (!isOnline) {
           if (mounted) {
-            ToastUtil.info(
-              context,
-              'Cek koneksi internet Anda.',
-            );
+            ToastUtil.info(context, 'Cek koneksi internet Anda.');
           }
           return;
         }
@@ -70,7 +69,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           kataSandi: _passwordController.text,
         );
         final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
-        await customerOpFirebase.updatePelanggan(updatedCustomer);
+        await customerOpFirebase.perbaruiPelanggan(updatedCustomer);
         ref.invalidate(pelangganOpFirebaseProvider);
         if (!mounted) return;
 
@@ -78,11 +77,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
         navigator.pop(context);
       } on Exception catch (e, st) {
-        Log.error(
-          'Gagal menyimpan perubahan profil',
-          e: e,
-          s: st,
-        );
+        Log.error('Gagal menyimpan perubahan profil', e: e, s: st);
         if (!mounted) return;
         ToastUtil.error(context, 'Gagal menyimpan perubahan: $e');
       }

@@ -46,7 +46,9 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
       Log.info('Mengambil data pelanggan dari Firestore...');
       final pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
       final transaksiOpFirebase = ref.read(transaksiOpFirebaseProvider);
-      final pelanggan = await pelangganOpFirebase.getById(widget.userId);
+      final pelanggan = await pelangganOpFirebase.ambilBerdasarkanId(
+        widget.userId,
+      );
       if (pelanggan == null) {
         throw Exception(
           'Pelanggan dengan ID ${widget.userId} tidak ditemukan.',
@@ -59,11 +61,7 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
       Log.info('Perhitungan poin selesai. Total Poin: $totalPoin');
       return _DataDetailPelanggan(pelanggan: pelanggan, totalPoin: totalPoin);
     } catch (e, s) {
-      Log.error(
-        'Gagal memuat data profil lengkap dari Firestore.',
-        e: e,
-        s: s,
-      );
+      Log.error('Gagal memuat data profil lengkap dari Firestore.', e: e, s: s);
       rethrow;
     }
   }
@@ -100,7 +98,7 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
       context,
       MaterialPageRoute<bool>(
         builder: (context) => PoinPage(
-          customerId: idPelanggan,
+          idPelanggan: idPelanggan,
           showAd: true, // Tampilkan iklan di halaman poin untuk pengguna
         ),
       ),
@@ -108,7 +106,8 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
     await ref.read(interstitialAdServiceProvider).show();
     if (hasil ?? false) {
       Log.info(
-          'Kembali dari halaman poin dengan perubahan, memuat ulang data.');
+        'Kembali dari halaman poin dengan perubahan, memuat ulang data.',
+      );
       setState(() {
         _hasMadeChanges = true;
       });

@@ -217,7 +217,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
         final userActivityService = await ref.read(
           userActivityServiceProvider.future,
         );
-        unawaited(userActivityService.pingActivity(akunAktif.id));
+        unawaited(userActivityService.pingAktivitas(akunAktif.id));
       }
       if (!mounted) return;
       unawaited(

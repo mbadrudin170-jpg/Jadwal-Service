@@ -26,14 +26,10 @@ import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 class PoinPage extends ConsumerStatefulWidget {
-  final String customerId;
+  final String idPelanggan;
   final bool showAd;
 
-  const PoinPage({
-    super.key,
-    required this.customerId,
-    this.showAd = false,
-  });
+  const PoinPage({super.key, required this.idPelanggan, this.showAd = false});
 
   @override
   ConsumerState<PoinPage> createState() => _PointsPageState();
@@ -51,14 +47,15 @@ class _PointsPageState extends ConsumerState<PoinPage> {
     final isFirebase = ref.read(appRoleProvider) == AppRole.user;
 
     Log.info(
-        'Initializing PointsPage for customer: ${widget.customerId} with role: ${ref.read(appRoleProvider)}');
+      'Initializing PointsPage for customer: ${widget.idPelanggan} with role: ${ref.read(appRoleProvider)}',
+    );
 
     _appBarTitle = Row(
       children: [
         const Text('Poin: '),
         Expanded(
           child: NamaPelangganWidget(
-            idPelanggan: widget.customerId,
+            idPelanggan: widget.idPelanggan,
             useFirebase: isFirebase,
           ),
         ),
@@ -71,8 +68,12 @@ class _PointsPageState extends ConsumerState<PoinPage> {
     }
   }
 
-  Future<void> _tukarPoin(BuildContext context, WidgetRef ref,
-      PaketModel reward, int currentPoints) async {
+  Future<void> _tukarPoin(
+    BuildContext context,
+    WidgetRef ref,
+    PaketModel reward,
+    int currentPoints,
+  ) async {
     if (_isTukarPoin) return;
     setState(() => _isTukarPoin = true);
     try {
@@ -80,12 +81,15 @@ class _PointsPageState extends ConsumerState<PoinPage> {
       if (role == AppRole.admin) {
         Log.warning('Admin mencoba menukar poin, operasi diblokir.');
         ToastUtil.error(
-            context, 'Admin tidak dapat menukar poin dari antarmuka ini.');
+          context,
+          'Admin tidak dapat menukar poin dari antarmuka ini.',
+        );
         return;
       }
 
-      final isOnline =
-          await ref.read(koneksiInternetServiceProvider).cekInternet(ref);
+      final isOnline = await ref
+          .read(koneksiInternetServiceProvider)
+          .cekInternet(ref);
       if (!isOnline) {
         ToastUtil.warning(context, 'Cek koneksi internet Anda');
         return;
@@ -94,7 +98,9 @@ class _PointsPageState extends ConsumerState<PoinPage> {
       final bool enoughPoints = currentPoints >= reward.poinPenukaran;
       if (!enoughPoints) {
         ToastUtil.warning(
-            context, 'Poin Anda tidak mencukupi untuk menukar hadiah ini.');
+          context,
+          'Poin Anda tidak mencukupi untuk menukar hadiah ini.',
+        );
         return;
       }
 
@@ -121,32 +127,35 @@ class _PointsPageState extends ConsumerState<PoinPage> {
         try {
           final dataPelanggan = await ref
               .read(pelangganOpSqliteProvider)
-              .ambilBerdasarkanId(widget.customerId);
+              .ambilBerdasarkanId(widget.idPelanggan);
 
           final now = DateTime.now();
           final idOrder = const Uuid().v4();
 
           final orderData = OrderModel(
-              id: idOrder,
-              idPelanggan: widget.customerId,
-              idPaket: reward.id,
-              tanggal: now);
+            id: idOrder,
+            idPelanggan: widget.idPelanggan,
+            idPaket: reward.id,
+            tanggal: now,
+          );
 
           final notifikasiData = NotifikasiModel(
-              id: const Uuid().v4(),
-              tanggalMulai: now,
-              tanggalBerakhir: now,
-              tanggalTampil: now,
-              judul: 'Order Paket',
-              deskripsi: 'pelanggan ${dataPelanggan?.nama} melakukan order',
-              tipe: TipeNotifikasiEnum.order,
-              diperbaruiPada: now,
-              idTujuan: idOrder,
-              userId: widget.customerId);
+            id: const Uuid().v4(),
+            tanggalMulai: now,
+            tanggalBerakhir: now,
+            tanggalTampil: now,
+            judul: 'Order Paket',
+            deskripsi: 'pelanggan ${dataPelanggan?.nama} melakukan order',
+            tipe: TipeNotifikasiEnum.order,
+            diperbaruiPada: now,
+            idTujuan: idOrder,
+            userId: widget.idPelanggan,
+          );
 
           ref.read(notifikasiOpFirebaseProvider).addNotifikasi(notifikasiData);
           Log.info(
-              'berhasil membuat order baru untuk id pelanggan: ${widget.customerId}');
+            'berhasil membuat order baru untuk id pelanggan: ${widget.idPelanggan}',
+          );
 
           await ref.read(orderOpFirebaseProvider).addOrder(orderData);
           Log.info('berhasil membuat notifikasi untuk paket');
@@ -156,7 +165,9 @@ class _PointsPageState extends ConsumerState<PoinPage> {
 
           if (!mounted) return;
           ToastUtil.success(
-              context, 'Order sudah terkirim menunggu konfirmasi Admin');
+            context,
+            'Order sudah terkirim menunggu konfirmasi Admin',
+          );
         } on Exception catch (e, st) {
           Log.error('Gagal menukar poin: $e', e: e, s: st);
           if (!mounted) return;
@@ -177,18 +188,19 @@ class _PointsPageState extends ConsumerState<PoinPage> {
       try {
         package = await dataSource.getPaketByid(transaction.idPaket!);
       } on Exception catch (e, st) {
-        Log.error('Failed to get package ${transaction.idPaket}: $e',
-            e: e, s: st);
+        Log.error(
+          'Failed to get package ${transaction.idPaket}: $e',
+          e: e,
+          s: st,
+        );
       }
     }
     if (!mounted) return;
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (context) => DetailTransaksiU(
-          transaksi: transaction,
-          paket: package,
-        ),
+        builder: (context) =>
+            DetailTransaksiU(transaksi: transaction, paket: package),
       ),
     );
   }
@@ -197,7 +209,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
   Widget build(BuildContext context) {
     Log.info('Building PointsPage UI, selected menu: $_selectedMenu');
     // Tonton provider data utama.
-    final asyncData = ref.watch(pointsPageDataProvider(widget.customerId));
+    final asyncData = ref.watch(pointsPageDataProvider(widget.idPelanggan));
 
     return asyncData.when(
       loading: () => Scaffold(
@@ -206,9 +218,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
       ),
       error: (err, stack) => Scaffold(
         appBar: AppBar(title: _appBarTitle),
-        body: Center(
-          child: Text('Error: $err'),
-        ),
+        body: Center(child: Text('Error: $err')),
       ),
       data: (pageData) {
         return PoinPageUi(
@@ -273,10 +283,13 @@ class _PointsPageState extends ConsumerState<PoinPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Poin: $totalPoints / ${reward.poinPenukaran}',
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: enoughPoints ? Colors.green : Colors.grey)),
+                    Text(
+                      'Poin: $totalPoints / ${reward.poinPenukaran}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: enoughPoints ? Colors.green : Colors.grey,
+                      ),
+                    ),
                     Text(
                       '$poinKurang',
                       style: TextStyle(
@@ -296,7 +309,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
 
   Widget _buildPointsHistory() {
     Log.info('Building points history.');
-    final asyncHistory = ref.watch(pointsHistoryProvider(widget.customerId));
+    final asyncHistory = ref.watch(pointsHistoryProvider(widget.idPelanggan));
 
     return asyncHistory.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -318,8 +331,8 @@ class _PointsPageState extends ConsumerState<PoinPage> {
             final Color pointColor = isUnpaid
                 ? Colors.grey
                 : isAddition
-                    ? Colors.green
-                    : Colors.red;
+                ? Colors.green
+                : Colors.red;
             return InkWell(
               onTap: () => _navigasiKeDetailtransaksi(tx),
               child: Card(
@@ -329,14 +342,12 @@ class _PointsPageState extends ConsumerState<PoinPage> {
                     isUnpaid
                         ? TIcons.hourglass
                         : isAddition
-                            ? TIcons.arrowUp
-                            : TIcons.arrowDown,
+                        ? TIcons.arrowUp
+                        : TIcons.arrowDown,
                     color: pointColor,
                   ),
                   title: Text(tx.deskripsi),
-                  subtitle: Text(
-                    FormatTanggal.formatDasar(tx.tanggal),
-                  ),
+                  subtitle: Text(FormatTanggal.formatDasar(tx.tanggal)),
                   trailing: Text(
                     pointsStr,
                     style: TextStyle(

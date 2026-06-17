@@ -6,7 +6,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
-import 'package:wifi/fitur/pelanggan/core/user_activity_service.dart';
+import 'package:wifi/fitur/pelanggan/core/layanan_aktivitas_user.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
@@ -14,7 +14,7 @@ import 'daftar_akun_page_test.mocks.dart';
 
 class FakeRoute<T> extends Fake implements Route<T> {}
 
-@GenerateMocks([PengelolaAkun, UserActivityService, NavigatorObserver])
+@GenerateMocks([PengelolaAkun, LayananAktivitasUser, NavigatorObserver])
 void main() {
   late MockPengelolaAkun mockPengelolaAkun;
   late MockUserActivityService mockUserActivityService;
@@ -144,7 +144,7 @@ void main() {
       );
       when(mockPengelolaAkun.login(pelanggan1)).thenAnswer((_) async {});
       when(
-        mockUserActivityService.pingActivity(pelanggan1.id, force: true),
+        mockUserActivityService.pingAktivitas(pelanggan1.id, force: true),
       ).thenAnswer((_) async {});
 
       await tester.pumpWidget(createWidgetUnderTest());
@@ -155,7 +155,7 @@ void main() {
 
       verify(mockPengelolaAkun.login(pelanggan1)).called(1);
       verify(
-        mockUserActivityService.pingActivity(pelanggan1.id, force: true),
+        mockUserActivityService.pingAktivitas(pelanggan1.id, force: true),
       ).called(1);
       verify(mockNavigatorObserver.didPush(any, any)).called(1);
     });

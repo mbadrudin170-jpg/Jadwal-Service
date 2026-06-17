@@ -20,7 +20,9 @@ class DetailPelanggan extends ConsumerWidget {
   const DetailPelanggan({super.key, required this.idPelanggan});
 
   Future<void> _editCustomer(
-      BuildContext context, PelangganModel? pelanggan) async {
+    BuildContext context,
+    PelangganModel? pelanggan,
+  ) async {
     if (pelanggan == null) return;
     Log.info('Navigasi ke form edit pelanggan: ${pelanggan.nama}');
     await Navigator.push<bool>(
@@ -32,16 +34,19 @@ class DetailPelanggan extends ConsumerWidget {
   }
 
   Future<void> _copyAllInfo(
-      BuildContext context, PelangganModel customer) async {
+    BuildContext context,
+    PelangganModel customer,
+  ) async {
     Log.info('Menyalin info pelanggan: ${customer.nama}');
-    final info = '''
+    final info =
+        '''
 Nama : ${customer.nama}
 No HP : ${customer.telepon}
 Alamat : ${customer.alamat}
 Password : ${customer.kataSandi}
 MAC : ${customer.macAddress}
 '''
-        .trim();
+            .trim();
 
     await Clipboard.setData(ClipboardData(text: info));
     if (context.mounted) {
@@ -50,16 +55,16 @@ MAC : ${customer.macAddress}
   }
 
   Future<void> _navigasiKePoin(
-      BuildContext context, PelangganModel? pelanggan) async {
+    BuildContext context,
+    PelangganModel? pelanggan,
+  ) async {
     if (pelanggan == null) return;
     Log.info('Navigasi ke halaman poin pelanggan: ${pelanggan.nama}');
 
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => PoinPage(
-          customerId: pelanggan.id,
-        ),
+        builder: (context) => PoinPage(idPelanggan: pelanggan.id),
       ),
     );
   }
@@ -73,8 +78,11 @@ MAC : ${customer.macAddress}
         body: const Center(child: CircularProgressIndicator()),
       ),
       error: (e, s) {
-        Log.error('Gagal mengambil data pelanggan ID: $idPelanggan.',
-            e: e, s: s);
+        Log.error(
+          'Gagal mengambil data pelanggan ID: $idPelanggan.',
+          e: e,
+          s: s,
+        );
         return Scaffold(
           appBar: AppBar(title: const Text('Detail Pelanggan')),
           body: Center(child: Text('Gagal memuat data: $e')),

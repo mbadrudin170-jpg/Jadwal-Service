@@ -146,13 +146,13 @@ final userActivityServiceProvider = UserActivityServiceProvider._();
 final class UserActivityServiceProvider
     extends
         $FunctionalProvider<
-          AsyncValue<UserActivityService>,
-          UserActivityService,
-          FutureOr<UserActivityService>
+          AsyncValue<LayananAktivitasUser>,
+          LayananAktivitasUser,
+          FutureOr<LayananAktivitasUser>
         >
     with
-        $FutureModifier<UserActivityService>,
-        $FutureProvider<UserActivityService> {
+        $FutureModifier<LayananAktivitasUser>,
+        $FutureProvider<LayananAktivitasUser> {
   UserActivityServiceProvider._()
     : super(
         from: null,
@@ -169,12 +169,12 @@ final class UserActivityServiceProvider
 
   @$internal
   @override
-  $FutureProviderElement<UserActivityService> $createElement(
+  $FutureProviderElement<LayananAktivitasUser> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<UserActivityService> create(Ref ref) {
+  FutureOr<LayananAktivitasUser> create(Ref ref) {
     return userActivityService(ref);
   }
 }

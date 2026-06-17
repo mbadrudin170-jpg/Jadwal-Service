@@ -11,7 +11,7 @@ import 'package:mockito/src/dummies.dart' as _i4;
 import 'package:riverpod_annotation/riverpod_annotation.dart' as _i3;
 import 'package:state_notifier/state_notifier.dart' as _i7;
 import 'package:wifi/fitur/akun/provider/akun_provider.dart' as _i2;
-import 'package:wifi/fitur/pelanggan/core/user_activity_service.dart' as _i8;
+import 'package:wifi/fitur/pelanggan/core/layanan_aktivitas_user.dart' as _i8;
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart' as _i6;
 
 // ignore_for_file: type=lint
@@ -179,13 +179,13 @@ class MockPengelolaAkun extends _i1.Mock implements _i2.PengelolaAkun {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockUserActivityService extends _i1.Mock
-    implements _i8.UserActivityService {
+    implements _i8.LayananAktivitasUser {
   MockUserActivityService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<void> pingActivity(String? customerId, {bool? force = false}) =>
+  _i5.Future<void> pingAktivitas(String? customerId, {bool? force = false}) =>
       (super.noSuchMethod(
             Invocation.method(#pingActivity, [customerId], {#force: force}),
             returnValue: _i5.Future<void>.value(),

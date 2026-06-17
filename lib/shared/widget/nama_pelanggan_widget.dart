@@ -40,7 +40,7 @@ class NamaPelangganWidget extends ConsumerWidget {
   Widget _buildFromFirebase(WidgetRef ref) {
     final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
     return StreamBuilder<PelangganModel?>(
-      stream: customerOpFirebase.getStreamPelanggan(idPelanggan),
+      stream: customerOpFirebase.ambilStreanPelanggan(idPelanggan),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Text('...', style: style);
@@ -51,10 +51,12 @@ class NamaPelangganWidget extends ConsumerWidget {
             e: snapshot.error,
             s: snapshot.stackTrace,
           );
-          return Text('Error',
-              style: style ??
-                  const TextStyle(
-                      color: Colors.red, fontStyle: FontStyle.italic));
+          return Text(
+            'Error',
+            style:
+                style ??
+                const TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
+          );
         }
         if (snapshot.hasData && snapshot.data != null) {
           return Text(
@@ -63,10 +65,12 @@ class NamaPelangganWidget extends ConsumerWidget {
             overflow: TextOverflow.ellipsis,
           );
         }
-        return Text('N/A',
-            style: style ??
-                const TextStyle(
-                    color: Colors.grey, fontStyle: FontStyle.italic));
+        return Text(
+          'N/A',
+          style:
+              style ??
+              const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+        );
       },
     );
   }
@@ -86,10 +90,12 @@ class NamaPelangganWidget extends ConsumerWidget {
             e: snapshot.error,
             s: snapshot.stackTrace,
           );
-          return Text('Error',
-              style: style ??
-                  const TextStyle(
-                      color: Colors.red, fontStyle: FontStyle.italic));
+          return Text(
+            'Error',
+            style:
+                style ??
+                const TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
+          );
         }
         if (snapshot.hasData && snapshot.data != null) {
           return Text(
@@ -98,10 +104,12 @@ class NamaPelangganWidget extends ConsumerWidget {
             overflow: TextOverflow.ellipsis,
           );
         }
-        return Text('Pelanggan tidak ditemukan',
-            style: style ??
-                const TextStyle(
-                    color: Colors.grey, fontStyle: FontStyle.italic));
+        return Text(
+          'Pelanggan tidak ditemukan',
+          style:
+              style ??
+              const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+        );
       },
     );
   }

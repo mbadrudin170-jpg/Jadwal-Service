@@ -73,7 +73,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       if (!mounted) return;
       if (!isConnected) {
         ToastUtil.error(
-            context, 'Tidak ada koneksi internet. Periksa jaringan Anda.');
+          context,
+          'Tidak ada koneksi internet. Periksa jaringan Anda.',
+        );
         return;
       }
       final firestore = ref.read(firestoreProvider);
@@ -88,8 +90,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
       if (querySnapshot.docs.isNotEmpty) {
         final userDoc = querySnapshot.docs.first;
-        final customer =
-            PelangganModel.fromFirebase(userDoc.id, userDoc.data());
+        final customer = PelangganModel.fromFirebase(
+          userDoc.id,
+          userDoc.data(),
+        );
         Log.info('Pengguna berhasil login: ${customer.nama}');
 
         // 1. Simpan sesi (kritis)
@@ -98,20 +102,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
         // 2. Langsung navigasi (kritis untuk UX)
         if (!mounted) return;
-        unawaited(Navigator.of(context).pushReplacement(
-          MaterialPageRoute<void>(
-            builder: (final context) => const MainPage(),
+        unawaited(
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute<void>(
+              builder: (final context) => const MainPage(),
+            ),
           ),
-        ));
+        );
 
         // 3. Lakukan tugas sekunder setelah navigasi berhasil
         // Kesalahan di sini tidak akan mengganggu pengguna
         try {
-          final activityService =
-              await ref.read(userActivityServiceProvider.future);
-          activityService.pingActivity(customer.id, force: true);
+          final activityService = await ref.read(
+            userActivityServiceProvider.future,
+          );
+          activityService.pingAktivitas(customer.id, force: true);
           Log.info(
-              'memperbarui last aktif user setelah login berhasil ${customer.id}');
+            'memperbarui last aktif user setelah login berhasil ${customer.id}',
+          );
         } catch (e, s) {
           // Hanya catat error ini untuk debug, jangan tampilkan ke pengguna
           Log.error('Gagal ping activity setelah login', e: e, s: s);
@@ -121,14 +129,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       } else {
         setState(() => _sedangLogin = false);
         await _showErrorAlert(
-            'Nomor telepon atau password yang Anda masukkan salah.');
+          'Nomor telepon atau password yang Anda masukkan salah.',
+        );
       }
     } catch (e, s) {
       Log.error('Terjadi kesalahan saat login.', e: e, s: s);
       if (mounted) setState(() => _sedangLogin = false);
       if (!mounted) return;
       await _showErrorAlert(
-          'Terjadi kesalahan koneksi ke server. Silakan coba lagi.');
+        'Terjadi kesalahan koneksi ke server. Silakan coba lagi.',
+      );
     } finally {
       if (mounted) {
         setState(() => _sedangLogin = false);
@@ -138,20 +148,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   Future<void> _tanganiPilihAkunTersedia() async {
     if (_sedangLogin) return;
-    final layananPenyimpananLokal =
-        await ref.read(layananPenyimpananLokalProvider.future);
+    final layananPenyimpananLokal = await ref.read(
+      layananPenyimpananLokalProvider.future,
+    );
     final akun = await layananPenyimpananLokal.ambilDaftarAkun();
     if (!mounted) return;
 
     if (akun.isEmpty) {
       ToastUtil.info(
-          context, 'Tidak ada akun yang tersimpan. Silakan login manual.');
+        context,
+        'Tidak ada akun yang tersimpan. Silakan login manual.',
+      );
     } else {
       await Navigator.push(
         context,
-        MaterialPageRoute<void>(
-          builder: (context) => const DaftarAkunPage(),
-        ),
+        MaterialPageRoute<void>(builder: (context) => const DaftarAkunPage()),
       );
     }
   }
@@ -175,10 +186,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             children: [
               Text(
                 'Silakan Masuk',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               gapH32,
@@ -206,9 +216,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  disabledBackgroundColor:
-                      TColors.primaryColor.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  disabledBackgroundColor: TColors.primaryColor.withValues(
+                    alpha: 0.5,
+                  ),
                 ),
                 child: _sedangLogin
                     ? const SizedBox(
@@ -216,8 +228,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : const Text('Login'),
@@ -254,20 +267,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   onPressed: _sedangLogin
                       ? null
                       : () {
-                          unawaited(showDialog<void>(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text('Fitur Dalam Pengembangan'),
-                              content:
-                                  const Text('Fitur ini sedang kami kerjakan.'),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () => Navigator.of(ctx).pop(),
+                          unawaited(
+                            showDialog<void>(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('Fitur Dalam Pengembangan'),
+                                content: const Text(
+                                  'Fitur ini sedang kami kerjakan.',
                                 ),
-                              ],
+                                actions: [
+                                  TextButton(
+                                    child: const Text('OK'),
+                                    onPressed: () => Navigator.of(ctx).pop(),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ));
+                          );
                         },
                   child: const Text('Lupa Sandi?'),
                 ),

@@ -9,9 +9,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
 class PelangganOpSqlite {
   final SqliteDatabase sqliteDb;
-
   final BaseOpSqlite _baseOpSqlite;
-
   final String _tabel = NamaTabel.pelanggan;
 
   PelangganOpSqlite({
@@ -22,24 +20,19 @@ class PelangganOpSqlite {
   }
 
   Future<void> tambahPelanggan(
-    PelangganModel customer, {
+    PelangganModel pelanggan, {
     bool dariServer = false,
   }) async {
-    Log.info('Memulai pembuatan customer dengan ID: ${customer.id}');
+    Log.info('Memulai pembuatan customer dengan ID: ${pelanggan.id}');
     try {
-      final pelangganBaru = customer.copyWith(
+      final pelangganBaru = pelanggan.copyWith(
         diperbaruiPada: DateTime.now().toUtc(),
       );
       final data = pelangganBaru.toSqlite();
-
-      await _baseOpSqlite.sisipkan(
-        _tabel,
-        data,
-        dariServer: dariServer,
-      );
-
+      await _baseOpSqlite.sisipkan(_tabel, data, dariServer: dariServer);
       Log.info(
-          'Customer (ID: ${pelangganBaru.id}) berhasil dibuat di database lokal.');
+        'Customer (ID: ${pelangganBaru.id}) berhasil dibuat di database lokal.',
+      );
     } catch (e, s) {
       Log.error('Gagal membuat customer.', e: e, s: s);
       rethrow;
@@ -48,7 +41,8 @@ class PelangganOpSqlite {
 
   Future<List<PelangganModel>> ambilPelanggan() async {
     Log.info(
-        'Mengambil semua customer yang aktif (tidak diarsipkan dan tidak dihapus).');
+      'Mengambil semua customer yang aktif (tidak diarsipkan dan tidak dihapus).',
+    );
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
@@ -72,9 +66,7 @@ class PelangganOpSqlite {
     Log.info('Mengambil SEMUA data customer dari database lokal.');
     try {
       final db = await sqliteDb.database;
-      final List<Map<String, dynamic>> maps = await db.query(
-        _tabel,
-      );
+      final List<Map<String, dynamic>> maps = await db.query(_tabel);
 
       Log.info('Berhasil mengambil total ${maps.length} customer.');
       return List.generate(maps.length, (i) {
@@ -114,8 +106,9 @@ class PelangganOpSqlite {
   }) async {
     Log.info('Memulai pembaruan untuk customer ID: ${customer.id}');
     try {
-      final data =
-          customer.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite();
+      final data = customer
+          .copyWith(diperbaruiPada: DateTime.now().toUtc())
+          .toSqlite();
 
       await _baseOpSqlite.update(
         _tabel,
@@ -131,17 +124,10 @@ class PelangganOpSqlite {
     }
   }
 
-  Future<void> hapusSementara(
-    String id, {
-    bool dariServer = false,
-  }) async {
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
     Log.info('Memulai proses soft delete untuk customer ID: $id');
     try {
-      await _baseOpSqlite.softDelete(
-        _tabel,
-        id,
-        dariServer: dariServer,
-      );
+      await _baseOpSqlite.softDelete(_tabel, id, dariServer: dariServer);
       Log.info('Berhasil melakukan soft delete pada customer ID: $id.');
     } catch (e, s) {
       Log.error('Gagal menghapus customer.', e: e, s: s);
@@ -149,35 +135,35 @@ class PelangganOpSqlite {
     }
   }
 
-  Future<int> hapusSementaraSemua({
-    bool dariServer = false,
-  }) async {
+  Future<int> softDeleteSemua({bool dariServer = false}) async {
     Log.info('Memulai proses soft delete untuk semua customer.');
     try {
-      final count = await _baseOpSqlite.softDeleteAll(
+      final total = await _baseOpSqlite.softDeleteAll(
         _tabel,
         dariServer: dariServer,
       );
       Log.info(
-          'Berhasil melakukan soft delete pada semua customer. Total: $count');
-      return count;
+        'Berhasil melakukan soft delete pada semua customer. Total: $total',
+      );
+      return total;
     } catch (e, s) {
       Log.error('Gagal melakukan soft delete pada semua customer.', e: e, s: s);
       rethrow;
     }
   }
 
-  Future<List<PelangganModel>> ambilPerubahanSejak(DateTime since) async {
-    Log.info('Mengambil perubahan customer sejak: ${since.toIso8601String()}');
+  Future<List<PelangganModel>> ambilPerubahanSejak(DateTime sejak) async {
+    Log.info('Mengambil perubahan customer sejak: ${sejak.toIso8601String()}');
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
         where: '${NamaKolom.diperbaruiPada} > ?',
-        whereArgs: [since.toUtc().millisecondsSinceEpoch],
+        whereArgs: [sejak.toUtc().millisecondsSinceEpoch],
       );
       Log.info(
-          'Ditemukan ${maps.length} perubahan customer sejak waktu yang ditentukan.');
+        'Ditemukan ${maps.length} perubahan customer sejak waktu yang ditentukan.',
+      );
       return List.generate(
         maps.length,
         (i) => PelangganModel.fromSqlite(maps[i]),
@@ -189,16 +175,16 @@ class PelangganOpSqlite {
   }
 
   Future<void> sisipkanAtauPerbaruiBatch(
-    List<PelangganModel> items, {
+    List<PelangganModel> pelanggan, {
     bool dariServer = false,
   }) async {
-    if (items.isEmpty) {
+    if (pelanggan.isEmpty) {
       Log.info('Tidak ada item untuk diproses dalam batch.');
       return;
     }
-    Log.info('Memulai batch insert/update untuk ${items.length} customer.');
+    Log.info('Memulai batch insert/update untuk ${pelanggan.length} customer.');
     try {
-      final data = items.map((item) {
+      final data = pelanggan.map((item) {
         return item.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite();
       }).toList();
 
@@ -208,7 +194,8 @@ class PelangganOpSqlite {
         dariServer: dariServer,
       );
       Log.info(
-          'Berhasil menyelesaikan operasi batch untuk ${items.length} customer.');
+        'Berhasil menyelesaikan operasi batch untuk ${pelanggan.length} customer.',
+      );
     } catch (e, s) {
       Log.error('Gagal menjalankan operasi batch.', e: e, s: s);
       rethrow;
@@ -216,7 +203,8 @@ class PelangganOpSqlite {
   }
 
   Future<List<PelangganModel>> ambilPelangganBerdasarkanId(
-      List<String> ids) async {
+    List<String> ids,
+  ) async {
     if (ids.isEmpty) {
       Log.info('List ID kosong, tidak ada customer yang diambil.');
       return [];
@@ -231,7 +219,8 @@ class PelangganOpSqlite {
         whereArgs: ids,
       );
       Log.info(
-          'Berhasil mengambil ${maps.length} customer berdasarkan list ID.');
+        'Berhasil mengambil ${maps.length} customer berdasarkan list ID.',
+      );
       return List.generate(maps.length, (i) {
         return PelangganModel.fromSqlite(maps[i]);
       });

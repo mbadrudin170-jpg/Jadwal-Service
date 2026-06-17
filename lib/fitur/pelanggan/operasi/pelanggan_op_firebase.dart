@@ -1,6 +1,5 @@
 // path: lib/fitur/pelanggan/operasi/pelanggan_op_firebase.dart
 
-
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,23 +9,23 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
-class CustomerOpFirebase {
+class PelangganOpFirebase {
   final FirebaseFirestore _firestore;
   final BaseOpFirebase _baseOpFirebase;
   final String _namaKoleksi = NamaTabel.pelanggan;
 
-  CustomerOpFirebase({
+  PelangganOpFirebase({
     required FirebaseFirestore firestore,
     required BaseOpFirebase baseOpFirebase,
-  })  : _firestore = firestore,
-        _baseOpFirebase = baseOpFirebase {
+  }) : _firestore = firestore,
+       _baseOpFirebase = baseOpFirebase {
     Log.info('CustomerOpFirebase diinisialisasi.');
   }
 
   CollectionReference get _koleksiPelanggan =>
       _firestore.collection(_namaKoleksi);
 
-  Future<void> addPelanggan(PelangganModel pelanggan) async {
+  Future<void> tambahPelanggan(PelangganModel pelanggan) async {
     Log.info('Mendelegasikan pembuatan pelanggan: ${pelanggan.id}');
     await _baseOpFirebase.sisipkan(
       _namaKoleksi,
@@ -35,7 +34,7 @@ class CustomerOpFirebase {
     );
   }
 
-  Future<void> updatePelanggan(PelangganModel pelanggan) async {
+  Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
     Log.info('Mendelegasikan pembaruan pelanggan: ${pelanggan.id}');
     await _baseOpFirebase.update(
       _namaKoleksi,
@@ -47,11 +46,6 @@ class CustomerOpFirebase {
   Future<void> softDelete(String id) async {
     Log.info('Mendelegasikan soft delete pelanggan: $id');
     await _baseOpFirebase.hapusSementara(_namaKoleksi, id);
-  }
-
-  Future<void> hapusPelangganPermanen(String idPelanggan) async {
-    Log.warning('Mendelegasikan penghapusan permanen pelanggan: $idPelanggan');
-    await _baseOpFirebase.hapusPermanen(_namaKoleksi, idPelanggan);
   }
 
   Future<void> perbaruiTerakhirAktif(String id) async {
@@ -70,7 +64,7 @@ class CustomerOpFirebase {
     await _baseOpFirebase.update(_namaKoleksi, id, {'fcmToken': token});
   }
 
-  Future<List<PelangganModel>> getAllPelanggan() async {
+  Future<List<PelangganModel>> ambilSemuaPelanggan() async {
     Log.info('Mengambil semua pelanggan aktif...');
     try {
       final querySnapshot = await _koleksiPelanggan
@@ -97,31 +91,35 @@ class CustomerOpFirebase {
     }
   }
 
-  Stream<PelangganModel?> getStreamPelanggan(String idPengguna) {
-    Log.info('Streaming data pelanggan untuk: $idPengguna');
-    return _koleksiPelanggan.doc(idPengguna).snapshots().map((snapshot) {
-      if (snapshot.exists) {
-        return PelangganModel.fromFirebase(
-          snapshot.id,
-          snapshot.data()! as Map<String, dynamic>,
-        );
-      }
-      return null;
-    }).handleError((Object e, StackTrace s) {
-      Log.error('Error pada stream pelanggan untuk: $idPengguna', e: e, s: s);
-    });
+  Stream<PelangganModel?> ambilStreanPelanggan(String id) {
+    Log.info('Streaming data pelanggan untuk: $id');
+    return _koleksiPelanggan
+        .doc(id)
+        .snapshots()
+        .map((snapshot) {
+          if (snapshot.exists) {
+            return PelangganModel.fromFirebase(
+              snapshot.id,
+              snapshot.data()! as Map<String, dynamic>,
+            );
+          }
+          return null;
+        })
+        .handleError((Object e, StackTrace s) {
+          Log.error('Error pada stream pelanggan untuk: $id', e: e, s: s);
+        });
   }
 
-  Future<PelangganModel?> getById(String idPengguna) async {
+  Future<PelangganModel?> ambilBerdasarkanId(String id) async {
     try {
-      final doc = await _koleksiPelanggan.doc(idPengguna).get();
+      final doc = await _koleksiPelanggan.doc(id).get();
       if (doc.exists) {
         return PelangganModel.fromFirebase(
           doc.id,
           doc.data()! as Map<String, dynamic>,
         );
       }
-      Log.warning('Pelanggan $idPengguna tidak ditemukan.');
+      Log.warning('Pelanggan $id tidak ditemukan.');
       return null;
     } on Exception catch (e, s) {
       Log.error('Error mengambil pelanggan: $e', e: e, s: s);

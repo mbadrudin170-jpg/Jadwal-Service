@@ -27,7 +27,8 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
       data: (data) {
         if (data == null) {
           return const Scaffold(
-              body: Center(child: Text('Transaksi tidak ditemukan')));
+            body: Center(child: Text('Transaksi tidak ditemukan')),
+          );
         }
 
         final transaction = data.transaction;
@@ -35,8 +36,8 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
         final package = data.package;
         final paymentStatusColor =
             transaction?.statusPembayaran == StatusPembayaran.paid
-                ? Colors.green
-                : Colors.red;
+            ? Colors.green
+            : Colors.red;
 
         return Scaffold(
           appBar: AppBar(
@@ -68,15 +69,17 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                   onTap: customer == null
                       ? null
                       : () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (context) =>
-                                  DetailPelanggan(idPelanggan: customer.id),
-                            ),
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (context) =>
+                                DetailPelanggan(idPelanggan: customer.id),
                           ),
+                        ),
                   children: [
                     _buildRow(
-                        'Nama Pelanggan', customer?.nama ?? 'Tidak Diketahui'),
+                      'Nama Pelanggan',
+                      customer?.nama ?? 'Tidak Diketahui',
+                    ),
                   ],
                 ),
                 gapH16,
@@ -87,20 +90,24 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                   onTap: package == null
                       ? null
                       : () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (context) =>
-                                  DetailPaketPage(paket: package),
-                            ),
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (context) =>
+                                DetailPaketPage(paket: package),
                           ),
+                        ),
                   children: [
                     _buildRow('Nama Paket', package?.nama ?? 'Tidak Diketahui'),
                     _buildRow(
-                        'Harga',
-                        FormatUang.formatMataUang(
-                            (package?.harga ?? 0).toDouble())),
-                    _buildRow('Durasi',
-                        '${package?.durasi ?? 0} ${package?.tipe.displayName ?? ""}'),
+                      'Harga',
+                      FormatUang.formatMataUang(
+                        (package?.harga ?? 0).toDouble(),
+                      ),
+                    ),
+                    _buildRow(
+                      'Durasi',
+                      '${package?.durasi ?? 0} ${package?.tipe.displayName ?? ""}',
+                    ),
                   ],
                 ),
                 gapH16,
@@ -111,11 +118,15 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                     title: 'Informasi Poin',
                     children: [
                       _buildRow(
-                          'Poin Dihasilkan', '+${transaction.poinDidapat} Poin',
-                          color: Colors.green),
-                      _buildRow('Poin Digunakan',
-                          '-${transaction.poinDigunakan} Poin',
-                          color: Colors.red),
+                        'Poin Dihasilkan',
+                        '+${transaction.poinDidapat} Poin',
+                        color: Colors.green,
+                      ),
+                      _buildRow(
+                        'Poin Digunakan',
+                        '-${transaction.poinDigunakan} Poin',
+                        color: Colors.red,
+                      ),
                     ],
                   ),
                   gapH16,
@@ -127,17 +138,24 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                   children: [
                     if (transaction.tanggalMulai != null)
                       _buildRow(
-                          'Tanggal Mulai',
-                          FormatWaktuLengkap.formatSingkat(
-                              transaction.tanggalMulai!)),
+                        'Tanggal Mulai',
+                        FormatWaktuLengkap.formatSingkat(
+                          transaction.tanggalMulai!,
+                        ),
+                      ),
                     if (transaction.tanggalBerakhir != null)
                       _buildRow(
-                          'Tanggal Berakhir',
-                          FormatWaktuLengkap.formatSingkat(
-                              transaction.tanggalBerakhir!)),
-                    _buildRow('Status Pembayaran',
-                        transaction.statusPembayaran.displayName.toUpperCase(),
-                        color: paymentStatusColor, isBold: true),
+                        'Tanggal Berakhir',
+                        FormatWaktuLengkap.formatSingkat(
+                          transaction.tanggalBerakhir!,
+                        ),
+                      ),
+                    _buildRow(
+                      'Status Pembayaran',
+                      transaction.statusPembayaran.displayName.toUpperCase(),
+                      color: paymentStatusColor,
+                      isBold: true,
+                    ),
                   ],
                 ),
               ],
@@ -149,10 +167,11 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
   }
 
   // Helper widget sederhana untuk memangkas boilerplate code
-  Widget _buildCard(
-      {required String title,
-      required List<Widget> children,
-      VoidCallback? onTap}) {
+  Widget _buildCard({
+    required String title,
+    required List<Widget> children,
+    VoidCallback? onTap,
+  }) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -164,9 +183,13 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const Divider(height: 20, thickness: 1),
               ...children,
             ],
@@ -176,8 +199,12 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildRow(String label, String value,
-      {Color? color, bool isBold = false}) {
+  Widget _buildRow(
+    String label,
+    String value, {
+    Color? color,
+    bool isBold = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(

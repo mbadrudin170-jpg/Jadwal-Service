@@ -68,11 +68,11 @@ Stream<List<FeedbackModel>> feedbackStream(Ref ref, String userId) {
 }
 
 @Riverpod(keepAlive: true)
-CustomerOpFirebase pelangganOpFirebase(Ref ref) {
+PelangganOpFirebase pelangganOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
   final baseOp = ref.watch(baseOpFirebaseProvider);
 
-  return CustomerOpFirebase(
+  return PelangganOpFirebase(
     firestore: firestoreInstance,
     baseOpFirebase: baseOp,
   );

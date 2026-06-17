@@ -341,11 +341,11 @@ final pelangganOpFirebaseProvider = PelangganOpFirebaseProvider._();
 final class PelangganOpFirebaseProvider
     extends
         $FunctionalProvider<
-          CustomerOpFirebase,
-          CustomerOpFirebase,
-          CustomerOpFirebase
+          PelangganOpFirebase,
+          PelangganOpFirebase,
+          PelangganOpFirebase
         >
-    with $Provider<CustomerOpFirebase> {
+    with $Provider<PelangganOpFirebase> {
   PelangganOpFirebaseProvider._()
     : super(
         from: null,
@@ -362,20 +362,20 @@ final class PelangganOpFirebaseProvider
 
   @$internal
   @override
-  $ProviderElement<CustomerOpFirebase> $createElement(
+  $ProviderElement<PelangganOpFirebase> $createElement(
     $ProviderPointer pointer,
   ) => $ProviderElement(pointer);
 
   @override
-  CustomerOpFirebase create(Ref ref) {
+  PelangganOpFirebase create(Ref ref) {
     return pelangganOpFirebase(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(CustomerOpFirebase value) {
+  Override overrideWithValue(PelangganOpFirebase value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<CustomerOpFirebase>(value),
+      providerOverride: $SyncValueProvider<PelangganOpFirebase>(value),
     );
   }
 }

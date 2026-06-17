@@ -38,16 +38,14 @@ class _ProfileData {
 
 /// Halaman profil pengguna yang menampilkan informasi pribadi dan paket aktif.
 class ProfilePage extends ConsumerStatefulWidget {
-  const ProfilePage({
-    super.key,
-  });
+  const ProfilePage({super.key});
 
   @override
   ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
-  late final CustomerOpFirebase _customerOp;
+  late final PelangganOpFirebase _customerOp;
   late final TransaksiOpFirebase _transactionOp;
   late final PaketOpFirebase _packageOp;
 
@@ -73,7 +71,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
     Log.info('Memulai pengambilan data profil lengkap untuk userId: $userId.');
     try {
-      final customer = await _customerOp.getById(userId);
+      final customer = await _customerOp.ambilBerdasarkanId(userId);
       if (customer == null) {
         throw Exception('Pelanggan dengan ID  tidak ditemukan.');
       }
@@ -87,7 +85,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       final totalPoints = results[0] as int;
       final activeSubscriptions = results[1] as List<TransaksiModel>;
       Log.info(
-          'Total poin diambil: $totalPoints. Langganan aktif ditemukan: ${activeSubscriptions.length}.');
+        'Total poin diambil: $totalPoints. Langganan aktif ditemukan: ${activeSubscriptions.length}.',
+      );
 
       TransaksiModel? lastSubscription;
       PaketModel? packageModel;
@@ -97,11 +96,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           (a, b) => a.tanggalBerakhir!.isAfter(b.tanggalBerakhir!) ? a : b,
         );
         Log.info(
-            'Langganan terakhir berakhir pada: ${lastSubscription.tanggalBerakhir}.');
+          'Langganan terakhir berakhir pada: ${lastSubscription.tanggalBerakhir}.',
+        );
 
         if (lastSubscription.idPaket != null) {
-          packageModel =
-              await _packageOp.ambilBerdasarkanId(lastSubscription.idPaket!);
+          packageModel = await _packageOp.ambilBerdasarkanId(
+            lastSubscription.idPaket!,
+          );
           Log.info('Detail paket "${packageModel?.nama}" berhasil diambil.');
         }
       }
@@ -136,9 +137,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget build(BuildContext context) {
     Log.info('Membangun UI untuk ProfilePage.');
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profil Pelanggan'),
-      ),
+      appBar: AppBar(title: const Text('Profil Pelanggan')),
       body: FutureBuilder<_ProfileData>(
         future: _futureProfileData,
         builder: (context, snapshot) {
@@ -147,18 +146,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           }
 
           if (snapshot.hasError) {
-            Log.error('FutureBuilder<_ProfileData> error: ${snapshot.error}.',
-                e: snapshot.error, s: snapshot.stackTrace);
-            return Center(
-              child: Text('Terjadi Error: ${snapshot.error}'),
+            Log.error(
+              'FutureBuilder<_ProfileData> error: ${snapshot.error}.',
+              e: snapshot.error,
+              s: snapshot.stackTrace,
             );
+            return Center(child: Text('Terjadi Error: ${snapshot.error}'));
           }
 
           if (!snapshot.hasData) {
             final userId = ref.watch(userIdProvider);
-            return Center(
-              child: Text('Profil ID: $userId tidak ditemukan.'),
-            );
+            return Center(child: Text('Profil ID: $userId tidak ditemukan.'));
           }
 
           final profileData = snapshot.data!;
@@ -225,13 +223,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
 
     final String activePeriodText = PerhitunganUtil.ambilTeksSisaMasaAktif(
-        lastSubscription.tanggalBerakhir!);
+      lastSubscription.tanggalBerakhir!,
+    );
     final Color activePeriodColor = PerhitunganUtil.ambilWarnaSisaMasaAktif(
-        lastSubscription.tanggalBerakhir!);
+      lastSubscription.tanggalBerakhir!,
+    );
     final Color paymentStatusColor =
         lastSubscription.statusPembayaran == StatusPembayaran.paid
-            ? Colors.green
-            : Colors.red;
+        ? Colors.green
+        : Colors.red;
 
     return Column(
       children: [
@@ -245,13 +245,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             icon: TIcons.dateRange,
             label: 'Aktif Sejak',
             value: FormatWaktuLengkap.formatSingkat(
-                lastSubscription.tanggalMulai!),
+              lastSubscription.tanggalMulai!,
+            ),
           ),
         _InfoItem(
           icon: TIcons.dateRange,
           label: 'Berakhir Pada',
           value: FormatWaktuLengkap.formatSingkat(
-              lastSubscription.tanggalBerakhir!),
+            lastSubscription.tanggalBerakhir!,
+          ),
         ),
         _InfoItem(
           icon: TIcons.hourglass,
@@ -270,10 +272,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         if (lastSubscription.durasiBonus > 0 &&
             lastSubscription.tipeDurasiBonus != null)
           _InfoItem(
-              icon: TIcons.bonus,
-              label: 'Bonus',
-              value:
-                  '${lastSubscription.durasiBonus} ${lastSubscription.tipeDurasiBonus!.displayName}')
+            icon: TIcons.bonus,
+            label: 'Bonus',
+            value:
+                '${lastSubscription.durasiBonus} ${lastSubscription.tipeDurasiBonus!.displayName}',
+          ),
       ],
     );
   }
@@ -303,10 +306,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       await Navigator.push<void>(
         context,
         MaterialPageRoute<bool>(
-          builder: (context) => PoinPage(
-            customerId: customerId,
-            showAd: true,
-          ),
+          builder: (context) => PoinPage(idPelanggan: customerId, showAd: true),
         ),
       );
       await ref.read(interstitialAdServiceProvider).show();
@@ -336,10 +336,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 gapW8,
                 Text(
                   title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -382,9 +381,10 @@ class _InfoItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
-                    style:
-                        TextStyle(color: Colors.grey.shade700, fontSize: 14)),
+                Text(
+                  label,
+                  style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+                ),
                 gapH4,
                 Text(
                   value,

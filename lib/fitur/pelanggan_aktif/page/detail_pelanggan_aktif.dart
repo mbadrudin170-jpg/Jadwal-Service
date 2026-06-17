@@ -23,48 +23,52 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-final detailPleangganAktifProvider = FutureProvider.family<
-    ({
-      PelangganModel? customer,
-      PaketModel? package,
-      TransaksiModel? transaction,
-      PelangganAktifModel activeCustomer,
-    }),
-    String>((ref, id) async {
-  final pelangganAktifState = await ref.watch(pelangganAktifProvider.future);
-  final detailPelangganAktif = pelangganAktifState.daftarPelangganAktif;
+final detailPleangganAktifProvider =
+    FutureProvider.family<
+      ({
+        PelangganModel? customer,
+        PaketModel? package,
+        TransaksiModel? transaction,
+        PelangganAktifModel activeCustomer,
+      }),
+      String
+    >((ref, id) async {
+      final pelangganAktifState = await ref.watch(
+        pelangganAktifProvider.future,
+      );
+      final detailPelangganAktif = pelangganAktifState.daftarPelangganAktif;
 
-  final detailModel = detailPelangganAktif.firstWhereOrNull(
-    (detail) => detail.pelangganAktif.id == id,
-  );
+      final detailModel = detailPelangganAktif.firstWhereOrNull(
+        (detail) => detail.pelangganAktif.id == id,
+      );
 
-  if (detailModel == null) {
-    throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
-  }
+      if (detailModel == null) {
+        throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
+      }
 
-  final pelangganAktif = detailModel.pelangganAktif;
+      final pelangganAktif = detailModel.pelangganAktif;
 
-  final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
-  final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-  final transaksiOpsqlite = ref.watch(transaksiOpSqliteProvider);
-  final hasil = await Future.wait<Object?>([
-    pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.idPelanggan),
-    pelangganAktif.idPaket.isNotEmpty
-        ? paketOpSqlite.ambilBerdasarkanId(pelangganAktif.idPaket)
-        : Future<PaketModel?>.value(),
-    (pelangganAktif.idTransaksi != null &&
-            pelangganAktif.idTransaksi!.isNotEmpty)
-        ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.idTransaksi!)
-        : Future<TransaksiModel?>.value(),
-  ]);
+      final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
+      final paketOpSqlite = ref.watch(paketOpSqliteProvider);
+      final transaksiOpsqlite = ref.watch(transaksiOpSqliteProvider);
+      final hasil = await Future.wait<Object?>([
+        pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.idPelanggan),
+        pelangganAktif.idPaket.isNotEmpty
+            ? paketOpSqlite.ambilBerdasarkanId(pelangganAktif.idPaket)
+            : Future<PaketModel?>.value(),
+        (pelangganAktif.idTransaksi != null &&
+                pelangganAktif.idTransaksi!.isNotEmpty)
+            ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.idTransaksi!)
+            : Future<TransaksiModel?>.value(),
+      ]);
 
-  return (
-    customer: hasil[0] as PelangganModel?,
-    package: hasil[1] as PaketModel?,
-    transaction: hasil[2] as TransaksiModel?,
-    activeCustomer: pelangganAktif,
-  );
-});
+      return (
+        customer: hasil[0] as PelangganModel?,
+        package: hasil[1] as PaketModel?,
+        transaction: hasil[2] as TransaksiModel?,
+        activeCustomer: pelangganAktif,
+      );
+    });
 
 class DetailPelangganAktif extends ConsumerStatefulWidget {
   final PelangganAktifModel pelangganAktif;
@@ -125,9 +129,11 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
   @override
   Widget build(BuildContext context) {
     Log.info(
-        'Membangun UI detail pelanggan aktif untuk ID: ${widget.pelangganAktif.id}.');
-    final detailAsync =
-        ref.watch(detailPleangganAktifProvider(widget.pelangganAktif.id));
+      'Membangun UI detail pelanggan aktif untuk ID: ${widget.pelangganAktif.id}.',
+    );
+    final detailAsync = ref.watch(
+      detailPleangganAktifProvider(widget.pelangganAktif.id),
+    );
     return detailAsync.when(
       data: (data) => _buildScaffold(context, data),
       loading: () => const Scaffold(body: Center(child: Text(''))),
@@ -142,8 +148,9 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
       PelangganModel? customer,
       PaketModel? package,
       TransaksiModel? transaction,
-      PelangganAktifModel activeCustomer
-    }) data,
+      PelangganAktifModel activeCustomer,
+    })
+    data,
   ) {
     final pelangganAktif = data.activeCustomer;
     final pelanggan = data.customer;
@@ -181,23 +188,24 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                           onPressed: () {
                             if (pelanggan != null) {
                               Log.info(
-                                  'Navigasi ke detail pelanggan: ${pelanggan.nama}');
-                              unawaited(Navigator.push<void>(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailPelanggan(
-                                    idPelanggan: pelanggan.id,
+                                'Navigasi ke detail pelanggan: ${pelanggan.nama}',
+                              );
+                              unawaited(
+                                Navigator.push<void>(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DetailPelanggan(
+                                      idPelanggan: pelanggan.id,
+                                    ),
                                   ),
                                 ),
-                              ));
+                              );
                             }
                           },
                           child: Text(
                             pelanggan?.nama ?? pelangganAktif.idPelanggan,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
+                            style: Theme.of(context).textTheme.headlineSmall
                                 ?.copyWith(color: Colors.blue),
                           ),
                         ),
@@ -213,13 +221,15 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                         onTap: () {
                           if (paket != null) {
                             Log.info('Navigasi ke detail paket: ${paket.nama}');
-                            unawaited(Navigator.push<void>(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder: (context) =>
-                                    DetailPaketPage(paket: paket),
+                            unawaited(
+                              Navigator.push<void>(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (context) =>
+                                      DetailPaketPage(paket: paket),
+                                ),
                               ),
-                            ));
+                            );
                           }
                         },
                         child: _buildInfoRow(
@@ -249,13 +259,15 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                         context,
                         'Mulai',
                         FormatWaktuLengkap.formatSingkat(
-                            pelangganAktif.tanggalMulai),
+                          pelangganAktif.tanggalMulai,
+                        ),
                       ),
                       _buildInfoRow(
                         context,
                         'Berakhir',
                         FormatWaktuLengkap.formatSingkat(
-                            pelangganAktif.tanggalBerakhir),
+                          pelangganAktif.tanggalBerakhir,
+                        ),
                       ),
                       const Divider(),
                       gapH16,
@@ -264,11 +276,11 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                           pelangganAktif.tanggalBerakhir,
                         ),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: PerhitunganUtil.ambilWarnaSisaMasaAktif(
-                                pelangganAktif.tanggalBerakhir,
-                              ),
-                              fontWeight: FontWeight.bold,
-                            ),
+                          color: PerhitunganUtil.ambilWarnaSisaMasaAktif(
+                            pelangganAktif.tanggalBerakhir,
+                          ),
+                          fontWeight: FontWeight.bold,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       gapH24,
@@ -277,14 +289,14 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                         label: const Text('Kirim Info via WhatsApp'),
                         onPressed: () {
                           Log.info('Tombol kirim info WhatsApp ditekan.');
-                          unawaited(ref
-                              .read(pesanInfoPaketProvider)
-                              .kirimRincianPaket(pelangganAktif));
+                          unawaited(
+                            ref
+                                .read(pesanInfoPaketProvider)
+                                .kirimRincianPaket(pelangganAktif),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           backgroundColor: Colors.green.shade600,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
@@ -304,7 +316,10 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
   }
 
   Widget _buildInfoRow(
-      BuildContext context, final String label, final String value) {
+    BuildContext context,
+    final String label,
+    final String value,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
@@ -316,9 +331,9 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
             child: Text(
               value,
               textAlign: TextAlign.end,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -327,7 +342,10 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
   }
 
   Widget _buildWhatsAppInfoRow(
-      BuildContext context, final String label, final String value) {
+    BuildContext context,
+    final String label,
+    final String value,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -347,10 +365,10 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                   Text(
                     value,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                          decoration: TextDecoration.underline,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                   gapH8,
                   FaIcon(

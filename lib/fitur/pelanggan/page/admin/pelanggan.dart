@@ -29,52 +29,58 @@ enum UrutanPelanggan {
 /// Provider lokal untuk memfilter dan mengurutkan pelanggan secara reaktif berdasarkan state modern.
 final filteredCustomersProvider =
     Provider.autoDispose<AsyncValue<List<(PelangganModel, int)>>>((ref) {
-  final daftarPelanggan = ref.watch(daftarPelangganProvider);
-  final searchQuery = ref.watch(searchQueryPelangganProvider).toLowerCase();
-  final sortOption = ref.watch(urutanPelangganStateProvider);
+      final daftarPelanggan = ref.watch(daftarPelangganProvider);
+      final searchQuery = ref.watch(searchQueryPelangganProvider).toLowerCase();
+      final sortOption = ref.watch(urutanPelangganStateProvider);
 
-  return daftarPelanggan.when(
-    data: (customersWithPoints) {
-      final filtered = customersWithPoints
-          .where((tuple) => tuple.$1.nama.toLowerCase().contains(searchQuery))
-          .toList();
+      return daftarPelanggan.when(
+        data: (customersWithPoints) {
+          final filtered = customersWithPoints
+              .where(
+                (tuple) => tuple.$1.nama.toLowerCase().contains(searchQuery),
+              )
+              .toList();
 
-      switch (sortOption) {
-        case UrutanPelanggan.namaAZ:
-          filtered.sort((a, b) =>
-              a.$1.nama.toLowerCase().compareTo(b.$1.nama.toLowerCase()));
-          break;
-        case UrutanPelanggan.namaZa:
-          filtered.sort((a, b) =>
-              b.$1.nama.toLowerCase().compareTo(a.$1.nama.toLowerCase()));
-          break;
-        case UrutanPelanggan.terakhirOnline:
-          filtered.sort((a, b) {
-            if (a.$1.terkahirAktif == null) return 1;
-            if (b.$1.terkahirAktif == null) return -1;
-            return b.$1.terkahirAktif!.compareTo(a.$1.terkahirAktif!);
-          });
-          break;
-        case UrutanPelanggan.terbaruOnline:
-          filtered.sort((a, b) {
-            if (a.$1.terkahirAktif == null) return -1;
-            if (b.$1.terkahirAktif == null) return 1;
-            return a.$1.terkahirAktif!.compareTo(b.$1.terkahirAktif!);
-          });
-          break;
-        case UrutanPelanggan.poinTerbanyak:
-          filtered.sort((a, b) => b.$2.compareTo(a.$2));
-          break;
-        case UrutanPelanggan.pointerkecil:
-          filtered.sort((a, b) => a.$2.compareTo(b.$2));
-          break;
-      }
-      return AsyncData(filtered);
-    },
-    loading: () => const AsyncLoading(),
-    error: AsyncError.new,
-  );
-});
+          switch (sortOption) {
+            case UrutanPelanggan.namaAZ:
+              filtered.sort(
+                (a, b) =>
+                    a.$1.nama.toLowerCase().compareTo(b.$1.nama.toLowerCase()),
+              );
+              break;
+            case UrutanPelanggan.namaZa:
+              filtered.sort(
+                (a, b) =>
+                    b.$1.nama.toLowerCase().compareTo(a.$1.nama.toLowerCase()),
+              );
+              break;
+            case UrutanPelanggan.terakhirOnline:
+              filtered.sort((a, b) {
+                if (a.$1.terkahirAktif == null) return 1;
+                if (b.$1.terkahirAktif == null) return -1;
+                return b.$1.terkahirAktif!.compareTo(a.$1.terkahirAktif!);
+              });
+              break;
+            case UrutanPelanggan.terbaruOnline:
+              filtered.sort((a, b) {
+                if (a.$1.terkahirAktif == null) return -1;
+                if (b.$1.terkahirAktif == null) return 1;
+                return a.$1.terkahirAktif!.compareTo(b.$1.terkahirAktif!);
+              });
+              break;
+            case UrutanPelanggan.poinTerbanyak:
+              filtered.sort((a, b) => b.$2.compareTo(a.$2));
+              break;
+            case UrutanPelanggan.pointerkecil:
+              filtered.sort((a, b) => a.$2.compareTo(b.$2));
+              break;
+          }
+          return AsyncData(filtered);
+        },
+        loading: () => const AsyncLoading(),
+        error: AsyncError.new,
+      );
+    });
 
 /// Halaman untuk menampilkan dan mengelola daftar semua customer.
 class Pelanggan extends ConsumerWidget {
@@ -86,7 +92,8 @@ class Pelanggan extends ConsumerWidget {
     final searchController = TextEditingController(text: currentSearchQuery);
 
     searchController.selection = TextSelection.fromPosition(
-        TextPosition(offset: searchController.text.length));
+      TextPosition(offset: searchController.text.length),
+    );
 
     return Scaffold(
       appBar: _buildAppBar(context, ref, searchController),
@@ -103,7 +110,10 @@ class Pelanggan extends ConsumerWidget {
   }
 
   AppBar _buildAppBar(
-      BuildContext context, WidgetRef ref, TextEditingController controller) {
+    BuildContext context,
+    WidgetRef ref,
+    TextEditingController controller,
+  ) {
     final isSearching = ref.watch(isSearchingPelangganProvider);
 
     return AppBar(
@@ -142,22 +152,20 @@ class Pelanggan extends ConsumerWidget {
   }
 
   Widget _buildContent(BuildContext context, WidgetRef ref) {
-    final customersAsync = ref.watch(filteredCustomersProvider);
-    final isSearching = ref.watch(isSearchingPelangganProvider);
+    final pelangganAsync = ref.watch(filteredCustomersProvider);
+    final sedangMencari = ref.watch(isSearchingPelangganProvider);
 
-    return customersAsync.when(
+    return pelangganAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, s) {
         Log.error('Gagal memuat daftar customer', e: e, s: s);
-        return Center(
-          child: Text('Gagal memuat data: $e'),
-        );
+        return Center(child: Text('Gagal memuat data: $e'));
       },
       data: (listPelanggan) {
         if (listPelanggan.isEmpty) {
           return Center(
             child: Text(
-              isSearching
+              sedangMencari
                   ? 'Pelanggan tidak ditemukan.'
                   : 'Belum ada customer. Tekan tombol + untuk menambah.',
               textAlign: TextAlign.center,
@@ -171,13 +179,16 @@ class Pelanggan extends ConsumerWidget {
             return Card(
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: ListTile(
-                title: Text(pelanggan.nama,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                title: Text(
+                  pelanggan.nama,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
                 subtitle: Text(
                   pelanggan.terkahirAktif == null
                       ? '-'
                       : FormatWaktuLengkap.formatSingkat(
-                          pelanggan.terkahirAktif!),
+                          pelanggan.terkahirAktif!,
+                        ),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -203,23 +214,23 @@ class Pelanggan extends ConsumerWidget {
   }
 
   Future<void> _dialogSort(BuildContext context, WidgetRef ref) async {
-    final activeSort = ref.read(urutanPelangganStateProvider);
+    final urutanAktif = ref.read(urutanPelangganStateProvider);
 
     Widget buildOption(String text, UrutanPelanggan value) {
-      final isSelected = activeSort == value;
+      final sedangDipilih = urutanAktif == value;
       return SimpleDialogOption(
         onPressed: () => Navigator.pop(context, value),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
           decoration: BoxDecoration(
-            color: isSelected ? TColors.pointBackground : null,
+            color: sedangDipilih ? TColors.pointBackground : null,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
             text,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              fontWeight: sedangDipilih ? FontWeight.bold : FontWeight.normal,
             ),
           ),
         ),
@@ -234,9 +245,13 @@ class Pelanggan extends ConsumerWidget {
           buildOption('Nama (A-Z)', UrutanPelanggan.namaAZ),
           buildOption('Nama (Z-A)', UrutanPelanggan.namaZa),
           buildOption(
-              'Aktivitas Terakhir (Terbaru)', UrutanPelanggan.terakhirOnline),
+            'Aktivitas Terakhir (Terbaru)',
+            UrutanPelanggan.terakhirOnline,
+          ),
           buildOption(
-              'Aktivitas Terakhir (Terlama)', UrutanPelanggan.terbaruOnline),
+            'Aktivitas Terakhir (Terlama)',
+            UrutanPelanggan.terbaruOnline,
+          ),
           buildOption('Poin (Tertinggi)', UrutanPelanggan.poinTerbanyak),
           buildOption('Poin (Terendah)', UrutanPelanggan.pointerkecil),
         ],
@@ -256,7 +271,10 @@ class Pelanggan extends ConsumerWidget {
   }
 
   Future<void> _navigasiKeDetail(
-      BuildContext context, WidgetRef ref, String idPelanggan) async {
+    BuildContext context,
+    WidgetRef ref,
+    String idPelanggan,
+  ) async {
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
@@ -267,7 +285,10 @@ class Pelanggan extends ConsumerWidget {
   }
 
   Future<void> _dialogOpsi(
-      BuildContext context, WidgetRef ref, PelangganModel pelanggan) async {
+    BuildContext context,
+    WidgetRef ref,
+    PelangganModel pelanggan,
+  ) async {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -290,7 +311,9 @@ class Pelanggan extends ConsumerWidget {
                   ref.invalidate(daftarPelangganProvider);
                   if (context.mounted) {
                     ToastUtil.success(
-                        context, 'Pelanggan berhasil diperbarui.');
+                      context,
+                      'Pelanggan berhasil diperbarui.',
+                    );
                   }
                 }
               },
@@ -310,7 +333,10 @@ class Pelanggan extends ConsumerWidget {
   }
 
   Future<void> _dialogKonfirmasiSoftDelete(
-      BuildContext context, WidgetRef ref, PelangganModel customer) async {
+    BuildContext context,
+    WidgetRef ref,
+    PelangganModel customer,
+  ) async {
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -336,9 +362,12 @@ class Pelanggan extends ConsumerWidget {
   }
 
   Future<void> _softDeleteCustomer(
-      BuildContext context, WidgetRef ref, String id) async {
+    BuildContext context,
+    WidgetRef ref,
+    String id,
+  ) async {
     try {
-      await ref.read(pelangganOpSqliteProvider).hapusSementara(id);
+      await ref.read(pelangganOpSqliteProvider).softDelete(id);
       ref.invalidate(daftarPelangganProvider);
       if (context.mounted) {
         ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
