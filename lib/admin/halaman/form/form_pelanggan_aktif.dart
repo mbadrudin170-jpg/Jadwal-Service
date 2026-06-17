@@ -170,7 +170,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         _isLoading = false;
         Log.info('Semua data berhasil dimuat.');
       });
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error('Gagal memuat data referensi', e: e, s: s);
       if (mounted) {
         ToastUtil.error(context, 'Gagal memuat data: $e');
@@ -496,7 +496,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         ),
       ),
       body: _isLoading
-c          : Padding(
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
               padding: const EdgeInsets.all(TSizes.p16),
               child: Form(
                 key: _formKey,
