@@ -13,7 +13,7 @@ Berikut aturan naming versi **ringkas, jelas, dan siap dipakai** (Indonesia clea
 
 * `Pelanggan`
 * `Transaksi`
-* `AutentikasiService`
+* `AutentikasiService`m
 * `SinkronisasiData`
 
 ---

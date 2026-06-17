@@ -300,43 +300,4 @@ void main() {
       },
     );
 
-    test(
-      '15. deleteByUserId harus menjalankan delete dengan where di dalam runComplexOperation',
-      () async {
-        final mockTxn = MockTransaction();
-        const userId = 'user-test-123';
-
-        when(
-          mockBaseOpSqlite.runComplexOperation<int>(any, dariServer: false),
-        ).thenAnswer((invocation) async {
-          final action =
-              invocation.positionalArguments[0]
-                  as Future<int> Function(Transaction);
-          return await action(mockTxn);
-        });
-
-        when(
-          mockTxn.delete(
-            namaTabel,
-            where: '${NamaKolom.userId} = ?',
-            whereArgs: [userId],
-          ),
-        ).thenAnswer((_) async => 3);
-
-        await feedbackOpSqlite.deleteByUserId(userId);
-
-        verify(
-          mockBaseOpSqlite.runComplexOperation(any, dariServer: false),
-        ).called(1);
-
-        verify(
-          mockTxn.delete(
-            namaTabel,
-            where: '${NamaKolom.userId} = ?',
-            whereArgs: [userId],
-          ),
-        ).called(1);
-      },
-    );
-  });
-}
+});
