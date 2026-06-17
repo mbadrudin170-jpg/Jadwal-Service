@@ -71,7 +71,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
         title: const Text('Aplikasi dalam Perbaikan'),
         automaticallyImplyLeading: false,
       ),
-      body: _MaintenanceContent(
+      body: _KontenMaintenance(
         infoMaintenance: widget.infoMaintenance,
         isLoading: _isLoading,
         onRefresh: _refreshData,
@@ -82,13 +82,13 @@ class _MaintenancePageState extends State<MaintenancePage> {
 }
 
 /// Widget private yang bertanggung jawab untuk menampilkan konten UI halaman maintenance.
-class _MaintenanceContent extends StatelessWidget {
+class _KontenMaintenance extends StatelessWidget {
   final String infoMaintenance;
   final bool isLoading;
   final VoidCallback onRefresh;
   final VoidCallback onExit;
 
-  const _MaintenanceContent({
+  const _KontenMaintenance({
     required this.infoMaintenance,
     required this.isLoading,
     required this.onRefresh,
@@ -99,7 +99,7 @@ class _MaintenanceContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    final Widget refreshButtonIcon = isLoading
+    final Widget ikonTombolSegarkan = isLoading
         ? Container(
             width: 24, // Nilai ini spesifik untuk ukuran ikon, jadi tetap
             height: 24,
@@ -137,7 +137,7 @@ class _MaintenanceContent extends StatelessWidget {
             gapH32, // Menggunakan gapH
             ElevatedButton.icon(
               onPressed: isLoading ? null : onRefresh,
-              icon: refreshButtonIcon,
+              icon: ikonTombolSegarkan,
               label: const Text('Coba Lagi'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(

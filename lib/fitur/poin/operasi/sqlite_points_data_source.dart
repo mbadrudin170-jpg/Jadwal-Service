@@ -15,8 +15,8 @@ class SQLitePointsDataSource implements PointsPageDataSource {
   SQLitePointsDataSource({
     required TransaksiOpSqlite transaksiOpSqlite,
     required PaketOpSqlite paketOpSqlite,
-  })  : _transaksiOpSqlite = transaksiOpSqlite,
-        _paketOpSqlite = paketOpSqlite;
+  }) : _transaksiOpSqlite = transaksiOpSqlite,
+       _paketOpSqlite = paketOpSqlite;
 
   @override
   Future<int> ambilTotalPoin(String customerId) {
@@ -30,8 +30,11 @@ class SQLitePointsDataSource implements PointsPageDataSource {
 
   @override
   Future<List<TransaksiModel>> getPointsTransactions(
-      final String customerId) async {
-    final history = await _transaksiOpSqlite.getByIdPelanggan(customerId);
+    final String customerId,
+  ) async {
+    final history = await _transaksiOpSqlite.ambilBerdasarkanIdPelanggan(
+      customerId,
+    );
     return history
         .where((t) => t.poinDidapat > 0 || t.poinDigunakan > 0)
         .toList();

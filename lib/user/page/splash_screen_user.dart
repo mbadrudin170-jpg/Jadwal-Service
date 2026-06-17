@@ -33,7 +33,7 @@ import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 
 /// Record yang berisi informasi tentang pembaruan aplikasi.
-typedef UpdateInfoRecord = ({
+typedef InfoPembaruanRecord = ({
   bool isUpdateRequired,
   VersiApkModel? apkInfo,
   InfoPerangkatModel? packageInfo,
@@ -56,27 +56,27 @@ class SplashScreenUser extends ConsumerStatefulWidget {
 
 class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   final SettingsOpFirebase _settingsOp = SettingsOpFirebase();
-  final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
+  final idUnitIklan = IdInterstitialAds.interstitialAdUnitIds[0];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((final _) {
-      unawaited(_initializeApp());
+      unawaited(_inisialisasiAplikasi());
     });
   }
 
-  Future<void> _initializeApp() async {
+  Future<void> _inisialisasiAplikasi() async {
     try {
       Log.info('Memulai inisialisasi dari Splash Screen...');
-      await _initializeOfflineServices();
+      await _inisialisasiLayananOffline();
 
-      final isConnected = await ref
+      final terhubung = await ref
           .watch(koneksiInternetServiceProvider)
           .cekKoneksiLokal();
 
-      if (isConnected) {
-        await _initializeOnlineServices();
+      if (terhubung) {
+        await _lanjutkanInisialisasi();
 
         final eventInfo = await _cekEvent();
         if (eventInfo != null) {
@@ -97,27 +97,27 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
         if (mounted) {
           ToastUtil.info(context, 'Anda sedang offline.');
         }
-        await _navigateToNextPage();
+        await _navigasiKeHalamanBerikutnya();
       }
     } on Exception catch (e, st) {
       Log.error('Error kritis saat inisialisasi', e: e, s: st);
       if (mounted) {
         ToastUtil.error(context, 'Gagal terhubung ke server.');
       }
-      await _navigateToNextPage();
+      await _navigasiKeHalamanBerikutnya();
     }
   }
 
   Future<void> _continueInitialization() async {
-    final maintenanceSettings = await _checkMaintenanceMode();
-    if (maintenanceSettings != null) {
+    final pengaturanPemeliharaan = await _periksaModePemeliharaan();
+    if (pengaturanPemeliharaan != null) {
       if (!mounted) return;
       unawaited(
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => MaintenancePage(
-              infoMaintenance: maintenanceSettings.infoMaintenance,
-              onRefresh: _initializeApp,
+              infoMaintenance: pengaturanPemeliharaan.infoMaintenance,
+              onRefresh: _inisialisasiAplikasi,
               onExit: SystemNavigator.pop,
             ),
           ),
@@ -126,26 +126,26 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       return;
     }
 
-    final updateInfo = await _checkAppUpdate();
-    if (updateInfo != null) {
+    final infoPembaruan = await _periksaPembaruanAplikasi();
+    if (infoPembaruan != null) {
       if (!mounted) return;
       unawaited(
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => UpdateApkPage(
-              infoApk: updateInfo.apkInfo!,
-              infoPaket: updateInfo.packageInfo!,
-              arsitektur: updateInfo.architecture!,
+              infoApk: infoPembaruan.apkInfo!,
+              infoPaket: infoPembaruan.packageInfo!,
+              arsitektur: infoPembaruan.architecture!,
             ),
           ),
         ),
       );
       return;
     }
-    await _navigateToNextPage();
+    await _navigasiKeHalamanBerikutnya();
   }
 
-  Future<void> _initializeOfflineServices() async {
+  Future<void> _inisialisasiLayananOffline() async {
     await LayananNotifikasi().inisialisasiNotifikasi(
       iconName: 'ic_notification',
     );
@@ -153,7 +153,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     await initializeDateFormatting('id_ID');
   }
 
-  Future<void> _initializeOnlineServices() async {
+  Future<void> _lanjutkanInisialisasi() async {
     try {
       await MobileAds.instance.initialize();
       FirebaseFirestore.instance.settings = const Settings(
@@ -170,31 +170,31 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     return infoEvent;
   }
 
-  Future<UpdateInfoRecord?> _checkAppUpdate() async {
+  Future<InfoPembaruanRecord?> _periksaPembaruanAplikasi() async {
     if (!mounted) return null;
-    final updateService = LayananCekUpdateApk(
+    final layananCekUpdateApk = LayananCekUpdateApk(
       prefs: widget.prefs,
       penyimpananLokal: widget.penyimpananLokal,
       context: context,
     );
-    final updateInfo = await updateService.ambilInfoUpdate();
-    if (updateInfo.perluUpdate) {
+    final infoUpdate = await layananCekUpdateApk.ambilInfoUpdate();
+    if (infoUpdate.perluUpdate) {
       return (
-        isUpdateRequired: updateInfo.perluUpdate,
-        apkInfo: updateInfo.infoApk,
-        packageInfo: updateInfo.infoPaket,
-        architecture: updateInfo.arsitektur,
+        isUpdateRequired: infoUpdate.perluUpdate,
+        apkInfo: infoUpdate.infoApk,
+        packageInfo: infoUpdate.infoPaket,
+        architecture: infoUpdate.arsitektur,
       );
     }
     return null;
   }
 
-  Future<SettingsModel?> _checkMaintenanceMode() async {
+  Future<SettingsModel?> _periksaModePemeliharaan() async {
     try {
-      final settingsMap = await _settingsOp.ambilPengaturan();
-      final settings = SettingsModel.fromFirebase(settingsMap);
-      if (settings.modeMaintenance) {
-        return settings;
+      final petaPengaturan = await _settingsOp.ambilPengaturan();
+      final pengaturan = SettingsModel.fromFirebase(petaPengaturan);
+      if (pengaturan.modeMaintenance) {
+        return pengaturan;
       }
       return null;
     } on Exception catch (e, st) {
@@ -203,21 +203,21 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     }
   }
 
-  Future<void> _navigateToNextPage() async {
+  Future<void> _navigasiKeHalamanBerikutnya() async {
     if (!mounted) return;
     final pengelolaAkun = await ref.read(pengelolaAkunProvider.future);
     final akunAktif = pengelolaAkun.akunSaatIni;
 
     if (akunAktif != null) {
-      final isConnected = await ref
+      final terhubung = await ref
           .read(koneksiInternetServiceProvider)
           .cekKoneksiLokal();
 
-      if (isConnected) {
-        final userActivityService = await ref.read(
+      if (terhubung) {
+        final layananAktivitasPengguna = await ref.read(
           userActivityServiceProvider.future,
         );
-        unawaited(userActivityService.pingAktivitas(akunAktif.id));
+        unawaited(layananAktivitasPengguna.pingAktivitas(akunAktif.id));
       }
       if (!mounted) return;
       unawaited(
@@ -236,7 +236,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(
         child: Column(

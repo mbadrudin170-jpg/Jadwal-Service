@@ -27,7 +27,7 @@ enum SortOption {
   updatedAtAZ,
   updatedAtZA,
   paid,
-  unpaid
+  unpaid,
 }
 
 class RiwayatAktivasiPaketState {
@@ -64,8 +64,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
 
-    final transaksi =
-        await transaksiOpSqlite.getTransactionsByPackageActivation();
+    final transaksi = await transaksiOpSqlite.ambilBerdasarkanStatusAktivasi();
     final pealnggan = await pelangganOpSqlite.ambilSemua();
 
     // Buat peta untuk pencarian cepat
@@ -82,10 +81,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     // Urutkan data gabungan
     _performSort(combinedList, targetSort);
 
-    return RiwayatAktivasiPaketState(
-      items: combinedList,
-      sortBy: targetSort,
-    );
+    return RiwayatAktivasiPaketState(items: combinedList, sortBy: targetSort);
   }
 
   void changeSort(SortOption newSort) {
@@ -94,14 +90,14 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     final currentState = state.value!;
     if (currentState.sortBy == newSort) return;
 
-    final List<TransactionWithCustomer> sortedList =
-        List.from(currentState.items);
+    final List<TransactionWithCustomer> sortedList = List.from(
+      currentState.items,
+    );
     _performSort(sortedList, newSort);
 
-    state = AsyncValue.data(currentState.copyWith(
-      items: sortedList,
-      sortBy: newSort,
-    ));
+    state = AsyncValue.data(
+      currentState.copyWith(items: sortedList, sortBy: newSort),
+    );
   }
 
   void _performSort(List<TransactionWithCustomer> list, SortOption option) {
@@ -114,8 +110,9 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           }
           if (a.transaksi.tanggalBerakhir == null) return 1;
           if (b.transaksi.tanggalBerakhir == null) return -1;
-          final dateCompare = b.transaksi.tanggalBerakhir!
-              .compareTo(a.transaksi.tanggalBerakhir!);
+          final dateCompare = b.transaksi.tanggalBerakhir!.compareTo(
+            a.transaksi.tanggalBerakhir!,
+          );
           if (dateCompare != 0) return dateCompare;
           return a.transaksi.id.compareTo(b.transaksi.id);
         });
@@ -139,21 +136,27 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           return updateAtA.compareTo(updateAtB);
         });
       case SortOption.nameAZ:
-        list.sort((a, b) => a.customerName
-            .toLowerCase()
-            .compareTo(b.customerName.toLowerCase()));
+        list.sort(
+          (a, b) => a.customerName.toLowerCase().compareTo(
+            b.customerName.toLowerCase(),
+          ),
+        );
       case SortOption.nameZA:
-        list.sort((a, b) => b.customerName
-            .toLowerCase()
-            .compareTo(a.customerName.toLowerCase()));
+        list.sort(
+          (a, b) => b.customerName.toLowerCase().compareTo(
+            a.customerName.toLowerCase(),
+          ),
+        );
       case SortOption.endingToday:
         final now = DateTime.now();
         list.sort((a, b) {
-          final isTodayA = a.transaksi.tanggalBerakhir != null &&
+          final isTodayA =
+              a.transaksi.tanggalBerakhir != null &&
               a.transaksi.tanggalBerakhir!.year == now.year &&
               a.transaksi.tanggalBerakhir!.month == now.month &&
               a.transaksi.tanggalBerakhir!.day == now.day;
-          final isTodayB = b.transaksi.tanggalBerakhir != null &&
+          final isTodayB =
+              b.transaksi.tanggalBerakhir != null &&
               b.transaksi.tanggalBerakhir!.year == now.year &&
               b.transaksi.tanggalBerakhir!.month == now.month &&
               b.transaksi.tanggalBerakhir!.day == now.day;
@@ -167,8 +170,9 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           }
           if (a.transaksi.tanggalBerakhir == null) return 1;
           if (b.transaksi.tanggalBerakhir == null) return -1;
-          return a.transaksi.tanggalBerakhir!
-              .compareTo(b.transaksi.tanggalBerakhir!);
+          return a.transaksi.tanggalBerakhir!.compareTo(
+            b.transaksi.tanggalBerakhir!,
+          );
         });
       case SortOption.paid:
         list.sort((a, b) {
@@ -176,8 +180,9 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           final isPaidB = b.transaksi.statusPembayaran == StatusPembayaran.paid;
           if (isPaidA && !isPaidB) return -1;
           if (!isPaidA && isPaidB) return 1;
-          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal)
-              .compareTo(a.transaksi.diperbaruiPada ?? a.transaksi.tanggal);
+          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal).compareTo(
+            a.transaksi.diperbaruiPada ?? a.transaksi.tanggal,
+          );
         });
       case SortOption.unpaid:
         list.sort((a, b) {
@@ -187,8 +192,9 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
               b.transaksi.statusPembayaran == StatusPembayaran.unpaid;
           if (isUnpaidA && !isUnpaidB) return -1;
           if (!isUnpaidA && isUnpaidB) return 1;
-          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal)
-              .compareTo(a.transaksi.diperbaruiPada ?? a.transaksi.tanggal);
+          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal).compareTo(
+            a.transaksi.diperbaruiPada ?? a.transaksi.tanggal,
+          );
         });
     }
   }

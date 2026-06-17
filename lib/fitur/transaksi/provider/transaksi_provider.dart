@@ -41,7 +41,7 @@ class Transaksi extends _$Transaksi {
   // untuk menghindari pembacaan `state.value` yang tidak menentu saat async loading
   Future<TransaksiState> _loadData(SortBy targetSortBy) async {
     final results = await Future.wait([
-      _transaksiOpSqlite.getAllTransactions(),
+      _transaksiOpSqlite.ambilSemua(),
       _transaksiOpSqlite.getTotalIncome(),
       _transaksiOpSqlite.getTotalExpense(),
       _transaksiOpSqlite.getNetTotal(),
@@ -68,14 +68,14 @@ class Transaksi extends _$Transaksi {
     // Jika tipe sorting-nya sama, tidak perlu memproses ulang data
     if (currentState.sortBy == newSortBy) return;
 
-    final List<TransaksiModel> sortedTransactions =
-        List.from(currentState.transaksi);
+    final List<TransaksiModel> sortedTransactions = List.from(
+      currentState.transaksi,
+    );
     _performSort(sortedTransactions, newSortBy);
 
-    state = AsyncValue.data(currentState.copyWith(
-      transaksi: sortedTransactions,
-      sortBy: newSortBy,
-    ));
+    state = AsyncValue.data(
+      currentState.copyWith(transaksi: sortedTransactions, sortBy: newSortBy),
+    );
   }
 
   void _performSort(List<TransaksiModel> transactions, SortBy sortBy) {
@@ -115,7 +115,7 @@ class Transaksi extends _$Transaksi {
     final currentSort = state.value?.sortBy ?? SortBy.newest;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await _transaksiOpSqlite.updateTransaction(transaction.id, transaction);
+      await _transaksiOpSqlite.perbaruiTransaksi(transaction.id, transaction);
       ref.invalidate(dompetProvider);
       ref.invalidate(statistikProvider);
       return _loadData(currentSort);

@@ -66,7 +66,7 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
     try {
       final hasil = await Future.wait([
         dompetOpSqlite.ambilBerdasarkanId(widget.dompet.id),
-        transaksiOpsqlite.getTransactionsByWalletId(widget.dompet.id),
+        transaksiOpsqlite.ambilBerdasarkanIdDompet(widget.dompet.id),
       ]);
 
       final dompet = hasil[0] as DompetModel?;
@@ -112,9 +112,7 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
     });
   }
 
-  Future<void> _navigasiKeDetailTransaksi(
-    TransaksiModel transaction,
-  ) async {
+  Future<void> _navigasiKeDetailTransaksi(TransaksiModel transaction) async {
     Log.info(
       'Navigasi ke TransactionDetailPage dari WalletDetail untuk transaksi ID: ${transaction.id}',
     );
@@ -135,9 +133,7 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
     }
   }
 
-  Future<void> _navigasiKeFormTransaksi({
-    TransaksiModel? transaksi,
-  }) async {
+  Future<void> _navigasiKeFormTransaksi({TransaksiModel? transaksi}) async {
     Log.info(
       'Membuka FormTransaksiPage untuk mengedit transaksi ID: ${transaksi?.id} dari WalletDetail.',
     );

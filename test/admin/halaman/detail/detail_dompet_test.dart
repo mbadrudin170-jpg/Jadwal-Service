@@ -1,4 +1,3 @@
-
 // path: test/admin/halaman/detail/detail_dompet_test.dart
 import 'dart:async';
 
@@ -25,10 +24,11 @@ void main() {
   late MockNavigatorObserver mockNavigatorObserver;
 
   final dompetAwal = DompetModel(
-      id: 'd1',
-      nama: 'Dompet Utama',
-      saldo: 1000.0,
-      diperbaruiPada: DateTime.now());
+    id: 'd1',
+    nama: 'Dompet Utama',
+    saldo: 1000.0,
+    diperbaruiPada: DateTime.now(),
+  );
   final List<TransaksiModel> daftarTransaksi = [
     TransaksiModel(
       id: 't1',
@@ -56,10 +56,12 @@ void main() {
     mockNavigatorObserver = MockNavigatorObserver();
 
     // Stub default successful data loading
-    when(mockDompetOpSqlite.ambilBerdasarkanId(any))
-        .thenAnswer((_) async => dompetAwal);
-    when(mockTransaksiOpSqlite.getTransactionsByWalletId(any))
-        .thenAnswer((_) async => daftarTransaksi);
+    when(
+      mockDompetOpSqlite.ambilBerdasarkanId(any),
+    ).thenAnswer((_) async => dompetAwal);
+    when(
+      mockTransaksiOpSqlite.ambilBerdasarkanIdDompet(any),
+    ).thenAnswer((_) async => daftarTransaksi);
     when(mockTransaksiOpSqlite.softDelete(any)).thenAnswer((_) async => 1);
   });
 
@@ -77,83 +79,97 @@ void main() {
   }
 
   group('01. DetailDompet Widget Tests', () {
-    testWidgets('01. harus menampilkan CircularProgressIndicator saat loading',
-        (tester) async {
-      final completer = Completer<DompetModel>();
-      when(mockDompetOpSqlite.ambilBerdasarkanId(any))
-          .thenAnswer((_) => completer.future);
+    testWidgets(
+      '01. harus menampilkan CircularProgressIndicator saat loading',
+      (tester) async {
+        final completer = Completer<DompetModel>();
+        when(
+          mockDompetOpSqlite.ambilBerdasarkanId(any),
+        ).thenAnswer((_) => completer.future);
+
+        await tester.pumpWidget(createWidget());
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+        completer.complete(dompetAwal);
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets('02. harus menampilkan pesan error jika data gagal dimuat', (
+      tester,
+    ) async {
+      when(
+        mockDompetOpSqlite.ambilBerdasarkanId(any),
+      ).thenThrow(Exception('Gagal memuat'));
 
       await tester.pumpWidget(createWidget());
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-      completer.complete(dompetAwal);
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('02. harus menampilkan pesan error jika data gagal dimuat',
-        (tester) async {
-      when(mockDompetOpSqlite.ambilBerdasarkanId(any))
-          .thenThrow(Exception('Gagal memuat'));
-
-      await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('Error: Exception: Gagal memuat'),
-          findsOneWidget);
+      expect(
+        find.textContaining('Error: Exception: Gagal memuat'),
+        findsOneWidget,
+      );
     });
 
     testWidgets(
-        '03. harus menampilkan "Data Kosong" jika future selesai tanpa data',
-        (tester) async {
-      when(mockDompetOpSqlite.ambilBerdasarkanId(any))
-          .thenAnswer((_) async => null);
-      when(mockTransaksiOpSqlite.getTransactionsByWalletId(any))
-          .thenAnswer((_) async => []);
+      '03. harus menampilkan "Data Kosong" jika future selesai tanpa data',
+      (tester) async {
+        when(
+          mockDompetOpSqlite.ambilBerdasarkanId(any),
+        ).thenAnswer((_) async => null);
+        when(
+          mockTransaksiOpSqlite.ambilBerdasarkanIdDompet(any),
+        ).thenAnswer((_) async => []);
 
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
 
-      expect(find.text('Belum ada transaksi.'), findsOneWidget);
-    });
-
-    testWidgets(
-        '04. harus menampilkan detail dan daftar transaksi setelah data berhasil dimuat',
-        (tester) async {
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
-
-      // Cek AppBar title
-      expect(find.text('Dompet Utama'), findsOneWidget);
-
-      // Cek summary info (Pemasukan, Pengeluaran, Saldo)
-      expect(find.text('Pemasukan'), findsOneWidget);
-      expect(find.textContaining('5,000'), findsOneWidget);
-      expect(find.text('Pengeluaran'), findsOneWidget);
-      expect(find.textContaining('15'), findsOneWidget);
-      expect(find.text('Saldo'), findsOneWidget);
-      expect(find.textContaining('1,000'), findsOneWidget);
-
-      // Cek item transaksi
-      expect(find.text('Gaji'), findsOneWidget);
-      expect(find.text('Beli Kopi'), findsOneWidget);
-    });
+        expect(find.text('Belum ada transaksi.'), findsOneWidget);
+      },
+    );
 
     testWidgets(
-        '05. harus menampilkan "Belum ada transaksi." jika daftar transaksi kosong',
-        (tester) async {
-      when(mockTransaksiOpSqlite.getTransactionsByWalletId(any))
-          .thenAnswer((_) async => []);
+      '04. harus menampilkan detail dan daftar transaksi setelah data berhasil dimuat',
+      (tester) async {
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
 
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
+        // Cek AppBar title
+        expect(find.text('Dompet Utama'), findsOneWidget);
 
-      expect(find.text('Belum ada transaksi.'), findsOneWidget);
-    });
+        // Cek summary info (Pemasukan, Pengeluaran, Saldo)
+        expect(find.text('Pemasukan'), findsOneWidget);
+        expect(find.textContaining('5,000'), findsOneWidget);
+        expect(find.text('Pengeluaran'), findsOneWidget);
+        expect(find.textContaining('15'), findsOneWidget);
+        expect(find.text('Saldo'), findsOneWidget);
+        expect(find.textContaining('1,000'), findsOneWidget);
+
+        // Cek item transaksi
+        expect(find.text('Gaji'), findsOneWidget);
+        expect(find.text('Beli Kopi'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      '05. harus menampilkan "Belum ada transaksi." jika daftar transaksi kosong',
+      (tester) async {
+        when(
+          mockTransaksiOpSqlite.ambilBerdasarkanIdDompet(any),
+        ).thenAnswer((_) async => []);
+
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
+
+        expect(find.text('Belum ada transaksi.'), findsOneWidget);
+      },
+    );
   });
 
   group('02. Interaksi dan Navigasi', () {
-    testWidgets('01. harus memanggil Navigator.pop saat tombol back ditekan',
-        (tester) async {
+    testWidgets('01. harus memanggil Navigator.pop saat tombol back ditekan', (
+      tester,
+    ) async {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
@@ -170,8 +186,9 @@ void main() {
         await tester.pumpAndSettle();
 
         final route = MaterialPageRoute(builder: (_) => const Scaffold());
-        when(mockNavigatorObserver.didPush(any, any))
-            .thenAnswer((invocation) => route.didPush().then((_) => true));
+        when(
+          mockNavigatorObserver.didPush(any, any),
+        ).thenAnswer((invocation) => route.didPush().then((_) => true));
 
         // Tap item transaksi
         await tester.tap(find.text('Gaji'));
@@ -183,37 +200,40 @@ void main() {
     );
 
     testWidgets(
-        '03. harus hapus transaksi dan refresh data saat on_delete ditekan',
-        (tester) async {
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
+      '03. harus hapus transaksi dan refresh data saat on_delete ditekan',
+      (tester) async {
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
 
-      when(mockTransaksiOpSqlite.getTransactionsByWalletId(any))
-          .thenAnswer((_) async => [daftarTransaksi[1]]);
-      when(mockDompetOpSqlite.ambilBerdasarkanId('d1'))
-          .thenAnswer((_) async => dompetAwal.copyWith(saldo: 1000 - 5000));
+        when(
+          mockTransaksiOpSqlite.ambilBerdasarkanIdDompet(any),
+        ).thenAnswer((_) async => [daftarTransaksi[1]]);
+        when(
+          mockDompetOpSqlite.ambilBerdasarkanId('d1'),
+        ).thenAnswer((_) async => dompetAwal.copyWith(saldo: 1000 - 5000));
 
-      final gajiItem = find.widgetWithText(ListTile, 'Gaji');
-      final deleteIcon = find.descendant(
-        of: gajiItem,
-        matching: find.byIcon(Icons.delete),
-      );
+        final gajiItem = find.widgetWithText(ListTile, 'Gaji');
+        final deleteIcon = find.descendant(
+          of: gajiItem,
+          matching: find.byIcon(Icons.delete),
+        );
 
-      expect(deleteIcon, findsOneWidget);
+        expect(deleteIcon, findsOneWidget);
 
-      await tester.tap(deleteIcon);
-      await tester.pumpAndSettle();
+        await tester.tap(deleteIcon);
+        await tester.pumpAndSettle();
 
-      verify(mockTransaksiOpSqlite.softDelete('t1')).called(1);
-      verify(mockDompetOpSqlite.ambilBerdasarkanId('d1')).called(2);
-      verify(mockTransaksiOpSqlite.getTransactionsByWalletId('d1'))
-          .called(2);
-      expect(find.text('Gaji'), findsNothing);
-      expect(find.text('Beli Kopi'), findsOneWidget);
-    });
+        verify(mockTransaksiOpSqlite.softDelete('t1')).called(1);
+        verify(mockDompetOpSqlite.ambilBerdasarkanId('d1')).called(2);
+        verify(mockTransaksiOpSqlite.ambilBerdasarkanIdDompet('d1')).called(2);
+        expect(find.text('Gaji'), findsNothing);
+        expect(find.text('Beli Kopi'), findsOneWidget);
+      },
+    );
 
-    testWidgets('04. harus navigasi ke FormTransaksi saat onEdit ditekan',
-        (tester) async {
+    testWidgets('04. harus navigasi ke FormTransaksi saat onEdit ditekan', (
+      tester,
+    ) async {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
@@ -230,9 +250,10 @@ void main() {
 
       verify(mockNavigatorObserver.didPush(any, any));
       final pushedRoute =
-          verify(mockNavigatorObserver.didPush(captureAny, captureAny))
-              .captured
-              .last as MaterialPageRoute;
+          verify(
+                mockNavigatorObserver.didPush(captureAny, captureAny),
+              ).captured.last
+              as MaterialPageRoute;
       expect(pushedRoute.builder(MockBuildContext()), isA<FormTransaksi>());
     });
   });

@@ -122,25 +122,6 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       return 0;
     }
   }
-
-  /// Menghapus transaksi dari Firestore secara permanen.
-  Future<void> hapusTransaksi(String idTransaksi) async {
-    Log.warning(
-      'Memulai penghapusan permanen transaksi di Firestore: $idTransaksi',
-    );
-    try {
-      await hapusPermanen(NamaTabel.transaksi, idTransaksi);
-      Log.info('Penghapusan permanen transaksi berhasil: $idTransaksi');
-    } on FirebaseException catch (e, s) {
-      Log.error(
-        'Gagal menghapus transaksi secara permanen: $idTransaksi',
-        e: e,
-        s: s,
-      );
-      rethrow;
-    }
-  }
-
   /// Melakukan soft delete pada transaksi di Firestore.
   Future<void> hapusSementaraTransaksi(String idTransaksi) async {
     Log.info('Memulai soft delete transaksi di Firestore: $idTransaksi');

@@ -25,10 +25,11 @@ class MainPage extends ConsumerStatefulWidget {
 }
 
 class _MainPageState extends ConsumerState<MainPage> {
-  int _selectedIndex = 0;
-  late final List<Widget> _pages;
-  late final AppLifecycleReactor _appLifecycleReactor;
-  final LayananIklanBukaAplikasi _appOpenAdService = LayananIklanBukaAplikasi();
+  int _indeksTerpilih = 0;
+  late final List<Widget> _daftarHalaman;
+  late final AppLifecycleReactor _reaktorSiklusHidup;
+  final LayananIklanBukaAplikasi _layananIklanBukaAplikasi =
+      LayananIklanBukaAplikasi();
 
   @override
   void initState() {
@@ -46,40 +47,43 @@ class _MainPageState extends ConsumerState<MainPage> {
       }
     });
 
-    _pages = [
+    _daftarHalaman = [
       const ProfilePage(),
       const TransaksiU(),
       const OrderPage(),
       const HalamanUjiKecepatan(),
       const SettingsPageU(),
     ];
-    _appLifecycleReactor = AppLifecycleReactor(
-      appOpenAdService: _appOpenAdService,
+    _reaktorSiklusHidup = AppLifecycleReactor(
+      appOpenAdService: _layananIklanBukaAplikasi,
     );
-    _appLifecycleReactor.listenToAppStateChanges();
+    _reaktorSiklusHidup.listenToAppStateChanges();
     FlutterNativeSplash.remove();
   }
 
-  void _onItemTapped(int index) {
+  void _ketikaItemDiketuk(int index) {
     Log.info('Item navigasi diketuk: index $index');
-    if (_selectedIndex == index) {
+    if (_indeksTerpilih == index) {
       return;
     }
 
     setState(() {
-      _selectedIndex = index;
+      _indeksTerpilih = index;
     });
   }
 
   @override
-  Widget build(final BuildContext context) {
-    Log.info('Membangun MainPage untuk indeks halaman: $_selectedIndex');
+  Widget build(BuildContext context) {
+    Log.info('Membangun MainPage untuk indeks halaman: $_indeksTerpilih');
 
     return Scaffold(
       body: Column(
         children: [
           Expanded(
-            child: IndexedStack(index: _selectedIndex, children: _pages),
+            child: IndexedStack(
+              index: _indeksTerpilih,
+              children: _daftarHalaman,
+            ),
           ),
           const BannerAdsWidget(),
         ],
@@ -96,8 +100,8 @@ class _MainPageState extends ConsumerState<MainPage> {
             label: 'Pengaturan',
           ),
         ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+        currentIndex: _indeksTerpilih,
+        onTap: _ketikaItemDiketuk,
       ),
     );
   }

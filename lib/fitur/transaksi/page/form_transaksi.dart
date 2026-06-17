@@ -265,7 +265,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
           Log.info(
             'Menjalankan operasi UPDATE untuk transaksi ID: ${transaksi.id}',
           );
-          await _transaksiOpSqlite.updateTransaction(
+          await _transaksiOpSqlite.perbaruiTransaksi(
             widget.transaksi!.id,
             transaksi,
           );

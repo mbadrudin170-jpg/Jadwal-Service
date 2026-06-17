@@ -38,7 +38,8 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
     _tanggalBerakhir = widget.transaksi.tanggalBerakhir ?? DateTime.now();
     _statusPembayaran = widget.transaksi.statusPembayaran;
     Log.info(
-        'Form edit riwayat langganan diinisialisasi untuk transaksi ID: ${widget.transaksi.id}');
+      'Form edit riwayat langganan diinisialisasi untuk transaksi ID: ${widget.transaksi.id}',
+    );
   }
 
   Future<void> _selectDateTime(bool isStartDate) async {
@@ -81,7 +82,8 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
         } else {
           _tanggalBerakhir = newDateTime;
           Log.info(
-              'Tanggal & waktu berakhir diubah menjadi: $_tanggalBerakhir');
+            'Tanggal & waktu berakhir diubah menjadi: $_tanggalBerakhir',
+          );
         }
       });
     }
@@ -108,7 +110,7 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
         diperbaruiPada: DateTime.now(),
       );
 
-      await transaksiOpSqlite.updateTransaction(
+      await transaksiOpSqlite.perbaruiTransaksi(
         widget.transaksi.id,
         updateTransaksi,
       );
@@ -123,19 +125,24 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
 
       if (!mounted) return;
 
-      final isOnline =
-          await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
+      final isOnline = await ref
+          .read(koneksiInternetServiceProvider)
+          .cekKoneksiLokal();
       if (isOnline) {
         final syncCheckService = ref.read(layananCekSinkronisasiProvider);
         syncCheckService.jalankanCekSinkronisasi();
         if (mounted) {
-          ToastUtil.success(context,
-              'Riwayat langganan berhasil diperbarui dan disinkronkan.');
+          ToastUtil.success(
+            context,
+            'Riwayat langganan berhasil diperbarui dan disinkronkan.',
+          );
         }
       } else {
         if (mounted) {
-          ToastUtil.info(context,
-              'Koneksi offline. Data disimpan lokal dan akan disinkronkan saat online.');
+          ToastUtil.info(
+            context,
+            'Koneksi offline. Data disimpan lokal dan akan disinkronkan saat online.',
+          );
         }
       }
 
@@ -163,7 +170,8 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
       final jadwal = tanggalBerakhir;
       if (jadwal.isAfter(DateTime.now())) {
         Log.info(
-            'Menjadwalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi pada $jadwal');
+          'Menjadwalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi pada $jadwal',
+        );
         await layananNotifikasi.perbaruiJadwalNotifikasi(
           id: idNotifikasi,
           title: 'Langganan Telah Berakhir',
@@ -174,7 +182,8 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
       }
     } else if (wasPaid && !isNowPaid) {
       Log.info(
-          'Membatalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi karena status tidak lagi LUNAS.');
+        'Membatalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi karena status tidak lagi LUNAS.',
+      );
       await layananNotifikasi.batalNotifikasi(idNotifikasi);
     }
   }
@@ -182,9 +191,7 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Riwayat Langganan'),
-      ),
+      appBar: AppBar(title: const Text('Edit Riwayat Langganan')),
       body: Padding(
         padding: const EdgeInsets.all(TSizes.p16),
         child: Form(
@@ -221,7 +228,8 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
                     setState(() {
                       _statusPembayaran = newValue;
                       Log.info(
-                          'Status pembayaran diubah menjadi: $_statusPembayaran');
+                        'Status pembayaran diubah menjadi: $_statusPembayaran',
+                      );
                     });
                   }
                 },

@@ -46,7 +46,7 @@ class StatistikOpSqlite {
     Log.info('Mulai menghitung paket terlaris.');
     try {
       final daftarPaket = await _paketOpsqlite.ambilSemua();
-      final daftartransaksi = await _transaksiOpSqlite.getAllTransactions();
+      final daftartransaksi = await _transaksiOpSqlite.ambilSemua();
 
       if (daftartransaksi.isEmpty) {
         Log.warning('Tidak ada transaksi, mengembalikan list paket kosong.');
