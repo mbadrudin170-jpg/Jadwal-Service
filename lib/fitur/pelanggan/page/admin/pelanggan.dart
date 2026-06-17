@@ -138,15 +138,16 @@ class Pelanggan extends ConsumerWidget {
           tooltip: 'Urutkan',
           onPressed: () => _dialogSort(context, ref),
         ),
-        IconButton(
-          icon: Icon(isSearching ? TIcons.close : TIcons.search),
-          onPressed: () {
-            ref.read(isSearchingPelangganProvider.notifier).toggle();
-            if (!ref.read(isSearchingPelangganProvider)) {
-              ref.read(searchQueryPelangganProvider.notifier).clear();
-            }
-          },
-        ),
+        if (isSearching)
+          IconButton(
+            icon: Icon(isSearching ? TIcons.close : TIcons.search),
+            onPressed: () {
+              ref.read(isSearchingPelangganProvider.notifier).toggle();
+              if (!ref.read(isSearchingPelangganProvider)) {
+                ref.read(searchQueryPelangganProvider.notifier).clear();
+              }
+            },
+          ),
       ],
     );
   }
