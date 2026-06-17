@@ -163,7 +163,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
                           builder: (context) => FeedbackDetailA(id: item.id),
                         ),
                       );
-                      // Jika kembali membawa nilai true, segarkan data
                       if ((hasil ?? false) && mounted) {
                         ref.invalidate(daftarFeedbackAktifProvider);
                       }
