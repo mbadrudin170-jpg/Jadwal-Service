@@ -48,7 +48,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
     try {
       final pelangganList = await ref
           .read(pelangganOpSqliteProvider)
-          .ambilPelanggan();
+          .ambilSemua();
       if (mounted) {
         setState(() {
           _mapNamaUser = {for (var p in pelangganList) p.id: p.nama};

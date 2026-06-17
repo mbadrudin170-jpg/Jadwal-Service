@@ -46,7 +46,7 @@ final class DaftarPaketProvider
   }
 }
 
-String _$daftarPaketHash() => r'c2b30ada63f2acc51cad95d5495d9188c1136beb';
+String _$daftarPaketHash() => r'60f9768b572cb3fe2eb84b4b0d364290abb1b4c3';
 
 @ProviderFor(UrutanPaketState)
 final urutanPaketStateProvider = UrutanPaketStateProvider._();

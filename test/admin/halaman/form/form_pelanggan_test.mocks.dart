@@ -71,19 +71,13 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i3.PelangganOpSqlite {
           as _i4.Future<void>);
 
   @override
-  _i4.Future<List<_i5.PelangganModel>> ambilPelanggan() =>
+  _i4.Future<List<_i5.PelangganModel>> ambilSemua({
+    bool? tampilkanYangDiarsip = false,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#ambilPelanggan, []),
-            returnValue: _i4.Future<List<_i5.PelangganModel>>.value(
-              <_i5.PelangganModel>[],
-            ),
-          )
-          as _i4.Future<List<_i5.PelangganModel>>);
-
-  @override
-  _i4.Future<List<_i5.PelangganModel>> ambilSemua() =>
-      (super.noSuchMethod(
-            Invocation.method(#ambilSemuaPelanggan, []),
+            Invocation.method(#ambilSemua, [], {
+              #tampilkanYangDiarsip: tampilkanYangDiarsip,
+            }),
             returnValue: _i4.Future<List<_i5.PelangganModel>>.value(
               <_i5.PelangganModel>[],
             ),

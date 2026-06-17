@@ -17,7 +17,7 @@ Future<List<(PelangganModel, int)>> daftarPelanggan(Ref ref) async {
 
   final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
   final poinOpSqlite = ref.watch(sqlitePointsDataSourceProvider);
-  final listPelanggan = await pelangganOpSqlite.ambilPelanggan();
+  final listPelanggan = await pelangganOpSqlite.ambilSemua();
   final List<Future<int>> pointsFutures = listPelanggan
       .map((PelangganModel c) => poinOpSqlite.ambilTotalPoin(c.id))
       .toList();

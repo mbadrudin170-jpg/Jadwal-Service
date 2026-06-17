@@ -52,7 +52,7 @@ final class DaftarPelangganProvider
   }
 }
 
-String _$daftarPelangganHash() => r'526aa1d50ddeb172780bcb1a95e4e73c97774051';
+String _$daftarPelangganHash() => r'f24525e3d25136931b13e885f84dba257d39dd00';
 
 /// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
 

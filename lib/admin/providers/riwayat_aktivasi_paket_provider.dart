@@ -66,7 +66,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
 
     final transaksi =
         await transaksiOpSqlite.getTransactionsByPackageActivation();
-    final pealnggan = await pelangganOpSqlite.ambilPelanggan();
+    final pealnggan = await pelangganOpSqlite.ambilSemua();
 
     // Buat peta untuk pencarian cepat
     final customerMap = {for (var c in pealnggan) c.id: c};

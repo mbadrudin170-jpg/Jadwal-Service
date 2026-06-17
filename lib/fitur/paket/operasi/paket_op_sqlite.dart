@@ -37,38 +37,16 @@ class PaketOpSqlite {
     }
   }
 
-  /// Mengambil semua paket, termasuk yang diarsipkan.
-  Future<List<PaketModel>> ambilSemua() async {
-    Log.info('Memulai proses pengambilan semua data paket');
-    try {
-      final db = await sqliteDb.database;
-      final List<Map<String, dynamic>> maps = await db.rawQuery('''
-        SELECT *,
-          CASE ${NamaKolom.tipe}
-            WHEN 'jam' THEN ${NamaKolom.durasi}
-            WHEN 'hari' THEN ${NamaKolom.durasi} * 24
-            WHEN 'bulan' THEN ${NamaKolom.durasi} * 24 * 30
-            ELSE 999999
-          END as urutan
-        FROM $_tabel
-        ORDER BY urutan ASC
-      ''');
-
-      Log.info('Berhasil mengambil ${maps.length} data paket');
-      return List.generate(maps.length, (i) {
-        return PaketModel.fromSqlite(maps[i]);
-      });
-    } catch (e, s) {
-      Log.error('Gagal mengambil semua data paket', e: e, s: s);
-      rethrow;
-    }
-  }
-
   /// Mengambil semua paket aktif (tidak diarsipkan).
-  Future<List<PaketModel>> ambilPaket() async {
+  Future<List<PaketModel>> ambilSemua({
+    bool tampilkanYangDiarsip = false,
+  }) async {
     Log.info('Memulai proses pengambilan semua data paket aktif');
     try {
       final db = await sqliteDb.database;
+      final query = tampilkanYangDiarsip
+          ? null
+          : '${NamaKolom.dihapus}=0 AND ${NamaKolom.diarsipkanPada} is NULL';
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT *,
           CASE ${NamaKolom.tipe}
@@ -78,7 +56,7 @@ class PaketOpSqlite {
             ELSE 999999
           END as urutan
         FROM $_tabel
-        WHERE ${NamaKolom.dihapus} = 0
+        WHERE $query
         ORDER BY urutan ASC
       ''');
 
@@ -110,10 +88,12 @@ class PaketOpSqlite {
         ORDER BY urutan ASC
       ''');
 
-      Log.info('Berhasil mengambil ${maps.length} data paket publik');
-      return List.generate(maps.length, (i) {
-        return PaketModel.fromSqlite(maps[i]);
-      });
+     final daftarPaket = List.generate(
+        maps.length,
+        (i) => PaketModel.fromSqlite(maps[i]),
+      );
+      Log.info('Berhasil mengambil ${daftarPaket.length} data wallet.');
+      return daftarPaket;
     } catch (e, s) {
       Log.error('Gagal mengambil semua data paket publik', e: e, s: s);
       rethrow;

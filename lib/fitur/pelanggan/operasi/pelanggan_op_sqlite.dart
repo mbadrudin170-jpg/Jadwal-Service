@@ -39,39 +39,25 @@ class PelangganOpSqlite {
     }
   }
 
-  Future<List<PelangganModel>> ambilPelanggan() async {
-    Log.info(
-      'Mengambil semua customer yang aktif (tidak diarsipkan dan tidak dihapus).',
-    );
-    try {
-      final db = await sqliteDb.database;
-      final List<Map<String, dynamic>> maps = await db.query(
-        _tabel,
-        where:
-            '${NamaKolom.diarsipkanPada} IS NULL AND ${NamaKolom.dihapus} = ?',
-        whereArgs: [0],
-      );
-
-      Log.info('Berhasil mengambil ${maps.length} customer aktif.');
-      return List.generate(maps.length, (i) {
-        return PelangganModel.fromSqlite(maps[i]);
-      });
-    } catch (e, s) {
-      Log.error('Gagal mengambil customer aktif.', e: e, s: s);
-      rethrow;
-    }
-  }
-
-  Future<List<PelangganModel>> ambilSemua() async {
+  Future<List<PelangganModel>> ambilSemua({
+    bool tampilkanYangDiarsip = false,
+  }) async {
     Log.info('Mengambil SEMUA data customer dari database lokal.');
     try {
       final db = await sqliteDb.database;
-      final List<Map<String, dynamic>> maps = await db.query(_tabel);
-
-      Log.info('Berhasil mengambil total ${maps.length} customer.');
-      return List.generate(maps.length, (i) {
-        return PelangganModel.fromSqlite(maps[i]);
-      });
+      final query = tampilkanYangDiarsip
+          ? null
+          : '${NamaKolom.dihapus}=0 AND ${NamaKolom.diarsipkanPada} is NULL';
+      final List<Map<String, dynamic>> maps = await db.query(
+        _tabel,
+        where: query,
+        orderBy: '${NamaKolom.nama} ASC',
+      );
+      final daftarPelanggan = List.generate(
+        maps.length,
+        (i) => PelangganModel.fromSqlite(maps[i]),
+      );
+      return daftarPelanggan;
     } catch (e, s) {
       Log.error('Gagal mengambil semua data customer.', e: e, s: s);
       rethrow;

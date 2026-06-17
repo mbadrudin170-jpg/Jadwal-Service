@@ -45,7 +45,7 @@ class StatistikOpSqlite {
   Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
     Log.info('Mulai menghitung paket terlaris.');
     try {
-      final daftarPaket = await _paketOpsqlite.ambilPaket();
+      final daftarPaket = await _paketOpsqlite.ambilSemua();
       final daftartransaksi = await _transaksiOpSqlite.getAllTransactions();
 
       if (daftartransaksi.isEmpty) {

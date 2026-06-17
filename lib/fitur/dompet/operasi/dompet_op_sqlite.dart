@@ -7,14 +7,12 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
-/// Kelas untuk operasi terkait data dompet di database lokal.
 class DompetOpSqlite {
   final SqliteDatabase sqliteDb;
   final BaseOpSqlite _baseOpSqlite;
   final String _tabelDompet = NamaTabel.dompet;
   final _nowUtc = DateTime.now().toUtc();
 
-  /// Konstruktor dengan injeksi dependensi untuk pengujian.
   DompetOpSqlite({
     required this.sqliteDb,
     required final BaseOpSqlite baseOpSqlite,
@@ -35,9 +33,6 @@ class DompetOpSqlite {
     }
   }
 
-  /// Mengambil semua dompet dari database.
-  ///
-  /// Jika [tampilkanYangDiarsip] `true`, maka dompet yang telah diarsipkan juga akan diambil.
   Future<List<DompetModel>> ambilSemua({
     bool tampilkanYangDiarsip = false,
   }) async {
@@ -64,8 +59,7 @@ class DompetOpSqlite {
     }
   }
 
-  /// Mengambil [DompetModel] berdasarkan [id].
-  Future<DompetModel?> ambilBerdasarkanId(final String id) async {
+  Future<DompetModel?> ambilBerdasarkanId( String id) async {
     Log.info('Memulai getById untuk ID: $id');
     try {
       final db = await sqliteDb.database;
@@ -89,7 +83,6 @@ class DompetOpSqlite {
     }
   }
 
-  /// Memperbarui [DompetModel] yang ada di database.
   Future<void> updateDompet(
     final DompetModel wallet, {
     final bool fromServer = false,
@@ -110,7 +103,6 @@ class DompetOpSqlite {
     }
   }
 
-  /// Melakukan soft delete pada satu dompet berdasarkan [id].
   Future<void> softDelete(
     final String id, {
     final bool fromServer = false,
@@ -125,7 +117,6 @@ class DompetOpSqlite {
     }
   }
 
-  /// Melakukan soft delete pada semua dompet.
   Future<int> softDeleteAll({final bool fromServer = false}) async {
     Log.info('Memulai soft delete untuk semua dompet');
     try {
@@ -141,7 +132,6 @@ class DompetOpSqlite {
     }
   }
 
-  /// Menghitung total saldo dari semua dompet aktif.
   Future<double> ambilTotalsaldo() async {
     Log.info(
       'Memulai ambilTotalsaldo (menghitung total saldo dari semua wallet aktif).',
@@ -165,7 +155,6 @@ class DompetOpSqlite {
     }
   }
 
-  /// Menghitung total saldo positif dari semua dompet aktif.
   Future<double> ambilSaldoPositif() async {
     Log.info(
       'Memulai ambilSaldoPositif (menghitung total saldo > 0 dari wallet aktif).',
@@ -189,7 +178,6 @@ class DompetOpSqlite {
     }
   }
 
-  /// Menghitung total saldo negatif dari semua dompet aktif.
   Future<double> ambilSaldoNegatif() async {
     Log.info(
       'Memulai ambilSaldoNegatif (menghitung total saldo < 0 dari wallet aktif).',
@@ -213,7 +201,6 @@ class DompetOpSqlite {
     }
   }
 
-  /// Menyisipkan atau memperbarui sekumpulan dompet dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
     final List<DompetModel> items, {
     final bool dariServer = false,

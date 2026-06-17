@@ -10,9 +10,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
 class KategoriOpSqlite {
   final SqliteDatabase sqlitedb;
-
   final BaseOpSqlite _baseOpSqlite;
-
   final String _namaTabel = NamaTabel.kategori;
 
   KategoriOpSqlite({
@@ -26,15 +24,12 @@ class KategoriOpSqlite {
   }) async {
     Log.info('Memulai createCategory untuk category: ${kategori.toSqlite()}');
     try {
-      final kategoriBaru =
-          kategori.copyWith(diperbaruiPada: DateTime.now().toUtc());
+      final kategoriBaru = kategori.copyWith(
+        diperbaruiPada: DateTime.now().toUtc(),
+      );
       final data = kategoriBaru.toSqlite();
 
-      await _baseOpSqlite.sisipkan(
-        _namaTabel,
-        data,
-        dariServer: dariServer,
-      );
+      await _baseOpSqlite.sisipkan(_namaTabel, data, dariServer: dariServer);
       Log.info('Berhasil membuat category baru dengan ID: ${kategoriBaru.id}');
       return kategoriBaru;
     } catch (e, st) {
@@ -43,18 +38,25 @@ class KategoriOpSqlite {
     }
   }
 
-  Future<List<KategoriModel>> ambilSemua() async {
+  Future<List<KategoriModel>> ambilSemua({
+    bool tampilkanYangDiarsip = false,
+  }) async {
     Log.info(
-        'Memulai getCategories (mengambil semua kategori yang tidak diarsipkan).');
+      'Memulai getCategories (mengambil semua kategori yang tidak diarsipkan).',
+    );
     try {
       final db = await sqlitedb.database;
+      final query = tampilkanYangDiarsip
+          ? null
+          : '${NamaKolom.dihapus}=0 AND ${NamaKolom.diarsipkanPada} is NULL';
       final List<Map<String, dynamic>> maps = await db.query(
         _namaTabel,
-        where: '${NamaKolom.dihapus} = 0',
+        where: query,
+        orderBy: '${NamaKolom.diperbaruiPada} DESC',
       );
       final daftarKategori = List.generate(
         maps.length,
-        ( i) => KategoriModel.fromSqlite(maps[i]),
+        (i) => KategoriModel.fromSqlite(maps[i]),
       );
       Log.info('Berhasil mengambil ${daftarKategori.length} data category.');
       return daftarKategori;
@@ -64,7 +66,7 @@ class KategoriOpSqlite {
     }
   }
 
-  Future<KategoriModel> ambilKategoriBerdasarkanId( String id) async {
+  Future<KategoriModel> ambilKategoriBerdasarkanId(String id) async {
     Log.info('Memulai getCategoryById untuk ID: $id');
     try {
       final db = await sqlitedb.database;
@@ -82,17 +84,14 @@ class KategoriOpSqlite {
         throw Exception('Category dengan ID $id tidak ditemukan.');
       }
     } catch (e, st) {
-      Log.error(
-        'Gagal saat getCategoryById untuk ID: $id',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal saat getCategoryById untuk ID: $id', e: e, s: st);
       rethrow;
     }
   }
 
   Future<List<KategoriModel>> ambilKategoriBerdasarkanTipe(
-       TipeKategori tipe) async {
+    TipeKategori tipe,
+  ) async {
     Log.info('Memulai getCategoriesByType untuk tipe: ${tipe.name}');
     try {
       final db = await sqlitedb.database;
@@ -125,8 +124,9 @@ class KategoriOpSqlite {
   }) async {
     Log.info('Memulai updateCategory untuk category ID: ${kategori.id}');
     try {
-      final data =
-          kategori.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite();
+      final data = kategori
+          .copyWith(diperbaruiPada: DateTime.now().toUtc())
+          .toSqlite();
       await _baseOpSqlite.update(
         _namaTabel,
         data,
@@ -150,25 +150,15 @@ class KategoriOpSqlite {
   }) async {
     Log.info('Memulai soft delete untuk category ID: $id');
     try {
-      await _baseOpSqlite.softDelete(
-        _namaTabel,
-        id,
-        dariServer: dariServer,
-      );
+      await _baseOpSqlite.softDelete(_namaTabel, id, dariServer: dariServer);
       Log.info('Berhasil soft delete category ID: $id.');
     } catch (e, st) {
-      Log.error(
-        'Gagal saat soft delete category ID: $id',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal saat soft delete category ID: $id', e: e, s: st);
       rethrow;
     }
   }
 
-  Future<int> softDeleteAllKategori({
-    final bool dariServer = false,
-  }) async {
+  Future<int> softDeleteAllKategori({final bool dariServer = false}) async {
     Log.info('Memulai soft delete untuk semua kategori');
     try {
       final count = await _baseOpSqlite.softDeleteAll(
@@ -178,11 +168,7 @@ class KategoriOpSqlite {
       Log.info('Berhasil soft delete semua kategori. Total: $count item.');
       return count;
     } catch (e, st) {
-      Log.error(
-        'Gagal saat soft delete semua kategori',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal saat soft delete semua kategori', e: e, s: st);
       rethrow;
     }
   }
@@ -192,10 +178,12 @@ class KategoriOpSqlite {
     final bool dariServer = false,
   }) async {
     Log.info(
-        'Memulai insertOrUpdateBatch untuk ${items.length} item category.');
+      'Memulai insertOrUpdateBatch untuk ${items.length} item category.',
+    );
     if (items.isEmpty) {
       Log.warning(
-          'List item untuk batch kosong, tidak ada operasi yang dilakukan.');
+        'List item untuk batch kosong, tidak ada operasi yang dilakukan.',
+      );
       return;
     }
     try {
@@ -212,10 +200,14 @@ class KategoriOpSqlite {
         dariServer: dariServer,
       );
       Log.info(
-          'Berhasil menyelesaikan insertOrUpdateBatch untuk ${items.length} item category.');
+        'Berhasil menyelesaikan insertOrUpdateBatch untuk ${items.length} item category.',
+      );
     } catch (e, st) {
-      Log.error('Gagal saat menjalankan insertOrUpdateBatch category',
-          e: e, s: st);
+      Log.error(
+        'Gagal saat menjalankan insertOrUpdateBatch category',
+        e: e,
+        s: st,
+      );
       rethrow;
     }
   }
@@ -224,7 +216,8 @@ class KategoriOpSqlite {
     Log.info('Memulai getCategoriesByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning(
-          'List ID untuk getCategoriesByIds kosong, mengembalikan list kosong.');
+        'List ID untuk getCategoriesByIds kosong, mengembalikan list kosong.',
+      );
       return [];
     }
     try {
@@ -240,7 +233,8 @@ class KategoriOpSqlite {
         (final i) => KategoriModel.fromSqlite(maps[i]),
       );
       Log.info(
-          'Berhasil mengambil ${listCategory.length} category dari ${ids.length} ID yang diminta.');
+        'Berhasil mengambil ${listCategory.length} category dari ${ids.length} ID yang diminta.',
+      );
       return listCategory;
     } catch (e, st) {
       Log.error('Gagal saat getCategoriesByIds', e: e, s: st);
