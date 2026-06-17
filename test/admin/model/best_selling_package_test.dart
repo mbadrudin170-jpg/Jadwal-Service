@@ -1,6 +1,6 @@
 // path: test/admin/model/best_selling_package_test.dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/fitur/statistik/model/best_selling_package.dart';
+import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 
 void main() {
   group('BestSellingPackage', () {
@@ -12,10 +12,10 @@ void main() {
       };
 
       // Panggil metode fromJson
-      final model = BestSellingPackage.fromJson(json);
+      final model = PaketTerlarisModel.fromJson(json);
 
       // Verifikasi bahwa model yang dikembalikan adalah instance dari BestSellingPackage
-      expect(model, isA<BestSellingPackage>());
+      expect(model, isA<PaketTerlarisModel>());
 
       // Verifikasi bahwa properti model sesuai dengan data JSON
       expect(model.packageName, 'Paket Internet Super Cepat');
@@ -24,7 +24,7 @@ void main() {
 
     test('02. toJson() harus mengembalikan map yang valid', () {
       // Buat instance dari BestSellingPackage
-      const model = BestSellingPackage(
+      const model = PaketTerlarisModel(
         packageName: 'Paket Keluarga Bahagia',
         count: 75,
       );
@@ -40,7 +40,7 @@ void main() {
 
     test('03. props harus mengembalikan daftar properti yang benar', () {
       // Buat instance dari BestSellingPackage
-      const model = BestSellingPackage(
+      const model = PaketTerlarisModel(
         packageName: 'Paket Gaming Pro',
         count: 100,
       );

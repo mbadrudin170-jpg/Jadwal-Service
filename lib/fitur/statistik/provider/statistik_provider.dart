@@ -3,7 +3,7 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/statistik/model/best_selling_package.dart';
+import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/statistik/operasi/statistik_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 
@@ -14,7 +14,7 @@ class StatistikState {
   final int totalPelanggan;
   final int jumlahLanggananAktif;
   final int jumlahFeedbackBaru;
-  final List<BestSellingPackage> bestSellingPackages;
+  final List<PaketTerlarisModel> bestSellingPackages;
 
   StatistikState({
     this.pendapatanBulanIni = 0.0,
@@ -29,7 +29,7 @@ class StatistikState {
     int? totalPelanggan,
     int? jumlahLanggananAktif,
     int? jumlahFeedbackBaru,
-    List<BestSellingPackage>? bestSellingPackages,
+    List<PaketTerlarisModel>? bestSellingPackages,
   }) {
     return StatistikState(
       pendapatanBulanIni: pendapatanBulanIni ?? this.pendapatanBulanIni,
@@ -60,8 +60,8 @@ class Statistik extends _$Statistik {
       Log.info('[StatistikNotifier] Memulai pemuatan data sekuensial...');
       final pendapatan = await _statistikOpSlite.ambilPendapatanBulanIni();
       final pelanggan = await _statistikOpSlite.ambilTotalPelanggan();
-      final langgananAktif =
-          await _statistikOpSlite.ambilJumlahLanggananAktif();
+      final langgananAktif = await _statistikOpSlite
+          .ambilJumlahLanggananAktif();
       final feedbackBaru = await _statistikOpSlite.ambilJumlahFeedbackBaru();
       final paketTerlaris = await _statistikOpSlite.ambilPaketTerlaris();
       Log.info('[StatistikNotifier] Semua data sekuensial berhasil dimuat.');

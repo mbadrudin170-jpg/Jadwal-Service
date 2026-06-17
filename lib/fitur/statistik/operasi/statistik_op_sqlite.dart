@@ -4,7 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/fitur/statistik/model/best_selling_package.dart';
+import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
@@ -37,12 +37,12 @@ class StatistikOpSqlite {
     required FeedbackOpSqlite feedbackOpSqlite,
     required PaketOpSqlite paketOpSqlite,
     required TransaksiOpSqlite transaksiOpSqlite,
-  })  : _pelangganAktifOpSqlite = pelangganAktifOpSqlite,
-        _statistikOpSliteProvider = feedbackOpSqlite,
-        _paketOpsqlite = paketOpSqlite,
-        _transaksiOpSqlite = transaksiOpSqlite;
+  }) : _pelangganAktifOpSqlite = pelangganAktifOpSqlite,
+       _statistikOpSliteProvider = feedbackOpSqlite,
+       _paketOpsqlite = paketOpSqlite,
+       _transaksiOpSqlite = transaksiOpSqlite;
 
-  Future<List<BestSellingPackage>> ambilPaketTerlaris({int limit = 5}) async {
+  Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
     Log.info('Mulai menghitung paket terlaris.');
     try {
       final daftarPaket = await _paketOpsqlite.ambilBerdasarkanAktif();
@@ -59,7 +59,7 @@ class StatistikOpSqlite {
           .map((key, value) => MapEntry(key, value.length));
 
       final paketTerlaris = daftarPaket.map((paket) {
-        return BestSellingPackage(
+        return PaketTerlarisModel(
           paket: paket,
           totalTerjual: jumlahPenjualan[paket.id] ?? 0,
         );
@@ -69,7 +69,8 @@ class StatistikOpSqlite {
 
       final hasil = paketTerlaris.take(limit).toList();
       Log.info(
-          'Berhasil menghitung ${hasil.length} paket terlaris: ${hasil.map((p) => '${p.paket.nama} (${p.totalTerjual})').toList()}');
+        'Berhasil menghitung ${hasil.length} paket terlaris: ${hasil.map((p) => '${p.paket.nama} (${p.totalTerjual})').toList()}',
+      );
 
       return hasil;
     } on Exception catch (e, st) {
@@ -80,7 +81,8 @@ class StatistikOpSqlite {
 
   Future<double> ambilPendapatanBulanIni() async {
     Log.info(
-        'Mulai mengambil pendapatan bersih (paid-unpaid) bulan ini dari SQLite.');
+      'Mulai mengambil pendapatan bersih (paid-unpaid) bulan ini dari SQLite.',
+    );
     try {
       final db = await SqliteDatabase.instance.database;
       const String namaTabel = '"${NamaTabel.transaksi}"';
@@ -113,8 +115,11 @@ class StatistikOpSqlite {
         return 0.0;
       }
     } catch (e, st) {
-      Log.error('Gagal mengambil pendapatan bersih bulan ini dari SQLite.',
-          e: e, s: st);
+      Log.error(
+        'Gagal mengambil pendapatan bersih bulan ini dari SQLite.',
+        e: e,
+        s: st,
+      );
       rethrow;
     }
   }
@@ -125,13 +130,11 @@ class StatistikOpSqlite {
       final db = await SqliteDatabase.instance.database;
       const String namaTabel = '"${NamaTabel.pelanggan}"';
 
-      final result = await db.rawQuery(
-        '''
+      final result = await db.rawQuery('''
         SELECT COUNT(*) 
         FROM $namaTabel 
         WHERE ${NamaKolom.dihapus} = 0
-        ''',
-      );
+        ''');
 
       Log.info('Query total pelanggan selesai. Hasil mentah: $result');
 
@@ -160,8 +163,8 @@ class StatistikOpSqlite {
   Future<int> ambilJumlahFeedbackBaru() async {
     Log.info('Mulai mengambil jumlah feedback baru.');
     try {
-      final listfeddbackAktif =
-          await _statistikOpSliteProvider.getAllActiveFeedback();
+      final listfeddbackAktif = await _statistikOpSliteProvider
+          .getAllActiveFeedback();
       final count = listfeddbackAktif.length;
       Log.info('Jumlah feedback baru yang dihitung: $count');
       return count;

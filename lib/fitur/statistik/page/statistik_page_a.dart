@@ -5,17 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_page_a.dart';
-import 'package:wifi/fitur/statistik/model/best_selling_package.dart';
+import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan.dart';
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
-enum ChartRange {
-  harian,
-  mingguan,
-  bulanan,
-}
+enum ChartRange { harian, mingguan, bulanan }
 
 class StatistikPageA extends ConsumerStatefulWidget {
   const StatistikPageA({super.key});
@@ -51,22 +47,22 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
   ];
 
   List<FlSpot> get _currentSpots => switch (_selectedRange) {
-        ChartRange.harian => _dailySpots,
-        ChartRange.mingguan => _weeklySpots,
-        ChartRange.bulanan => _monthlySpots,
-      };
+    ChartRange.harian => _dailySpots,
+    ChartRange.mingguan => _weeklySpots,
+    ChartRange.bulanan => _monthlySpots,
+  };
 
   double get _maxX => switch (_selectedRange) {
-        ChartRange.harian => 6,
-        ChartRange.mingguan => 3,
-        ChartRange.bulanan => 4,
-      };
+    ChartRange.harian => 6,
+    ChartRange.mingguan => 3,
+    ChartRange.bulanan => 4,
+  };
 
   double get _maxY => switch (_selectedRange) {
-        ChartRange.harian => 2,
-        ChartRange.mingguan => 3,
-        ChartRange.bulanan => 6,
-      };
+    ChartRange.harian => 2,
+    ChartRange.mingguan => 3,
+    ChartRange.bulanan => 6,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -74,10 +70,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     final statistikStateAsync = ref.watch(statistikProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dasbor Statistik'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Dasbor Statistik'), centerTitle: true),
       body: RefreshIndicator(
         onRefresh: () => ref.read(statistikProvider.notifier).refresh(),
         child: statistikStateAsync.when(
@@ -92,8 +85,9 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                 children: [
                   Text(
                     'Ringkasan Cepat',
-                    style: theme.textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   gapH12,
                   Wrap(
@@ -102,9 +96,11 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                     children: [
                       _buildStatCardWrapper(
                         onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                                builder: (_) => const Pelanggan())),
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => const Pelanggan(),
+                          ),
+                        ),
                         title: 'Total Pelanggan',
                         value: data.totalPelanggan.toString(),
                         icon: TIcons.customers,
@@ -112,9 +108,11 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                       ),
                       _buildStatCardWrapper(
                         onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                                builder: (_) => const PelangganAktifPage())),
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => const PelangganAktifPage(),
+                          ),
+                        ),
                         title: 'Langganan Aktif',
                         value: data.jumlahLanggananAktif.toString(),
                         icon: TIcons.wifi,
@@ -122,19 +120,24 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                       ),
                       _buildStatCardWrapper(
                         onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                                builder: (_) => const TransaksiPageA())),
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => const TransaksiPageA(),
+                          ),
+                        ),
                         title: 'Pendapatan Bulan Ini',
-                        value:
-                            FormatUang.formatMataUang(data.pendapatanBulanIni),
+                        value: FormatUang.formatMataUang(
+                          data.pendapatanBulanIni,
+                        ),
                         icon: TIcons.money,
                         color: data.pendapatanBulanIni < 0
                             ? Colors.red
                             : Colors.orange,
                       ),
                       _buildStatCardWrapper(
-                        onTap: () {/* Navigasi ke halaman feedback */},
+                        onTap: () {
+                          /* Navigasi ke halaman feedback */
+                        },
                         title: 'Feedback Baru',
                         value: data.jumlahFeedbackBaru.toString(),
                         icon: TIcons.feedback,
@@ -145,8 +148,9 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                   gapH24,
                   Text(
                     'Analisis Pertumbuhan',
-                    style: theme.textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   gapH12,
                   _buildChartToggleButtons(theme),
@@ -155,8 +159,9 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                   gapH24,
                   Text(
                     'Paket Terlaris',
-                    style: theme.textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   gapH12,
                   _buildBestSellingPackages(theme, data.bestSellingPackages),
@@ -178,8 +183,12 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child:
-          _buildStatCard(title: title, value: value, icon: icon, color: color),
+      child: _buildStatCard(
+        title: title,
+        value: value,
+        icon: icon,
+        color: color,
+      ),
     );
   }
 
@@ -189,47 +198,55 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     required IconData icon,
     required Color color,
   }) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final theme = Theme.of(context);
-      final cardWidth = (constraints.maxWidth > 400)
-          ? (constraints.maxWidth / 2 - 12)
-          : double.infinity;
-      return SizedBox(
-        width: cardWidth,
-        child: Card(
-          elevation: 2,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: color.withAlpha(25),
-                  radius: 20,
-                  child: Icon(icon, color: color, size: 24),
-                ),
-                gapH12,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(title,
-                          style: theme.textTheme.bodySmall,
-                          overflow: TextOverflow.ellipsis),
-                      Text(value,
-                          style: theme.textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold)),
-                    ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final theme = Theme.of(context);
+        final cardWidth = (constraints.maxWidth > 400)
+            ? (constraints.maxWidth / 2 - 12)
+            : double.infinity;
+        return SizedBox(
+          width: cardWidth,
+          child: Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: color.withAlpha(25),
+                    radius: 20,
+                    child: Icon(icon, color: color, size: 24),
                   ),
-                ),
-              ],
+                  gapH12,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          title,
+                          style: theme.textTheme.bodySmall,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          value,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   Widget _buildChartToggleButtons(ThemeData theme) {
@@ -270,7 +287,9 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
   }
 
   Widget _buildBestSellingPackages(
-      ThemeData theme, List<BestSellingPackage> packages) {
+    ThemeData theme,
+    List<PaketTerlarisModel> packages,
+  ) {
     if (packages.isEmpty) {
       return const Card(
         elevation: 2,
@@ -286,9 +305,12 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
           return ListTile(
             leading: CircleAvatar(child: Text('#${index + 1}')),
             title: Text(item.paket.nama),
-            trailing: Text('${item.totalTerjual} terjual',
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.bold)),
+            trailing: Text(
+              '${item.totalTerjual} terjual',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           );
         }),
       ),
@@ -309,20 +331,26 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
         rightTitles: const AxisTitles(),
         topTitles: const AxisTitles(),
         bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 30,
-                interval: 1,
-                getTitlesWidget: _bottomTitleWidgets)),
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 30,
+            interval: 1,
+            getTitlesWidget: _bottomTitleWidgets,
+          ),
+        ),
         leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-                showTitles: true,
-                interval: 1,
-                getTitlesWidget: _leftTitleWidgets,
-                reservedSize: 42)),
+          sideTitles: SideTitles(
+            showTitles: true,
+            interval: 1,
+            getTitlesWidget: _leftTitleWidgets,
+            reservedSize: 42,
+          ),
+        ),
       ),
       borderData: FlBorderData(
-          show: true, border: Border.all(color: const Color(0xff37434d))),
+        show: true,
+        border: Border.all(color: const Color(0xff37434d)),
+      ),
       minX: 0,
       maxX: _maxX,
       minY: 0,
@@ -335,19 +363,24 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     return LineChartBarData(
       spots: _currentSpots,
       isCurved: true,
-      gradient: LinearGradient(colors: [
-        Theme.of(context).colorScheme.primary.withAlpha(80),
-        Theme.of(context).colorScheme.primary
-      ]),
+      gradient: LinearGradient(
+        colors: [
+          Theme.of(context).colorScheme.primary.withAlpha(80),
+          Theme.of(context).colorScheme.primary,
+        ],
+      ),
       barWidth: 5,
       isStrokeCapRound: true,
       dotData: const FlDotData(show: false),
       belowBarData: BarAreaData(
-          show: true,
-          gradient: LinearGradient(colors: [
+        show: true,
+        gradient: LinearGradient(
+          colors: [
             Theme.of(context).colorScheme.primary.withAlpha(20),
-            Theme.of(context).colorScheme.primary.withAlpha(50)
-          ])),
+            Theme.of(context).colorScheme.primary.withAlpha(50),
+          ],
+        ),
+      ),
     );
   }
 
@@ -364,7 +397,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
           4 => const Text('Jum', style: style),
           5 => const Text('Sab', style: style),
           6 => const Text('Min', style: style),
-          _ => const Text('', style: style)
+          _ => const Text('', style: style),
         };
         break;
       case ChartRange.mingguan:
@@ -373,7 +406,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
           1 => const Text('M2', style: style),
           2 => const Text('M3', style: style),
           3 => const Text('M4', style: style),
-          _ => const Text('', style: style)
+          _ => const Text('', style: style),
         };
         break;
       case ChartRange.bulanan:
@@ -383,7 +416,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
           2 => const Text('MAR', style: style),
           3 => const Text('APR', style: style),
           4 => const Text('MEI', style: style),
-          _ => const Text('', style: style)
+          _ => const Text('', style: style),
         };
         break;
     }
@@ -405,12 +438,14 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
           1 => '1JT',
           3 => '3JT',
           5 => '5JT',
-          _ => ''
+          _ => '',
         };
         break;
     }
     if (text.isEmpty) return Container();
     return SideTitleWidget(
-        meta: meta, child: Text(text, style: style, textAlign: TextAlign.left));
+      meta: meta,
+      child: Text(text, style: style, textAlign: TextAlign.left),
+    );
   }
 }
