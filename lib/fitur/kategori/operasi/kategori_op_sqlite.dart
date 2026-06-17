@@ -13,7 +13,7 @@ class KategoriOpSqlite {
 
   final BaseOpSqlite _baseOpSqlite;
 
-  final String _tableName = NamaTabel.kategori;
+  final String _namaTabel = NamaTabel.kategori;
 
   KategoriOpSqlite({
     required this.sqlitedb,
@@ -21,19 +21,19 @@ class KategoriOpSqlite {
   }) : _baseOpSqlite = baseOpSqlite;
 
   Future<KategoriModel> tambahKategori(
-    final KategoriModel category, {
-    final bool fromServer = false,
+    final KategoriModel kategori, {
+    final bool dariServer = false,
   }) async {
-    Log.info('Memulai createCategory untuk category: ${category.toSqlite()}');
+    Log.info('Memulai createCategory untuk category: ${kategori.toSqlite()}');
     try {
       final kategoriBaru =
-          category.copyWith(diperbaruiPada: DateTime.now().toUtc());
+          kategori.copyWith(diperbaruiPada: DateTime.now().toUtc());
       final data = kategoriBaru.toSqlite();
 
       await _baseOpSqlite.sisipkan(
-        _tableName,
+        _namaTabel,
         data,
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil membuat category baru dengan ID: ${kategoriBaru.id}');
       return kategoriBaru;
@@ -49,27 +49,27 @@ class KategoriOpSqlite {
     try {
       final db = await sqlitedb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.dihapus} = 0',
       );
-      final listCategory = List.generate(
+      final daftarKategori = List.generate(
         maps.length,
-        (final i) => KategoriModel.fromSqlite(maps[i]),
+        ( i) => KategoriModel.fromSqlite(maps[i]),
       );
-      Log.info('Berhasil mengambil ${listCategory.length} data category.');
-      return listCategory;
+      Log.info('Berhasil mengambil ${daftarKategori.length} data category.');
+      return daftarKategori;
     } catch (e, st) {
       Log.error('Gagal saat getCategories', e: e, s: st);
       rethrow;
     }
   }
 
-  Future<KategoriModel> ambilKategoriBerdasarkanId(final String id) async {
+  Future<KategoriModel> ambilKategoriBerdasarkanId( String id) async {
     Log.info('Memulai getCategoryById untuk ID: $id');
     try {
       final db = await sqlitedb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.id} = ?',
         whereArgs: [id],
       );
@@ -92,26 +92,26 @@ class KategoriOpSqlite {
   }
 
   Future<List<KategoriModel>> ambilKategoriBerdasarkanTipe(
-      final TipeKategori type) async {
-    Log.info('Memulai getCategoriesByType untuk tipe: ${type.name}');
+       TipeKategori tipe) async {
+    Log.info('Memulai getCategoriesByType untuk tipe: ${tipe.name}');
     try {
       final db = await sqlitedb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.tipe} = ? AND ${NamaKolom.dihapus} = 0',
-        whereArgs: [type.name],
+        whereArgs: [tipe.name],
       );
       final daftarKategori = List.generate(
         maps.length,
         (i) => KategoriModel.fromSqlite(maps[i]),
       );
       Log.info(
-        'Berhasil mengambil ${daftarKategori.length} data category untuk tipe ${type.name}.',
+        'Berhasil mengambil ${daftarKategori.length} data category untuk tipe ${tipe.name}.',
       );
       return daftarKategori;
     } catch (e, st) {
       Log.error(
-        'Gagal saat getCategoriesByType untuk tipe: ${type.name}',
+        'Gagal saat getCategoriesByType untuk tipe: ${tipe.name}',
         e: e,
         s: st,
       );
@@ -120,23 +120,23 @@ class KategoriOpSqlite {
   }
 
   Future<void> updateKategori(
-    final KategoriModel category, {
+    final KategoriModel kategori, {
     final bool dariServer = false,
   }) async {
-    Log.info('Memulai updateCategory untuk category ID: ${category.id}');
+    Log.info('Memulai updateCategory untuk category ID: ${kategori.id}');
     try {
       final data =
-          category.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite();
+          kategori.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite();
       await _baseOpSqlite.update(
-        _tableName,
+        _namaTabel,
         data,
-        category.id,
+        kategori.id,
         dariServer: dariServer,
       );
-      Log.info('Berhasil updateCategory untuk ID: ${category.id}.');
+      Log.info('Berhasil updateCategory untuk ID: ${kategori.id}.');
     } catch (e, st) {
       Log.error(
-        'Gagal saat updateCategory untuk ID: ${category.id}',
+        'Gagal saat updateCategory untuk ID: ${kategori.id}',
         e: e,
         s: st,
       );
@@ -151,7 +151,7 @@ class KategoriOpSqlite {
     Log.info('Memulai soft delete untuk category ID: $id');
     try {
       await _baseOpSqlite.softDelete(
-        _tableName,
+        _namaTabel,
         id,
         dariServer: dariServer,
       );
@@ -172,7 +172,7 @@ class KategoriOpSqlite {
     Log.info('Memulai soft delete untuk semua kategori');
     try {
       final count = await _baseOpSqlite.softDeleteAll(
-        _tableName,
+        _namaTabel,
         dariServer: dariServer,
       );
       Log.info('Berhasil soft delete semua kategori. Total: $count item.');
@@ -207,7 +207,7 @@ class KategoriOpSqlite {
           )
           .toList();
       await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
-        _tableName,
+        _namaTabel,
         data,
         dariServer: dariServer,
       );
@@ -231,7 +231,7 @@ class KategoriOpSqlite {
       final db = await sqlitedb.database;
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.id} IN ($placeholders)',
         whereArgs: ids,
       );

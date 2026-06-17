@@ -13,7 +13,7 @@ Future<List<PaketModel>> daftarPaket(Ref ref) async {
   Log.info('Mendapatkan daftar paket aktif dari SQLite via paketProvider...');
 
   final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-  return await paketOpSqlite.ambilBerdasarkanAktif();
+  return await paketOpSqlite.ambilPaket();
 }
 
 @riverpod

@@ -28,16 +28,16 @@ class PelangganAktifOpSqlite {
     required BaseOpSqlite baseOpSqlite,
     required PelangganOpSqlite pelangganOpSqlite,
     required LayananNotifikasi layananNotifikasi,
-  })  : _baseOpSqlite = baseOpSqlite,
-        _pelangganOpSqlite = pelangganOpSqlite,
-        _layananNotifikasi = layananNotifikasi {
+  }) : _baseOpSqlite = baseOpSqlite,
+       _pelangganOpSqlite = pelangganOpSqlite,
+       _layananNotifikasi = layananNotifikasi {
     Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_tableName');
   }
 
   Future<void> rescheduleAllNotifications() async {
     Log.info('MEMULAI PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI...');
     try {
-      final List<PelangganAktifModel> pelangganAktif = await getALl();
+      final List<PelangganAktifModel> pelangganAktif = await ambilSemua();
 
       if (pelangganAktif.isEmpty) {
         Log.info('Tidak ada pelanggan aktif untuk dijadwalkan ulang.');
@@ -45,7 +45,8 @@ class PelangganAktifOpSqlite {
       }
 
       Log.info(
-          'Ditemukan ${pelangganAktif.length} pelanggan aktif. Menjadwalkan ulang satu per satu...');
+        'Ditemukan ${pelangganAktif.length} pelanggan aktif. Menjadwalkan ulang satu per satu...',
+      );
 
       for (final activeCustomer in pelangganAktif) {
         await scheduleNotification(activeCustomer);
@@ -53,18 +54,23 @@ class PelangganAktifOpSqlite {
 
       Log.info('PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI SELESAI.');
     } on Exception catch (e, st) {
-      Log.error('Gagal total saat proses penjadwalan ulang semua notifikasi',
-          e: e, s: st);
+      Log.error(
+        'Gagal total saat proses penjadwalan ulang semua notifikasi',
+        e: e,
+        s: st,
+      );
     }
   }
 
   Future<List<DetailPelangganAktifModel>>
-      getAllActiveCustomersWithDetails() async {
+  getAllActiveCustomersWithDetails() async {
     final db = await sqliteDb.database;
     Log.info(
-        'Mengambil semua pelanggan aktif dengan detail yang belum berakhir (JOIN)');
+      'Mengambil semua pelanggan aktif dengan detail yang belum berakhir (JOIN)',
+    );
 
-    final query = '''
+    final query =
+        '''
       SELECT
         ac.*,
         c.${NamaKolom.nama} as customer_name,
@@ -77,12 +83,12 @@ class PelangganAktifOpSqlite {
     ''';
 
     try {
-      final List<Map<String, dynamic>> maps = await db.rawQuery(
-        query,
-        [_nowUtc.millisecondsSinceEpoch],
-      );
+      final List<Map<String, dynamic>> maps = await db.rawQuery(query, [
+        _nowUtc.millisecondsSinceEpoch,
+      ]);
       Log.info(
-          'Berhasil mengambil ${maps.length} pelanggan aktif yang belum berakhir dengan detail.');
+        'Berhasil mengambil ${maps.length} pelanggan aktif yang belum berakhir dengan detail.',
+      );
 
       return List.generate(maps.length, (final i) {
         final map = maps[i];
@@ -94,9 +100,10 @@ class PelangganAktifOpSqlite {
       });
     } on Exception catch (e, st) {
       Log.error(
-          'Gagal melakukan query JOIN untuk pelanggan aktif yang belum berakhir',
-          e: e,
-          s: st);
+        'Gagal melakukan query JOIN untuk pelanggan aktif yang belum berakhir',
+        e: e,
+        s: st,
+      );
       rethrow;
     }
   }
@@ -106,21 +113,18 @@ class PelangganAktifOpSqlite {
     final bool fromServer = false,
   }) async {
     try {
-      final customerToSave = pelangganAktif.copyWith(
-        diperbaruiPada: _nowUtc,
-      );
+      final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
 
-      await _baseOpSqlite.runComplexOperation<void>(
-        (final Transaction txn) async {
-          final data = customerToSave.toSqlite();
-          await txn.insert(
-            _tableName,
-            data,
-            conflictAlgorithm: ConflictAlgorithm.replace,
-          );
-        },
-        dariServer: fromServer,
-      );
+      await _baseOpSqlite.runComplexOperation<void>((
+        final Transaction txn,
+      ) async {
+        final data = customerToSave.toSqlite();
+        await txn.insert(
+          _tableName,
+          data,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }, dariServer: fromServer);
 
       await scheduleNotification(customerToSave);
 
@@ -131,7 +135,7 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<List<PelangganAktifModel>> getALl() async {
+  Future<List<PelangganAktifModel>> ambilSemua() async {
     try {
       final db = await sqliteDb.database;
       Log.info('Mengambil semua active customer dari tabel $_tableName');
@@ -183,53 +187,59 @@ class PelangganAktifOpSqlite {
     final bool fromServer = false,
   }) async {
     try {
-      final customerToSave = activeCustomer.copyWith(
-        diperbaruiPada: _nowUtc,
-      );
+      final customerToSave = activeCustomer.copyWith(diperbaruiPada: _nowUtc);
 
       Log.info('Memperbarui active customer ID: ${customerToSave.id}');
 
-      await _baseOpSqlite.runComplexOperation<void>(
-        (final Transaction txn) async {
-          final data = customerToSave.toSqlite();
-          await txn.update(
-            _tableName,
-            data,
-            where: '${NamaKolom.id} = ?',
-            whereArgs: [customerToSave.id],
-          );
-        },
-        dariServer: fromServer,
-      );
+      await _baseOpSqlite.runComplexOperation<void>((
+        final Transaction txn,
+      ) async {
+        final data = customerToSave.toSqlite();
+        await txn.update(
+          _tableName,
+          data,
+          where: '${NamaKolom.id} = ?',
+          whereArgs: [customerToSave.id],
+        );
+      }, dariServer: fromServer);
 
       await scheduleNotification(customerToSave);
       Log.info('Active customer ID: ${customerToSave.id} berhasil diperbarui');
 
       return customerToSave;
     } on Exception catch (e, st) {
-      Log.error('Gagal memperbarui active customer ID: ${activeCustomer.id}',
-          e: e, s: st);
+      Log.error(
+        'Gagal memperbarui active customer ID: ${activeCustomer.id}',
+        e: e,
+        s: st,
+      );
       rethrow;
     }
   }
 
   Future<void> scheduleNotification(
-      final PelangganAktifModel activeCustomer) async {
+    final PelangganAktifModel activeCustomer,
+  ) async {
     try {
       Log.info(
-          '(RE)SCHEDULING: Menjadwalkan notifikasi untuk active customer ID: ${activeCustomer.id}');
+        '(RE)SCHEDULING: Menjadwalkan notifikasi untuk active customer ID: ${activeCustomer.id}',
+      );
 
-      final pelanggan = await _pelangganOpSqlite
-          .ambilBerdasarkanId(activeCustomer.idPelanggan);
+      final pelanggan = await _pelangganOpSqlite.ambilBerdasarkanId(
+        activeCustomer.idPelanggan,
+      );
       final customerName = pelanggan?.nama ?? 'Tanpa Nama';
 
       await _layananNotifikasi.batalNotifikasi(activeCustomer.id.hashCode);
-      await _layananNotifikasi
-          .batalNotifikasi((activeCustomer.id.hashCode + 1));
-      await _layananNotifikasi
-          .batalNotifikasi((activeCustomer.id.hashCode + 2));
+      await _layananNotifikasi.batalNotifikasi(
+        (activeCustomer.id.hashCode + 1),
+      );
+      await _layananNotifikasi.batalNotifikasi(
+        (activeCustomer.id.hashCode + 2),
+      );
       Log.info(
-          'Membatalkan notifikasi yang ada sebelum menjadwalkan ulang notifiaksi');
+        'Membatalkan notifikasi yang ada sebelum menjadwalkan ulang notifiaksi',
+      );
 
       final tanggalBerakhir = activeCustomer.tanggalBerakhir;
       if (tanggalBerakhir.isAfter(DateTime.now())) {
@@ -241,8 +251,9 @@ class PelangganAktifOpSqlite {
         );
       }
 
-      final jadwalH1 =
-          activeCustomer.tanggalBerakhir.subtract(const Duration(days: 1));
+      final jadwalH1 = activeCustomer.tanggalBerakhir.subtract(
+        const Duration(days: 1),
+      );
       if (jadwalH1.isAfter(DateTime.now())) {
         await _layananNotifikasi.jadwalNotifikasi(
           id: activeCustomer.id.hashCode,
@@ -252,8 +263,9 @@ class PelangganAktifOpSqlite {
         );
       }
 
-      final jadwalH3 =
-          activeCustomer.tanggalBerakhir.subtract(const Duration(days: 3));
+      final jadwalH3 = activeCustomer.tanggalBerakhir.subtract(
+        const Duration(days: 3),
+      );
       if (jadwalH3.isAfter(DateTime.now())) {
         await _layananNotifikasi.jadwalNotifikasi(
           id: (activeCustomer.id.hashCode + 1),
@@ -264,11 +276,16 @@ class PelangganAktifOpSqlite {
         );
       }
 
-      Log.info('Penjadwalan notifikasi selesai untuk ID: ${activeCustomer.id}',
-          {'h3': jadwalH3, 'h1': jadwalH1, 'h0': tanggalBerakhir});
+      Log.info(
+        'Penjadwalan notifikasi selesai untuk ID: ${activeCustomer.id}',
+        {'h3': jadwalH3, 'h1': jadwalH1, 'h0': tanggalBerakhir},
+      );
     } on Exception catch (e, st) {
-      Log.error('Gagal menjadwalkan notifikasi untuk ID: ${activeCustomer.id}',
-          e: e, s: st);
+      Log.error(
+        'Gagal menjadwalkan notifikasi untuk ID: ${activeCustomer.id}',
+        e: e,
+        s: st,
+      );
     }
   }
 
@@ -278,7 +295,8 @@ class PelangganAktifOpSqlite {
   }) async {
     try {
       Log.info(
-          'Memproses batch ${items.length} active customer di $_tableName');
+        'Memproses batch ${items.length} active customer di $_tableName',
+      );
 
       final data = items
           .map(
@@ -294,8 +312,11 @@ class PelangganAktifOpSqlite {
 
       Log.info('Batch ${items.length} active customer berhasil diproses');
     } on Exception catch (e, st) {
-      Log.error('Gagal memproses batch ${items.length} active customer',
-          e: e, s: st);
+      Log.error(
+        'Gagal memproses batch ${items.length} active customer',
+        e: e,
+        s: st,
+      );
       rethrow;
     }
   }
@@ -313,28 +334,25 @@ class PelangganAktifOpSqlite {
         return;
       }
 
-      await _baseOpSqlite.runComplexOperation<void>(
-        (Transaction txn) async {
-          final archivedCustomer = activeCustomer.copyWith(
-            diperbaruiPada: _nowUtc,
-            diHapus: true,
-            diarsipkanPada: _nowUtc,
-          );
+      await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+        final archivedCustomer = activeCustomer.copyWith(
+          diperbaruiPada: _nowUtc,
+          diHapus: true,
+          diarsipkanPada: _nowUtc,
+        );
 
-          await txn.update(
-            _tableName,
-            archivedCustomer.toSqlite(),
-            where: '${NamaKolom.id} = ?',
-            whereArgs: [id],
-          );
+        await txn.update(
+          _tableName,
+          archivedCustomer.toSqlite(),
+          where: '${NamaKolom.id} = ?',
+          whereArgs: [id],
+        );
 
-          await _layananNotifikasi.batalNotifikasi(id.hashCode);
-          await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
-          await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
-          Log.info('Notifikasi telah di batalkan pada fungsi softDelete');
-        },
-        dariServer: fromServer,
-      );
+        await _layananNotifikasi.batalNotifikasi(id.hashCode);
+        await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
+        await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
+        Log.info('Notifikasi telah di batalkan pada fungsi softDelete');
+      }, dariServer: fromServer);
 
       Log.info('Active customer ID: $id berhasil diarsipkan');
     } on Exception catch (e, st) {
@@ -347,41 +365,44 @@ class PelangganAktifOpSqlite {
     final bool fromServer = false,
   }) async {
     try {
-      await _baseOpSqlite.runComplexOperation<void>(
-        (final Transaction txn) async {
-          final deadline = _nowUtc.subtract(const Duration(days: 30));
+      await _baseOpSqlite.runComplexOperation<void>((
+        final Transaction txn,
+      ) async {
+        final deadline = _nowUtc.subtract(const Duration(days: 30));
 
-          final List<Map<String, dynamic>> expiredCustomers = await txn.query(
-            _tableName,
-            where:
-                '${NamaKolom.diarsipkanPada} IS NOT NULL AND ${NamaKolom.diarsipkanPada} < ?',
-            whereArgs: [deadline.millisecondsSinceEpoch],
-          );
+        final List<Map<String, dynamic>> expiredCustomers = await txn.query(
+          _tableName,
+          where:
+              '${NamaKolom.diarsipkanPada} IS NOT NULL AND ${NamaKolom.diarsipkanPada} < ?',
+          whereArgs: [deadline.millisecondsSinceEpoch],
+        );
 
-          if (expiredCustomers.isEmpty) {
-            Log.info('Tidak ada active customer diarsipkan lebih dari 30 hari');
-            return;
-          }
+        if (expiredCustomers.isEmpty) {
+          Log.info('Tidak ada active customer diarsipkan lebih dari 30 hari');
+          return;
+        }
 
-          final idsToDelete = expiredCustomers
-              .map((final map) => map[NamaKolom.id] as String)
-              .toList();
+        final idsToDelete = expiredCustomers
+            .map((final map) => map[NamaKolom.id] as String)
+            .toList();
 
-          final count = await txn.delete(
-            _tableName,
-            where:
-                '${NamaKolom.id} IN (${List.filled(idsToDelete.length, '?').join(',')})',
-            whereArgs: idsToDelete,
-          );
+        final count = await txn.delete(
+          _tableName,
+          where:
+              '${NamaKolom.id} IN (${List.filled(idsToDelete.length, '?').join(',')})',
+          whereArgs: idsToDelete,
+        );
 
-          Log.info(
-              '$count active customer telah dihapus permanen dari $_tableName');
-        },
-        dariServer: fromServer,
-      );
+        Log.info(
+          '$count active customer telah dihapus permanen dari $_tableName',
+        );
+      }, dariServer: fromServer);
     } on Exception catch (e, st) {
-      Log.error('Gagal menghapus permanen active customer diarsipkan',
-          e: e, s: st);
+      Log.error(
+        'Gagal menghapus permanen active customer diarsipkan',
+        e: e,
+        s: st,
+      );
       rethrow;
     }
   }
@@ -402,34 +423,35 @@ class PelangganAktifOpSqlite {
         return 0;
       }
 
-      final idsToArchive =
-          expiredCustomers.map((final p) => p[NamaKolom.id] as String).toList();
+      final idsToArchive = expiredCustomers
+          .map((final p) => p[NamaKolom.id] as String)
+          .toList();
 
-      await _baseOpSqlite.runComplexOperation<void>(
-        (final Transaction txn) async {
-          await txn.update(
-            _tableName,
-            {
-              NamaKolom.dihapus: 1,
-              NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
-              NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
-            },
-            where:
-                '${NamaKolom.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
-            whereArgs: idsToArchive,
-          );
+      await _baseOpSqlite.runComplexOperation<void>((
+        final Transaction txn,
+      ) async {
+        await txn.update(
+          _tableName,
+          {
+            NamaKolom.dihapus: 1,
+            NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
+            NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
+          },
+          where:
+              '${NamaKolom.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
+          whereArgs: idsToArchive,
+        );
 
-          for (final id in idsToArchive) {
-            await _layananNotifikasi.batalNotifikasi(id.hashCode);
-            await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
-            await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
-          }
-        },
-        dariServer: fromServer,
-      );
+        for (final id in idsToArchive) {
+          await _layananNotifikasi.batalNotifikasi(id.hashCode);
+          await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
+          await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
+        }
+      }, dariServer: fromServer);
 
       Log.info(
-          '${idsToArchive.length} active customer kadaluarsa telah diarsipkan');
+        '${idsToArchive.length} active customer kadaluarsa telah diarsipkan',
+      );
       return idsToArchive.length;
     } on Exception catch (e, st) {
       Log.error('Gagal mengarsipkan active customer kadaluarsa', e: e, s: st);
@@ -440,7 +462,7 @@ class PelangganAktifOpSqlite {
   Future<int> softDeleteAll({final bool fromServer = false}) async {
     try {
       Log.info('Mengarsipkan SEMUA active customer');
-      final allCustomers = await getALl();
+      final allCustomers = await ambilSemua();
 
       if (allCustomers.isEmpty) {
         Log.info('Tidak ada active customer untuk diarsipkan');
@@ -449,28 +471,27 @@ class PelangganAktifOpSqlite {
 
       final idsToArchive = allCustomers.map((final p) => p.id).toList();
 
-      await _baseOpSqlite.runComplexOperation<void>(
-        (final Transaction txn) async {
-          await txn.update(
-            _tableName,
-            {
-              NamaKolom.dihapus: 1,
-              NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
-              NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
-            },
-            where:
-                '${NamaKolom.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
-            whereArgs: idsToArchive,
-          );
+      await _baseOpSqlite.runComplexOperation<void>((
+        final Transaction txn,
+      ) async {
+        await txn.update(
+          _tableName,
+          {
+            NamaKolom.dihapus: 1,
+            NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
+            NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
+          },
+          where:
+              '${NamaKolom.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
+          whereArgs: idsToArchive,
+        );
 
-          for (final id in idsToArchive) {
-            await _layananNotifikasi.batalNotifikasi(id.hashCode);
-            await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
-            await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
-          }
-        },
-        dariServer: fromServer,
-      );
+        for (final id in idsToArchive) {
+          await _layananNotifikasi.batalNotifikasi(id.hashCode);
+          await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
+          await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
+        }
+      }, dariServer: fromServer);
 
       Log.info('${idsToArchive.length} active customer telah diarsipkan');
       return idsToArchive.length;

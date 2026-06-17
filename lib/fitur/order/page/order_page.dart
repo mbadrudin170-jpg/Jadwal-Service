@@ -161,21 +161,17 @@ class _OrderPageState extends ConsumerState<OrderPage> {
   @override
   Widget build(BuildContext context) {
     Log.info(
-        '[Pembangunan UI] ✅ Membangun UI untuk UserOrderPage, menampilkan daftar pesanan realtime.');
+      '[Pembangunan UI] ✅ Membangun UI untuk UserOrderPage, menampilkan daftar pesanan realtime.',
+    );
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pesanan Saya'),
-      ),
+      appBar: AppBar(title: const Text('Pesanan Saya')),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _listTombolFilter(),
-              _listPesanan(),
-            ],
+            children: [_listTombolFilter(), _daftarPesanan()],
           ),
         ),
       ),
@@ -190,14 +186,22 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         child: Wrap(
           spacing: 12.0, // Memberi spasi antar tombol
           children: [
-            _tombolTipe(StatusOrderEnum.baru,
-                sedangAktif: _filterAktif == StatusOrderEnum.baru.name),
-            _tombolTipe(StatusOrderEnum.diproses,
-                sedangAktif: _filterAktif == StatusOrderEnum.diproses.name),
-            _tombolTipe(StatusOrderEnum.selesai,
-                sedangAktif: _filterAktif == StatusOrderEnum.selesai.name),
-            _tombolTipe(StatusOrderEnum.ditolak,
-                sedangAktif: _filterAktif == StatusOrderEnum.ditolak.name),
+            _tombolTipe(
+              StatusOrderEnum.baru,
+              sedangAktif: _filterAktif == StatusOrderEnum.baru.name,
+            ),
+            _tombolTipe(
+              StatusOrderEnum.diproses,
+              sedangAktif: _filterAktif == StatusOrderEnum.diproses.name,
+            ),
+            _tombolTipe(
+              StatusOrderEnum.selesai,
+              sedangAktif: _filterAktif == StatusOrderEnum.selesai.name,
+            ),
+            _tombolTipe(
+              StatusOrderEnum.ditolak,
+              sedangAktif: _filterAktif == StatusOrderEnum.ditolak.name,
+            ),
           ],
         ),
       ),
@@ -220,8 +224,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color:
-              sedangAktif ? Theme.of(context).primaryColor : Colors.transparent,
+          color: sedangAktif
+              ? Theme.of(context).primaryColor
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: sedangAktif
@@ -238,12 +243,15 @@ class _OrderPageState extends ConsumerState<OrderPage> {
               loading: () => const CircularProgressIndicator(),
               error: (e, s) => Text('Error: $e $s'),
               data: (orderState) {
-                final jumlah =
-                    orderState.orders.where((o) => o.status == status).length;
+                final jumlah = orderState.orders
+                    .where((o) => o.status == status)
+                    .length;
                 if (jumlah == 0) return const SizedBox.shrink();
                 return Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: sedangAktif
                         ? Theme.of(context).colorScheme.onPrimary
@@ -264,8 +272,8 @@ class _OrderPageState extends ConsumerState<OrderPage> {
               warna: sedangAktif
                   ? Colors.white
                   : (Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Colors.black),
+                        ? Colors.white
+                        : Colors.black),
               tebalFont: FontWeight.bold,
             ),
           ],
@@ -274,16 +282,16 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     );
   }
 
-  Widget _listPesanan() {
+  Widget _daftarPesanan() {
     final orderAsync = ref.watch(orderProvider);
 
     return orderAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Terjadi kesalahan: $err')),
       data: (orderState) {
-        final allOrders = orderState.orders;
+        final semuaOrder = orderState.orders;
 
-        final filteredOrders = allOrders.where((order) {
+        final orderDifilter = semuaOrder.where((order) {
           if (_filterAktif == StatusOrderEnum.selesai.name) {
             return order.status == StatusOrderEnum.selesai;
           }
@@ -299,7 +307,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           return true;
         }).toList();
 
-        if (filteredOrders.isEmpty) {
+        if (orderDifilter.isEmpty) {
           return const Center(child: Text('Belum ada pesanan ditemukan.'));
         }
 
@@ -307,17 +315,18 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         return ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: filteredOrders.length,
+          itemCount: orderDifilter.length,
           itemBuilder: (context, index) {
-            final order = filteredOrders[index];
+            final order = orderDifilter[index];
             return ListTile(
               onLongPress: () => _showDialog(context, order),
               title: Row(
                 children: [
                   const Text('Paket: '),
                   PackageNameWidget(
-                    paketFuture:
-                        paketOpFirebase.ambilBerdasarkanId(order.idPaket),
+                    paketFuture: paketOpFirebase.ambilBerdasarkanId(
+                      order.idPaket,
+                    ),
                   ),
                 ],
               ),
@@ -329,12 +338,13 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     );
   }
 
-  Widget _tombolOpsiUbahStatus(
-      {required String label,
-      required OrderModel order,
-      required StatusOrderEnum status,
-      required BuildContext dialogContext,
-      required BuildContext pageContext}) {
+  Widget _tombolOpsiUbahStatus({
+    required String label,
+    required OrderModel order,
+    required StatusOrderEnum status,
+    required BuildContext dialogContext,
+    required BuildContext pageContext,
+  }) {
     return TextButton(
       onPressed: () async {
         Navigator.of(dialogContext).pop();
@@ -351,10 +361,12 @@ class _OrderPageState extends ConsumerState<OrderPage> {
             }
           } on Exception catch (e, st) {
             // 1. Catat log error secara detail untuk developer.
-            Log.error('Gagal memperbarui status pesanan', e: e, s: st, data: {
-              'orderId': order.id,
-              'newStatus': status,
-            });
+            Log.error(
+              'Gagal memperbarui status pesanan',
+              e: e,
+              s: st,
+              data: {'orderId': order.id, 'newStatus': status},
+            );
 
             // 2. Tampilkan pesan error yang ramah kepada pengguna.
             if (pageContext.mounted) {

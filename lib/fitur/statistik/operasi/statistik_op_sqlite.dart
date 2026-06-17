@@ -45,7 +45,7 @@ class StatistikOpSqlite {
   Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
     Log.info('Mulai menghitung paket terlaris.');
     try {
-      final daftarPaket = await _paketOpsqlite.ambilBerdasarkanAktif();
+      final daftarPaket = await _paketOpsqlite.ambilPaket();
       final daftartransaksi = await _transaksiOpSqlite.getAllTransactions();
 
       if (daftartransaksi.isEmpty) {
@@ -141,7 +141,7 @@ class StatistikOpSqlite {
       final jumlah = Sqflite.firstIntValue(result) ?? 0;
       Log.info('Total pelanggan yang dihitung: $jumlah');
       return jumlah;
-    }  catch (e, st) {
+    } catch (e, st) {
       Log.error('Gagal mengambil total pelanggan dari SQLite.', e: e, s: st);
       rethrow;
     }
@@ -150,11 +150,11 @@ class StatistikOpSqlite {
   Future<int> ambilJumlahLanggananAktif() async {
     Log.info('Mulai mengambil jumlah langganan aktif.');
     try {
-      final pelangganAktif = await _pelangganAktifOpSqlite.getALl();
+      final pelangganAktif = await _pelangganAktifOpSqlite.ambilSemua();
       final jumlah = pelangganAktif.length;
       Log.info('Jumlah langganan aktif yang dihitung: $jumlah');
       return jumlah;
-    }  catch (e, st) {
+    } catch (e, st) {
       Log.error('Gagal mengambil jumlah langganan aktif.', e: e, s: st);
       rethrow;
     }

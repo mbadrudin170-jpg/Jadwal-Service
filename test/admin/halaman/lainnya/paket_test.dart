@@ -25,19 +25,21 @@ void main() {
 
   final paketList = [
     PaketModel(
-        id: '1',
-        nama: 'Paket A',
-        harga: 10000,
-        durasi: 1,
-        tipe: TipeDurasiPaket.days,
-        poinHadiah: 10),
+      id: '1',
+      nama: 'Paket A',
+      harga: 10000,
+      durasi: 1,
+      tipe: TipeDurasiPaket.days,
+      poinHadiah: 10,
+    ),
     PaketModel(
-        id: '2',
-        nama: 'Paket B',
-        harga: 20000,
-        durasi: 7,
-        tipe: TipeDurasiPaket.days,
-        poinHadiah: 20),
+      id: '2',
+      nama: 'Paket B',
+      harga: 20000,
+      durasi: 7,
+      tipe: TipeDurasiPaket.days,
+      poinHadiah: 20,
+    ),
   ];
 
   Widget createWidget() {
@@ -55,8 +57,7 @@ void main() {
 
   group('PackagePage Tests', () {
     testWidgets('01. should display list of packages', (tester) async {
-      when(mockPaketOpSqlite.ambilBerdasarkanAktif())
-          .thenAnswer((_) async => paketList);
+      when(mockPaketOpSqlite.ambilPaket()).thenAnswer((_) async => paketList);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
@@ -65,8 +66,7 @@ void main() {
     });
 
     testWidgets('02. should open add package form', (tester) async {
-      when(mockPaketOpSqlite.ambilBerdasarkanAktif())
-          .thenAnswer((_) async => paketList);
+      when(mockPaketOpSqlite.ambilPaket()).thenAnswer((_) async => paketList);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
@@ -77,8 +77,7 @@ void main() {
     });
 
     testWidgets('03. should show sort dialog', (tester) async {
-      when(mockPaketOpSqlite.ambilBerdasarkanAktif())
-          .thenAnswer((_) async => paketList);
+      when(mockPaketOpSqlite.ambilPaket()).thenAnswer((_) async => paketList);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
@@ -88,10 +87,10 @@ void main() {
       expect(find.text('Urutkan Berdasarkan'), findsOneWidget);
     });
 
-    testWidgets('04. should show delete all confirmation dialog',
-        (tester) async {
-      when(mockPaketOpSqlite.ambilBerdasarkanAktif())
-          .thenAnswer((_) async => paketList);
+    testWidgets('04. should show delete all confirmation dialog', (
+      tester,
+    ) async {
+      when(mockPaketOpSqlite.ambilPaket()).thenAnswer((_) async => paketList);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
@@ -102,8 +101,7 @@ void main() {
     });
 
     testWidgets('05. should delete all packages', (tester) async {
-      when(mockPaketOpSqlite.ambilBerdasarkanAktif())
-          .thenAnswer((_) async => paketList);
+      when(mockPaketOpSqlite.ambilPaket()).thenAnswer((_) async => paketList);
       when(mockPaketOpSqlite.hapusSementaraSemua()).thenAnswer((_) async => 1);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
@@ -117,10 +115,10 @@ void main() {
       verify(mockPaketOpSqlite.hapusSementaraSemua());
     });
 
-    testWidgets('06. should show edit/delete dialog on long press',
-        (tester) async {
-      when(mockPaketOpSqlite.ambilBerdasarkanAktif())
-          .thenAnswer((_) async => paketList);
+    testWidgets('06. should show edit/delete dialog on long press', (
+      tester,
+    ) async {
+      when(mockPaketOpSqlite.ambilPaket()).thenAnswer((_) async => paketList);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 

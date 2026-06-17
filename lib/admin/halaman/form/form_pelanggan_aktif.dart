@@ -49,7 +49,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   final _formKey = GlobalKey<FormState>();
 
   List<PelangganModel> _pelangganList = [];
-  List<PaketModel> _paketList = [];
+  List<PaketModel> _daftarPaket = [];
   List<DompetModel> _dompetList = [];
   List<KategoriModel> _kategoriPemasukanList = [];
   List<KategoriModel> _kategoriPengeluaranList = [];
@@ -60,6 +60,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   DompetModel? _dompetDipilih;
   KategoriModel? _kategoriDipilih;
   bool _isLoading = true;
+  bool _menyimpan = false;
   bool _gunakanPoin = false;
   late TextEditingController _bonusDurationController;
   TipeDurasiPaket _tipeBonusDurasi = TipeDurasiPaket.minutes;
@@ -77,20 +78,20 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   int hitungSisaPoin() {
-    final pakai = hitungPoinEfektif();
-    return (_saldoPoinPelanggan - pakai).clamp(0, 999999999);
+    final poinDipakai = hitungPoinEfektif();
+    return (_saldoPoinPelanggan - poinDipakai).clamp(0, 999999999);
   }
 
-  int _getDurationInMinutes(final PaketModel package) {
-    switch (package.tipe) {
+  int _getDurationInMinutes(PaketModel paket) {
+    switch (paket.tipe) {
       case TipeDurasiPaket.minutes:
-        return package.durasi;
+        return paket.durasi;
       case TipeDurasiPaket.hours:
-        return package.durasi * 60;
+        return paket.durasi * 60;
       case TipeDurasiPaket.days:
-        return package.durasi * 24 * 60;
+        return paket.durasi * 24 * 60;
       case TipeDurasiPaket.months:
-        return package.durasi * 30 * 24 * 60;
+        return paket.durasi * 30 * 24 * 60;
     }
   }
 
@@ -105,7 +106,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   Future<void> _loadAllData() async {
     setState(() => _isLoading = true);
     Log.info('Memulai memuat semua data untuk FormPelangganAktif');
-    final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
+    final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
     final paketOpsqlite = ref.read(paketOpSqliteProvider);
     final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
     final dompetOpSqlite = ref.read(dompetOpSqliteProvider);
@@ -116,9 +117,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           ? transaksiOperasi.ambilBerdasarkanId(pa!.idTransaksi)
           : Future<TransaksiModel?>.value();
 
-      final results = await Future.wait<Object?>([
-        pelangganAktifOpSqlite.getALl(),
-        paketOpsqlite.ambilBerdasarkanAktif(),
+      final hasil = await Future.wait<Object?>([
+        pelangganOpSqlite.ambilPelanggan(),
+        paketOpsqlite.ambilPaket(),
         dompetOpSqlite.ambilSemua(),
         kategoriOpSqlite.ambilSemua(),
         transaksiTerkaitFuture,
@@ -128,44 +129,43 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         return;
       }
 
-      final pelangganList = (results[0] as List<PelangganModel>)
+      final daftarPelanggan = (hasil[0] as List<PelangganModel>)
         ..sort((a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
 
-      final paketList = (results[1] as List<PaketModel>)
+      final daftarPaket = (hasil[1] as List<PaketModel>)
         ..sort(
           (a, b) =>
               _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)),
         );
 
-      final daftarDompet = (results[2] as List<DompetModel>)
+      final daftarDompet = (hasil[2] as List<DompetModel>)
           .where((d) => !d.dihapus)
           .toList();
 
-      final semuaKategori = results[3] as List<KategoriModel>;
+      final semuaKategori = hasil[3] as List<KategoriModel>;
       final kategoriPemasukanList = semuaKategori
           .where((k) => k.tipe == TipeKategori.income && !k.diHapus)
           .toList();
-      final kategoriPengeluaranList = semuaKategori
+      final daftarKategoriPengeluaran = semuaKategori
           .where((k) => k.tipe == TipeKategori.expense && !k.diHapus)
           .toList();
 
-      final transaksiTerkait =
-          results.length > 4 && results[4] is TransaksiModel
-          ? results[4] as TransaksiModel?
+      final transaksiTerkait = hasil.length > 4 && hasil[4] is TransaksiModel
+          ? hasil[4] as TransaksiModel?
           : null;
 
+      if (_modeEdit) {
+        await _mapEditData(transaksiTerkait);
+      } else {
+        _mapNewData();
+      }
+
       setState(() {
-        _pelangganList = pelangganList;
-        _paketList = paketList;
+        _pelangganList = daftarPelanggan;
+        _daftarPaket = daftarPaket;
         _dompetList = daftarDompet;
         _kategoriPemasukanList = kategoriPemasukanList;
-        _kategoriPengeluaranList = kategoriPengeluaranList;
-
-        if (_modeEdit) {
-          unawaited(_mapEditData(transaksiTerkait));
-        } else {
-          _mapNewData();
-        }
+        _kategoriPengeluaranList = daftarKategoriPengeluaran;
 
         _isLoading = false;
         Log.info('Semua data berhasil dimuat.');
@@ -187,7 +187,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     _pelangganDipilih = _pelangganList.firstWhereOrNull(
       (p) => p.id == pa.idPelanggan,
     );
-    _paketDipilih = _paketList.firstWhereOrNull((p) => p.id == pa.idPaket);
+    _paketDipilih = _daftarPaket.firstWhereOrNull((p) => p.id == pa.idPaket);
 
     if (transaksi != null) {
       Log.info(
@@ -252,7 +252,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     }
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _memilihTanggal(BuildContext context) async {
     Log.info('Memilih tanggal, saat ini: $_pilihTanggal');
     final terpilih = await showDatePicker(
       context: context,
@@ -266,7 +266,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     }
   }
 
-  Future<void> _selectTime(BuildContext context) async {
+  Future<void> _memilihJam(BuildContext context) async {
     Log.info('Memilih waktu, saat ini: $_pilihJam');
     final initial = _pilihJam ?? TimeOfDay.fromDateTime(DateTime.now());
     final terpilih = await showTimePicker(
@@ -487,6 +487,15 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     }
   }
 
+  void _invalidateSemuaProvider() {
+    ref.invalidate(pelangganAktifOpSqliteProvider);
+    ref.invalidate(transaksiOpSqliteProvider);
+    ref.invalidate(transaksiOpFirebaseProvider);
+    ref.invalidate(dompetOpSqliteProvider);
+    ref.invalidate(statistikProvider);
+    ref.invalidate(pelangganAktifProvider);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -521,8 +530,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                       PemilihTanggalWaktuWidget(
                         tanggalTerpilih: _pilihTanggal,
                         waktuTerpilih: _pilihJam,
-                        onPilihTanggal: () => _selectDate(context),
-                        onPilihWaktu: () => _selectTime(context),
+                        onPilihTanggal: () => _memilihTanggal(context),
+                        onPilihWaktu: () => _memilihJam(context),
                       ),
                       gapH8,
                       _buildStatusPembayaranButtons(),
@@ -533,7 +542,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                 ),
               ),
             ),
-      bottomNavigationBar: _buildSaveButton(),
+      bottomNavigationBar: _buildTombolSimpan(),
     );
   }
 
@@ -629,7 +638,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         border: OutlineInputBorder(),
       ),
       initialValue: _paketDipilih,
-      items: _paketList
+      items: _daftarPaket
           .map((p) => DropdownMenuItem(value: p, child: Text(p.nama)))
           .toList(),
       onChanged: (newValue) {
@@ -851,7 +860,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     );
   }
 
-  Widget _buildSaveButton() {
+  Widget _buildTombolSimpan() {
     return Padding(
       padding: const EdgeInsets.all(TSizes.p16),
       child: ElevatedButton(

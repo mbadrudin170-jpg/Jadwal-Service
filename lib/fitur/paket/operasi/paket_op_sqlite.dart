@@ -20,10 +20,7 @@ class PaketOpSqlite {
   final String _tabel = NamaTabel.paket;
   final _nowUtc = DateTime.now().toUtc();
 
-  PaketOpSqlite({
-    required this.sqliteDb,
-    required this.basOpSqlite,
-  }) {
+  PaketOpSqlite({required this.sqliteDb, required this.basOpSqlite}) {
     Log.info('PackageOperation instance dibuat.');
   }
 
@@ -32,11 +29,7 @@ class PaketOpSqlite {
     Log.info('Memulai createPackage untuk id: ${paket.id}');
     try {
       final data = paket.copyWith(diperbaruiPada: _nowUtc).toSqlite();
-      await basOpSqlite.sisipkan(
-        _tabel,
-        data,
-        dariServer: dariServer,
-      );
+      await basOpSqlite.sisipkan(_tabel, data, dariServer: dariServer);
       Log.info('Berhasil createPackage untuk id: ${paket.id}');
     } catch (e, s) {
       Log.error('Gagal createPackage untuk id: ${paket.id}', e: e, s: s);
@@ -72,7 +65,7 @@ class PaketOpSqlite {
   }
 
   /// Mengambil semua paket aktif (tidak diarsipkan).
-  Future<List<PaketModel>> ambilBerdasarkanAktif() async {
+  Future<List<PaketModel>> ambilPaket() async {
     Log.info('Memulai proses pengambilan semua data paket aktif');
     try {
       final db = await sqliteDb.database;
@@ -151,17 +144,14 @@ class PaketOpSqlite {
   }
 
   /// Memperbarui [PaketModel] yang ada di database.
-  Future<void> perbaruiPaket(PaketModel paket,
-      {bool dariServer = false}) async {
+  Future<void> perbaruiPaket(
+    PaketModel paket, {
+    bool dariServer = false,
+  }) async {
     Log.info('Memulai updatePaket untuk id: ${paket.id}');
     try {
       final data = paket.copyWith(diperbaruiPada: _nowUtc).toSqlite();
-      await basOpSqlite.update(
-        _tabel,
-        data,
-        paket.id,
-        dariServer: dariServer,
-      );
+      await basOpSqlite.update(_tabel, data, paket.id, dariServer: dariServer);
       Log.info('Berhasil updatePaket untuk id: ${paket.id}');
     } catch (e, s) {
       Log.error('Gagal updatePaket untuk id: ${paket.id}', e: e, s: s);
@@ -173,11 +163,7 @@ class PaketOpSqlite {
   Future<void> hapusSementara(String id, {bool dariServer = false}) async {
     Log.info('Memulai soft delete untuk paket id: $id');
     try {
-      await basOpSqlite.softDelete(
-        _tabel,
-        id,
-        dariServer: dariServer,
-      );
+      await basOpSqlite.softDelete(_tabel, id, dariServer: dariServer);
       Log.info('Berhasil soft delete untuk paket id: $id');
     } catch (e, s) {
       Log.error('Gagal soft delete untuk paket id: $id', e: e, s: s);
@@ -205,11 +191,7 @@ class PaketOpSqlite {
   Future<void> hapus(String id, {bool dariServer = false}) async {
     Log.info('Memulai deletePaket untuk id: $id');
     try {
-      await basOpSqlite.delete(
-        _tabel,
-        id,
-        dariServer: dariServer,
-      );
+      await basOpSqlite.delete(_tabel, id, dariServer: dariServer);
       Log.info('Berhasil deletePaket untuk id: $id');
     } catch (e, s) {
       Log.error('Gagal deletePaket untuk id: $id', e: e, s: s);
@@ -221,16 +203,10 @@ class PaketOpSqlite {
   Future<void> hapusSemua({bool dariServer = false}) async {
     Log.info('Memulai proses penghapusan semua data paket');
     try {
-      await basOpSqlite.runComplexOperation<void>(
-        (Transaction txn) async {
-          final int count = await txn.delete(
-            _tabel,
-          );
-          Log.info(
-              'Berhasil menghapus semua data paket. Total terhapus: $count');
-        },
-        dariServer: dariServer,
-      );
+      await basOpSqlite.runComplexOperation<void>((Transaction txn) async {
+        final int count = await txn.delete(_tabel);
+        Log.info('Berhasil menghapus semua data paket. Total terhapus: $count');
+      }, dariServer: dariServer);
     } catch (e, s) {
       Log.error('Gagal menghapus semua data paket', e: e, s: s);
       rethrow;
@@ -240,7 +216,8 @@ class PaketOpSqlite {
   /// Mengambil semua paket yang telah diubah sejak [since].
   Future<List<PaketModel>> ambilPerubahanSejak(DateTime since) async {
     Log.info(
-        'Memulai pengambilan perubahan paket sejak ${since.toIso8601String()}');
+      'Memulai pengambilan perubahan paket sejak ${since.toIso8601String()}',
+    );
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
@@ -268,9 +245,7 @@ class PaketOpSqlite {
     }
     try {
       final dataList = items
-          .map(
-            (item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
-          )
+          .map((item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite())
           .toList();
       await basOpSqlite.sisipkanAtauPerbaruiBatch(
         _tabel,

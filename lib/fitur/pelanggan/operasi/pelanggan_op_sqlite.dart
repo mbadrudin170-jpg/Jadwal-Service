@@ -62,7 +62,7 @@ class PelangganOpSqlite {
     }
   }
 
-  Future<List<PelangganModel>> ambilSemuaPelanggan() async {
+  Future<List<PelangganModel>> ambilSemua() async {
     Log.info('Mengambil SEMUA data customer dari database lokal.');
     try {
       final db = await sqliteDb.database;

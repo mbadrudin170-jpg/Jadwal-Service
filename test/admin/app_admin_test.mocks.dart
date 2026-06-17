@@ -483,7 +483,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
           as _i8.Future<_i5.PelangganAktifModel>);
 
   @override
-  _i8.Future<List<_i5.PelangganAktifModel>> getALl() =>
+  _i8.Future<List<_i5.PelangganAktifModel>> ambilSemua() =>
       (super.noSuchMethod(
             Invocation.method(#getALl, []),
             returnValue: _i8.Future<List<_i5.PelangganAktifModel>>.value(
