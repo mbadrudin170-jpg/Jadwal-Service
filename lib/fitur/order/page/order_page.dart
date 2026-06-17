@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
-import 'package:wifi/fitur/order/provider/order_provider_gabungan.dart';
+import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -453,6 +453,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
             Log.info(
               '_tombolOpsiUbahStatus: status berhasil diubah untuk orderId: ${order.id}',
             );
+            ref.invalidate(daftarPesananProvider);
             ref.invalidate(orderProvider);
             Log.info('_tombolOpsiUbahStatus: orderProvider di-invalidate');
 

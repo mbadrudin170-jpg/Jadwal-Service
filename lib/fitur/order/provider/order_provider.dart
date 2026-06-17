@@ -1,4 +1,4 @@
-// path: lib/fitur/order/provider/order_provider_gabungan.dart
+// path: lib/fitur/order/provider/order_provider.dart
 
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -10,8 +10,8 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
-part 'order_provider_gabungan.g.dart';
-part 'order_provider_gabungan.freezed.dart';
+part 'order_provider.g.dart';
+part 'order_provider.freezed.dart';
 
 @freezed
 abstract class OrderState with _$OrderState {
