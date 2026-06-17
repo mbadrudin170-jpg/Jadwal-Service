@@ -19,9 +19,7 @@ class VersiApkOpSqlite {
     required final BaseOpSqlite baseOpSqlite,
     required this.sqliteDb,
   }) : _baseOpSqlite = baseOpSqlite {
-    Log.info(
-      'VersiApkOpSqlite diinisialisasi - Tabel: $_namaTabel',
-    );
+    Log.info('VersiApkOpSqlite diinisialisasi - Tabel: $_namaTabel');
   }
 
   // =========================
@@ -46,7 +44,7 @@ class VersiApkOpSqlite {
       Log.info(
         'Versi APK user berhasil ditambahkan ke tabel $_namaTabel - ID: ${apkVersion.id}',
       );
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error(
         'Gagal menambah versi APK user - ID: ${apkVersion.id}, Versi: ${apkVersion.versiTerkahir}',
         e: e,
@@ -58,26 +56,26 @@ class VersiApkOpSqlite {
 
   /// Memperbarui [VersiApkModel] yang ada di database.
   Future<void> perbaruiVersiApk(
-    final VersiApkModel apkVersion, {
+    final VersiApkModel versiApk, {
     final bool dariServer = false,
   }) async {
     Log.info(
-      'Memperbarui versi APK user - ID: ${apkVersion.id}, Versi: ${apkVersion.versiTerkahir}',
+      'Memperbarui versi APK user - ID: ${versiApk.id}, Versi: ${versiApk.versiTerkahir}',
     );
 
     try {
       await _baseOpSqlite.update(
         _namaTabel,
-        apkVersion.toSqlite(),
-        apkVersion.id,
+        versiApk.toSqlite(),
+        versiApk.id,
         dariServer: dariServer,
       );
       Log.info(
-        'Versi APK user berhasil diperbarui di tabel $_namaTabel - ID: ${apkVersion.id}',
+        'Versi APK user berhasil diperbarui di tabel $_namaTabel - ID: ${versiApk.id}',
       );
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error(
-        'Gagal memperbarui versi APK user - ID: ${apkVersion.id}, Versi: ${apkVersion.versiTerkahir}',
+        'Gagal memperbarui versi APK user - ID: ${versiApk.id}, Versi: ${versiApk.versiTerkahir}',
         e: e,
         s: st,
       );
@@ -92,11 +90,7 @@ class VersiApkOpSqlite {
   }) async {
     Log.info('Memulai soft delete untuk versi APK ID: $id');
     try {
-      await _baseOpSqlite.softDelete(
-        _namaTabel,
-        id,
-        dariServer: dariServer,
-      );
+      await _baseOpSqlite.softDelete(_namaTabel, id, dariServer: dariServer);
       Log.info('Soft delete untuk versi APK ID: $id selesai.');
     } on Exception catch (e, st) {
       Log.error(
@@ -130,31 +124,33 @@ class VersiApkOpSqlite {
 
   /// Menyisipkan atau memperbarui sekumpulan [VersiApkModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
-    final List<VersiApkModel> modelList, {
+    final List<VersiApkModel> daftarVersiApk, {
     final bool dariServer = false,
   }) async {
     Log.info(
-      'Memulai operasi batch insert/update - Jumlah data: ${modelList.length}, Tabel: $_namaTabel',
+      'Memulai operasi batch insert/update - Jumlah data: ${daftarVersiApk.length}, Tabel: $_namaTabel',
     );
 
-    if (modelList.isEmpty) {
+    if (daftarVersiApk.isEmpty) {
       Log.info('Daftar model kosong, tidak ada data yang diproses dalam batch');
       return;
     }
 
     try {
-      final mapList = modelList.map((final model) => model.toSqlite()).toList();
+      final daftarMap = daftarVersiApk
+          .map((final model) => model.toSqlite())
+          .toList();
       await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
         _namaTabel,
-        mapList,
+        daftarMap,
         dariServer: dariServer,
       );
       Log.info(
-        'Operasi batch berhasil - ${mapList.length} data diproses di tabel $_namaTabel',
+        'Operasi batch berhasil - ${daftarMap.length} data diproses di tabel $_namaTabel',
       );
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error(
-        'Gagal melakukan operasi batch - Jumlah data: ${modelList.length}, Tabel: $_namaTabel',
+        'Gagal melakukan operasi batch - Jumlah data: ${daftarVersiApk.length}, Tabel: $_namaTabel',
         e: e,
         s: st,
       );
@@ -184,7 +180,7 @@ class VersiApkOpSqlite {
 
       final hasil = List.generate(
         maps.length,
-        (final i) => VersiApkModel.fromSqlite(maps[i]),
+        (i) => VersiApkModel.fromSqlite(maps[i]),
       );
 
       int jumlahAktif = 0;
@@ -222,17 +218,14 @@ class VersiApkOpSqlite {
       const where = '${NamaKolom.dihapus} = 0';
       const orderBy = '${NamaKolom.diperbaruiPada} DESC';
       Log.info(
-          'Query: SELECT * FROM $_namaTabel WHERE $where ORDER BY $orderBy');
-
-      final maps = await db.query(
-        _namaTabel,
-        where: where,
-        orderBy: orderBy,
+        'Query: SELECT * FROM $_namaTabel WHERE $where ORDER BY $orderBy',
       );
+
+      final maps = await db.query(_namaTabel, where: where, orderBy: orderBy);
 
       final hasil = List.generate(
         maps.length,
-        (final i) => VersiApkModel.fromSqlite(maps[i]),
+        (i) => VersiApkModel.fromSqlite(maps[i]),
       );
 
       Log.info('Berhasil mengambil ${hasil.length} versi APK aktif');
@@ -247,9 +240,10 @@ class VersiApkOpSqlite {
       return hasil;
     } catch (e, st) {
       Log.error(
-          'Gagal mengambil versi APK aktif dari tabel $_namaTabel, mengembalikan list kosong',
-          e: e,
-          s: st);
+        'Gagal mengambil versi APK aktif dari tabel $_namaTabel, mengembalikan list kosong',
+        e: e,
+        s: st,
+      );
       return [];
     }
   }
@@ -263,7 +257,8 @@ class VersiApkOpSqlite {
       const where = '${NamaKolom.dihapus} = 0';
       const orderBy = '${NamaKolom.diperbaruiPada} DESC';
       Log.info(
-          'Query: SELECT * FROM $_namaTabel WHERE $where ORDER BY $orderBy LIMIT 1');
+        'Query: SELECT * FROM $_namaTabel WHERE $where ORDER BY $orderBy LIMIT 1',
+      );
 
       final maps = await db.query(
         _namaTabel,
@@ -286,15 +281,16 @@ class VersiApkOpSqlite {
       }
     } catch (e, st) {
       Log.error(
-          'Gagal mengambil versi APK terbaru dari tabel $_namaTabel, mengembalikan null',
-          e: e,
-          s: st);
+        'Gagal mengambil versi APK terbaru dari tabel $_namaTabel, mengembalikan null',
+        e: e,
+        s: st,
+      );
       return null;
     }
   }
 
   /// Mengambil [VersiApkModel] berdasarkan [id].
-  Future<VersiApkModel?> ambilBerdasarkanId(final String id) async {
+  Future<VersiApkModel?> ambilBerdasarkanId(String id) async {
     Log.info('Mengambil versi APK by ID: $id dari tabel $_namaTabel');
 
     try {
@@ -302,11 +298,7 @@ class VersiApkOpSqlite {
       const where = 'id = ? AND ${NamaKolom.dihapus} = 0';
       Log.info('Query: SELECT * FROM $_namaTabel WHERE $where');
 
-      final maps = await db.query(
-        _namaTabel,
-        where: where,
-        whereArgs: [id],
-      );
+      final maps = await db.query(_namaTabel, where: where, whereArgs: [id]);
 
       if (maps.isNotEmpty) {
         final model = VersiApkModel.fromSqlite(maps.first);
@@ -320,7 +312,7 @@ class VersiApkOpSqlite {
         );
         return null;
       }
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengambil versi APK by ID: $id dari tabel $_namaTabel, mengembalikan null',
         e: e,

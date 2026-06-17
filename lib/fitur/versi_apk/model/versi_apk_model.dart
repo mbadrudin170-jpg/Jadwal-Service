@@ -62,8 +62,9 @@ abstract class VersiApkModel with _$VersiApkModel implements HasId {
       for (final item in mapData.entries) {
         final architecture = _architectureFromString(item.key.toString());
         if (architecture != null) {
-          result[architecture] =
-              item.value is num ? (item.value as num).toInt() : 0;
+          result[architecture] = item.value is num
+              ? (item.value as num).toInt()
+              : 0;
         }
       }
     }
@@ -162,8 +163,9 @@ abstract class VersiApkModel with _$VersiApkModel implements HasId {
       NamaKolom.catatanRilis: catatanRilis,
       NamaKolom.versiTerkahir: versiTerkahir,
       NamaKolom.linkYoutubeTutorial: linkYoutubeTutorial,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()).toUtc(),
+      ),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,

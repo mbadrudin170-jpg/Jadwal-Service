@@ -17,13 +17,7 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-/// Form untuk mengelola versi APK pengguna.
-///
-/// Form ini digunakan untuk menambah atau mengubah informasi mengenai
-/// versi APK yang tersedia untuk diunduh oleh pengguna, termasuk nomor build,
-/// tautan unduhan, dan catatan rilis.
 class FormVersiApk extends ConsumerStatefulWidget {
-  /// Model data versi APK yang akan diedit. Jika `null`, form akan berada dalam mode tambah baru.
   final VersiApkModel? versiApk;
 
   const FormVersiApk(
@@ -39,7 +33,7 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
   late TextEditingController _releaseNotesController;
   late TextEditingController _latestVersionController;
   late TextEditingController _youtubeTutorialController;
-  late bool _isUpdateRequired;
+  late bool _perluUpdate;
   late TextEditingController _buildUniversalController;
   late TextEditingController _build32Controller;
   late TextEditingController _build64Controller;
@@ -55,8 +49,7 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
   final _link64FocusNode = FocusNode();
   final _releaseNotesFocusNode = FocusNode();
   final _youtubeTutorialFocusNode = FocusNode();
-  final _scrollController =
-      ScrollController(); // Untuk scroll ke error jika ada
+  final _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -67,7 +60,7 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
     _releaseNotesController = TextEditingController();
     _latestVersionController = TextEditingController();
     _youtubeTutorialController = TextEditingController();
-    _isUpdateRequired = false;
+    _perluUpdate = false;
     _buildUniversalController = TextEditingController();
     _build32Controller = TextEditingController();
     _build64Controller = TextEditingController();
@@ -116,7 +109,7 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
     _releaseNotesController.text = data.catatanRilis;
     _latestVersionController.text = data.versiTerkahir;
     _youtubeTutorialController.text = data.linkYoutubeTutorial;
-    _isUpdateRequired = data.wajibUpdate;
+    _perluUpdate = data.wajibUpdate;
     _buildUniversalController.text =
         data.nomorBuildTerakhir[ArsitekturApk.universal]?.toString() ?? '';
     _build32Controller.text =
@@ -158,7 +151,7 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
     final apkVersionOperasi = ref.read(versiApkOpSqliteProvider);
     if (!_formKey.currentState!.validate()) {
       _scrollController.animateTo(
-        0.0, // Scroll ke atas halaman
+        0.0,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
@@ -233,7 +226,7 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
         catatanRilis: _releaseNotesController.text,
         versiTerkahir: _latestVersionController.text,
         linkYoutubeTutorial: _youtubeTutorialController.text,
-        wajibUpdate: _isUpdateRequired,
+        wajibUpdate: _perluUpdate,
         nomorBuildTerakhir: nomorBuild,
         linkDownload: tautanUnduhan,
       );
@@ -375,10 +368,10 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
                   ),
                   SwitchListTile(
                     title: const Text('Wajib Update'),
-                    value: _isUpdateRequired,
+                    value: _perluUpdate,
                     onChanged: (final bool value) {
                       Log.info('Switch Wajib Update diubah ke: $value');
-                      setState(() => _isUpdateRequired = value);
+                      setState(() => _perluUpdate = value);
                     },
                   ),
                 ],

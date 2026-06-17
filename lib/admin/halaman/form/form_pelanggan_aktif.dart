@@ -496,8 +496,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
+c          : Padding(
               padding: const EdgeInsets.all(TSizes.p16),
               child: Form(
                 key: _formKey,
