@@ -10,22 +10,10 @@ import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-/// Halaman untuk mengedit profil pengguna.
-///
-/// Memungkinkan pengguna untuk mengubah nama, nomor telepon, dan password mereka.
 class EditProfilePage extends ConsumerStatefulWidget {
-  /// Data pelanggan yang akan diedit.
-  final PelangganModel customer;
+  final PelangganModel pelanggan;
 
-  // /// ID unik pengguna yang sedang login.
-  // final String userId;
-
-  /// Membuat instance dari [EditProfilePage].
-  const EditProfilePage({
-    super.key,
-    required this.customer,
-    // required this.userId,
-  });
+  const EditProfilePage({super.key, required this.pelanggan});
 
   @override
   ConsumerState<EditProfilePage> createState() => _EditProfilePageState();
@@ -34,28 +22,28 @@ class EditProfilePage extends ConsumerStatefulWidget {
 class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
-  late TextEditingController _phoneController;
+  late TextEditingController _teleponController;
   late TextEditingController _passwordController;
-  final _internetConnectionService = KoneksiInternetService();
+  final _koneksiInternetService = KoneksiInternetService();
 
-  bool _isPasswordVisible = false;
+  bool _passwordTerlihat = false;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.customer.nama);
-    _phoneController = TextEditingController(text: widget.customer.telepon);
+    _nameController = TextEditingController(text: widget.pelanggan.nama);
+    _teleponController = TextEditingController(text: widget.pelanggan.telepon);
     _passwordController = TextEditingController(
-      text: widget.customer.kataSandi,
+      text: widget.pelanggan.kataSandi,
     );
   }
 
-  Future<void> _saveChanges() async {
+  Future<void> _simpanForm() async {
     if (_formKey.currentState?.validate() ?? false) {
       final navigator = Navigator.of(context);
 
       try {
-        final isOnline = await _internetConnectionService.cekInternet(ref);
+        final isOnline = await _koneksiInternetService.cekInternet(ref);
         if (!isOnline) {
           if (mounted) {
             ToastUtil.info(context, 'Cek koneksi internet Anda.');
@@ -63,13 +51,13 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           return;
         }
 
-        final updatedCustomer = widget.customer.copyWith(
+        final dataPelanggan = widget.pelanggan.copyWith(
           nama: _nameController.text,
-          telepon: _phoneController.text,
+          telepon: _teleponController.text,
           kataSandi: _passwordController.text,
         );
-        final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
-        await customerOpFirebase.perbaruiPelanggan(updatedCustomer);
+        final pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
+        await pelangganOpFirebase.perbaruiPelanggan(dataPelanggan);
         ref.invalidate(pelangganOpFirebaseProvider);
         if (!mounted) return;
 
@@ -87,7 +75,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   @override
   void dispose() {
     _nameController.dispose();
-    _phoneController.dispose();
+    _teleponController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -105,7 +93,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Nama Lengkap'),
-                validator: (final value) {
+                validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Nama tidak boleh kosong';
                   }
@@ -114,10 +102,10 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
               ),
               gapH16,
               TextFormField(
-                controller: _phoneController,
+                controller: _teleponController,
                 decoration: const InputDecoration(labelText: 'No. HP'),
                 keyboardType: TextInputType.phone,
-                validator: (final value) {
+                validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'No. HP tidak boleh kosong';
                   }
@@ -127,18 +115,18 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
               gapH16,
               TextFormField(
                 controller: _passwordController,
-                obscureText: !_isPasswordVisible,
+                obscureText: !_passwordTerlihat,
                 decoration: InputDecoration(
                   labelText: 'Password',
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _isPasswordVisible
+                      _passwordTerlihat
                           ? Icons.visibility
                           : Icons.visibility_off,
                     ),
                     onPressed: () {
                       setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
+                        _passwordTerlihat = !_passwordTerlihat;
                       });
                     },
                   ),
@@ -152,7 +140,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
               ),
               gapH32,
               ElevatedButton(
-                onPressed: _saveChanges,
+                onPressed: _simpanForm,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: TColors.primaryColor,
                   foregroundColor: Colors.white,

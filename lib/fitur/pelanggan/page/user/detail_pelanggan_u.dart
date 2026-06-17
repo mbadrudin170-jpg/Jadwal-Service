@@ -79,7 +79,7 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
     final bool? hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) => EditProfilePage(customer: pelanggan),
+        builder: (context) => EditProfilePage(pelanggan: pelanggan),
       ),
     );
     await ref.read(interstitialAdServiceProvider).show();
