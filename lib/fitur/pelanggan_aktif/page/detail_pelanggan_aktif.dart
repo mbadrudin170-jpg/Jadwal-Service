@@ -18,6 +18,7 @@ import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dar
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/whatsapp/info_paket.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
@@ -144,24 +145,24 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
   Widget _buildScaffold(
     BuildContext context,
     ({
-      PelangganModel? customer,
-      PaketModel? package,
-      TransaksiModel? transaction,
-      PelangganAktifModel activeCustomer,
+      PelangganModel? pelanggan,
+      PaketModel? paket,
+      TransaksiModel? transaksi,
+      PelangganAktifModel pelangganAktif,
     })
     data,
   ) {
-    final pelangganAktif = data.activeCustomer;
-    final pelanggan = data.customer;
-    final paket = data.package;
-    final transaksi = data.transaction;
+    final pelangganAktif = data.pelangganAktif;
+    final pelanggan = data.pelanggan;
+    final paket = data.paket;
+    final transaksi = data.transaksi;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(pelanggan?.nama ?? 'Detail Pelanggan'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit),
+            icon: const Icon(TIcons.edit),
             onPressed: () => _navigateToEdit(pelangganAktif),
           ),
         ],
