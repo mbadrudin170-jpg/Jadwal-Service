@@ -352,6 +352,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
   Widget _daftarPesanan() {
     final orderAsync = ref.watch(orderProvider);
+    
     Log.info('_daftarPesanan dipanggil, filterAktif: $_filterAktif');
 
     return orderAsync.when(
@@ -394,7 +395,8 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           return const Center(child: Text('Belum ada pesanan ditemukan.'));
         }
 
-        final paketOpFirebase = ref.watch(paketOpFirebaseProvider);
+        final paketOpFirebase = ref.watch(paketOpFirebaseProvider).ambilBerdasarkanId(orderAsync.idPelanggan);
+
         return ListView.builder(
           itemCount: orderDifilter.length,
           itemBuilder: (context, index) {
@@ -413,6 +415,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
               title: Row(
                 children: [
                   const Text('Paket: '),
+                  TeksJudulSedang(),
                   PackageNameWidget(
                     paketFuture: paketOpFirebase.ambilBerdasarkanId(
                       order.idPaket,

@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$OrderState implements DiagnosticableTreeMixin {
 
- List<OrderModel> get orders; int get totalDaftar;
+ List<OrderModel> get daftarOrder; int get totalDaftar;
 /// Create a copy of OrderState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -26,21 +26,21 @@ $OrderStateCopyWith<OrderState> get copyWith => _$OrderStateCopyWithImpl<OrderSt
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'OrderState'))
-    ..add(DiagnosticsProperty('orders', orders))..add(DiagnosticsProperty('totalDaftar', totalDaftar));
+    ..add(DiagnosticsProperty('daftarOrder', daftarOrder))..add(DiagnosticsProperty('totalDaftar', totalDaftar));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderState&&const DeepCollectionEquality().equals(other.orders, orders)&&(identical(other.totalDaftar, totalDaftar) || other.totalDaftar == totalDaftar));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderState&&const DeepCollectionEquality().equals(other.daftarOrder, daftarOrder)&&(identical(other.totalDaftar, totalDaftar) || other.totalDaftar == totalDaftar));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(orders),totalDaftar);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(daftarOrder),totalDaftar);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'OrderState(orders: $orders, totalDaftar: $totalDaftar)';
+  return 'OrderState(daftarOrder: $daftarOrder, totalDaftar: $totalDaftar)';
 }
 
 
@@ -51,7 +51,7 @@ abstract mixin class $OrderStateCopyWith<$Res>  {
   factory $OrderStateCopyWith(OrderState value, $Res Function(OrderState) _then) = _$OrderStateCopyWithImpl;
 @useResult
 $Res call({
- List<OrderModel> orders, int totalDaftar
+ List<OrderModel> daftarOrder, int totalDaftar
 });
 
 
@@ -68,9 +68,9 @@ class _$OrderStateCopyWithImpl<$Res>
 
 /// Create a copy of OrderState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? orders = null,Object? totalDaftar = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? daftarOrder = null,Object? totalDaftar = null,}) {
   return _then(_self.copyWith(
-orders: null == orders ? _self.orders : orders // ignore: cast_nullable_to_non_nullable
+daftarOrder: null == daftarOrder ? _self.daftarOrder : daftarOrder // ignore: cast_nullable_to_non_nullable
 as List<OrderModel>,totalDaftar: null == totalDaftar ? _self.totalDaftar : totalDaftar // ignore: cast_nullable_to_non_nullable
 as int,
   ));
@@ -157,10 +157,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<OrderModel> orders,  int totalDaftar)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<OrderModel> daftarOrder,  int totalDaftar)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _OrderState() when $default != null:
-return $default(_that.orders,_that.totalDaftar);case _:
+return $default(_that.daftarOrder,_that.totalDaftar);case _:
   return orElse();
 
 }
@@ -178,10 +178,10 @@ return $default(_that.orders,_that.totalDaftar);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<OrderModel> orders,  int totalDaftar)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<OrderModel> daftarOrder,  int totalDaftar)  $default,) {final _that = this;
 switch (_that) {
 case _OrderState():
-return $default(_that.orders,_that.totalDaftar);case _:
+return $default(_that.daftarOrder,_that.totalDaftar);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +198,10 @@ return $default(_that.orders,_that.totalDaftar);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<OrderModel> orders,  int totalDaftar)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<OrderModel> daftarOrder,  int totalDaftar)?  $default,) {final _that = this;
 switch (_that) {
 case _OrderState() when $default != null:
-return $default(_that.orders,_that.totalDaftar);case _:
+return $default(_that.daftarOrder,_that.totalDaftar);case _:
   return null;
 
 }
@@ -213,14 +213,14 @@ return $default(_that.orders,_that.totalDaftar);case _:
 
 
 class _OrderState with DiagnosticableTreeMixin implements OrderState {
-  const _OrderState({final  List<OrderModel> orders = const [], this.totalDaftar = 0}): _orders = orders;
+  const _OrderState({final  List<OrderModel> daftarOrder = const [], this.totalDaftar = 0}): _daftarOrder = daftarOrder;
   
 
- final  List<OrderModel> _orders;
-@override@JsonKey() List<OrderModel> get orders {
-  if (_orders is EqualUnmodifiableListView) return _orders;
+ final  List<OrderModel> _daftarOrder;
+@override@JsonKey() List<OrderModel> get daftarOrder {
+  if (_daftarOrder is EqualUnmodifiableListView) return _daftarOrder;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_orders);
+  return EqualUnmodifiableListView(_daftarOrder);
 }
 
 @override@JsonKey() final  int totalDaftar;
@@ -236,21 +236,21 @@ _$OrderStateCopyWith<_OrderState> get copyWith => __$OrderStateCopyWithImpl<_Ord
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'OrderState'))
-    ..add(DiagnosticsProperty('orders', orders))..add(DiagnosticsProperty('totalDaftar', totalDaftar));
+    ..add(DiagnosticsProperty('daftarOrder', daftarOrder))..add(DiagnosticsProperty('totalDaftar', totalDaftar));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderState&&const DeepCollectionEquality().equals(other._orders, _orders)&&(identical(other.totalDaftar, totalDaftar) || other.totalDaftar == totalDaftar));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderState&&const DeepCollectionEquality().equals(other._daftarOrder, _daftarOrder)&&(identical(other.totalDaftar, totalDaftar) || other.totalDaftar == totalDaftar));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_orders),totalDaftar);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_daftarOrder),totalDaftar);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'OrderState(orders: $orders, totalDaftar: $totalDaftar)';
+  return 'OrderState(daftarOrder: $daftarOrder, totalDaftar: $totalDaftar)';
 }
 
 
@@ -261,7 +261,7 @@ abstract mixin class _$OrderStateCopyWith<$Res> implements $OrderStateCopyWith<$
   factory _$OrderStateCopyWith(_OrderState value, $Res Function(_OrderState) _then) = __$OrderStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<OrderModel> orders, int totalDaftar
+ List<OrderModel> daftarOrder, int totalDaftar
 });
 
 
@@ -278,9 +278,9 @@ class __$OrderStateCopyWithImpl<$Res>
 
 /// Create a copy of OrderState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? orders = null,Object? totalDaftar = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? daftarOrder = null,Object? totalDaftar = null,}) {
   return _then(_OrderState(
-orders: null == orders ? _self._orders : orders // ignore: cast_nullable_to_non_nullable
+daftarOrder: null == daftarOrder ? _self._daftarOrder : daftarOrder // ignore: cast_nullable_to_non_nullable
 as List<OrderModel>,totalDaftar: null == totalDaftar ? _self.totalDaftar : totalDaftar // ignore: cast_nullable_to_non_nullable
 as int,
   ));
