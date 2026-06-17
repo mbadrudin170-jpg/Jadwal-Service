@@ -22,11 +22,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     Log.info('Menambahkan transaksi baru: ${transaksi.id}');
     try {
-      await sisipkan(
-        NamaTabel.transaksi,
-        transaksi.id,
-        transaksi.toFirebase(),
-      );
+      await sisipkan(NamaTabel.transaksi, transaksi.id, transaksi.toFirebase());
       Log.info('Berhasil menambahkan transaksi: ${transaksi.id}');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal menambahkan transaksi: ${transaksi.id}', e: e, s: s);
@@ -41,11 +37,14 @@ class TransaksiOpFirebase extends BaseOpFirebase {
   ) async {
     try {
       Log.info(
-          'Mencari transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan');
+        'Mencari transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan',
+      );
       final querySnapshot = await _koleksi
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
-          .where(NamaKolom.statusPembayaran,
-              isEqualTo: StatusPembayaran.paid.name)
+          .where(
+            NamaKolom.statusPembayaran,
+            isEqualTo: StatusPembayaran.paid.name,
+          )
           .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.tangglberakhir, descending: true)
           .limit(1)
@@ -53,20 +52,23 @@ class TransaksiOpFirebase extends BaseOpFirebase {
 
       if (querySnapshot.docs.isEmpty) {
         Log.warning(
-            'Tidak ada transaksi lunas yang aktif dari Firebase untuk pengguna ID: $idPelanggan');
+          'Tidak ada transaksi lunas yang aktif dari Firebase untuk pengguna ID: $idPelanggan',
+        );
         return null;
       }
 
       final doc = querySnapshot.docs.first;
       final data = doc.data() as Map<String, dynamic>;
       Log.info(
-          'Transaksi lunas terbaru dari Firebase ditemukan untuk pengguna ID: $idPelanggan');
+        'Transaksi lunas terbaru dari Firebase ditemukan untuk pengguna ID: $idPelanggan',
+      );
       return TransaksiModel.fromFirebase(doc.id, data);
     } on Exception catch (e, s) {
       Log.error(
-          'Error mengambil transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan',
-          e: e,
-          s: s);
+        'Error mengambil transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan',
+        e: e,
+        s: s,
+      );
       return null;
     }
   }
@@ -101,8 +103,10 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       final querySnapshot = await _koleksi
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           .where(NamaKolom.dihapus, isEqualTo: false)
-          .where(NamaKolom.statusPembayaran,
-              isEqualTo: StatusPembayaran.paid.name)
+          .where(
+            NamaKolom.statusPembayaran,
+            isEqualTo: StatusPembayaran.paid.name,
+          )
           .get();
 
       int totalPoin = 0;
@@ -122,13 +126,17 @@ class TransaksiOpFirebase extends BaseOpFirebase {
   /// Menghapus transaksi dari Firestore secara permanen.
   Future<void> hapusTransaksi(String idTransaksi) async {
     Log.warning(
-        'Memulai penghapusan permanen transaksi di Firestore: $idTransaksi');
+      'Memulai penghapusan permanen transaksi di Firestore: $idTransaksi',
+    );
     try {
       await hapusPermanen(NamaTabel.transaksi, idTransaksi);
       Log.info('Penghapusan permanen transaksi berhasil: $idTransaksi');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal menghapus transaksi secara permanen: $idTransaksi',
-          e: e, s: s);
+      Log.error(
+        'Gagal menghapus transaksi secara permanen: $idTransaksi',
+        e: e,
+        s: s,
+      );
       rethrow;
     }
   }
@@ -140,8 +148,11 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       await hapusSementara(NamaTabel.transaksi, idTransaksi);
       Log.info('Soft delete transaksi berhasil: $idTransaksi');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan soft delete transaksi: $idTransaksi',
-          e: e, s: s);
+      Log.error(
+        'Gagal melakukan soft delete transaksi: $idTransaksi',
+        e: e,
+        s: s,
+      );
       rethrow;
     }
   }
@@ -180,7 +191,8 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       }).toList();
 
       Log.info(
-          '${daftarPaketAktif.length} paket aktif ditemukan untuk: $idPelanggan');
+        '${daftarPaketAktif.length} paket aktif ditemukan untuk: $idPelanggan',
+      );
       return daftarPaketAktif;
     } on Exception catch (e, s) {
       Log.error(

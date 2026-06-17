@@ -22,17 +22,17 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
-class _ProfileData {
-  final PelangganModel customer;
-  final int totalPoints;
-  final TransaksiModel? paketAktif;
-  final PaketModel? packageModel;
+class _DaataProfil {
+  final PelangganModel pelanggan;
+  final int totalPoin;
+  final TransaksiModel? transaksi;
+  final PaketModel? paket;
 
-  _ProfileData({
-    required this.customer,
-    required this.totalPoints,
-    this.paketAktif,
-    this.packageModel,
+  _DaataProfil({
+    required this.pelanggan,
+    required this.totalPoin,
+    this.transaksi,
+    this.paket,
   });
 }
 
@@ -45,73 +45,80 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
-  late final PelangganOpFirebase _customerOp;
-  late final TransaksiOpFirebase _transactionOp;
-  late final PaketOpFirebase _packageOp;
+  late final PelangganOpFirebase _pelangganOpFirebase;
+  late final TransaksiOpFirebase _transaksiOpFirebase;
+  late final PaketOpFirebase _paketOpFirebase;
 
   // DIUBAH: Hanya satu Future yang mengelola semua data untuk halaman ini.
-  Future<_ProfileData>? _futureProfileData;
+  Future<_DaataProfil>? _futureProfileData;
 
   @override
   void initState() {
     super.initState();
     unawaited(ref.read(interstitialAdServiceProvider).preloadAd());
-    _customerOp = ref.read(pelangganOpFirebaseProvider);
-    _transactionOp = ref.read(transaksiOpFirebaseProvider);
-    _packageOp = ref.read(paketOpFirebaseProvider);
+    _pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
+    _transaksiOpFirebase = ref.read(transaksiOpFirebaseProvider);
+    _paketOpFirebase = ref.read(paketOpFirebaseProvider);
     _futureProfileData = _loadProfileData();
   }
 
   // PENJELASAN: Ini adalah inti dari perbaikan. Method ini bertanggung jawab untuk
   // mengambil semua data yang diperlukan secara efisien.
-  Future<_ProfileData> _loadProfileData() async {
+  Future<_DaataProfil> _loadProfileData() async {
     final userId = await ref.watch(userIdProvider.future);
     if (userId == null) {
       throw Exception('ID Pengguna tidak ditemukan, mohon login kembali.');
     }
     Log.info('Memulai pengambilan data profil lengkap untuk userId: $userId.');
     try {
-      final customer = await _customerOp.ambilBerdasarkanId(userId);
-      if (customer == null) {
+      final pelanggan = await _pelangganOpFirebase.ambilBerdasarkanId(userId);
+      if (pelanggan == null) {
         throw Exception('Pelanggan dengan ID  tidak ditemukan.');
       }
-      Log.info('Data pelanggan berhasil diambil: ${customer.nama}.');
+      Log.info('Data pelanggan berhasil diambil: ${pelanggan.nama}.');
 
-      final results = await Future.wait([
-        _transactionOp.ambilTotalPoin(customer.id),
-        _transactionOp.ambilBerdasarkanIdPelanggan(customer.id),
+      final hasil = await Future.wait([
+        _transaksiOpFirebase.ambilTotalPoin(pelanggan.id),
+        _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(pelanggan.id),
       ]);
 
-      final totalPoints = results[0] as int;
-      final activeSubscriptions = results[1] as List<TransaksiModel>;
+      final totalPoin = hasil[0] as int;
+      final daftarPaketAktif = hasil[1] as List<TransaksiModel>;
       Log.info(
-        'Total poin diambil: $totalPoints. Langganan aktif ditemukan: ${activeSubscriptions.length}.',
+        'Total poin diambil: $totalPoin. Langganan aktif ditemukan: ${daftarPaketAktif.length}.',
       );
+      final sekarang = DateTime.now();
+      final daftarMasihAktif = daftarPaketAktif
+          .where(
+            (trx) =>
+                trx.tanggalBerakhir != null &&
+                trx.tanggalBerakhir!.isAfter(sekarang),
+          )
+          .toList();
+      TransaksiModel? paketAktif;
+      PaketModel? paket;
 
-      TransaksiModel? lastSubscription;
-      PaketModel? packageModel;
-
-      if (activeSubscriptions.isNotEmpty) {
-        lastSubscription = activeSubscriptions.reduce(
+      if (daftarMasihAktif.isNotEmpty) {
+        paketAktif = daftarPaketAktif.reduce(
           (a, b) => a.tanggalBerakhir!.isAfter(b.tanggalBerakhir!) ? a : b,
         );
         Log.info(
-          'Langganan terakhir berakhir pada: ${lastSubscription.tanggalBerakhir}.',
+          'Langganan terakhir berakhir pada: ${paketAktif.tanggalBerakhir}.',
         );
 
-        if (lastSubscription.idPaket != null) {
-          packageModel = await _packageOp.ambilBerdasarkanId(
-            lastSubscription.idPaket!,
+        if (paketAktif.idPaket != null) {
+          paket = await _paketOpFirebase.ambilBerdasarkanId(
+            paketAktif.idPaket!,
           );
-          Log.info('Detail paket "${packageModel?.nama}" berhasil diambil.');
+          Log.info('Detail paket "${paket?.nama}" berhasil diambil.');
         }
       }
 
-      return _ProfileData(
-        customer: customer,
-        totalPoints: totalPoints,
-        paketAktif: lastSubscription,
-        packageModel: packageModel,
+      return _DaataProfil(
+        pelanggan: pelanggan,
+        totalPoin: totalPoin,
+        transaksi: paketAktif,
+        paket: paket,
       );
     } on Exception catch (e, st) {
       Log.error('Gagal total memuat data profil.', e: e, s: st);
@@ -138,7 +145,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     Log.info('Membangun UI untuk ProfilePage.');
     return Scaffold(
       appBar: AppBar(title: const Text('Profil Pelanggan')),
-      body: FutureBuilder<_ProfileData>(
+      body: FutureBuilder<_DaataProfil>(
         future: _futureProfileData,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -160,7 +167,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           }
 
           final profileData = snapshot.data!;
-          final customer = profileData.customer;
+          final pelanggan = profileData.pelanggan;
 
           return RefreshIndicator(
             onRefresh: _reloadData,
@@ -175,16 +182,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     _InfoItem(
                       icon: TIcons.personOutlined,
                       label: 'Nama Lengkap',
-                      value: customer.nama,
+                      value: pelanggan.nama,
                       trailingIcon: TIcons.chevronRight,
-                      onTap: () => _navigateToDetail(customer.id),
+                      onTap: () => _navigasiKeDetail(pelanggan.id),
                     ),
                     _InfoItem(
                       icon: TIcons.points,
                       label: 'Poin',
-                      value: profileData.totalPoints.toString(),
+                      value: profileData.totalPoin.toString(),
                       trailingIcon: TIcons.chevronRight,
-                      onTap: () => _navigateToPointsPage(customer.id),
+                      onTap: () => _navigasiKePoin(pelanggan.id),
                     ),
                   ],
                 ),
@@ -194,10 +201,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   title: 'Informasi Paket Aktif',
                   icon: TIcons.wifi,
                   children: [
-                    _buildActivePackageDetails(
+                    _buildDetailPaketAktif(
                       context,
-                      profileData.paketAktif,
-                      profileData.packageModel,
+                      profileData.transaksi,
+                      profileData.paket,
                     ),
                   ],
                 ),
@@ -209,12 +216,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildActivePackageDetails(
+  Widget _buildDetailPaketAktif(
     BuildContext context,
-    TransaksiModel? lastSubscription,
-    PaketModel? packageModel,
+    TransaksiModel? transaksi,
+    PaketModel? paket,
   ) {
-    if (lastSubscription == null) {
+    if (transaksi == null) {
       return const _InfoItem(
         icon: TIcons.noWifi,
         label: 'Paket Aktif',
@@ -222,14 +229,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       );
     }
 
-    final String activePeriodText = PerhitunganUtil.ambilTeksSisaMasaAktif(
-      lastSubscription.tanggalBerakhir!,
+    final String teksMasaAktif = PerhitunganUtil.ambilTeksSisaMasaAktif(
+      transaksi.tanggalBerakhir!,
     );
-    final Color activePeriodColor = PerhitunganUtil.ambilWarnaSisaMasaAktif(
-      lastSubscription.tanggalBerakhir!,
+    final Color warnaMasaAktif = PerhitunganUtil.ambilWarnaSisaMasaAktif(
+      transaksi.tanggalBerakhir!,
     );
-    final Color paymentStatusColor =
-        lastSubscription.statusPembayaran == StatusPembayaran.paid
+    final Color warnaStatuspembayaran =
+        transaksi.statusPembayaran == StatusPembayaran.paid
         ? Colors.green
         : Colors.red;
 
@@ -238,50 +245,45 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         _InfoItem(
           icon: TIcons.wifi,
           label: 'Paket',
-          value: packageModel?.nama ?? 'Tidak tersedia',
+          value: paket?.nama ?? 'Tidak tersedia',
         ),
-        if (lastSubscription.tanggalMulai != null)
+        if (transaksi.tanggalMulai != null)
           _InfoItem(
             icon: TIcons.dateRange,
             label: 'Aktif Sejak',
-            value: FormatWaktuLengkap.formatSingkat(
-              lastSubscription.tanggalMulai!,
-            ),
+            value: FormatWaktuLengkap.formatSingkat(transaksi.tanggalMulai!),
           ),
         _InfoItem(
           icon: TIcons.dateRange,
           label: 'Berakhir Pada',
-          value: FormatWaktuLengkap.formatSingkat(
-            lastSubscription.tanggalBerakhir!,
-          ),
+          value: FormatWaktuLengkap.formatSingkat(transaksi.tanggalBerakhir!),
         ),
         _InfoItem(
           icon: TIcons.hourglass,
           label: 'Masa Aktif',
-          value: activePeriodText,
-          valueColor: activePeriodColor,
+          value: teksMasaAktif,
+          valueColor: warnaMasaAktif,
         ),
         _InfoItem(
           icon: TIcons.successOutlined,
           label: 'Status Pembayaran',
-          value: lastSubscription.statusPembayaran.displayName
+          value: transaksi.statusPembayaran.displayName
               .replaceAll('_', ' ')
               .toUpperCase(),
-          valueColor: paymentStatusColor,
+          valueColor: warnaStatuspembayaran,
         ),
-        if (lastSubscription.durasiBonus > 0 &&
-            lastSubscription.tipeDurasiBonus != null)
+        if (transaksi.durasiBonus > 0 && transaksi.tipeDurasiBonus != null)
           _InfoItem(
             icon: TIcons.bonus,
             label: 'Bonus',
             value:
-                '${lastSubscription.durasiBonus} ${lastSubscription.tipeDurasiBonus!.displayName}',
+                '${transaksi.durasiBonus} ${transaksi.tipeDurasiBonus!.displayName}',
           ),
       ],
     );
   }
 
-  Future<void> _navigateToDetail(String userId) async {
+  Future<void> _navigasiKeDetail(String userId) async {
     await ref.read(interstitialAdServiceProvider).show();
     try {
       final hasChanged = await Navigator.push<bool>(
@@ -300,7 +302,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
   }
 
-  Future<void> _navigateToPointsPage(String customerId) async {
+  Future<void> _navigasiKePoin(String customerId) async {
     await ref.read(interstitialAdServiceProvider).show();
     try {
       await Navigator.push<void>(
