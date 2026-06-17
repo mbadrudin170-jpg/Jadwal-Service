@@ -5,19 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/page/form_paket.dart';
+import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 
-/// Halaman untuk menampilkan detail dari sebuah paket.
 class DetailPaketPage extends ConsumerStatefulWidget {
-  /// Model paket yang akan ditampilkan.
   final PaketModel paket;
 
-  /// Konstruktor untuk PackageDetailPage.
-  const DetailPaketPage({
-    super.key,
-    required this.paket,
-  });
+  const DetailPaketPage({super.key, required this.paket});
 
   @override
   ConsumerState<DetailPaketPage> createState() => _DetailPaketState();
@@ -55,7 +50,7 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_paket.nama),
+        title: TeksJudulSedang(_paket.nama),
         actions: [
           IconButton(
             onPressed: _navigasiKeEdit,
@@ -68,8 +63,9 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
         padding: const EdgeInsets.all(16.0),
         child: Card(
           elevation: 4,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -83,16 +79,18 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
                     Text(
                       'Informasi Layanan',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
                 gapH20,
                 _buildDetailRow('Nama Paket', _paket.nama),
                 _buildDetailRow('Harga Sewa', 'Rp ${_paket.harga}'),
-                _buildDetailRow('Masa Aktif',
-                    '${_paket.durasi} ${_paket.tipe.displayName}'),
+                _buildDetailRow(
+                  'Masa Aktif',
+                  '${_paket.durasi} ${_paket.tipe.displayName}',
+                ),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
                   child: Divider(thickness: 1),
@@ -104,17 +102,22 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
                     Text(
                       'Sistem Poin',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
                 gapH12,
-                _buildDetailRow('Poin Hadiah', '${_paket.poinHadiah} Poin',
-                    subTitle: 'Didapat saat beli paket'),
                 _buildDetailRow(
-                    'Poin Penukaran', '${_paket.poinPenukaran} Poin',
-                    subTitle: 'Syarat tukar gratis'),
+                  'Poin Hadiah',
+                  '${_paket.poinHadiah} Poin',
+                  subTitle: 'Didapat saat beli paket',
+                ),
+                _buildDetailRow(
+                  'Poin Penukaran',
+                  '${_paket.poinPenukaran} Poin',
+                  subTitle: 'Syarat tukar gratis',
+                ),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
                   child: Divider(thickness: 1),
@@ -122,8 +125,9 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
                 _buildDetailRow(
                   'Status Publik',
                   _paket.statusPublik ? 'Tersedia di Aplikasi' : 'Hanya Admin',
-                  customValueColor:
-                      _paket.statusPublik ? Colors.green : Colors.red,
+                  customValueColor: _paket.statusPublik
+                      ? Colors.green
+                      : Colors.red,
                 ),
               ],
             ),
@@ -149,14 +153,19 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
-                    style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                Text(
+                  label,
+                  style: const TextStyle(color: Colors.grey, fontSize: 13),
+                ),
                 if (subTitle != null)
-                  Text(subTitle,
-                      style: const TextStyle(
-                          color: Colors.black38,
-                          fontSize: 11,
-                          fontStyle: FontStyle.italic)),
+                  Text(
+                    subTitle,
+                    style: const TextStyle(
+                      color: Colors.black38,
+                      fontSize: 11,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
               ],
             ),
           ),

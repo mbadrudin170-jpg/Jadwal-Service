@@ -11,8 +11,10 @@ import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/page/form_paket.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 enum UrutanPaket {
@@ -78,21 +80,22 @@ class PackagePage extends ConsumerWidget {
                     ),
                   );
                 },
-                onLongPress: () => _tamplkanDialogHapusEdit(context, ref, paket),
+                onLongPress: () =>
+                    _tamplkanDialogHapusEdit(context, ref, paket),
                 child: Card(
                   margin: const EdgeInsets.symmetric(
                     horizontal: 10,
                     vertical: 5,
                   ),
                   child: ListTile(
-                    title: Text(
+                    title: TeksJudulSedang(
                       paket.nama,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      tebalFont: FontWeight.bold,
                     ),
-                    subtitle: Text(
-                      'Rp ${paket.harga} / ${paket.durasi} ${paket.tipe.displayName}',
+                    subtitle: TeksIsiKecil(
+                      '${FormatUang.formatMataUang(paket.harga.toDouble())} / ${paket.durasi} ${paket.tipe.displayName}',
                     ),
-                    trailing: Text('Poin: ${paket.poinHadiah}'),
+                    trailing: TeksIsiSedang('Poin: ${paket.poinHadiah}'),
                   ),
                 ),
               );
