@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/poin/page/points_page.dart';
+import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
@@ -97,7 +97,7 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
     final bool? hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) => PoinPage(
+        builder: (context) => HalamanPoin(
           idPelanggan: idPelanggan,
           tampilkanIklan:
               true, // Tampilkan iklan di halaman poin untuk pengguna

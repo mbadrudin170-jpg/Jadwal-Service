@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/poin/page/points_page.dart';
+import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -64,7 +64,7 @@ MAC : ${customer.macAddress}
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => PoinPage(idPelanggan: pelanggan.id),
+        builder: (context) => HalamanPoin(idPelanggan: pelanggan.id),
       ),
     );
   }

@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan_u.dart';
-import 'package:wifi/fitur/poin/page/points_page.dart';
+import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -309,7 +309,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         context,
         MaterialPageRoute<bool>(
           builder: (context) =>
-              PoinPage(idPelanggan: idPelanggan, tampilkanIklan: true),
+              HalamanPoin(idPelanggan: idPelanggan, tampilkanIklan: true),
         ),
       );
       await ref.read(interstitialAdServiceProvider).show();

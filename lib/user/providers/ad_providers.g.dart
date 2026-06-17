@@ -15,11 +15,11 @@ final interstitialAdServiceProvider = InterstitialAdServiceProvider._();
 final class InterstitialAdServiceProvider
     extends
         $FunctionalProvider<
-          InterstitialAdService,
-          InterstitialAdService,
-          InterstitialAdService
+          LayananIklanInterstisial,
+          LayananIklanInterstisial,
+          LayananIklanInterstisial
         >
-    with $Provider<InterstitialAdService> {
+    with $Provider<LayananIklanInterstisial> {
   InterstitialAdServiceProvider._()
     : super(
         from: null,
@@ -36,20 +36,20 @@ final class InterstitialAdServiceProvider
 
   @$internal
   @override
-  $ProviderElement<InterstitialAdService> $createElement(
+  $ProviderElement<LayananIklanInterstisial> $createElement(
     $ProviderPointer pointer,
   ) => $ProviderElement(pointer);
 
   @override
-  InterstitialAdService create(Ref ref) {
+  LayananIklanInterstisial create(Ref ref) {
     return interstitialAdService(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(InterstitialAdService value) {
+  Override overrideWithValue(LayananIklanInterstisial value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<InterstitialAdService>(value),
+      providerOverride: $SyncValueProvider<LayananIklanInterstisial>(value),
     );
   }
 }

@@ -4,7 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
-import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
+import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dart';
 
 /// Halaman untuk melakukan tes fungsionalitas.
 class HalamanTes extends StatefulWidget {
@@ -16,7 +16,7 @@ class HalamanTes extends StatefulWidget {
 }
 
 class _HalamanTesState extends State<HalamanTes> {
-  final InterstitialAdService _adService = InterstitialAdService();
+  final LayananIklanInterstisial _adService = LayananIklanInterstisial();
   final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
 
   @override
@@ -28,9 +28,7 @@ class _HalamanTesState extends State<HalamanTes> {
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Halaman Tes Iklan'),
-      ),
+      appBar: AppBar(title: const Text('Halaman Tes Iklan')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -43,7 +41,7 @@ class _HalamanTesState extends State<HalamanTes> {
                 unawaited(_adService.show());
               },
             ),
-      gapH40,
+            gapH40,
             // [PERBAIKAN] Menampilkan status kesiapan iklan untuk debugging
             StreamBuilder<void>(
               stream: Stream.periodic(const Duration(seconds: 1)),
@@ -51,10 +49,7 @@ class _HalamanTesState extends State<HalamanTes> {
                 return const Text(
                   'ok',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 );
               },
             ),

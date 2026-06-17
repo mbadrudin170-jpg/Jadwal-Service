@@ -1,4 +1,4 @@
-// path: lib/fitur/poin/page/points_page.dart
+// path lib/fitur/poin/page/halaman_poin.dart
 
 import 'dart:async';
 
@@ -23,24 +23,24 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
-import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
+import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dart';
 
-class PoinPage extends ConsumerStatefulWidget {
+class HalamanPoin extends ConsumerStatefulWidget {
   final String idPelanggan;
   final bool tampilkanIklan;
 
-  const PoinPage({
+  const HalamanPoin({
     super.key,
     required this.idPelanggan,
     this.tampilkanIklan = false,
   });
 
   @override
-  ConsumerState<PoinPage> createState() => _PointsPageState();
+  ConsumerState<HalamanPoin> createState() => _HalamanPoinState();
 }
 
-class _PointsPageState extends ConsumerState<PoinPage> {
-  final _layananIklanInterstisial = InterstitialAdService();
+class _HalamanPoinState extends ConsumerState<HalamanPoin> {
+  final _layananIklanInterstisial = LayananIklanInterstisial();
   MenuPoin _menuTerpilih = MenuPoin.penukaran;
   late final Widget _judulAppBar;
   bool _sedangTukarPoin = false;
