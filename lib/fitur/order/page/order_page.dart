@@ -25,7 +25,26 @@ class OrderPage extends ConsumerStatefulWidget {
 class _OrderPageState extends ConsumerState<OrderPage> {
   String _filterAktif = StatusOrderEnum.baru.name;
 
+  @override
+  void initState() {
+    super.initState();
+    Log.info('OrderPage diinisialisasi', {
+      'filterAktif': _filterAktif,
+      'widget': 'OrderPage',
+    });
+  }
+
+  @override
+  void dispose() {
+    Log.info('OrderPage dibersihkan', {'widget': 'OrderPage'});
+    super.dispose();
+  }
+
   Future<bool?> _konfirmasiOpsi(BuildContext context) {
+    Log.info('Menampilkan dialog konfirmasi', {
+      'context': context.runtimeType.toString(),
+    });
+
     return showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -35,12 +54,14 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
+                Log.info('Pengguna membatalkan konfirmasi');
                 Navigator.of(dialogContext).pop(false);
               },
               child: const Text('Batal'),
             ),
             TextButton(
               onPressed: () {
+                Log.info('Pengguna mengkonfirmasi tindakan');
                 Navigator.of(dialogContext).pop(true);
               },
               child: const Text('Iya'),
@@ -56,7 +77,12 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     OrderModel order,
     WidgetRef ref,
   ) {
-    Log.info('Dialog $_ubahStatus muncul');
+    Log.info('Membuka dialog ubah status', {
+      'orderId': order.id,
+      'statusSaatIni': order.status.name,
+      'orderData': order.toSqlite(),
+    });
+
     return showDialog<void>(
       context: context,
       builder: (dialogContext) {
@@ -105,6 +131,12 @@ class _OrderPageState extends ConsumerState<OrderPage> {
   Future<bool?> _showDialog(BuildContext context, OrderModel order) {
     final appRole = ref.watch(appRoleProvider);
 
+    Log.info('Membuka dialog opsi untuk pesanan', {
+      'orderId': order.id,
+      'appRole': appRole.name,
+      'status': order.status.name,
+    });
+
     return showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -117,6 +149,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                 if (appRole == AppRole.admin)
                   TextButton(
                     onPressed: () {
+                      Log.info('Admin memilih opsi "Ubah Status"', {
+                        'orderId': order.id,
+                      });
                       Navigator.of(dialogContext).pop();
                       unawaited(_ubahStatus(context, order, ref));
                     },
@@ -125,28 +160,60 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                 TextButton(
                   child: const Text('Hapus'),
                   onPressed: () async {
+                    Log.info('Pengguna memilih opsi "Hapus"', {
+                      'orderId': order.id,
+                      'appRole': appRole.name,
+                    });
+
                     Navigator.of(dialogContext).pop();
                     final bool? dikonfirmasi = await _konfirmasiOpsi(context);
+
                     if (dikonfirmasi ?? false) {
+                      Log.info('Memproses penghapusan pesanan', {
+                        'orderId': order.id,
+                        'appRole': appRole.name,
+                      });
+
                       try {
                         if (appRole == AppRole.admin) {
+                          Log.info(
+                            'Menghapus pesanan sebagai admin (soft delete)',
+                          );
                           await ref
                               .read(orderOpSqliteProvider)
                               .softDeleteorder(order.id);
                         } else {
+                          Log.info(
+                            'Menghapus pesanan sebagai user (soft delete via Firebase)',
+                          );
                           await ref
                               .read(orderOpFirebaseProvider)
                               .softDeleteOrder(order.id);
                         }
+
+                        Log.info('Pesanan berhasil dihapus', {
+                          'orderId': order.id,
+                          'appRole': appRole.name,
+                        });
+
                         if (context.mounted) {
                           ToastUtil.success(context, 'Data berhasil dihapus');
                         }
                       } catch (e, st) {
-                        Log.error('Gagal menghapus pesanan', e: e, s: st);
+                        Log.error(
+                          'Gagal menghapus pesanan',
+                          e: e,
+                          s: st,
+                          data: {'orderId': order.id, 'appRole': appRole.name},
+                        );
                         if (context.mounted) {
                           ToastUtil.error(context, 'Gagal menghapus pesanan');
                         }
                       }
+                    } else {
+                      Log.info('Penghapusan pesanan dibatalkan', {
+                        'orderId': order.id,
+                      });
                     }
                   },
                 ),
@@ -160,9 +227,10 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
   @override
   Widget build(BuildContext context) {
-    Log.info(
-      '[Pembangunan UI] ✅ Membangun UI untuk UserOrderPage, menampilkan daftar pesanan realtime.',
-    );
+    Log.info('Membangun UI OrderPage', {
+      'filterAktif': _filterAktif,
+      'widget': 'OrderPage',
+    });
 
     return Scaffold(
       appBar: AppBar(title: const Text('Pesanan Saya')),
@@ -179,12 +247,14 @@ class _OrderPageState extends ConsumerState<OrderPage> {
   }
 
   Widget _listTombolFilter() {
+    Log.info('Membangun tombol filter', {'filterAktif': _filterAktif});
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Wrap(
-          spacing: 12.0, // Memberi spasi antar tombol
+          spacing: 12.0,
           children: [
             _tombolTipe(
               StatusOrderEnum.baru,
@@ -212,13 +282,25 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     final orderAsync = ref.watch(orderProvider);
     final label = status.displayName;
 
+    Log.info('Membangun tombol filter: $label', {
+      'status': status.name,
+      'sedangAktif': sedangAktif,
+    });
+
     return InkWell(
       onTap: () {
         if (!sedangAktif) {
+          Log.info('Mengubah filter pesanan', {
+            'dari': _filterAktif,
+            'ke': status.name,
+            'label': label,
+          });
+
           setState(() {
             _filterAktif = status.name;
-            Log.info('Filter pesanan diubah menjadi: $_filterAktif');
           });
+        } else {
+          Log.info('Filter sudah aktif: $label');
         }
       },
       child: Container(
@@ -240,12 +322,21 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           children: [
             orderAsync.when(
               skipLoadingOnReload: true,
-              loading: () => const CircularProgressIndicator(),
-              error: (e, s) => Text('Error: $e $s'),
+              loading: () {
+                Log.info('Loading data untuk tombol $label');
+                return const CircularProgressIndicator();
+              },
+              error: (e, s) {
+                Log.error('Error pada tombol $label', e: e, s: s);
+                return Text('Error: $e $s');
+              },
               data: (orderState) {
                 final jumlah = orderState.orders
                     .where((o) => o.status == status)
                     .length;
+
+                Log.info('Data untuk $label: $jumlah pesanan');
+
                 if (jumlah == 0) return const SizedBox.shrink();
                 return Container(
                   padding: const EdgeInsets.symmetric(
@@ -285,11 +376,28 @@ class _OrderPageState extends ConsumerState<OrderPage> {
   Widget _daftarPesanan() {
     final orderAsync = ref.watch(orderProvider);
 
+    Log.info('Membangun daftar pesanan', {'filterAktif': _filterAktif});
+
     return orderAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) => Center(child: Text('Terjadi kesalahan: $err')),
+      loading: () {
+        Log.info('Memuat daftar pesanan...');
+        return const Center(child: CircularProgressIndicator());
+      },
+      error: (err, stack) {
+        Log.error(
+          'Gagal memuat daftar pesanan',
+          e: err,
+          s: stack,
+          data: {'filterAktif': _filterAktif},
+        );
+        return Center(child: Text('Terjadi kesalahan: $err'));
+      },
       data: (orderState) {
         final semuaOrder = orderState.orders;
+
+        Log.info('Total pesanan: ${semuaOrder.length}', {
+          'semuaStatus': semuaOrder.map((o) => o.status.name).toList(),
+        });
 
         final orderDifilter = semuaOrder.where((order) {
           if (_filterAktif == StatusOrderEnum.selesai.name) {
@@ -307,19 +415,39 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           return true;
         }).toList();
 
+        Log.info('Pesanan setelah difilter: ${orderDifilter.length}', {
+          'filter': _filterAktif,
+          'orderIds': orderDifilter.map((o) => o.id).toList(),
+        });
+
         if (orderDifilter.isEmpty) {
+          Log.info('Tidak ada pesanan dengan filter: $_filterAktif');
           return const Center(child: Text('Belum ada pesanan ditemukan.'));
         }
 
         final paketOpFirebase = ref.watch(paketOpFirebaseProvider);
+
         return ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: orderDifilter.length,
           itemBuilder: (context, index) {
             final order = orderDifilter[index];
+
+            Log.info('Membangun item pesanan ke-$index', {
+              'orderId': order.id,
+              'status': order.status.name,
+              'idPaket': order.idPaket,
+            });
+
             return ListTile(
-              onLongPress: () => _showDialog(context, order),
+              onLongPress: () {
+                Log.info('Long press pada pesanan', {
+                  'orderId': order.id,
+                  'status': order.status.name,
+                });
+                _showDialog(context, order);
+              },
               title: Row(
                 children: [
                   const Text('Paket: '),
@@ -345,30 +473,57 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     required BuildContext dialogContext,
     required BuildContext pageContext,
   }) {
+    Log.info('Membangun tombol ubah status: $label', {
+      'orderId': order.id,
+      'targetStatus': status.name,
+    });
+
     return TextButton(
       onPressed: () async {
+        Log.info('Pengguna memilih opsi ubah status', {
+          'orderId': order.id,
+          'targetStatus': status.name,
+          'label': label,
+        });
+
         Navigator.of(dialogContext).pop();
         final bool? dikonfirmasi = await _konfirmasiOpsi(pageContext);
+
         if (dikonfirmasi ?? false) {
+          Log.info('Memproses perubahan status pesanan', {
+            'orderId': order.id,
+            'statusLama': order.status.name,
+            'statusBaru': status.name,
+          });
+
           try {
             await ref
                 .read(orderOpSqliteProvider)
                 .updateStatusOrder(order.id, status);
+
+            Log.info('Status pesanan berhasil diubah', {
+              'orderId': order.id,
+              'statusBaru': status.name,
+            });
+
             ref.invalidate(orderProvider);
+            Log.info('Provider orderProvider di-invalidate');
 
             if (pageContext.mounted) {
               ToastUtil.success(pageContext, 'Data berhasil diperbarui');
             }
           } on Exception catch (e, st) {
-            // 1. Catat log error secara detail untuk developer.
             Log.error(
               'Gagal memperbarui status pesanan',
               e: e,
               s: st,
-              data: {'orderId': order.id, 'newStatus': status},
+              data: {
+                'orderId': order.id,
+                'newStatus': status.name,
+                'label': label,
+              },
             );
 
-            // 2. Tampilkan pesan error yang ramah kepada pengguna.
             if (pageContext.mounted) {
               ToastUtil.error(
                 pageContext,
@@ -376,6 +531,11 @@ class _OrderPageState extends ConsumerState<OrderPage> {
               );
             }
           }
+        } else {
+          Log.info('Perubahan status pesanan dibatalkan', {
+            'orderId': order.id,
+            'targetStatus': status.name,
+          });
         }
       },
       child: TeksIsiSedang(label),

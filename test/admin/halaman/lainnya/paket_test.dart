@@ -1,3 +1,4 @@
+
 // path: test/admin/halaman/lainnya/paket_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,7 +58,9 @@ void main() {
 
   group('PackagePage Tests', () {
     testWidgets('01. should display list of packages', (tester) async {
-      when(mockPaketOpSqlite.ambilPaket()).thenAnswer((_) async => paketList);
+      when(mockPaketOpSqlite.ambilSemua(
+              tampilkanYangDiarsip: anyNamed('tampilkanYangDiarsip')))
+          .thenAnswer((_) async => paketList);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
@@ -66,7 +69,9 @@ void main() {
     });
 
     testWidgets('02. should open add package form', (tester) async {
-      when(mockPaketOpSqlite.ambilPaket()).thenAnswer((_) async => paketList);
+      when(mockPaketOpSqlite.ambilSemua(
+              tampilkanYangDiarsip: anyNamed('tampilkanYangDiarsip')))
+          .thenAnswer((_) async => paketList);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
@@ -77,7 +82,9 @@ void main() {
     });
 
     testWidgets('03. should show sort dialog', (tester) async {
-      when(mockPaketOpSqlite.ambilPaket()).thenAnswer((_) async => paketList);
+      when(mockPaketOpSqlite.ambilSemua(
+              tampilkanYangDiarsip: anyNamed('tampilkanYangDiarsip')))
+          .thenAnswer((_) async => paketList);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
@@ -90,7 +97,9 @@ void main() {
     testWidgets('04. should show delete all confirmation dialog', (
       tester,
     ) async {
-      when(mockPaketOpSqlite.ambilPaket()).thenAnswer((_) async => paketList);
+      when(mockPaketOpSqlite.ambilSemua(
+              tampilkanYangDiarsip: anyNamed('tampilkanYangDiarsip')))
+          .thenAnswer((_) async => paketList);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
@@ -101,7 +110,9 @@ void main() {
     });
 
     testWidgets('05. should delete all packages', (tester) async {
-      when(mockPaketOpSqlite.ambilPaket()).thenAnswer((_) async => paketList);
+      when(mockPaketOpSqlite.ambilSemua(
+              tampilkanYangDiarsip: anyNamed('tampilkanYangDiarsip')))
+          .thenAnswer((_) async => paketList);
       when(mockPaketOpSqlite.hapusSementaraSemua()).thenAnswer((_) async => 1);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
@@ -118,7 +129,9 @@ void main() {
     testWidgets('06. should show edit/delete dialog on long press', (
       tester,
     ) async {
-      when(mockPaketOpSqlite.ambilPaket()).thenAnswer((_) async => paketList);
+      when(mockPaketOpSqlite.ambilSemua(
+              tampilkanYangDiarsip: anyNamed('tampilkanYangDiarsip')))
+          .thenAnswer((_) async => paketList);
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
