@@ -8,7 +8,7 @@ import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 
 part 'order_provider.g.dart';
 part 'order_provider.freezed.dart';

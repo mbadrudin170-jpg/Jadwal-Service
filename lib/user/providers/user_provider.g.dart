@@ -61,9 +61,9 @@ abstract class _$AppReadiness extends $Notifier<bool> {
 }
 
 @ProviderFor(layananNotifikasi)
-final notifikasiServisProvider = NotifikasiServisProvider._();
+final layananNotifikasiProvider = LayananNotifikasiProvider._();
 
-final class NotifikasiServisProvider
+final class LayananNotifikasiProvider
     extends
         $FunctionalProvider<
           LayananNotifikasi,
@@ -71,19 +71,19 @@ final class NotifikasiServisProvider
           LayananNotifikasi
         >
     with $Provider<LayananNotifikasi> {
-  NotifikasiServisProvider._()
+  LayananNotifikasiProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'notifikasiServisProvider',
+        name: r'layananNotifikasiProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$notifikasiServisHash();
+  String debugGetCreateSourceHash() => _$layananNotifikasiHash();
 
   @$internal
   @override
@@ -105,7 +105,7 @@ final class NotifikasiServisProvider
   }
 }
 
-String _$notifikasiServisHash() => r'8ee9ef8aa539ede9bcf4c98a6d46d7b823066886';
+String _$layananNotifikasiHash() => r'0488b6d7e1938bf8b5cb9a658a2634c4e9894c4f';
 
 @ProviderFor(userId)
 final userIdProvider = UserIdProvider._();

@@ -10,7 +10,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 
 class FeedbackPageU extends ConsumerWidget {
   const FeedbackPageU({super.key});

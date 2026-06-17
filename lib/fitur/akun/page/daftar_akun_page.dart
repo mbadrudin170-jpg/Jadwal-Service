@@ -10,7 +10,7 @@ import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 
 class DaftarAkunPage extends ConsumerWidget {
   const DaftarAkunPage({super.key});

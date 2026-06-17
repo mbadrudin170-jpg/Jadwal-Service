@@ -11,7 +11,7 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/user/page/profile_page.dart';
 import 'package:wifi/fitur/settings/page/settings_page_u.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_u.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 import 'package:wifi/user/widget/ads/app_open/app_lifecycle_reactor.dart';
 import 'package:wifi/user/widget/ads/app_open/app_open_ad_service.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';

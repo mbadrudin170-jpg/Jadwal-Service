@@ -16,7 +16,7 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 
 enum SortMode { endDateNewest, endDateOldest, statusPaid, statusUnpaid }
 

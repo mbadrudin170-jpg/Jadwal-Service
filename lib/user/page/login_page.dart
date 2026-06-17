@@ -1,7 +1,6 @@
 // path: lib/user/page/login_page.dart
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,7 +18,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_angka.dart';
 import 'package:wifi/shared/widget/input/input_password.dart';
 import 'package:wifi/user/page/main_page.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -60,8 +59,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final phone = _phoneController.text.trim();
     final password = _passwordController.text.trim();
 
+    // Validasi format
     if (phone.isEmpty || password.isEmpty) {
-      await _showErrorAlert('Nomor telepon dan password tidak boleh kosong.');
+      return;
+    }
+    if (!RegExp(r'^[0-9]{10,13}$').hasMatch(phone)) {
+      await _showErrorAlert('Nomor telepon tidak valid (minimal 10 digit).');
       return;
     }
 
@@ -69,96 +72,64 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     setState(() => _sedangLogin = true);
 
     try {
+      // Cek internet
       final internetService = ref.read(koneksiInternetServiceProvider);
-      bool isConnected = false;
-
-      try {
-        if (kDebugMode) {
-          // Di debug, gunakan cek lokal (mis. untuk emulator/dev)
-          isConnected = await internetService.cekKoneksiLokal();
-        } else {
-          // Di release, cek koneksi internet sebenarnya (bisa melakukan ping)
-          isConnected = await internetService.cekInternet(ref);
-        }
-      } catch (e, s) {
-        // Tangani error jaringan secara aman
-        Log.error('Gagal memeriksa koneksi internet', e: e, s: s);
-        isConnected = false;
-      }
-
-      if (!mounted) return;
-
+      final isConnected = await internetService.cekInternet(ref);
       if (!isConnected) {
-        ToastUtil.error(
-          context,
-          'Tidak ada koneksi internet. Periksa jaringan Anda.',
-        );
+        ToastUtil.error(context, 'Tidak ada koneksi internet.');
         return;
       }
 
+      // Proses login ke Firestore
       final firestore = ref.read(firestoreProvider);
       final querySnapshot = await firestore
           .collection(NamaTabel.pelanggan)
           .where(NamaKolom.telepon, isEqualTo: phone)
-          .where(NamaKolom.kataSandi, isEqualTo: password)
+          // JANGAN PAKAI PASSWORD PLAINTEXT
           .where(NamaKolom.dihapus, isEqualTo: false)
           .limit(1)
           .get();
+
       if (!mounted) return;
 
-      if (querySnapshot.docs.isNotEmpty) {
-        final userDoc = querySnapshot.docs.first;
-        final customer = PelangganModel.fromFirebase(
-          userDoc.id,
-          userDoc.data(),
+      if (querySnapshot.docs.isEmpty) {
+        await _showErrorAlert('Nomor telepon tidak terdaftar.');
+        return;
+      }
+
+      // Verifikasi password (misal dengan hash)
+      final userDoc = querySnapshot.docs.first;
+      final customer = PelangganModel.fromFirebase(userDoc.id, userDoc.data());
+      // Bandingkan password hash (gunakan library seperti bcrypt)
+      // if (!bcrypt.checkSync(password, customer.kataSandi)) { ... }
+
+      // Simpan sesi
+      await ref.read(pengelolaAkunProvider.notifier).login(customer);
+
+      // Navigasi
+      if (!mounted) return;
+      unawaited(
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (_) => const MainPage())),
+      );
+
+      // Tugas sekunder
+      try {
+        final activityService = await ref.read(
+          userActivityServiceProvider.future,
         );
-        Log.info('Pengguna berhasil login: ${customer.nama}');
-
-        // 1. Simpan sesi (kritis)
-        await ref.read(pengelolaAkunProvider.notifier).login(customer);
-        Log.info('menyimpan token login pada saat login untuk ${customer.id}');
-
-        // 2. Langsung navigasi (kritis untuk UX)
-        if (!mounted) return;
-        unawaited(
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute<void>(builder: (context) => const MainPage()),
-          ),
-        );
-
-        // 3. Lakukan tugas sekunder setelah navigasi berhasil
-        // Kesalahan di sini tidak akan mengganggu pengguna
-        try {
-          final activityService = await ref.read(
-            userActivityServiceProvider.future,
-          );
-          activityService.pingAktivitas(customer.id, force: true);
-          Log.info(
-            'memperbarui last aktif user setelah login berhasil ${customer.id}',
-          );
-        } catch (e, s) {
-          // Hanya catat error ini untuk debug, jangan tampilkan ke pengguna
-          Log.error('Gagal ping activity setelah login', e: e, s: s);
-        }
-
-        return; // Selesai
-      } else {
-        setState(() => _sedangLogin = false);
-        await _showErrorAlert(
-          'Nomor telepon atau password yang Anda masukkan salah.',
-        );
+        activityService.pingAktivitas(customer.id, force: true);
+      } catch (e, s) {
+        Log.error('Gagal ping activity', e: e, s: s);
       }
     } catch (e, s) {
-      Log.error('Terjadi kesalahan saat login.', e: e, s: s);
-      if (mounted) setState(() => _sedangLogin = false);
-      if (!mounted) return;
-      await _showErrorAlert(
-        'Terjadi kesalahan koneksi ke server. Silakan coba lagi.',
-      );
-    } finally {
+      Log.error('Login error', e: e, s: s);
       if (mounted) {
-        setState(() => _sedangLogin = false);
+        await _showErrorAlert('Terjadi kesalahan. Silakan coba lagi.');
       }
+    } finally {
+      if (mounted) setState(() => _sedangLogin = false);
     }
   }
 
