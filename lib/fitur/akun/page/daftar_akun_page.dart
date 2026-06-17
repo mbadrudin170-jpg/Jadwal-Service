@@ -126,7 +126,7 @@ class DaftarAkunPage extends ConsumerWidget {
         MaterialPageRoute<void>(builder: (context) => const MainPage()),
         (route) => false,
       );
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error(
         'Gagal menyimpan akun yang dipilih',
         e: e,
@@ -142,13 +142,13 @@ class DaftarAkunPage extends ConsumerWidget {
   Future<void> _tampilkanDialogHapus(
     BuildContext context,
     WidgetRef ref,
-    PelangganModel customer,
+    PelangganModel pelanggan,
   ) async {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Hapus Akun'),
-        content: Text('Anda yakin ingin menghapus akun ${customer.nama}?'),
+        content: Text('Anda yakin ingin menghapus akun ${pelanggan.nama}?'),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
@@ -168,21 +168,21 @@ class DaftarAkunPage extends ConsumerWidget {
 
                 if (!context.mounted) return;
 
-                if (akunLogin == customer.id) {
+                if (akunLogin == pelanggan.id) {
                   await _tanganiHapusAkunAktif(
                     context,
                     navigator,
                     ref,
-                    customer,
+                    pelanggan,
                   );
                 } else {
                   Log.info('Menghapus akun tersimpan', {
-                    'customer_id': customer.id,
-                    'nama': customer.nama,
+                    'customer_id': pelanggan.id,
+                    'nama': pelanggan.nama,
                   });
                   await ref
                       .read(pengelolaAkunProvider.notifier)
-                      .hapusAkun(customer.id);
+                      .hapusAkun(pelanggan.id);
 
                   if (!context.mounted) return;
                   ToastUtil.success(context, 'Akun berhasil dihapus');
@@ -192,7 +192,7 @@ class DaftarAkunPage extends ConsumerWidget {
                   'Gagal menghapus akun',
                   e: e,
                   s: st,
-                  data: {'customer_id': customer.id},
+                  data: {'customer_id': pelanggan.id},
                 );
                 if (context.mounted) {
                   ToastUtil.error(
@@ -213,14 +213,14 @@ class DaftarAkunPage extends ConsumerWidget {
     BuildContext context,
     NavigatorState navigator,
     WidgetRef ref,
-    PelangganModel customer,
+    PelangganModel pelanggan,
   ) async {
     Log.info('akun yang di hapus ternyata akun yang sedang login', {
-      'customer_id': customer.id,
-      'nama': customer.nama,
+      'customer_id': pelanggan.id,
+      'nama': pelanggan.nama,
     });
 
-    await ref.read(pengelolaAkunProvider.notifier).hapusAkun(customer.id);
+    await ref.read(pengelolaAkunProvider.notifier).hapusAkun(pelanggan.id);
 
     if (context.mounted) {
       ToastUtil.success(context, 'Akun berhasil dihapus, silakan login ulang');
