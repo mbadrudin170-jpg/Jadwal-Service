@@ -35,7 +35,7 @@ void main() {
         terkahirAktif INTEGER
       )
       ''');
-    sqliteDatabase = SqliteDatabase(db: db);
+    sqliteDatabase = await SqliteDatabase.instance(db: db);
     mockBaseOpSqlite = MockBaseOpSqlite();
     pelangganOpSqlite = PelangganOpSqlite(
       sqliteDb: sqliteDatabase,
@@ -60,7 +60,7 @@ void main() {
   group('PelangganOpSqlite', () {
     test('01. harus memanggil baseOpSqlite.sisipkan saat tambahPelanggan',
         () async {
-      when(mockBaseOpSqlite.sisipkan(any, any)).thenAnswer((_) async => 1);
+      when(mockBaseOpSqlite.sisipkan(any, any)).thenAnswer((_) async => Future.value());
 
       await pelangganOpSqlite.tambahPelanggan(pelangganModel);
 
@@ -94,7 +94,7 @@ void main() {
     test('04. harus memanggil baseOpSqlite.update saat perbaruiPelanggan',
         () async {
       when(mockBaseOpSqlite.update(any, any, any))
-          .thenAnswer((_) async => 1);
+          .thenAnswer((_) async => Future.value());
 
       await pelangganOpSqlite.perbaruiPelanggan(pelangganModel);
 
@@ -108,7 +108,7 @@ void main() {
     test('05. harus memanggil baseOpSqlite.softDelete saat softDelete',
         () async {
       when(mockBaseOpSqlite.softDelete(any, any))
-          .thenAnswer((_) async => 1);
+          .thenAnswer((_) async => Future.value());
 
       await pelangganOpSqlite.softDelete('1');
 

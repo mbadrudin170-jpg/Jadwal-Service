@@ -119,7 +119,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
   Future<bool?> _showDialog(BuildContext context, OrderModel order) {
     final appRole = ref.watch(appRoleProvider);
-    Log.info('_showDialog dipanggil untuk orderId: ${order.id}, appRole: ${appRole.name}');
+    Log.info(
+      '_showDialog dipanggil untuk orderId: ${order.id}, appRole: ${appRole.name}',
+    );
 
     return showDialog<bool>(
       context: context,
@@ -133,7 +135,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                 if (appRole == AppRole.admin)
                   TextButton(
                     onPressed: () {
-                      Log.info('_showDialog: admin memilih Ubah Status untuk orderId: ${order.id}');
+                      Log.info(
+                        '_showDialog: admin memilih Ubah Status untuk orderId: ${order.id}',
+                      );
                       Navigator.of(dialogContext).pop();
                       unawaited(_ubahStatus(context, order, ref));
                     },
@@ -142,35 +146,51 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                 TextButton(
                   child: const Text('Hapus'),
                   onPressed: () async {
-                    Log.info('_showDialog: pengguna memilih Hapus untuk orderId: ${order.id}');
+                    Log.info(
+                      '_showDialog: pengguna memilih Hapus untuk orderId: ${order.id}',
+                    );
                     Navigator.of(dialogContext).pop();
                     final bool? dikonfirmasi = await _konfirmasiOpsi(context);
                     if (dikonfirmasi ?? false) {
-                      Log.info('_showDialog: konfirmasi hapus disetujui untuk orderId: ${order.id}');
+                      Log.info(
+                        '_showDialog: konfirmasi hapus disetujui untuk orderId: ${order.id}',
+                      );
                       try {
                         if (appRole == AppRole.admin) {
-                          Log.info('_showDialog: menghapus order via SQLite (admin) orderId: ${order.id}');
+                          Log.info(
+                            '_showDialog: menghapus order via SQLite (admin) orderId: ${order.id}',
+                          );
                           await ref
                               .read(orderOpSqliteProvider)
                               .softDeleteorder(order.id);
                         } else {
-                          Log.info('_showDialog: menghapus order via Firebase (user) orderId: ${order.id}');
+                          Log.info(
+                            '_showDialog: menghapus order via Firebase (user) orderId: ${order.id}',
+                          );
                           await ref
                               .read(orderOpFirebaseProvider)
                               .softDeleteOrder(order.id);
                         }
-                        Log.info('_showDialog: order berhasil dihapus orderId: ${order.id}');
+                        Log.info(
+                          '_showDialog: order berhasil dihapus orderId: ${order.id}',
+                        );
                         if (context.mounted) {
                           ToastUtil.success(context, 'Data berhasil dihapus');
                         }
                       } catch (e, st) {
-                        Log.error('_showDialog: gagal menghapus order', e: e, s: st);
+                        Log.error(
+                          '_showDialog: gagal menghapus order',
+                          e: e,
+                          s: st,
+                        );
                         if (context.mounted) {
                           ToastUtil.error(context, 'Gagal menghapus pesanan');
                         }
                       }
                     } else {
-                      Log.info('_showDialog: konfirmasi hapus dibatalkan untuk orderId: ${order.id}');
+                      Log.info(
+                        '_showDialog: konfirmasi hapus dibatalkan untuk orderId: ${order.id}',
+                      );
                     }
                   },
                 ),
@@ -188,19 +208,20 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Pesanan Saya')),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [_listTombolFilter(), _daftarPesanan()],
-          ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _daftarTombolFilter(),
+            Expanded(child: _daftarPesanan()),
+          ],
         ),
       ),
     );
   }
 
-  Widget _listTombolFilter() {
+  Widget _daftarTombolFilter() {
     Log.info('_listTombolFilter dipanggil');
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -235,15 +256,21 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     final orderAsync = ref.watch(orderProvider);
     final label = status.displayName;
 
-    Log.info('_tombolTipe dipanggil untuk status: ${status.name}, sedangAktif: $sedangAktif');
+    Log.info(
+      '_tombolTipe dipanggil untuk status: ${status.name}, sedangAktif: $sedangAktif',
+    );
 
     return InkWell(
       onTap: () {
         if (!sedangAktif) {
-          Log.info('_tombolTipe: mengubah filter dari $_filterAktif menjadi ${status.name}');
+          Log.info(
+            '_tombolTipe: mengubah filter dari $_filterAktif menjadi ${status.name}',
+          );
           setState(() {
             _filterAktif = status.name;
-            Log.info('_tombolTipe: filter berhasil diubah menjadi $_filterAktif');
+            Log.info(
+              '_tombolTipe: filter berhasil diubah menjadi $_filterAktif',
+            );
           });
         } else {
           Log.info('_tombolTipe: filter ${status.name} sudah aktif');
@@ -270,14 +297,20 @@ class _OrderPageState extends ConsumerState<OrderPage> {
               skipLoadingOnReload: true,
               loading: () => const CircularProgressIndicator(),
               error: (e, s) {
-                Log.error('_tombolTipe: error loading data untuk status ${status.name}', e: e, s: s);
+                Log.error(
+                  '_tombolTipe: error loading data untuk status ${status.name}',
+                  e: e,
+                  s: s,
+                );
                 return Text('Error: $e $s');
               },
               data: (orderState) {
                 final jumlah = orderState.orders
                     .where((o) => o.status == status)
                     .length;
-                Log.info('_tombolTipe: jumlah order untuk status ${status.name}: $jumlah');
+                Log.info(
+                  '_tombolTipe: jumlah order untuk status ${status.name}: $jumlah',
+                );
                 if (jumlah == 0) return const SizedBox.shrink();
                 return Container(
                   padding: const EdgeInsets.symmetric(
@@ -347,24 +380,31 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           return true;
         }).toList();
 
-        Log.info('_daftarPesanan: total order setelah filter: ${orderDifilter.length}');
+        Log.info(
+          '_daftarPesanan: total order setelah filter: ${orderDifilter.length}',
+        );
 
         if (orderDifilter.isEmpty) {
-          Log.info('_daftarPesanan: tidak ada order dengan filter $_filterAktif');
+          Log.info(
+            '_daftarPesanan: tidak ada order dengan filter $_filterAktif',
+          );
           return const Center(child: Text('Belum ada pesanan ditemukan.'));
         }
 
         final paketOpFirebase = ref.watch(paketOpFirebaseProvider);
         return ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
           itemCount: orderDifilter.length,
           itemBuilder: (context, index) {
             final order = orderDifilter[index];
-            Log.info('_daftarPesanan: membangun item ke-$index dengan orderId: ${order.id}');
+            Log.info(
+              '_daftarPesanan: membangun item ke-$index dengan orderId: ${order.id}',
+            );
             return ListTile(
+              key: ValueKey(order.id),
               onLongPress: () {
-                Log.info('_daftarPesanan: long press pada orderId: ${order.id}');
+                Log.info(
+                  '_daftarPesanan: long press pada orderId: ${order.id}',
+                );
                 _showDialog(context, order);
               },
               title: Row(
@@ -392,19 +432,27 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     required BuildContext dialogContext,
     required BuildContext pageContext,
   }) {
-    Log.info('_tombolOpsiUbahStatus dipanggil untuk label: $label, orderId: ${order.id}, targetStatus: ${status.name}');
+    Log.info(
+      '_tombolOpsiUbahStatus dipanggil untuk label: $label, orderId: ${order.id}, targetStatus: ${status.name}',
+    );
     return TextButton(
       onPressed: () async {
-        Log.info('_tombolOpsiUbahStatus: tombol $label ditekan untuk orderId: ${order.id}');
+        Log.info(
+          '_tombolOpsiUbahStatus: tombol $label ditekan untuk orderId: ${order.id}',
+        );
         Navigator.of(dialogContext).pop();
         final bool? dikonfirmasi = await _konfirmasiOpsi(pageContext);
         if (dikonfirmasi ?? false) {
-          Log.info('_tombolOpsiUbahStatus: konfirmasi disetujui, mengubah status orderId: ${order.id} menjadi ${status.name}');
+          Log.info(
+            '_tombolOpsiUbahStatus: konfirmasi disetujui, mengubah status orderId: ${order.id} menjadi ${status.name}',
+          );
           try {
             await ref
                 .read(orderOpSqliteProvider)
                 .updateStatusOrder(order.id, status);
-            Log.info('_tombolOpsiUbahStatus: status berhasil diubah untuk orderId: ${order.id}');
+            Log.info(
+              '_tombolOpsiUbahStatus: status berhasil diubah untuk orderId: ${order.id}',
+            );
             ref.invalidate(orderProvider);
             Log.info('_tombolOpsiUbahStatus: orderProvider di-invalidate');
 
@@ -425,7 +473,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
             }
           }
         } else {
-          Log.info('_tombolOpsiUbahStatus: konfirmasi dibatalkan untuk orderId: ${order.id}');
+          Log.info(
+            '_tombolOpsiUbahStatus: konfirmasi dibatalkan untuk orderId: ${order.id}',
+          );
         }
       },
       child: TeksIsiSedang(label),

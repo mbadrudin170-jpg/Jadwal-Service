@@ -15,7 +15,8 @@ import 'daftar_akun_page_test.mocks.dart';
 
 class FakeRoute<T> extends Fake implements Route<T> {}
 
-@GenerateMocks([PengelolaAkun, LayananAktivitasUser, NavigatorObserver])
+@GenerateMocks([LayananAktivitasUser, NavigatorObserver])
+@GenerateNiceMocks([MockSpec<PengelolaAkun>()])
 void main() {
   late MockPengelolaAkun mockPengelolaAkun;
   late MockLayananAktivitasUser mockLayananAktivitasUser;
@@ -56,7 +57,7 @@ void main() {
   Widget createWidgetUnderTest({String? currentUserId}) {
     return ProviderScope(
       overrides: [
-        pengelolaAkunProvider.overrideWith((ref) => mockPengelolaAkun),
+        pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
         userActivityServiceProvider
             .overrideWith((ref) => mockLayananAktivitasUser),
         userIdProvider.overrideWith((ref) => Future.value(currentUserId)),

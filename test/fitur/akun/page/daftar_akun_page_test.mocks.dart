@@ -3,16 +3,16 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i5;
+import 'dart:async' as _i4;
 
-import 'package:flutter/src/widgets/navigator.dart' as _i9;
+import 'package:flutter/src/widgets/navigator.dart' as _i5;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i4;
-import 'package:riverpod_annotation/riverpod_annotation.dart' as _i3;
-import 'package:state_notifier/state_notifier.dart' as _i7;
+import 'package:mockito/src/dummies.dart' as _i7;
+import 'package:riverpod_annotation/riverpod_annotation.dart' as _i6;
+import 'package:state_notifier/state_notifier.dart' as _i9;
 import 'package:wifi/fitur/akun/provider/akun_provider.dart' as _i2;
-import 'package:wifi/fitur/pelanggan/core/layanan_aktivitas_user.dart' as _i8;
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart' as _i6;
+import 'package:wifi/fitur/pelanggan/core/layanan_aktivitas_user.dart' as _i3;
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart' as _i8;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -34,183 +34,42 @@ class _FakeAkunState_0 extends _i1.SmartFake implements _i2.AkunState {
     : super(parent, parentInvocation);
 }
 
-/// A class which mocks [PengelolaAkun].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockPengelolaAkun extends _i1.Mock implements _i2.PengelolaAkun {
-  MockPengelolaAkun() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i3.Ref get ref =>
-      (super.noSuchMethod(
-            Invocation.getter(#ref),
-            returnValue: _i4.dummyValue<_i3.Ref>(this, Invocation.getter(#ref)),
-          )
-          as _i3.Ref);
-
-  @override
-  _i3.AsyncValue<_i2.AkunState> get state =>
-      (super.noSuchMethod(
-            Invocation.getter(#state),
-            returnValue: _i4.dummyValue<_i3.AsyncValue<_i2.AkunState>>(
-              this,
-              Invocation.getter(#state),
-            ),
-          )
-          as _i3.AsyncValue<_i2.AkunState>);
-
-  @override
-  set state(_i3.AsyncValue<_i2.AkunState>? newState) => super.noSuchMethod(
-    Invocation.setter(#state, newState),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  _i5.Future<_i2.AkunState> get future =>
-      (super.noSuchMethod(
-            Invocation.getter(#future),
-            returnValue: _i5.Future<_i2.AkunState>.value(
-              _FakeAkunState_0(this, Invocation.getter(#future)),
-            ),
-          )
-          as _i5.Future<_i2.AkunState>);
-
-  @override
-  _i5.Future<_i2.AkunState> build() =>
-      (super.noSuchMethod(
-            Invocation.method(#build, []),
-            returnValue: _i5.Future<_i2.AkunState>.value(
-              _FakeAkunState_0(this, Invocation.method(#build, [])),
-            ),
-          )
-          as _i5.Future<_i2.AkunState>);
-
-  @override
-  _i5.Future<void> login(_i6.PelangganModel? akun) =>
-      (super.noSuchMethod(
-            Invocation.method(#login, [akun]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
-
-  @override
-  _i5.Future<void> logout() =>
-      (super.noSuchMethod(
-            Invocation.method(#logout, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
-
-  @override
-  _i5.Future<void> hapusAkun(String? id) =>
-      (super.noSuchMethod(
-            Invocation.method(#hapusAkun, [id]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
-
-  @override
-  _i5.Future<void> hapusTokenLogin() =>
-      (super.noSuchMethod(
-            Invocation.method(#hapusTokenLogin, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
-
-  @override
-  _i5.Future<void> refresh() =>
-      (super.noSuchMethod(
-            Invocation.method(#refresh, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
-
-  @override
-  _i7.RemoveListener listenSelf(
-    void Function(
-      _i3.AsyncValue<_i2.AkunState>?,
-      _i3.AsyncValue<_i2.AkunState>,
-    )?
-    listener, {
-    void Function(Object, StackTrace)? onError,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(#listenSelf, [listener], {#onError: onError}),
-            returnValue: () {},
-          )
-          as _i7.RemoveListener);
-
-  @override
-  bool updateShouldNotify(
-    _i3.AsyncValue<_i2.AkunState>? previous,
-    _i3.AsyncValue<_i2.AkunState>? next,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#updateShouldNotify, [previous, next]),
-            returnValue: false,
-          )
-          as bool);
-
-  @override
-  _i5.Future<_i2.AkunState> update(
-    _i5.FutureOr<_i2.AkunState> Function(_i2.AkunState)? cb, {
-    _i5.FutureOr<_i2.AkunState> Function(Object, StackTrace)? onError,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(#update, [cb], {#onError: onError}),
-            returnValue: _i5.Future<_i2.AkunState>.value(
-              _FakeAkunState_0(
-                this,
-                Invocation.method(#update, [cb], {#onError: onError}),
-              ),
-            ),
-          )
-          as _i5.Future<_i2.AkunState>);
-}
-
 /// A class which mocks [LayananAktivitasUser].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockLayananAktivitasUser extends _i1.Mock
-    implements _i8.LayananAktivitasUser {
+    implements _i3.LayananAktivitasUser {
   MockLayananAktivitasUser() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<void> pingAktivitas(String? id, {bool? force = false}) =>
+  _i4.Future<void> pingAktivitas(String? id, {bool? force = false}) =>
       (super.noSuchMethod(
             Invocation.method(#pingAktivitas, [id], {#force: force}),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i4.Future<void>);
 }
 
 /// A class which mocks [NavigatorObserver].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockNavigatorObserver extends _i1.Mock implements _i9.NavigatorObserver {
+class MockNavigatorObserver extends _i1.Mock implements _i5.NavigatorObserver {
   MockNavigatorObserver() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  void didPush(_i9.Route<dynamic>? route, _i9.Route<dynamic>? previousRoute) =>
+  void didPush(_i5.Route<dynamic>? route, _i5.Route<dynamic>? previousRoute) =>
       super.noSuchMethod(
         Invocation.method(#didPush, [route, previousRoute]),
         returnValueForMissingStub: null,
       );
 
   @override
-  void didPop(_i9.Route<dynamic>? route, _i9.Route<dynamic>? previousRoute) =>
+  void didPop(_i5.Route<dynamic>? route, _i5.Route<dynamic>? previousRoute) =>
       super.noSuchMethod(
         Invocation.method(#didPop, [route, previousRoute]),
         returnValueForMissingStub: null,
@@ -218,8 +77,8 @@ class MockNavigatorObserver extends _i1.Mock implements _i9.NavigatorObserver {
 
   @override
   void didRemove(
-    _i9.Route<dynamic>? route,
-    _i9.Route<dynamic>? previousRoute,
+    _i5.Route<dynamic>? route,
+    _i5.Route<dynamic>? previousRoute,
   ) => super.noSuchMethod(
     Invocation.method(#didRemove, [route, previousRoute]),
     returnValueForMissingStub: null,
@@ -227,8 +86,8 @@ class MockNavigatorObserver extends _i1.Mock implements _i9.NavigatorObserver {
 
   @override
   void didReplace({
-    _i9.Route<dynamic>? newRoute,
-    _i9.Route<dynamic>? oldRoute,
+    _i5.Route<dynamic>? newRoute,
+    _i5.Route<dynamic>? oldRoute,
   }) => super.noSuchMethod(
     Invocation.method(#didReplace, [], {
       #newRoute: newRoute,
@@ -239,8 +98,8 @@ class MockNavigatorObserver extends _i1.Mock implements _i9.NavigatorObserver {
 
   @override
   void didChangeTop(
-    _i9.Route<dynamic>? topRoute,
-    _i9.Route<dynamic>? previousTopRoute,
+    _i5.Route<dynamic>? topRoute,
+    _i5.Route<dynamic>? previousTopRoute,
   ) => super.noSuchMethod(
     Invocation.method(#didChangeTop, [topRoute, previousTopRoute]),
     returnValueForMissingStub: null,
@@ -248,8 +107,8 @@ class MockNavigatorObserver extends _i1.Mock implements _i9.NavigatorObserver {
 
   @override
   void didStartUserGesture(
-    _i9.Route<dynamic>? route,
-    _i9.Route<dynamic>? previousRoute,
+    _i5.Route<dynamic>? route,
+    _i5.Route<dynamic>? previousRoute,
   ) => super.noSuchMethod(
     Invocation.method(#didStartUserGesture, [route, previousRoute]),
     returnValueForMissingStub: null,
@@ -260,4 +119,164 @@ class MockNavigatorObserver extends _i1.Mock implements _i9.NavigatorObserver {
     Invocation.method(#didStopUserGesture, []),
     returnValueForMissingStub: null,
   );
+}
+
+/// A class which mocks [PengelolaAkun].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockPengelolaAkun extends _i1.Mock implements _i2.PengelolaAkun {
+  @override
+  _i6.Ref get ref =>
+      (super.noSuchMethod(
+            Invocation.getter(#ref),
+            returnValue: _i7.dummyValue<_i6.Ref>(this, Invocation.getter(#ref)),
+            returnValueForMissingStub: _i7.dummyValue<_i6.Ref>(
+              this,
+              Invocation.getter(#ref),
+            ),
+          )
+          as _i6.Ref);
+
+  @override
+  _i6.AsyncValue<_i2.AkunState> get state =>
+      (super.noSuchMethod(
+            Invocation.getter(#state),
+            returnValue: _i7.dummyValue<_i6.AsyncValue<_i2.AkunState>>(
+              this,
+              Invocation.getter(#state),
+            ),
+            returnValueForMissingStub: _i7
+                .dummyValue<_i6.AsyncValue<_i2.AkunState>>(
+                  this,
+                  Invocation.getter(#state),
+                ),
+          )
+          as _i6.AsyncValue<_i2.AkunState>);
+
+  @override
+  set state(_i6.AsyncValue<_i2.AkunState>? newState) => super.noSuchMethod(
+    Invocation.setter(#state, newState),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i4.Future<_i2.AkunState> get future =>
+      (super.noSuchMethod(
+            Invocation.getter(#future),
+            returnValue: _i4.Future<_i2.AkunState>.value(
+              _FakeAkunState_0(this, Invocation.getter(#future)),
+            ),
+            returnValueForMissingStub: _i4.Future<_i2.AkunState>.value(
+              _FakeAkunState_0(this, Invocation.getter(#future)),
+            ),
+          )
+          as _i4.Future<_i2.AkunState>);
+
+  @override
+  _i4.Future<_i2.AkunState> build() =>
+      (super.noSuchMethod(
+            Invocation.method(#build, []),
+            returnValue: _i4.Future<_i2.AkunState>.value(
+              _FakeAkunState_0(this, Invocation.method(#build, [])),
+            ),
+            returnValueForMissingStub: _i4.Future<_i2.AkunState>.value(
+              _FakeAkunState_0(this, Invocation.method(#build, [])),
+            ),
+          )
+          as _i4.Future<_i2.AkunState>);
+
+  @override
+  _i4.Future<void> login(_i8.PelangganModel? akun) =>
+      (super.noSuchMethod(
+            Invocation.method(#login, [akun]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> logout() =>
+      (super.noSuchMethod(
+            Invocation.method(#logout, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> hapusAkun(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#hapusAkun, [id]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> hapusTokenLogin() =>
+      (super.noSuchMethod(
+            Invocation.method(#hapusTokenLogin, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> refresh() =>
+      (super.noSuchMethod(
+            Invocation.method(#refresh, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i9.RemoveListener listenSelf(
+    void Function(
+      _i6.AsyncValue<_i2.AkunState>?,
+      _i6.AsyncValue<_i2.AkunState>,
+    )?
+    listener, {
+    void Function(Object, StackTrace)? onError,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#listenSelf, [listener], {#onError: onError}),
+            returnValue: () {},
+            returnValueForMissingStub: () {},
+          )
+          as _i9.RemoveListener);
+
+  @override
+  bool updateShouldNotify(
+    _i6.AsyncValue<_i2.AkunState>? previous,
+    _i6.AsyncValue<_i2.AkunState>? next,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateShouldNotify, [previous, next]),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  _i4.Future<_i2.AkunState> update(
+    _i4.FutureOr<_i2.AkunState> Function(_i2.AkunState)? cb, {
+    _i4.FutureOr<_i2.AkunState> Function(Object, StackTrace)? onError,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#update, [cb], {#onError: onError}),
+            returnValue: _i4.Future<_i2.AkunState>.value(
+              _FakeAkunState_0(
+                this,
+                Invocation.method(#update, [cb], {#onError: onError}),
+              ),
+            ),
+            returnValueForMissingStub: _i4.Future<_i2.AkunState>.value(
+              _FakeAkunState_0(
+                this,
+                Invocation.method(#update, [cb], {#onError: onError}),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.AkunState>);
 }

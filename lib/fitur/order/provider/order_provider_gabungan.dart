@@ -26,10 +26,7 @@ class Order extends _$Order {
   @override
   FutureOr<OrderState> build() async {
     final daftarPesanan = await ref.watch(daftarPesananProvider.future);
-    return OrderState(
-      orders: daftarPesanan,
-      totalDaftar: daftarPesanan.length,
-    );
+    return OrderState(orders: daftarPesanan, totalDaftar: daftarPesanan.length);
   }
 }
 
