@@ -143,7 +143,7 @@ class _PelangganState extends ConsumerState<Pelanggan> {
               controller: _searchController,
               autofocus: true,
               decoration: const InputDecoration(
-                hintText: 'Cari nama customer...',
+                hintText: 'Cari nama pelanggan...',
                 border: InputBorder.none,
                 hintStyle: TextStyle(color: Colors.white70),
               ),

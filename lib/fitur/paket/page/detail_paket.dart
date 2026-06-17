@@ -50,7 +50,7 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: TeksJudulSedang(_paket.nama),
+        title: Text(_paket.nama),
         actions: [
           IconButton(
             onPressed: _navigasiKeEdit,
@@ -171,15 +171,7 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
           ),
           Expanded(
             flex: 3,
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
-                color: customValueColor ?? Colors.black87,
-              ),
-            ),
+            child: TeksIsiSedang(value, rataTeks: TextAlign.end),
           ),
         ],
       ),

@@ -18,11 +18,7 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-enum AdvancedOption {
-  softDeleteAll,
-  arsipkanKadaluarsa,
-  cancel,
-}
+enum AdvancedOption { softDeleteAll, arsipkanKadaluarsa, cancel }
 
 String _getSortLabel(SortOption option) {
   switch (option) {
@@ -116,7 +112,8 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
   }
 
   Future<void> _softDeleteCustomer(
-      final DetailPelangganAktifModel customer) async {
+    final DetailPelangganAktifModel customer,
+  ) async {
     final idPelanggan = customer.pelangganAktif.id;
     final namaPelanggan = customer.namaPelanggan;
     final idTransaksi = customer.pelangganAktif.idTransaksi;
@@ -127,14 +124,12 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
         content: Text('Yakin ingin mengarsipkan pelanggan "$namaPelanggan"?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Batal')),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
-              'hapus',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('hapus', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -147,7 +142,9 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
         Log.info('Berhasil soft delete pelanggan ID: $idPelanggan');
         if (mounted) {
           ToastUtil.success(
-              context, 'Pelanggan "$namaPelanggan" berhasil diarsipkan.');
+            context,
+            'Pelanggan "$namaPelanggan" berhasil diarsipkan.',
+          );
         }
         await ref.read(pelangganAktifProvider.notifier).fetchActiveCustomers();
       } on Exception catch (e, s) {
@@ -172,8 +169,10 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Urutkan Berdasarkan'),
-        contentPadding:
-            const EdgeInsets.only(top: TSizes.p12, bottom: TSizes.p12),
+        contentPadding: const EdgeInsets.only(
+          top: TSizes.p12,
+          bottom: TSizes.p12,
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -193,10 +192,12 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                         _getSortLabel(o),
                         style: TextStyle(
                           fontSize: TSizes.p16,
-                          fontWeight:
-                              diPilih ? FontWeight.bold : FontWeight.normal,
-                          color:
-                              diPilih ? Theme.of(context).primaryColor : null,
+                          fontWeight: diPilih
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: diPilih
+                              ? Theme.of(context).primaryColor
+                              : null,
                         ),
                       ),
                       trailing: diPilih
@@ -230,7 +231,9 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
   Future<void> _navigasiKeForm() async {
     Log.info('Navigasi ke form tambah pelanggan aktif');
     await Navigator.push<bool>(
-        context, MaterialPageRoute(builder: (_) => const FormPelangganAktif()));
+      context,
+      MaterialPageRoute(builder: (_) => const FormPelangganAktif()),
+    );
   }
 
   Future<void> _advancedOptions() async {
@@ -241,16 +244,21 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
         title: const Text('Opsi Lanjutan'),
         children: [
           SimpleDialogOption(
-              onPressed: () =>
-                  Navigator.pop(ctx, AdvancedOption.arsipkanKadaluarsa),
-              child: const Text('Arsipkan pelanggan kadaluarsa')),
+            onPressed: () =>
+                Navigator.pop(ctx, AdvancedOption.arsipkanKadaluarsa),
+            child: const Text('Arsipkan pelanggan kadaluarsa'),
+          ),
           SimpleDialogOption(
-              onPressed: () => Navigator.pop(ctx, AdvancedOption.softDeleteAll),
-              child: const Text('Hapus Semua',
-                  style: TextStyle(color: Colors.red))),
+            onPressed: () => Navigator.pop(ctx, AdvancedOption.softDeleteAll),
+            child: const Text(
+              'Hapus Semua',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
           SimpleDialogOption(
-              onPressed: () => Navigator.pop(ctx, AdvancedOption.cancel),
-              child: const Text('Batal')),
+            onPressed: () => Navigator.pop(ctx, AdvancedOption.cancel),
+            child: const Text('Batal'),
+          ),
         ],
       ),
     );
@@ -263,15 +271,18 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
           context: context,
           builder: (final ctx) => AlertDialog(
             title: const Text('Konfirmasi Arsipkan Semua'),
-            content:
-                const Text('Yakin ingin mengarsipkan SEMUA pelanggan aktif?'),
+            content: const Text(
+              'Yakin ingin mengarsipkan SEMUA pelanggan aktif?',
+            ),
             actions: [
               TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text('Batal')),
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Batal'),
+              ),
               TextButton(
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text('Arsipkan Semua')),
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('Arsipkan Semua'),
+              ),
             ],
           ),
         );
@@ -290,7 +301,9 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
             Log.error('Gagal mengarsipkan semua pelanggan aktif', e: e, s: s);
             if (mounted) {
               ToastUtil.error(
-                  context, 'Gagal mengarsipkan semua pelanggan: $e');
+                context,
+                'Gagal mengarsipkan semua pelanggan: $e',
+              );
             }
           }
         }
@@ -298,12 +311,14 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
       case AdvancedOption.arsipkanKadaluarsa:
         try {
           Log.info('Mulai arsipkan pelanggan kadaluarsa');
-          final count =
-              await _pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
+          final count = await _pelangganAktifOpSqlite
+              .arsipkanLanggananKadaluarsa();
           Log.info('Selesai arsipkan kadaluarsa, jumlah=$count');
           if (mounted) {
             ToastUtil.success(
-                context, '$count pelanggan kadaluarsa diarsipkan.');
+              context,
+              '$count pelanggan kadaluarsa diarsipkan.',
+            );
           }
           await ref
               .read(pelangganAktifProvider.notifier)
@@ -312,7 +327,9 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
           Log.error('Gagal mengarsipkan pelanggan kadaluarsa', e: e, s: s);
           if (mounted) {
             ToastUtil.error(
-                context, 'Gagal mengarsipkan pelanggan kadaluarsa: $e');
+              context,
+              'Gagal mengarsipkan pelanggan kadaluarsa: $e',
+            );
           }
         }
         break;
@@ -333,27 +350,36 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                 controller: _searchController,
                 autofocus: true,
                 decoration: const InputDecoration(
-                    hintText: 'Cari nama...', border: InputBorder.none))
+                  hintText: 'Cari data...',
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(color: Colors.white70),
+                ),
+                style: const TextStyle(color: Colors.white),
+              )
             : const Text('Pelanggan Aktif'),
         actions: _mencari
             ? [
                 IconButton(
-                    icon: const Icon(TIcons.close),
-                    onPressed: () {
-                      setState(() => _mencari = false);
-                      _searchController.clear();
-                    })
+                  icon: const Icon(TIcons.close),
+                  onPressed: () {
+                    setState(() => _mencari = false);
+                    _searchController.clear();
+                  },
+                ),
               ]
             : [
                 IconButton(
-                    icon: const Icon(TIcons.search),
-                    onPressed: () => setState(() => _mencari = true)),
+                  icon: const Icon(TIcons.search),
+                  onPressed: () => setState(() => _mencari = true),
+                ),
                 IconButton(
-                    icon: const Icon(TIcons.filter),
-                    onPressed: _showSortDialog),
+                  icon: const Icon(TIcons.filter),
+                  onPressed: _showSortDialog,
+                ),
                 IconButton(
-                    icon: const Icon(TIcons.delete),
-                    onPressed: _advancedOptions),
+                  icon: const Icon(TIcons.delete),
+                  onPressed: _advancedOptions,
+                ),
               ],
       ),
       body: RefreshIndicator(
@@ -373,9 +399,12 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
 
             if (displayedCustomers.isEmpty) {
               return Center(
-                  child: Text(query.isNotEmpty
+                child: Text(
+                  query.isNotEmpty
                       ? 'Pelanggan tidak ditemukan.'
-                      : 'Tidak ada pelanggan aktif.'));
+                      : 'Tidak ada pelanggan aktif.',
+                ),
+              );
             }
 
             return ListView.builder(
@@ -385,42 +414,51 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                 final c = detail.pelangganAktif;
                 return Card(
                   margin: const EdgeInsets.only(
-                      left: TSizes.p16, right: TSizes.p16, bottom: TSizes.p12),
+                    left: TSizes.p16,
+                    right: TSizes.p16,
+                    bottom: TSizes.p12,
+                  ),
                   child: InkWell(
                     onLongPress: () => _softDeleteCustomer(detail),
                     onTap: () async {
                       await Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                              builder: (_) =>
-                                  DetailPelangganAktif(pelangganAktif: c)));
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (_) =>
+                              DetailPelangganAktif(pelangganAktif: c),
+                        ),
+                      );
                     },
                     child: ListTile(
                       title: Text(
                         detail.namaPelanggan,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(detail.namaPaket),
-                          Text('Pembayaran: ${c.status.displayName}',
-                              style: TextStyle(
-                                  color: c.status == StatusPembayaran.paid
-                                      ? Colors.green
-                                      : Colors.red,
-                                  fontWeight: FontWeight.bold)),
                           Text(
-                              'Status: ${PerhitunganUtil.ambilTeksSisaMasaAktif(c.tanggalBerakhir)}',
-                              style: TextStyle(
-                                  color:
-                                      PerhitunganUtil.ambilWarnaSisaMasaAktif(
-                                          c.tanggalBerakhir))),
+                            'Pembayaran: ${c.status.displayName}',
+                            style: TextStyle(
+                              color: c.status == StatusPembayaran.paid
+                                  ? Colors.green
+                                  : Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           Text(
-                              'Berakhir: ${FormatTanggal.formatDasar(c.tanggalBerakhir)} ${FormatJam.formatJamMenit(c.tanggalBerakhir)}'),
+                            'Status: ${PerhitunganUtil.ambilTeksSisaMasaAktif(c.tanggalBerakhir)}',
+                            style: TextStyle(
+                              color: PerhitunganUtil.ambilWarnaSisaMasaAktif(
+                                c.tanggalBerakhir,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            'Berakhir: ${FormatTanggal.formatDasar(c.tanggalBerakhir)} ${FormatJam.formatJamMenit(c.tanggalBerakhir)}',
+                          ),
                         ],
                       ),
                       trailing: const Icon(TIcons.chevronRight),
@@ -433,9 +471,10 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
         ),
       ),
       floatingActionButton: FloatingActionButton(
-          heroTag: 'fab_active_customer',
-          onPressed: _navigasiKeForm,
-          child: const Icon(TIcons.add)),
+        heroTag: 'fab_active_customer',
+        onPressed: _navigasiKeForm,
+        child: const Icon(TIcons.add),
+      ),
     );
   }
 }
