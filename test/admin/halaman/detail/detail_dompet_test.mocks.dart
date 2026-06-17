@@ -76,9 +76,13 @@ class MockDompetOpSqlite extends _i1.Mock implements _i4.DompetOpSqlite {
           as _i5.Future<void>);
 
   @override
-  _i5.Future<List<_i6.DompetModel>> ambilSemua({bool? showArchived = false}) =>
+  _i5.Future<List<_i6.DompetModel>> ambilSemua({
+    bool? tampilkanYangDiarsip = false,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#ambilSemua, [], {#showArchived: showArchived}),
+            Invocation.method(#ambilSemua, [], {
+              #showArchived: tampilkanYangDiarsip,
+            }),
             returnValue: _i5.Future<List<_i6.DompetModel>>.value(
               <_i6.DompetModel>[],
             ),

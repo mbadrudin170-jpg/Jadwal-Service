@@ -37,12 +37,14 @@ class DompetOpSqlite {
 
   /// Mengambil semua dompet dari database.
   ///
-  /// Jika [showArchived] `true`, maka dompet yang telah diarsipkan juga akan diambil.
-  Future<List<DompetModel>> ambilSemua({bool showArchived = false}) async {
-    Log.info('Memulai getWallets (showArchived: $showArchived).');
+  /// Jika [tampilkanYangDiarsip] `true`, maka dompet yang telah diarsipkan juga akan diambil.
+  Future<List<DompetModel>> ambilSemua({
+    bool tampilkanYangDiarsip = false,
+  }) async {
+    Log.info('Memulai getWallets (showArchived: $tampilkanYangDiarsip).');
     try {
       final db = await sqliteDb.database;
-      final query = showArchived
+      final query = tampilkanYangDiarsip
           ? null
           : '${NamaKolom.dihapus} = 0 AND ${NamaKolom.diarsipkanPada} IS NULL';
       final List<Map<String, dynamic>> maps = await db.query(
@@ -52,7 +54,7 @@ class DompetOpSqlite {
 
       final daftarDompet = List.generate(
         maps.length,
-        ( i) => DompetModel.fromSqlite(maps[i]),
+        (i) => DompetModel.fromSqlite(maps[i]),
       );
       Log.info('Berhasil mengambil ${daftarDompet.length} data wallet.');
       return daftarDompet;
