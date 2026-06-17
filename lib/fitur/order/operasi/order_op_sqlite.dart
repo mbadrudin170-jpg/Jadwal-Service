@@ -8,24 +8,16 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
-/// Kelas untuk operasi terkait data pesanan di database lokal.
 class OrderOpsqlite {
-  /// Instance dari DatabaseHelper untuk mengakses database.
   final SqliteDatabase sqliteDb;
 
-  /// Instance dari [BaseOpSqlite] untuk operasi CRUD dasar.
   final BaseOpSqlite baseOpSqlite;
 
-  /// Konstruktor untuk [OrderOpsqlite].
-  OrderOpsqlite({
-    required this.sqliteDb,
-    required this.baseOpSqlite,
-  });
+  OrderOpsqlite({required this.sqliteDb, required this.baseOpSqlite});
 
-  /// Mendapatkan nama tabel pesanan dari konstanta.
   String get _tableName => NamaTabel.pesananPelanggan;
 
-  Future<int> getJumlahByStatus(StatusOrderEnum status) async {
+  Future<int> ambilTotalDataPerStatus(StatusOrderEnum status) async {
     Log.info('Menghitung pesanan dengan status: ${status.name}');
     try {
       final db = await sqliteDb.database;
@@ -35,7 +27,8 @@ class OrderOpsqlite {
       );
       final count = result.first.values.first as int? ?? 0;
       Log.info(
-          'Berhasil menghitung $count data pesanan aktif berstatus ${status.name}.');
+        'Berhasil menghitung $count data pesanan aktif berstatus ${status.name}.',
+      );
       return count;
     } on Exception catch (e, s) {
       Log.error('Gagal menghitung pesanan berdasarkan status.', e: e, s: s);
@@ -43,7 +36,6 @@ class OrderOpsqlite {
     }
   }
 
-  /// Menyimpan [OrderModel] baru ke dalam database.
   Future<void> tambahOrder(
     final OrderModel order, {
     final bool dariServer = false,
@@ -65,18 +57,22 @@ class OrderOpsqlite {
     }
   }
 
-  /// Mengambil semua pesanan dari database (termasuk yang sudah di-soft-delete).
-  Future<List<OrderModel>> ambilSemuaOrder() async {
+  Future<List<OrderModel>> ambilSemua({
+    bool tampilkanYangDiarsip = false,
+  }) async {
     Log.info('Mengambil semua pesanan dari database.');
     try {
       final db = await sqliteDb.database;
+      final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = 0';
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
+        where: query,
         orderBy: '${NamaKolom.tanggal} DESC',
       );
       Log.info('Berhasil mengambil ${maps.length} data pesanan.');
+
       return maps.map(OrderModel.fromSqlite).toList();
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error('Gagal mengambil semua pesanan.', e: e, s: s);
       rethrow;
     }
@@ -99,9 +95,9 @@ class OrderOpsqlite {
     }
   }
 
-  /// Mengambil pesanan berdasarkan [status].
   Future<List<OrderModel>> ambilOrderBerdasarkanStatus(
-      StatusOrderEnum status) async {
+    StatusOrderEnum status,
+  ) async {
     Log.info('Mengambil pesanan dengan status: ${status.name}');
     try {
       final db = await sqliteDb.database;
@@ -112,7 +108,8 @@ class OrderOpsqlite {
         orderBy: '${NamaKolom.tanggal} DESC',
       );
       Log.info(
-          'Berhasil mengambil ${maps.length} data pesanan aktif berstatus ${status.name}.');
+        'Berhasil mengambil ${maps.length} data pesanan aktif berstatus ${status.name}.',
+      );
       return maps.map(OrderModel.fromSqlite).toList();
     } on Exception catch (e, s) {
       Log.error('Gagal mengambil pesanan berdasarkan status.', e: e, s: s);
@@ -120,7 +117,6 @@ class OrderOpsqlite {
     }
   }
 
-  /// Memperbarui status [OrderModel] berdasarkan [id].
   Future<void> updateStatusOrder(
     final String id,
     final StatusOrderEnum status, {
@@ -175,18 +171,13 @@ class OrderOpsqlite {
     }
   }
 
-  /// Melakukan soft delete pada pesanan berdasarkan [id].
   Future<void> softDeleteorder(
     final String id, {
     final bool dariServer = false,
   }) async {
     Log.info('Memulai soft delete untuk pesanan ID: $id');
     try {
-      await baseOpSqlite.softDelete(
-        _tableName,
-        id,
-        dariServer: dariServer,
-      );
+      await baseOpSqlite.softDelete(_tableName, id, dariServer: dariServer);
       Log.info('Berhasil soft delete pesanan ID: $id.');
     } on Exception catch (e, st) {
       Log.error('Gagal saat soft delete pesanan ID: $id', e: e, s: st);
@@ -194,10 +185,7 @@ class OrderOpsqlite {
     }
   }
 
-  /// Melakukan soft delete pada semua pesanan.
-  Future<int> softDeleteAllOrder({
-    final bool fromServer = false,
-  }) async {
+  Future<int> softDeleteAllOrder({final bool fromServer = false}) async {
     Log.info('Memulai soft delete untuk semua pesanan');
     try {
       final count = await baseOpSqlite.softDeleteAll(
@@ -212,7 +200,6 @@ class OrderOpsqlite {
     }
   }
 
-  /// Menyisipkan atau memperbarui sekumpulan [OrderModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
     final List<OrderModel> items, {
     final bool dariServer = false,
@@ -242,7 +229,6 @@ class OrderOpsqlite {
     }
   }
 
-  /// Mengambil beberapa [OrderModel] berdasarkan daftar [ids].
   Future<List<OrderModel>> getOrdersByIds(final List<String> ids) async {
     Log.info('Mengambil pesanan untuk ${ids.length} ID.');
     if (ids.isEmpty) {
@@ -258,13 +244,17 @@ class OrderOpsqlite {
         whereArgs: ids,
       );
       Log.info(
-          'Berhasil mengambil ${maps.length} data pesanan berdasarkan daftar ID.');
+        'Berhasil mengambil ${maps.length} data pesanan berdasarkan daftar ID.',
+      );
       return List.generate(maps.length, (final i) {
         return OrderModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, s) {
-      Log.error('Gagal mengambil data pesanan berdasarkan daftar ID.',
-          e: e, s: s);
+      Log.error(
+        'Gagal mengambil data pesanan berdasarkan daftar ID.',
+        e: e,
+        s: s,
+      );
       rethrow;
     }
   }

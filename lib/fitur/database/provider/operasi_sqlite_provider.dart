@@ -29,10 +29,7 @@ PaketOpSqlite paketOpSqlite(Ref ref) {
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
-  return PaketOpSqlite(
-    sqliteDb: sqliteDb,
-    basOpSqlite: baseOpSqlite,
-  );
+  return PaketOpSqlite(sqliteDb: sqliteDb, basOpSqlite: baseOpSqlite);
 }
 
 /// Provider untuk menyediakan instance dari [TransaksiOpSqlite].
@@ -42,10 +39,7 @@ TransaksiOpSqlite transaksiOpSqlite(Ref ref) {
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
-  return TransaksiOpSqlite(
-    sqliteDb: sqliteDb,
-    baseOpSqlite: baseOpSqlite,
-  );
+  return TransaksiOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
 }
 
 /// Provider untuk menyediakan instance dari [PelangganOpSqlite].
@@ -55,10 +49,7 @@ PelangganOpSqlite pelangganOpSqlite(Ref ref) {
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
-  return PelangganOpSqlite(
-    sqliteDb: sqliteDb,
-    baseOpSqlite: baseOpSqlite,
-  );
+  return PelangganOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
 }
 
 /// Provider untuk menyediakan instance dari [PelangganAktifOpSqlite].
@@ -85,10 +76,7 @@ VersiApkOpSqlite versiApkOpSqlite(Ref ref) {
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
-  return VersiApkOpSqlite(
-    sqliteDb: sqliteDb,
-    baseOpSqlite: baseOpSqlite,
-  );
+  return VersiApkOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
 }
 
 /// Provider untuk menyediakan instance dari [KategoriOpSqlite].
@@ -98,10 +86,7 @@ KategoriOpSqlite kategoriOpSqlite(Ref ref) {
   final sqlitedb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
-  return KategoriOpSqlite(
-    sqlitedb: sqlitedb,
-    baseOpSqlite: baseOpSqlite,
-  );
+  return KategoriOpSqlite(sqlitedb: sqlitedb, baseOpSqlite: baseOpSqlite);
 }
 
 /// Provider untuk menyediakan instance dari [PembersihanDataOperasi].
@@ -118,10 +103,7 @@ FeedbackOpSqlite feedbackOpSqlite(Ref ref) {
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
-  return FeedbackOpSqlite(
-    sqliteDb: sqliteDb,
-    baseOpSqlite: baseOpSqlite,
-  );
+  return FeedbackOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
 }
 
 @Riverpod(keepAlive: true)
@@ -129,10 +111,7 @@ OrderOpsqlite orderOpSqlite(Ref ref) {
   Log.info('Membuat instance OrderOperation via @riverpod...');
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
-  return OrderOpsqlite(
-    sqliteDb: sqliteDb,
-    baseOpSqlite: baseOpSqlite,
-  );
+  return OrderOpsqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
 }
 
 /// Provider untuk menyediakan instance dari [SettingsOpSqlite].
@@ -142,10 +121,7 @@ SettingsOpSqlite settingsOpSqlite(Ref ref) {
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
-  return SettingsOpSqlite(
-    sqliteDb: sqliteDb,
-    baseOpSqlite: baseOpSqlite,
-  );
+  return SettingsOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
 }
 
 /// Provider untuk menyediakan instance dari [SubKategoriOpSqlite].
@@ -155,10 +131,7 @@ SubKategoriOpSqlite subKategoriOpSqlite(Ref ref) {
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
-  return SubKategoriOpSqlite(
-    sqliteDb: sqliteDb,
-    baseOpSqlite: baseOpSqlite,
-  );
+  return SubKategoriOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
 }
 
 /// Provider untuk menyediakan instance dari [DompetOpSqlite].
@@ -168,8 +141,5 @@ DompetOpSqlite dompetOpSqlite(Ref ref) {
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
-  return DompetOpSqlite(
-    sqliteDb: sqliteDb,
-    baseOpSqlite: baseOpSqlite,
-  );
+  return DompetOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
 }

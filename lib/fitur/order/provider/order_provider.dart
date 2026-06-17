@@ -35,12 +35,12 @@ Future<List<OrderModel>> daftarPesanan(Ref ref) async {
   final appRole = ref.watch(appRoleProvider);
   if (appRole == AppRole.admin) {
     final orderOpSqlite = ref.watch(orderOpSqliteProvider);
-    return await orderOpSqlite.ambilSemuaOrder();
+    return await orderOpSqlite.ambilSemua();
   } else {
     final userId = ref.watch(userIdProvider).value;
     final orderOpFirebase = ref.watch(orderOpFirebaseProvider);
     if (userId != null) {
-      return await orderOpFirebase.getAllByUserId(userId).first;
+      return await orderOpFirebase.ambilBerdasarkanIdPelanggan(userId).first;
     }
   }
   return [];
