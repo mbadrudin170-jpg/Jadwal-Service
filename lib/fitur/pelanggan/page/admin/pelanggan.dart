@@ -83,43 +83,64 @@ final filteredCustomersProvider =
     });
 
 /// Halaman untuk menampilkan dan mengelola daftar semua customer.
-class Pelanggan extends ConsumerWidget {
+class Pelanggan extends ConsumerStatefulWidget {
   const Pelanggan({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final currentSearchQuery = ref.watch(searchQueryPelangganProvider);
-    final searchController = TextEditingController(text: currentSearchQuery);
+  ConsumerState<Pelanggan> createState() => _PelangganState();
+}
 
-    searchController.selection = TextSelection.fromPosition(
-      TextPosition(offset: searchController.text.length),
+class _PelangganState extends ConsumerState<Pelanggan> {
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(
+      text: ref.read(searchQueryPelangganProvider),
     );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Listen to changes in the search query provider and update the controller.
+    // This is useful when the query is cleared programmatically.
+    ref.listen(searchQueryPelangganProvider, (_, next) {
+      if (_searchController.text != next) {
+        _searchController.text = next;
+        _searchController.selection = TextSelection.fromPosition(
+          TextPosition(offset: _searchController.text.length),
+        );
+      }
+    });
 
     return Scaffold(
-      appBar: _buildAppBar(context, ref, searchController),
+      appBar: _buildAppBar(),
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(daftarPelangganProvider.future),
-        child: _buildContent(context, ref),
+        child: _buildContent(),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _naviagsiKeForm(context, ref),
+        onPressed: () => _naviagsiKeForm(),
         tooltip: 'Tambah Pelanggan',
         child: const Icon(TIcons.add),
       ),
     );
   }
 
-  AppBar _buildAppBar(
-    BuildContext context,
-    WidgetRef ref,
-    TextEditingController controller,
-  ) {
+  AppBar _buildAppBar() {
     final isSearching = ref.watch(isSearchingPelangganProvider);
 
     return AppBar(
       title: isSearching
           ? TextField(
-              controller: controller,
+              controller: _searchController,
               autofocus: true,
               decoration: const InputDecoration(
                 hintText: 'Cari nama customer...',
@@ -134,27 +155,27 @@ class Pelanggan extends ConsumerWidget {
           : const Text('Daftar Pelanggan'),
       actions: [
         IconButton(
+          icon: Icon(isSearching ? TIcons.close : TIcons.search),
+          onPressed: () {
+            final wasSearching = ref.read(isSearchingPelangganProvider);
+            ref.read(isSearchingPelangganProvider.notifier).toggle();
+            if (wasSearching) {
+              ref.read(searchQueryPelangganProvider.notifier).clear();
+            }
+          },
+        ),
+        IconButton(
           icon: const Icon(TIcons.sort),
           tooltip: 'Urutkan',
-          onPressed: () => _dialogSort(context, ref),
+          onPressed: () => _dialogSort(),
         ),
-        if (isSearching)
-          IconButton(
-            icon: Icon(isSearching ? TIcons.close : TIcons.search),
-            onPressed: () {
-              ref.read(isSearchingPelangganProvider.notifier).toggle();
-              if (!ref.read(isSearchingPelangganProvider)) {
-                ref.read(searchQueryPelangganProvider.notifier).clear();
-              }
-            },
-          ),
       ],
     );
   }
 
-  Widget _buildContent(BuildContext context, WidgetRef ref) {
+  Widget _buildContent() {
     final pelangganAsync = ref.watch(filteredCustomersProvider);
-    final sedangMencari = ref.watch(isSearchingPelangganProvider);
+    final sedangMencari = ref.watch(searchQueryPelangganProvider).isNotEmpty;
 
     return pelangganAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -198,14 +219,14 @@ class Pelanggan extends ConsumerWidget {
                     gapH4,
                     Text(
                       poin.toString(),
-                      style: context.textTheme.titleMedium?.copyWith(
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
-                onTap: () => _navigasiKeDetail(context, ref, pelanggan.id),
-                onLongPress: () => _dialogOpsi(context, ref, pelanggan),
+                onTap: () => _navigasiKeDetail(pelanggan.id),
+                onLongPress: () => _dialogOpsi(pelanggan),
               ),
             );
           },
@@ -214,7 +235,7 @@ class Pelanggan extends ConsumerWidget {
     );
   }
 
-  Future<void> _dialogSort(BuildContext context, WidgetRef ref) async {
+  Future<void> _dialogSort() async {
     final urutanAktif = ref.read(urutanPelangganStateProvider);
 
     Widget buildOption(String text, UrutanPelanggan value) {
@@ -264,18 +285,14 @@ class Pelanggan extends ConsumerWidget {
     }
   }
 
-  Future<void> _naviagsiKeForm(BuildContext context, WidgetRef ref) async {
+  Future<void> _naviagsiKeForm() async {
     await Navigator.push<void>(
       context,
       MaterialPageRoute(builder: (context) => const FormPelanggan()),
     );
   }
 
-  Future<void> _navigasiKeDetail(
-    BuildContext context,
-    WidgetRef ref,
-    String idPelanggan,
-  ) async {
+  Future<void> _navigasiKeDetail(String idPelanggan) async {
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
@@ -285,11 +302,7 @@ class Pelanggan extends ConsumerWidget {
     ref.invalidate(daftarPelangganProvider);
   }
 
-  Future<void> _dialogOpsi(
-    BuildContext context,
-    WidgetRef ref,
-    PelangganModel pelanggan,
-  ) async {
+  Future<void> _dialogOpsi(PelangganModel pelanggan) async {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -324,7 +337,7 @@ class Pelanggan extends ConsumerWidget {
               title: const Text('Arsipkan Pelanggan'),
               onTap: () {
                 Navigator.of(dialogContext).pop();
-                unawaited(_dialogKonfirmasiSoftDelete(context, ref, pelanggan));
+                unawaited(_dialogKonfirmasiSoftDelete(pelanggan));
               },
             ),
           ],
@@ -333,11 +346,7 @@ class Pelanggan extends ConsumerWidget {
     );
   }
 
-  Future<void> _dialogKonfirmasiSoftDelete(
-    BuildContext context,
-    WidgetRef ref,
-    PelangganModel customer,
-  ) async {
+  Future<void> _dialogKonfirmasiSoftDelete(PelangganModel customer) async {
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -354,7 +363,7 @@ class Pelanggan extends ConsumerWidget {
             child: const Text('Arsipkan', style: TextStyle(color: Colors.red)),
             onPressed: () async {
               Navigator.of(context).pop();
-              await _softDeleteCustomer(context, ref, customer.id);
+              await _softDeleteCustomer(customer.id);
             },
           ),
         ],
@@ -362,11 +371,7 @@ class Pelanggan extends ConsumerWidget {
     );
   }
 
-  Future<void> _softDeleteCustomer(
-    BuildContext context,
-    WidgetRef ref,
-    String id,
-  ) async {
+  Future<void> _softDeleteCustomer(String id) async {
     try {
       await ref.read(pelangganOpSqliteProvider).softDelete(id);
       ref.invalidate(daftarPelangganProvider);

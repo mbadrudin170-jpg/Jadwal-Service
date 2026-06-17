@@ -10,7 +10,7 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 const TextTheme _baseTextTheme = TextTheme(
   displayLarge: TextStyle(
       fontFamily: 'Poppins', fontSize: 57, fontWeight: FontWeight.bold),
-  displayMedium: TextStyle(
+  displayMedium: TextStyle(m
       fontFamily: 'Poppins', fontSize: 45, fontWeight: FontWeight.bold),
   displaySmall: TextStyle(
       fontFamily: 'Poppins', fontSize: 36, fontWeight: FontWeight.bold),
