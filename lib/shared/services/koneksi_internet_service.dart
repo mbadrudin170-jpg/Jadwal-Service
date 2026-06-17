@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:wifi/fitur/speedtest/provider/ping_provider.dart';
@@ -25,7 +26,6 @@ class KoneksiInternetService {
     Log.info('KoneksiInternetService diinisialisasi.');
   }
 
-  /// mengecek apakah perangkat terhubung ke wifi ataupun data
   Future<bool> cekKoneksiLokal() async {
     Log.info('[Lokal] Memulai pemeriksaan status koneksi perangkat...');
     try {
@@ -33,8 +33,8 @@ class KoneksiInternetService {
       Log.info('[Lokal] Hasil mentah konektivitas: $hasilKoneksi');
 
       final isOnline =
-          hasilKoneksi.contains(ConnectivityResult.mobile) ||
-          hasilKoneksi.contains(ConnectivityResult.wifi);
+          hasilKoneksi == ConnectivityResult.mobile ||
+          hasilKoneksi == ConnectivityResult.wifi;
 
       if (isOnline) {
         Log.info('[Lokal] ✅ Sukses: Perangkat terhubung ke jaringan lokal.');
@@ -50,18 +50,42 @@ class KoneksiInternetService {
 
   Future<bool> cekInternet(WidgetRef ref) async {
     Log.info('[Internet] Memulai pemeriksaan status koneksi perangkat...');
+
+    // cek koneksi lokal dulu
     final lokal = await cekKoneksiLokal();
     if (!lokal) {
       Log.warning('[Internet] Gagal: Tidak ada koneksi lokal.');
       return false;
     }
+
+    bool isConnected = false;
+
     try {
-      final hasilPing = await ref.read(pingProvider.future);
-      final berhasil = hasilPing.response?.time != null;
-      Log.info(berhasil ? 'Ping berhasil' : 'Ping gagal (timeout)');
-      return berhasil;
-    } catch (e) {
-      Log.error('Ping error: $e');
+      if (kDebugMode) {
+        // Saat debug, cukup cek koneksi lokal agar cepat dan stabil di emulator/dev
+        Log.info(
+          '[Internet] kDebugMode aktif: menggunakan cekKoneksiLokal untuk pengecekan.',
+        );
+        isConnected = true; // karena sudah dicek lokal di atas
+      } else {
+        // Saat release, lakukan pengecekan internet nyata via pingProvider
+        final hasilPing = await ref
+            .read(pingProvider.future)
+            .timeout(const Duration(seconds: 7)); // sesuaikan timeout
+        isConnected = hasilPing.response?.time != null;
+      }
+
+      Log.info(
+        isConnected
+            ? '[Internet] Ping berhasil'
+            : '[Internet] Ping gagal (timeout)',
+      );
+      return isConnected;
+    } on TimeoutException catch (e, st) {
+      Log.warning('[Internet] Ping timeout: $e $st');
+      return false;
+    } catch (e, st) {
+      Log.error('[Internet] Ping error: $e', e: e, s: st);
       return false;
     }
   }

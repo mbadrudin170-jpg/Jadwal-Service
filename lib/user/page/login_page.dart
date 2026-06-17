@@ -1,6 +1,7 @@
 // path: lib/user/page/login_page.dart
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -69,8 +70,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     try {
       final internetService = ref.read(koneksiInternetServiceProvider);
-      final isConnected = await internetService.cekInternet(ref);
+      bool isConnected = false;
+
+      try {
+        if (kDebugMode) {
+          // Di debug, gunakan cek lokal (mis. untuk emulator/dev)
+          isConnected = await internetService.cekKoneksiLokal();
+        } else {
+          // Di release, cek koneksi internet sebenarnya (bisa melakukan ping)
+          isConnected = await internetService.cekInternet(ref);
+        }
+      } catch (e, s) {
+        // Tangani error jaringan secara aman
+        Log.error('Gagal memeriksa koneksi internet', e: e, s: s);
+        isConnected = false;
+      }
+
       if (!mounted) return;
+
       if (!isConnected) {
         ToastUtil.error(
           context,
@@ -78,6 +95,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         );
         return;
       }
+
       final firestore = ref.read(firestoreProvider);
       final querySnapshot = await firestore
           .collection(NamaTabel.pelanggan)
@@ -104,9 +122,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         if (!mounted) return;
         unawaited(
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute<void>(
-              builder: ( context) => const MainPage(),
-            ),
+            MaterialPageRoute<void>(builder: (context) => const MainPage()),
           ),
         );
 
