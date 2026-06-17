@@ -32,7 +32,8 @@ class KoneksiInternetService {
       final hasilKoneksi = await _connectivity.checkConnectivity();
       Log.info('[Lokal] Hasil mentah konektivitas: $hasilKoneksi');
 
-      final isOnline = hasilKoneksi.contains(ConnectivityResult.mobile) ||
+      final isOnline =
+          hasilKoneksi.contains(ConnectivityResult.mobile) ||
           hasilKoneksi.contains(ConnectivityResult.wifi);
 
       if (isOnline) {
@@ -42,11 +43,7 @@ class KoneksiInternetService {
       }
       return isOnline;
     } on Exception catch (e, st) {
-      Log.error(
-        '[Lokal] ❌ Fatal: Gagal memeriksa koneksi lokal.',
-        e: e,
-        s: st,
-      );
+      Log.error('[Lokal] ❌ Fatal: Gagal memeriksa koneksi lokal.', e: e, s: st);
       return false;
     }
   }

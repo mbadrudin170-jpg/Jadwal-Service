@@ -105,7 +105,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         unawaited(
           Navigator.of(context).pushReplacement(
             MaterialPageRoute<void>(
-              builder: (final context) => const MainPage(),
+              builder: ( context) => const MainPage(),
             ),
           ),
         );
