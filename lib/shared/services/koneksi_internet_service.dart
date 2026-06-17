@@ -33,8 +33,8 @@ class KoneksiInternetService {
       Log.info('[Lokal] Hasil mentah konektivitas: $hasilKoneksi');
 
       final isOnline =
-          hasilKoneksi == ConnectivityResult.mobile ||
-          hasilKoneksi == ConnectivityResult.wifi;
+          hasilKoneksi.contains(ConnectivityResult.mobile) ||
+          hasilKoneksi.contains(ConnectivityResult.wifi);
 
       if (isOnline) {
         Log.info('[Lokal] ✅ Sukses: Perangkat terhubung ke jaringan lokal.');
@@ -66,7 +66,7 @@ class KoneksiInternetService {
         Log.info(
           '[Internet] kDebugMode aktif: menggunakan cekKoneksiLokal untuk pengecekan.',
         );
-        isConnected = true; // karena sudah dicek lokal di atas
+        isConnected = lokal; // karena sudah dicek lokal di atas
       } else {
         // Saat release, lakukan pengecekan internet nyata via pingProvider
         final hasilPing = await ref
