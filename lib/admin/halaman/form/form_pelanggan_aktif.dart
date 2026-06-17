@@ -152,6 +152,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final transaksiTerkait = hasil.length > 4 && hasil[4] is TransaksiModel
           ? hasil[4] as TransaksiModel?
           : null;
+      setState(() {
+        _pelangganList = daftarPelanggan;
+        _daftarPaket = daftarPaket;
+        _dompetList = daftarDompet;
+        _kategoriPemasukanList = kategoriPemasukanList;
+        _kategoriPengeluaranList = daftarKategoriPengeluaran;
+        Log.info('Semua data berhasil dimuat.');
+      });
 
       if (_modeEdit) {
         await _mapEditData(transaksiTerkait);
@@ -160,12 +168,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       }
 
       setState(() {
-        _pelangganList = daftarPelanggan;
-        _daftarPaket = daftarPaket;
-        _dompetList = daftarDompet;
-        _kategoriPemasukanList = kategoriPemasukanList;
-        _kategoriPengeluaranList = daftarKategoriPengeluaran;
-
         _isLoading = false;
         Log.info('Semua data berhasil dimuat.');
       });
@@ -465,21 +467,24 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         Log.warning('Koneksi offline, sinkronisasi akan dijalankan nanti.');
       }
       Log.info('Berhasil menyimpan, id hasil=${pelangganAktifHasil.id}');
+      return pelangganAktifHasil;
     } catch (e, s) {
       Log.error('Gagal menyimpan data pelanggan aktif.', e: e, s: s);
       if (mounted) {
         ToastUtil.error(context, 'Gagal menyimpan: $e');
       }
+      return null;
     }
   }
 
   void _invalidateSemuaProvider() {
-    ref.invalidate(pelangganAktifOpSqliteProvider);
-    ref.invalidate(transaksiOpSqliteProvider);
-    ref.invalidate(transaksiOpFirebaseProvider);
-    ref.invalidate(dompetOpSqliteProvider);
-    ref.invalidate(statistikProvider);
-    ref.invalidate(pelangganAktifProvider);
+    ref
+      ..invalidate(pelangganAktifOpSqliteProvider)
+      ..invalidate(transaksiOpSqliteProvider)
+      ..invalidate(transaksiOpFirebaseProvider)
+      ..invalidate(dompetOpSqliteProvider)
+      ..invalidate(statistikProvider)
+      ..invalidate(pelangganAktifProvider);
   }
 
   @override
@@ -567,6 +572,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           Switch(
             value: _gunakanPoin,
             onChanged: (value) {
+              if (!mounted) return;
               setState(() {
                 _gunakanPoin = value;
                 Log.info(
@@ -851,34 +857,46 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     return Padding(
       padding: const EdgeInsets.all(TSizes.p16),
       child: ElevatedButton(
-        onPressed: () async {
-          Log.info('Tombol Simpan ditekan');
-          final navigator = Navigator.of(context);
-          final hasil = await _simpanData();
-          if (!mounted) {
-            return;
-          }
-          if (hasil != null) {
-            ToastUtil.success(context, '');
-            ref.invalidate(pelangganAktifOpSqliteProvider);
-            ref.invalidate(transaksiOpSqliteProvider);
-            ref.invalidate(transaksiOpFirebaseProvider);
-            ref.invalidate(dompetOpSqliteProvider);
-            ref.invalidate(statistikProvider);
-            ref.invalidate(pelangganAktifProvider);
-            navigator.pop();
-            Log.info(
-              'Form berhasil disimpan, memicu refresh dompet, statistik, dan menutup halaman.',
-            );
-          } else {
-            ToastUtil.error(context, ' Data tidak terimpan');
-            Log.warning('Form gagal disimpan, pesan: ${hasil}');
-          }
-        },
+        onPressed: _menyimpan
+            ? null
+            : () async {
+                setState(() => _menyimpan = true);
+                Log.info('Tombol Simpan ditekan');
+                final navigator = Navigator.of(context);
+                final hasil = await _simpanData();
+
+                if (!mounted) {
+                  setState(() => _menyimpan = false);
+                  return;
+                }
+                if (hasil != null) {
+                  ToastUtil.success(
+                    context,
+                    'Data berhasil disimpan',
+                  ); // ✅ Pesan jelas
+                  _invalidateSemuaProvider();
+                  navigator.pop();
+                  Log.info(
+                    'Form berhasil disimpan, memicu refresh dompet, statistik, dan menutup halaman.',
+                  );
+                } else {
+                  ToastUtil.error(context, ' Data tidak terimpan');
+                  Log.warning('Form gagal disimpan, pesan: ${hasil}');
+                }
+              },
         style: ElevatedButton.styleFrom(
           minimumSize: const Size(double.infinity, 50),
         ),
-        child: const Text('Simpan'),
+        child: _menyimpan
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : const Text('Simpan'),
       ),
     );
   }
