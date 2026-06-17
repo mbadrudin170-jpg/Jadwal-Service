@@ -175,19 +175,19 @@ class MockPengelolaAkun extends _i1.Mock implements _i2.PengelolaAkun {
           as _i5.Future<_i2.AkunState>);
 }
 
-/// A class which mocks [UserActivityService].
+/// A class which mocks [LayananAktivitasUser].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUserActivityService extends _i1.Mock
+class MockLayananAktivitasUser extends _i1.Mock
     implements _i8.LayananAktivitasUser {
-  MockUserActivityService() {
+  MockLayananAktivitasUser() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<void> pingAktivitas(String? customerId, {bool? force = false}) =>
+  _i5.Future<void> pingAktivitas(String? id, {bool? force = false}) =>
       (super.noSuchMethod(
-            Invocation.method(#pingActivity, [customerId], {#force: force}),
+            Invocation.method(#pingAktivitas, [id], {#force: force}),
             returnValue: _i5.Future<void>.value(),
             returnValueForMissingStub: _i5.Future<void>.value(),
           )

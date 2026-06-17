@@ -50,6 +50,7 @@ void main() {
       id: 'pa1',
       idPelanggan: 'c1',
       idPaket: 'p1',
+      idTransaksi: 't1',
       tanggalMulai: DateTime(2023, 1, 1),
       tanggalBerakhir: DateTime(2023, 1, 31),
       status: StatusPembayaran.paid,

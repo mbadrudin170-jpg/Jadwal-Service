@@ -17,7 +17,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
     required String id,
     required String idPelanggan,
     required String idPaket,
-    String? idTransaksi,
+    required String idTransaksi,
     required DateTime tanggalMulai,
     required DateTime tanggalBerakhir,
     required StatusPembayaran status,
@@ -28,10 +28,12 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
 
   factory PelangganAktifModel.fromSqlite(Map<String, dynamic> map) {
     try {
-      final tanggalMulai =
-          ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]);
-      final tanggalBerakhir =
-          ParserUtil.parseDateTime(map[NamaKolom.tangglberakhir]);
+      final tanggalMulai = ParserUtil.parseDateTime(
+        map[NamaKolom.tanggalMulai],
+      );
+      final tanggalBerakhir = ParserUtil.parseDateTime(
+        map[NamaKolom.tangglberakhir],
+      );
 
       if (tanggalMulai == null) {
         throw ArgumentError.notNull('startDate from SQLite');
@@ -44,7 +46,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
         id: map[NamaKolom.id] as String,
         idPelanggan: map[NamaKolom.idPelanggan] as String? ?? '',
         idPaket: map[NamaKolom.idPaket] as String? ?? '',
-        idTransaksi: map[NamaKolom.idTransaksi] as String?,
+        idTransaksi: map[NamaKolom.idTransaksi] as String? ?? '',
         tanggalMulai: tanggalMulai,
         tanggalBerakhir: tanggalBerakhir,
         status: StatusPembayaran.values.firstWhere(
@@ -80,12 +82,16 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
   }
 
   factory PelangganAktifModel.fromFirebase(
-      String id, Map<String, dynamic> data) {
+    String id,
+    Map<String, dynamic> data,
+  ) {
     try {
-      final tanggalMulai =
-          ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]);
-      final tanggalBerakhir =
-          ParserUtil.parseDateTime(data[NamaKolom.tangglberakhir]);
+      final tanggalMulai = ParserUtil.parseDateTime(
+        data[NamaKolom.tanggalMulai],
+      );
+      final tanggalBerakhir = ParserUtil.parseDateTime(
+        data[NamaKolom.tangglberakhir],
+      );
 
       if (tanggalMulai == null) {
         throw ArgumentError.notNull('startDate from Firebase');
@@ -98,18 +104,20 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
         id: id,
         idPelanggan: data[NamaKolom.idPelanggan] as String? ?? '',
         idPaket: data[NamaKolom.idPaket] as String? ?? '',
-        idTransaksi: data[NamaKolom.idTransaksi] as String?,
+        idTransaksi: data[NamaKolom.idTransaksi] as String? ?? '',
         tanggalMulai: tanggalMulai,
         tanggalBerakhir: tanggalBerakhir,
         status: StatusPembayaran.values.firstWhere(
           (e) => e.name == data[NamaKolom.status],
           orElse: () => StatusPembayaran.paid,
         ),
-        diperbaruiPada:
-            ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
+        diperbaruiPada: ParserUtil.parseDateTime(
+          data[NamaKolom.diperbaruiPada],
+        ),
         diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
-        diarsipkanPada:
-            ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
+        diarsipkanPada: ParserUtil.parseDateTime(
+          data[NamaKolom.diarsipkanPada],
+        ),
       );
       Log.info('ActiveCustomerModel loaded from Firebase: ${model.id}');
       return model;
@@ -130,8 +138,9 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
       NamaKolom.tangglberakhir: Timestamp.fromDate(tanggalBerakhir.toUtc()),
       NamaKolom.status: status.name,
       NamaKolom.dihapus: diHapus,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()).toUtc(),
+      ),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,

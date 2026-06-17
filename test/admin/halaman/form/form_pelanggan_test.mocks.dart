@@ -56,13 +56,13 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i3.PelangganOpSqlite {
 
   @override
   _i4.Future<void> tambahPelanggan(
-    _i5.PelangganModel? customer, {
+    _i5.PelangganModel? pelanggan, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #tambahPelanggan,
-              [customer],
+              [pelanggan],
               {#dariServer: dariServer},
             ),
             returnValue: _i4.Future<void>.value(),
@@ -117,7 +117,7 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i3.PelangganOpSqlite {
   @override
   _i4.Future<void> softDelete(String? id, {bool? dariServer = false}) =>
       (super.noSuchMethod(
-            Invocation.method(#hapusSementara, [id], {#dariServer: dariServer}),
+            Invocation.method(#softDelete, [id], {#dariServer: dariServer}),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
@@ -126,17 +126,15 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i3.PelangganOpSqlite {
   @override
   _i4.Future<int> softDeleteSemua({bool? dariServer = false}) =>
       (super.noSuchMethod(
-            Invocation.method(#hapusSementaraSemua, [], {
-              #dariServer: dariServer,
-            }),
+            Invocation.method(#softDeleteSemua, [], {#dariServer: dariServer}),
             returnValue: _i4.Future<int>.value(0),
           )
           as _i4.Future<int>);
 
   @override
-  _i4.Future<List<_i5.PelangganModel>> ambilPerubahanSejak(DateTime? since) =>
+  _i4.Future<List<_i5.PelangganModel>> ambilPerubahanSejak(DateTime? sejak) =>
       (super.noSuchMethod(
-            Invocation.method(#ambilPerubahanSejak, [since]),
+            Invocation.method(#ambilPerubahanSejak, [sejak]),
             returnValue: _i4.Future<List<_i5.PelangganModel>>.value(
               <_i5.PelangganModel>[],
             ),
@@ -145,13 +143,13 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i3.PelangganOpSqlite {
 
   @override
   _i4.Future<void> sisipkanAtauPerbaruiBatch(
-    List<_i5.PelangganModel>? items, {
+    List<_i5.PelangganModel>? pelanggan, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #sisipkanAtauPerbaruiBatch,
-              [items],
+              [pelanggan],
               {#dariServer: dariServer},
             ),
             returnValue: _i4.Future<void>.value(),

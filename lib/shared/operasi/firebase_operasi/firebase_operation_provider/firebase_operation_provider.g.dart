@@ -157,59 +157,6 @@ final class BaseOpFirebaseProvider
 
 String _$baseOpFirebaseHash() => r'a1e4d359b3e36266674737cc7d0a79a371480ee1';
 
-/// Provider untuk menyediakan instance dari [PelangganAktifOpFirebase].
-
-@ProviderFor(pelangganAktifOpFirebase)
-final pelangganAktifOpFirebaseProvider = PelangganAktifOpFirebaseProvider._();
-
-/// Provider untuk menyediakan instance dari [PelangganAktifOpFirebase].
-
-final class PelangganAktifOpFirebaseProvider
-    extends
-        $FunctionalProvider<
-          PelangganAktifOpFirebase,
-          PelangganAktifOpFirebase,
-          PelangganAktifOpFirebase
-        >
-    with $Provider<PelangganAktifOpFirebase> {
-  /// Provider untuk menyediakan instance dari [PelangganAktifOpFirebase].
-  PelangganAktifOpFirebaseProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'pelangganAktifOpFirebaseProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$pelangganAktifOpFirebaseHash();
-
-  @$internal
-  @override
-  $ProviderElement<PelangganAktifOpFirebase> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  PelangganAktifOpFirebase create(Ref ref) {
-    return pelangganAktifOpFirebase(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(PelangganAktifOpFirebase value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<PelangganAktifOpFirebase>(value),
-    );
-  }
-}
-
-String _$pelangganAktifOpFirebaseHash() =>
-    r'f295ab240e0211ff4454b603acda9a3bf185f047';
-
 @ProviderFor(feedbackOpFirebase)
 final feedbackOpFirebaseProvider = FeedbackOpFirebaseProvider._();
 
@@ -381,7 +328,7 @@ final class PelangganOpFirebaseProvider
 }
 
 String _$pelangganOpFirebaseHash() =>
-    r'e3584b04023410b997f247088a6f14a4ce5b35d2';
+    r'85c60ee6a0d443fa221156a31754b591a709f822';
 
 @ProviderFor(paketOpFirebase)
 final paketOpFirebaseProvider = PaketOpFirebaseProvider._();

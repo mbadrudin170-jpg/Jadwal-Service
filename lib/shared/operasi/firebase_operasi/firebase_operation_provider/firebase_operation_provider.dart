@@ -5,7 +5,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
-import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_firebase.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -40,14 +39,6 @@ BaseOpFirebase baseOpFirebase(Ref ref) {
     firestore: firestoreInstance,
     statusOp: statusOpInstance,
   );
-}
-
-/// Provider untuk menyediakan instance dari [PelangganAktifOpFirebase].
-@Riverpod(keepAlive: true)
-PelangganAktifOpFirebase pelangganAktifOpFirebase(Ref ref) {
-  Log.info('Membuat instance ActiveCustomerOpFirebase via @riverpod...');
-  final firestoreInstance = ref.watch(firestoreProvider);
-  return PelangganAktifOpFirebase(firestore: firestoreInstance);
 }
 
 @Riverpod(keepAlive: true)

@@ -56,9 +56,8 @@ final detailPleangganAktifProvider =
         pelangganAktif.idPaket.isNotEmpty
             ? paketOpSqlite.ambilBerdasarkanId(pelangganAktif.idPaket)
             : Future<PaketModel?>.value(),
-        (pelangganAktif.idTransaksi != null &&
-                pelangganAktif.idTransaksi!.isNotEmpty)
-            ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.idTransaksi!)
+        (pelangganAktif.idTransaksi.isNotEmpty)
+            ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.idTransaksi)
             : Future<TransaksiModel?>.value(),
       ]);
 

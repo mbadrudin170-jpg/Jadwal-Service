@@ -113,7 +113,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     try {
       final pa = widget.pelangganAktif;
       final transaksiTerkaitFuture = pa?.idTransaksi != null
-          ? transaksiOperasi.ambilBerdasarkanId(pa!.idTransaksi!)
+          ? transaksiOperasi.ambilBerdasarkanId(pa!.idTransaksi)
           : Future<TransaksiModel?>.value();
 
       final results = await Future.wait<Object?>([
@@ -331,7 +331,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
       final idTransaksi =
           (_modeEdit && widget.pelangganAktif?.idTransaksi != null)
-          ? widget.pelangganAktif!.idTransaksi!
+          ? widget.pelangganAktif!.idTransaksi
           : const Uuid().v4();
 
       final pelangganAktifData = PelangganAktifModel(
@@ -864,7 +864,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           }
           if (hasil.success) {
             ToastUtil.success(context, hasil.message);
-            ref.invalidate(pelangganAktifOpFirebaseProvider);
             ref.invalidate(pelangganAktifOpSqliteProvider);
             ref.invalidate(transaksiOpSqliteProvider);
             ref.invalidate(transaksiOpFirebaseProvider);

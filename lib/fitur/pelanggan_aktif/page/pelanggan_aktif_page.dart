@@ -143,9 +143,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     if (konfirmasi ?? false) {
       try {
         await _pelangganAktifOpSqlite.softDelete(idPelanggan);
-        if (idTransaksi != null) {
-          await _transaksiOpsqlite.softDelete(idTransaksi);
-        }
+        await _transaksiOpsqlite.softDelete(idTransaksi);
         Log.info('Berhasil soft delete pelanggan ID: $idPelanggan');
         if (mounted) {
           ToastUtil.success(

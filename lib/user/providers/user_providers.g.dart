@@ -180,4 +180,4 @@ final class UserActivityServiceProvider
 }
 
 String _$userActivityServiceHash() =>
-    r'beeebd312a110d9ea13af5ffad86273caa048a21';
+    r'1e427fa42a8b37738d4fe0f902a096a942cbb75b';

@@ -14,7 +14,7 @@ import 'daftar_akun_page_test.mocks.dart';
 
 class FakeRoute<T> extends Fake implements Route<T> {}
 
-@GenerateMocks([PengelolaAkun, LayananAktivitasUser, NavigatorObserver])
+@GenerateMocks([PengelolaAkun, LayananAktifitasUser, NavigatorObserver])
 void main() {
   late MockPengelolaAkun mockPengelolaAkun;
   late MockUserActivityService mockUserActivityService;
@@ -144,7 +144,7 @@ void main() {
       );
       when(mockPengelolaAkun.login(pelanggan1)).thenAnswer((_) async {});
       when(
-        mockUserActivityService.pingAktivitas(pelanggan1.id, force: true),
+        mockUserActivityService.pingActivity(pelanggan1.id, force: true),
       ).thenAnswer((_) async {});
 
       await tester.pumpWidget(createWidgetUnderTest());
@@ -155,7 +155,7 @@ void main() {
 
       verify(mockPengelolaAkun.login(pelanggan1)).called(1);
       verify(
-        mockUserActivityService.pingAktivitas(pelanggan1.id, force: true),
+        mockUserActivityService.pingActivity(pelanggan1.id, force: true),
       ).called(1);
       verify(mockNavigatorObserver.didPush(any, any)).called(1);
     });
