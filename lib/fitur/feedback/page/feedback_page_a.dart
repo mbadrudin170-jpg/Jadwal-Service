@@ -24,22 +24,22 @@ class FeedbackPageA extends ConsumerStatefulWidget {
 class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
   List<FeedbackModel> _hasilFilter = [];
   Map<String, String> _mapNamaUser = {};
-  bool _isSearching = false;
-  final TextEditingController _searchController = TextEditingController();
+  bool _mencari = false;
+  final TextEditingController _mencariController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     Log.info('Menginisialisasi halaman Kritik & Saran');
-    _searchController.addListener(_syncFilterOnly);
+    _mencariController.addListener(_syncFilterOnly);
     unawaited(_loadPelangganMapping());
   }
 
   @override
   void dispose() {
     Log.info('Menutup halaman Kritik & Saran');
-    _searchController.removeListener(_syncFilterOnly);
-    _searchController.dispose();
+    _mencariController.removeListener(_syncFilterOnly);
+    _mencariController.dispose();
     super.dispose();
   }
 
@@ -61,7 +61,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
 
   /// Fungsi pembantu untuk memfilter data lokal berdasarkan query pencarian
   void _applyFilter(List<FeedbackModel> allFeedback) {
-    final query = _searchController.text.toLowerCase();
+    final query = _mencariController.text.toLowerCase();
     _hasilFilter = allFeedback.where((item) {
       final isi = item.pesan.toLowerCase();
       final namaPengirim = _mapNamaUser[item.userId]?.toLowerCase() ?? '';
@@ -69,7 +69,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
     }).toList();
   }
 
-  /// Listener sederhana saat mengetik di search bar agar UI lokal ter-update
   void _syncFilterOnly() {
     setState(() {});
   }
@@ -141,7 +140,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
             if (_hasilFilter.isEmpty) {
               return Center(
                 child: Text(
-                  _searchController.text.isNotEmpty
+                  _mencariController.text.isNotEmpty
                       ? 'Tidak ada hasil ditemukan.'
                       : 'Belum ada kritik dan saran.',
                 ),
@@ -210,14 +209,14 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: _isSearching ? _buildSearchField() : const Text('Kritik & Saran'),
-      actions: _isSearching ? _buildSearchActions() : _buildDefaultActions(),
+      title: _mencari ? _buildSearchField() : const Text('Kritik & Saran'),
+      actions: _mencari ? _buildSearchActions() : _buildDefaultActions(),
     );
   }
 
   Widget _buildSearchField() {
     return TextField(
-      controller: _searchController,
+      controller: _mencariController,
       autofocus: true,
       decoration: const InputDecoration(
         hintText: 'Cari...',
@@ -236,10 +235,10 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
           Log.info('Menutup mode pencarian.');
           if (mounted) {
             setState(() {
-              _isSearching = false;
+              _mencari = false;
             });
           }
-          _searchController.clear();
+          _mencariController.clear();
         },
         tooltip: 'Tutup Pencarian',
       ),
@@ -254,7 +253,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
           Log.info('Membuka mode pencarian.');
           if (mounted) {
             setState(() {
-              _isSearching = true;
+              _mencari = true;
             });
           }
         },
