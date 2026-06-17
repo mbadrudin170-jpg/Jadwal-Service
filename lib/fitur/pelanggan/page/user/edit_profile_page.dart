@@ -155,7 +155,16 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
               ),
               gapH32,
               ElevatedButton(
-                onPressed: _menyimpan ? null : _simpanForm,
+                onPressed: _menyimpan
+                    ? null
+                    : () async {
+                        setState(() => _menyimpan = true);
+                        try {
+                          await _simpanForm();
+                        } finally {
+                          if (mounted) setState(() => _menyimpan = false);
+                        }
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: TColors.primaryColor,
                   foregroundColor: Colors.white,
