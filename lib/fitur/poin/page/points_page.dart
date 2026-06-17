@@ -40,27 +40,27 @@ class PoinPage extends ConsumerStatefulWidget {
 }
 
 class _PointsPageState extends ConsumerState<PoinPage> {
-  final _interstitialAdService = InterstitialAdService();
-  MenuPoin _selectedMenu = MenuPoin.penukaran;
-  late final Widget _appBarTitle;
-  bool _isTukarPoin = false;
+  final _layananIklanInterstisial = InterstitialAdService();
+  MenuPoin _menuTerpilih = MenuPoin.penukaran;
+  late final Widget _judulAppBar;
+  bool _sedangTukarPoin = false;
 
   @override
   void initState() {
     super.initState();
-    final isFirebase = ref.read(appRoleProvider) == AppRole.user;
+    final pakaiFirebase = ref.read(appRoleProvider) == AppRole.user;
 
     Log.info(
       'Initializing PointsPage for customer: ${widget.idPelanggan} with role: ${ref.read(appRoleProvider)}',
     );
 
-    _appBarTitle = Row(
+    _judulAppBar = Row(
       children: [
         const Text('Poin: '),
         Expanded(
           child: NamaPelangganWidget(
             idPelanggan: widget.idPelanggan,
-            useFirebase: isFirebase,
+            useFirebase: pakaiFirebase,
           ),
         ),
       ],
@@ -68,18 +68,18 @@ class _PointsPageState extends ConsumerState<PoinPage> {
 
     if (widget.tampilkanIklan) {
       Log.info('Preloading interstitial ad for PointsPage.');
-      unawaited(_interstitialAdService.preloadAd());
+      unawaited(_layananIklanInterstisial.preloadAd());
     }
   }
 
   Future<void> _tukarPoin(
     BuildContext context,
     WidgetRef ref,
-    PaketModel reward,
-    int currentPoints,
+    PaketModel hadiah,
+    int poinSaatIni,
   ) async {
-    if (_isTukarPoin) return;
-    setState(() => _isTukarPoin = true);
+    if (_sedangTukarPoin) return;
+    setState(() => _sedangTukarPoin = true);
     try {
       final role = ref.read(appRoleProvider);
       if (role == AppRole.admin) {
@@ -99,8 +99,8 @@ class _PointsPageState extends ConsumerState<PoinPage> {
         return;
       }
 
-      final bool enoughPoints = currentPoints >= reward.poinPenukaran;
-      if (!enoughPoints) {
+      final bool poinCukup = poinSaatIni >= hadiah.poinPenukaran;
+      if (!poinCukup) {
         ToastUtil.warning(
           context,
           'Poin Anda tidak mencukupi untuk menukar hadiah ini.',
@@ -112,7 +112,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
         context: context,
         builder: (dialogContext) => AlertDialog(
           title: const Text('Konfirmasi Penukaran'),
-          content: Text('Anda yakin ingin menukar poin dengan ${reward.nama}?'),
+          content: Text('Anda yakin ingin menukar poin dengan ${hadiah.nama}?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -127,31 +127,31 @@ class _PointsPageState extends ConsumerState<PoinPage> {
       );
 
       if (dikonfirmasi ?? false) {
-        Log.info('Pengguna mengonfirmasi penukaran untuk: ${reward.nama}');
+        Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
         try {
           final dataPelanggan = await ref
               .read(pelangganOpSqliteProvider)
               .ambilBerdasarkanId(widget.idPelanggan);
 
-          final now = DateTime.now();
+          final sekarang = DateTime.now();
           final idOrder = const Uuid().v4();
 
-          final orderData = OrderModel(
+          final dataPesanan = OrderModel(
             id: idOrder,
             idPelanggan: widget.idPelanggan,
-            idPaket: reward.id,
-            tanggal: now,
+            idPaket: hadiah.id,
+            tanggal: sekarang,
           );
 
           final notifikasiData = NotifikasiModel(
             id: const Uuid().v4(),
-            tanggalMulai: now,
-            tanggalBerakhir: now,
-            tanggalTampil: now,
+            tanggalMulai: sekarang,
+            tanggalBerakhir: sekarang,
+            tanggalTampil: sekarang,
             judul: 'Order Paket',
             deskripsi: 'pelanggan ${dataPelanggan?.nama} melakukan order',
             tipe: TipeNotifikasiEnum.order,
-            diperbaruiPada: now,
+            diperbaruiPada: sekarang,
             idTujuan: idOrder,
             userId: widget.idPelanggan,
           );
@@ -161,7 +161,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
             'berhasil membuat order baru untuk id pelanggan: ${widget.idPelanggan}',
           );
 
-          await ref.read(orderOpFirebaseProvider).addOrder(orderData);
+          await ref.read(orderOpFirebaseProvider).addOrder(dataPesanan);
           Log.info('berhasil membuat notifikasi untuk paket');
 
           ref.invalidate(pointsPageDataProvider);
@@ -179,21 +179,21 @@ class _PointsPageState extends ConsumerState<PoinPage> {
         }
       }
     } finally {
-      setState(() => _isTukarPoin = false);
+      setState(() => _sedangTukarPoin = false);
     }
   }
 
-  Future<void> _navigasiKeDetailtransaksi(TransaksiModel transaction) async {
+  Future<void> _navigasiKeDetailTransaksi(TransaksiModel transaksi) async {
     if (!mounted) return;
-    Log.info('Navigating to transaction detail for ID: ${transaction.id}');
-    PaketModel? package;
-    if (transaction.idPaket != null && transaction.idPaket!.isNotEmpty) {
+    Log.info('Navigating to transaction detail for ID: ${transaksi.id}');
+    PaketModel? paket;
+    if (transaksi.idPaket != null && transaksi.idPaket!.isNotEmpty) {
       final dataSource = ref.read(pointsDataSourceProvider);
       try {
-        package = await dataSource.getPaketByid(transaction.idPaket!);
+        paket = await dataSource.getPaketByid(transaksi.idPaket!);
       } on Exception catch (e, st) {
         Log.error(
-          'Failed to get package ${transaction.idPaket}: $e',
+          'Failed to get package ${transaksi.idPaket}: $e',
           e: e,
           s: st,
         );
@@ -204,79 +204,82 @@ class _PointsPageState extends ConsumerState<PoinPage> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            DetailTransaksiU(transaksi: transaction, paket: package),
+            DetailTransaksiU(transaksi: transaksi, paket: paket),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    Log.info('Building PointsPage UI, selected menu: $_selectedMenu');
+    Log.info('Building PointsPage UI, selected menu: $_menuTerpilih');
     // Tonton provider data utama.
-    final asyncData = ref.watch(pointsPageDataProvider(widget.idPelanggan));
+    final dataAsync = ref.watch(pointsPageDataProvider(widget.idPelanggan));
 
-    return asyncData.when(
+    return dataAsync.when(
       loading: () => Scaffold(
-        appBar: AppBar(title: _appBarTitle),
+        appBar: AppBar(title: _judulAppBar),
         body: const Center(child: CircularProgressIndicator()),
       ),
       error: (err, stack) => Scaffold(
-        appBar: AppBar(title: _appBarTitle),
+        appBar: AppBar(title: _judulAppBar),
         body: Center(child: Text('Error: $err')),
       ),
-      data: (pageData) {
+      data: (dataHalaman) {
         return PoinPageUi(
-          appBarTitle: _appBarTitle,
-          totalPoin: pageData.totalPoints,
-          menuPilihan: _selectedMenu,
+          appBarTitle: _judulAppBar,
+          totalPoin: dataHalaman.totalPoints,
+          menuPilihan: _menuTerpilih,
           onSelectionChanged: (newSelection) async {
             final selection = newSelection.first;
             Log.info('Points menu changed to: $selection');
-            setState(() => _selectedMenu = selection);
+            setState(() => _menuTerpilih = selection);
 
             if (selection == MenuPoin.riwayat && widget.tampilkanIklan) {
-              await _interstitialAdService.show();
+              await _layananIklanInterstisial.show();
             }
           },
-          contentView: _selectedMenu == MenuPoin.penukaran
-              ? _buildRewardList(pageData.rewards, pageData.totalPoints)
-              : _buildPointsHistory(),
+          contentView: _menuTerpilih == MenuPoin.penukaran
+              ? _bangunDaftarHadiah(
+                  dataHalaman.rewards,
+                  dataHalaman.totalPoints,
+                )
+              : _bangunRiwayatPoin(),
           bottomWidget: widget.tampilkanIklan ? const BannerAdsWidget() : null,
         );
       },
     );
   }
 
-  Widget _buildRewardList(List<PaketModel> rewardList, int totalPoints) {
+  Widget _bangunDaftarHadiah(List<PaketModel> daftarHadiah, int totalPoin) {
     Log.info('Building reward list.');
-    if (rewardList.isEmpty) {
+    if (daftarHadiah.isEmpty) {
       return const Center(child: Text('Belum ada hadiah yang tersedia'));
     }
     return ListView.builder(
-      itemCount: rewardList.length,
+      itemCount: daftarHadiah.length,
       itemBuilder: (context, index) {
-        final reward = rewardList[index];
-        final enoughPoints = totalPoints >= reward.poinPenukaran;
-        final progress = reward.poinPenukaran > 0
-            ? (totalPoints / reward.poinPenukaran).clamp(0.0, 1.0)
+        final hadiah = daftarHadiah[index];
+        final poinCukup = totalPoin >= hadiah.poinPenukaran;
+        final progress = hadiah.poinPenukaran > 0
+            ? (totalPoin / hadiah.poinPenukaran).clamp(0.0, 1.0)
             : 1.0;
-        final poinKurang = totalPoints - reward.poinPenukaran;
+        final selisihPoin = totalPoin - hadiah.poinPenukaran;
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: ListTile(
-            title: Text(reward.nama),
+            title: Text(hadiah.nama),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('${reward.poinPenukaran} Poin'),
+                    Text('${hadiah.poinPenukaran} Poin'),
                     ElevatedButton(
-                      onPressed: _isTukarPoin
+                      onPressed: _sedangTukarPoin
                           ? null
-                          : () => _tukarPoin(context, ref, reward, totalPoints),
-                      child: _isTukarPoin
+                          : () => _tukarPoin(context, ref, hadiah, totalPoin),
+                      child: _sedangTukarPoin
                           ? const CircularProgressIndicator()
                           : const Text('Tukar'),
                     ),
@@ -288,16 +291,16 @@ class _PointsPageState extends ConsumerState<PoinPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Poin: $totalPoints / ${reward.poinPenukaran}',
+                      'Poin: $totalPoin / ${hadiah.poinPenukaran}',
                       style: TextStyle(
                         fontSize: 12,
-                        color: enoughPoints ? Colors.green : Colors.grey,
+                        color: poinCukup ? Colors.green : Colors.grey,
                       ),
                     ),
                     Text(
-                      '$poinKurang',
+                      '$selisihPoin',
                       style: TextStyle(
-                        color: enoughPoints ? Colors.green : Colors.red,
+                        color: poinCukup ? Colors.green : Colors.red,
                         fontSize: 16,
                       ),
                     ),
@@ -311,11 +314,11 @@ class _PointsPageState extends ConsumerState<PoinPage> {
     );
   }
 
-  Widget _buildPointsHistory() {
+  Widget _bangunRiwayatPoin() {
     Log.info('Building points history.');
-    final asyncHistory = ref.watch(pointsHistoryProvider(widget.idPelanggan));
+    final riwayatAsync = ref.watch(pointsHistoryProvider(widget.idPelanggan));
 
-    return asyncHistory.when(
+    return riwayatAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Error: $err')),
       data: (history) {
@@ -325,37 +328,39 @@ class _PointsPageState extends ConsumerState<PoinPage> {
         return ListView.builder(
           itemCount: history.length,
           itemBuilder: (context, index) {
-            final tx = history[index];
-            final isAddition = tx.poinDidapat > 0;
-            final pointsValue = isAddition ? tx.poinDidapat : tx.poinDigunakan;
-            final pointsStr = isAddition ? '+$pointsValue' : '-$pointsValue';
+            final transaksi = history[index];
+            final apakahPenambahan = transaksi.poinDidapat > 0;
+            final nilaiPoin = apakahPenambahan
+                ? transaksi.poinDidapat
+                : transaksi.poinDigunakan;
+            final teksPoin = apakahPenambahan ? '+$nilaiPoin' : '-$nilaiPoin';
 
-            final bool isUnpaid =
-                tx.statusPembayaran == StatusPembayaran.unpaid;
-            final Color pointColor = isUnpaid
+            final bool apakahBelumBayar =
+                transaksi.statusPembayaran == StatusPembayaran.unpaid;
+            final Color warnaPoin = apakahBelumBayar
                 ? Colors.grey
-                : isAddition
+                : apakahPenambahan
                 ? Colors.green
                 : Colors.red;
             return InkWell(
-              onTap: () => _navigasiKeDetailtransaksi(tx),
+              onTap: () => _navigasiKeDetailTransaksi(transaksi),
               child: Card(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 child: ListTile(
                   leading: Icon(
-                    isUnpaid
+                    apakahBelumBayar
                         ? TIcons.hourglass
-                        : isAddition
+                        : apakahPenambahan
                         ? TIcons.arrowUp
                         : TIcons.arrowDown,
-                    color: pointColor,
+                    color: warnaPoin,
                   ),
-                  title: Text(tx.deskripsi),
-                  subtitle: Text(FormatTanggal.formatDasar(tx.tanggal)),
+                  title: Text(transaksi.deskripsi),
+                  subtitle: Text(FormatTanggal.formatDasar(transaksi.tanggal)),
                   trailing: Text(
-                    pointsStr,
+                    teksPoin,
                     style: TextStyle(
-                      color: pointColor,
+                      color: warnaPoin,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
