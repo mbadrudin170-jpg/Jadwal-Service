@@ -25,12 +25,14 @@ void main() {
       CREATE TABLE pelanggan (
         id TEXT PRIMARY KEY,
         nama TEXT,
-        email TEXT,
-        terakhirAktif INTEGER,
-        tanggalDibuat INTEGER,
+        telepon TEXT,
+        alamat TEXT,
+        kataSandi TEXT,
+        macAddress TEXT,
         diperbaruiPada INTEGER,
-        dihapus INTEGER DEFAULT 0,
-        diarsipkanPada INTEGER
+        diHapus INTEGER DEFAULT 0,
+        diarsipkanPada INTEGER,
+        terkahirAktif INTEGER
       )
       ''');
     sqliteDatabase = SqliteDatabase(db: db);
@@ -49,9 +51,10 @@ void main() {
   final pelangganModel = PelangganModel(
     id: '1',
     nama: 'Pelanggan Uji',
-    email: 'uji@example.com',
-    terakhirAktif: DateTime.now(),
-    tanggalDibuat: DateTime.now(),
+    telepon: '08123',
+    alamat: 'Jl. Uji',
+    kataSandi: '123',
+    macAddress: '00:00:00:00:00:00',
   );
 
   group('PelangganOpSqlite', () {

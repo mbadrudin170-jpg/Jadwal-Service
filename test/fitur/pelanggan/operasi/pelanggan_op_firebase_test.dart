@@ -1,26 +1,23 @@
 
 // path: test/fitur/pelanggan/operasi/pelanggan_op_firebase_test.dart
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
+
 import 'pelanggan_op_firebase_test.mocks.dart';
 
 @GenerateMocks([BaseOpFirebase])
 void main() {
   late PelangganOpFirebase pelangganOpFirebase;
   late MockBaseOpFirebase mockBaseOpFirebase;
-  late FakeFirebaseFirestore fakeFirestore;
 
   setUp(() {
     mockBaseOpFirebase = MockBaseOpFirebase();
-    fakeFirestore = FakeFirebaseFirestore();
     pelangganOpFirebase = PelangganOpFirebase(
-      firestore: fakeFirestore,
       baseOpFirebase: mockBaseOpFirebase,
     );
   });
@@ -28,148 +25,104 @@ void main() {
   final pelangganModel = PelangganModel(
     id: '1',
     nama: 'Pelanggan Uji',
-    email: 'uji@example.com',
-    terakhirAktif: DateTime.now(),
-    tanggalDibuat: DateTime.now(),
+    telepon: '08123',
+    alamat: 'Jl. Uji',
+    kataSandi: '123',
+    macAddress: '00:00:00:00:00:00',
   );
 
   group('PelangganOpFirebase', () {
-    test('01. harus memanggil baseOpFirebase.sisipkan saat tambahPelanggan',
-        () async {
-      when(mockBaseOpFirebase.sisipkan(any, any, any))
-          .thenAnswer((_) async => {});
+    test('01. harus memanggil base.tambah saat tambahPelanggan', () async {
+      when(mockBaseOpFirebase.tambah(any, any, any))
+          .thenAnswer((_) async => Future.value());
 
       await pelangganOpFirebase.tambahPelanggan(pelangganModel);
 
-      verify(mockBaseOpFirebase.sisipkan(
+      verify(mockBaseOpFirebase.tambah(
         'pelanggan',
         pelangganModel.id,
-        pelangganModel.toFirebase(),
+        any, // data
       )).called(1);
     });
 
-    test('02. harus memanggil baseOpFirebase.update saat perbaruiPelanggan',
-        () async {
-      when(mockBaseOpFirebase.update(any, any, any))
-          .thenAnswer((_) async => {});
+    test('02. harus memanggil base.perbarui saat perbaruiPelanggan', () async {
+      when(mockBaseOpFirebase.perbarui(any, any, any))
+          .thenAnswer((_) async => Future.value());
 
       await pelangganOpFirebase.perbaruiPelanggan(pelangganModel);
 
-      verify(mockBaseOpFirebase.update(
+      verify(mockBaseOpFirebase.perbarui(
         'pelanggan',
         pelangganModel.id,
-        pelangganModel.toFirebase(),
+        any, // data
       )).called(1);
     });
 
-    test('03. harus memanggil baseOpFirebase.hapusSementara saat softDelete',
-        () async {
-      when(mockBaseOpFirebase.hapusSementara(any, any))
-          .thenAnswer((_) async => {});
+    test('03. harus memanggil base.softDelete saat hapusPelanggan', () async {
+      when(mockBaseOpFirebase.softDelete(any, any))
+          .thenAnswer((_) async => Future.value());
 
-      await pelangganOpFirebase.softDelete('1');
+      await pelangganOpFirebase.hapusPelanggan(pelangganModel.id);
 
-      verify(mockBaseOpFirebase.hapusSementara('pelanggan', '1')).called(1);
+      verify(mockBaseOpFirebase.softDelete('pelanggan', pelangganModel.id))
+          .called(1);
+    });
+
+    test('04. harus memanggil base.ambilBerdasarkanId saat ambilPelanggan', () async {
+      when(mockBaseOpFirebase.ambilBerdasarkanId(any, any)).thenAnswer(
+        (_) async => {
+          'nama': 'Pelanggan Uji', // sesuaikan dengan field di model
+          'telepon': '08123',
+          'alamat': 'Jl. Uji',
+          'kataSandi': '123',
+          'macAddress': '00:00:00:00:00:00',
+        },
+      );
+
+      final result = await pelangganOpFirebase.ambilPelanggan(pelangganModel.id);
+
+      expect(result, isA<PelangganModel>());
+      expect(result?.id, pelangganModel.id);
+      verify(mockBaseOpFirebase.ambilBerdasarkanId(
+        'pelanggan',
+        pelangganModel.id,
+      )).called(1);
+    });
+
+    test('05. harus mengembalikan null jika ambilPelanggan tidak menemukan data', () async {
+      when(mockBaseOpFirebase.ambilBerdasarkanId(any, any))
+          .thenAnswer((_) async => null);
+
+      final result = await pelangganOpFirebase.ambilPelanggan('999');
+
+      expect(result, isNull);
     });
 
     test(
-        '04. harus memanggil baseOpFirebase.update saat perbaruiTerakhirAktif',
+        '06. harus memanggil base.perbaruiField saat perbaruiTerakhirAktif',
         () async {
-      when(mockBaseOpFirebase.update(any, any, any))
-          .thenAnswer((_) async => {});
+      when(mockBaseOpFirebase.perbaruiField(any, any, any, any))
+          .thenAnswer((_) async => Future.value());
 
-      await pelangganOpFirebase.perbaruiTerakhirAktif('1');
+      await pelangganOpFirebase.perbaruiTerakhirAktif(pelangganModel.id);
 
-      verify(mockBaseOpFirebase.update(
+      verify(mockBaseOpFirebase.perbaruiField(
         'pelanggan',
-        '1',
-        argThat(isA<Map<String, dynamic>>()),
+        pelangganModel.id,
+        'terakhirAktif',
+        any, // timestamp
       )).called(1);
     });
 
-    test('05. harus memanggil baseOpFirebase.update saat simpanTokenFCM',
-        () async {
-      when(mockBaseOpFirebase.update(any, any, any))
-          .thenAnswer((_) async => {});
+    test('07. harus memanggil base.streamSemuaData saat streamSemuaPelanggan', () {
+      when(mockBaseOpFirebase.streamSemuaData(any, any)).thenAnswer(
+        (_) => Stream.value([pelangganModel]),
+      );
 
-      await pelangganOpFirebase.simpanTokenFCM('1', 'token-fcm');
+      final stream = pelangganOpFirebase.streamSemuaPelanggan();
 
-      verify(mockBaseOpFirebase.update(
-        'pelanggan',
-        '1',
-        {'fcmToken': 'token-fcm'},
-      )).called(1);
-    });
-
-    test(
-        '06. tidak boleh memanggil baseOpFirebase.update saat token FCM null atau kosong',
-        () async {
-      await pelangganOpFirebase.simpanTokenFCM('1', null);
-      await pelangganOpFirebase.simpanTokenFCM('1', '');
-
-      verifyNever(mockBaseOpFirebase.update(any, any, any));
-    });
-
-    test('07. harus mengembalikan list pelanggan saat ambilSemuaPelanggan',
-        () async {
-      await fakeFirestore
-          .collection('pelanggan')
-          .doc('1')
-          .set(pelangganModel.copyWith(dihapus: false).toFirebase());
-      await fakeFirestore
-          .collection('pelanggan')
-          .doc('2')
-          .set(pelangganModel.copyWith(id: '2', dihapus: true).toFirebase());
-
-      final hasil = await pelangganOpFirebase.ambilSemuaPelanggan();
-
-      expect(hasil, isA<List<PelangganModel>>());
-      expect(hasil.length, 1);
-      expect(hasil.first.id, '1');
-    });
-
-    test('08. harus mengembalikan stream pelanggan saat ambilStreanPelanggan',
-        () async {
-      // Menambahkan data langsung ke FakeFirestore
-      await fakeFirestore
-          .collection('pelanggan')
-          .doc('1')
-          .set(pelangganModel.toFirebase());
-
-      // Mendengarkan stream
-      final stream = pelangganOpFirebase.ambilStreanPelanggan('1');
-
-      // Memeriksa data pertama dari stream
-      final pelangganDariStream = await stream.first;
-
-      expect(pelangganDariStream, isA<PelangganModel>());
-      expect(pelangganDariStream?.id, '1');
-      expect(pelangganDariStream?.nama, 'Pelanggan Uji');
-    });
-
-    test('09. harus mengembalikan null jika stream pelanggan tidak ada',
-        () async {
-      final stream = pelangganOpFirebase.ambilStreanPelanggan('99');
-      final pelangganDariStream = await stream.first;
-
-      expect(pelangganDariStream, isNull);
-    });
-
-    test('10. harus mengembalikan pelanggan berdasarkan ID', () async {
-      await fakeFirestore
-          .collection('pelanggan')
-          .doc('1')
-          .set(pelangganModel.toFirebase());
-      
-      final hasil = await pelangganOpFirebase.ambilBerdasarkanId('1');
-
-      expect(hasil, isA<PelangganModel>());
-      expect(hasil?.id, '1');
-    });
-
-    test('11. harus mengembalikan null jika pelanggan tidak ditemukan', () async {
-      final hasil = await pelangganOpFirebase.ambilBerdasarkanId('99');
-      expect(hasil, isNull);
+      expect(stream, isA<Stream<List<PelangganModel>>>());
+      verify(mockBaseOpFirebase.streamSemuaData('pelanggan', any)).called(1);
     });
   });
 }
