@@ -37,17 +37,17 @@ final detailPleangganAktifProvider =
       final pelangganAktifState = await ref.watch(
         pelangganAktifProvider.future,
       );
-      final detailPelangganAktif = pelangganAktifState.daftarPelangganAktif;
+      final daftarPelangganAktif = pelangganAktifState.daftarPelangganAktif;
 
-      final detailModel = detailPelangganAktif.firstWhereOrNull(
+      final detailPelangganAktif = daftarPelangganAktif.firstWhereOrNull(
         (detail) => detail.pelangganAktif.id == id,
       );
 
-      if (detailModel == null) {
+      if (detailPelangganAktif == null) {
         throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
       }
 
-      final pelangganAktif = detailModel.pelangganAktif;
+      final pelangganAktif = detailPelangganAktif.pelangganAktif;
 
       final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
       final paketOpSqlite = ref.watch(paketOpSqliteProvider);
