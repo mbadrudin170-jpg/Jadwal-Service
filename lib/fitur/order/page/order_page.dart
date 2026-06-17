@@ -308,7 +308,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                 return Text('Error: $e $s');
               },
               data: (orderState) {
-                final jumlah = orderState.orders
+                final jumlah = orderState.daftarOrder
                     .where((o) => o.status == status)
                     .length;
                 Log.info(
@@ -352,7 +352,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
   Widget _daftarPesanan() {
     final orderAsync = ref.watch(orderProvider);
-    
+
     Log.info('_daftarPesanan dipanggil, filterAktif: $_filterAktif');
 
     return orderAsync.when(
@@ -365,7 +365,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         return Center(child: Text('Terjadi kesalahan: $err'));
       },
       data: (orderState) {
-        final semuaOrder = orderState.orders;
+        final semuaOrder = orderState.daftarOrder;
         Log.info('_daftarPesanan: total semua order: ${semuaOrder.length}');
 
         final orderDifilter = semuaOrder.where((order) {
@@ -395,12 +395,12 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           return const Center(child: Text('Belum ada pesanan ditemukan.'));
         }
 
-        final paketOpFirebase = ref.watch(paketOpFirebaseProvider).ambilBerdasarkanId(orderAsync.idPelanggan);
-
         return ListView.builder(
           itemCount: orderDifilter.length,
           itemBuilder: (context, index) {
             final order = orderDifilter[index];
+            final paketOpFirebase = ref.watch(paketOpFirebaseProvider);
+
             Log.info(
               '_daftarPesanan: membangun item ke-$index dengan orderId: ${order.id}',
             );
@@ -415,7 +415,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
               title: Row(
                 children: [
                   const Text('Paket: '),
-                  TeksJudulSedang(),
                   PackageNameWidget(
                     paketFuture: paketOpFirebase.ambilBerdasarkanId(
                       order.idPaket,
