@@ -7,11 +7,8 @@ part 'ad_providers.g.dart';
 
 @Riverpod(keepAlive: true)
 InterstitialAdService interstitialAdService(Ref ref) {
-  // ← tambah tipe Ref
   final service = InterstitialAdService();
 
-  // Perbaiki dengan membungkus dispose dalam fungsi anonim
-  // agar tipe-nya jelas (void Function())
   ref.onDispose(service.dispose);
 
   return service;
