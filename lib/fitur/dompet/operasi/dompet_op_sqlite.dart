@@ -202,18 +202,18 @@ class DompetOpSqlite {
   }
 
   Future<void> sisipkanAtauPerbaruiBatch(
-    final List<DompetModel> items, {
+    final List<DompetModel> daftarDompet, {
     final bool dariServer = false,
   }) async {
-    Log.info('Memulai batch insert/update untuk ${items.length} data dompet.');
-    if (items.isEmpty) {
+    Log.info('Memulai batch insert/update untuk ${daftarDompet.length} data dompet.');
+    if (daftarDompet.isEmpty) {
       Log.warning('Daftar dompet kosong, membatalkan operasi batch.');
       return;
     }
     try {
-      final data = items
+      final data = daftarDompet
           .map(
-            (final item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
+            ( item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
           )
           .toList();
       await _baseOpSqlite.sisipkanAtauPerbaruiBatch(

@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DompetState {
 
- List<DompetModel> get wallets; double get totalSaldoPositif; double get totalSaldoNegatif; double get totalSaldo;
+ List<DompetModel> get daftarDompet; double get totalSaldoPositif; double get totalSaldoNegatif; double get totalSaldo;
 /// Create a copy of DompetState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $DompetStateCopyWith<DompetState> get copyWith => _$DompetStateCopyWithImpl<Domp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DompetState&&const DeepCollectionEquality().equals(other.wallets, wallets)&&(identical(other.totalSaldoPositif, totalSaldoPositif) || other.totalSaldoPositif == totalSaldoPositif)&&(identical(other.totalSaldoNegatif, totalSaldoNegatif) || other.totalSaldoNegatif == totalSaldoNegatif)&&(identical(other.totalSaldo, totalSaldo) || other.totalSaldo == totalSaldo));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DompetState&&const DeepCollectionEquality().equals(other.daftarDompet, daftarDompet)&&(identical(other.totalSaldoPositif, totalSaldoPositif) || other.totalSaldoPositif == totalSaldoPositif)&&(identical(other.totalSaldoNegatif, totalSaldoNegatif) || other.totalSaldoNegatif == totalSaldoNegatif)&&(identical(other.totalSaldo, totalSaldo) || other.totalSaldo == totalSaldo));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(wallets),totalSaldoPositif,totalSaldoNegatif,totalSaldo);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(daftarDompet),totalSaldoPositif,totalSaldoNegatif,totalSaldo);
 
 @override
 String toString() {
-  return 'DompetState(wallets: $wallets, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
+  return 'DompetState(daftarDompet: $daftarDompet, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $DompetStateCopyWith<$Res>  {
   factory $DompetStateCopyWith(DompetState value, $Res Function(DompetState) _then) = _$DompetStateCopyWithImpl;
 @useResult
 $Res call({
- List<DompetModel> wallets, double totalSaldoPositif, double totalSaldoNegatif, double totalSaldo
+ List<DompetModel> daftarDompet, double totalSaldoPositif, double totalSaldoNegatif, double totalSaldo
 });
 
 
@@ -62,9 +62,9 @@ class _$DompetStateCopyWithImpl<$Res>
 
 /// Create a copy of DompetState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? wallets = null,Object? totalSaldoPositif = null,Object? totalSaldoNegatif = null,Object? totalSaldo = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? daftarDompet = null,Object? totalSaldoPositif = null,Object? totalSaldoNegatif = null,Object? totalSaldo = null,}) {
   return _then(_self.copyWith(
-wallets: null == wallets ? _self.wallets : wallets // ignore: cast_nullable_to_non_nullable
+daftarDompet: null == daftarDompet ? _self.daftarDompet : daftarDompet // ignore: cast_nullable_to_non_nullable
 as List<DompetModel>,totalSaldoPositif: null == totalSaldoPositif ? _self.totalSaldoPositif : totalSaldoPositif // ignore: cast_nullable_to_non_nullable
 as double,totalSaldoNegatif: null == totalSaldoNegatif ? _self.totalSaldoNegatif : totalSaldoNegatif // ignore: cast_nullable_to_non_nullable
 as double,totalSaldo: null == totalSaldo ? _self.totalSaldo : totalSaldo // ignore: cast_nullable_to_non_nullable
@@ -153,10 +153,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<DompetModel> wallets,  double totalSaldoPositif,  double totalSaldoNegatif,  double totalSaldo)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<DompetModel> daftarDompet,  double totalSaldoPositif,  double totalSaldoNegatif,  double totalSaldo)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DompetState() when $default != null:
-return $default(_that.wallets,_that.totalSaldoPositif,_that.totalSaldoNegatif,_that.totalSaldo);case _:
+return $default(_that.daftarDompet,_that.totalSaldoPositif,_that.totalSaldoNegatif,_that.totalSaldo);case _:
   return orElse();
 
 }
@@ -174,10 +174,10 @@ return $default(_that.wallets,_that.totalSaldoPositif,_that.totalSaldoNegatif,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<DompetModel> wallets,  double totalSaldoPositif,  double totalSaldoNegatif,  double totalSaldo)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<DompetModel> daftarDompet,  double totalSaldoPositif,  double totalSaldoNegatif,  double totalSaldo)  $default,) {final _that = this;
 switch (_that) {
 case _DompetState():
-return $default(_that.wallets,_that.totalSaldoPositif,_that.totalSaldoNegatif,_that.totalSaldo);case _:
+return $default(_that.daftarDompet,_that.totalSaldoPositif,_that.totalSaldoNegatif,_that.totalSaldo);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -194,10 +194,10 @@ return $default(_that.wallets,_that.totalSaldoPositif,_that.totalSaldoNegatif,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<DompetModel> wallets,  double totalSaldoPositif,  double totalSaldoNegatif,  double totalSaldo)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<DompetModel> daftarDompet,  double totalSaldoPositif,  double totalSaldoNegatif,  double totalSaldo)?  $default,) {final _that = this;
 switch (_that) {
 case _DompetState() when $default != null:
-return $default(_that.wallets,_that.totalSaldoPositif,_that.totalSaldoNegatif,_that.totalSaldo);case _:
+return $default(_that.daftarDompet,_that.totalSaldoPositif,_that.totalSaldoNegatif,_that.totalSaldo);case _:
   return null;
 
 }
@@ -209,14 +209,14 @@ return $default(_that.wallets,_that.totalSaldoPositif,_that.totalSaldoNegatif,_t
 
 
 class _DompetState implements DompetState {
-  const _DompetState({final  List<DompetModel> wallets = const [], this.totalSaldoPositif = 0.0, this.totalSaldoNegatif = 0.0, this.totalSaldo = 0.0}): _wallets = wallets;
+  const _DompetState({final  List<DompetModel> daftarDompet = const [], this.totalSaldoPositif = 0.0, this.totalSaldoNegatif = 0.0, this.totalSaldo = 0.0}): _daftarDompet = daftarDompet;
   
 
- final  List<DompetModel> _wallets;
-@override@JsonKey() List<DompetModel> get wallets {
-  if (_wallets is EqualUnmodifiableListView) return _wallets;
+ final  List<DompetModel> _daftarDompet;
+@override@JsonKey() List<DompetModel> get daftarDompet {
+  if (_daftarDompet is EqualUnmodifiableListView) return _daftarDompet;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_wallets);
+  return EqualUnmodifiableListView(_daftarDompet);
 }
 
 @override@JsonKey() final  double totalSaldoPositif;
@@ -233,16 +233,16 @@ _$DompetStateCopyWith<_DompetState> get copyWith => __$DompetStateCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DompetState&&const DeepCollectionEquality().equals(other._wallets, _wallets)&&(identical(other.totalSaldoPositif, totalSaldoPositif) || other.totalSaldoPositif == totalSaldoPositif)&&(identical(other.totalSaldoNegatif, totalSaldoNegatif) || other.totalSaldoNegatif == totalSaldoNegatif)&&(identical(other.totalSaldo, totalSaldo) || other.totalSaldo == totalSaldo));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DompetState&&const DeepCollectionEquality().equals(other._daftarDompet, _daftarDompet)&&(identical(other.totalSaldoPositif, totalSaldoPositif) || other.totalSaldoPositif == totalSaldoPositif)&&(identical(other.totalSaldoNegatif, totalSaldoNegatif) || other.totalSaldoNegatif == totalSaldoNegatif)&&(identical(other.totalSaldo, totalSaldo) || other.totalSaldo == totalSaldo));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_wallets),totalSaldoPositif,totalSaldoNegatif,totalSaldo);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_daftarDompet),totalSaldoPositif,totalSaldoNegatif,totalSaldo);
 
 @override
 String toString() {
-  return 'DompetState(wallets: $wallets, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
+  return 'DompetState(daftarDompet: $daftarDompet, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
 }
 
 
@@ -253,7 +253,7 @@ abstract mixin class _$DompetStateCopyWith<$Res> implements $DompetStateCopyWith
   factory _$DompetStateCopyWith(_DompetState value, $Res Function(_DompetState) _then) = __$DompetStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<DompetModel> wallets, double totalSaldoPositif, double totalSaldoNegatif, double totalSaldo
+ List<DompetModel> daftarDompet, double totalSaldoPositif, double totalSaldoNegatif, double totalSaldo
 });
 
 
@@ -270,9 +270,9 @@ class __$DompetStateCopyWithImpl<$Res>
 
 /// Create a copy of DompetState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? wallets = null,Object? totalSaldoPositif = null,Object? totalSaldoNegatif = null,Object? totalSaldo = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? daftarDompet = null,Object? totalSaldoPositif = null,Object? totalSaldoNegatif = null,Object? totalSaldo = null,}) {
   return _then(_DompetState(
-wallets: null == wallets ? _self._wallets : wallets // ignore: cast_nullable_to_non_nullable
+daftarDompet: null == daftarDompet ? _self._daftarDompet : daftarDompet // ignore: cast_nullable_to_non_nullable
 as List<DompetModel>,totalSaldoPositif: null == totalSaldoPositif ? _self.totalSaldoPositif : totalSaldoPositif // ignore: cast_nullable_to_non_nullable
 as double,totalSaldoNegatif: null == totalSaldoNegatif ? _self.totalSaldoNegatif : totalSaldoNegatif // ignore: cast_nullable_to_non_nullable
 as double,totalSaldo: null == totalSaldo ? _self.totalSaldo : totalSaldo // ignore: cast_nullable_to_non_nullable

@@ -222,7 +222,7 @@ class FeedbackOpSqlite {
   }
 
   /// Menghapus semua kritik dan saran dari database secara permanen.
-  Future<void> deleteAll({final bool fromServer = false}) async {
+  Future<void> deleteAll({final bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai deleteAllFeedback. Ini adalah operasi destruktif.',
     );
@@ -235,43 +235,17 @@ class FeedbackOpSqlite {
           'Berhasil deleteAllFeedback. Total baris yang dihapus: $count',
         );
         return count;
-      }, dariServer: fromServer);
-    } on Exception catch (e, st) {
+      }, dariServer: dariServer);
+    } catch (e, st) {
       Log.error('Gagal saat deleteAllFeedback', e: e, s: st);
       rethrow;
     }
   }
 
-  /// Menghapus semua kritik dan saran dari seorang pengguna berdasarkan [userId].
-  Future<void> deleteByUserId(
-    final String userId, {
-    final bool fromServer = false,
-  }) async {
-    Log.warning(
-      'PERINGATAN: Memulai deleteByUserId (hard delete) untuk userId: $userId',
-    );
-    try {
-      await baseOpSqlite.runComplexOperation<int>((
-        final Transaction txn,
-      ) async {
-        final int deletedCount = await txn.delete(
-          _namaTabel,
-          where: '${NamaKolom.userId} = ?',
-          whereArgs: [userId],
-        );
-        Log.info(
-          'Berhasil menghapus $deletedCount kritik & saran dari user: $userId',
-        );
-        return deletedCount;
-      }, dariServer: fromServer);
-    } on Exception catch (e, st) {
-      Log.error('Gagal saat deleteByUserId untuk userId: $userId', e: e, s: st);
-      rethrow;
-    }
-  }
-
   /// Mengambil beberapa [FeedbackModel] berdasarkan daftar [ids].
-  Future<List<FeedbackModel>> getByIds(final List<String> ids) async {
+  Future<List<FeedbackModel>> ambilBerdasarkanIds(
+     List<String> ids,
+  ) async {
     Log.info('Memulai getFeedbackByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning(
@@ -286,15 +260,15 @@ class FeedbackOpSqlite {
         where: 'id IN (${List.filled(ids.length, '?').join(',')})',
         whereArgs: ids,
       );
-      final feedbackList = List.generate(
+      final daftarFeedback = List.generate(
         maps.length,
         (final i) => FeedbackModel.fromSqlite(maps[i]),
       );
       Log.info(
-        'Berhasil mengambil ${feedbackList.length} data kritik_saran dari ${ids.length} ID yang diminta.',
+        'Berhasil mengambil ${daftarFeedback.length} data kritik_saran dari ${ids.length} ID yang diminta.',
       );
-      return feedbackList;
-    } on Exception catch (e, st) {
+      return daftarFeedback;
+    }  catch (e, st) {
       Log.error('Gagal saat getFeedbackByIds', e: e, s: st);
       rethrow;
     }

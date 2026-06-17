@@ -262,7 +262,7 @@ void main() {
         ),
       ).thenAnswer((_) async => [feedbackMap]);
 
-      await feedbackOpSqlite.getByIds(ids);
+      await feedbackOpSqlite.ambilBerdasarkanIds(ids);
 
       verify(
         mockDb.query(namaTabel, where: 'id IN (?,?)', whereArgs: ids),
@@ -272,7 +272,7 @@ void main() {
     test(
       '13. getByIds harus mengembalikan list kosong jika input kosong',
       () async {
-        final result = await feedbackOpSqlite.getByIds([]);
+        final result = await feedbackOpSqlite.ambilBerdasarkanIds([]);
         expect(result, isEmpty);
         verifyNever(
           mockDb.query(

@@ -19,8 +19,8 @@ class FeedbackOpFirebase {
   FeedbackOpFirebase({
     required FirebaseFirestore firestore,
     required BaseOpFirebase baseOpFirebase,
-  })  : _firestore = firestore,
-        _baseOpFirebase = baseOpFirebase {
+  }) : _firestore = firestore,
+       _baseOpFirebase = baseOpFirebase {
     Log.info('FeedbackOpFirebase diinisialisasi.');
   }
 
@@ -38,23 +38,23 @@ class FeedbackOpFirebase {
   }
 
   /// Memperbarui isi feedback.
-  Future<void> perbaruiFeedback(String docId, String newContent) async {
-    Log.info('Mendelegasikan pembaruan feedback: $docId');
-    await _baseOpFirebase.update(_namaKoleksi, docId, {
-      NamaKolom.pesan: newContent,
+  Future<void> perbaruiFeedback(String id, String pesanBaru) async {
+    Log.info('Mendelegasikan pembaruan feedback: $id');
+    await _baseOpFirebase.update(_namaKoleksi, id, {
+      NamaKolom.pesan: pesanBaru,
     });
   }
 
   /// Menghapus feedback secara permanen dari Firestore.
-  Future<void> delete(final String docId) async {
-    Log.warning('Mendelegasikan penghapusan permanen feedback: $docId');
-    await _baseOpFirebase.hapusPermanen(_namaKoleksi, docId);
+  Future<void> delete(final String id) async {
+    Log.warning('Mendelegasikan penghapusan permanen feedback: $id');
+    await _baseOpFirebase.hapusPermanen(_namaKoleksi, id);
   }
 
   /// Melakukan soft delete pada feedback di Firestore.
-  Future<void> softDeleteFeedback(final String docId) async {
-    Log.info('Mendelegasikan soft delete feedback: $docId');
-    await _baseOpFirebase.hapusSementara(_namaKoleksi, docId);
+  Future<void> softDeleteFeedback(String id) async {
+    Log.info('Mendelegasikan soft delete feedback: $id');
+    await _baseOpFirebase.hapusSementara(_namaKoleksi, id);
   }
 
   // =======================================================================
@@ -71,29 +71,33 @@ class FeedbackOpFirebase {
           .orderBy(NamaKolom.tanggal, descending: true)
           .snapshots()
           .map((snapshot) {
-        try {
-          return snapshot.docs.map((doc) {
-            return FeedbackModel.fromFirebase(
-              doc.id,
-              doc.data() as Map<String, dynamic>,
-            );
-          }).toList();
-        } catch (e, s) {
-          Log.error('Error saat mem-parsing data feedback', e: e, s: s);
-          // Melempar kembali error untuk ditangani oleh handleError
-          throw Exception('Gagal mem-parsing data feedback: $e');
-        }
-      }).handleError((Object e, StackTrace s) {
-        Log.error('Error pada stream feedback untuk: $userId', e: e, s: s);
-        // Buat StreamController untuk memancarkan error
-        final controller = StreamController<List<FeedbackModel>>();
-        controller.addError(e, s);
-        controller.close();
-        return controller.stream;
-      });
+            try {
+              return snapshot.docs.map((doc) {
+                return FeedbackModel.fromFirebase(
+                  doc.id,
+                  doc.data() as Map<String, dynamic>,
+                );
+              }).toList();
+            } catch (e, s) {
+              Log.error('Error saat mem-parsing data feedback', e: e, s: s);
+              // Melempar kembali error untuk ditangani oleh handleError
+              throw Exception('Gagal mem-parsing data feedback: $e');
+            }
+          })
+          .handleError((Object e, StackTrace s) {
+            Log.error('Error pada stream feedback untuk: $userId', e: e, s: s);
+            // Buat StreamController untuk memancarkan error
+            final controller = StreamController<List<FeedbackModel>>();
+            controller.addError(e, s);
+            controller.close();
+            return controller.stream;
+          });
     } catch (e, s) {
-      Log.error('Gagal membuat query feedback untuk userId: $userId',
-          e: e, s: s);
+      Log.error(
+        'Gagal membuat query feedback untuk userId: $userId',
+        e: e,
+        s: s,
+      );
       return Stream.error(e, s);
     }
   }

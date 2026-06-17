@@ -19,13 +19,13 @@ import 'package:wifi/shared/widget/summary_info_widget.dart';
 
 class DataDetailDompet {
   final DompetModel dompet;
-  final List<TransaksiModel> transaksi;
+  final List<TransaksiModel> daftarTransaksi;
   final double totalPemasukan;
   final double totalPengeluaran;
 
   DataDetailDompet({
     required this.dompet,
-    required this.transaksi,
+    required this.daftarTransaksi,
     required this.totalPemasukan,
     required this.totalPengeluaran,
   });
@@ -95,7 +95,7 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
 
       return DataDetailDompet(
         dompet: dompet,
-        transaksi: daftarTransaksi,
+        daftarTransaksi: daftarTransaksi,
         totalPemasukan: pemasukan,
         totalPengeluaran: pengeluaran,
       );
@@ -210,9 +210,9 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
               ),
               const Divider(height: 1),
               Expanded(
-                child: data.transaksi.isEmpty
+                child: data.daftarTransaksi.isEmpty
                     ? const Center(child: Text('Belum ada transaksi.'))
-                    : _bangunDaftarTransaksi(data.transaksi),
+                    : _bangunDaftarTransaksi(data.daftarTransaksi),
               ),
             ],
           );
@@ -221,8 +221,8 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
     );
   }
 
-  Widget _bangunDaftarTransaksi(List<TransaksiModel> transactionData) {
-    final transaksiPerTanggal = kelompokkanTransaksiPerTanggal(transactionData);
+  Widget _bangunDaftarTransaksi(List<TransaksiModel> daftarTransaksi) {
+    final transaksiPerTanggal = kelompokkanTransaksiPerTanggal(daftarTransaksi);
     final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
     return ListView.builder(
       itemCount: transaksiPerTanggal.length,

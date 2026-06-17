@@ -36,9 +36,11 @@ class _WalletFormState extends ConsumerState<FormDompet> {
   @override
   void initState() {
     super.initState();
-    final isEditMode = widget.dompet != null;
-    Log.info('Membuat state WalletForm. '
-        'Mode: ${isEditMode ? "EDIT (ID: ${widget.dompet!.id}, Nama: ${widget.dompet!.nama}, Saldo: ${widget.dompet!.saldo})" : "TAMBAH BARU"}');
+    final modeEdit = widget.dompet != null;
+    Log.info(
+      'Membuat state WalletForm. '
+      'Mode: ${modeEdit ? "EDIT (ID: ${widget.dompet!.id}, Nama: ${widget.dompet!.nama}, Saldo: ${widget.dompet!.saldo})" : "TAMBAH BARU"}',
+    );
     _dompetOpSqlite = ref.read(dompetOpSqliteProvider);
 
     Log.info('Membuat FocusNode untuk input nama dompet.');
@@ -86,20 +88,21 @@ class _WalletFormState extends ConsumerState<FormDompet> {
           );
           Log.info('Saldo tetap: ${widget.dompet!.saldo}');
 
-          final dataToUdpate = DompetModel(
+          final dataBaru = DompetModel(
             id: widget.dompet!.id,
             nama: _namaController.text,
             saldo: widget.dompet!.saldo,
           );
 
-          await _dompetOpSqlite.updateDompet(dataToUdpate);
+          await _dompetOpSqlite.updateDompet(dataBaru);
           Log.info('Update dompet berhasil.');
         } else {
           Log.info('Proses TAMBAH dompet baru');
 
           final id = const Uuid().v4();
           Log.info(
-              'UUID baru: $id, Nama: ${_namaController.text}, Saldo awal: 0.0');
+            'UUID baru: $id, Nama: ${_namaController.text}, Saldo awal: 0.0',
+          );
 
           final dataBaru = DompetModel(
             id: id,
@@ -113,19 +116,24 @@ class _WalletFormState extends ConsumerState<FormDompet> {
 
         if (!mounted) return;
 
-        final cekKoneksiLokal =
-            await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
+        final cekKoneksiLokal = await ref
+            .read(koneksiInternetServiceProvider)
+            .cekKoneksiLokal();
         if (cekKoneksiLokal) {
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
 
           if (mounted) {
             ToastUtil.success(
-                context, 'Dompet berhasil disimpan dan disinkronkan.');
+              context,
+              'Dompet berhasil disimpan dan disinkronkan.',
+            );
           }
         } else {
           if (mounted) {
-            ToastUtil.info(context,
-                'Dompet disimpan lokal. Sinkronisasi akan dilakukan saat online.');
+            ToastUtil.info(
+              context,
+              'Dompet disimpan lokal. Sinkronisasi akan dilakukan saat online.',
+            );
           }
         }
         if (mounted) {
@@ -184,7 +192,8 @@ class _WalletFormState extends ConsumerState<FormDompet> {
                 },
                 onChanged: (value) {
                   Log.info(
-                      'Nama dompet berubah: "$value" (${value.length} karakter)');
+                    'Nama dompet berubah: "$value" (${value.length} karakter)',
+                  );
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {

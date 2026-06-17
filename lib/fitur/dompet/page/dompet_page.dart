@@ -22,7 +22,7 @@ class DompetPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Log.info('Membangun UI untuk Halaman Wallet (ConsumerWidget).');
-    final walletStateAsync = ref.watch(dompetProvider);
+    final dompetStateAsync = ref.watch(dompetProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dompet'),
@@ -34,7 +34,7 @@ class DompetPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: walletStateAsync.when(
+      body: dompetStateAsync.when(
         loading: () {
           Log.info('WalletProvider sedang loading.');
           return const Center(child: CircularProgressIndicator());
@@ -50,9 +50,9 @@ class DompetPage extends ConsumerWidget {
         },
         data: (walletState) {
           Log.info(
-            'WalletProvider berhasil memuat ${walletState.wallets.length} dompet.',
+            'WalletProvider berhasil memuat ${walletState.daftarDompet.length} dompet.',
           );
-          final wallets = walletState.wallets;
+          final wallets = walletState.daftarDompet;
           if (wallets.isEmpty) {
             return Center(
               child: Text(
@@ -76,7 +76,7 @@ class DompetPage extends ConsumerWidget {
                   itemBuilder: (context, index) {
                     final wallet = wallets[index];
                     return WalletCard(
-                      wallet: wallet,
+                      dompet: wallet,
                       onTap: () => _navigateToDetail(context, ref, wallet),
                       onLongPress: () =>
                           _showArchiveOneDialog(context, ref, wallet),
@@ -90,20 +90,20 @@ class DompetPage extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'fab_wallet',
-        onPressed: () => _navigateToAddForm(context, ref),
+        onPressed: () => _navigasiKeForm(context, ref),
         tooltip: 'Tambah Dompet',
         child: const Icon(TIcons.add),
       ),
     );
   }
 
-  Future<void> _navigateToAddForm(BuildContext context, WidgetRef ref) async {
+  Future<void> _navigasiKeForm(BuildContext context, WidgetRef ref) async {
     Log.info('Navigasi ke halaman tambah dompet.');
-    final result = await Navigator.push<bool>(
+    final hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(builder: (context) => const FormDompet()),
     );
-    if (result ?? false) {
+    if (hasil ?? false) {
       Log.info('Berhasil menambahkan dompet baru, memicu refresh.');
       ref.read(dompetProvider.notifier).refresh();
     }
@@ -112,13 +112,13 @@ class DompetPage extends ConsumerWidget {
   Future<void> _navigateToDetail(
     BuildContext context,
     WidgetRef ref,
-    DompetModel wallet,
+    DompetModel dompet,
   ) async {
-    Log.info('Navigasi ke detail dompet: "${wallet.nama}".');
+    Log.info('Navigasi ke detail dompet: "${dompet.nama}".');
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => DetailDompet(dompet: wallet),
+        builder: (context) => DetailDompet(dompet: dompet),
       ),
     );
     Log.info('Kembali dari detail dompet, memicu refresh.');
@@ -127,7 +127,7 @@ class DompetPage extends ConsumerWidget {
 
   Future<void> _showDeleteAllDialog(BuildContext context, WidgetRef ref) async {
     Log.info('Menampilkan dialog konfirmasi hapus semua dompet.');
-    final wallets = ref.read(dompetProvider).value?.wallets ?? [];
+    final wallets = ref.read(dompetProvider).value?.daftarDompet ?? [];
 
     if (wallets.isEmpty) {
       Log.warning('Tidak ada dompet untuk dihapus.');
@@ -185,7 +185,7 @@ class DompetPage extends ConsumerWidget {
   Future<void> _showArchiveOneDialog(
     BuildContext context,
     WidgetRef ref,
-    DompetModel wallet,
+    DompetModel dompet,
   ) async {
     await showDialog<void>(
       context: context,
@@ -193,7 +193,7 @@ class DompetPage extends ConsumerWidget {
         return AlertDialog(
           title: const Text('Konfirmasi Arsip'),
           content: Text(
-            'Apakah Anda yakin ingin mengarsipkan dompet "${wallet.nama}"?',
+            'Apakah Anda yakin ingin mengarsipkan dompet "${dompet.nama}"?',
           ),
           actions: <Widget>[
             TextButton(
@@ -207,7 +207,7 @@ class DompetPage extends ConsumerWidget {
                 unawaited(
                   ref
                       .read(dompetProvider.notifier)
-                      .softDelete(wallet.id)
+                      .softDelete(dompet.id)
                       .then((_) {
                         if (context.mounted) {
                           ToastUtil.success(
@@ -233,21 +233,21 @@ class DompetPage extends ConsumerWidget {
 }
 
 class WalletCard extends StatelessWidget {
-  final DompetModel wallet;
+  final DompetModel dompet;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
 
   const WalletCard({
     super.key,
-    required this.wallet,
+    required this.dompet,
     required this.onTap,
     required this.onLongPress,
   });
 
   @override
   Widget build(BuildContext context) {
-    Log.info('WalletCard build: name=${wallet.nama} balance=${wallet.saldo}');
-    final subtitleColor = wallet.saldo < 0
+    Log.info('WalletCard build: name=${dompet.nama} balance=${dompet.saldo}');
+    final subtitleColor = dompet.saldo < 0
         ? context.colorScheme.error
         : context.textTheme.bodySmall?.color;
     return Card(
@@ -264,9 +264,9 @@ class WalletCard extends StatelessWidget {
           size: 40,
           color: TColors.primaryColor,
         ),
-        title: TeksJudulSedang(wallet.nama),
+        title: TeksJudulSedang(dompet.nama),
         subtitle: TeksIsiSedang(
-          'Saldo: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(wallet.saldo)}',
+          'Saldo: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(dompet.saldo)}',
           warna: subtitleColor,
         ),
         onTap: onTap,

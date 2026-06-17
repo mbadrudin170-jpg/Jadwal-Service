@@ -41,4 +41,4 @@ final class PingProvider
   }
 }
 
-String _$pingHash() => r'de3619f38b8d1ec1fa0cd4d1698c18096a086f6c';
+String _$pingHash() => r'00d9fa2656e4d2c99bc4e2de3ff43349f6a31608';

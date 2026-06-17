@@ -91,7 +91,7 @@ class PelangganOpFirebase {
     }
   }
 
-  Stream<PelangganModel?> ambilStreanPelanggan(String id) {
+  Stream<PelangganModel?> ambilStreamBerdasarkanId(String id) {
     Log.info('Streaming data pelanggan untuk: $id');
     return _koleksiPelanggan
         .doc(id)

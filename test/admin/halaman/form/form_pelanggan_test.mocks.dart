@@ -94,13 +94,13 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i3.PelangganOpSqlite {
 
   @override
   _i4.Future<void> perbaruiPelanggan(
-    _i5.PelangganModel? customer, {
+    _i5.PelangganModel? pelanggan, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #perbaruiPelanggan,
-              [customer],
+              [pelanggan],
               {#dariServer: dariServer},
             ),
             returnValue: _i4.Future<void>.value(),

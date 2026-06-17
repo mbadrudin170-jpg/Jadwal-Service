@@ -13,7 +13,7 @@ part 'dompet_provider.g.dart';
 @freezed
 abstract class DompetState with _$DompetState {
   const factory DompetState({
-    @Default([]) List<DompetModel> wallets,
+    @Default([]) List<DompetModel> daftarDompet,
     @Default(0.0) double totalSaldoPositif,
     @Default(0.0) double totalSaldoNegatif,
     @Default(0.0) double totalSaldo,
@@ -37,7 +37,7 @@ class Dompet extends _$Dompet {
     ]);
 
     return DompetState(
-      wallets: results[0] as List<DompetModel>,
+      daftarDompet: results[0] as List<DompetModel>,
       totalSaldoPositif: results[1] as double,
       totalSaldoNegatif: (results[2] as double).abs(),
       totalSaldo: results[3] as double,
@@ -45,20 +45,20 @@ class Dompet extends _$Dompet {
   }
 
   /// fungsi untuk menambah data dompet baru
-  Future<void> tambahDompet(DompetModel wallet) async {
+  Future<void> tambahDompet(DompetModel dompet) async {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(dompetOpSqliteProvider);
-      await operation.tambahDompet(wallet);
+      await operation.tambahDompet(dompet);
 
       return _loadData();
     });
   }
 
   /// fungsi untuk update satu data dompet
-  Future<void> updateDompet(DompetModel wallet) async {
+  Future<void> updateDompet(DompetModel dompet) async {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(dompetOpSqliteProvider);
-      await operation.updateDompet(wallet);
+      await operation.updateDompet(dompet);
       return _loadData();
     });
   }

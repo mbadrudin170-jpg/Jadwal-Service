@@ -142,7 +142,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
       body: StreamBuilder<PelangganModel?>(
         stream: userId.when(
           data: (id) => id != null
-              ? customerOpFirebase.ambilStreanPelanggan(id)
+              ? customerOpFirebase.ambilStreamBerdasarkanId(id)
               : const Stream.empty(),
           loading: () => const Stream.empty(),
           error: (_, __) => const Stream.empty(),

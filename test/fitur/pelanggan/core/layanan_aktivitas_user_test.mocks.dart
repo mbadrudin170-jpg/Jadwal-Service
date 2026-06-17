@@ -90,9 +90,9 @@ class MockPelangganOpFirebase extends _i1.Mock
           as _i3.Future<List<_i4.PelangganModel>>);
 
   @override
-  _i3.Stream<_i4.PelangganModel?> ambilStreanPelanggan(String? id) =>
+  _i3.Stream<_i4.PelangganModel?> ambilStreamBerdasarkanId(String? id) =>
       (super.noSuchMethod(
-            Invocation.method(#ambilStreanPelanggan, [id]),
+            Invocation.method(#ambilStreamBerdasarkanId, [id]),
             returnValue: _i3.Stream<_i4.PelangganModel?>.empty(),
           )
           as _i3.Stream<_i4.PelangganModel?>);

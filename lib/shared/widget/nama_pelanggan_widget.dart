@@ -40,7 +40,7 @@ class NamaPelangganWidget extends ConsumerWidget {
   Widget _buildFromFirebase(WidgetRef ref) {
     final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
     return StreamBuilder<PelangganModel?>(
-      stream: customerOpFirebase.ambilStreanPelanggan(idPelanggan),
+      stream: customerOpFirebase.ambilStreamBerdasarkanId(idPelanggan),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Text('...', style: style);

@@ -87,23 +87,23 @@ class PelangganOpSqlite {
   }
 
   Future<void> perbaruiPelanggan(
-    PelangganModel customer, {
+    PelangganModel pelanggan, {
     bool dariServer = false,
   }) async {
-    Log.info('Memulai pembaruan untuk customer ID: ${customer.id}');
+    Log.info('Memulai pembaruan untuk customer ID: ${pelanggan.id}');
     try {
-      final data = customer
+      final data = pelanggan
           .copyWith(diperbaruiPada: DateTime.now().toUtc())
           .toSqlite();
 
       await _baseOpSqlite.update(
         _tabel,
         data,
-        customer.id,
+        pelanggan.id,
         dariServer: dariServer,
       );
 
-      Log.info('Berhasil memperbarui customer ID: ${customer.id}.');
+      Log.info('Berhasil memperbarui customer ID: ${pelanggan.id}.');
     } catch (e, s) {
       Log.error('Gagal memperbarui customer.', e: e, s: s);
       rethrow;

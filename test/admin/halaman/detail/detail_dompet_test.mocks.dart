@@ -156,13 +156,13 @@ class MockDompetOpSqlite extends _i1.Mock implements _i4.DompetOpSqlite {
 
   @override
   _i5.Future<void> sisipkanAtauPerbaruiBatch(
-    List<_i6.DompetModel>? items, {
+    List<_i6.DompetModel>? daftarDompet, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #sisipkanAtauPerbaruiBatch,
-              [items],
+              [daftarDompet],
               {#dariServer: dariServer},
             ),
             returnValue: _i5.Future<void>.value(),
@@ -217,9 +217,13 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i7.TransaksiOpSqlite {
           as _i5.Future<int>);
 
   @override
-  _i5.Future<List<_i8.TransaksiModel>> ambilSemua() =>
+  _i5.Future<List<_i8.TransaksiModel>> ambilSemua({
+    bool? tampilkanYangDiarsip = false,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#getAllTransactions, []),
+            Invocation.method(#ambilSemua, [], {
+              #tampilkanYangDiarsip: tampilkanYangDiarsip,
+            }),
             returnValue: _i5.Future<List<_i8.TransaksiModel>>.value(
               <_i8.TransaksiModel>[],
             ),
@@ -235,21 +239,11 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i7.TransaksiOpSqlite {
           as _i5.Future<_i8.TransaksiModel?>);
 
   @override
-  _i5.Future<_i8.TransaksiModel?> getLatestPaidTransactionByUserId(
-    String? customerId,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#getLatestPaidTransactionByUserId, [customerId]),
-            returnValue: _i5.Future<_i8.TransaksiModel?>.value(),
-          )
-          as _i5.Future<_i8.TransaksiModel?>);
-
-  @override
   _i5.Future<List<_i8.TransaksiModel>> ambilBerdasarkanIdPelanggan(
-    String? customerId,
+    String? idPelanggan,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#getByIdPelanggan, [customerId]),
+            Invocation.method(#ambilBerdasarkanIdPelanggan, [idPelanggan]),
             returnValue: _i5.Future<List<_i8.TransaksiModel>>.value(
               <_i8.TransaksiModel>[],
             ),
@@ -258,10 +252,10 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i7.TransaksiOpSqlite {
 
   @override
   _i5.Future<List<_i8.TransaksiModel>> ambilBerdasarkanIdDompet(
-    String? walletId,
+    String? idDompet,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#getTransactionsByWalletId, [walletId]),
+            Invocation.method(#ambilBerdasarkanIdDompet, [idDompet]),
             returnValue: _i5.Future<List<_i8.TransaksiModel>>.value(
               <_i8.TransaksiModel>[],
             ),
@@ -271,7 +265,7 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i7.TransaksiOpSqlite {
   @override
   _i5.Future<List<_i8.TransaksiModel>> ambilBerdasarkanStatusAktivasi() =>
       (super.noSuchMethod(
-            Invocation.method(#getTransactionsByPackageActivation, []),
+            Invocation.method(#ambilBerdasarkanStatusAktivasi, []),
             returnValue: _i5.Future<List<_i8.TransaksiModel>>.value(
               <_i8.TransaksiModel>[],
             ),
@@ -281,14 +275,14 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i7.TransaksiOpSqlite {
   @override
   _i5.Future<void> perbaruiTransaksi(
     String? id,
-    _i8.TransaksiModel? newTransaction, {
+    _i8.TransaksiModel? transaksi, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
-              #updateTransaction,
-              [id, newTransaction],
-              {#fromServer: dariServer},
+              #perbaruiTransaksi,
+              [id, transaksi],
+              {#dariServer: dariServer},
             ),
             returnValue: _i5.Future<void>.value(),
             returnValueForMissingStub: _i5.Future<void>.value(),
@@ -298,7 +292,7 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i7.TransaksiOpSqlite {
   @override
   _i5.Future<void> softDelete(String? id, {bool? dariServer = false}) =>
       (super.noSuchMethod(
-            Invocation.method(#softDelete, [id], {#fromServer: dariServer}),
+            Invocation.method(#softDelete, [id], {#dariServer: dariServer}),
             returnValue: _i5.Future<void>.value(),
             returnValueForMissingStub: _i5.Future<void>.value(),
           )
@@ -307,7 +301,7 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i7.TransaksiOpSqlite {
   @override
   _i5.Future<int> softDeleteAll({bool? dariServer = false}) =>
       (super.noSuchMethod(
-            Invocation.method(#softDeleteAll, [], {#fromServer: dariServer}),
+            Invocation.method(#softDeleteAll, [], {#dariServer: dariServer}),
             returnValue: _i5.Future<int>.value(0),
           )
           as _i5.Future<int>);
@@ -337,38 +331,38 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i7.TransaksiOpSqlite {
           as _i5.Future<double>);
 
   @override
-  _i5.Future<int> ambilPoinDidapat(String? customerId) =>
+  _i5.Future<int> ambilPoinDidapat(String? idPelanggan) =>
       (super.noSuchMethod(
-            Invocation.method(#getEarnedPoints, [customerId]),
+            Invocation.method(#ambilPoinDidapat, [idPelanggan]),
             returnValue: _i5.Future<int>.value(0),
           )
           as _i5.Future<int>);
 
   @override
-  _i5.Future<int> ambilPoinDigunakan(String? customerId) =>
+  _i5.Future<int> ambilPoinDigunakan(String? idPelanggan) =>
       (super.noSuchMethod(
-            Invocation.method(#getUsedPoints, [customerId]),
+            Invocation.method(#ambilPoinDigunakan, [idPelanggan]),
             returnValue: _i5.Future<int>.value(0),
           )
           as _i5.Future<int>);
 
   @override
-  _i5.Future<int> ambilTotalPoin(String? customerId) =>
+  _i5.Future<int> ambilTotalPoin(String? idPelanggan) =>
       (super.noSuchMethod(
-            Invocation.method(#ambilTotalPoin, [customerId]),
+            Invocation.method(#ambilTotalPoin, [idPelanggan]),
             returnValue: _i5.Future<int>.value(0),
           )
           as _i5.Future<int>);
 
   @override
   _i5.Future<void> sisipkanAtauPerbaruiBatch(
-    List<_i8.TransaksiModel>? items, {
+    List<_i8.TransaksiModel>? transaksi, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #sisipkanAtauPerbaruiBatch,
-              [items],
+              [transaksi],
               {#dariServer: dariServer},
             ),
             returnValue: _i5.Future<void>.value(),
@@ -379,7 +373,7 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i7.TransaksiOpSqlite {
   @override
   _i5.Future<List<_i8.TransaksiModel>> ambilBerdasarkanIds(List<String>? ids) =>
       (super.noSuchMethod(
-            Invocation.method(#getTransactionsByIds, [ids]),
+            Invocation.method(#ambilBerdasarkanIds, [ids]),
             returnValue: _i5.Future<List<_i8.TransaksiModel>>.value(
               <_i8.TransaksiModel>[],
             ),
