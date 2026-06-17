@@ -26,10 +26,10 @@ import 'package:wifi/shared/utils/toast_util.dart';
 final detailPleangganAktifProvider =
     FutureProvider.family<
       ({
-        PelangganModel? customer,
-        PaketModel? package,
-        TransaksiModel? transaction,
-        PelangganAktifModel activeCustomer,
+        PelangganModel? pelanggan,
+        PaketModel? paket,
+        TransaksiModel? transaksi,
+        PelangganAktifModel pelangganAktif,
       }),
       String
     >((ref, id) async {
@@ -62,10 +62,10 @@ final detailPleangganAktifProvider =
       ]);
 
       return (
-        customer: hasil[0] as PelangganModel?,
-        package: hasil[1] as PaketModel?,
-        transaction: hasil[2] as TransaksiModel?,
-        activeCustomer: pelangganAktif,
+        pelanggan: hasil[0] as PelangganModel?,
+        paket: hasil[1] as PaketModel?,
+        transaksi: hasil[2] as TransaksiModel?,
+        pelangganAktif: pelangganAktif,
       );
     });
 

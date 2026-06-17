@@ -14,10 +14,10 @@ import 'daftar_akun_page_test.mocks.dart';
 
 class FakeRoute<T> extends Fake implements Route<T> {}
 
-@GenerateMocks([PengelolaAkun, LayananAktifitasUser, NavigatorObserver])
+@GenerateMocks([PengelolaAkun, LayananAktivitasUser, NavigatorObserver])
 void main() {
   late MockPengelolaAkun mockPengelolaAkun;
-  late MockUserActivityService mockUserActivityService;
+  late MockLayananAktivitasUser mockLayananAktivitasUser;
   late MockNavigatorObserver mockNavigatorObserver;
   late PelangganModel pelanggan1;
   late PelangganModel pelanggan2;
@@ -28,7 +28,7 @@ void main() {
 
   setUp(() {
     mockPengelolaAkun = MockPengelolaAkun();
-    mockUserActivityService = MockUserActivityService();
+    mockLayananAktivitasUser = MockLayananAktivitasUser();
     mockNavigatorObserver = MockNavigatorObserver();
 
     // Stub getter navigator agar tidak error
@@ -55,13 +55,9 @@ void main() {
   Widget createWidgetUnderTest({String? currentUserId}) {
     return ProviderScope(
       overrides: [
-        // ✅ Correct: overrideWith for FutureProvider
-        pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
-        // ✅ Correct: overrideWith for FutureProvider
-        userActivityServiceProvider.overrideWith(
-          (ref) => Future.value(mockUserActivityService),
-        ),
-        // ✅ Correct: overrideWith for FutureProvider
+        pengelolaAkunProvider.overrideWith((ref) => mockPengelolaAkun),
+        userActivityServiceProvider
+            .overrideWith((ref) => mockLayananAktivitasUser),
         userIdProvider.overrideWith((ref) => Future.value(currentUserId)),
       ],
       child: MaterialApp(
@@ -142,10 +138,10 @@ void main() {
       when(mockPengelolaAkun.state).thenReturn(
         AsyncValue.data(AkunState(daftarAkunTersimpan: [pelanggan1])),
       );
-      when(mockPengelolaAkun.login(pelanggan1)).thenAnswer((_) async {});
+      when(mockPengelolaAkun.login(pelanggan1)).thenAnswer((_) async => Future.value());
       when(
-        mockUserActivityService.pingActivity(pelanggan1.id, force: true),
-      ).thenAnswer((_) async {});
+        mockLayananAktivitasUser.pingAktivitas(pelanggan1.id, force: true),
+      ).thenAnswer((_) async => Future.value());
 
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
@@ -155,7 +151,7 @@ void main() {
 
       verify(mockPengelolaAkun.login(pelanggan1)).called(1);
       verify(
-        mockUserActivityService.pingActivity(pelanggan1.id, force: true),
+        mockLayananAktivitasUser.pingAktivitas(pelanggan1.id, force: true),
       ).called(1);
       verify(mockNavigatorObserver.didPush(any, any)).called(1);
     });
@@ -171,7 +167,7 @@ void main() {
           ),
         ),
       );
-      when(mockPengelolaAkun.hapusAkun(pelanggan1.id)).thenAnswer((_) async {});
+      when(mockPengelolaAkun.hapusAkun(pelanggan1.id)).thenAnswer((_) async => Future.value());
 
       await tester.pumpWidget(
         createWidgetUnderTest(currentUserId: pelanggan2.id),
@@ -199,7 +195,7 @@ void main() {
           AkunState(akunSaatIni: pelanggan1, daftarAkunTersimpan: [pelanggan1]),
         ),
       );
-      when(mockPengelolaAkun.hapusAkun(pelanggan1.id)).thenAnswer((_) async {});
+      when(mockPengelolaAkun.hapusAkun(pelanggan1.id)).thenAnswer((_) async => Future.value());
 
       await tester.pumpWidget(
         createWidgetUnderTest(currentUserId: pelanggan1.id),
@@ -242,7 +238,7 @@ void main() {
           AkunState(akunSaatIni: null, daftarAkunTersimpan: []),
         ),
       );
-      when(mockPengelolaAkun.hapusTokenLogin()).thenAnswer((_) async {});
+      when(mockPengelolaAkun.hapusTokenLogin()).thenAnswer((_) async => Future.value());
 
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
@@ -267,7 +263,7 @@ void main() {
           AkunState(akunSaatIni: pelanggan1, daftarAkunTersimpan: []),
         ),
       );
-      when(mockPengelolaAkun.hapusAkun(pelanggan1.id)).thenAnswer((_) async {});
+      when(mockPengelolaAkun.hapusAkun(pelanggan1.id)).thenAnswer((_) async => Future.value());
 
       await tester.pumpWidget(
         createWidgetUnderTest(currentUserId: pelanggan1.id),
