@@ -11,6 +11,8 @@ class InputAngka extends StatelessWidget {
   final bool? validasi;
   final TextInputAction textInputAction;
   final bool enabled;
+  final TextInputType keyboardType;
+  final AutovalidateMode autovalidateMode;
 
   const InputAngka({
     super.key,
@@ -21,14 +23,16 @@ class InputAngka extends StatelessWidget {
     this.validasi = false,
     this.textInputAction = TextInputAction.next,
     this.enabled = true,
+    this.keyboardType = TextInputType.number,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
-      keyboardType: TextInputType.number,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      keyboardType: keyboardType,
+      autovalidateMode: autovalidateMode,
       textInputAction: textInputAction,
       enabled: enabled,
       inputFormatters: [

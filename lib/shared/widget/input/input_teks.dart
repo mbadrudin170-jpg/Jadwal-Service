@@ -32,7 +32,8 @@ class InputTeks extends StatelessWidget {
         border: const OutlineInputBorder(),
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
       ),
-      validator: validator ??
+      validator:
+          validator ??
           (value) {
             if (wajib && (value == null || value.trim().isEmpty)) {
               return '$label wajib diisi';

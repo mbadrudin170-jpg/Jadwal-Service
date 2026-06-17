@@ -196,6 +196,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 controller: _phoneController,
                 label: 'Nomor Telepon',
                 prefixIcon: TIcons.phoneAndroid,
+                keyboardType: TextInputType.phone,
                 enabled: !_sedangLogin,
               ),
               gapH16,

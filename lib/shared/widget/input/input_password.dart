@@ -13,6 +13,7 @@ class InputPassword extends StatefulWidget {
   final TextInputAction textInputAction;
   final void Function(String)? onFieldSubmitted;
   final bool enabled;
+  final AutovalidateMode autovalidateMode;
 
   const InputPassword({
     super.key,
@@ -23,6 +24,7 @@ class InputPassword extends StatefulWidget {
     this.prefixIcon = const Icon(TIcons.lock),
     this.textInputAction = TextInputAction.next,
     this.onFieldSubmitted,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
   });
 
   @override
@@ -38,7 +40,7 @@ class _InputPasswordState extends State<InputPassword> {
       controller: widget.controller,
       obscureText: passwordTersembunyi,
       validator: widget.validator,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: widget.autovalidateMode,
       textInputAction: widget.textInputAction,
       onFieldSubmitted: widget.onFieldSubmitted,
       enabled: widget.enabled,
@@ -51,11 +53,9 @@ class _InputPasswordState extends State<InputPassword> {
             passwordTersembunyi ? Icons.visibility_off : Icons.visibility,
           ),
           onPressed: () {
-            setState(
-              () {
-                passwordTersembunyi = !passwordTersembunyi;
-              },
-            );
+            setState(() {
+              passwordTersembunyi = !passwordTersembunyi;
+            });
           },
         ),
       ),

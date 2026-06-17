@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
-import 'package:wifi/shared/theme/app_colors.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/input/input_angka.dart';
+import 'package:wifi/shared/widget/input/input_password.dart';
+import 'package:wifi/shared/widget/input/input_teks.dart';
 
 class EditProfilePage extends ConsumerStatefulWidget {
   final PelangganModel pelanggan;
@@ -25,8 +27,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   late TextEditingController _teleponController;
   late TextEditingController _passwordController;
   final _koneksiInternetService = KoneksiInternetService();
-
-  bool _passwordTerlihat = false;
+  bool _menyimpan = false;
 
   @override
   void initState() {
@@ -96,7 +97,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         Log.info('Toast sukses ditampilkan, menutup halaman edit.');
 
         navigator.pop(context);
-      } on Exception catch (e, st) {
+      } catch (e, st) {
         Log.error('Gagal menyimpan perubahan profil', e: e, s: st);
         if (!mounted) {
           Log.error(
@@ -131,60 +132,30 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
+              InputTeks(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Nama Lengkap'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Nama tidak boleh kosong';
-                  }
-                  return null;
-                },
+                label: 'Nama Lengkap',
+                prefixIcon: TIcons.person,
               ),
               gapH16,
-              TextFormField(
+              InputAngka(
                 controller: _teleponController,
-                decoration: const InputDecoration(labelText: 'No. HP'),
+                label: 'No. HP',
                 keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'No. HP tidak boleh kosong';
-                  }
-                  return null;
-                },
+                prefixIcon: TIcons.phoneAndroid,
               ),
+
               gapH16,
-              TextFormField(
+              InputPassword(
                 controller: _passwordController,
-                obscureText: !_passwordTerlihat,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _passwordTerlihat
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _passwordTerlihat = !_passwordTerlihat;
-                        Log.info(
-                          'Toggle visibilitas password: $_passwordTerlihat',
-                        );
-                      });
-                    },
-                  ),
-                ),
-                validator: (final value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Password tidak boleh kosong';
-                  }
-                  return null;
-                },
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Password tidak boleh kosong'
+                    : null,
+                textInputAction: TextInputAction.done,
               ),
               gapH32,
               ElevatedButton(
-                onPressed: _simpanForm,
+                onPressed: _menyimpan ? null : _simpanForm,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: TColors.primaryColor,
                   foregroundColor: Colors.white,
