@@ -1,4 +1,4 @@
-// path: lib/fitur/speedtest/page/uji_kecepatan_page.dart
+// path lib/fitur/speedtest/page/uji_kecepatan_page.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +8,6 @@ import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 
-/// Halaman untuk melakukan pengujian kecepatan internet.
 class HalamanUjiKecepatan extends ConsumerStatefulWidget {
   const HalamanUjiKecepatan({super.key});
 
@@ -35,9 +34,7 @@ class _HalamanUjiKecepatanState extends ConsumerState<HalamanUjiKecepatan> {
     final statusUji = ref.watch(ujiKecepatanProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const TeksJudulSedang('Uji Kecepatan Internet'),
-      ),
+      appBar: AppBar(title: const TeksJudulSedang('Uji Kecepatan Internet')),
       body: Padding(
         padding: const EdgeInsets.all(TSizes.p16),
         child: Column(
@@ -73,9 +70,7 @@ class _HalamanUjiKecepatanState extends ConsumerState<HalamanUjiKecepatan> {
             ),
             gapH24,
             if (statusUji.sedangMenguji)
-              const Center(
-                child: CircularProgressIndicator(),
-              )
+              const Center(child: CircularProgressIndicator())
             else
               ElevatedButton.icon(
                 onPressed: () {

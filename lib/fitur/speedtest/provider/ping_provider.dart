@@ -6,6 +6,6 @@ part 'ping_provider.g.dart';
 
 @riverpod
 Future<PingData> ping(Ref ref) async {
-  final ping = Ping('google.com', count: 1);
+  final ping = Ping('google.com', count: 5);
   return await ping.stream.first;
 }
