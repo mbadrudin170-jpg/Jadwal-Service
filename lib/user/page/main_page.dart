@@ -40,10 +40,10 @@ class _MainPageState extends ConsumerState<MainPage> {
         final notifikasiServis = ref.read(layananNotifikasiProvider);
         PenjadwalNotifikasi.aturNotifikasiLangganan(notifikasiServis, userId);
 
-        final userActivityService = await ref.read(
+        final layananAktivitasUser = await ref.read(
           layananAktivitasUserProvider.future,
         );
-        await userActivityService.pingAktivitas(userId);
+        await layananAktivitasUser.pingAktivitas(userId);
       }
     });
 

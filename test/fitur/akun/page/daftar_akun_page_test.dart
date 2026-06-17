@@ -1,4 +1,3 @@
-
 // path: test/fitur/akun/page/daftar_akun_page_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,8 +57,9 @@ void main() {
     return ProviderScope(
       overrides: [
         pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
-        userActivityServiceProvider
-            .overrideWith((ref) => mockLayananAktivitasUser),
+        userActivityServiceProvider.overrideWith(
+          (ref) => mockLayananAktivitasUser,
+        ),
         userIdProvider.overrideWith((ref) => Future.value(currentUserId)),
       ],
       child: MaterialApp(
@@ -140,9 +140,11 @@ void main() {
       when(mockPengelolaAkun.state).thenReturn(
         AsyncValue.data(AkunState(daftarAkunTersimpan: [pelanggan1])),
       );
-      when(mockPengelolaAkun.login(pelanggan1)).thenAnswer((_) async => Future.value());
       when(
-        mockLayananAktivitasUser.pingAktivitas(pelanggan1.id, force: true),
+        mockPengelolaAkun.login(pelanggan1),
+      ).thenAnswer((_) async => Future.value());
+      when(
+        mockLayananAktivitasUser.pingAktivitas(pelanggan1.id, paksa: true),
       ).thenAnswer((_) async => Future.value());
 
       await tester.pumpWidget(createWidgetUnderTest());
@@ -153,7 +155,7 @@ void main() {
 
       verify(mockPengelolaAkun.login(pelanggan1)).called(1);
       verify(
-        mockLayananAktivitasUser.pingAktivitas(pelanggan1.id, force: true),
+        mockLayananAktivitasUser.pingAktivitas(pelanggan1.id, paksa: true),
       ).called(1);
       verify(mockNavigatorObserver.didPush(any, any)).called(1);
     });
@@ -169,7 +171,9 @@ void main() {
           ),
         ),
       );
-      when(mockPengelolaAkun.hapusAkun(pelanggan1.id)).thenAnswer((_) async => Future.value());
+      when(
+        mockPengelolaAkun.hapusAkun(pelanggan1.id),
+      ).thenAnswer((_) async => Future.value());
 
       await tester.pumpWidget(
         createWidgetUnderTest(currentUserId: pelanggan2.id),
@@ -197,7 +201,9 @@ void main() {
           AkunState(akunSaatIni: pelanggan1, daftarAkunTersimpan: [pelanggan1]),
         ),
       );
-      when(mockPengelolaAkun.hapusAkun(pelanggan1.id)).thenAnswer((_) async => Future.value());
+      when(
+        mockPengelolaAkun.hapusAkun(pelanggan1.id),
+      ).thenAnswer((_) async => Future.value());
 
       await tester.pumpWidget(
         createWidgetUnderTest(currentUserId: pelanggan1.id),
@@ -240,7 +246,9 @@ void main() {
           AkunState(akunSaatIni: null, daftarAkunTersimpan: []),
         ),
       );
-      when(mockPengelolaAkun.hapusTokenLogin()).thenAnswer((_) async => Future.value());
+      when(
+        mockPengelolaAkun.hapusTokenLogin(),
+      ).thenAnswer((_) async => Future.value());
 
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
@@ -265,7 +273,9 @@ void main() {
           AkunState(akunSaatIni: pelanggan1, daftarAkunTersimpan: []),
         ),
       );
-      when(mockPengelolaAkun.hapusAkun(pelanggan1.id)).thenAnswer((_) async => Future.value());
+      when(
+        mockPengelolaAkun.hapusAkun(pelanggan1.id),
+      ).thenAnswer((_) async => Future.value());
 
       await tester.pumpWidget(
         createWidgetUnderTest(currentUserId: pelanggan1.id),

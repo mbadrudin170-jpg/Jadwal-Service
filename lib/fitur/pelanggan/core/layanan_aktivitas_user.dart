@@ -19,7 +19,7 @@ class LayananAktivitasUser {
   }) : _pelangganOpFirebase = pelangganOpFirebase,
        _prefs = prefs;
 
-  Future<void> pingAktivitas(String id, {bool force = false}) async {
+  Future<void> pingAktivitas(String id, {bool paksa = false}) async {
     if (id.isEmpty) {
       Log.warning('pingActivity: customerId kosong, proses dibatalkan.');
       return;
@@ -29,7 +29,7 @@ class LayananAktivitasUser {
       final pingTerakhir = _prefs.getInt(kunciPingTerakhirAktif);
       final now = DateTime.now();
 
-      if (pingTerakhir != null && !force) {
+      if (pingTerakhir != null && !paksa) {
         final waktuPingTerakhir = DateTime.fromMillisecondsSinceEpoch(
           pingTerakhir,
         );
@@ -42,7 +42,7 @@ class LayananAktivitasUser {
       }
 
       Log.info(
-        'pingActivity: Mengirim ping aktivitas untuk user: $id (Force: $force)',
+        'pingActivity: Mengirim ping aktivitas untuk user: $id (Force: $paksa)',
       );
 
       unawaited(_pelangganOpFirebase.perbaruiTerakhirAktif(id));

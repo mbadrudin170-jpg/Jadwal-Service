@@ -119,7 +119,7 @@ class DaftarAkunPage extends ConsumerWidget {
         'nama': pelanggan.nama,
       });
 
-      await activityService.pingAktivitas(pelanggan.id, force: true);
+      await activityService.pingAktivitas(pelanggan.id, paksa: true);
 
       if (!context.mounted) return;
       await navigator.pushAndRemoveUntil(

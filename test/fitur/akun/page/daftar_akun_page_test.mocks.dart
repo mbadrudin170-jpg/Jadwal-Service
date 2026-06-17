@@ -44,9 +44,9 @@ class MockLayananAktivitasUser extends _i1.Mock
   }
 
   @override
-  _i4.Future<void> pingAktivitas(String? id, {bool? force = false}) =>
+  _i4.Future<void> pingAktivitas(String? id, {bool? paksa = false}) =>
       (super.noSuchMethod(
-            Invocation.method(#pingAktivitas, [id], {#force: force}),
+            Invocation.method(#pingAktivitas, [id], {#force: paksa}),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )

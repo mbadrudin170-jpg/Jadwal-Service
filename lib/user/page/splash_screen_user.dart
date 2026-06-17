@@ -214,10 +214,10 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
           .cekKoneksiLokal();
 
       if (terhubung) {
-        final layananAktivitasPengguna = await ref.read(
+        final layananAktivitasUser = await ref.read(
           layananAktivitasUserProvider.future,
         );
-        unawaited(layananAktivitasPengguna.pingAktivitas(akunAktif.id));
+        unawaited(layananAktivitasUser.pingAktivitas(akunAktif.id));
       }
       if (!mounted) return;
       unawaited(
