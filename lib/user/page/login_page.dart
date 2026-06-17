@@ -117,7 +117,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       // Tugas sekunder
       try {
         final activityService = await ref.read(
-          userActivityServiceProvider.future,
+          layananAktivitasUserProvider.future,
         );
         activityService.pingAktivitas(customer.id, force: true);
       } catch (e, s) {

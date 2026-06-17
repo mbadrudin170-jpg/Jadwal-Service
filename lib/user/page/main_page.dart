@@ -37,11 +37,11 @@ class _MainPageState extends ConsumerState<MainPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final userId = await ref.read(userIdProvider.future);
       if (userId != null) {
-        final notifikasiServis = ref.read(notifikasiServisProvider);
+        final notifikasiServis = ref.read(layananNotifikasiProvider);
         PenjadwalNotifikasi.aturNotifikasiLangganan(notifikasiServis, userId);
 
         final userActivityService = await ref.read(
-          userActivityServiceProvider.future,
+          layananAktivitasUserProvider.future,
         );
         await userActivityService.pingAktivitas(userId);
       }
