@@ -99,7 +99,8 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
       MaterialPageRoute<bool>(
         builder: (context) => PoinPage(
           idPelanggan: idPelanggan,
-          showAd: true, // Tampilkan iklan di halaman poin untuk pengguna
+          tampilkanIklan:
+              true, // Tampilkan iklan di halaman poin untuk pengguna
         ),
       ),
     );

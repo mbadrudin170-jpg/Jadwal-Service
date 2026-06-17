@@ -302,13 +302,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
   }
 
-  Future<void> _navigasiKePoin(String customerId) async {
+  Future<void> _navigasiKePoin(String idPelanggan) async {
     await ref.read(interstitialAdServiceProvider).show();
     try {
       await Navigator.push<void>(
         context,
         MaterialPageRoute<bool>(
-          builder: (context) => PoinPage(idPelanggan: customerId, showAd: true),
+          builder: (context) =>
+              PoinPage(idPelanggan: idPelanggan, tampilkanIklan: true),
         ),
       );
       await ref.read(interstitialAdServiceProvider).show();

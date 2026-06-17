@@ -27,9 +27,13 @@ import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 class PoinPage extends ConsumerStatefulWidget {
   final String idPelanggan;
-  final bool showAd;
+  final bool tampilkanIklan;
 
-  const PoinPage({super.key, required this.idPelanggan, this.showAd = false});
+  const PoinPage({
+    super.key,
+    required this.idPelanggan,
+    this.tampilkanIklan = false,
+  });
 
   @override
   ConsumerState<PoinPage> createState() => _PointsPageState();
@@ -62,7 +66,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
       ],
     );
 
-    if (widget.showAd) {
+    if (widget.tampilkanIklan) {
       Log.info('Preloading interstitial ad for PointsPage.');
       unawaited(_interstitialAdService.preloadAd());
     }
@@ -230,14 +234,14 @@ class _PointsPageState extends ConsumerState<PoinPage> {
             Log.info('Points menu changed to: $selection');
             setState(() => _selectedMenu = selection);
 
-            if (selection == MenuPoin.riwayat && widget.showAd) {
+            if (selection == MenuPoin.riwayat && widget.tampilkanIklan) {
               await _interstitialAdService.show();
             }
           },
           contentView: _selectedMenu == MenuPoin.penukaran
               ? _buildRewardList(pageData.rewards, pageData.totalPoints)
               : _buildPointsHistory(),
-          bottomWidget: widget.showAd ? const BannerAdsWidget() : null,
+          bottomWidget: widget.tampilkanIklan ? const BannerAdsWidget() : null,
         );
       },
     );
