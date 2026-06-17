@@ -174,6 +174,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                         Log.info(
                           '_showDialog: order berhasil dihapus orderId: ${order.id}',
                         );
+                        ref.invalidate(daftarPesananProvider);
+                        ref.invalidate(orderProvider);
+
                         if (context.mounted) {
                           ToastUtil.success(context, 'Data berhasil dihapus');
                         }
