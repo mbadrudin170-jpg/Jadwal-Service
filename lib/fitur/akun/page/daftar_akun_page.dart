@@ -33,16 +33,16 @@ class DaftarAkunPage extends ConsumerWidget {
                 ),
               ),
               data: (data) {
-                final accountList = data.daftarAkunTersimpan;
-                if (accountList.isEmpty) {
+                final daftarAkun = data.daftarAkunTersimpan;
+                if (daftarAkun.isEmpty) {
                   return const Center(
                     child: Text('Belum ada riwayat login di perangkat ini.'),
                   );
                 }
                 return ListView.builder(
-                  itemCount: accountList.length,
+                  itemCount: daftarAkun.length,
                   itemBuilder: (context, index) {
-                    final akun = accountList[index];
+                    final akun = daftarAkun[index];
                     return Card(
                       margin: const EdgeInsets.symmetric(
                         horizontal: 16,
