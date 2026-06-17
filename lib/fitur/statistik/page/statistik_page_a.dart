@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_page_a.dart';
-import 'package:wifi/admin/model/best_selling_package.dart';
+import 'package:wifi/fitur/statistik/model/best_selling_package.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan.dart';
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
