@@ -73,7 +73,7 @@ class StatistikOpSqlite {
       );
 
       return hasil;
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error('Gagal menghitung paket terlaris.', e: e, s: st);
       rethrow;
     }
@@ -138,10 +138,10 @@ class StatistikOpSqlite {
 
       Log.info('Query total pelanggan selesai. Hasil mentah: $result');
 
-      final total = Sqflite.firstIntValue(result) ?? 0;
-      Log.info('Total pelanggan yang dihitung: $total');
-      return total;
-    } on Exception catch (e, st) {
+      final jumlah = Sqflite.firstIntValue(result) ?? 0;
+      Log.info('Total pelanggan yang dihitung: $jumlah');
+      return jumlah;
+    }  catch (e, st) {
       Log.error('Gagal mengambil total pelanggan dari SQLite.', e: e, s: st);
       rethrow;
     }
@@ -151,10 +151,10 @@ class StatistikOpSqlite {
     Log.info('Mulai mengambil jumlah langganan aktif.');
     try {
       final pelangganAktif = await _pelangganAktifOpSqlite.getALl();
-      final total = pelangganAktif.length;
-      Log.info('Jumlah langganan aktif yang dihitung: $total');
-      return total;
-    } on Exception catch (e, st) {
+      final jumlah = pelangganAktif.length;
+      Log.info('Jumlah langganan aktif yang dihitung: $jumlah');
+      return jumlah;
+    }  catch (e, st) {
       Log.error('Gagal mengambil jumlah langganan aktif.', e: e, s: st);
       rethrow;
     }
@@ -163,11 +163,11 @@ class StatistikOpSqlite {
   Future<int> ambilJumlahFeedbackBaru() async {
     Log.info('Mulai mengambil jumlah feedback baru.');
     try {
-      final listfeddbackAktif = await _statistikOpSliteProvider
+      final daftarFeedbackAktif = await _statistikOpSliteProvider
           .ambilSemuaFeedbackAktif();
-      final count = listfeddbackAktif.length;
-      Log.info('Jumlah feedback baru yang dihitung: $count');
-      return count;
+      final jumlah = daftarFeedbackAktif.length;
+      Log.info('Jumlah feedback baru yang dihitung: $jumlah');
+      return jumlah;
     } catch (e, st) {
       Log.error('Gagal mengambil jumlah feedback baru.', e: e, s: st);
       rethrow;
