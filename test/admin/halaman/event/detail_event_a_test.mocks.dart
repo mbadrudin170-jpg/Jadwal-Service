@@ -84,9 +84,9 @@ class MockEventOpSupabase extends _i1.Mock implements _i5.EventOpSupabase {
   }
 
   @override
-  _i4.Future<List<_i6.EventModel>> getAll() =>
+  _i4.Future<List<_i6.EventModel>> ambilSemuaEvent() =>
       (super.noSuchMethod(
-            Invocation.method(#getAll, []),
+            Invocation.method(#ambilSemuaEvent, []),
             returnValue: _i4.Future<List<_i6.EventModel>>.value(
               <_i6.EventModel>[],
             ),

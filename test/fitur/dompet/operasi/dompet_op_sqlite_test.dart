@@ -7,7 +7,6 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
-import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
@@ -35,7 +34,6 @@ void main() {
     id: '1',
     nama: 'Dompet Utama',
     saldo: 100000,
-    dibuatPada: DateTime.now(),
     diperbaruiPada: DateTime.now(),
   );
 

@@ -12,8 +12,8 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
-class FeedbackHistoryUser extends ConsumerWidget {
-  const FeedbackHistoryUser({super.key});
+class FeedbackPageU extends ConsumerWidget {
+  const FeedbackPageU({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,9 +21,7 @@ class FeedbackHistoryUser extends ConsumerWidget {
     final feedbackAsync = ref.watch(feedbackStreamProvider(userId));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Riwayat Masukan'),
-      ),
+      appBar: AppBar(title: const Text('Riwayat Masukan')),
       body: feedbackAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, st) => Center(child: Text('Gagal memuat masukan: $e')),
@@ -62,9 +60,7 @@ class FeedbackHistoryUser extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.push(
           context,
-          MaterialPageRoute<void>(
-            builder: (context) => const FormKritikDanSaran(),
-          ),
+          MaterialPageRoute<void>(builder: (context) => const FormFeedBackU()),
         ),
         label: const Text('Beri Masukan'),
         icon: const Icon(TIcons.add),
@@ -72,8 +68,12 @@ class FeedbackHistoryUser extends ConsumerWidget {
     );
   }
 
-  Future<void> _showOptionsDialog(BuildContext context, WidgetRef ref,
-      FeedbackModel feedback, String userId) async {
+  Future<void> _showOptionsDialog(
+    BuildContext context,
+    WidgetRef ref,
+    FeedbackModel feedback,
+    String userId,
+  ) async {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) {
@@ -94,9 +94,9 @@ class FeedbackHistoryUser extends ConsumerWidget {
                 await Navigator.push<void>(
                   context,
                   MaterialPageRoute<void>(
-                    builder: (_) => FormKritikDanSaran(
-                      kritikId: feedback.id,
-                      content: feedback.pesan,
+                    builder: (_) => FormFeedBackU(
+                      idFeedback: feedback.id,
+                      pesan: feedback.pesan,
                     ),
                   ),
                 );
@@ -113,7 +113,11 @@ class FeedbackHistoryUser extends ConsumerWidget {
   }
 
   Future<void> _dialogHapus(
-      BuildContext context, WidgetRef ref, String docId, String userId) async {
+    BuildContext context,
+    WidgetRef ref,
+    String docId,
+    String userId,
+  ) async {
     final bool? konfirmasi = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
@@ -126,8 +130,10 @@ class FeedbackHistoryUser extends ConsumerWidget {
               onPressed: () => Navigator.of(dialogContext).pop(false),
             ),
             TextButton(
-              child:
-                  const Text('Ya, Hapus', style: TextStyle(color: Colors.red)),
+              child: const Text(
+                'Ya, Hapus',
+                style: TextStyle(color: Colors.red),
+              ),
               onPressed: () => Navigator.of(dialogContext).pop(true),
             ),
           ],
@@ -137,14 +143,14 @@ class FeedbackHistoryUser extends ConsumerWidget {
 
     if (konfirmasi ?? false) {
       try {
-        final feedbackOp = ref.read(feedbackOpFirebaseProvider);
-        await feedbackOp.softDeleteFeedback(docId);
+        final feedbackOpFirebase = ref.read(feedbackOpFirebaseProvider);
+        await feedbackOpFirebase.softDeleteFeedback(docId);
         ref.invalidate(feedbackStreamProvider(userId));
         if (!context.mounted) return;
         ToastUtil.success(context, 'Masukan berhasil dihapus.');
-      } on Exception catch (e) {
+      } catch (e, s) {
         if (!context.mounted) return;
-        ToastUtil.error(context, 'Gagal menghapus: $e');
+        ToastUtil.error(context, 'Gagal menghapus: $e $s');
       }
     }
   }

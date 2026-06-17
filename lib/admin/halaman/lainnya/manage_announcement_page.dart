@@ -68,7 +68,7 @@ class _ManageAnnouncementPageState
 
     final operator = ref.read(eventOpSupabaseProvider);
     try {
-      final announcements = await operator.getAll();
+      final announcements = await operator.ambilSemuaEvent();
       final EventModel? activeAnnouncement = announcements
           .cast<EventModel?>()
           .firstWhere(

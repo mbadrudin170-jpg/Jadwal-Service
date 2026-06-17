@@ -164,7 +164,7 @@ class StatistikOpSqlite {
     Log.info('Mulai mengambil jumlah feedback baru.');
     try {
       final listfeddbackAktif = await _statistikOpSliteProvider
-          .getAllActiveFeedback();
+          .ambilSemuaFeedbackAktif();
       final count = listfeddbackAktif.length;
       Log.info('Jumlah feedback baru yang dihitung: $count');
       return count;

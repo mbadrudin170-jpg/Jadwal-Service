@@ -11,44 +11,42 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
 /// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
-class FormKritikDanSaran extends ConsumerStatefulWidget {
-  final String? kritikId;
+class FormFeedBackU extends ConsumerStatefulWidget {
+  final String? idFeedback;
 
-  final String? content;
-  const FormKritikDanSaran({
-    super.key,
-    this.kritikId,
-    this.content,
-  });
+  final String? pesan;
+  const FormFeedBackU({super.key, this.idFeedback, this.pesan});
 
   @override
-  ConsumerState<FormKritikDanSaran> createState() => _FormKritikDanSaranState();
+  ConsumerState<FormFeedBackU> createState() => _FormKritikDanSaranState();
 }
 
-class _FormKritikDanSaranState extends ConsumerState<FormKritikDanSaran> {
+class _FormKritikDanSaranState extends ConsumerState<FormFeedBackU> {
   final _formKey = GlobalKey<FormState>();
   final _feedbackController = TextEditingController();
   bool _isLoading = false;
-  bool get _isModeEdit => widget.kritikId != null;
+  bool get _modeEdit => widget.idFeedback != null;
 
   @override
   void initState() {
     super.initState();
-    if (widget.content != null) {
-      _feedbackController.text = widget.content!;
+    if (widget.pesan != null) {
+      _feedbackController.text = widget.pesan!;
     }
   }
 
-  Future<void> _saveForm() async {
+  Future<void> _simpanForm() async {
     final userId = ref.watch(userIdProvider).value ?? '';
     final feedbackOpFirebase = ref.read(feedbackOpFirebaseProvider);
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
       try {
-        if (_isModeEdit) {
+        if (_modeEdit) {
           await feedbackOpFirebase.perbaruiFeedback(
-              widget.kritikId!, _feedbackController.text);
+            widget.idFeedback!,
+            _feedbackController.text,
+          );
         } else {
           final dataBaru = FeedbackModel(
             id: const Uuid().v4(),
@@ -60,10 +58,12 @@ class _FormKritikDanSaranState extends ConsumerState<FormKritikDanSaran> {
 
         if (mounted) {
           ToastUtil.success(
-              context, 'Terima kasih! Masukan Anda telah disimpan.');
+            context,
+            'Terima kasih! Masukan Anda telah disimpan.',
+          );
           Navigator.of(context).pop();
         }
-      } on Exception catch (e, s) {
+      } catch (e, s) {
         Log.error('Gagal mengirim kritik dan saran', e: e, s: s);
         if (mounted) {
           ToastUtil.error(context, 'Gagal mengirim masukan: \$e');
@@ -84,7 +84,7 @@ class _FormKritikDanSaranState extends ConsumerState<FormKritikDanSaran> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isModeEdit ? 'Edit Masukan' : 'Beri Masukan'),
+        title: Text(_modeEdit ? 'Edit Masukan' : 'Beri Masukan'),
         centerTitle: true,
       ),
       body: Padding(
@@ -111,12 +111,14 @@ class _FormKritikDanSaranState extends ConsumerState<FormKritikDanSaran> {
               ),
               gapH20,
               ElevatedButton(
-                onPressed: _isLoading ? null : _saveForm,
+                onPressed: _isLoading ? null : _simpanForm,
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : Text(widget.kritikId != null
-                        ? 'Simpan Perubahan'
-                        : 'Kirim Masukan'),
+                    : Text(
+                        widget.idFeedback != null
+                            ? 'Simpan Perubahan'
+                            : 'Kirim Masukan',
+                      ),
               ),
             ],
           ),

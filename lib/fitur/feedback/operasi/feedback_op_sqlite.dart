@@ -14,26 +14,20 @@ class FeedbackOpSqlite {
   final BaseOpSqlite baseOpSqlite;
   final String _namaTabel = NamaTabel.feedback;
 
-  FeedbackOpSqlite({
-    required this.sqliteDb,
-    required this.baseOpSqlite,
-  });
+  FeedbackOpSqlite({required this.sqliteDb, required this.baseOpSqlite});
 
   /// Menyimpan [FeedbackModel] baru ke dalam database.
-  Future<void> add(
+  Future<void> tambahFeedback(
     final FeedbackModel feedback, {
     final bool dariServer = false,
   }) async {
     Log.info('Memulai createFeedback untuk data: ${feedback.toSqlite()}');
     try {
-      final data =
-          feedback.copyWith(diperbaruiPada: DateTime.now().toUtc()).toSqlite();
+      final data = feedback
+          .copyWith(diperbaruiPada: DateTime.now().toUtc())
+          .toSqlite();
 
-      await baseOpSqlite.sisipkan(
-        _namaTabel,
-        data,
-        dariServer: dariServer,
-      );
+      await baseOpSqlite.sisipkan(_namaTabel, data, dariServer: dariServer);
       Log.info('Berhasil membuat kritik_saran dengan ID: ${feedback.id}');
     } on Exception catch (e, st) {
       Log.error('Gagal saat createFeedback', e: e, s: st);
@@ -42,7 +36,7 @@ class FeedbackOpSqlite {
   }
 
   /// Mengambil semua kritik dan saran dari database, diurutkan berdasarkan tanggal terbaru.
-  Future<List<FeedbackModel>> getAll() async {
+  Future<List<FeedbackModel>> ambilSemua() async {
     Log.info(
       'Memulai getAllFeedback (mengambil semua, diurutkan berdasarkan tanggal terbaru).',
     );
@@ -52,21 +46,23 @@ class FeedbackOpSqlite {
         _namaTabel,
         orderBy: '${NamaKolom.tanggal} DESC',
       );
-      final feedbackList = List.generate(
+      final daftarFeedback = List.generate(
         maps.length,
-        (final i) => FeedbackModel.fromSqlite(maps[i]),
+        (i) => FeedbackModel.fromSqlite(maps[i]),
       );
-      Log.info('Berhasil mengambil ${feedbackList.length} data kritik_saran.');
-      return feedbackList;
-    } on Exception catch (e, st) {
+      Log.info(
+        'Berhasil mengambil ${daftarFeedback.length} data kritik_saran.',
+      );
+      return daftarFeedback;
+    } catch (e, st) {
       Log.error('Gagal saat getAllFeedback', e: e, s: st);
       rethrow;
     }
   }
 
   /// Mengambil semua kritik dan saran yang aktif (tidak di-soft-delete).
-  Future<List<FeedbackModel>> getAllActiveFeedback() async {
-    Log.info('Mengambil semua feedback aktif (isDeleted = 0).');
+  Future<List<FeedbackModel>> ambilSemuaFeedbackAktif() async {
+    Log.info('Mengambil semua feedback aktif (dihapus = 0).');
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
@@ -74,20 +70,19 @@ class FeedbackOpSqlite {
         where: '${NamaKolom.dihapus} = 0',
         orderBy: '${NamaKolom.tanggal} DESC',
       );
-      final feedbackList = List.generate(
+      final daftarFeedback = List.generate(
         maps.length,
-        (final i) => FeedbackModel.fromSqlite(maps[i]),
+        (i) => FeedbackModel.fromSqlite(maps[i]),
       );
-      Log.info('Berhasil mengambil ${feedbackList.length} feedback aktif.');
-      return feedbackList;
-    } on Exception catch (e, st) {
+      Log.info('Berhasil mengambil ${daftarFeedback.length} feedback aktif.');
+      return daftarFeedback;
+    } catch (e, st) {
       Log.error('Gagal mengambil feedback aktif', e: e, s: st);
       rethrow;
     }
   }
 
-  /// Mengambil [FeedbackModel] berdasarkan [id].
-  Future<FeedbackModel> getById(final String id) async {
+  Future<FeedbackModel> ambilBerdasarkanId(final String id) async {
     Log.info('Memulai getFeedbackById untuk ID: $id');
     try {
       final db = await sqliteDb.database;
@@ -107,62 +102,56 @@ class FeedbackOpSqlite {
         Log.error('Kritik & saran dengan ID $id tidak ditemukan.');
         throw Exception('ID $id tidak ditemukan');
       }
-    } on Exception catch (e, st) {
-      Log.error(
-        'Gagal saat getFeedbackById untuk ID: $id',
-        e: e,
-        s: st,
-      );
+    } catch (e, st) {
+      Log.error('Gagal saat getFeedbackById untuk ID: $id', e: e, s: st);
       rethrow;
     }
   }
 
-  /// Mengambil semua kritik dan saran yang telah diubah sejak [lastSync].
-  Future<List<FeedbackModel>> getChanges(final DateTime lastSync) async {
+  /// Mengambil semua kritik dan saran yang telah diubah sejak [sinkronisasiTerakhir].
+  Future<List<FeedbackModel>> ambilPerubahan(
+    DateTime sinkronisasiTerakhir,
+  ) async {
     Log.info(
-      'Memulai getChanges kritik_saran sejak: ${lastSync.toIso8601String()}',
+      'Memulai getChanges kritik_saran sejak: ${sinkronisasiTerakhir.toIso8601String()}',
     );
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _namaTabel,
         where: '${NamaKolom.diperbaruiPada} > ?',
-        whereArgs: [lastSync.millisecondsSinceEpoch],
+        whereArgs: [sinkronisasiTerakhir.millisecondsSinceEpoch],
       );
-      final feedbackList = List.generate(
+      final daftarFeedback = List.generate(
         maps.length,
-        (final i) => FeedbackModel.fromSqlite(maps[i]),
+        (i) => FeedbackModel.fromSqlite(maps[i]),
       );
       Log.info(
-        'Ditemukan ${feedbackList.length} perubahan kritik_saran sejak ${lastSync.toIso8601String()}',
+        'Ditemukan ${daftarFeedback.length} perubahan kritik_saran sejak ${sinkronisasiTerakhir.toIso8601String()}',
       );
-      return feedbackList;
-    } on Exception catch (e, st) {
-      Log.error(
-        'Gagal saat getChanges kritik_saran',
-        e: e,
-        s: st,
-      );
+      return daftarFeedback;
+    } catch (e, st) {
+      Log.error('Gagal saat getChanges kritik_saran', e: e, s: st);
       rethrow;
     }
   }
 
   /// Menyisipkan atau memperbarui sekumpulan [FeedbackModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
-    final List<FeedbackModel> feedbackList, {
+    final List<FeedbackModel> daftarFeedback, {
     final bool dariServer = false,
   }) async {
     Log.info(
-      'Memulai insertOrUpdateBatch untuk ${feedbackList.length} item kritik_saran.',
+      'Memulai insertOrUpdateBatch untuk ${daftarFeedback.length} item kritik_saran.',
     );
-    if (feedbackList.isEmpty) {
+    if (daftarFeedback.isEmpty) {
       Log.warning(
         'List item untuk batch kosong, tidak ada operasi yang dilakukan.',
       );
       return;
     }
     try {
-      final data = feedbackList
+      final data = daftarFeedback
           .map(
             (final item) => item
                 .copyWith(diperbaruiPada: DateTime.now().toUtc())
@@ -175,14 +164,10 @@ class FeedbackOpSqlite {
         dariServer: dariServer,
       );
       Log.info(
-        'Berhasil menyelesaikan insertOrUpdateBatch untuk ${feedbackList.length} item.',
+        'Berhasil menyelesaikan insertOrUpdateBatch untuk ${daftarFeedback.length} item.',
       );
-    } on Exception catch (e, st) {
-      Log.error(
-        'Gagal saat insertOrUpdateBatch kritik_saran',
-        e: e,
-        s: st,
-      );
+    } catch (e, st) {
+      Log.error('Gagal saat insertOrUpdateBatch kritik_saran', e: e, s: st);
       rethrow;
     }
   }
@@ -192,26 +177,15 @@ class FeedbackOpSqlite {
   // ===========================================================================
 
   /// Menghapus [FeedbackModel] dari database secara permanen.
-  Future<void> delete(
-    final String id, {
-    final bool fromServer = false,
-  }) async {
+  Future<void> delete(final String id, {final bool fromServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai deleteFeedback (hard delete) untuk ID: $id',
     );
     try {
-      await baseOpSqlite.delete(
-        _namaTabel,
-        id,
-        dariServer: fromServer,
-      );
+      await baseOpSqlite.delete(_namaTabel, id, dariServer: fromServer);
       Log.info('Berhasil menghapus permanen kritik_saran dengan ID: $id.');
     } on Exception catch (e, st) {
-      Log.error(
-        'Gagal saat deleteFeedback untuk ID: $id',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal saat deleteFeedback untuk ID: $id', e: e, s: st);
       rethrow;
     }
   }
@@ -223,26 +197,16 @@ class FeedbackOpSqlite {
   }) async {
     Log.info('Memulai soft delete untuk feedback ID: $id');
     try {
-      await baseOpSqlite.softDelete(
-        _namaTabel,
-        id,
-        dariServer: fromServer,
-      );
+      await baseOpSqlite.softDelete(_namaTabel, id, dariServer: fromServer);
       Log.info('Berhasil soft delete feedback ID: $id.');
     } catch (e, st) {
-      Log.error(
-        'Gagal saat soft delete feedback ID: $id',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal saat soft delete feedback ID: $id', e: e, s: st);
       rethrow;
     }
   }
 
   /// Melakukan soft delete pada semua feedback.
-  Future<int> softDeleteAll({
-    final bool fromServer = false,
-  }) async {
+  Future<int> softDeleteAll({final bool fromServer = false}) async {
     Log.info('Memulai soft delete untuk semua feedback');
     try {
       final count = await baseOpSqlite.softDeleteAll(
@@ -252,11 +216,7 @@ class FeedbackOpSqlite {
       Log.info('Berhasil soft delete semua feedback. Total: $count item.');
       return count;
     } catch (e, st) {
-      Log.error(
-        'Gagal saat soft delete semua feedback',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal saat soft delete semua feedback', e: e, s: st);
       rethrow;
     }
   }
@@ -267,18 +227,15 @@ class FeedbackOpSqlite {
       'PERINGATAN: Memulai deleteAllFeedback. Ini adalah operasi destruktif.',
     );
     try {
-      await baseOpSqlite.runComplexOperation<int>(
-        (final Transaction txn) async {
-          final int count = await txn.delete(
-            _namaTabel,
-          );
-          Log.info(
-            'Berhasil deleteAllFeedback. Total baris yang dihapus: $count',
-          );
-          return count;
-        },
-        dariServer: fromServer,
-      );
+      await baseOpSqlite.runComplexOperation<int>((
+        final Transaction txn,
+      ) async {
+        final int count = await txn.delete(_namaTabel);
+        Log.info(
+          'Berhasil deleteAllFeedback. Total baris yang dihapus: $count',
+        );
+        return count;
+      }, dariServer: fromServer);
     } on Exception catch (e, st) {
       Log.error('Gagal saat deleteAllFeedback', e: e, s: st);
       rethrow;
@@ -294,26 +251,21 @@ class FeedbackOpSqlite {
       'PERINGATAN: Memulai deleteByUserId (hard delete) untuk userId: $userId',
     );
     try {
-      await baseOpSqlite.runComplexOperation<int>(
-        (final Transaction txn) async {
-          final int deletedCount = await txn.delete(
-            _namaTabel,
-            where: '${NamaKolom.userId} = ?',
-            whereArgs: [userId],
-          );
-          Log.info(
-            'Berhasil menghapus $deletedCount kritik & saran dari user: $userId',
-          );
-          return deletedCount;
-        },
-        dariServer: fromServer,
-      );
+      await baseOpSqlite.runComplexOperation<int>((
+        final Transaction txn,
+      ) async {
+        final int deletedCount = await txn.delete(
+          _namaTabel,
+          where: '${NamaKolom.userId} = ?',
+          whereArgs: [userId],
+        );
+        Log.info(
+          'Berhasil menghapus $deletedCount kritik & saran dari user: $userId',
+        );
+        return deletedCount;
+      }, dariServer: fromServer);
     } on Exception catch (e, st) {
-      Log.error(
-        'Gagal saat deleteByUserId untuk userId: $userId',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal saat deleteByUserId untuk userId: $userId', e: e, s: st);
       rethrow;
     }
   }

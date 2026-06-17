@@ -17,9 +17,7 @@ import 'package:wifi/user/widget/theme_menu_widget.dart';
 
 /// Halaman pengaturan untuk pengguna.
 class SettingsPageU extends ConsumerWidget {
-  const SettingsPageU({
-    super.key,
-  });
+  const SettingsPageU({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,7 +36,9 @@ class SettingsPageU extends ConsumerWidget {
                   data: (themeMode) => ThemeMenuWidget(
                     currentThemeMode: themeMode,
                     onThemeSelected: (mode) {
-                      unawaited(ref.read(temaProvider.notifier).simpanModeTema(mode));
+                      unawaited(
+                        ref.read(temaProvider.notifier).simpanModeTema(mode),
+                      );
                     },
                   ),
                   loading: () => const SizedBox.shrink(),
@@ -55,7 +55,7 @@ class SettingsPageU extends ConsumerWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (final context) => const FeedbackHistoryUser(),
+                  builder: (final context) => const FeedbackPageU(),
                 ),
               );
             },
@@ -136,8 +136,10 @@ class _SettingsMenuItem extends StatelessWidget {
           title: Text(title, style: TextStyle(color: color)),
           trailing: trailing,
           onTap: onTap,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 4,
+          ),
         ),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 24),

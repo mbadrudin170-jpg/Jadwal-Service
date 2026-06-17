@@ -13,7 +13,7 @@ class EventOpSupabase {
   final String _namaTabel = NamaTabel.event;
   final SupabaseClient _supabase;
 
-  Future<List<EventModel>> getAll() async {
+  Future<List<EventModel>> ambilSemuaEvent() async {
     Log.info('EventOpSupabase: Mengambil semua data pengumuman');
     try {
       Log.info('1️⃣ Membangun query...');

@@ -6,17 +6,14 @@ import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 
 part 'feedback_provider.g.dart';
 
-/// Provider untuk menampung list data aktif di halaman utama (FeedbackPage)
 @riverpod
-Future<List<FeedbackModel>> activeFeedbackList(Ref ref) async {
-  final operation = ref.watch(feedbackOpSqliteProvider);
-  return await operation.getAllActiveFeedback();
+Future<List<FeedbackModel>> daftarFeedbackAktif(Ref ref) async {
+  final feedbackOpSqlite = ref.watch(feedbackOpSqliteProvider);
+  return await feedbackOpSqlite.ambilSemuaFeedbackAktif();
 }
 
-/// Provider untuk menampung data detail berdasarkan ID di halaman detail (FeedbackDetailPage)
-/// Menggunakan `.family` secara otomatis lewat pengenalan argumen [id]
 @riverpod
-Future<FeedbackModel> feedbackDetail(Ref ref, String id) async {
-  final operation = ref.watch(feedbackOpSqliteProvider);
-  return await operation.getById(id);
+Future<FeedbackModel> detailFeedback(Ref ref, String id) async {
+  final feedbackOpSqlite = ref.watch(feedbackOpSqliteProvider);
+  return await feedbackOpSqlite.ambilBerdasarkanId(id);
 }

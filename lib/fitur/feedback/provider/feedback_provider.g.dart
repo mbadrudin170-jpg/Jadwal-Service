@@ -10,12 +10,12 @@ part of 'feedback_provider.dart';
 // ignore_for_file: type=lint, type=warning
 /// Provider untuk menampung list data aktif di halaman utama (FeedbackPage)
 
-@ProviderFor(activeFeedbackList)
-final activeFeedbackListProvider = ActiveFeedbackListProvider._();
+@ProviderFor(daftarFeedbackAktif)
+final daftarFeedbackAktifProvider = DaftarFeedbackAktifProvider._();
 
 /// Provider untuk menampung list data aktif di halaman utama (FeedbackPage)
 
-final class ActiveFeedbackListProvider
+final class DaftarFeedbackAktifProvider
     extends
         $FunctionalProvider<
           AsyncValue<List<FeedbackModel>>,
@@ -26,19 +26,19 @@ final class ActiveFeedbackListProvider
         $FutureModifier<List<FeedbackModel>>,
         $FutureProvider<List<FeedbackModel>> {
   /// Provider untuk menampung list data aktif di halaman utama (FeedbackPage)
-  ActiveFeedbackListProvider._()
+  DaftarFeedbackAktifProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'activeFeedbackListProvider',
+        name: r'daftarFeedbackAktifProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$activeFeedbackListHash();
+  String debugGetCreateSourceHash() => _$daftarFeedbackAktifHash();
 
   @$internal
   @override
@@ -48,23 +48,23 @@ final class ActiveFeedbackListProvider
 
   @override
   FutureOr<List<FeedbackModel>> create(Ref ref) {
-    return activeFeedbackList(ref);
+    return daftarFeedbackAktif(ref);
   }
 }
 
-String _$activeFeedbackListHash() =>
-    r'c4891c7b1ba5adcb0261936985a95e728801dc6a';
+String _$daftarFeedbackAktifHash() =>
+    r'22ac9e9b00e3b76e8febc021b4d1b9b0cf94731b';
 
 /// Provider untuk menampung data detail berdasarkan ID di halaman detail (FeedbackDetailPage)
 /// Menggunakan `.family` secara otomatis lewat pengenalan argumen [id]
 
-@ProviderFor(feedbackDetail)
-final feedbackDetailProvider = FeedbackDetailFamily._();
+@ProviderFor(detailFeedback)
+final detailFeedbackProvider = DetailFeedbackFamily._();
 
 /// Provider untuk menampung data detail berdasarkan ID di halaman detail (FeedbackDetailPage)
 /// Menggunakan `.family` secara otomatis lewat pengenalan argumen [id]
 
-final class FeedbackDetailProvider
+final class DetailFeedbackProvider
     extends
         $FunctionalProvider<
           AsyncValue<FeedbackModel>,
@@ -74,23 +74,23 @@ final class FeedbackDetailProvider
     with $FutureModifier<FeedbackModel>, $FutureProvider<FeedbackModel> {
   /// Provider untuk menampung data detail berdasarkan ID di halaman detail (FeedbackDetailPage)
   /// Menggunakan `.family` secara otomatis lewat pengenalan argumen [id]
-  FeedbackDetailProvider._({
-    required FeedbackDetailFamily super.from,
+  DetailFeedbackProvider._({
+    required DetailFeedbackFamily super.from,
     required String super.argument,
   }) : super(
          retry: null,
-         name: r'feedbackDetailProvider',
+         name: r'detailFeedbackProvider',
          isAutoDispose: true,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
 
   @override
-  String debugGetCreateSourceHash() => _$feedbackDetailHash();
+  String debugGetCreateSourceHash() => _$detailFeedbackHash();
 
   @override
   String toString() {
-    return r'feedbackDetailProvider'
+    return r'detailFeedbackProvider'
         ''
         '($argument)';
   }
@@ -104,12 +104,12 @@ final class FeedbackDetailProvider
   @override
   FutureOr<FeedbackModel> create(Ref ref) {
     final argument = this.argument as String;
-    return feedbackDetail(ref, argument);
+    return detailFeedback(ref, argument);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is FeedbackDetailProvider && other.argument == argument;
+    return other is DetailFeedbackProvider && other.argument == argument;
   }
 
   @override
@@ -118,17 +118,17 @@ final class FeedbackDetailProvider
   }
 }
 
-String _$feedbackDetailHash() => r'df13f814c77c7392e70f7e46fbd82e1053ff3ff1';
+String _$detailFeedbackHash() => r'7a2426b79ddfa428b35a52c199ce26ece0af068b';
 
 /// Provider untuk menampung data detail berdasarkan ID di halaman detail (FeedbackDetailPage)
 /// Menggunakan `.family` secara otomatis lewat pengenalan argumen [id]
 
-final class FeedbackDetailFamily extends $Family
+final class DetailFeedbackFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<FeedbackModel>, String> {
-  FeedbackDetailFamily._()
+  DetailFeedbackFamily._()
     : super(
         retry: null,
-        name: r'feedbackDetailProvider',
+        name: r'detailFeedbackProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
         isAutoDispose: true,
@@ -137,9 +137,9 @@ final class FeedbackDetailFamily extends $Family
   /// Provider untuk menampung data detail berdasarkan ID di halaman detail (FeedbackDetailPage)
   /// Menggunakan `.family` secara otomatis lewat pengenalan argumen [id]
 
-  FeedbackDetailProvider call(String id) =>
-      FeedbackDetailProvider._(argument: id, from: this);
+  DetailFeedbackProvider call(String id) =>
+      DetailFeedbackProvider._(argument: id, from: this);
 
   @override
-  String toString() => r'feedbackDetailProvider';
+  String toString() => r'detailFeedbackProvider';
 }

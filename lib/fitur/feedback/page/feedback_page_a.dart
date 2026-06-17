@@ -14,14 +14,14 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 
-class FeedbackPage extends ConsumerStatefulWidget {
-  const FeedbackPage({super.key});
+class FeedbackPageA extends ConsumerStatefulWidget {
+  const FeedbackPageA({super.key});
 
   @override
-  ConsumerState<FeedbackPage> createState() => _FeedbackPageState();
+  ConsumerState<FeedbackPageA> createState() => _FeedbackPageState();
 }
 
-class _FeedbackPageState extends ConsumerState<FeedbackPage> {
+class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
   List<FeedbackModel> _hasilFilter = [];
   Map<String, String> _mapNamaUser = {};
   bool _isSearching = false;
@@ -46,8 +46,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   /// Memuat data pelanggan sekali saja untuk mapping ID -> Nama
   Future<void> _loadPelangganMapping() async {
     try {
-      final pelangganList =
-          await ref.read(pelangganOpSqliteProvider).ambilPelanggan();
+      final pelangganList = await ref
+          .read(pelangganOpSqliteProvider)
+          .ambilPelanggan();
       if (mounted) {
         setState(() {
           _mapNamaUser = {for (var p in pelangganList) p.id: p.nama};
@@ -73,13 +74,14 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
     setState(() {});
   }
 
-  Future<void> _deleteFeedback(final FeedbackModel item) async {
+  Future<void> _hapusFeedback(FeedbackModel feedback) async {
     final konfirmasi = await showDialog<bool>(
       context: context,
-      builder: (final context) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text('Konfirmasi Hapus'),
         content: const Text(
-            'Apakah Anda yakin ingin menghapus kritik dan saran ini?'),
+          'Apakah Anda yakin ingin menghapus kritik dan saran ini?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -95,15 +97,19 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
     );
 
     if ((konfirmasi ?? false) && mounted) {
-      Log.info('Memproses penghapusan kritik/saran ID: ${item.id}');
+      Log.info('Memproses penghapusan kritik/saran ID: ${feedback.id}');
       try {
-        await ref.read(feedbackOpSqliteProvider).softDelete(item.id);
-        final _ = ref.refresh(activeFeedbackListProvider);
+        await ref.read(feedbackOpSqliteProvider).softDelete(feedback.id);
+        final _ = ref.refresh(daftarFeedbackAktifProvider);
         if (mounted) {
           ToastUtil.success(context, 'Kritik dan saran berhasil dihapus');
         }
-      } on Exception catch (e, st) {
-        Log.error('Gagal menghapus kritik/saran ID: ${item.id}', e: e, s: st);
+      } catch (e, st) {
+        Log.error(
+          'Gagal menghapus kritik/saran ID: ${feedback.id}',
+          e: e,
+          s: st,
+        );
         if (mounted) {
           ToastUtil.error(context, 'Gagal menghapus: $e');
         }
@@ -112,14 +118,14 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     // 3. Ambil dan pantau (watch) state dari provider baru Anda di sini
-    final feedbackAsync = ref.watch(activeFeedbackListProvider);
+    final feedbackAsync = ref.watch(daftarFeedbackAktifProvider);
 
     return Scaffold(
       appBar: _buildAppBar(),
       body: RefreshIndicator(
-        onRefresh: () => ref.refresh(activeFeedbackListProvider.future),
+        onRefresh: () => ref.refresh(daftarFeedbackAktifProvider.future),
         child: feedbackAsync.when(
           skipLoadingOnReload: true,
           skipLoadingOnRefresh: true,
@@ -128,9 +134,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
             Log.error('Gagal memuat data kritik dan saran', e: e, s: st);
             return Center(child: Text('Gagal memuat data: $e'));
           },
-          data: (allFeedback) {
+          data: (semuaFeedback) {
             // Jalankan filter pencarian terhadap data real-time dari Riverpod
-            _applyFilter(allFeedback);
+            _applyFilter(semuaFeedback);
 
             if (_hasilFilter.isEmpty) {
               return Center(
@@ -145,25 +151,24 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
             return ListView.builder(
               padding: const EdgeInsets.all(8.0),
               itemCount: _hasilFilter.length,
-              itemBuilder: (final context, final index) {
+              itemBuilder: (context, index) {
                 final item = _hasilFilter[index];
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   child: InkWell(
                     onTap: () async {
-                      final result = await Navigator.push(
+                      final hasil = await Navigator.push(
                         context,
                         MaterialPageRoute<bool>(
-                          builder: (final context) =>
-                              FeedbackDetailA(id: item.id),
+                          builder: (context) => FeedbackDetailA(id: item.id),
                         ),
                       );
                       // Jika kembali membawa nilai true, segarkan data
-                      if ((result ?? false) && mounted) {
-                        ref.invalidate(activeFeedbackListProvider);
+                      if ((hasil ?? false) && mounted) {
+                        ref.invalidate(daftarFeedbackAktifProvider);
                       }
                     },
-                    onLongPress: () => _deleteFeedback(item),
+                    onLongPress: () => _hapusFeedback(item),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -182,7 +187,8 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                             child: Text(
                               item.tanggal != null
                                   ? FormatWaktuLengkap.formatSingkat(
-                                      item.tanggal!)
+                                      item.tanggal!,
+                                    )
                                   : 'Tanggal tidak tersedia',
                               style: TextStyle(
                                 fontSize: 12,

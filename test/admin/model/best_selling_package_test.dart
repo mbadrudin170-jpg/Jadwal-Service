@@ -1,52 +1,28 @@
 // path: test/admin/model/best_selling_package_test.dart
 import 'package:flutter_test/flutter_test.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 
 void main() {
-  group('BestSellingPackage', () {
-    test('01. fromJson() harus mengembalikan model yang valid', () {
-      // Data JSON sampel
-      final Map<String, dynamic> json = {
-        'packageName': 'Paket Internet Super Cepat',
-        'count': 150,
-      };
+  group('PaketTerlarisModel', () {
+    // Dummy PaketModel for testing
+    final paket = PaketModel(
+      id: 'p1',
+      nama: 'Paket Test',
+      harga: 50000,
+      durasi: 30,
+      tipe: TipeDurasiPaket.days,
+    );
 
-      // Panggil metode fromJson
-      final model = PaketTerlarisModel.fromJson(json);
-
-      // Verifikasi bahwa model yang dikembalikan adalah instance dari BestSellingPackage
-      expect(model, isA<PaketTerlarisModel>());
-
-      // Verifikasi bahwa properti model sesuai dengan data JSON
-      expect(model.packageName, 'Paket Internet Super Cepat');
-      expect(model.count, 150);
-    });
-
-    test('02. toJson() harus mengembalikan map yang valid', () {
-      // Buat instance dari BestSellingPackage
-      const model = PaketTerlarisModel(
-        packageName: 'Paket Keluarga Bahagia',
-        count: 75,
+    test('01. harus membuat instance dengan benar', () {
+      final model = PaketTerlarisModel(
+        paket: paket,
+        totalTerjual: 150,
       );
 
-      // Panggil metode toJson
-      final json = model.toJson();
-
-      // Verifikasi bahwa map yang dikembalikan memiliki kunci dan nilai yang benar
-      expect(json, isA<Map<String, dynamic>>());
-      expect(json['packageName'], 'Paket Keluarga Bahagia');
-      expect(json['count'], 75);
-    });
-
-    test('03. props harus mengembalikan daftar properti yang benar', () {
-      // Buat instance dari BestSellingPackage
-      const model = PaketTerlarisModel(
-        packageName: 'Paket Gaming Pro',
-        count: 100,
-      );
-
-      // Verifikasi bahwa getter props mengembalikan daftar yang berisi kedua properti
-      expect(model.props, [model.packageName, model.count]);
+      expect(model.paket, paket);
+      expect(model.totalTerjual, 150);
     });
   });
 }

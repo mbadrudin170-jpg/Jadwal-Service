@@ -14,74 +14,57 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 
-/// Halaman untuk menampilkan detail dari sebuah kritik atau saran.
-///
-/// Pengguna dapat melihat isi pesan, pengirim, dan tanggal.
-/// Terdapat juga opsi untuk menghapus item ini dari database.
 class FeedbackDetailA extends ConsumerStatefulWidget {
-  /// ID unik dari dokumen kritik dan saran di Firestore.
   final String id;
 
-  /// Konstruktor untuk membuat instance [FeedbackDetailA].
-  const FeedbackDetailA({
-    super.key,
-    required this.id,
-  });
+  const FeedbackDetailA({super.key, required this.id});
 
   @override
   ConsumerState<FeedbackDetailA> createState() => _FeedbackDetailPageState();
 }
 
-/// State untuk [FeedbackDetailA].
 class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
-  late final FeedbackOpSqlite _feedbackOperation;
+  late final FeedbackOpSqlite _feedbackOpSqlite;
 
   late Future<FeedbackModel> _feedbackFuture;
 
   @override
   void initState() {
     super.initState();
-    _feedbackOperation = ref.watch(feedbackOpSqliteProvider);
+    _feedbackOpSqlite = ref.watch(feedbackOpSqliteProvider);
     Log.info(
-        'Membuka halaman detail kritik dan saran dengan ID: ${widget.id}.');
+      'Membuka halaman detail kritik dan saran dengan ID: ${widget.id}.',
+    );
     _loadData();
   }
 
   void _loadData() {
-    Log.info(
-      'Memulai proses pengambilan data kritik dan saran dari database.',
-    );
+    Log.info('Memulai proses pengambilan data kritik dan saran dari database.');
 
-    _feedbackFuture = _feedbackOperation.getById(widget.id).then((value) {
-      Log.info(
-        'Data kritik dan saran berhasil dimuat dari database.',
-      );
+    _feedbackFuture = _feedbackOpSqlite
+        .ambilBerdasarkanId(widget.id)
+        .then((value) {
+          Log.info('Data kritik dan saran berhasil dimuat dari database.');
 
-      return value;
-    }).catchError((Object e, StackTrace s) {
-      Log.error(
-        'Terjadi kesalahan saat mengambil data kritik dan saran.',
-        e: e,
-        s: s,
-      );
-      // diubah: Melempar error dengan tipe yang benar.
-      // Alasan: Mengikuti praktik terbaik penanganan error setelah tipenya dipastikan.
-      // diubah: Membungkus error dalam sebuah Exception untuk mematuhi aturan lint.
-      throw Exception(e);
-    });
+          return value;
+        })
+        .catchError((Object e, StackTrace s) {
+          Log.error(
+            'Terjadi kesalahan saat mengambil data kritik dan saran.',
+            e: e,
+            s: s,
+          );
+          throw Exception(e);
+        });
   }
 
   Future<void> _deleteFeedback() async {
-    Log.info(
-      'Menampilkan dialog konfirmasi penghapusan kritik dan saran.',
-    );
+    Log.info('Menampilkan dialog konfirmasi penghapusan kritik dan saran.');
 
     final konfirmasi = await showDialog<bool>(
       context: context,
-      builder: (final context) {
-        Log.info(
-          'Dialog konfirmasi penghapusan berhasil ditampilkan.',
-        );
+      builder: (context) {
+        Log.info('Dialog konfirmasi penghapusan berhasil ditampilkan.');
 
         return AlertDialog(
           title: const Text('Konfirmasi Hapus'),
@@ -106,9 +89,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
 
                 Navigator.of(context).pop(true);
               },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
-              ),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Hapus'),
             ),
           ],
@@ -116,85 +97,62 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
       },
     );
 
-    Log.info(
-      'Dialog konfirmasi selesai diproses dengan hasil: $konfirmasi.',
-    );
+    Log.info('Dialog konfirmasi selesai diproses dengan hasil: $konfirmasi.');
 
     if ((konfirmasi ?? false) && mounted) {
-      Log.info(
-        'Memulai proses penghapusan data kritik dan saran.',
-      );
+      Log.info('Memulai proses penghapusan data kritik dan saran.');
 
       try {
-        Log.info(
-          'Menampilkan loading dialog selama proses penghapusan.',
+        Log.info('Menampilkan loading dialog selama proses penghapusan.');
+
+        unawaited(
+          showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) {
+              Log.info('Loading dialog berhasil ditampilkan.');
+
+              return const Center(child: CircularProgressIndicator());
+            },
+          ),
         );
 
-        unawaited(showDialog<void>(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) {
-            Log.info(
-              'Loading dialog berhasil ditampilkan.',
-            );
+        Log.info('Memanggil operasi hapus kritik dan saran ke database.');
 
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          },
-        ));
+        await _feedbackOpSqlite.softDelete(widget.id);
 
-        Log.info(
-          'Memanggil operasi hapus kritik dan saran ke database.',
-        );
-
-        await _feedbackOperation.softDelete(
-          widget.id,
-        );
-
-        Log.info(
-          'Data kritik dan saran berhasil dihapus dari database.',
-        );
+        Log.info('Data kritik dan saran berhasil dihapus dari database.');
 
         if (mounted) {
-          Log.info(
-            'Menutup loading dialog.',
-          );
+          Log.info('Menutup loading dialog.');
 
           Navigator.of(context).pop();
         }
 
         if (mounted) {
-          ToastUtil.success(
-            context,
-            'Kritik dan saran berhasil dihapus',
-          );
+          ToastUtil.success(context, 'Kritik dan saran berhasil dihapus');
         }
 
         if (mounted) {
-          Log.info(
-            'Kembali ke halaman sebelumnya dengan status sukses.',
-          );
+          Log.info('Kembali ke halaman sebelumnya dengan status sukses.');
 
           Navigator.of(context).pop(true);
         }
       } catch (e, st) {
-        Log.error('Terjadi kesalahan saat menghapus kritik dan saran.',
-            e: e, s: st);
+        Log.error(
+          'Terjadi kesalahan saat menghapus kritik dan saran.',
+          e: e,
+          s: st,
+        );
 
         if (mounted) {
-          Log.warning(
-            'Menutup loading dialog karena terjadi error.',
-          );
+          Log.warning('Menutup loading dialog karena terjadi error.');
 
           Navigator.of(context).pop();
         }
 
         if (mounted) {
-          ToastUtil.error(
-            context,
-            'Gagal menghapus: $e',
-          );
+          ToastUtil.error(context, 'Gagal menghapus: $e');
         }
       }
     } else {
@@ -205,16 +163,12 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
   }
 
   @override
-  Widget build(final BuildContext context) {
-    Log.info(
-      'Membangun UI halaman detail kritik dan saran.',
-    );
+  Widget build(BuildContext context) {
+    Log.info('Membangun UI halaman detail kritik dan saran.');
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Detail Kritik & Saran',
-        ),
+        title: const Text('Detail Kritik & Saran'),
         actions: [
           IconButton(
             onPressed: () {},
@@ -236,13 +190,9 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
           );
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            Log.info(
-              'Data masih dalam proses loading.',
-            );
+            Log.info('Data masih dalam proses loading.');
 
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             Log.error(
               'FutureBuilder menerima error saat memuat data.',
@@ -250,15 +200,9 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
               s: snapshot.stackTrace,
             );
 
-            return Center(
-              child: Text(
-                'Error: ${snapshot.error}',
-              ),
-            );
+            return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
-            Log.info(
-              'FutureBuilder berhasil menerima data kritik dan saran.',
-            );
+            Log.info('FutureBuilder berhasil menerima data kritik dan saran.');
 
             final kritikSaran = snapshot.data!;
 
@@ -308,14 +252,9 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
                       gapH8,
                       Text(
                         kritikSaran.pesan,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          height: 1.5,
-                        ),
+                        style: const TextStyle(fontSize: 16, height: 1.5),
                       ),
-                      const Divider(
-                        height: 40,
-                      ),
+                      const Divider(height: 40),
                       Align(
                         alignment: Alignment.centerRight,
                         child: Text(
@@ -336,15 +275,9 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
               ),
             );
           } else {
-            Log.warning(
-              'FutureBuilder tidak menerima data kritik dan saran.',
-            );
+            Log.warning('FutureBuilder tidak menerima data kritik dan saran.');
 
-            return const Center(
-              child: Text(
-                'Data tidak ditemukan',
-              ),
-            );
+            return const Center(child: Text('Data tidak ditemukan'));
           }
         },
       ),

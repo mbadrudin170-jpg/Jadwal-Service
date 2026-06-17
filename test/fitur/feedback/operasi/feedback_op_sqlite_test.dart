@@ -31,8 +31,12 @@ void main() {
 
     when(mockSqliteDb.database).thenAnswer((_) async => mockDb);
     // Atur default stub untuk runComplexOperation
-    when(mockBaseOpSqlite.runComplexOperation(any, dariServer: anyNamed('dariServer')))
-        .thenAnswer((_) async {});
+    when(
+      mockBaseOpSqlite.runComplexOperation(
+        any,
+        dariServer: anyNamed('dariServer'),
+      ),
+    ).thenAnswer((_) async {});
   });
 
   const namaTabel = NamaTabel.feedback;
@@ -45,92 +49,121 @@ void main() {
 
   group('Operasi Tulis (Delegasi ke BaseOpSqlite)', () {
     test('01. add harus memanggil baseOpSqlite.sisipkan', () async {
-      when(mockBaseOpSqlite.sisipkan(namaTabel, any, dariServer: false))
-          .thenAnswer((_) async {});
+      when(
+        mockBaseOpSqlite.sisipkan(namaTabel, any, dariServer: false),
+      ).thenAnswer((_) async {});
 
-      await feedbackOpSqlite.add(feedback);
+      await feedbackOpSqlite.tambahFeedback(feedback);
 
-      verify(mockBaseOpSqlite.sisipkan(
-        namaTabel,
-        argThat(isA<Map<String, dynamic>>()),
-        dariServer: false,
-      )).called(1);
+      verify(
+        mockBaseOpSqlite.sisipkan(
+          namaTabel,
+          argThat(isA<Map<String, dynamic>>()),
+          dariServer: false,
+        ),
+      ).called(1);
     });
 
     test('02. delete harus memanggil baseOpSqlite.delete', () async {
-      when(mockBaseOpSqlite.delete(namaTabel, 'fb1', dariServer: false))
-          .thenAnswer((_) async {});
+      when(
+        mockBaseOpSqlite.delete(namaTabel, 'fb1', dariServer: false),
+      ).thenAnswer((_) async {});
 
       await feedbackOpSqlite.delete('fb1');
 
-      verify(mockBaseOpSqlite.delete(namaTabel, 'fb1', dariServer: false))
-          .called(1);
+      verify(
+        mockBaseOpSqlite.delete(namaTabel, 'fb1', dariServer: false),
+      ).called(1);
     });
 
     test('03. softDelete harus memanggil baseOpSqlite.softDelete', () async {
-      when(mockBaseOpSqlite.softDelete(namaTabel, 'fb1', dariServer: false))
-          .thenAnswer((_) async {});
+      when(
+        mockBaseOpSqlite.softDelete(namaTabel, 'fb1', dariServer: false),
+      ).thenAnswer((_) async {});
 
       await feedbackOpSqlite.softDelete('fb1');
 
-      verify(mockBaseOpSqlite.softDelete(namaTabel, 'fb1', dariServer: false))
-          .called(1);
+      verify(
+        mockBaseOpSqlite.softDelete(namaTabel, 'fb1', dariServer: false),
+      ).called(1);
     });
 
     test(
-        '04. sisipkanAtauPerbaruiBatch harus memanggil baseOpSqlite.sisipkanAtauPerbaruiBatch',
-        () async {
-      when(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
-              namaTabel, any, dariServer: false))
-          .thenAnswer((_) async {});
+      '04. sisipkanAtauPerbaruiBatch harus memanggil baseOpSqlite.sisipkanAtauPerbaruiBatch',
+      () async {
+        when(
+          mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+            namaTabel,
+            any,
+            dariServer: false,
+          ),
+        ).thenAnswer((_) async {});
 
-      await feedbackOpSqlite.sisipkanAtauPerbaruiBatch([feedback]);
+        await feedbackOpSqlite.sisipkanAtauPerbaruiBatch([feedback]);
 
-      verify(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
-        namaTabel,
-        argThat(isA<List<Map<String, dynamic>>>()),
-        dariServer: false,
-      )).called(1);
-    });
-
-    test(
-        '05. sisipkanAtauPerbaruiBatch tidak melakukan apa-apa jika list kosong',
-        () async {
-      await feedbackOpSqlite.sisipkanAtauPerbaruiBatch([]);
-
-      verifyNever(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
-          any, any, dariServer: anyNamed('dariServer')));
-    });
+        verify(
+          mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+            namaTabel,
+            argThat(isA<List<Map<String, dynamic>>>()),
+            dariServer: false,
+          ),
+        ).called(1);
+      },
+    );
 
     test(
-        '06. deleteAll harus menjalankan delete dalam runComplexOperation',
-        () async {
-      final mockTxn = MockTransaction();
-      // Konfigurasi ulang mock untuk mengembalikan hasil dari action
-      when(mockBaseOpSqlite.runComplexOperation(any, dariServer: anyNamed('dariServer')))
-          .thenAnswer((invocation) async {
-        final action = invocation.positionalArguments[0] as Future<int> Function(Transaction);
-        return action(mockTxn);
-      });
+      '05. sisipkanAtauPerbaruiBatch tidak melakukan apa-apa jika list kosong',
+      () async {
+        await feedbackOpSqlite.sisipkanAtauPerbaruiBatch([]);
 
-      when(mockTxn.delete(namaTabel)).thenAnswer((_) async => 5);
+        verifyNever(
+          mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+            any,
+            any,
+            dariServer: anyNamed('dariServer'),
+          ),
+        );
+      },
+    );
 
-      await feedbackOpSqlite.deleteAll();
+    test(
+      '06. deleteAll harus menjalankan delete dalam runComplexOperation',
+      () async {
+        final mockTxn = MockTransaction();
+        // Konfigurasi ulang mock untuk mengembalikan hasil dari action
+        when(
+          mockBaseOpSqlite.runComplexOperation(
+            any,
+            dariServer: anyNamed('dariServer'),
+          ),
+        ).thenAnswer((invocation) async {
+          final action =
+              invocation.positionalArguments[0]
+                  as Future<int> Function(Transaction);
+          return action(mockTxn);
+        });
 
-      // Verifikasi bahwa runComplexOperation dipanggil
-      verify(mockBaseOpSqlite.runComplexOperation(any, dariServer: false))
-          .called(1);
-    });
+        when(mockTxn.delete(namaTabel)).thenAnswer((_) async => 5);
+
+        await feedbackOpSqlite.deleteAll();
+
+        // Verifikasi bahwa runComplexOperation dipanggil
+        verify(
+          mockBaseOpSqlite.runComplexOperation(any, dariServer: false),
+        ).called(1);
+      },
+    );
   });
 
   group('Operasi Baca (Query Langsung)', () {
     final feedbackMap = feedback.toSqlite();
 
     test('07. getAll harus mengembalikan list FeedbackModel', () async {
-      when(mockDb.query(namaTabel, orderBy: anyNamed('orderBy')))
-          .thenAnswer((_) async => [feedbackMap]);
+      when(
+        mockDb.query(namaTabel, orderBy: anyNamed('orderBy')),
+      ).thenAnswer((_) async => [feedbackMap]);
 
-      final result = await feedbackOpSqlite.getAll();
+      final result = await feedbackOpSqlite.ambilSemua();
 
       expect(result, isA<List<FeedbackModel>>());
       expect(result.length, 1);
@@ -138,95 +171,172 @@ void main() {
     });
 
     test(
-        '08. getAllActiveFeedback harus query dengan where isDeleted = 0',
-        () async {
-      when(mockDb.query(
-        namaTabel,
-        where: anyNamed('where'),
-        orderBy: anyNamed('orderBy'),
-      )).thenAnswer((_) async => [feedbackMap]);
+      '08. getAllActiveFeedback harus query dengan where isDeleted = 0',
+      () async {
+        when(
+          mockDb.query(
+            namaTabel,
+            where: anyNamed('where'),
+            orderBy: anyNamed('orderBy'),
+          ),
+        ).thenAnswer((_) async => [feedbackMap]);
 
-      await feedbackOpSqlite.getAllActiveFeedback();
+        await feedbackOpSqlite.ambilSemuaFeedbackAktif();
 
-      verify(mockDb.query(
-        namaTabel,
-        where: '${NamaKolom.dihapus} = 0',
-        orderBy: '${NamaKolom.tanggal} DESC',
-      )).called(1);
-    });
+        verify(
+          mockDb.query(
+            namaTabel,
+            where: '${NamaKolom.dihapus} = 0',
+            orderBy: '${NamaKolom.tanggal} DESC',
+          ),
+        ).called(1);
+      },
+    );
 
-    test('09. getById harus mengembalikan FeedbackModel jika ditemukan', () async {
-      when(mockDb.query(
-        any,
-        where: anyNamed('where'),
-        whereArgs: anyNamed('whereArgs'),
-      )).thenAnswer((_) async => [feedbackMap]);
+    test(
+      '09. getById harus mengembalikan FeedbackModel jika ditemukan',
+      () async {
+        when(
+          mockDb.query(
+            any,
+            where: anyNamed('where'),
+            whereArgs: anyNamed('whereArgs'),
+          ),
+        ).thenAnswer((_) async => [feedbackMap]);
 
-      final result = await feedbackOpSqlite.getById('fb1');
+        final result = await feedbackOpSqlite.ambilBerdasarkanId('fb1');
 
-      expect(result.id, 'fb1');
-      verify(mockDb.query(
-        namaTabel,
-        where: 'id = ?',
-        whereArgs: ['fb1'],
-      )).called(1);
-    });
+        expect(result.id, 'fb1');
+        verify(
+          mockDb.query(namaTabel, where: 'id = ?', whereArgs: ['fb1']),
+        ).called(1);
+      },
+    );
 
     test('10. getById harus melempar Exception jika tidak ditemukan', () async {
-      when(mockDb.query(
-        any,
-        where: anyNamed('where'),
-        whereArgs: anyNamed('whereArgs'),
-      )).thenAnswer((_) async => []); // List kosong
+      when(
+        mockDb.query(
+          any,
+          where: anyNamed('where'),
+          whereArgs: anyNamed('whereArgs'),
+        ),
+      ).thenAnswer((_) async => []); // List kosong
 
       expect(
-        () => feedbackOpSqlite.getById('tidak-ada'),
+        () => feedbackOpSqlite.ambilBerdasarkanId('tidak-ada'),
         throwsA(isA<Exception>()),
       );
     });
 
-    test('11. getChanges harus query dengan where diperbaruiPada > ?', () async {
-      final lastSync = DateTime(2023);
-      when(mockDb.query(
-        any,
-        where: anyNamed('where'),
-        whereArgs: anyNamed('whereArgs'),
-      )).thenAnswer((_) async => [feedbackMap]);
+    test(
+      '11. getChanges harus query dengan where diperbaruiPada > ?',
+      () async {
+        final lastSync = DateTime(2023);
+        when(
+          mockDb.query(
+            any,
+            where: anyNamed('where'),
+            whereArgs: anyNamed('whereArgs'),
+          ),
+        ).thenAnswer((_) async => [feedbackMap]);
 
-      await feedbackOpSqlite.getChanges(lastSync);
+        await feedbackOpSqlite.ambilPerubahan(lastSync);
 
-      verify(mockDb.query(
-        namaTabel,
-        where: '${NamaKolom.diperbaruiPada} > ?',
-        whereArgs: [lastSync.millisecondsSinceEpoch],
-      )).called(1);
-    });
+        verify(
+          mockDb.query(
+            namaTabel,
+            where: '${NamaKolom.diperbaruiPada} > ?',
+            whereArgs: [lastSync.millisecondsSinceEpoch],
+          ),
+        ).called(1);
+      },
+    );
 
     test('12. getByIds harus query dengan klausa IN (...)', () async {
       final ids = ['fb1', 'fb2'];
-      when(mockDb.query(
-        any,
-        where: anyNamed('where'),
-        whereArgs: anyNamed('whereArgs'),
-      )).thenAnswer((_) async => [feedbackMap]);
+      when(
+        mockDb.query(
+          any,
+          where: anyNamed('where'),
+          whereArgs: anyNamed('whereArgs'),
+        ),
+      ).thenAnswer((_) async => [feedbackMap]);
 
       await feedbackOpSqlite.getByIds(ids);
 
-      verify(mockDb.query(
-        namaTabel,
-        where: 'id IN (?,?)',
-        whereArgs: ids,
-      )).called(1);
+      verify(
+        mockDb.query(namaTabel, where: 'id IN (?,?)', whereArgs: ids),
+      ).called(1);
     });
 
-    test('13. getByIds harus mengembalikan list kosong jika input kosong', () async {
-      final result = await feedbackOpSqlite.getByIds([]);
-      expect(result, isEmpty);
-      verifyNever(mockDb.query(
-        any,
-        where: anyNamed('where'),
-        whereArgs: anyNamed('whereArgs'),
-      ));
-    });
+    test(
+      '13. getByIds harus mengembalikan list kosong jika input kosong',
+      () async {
+        final result = await feedbackOpSqlite.getByIds([]);
+        expect(result, isEmpty);
+        verifyNever(
+          mockDb.query(
+            any,
+            where: anyNamed('where'),
+            whereArgs: anyNamed('whereArgs'),
+          ),
+        );
+      },
+    );
+
+    test(
+      '14. softDeleteAll harus memanggil baseOpSqlite.softDeleteAll',
+      () async {
+        when(
+          mockBaseOpSqlite.softDeleteAll(namaTabel, dariServer: false),
+        ).thenAnswer((_) async => 5);
+
+        final count = await feedbackOpSqlite.softDeleteAll();
+
+        expect(count, 5);
+        verify(
+          mockBaseOpSqlite.softDeleteAll(namaTabel, dariServer: false),
+        ).called(1);
+      },
+    );
+
+    test(
+      '15. deleteByUserId harus menjalankan delete dengan where di dalam runComplexOperation',
+      () async {
+        final mockTxn = MockTransaction();
+        const userId = 'user-test-123';
+
+        when(
+          mockBaseOpSqlite.runComplexOperation<int>(any, dariServer: false),
+        ).thenAnswer((invocation) async {
+          final action =
+              invocation.positionalArguments[0]
+                  as Future<int> Function(Transaction);
+          return await action(mockTxn);
+        });
+
+        when(
+          mockTxn.delete(
+            namaTabel,
+            where: '${NamaKolom.userId} = ?',
+            whereArgs: [userId],
+          ),
+        ).thenAnswer((_) async => 3);
+
+        await feedbackOpSqlite.deleteByUserId(userId);
+
+        verify(
+          mockBaseOpSqlite.runComplexOperation(any, dariServer: false),
+        ).called(1);
+
+        verify(
+          mockTxn.delete(
+            namaTabel,
+            where: '${NamaKolom.userId} = ?',
+            whereArgs: [userId],
+          ),
+        ).called(1);
+      },
+    );
   });
 }

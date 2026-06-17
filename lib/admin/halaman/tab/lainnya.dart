@@ -112,13 +112,15 @@ class _LainnyaPageState extends State<LainnyaPage> {
             icon: TIcons.clock,
             title: 'Riwayat Aktivasi Paket',
             onTap: () => _navigateTo(
-                const RiwayatAktivasiPaket(), 'Riwayat Aktivasi Paket'),
+              const RiwayatAktivasiPaket(),
+              'Riwayat Aktivasi Paket',
+            ),
           ),
           _buildMenuItem(
             context: context,
             icon: TIcons.help,
             title: 'Kritik dan Saran',
-            onTap: () => _navigateTo(const FeedbackPage(), 'Kritik dan Saran'),
+            onTap: () => _navigateTo(const FeedbackPageA(), 'Kritik dan Saran'),
           ),
           _buildMenuItem(
             context: context,
@@ -164,7 +166,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
               icon: TIcons.activeCustomer,
               title: 'halamana tambah data dummy',
               onTap: () => _navigateTo(const HalamanDataDummy(), 'Halaman Tes'),
-            )
+            ),
         ],
       ),
     );
