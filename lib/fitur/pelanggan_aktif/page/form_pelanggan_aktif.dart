@@ -1,4 +1,4 @@
-// path lib/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart
+// path: lib/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart
 
 import 'dart:async';
 
@@ -10,6 +10,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
+import 'package:wifi/fitur/paket/core/perhitungan_paket.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
@@ -81,19 +82,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     return (_saldoPoinPelanggan - poinDipakai).clamp(0, 999999999);
   }
 
-  int _hitungDurasiPaket(PaketModel paket) {
-    switch (paket.tipe) {
-      case TipeDurasiPaket.minutes:
-        return paket.durasi;
-      case TipeDurasiPaket.hours:
-        return paket.durasi * 60;
-      case TipeDurasiPaket.days:
-        return paket.durasi * 24 * 60;
-      case TipeDurasiPaket.months:
-        return paket.durasi * 30 * 24 * 60;
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -133,8 +121,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
       final daftarPaket = (hasil[1] as List<PaketModel>)
         ..sort(
-          (a, b) =>
-              _hitungDurasiPaket(a).compareTo(_hitungDurasiPaket(b)),
+          (a, b) => PerhitunganPaket()
+              .hitungDurasiPaket(a)
+              .compareTo(PerhitunganPaket().hitungDurasiPaket(b)),
         );
 
       final daftarDompet = (hasil[2] as List<DompetModel>)
