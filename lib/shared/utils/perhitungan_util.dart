@@ -18,18 +18,22 @@ class PerhitunganUtil {
     Log.info('  - Tanggal Mulai: ${tanggalMulai.toIso8601String()}');
     Log.info('  - Nama Paket: ${paket.nama}');
 
-    DateTime hasil = _tambahDurasi(tanggalMulai, paket.tipe, paket.durasi);
+    DateTime hasil = _tambahDurasiTanggalBerakhir(
+      tanggalMulai,
+      paket.tipe,
+      paket.durasi,
+    );
 
     if (durasiBonus != null && durasiBonus > 0 && tipeDurasiBonus != null) {
       Log.info('  - Menambahkan Bonus: $durasiBonus ${tipeDurasiBonus.name}');
-      hasil = _tambahDurasi(hasil, tipeDurasiBonus, durasiBonus);
+      hasil = _tambahDurasiTanggalBerakhir(hasil, tipeDurasiBonus, durasiBonus);
     }
 
     Log.info('  - Hasil Tanggal Berakhir: ${hasil.toIso8601String()}');
     return hasil;
   }
 
-  static DateTime _tambahDurasi(
+  static DateTime _tambahDurasiTanggalBerakhir(
     final DateTime asal,
     final TipeDurasiPaket tipe,
     final int jumlah,
