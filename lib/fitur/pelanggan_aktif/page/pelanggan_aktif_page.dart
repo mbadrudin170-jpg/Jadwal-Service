@@ -159,8 +159,8 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
   }
 
   Future<void> _showSortDialog() async {
-    final currentState = ref.read(pelangganAktifProvider).value;
-    if (currentState == null) {
+    final state = ref.read(pelangganAktifProvider).value;
+    if (state == null) {
       ToastUtil.info(context, 'Data sedang dimuat, coba sesaat lagi.');
       return;
     }
@@ -181,7 +181,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: SortOption.values.map((o) {
-                    final diPilih = currentState.sortBy == o;
+                    final diPilih = state.sortBy == o;
                     return ListTile(
                       dense: true,
                       visualDensity: const VisualDensity(vertical: -2),
