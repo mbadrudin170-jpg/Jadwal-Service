@@ -1,7 +1,8 @@
-// path: lib/shared/utils/calculation_util.dart
+// path: lib/shared/utils/perhitungan_util.dart
 
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
@@ -45,8 +46,10 @@ class PerhitunganUtil {
     }
   }
 
-  static String getPoinKadaluarsa(
-      {required DateTime tanggalMulai, DateTime? sekarang}) {
+  static String getPoinKadaluarsa({
+    required DateTime tanggalMulai,
+    DateTime? sekarang,
+  }) {
     final tanggalSekarang = sekarang ?? DateTime.now();
     final selisihHari = tanggalSekarang.difference(tanggalMulai).inDays;
 
@@ -56,8 +59,8 @@ class PerhitunganUtil {
     return '';
   }
 
-  static int sisaHari(DateTime endDate, {DateTime? seakrang}) {
-    final selisihHari = DateUtils.dateOnly(seakrang ?? DateTime.now());
+  static int sisaHari(DateTime endDate, {DateTime? sekarang}) {
+    final selisihHari = DateUtils.dateOnly(sekarang ?? DateTime.now());
     final tanggalBerakhir = DateUtils.dateOnly(endDate);
     return tanggalBerakhir.difference(selisihHari).inDays;
   }
@@ -83,11 +86,23 @@ class PerhitunganUtil {
     }
   }
 
+  /// Fungsi untuk pengujian menggunakan pustaka timeago.
+  static String cobaAmbilTeksSisaMasaAktif(
+    final DateTime tanggalBerakhir, {
+    final DateTime? sekarang,
+  }) {
+    // Inisialisasi locale Bahasa Indonesia untuk timeago.
+    // Idealnya, ini dipanggil sekali di main.dart.
+    timeago.setLocaleMessages('id', timeago.IdMessages());
+
+    return timeago.format(tanggalBerakhir, locale: 'id', clock: sekarang);
+  }
+
   static Color ambilWarnaSisaMasaAktif(
     final DateTime tanggalBerakhir, {
     final DateTime? sekarang,
   }) {
-    final sisa = sisaHari(tanggalBerakhir, seakrang: sekarang);
+    final sisa = sisaHari(tanggalBerakhir, sekarang: sekarang);
 
     if (sisa > 7) {
       return Colors.green;
