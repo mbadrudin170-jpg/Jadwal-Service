@@ -16,18 +16,19 @@ class PembersihanDataOperasi {
   PembersihanDataOperasi({
     @visibleForTesting final SqliteDatabase? sqliteDb,
     @visibleForTesting final FirebaseFirestore? firestore,
-  })  : _sqliteDb = sqliteDb ?? SqliteDatabase.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance;
+  }) : _sqliteDb = sqliteDb ?? SqliteDatabase.instance,
+       _firestore = firestore ?? FirebaseFirestore.instance;
 
   Future<int> hapusPermanentDataYangDiarsip({
-    required final int retentionDays,
+    required final int waktuPenjadwalanHapusDataArsip,
   }) async {
     Log.info(
-      'Memulai proses pembersihan data arsip yang lebih tua dari $retentionDays hari (SQLite & Firestore).',
+      'Memulai proses pembersihan data arsip yang lebih tua dari $waktuPenjadwalanHapusDataArsip hari (SQLite & Firestore).',
     );
     int totalDataDihapus = 0;
-    final timeLimit =
-        DateTime.now().toUtc().subtract(Duration(days: retentionDays));
+    final timeLimit = DateTime.now().toUtc().subtract(
+      Duration(days: waktuPenjadwalanHapusDataArsip),
+    );
     final timeLimitEpoch = timeLimit.millisecondsSinceEpoch;
     Log.info(
       'Batas waktu untuk penghapusan arsip diatur ke: ${timeLimit.toIso8601String()} (UTC)',
@@ -45,7 +46,7 @@ class PembersihanDataOperasi {
       NamaTabel.pesananPelanggan,
       NamaTabel.versiApkUser,
       NamaTabel.feedback,
-      NamaTabel.notifikasi
+      NamaTabel.notifikasi,
     ];
 
     // --- Langkah 1: Hapus dari Database Lokal (SQLite) ---
@@ -79,12 +80,14 @@ class PembersihanDataOperasi {
         final deletedRows = await db.rawDelete(query, [timeLimitEpoch]);
         if (deletedRows > 0) {
           Log.info(
-              '[SQLite - $table] Berhasil menghapus $deletedRows baris data kadaluarsa.');
+            '[SQLite - $table] Berhasil menghapus $deletedRows baris data kadaluarsa.',
+          );
           totalDihapus += deletedRows;
         }
       }
       Log.info(
-          'Total $totalDihapus baris data arsip kadaluarsa berhasil dihapus dari database SQLite.');
+        'Total $totalDihapus baris data arsip kadaluarsa berhasil dihapus dari database SQLite.',
+      );
     } on Exception catch (e, s) {
       Log.error('Gagal menjalankan pembersihan data di SQLite.', e: e, s: s);
     }
@@ -93,7 +96,9 @@ class PembersihanDataOperasi {
 
   /// Membersihkan data kadaluarsa dari database remote Firestore.
   Future<int> _hapusDataFirebase(
-      List<String> koleksi, DateTime timeLimit) async {
+    List<String> koleksi,
+    DateTime timeLimit,
+  ) async {
     int totalDihapus = 0;
     try {
       Log.info('Memulai proses pembersihan data untuk Firestore...');
@@ -132,7 +137,8 @@ class PembersihanDataOperasi {
 
       if (dokumenDitemukan > 0) {
         Log.info(
-            'Melakukan commit batch pembersihan data untuk Firestore ($dokumenDitemukan dokumen)...');
+          'Melakukan commit batch pembersihan data untuk Firestore ($dokumenDitemukan dokumen)...',
+        );
         await batch.commit();
         totalDihapus = dokumenDitemukan;
         Log.info(
@@ -140,11 +146,15 @@ class PembersihanDataOperasi {
         );
       } else {
         Log.info(
-            'Tidak ada data arsip kadaluarsa (isDeleted:true) untuk dihapus di Firestore.');
+          'Tidak ada data arsip kadaluarsa (isDeleted:true) untuk dihapus di Firestore.',
+        );
       }
     } catch (e, s) {
-      Log.error('Gagal menjalankan batch pembersihan data di Firestore.',
-          e: e, s: s);
+      Log.error(
+        'Gagal menjalankan batch pembersihan data di Firestore.',
+        e: e,
+        s: s,
+      );
       // Melempar error karena kegagalan di Firestore bisa jadi lebih kritis.
       rethrow;
     }

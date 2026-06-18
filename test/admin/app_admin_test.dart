@@ -118,7 +118,7 @@ void main() {
     );
     when(
       mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-        retentionDays: anyNamed('retentionDays'),
+        waktuPenjadwalanHapusDataArsip: anyNamed('retentionDays'),
       ),
     ).thenAnswer((_) async => 1);
   });
@@ -252,7 +252,7 @@ void main() {
       verify(mockUnduhanAwalService.jalankanUnduhanAwal()).called(1);
       verify(
         mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-          retentionDays: 30,
+          waktuPenjadwalanHapusDataArsip: 30,
         ),
       ).called(1);
     });
@@ -282,7 +282,7 @@ void main() {
       verifyNever(mockUnduhanAwalService.jalankanUnduhanAwal());
       verifyNever(
         mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-          retentionDays: anyNamed('retentionDays'),
+          waktuPenjadwalanHapusDataArsip: anyNamed('retentionDays'),
         ),
       );
     });

@@ -82,8 +82,12 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
       await sqliteDb.database;
 
-      final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
-      await pelangganAktifOpSqlite.hapusPermanenDataSoftDelete();
+      try {
+        final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
+        await pelangganAktifOpSqlite.hapusPermanenDataSoftDelete();
+      } catch (e) {
+        Log.error('gagal menghapus data yang status nya diarsipkan');
+      }
 
       final isOnline = await koneksiInternetService.cekInternet(ref);
       if (isOnline) {
@@ -104,10 +108,13 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
         final dataPengaturan = await ref
             .read(settingsOpSqliteProvider)
             .ambilSettings();
-        final retentionDays = dataPengaturan.waktuOtomatisHapusDataArsip;
+        final waktuPenjadwalanHapusDataArsip =
+            dataPengaturan.waktuOtomatisHapusDataArsip;
         final pembersihanDataOperasi = ref.read(pembersihanDataOperasiProvider);
         await pembersihanDataOperasi
-            .hapusPermanentDataYangDiarsip(retentionDays: retentionDays)
+            .hapusPermanentDataYangDiarsip(
+              waktuPenjadwalanHapusDataArsip: waktuPenjadwalanHapusDataArsip,
+            )
             .timeout(const Duration(seconds: 5));
       } else {
         Log.warning(

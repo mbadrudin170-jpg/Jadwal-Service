@@ -710,11 +710,11 @@ class MockPembersihanDataOperasi extends _i1.Mock
 
   @override
   _i8.Future<int> hapusPermanentDataYangDiarsip({
-    required int? retentionDays,
+    required int? waktuPenjadwalanHapusDataArsip,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#hapusPermanentDataYangDiarsip, [], {
-              #retentionDays: retentionDays,
+              #retentionDays: waktuPenjadwalanHapusDataArsip,
             }),
             returnValue: _i8.Future<int>.value(0),
           )
