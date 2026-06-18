@@ -102,8 +102,8 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
         final dataPengaturan =
             await ref.read(settingsOpSqliteProvider).ambilSettings();
         final retentionDays = dataPengaturan.waktuOtomatisHapusDataArsip;
-        final dataCleaningOperation = ref.read(pembersihanDataOperasiProvider);
-        await dataCleaningOperation
+        final pembersihanDataOperasi = ref.read(pembersihanDataOperasiProvider);
+        await pembersihanDataOperasi
             .hapusPermanentDataYangDiarsip(retentionDays: retentionDays)
             .timeout(const Duration(seconds: 5));
       } else {
