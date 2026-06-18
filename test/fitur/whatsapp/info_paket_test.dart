@@ -40,7 +40,7 @@ void main() {
     UrlLauncherPlatform.instance = mockUrlLauncher;
 
     pesanInfoPaket = PesanInfoPaket(
-      pelangganAktifOpSqlite: mockPelangganOpSqlite,
+      pelangganOpSqlite: mockPelangganOpSqlite,
       paketOpSqlite: mockPaketOpSqlite,
     );
   });
@@ -83,14 +83,11 @@ void main() {
           () => mockPaketOpSqlite.ambilBerdasarkanId('p1'),
         ).thenAnswer((_) async => paket);
 
-        when(
-          () => mockUrlLauncher.canLaunch(any()),
-        ).thenAnswer((_) async => true);
+        when(() => mockUrlLauncher.canLaunch(any()))
+            .thenAnswer((_) async => true);
 
-        // Diubah kembali menjadi 2 argumen posisional wajib
-        when(
-          () => mockUrlLauncher.launchUrl(any(), any()),
-        ).thenAnswer((_) async => true);
+        when(() => mockUrlLauncher.launchUrl(any(), any()))
+            .thenAnswer((_) async => true);
 
         await pesanInfoPaket.kirimRincianPaket(pelangganAktif);
 
@@ -159,9 +156,8 @@ void main() {
           () => mockPaketOpSqlite.ambilBerdasarkanId('p1'),
         ).thenAnswer((_) async => paket);
 
-        when(
-          () => mockUrlLauncher.canLaunch(any()),
-        ).thenAnswer((_) async => false);
+        when(() => mockUrlLauncher.canLaunch(any()))
+            .thenAnswer((_) async => false);
 
         await pesanInfoPaket.kirimRincianPaket(pelangganAktif);
 

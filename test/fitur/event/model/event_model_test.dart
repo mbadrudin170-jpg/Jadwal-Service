@@ -27,21 +27,22 @@ void main() {
 
     group('fromSupabase', () {
       test(
-          '02. harus mengembalikan objek EventModel yang valid dari data Supabase',
-          () {
-        final Map<String, dynamic> supabaseData = {
-          NamaKolom.linkGambar: 'https://example.com/image.png',
-          NamaKolom.statusAktif: true,
-          NamaKolom.tanggalDibuat: tDateTime.toIso8601String(),
-          NamaKolom.tanggalMulai: tDateTime.toIso8601String(),
-          NamaKolom.tangglberakhir: tDateTime.toIso8601String(),
-          NamaKolom.diperbaruiPada: tDateTime.toIso8601String(),
-        };
+        '02. harus mengembalikan objek EventModel yang valid dari data Supabase',
+        () {
+          final Map<String, dynamic> supabaseData = {
+            NamaKolom.linkGambar: 'https://example.com/image.png',
+            NamaKolom.statusAktif: true,
+            NamaKolom.tanggalDibuat: tDateTime.toIso8601String(),
+            NamaKolom.tanggalMulai: tDateTime.toIso8601String(),
+            NamaKolom.tangglberakhir: tDateTime.toIso8601String(),
+            NamaKolom.diperbaruiPada: tDateTime.toIso8601String(),
+          };
 
-        final result = EventModel.fromSupabase('evt-123', supabaseData);
+          final result = EventModel.fromSupabase('evt-123', supabaseData);
 
-        expect(result, tEventModel);
-      });
+          expect(result, tEventModel);
+        },
+      );
     });
 
     group('toSupabase', () {
@@ -61,37 +62,42 @@ void main() {
     });
 
     group('fromSqlite', () {
-      test('04. harus mengembalikan objek EventModel yang valid dari Map SQLite',
-          () {
-        final sqliteMap = {
-          NamaKolom.id: 'evt-123',
-          NamaKolom.linkGambar: 'https://example.com/image.png',
-          NamaKolom.statusAktif: 1,
-          NamaKolom.tanggalDibuat: tDateTime.millisecondsSinceEpoch,
-          NamaKolom.tanggalMulai: tDateTime.millisecondsSinceEpoch,
-          NamaKolom.tangglberakhir: tDateTime.millisecondsSinceEpoch,
-          NamaKolom.diperbaruiPada: tDateTime.millisecondsSinceEpoch,
-        };
+      test(
+        '04. harus mengembalikan objek EventModel yang valid dari Map SQLite',
+        () {
+          final sqliteMap = {
+            NamaKolom.id: 'evt-123',
+            NamaKolom.linkGambar: 'https://example.com/image.png',
+            NamaKolom.statusAktif: 1,
+            NamaKolom.tanggalDibuat: tDateTime.millisecondsSinceEpoch,
+            NamaKolom.tanggalMulai: tDateTime.millisecondsSinceEpoch,
+            NamaKolom.tangglberakhir: tDateTime.millisecondsSinceEpoch,
+            NamaKolom.diperbaruiPada: tDateTime.millisecondsSinceEpoch,
+          };
 
-        final result = EventModel.fromSqlite(sqliteMap);
-        expect(result, tEventModel);
-      });
+          final result = EventModel.fromSqlite(sqliteMap);
+          expect(result, tEventModel);
+        },
+      );
     });
 
     group('toSqlite', () {
-      test('05. harus menghasilkan Map yang benar untuk penyimpanan SQLite', () {
-        final result = tEventModel.toSqlite();
-        final expectedMap = {
-          NamaKolom.id: 'evt-123',
-          NamaKolom.linkGambar: 'https://example.com/image.png',
-          NamaKolom.statusAktif: 1,
-          NamaKolom.tanggalDibuat: tDateTime.millisecondsSinceEpoch,
-          NamaKolom.tanggalMulai: tDateTime.millisecondsSinceEpoch,
-          NamaKolom.tangglberakhir: tDateTime.millisecondsSinceEpoch,
-          NamaKolom.diperbaruiPada: tDateTime.millisecondsSinceEpoch,
-        };
-        expect(result, expectedMap);
-      });
+      test(
+        '05. harus menghasilkan Map yang benar untuk penyimpanan SQLite',
+        () {
+          final result = tEventModel.toSqlite();
+          final expectedMap = {
+            NamaKolom.id: 'evt-123',
+            NamaKolom.linkGambar: 'https://example.com/image.png',
+            NamaKolom.statusAktif: 1,
+            NamaKolom.tanggalDibuat: tDateTime.millisecondsSinceEpoch,
+            NamaKolom.tanggalMulai: tDateTime.millisecondsSinceEpoch,
+            NamaKolom.tangglberakhir: tDateTime.millisecondsSinceEpoch,
+            NamaKolom.diperbaruiPada: tDateTime.millisecondsSinceEpoch,
+          };
+          expect(result, expectedMap);
+        },
+      );
     });
   });
 }

@@ -13,21 +13,21 @@ import 'package:wifi/shared/utils/format_util.dart';
 
 final pesanInfoPaketProvider = Provider<PesanInfoPaket>((ref) {
   return PesanInfoPaket(
-    pelangganAktifOpSqlite: ref.read(pelangganOpSqliteProvider),
+    pelangganOpSqlite: ref.read(pelangganOpSqliteProvider),
     paketOpSqlite: ref.read(paketOpSqliteProvider),
   );
 });
 
 /// Kelas untuk mengirim pesan informasi paket melalui WhatsApp.
 class PesanInfoPaket {
-  final PelangganOpSqlite _pelangganAktifOpSqlite;
+  final PelangganOpSqlite _pelangganOpSqlite;
   final PaketOpSqlite _paketOpSqlite;
 
   PesanInfoPaket({
-    required PelangganOpSqlite pelangganAktifOpSqlite,
+    required PelangganOpSqlite pelangganOpSqlite,
     required PaketOpSqlite paketOpSqlite,
-  }) : _pelangganAktifOpSqlite = pelangganAktifOpSqlite,
-       _paketOpSqlite = paketOpSqlite;
+  })  : _pelangganOpSqlite = pelangganOpSqlite,
+        _paketOpSqlite = paketOpSqlite;
 
   /// Mengambil detail pelanggan dan paket, membuat pesan,
   /// lalu mengirimkannya melalui WhatsApp.
@@ -40,7 +40,7 @@ class PesanInfoPaket {
       Log.info(
         'Mengambil data pelanggan dengan ID: ${pelangganAktif.idPelanggan}',
       );
-      final PelangganModel? pelanggan = await _pelangganAktifOpSqlite
+      final PelangganModel? pelanggan = await _pelangganOpSqlite
           .ambilBerdasarkanId(pelangganAktif.idPelanggan);
       Log.info('Mengambil data paket dengan ID: ${pelangganAktif.idPaket}');
       final PaketModel? paket = await _paketOpSqlite.ambilBerdasarkanId(
