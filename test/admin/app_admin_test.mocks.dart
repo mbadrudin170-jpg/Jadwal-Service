@@ -300,8 +300,8 @@ class MockLayananNotifikasi extends _i1.Mock implements _i9.LayananNotifikasi {
       (super.noSuchMethod(
             Invocation.method(#jadwalNotifikasi, [], {
               #id: id,
-              #title: judul,
-              #body: pesan,
+              #judul: judul,
+              #pesan: pesan,
               #jadwal: jadwal,
               #payload: payload,
             }),
@@ -495,7 +495,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   @override
   _i8.Future<_i5.PelangganAktifModel?> ambilBerdasarkanid(String? id) =>
       (super.noSuchMethod(
-            Invocation.method(#getById, [id]),
+            Invocation.method(#ambilBerdasarkanid, [id]),
             returnValue: _i8.Future<_i5.PelangganAktifModel?>.value(),
           )
           as _i8.Future<_i5.PelangganAktifModel?>);
@@ -526,10 +526,10 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
 
   @override
   _i8.Future<void> scheduleNotification(
-    _i5.PelangganAktifModel? activeCustomer,
+    _i5.PelangganAktifModel? pelangganAktif,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#scheduleNotification, [activeCustomer]),
+            Invocation.method(#scheduleNotification, [pelangganAktif]),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),
           )
@@ -537,13 +537,13 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
 
   @override
   _i8.Future<void> sisipkanAtauPerbaruiBatch(
-    List<_i5.PelangganAktifModel>? items, {
+    List<_i5.PelangganAktifModel>? daftarPelangganAktif, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #sisipkanAtauPerbaruiBatch,
-              [items],
+              [daftarPelangganAktif],
               {#dariServer: dariServer},
             ),
             returnValue: _i8.Future<void>.value(),
@@ -554,7 +554,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   @override
   _i8.Future<void> softDelete(String? id, {bool? dariServer = false}) =>
       (super.noSuchMethod(
-            Invocation.method(#softDelete, [id], {#fromServer: dariServer}),
+            Invocation.method(#softDelete, [id], {#dariServer: dariServer}),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),
           )
@@ -564,7 +564,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   _i8.Future<void> hapusPermanenDataSoftDelete({bool? dariServer = false}) =>
       (super.noSuchMethod(
             Invocation.method(#hapusPermanenDataSoftDelete, [], {
-              #fromServer: dariServer,
+              #dariServer: dariServer,
             }),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),
@@ -575,7 +575,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   _i8.Future<int> arsipkanLanggananKadaluarsa({bool? dariServer = false}) =>
       (super.noSuchMethod(
             Invocation.method(#arsipkanLanggananKadaluarsa, [], {
-              #fromServer: dariServer,
+              #dariServer: dariServer,
             }),
             returnValue: _i8.Future<int>.value(0),
           )
@@ -584,7 +584,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   @override
   _i8.Future<int> softDeleteAll({bool? dariServer = false}) =>
       (super.noSuchMethod(
-            Invocation.method(#softDeleteAll, [], {#fromServer: dariServer}),
+            Invocation.method(#softDeleteAll, [], {#dariServer: dariServer}),
             returnValue: _i8.Future<int>.value(0),
           )
           as _i8.Future<int>);
@@ -714,7 +714,7 @@ class MockPembersihanDataOperasi extends _i1.Mock
   }) =>
       (super.noSuchMethod(
             Invocation.method(#hapusPermanentDataYangDiarsip, [], {
-              #retentionDays: waktuPenjadwalanHapusDataArsip,
+              #waktuPenjadwalanHapusDataArsip: waktuPenjadwalanHapusDataArsip,
             }),
             returnValue: _i8.Future<int>.value(0),
           )

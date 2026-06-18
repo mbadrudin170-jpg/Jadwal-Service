@@ -200,7 +200,7 @@ final class PointsPageDataProvider
   }
 }
 
-String _$pointsPageDataHash() => r'8ee9d9a05f1d06c84c31423647f6c1569d5f01f9';
+String _$pointsPageDataHash() => r'bcbdc2f48789b311ce5a5f09c5ce5764e7a5f8f8';
 
 final class PointsPageDataFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<PointsPageData>, String> {
