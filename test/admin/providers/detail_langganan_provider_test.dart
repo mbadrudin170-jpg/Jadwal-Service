@@ -87,7 +87,7 @@ void main() {
       final result = await container.read(ambilDetailLanggananProvider(idTransaksi).future);
 
       expect(result, isA<DetailLanggananState>());
-      expect(result.transaction, transaksi);
+      expect(result!.transaction, transaksi);
       expect(result.customer, pelanggan);
       expect(result.package, paket);
     });
@@ -115,7 +115,7 @@ void main() {
       final result = await container.read(ambilDetailLanggananProvider(idTransaksi).future);
 
       expect(result, isA<DetailLanggananState>());
-      expect(result.transaction, transaksiTanpaRelasi);
+      expect(result!.transaction, transaksiTanpaRelasi);
       expect(result.customer, isNull);
       expect(result.package, isNull);
 

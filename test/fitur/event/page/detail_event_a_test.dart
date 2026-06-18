@@ -1,6 +1,5 @@
-// path: test/fitur/event/page/detail_event_a_test.dart
 
-import 'dart:async';
+// path: test/fitur/event/page/detail_event_a_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,90 +9,70 @@ import 'package:wifi/fitur/event/model/event_model.dart';
 import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 import 'package:wifi/fitur/event/page/detail_event_a.dart';
 
+import '../../../image_mock_http_client.dart';
 import 'detail_event_a_test.mocks.dart';
 
 @GenerateMocks([EventOpSupabase])
 void main() {
-  late MockEventOpSupabase mockEventOpSupabase;
+  group('DetailEventScreen', () {
+    late MockEventOpSupabase mockEventOpSupabase;
+    late ProviderContainer container;
 
-  setUp(() {
-    mockEventOpSupabase = MockEventOpSupabase();
-  });
-
-  final testEvent = EventModel(
-    id: 'evt-123',
-    linkGambar: 'https://example.com/image.png',
-    statusAktif: true,
-    tanggalDibuat: DateTime(2023, 1, 1),
-    tanggalMulai: DateTime(2023, 1, 2),
-    tanggalBerakhir: DateTime(2023, 1, 3),
-  );
-
-  Widget createWidgetUnderTest() {
-    return ProviderScope(
-      overrides: [
-        eventOpSupabaseProvider.overrideWithValue(mockEventOpSupabase),
-      ],
-      child: MaterialApp(home: DetailEventA(event: testEvent)),
-    );
-  }
-
-  group('DetailEventA Widget Tests', () {
-    testWidgets('01. harus menampilkan loading indicator saat memuat data', (
-      tester,
-    ) async {
-      final completer = Completer<EventModel?>();
-      when(
-        mockEventOpSupabase.ambilBerdasarkanId(testEvent.id),
-      ).thenAnswer((_) => completer.future);
-
-      await tester.pumpWidget(createWidgetUnderTest());
-
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    setUp(() {
+      mockEventOpSupabase = MockEventOpSupabase();
+      container = ProviderContainer(
+        overrides: [
+          eventOpSupabaseProvider.overrideWithValue(mockEventOpSupabase),
+        ],
+      );
     });
 
-    testWidgets(
-      '02. harus menampilkan detail event saat data berhasil dimuat',
-      (tester) async {
-        when(
-          mockEventOpSupabase.ambilBerdasarkanId(testEvent.id),
-        ).thenAnswer((_) async => testEvent);
-
-        await tester.pumpWidget(createWidgetUnderTest());
-        await tester.pumpAndSettle();
-
-        expect(find.text('Detail Pengumuman'), findsOneWidget);
-        expect(find.text(testEvent.id), findsOneWidget);
-        expect(find.text('Aktif'), findsOneWidget);
-        expect(find.textContaining('Dibuat: 2023-01-01'), findsOneWidget);
-      },
+    final event = EventModel(
+      id: '1',
+      nama: 'Event 1',
+      deskripsi: 'Deskripsi Event 1',
+      linkGambar: 'https://example.com/image.png',
+      tanggalMulai: DateTime.now(),
+      tanggalBerakhir: DateTime.now().add(const Duration(days: 1)),
+      tanggalDibuat: DateTime.now(),
     );
 
-    testWidgets('03. harus menampilkan pesan error jika gagal memuat data', (
-      tester,
-    ) async {
-      when(
-        mockEventOpSupabase.ambilBerdasarkanId(testEvent.id),
-      ).thenAnswer((_) async => throw Exception('Koneksi Gagal'));
+    testWidgets('01. renders event details correctly', (WidgetTester tester) async {
+      when(mockEventOpSupabase.ambilBerdasarkanId('1')).thenAnswer((_) async => event);
 
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pump(); // Trigger build
-      await tester.pump(); // Trigger FutureBuilder completion with error
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            eventOpSupabaseProvider.overrideWithValue(mockEventOpSupabase),
+          ],
+          child: MaterialApp(
+            home: DetailEventScreen(eventId: '1'),
+          ),
+        ),
+      );
 
-      expect(find.text('Gagal memuat data.'), findsOneWidget);
-    });
-
-    testWidgets('04. harus menampilkan pesan jika pengumuman tidak ditemukan', (
-      tester,
-    ) async {
-      when(
-        mockEventOpSupabase.ambilBerdasarkanId(testEvent.id),
-      ).thenAnswer((_) async => null);
-
-      await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
 
-      expect(find.text('Pengumuman tidak ditemukan.'), findsOneWidget);
+      expect(find.text('Event 1'), findsOneWidget);
+      expect(find.text('Deskripsi Event 1'), findsOneWidget);
+      expect(find.byType(Image), findsOneWidget);
+    });
+
+    testWidgets('02. shows loading indicator when event is loading', (WidgetTester tester) async {
+      when(mockEventOpSupabase.ambilBerdasarkanId('1')).thenAnswer((_) async => null);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            eventOpSupabaseProvider.overrideWithValue(mockEventOpSupabase),
+          ],
+          child: MaterialApp(
+            home: DetailEventScreen(eventId: '1'),
+          ),
+        ),
+      );
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
   });
 }

@@ -7,33 +7,37 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
 import 'operasi_sqlite_provider_test.mocks.dart';
 
-@GenerateMocks([NotifikasiOpFirebase, Database])
+@GenerateMocks([SqliteDatabase, BaseOpSqlite, Database])
 void main() {
-  group('operasiSqliteProvider', () {
-    late MockNotifikasiOpFirebase mockNotifikasiOpFirebase;
+  group('paketOpSqliteProvider', () {
+    late MockSqliteDatabase mockSqliteDatabase;
+    late MockBaseOpSqlite mockBaseOpSqlite;
     late MockDatabase mockDatabase;
     late ProviderContainer container;
 
     setUp(() {
-      mockNotifikasiOpFirebase = MockNotifikasiOpFirebase();
+      mockSqliteDatabase = MockSqliteDatabase();
+      mockBaseOpSqlite = MockBaseOpSqlite();
       mockDatabase = MockDatabase();
+
+      when(mockSqliteDatabase.database).thenAnswer((_) async => mockDatabase);
 
       container = ProviderContainer(
         overrides: [
-          sqliteDatabaseProvider.overrideWithValue(SqliteDatabase(mockDatabase)),
-          // TODO: Mock the provider for NotifikasiOpFirebase
-          // notifikasiOpFirebaseProvider.overrideWithValue(mockNotifikasiOpFirebase),
+          sqliteDatabaseProvider.overrideWithValue(mockSqliteDatabase),
+          baseOpSqliteProvider.overrideWithValue(mockBaseOpSqlite),
         ],
       );
     });
 
-    test('01. should return an instance of OperasiSqlite', () {
-      final operasiSqlite = container.read(operasiSqliteProvider);
-      expect(operasiSqlite, isA<OperasiSqlite>());
+    test('01. should return an instance of PaketOpSqlite', () {
+      final paketOpSqlite = container.read(paketOpSqliteProvider);
+      expect(paketOpSqlite, isA<PaketOpSqlite>());
     });
   });
 }
