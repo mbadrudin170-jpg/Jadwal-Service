@@ -1,9 +1,11 @@
 // path: lib/user/page/login_page.dart
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/data_dummy/halaman_data_dummy.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
@@ -15,8 +17,8 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/input/input_angka.dart';
 import 'package:wifi/shared/widget/input/input_password.dart';
+import 'package:wifi/shared/widget/input/input_telepon.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
@@ -183,7 +185,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 textAlign: TextAlign.center,
               ),
               gapH32,
-              InputAngka(
+              InputTelepon(
                 controller: _teleponController,
                 label: 'Nomor Telepon',
                 focusNode: _teleponFocusNode,
@@ -255,29 +257,52 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
               gapH8,
               Align(
-                child: TextButton(
-                  onPressed: _sedangLogin
-                      ? null
-                      : () {
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (kDebugMode)
+                      TextButton(
+                        onPressed: () {
                           unawaited(
-                            showDialog<void>(
-                              context: context,
-                              builder: (ctx) => AlertDialog(
-                                title: const Text('Fitur Dalam Pengembangan'),
-                                content: const Text(
-                                  'Fitur ini sedang kami kerjakan.',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    child: const Text('OK'),
-                                    onPressed: () => Navigator.of(ctx).pop(),
-                                  ),
-                                ],
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder: (context) => const HalamanDataDummy(),
                               ),
                             ),
                           );
                         },
-                  child: const Text('Lupa Sandi?'),
+                        child: const Text('Debug: Dummy'),
+                      ),
+
+                    TextButton(
+                      onPressed: _sedangLogin
+                          ? null
+                          : () {
+                              unawaited(
+                                showDialog<void>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text(
+                                      'Fitur Dalam Pengembangan',
+                                    ),
+                                    content: const Text(
+                                      'Fitur ini sedang kami kerjakan.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        child: const Text('OK'),
+                                        onPressed: () =>
+                                            Navigator.of(ctx).pop(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                      child: const Text('Lupa Sandi?'),
+                    ),
+                  ],
                 ),
               ),
             ],

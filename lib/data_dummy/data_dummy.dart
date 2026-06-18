@@ -45,191 +45,196 @@ class DataDummy {
 
   /// Daftar dummy untuk [OrderModel]
   static List<OrderModel> get orders => [
-        OrderModel(
-          id: 'ORD-001',
-          idPelanggan: customerBudiId,
-          idPaket: paketHematId,
-          tanggal: DateTime.now().subtract(const Duration(hours: 2)),
-        ),
-        OrderModel(
-          id: 'ORD-002',
-          idPelanggan: customerSitiId,
-          idPaket: paketPremiumId,
-          tanggal: DateTime.now().subtract(const Duration(days: 1)),
-          status: StatusOrderEnum.diproses,
-        ),
-        OrderModel(
-          id: 'ORD-003',
-          idPelanggan: agusSetiawanId,
-          idPaket: paketGamerId,
-          tanggal: DateTime.now().subtract(const Duration(days: 2)),
-          status: StatusOrderEnum.selesai,
-        ),
-      ];
+    OrderModel(
+      id: 'ORD-001',
+      idPelanggan: customerBudiId,
+      idPaket: paketHematId,
+      tanggal: DateTime.now().subtract(const Duration(hours: 2)),
+    ),
+    OrderModel(
+      id: 'ORD-002',
+      idPelanggan: customerSitiId,
+      idPaket: paketPremiumId,
+      tanggal: DateTime.now().subtract(const Duration(days: 1)),
+      status: StatusOrderEnum.diproses,
+    ),
+    OrderModel(
+      id: 'ORD-003',
+      idPelanggan: agusSetiawanId,
+      idPaket: paketGamerId,
+      tanggal: DateTime.now().subtract(const Duration(days: 2)),
+      status: StatusOrderEnum.selesai,
+    ),
+  ];
 
   /// Daftar dummy untuk [PelangganModel]
   static List<PelangganModel> get customers => [
-        const PelangganModel(
-          id: customerBudiId,
-          nama: 'Budi Santoso',
-          telepon: '081234567890',
-          kataSandi: 'password123',
-          alamat: 'Jl. Merdeka No. 10, Jakarta',
-          macAddress: '00:1B:44:11:3A:B7',
-        ),
-        const PelangganModel(
-          id: customerSitiId,
-          nama: 'Siti Aminah',
-          telepon: '087654321098',
-          kataSandi: 'password456',
-          alamat: 'Jl. Pahlawan No. 25, Surabaya',
-          macAddress: '00:1B:44:11:3A:B8',
-        ),
-        const PelangganModel(
-          id: agusSetiawanId,
-          nama: 'Agus Setiawan',
-          telepon: '089987654321',
-          kataSandi: 'password789',
-          alamat: 'Jl. Kemerdekaan No. 5, Bandung',
-          macAddress: '00:1B:44:11:3A:B9',
-        ),
-      ];
+    const PelangganModel(
+      id: customerBudiId,
+      nama: 'Budi Santoso',
+      telepon: '08568050170',
+      kataSandi: '1',
+      alamat: 'Jl. Merdeka No. 10, Jakarta',
+      macAddress: '00:1B:44:11:3A:B7',
+    ),
+    const PelangganModel(
+      id: customerSitiId,
+      nama: 'Siti Aminah',
+      telepon: '08568050170',
+      kataSandi: '2',
+      alamat: 'Jl. Pahlawan No. 25, Surabaya',
+      macAddress: '00:1B:44:11:3A:B8',
+    ),
+    const PelangganModel(
+      id: agusSetiawanId,
+      nama: 'Agus Setiawan',
+      telepon: '08568050170',
+      kataSandi: '3',
+      alamat: 'Jl. Kemerdekaan No. 5, Bandung',
+      macAddress: '00:1B:44:11:3A:B9',
+    ),
+  ];
 
   /// Daftar dummy untuk [PaketModel]
   static List<PaketModel> get paket => [
-        const PaketModel(
-          id: paketHematId,
-          nama: 'Paket Hemat 10 Mbps',
-          harga: 150000,
-          durasi: 30,
-          tipe: TipeDurasiPaket.days,
-        ),
-        const PaketModel(
-          id: paketPremiumId,
-          nama: 'Paket Premium 50 Mbps',
-          harga: 350000,
-          durasi: 30,
-          tipe: TipeDurasiPaket.days,
-        ),
-        const PaketModel(
-          id: paketGamerId,
-          nama: 'Paket Gamer 100 Mbps',
-          harga: 500000,
-          durasi: 30,
-          tipe: TipeDurasiPaket.days,
-        ),
-      ];
+    const PaketModel(
+      id: paketHematId,
+      nama: 'Paket Hemat 10 Mbps',
+      harga: 150000,
+      durasi: 30,
+      tipe: TipeDurasiPaket.days,
+    ),
+    const PaketModel(
+      id: paketPremiumId,
+      nama: 'Paket Premium 50 Mbps',
+      harga: 350000,
+      durasi: 30,
+      tipe: TipeDurasiPaket.days,
+    ),
+    const PaketModel(
+      id: paketGamerId,
+      nama: 'Paket Gamer 100 Mbps',
+      harga: 500000,
+      durasi: 30,
+      tipe: TipeDurasiPaket.days,
+    ),
+  ];
 
   /// Daftar dummy untuk [KategoriModel]
   static List<KategoriModel> get categories => [
-        const KategoriModel(
-            id: kategoriPembayaranId,
-            nama: 'Pembayaran',
-            tipe: TipeKategori.income),
-        const KategoriModel(
-            id: kategoriLainnyaId, nama: 'Lainnya', tipe: TipeKategori.expense),
-      ];
+    const KategoriModel(
+      id: kategoriPembayaranId,
+      nama: 'Pembayaran',
+      tipe: TipeKategori.income,
+    ),
+    const KategoriModel(
+      id: kategoriLainnyaId,
+      nama: 'Lainnya',
+      tipe: TipeKategori.expense,
+    ),
+  ];
 
   static List<SubKategoriModel> get subCategories => [
-        const SubKategoriModel(
-          id: subKategoriInternetId,
-          idKategori: kategoriPembayaranId,
-          nama: 'Internet',
-        ),
-        const SubKategoriModel(
-          id: subKategoriTransportId,
-          idKategori: kategoriLainnyaId,
-          nama: 'Transportasi',
-        ),
-      ];
+    const SubKategoriModel(
+      id: subKategoriInternetId,
+      idKategori: kategoriPembayaranId,
+      nama: 'Internet',
+    ),
+    const SubKategoriModel(
+      id: subKategoriTransportId,
+      idKategori: kategoriLainnyaId,
+      nama: 'Transportasi',
+    ),
+  ];
 
   /// Daftar dummy untuk [DompetModel]
   static List<DompetModel> get wallets => [
-        const DompetModel(id: walletBudiId, nama: 'Dompet Budi', saldo: 500000),
-        const DompetModel(
-            id: walletSitiId, nama: 'Dompet Siti', saldo: 1000000),
-      ];
+    const DompetModel(id: walletBudiId, nama: 'Dompet Budi', saldo: 500000),
+    const DompetModel(id: walletSitiId, nama: 'Dompet Siti', saldo: 1000000),
+  ];
 
   /// Daftar dummy untuk [TransaksiModel]
   static List<TransaksiModel> get transactions => [
-        TransaksiModel(
-            id: transactionBudiId,
-            idDompet: walletBudiId,
-            idKategori: kategoriPembayaranId,
-            tipe: TipeTransaksi.expense,
-            jumlah: 150000,
-            deskripsi: 'Pembayaran paket hemat',
-            tanggal: DateTime.now(),
-            statusPembayaran: StatusPembayaran.paid,
-            idPelanggan: customerBudiId,
-            idPaket: paketHematId),
-        TransaksiModel(
-          id: transactionSitiId,
-          idDompet: walletSitiId,
-          idKategori: kategoriPembayaranId,
-          tipe: TipeTransaksi.expense,
-          jumlah: 350000,
-          deskripsi: 'Pembayaran paket premium',
-          tanggal: DateTime.now().subtract(const Duration(days: 1)),
-          statusPembayaran: StatusPembayaran.paid,
-          idPelanggan: customerSitiId,
-          idPaket: paketPremiumId,
-        ),
-      ];
+    TransaksiModel(
+      id: transactionBudiId,
+      idDompet: walletBudiId,
+      idKategori: kategoriPembayaranId,
+      tipe: TipeTransaksi.expense,
+      jumlah: 150000,
+      deskripsi: 'Pembayaran paket hemat',
+      tanggal: DateTime.now(),
+      statusPembayaran: StatusPembayaran.paid,
+      idPelanggan: customerBudiId,
+      idPaket: paketHematId,
+    ),
+    TransaksiModel(
+      id: transactionSitiId,
+      idDompet: walletSitiId,
+      idKategori: kategoriPembayaranId,
+      tipe: TipeTransaksi.expense,
+      jumlah: 350000,
+      deskripsi: 'Pembayaran paket premium',
+      tanggal: DateTime.now().subtract(const Duration(days: 1)),
+      statusPembayaran: StatusPembayaran.paid,
+      idPelanggan: customerSitiId,
+      idPaket: paketPremiumId,
+    ),
+  ];
 
   /// Daftar dummy untuk [PelangganAktifModel]
   static List<PelangganAktifModel> get activeCustomers => [
-        PelangganAktifModel(
-          id: activeCustomerBudiId,
-          idPelanggan: customerBudiId,
-          idPaket: paketHematId,
-          tanggalMulai: DateTime.now().subtract(const Duration(days: 10)),
-          tanggalBerakhir: DateTime.now().add(const Duration(days: 20)),
-          status: StatusPembayaran.paid,
-          idTransaksi: transactionBudiId,
-        ),
-        PelangganAktifModel(
-          id: activeCustomerSitiId,
-          idPelanggan: customerSitiId,
-          idPaket: paketPremiumId,
-          tanggalMulai: DateTime.now().subtract(const Duration(days: 5)),
-          tanggalBerakhir: DateTime.now().add(const Duration(days: 25)),
-          status: StatusPembayaran.paid,
-          idTransaksi: transactionSitiId,
-        ),
-      ];
+    PelangganAktifModel(
+      id: activeCustomerBudiId,
+      idPelanggan: customerBudiId,
+      idPaket: paketHematId,
+      tanggalMulai: DateTime.now().subtract(const Duration(days: 10)),
+      tanggalBerakhir: DateTime.now().add(const Duration(days: 20)),
+      status: StatusPembayaran.paid,
+      idTransaksi: transactionBudiId,
+    ),
+    PelangganAktifModel(
+      id: activeCustomerSitiId,
+      idPelanggan: customerSitiId,
+      idPaket: paketPremiumId,
+      tanggalMulai: DateTime.now().subtract(const Duration(days: 5)),
+      tanggalBerakhir: DateTime.now().add(const Duration(days: 25)),
+      status: StatusPembayaran.paid,
+      idTransaksi: transactionSitiId,
+    ),
+  ];
 
   /// Daftar dummy untuk [FeedbackModel]
   static List<FeedbackModel> get feedbacks => [
-        FeedbackModel(
-          id: feedbackBudiId,
-          userId: customerBudiId,
-          pesan: 'Koneksi internet sangat stabil, terima kasih!',
-          tanggal: DateTime.now().subtract(const Duration(days: 3)),
-        ),
-        FeedbackModel(
-          id: feedbackSitiId,
-          userId: customerSitiId,
-          pesan: 'Kecepatan download kadang melambat di malam hari.',
-          tanggal: DateTime.now().subtract(const Duration(hours: 12)),
-        ),
-      ];
+    FeedbackModel(
+      id: feedbackBudiId,
+      userId: customerBudiId,
+      pesan: 'Koneksi internet sangat stabil, terima kasih!',
+      tanggal: DateTime.now().subtract(const Duration(days: 3)),
+    ),
+    FeedbackModel(
+      id: feedbackSitiId,
+      userId: customerSitiId,
+      pesan: 'Kecepatan download kadang melambat di malam hari.',
+      tanggal: DateTime.now().subtract(const Duration(hours: 12)),
+    ),
+  ];
 
   /// Daftar dummy untuk [VersiApkModel]
   static List<VersiApkModel> get apkVersions => [
-        const VersiApkModel(
-            id: apkAdminV1Id,
-            versiTerkahir: '1.0.0',
-            catatanRilis: 'Versi pertama aplikasi admin.',
-            nomorBuildTerakhir: {ArsitekturApk.arm64: 1},
-            linkDownload: {ArsitekturApk.arm64: '/path/to/admin-v1.0.0.apk'},
-            wajibUpdate: true,
-            linkYoutubeTutorial: 'https://youtu.be/dQw4w9WgXcQ'),
-      ];
+    const VersiApkModel(
+      id: apkAdminV1Id,
+      versiTerkahir: '1.0.0',
+      catatanRilis: 'Versi pertama aplikasi admin.',
+      nomorBuildTerakhir: {ArsitekturApk.arm64: 1},
+      linkDownload: {ArsitekturApk.arm64: '/path/to/admin-v1.0.0.apk'},
+      wajibUpdate: true,
+      linkYoutubeTutorial: 'https://youtu.be/dQw4w9WgXcQ',
+    ),
+  ];
 
   /// Data dummy untuk [SettingsModel]
   static SettingsModel get settings => const SettingsModel(
-        waktuOtomatisSinkronisasi: 12,
-        waktuOtomatisHapusDataArsip: 90,
-      );
+    waktuOtomatisSinkronisasi: 12,
+    waktuOtomatisHapusDataArsip: 90,
+  );
 }
