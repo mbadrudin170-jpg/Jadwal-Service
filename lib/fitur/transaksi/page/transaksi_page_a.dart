@@ -204,9 +204,9 @@ class _TransactionBody extends ConsumerWidget {
         children: [
           // Ringkasan Keuangan (selalu ditampilkan)
           TransactionSummary(
-            income: state.totalIncome,
-            expense: state.totalExpense,
-            total: state.netTotal,
+            income: state.totalPemasukan,
+            expense: state.totalPengeluaran,
+            total: state.total,
           ),
           // Bagian ini akan berganti antara list dan pesan kosong
           Expanded(
