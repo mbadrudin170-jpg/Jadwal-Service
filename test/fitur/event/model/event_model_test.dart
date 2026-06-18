@@ -2,9 +2,10 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/fitur/event/model/event_model.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 
 void main() {
-  group('EventModel Unit Tests', () {
+  group('EventModel', () {
     final tDateTime = DateTime(2023, 1, 1, 10, 0, 0);
 
     final tEventModel = EventModel(
@@ -14,46 +15,83 @@ void main() {
       tanggalDibuat: tDateTime,
       tanggalMulai: tDateTime,
       tanggalBerakhir: tDateTime,
+      diperbaruiPada: tDateTime,
     );
 
-    test('Inisialisasi: harus menyimpan nilai properti dengan benar', () {
+    test('01. Inisialisasi: harus menyimpan nilai properti dengan benar', () {
       expect(tEventModel.id, 'evt-123');
       expect(tEventModel.linkGambar, 'https://example.com/image.png');
       expect(tEventModel.statusAktif, true);
       expect(tEventModel.tanggalDibuat, tDateTime);
     });
 
-    test(
-      'fromJson: harus mengembalikan objek EventModel yang valid dari Map',
-      () {
-        final Map<String, dynamic> jsonMap = {
-          'id': 'evt-123',
-          'link_gambar': 'https://example.com/image.png',
-          'status_aktif': true,
-          'tanggal_dibuat': tDateTime.toIso8601String(),
-          'tanggal_mulai': tDateTime.toIso8601String(),
-          'tanggal_berakhir': tDateTime.toIso8601String(),
+    group('fromSupabase', () {
+      test(
+          '02. harus mengembalikan objek EventModel yang valid dari data Supabase',
+          () {
+        final Map<String, dynamic> supabaseData = {
+          NamaKolom.linkGambar: 'https://example.com/image.png',
+          NamaKolom.statusAktif: true,
+          NamaKolom.tanggalDibuat: tDateTime.toIso8601String(),
+          NamaKolom.tanggalMulai: tDateTime.toIso8601String(),
+          NamaKolom.tangglberakhir: tDateTime.toIso8601String(),
+          NamaKolom.diperbaruiPada: tDateTime.toIso8601String(),
         };
 
-        final result = EventModel.fromJson(jsonMap);
+        final result = EventModel.fromSupabase('evt-123', supabaseData);
 
-        expect(result.id, tEventModel.id);
-        expect(result.linkGambar, tEventModel.linkGambar);
-        expect(result.statusAktif, tEventModel.statusAktif);
-        expect(result.tanggalDibuat, tEventModel.tanggalDibuat);
-      },
-    );
+        expect(result, tEventModel);
+      });
+    });
 
-    test('toJson: harus menghasilkan Map yang benar dari objek EventModel', () {
-      final result = tEventModel.toJson();
+    group('toSupabase', () {
+      test('03. harus menghasilkan Map yang benar untuk Supabase', () {
+        final result = tEventModel.toSupabase();
+        final expectedMap = {
+          NamaKolom.id: 'evt-123',
+          NamaKolom.linkGambar: 'https://example.com/image.png',
+          NamaKolom.statusAktif: true,
+          NamaKolom.tanggalMulai: tDateTime.toIso8601String(),
+          NamaKolom.tangglberakhir: tDateTime.toIso8601String(),
+          NamaKolom.tanggalDibuat: tDateTime.toIso8601String(),
+          NamaKolom.diperbaruiPada: tDateTime.toIso8601String(),
+        };
+        expect(result, expectedMap);
+      });
+    });
 
-      expect(result['id'], tEventModel.id);
-      expect(result['link_gambar'], tEventModel.linkGambar);
-      expect(result['status_aktif'], tEventModel.statusAktif);
-      expect(
-        result['tanggal_dibuat'],
-        tEventModel.tanggalDibuat.toIso8601String(),
-      );
+    group('fromSqlite', () {
+      test('04. harus mengembalikan objek EventModel yang valid dari Map SQLite',
+          () {
+        final sqliteMap = {
+          NamaKolom.id: 'evt-123',
+          NamaKolom.linkGambar: 'https://example.com/image.png',
+          NamaKolom.statusAktif: 1,
+          NamaKolom.tanggalDibuat: tDateTime.millisecondsSinceEpoch,
+          NamaKolom.tanggalMulai: tDateTime.millisecondsSinceEpoch,
+          NamaKolom.tangglberakhir: tDateTime.millisecondsSinceEpoch,
+          NamaKolom.diperbaruiPada: tDateTime.millisecondsSinceEpoch,
+        };
+
+        final result = EventModel.fromSqlite(sqliteMap);
+        expect(result, tEventModel);
+      });
+    });
+
+    group('toSqlite', () {
+      test('05. harus menghasilkan Map yang benar untuk penyimpanan SQLite', () {
+        final result = tEventModel.toSqlite();
+        final expectedMap = {
+          NamaKolom.id: 'evt-123',
+          NamaKolom.linkGambar: 'https://example.com/image.png',
+          NamaKolom.statusAktif: 1,
+          NamaKolom.tanggalDibuat: tDateTime.millisecondsSinceEpoch,
+          NamaKolom.tanggalMulai: tDateTime.millisecondsSinceEpoch,
+          NamaKolom.tangglberakhir: tDateTime.millisecondsSinceEpoch,
+          NamaKolom.diperbaruiPada: tDateTime.millisecondsSinceEpoch,
+        };
+        expect(result, expectedMap);
+      });
     });
   });
 }

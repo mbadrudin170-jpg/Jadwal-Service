@@ -97,18 +97,17 @@ void main() {
         verify(() => mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
         verify(() => mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
 
-        verify(
-          () => mockUrlLauncher.canLaunch(
-            any(that: contains('wa.me/6281234567890')),
-          ),
-        ).called(1);
+        final capturedCanLaunchUrl =
+            verify(() => mockUrlLauncher.canLaunch(captureAny()))
+                .captured
+                .single as String;
+        expect(capturedCanLaunchUrl, contains('https://wa.me/6281234567890'));
 
-        verify(
-          () => mockUrlLauncher.launchUrl(
-            any(that: contains('wa.me/6281234567890')),
-            any(), // Parameter posisional kedua untuk LaunchOptions
-          ),
-        ).called(1);
+        final capturedLaunchUrl =
+            verify(() => mockUrlLauncher.launchUrl(captureAny(), any()))
+                .captured
+                .single as String;
+        expect(capturedLaunchUrl, contains('https://wa.me/6281234567890'));
       },
     );
 
@@ -169,11 +168,11 @@ void main() {
         verify(() => mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
         verify(() => mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
 
-        verify(
-          () => mockUrlLauncher.canLaunch(
-            any(that: contains('wa.me/6281234567890')),
-          ),
-        ).called(1);
+        final capturedCanLaunchUrl =
+            verify(() => mockUrlLauncher.canLaunch(captureAny()))
+                .captured
+                .single as String;
+        expect(capturedCanLaunchUrl, contains('https://wa.me/6281234567890'));
         verifyNever(() => mockUrlLauncher.launchUrl(any(), any()));
       },
     );

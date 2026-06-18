@@ -4,7 +4,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:mockito/mockito.dart';
+import 'package:mockito/mockito.dart' as mockito;
 
 import 'admin/halaman/event/detail_event_a_test.mocks.dart';
 
@@ -79,7 +79,7 @@ final kTransparentImage = Uint8List.fromList([
   0x82,
 ]);
 
-class MockImageHttpClient extends Mock implements HttpClient {
+class MockImageHttpClient extends mockito.Mock implements HttpClient {
   MockImageHttpClient._();
 
   factory MockImageHttpClient() => MockImageHttpClient._();
@@ -89,78 +89,76 @@ class MockImageHttpClient extends Mock implements HttpClient {
     final request = MockHttpClientRequest();
     final response = MockHttpClientResponse();
 
-    // ✅ abaikan error null untuk any<Uri>()
-    // ignore: invalid_use_of_null_value
-    when(client.getUrl(any<Uri>())).thenAnswer((_) async => request);
-    when(request.close()).thenAnswer((_) async => response);
-    when(response.statusCode).thenReturn(HttpStatus.notFound);
-    when(response.reasonPhrase).thenReturn('Not Found');
+    mockito
+        .when(client.getUrl(mockito.any<Uri>()))
+        .thenAnswer((_) async => request);
+    mockito.when(request.close()).thenAnswer((_) async => response);
+    mockito.when(response.statusCode).thenReturn(HttpStatus.notFound);
+    mockito.when(response.reasonPhrase).thenReturn('Not Found');
 
-    when(
-      response.listen(
-        any,
-        onDone: anyNamed('onDone'),
-        onError: anyNamed('onError'),
-        cancelOnError: anyNamed('cancelOnError'),
-      ),
-    ).thenAnswer((invocation) {
-      final onError = invocation.namedArguments[#onError] as Function;
-      // ✅ cast langsung ke void Function()?
-      final onDone = invocation.namedArguments[#onDone] as void Function()?;
+    mockito
+        .when(
+          response.listen(
+            mockito.any,
+            onDone: mockito.anyNamed('onDone'),
+            onError: mockito.anyNamed('onError'),
+            cancelOnError: mockito.anyNamed('cancelOnError'),
+          ),
+        )
+        .thenAnswer((invocation) {
+          final onError = invocation.namedArguments[#onError] as Function;
+          final onDone = invocation.namedArguments[#onDone] as void Function()?;
 
-      // Buat stream yang memancarkan error
-      final stream = Stream<List<int>>.error(
-        Exception('Image load failed'),
-        StackTrace.current,
-      );
-      // Panggil listen dan return subscription
-      final subscription = stream.listen(
-        (_) {}, // onData tidak dipanggil karena error
-        onError: onError,
-        onDone: onDone,
-      );
-      return subscription;
-    });
+          final stream = Stream<List<int>>.error(
+            Exception('Image load failed'),
+            StackTrace.current,
+          );
+          final subscription = stream.listen(
+            (_) {}, // onData tidak dipanggil karena error
+            onError: onError,
+            onDone: onDone,
+          );
+          return subscription;
+        });
     return client;
   }
 }
 
 HttpClient createMockImageHttpClient(SecurityContext? _) {
-  final client = MockImageHttpClient();
+  final client = MockHttpClient();
   final request = MockHttpClientRequest();
   final response = MockHttpClientResponse();
   final headers = MockHttpHeaders();
 
-  // ✅ abaikan error null untuk any<Uri>()
-  // ignore: invalid_use_of_null_value
-  when(client.getUrl(any<Uri>())).thenAnswer((_) async => request);
-  when(request.headers).thenReturn(headers);
-  when(request.close()).thenAnswer((_) async => response);
-  when(response.statusCode).thenReturn(HttpStatus.ok);
-  when(response.contentLength).thenReturn(kTransparentImage.length);
+  mockito
+      .when(client.getUrl(mockito.any<Uri>()))
+      .thenAnswer((_) async => request);
+  mockito.when(request.headers).thenReturn(headers);
+  mockito.when(request.close()).thenAnswer((_) async => response);
+  mockito.when(response.statusCode).thenReturn(HttpStatus.ok);
+  mockito.when(response.contentLength).thenReturn(kTransparentImage.length);
 
-  when(
-    response.listen(
-      any,
-      onError: anyNamed('onError'),
-      onDone: anyNamed('onDone'),
-      cancelOnError: anyNamed('cancelOnError'),
-    ),
-  ).thenAnswer((invocation) {
-    final onData =
-        invocation.positionalArguments[0] as void Function(List<int>);
-    // ✅ cast langsung ke void Function()?
-    final onDone = invocation.namedArguments[#onDone] as void Function()?;
+  mockito
+      .when(
+        response.listen(
+          mockito.any,
+          onError: mockito.anyNamed('onError'),
+          onDone: mockito.anyNamed('onDone'),
+          cancelOnError: mockito.anyNamed('cancelOnError'),
+        ),
+      )
+      .thenAnswer((invocation) {
+        final onData =
+            invocation.positionalArguments[0] as void Function(List<int>);
+        final onDone = invocation.namedArguments[#onDone] as void Function()?;
 
-    // Buat stream yang mengeluarkan data
-    final stream = Stream<List<int>>.value(kTransparentImage);
-    // Panggil listen dan return subscription
-    final subscription = stream.listen(
-      onData,
-      onError: invocation.namedArguments[#onError] as Function?,
-      onDone: onDone,
-    );
-    return subscription;
-  });
+        final stream = Stream<List<int>>.value(kTransparentImage);
+        final subscription = stream.listen(
+          onData,
+          onError: invocation.namedArguments[#onError] as Function?,
+          onDone: onDone,
+        );
+        return subscription;
+      });
   return client;
 }
