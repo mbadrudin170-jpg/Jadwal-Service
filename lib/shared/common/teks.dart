@@ -1,4 +1,4 @@
-// path: lib/shared/common/text.dart
+// path lib/shared/common/teks.dart
 
 import 'package:flutter/material.dart';
 

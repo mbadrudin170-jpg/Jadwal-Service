@@ -11,7 +11,7 @@ import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/page/form_paket.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
-import 'package:wifi/shared/common/text.dart';
+import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';

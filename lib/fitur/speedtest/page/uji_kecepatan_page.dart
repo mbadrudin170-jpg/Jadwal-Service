@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/speedtest/provider/ping_provider.dart';
 import 'package:wifi/fitur/speedtest/provider/uji_kecepatan_provider.dart';
-import 'package:wifi/shared/common/text.dart';
+import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 
@@ -34,7 +34,7 @@ class _HalamanUjiKecepatanState extends ConsumerState<HalamanUjiKecepatan> {
     final statusUji = ref.watch(ujiKecepatanProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const TeksJudulSedang('Uji Kecepatan Internet')),
+      appBar: AppBar(title: const Text('Uji Kecepatan Internet')),
       body: Padding(
         padding: const EdgeInsets.all(TSizes.p16),
         child: Column(
