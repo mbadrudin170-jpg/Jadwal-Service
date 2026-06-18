@@ -57,7 +57,7 @@ void main() {
     return ProviderScope(
       overrides: [
         pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
-        userActivityServiceProvider.overrideWith(
+        layananAktivitasUserProvider.overrideWith(
           (ref) => mockLayananAktivitasUser,
         ),
         userIdProvider.overrideWith((ref) => Future.value(currentUserId)),

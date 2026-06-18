@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/event/page/detail_event_a.dart';
-import 'package:wifi/admin/halaman/lainnya/manage_announcement_page.dart';
+import 'package:wifi/fitur/event/page/manage_announcement_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/fitur/event/model/event_model.dart';

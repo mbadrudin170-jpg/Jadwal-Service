@@ -1,7 +1,4 @@
-// path: lib/halaman/lainnya/tentang_aplikasi.dart
-
-// File ini bertanggung jawab untuk menampilkan informasi tentang aplikasi,
-// seperti versi, nama, dan deskripsi singkat.
+// path lib/fitur/info_perangkat/page/tentang_aplikasi.dart
 
 import 'dart:async';
 import 'dart:io';
@@ -12,9 +9,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 
-/// Halaman yang menampilkan detail tentang aplikasi, seperti versi, build, dan informasi teknis lainnya.
 class TentangAplikasiPage extends StatefulWidget {
-  /// Membuat instance dari [TentangAplikasiPage].
   const TentangAplikasiPage({super.key});
 
   @override
@@ -22,7 +17,6 @@ class TentangAplikasiPage extends StatefulWidget {
 }
 
 class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
-  // Informasi paket aplikasi akan disimpan di sini.
   PackageInfo _infoPerangkat = PackageInfo(
     appName: 'Unknown',
     packageName: 'Unknown',

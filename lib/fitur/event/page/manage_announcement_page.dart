@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/lainnya/manage_announcement_page.dart
+// path lib/fitur/event/page/manage_announcement_page.dart
 
 import 'dart:async';
 import 'dart:io';
