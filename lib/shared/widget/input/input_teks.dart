@@ -23,7 +23,7 @@ class InputTeks extends StatelessWidget {
     this.textInputAction = TextInputAction.next,
     this.prefixIcon,
     this.focusNode,
-    this.enabled=true,
+    this.enabled = true,
   });
 
   @override

@@ -15,7 +15,7 @@ class InputAngka extends StatelessWidget {
   final AutovalidateMode autovalidateMode;
   final FocusNode? focusNode;
 
-  const InputAngka({a
+  const InputAngka({
     super.key,
     required this.controller,
     this.label = 'Nomor Telepon',
