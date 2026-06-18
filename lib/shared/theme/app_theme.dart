@@ -122,6 +122,7 @@ class AppTheme {
       foregroundColor: Colors.white,
       titleTextStyle: _teksModeTerang.headlineSmall?.copyWith(
         color: Colors.white,
+        fontWeight: FontWeight.bold,
       ),
     ),
     listTileTheme: ListTileThemeData(
@@ -152,7 +153,9 @@ class AppTheme {
     appBarTheme: AppBarTheme(
       backgroundColor: TColors.darkSurface,
       foregroundColor: Colors.white,
-      titleTextStyle: _teksModeGelap.headlineSmall,
+      titleTextStyle: _teksModeGelap.headlineSmall?.copyWith(
+        fontWeight: FontWeight.bold,
+      ),
     ),
     cardTheme: const CardThemeData(color: TColors.darkSurface),
     listTileTheme: ListTileThemeData(

@@ -237,8 +237,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
     final Color warnaStatuspembayaran =
         transaksi.statusPembayaran == StatusPembayaran.paid
-            ? Colors.green
-            : Colors.red;
+        ? Colors.green
+        : Colors.red;
 
     return Column(
       children: [
