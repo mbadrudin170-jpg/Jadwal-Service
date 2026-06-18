@@ -241,7 +241,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                   focusNode: _macAddressFocusNode,
                   label: 'MAC Address',
                   icon: TIcons.router,
-                  hint: 'XX:XX:XX:XX:XX:XX',
+                  hintText: 'XX:XX:XX:XX:XX:XX',
                   action: TextInputAction.done,
                   onSubmitted: (_) => _macAddressFocusNode.unfocus(),
                   validator: (v) => (v == null || v.isEmpty)
@@ -281,7 +281,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
     required final FocusNode focusNode,
     required final String label,
     required final IconData icon,
-    final String? hint,
+    final String? hintText,
     final TextInputType keyboard = TextInputType.text,
     final TextInputAction action = TextInputAction.next,
     final FocusNode? nextFocus,
@@ -293,13 +293,13 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       focusNode: focusNode,
       decoration: InputDecoration(
         labelText: label,
-        hintText: hint,
+        hintText: hintText,
         prefixIcon: Icon(icon),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       ),
       keyboardType: keyboard,
       textInputAction: action,
-      onFieldSubmitted: (final v) {
+      onFieldSubmitted: (v) {
         if (nextFocus != null) FocusScope.of(context).requestFocus(nextFocus);
         if (onSubmitted != null) onSubmitted(v);
       },

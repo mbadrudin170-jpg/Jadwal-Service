@@ -23,9 +23,13 @@ class EditProfilePage extends ConsumerStatefulWidget {
 
 class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
+  late TextEditingController _namaController;
   late TextEditingController _teleponController;
   late TextEditingController _passwordController;
+
+  final _namaFocusNode = FocusNode();
+  final _teleponFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
   final _koneksiInternetService = KoneksiInternetService();
   bool _menyimpan = false;
 
@@ -33,7 +37,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   void initState() {
     super.initState();
     Log.info('EditProfilePage.initState - mulai inisialisasi controller.');
-    _nameController = TextEditingController(text: widget.pelanggan.nama);
+    _namaController = TextEditingController(text: widget.pelanggan.nama);
     _teleponController = TextEditingController(text: widget.pelanggan.telepon);
     _passwordController = TextEditingController(
       text: widget.pelanggan.kataSandi,
@@ -65,7 +69,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         }
 
         final dataPelanggan = widget.pelanggan.copyWith(
-          nama: _nameController.text,
+          nama: _namaController.text,
           telepon: _teleponController.text,
           kataSandi: _passwordController.text,
         );
@@ -115,9 +119,12 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   @override
   void dispose() {
     Log.info('EditProfilePage.dispose - membuang controller.');
-    _nameController.dispose();
+    _namaController.dispose();
     _teleponController.dispose();
     _passwordController.dispose();
+    _namaFocusNode.dispose();
+    _teleponFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -133,9 +140,10 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           child: ListView(
             children: [
               InputTeks(
-                controller: _nameController,
+                controller: _namaController,
                 label: 'Nama Lengkap',
                 prefixIcon: TIcons.person,
+                focusNode: _namaFocusNode,
               ),
               gapH16,
               InputAngka(
@@ -143,6 +151,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                 label: 'No. HP',
                 keyboardType: TextInputType.phone,
                 prefixIcon: TIcons.phoneAndroid,
+                focusNode: _teleponFocusNode,
               ),
 
               gapH16,
@@ -152,6 +161,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                     ? 'Password tidak boleh kosong'
                     : null,
                 textInputAction: TextInputAction.done,
+                focusNode: _passwordFocusNode,
               ),
               gapH32,
               ElevatedButton(

@@ -14,6 +14,7 @@ class InputPassword extends StatefulWidget {
   final void Function(String)? onFieldSubmitted;
   final bool enabled;
   final AutovalidateMode autovalidateMode;
+  final FocusNode? focusNode;
 
   const InputPassword({
     super.key,
@@ -25,6 +26,7 @@ class InputPassword extends StatefulWidget {
     this.textInputAction = TextInputAction.next,
     this.onFieldSubmitted,
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
+    this.focusNode,
   });
 
   @override
@@ -38,6 +40,7 @@ class _InputPasswordState extends State<InputPassword> {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: widget.controller,
+      focusNode: widget.focusNode,
       obscureText: passwordTersembunyi,
       validator: widget.validator,
       autovalidateMode: widget.autovalidateMode,
