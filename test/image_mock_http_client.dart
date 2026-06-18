@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:mockito/mockito.dart';
 
 // A mock HTTP client that can be used for testing image loading.
-class MockHttpClient extends Mock implements http.Client {
+class MockImageHttpClient extends Mock implements http.Client {
   @override
   Future<http.Response> get(Uri url, {Map<String, String>? headers}) async {
     if (url.toString().contains('error')) {
@@ -21,6 +21,8 @@ class MockHttpClient extends Mock implements http.Client {
     );
   }
 }
+
+http.Client createMockImageHttpClient() => MockImageHttpClient();
 
 final kTransparentImage = [
   0x89,
@@ -91,7 +93,3 @@ final kTransparentImage = [
   0x60,
   0x82,
 ];
-
-void main() {
-  // This is a placeholder main function to make the analyzer happy.
-}
