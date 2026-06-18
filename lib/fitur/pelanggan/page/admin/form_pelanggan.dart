@@ -14,6 +14,7 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/widget/input/input_password.dart';
 import 'package:wifi/shared/widget/input/input_teks.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/input/input_telepon.dart';
 
 class FormPelanggan extends ConsumerStatefulWidget {
   final PelangganModel? pelanggan;
@@ -183,15 +184,12 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                   nextFocusNode: _teleponFocusNode,
                   label: 'Nama Pelanggan',
                   prefixIcon: TIcons.personOutlined,
-                  textInputAction: TextInputAction.next,
                 ),
                 gapH16,
-                InputTeks(
+                InputTelepon(
                   controller: _teleponController,
                   focusNode: _teleponFocusNode,
                   nextFocusNode: _alamatFocusNode,
-                  label: 'Nomor Telepon (WhatsApp)',
-                  prefixIcon: TIcons.phoneAndroid,
                   textInputAction: TextInputAction.next,
                 ),
                 gapH16,
@@ -201,14 +199,12 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                   nextFocusNode: _passwordFocusNode,
                   label: 'Alamat Lengkap',
                   prefixIcon: TIcons.home,
-                  textInputAction: TextInputAction.next,
                 ),
                 gapH16,
                 InputPassword(
                   controller: _passwordController,
                   focusNode: _passwordFocusNode,
                   nextFocusNode: _macAddressFocusNode,
-                  textInputAction: TextInputAction.next,
                 ),
                 gapH16,
                 InputTeks(

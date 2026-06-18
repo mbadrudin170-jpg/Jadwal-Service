@@ -36,7 +36,7 @@ void main() {
         any,
         dariServer: anyNamed('dariServer'),
       ),
-    ).thenAnswer((_) async {});
+    ).thenAnswer((_) async => null);
   });
 
   const namaTabel = NamaTabel.feedback;
@@ -51,7 +51,7 @@ void main() {
     test('01. add harus memanggil baseOpSqlite.sisipkan', () async {
       when(
         mockBaseOpSqlite.sisipkan(namaTabel, any, dariServer: false),
-      ).thenAnswer((_) async {});
+      ).thenAnswer((_) async => null);
 
       await feedbackOpSqlite.tambahFeedback(feedback);
 
@@ -67,7 +67,7 @@ void main() {
     test('02. delete harus memanggil baseOpSqlite.delete', () async {
       when(
         mockBaseOpSqlite.delete(namaTabel, 'fb1', dariServer: false),
-      ).thenAnswer((_) async {});
+      ).thenAnswer((_) async => null);
 
       await feedbackOpSqlite.delete('fb1');
 
@@ -79,7 +79,7 @@ void main() {
     test('03. softDelete harus memanggil baseOpSqlite.softDelete', () async {
       when(
         mockBaseOpSqlite.softDelete(namaTabel, 'fb1', dariServer: false),
-      ).thenAnswer((_) async {});
+      ).thenAnswer((_) async => null);
 
       await feedbackOpSqlite.softDelete('fb1');
 
@@ -97,7 +97,7 @@ void main() {
             any,
             dariServer: false,
           ),
-        ).thenAnswer((_) async {});
+        ).thenAnswer((_) async => null);
 
         await feedbackOpSqlite.sisipkanAtauPerbaruiBatch([feedback]);
 
@@ -299,5 +299,5 @@ void main() {
         ).called(1);
       },
     );
-
-});
+  });
+}

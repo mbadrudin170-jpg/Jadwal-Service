@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 
 class InputTelepon extends StatelessWidget {
   final TextEditingController controller;
@@ -22,7 +23,7 @@ class InputTelepon extends StatelessWidget {
     required this.controller,
     this.label = 'Nomor Telepon',
     this.wajib = true,
-    this.prefixIcon,
+    this.prefixIcon = TIcons.phoneAndroid,
     this.validasi = false,
     this.textInputAction = TextInputAction.next,
     this.enabled = true,

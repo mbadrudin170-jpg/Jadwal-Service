@@ -7,8 +7,9 @@ import 'dart:async' as _i2;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i5;
-import 'package:sqflite/sqflite.dart' as _i4;
-import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart' as _i3;
+import 'package:sqflite/sqflite.dart' as _i3;
+import 'package:wifi/admin/data/sqlite.dart' as _i6;
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -35,10 +36,15 @@ class _FakeFuture_1<T1> extends _i1.SmartFake implements _i2.Future<T1> {
     : super(parent, parentInvocation);
 }
 
+class _FakeDatabase_2 extends _i1.SmartFake implements _i3.Database {
+  _FakeDatabase_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [BaseOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBaseOpSqlite extends _i1.Mock implements _i3.BaseOpSqlite {
+class MockBaseOpSqlite extends _i1.Mock implements _i4.BaseOpSqlite {
   MockBaseOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
@@ -53,7 +59,7 @@ class MockBaseOpSqlite extends _i1.Mock implements _i3.BaseOpSqlite {
 
   @override
   _i2.Future<T> runComplexOperation<T>(
-    _i2.Future<T> Function(_i4.Transaction)? customAction, {
+    _i2.Future<T> Function(_i3.Transaction)? customAction, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -174,6 +180,40 @@ class MockBaseOpSqlite extends _i1.Mock implements _i3.BaseOpSqlite {
               [table, dataList],
               {#dariServer: dariServer},
             ),
+            returnValue: _i2.Future<void>.value(),
+            returnValueForMissingStub: _i2.Future<void>.value(),
+          )
+          as _i2.Future<void>);
+}
+
+/// A class which mocks [SqliteDatabase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSqliteDatabase extends _i1.Mock implements _i6.SqliteDatabase {
+  MockSqliteDatabase() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i2.Future<_i3.Database> get database =>
+      (super.noSuchMethod(
+            Invocation.getter(#database),
+            returnValue: _i2.Future<_i3.Database>.value(
+              _FakeDatabase_2(this, Invocation.getter(#database)),
+            ),
+          )
+          as _i2.Future<_i3.Database>);
+
+  @override
+  void debugSetDatabaseNull() => super.noSuchMethod(
+    Invocation.method(#debugSetDatabaseNull, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i2.Future<void> membuatTabel(_i3.Database? db, int? version) =>
+      (super.noSuchMethod(
+            Invocation.method(#membuatTabel, [db, version]),
             returnValue: _i2.Future<void>.value(),
             returnValueForMissingStub: _i2.Future<void>.value(),
           )
