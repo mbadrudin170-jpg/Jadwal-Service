@@ -58,14 +58,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   Future<void> _prosesLogin() async {
-    final phone = _teleponController.text.trim();
+    final telepon = _teleponController.text.trim();
     final password = _passwordController.text.trim();
 
     // Validasi format
-    if (phone.isEmpty || password.isEmpty) {
+    if (telepon.isEmpty || password.isEmpty) {
       return;
     }
-    if (!RegExp(r'^[0-9]{10,13}$').hasMatch(phone)) {
+    if (!RegExp(r'^[0-9]{10,13}$').hasMatch(telepon)) {
       await _showErrorAlert('Nomor telepon tidak valid (minimal 10 digit).');
       return;
     }
@@ -86,7 +86,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       final firestore = ref.read(firestoreProvider);
       final querySnapshot = await firestore
           .collection(NamaTabel.pelanggan)
-          .where(NamaKolom.telepon, isEqualTo: phone)
+          .where(NamaKolom.telepon, isEqualTo: telepon)
           // JANGAN PAKAI PASSWORD PLAINTEXT
           .where(NamaKolom.dihapus, isEqualTo: false)
           .limit(1)
