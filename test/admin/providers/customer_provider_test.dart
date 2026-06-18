@@ -1,4 +1,3 @@
-
 // path: test/admin/providers/customer_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,23 +5,24 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/admin/providers/customer_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
 import 'customer_provider_test.mocks.dart';
 
-@GenerateMocks([FirebaseOperationNotifier])
+@GenerateMocks([PelangganOpFirebase])
 void main() {
   group('CustomerNotifier', () {
     late CustomerNotifier notifier;
-    late MockFirebaseOperationNotifier mockFirebaseOperationNotifier;
+    late MockPelangganOpFirebase mockPelangganOpFirebase;
     late ProviderContainer container;
 
     setUp(() {
-      mockFirebaseOperationNotifier = MockFirebaseOperationNotifier();
+      mockPelangganOpFirebase = MockPelangganOpFirebase();
       container = ProviderContainer(
         overrides: [
-          firebaseOperationProvider
-              .overrideWith((ref) => mockFirebaseOperationNotifier),
+          pelangganOpFirebaseProvider
+              .overrideWithValue(mockPelangganOpFirebase),
         ],
       );
       notifier = container.read(customerNotifierProvider.notifier);
@@ -38,7 +38,7 @@ void main() {
             macAddress: '',
             kataSandi: ''),
       ];
-      when(mockFirebaseOperationNotifier.getAllSortedByName())
+      when(mockPelangganOpFirebase.ambilSemuaPelanggan())
           .thenAnswer((_) async => customers);
 
       // Initially, the state should be loading
@@ -74,7 +74,7 @@ void main() {
             macAddress: '',
             kataSandi: ''),
       ];
-      when(mockFirebaseOperationNotifier.getAllSortedByName())
+      when(mockPelangganOpFirebase.ambilSemuaPelanggan())
           .thenAnswer((_) async => allCustomers);
 
       await container.read(customerNotifierProvider.future);
@@ -102,7 +102,7 @@ void main() {
             macAddress: '',
             kataSandi: ''),
       ];
-      when(mockFirebaseOperationNotifier.getAllSortedByName())
+      when(mockPelangganOpFirebase.ambilSemuaPelanggan())
           .thenAnswer((_) async => allCustomers);
 
       await container.read(customerNotifierProvider.future);
