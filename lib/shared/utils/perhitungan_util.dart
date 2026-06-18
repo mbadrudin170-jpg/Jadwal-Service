@@ -59,9 +59,9 @@ class PerhitunganUtil {
     return '';
   }
 
-  static int sisaHari(DateTime endDate, {DateTime? sekarang}) {
+  static int sisaHari(DateTime target, {DateTime? sekarang}) {
     final selisihHari = DateUtils.dateOnly(sekarang ?? DateTime.now());
-    final tanggalBerakhir = DateUtils.dateOnly(endDate);
+    final tanggalBerakhir = DateUtils.dateOnly(target);
     return tanggalBerakhir.difference(selisihHari).inDays;
   }
 

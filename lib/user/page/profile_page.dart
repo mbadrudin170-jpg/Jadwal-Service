@@ -1,4 +1,4 @@
-// path lib/user/page/profile_page.dart
+// path: lib/user/page/profile_page.dart
 
 import 'dart:async';
 
@@ -229,7 +229,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       );
     }
 
-    final String teksMasaAktif = PerhitunganUtil.ambilTeksSisaMasaAktif(
+    final String teksMasaAktif = PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
       transaksi.tanggalBerakhir!,
     );
     final Color warnaMasaAktif = PerhitunganUtil.ambilWarnaSisaMasaAktif(
@@ -237,8 +237,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
     final Color warnaStatuspembayaran =
         transaksi.statusPembayaran == StatusPembayaran.paid
-        ? Colors.green
-        : Colors.red;
+            ? Colors.green
+            : Colors.red;
 
     return Column(
       children: [
