@@ -7,11 +7,9 @@ import 'dart:async' as _i3;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i6;
-import 'package:sqflite_common/sql.dart' as _i7;
-import 'package:sqflite_common/sqlite_api.dart' as _i2;
-import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart' as _i5;
-import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart'
-    as _i4;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart' as _i2;
+import 'package:wifi/admin/data/sqlite.dart' as _i4;
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -33,102 +31,199 @@ class _FakeDatabase_0 extends _i1.SmartFake implements _i2.Database {
     : super(parent, parentInvocation);
 }
 
-class _FakeFuture_1<T1> extends _i1.SmartFake implements _i3.Future<T1> {
-  _FakeFuture_1(Object parent, Invocation parentInvocation)
+class _FakeDateTime_1 extends _i1.SmartFake implements DateTime {
+  _FakeDateTime_1(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeQueryCursor_2 extends _i1.SmartFake implements _i2.QueryCursor {
-  _FakeQueryCursor_2(Object parent, Invocation parentInvocation)
+class _FakeFuture_2<T1> extends _i1.SmartFake implements _i3.Future<T1> {
+  _FakeFuture_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeBatch_3 extends _i1.SmartFake implements _i2.Batch {
-  _FakeBatch_3(Object parent, Invocation parentInvocation)
+class _FakeQueryCursor_3 extends _i1.SmartFake implements _i2.QueryCursor {
+  _FakeQueryCursor_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-/// A class which mocks [NotifikasiOpFirebase].
+class _FakeBatch_4 extends _i1.SmartFake implements _i2.Batch {
+  _FakeBatch_4(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+/// A class which mocks [SqliteDatabase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockNotifikasiOpFirebase extends _i1.Mock
-    implements _i4.NotifikasiOpFirebase {
-  MockNotifikasiOpFirebase() {
+class MockSqliteDatabase extends _i1.Mock implements _i4.SqliteDatabase {
+  MockSqliteDatabase() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Stream<List<_i5.NotifikasiModel>> getNotifAktif() =>
+  _i3.Future<_i2.Database> get database =>
       (super.noSuchMethod(
-            Invocation.method(#getNotifAktif, []),
-            returnValue: _i3.Stream<List<_i5.NotifikasiModel>>.empty(),
+            Invocation.getter(#database),
+            returnValue: _i3.Future<_i2.Database>.value(
+              _FakeDatabase_0(this, Invocation.getter(#database)),
+            ),
           )
-          as _i3.Stream<List<_i5.NotifikasiModel>>);
+          as _i3.Future<_i2.Database>);
 
   @override
-  _i3.Stream<List<_i5.NotifikasiModel>> getByUserId(String? userId) =>
-      (super.noSuchMethod(
-            Invocation.method(#getByUserId, [userId]),
-            returnValue: _i3.Stream<List<_i5.NotifikasiModel>>.empty(),
-          )
-          as _i3.Stream<List<_i5.NotifikasiModel>>);
+  void debugSetDatabaseNull() => super.noSuchMethod(
+    Invocation.method(#debugSetDatabaseNull, []),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  _i3.Stream<List<_i5.NotifikasiModel>> getById(String? id) =>
+  _i3.Future<void> membuatTabel(_i2.Database? db, int? version) =>
       (super.noSuchMethod(
-            Invocation.method(#getById, [id]),
-            returnValue: _i3.Stream<List<_i5.NotifikasiModel>>.empty(),
+            Invocation.method(#membuatTabel, [db, version]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i3.Stream<List<_i5.NotifikasiModel>>);
+          as _i3.Future<void>);
+}
+
+/// A class which mocks [BaseOpSqlite].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockBaseOpSqlite extends _i1.Mock implements _i5.BaseOpSqlite {
+  MockBaseOpSqlite() {
+    _i1.throwOnMissingStub(this);
+  }
 
   @override
-  _i3.Stream<List<_i5.NotifikasiModel>> getKhususAdmin() =>
+  DateTime get now =>
       (super.noSuchMethod(
-            Invocation.method(#getKhususAdmin, []),
-            returnValue: _i3.Stream<List<_i5.NotifikasiModel>>.empty(),
+            Invocation.getter(#now),
+            returnValue: _FakeDateTime_1(this, Invocation.getter(#now)),
           )
-          as _i3.Stream<List<_i5.NotifikasiModel>>);
+          as DateTime);
 
   @override
-  _i3.Future<void> addNotifikasi(_i5.NotifikasiModel? notifikasi) =>
+  _i3.Future<T> runComplexOperation<T>(
+    _i3.Future<T> Function(_i2.Transaction)? customAction, {
+    bool? dariServer = false,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#addNotifikasi, [notifikasi]),
+            Invocation.method(
+              #runComplexOperation,
+              [customAction],
+              {#dariServer: dariServer},
+            ),
+            returnValue:
+                _i6.ifNotNull(
+                  _i6.dummyValueOrNull<T>(
+                    this,
+                    Invocation.method(
+                      #runComplexOperation,
+                      [customAction],
+                      {#dariServer: dariServer},
+                    ),
+                  ),
+                  (T v) => _i3.Future<T>.value(v),
+                ) ??
+                _FakeFuture_2<T>(
+                  this,
+                  Invocation.method(
+                    #runComplexOperation,
+                    [customAction],
+                    {#dariServer: dariServer},
+                  ),
+                ),
+          )
+          as _i3.Future<T>);
+
+  @override
+  _i3.Future<void> sisipkan(
+    String? table,
+    Map<String, dynamic>? data, {
+    bool? dariServer = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #sisipkan,
+              [table, data],
+              {#dariServer: dariServer},
+            ),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
 
   @override
-  _i3.Future<void> updateNotif(_i5.NotifikasiModel? notifikasi) =>
+  _i3.Future<void> update(
+    String? table,
+    Map<String, dynamic>? data,
+    String? id, {
+    bool? dariServer = false,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#updateNotif, [notifikasi]),
+            Invocation.method(
+              #update,
+              [table, data, id],
+              {#dariServer: dariServer},
+            ),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
 
   @override
-  _i3.Future<void> deleteNotif(String? id) =>
+  _i3.Future<void> delete(
+    String? table,
+    String? id, {
+    bool? dariServer = false,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#deleteNotif, [id]),
+            Invocation.method(#delete, [table, id], {#dariServer: dariServer}),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
 
   @override
-  _i3.Future<void> deleteByTransactionId(String? transactionId) =>
+  _i3.Future<void> softDelete(
+    String? table,
+    String? id, {
+    bool? dariServer = false,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#deleteByTransactionId, [transactionId]),
+            Invocation.method(
+              #softDelete,
+              [table, id],
+              {#dariServer: dariServer},
+            ),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
 
   @override
-  _i3.Future<void> tandaiSudahDibaca(String? id) =>
+  _i3.Future<int> softDeleteAll(String? table, {bool? dariServer = false}) =>
       (super.noSuchMethod(
-            Invocation.method(#tandaiSudahDibaca, [id]),
+            Invocation.method(
+              #softDeleteAll,
+              [table],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i3.Future<int>.value(0),
+          )
+          as _i3.Future<int>);
+
+  @override
+  _i3.Future<void> sisipkanAtauPerbaruiBatch(
+    String? table,
+    List<Map<String, dynamic>>? dataList, {
+    bool? dariServer = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #sisipkanAtauPerbaruiBatch,
+              [table, dataList],
+              {#dariServer: dariServer},
+            ),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
@@ -192,7 +287,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_1<T>(
+                _FakeFuture_2<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -217,7 +312,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_1<T>(
+                _FakeFuture_2<T>(
                   this,
                   Invocation.method(#readTransaction, [action]),
                 ),
@@ -236,7 +331,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_1<T>(
+                _FakeFuture_2<T>(
                   this,
                   Invocation.method(#devInvokeMethod, [method, arguments]),
                 ),
@@ -263,7 +358,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_1<T>(
+                _FakeFuture_2<T>(
                   this,
                   Invocation.method(#devInvokeSqlMethod, [
                     method,
@@ -296,7 +391,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
     String? table,
     Map<String, Object?>? values, {
     String? nullColumnHack,
-    _i7.ConflictAlgorithm? conflictAlgorithm,
+    _i2.ConflictAlgorithm? conflictAlgorithm,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -372,7 +467,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
               {#bufferSize: bufferSize},
             ),
             returnValue: _i3.Future<_i2.QueryCursor>.value(
-              _FakeQueryCursor_2(
+              _FakeQueryCursor_3(
                 this,
                 Invocation.method(
                   #rawQueryCursor,
@@ -416,7 +511,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
               },
             ),
             returnValue: _i3.Future<_i2.QueryCursor>.value(
-              _FakeQueryCursor_2(
+              _FakeQueryCursor_3(
                 this,
                 Invocation.method(
                   #queryCursor,
@@ -453,7 +548,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
     Map<String, Object?>? values, {
     String? where,
     List<Object?>? whereArgs,
-    _i7.ConflictAlgorithm? conflictAlgorithm,
+    _i2.ConflictAlgorithm? conflictAlgorithm,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -497,7 +592,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
   _i2.Batch batch() =>
       (super.noSuchMethod(
             Invocation.method(#batch, []),
-            returnValue: _FakeBatch_3(this, Invocation.method(#batch, [])),
+            returnValue: _FakeBatch_4(this, Invocation.method(#batch, [])),
           )
           as _i2.Batch);
 }

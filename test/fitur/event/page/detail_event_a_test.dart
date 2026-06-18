@@ -9,32 +9,24 @@ import 'package:wifi/fitur/event/model/event_model.dart';
 import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 import 'package:wifi/fitur/event/page/detail_event_a.dart';
 
-import '../../../image_mock_http_client.dart';
 import 'detail_event_a_test.mocks.dart';
 
 @GenerateMocks([EventOpSupabase])
 void main() {
-  group('DetailEventScreen', () {
+  group('DetailEventA', () {
     late MockEventOpSupabase mockEventOpSupabase;
-    late ProviderContainer container;
 
     setUp(() {
       mockEventOpSupabase = MockEventOpSupabase();
-      container = ProviderContainer(
-        overrides: [
-          eventOpSupabaseProvider.overrideWithValue(mockEventOpSupabase),
-        ],
-      );
     });
 
     final event = EventModel(
       id: '1',
-      nama: 'Event 1',
-      deskripsi: 'Deskripsi Event 1',
       linkGambar: 'https://example.com/image.png',
       tanggalMulai: DateTime.now(),
       tanggalBerakhir: DateTime.now().add(const Duration(days: 1)),
       tanggalDibuat: DateTime.now(),
+      statusAktif: true,
     );
 
     testWidgets('01. renders event details correctly', (WidgetTester tester) async {
@@ -46,15 +38,14 @@ void main() {
             eventOpSupabaseProvider.overrideWithValue(mockEventOpSupabase),
           ],
           child: MaterialApp(
-            home: DetailEventScreen(eventId: '1'),
+            home: DetailEventA(event: event),
           ),
         ),
       );
 
       await tester.pumpAndSettle();
 
-      expect(find.text('Event 1'), findsOneWidget);
-      expect(find.text('Deskripsi Event 1'), findsOneWidget);
+      expect(find.text('Detail Pengumuman'), findsOneWidget);
       expect(find.byType(Image), findsOneWidget);
     });
 
@@ -67,7 +58,7 @@ void main() {
             eventOpSupabaseProvider.overrideWithValue(mockEventOpSupabase),
           ],
           child: MaterialApp(
-            home: DetailEventScreen(eventId: '1'),
+            home: DetailEventA(event: event),
           ),
         ),
       );
