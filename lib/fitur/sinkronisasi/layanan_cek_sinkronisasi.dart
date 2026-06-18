@@ -66,7 +66,7 @@ class LayananCekSinkronisasi {
         Log.info('Tidak ditemukan record baru. Melewati fase pengunggahan.');
         return false;
       }
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error('Kegagalan Operasional saat unggah.', e: e, s: s);
       return false;
     }
@@ -81,7 +81,7 @@ class LayananCekSinkronisasi {
             NamaKolom.diperbaruiPada: FieldValue.serverTimestamp(),
           }, SetOptions(merge: true));
       Log.info('Dokumen ${NamaTabel.statusGlobal}/global berhasil diperbarui.');
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error(
         'Gagal memperbarui dokumen ${NamaTabel.statusGlobal}/global.',
         e: e,
@@ -106,7 +106,7 @@ class LayananCekSinkronisasi {
       } else {
         Log.info('Cloud tidak memiliki pembaruan data.');
       }
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error('Kegagalan Operasional saat unduh.', e: e, s: s);
     }
   }

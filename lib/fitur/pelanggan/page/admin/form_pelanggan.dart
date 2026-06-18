@@ -112,7 +112,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         }
 
         if (!mounted) return;
-        
+
         try {
           final cekKoneksi = await ref
               .read(koneksiInternetServiceProvider)
@@ -126,8 +126,6 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                 'Data pelanggan berhasil disimpan & disinkronkan.',
               );
             }
-
-            ref.invalidate(daftarPelangganProvider);
           } else {
             Log.info('Tidak ada koneksi internet, sinkronisasi dilewati.');
             if (mounted) {
@@ -141,7 +139,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           Log.info('Sinkronisasi gagal $e');
         }
 
-        // Membatalkan provider setelah menampilkan toast dan sebelum pop
+        ref.invalidate(daftarPelangganProvider);
 
         if (mounted) {
           Navigator.pop(context);
