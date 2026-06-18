@@ -112,11 +112,11 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
   }
 
   Future<void> _softDeleteCustomer(
-    final DetailPelangganAktifModel customer,
+    final DetailPelangganAktifModel pelanggan,
   ) async {
-    final idPelanggan = customer.pelangganAktif.id;
-    final namaPelanggan = customer.namaPelanggan;
-    final idTransaksi = customer.pelangganAktif.idTransaksi;
+    final idPelanggan = pelanggan.pelangganAktif.id;
+    final namaPelanggan = pelanggan.namaPelanggan;
+    final idTransaksi = pelanggan.pelangganAktif.idTransaksi;
     final bool? konfirmasi = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
