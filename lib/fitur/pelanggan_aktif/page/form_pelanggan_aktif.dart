@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/form/form_pelanggan_aktif.dart
+// path lib/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart
 
 import 'dart:async';
 
@@ -61,7 +61,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   bool _isLoading = true;
   bool _menyimpan = false;
   bool _gunakanPoin = false;
-  late TextEditingController _bonusDurationController;
+  late TextEditingController _durasiBonusController;
   TipeDurasiPaket _tipeBonusDurasi = TipeDurasiPaket.minutes;
   bool _bonus = false;
   int _saldoPoinPelanggan = 0;
@@ -97,7 +97,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   @override
   void initState() {
     super.initState();
-    _bonusDurationController = TextEditingController();
+    _durasiBonusController = TextEditingController();
     Log.info('FormPelangganAktif initState, isEditMode=$_modeEdit');
     unawaited(_loadAllData());
   }
@@ -206,7 +206,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
       if (transaksi.durasiBonus > 0) {
         _bonus = true;
-        _bonusDurationController.text = transaksi.durasiBonus.toString();
+        _durasiBonusController.text = transaksi.durasiBonus.toString();
         _tipeBonusDurasi = transaksi.tipeDurasiBonus ?? TipeDurasiPaket.hours;
       }
     } else {
@@ -318,7 +318,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         _pilihJam!.minute,
       );
       final int durasiBonus = _bonus
-          ? (int.tryParse(_bonusDurationController.text) ?? 0)
+          ? (int.tryParse(_durasiBonusController.text) ?? 0)
           : 0;
       final DateTime tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
         tanggalMulai,
@@ -769,7 +769,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                   _pilihJam!.minute,
                 );
                 final int nilaiBonus = _bonus
-                    ? (int.tryParse(_bonusDurationController.text) ?? 0)
+                    ? (int.tryParse(_durasiBonusController.text) ?? 0)
                     : 0;
                 final DateTime endDate = PerhitunganUtil.hitungTanggalBerakhir(
                   startDate,
@@ -819,7 +819,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             Expanded(
               flex: 2,
               child: InputAngka(
-                controller: _bonusDurationController,
+                controller: _durasiBonusController,
                 label: 'Durasi Bonus ',
                 validasi: _bonus,
                 prefixIcon: TIcons.timer,

@@ -27,8 +27,9 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _teleponController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+final _teleponFocusNode=FocusNode();
 
   bool _sedangLogin = false;
 
@@ -56,7 +57,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   Future<void> _prosesLogin() async {
-    final phone = _phoneController.text.trim();
+    final phone = _teleponController.text.trim();
     final password = _passwordController.text.trim();
 
     // Validasi format
@@ -156,8 +157,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   void dispose() {
-    _phoneController.dispose();
+    _teleponController.dispose();
     _passwordController.dispose();
+    _teleponFocusNode.dispose();
     super.dispose();
   }
 
@@ -180,8 +182,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
               gapH32,
               InputAngka(
-                controller: _phoneController,
+                controller: _teleponController,
                 label: 'Nomor Telepon',
+                focusNode: _teleponFocusNode,
                 prefixIcon: TIcons.phoneAndroid,
                 keyboardType: TextInputType.phone,
                 enabled: !_sedangLogin,

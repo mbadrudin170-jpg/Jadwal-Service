@@ -1,4 +1,5 @@
-// path: lib/admin/halaman/form/form_pelanggan.dart
+// path lib/fitur/pelanggan/page/admin/form_pelanggan.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -92,7 +93,8 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       );
 
       Log.info(
-          'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}');
+        'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}',
+      );
 
       try {
         if (_modeEdit) {
@@ -109,20 +111,25 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
 
         if (!mounted) return;
 
-        final cekKoneksi =
-            await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
+        final cekKoneksi = await ref
+            .read(koneksiInternetServiceProvider)
+            .cekKoneksiLokal();
         if (cekKoneksi) {
           Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
           if (mounted) {
             ToastUtil.success(
-                context, 'Data pelanggan berhasil disimpan & disinkronkan.');
+              context,
+              'Data pelanggan berhasil disimpan & disinkronkan.',
+            );
           }
         } else {
           Log.info('Tidak ada koneksi internet, sinkronisasi dilewati.');
           if (mounted) {
-            ToastUtil.info(context,
-                'Koneksi offline. Data disimpan lokal, akan sinkron saat online.');
+            ToastUtil.info(
+              context,
+              'Koneksi offline. Data disimpan lokal, akan sinkron saat online.',
+            );
           }
         }
 
@@ -153,9 +160,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
     Log.info('Membangun UI CustomerForm. isSaving: $_menyimpan');
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          _modeEdit ? 'Edit Pelanggan' : 'Tambah Pelanggan',
-        ),
+        title: Text(_modeEdit ? 'Edit Pelanggan' : 'Tambah Pelanggan'),
         leading: BackButton(
           onPressed: () {
             Log.info('Tombol "Back" ditekan. Kembali tanpa menyimpan.');
@@ -212,14 +217,10 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                     labelText: 'Password',
                     prefixIcon: const Icon(TIcons.lock),
                     suffixIcon: IconButton(
-                      icon: Icon(
-                        _passwordTerlihat ? TIcons.show : TIcons.hide,
-                      ),
+                      icon: Icon(_passwordTerlihat ? TIcons.show : TIcons.hide),
                       onPressed: () {
                         Log.info('Visibilitas password diubah.');
-                        setState(
-                          () => _passwordTerlihat = !_passwordTerlihat,
-                        );
+                        setState(() => _passwordTerlihat = !_passwordTerlihat);
                       },
                     ),
                     border: OutlineInputBorder(
@@ -265,9 +266,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                             strokeWidth: 3,
                           ),
                         )
-                      : const Text(
-                          'SIMPAN',
-                        ),
+                      : const Text('SIMPAN'),
                 ),
               ],
             ),

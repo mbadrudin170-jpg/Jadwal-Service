@@ -10,6 +10,8 @@ class InputTeks extends StatelessWidget {
   final AutovalidateMode autovalidateMode;
   final TextInputAction textInputAction;
   final IconData? prefixIcon;
+  final FocusNode? focusNode;
+  final bool enabled;
 
   const InputTeks({
     super.key,
@@ -20,6 +22,8 @@ class InputTeks extends StatelessWidget {
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
     this.textInputAction = TextInputAction.next,
     this.prefixIcon,
+    this.focusNode,
+    this.enabled=true,
   });
 
   @override
@@ -27,6 +31,8 @@ class InputTeks extends StatelessWidget {
     return TextFormField(
       controller: controller,
       autovalidateMode: autovalidateMode,
+      enabled: enabled,
+      focusNode: focusNode,
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),

@@ -13,11 +13,12 @@ class InputAngka extends StatelessWidget {
   final bool enabled;
   final TextInputType keyboardType;
   final AutovalidateMode autovalidateMode;
+  final FocusNode? focusNode;
 
   const InputAngka({
     super.key,
     required this.controller,
-    required this.label,
+    this.label = 'Nomor Telepon',
     this.wajib = true,
     this.prefixIcon,
     this.validasi = false,
@@ -25,6 +26,7 @@ class InputAngka extends StatelessWidget {
     this.enabled = true,
     this.keyboardType = TextInputType.number,
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
+    this.focusNode,
   });
 
   @override
@@ -35,6 +37,7 @@ class InputAngka extends StatelessWidget {
       autovalidateMode: autovalidateMode,
       textInputAction: textInputAction,
       enabled: enabled,
+      focusNode: focusNode,
       inputFormatters: [
         CurrencyTextInputFormatter.currency(
           locale: 'id',
