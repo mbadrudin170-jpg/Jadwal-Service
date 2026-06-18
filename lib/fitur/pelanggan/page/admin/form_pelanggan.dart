@@ -112,31 +112,36 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         }
 
         if (!mounted) return;
+        
+        try {
+          final cekKoneksi = await ref
+              .read(koneksiInternetServiceProvider)
+              .cekKoneksiLokal();
+          if (cekKoneksi) {
+            Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
+            ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
+            if (mounted) {
+              ToastUtil.success(
+                context,
+                'Data pelanggan berhasil disimpan & disinkronkan.',
+              );
+            }
 
-        final cekKoneksi = await ref
-            .read(koneksiInternetServiceProvider)
-            .cekKoneksiLokal();
-        if (cekKoneksi) {
-          Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
-          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
-          if (mounted) {
-            ToastUtil.success(
-              context,
-              'Data pelanggan berhasil disimpan & disinkronkan.',
-            );
+            ref.invalidate(daftarPelangganProvider);
+          } else {
+            Log.info('Tidak ada koneksi internet, sinkronisasi dilewati.');
+            if (mounted) {
+              ToastUtil.info(
+                context,
+                'Koneksi offline. Data disimpan lokal, akan sinkron saat online.',
+              );
+            }
           }
-        } else {
-          Log.info('Tidak ada koneksi internet, sinkronisasi dilewati.');
-          if (mounted) {
-            ToastUtil.info(
-              context,
-              'Koneksi offline. Data disimpan lokal, akan sinkron saat online.',
-            );
-          }
+        } catch (e) {
+          Log.info('Sinkronisasi gagal $e');
         }
 
         // Membatalkan provider setelah menampilkan toast dan sebelum pop
-        ref.invalidate(daftarPelangganProvider);
 
         if (mounted) {
           Navigator.pop(context);
