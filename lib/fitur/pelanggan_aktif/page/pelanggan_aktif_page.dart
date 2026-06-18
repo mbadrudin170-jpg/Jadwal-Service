@@ -228,14 +228,6 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     );
   }
 
-  Future<void> _navigasiKeForm() async {
-    Log.info('Navigasi ke form tambah pelanggan aktif');
-    await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(builder: (_) => const FormPelangganAktif()),
-    );
-  }
-
   Future<void> _advancedOptions() async {
     Log.info('Membuka opsi lanjutan');
     final AdvancedOption? selected = await showDialog<AdvancedOption>(
@@ -269,7 +261,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
         Log.warning('Opsi arsipkan semua dipilih');
         final bool? konfirmasi = await showDialog<bool>(
           context: context,
-          builder: (final ctx) => AlertDialog(
+          builder: (ctx) => AlertDialog(
             title: const Text('Konfirmasi Arsipkan Semua'),
             content: const Text(
               'Yakin ingin mengarsipkan SEMUA pelanggan aktif?',
@@ -297,7 +289,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
             await ref
                 .read(pelangganAktifProvider.notifier)
                 .fetchActiveCustomers();
-          } on Exception catch (e, s) {
+          } catch (e, s) {
             Log.error('Gagal mengarsipkan semua pelanggan aktif', e: e, s: s);
             if (mounted) {
               ToastUtil.error(
@@ -323,7 +315,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
           await ref
               .read(pelangganAktifProvider.notifier)
               .fetchActiveCustomers();
-        } on Exception catch (e, s) {
+        } catch (e, s) {
           Log.error('Gagal mengarsipkan pelanggan kadaluarsa', e: e, s: s);
           if (mounted) {
             ToastUtil.error(
@@ -472,7 +464,10 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'fab_active_customer',
-        onPressed: _navigasiKeForm,
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const FormPelangganAktif()),
+        ),
         child: const Icon(TIcons.add),
       ),
     );

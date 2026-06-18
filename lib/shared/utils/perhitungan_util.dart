@@ -46,7 +46,7 @@ class PerhitunganUtil {
     }
   }
 
-  static String getPoinKadaluarsa({
+  static String poinKadaluarsa({
     required DateTime tanggalMulai,
     DateTime? sekarang,
   }) {

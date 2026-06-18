@@ -81,7 +81,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     return (_saldoPoinPelanggan - poinDipakai).clamp(0, 999999999);
   }
 
-  int _getDurationInMinutes(PaketModel paket) {
+  int _hitungDurasiPaket(PaketModel paket) {
     switch (paket.tipe) {
       case TipeDurasiPaket.minutes:
         return paket.durasi;
@@ -134,7 +134,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final daftarPaket = (hasil[1] as List<PaketModel>)
         ..sort(
           (a, b) =>
-              _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)),
+              _hitungDurasiPaket(a).compareTo(_hitungDurasiPaket(b)),
         );
 
       final daftarDompet = (hasil[2] as List<DompetModel>)
@@ -862,7 +862,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             : () async {
                 setState(() => _menyimpan = true);
                 Log.info('Tombol Simpan ditekan');
-                final navigator = Navigator.of(context);
                 final hasil = await _simpanData();
 
                 if (!mounted) {
@@ -875,7 +874,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                     'Data berhasil disimpan',
                   ); // ✅ Pesan jelas
                   _invalidateSemuaProvider();
-                  navigator.pop();
+                  Navigator.pop(context);
                   Log.info(
                     'Form berhasil disimpan, memicu refresh dompet, statistik, dan menutup halaman.',
                   );
