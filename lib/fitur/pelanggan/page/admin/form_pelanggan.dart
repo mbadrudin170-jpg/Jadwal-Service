@@ -189,6 +189,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                 InputTeks(
                   controller: _teleponController,
                   focusNode: _teleponFocusNode,
+                  nextFocusNode: _alamatFocusNode,
                   label: 'Nomor Telepon (WhatsApp)',
                   prefixIcon: TIcons.phoneAndroid,
                   textInputAction: TextInputAction.next,
@@ -197,6 +198,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                 InputTeks(
                   controller: _alamatController,
                   focusNode: _alamatFocusNode,
+                  nextFocusNode: _passwordFocusNode,
                   label: 'Alamat Lengkap',
                   prefixIcon: TIcons.home,
                   textInputAction: TextInputAction.next,
@@ -205,16 +207,14 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                 InputPassword(
                   controller: _passwordController,
                   focusNode: _passwordFocusNode,
-                  onSubmitted: (_) => _simpanPelanggan(),
+                  nextFocusNode: _macAddressFocusNode,
                   textInputAction: TextInputAction.next,
-                  validator: (v) => (v == null || v.isEmpty)
-                      ? 'Password tidak boleh kosong'
-                      : null,
                 ),
                 gapH16,
                 InputTeks(
                   controller: _macAddressController,
                   focusNode: _macAddressFocusNode,
+                  onSubmitted: (_) => _simpanPelanggan(),
                   label: 'MAC Address',
                   prefixIcon: TIcons.router,
                   textInputAction: TextInputAction.done,

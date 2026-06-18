@@ -21,6 +21,8 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/input/input_rupiah.dart';
+import 'package:wifi/shared/widget/input/input_teks.dart';
 import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
 
 class FormTransaksi extends ConsumerStatefulWidget {
@@ -37,6 +39,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
   final _jumlahController = TextEditingController();
   final _keteranganController = TextEditingController();
   final _jumlahFocusNode = FocusNode();
+  final _keteranganFocusNode = FocusNode();
   DateTime? _tanggalDipilih;
   TimeOfDay? _jamDipilih;
 
@@ -200,7 +203,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     });
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _pilihTanggal(BuildContext context) async {
     Log.info('Memilih tanggal, saat ini: $_tanggalDipilih');
     final picked = await showDatePicker(
       context: context,
@@ -214,7 +217,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     }
   }
 
-  Future<void> _selectTime(BuildContext context) async {
+  Future<void> _pilihJam(BuildContext context) async {
     Log.info('Memilih waktu, saat ini: $_jamDipilih');
     final initial = _jamDipilih ?? TimeOfDay.fromDateTime(DateTime.now());
     final picked = await showTimePicker(
@@ -409,41 +412,25 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                         },
                       ),
                     ),
-                    TextFormField(
+                    InputTeks(
                       controller: _keteranganController,
-                      decoration: const InputDecoration(
-                        labelText: 'Keterangan',
-                      ),
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) {
-                        FocusScope.of(context).requestFocus(_jumlahFocusNode);
-                      },
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Keterangan tidak boleh kosong'
-                          : null,
+                      label: 'Keterangan',
+                      focusNode: _keteranganFocusNode,
+                      nextFocusNode: _jumlahFocusNode,
                     ),
-                    TextFormField(
+
+                    InputRupiah(
                       controller: _jumlahController,
                       focusNode: _jumlahFocusNode,
-                      decoration: const InputDecoration(labelText: 'Jumlah'),
-                      keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.done,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Jumlah tidak boleh kosong';
-                        }
-                        if (double.tryParse(value) == null) {
-                          return 'Format jumlah tidak valid';
-                        }
-                        return null;
-                      },
                     ),
+
                     gapH24,
                     PemilihTanggalWaktuWidget(
                       tanggalTerpilih: _tanggalDipilih,
                       waktuTerpilih: _jamDipilih,
-                      onPilihTanggal: () => _selectDate(context),
-                      onPilihWaktu: () => _selectTime(context),
+                      onPilihTanggal: () => _pilihTanggal(context),
+                      onPilihWaktu: () => _pilihJam(context),
                     ),
                     DropdownButtonFormField<DompetModel>(
                       key: ValueKey<DompetModel?>(_dompetDipilih),
@@ -455,14 +442,14 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                           child: Text(dompet.nama),
                         );
                       }).toList(),
-                      onChanged: (val) {
+                      onChanged: (v) {
                         Log.info(
-                          'Pengguna memilih dompet: ${val?.nama ?? "null"}',
+                          'Pengguna memilih dompet: ${v?.nama ?? "null"}',
                         );
-                        setState(() => _dompetDipilih = val);
+                        setState(() => _dompetDipilih = v);
                       },
-                      validator: (val) =>
-                          val == null ? 'Dompet harus dipilih' : null,
+                      validator: (v) =>
+                          v == null ? 'Dompet harus dipilih' : null,
                     ),
                     if (_tipe == TipeTransaksi.transfer)
                       DropdownButtonFormField<DompetModel>(
@@ -562,6 +549,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     _jumlahController.dispose();
     _keteranganController.dispose();
     _jumlahFocusNode.dispose();
+    _keteranganFocusNode.dispose();
     super.dispose();
   }
 }
