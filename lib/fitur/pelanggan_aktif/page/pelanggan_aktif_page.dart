@@ -267,7 +267,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     switch (selected) {
       case AdvancedOption.softDeleteAll:
         Log.warning('Opsi arsipkan semua dipilih');
-        final bool? confirm = await showDialog<bool>(
+        final bool? konfirmasi = await showDialog<bool>(
           context: context,
           builder: (final ctx) => AlertDialog(
             title: const Text('Konfirmasi Arsipkan Semua'),
@@ -286,7 +286,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
             ],
           ),
         );
-        if (confirm ?? false) {
+        if (konfirmasi ?? false) {
           try {
             Log.warning('Eksekusi arsipkan semua pelanggan aktif');
             await _pelangganAktifOpSqlite.softDeleteAll();
