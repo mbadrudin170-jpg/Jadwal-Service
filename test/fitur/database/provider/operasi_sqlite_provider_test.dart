@@ -3,37 +3,46 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/database/sqlite_user.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
+import 'package:wifi/shared/services/notifikasi/notifikasi_service.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 
-class MockDatabaseHelper extends Mock implements DatabaseHelper {}
+
+class MockDatabase extends Mock implements Database {}
+class MockBaseOpSqlite extends Mock implements BaseOpSqlite {}
+class MockNotifikasiService extends Mock implements LayananNotifikasi {}
 
 void main() {
-  group('OperasiSqliteNotifier', () {
-    late OperasiSqliteNotifier notifier;
-    late MockDatabaseHelper mockDatabaseHelper;
+  group('Operation Providers', () {
     late ProviderContainer container;
+    late MockDatabase mockDatabase;
+    late MockBaseOpSqlite mockBaseOpSqlite;
+    late MockNotifikasiService mockNotifikasiService;
 
     setUp(() {
-      mockDatabaseHelper = MockDatabaseHelper();
+      mockDatabase = MockDatabase();
+      mockBaseOpSqlite = MockBaseOpSqlite();
+      mockNotifikasiService = MockNotifikasiService();
+
       container = ProviderContainer(
         overrides: [
-          databaseHelperProvider.overrideWithValue(mockDatabaseHelper),
+          sqliteDatabaseProvider.overrideWithValue(mockDatabase),
+          baseOpSqliteProvider.overrideWithValue(mockBaseOpSqlite),
+          layananNotifikasiProvider.overrideWithValue(mockNotifikasiService),
         ],
       );
-      notifier = container.read(operasiSqliteProvider.notifier);
     });
 
-    test('01. initState - database is initialized', () {
-      // The build method should be implicitly called, which initializes the database.
-      // We can verify this by checking if any method on the mock was called.
-      // As the `initDB` is called in the constructor, we can't easily mock and verify it.
-      // However, we can check if the state is not null.
-
-      // This is a bit of a workaround to trigger the build method.
-      container.read(operasiSqliteProvider);
-
-      expect(notifier.state, isA<AsyncData<DatabaseHelper>>());
+    test('01. paketOpSqliteProvider should return PaketOpSqlite', () {
+      final result = container.read(paketOpSqliteProvider);
+      expect(result, isA<PaketOpSqlite>());
     });
+
+    // Add similar tests for all other providers
+    // ...
   });
 }

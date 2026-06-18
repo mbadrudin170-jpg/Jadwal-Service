@@ -1,3 +1,4 @@
+
 // path: test/fitur/event/page/event_page_a_test.dart
 
 import 'dart:async';
@@ -9,7 +10,6 @@ import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/event/model/event_model.dart';
 import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 import 'package:wifi/fitur/event/page/event_page_a.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
 
 import 'event_page_a_test.mocks.dart';
 
