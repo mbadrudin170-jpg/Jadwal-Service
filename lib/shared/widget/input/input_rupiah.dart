@@ -7,11 +7,26 @@ class InputRupiah extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final bool wajib;
+  final IconData? prefixIcon;
+  final TextInputAction textInputAction;
+  final bool enabled;
+  final AutovalidateMode autovalidateMode;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
+  final void Function(String)? onSubmitted;
+
   const InputRupiah({
     super.key,
     required this.controller,
-    required this.label,
-    required this.wajib,
+    this.label = 'Jumlah',
+    this.wajib = true,
+    this.prefixIcon,
+    this.textInputAction = TextInputAction.next,
+    this.enabled = true,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
+    this.focusNode,
+    this.nextFocusNode,
+    this.onSubmitted,
   });
 
   @override
@@ -19,7 +34,19 @@ class InputRupiah extends StatelessWidget {
     return TextFormField(
       controller: controller,
       keyboardType: TextInputType.number,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: autovalidateMode,
+      textInputAction: textInputAction,
+      enabled: enabled,
+      focusNode: focusNode,
+      onTapOutside: (event) => FocusScope.of(context).unfocus(),
+      onFieldSubmitted: (v) {
+        if (onSubmitted != null) {
+          onSubmitted!(v);
+        }
+        if (nextFocusNode != null) {
+          FocusScope.of(context).requestFocus(nextFocusNode);
+        }
+      },
       inputFormatters: [
         CurrencyTextInputFormatter.currency(
           locale: 'id',
@@ -30,6 +57,7 @@ class InputRupiah extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
       ),
       validator: (value) {
         if (wajib && (value == null || value.trim().isEmpty)) {

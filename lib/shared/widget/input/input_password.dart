@@ -11,22 +11,25 @@ class InputPassword extends StatefulWidget {
   final String? Function(String?)? validator;
   final Widget prefixIcon;
   final TextInputAction textInputAction;
-  final void Function(String)? onFieldSubmitted;
   final bool enabled;
   final AutovalidateMode autovalidateMode;
   final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
+  final void Function(String)? onSubmitted;
 
   const InputPassword({
     super.key,
     required this.controller,
-    this.label = 'Password',
     this.validator,
+
+    this.label = 'Password',
     this.enabled = true,
     this.prefixIcon = const Icon(TIcons.lock),
     this.textInputAction = TextInputAction.next,
-    this.onFieldSubmitted,
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
     this.focusNode,
+    this.nextFocusNode,
+    this.onSubmitted,
   });
 
   @override
@@ -42,11 +45,27 @@ class _InputPasswordState extends State<InputPassword> {
       controller: widget.controller,
       focusNode: widget.focusNode,
       obscureText: passwordTersembunyi,
-      validator: widget.validator,
       autovalidateMode: widget.autovalidateMode,
       textInputAction: widget.textInputAction,
-      onFieldSubmitted: widget.onFieldSubmitted,
+      onFieldSubmitted: (v) {
+        if (widget.nextFocusNode != null) {
+          FocusScope.of(context).requestFocus(widget.nextFocusNode);
+        }
+        if (widget.onSubmitted != null) {
+          widget.onSubmitted!(v);
+        }
+      },
+      onTapOutside: (event) => FocusScope.of(context).unfocus(),
       enabled: widget.enabled,
+      validator:
+          widget.validator ??
+          (value) {
+            if (value == null || value.isEmpty) {
+              return 'Password tidak boleh kosong';
+            }
+            return null;
+          },
+
       decoration: InputDecoration(
         labelText: widget.label,
         border: const OutlineInputBorder(),

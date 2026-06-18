@@ -11,7 +11,9 @@ class InputTeks extends StatelessWidget {
   final TextInputAction textInputAction;
   final IconData? prefixIcon;
   final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
   final bool enabled;
+  final void Function(String)? onSubmitted;
 
   const InputTeks({
     super.key,
@@ -23,7 +25,9 @@ class InputTeks extends StatelessWidget {
     this.textInputAction = TextInputAction.next,
     this.prefixIcon,
     this.focusNode,
+    this.nextFocusNode,
     this.enabled = true,
+    this.onSubmitted,
   });
 
   @override
@@ -33,11 +37,20 @@ class InputTeks extends StatelessWidget {
       autovalidateMode: autovalidateMode,
       enabled: enabled,
       focusNode: focusNode,
+      onTapOutside: (event) => FocusScope.of(context).unfocus(),
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
       ),
+      onFieldSubmitted: (v) {
+        if (nextFocusNode != null) {
+          FocusScope.of(context).requestFocus(nextFocusNode);
+        }
+        if (onSubmitted != null) {
+          onSubmitted!(v);
+        }
+      },
       validator:
           validator ??
           (value) {

@@ -14,6 +14,8 @@ class InputAngka extends StatelessWidget {
   final TextInputType keyboardType;
   final AutovalidateMode autovalidateMode;
   final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
+  final void Function(String)? onSubmitted;
 
   const InputAngka({
     super.key,
@@ -27,6 +29,8 @@ class InputAngka extends StatelessWidget {
     this.keyboardType = TextInputType.number,
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
     this.focusNode,
+    this.nextFocusNode,
+    this.onSubmitted,
   });
 
   @override
@@ -38,6 +42,15 @@ class InputAngka extends StatelessWidget {
       textInputAction: textInputAction,
       enabled: enabled,
       focusNode: focusNode,
+      onTapOutside: (event) => FocusScope.of(context).unfocus(),
+      onFieldSubmitted: (v) {
+        if (onSubmitted != null) {
+          onSubmitted!(v);
+        }
+        if (nextFocusNode != null) {
+          FocusScope.of(context).requestFocus(nextFocusNode);
+        }
+      },
       inputFormatters: [
         CurrencyTextInputFormatter.currency(
           locale: 'id',

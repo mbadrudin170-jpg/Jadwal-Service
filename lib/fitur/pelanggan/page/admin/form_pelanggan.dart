@@ -11,6 +11,8 @@ import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelan
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
+import 'package:wifi/shared/widget/input/input_password.dart';
+import 'package:wifi/shared/widget/input/input_teks.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 class FormPelanggan extends ConsumerStatefulWidget {
@@ -37,7 +39,6 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
   final _macAddressFocusNode = FocusNode();
 
   bool get _modeEdit => widget.pelanggan != null;
-  bool _passwordTerlihat = false;
   bool _menyimpan = false;
 
   @override
@@ -176,77 +177,47 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildTextField(
+                InputTeks(
                   controller: _namaController,
                   focusNode: _namaFocusNode,
+                  nextFocusNode: _teleponFocusNode,
                   label: 'Nama Pelanggan',
-                  icon: TIcons.personOutlined,
-                  nextFocus: _teleponFocusNode,
-                  validator: (v) => (v == null || v.isEmpty)
-                      ? 'Nama tidak boleh kosong'
-                      : null,
+                  prefixIcon: TIcons.personOutlined,
+                  textInputAction: TextInputAction.next,
                 ),
                 gapH16,
-                _buildTextField(
+                InputTeks(
                   controller: _teleponController,
                   focusNode: _teleponFocusNode,
                   label: 'Nomor Telepon (WhatsApp)',
-                  icon: TIcons.phoneAndroid,
-                  keyboard: TextInputType.phone,
-                  nextFocus: _alamatFocusNode,
-                  validator: (v) => (v == null || v.isEmpty)
-                      ? 'Telepon tidak boleh kosong'
-                      : null,
+                  prefixIcon: TIcons.phoneAndroid,
+                  textInputAction: TextInputAction.next,
                 ),
                 gapH16,
-                _buildTextField(
+                InputTeks(
                   controller: _alamatController,
                   focusNode: _alamatFocusNode,
                   label: 'Alamat Lengkap',
-                  icon: TIcons.home,
-                  nextFocus: _passwordFocusNode,
-                  validator: (v) => (v == null || v.isEmpty)
-                      ? 'Alamat tidak boleh kosong'
-                      : null,
+                  prefixIcon: TIcons.home,
+                  textInputAction: TextInputAction.next,
                 ),
                 gapH16,
-                TextFormField(
+                InputPassword(
                   controller: _passwordController,
                   focusNode: _passwordFocusNode,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: const Icon(TIcons.lock),
-                    suffixIcon: IconButton(
-                      icon: Icon(_passwordTerlihat ? TIcons.show : TIcons.hide),
-                      onPressed: () {
-                        Log.info('Visibilitas password diubah.');
-                        setState(() => _passwordTerlihat = !_passwordTerlihat);
-                      },
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  obscureText: !_passwordTerlihat,
+                  onSubmitted: (_) => _simpanPelanggan(),
                   textInputAction: TextInputAction.next,
-                  onFieldSubmitted: (_) =>
-                      FocusScope.of(context).requestFocus(_macAddressFocusNode),
                   validator: (v) => (v == null || v.isEmpty)
                       ? 'Password tidak boleh kosong'
                       : null,
                 ),
                 gapH16,
-                _buildTextField(
+                InputTeks(
                   controller: _macAddressController,
                   focusNode: _macAddressFocusNode,
                   label: 'MAC Address',
-                  icon: TIcons.router,
-                  hintText: 'XX:XX:XX:XX:XX:XX',
-                  action: TextInputAction.done,
-                  onSubmitted: (_) => _macAddressFocusNode.unfocus(),
-                  validator: (v) => (v == null || v.isEmpty)
-                      ? 'MAC Address tidak boleh kosong'
-                      : null,
+                  prefixIcon: TIcons.router,
+                  textInputAction: TextInputAction.done,
                 ),
                 gapH32,
                 ElevatedButton(
@@ -273,37 +244,6 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildTextField({
-    required final TextEditingController controller,
-    required final FocusNode focusNode,
-    required final String label,
-    required final IconData icon,
-    final String? hintText,
-    final TextInputType keyboard = TextInputType.text,
-    final TextInputAction action = TextInputAction.next,
-    final FocusNode? nextFocus,
-    final void Function(String)? onSubmitted,
-    final String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      focusNode: focusNode,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hintText,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      keyboardType: keyboard,
-      textInputAction: action,
-      onFieldSubmitted: (v) {
-        if (nextFocus != null) FocusScope.of(context).requestFocus(nextFocus);
-        if (onSubmitted != null) onSubmitted(v);
-      },
-      validator: validator,
     );
   }
 }

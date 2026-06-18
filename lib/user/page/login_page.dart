@@ -187,6 +187,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 controller: _teleponController,
                 label: 'Nomor Telepon',
                 focusNode: _teleponFocusNode,
+                nextFocusNode: _passwordFocusNode,
                 prefixIcon: TIcons.phoneAndroid,
                 keyboardType: TextInputType.phone,
                 enabled: !_sedangLogin,
@@ -194,13 +195,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               gapH16,
               InputPassword(
                 controller: _passwordController,
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Password tidak boleh kosong'
-                    : null,
-                onFieldSubmitted: (p0) => _prosesLogin(),
+                focusNode: _passwordFocusNode,
+                onSubmitted: (_) => _prosesLogin(),
                 textInputAction: TextInputAction.done,
                 enabled: !_sedangLogin,
-                focusNode: _passwordFocusNode,
               ),
               gapH24,
               ElevatedButton(
