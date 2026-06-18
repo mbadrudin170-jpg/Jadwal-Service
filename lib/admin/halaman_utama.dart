@@ -16,6 +16,7 @@ import 'package:wifi/fitur/transaksi/page/transaksi_page_a.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:workmanager/workmanager.dart';
@@ -61,9 +62,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
       unawaited(_initAwal());
     });
 
-    _langgananKoneksi = Connectivity().onConnectivityChanged.listen(
-          _koneksiBerubah,
-        );
+    _koneksiBerubah();
   }
 
   Future<void> _initAwal() async {
@@ -73,9 +72,13 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     _cekDanTampilkanPesanOffline();
     Log.info('Menjalankan pengecekan langganan kadaluarsa.');
 
-    final expiredService = ref.read(arsipLanggananKadaluarsaServiceProvider);
-    await expiredService.prosesArsipLanggananKadaluarsa();
-    await _syncJikaOnline().timeout(const Duration(seconds: 5));
+    try {
+      final expiredService = ref.read(arsipLanggananKadaluarsaServiceProvider);
+      await expiredService.prosesArsipLanggananKadaluarsa();
+      await _syncJikaOnline().timeout(const Duration(seconds: 5));
+    } catch (e, s) {
+      Log.info('gagal arsip langganan kadaluarsa $e $s');
+    }
   }
 
   @override
@@ -102,10 +105,11 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     Log.info('Tugas sinkronisasi periodik dijadwalkan.');
   }
 
-  Future<void> _koneksiBerubah(List<ConnectivityResult> hasil) async {
-    final terkoneksi = hasil.contains(ConnectivityResult.mobile) ||
-        hasil.contains(ConnectivityResult.wifi);
-    if (terkoneksi) {
+  Future<void> _koneksiBerubah() async {
+    final isOnline = await ref
+        .read(koneksiInternetServiceProvider)
+        .cekInternet(ref);
+    if (isOnline) {
       Log.info('Koneksi kembali online. Memicu sinkronisasi.');
       await _syncJikaOnline();
     } else {
@@ -120,7 +124,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     try {
       await _syncService.jalankanCekSinkronisasi();
       Log.info('Sinkronisasi data selesai.');
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error('Gagal sinkronisasi data.', e: e, s: s);
     } finally {
       if (mounted) setState(() => _sedangSync = false);

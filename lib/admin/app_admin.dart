@@ -84,7 +84,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
       try {
         final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
-        await pelangganAktifOpSqlite.hapusPermanenDataSoftDelete();
+        await pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
       } catch (e) {
         Log.error('gagal menghapus data yang status nya diarsipkan');
       }
