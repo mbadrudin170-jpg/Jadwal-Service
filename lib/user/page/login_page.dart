@@ -29,7 +29,8 @@ class LoginPage extends ConsumerStatefulWidget {
 class _LoginPageState extends ConsumerState<LoginPage> {
   final TextEditingController _teleponController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-final _teleponFocusNode=FocusNode();
+  final _teleponFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
 
   bool _sedangLogin = false;
 
@@ -160,6 +161,7 @@ final _teleponFocusNode=FocusNode();
     _teleponController.dispose();
     _passwordController.dispose();
     _teleponFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -198,6 +200,7 @@ final _teleponFocusNode=FocusNode();
                 onFieldSubmitted: (p0) => _prosesLogin(),
                 textInputAction: TextInputAction.done,
                 enabled: !_sedangLogin,
+                focusNode: _passwordFocusNode,
               ),
               gapH24,
               ElevatedButton(
