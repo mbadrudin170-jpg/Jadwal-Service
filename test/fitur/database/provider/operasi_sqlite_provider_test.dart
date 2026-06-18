@@ -2,47 +2,38 @@
 // path: test/fitur/database/provider/operasi_sqlite_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
-import 'package:wifi/shared/services/notifikasi/notifikasi_service.dart';
-import 'package:wifi/shared/providers/shared_providers.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
 
+import 'operasi_sqlite_provider_test.mocks.dart';
 
-class MockDatabase extends Mock implements Database {}
-class MockBaseOpSqlite extends Mock implements BaseOpSqlite {}
-class MockNotifikasiService extends Mock implements LayananNotifikasi {}
-
+@GenerateMocks([NotifikasiOpFirebase, Database])
 void main() {
-  group('Operation Providers', () {
-    late ProviderContainer container;
+  group('operasiSqliteProvider', () {
+    late MockNotifikasiOpFirebase mockNotifikasiOpFirebase;
     late MockDatabase mockDatabase;
-    late MockBaseOpSqlite mockBaseOpSqlite;
-    late MockNotifikasiService mockNotifikasiService;
+    late ProviderContainer container;
 
     setUp(() {
+      mockNotifikasiOpFirebase = MockNotifikasiOpFirebase();
       mockDatabase = MockDatabase();
-      mockBaseOpSqlite = MockBaseOpSqlite();
-      mockNotifikasiService = MockNotifikasiService();
 
       container = ProviderContainer(
         overrides: [
-          sqliteDatabaseProvider.overrideWithValue(mockDatabase),
-          baseOpSqliteProvider.overrideWithValue(mockBaseOpSqlite),
-          layananNotifikasiProvider.overrideWithValue(mockNotifikasiService),
+          sqliteDatabaseProvider.overrideWithValue(SqliteDatabase(mockDatabase)),
+          // TODO: Mock the provider for NotifikasiOpFirebase
+          // notifikasiOpFirebaseProvider.overrideWithValue(mockNotifikasiOpFirebase),
         ],
       );
     });
 
-    test('01. paketOpSqliteProvider should return PaketOpSqlite', () {
-      final result = container.read(paketOpSqliteProvider);
-      expect(result, isA<PaketOpSqlite>());
+    test('01. should return an instance of OperasiSqlite', () {
+      final operasiSqlite = container.read(operasiSqliteProvider);
+      expect(operasiSqlite, isA<OperasiSqlite>());
     });
-
-    // Add similar tests for all other providers
-    // ...
   });
 }

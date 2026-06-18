@@ -8,7 +8,6 @@ import 'package:wifi/admin/providers/customer_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/admin/providers/customer_provider.g.dart';
 
 import 'customer_provider_test.mocks.dart';
 
@@ -27,7 +26,7 @@ void main() {
               .overrideWithValue(mockPelangganOpFirebase),
         ],
       );
-      notifier = container.read(customerNotifierProvider.notifier);
+      notifier = container.read(customerProvider.notifier);
     });
 
     test('01. initial state is loading and then returns data', () async {
@@ -45,16 +44,16 @@ void main() {
 
       // Initially, the state should be loading
       expect(
-        container.read(customerNotifierProvider),
+        container.read(customerProvider),
         const AsyncValue<List<PelangganModel>>.loading(),
       );
 
       // Wait for the build method to complete
-      await container.read(customerNotifierProvider.future);
+      await container.read(customerProvider.future);
 
       // After build, the state should be data
       expect(
-        container.read(customerNotifierProvider).value,
+        container.read(customerProvider).value,
         customers,
       );
     });
@@ -79,12 +78,12 @@ void main() {
       when(mockPelangganOpFirebase.ambilSemuaPelanggan())
           .thenAnswer((_) async => allCustomers);
 
-      await container.read(customerNotifierProvider.future);
+      await container.read(customerProvider.future);
 
       await notifier.search('ali');
 
-      expect(container.read(customerNotifierProvider).value?.length, 1);
-      expect(container.read(customerNotifierProvider).value?.first.nama, 'Alice');
+      expect(container.read(customerProvider).value?.length, 1);
+      expect(container.read(customerProvider).value?.first.nama, 'Alice');
     });
 
     test('03. search with empty query returns all customers', () async {
@@ -107,11 +106,11 @@ void main() {
       when(mockPelangganOpFirebase.ambilSemuaPelanggan())
           .thenAnswer((_) async => allCustomers);
 
-      await container.read(customerNotifierProvider.future);
+      await container.read(customerProvider.future);
 
       await notifier.search('');
 
-      expect(container.read(customerNotifierProvider).value?.length, 2);
+      expect(container.read(customerProvider).value?.length, 2);
     });
   });
 }
