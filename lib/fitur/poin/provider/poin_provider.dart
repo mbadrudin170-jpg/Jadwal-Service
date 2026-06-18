@@ -16,7 +16,7 @@ part 'poin_provider.freezed.dart';
 @freezed
 abstract class PoinState with _$PoinState {
   const factory PoinState({
-    @Default([]) List<PaketModel> rewards,
+    @Default([]) List<PaketModel> hadiah,
     @Default([]) List<TransaksiModel> transaksi,
     @Default(0) int totalPoin,
   }) = _PoinState;
@@ -25,14 +25,14 @@ abstract class PoinState with _$PoinState {
 @riverpod
 class Poin extends _$Poin {
   @override
-  FutureOr<PoinState> build(Ref ref, String customerId) async {
+  FutureOr<PoinState> build(Ref ref, String idPelanggan) async {
     final dataSource = ref.watch(pointsDataSourceProvider);
 
-    final rewards = await dataSource.getPublicPackages();
-    final transaksi = await dataSource.getPointsTransactions(customerId);
-    final totalPoin = await dataSource.ambilTotalPoin(customerId);
+    final hadiah = await dataSource.getPublicPackages();
+    final transaksi = await dataSource.getPointsTransactions(idPelanggan);
+    final totalPoin = await dataSource.ambilTotalPoin(idPelanggan);
     return PoinState(
-      rewards: rewards,
+      hadiah: hadiah,
       transaksi: transaksi,
       totalPoin: totalPoin,
     );
@@ -49,21 +49,18 @@ PointsPageDataSource pointsDataSource(Ref ref) {
   }
 }
 
-typedef PointsPageData = ({int totalPoints, List<PaketModel> rewards});
+typedef PointsPageData = ({int totalPoin, List<PaketModel> rewards});
 
 @riverpod
-Future<PointsPageData> pointsPageData(Ref ref, String customerId) async {
+Future<PointsPageData> pointsPageData(Ref ref, String idPelanggan) async {
   final dataSource = ref.watch(pointsDataSourceProvider);
 
-  final [totalPoints, rewards] = await Future.wait([
-    dataSource.ambilTotalPoin(customerId),
+  final [totalPoin, hadiah] = await Future.wait([
+    dataSource.ambilTotalPoin(idPelanggan),
     dataSource.getPublicPackages(),
   ]);
 
-  return (
-    totalPoints: totalPoints as int,
-    rewards: rewards as List<PaketModel>
-  );
+  return (totalPoints: totalPoin as int, rewards: hadiah as List<PaketModel>);
 }
 
 @riverpod

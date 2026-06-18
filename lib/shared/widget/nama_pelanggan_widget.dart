@@ -9,7 +9,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 
 /// Widget yang menampilkan nama pelanggan berdasarkan ID dari dua sumber data.
 ///
-/// Secara default, mengambil data dari SQLite. Jika [useFirebase] diatur ke true,
+/// Secara default, mengambil data dari SQLite. Jika [pakaiFirebase] diatur ke true,
 /// maka akan mengambil data dari Firebase secara real-time.
 class NamaPelangganWidget extends ConsumerWidget {
   /// ID pelanggan yang akan dicari namanya.
@@ -19,18 +19,18 @@ class NamaPelangganWidget extends ConsumerWidget {
   final TextStyle? style;
 
   /// Tentukan `true` untuk menggunakan Firebase, `false` (default) untuk SQLite.
-  final bool useFirebase;
+  final bool pakaiFirebase;
 
   const NamaPelangganWidget({
     super.key,
     required this.idPelanggan,
     this.style,
-    this.useFirebase = false,
+    this.pakaiFirebase = false,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (useFirebase) {
+    if (pakaiFirebase) {
       return _buildFromFirebase(ref);
     }
     return _buildFromSqlite(ref);
