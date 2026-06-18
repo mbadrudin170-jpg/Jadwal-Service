@@ -109,9 +109,7 @@ class SqliteDatabase {
     }
 
     if (oldVersion < 47) {
-      Log.info(
-        '[MIGRASI v47] Memulai migrasi skema destruktif.',
-      );
+      Log.info('[MIGRASI v47] Memulai migrasi skema destruktif.');
       await _migrateToV47(db);
     }
 
@@ -123,16 +121,12 @@ class SqliteDatabase {
     }
 
     if (oldVersion < 49) {
-      Log.info(
-        '[MIGRASI v49] Rename semua kolom ke snake_case Inggris.',
-      );
+      Log.info('[MIGRASI v49] Rename semua kolom ke snake_case Inggris.');
       await _migrateToV49(db);
     }
 
     if (oldVersion < 50) {
-      Log.info(
-        '[MIGRASI v50] Rename semua nama tabel ke snake_case Inggris.',
-      );
+      Log.info('[MIGRASI v50] Rename semua nama tabel ke snake_case Inggris.');
       await _migrateToV50(db);
     }
 
@@ -144,9 +138,7 @@ class SqliteDatabase {
     }
 
     if (oldVersion < 52) {
-      Log.info(
-        '[MIGRASI v52] Membuat tabel `${NamaTabel.notifikasi}`.',
-      );
+      Log.info('[MIGRASI v52] Membuat tabel `${NamaTabel.notifikasi}`.');
       await _migrateToV52(db);
     }
 
@@ -160,7 +152,8 @@ class SqliteDatabase {
     Log.info('========================================');
     Log.info('PROSES UPGRADE DATABASE SELESAI');
     Log.info(
-        'Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.');
+      'Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.',
+    );
     Log.info('========================================');
   }
 
@@ -170,7 +163,8 @@ class SqliteDatabase {
       'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN ${NamaKolom.terkahirAktif} INTEGER',
     );
     Log.info(
-        '[MIGRASI v51] Penambahan kolom ${NamaKolom.terkahirAktif} selesai.');
+      '[MIGRASI v51] Penambahan kolom ${NamaKolom.terkahirAktif} selesai.',
+    );
   }
 
   Future<void> _migrateToV52(final Database db) async {
@@ -181,13 +175,15 @@ class SqliteDatabase {
 
   Future<void> _migrateToV53(final Database db) async {
     Log.info(
-        '[MIGRASI v53] Menambahkan kolom durasi_bonus dan durasi_bonus_type...');
+      '[MIGRASI v53] Menambahkan kolom durasi_bonus dan durasi_bonus_type...',
+    );
 
     const String tableName = NamaTabel.transaksi;
     // Mengambil informasi kolom yang ada saat ini di tabel transactions
     final results = await db.rawQuery('PRAGMA table_info("$tableName")');
-    final existingColumns =
-        results.map((row) => row['name'] as String).toList();
+    final existingColumns = results
+        .map((row) => row['name'] as String)
+        .toList();
 
     // Hanya tambahkan kolom jika belum ada dalam daftar kolom yang ada
     if (!existingColumns.contains(NamaKolom.durasiBonus)) {
@@ -250,154 +246,214 @@ class SqliteDatabase {
 
     await db.execute('ALTER TABLE dompet RENAME COLUMN namaDompet TO name');
     await db.execute('ALTER TABLE dompet RENAME COLUMN saldo TO balance');
-    await db
-        .execute('ALTER TABLE dompet RENAME COLUMN diperbarui TO updated_at');
-    await db
-        .execute('ALTER TABLE dompet RENAME COLUMN diarsipkan TO archived_at');
+    await db.execute(
+      'ALTER TABLE dompet RENAME COLUMN diperbarui TO updated_at',
+    );
+    await db.execute(
+      'ALTER TABLE dompet RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute('ALTER TABLE kategori RENAME COLUMN nama TO name');
     await db.execute('ALTER TABLE kategori RENAME COLUMN tipe TO type');
     await db.execute(
-        'ALTER TABLE kategori RENAME COLUMN id_sub_kategori TO sub_category_id');
-    await db
-        .execute('ALTER TABLE kategori RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE kategori RENAME COLUMN id_sub_kategori TO sub_category_id',
+    );
     await db.execute(
-        'ALTER TABLE kategori RENAME COLUMN diarsipkan TO archived_at');
+      'ALTER TABLE kategori RENAME COLUMN diperbarui TO updated_at',
+    );
+    await db.execute(
+      'ALTER TABLE kategori RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute('ALTER TABLE sub_kategori RENAME COLUMN nama TO name');
     await db.execute(
-        'ALTER TABLE sub_kategori RENAME COLUMN id_kategori TO category_id');
+      'ALTER TABLE sub_kategori RENAME COLUMN id_kategori TO category_id',
+    );
     await db.execute(
-        'ALTER TABLE sub_kategori RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE sub_kategori RENAME COLUMN diperbarui TO updated_at',
+    );
     await db.execute(
-        'ALTER TABLE sub_kategori RENAME COLUMN diarsipkan TO archived_at');
+      'ALTER TABLE sub_kategori RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute('ALTER TABLE paket RENAME COLUMN nama TO name');
     await db.execute('ALTER TABLE paket RENAME COLUMN harga TO price');
     await db.execute('ALTER TABLE paket RENAME COLUMN durasi TO duration');
     await db.execute('ALTER TABLE paket RENAME COLUMN tipe TO type');
-    await db
-        .execute('ALTER TABLE paket RENAME COLUMN jumlahPoin TO earned_points');
-    await db
-        .execute('ALTER TABLE paket RENAME COLUMN diperbarui TO updated_at');
-    await db
-        .execute('ALTER TABLE paket RENAME COLUMN diarsipkan TO archived_at');
     await db.execute(
-        'ALTER TABLE paket RENAME COLUMN poin_hadiah TO reward_points');
+      'ALTER TABLE paket RENAME COLUMN jumlahPoin TO earned_points',
+    );
     await db.execute(
-        'ALTER TABLE paket RENAME COLUMN poin_penukaran TO redemption_points');
+      'ALTER TABLE paket RENAME COLUMN diperbarui TO updated_at',
+    );
+    await db.execute(
+      'ALTER TABLE paket RENAME COLUMN diarsipkan TO archived_at',
+    );
+    await db.execute(
+      'ALTER TABLE paket RENAME COLUMN poin_hadiah TO reward_points',
+    );
+    await db.execute(
+      'ALTER TABLE paket RENAME COLUMN poin_penukaran TO redemption_points',
+    );
 
     await db.execute('ALTER TABLE pelanggan RENAME COLUMN nama TO name');
     await db.execute('ALTER TABLE pelanggan RENAME COLUMN telepon TO phone');
     await db.execute('ALTER TABLE pelanggan RENAME COLUMN alamat TO address');
     await db.execute(
-        'ALTER TABLE pelanggan RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE pelanggan RENAME COLUMN diperbarui TO updated_at',
+    );
     await db.execute(
-        'ALTER TABLE pelanggan RENAME COLUMN diarsipkan TO archived_at');
+      'ALTER TABLE pelanggan RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME COLUMN id_pelanggan TO customer_id');
+      'ALTER TABLE pelanggan_aktif RENAME COLUMN id_pelanggan TO customer_id',
+    );
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME COLUMN id_paket TO package_id');
+      'ALTER TABLE pelanggan_aktif RENAME COLUMN id_paket TO package_id',
+    );
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME COLUMN id_transaksi TO transaction_id');
+      'ALTER TABLE pelanggan_aktif RENAME COLUMN id_transaksi TO transaction_id',
+    );
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME COLUMN tanggal_mulai TO start_date');
+      'ALTER TABLE pelanggan_aktif RENAME COLUMN tanggal_mulai TO start_date',
+    );
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME COLUMN tanggal_berakhir TO end_date');
+      'ALTER TABLE pelanggan_aktif RENAME COLUMN tanggal_berakhir TO end_date',
+    );
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE pelanggan_aktif RENAME COLUMN diperbarui TO updated_at',
+    );
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME COLUMN diarsipkan TO archived_at');
+      'ALTER TABLE pelanggan_aktif RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN keterangan TO description');
+      'ALTER TABLE transaksi RENAME COLUMN keterangan TO description',
+    );
     await db.execute('ALTER TABLE transaksi RENAME COLUMN jumlah TO amount');
     await db.execute('ALTER TABLE transaksi RENAME COLUMN tanggal TO date');
     await db.execute('ALTER TABLE transaksi RENAME COLUMN tipe TO type');
-    await db
-        .execute('ALTER TABLE transaksi RENAME COLUMN id_dompet TO wallet_id');
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN id_kategori TO category_id');
+      'ALTER TABLE transaksi RENAME COLUMN id_dompet TO wallet_id',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN id_sub_kategori TO sub_category_id');
+      'ALTER TABLE transaksi RENAME COLUMN id_kategori TO category_id',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN id_pelanggan TO customer_id');
-    await db
-        .execute('ALTER TABLE transaksi RENAME COLUMN id_paket TO package_id');
+      'ALTER TABLE transaksi RENAME COLUMN id_sub_kategori TO sub_category_id',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE transaksi RENAME COLUMN id_pelanggan TO customer_id',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN diarsipkan TO archived_at');
+      'ALTER TABLE transaksi RENAME COLUMN id_paket TO package_id',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN id_dompet_tujuan TO destination_wallet_id');
+      'ALTER TABLE transaksi RENAME COLUMN diperbarui TO updated_at',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN poin_yang_dihasilkan TO earned_points');
+      'ALTER TABLE transaksi RENAME COLUMN diarsipkan TO archived_at',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN poin_yang_digunakan TO used_points');
+      'ALTER TABLE transaksi RENAME COLUMN id_dompet_tujuan TO destination_wallet_id',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN status_pembayaran TO payment_status');
+      'ALTER TABLE transaksi RENAME COLUMN poin_yang_dihasilkan TO earned_points',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN durasi_paket TO package_duration');
+      'ALTER TABLE transaksi RENAME COLUMN poin_yang_digunakan TO used_points',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN tipe_durasi_paket TO duration_type');
+      'ALTER TABLE transaksi RENAME COLUMN status_pembayaran TO payment_status',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN tanggal_mulai TO start_date');
+      'ALTER TABLE transaksi RENAME COLUMN durasi_paket TO package_duration',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN tanggal_berakhir TO end_date');
+      'ALTER TABLE transaksi RENAME COLUMN tipe_durasi_paket TO duration_type',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN aktivasi_paket TO is_activated');
+      'ALTER TABLE transaksi RENAME COLUMN tanggal_mulai TO start_date',
+    );
+    await db.execute(
+      'ALTER TABLE transaksi RENAME COLUMN tanggal_berakhir TO end_date',
+    );
+    await db.execute(
+      'ALTER TABLE transaksi RENAME COLUMN aktivasi_paket TO is_activated',
+    );
 
     await db.execute('ALTER TABLE kritik_saran RENAME COLUMN isi TO content');
     await db.execute('ALTER TABLE kritik_saran RENAME COLUMN tanggal TO date');
     await db.execute(
-        'ALTER TABLE kritik_saran RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE kritik_saran RENAME COLUMN diperbarui TO updated_at',
+    );
     await db.execute(
-        'ALTER TABLE kritik_saran RENAME COLUMN diarsipkan TO archived_at');
+      'ALTER TABLE kritik_saran RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute(
-        'ALTER TABLE pesanan RENAME COLUMN id_pelanggan TO customer_id');
-    await db
-        .execute('ALTER TABLE pesanan RENAME COLUMN id_paket TO package_id');
+      'ALTER TABLE pesanan RENAME COLUMN id_pelanggan TO customer_id',
+    );
+    await db.execute(
+      'ALTER TABLE pesanan RENAME COLUMN id_paket TO package_id',
+    );
     await db.execute('ALTER TABLE pesanan RENAME COLUMN tanggal TO date');
-    await db
-        .execute('ALTER TABLE pesanan RENAME COLUMN diperbarui TO updated_at');
-    await db
-        .execute('ALTER TABLE pesanan RENAME COLUMN diarsipkan TO archived_at');
+    await db.execute(
+      'ALTER TABLE pesanan RENAME COLUMN diperbarui TO updated_at',
+    );
+    await db.execute(
+      'ALTER TABLE pesanan RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME COLUMN catatan_rilis TO release_notes');
+      'ALTER TABLE versi_apk_user RENAME COLUMN catatan_rilis TO release_notes',
+    );
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME COLUMN nomor_build_terbaru TO latest_build_number');
+      'ALTER TABLE versi_apk_user RENAME COLUMN nomor_build_terbaru TO latest_build_number',
+    );
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME COLUMN tautan_unduhan TO download_links');
+      'ALTER TABLE versi_apk_user RENAME COLUMN tautan_unduhan TO download_links',
+    );
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME COLUMN versi_terbaru TO latest_version');
+      'ALTER TABLE versi_apk_user RENAME COLUMN versi_terbaru TO latest_version',
+    );
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME COLUMN wajib_update TO is_update_required');
+      'ALTER TABLE versi_apk_user RENAME COLUMN wajib_update TO is_update_required',
+    );
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE versi_apk_user RENAME COLUMN diperbarui TO updated_at',
+    );
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME COLUMN diarsipkan TO archived_at');
+      'ALTER TABLE versi_apk_user RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute(
-        'ALTER TABLE pengaturan RENAME COLUMN interval_sinkronisasi_otomatis TO auto_sync_interval');
+      'ALTER TABLE pengaturan RENAME COLUMN interval_sinkronisasi_otomatis TO auto_sync_interval',
+    );
     await db.execute(
-        'ALTER TABLE pengaturan RENAME COLUMN hapus_otomatis_data_arsip TO auto_delete_archive_days');
+      'ALTER TABLE pengaturan RENAME COLUMN hapus_otomatis_data_arsip TO auto_delete_archive_days',
+    );
     await db.execute(
-        'ALTER TABLE pengaturan RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE pengaturan RENAME COLUMN diperbarui TO updated_at',
+    );
     await db.execute(
-        'ALTER TABLE pengaturan RENAME COLUMN mode_pemeliharaan TO maintenance_mode');
+      'ALTER TABLE pengaturan RENAME COLUMN mode_pemeliharaan TO maintenance_mode',
+    );
     await db.execute(
-        'ALTER TABLE pengaturan RENAME COLUMN info_pemeliharaan TO maintenance_info');
+      'ALTER TABLE pengaturan RENAME COLUMN info_pemeliharaan TO maintenance_info',
+    );
 
-    await db
-        .execute('ALTER TABLE status_unggah RENAME COLUMN tabel TO table_name');
     await db.execute(
-        'ALTER TABLE status_unggah RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE status_unggah RENAME COLUMN tabel TO table_name',
+    );
+    await db.execute(
+      'ALTER TABLE status_unggah RENAME COLUMN diperbarui TO updated_at',
+    );
 
     await db.execute(
-        'ALTER TABLE status_aplikasi RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE status_aplikasi RENAME COLUMN diperbarui TO updated_at',
+    );
 
     await db.execute('ALTER TABLE pesan RENAME COLUMN isi TO content');
     await db.execute('ALTER TABLE pesan RENAME COLUMN tanggal TO date');
@@ -411,27 +467,34 @@ class SqliteDatabase {
 
     await db.execute('ALTER TABLE dompet RENAME TO ${NamaTabel.dompet}');
     await db.execute('ALTER TABLE kategori RENAME TO ${NamaTabel.kategori}');
-    await db
-        .execute('ALTER TABLE sub_kategori RENAME TO ${NamaTabel.subKategori}');
+    await db.execute(
+      'ALTER TABLE sub_kategori RENAME TO ${NamaTabel.subKategori}',
+    );
     await db.execute('ALTER TABLE paket RENAME TO ${NamaTabel.paket}');
     await db.execute('ALTER TABLE pelanggan RENAME TO ${NamaTabel.pelanggan}');
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME TO ${NamaTabel.pelangganAktif}');
+      'ALTER TABLE pelanggan_aktif RENAME TO ${NamaTabel.pelangganAktif}',
+    );
 
     // diperbaiki: Ditambahkan escaping double quotes ("") untuk tabel transaction via TableNameValue
-    await db
-        .execute('ALTER TABLE transaksi RENAME TO "${NamaTabel.transaksi}"');
-    await db
-        .execute('ALTER TABLE kritik_saran RENAME TO ${NamaTabel.feedback}');
+    await db.execute(
+      'ALTER TABLE transaksi RENAME TO "${NamaTabel.transaksi}"',
+    );
+    await db.execute(
+      'ALTER TABLE kritik_saran RENAME TO ${NamaTabel.feedback}',
+    );
 
     // diperbaiki: Ditambahkan escaping double quotes ("") untuk tabel order via TableNameValue
     await db.execute(
-        'ALTER TABLE pesanan RENAME TO "${NamaTabel.pesananPelanggan}"');
+      'ALTER TABLE pesanan RENAME TO "${NamaTabel.pesananPelanggan}"',
+    );
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME TO ${NamaTabel.versiApkUser}');
+      'ALTER TABLE versi_apk_user RENAME TO ${NamaTabel.versiApkUser}',
+    );
     await db.execute('ALTER TABLE pengaturan RENAME TO ${NamaTabel.settings}');
     await db.execute(
-        'ALTER TABLE status_unggah RENAME TO ${NamaTabel.statusUnggah}');
+      'ALTER TABLE status_unggah RENAME TO ${NamaTabel.statusUnggah}',
+    );
     await db.execute('ALTER TABLE pesan RENAME TO ${NamaTabel.pesan}');
 
     Log.info('[MIGRASI v50] Semua rename tabel selesai.');
@@ -441,7 +504,8 @@ class SqliteDatabase {
   Future<void> membuatTabel(Database db, int version) async {
     Log.info('========================================');
     Log.info(
-        'MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version');
+      'MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version',
+    );
     Log.info('========================================');
     final batch = db.batch();
     _membuatSemuaTabel(batch);
@@ -468,8 +532,9 @@ class SqliteDatabase {
     batch.execute(_tabelSetting);
     batch.execute(_tabelStatusUnggah);
     batch.execute(_tabelPesan);
-    batch
-        .execute(_tabelNotification); // 2. Tambahkan pembuatan tabel notifikasi
+    batch.execute(
+      _tabelNotification,
+    ); // 2. Tambahkan pembuatan tabel notifikasi
     Log.info('Semua 14 definisi tabel (v52) ditambahkan ke batch.');
 
     // diperbaiki: Index ditargetkan menggunakan escaping keyword "transaction" otomatis dari TableNameValue
@@ -507,7 +572,8 @@ class SqliteDatabase {
   // DEFINISI TABEL v51 (snake_case nama tabel + nama kolom via konstanta)
   // ============================================================
 
-  static const String _tabelDompet = '''
+  static const String _tabelDompet =
+      '''
     CREATE TABLE ${NamaTabel.dompet}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.nama} TEXT NOT NULL,
@@ -518,7 +584,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelTransaksi = '''
+  static const String _tabelTransaksi =
+      '''
     CREATE TABLE "${NamaTabel.transaksi}" (
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.deskripsi} TEXT NOT NULL,
@@ -547,7 +614,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelVersiApkUser = '''
+  static const String _tabelVersiApkUser =
+      '''
     CREATE TABLE ${NamaTabel.versiApkUser}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.catatanRilis} TEXT NOT NULL,
@@ -562,7 +630,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelStatusUnggah = '''
+  static const String _tabelStatusUnggah =
+      '''
     CREATE TABLE ${NamaTabel.statusUnggah}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.value} TEXT NOT NULL,
@@ -570,7 +639,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelPesan = '''
+  static const String _tabelPesan =
+      '''
     CREATE TABLE ${NamaTabel.pesan}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.pesan} TEXT NOT NULL,
@@ -579,7 +649,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelSetting = '''
+  static const String _tabelSetting =
+      '''
     CREATE TABLE ${NamaTabel.settings}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.waktuOtomatisSinkronisasi} INTEGER NOT NULL DEFAULT 24,
@@ -590,7 +661,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelKategori = '''
+  static const String _tabelKategori =
+      '''
     CREATE TABLE ${NamaTabel.kategori}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.nama} TEXT NOT NULL,
@@ -602,7 +674,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelSubKategori = '''
+  static const String _tabelSubKategori =
+      '''
     CREATE TABLE ${NamaTabel.subKategori}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.nama} TEXT NOT NULL,
@@ -614,7 +687,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelPaket = '''
+  static const String _tabelPaket =
+      '''
     CREATE TABLE ${NamaTabel.paket}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.nama} TEXT NOT NULL,
@@ -631,7 +705,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelPelanggan = '''
+  static const String _tabelPelanggan =
+      '''
     CREATE TABLE ${NamaTabel.pelanggan}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.nama} TEXT NOT NULL,
@@ -647,7 +722,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelPelangganAktif = '''
+  static const String _tabelPelangganAktif =
+      '''
     CREATE TABLE ${NamaTabel.pelangganAktif}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.idPelanggan} TEXT NOT NULL,
@@ -665,7 +741,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelFeedback = '''
+  static const String _tabelFeedback =
+      '''
     CREATE TABLE ${NamaTabel.feedback}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.pesan} TEXT NOT NULL,
@@ -678,7 +755,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelOrder = '''
+  static const String _tabelOrder =
+      '''
     CREATE TABLE "${NamaTabel.pesananPelanggan}" (
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.idPelanggan} TEXT NOT NULL,
@@ -694,7 +772,8 @@ class SqliteDatabase {
   ''';
 
   // 1. Definisi tabel notifikasi
-  static const String _tabelNotification = '''
+  static const String _tabelNotification =
+      '''
     CREATE TABLE ${NamaTabel.notifikasi}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.pesan} TEXT NOT NULL,
