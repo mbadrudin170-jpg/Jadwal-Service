@@ -60,11 +60,12 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       await LayananLatarBelakang.inisialisasi();
 
       await notifikasiServis.inisialisasiNotifikasi(
-          iconName: 'ic_notification');
+        iconName: 'ic_notification',
+      );
       await notifikasiServis.mintaIzin();
 
-      final launchDetails =
-          await notifikasiServis.getDetailPeluncuranNotifikasi();
+      final launchDetails = await notifikasiServis
+          .getDetailPeluncuranNotifikasi();
       final prefs = ref.read(sharedPreferencesProvider).requireValue;
       if (launchDetails?.didNotificationLaunchApp ?? false) {
         final payload = launchDetails?.notificationResponse?.payload;
@@ -91,16 +92,18 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
         final unduhanAwalService = ref.read(providerLayananUnduhanAwal);
         try {
           await unduhanAwalService.jalankanUnduhanAwal().timeout(
-                const Duration(seconds: 30),
-              );
+            const Duration(seconds: 30),
+          );
           Log.info('Initial download berhasil diselesaikan.');
-        } on TimeoutException {
+        } catch (e) {
           Log.warning(
-              'Initial download memakan waktu terlalu lama (timeout). Melanjutkan inisialisasi...');
+            'Initial download memakan waktu terlalu lama (timeout). Melanjutkan inisialisasi... $e',
+          );
         }
 
-        final dataPengaturan =
-            await ref.read(settingsOpSqliteProvider).ambilSettings();
+        final dataPengaturan = await ref
+            .read(settingsOpSqliteProvider)
+            .ambilSettings();
         final retentionDays = dataPengaturan.waktuOtomatisHapusDataArsip;
         final pembersihanDataOperasi = ref.read(pembersihanDataOperasiProvider);
         await pembersihanDataOperasi
@@ -108,11 +111,12 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
             .timeout(const Duration(seconds: 5));
       } else {
         Log.warning(
-            'Perangkat offline, melewati proses unduhan data awal dan pembersihan.');
+          'Perangkat offline, melewati proses unduhan data awal dan pembersihan.',
+        );
       }
 
       return isOnline;
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error('Error kritis selama inisialisasi sekunder.', e: e, s: s);
       return false;
     }
@@ -126,15 +130,17 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
         if (snapshot.connectionState == ConnectionState.done) {
           final bool isOffline = !(snapshot.data ?? false);
           if (snapshot.hasError) {
-            Log.error('Error pada FutureBuilder inisialisasi',
-                e: snapshot.error);
+            Log.error(
+              'Error pada FutureBuilder inisialisasi',
+              e: snapshot.error,
+            );
           }
           return AppMaterial(isOffline: isOffline);
         }
         return const MaterialApp(
           home: Scaffold(
-              body:
-                  Center(child: CircularProgressIndicator())), // Initial splash
+            body: Center(child: CircularProgressIndicator()),
+          ), // Initial splash
         );
       },
     );
@@ -163,16 +169,10 @@ class AppMaterial extends ConsumerWidget {
         ),
       ),
       loading: () => const MaterialApp(
-        home: Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
+        home: Scaffold(body: Center(child: CircularProgressIndicator())),
       ),
       error: (err, stack) => MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: Text('Gagal memuat tema: $err'),
-          ),
-        ),
+        home: Scaffold(body: Center(child: Text('Gagal memuat tema: $err'))),
       ),
     );
   }

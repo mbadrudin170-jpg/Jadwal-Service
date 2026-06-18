@@ -16,7 +16,8 @@ import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart
 
 @pragma('vm:entry-point')
 void onDidReceiveBackgroundNotificationResponse(
-    final NotificationResponse response) {
+  final NotificationResponse response,
+) {
   final String? payload = response.payload;
   if (response.payload != null) {
     debugPrint('notification payload: $payload');
@@ -72,7 +73,8 @@ class LayananNotifikasi {
     Log.info('Memeriksa status inisialisasi zona waktu.');
     if (_zonaWaktuTelahDiinisialisasi) {
       Log.info(
-          'Inisialisasi zona waktu dilewati karena sudah berhasil dilakukan sebelumnya.');
+        'Inisialisasi zona waktu dilewati karena sudah berhasil dilakukan sebelumnya.',
+      );
       return;
     }
 
@@ -106,7 +108,8 @@ class LayananNotifikasi {
 
       tz.setLocalLocation(lokasi);
       Log.info(
-          'Zona waktu lokal berhasil diatur ke: ${lokasi.name}. Inisialisasi selesai.');
+        'Zona waktu lokal berhasil diatur ke: ${lokasi.name}. Inisialisasi selesai.',
+      );
 
       _zonaWaktuTelahDiinisialisasi = true;
     } on Exception catch (e, st) {
@@ -166,16 +169,20 @@ class LayananNotifikasi {
       importance: Importance.max,
     );
     Log.info(
-        'Objek AndroidNotificationChannel dibuat: ${channelNotifikasiPenting!.id}');
+      'Objek AndroidNotificationChannel dibuat: ${channelNotifikasiPenting!.id}',
+    );
 
-    final androidPlugin = plugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
 
     await androidPlugin?.requestNotificationsPermission();
     await androidPlugin?.requestExactAlarmsPermission();
     if (androidPlugin == null) {
       Log.warning(
-          'Gagal mendapatkan implementasi plugin Android. Tidak dapat membuat channel.');
+        'Gagal mendapatkan implementasi plugin Android. Tidak dapat membuat channel.',
+      );
       return;
     }
     try {
@@ -191,21 +198,23 @@ class LayananNotifikasi {
   void pantauNotifUmum(NotifikasiOpFirebase notifikasiOp) {
     Log.info('Memulai pemantauan notifikasi umum dari Firebase...');
     unawaited(_langgananNotifikasiFirebase?.cancel());
-    _langgananNotifikasiFirebase =
-        notifikasiOp.getKhususAdmin().listen((listNotifikasi) async {
-      for (final notifikasi in listNotifikasi) {
-        if (!_idNotifikasiTampil.contains(notifikasi.id)) {
-          await tampilkanNotifikasiLangsung(
-            title: notifikasi.judul,
-            body: notifikasi.deskripsi,
-            payload: 'notifikasi_id_${notifikasi.id}',
-          );
-          _idNotifikasiTampil.add(notifikasi.id);
+    _langgananNotifikasiFirebase = notifikasiOp.getKhususAdmin().listen(
+      (listNotifikasi) async {
+        for (final notifikasi in listNotifikasi) {
+          if (!_idNotifikasiTampil.contains(notifikasi.id)) {
+            await tampilkanNotifikasiLangsung(
+              title: notifikasi.judul,
+              body: notifikasi.deskripsi,
+              payload: 'notifikasi_id_${notifikasi.id}',
+            );
+            _idNotifikasiTampil.add(notifikasi.id);
+          }
         }
-      }
-    }, onError: (Object e, StackTrace st) {
-      Log.error('Error pada stream notifikasi umum', e: e, s: st);
-    });
+      },
+      onError: (Object e, StackTrace st) {
+        Log.error('Error pada stream notifikasi umum', e: e, s: st);
+      },
+    );
   }
 
   void pantauNotifUser(NotifikasiOpFirebase notifikasiOp, String userId) {
@@ -213,36 +222,36 @@ class LayananNotifikasi {
 
     unawaited(_langgananNotifikasiFirebase?.cancel());
 
-    _langgananNotifikasiFirebase = notifikasiOp.getByUserId(userId).listen(
-      (listNotifikasi) async {
-        Log.info(
-            'Menerima ${listNotifikasi.length} notifikasi aktif dari stream.');
-        for (final notifikasi in listNotifikasi) {
-          // Hanya tampilkan notifikasi jika ID-nya belum pernah ditampilkan sebelumnya
-          if (!_idNotifikasiTampil.contains(notifikasi.id)) {
+    _langgananNotifikasiFirebase = notifikasiOp
+        .getByUserId(userId)
+        .listen(
+          (listNotifikasi) async {
             Log.info(
-                'Menampilkan notifikasi baru: ${notifikasi.id} - ${notifikasi.judul}');
-            await tampilkanNotifikasiLangsung(
-              title: notifikasi.judul,
-              body: notifikasi.deskripsi,
-              payload: 'notifikasi_id_${notifikasi.id}',
+              'Menerima ${listNotifikasi.length} notifikasi aktif dari stream.',
             );
-            // Tandai notifikasi ini sebagai sudah ditampilkan
-            _idNotifikasiTampil.add(notifikasi.id);
-          }
-        }
-      },
-      onError: (Object e, StackTrace st) {
-        Log.error(
-          'Error pada stream notifikasi Firebase',
-          e: e,
-          s: st,
+            for (final notifikasi in listNotifikasi) {
+              // Hanya tampilkan notifikasi jika ID-nya belum pernah ditampilkan sebelumnya
+              if (!_idNotifikasiTampil.contains(notifikasi.id)) {
+                Log.info(
+                  'Menampilkan notifikasi baru: ${notifikasi.id} - ${notifikasi.judul}',
+                );
+                await tampilkanNotifikasiLangsung(
+                  title: notifikasi.judul,
+                  body: notifikasi.deskripsi,
+                  payload: 'notifikasi_id_${notifikasi.id}',
+                );
+                // Tandai notifikasi ini sebagai sudah ditampilkan
+                _idNotifikasiTampil.add(notifikasi.id);
+              }
+            }
+          },
+          onError: (Object e, StackTrace st) {
+            Log.error('Error pada stream notifikasi Firebase', e: e, s: st);
+          },
+          onDone: () {
+            Log.warning('Stream notifikasi Firebase selesai.');
+          },
         );
-      },
-      onDone: () {
-        Log.warning('Stream notifikasi Firebase selesai.');
-      },
-    );
   }
 
   void hentikanPemantauanNotifikasi() {
@@ -261,24 +270,23 @@ class LayananNotifikasi {
         return;
       }
 
-      final AndroidFlutterLocalNotificationsPlugin? androidPlugin =
-          plugin.resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
+      final AndroidFlutterLocalNotificationsPlugin? androidPlugin = plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       if (androidPlugin != null) {
-        final bool? granted =
-            await androidPlugin.requestNotificationsPermission();
+        final bool? granted = await androidPlugin
+            .requestNotificationsPermission();
         Log.info(
-            'Izin notifikasi diberikan oleh pengguna: ${granted ?? false}');
+          'Izin notifikasi diberikan oleh pengguna: ${granted ?? false}',
+        );
       } else {
         Log.warning(
-            'Gagal mendapatkan implementasi plugin Android. Tidak dapat meminta izin.');
+          'Gagal mendapatkan implementasi plugin Android. Tidak dapat meminta izin.',
+        );
       }
     } on Exception catch (e, s) {
-      Log.error(
-        'Gagal meminta izin notifikasi',
-        e: e,
-        s: s,
-      );
+      Log.error('Gagal meminta izin notifikasi', e: e, s: s);
     }
   }
 
@@ -312,11 +320,10 @@ class LayananNotifikasi {
     final String? payload,
   }) async {
     Log.info(
-        'Memeriksa channel notifikasi sebelum menampilkan notifikasi langsung.');
+      'Memeriksa channel notifikasi sebelum menampilkan notifikasi langsung.',
+    );
     if (channelNotifikasiPenting == null) {
-      Log.error(
-        'Gagal menampilkan notifikasi: Channel belum diinisialisasi.',
-      );
+      Log.error('Gagal menampilkan notifikasi: Channel belum diinisialisasi.');
       return;
     }
     Log.info('Channel notifikasi ditemukan: ${channelNotifikasiPenting!.id}');
@@ -344,11 +351,7 @@ class LayananNotifikasi {
       );
       Log.info('Notifikasi langsung berhasil ditampilkan di layar.');
     } on Exception catch (e, s) {
-      Log.error(
-        'Gagal menampilkan notifikasi langsung',
-        e: e,
-        s: s,
-      );
+      Log.error('Gagal menampilkan notifikasi langsung', e: e, s: s);
     }
   }
 
@@ -358,16 +361,14 @@ class LayananNotifikasi {
   /// [id] harus unik untuk setiap notifikasi yang dijadwalkan.
   Future<void> jadwalNotifikasi({
     required final int id,
-    required final String title,
-    required final String body,
+    required final String judul,
+    required final String pesan,
     required final DateTime jadwal,
     final String? payload,
   }) async {
     Log.info('Memeriksa channel notifikasi sebelum menjadwalkan notifikasi.');
     if (channelNotifikasiPenting == null) {
-      Log.error(
-        'Gagal menjadwalkan notifikasi: Channel belum diinisialisasi.',
-      );
+      Log.error('Gagal menjadwalkan notifikasi: Channel belum diinisialisasi.');
       return;
     }
     Log.info('Channel notifikasi ditemukan: ${channelNotifikasiPenting!.id}');
@@ -381,7 +382,8 @@ class LayananNotifikasi {
     final bool hasPermission = await pastikanIzinExactAlarm();
     if (!hasPermission) {
       Log.error(
-          'Gagal menjadwalkan notifikasi karena izin exact alarm ditolak.');
+        'Gagal menjadwalkan notifikasi karena izin exact alarm ditolak.',
+      );
       // Mungkin tampilkan snackbar ke pengguna di sini
       return;
     }
@@ -399,15 +401,18 @@ class LayananNotifikasi {
     final notificationDetails = NotificationDetails(android: androidDetails);
 
     try {
-      final tz.TZDateTime scheduledTZDate =
-          tz.TZDateTime.from(jadwal, tz.local);
+      final tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(
+        jadwal,
+        tz.local,
+      );
       Log.info(
-          'Waktu notifikasi dikonversi ke zona waktu lokal (${tz.local.name}): $scheduledTZDate');
+        'Waktu notifikasi dikonversi ke zona waktu lokal (${tz.local.name}): $scheduledTZDate',
+      );
 
       await plugin.zonedSchedule(
         id: id,
-        title: title,
-        body: body,
+        title: judul,
+        body: pesan,
         scheduledDate: scheduledTZDate,
         notificationDetails: notificationDetails,
         payload: payload,
@@ -415,11 +420,7 @@ class LayananNotifikasi {
       );
       Log.info('Notifikasi terjadwal berhasil didaftarkan ke sistem.');
     } on Exception catch (e, s) {
-      Log.error(
-        'Gagal mendaftarkan jadwal notifikasi',
-        e: e,
-        s: s,
-      );
+      Log.error('Gagal mendaftarkan jadwal notifikasi', e: e, s: s);
     }
   }
 
@@ -439,8 +440,8 @@ class LayananNotifikasi {
     await batalNotifikasi(id);
     await jadwalNotifikasi(
       id: id,
-      title: title,
-      body: body,
+      judul: title,
+      pesan: body,
       jadwal: jadwal,
       payload: payload,
     );
@@ -456,11 +457,7 @@ class LayananNotifikasi {
       await plugin.cancel(id: id);
       Log.info('Perintah pembatalan untuk notifikasi ID: $id telah dikirim.');
     } on Exception catch (e, s) {
-      Log.error(
-        'Gagal membatalkan notifikasi ID: $id',
-        e: e,
-        s: s,
-      );
+      Log.error('Gagal membatalkan notifikasi ID: $id', e: e, s: s);
     }
   }
 

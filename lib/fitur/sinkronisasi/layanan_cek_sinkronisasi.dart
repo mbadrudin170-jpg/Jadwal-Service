@@ -51,13 +51,13 @@ class LayananCekSinkronisasi {
   }
 
   Future<bool> _periksaDanJalankanUnggah() async {
+    final DateTime sekarang = DateTime.now();
     try {
       final bool adaDataUntukUnggah = await _pengecekanDataBaru
           .apakahSqliteAdaDataBaru();
 
       if (adaDataUntukUnggah) {
         await _layananUnggah.unggahSemuaData();
-        final DateTime sekarang = DateTime.now();
         await _pengelolaSinkronisasi.simpanWaktuTerakhirUnggah(sekarang);
         await _pengecekanDataBaru.resetButuhUpload();
         Log.info('Metadata sinkronisasi berhasil diperbarui: $sekarang.');

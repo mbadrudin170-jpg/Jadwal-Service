@@ -34,8 +34,8 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
     // PERBAIKAN: Tambahkan await karena ini adalah operasi async
     await _notifikasiServis.jadwalNotifikasi(
       id: 2,
-      title: 'Tes Notifikasi Terjadwal',
-      body: 'Notifikasi ini dijadwalkan untuk 5 detik dari sekarang.',
+      judul: 'Tes Notifikasi Terjadwal',
+      pesan: 'Notifikasi ini dijadwalkan untuk 5 detik dari sekarang.',
       payload: 'scheduled_notification_payload',
       jadwal: waktuJadwal,
     );
@@ -57,8 +57,8 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
     // PERBAIKAN: Ambil context SEBELUM AWAIT.
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-    final daftarNotifikasi =
-        await _notifikasiServis.plugin.pendingNotificationRequests();
+    final daftarNotifikasi = await _notifikasiServis.plugin
+        .pendingNotificationRequests();
 
     // PERBAIKAN: Pemeriksaan `mounted` setelah AWAIT.
     if (!mounted) return;
@@ -74,12 +74,14 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
       Log.info('Ditemukan ${daftarNotifikasi.length} notifikasi terjadwal:');
       for (final notif in daftarNotifikasi) {
         Log.info(
-            '- ID: ${notif.id}, Judul: ${notif.title}, Payload: ${notif.payload}');
+          '- ID: ${notif.id}, Judul: ${notif.title}, Payload: ${notif.payload}',
+        );
       }
       scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text(
-              'Ditemukan ${daftarNotifikasi.length} notifikasi terjadwal. Cek log untuk detail.'),
+            'Ditemukan ${daftarNotifikasi.length} notifikasi terjadwal. Cek log untuk detail.',
+          ),
         ),
       );
     }
@@ -102,9 +104,7 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tes Fitur Notifikasi'),
-      ),
+      appBar: AppBar(title: const Text('Tes Fitur Notifikasi')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
