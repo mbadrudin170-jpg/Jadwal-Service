@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
+import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/widget/poin_page_ui.dart';
@@ -60,7 +61,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         Expanded(
           child: NamaPelangganWidget(
             idPelanggan: widget.idPelanggan,
-            useFirebase: pakaiFirebase,
+            pakaiFirebase: pakaiFirebase,
           ),
         ),
       ],
@@ -166,7 +167,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
           ref.invalidate(pointsPageDataProvider);
           ref.invalidate(pointsHistoryProvider);
-
+          ref.invalidate(orderProvider);
           if (!mounted) return;
           ToastUtil.success(
             context,
@@ -227,7 +228,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       data: (dataHalaman) {
         return PoinPageUi(
           appBarTitle: _judulAppBar,
-          totalPoin: dataHalaman.totalPoints,
+          totalPoin: dataHalaman.totalPoin,
           menuPilihan: _menuTerpilih,
           onSelectionChanged: (newSelection) async {
             final selection = newSelection.first;
@@ -239,6 +240,135 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             }
           },
           contentView: _menuTerpilih == MenuPoin.penukaran
-              ? _bangunDaftarHadiah(
-                  dataHalaman.rewards,
-                  dataHa
+              ? _bangunDaftarHadiah(dataHalaman.hadiah, dataHalaman.totalPoin)
+              : _bangunRiwayatPoin(),
+          bottomWidget: widget.tampilkanIklan ? const BannerAdsWidget() : null,
+        );
+      },
+    );
+  }
+
+  Widget _bangunDaftarHadiah(List<PaketModel> daftarHadiah, int totalPoin) {
+    Log.info('Building reward list.');
+    if (daftarHadiah.isEmpty) {
+      return const Center(child: Text('Belum ada hadiah yang tersedia'));
+    }
+    return ListView.builder(
+      itemCount: daftarHadiah.length,
+      itemBuilder: (context, index) {
+        final hadiah = daftarHadiah[index];
+        final poinCukup = totalPoin >= hadiah.poinPenukaran;
+        final progress = hadiah.poinPenukaran > 0
+            ? (totalPoin / hadiah.poinPenukaran).clamp(0.0, 1.0)
+            : 1.0;
+        final selisihPoin = totalPoin - hadiah.poinPenukaran;
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          child: ListTile(
+            title: Text(hadiah.nama),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('${hadiah.poinPenukaran} Poin'),
+                    ElevatedButton(
+                      onPressed: _sedangTukarPoin
+                          ? null
+                          : () => _tukarPoin(context, ref, hadiah, totalPoin),
+                      child: _sedangTukarPoin
+                          ? const CircularProgressIndicator()
+                          : const Text('Tukar'),
+                    ),
+                  ],
+                ),
+                gapH4,
+                LinearProgressIndicator(value: progress, minHeight: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Poin: $totalPoin / ${hadiah.poinPenukaran}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: poinCukup ? Colors.green : Colors.grey,
+                      ),
+                    ),
+                    Text(
+                      '$selisihPoin',
+                      style: TextStyle(
+                        color: poinCukup ? Colors.green : Colors.red,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _bangunRiwayatPoin() {
+    Log.info('Building points history.');
+    final riwayatAsync = ref.watch(pointsHistoryProvider(widget.idPelanggan));
+
+    return riwayatAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(child: Text('Error: $err')),
+      data: (history) {
+        if (history.isEmpty) {
+          return const Center(child: Text('Belum ada riwayat poin'));
+        }
+        return ListView.builder(
+          itemCount: history.length,
+          itemBuilder: (context, index) {
+            final transaksi = history[index];
+            final apakahPenambahan = transaksi.poinDidapat > 0;
+            final nilaiPoin = apakahPenambahan
+                ? transaksi.poinDidapat
+                : transaksi.poinDigunakan;
+            final teksPoin = apakahPenambahan ? '+$nilaiPoin' : '-$nilaiPoin';
+
+            final bool apakahBelumBayar =
+                transaksi.statusPembayaran == StatusPembayaran.unpaid;
+            final Color warnaPoin = apakahBelumBayar
+                ? Colors.grey
+                : apakahPenambahan
+                ? Colors.green
+                : Colors.red;
+            return InkWell(
+              onTap: () => _navigasiKeDetailTransaksi(transaksi),
+              child: Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                child: ListTile(
+                  leading: Icon(
+                    apakahBelumBayar
+                        ? TIcons.hourglass
+                        : apakahPenambahan
+                        ? TIcons.arrowUp
+                        : TIcons.arrowDown,
+                    color: warnaPoin,
+                  ),
+                  title: Text(transaksi.deskripsi),
+                  subtitle: Text(FormatTanggal.formatDasar(transaksi.tanggal)),
+                  trailing: Text(
+                    teksPoin,
+                    style: TextStyle(
+                      color: warnaPoin,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}

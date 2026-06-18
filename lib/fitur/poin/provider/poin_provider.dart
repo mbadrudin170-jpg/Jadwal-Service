@@ -49,7 +49,7 @@ PointsPageDataSource pointsDataSource(Ref ref) {
   }
 }
 
-typedef PointsPageData = ({int totalPoin, List<PaketModel> rewards});
+typedef PointsPageData = ({int totalPoin, List<PaketModel> hadiah});
 
 @riverpod
 Future<PointsPageData> pointsPageData(Ref ref, String idPelanggan) async {
@@ -60,11 +60,11 @@ Future<PointsPageData> pointsPageData(Ref ref, String idPelanggan) async {
     dataSource.getPublicPackages(),
   ]);
 
-  return (totalPoints: totalPoin as int, rewards: hadiah as List<PaketModel>);
+  return (totalPoin: totalPoin as int, hadiah: hadiah as List<PaketModel>);
 }
 
 @riverpod
-Future<List<TransaksiModel>> pointsHistory(Ref ref, String customerId) {
+Future<List<TransaksiModel>> pointsHistory(Ref ref, String idPelanggan) {
   final dataSource = ref.watch(pointsDataSourceProvider);
-  return dataSource.getPointsTransactions(customerId);
+  return dataSource.getPointsTransactions(idPelanggan);
 }
