@@ -43,9 +43,7 @@ Tindakan ini **krusial** untuk menjaga riwayat build tetap akurat dan menghindar
 ```bash
 # Format: fbuildadmin [nama-versi] [nomor-build]
 # Contoh jika versi terakhir di log adalah 1.0.1+2, maka build selanjutnya adalah 1.0.2+3
-fbuildadmin() {
-    flutter clean && flutter build apk --split-per-abi --flavor adminProd -t lib/main/main_admin/admin_prod.dart --build-name="$1" --build-number="$2" && bash rename_apk.sh "$1" "$2" && echo -e "# $(date +'%d %b %y, %H:%M')\nversion: $1+$2\n\n$(cat docs/build/build_apk_admin.md)" > docs/build/build_apk_admin.md
-}
+fbuildadmin 1.1.1 1
 ```
 
 ### Build Apk User Prod
@@ -54,9 +52,8 @@ fbuildadmin() {
 ```bash
 # Format: fbuilduser [nama-versi] [nomor-build]
 # Contoh jika versi terakhir di log adalah 1.0.0+1, maka build selanjutnya adalah 1.0.1+2
-fbuilduser() {
-    flutter clean && flutter build apk --split-per-abi --flavor userProd -t lib/main/main_user/user_prod.dart --build-name="$1" --build-number="$2" && bash rename_apk.sh "$1" "$2" && echo -e "# $(date +'%d %b %y, %H:%M')\nversion: $1+$2\n\n$(cat docs/build/build_apk_user.md)" > docs/build/build_apk_user.md
-}
+fbuilduser 1.1.1 1
+
 ```
 
 ---
