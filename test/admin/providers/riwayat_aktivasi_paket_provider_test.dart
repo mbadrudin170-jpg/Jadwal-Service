@@ -57,43 +57,43 @@ void main() {
         id: 'trx1',
         idPelanggan: 'cust1',
         idPaket: 'pkg1',
-        namaPelanggan: 'Beta',
-        namaPaket: 'Paket 1',
-        hargaPaket: 50000,
         tanggal: now.subtract(const Duration(days: 5)),
         tanggalBerakhir: now.add(const Duration(days: 25)),
-        statusPembayaran: StatusPembayaran.lunas,
-        metodePembayaran: 'cash',
-        tipeTransaksi: TipeTransaksi.baru,
+        statusPembayaran: StatusPembayaran.paid,
         diperbaruiPada: now.subtract(const Duration(days: 1)),
+        deskripsi: 'deskripsi',
+        jumlah: 50000,
+        tipe: TipeTransaksi.income,
+        idDompet: 'dompet1',
+        idKategori: 'kategori1',
       ),
       TransaksiModel(
         id: 'trx2',
         idPelanggan: 'cust2',
         idPaket: 'pkg2',
-        namaPelanggan: 'Alpha',
-        namaPaket: 'Paket 2',
-        hargaPaket: 75000,
         tanggal: now.subtract(const Duration(days: 10)),
         tanggalBerakhir: now.add(const Duration(days: 20)),
-        statusPembayaran: StatusPembayaran.belumLunas,
-        metodePembayaran: 'cash',
-        tipeTransaksi: TipeTransaksi.perpanjang,
+        statusPembayaran: StatusPembayaran.unpaid,
         diperbaruiPada: now,
+        deskripsi: 'deskripsi',
+        jumlah: 75000,
+        tipe: TipeTransaksi.income,
+        idDompet: 'dompet1',
+        idKategori: 'kategori1',
       ),
       TransaksiModel(
         id: 'trx3',
         idPelanggan: 'cust1',
         idPaket: 'pkg1',
-        namaPelanggan: 'Beta',
-        namaPaket: 'Paket 1',
-        hargaPaket: 50000,
         tanggal: now.subtract(const Duration(days: 2)),
         tanggalBerakhir: now, // Berakhir hari ini
-        statusPembayaran: StatusPembayaran.lunas,
-        metodePembayaran: 'cash',
-        tipeTransaksi: TipeTransaksi.baru,
+        statusPembayaran: StatusPembayaran.paid,
         diperbaruiPada: now.subtract(const Duration(days: 2)),
+        deskripsi: 'deskripsi',
+        jumlah: 50000,
+        tipe: TipeTransaksi.income,
+        idDompet: 'dompet1',
+        idKategori: 'kategori1',
       ),
     ];
 
@@ -109,9 +109,9 @@ void main() {
 
       expect(result.items.length, 3);
       expect(result.sortBy, SortOption.endDate);
-      // trx1 (25 hari lagi) > trx2 (20 hari lagi) > trx3 (hari ini)
+      // trx3 (hari ini) < trx2 (20 hari lagi) < trx1 (25 hari lagi)
       expect(result.items.map((e) => e.transaksi.id).toList(),
-          ['trx2', 'trx1', 'trx3']);
+          ['trx3', 'trx2', 'trx1']);
     });
 
     test('02. changeSort should re-sort the list', () async {

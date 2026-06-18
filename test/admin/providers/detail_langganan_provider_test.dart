@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/admin/providers/detail_langganan_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -13,6 +14,7 @@ import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 
 import 'detail_langganan_provider_test.mocks.dart';
 
@@ -47,13 +49,13 @@ void main() {
       id: idTransaksi,
       idPelanggan: 'cust1',
       idPaket: 'pkg1',
-      namaPelanggan: 'Pelanggan 1',
-      namaPaket: 'Paket 1',
-      hargaPaket: 50000,
       tanggal: DateTime.now(),
-      metodePembayaran: 'CASH',
-      statusPembayaran: StatusPembayaran.lunas,
-      tipeTransaksi: TipeTransaksi.baru,
+      deskripsi: 'deskripsi',
+      jumlah: 50000,
+      tipe: TipeTransaksi.income,
+      idDompet: 'dompet1',
+      idKategori: 'kategori1',
+      statusPembayaran: StatusPembayaran.paid,
     );
 
     final pelanggan = PelangganModel(
@@ -69,9 +71,8 @@ void main() {
       id: 'pkg1',
       nama: 'Paket 1',
       harga: 50000,
-      kecepatan: '10 Mbps',
-      tipeDurasi: 'Bulan',
-      jumlahDurasi: 1,
+      durasi: 1,
+      tipe: TipeDurasiPaket.months,
     );
 
     test('01. should return DetailLanggananState when all data is available',
@@ -86,18 +87,21 @@ void main() {
       final result = await container.read(ambilDetailLanggananProvider(idTransaksi).future);
 
       expect(result, isA<DetailLanggananState>());
-      expect(result?.transaction, transaksi);
-      expect(result?.customer, pelanggan);
-      expect(result?.package, paket);
+      expect(result.transaction, transaksi);
+      expect(result.customer, pelanggan);
+      expect(result.package, paket);
     });
 
     test('02. should return null when transaction is not found', () async {
       when(mockTransaksiOpSqlite.ambilBerdasarkanId(idTransaksi))
           .thenAnswer((_) async => null);
 
-      final result = await container.read(ambilDetailLanggananProvider(idTransaksi).future);
+      try {
+        await container.read(ambilDetailLanggananProvider(idTransaksi).future);
+      } catch (e) {
+        expect(e, isA<Exception>());
+      }
 
-      expect(result, isNull);
       verify(mockPelangganOpSqlite.ambilBerdasarkanId(any)).called(0);
       verify(mockPaketOpSqlite.ambilBerdasarkanId(any)).called(0);
     });
@@ -111,9 +115,9 @@ void main() {
       final result = await container.read(ambilDetailLanggananProvider(idTransaksi).future);
 
       expect(result, isA<DetailLanggananState>());
-      expect(result?.transaction, transaksiTanpaRelasi);
-      expect(result?.customer, isNull);
-      expect(result?.package, isNull);
+      expect(result.transaction, transaksiTanpaRelasi);
+      expect(result.customer, isNull);
+      expect(result.package, isNull);
 
       verify(mockPelangganOpSqlite.ambilBerdasarkanId(any)).called(0);
       verify(mockPaketOpSqlite.ambilBerdasarkanId(any)).called(0);

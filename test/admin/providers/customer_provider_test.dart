@@ -1,3 +1,4 @@
+
 // path: test/admin/providers/customer_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +8,7 @@ import 'package:wifi/admin/providers/customer_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/admin/providers/customer_provider.g.dart';
 
 import 'customer_provider_test.mocks.dart';
 
