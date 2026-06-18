@@ -1,4 +1,4 @@
-// path: lib/admin/providers/pelanggan_aktif_provider.dart
+// path: lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart
 
 import 'dart:async';
 
@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 part 'pelanggan_aktif_provider.g.dart';
@@ -123,12 +123,18 @@ class PelangganAktif extends _$PelangganAktif {
   }
 
   Future<PelangganAktifState> _loadData() async {
-    final operation = ref.watch(pelangganAktifOpSqliteProvider);
-    final results = await Future.wait([
-      operation.getAllActiveCustomersWithDetails(),
-    ]);
+    // Gunakan `ref.read` karena ini ada di dalam method build
+    final operasi = ref.read(pelangganAktifOpSqliteProvider);
+    final hasil = await operasi.getAllActiveCustomersWithDetails();
 
-    return PelangganAktifState(daftarPelangganAktif: results[0]);
+    // Urutkan data saat pertama kali dimuat
+    const urutanAwal = SortOption.berakhirHariIni;
+    final dataTerurut = _sortData(hasil, urutanAwal);
+
+    return PelangganAktifState(
+      daftarPelangganAktif: dataTerurut,
+      sortBy: urutanAwal,
+    );
   }
 
   Future<void> fetchActiveCustomers() async {
