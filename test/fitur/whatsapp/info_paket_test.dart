@@ -3,7 +3,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
@@ -16,26 +15,24 @@ import 'package:wifi/fitur/whatsapp/info_paket.dart';
 
 import 'info_paket_test.mocks.dart';
 
-class MockUrlLauncherPlatform extends Mock
-    with MockPlatformInterfaceMixin
-    implements UrlLauncherPlatform {}
+class MockUrlLauncher extends Mock implements UrlLauncherPlatform {}
 
 @GenerateMocks([PelangganOpSqlite, PaketOpSqlite])
 void main() {
   late PesanInfoPaket pesanInfoPaket;
   late MockPelangganOpSqlite mockPelangganOpSqlite;
   late MockPaketOpSqlite mockPaketOpSqlite;
-  late MockUrlLauncherPlatform mockUrlLauncher;
+  late MockUrlLauncher mockUrlLauncher;
 
   setUp(() {
     mockPelangganOpSqlite = MockPelangganOpSqlite();
     mockPaketOpSqlite = MockPaketOpSqlite();
-    mockUrlLauncher = MockUrlLauncherPlatform();
-    UrlLauncherPlatform.instance = mockUrlLauncher;
+    mockUrlLauncher = MockUrlLauncher();
 
     pesanInfoPaket = PesanInfoPaket(
       pelangganOpSqlite: mockPelangganOpSqlite,
       paketOpSqlite: mockPaketOpSqlite,
+      launcher: mockUrlLauncher,
     );
   });
 
@@ -70,16 +67,15 @@ void main() {
     test(
       '01. harus mengirim rincian paket jika pelanggan dan paket ditemukan dan URL bisa dibuka',
       () async {
-        when(
-          mockPelangganOpSqlite.ambilBerdasarkanId('c1'),
-        ).thenAnswer((_) async => pelanggan);
-        when(
-          mockPaketOpSqlite.ambilBerdasarkanId('p1'),
-        ).thenAnswer((_) async => paket);
-
-        when(mockUrlLauncher.canLaunch(any())).thenAnswer((_) async => true);
-        when(mockUrlLauncher.launchUrl(any(), any()))
-            .thenAnswer((_) async => true);
+        when(mockPelangganOpSqlite.ambilBerdasarkanId('c1'))
+            .thenAnswer((_) async => pelanggan);
+        when(mockPaketOpSqlite.ambilBerdasarkanId('p1'))
+            .thenAnswer((_) async => paket);
+        when(mockUrlLauncher.canLaunch(any)).thenAnswer((_) async => true);
+        when(mockUrlLauncher.launchUrl(
+          any,
+          any,
+        )).thenAnswer((_) async => true);
 
         await pesanInfoPaket.kirimRincianPaket(pelangganAktif);
 
@@ -87,74 +83,63 @@ void main() {
         verify(mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
 
         final capturedCanLaunchUrl =
-            verify(mockUrlLauncher.canLaunch(captureAny())).captured.single;
+            verify(mockUrlLauncher.canLaunch(captureAny)).captured.single;
         expect(capturedCanLaunchUrl, contains('https://wa.me/6281234567890'));
 
-        final capturedLaunchUrl =
-            verify(mockUrlLauncher.launchUrl(captureAny(), any()))
-                .captured
-                .single;
+        final capturedLaunchUrl = verify(mockUrlLauncher.launchUrl(
+          captureAny,
+          any,
+        )).captured.single;
         expect(capturedLaunchUrl, contains('https://wa.me/6281234567890'));
       },
     );
 
-    test(
-      '02. tidak mengirim rincian paket jika pelanggan tidak ditemukan',
-      () async {
-        when(
-          mockPelangganOpSqlite.ambilBerdasarkanId('c1'),
-        ).thenAnswer((_) async => null);
+    test('02. tidak mengirim rincian paket jika pelanggan tidak ditemukan',
+        () async {
+      when(mockPelangganOpSqlite.ambilBerdasarkanId(any))
+          .thenAnswer((_) async => null);
 
-        await pesanInfoPaket.kirimRincianPaket(pelangganAktif);
+      await pesanInfoPaket.kirimRincianPaket(pelangganAktif);
 
-        verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
-        verifyNever(mockPaketOpSqlite.ambilBerdasarkanId(any));
-        verifyNever(mockUrlLauncher.canLaunch(any()));
-        verifyNever(mockUrlLauncher.launchUrl(any(), any()));
-      },
-    );
+      verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
+      verifyNever(mockPaketOpSqlite.ambilBerdasarkanId(any));
+      verifyNever(mockUrlLauncher.canLaunch(any));
+      verifyNever(mockUrlLauncher.launchUrl(any, any));
+    });
 
-    test(
-      '03. tidak mengirim rincian paket jika paket tidak ditemukan',
-      () async {
-        when(
-          mockPelangganOpSqlite.ambilBerdasarkanId('c1'),
-        ).thenAnswer((_) async => pelanggan);
-        when(
-          mockPaketOpSqlite.ambilBerdasarkanId('p1'),
-        ).thenAnswer((_) async => null);
+    test('03. tidak mengirim rincian paket jika paket tidak ditemukan',
+        () async {
+      when(mockPelangganOpSqlite.ambilBerdasarkanId(any))
+          .thenAnswer((_) async => pelanggan);
+      when(mockPaketOpSqlite.ambilBerdasarkanId(any))
+          .thenAnswer((_) async => null);
 
-        await pesanInfoPaket.kirimRincianPaket(pelangganAktif);
+      await pesanInfoPaket.kirimRincianPaket(pelangganAktif);
 
-        verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
-        verify(mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
-        verifyNever(mockUrlLauncher.canLaunch(any()));
-        verifyNever(mockUrlLauncher.launchUrl(any(), any()));
-      },
-    );
+      verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
+      verify(mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
+      verifyNever(mockUrlLauncher.canLaunch(any));
+      verifyNever(mockUrlLauncher.launchUrl(any, any));
+    });
 
-    test(
-      '04. tidak mencoba membuka URL jika canLaunchUrl mengembalikan false',
-      () async {
-        when(
-          mockPelangganOpSqlite.ambilBerdasarkanId('c1'),
-        ).thenAnswer((_) async => pelanggan);
-        when(
-          mockPaketOpSqlite.ambilBerdasarkanId('p1'),
-        ).thenAnswer((_) async => paket);
+    test('04. tidak mencoba membuka URL jika canLaunchUrl mengembalikan false',
+        () async {
+      when(mockPelangganOpSqlite.ambilBerdasarkanId(any))
+          .thenAnswer((_) async => pelanggan);
+      when(mockPaketOpSqlite.ambilBerdasarkanId(any))
+          .thenAnswer((_) async => paket);
 
-        when(mockUrlLauncher.canLaunch(any())).thenAnswer((_) async => false);
+      when(mockUrlLauncher.canLaunch(any)).thenAnswer((_) async => false);
 
-        await pesanInfoPaket.kirimRincianPaket(pelangganAktif);
+      await pesanInfoPaket.kirimRincianPaket(pelangganAktif);
 
-        verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
-        verify(mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
+      verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
+      verify(mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
 
-        final capturedCanLaunchUrl =
-            verify(mockUrlLauncher.canLaunch(captureAny())).captured.single;
-        expect(capturedCanLaunchUrl, contains('https://wa.me/6281234567890'));
-        verifyNever(mockUrlLauncher.launchUrl(any(), any()));
-      },
-    );
+      final capturedCanLaunchUrl =
+          verify(mockUrlLauncher.canLaunch(captureAny)).captured.single;
+      expect(capturedCanLaunchUrl, contains('https://wa.me/6281234567890'));
+      verifyNever(mockUrlLauncher.launchUrl(any, any));
+    });
   });
 }
