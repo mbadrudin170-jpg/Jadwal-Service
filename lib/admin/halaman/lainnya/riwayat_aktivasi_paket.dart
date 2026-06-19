@@ -31,7 +31,8 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
               if (historyAsync.hasValue) {
                 Log.info('Membuka dialog pengurutan riwayat langganan.');
                 unawaited(
-                    _showSortDialog(context, ref, historyAsync.value!.sortBy));
+                  _showSortDialog(context, ref, historyAsync.value!.sortBy),
+                );
               }
             },
             tooltip: 'Urutkan',
@@ -44,7 +45,8 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
         data: (state) {
           if (state.items.isEmpty) {
             return const Center(
-                child: Text('Tidak ada riwayat langganan ditemukan.'));
+              child: Text('Tidak ada riwayat langganan ditemukan.'),
+            );
           }
           return ListView.builder(
             itemCount: state.items.length,
@@ -53,14 +55,15 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
               final transaction = item.transaksi;
               final paymentStatusColor =
                   transaction.statusPembayaran == StatusPembayaran.paid
-                      ? Colors.green
-                      : Colors.red;
+                  ? Colors.green
+                  : Colors.red;
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                 child: ListTile(
                   onTap: () async {
-                    Log.info('Melihat detail riwayat langganan.',
-                        {'transactionId': transaction.id});
+                    Log.info('Melihat detail riwayat langganan.', {
+                      'transactionId': transaction.id,
+                    });
                     await Navigator.push<bool>(
                       context,
                       MaterialPageRoute(
@@ -78,8 +81,9 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       PackageNameWidget(
-                        paketFuture: paketOpSqlite
-                            .ambilBerdasarkanId(transaction.idPaket ?? ''),
+                        paketFuture: paketOpSqlite.ambilBerdasarkanId(
+                          transaction.idPaket ?? '',
+                        ),
                         style: TextStyle(color: paymentStatusColor),
                       ),
                       gapH4,
@@ -109,32 +113,38 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
   }
 
   Future<void> _showSortDialog(
-      BuildContext context, WidgetRef ref, SortOption currentSort) async {
+    BuildContext context,
+    WidgetRef ref,
+    SortOption currentSort,
+  ) async {
     final SortOption? selected = await showDialog<SortOption>(
       context: context,
       builder: (BuildContext context) {
         Widget buildOption(String text, SortOption value) {
           return SimpleDialogOption(
             onPressed: () => Navigator.pop(context, value),
-            child: Text(text,
-                style: TextStyle(
-                    fontWeight: currentSort == value
-                        ? FontWeight.bold
-                        : FontWeight.normal)),
+            child: Text(
+              text,
+              style: TextStyle(
+                fontWeight: currentSort == value
+                    ? FontWeight.bold
+                    : FontWeight.normal,
+              ),
+            ),
           );
         }
 
         return SimpleDialog(
           title: const Text('Urutkan Berdasarkan'),
           children: <Widget>[
-            buildOption('Berakhir Hari Ini', SortOption.endingToday),
-            buildOption('Tanggal Berakhir', SortOption.endDate),
-            buildOption('Nama A-Z', SortOption.nameAZ),
-            buildOption('Nama Z-A', SortOption.nameZA),
-            buildOption('Lunas', SortOption.paid),
-            buildOption('Belum Lunas', SortOption.unpaid),
-            buildOption('Update Terbaru', SortOption.updatedAtAZ),
-            buildOption('Update Terlama', SortOption.updatedAtZA),
+            buildOption('Berakhir Hari Ini', SortOption.beralhirHariIni),
+            buildOption('Tanggal Berakhir', SortOption.tanggalBerakhir),
+            buildOption('Nama A-Z', SortOption.namaAZ),
+            buildOption('Nama Z-A', SortOption.namaZA),
+            buildOption('Lunas', SortOption.lunas),
+            buildOption('Belum Lunas', SortOption.belumLunas),
+            buildOption('Update Terbaru', SortOption.diperbaruiPadaAZ),
+            buildOption('Update Terlama', SortOption.diperbaruiPadaZA),
           ],
         );
       },

@@ -20,14 +20,14 @@ class TransactionWithCustomer {
 }
 
 enum SortOption {
-  endDate,
-  nameAZ,
-  nameZA,
-  endingToday,
-  updatedAtAZ,
-  updatedAtZA,
-  paid,
-  unpaid,
+  tanggalBerakhir,
+  namaAZ,
+  namaZA,
+  beralhirHariIni,
+  diperbaruiPadaAZ,
+  diperbaruiPadaZA,
+  lunas,
+  belumLunas,
 }
 
 class RiwayatAktivasiPaketState {
@@ -36,7 +36,7 @@ class RiwayatAktivasiPaketState {
 
   RiwayatAktivasiPaketState({
     this.items = const [],
-    this.sortBy = SortOption.endingToday,
+    this.sortBy = SortOption.beralhirHariIni,
   });
 
   RiwayatAktivasiPaketState copyWith({
@@ -56,7 +56,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
   FutureOr<RiwayatAktivasiPaketState> build() {
     ref.watch(transaksiOpSqliteProvider);
     ref.watch(pelangganOpSqliteProvider);
-    return _loadData(SortOption.endDate);
+    return _loadData(SortOption.tanggalBerakhir);
   }
 
   Future<RiwayatAktivasiPaketState> _loadData(SortOption targetSort) async {
@@ -102,7 +102,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
 
   void _performSort(List<TransactionWithCustomer> list, SortOption option) {
     switch (option) {
-      case SortOption.endDate:
+      case SortOption.tanggalBerakhir:
         list.sort((a, b) {
           if (a.transaksi.tanggalBerakhir == null &&
               b.transaksi.tanggalBerakhir == null) {
@@ -110,13 +110,14 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           }
           if (a.transaksi.tanggalBerakhir == null) return 1;
           if (b.transaksi.tanggalBerakhir == null) return -1;
-          final dateCompare = b.transaksi.tanggalBerakhir!.compareTo(
-            a.transaksi.tanggalBerakhir!,
+          final dateCompare = a.transaksi.tanggalBerakhir!.compareTo(
+            b.transaksi.tanggalBerakhir!,
           );
           if (dateCompare != 0) return dateCompare;
           return a.transaksi.id.compareTo(b.transaksi.id);
         });
-      case SortOption.updatedAtAZ:
+        break;
+      case SortOption.diperbaruiPadaAZ:
         list.sort((a, b) {
           final updateAtA = a.transaksi.diperbaruiPada;
           final updateAtB = b.transaksi.diperbaruiPada;
@@ -126,7 +127,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           return updateAtB.compareTo(updateAtA);
         });
         break;
-      case SortOption.updatedAtZA:
+      case SortOption.diperbaruiPadaZA:
         list.sort((a, b) {
           final updateAtA = a.transaksi.diperbaruiPada;
           final updateAtB = b.transaksi.diperbaruiPada;
@@ -135,19 +136,28 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           if (updateAtB == null) return 1;
           return updateAtA.compareTo(updateAtB);
         });
-      case SortOption.nameAZ:
-        list.sort(
-          (a, b) => a.customerName.toLowerCase().compareTo(
+        break;
+
+      case SortOption.namaAZ:
+        list.sort((a, b) {
+          final nameCompare = a.customerName.toLowerCase().compareTo(
             b.customerName.toLowerCase(),
-          ),
-        );
-      case SortOption.nameZA:
-        list.sort(
-          (a, b) => b.customerName.toLowerCase().compareTo(
+          );
+          if (nameCompare != 0) return nameCompare;
+          // Jika nama sama, urutkan berdasarkan ID transaksi (trx1 < trx3)
+          return a.transaksi.id.compareTo(b.transaksi.id);
+        });
+        break;
+      case SortOption.namaZA:
+        list.sort((a, b) {
+          final nameCompare = b.customerName.toLowerCase().compareTo(
             a.customerName.toLowerCase(),
-          ),
-        );
-      case SortOption.endingToday:
+          );
+          if (nameCompare != 0) return nameCompare;
+          return a.transaksi.id.compareTo(b.transaksi.id);
+        });
+        break;
+      case SortOption.beralhirHariIni:
         final now = DateTime.now();
         list.sort((a, b) {
           final isTodayA =
@@ -174,7 +184,9 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
             b.transaksi.tanggalBerakhir!,
           );
         });
-      case SortOption.paid:
+        break;
+
+      case SortOption.lunas:
         list.sort((a, b) {
           final isPaidA = a.transaksi.statusPembayaran == StatusPembayaran.paid;
           final isPaidB = b.transaksi.statusPembayaran == StatusPembayaran.paid;
@@ -184,7 +196,9 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
             a.transaksi.diperbaruiPada ?? a.transaksi.tanggal,
           );
         });
-      case SortOption.unpaid:
+        break;
+
+      case SortOption.belumLunas:
         list.sort((a, b) {
           final isUnpaidA =
               a.transaksi.statusPembayaran == StatusPembayaran.unpaid;
@@ -196,6 +210,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
             a.transaksi.diperbaruiPada ?? a.transaksi.tanggal,
           );
         });
+        break;
     }
   }
 }
