@@ -71,7 +71,7 @@ class KoneksiInternetService {
         // Saat release, lakukan pengecekan internet nyata via pingProvider
         final hasilPing = await ref
             .read(pingProvider.future)
-            .timeout(const Duration(seconds: 7)); // sesuaikan timeout
+            .timeout(const Duration(seconds: 7));
         isConnected = hasilPing.response?.time != null;
       }
 
