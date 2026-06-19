@@ -19,7 +19,7 @@ void main() {
           harga: 10000,
           durasi: 7,
           tipe: TipeDurasiPaket.days,
-          deskripsi: '',
+          // deskripsi dihapus karena tidak ada di model
         );
 
         final tanggalBerakhir =
@@ -36,7 +36,7 @@ void main() {
           harga: 50000,
           durasi: 2,
           tipe: TipeDurasiPaket.months,
-          deskripsi: '',
+          // deskripsi dihapus karena tidak ada di model
         );
 
         final tanggalBerakhir =
@@ -51,7 +51,7 @@ void main() {
           harga: 20000,
           durasi: 10,
           tipe: TipeDurasiPaket.days,
-          deskripsi: '',
+          // deskripsi dihapus karena tidak ada di model
         );
 
         final tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
@@ -117,9 +117,10 @@ void main() {
       });
 
       test('04. harus mengembalikan sisa menit', () {
-        final tanggalBerakhir = sekarang.add(const Duration(minutes: 45));
+        final tanggalBerakhir = sekarang.add(const Duration(minutes: 45)); // Note: pastikan 'sekarang' konsisten
+        final tanggalBerakhirFix = sekarang.add(const Duration(minutes: 45));
         expect(
-          PerhitunganUtil.ambilTeksSisaMasaAktif(tanggalBerakhir,
+          PerhitunganUtil.ambilTeksSisaMasaAktif(tanggalBerakhirFix,
               sekarang: sekarang),
           'Sisa 45 menit',
         );
