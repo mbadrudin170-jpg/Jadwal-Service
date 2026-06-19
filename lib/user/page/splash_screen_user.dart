@@ -61,8 +61,8 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((final _) {
-      unawaited(_inisialisasiAplikasi());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _inisialisasiAplikasi();
     });
   }
 
@@ -99,7 +99,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
         }
         await _navigasiKeHalamanBerikutnya();
       }
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error('Error kritis saat inisialisasi', e: e, s: st);
       if (mounted) {
         ToastUtil.error(context, 'Gagal terhubung ke server.');
@@ -197,7 +197,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
         return pengaturan;
       }
       return null;
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error('Gagal memeriksa mode pemeliharaan', e: e, s: st);
       return null;
     }

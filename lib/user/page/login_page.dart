@@ -42,13 +42,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     FlutterNativeSplash.remove();
   }
 
-  Future<void> _showErrorAlert(String message) async {
+  Future<void> _showErrorAlert(String pesan) async {
     if (!mounted) return;
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Akun tidak ditemukan'),
-        content: Text(message),
+        content: Text(pesan),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -61,10 +61,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   Future<void> _prosesLogin() async {
     final telepon = _teleponController.text.trim();
-    final password = _passwordController.text.trim();
+    final kataSandi = _passwordController.text.trim();
 
     // Validasi format
-    if (telepon.isEmpty || password.isEmpty) {
+    if (telepon.isEmpty || kataSandi.isEmpty) {
       return;
     }
     if (!RegExp(r'^[0-9]{10,13}$').hasMatch(telepon)) {
@@ -89,7 +89,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       final querySnapshot = await firestore
           .collection(NamaTabel.pelanggan)
           .where(NamaKolom.telepon, isEqualTo: telepon)
-          // JANGAN PAKAI PASSWORD PLAINTEXT
+          .where(NamaKolom.kataSandi, isEqualTo: kataSandi)
           .where(NamaKolom.dihapus, isEqualTo: false)
           .limit(1)
           .get();
@@ -103,12 +103,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
       // Verifikasi password (misal dengan hash)
       final userDoc = querySnapshot.docs.first;
-      final customer = PelangganModel.fromFirebase(userDoc.id, userDoc.data());
-      // Bandingkan password hash (gunakan library seperti bcrypt)
-      // if (!bcrypt.checkSync(password, customer.kataSandi)) { ... }
-
-      // Simpan sesi
-      await ref.read(pengelolaAkunProvider.notifier).login(customer);
+      final pelanggan = PelangganModel.fromFirebase(userDoc.id, userDoc.data());
+      await ref.read(pengelolaAkunProvider.notifier).login(pelanggan);
 
       // Navigasi
       if (!mounted) return;
@@ -123,7 +119,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         final layananAktivitasUser = await ref.read(
           layananAktivitasUserProvider.future,
         );
-        layananAktivitasUser.pingAktivitas(customer.id, paksa: true);
+        layananAktivitasUser.pingAktivitas(pelanggan.id, paksa: true);
       } catch (e, s) {
         Log.error('Gagal ping activity', e: e, s: s);
       }

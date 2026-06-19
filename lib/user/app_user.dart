@@ -1,4 +1,6 @@
-// path: lib/user/app_user.dart
+// path lib/user/app_user.dart
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:toastification/toastification.dart';
@@ -28,7 +30,6 @@ class AppUser extends ConsumerWidget {
     );
 
     if (firstError.hasError) {
-      // Perbaikan 2: Gunakan properti `stackTrace` yang benar.
       return _ErrorApp(
         error: firstError.error,
         stackTrace: firstError.stackTrace,

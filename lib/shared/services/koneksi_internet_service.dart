@@ -62,13 +62,11 @@ class KoneksiInternetService {
 
     try {
       if (kDebugMode) {
-        // Saat debug, cukup cek koneksi lokal agar cepat dan stabil di emulator/dev
         Log.info(
           '[Internet] kDebugMode aktif: menggunakan cekKoneksiLokal untuk pengecekan.',
         );
         isConnected = lokal; // karena sudah dicek lokal di atas
       } else {
-        // Saat release, lakukan pengecekan internet nyata via pingProvider
         final hasilPing = await ref
             .read(pingProvider.future)
             .timeout(const Duration(seconds: 7));
