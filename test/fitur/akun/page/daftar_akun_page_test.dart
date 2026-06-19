@@ -60,7 +60,7 @@ void main() {
   Widget createWidgetUnderTest({String? currentUserId}) {
     return ProviderScope(
       overrides: [
-        pengelolaAkunProvider.overrideWith((ref) => mockPengelolaAkun),
+        pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
         layananAktivitasUserProvider.overrideWith(
           (ref) => Future.value(mockLayananAktivitasUser),
         ),
