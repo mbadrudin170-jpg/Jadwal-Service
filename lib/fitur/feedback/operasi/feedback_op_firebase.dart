@@ -86,11 +86,8 @@ class FeedbackOpFirebase {
           })
           .handleError((Object e, StackTrace s) {
             Log.error('Error pada stream feedback untuk: $userId', e: e, s: s);
-            // Buat StreamController untuk memancarkan error
-            final controller = StreamController<List<FeedbackModel>>();
-            controller.addError(e, s);
-            controller.close();
-            return controller.stream;
+            // Melempar kembali error asli agar mengalir ke downstream (diterima oleh listen/unit test)
+            throw e;
           });
     } catch (e, s) {
       Log.error(

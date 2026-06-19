@@ -13,8 +13,10 @@ void main() {
 
   setUp(() {
     layananInfoPaket = LayananInfoPaket();
-    
-    // Pastikan handler dibersihkan sebelum setiap test dimulai
+  });
+
+  tearDown(() {
+    // Bersihkan handler setiap kali sebuah test selesai
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
   });
@@ -25,41 +27,13 @@ void main() {
     const mockVersion = '1.2.3';
     const mockBuildNumber = '42';
 
+    // =========================================================================
+    // TEST 1: KITA UJI EXCEPTION TERLEBIH DAHULU
+    // Sebelum cache statis internal Dart milik PackageInfo terkunci oleh data sukses.
+    // =========================================================================
     test(
-      '01. harus mengembalikan InfoPerangkatModel pada saat pemanggilan berhasil',
+      '01. harus mengembalikan null ketika terjadi PlatformException',
       () async {
-        // Gunakan setMockMethodCallHandler murni untuk menyuplai data ke PackageInfo
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(
-          channel,
-          (MethodCall methodCall) async {
-            if (methodCall.method == 'getAll') {
-              return <String, dynamic>{
-                'appName': mockAppName,
-                'packageName': mockPackageName,
-                'version': mockVersion,
-                'buildNumber': mockBuildNumber,
-                'buildSignature': 'mock_signature',
-              };
-            }
-            return null;
-          },
-        );
-
-        final hasil = await layananInfoPaket.ambilInfoPaket();
-
-        expect(hasil, isA<InfoPerangkatModel>());
-        expect(hasil?.namaApk, mockAppName);
-        expect(hasil?.namaPaket, mockPackageName);
-        expect(hasil?.versi, mockVersion);
-        expect(hasil?.nomorBuild, mockBuildNumber);
-      },
-    );
-
-    test(
-      '02. harus mengembalikan null ketika terjadi PlatformException',
-      () async {
-        // Set handler untuk langsung melempar PlatformException
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(
           channel,
@@ -71,10 +45,34 @@ void main() {
           },
         );
 
-        // bypass cache dengan memanggil method channel secara paksa via eksekusi aslinya
         final hasil = await layananInfoPaket.ambilInfoPaket();
 
         expect(hasil, isNull);
+      },
+    );
+
+    // =========================================================================
+    // TEST 2: BARU KITA UJI SKENARIO SUKSES
+    // Menggunakan setMockInitialValues untuk mengunci cache ke state sukses.
+    // =========================================================================
+    test(
+      '02. harus mengembalikan InfoPerangkatModel pada saat pemanggilan berhasil',
+      () async {
+        PackageInfo.setMockInitialValues(
+          appName: mockAppName,
+          packageName: mockPackageName,
+          version: mockVersion,
+          buildNumber: mockBuildNumber,
+          buildSignature: 'mock_signature',
+        );
+
+        final hasil = await layananInfoPaket.ambilInfoPaket();
+
+        expect(hasil, isA<InfoPerangkatModel>());
+        expect(hasil?.namaApk, mockAppName);
+        expect(hasil?.namaPaket, mockPackageName);
+        expect(hasil?.versi, mockVersion);
+        expect(hasil?.nomorBuild, mockBuildNumber);
       },
     );
   });
