@@ -1,4 +1,4 @@
-// path: lib/shared/services/notifikasi/penjadwal_notifikasi.dart
+// path: lib/fitur/notfikasi/penjadwal_notifikasi.dart
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +11,9 @@ import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart'
 class PenjadwalNotifikasi {
   static Future<void> aturNotifikasiLangganan(
     LayananNotifikasi notifikasiServis,
-    final String userId,
-  ) async {
+    final String userId, {
+    @visibleForTesting TransaksiOpFirebase? transaksiOp,
+  }) async {
     Log.info(
         'Memulai pengecekan untuk penjadwalan notifikasi untuk pengguna: $userId');
     final endNotificationId = userId.hashCode;
@@ -22,7 +23,7 @@ class PenjadwalNotifikasi {
     final int alarmId = endNotificationId;
 
     try {
-      final transactionOperation = TransaksiOpFirebase();
+      final transactionOperation = transaksiOp ?? TransaksiOpFirebase();
 
       // Dapatkan transaksi lunas terbaru yang akan datang dari Firebase.
       final transaction = await transactionOperation
