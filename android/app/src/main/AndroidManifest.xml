@@ -113,16 +113,29 @@
 
     <!-- Konfigurasi Visibilitas Paket (Krusial untuk Android 11+) -->
     <queries>
-        <!-- Diperlukan untuk sistem interaksi teks bawaan Flutter -->
+    <!-- Diperlukan untuk sistem interaksi teks bawaan Flutter -->
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
-        
-        <!-- WAJIB TAMBAH: Agar open_filex diizinkan memicu instalasi APK -->
+    
+    <!-- WAJIB: Agar open_filex diizinkan memicu instalasi APK -->
         <intent>
-            <action android:name="android.intent.action.INSTALL_PACKAGE" />
-            <data android:scheme="file" android:mimeType="application/vnd.android.package-archive" />
+        <action android:name="android.intent.action.INSTALL_PACKAGE" />
+        <data android:scheme="file" android:mimeType="application/vnd.android.package-archive" />
         </intent>
-    </queries>
+
+    <!-- TAMBAHKAN: Untuk url_launcher (https/http) -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
+        </intent>
+    
+    <!-- Opsional: Deteksi WhatsApp secara spesifik -->
+        <package android:name="com.whatsapp" />
+        </queries>
 </manifest>

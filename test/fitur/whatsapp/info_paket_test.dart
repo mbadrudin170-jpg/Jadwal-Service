@@ -74,7 +74,7 @@ void main() {
         when(mockUrlLauncher.canLaunch(any)).thenAnswer((_) async => true);
         when(mockUrlLauncher.launchUrl(
           any,
-          any,
+          argThat(isA<LaunchOptions>()),
         )).thenAnswer((_) async => true);
 
         await pesanInfoPaket.kirimRincianPaket(pelangganAktif);
@@ -88,7 +88,7 @@ void main() {
 
         final capturedLaunchUrl = verify(mockUrlLauncher.launchUrl(
           captureAny,
-          any,
+          argThat(isA<LaunchOptions>()),
         )).captured.single;
         expect(capturedLaunchUrl, contains('https://wa.me/6281234567890'));
       },
@@ -104,7 +104,7 @@ void main() {
       verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
       verifyNever(mockPaketOpSqlite.ambilBerdasarkanId(any));
       verifyNever(mockUrlLauncher.canLaunch(any));
-      verifyNever(mockUrlLauncher.launchUrl(any, any));
+      verifyNever(mockUrlLauncher.launchUrl(any, argThat(isA<LaunchOptions>())));
     });
 
     test('03. tidak mengirim rincian paket jika paket tidak ditemukan',
@@ -119,7 +119,7 @@ void main() {
       verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
       verify(mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
       verifyNever(mockUrlLauncher.canLaunch(any));
-      verifyNever(mockUrlLauncher.launchUrl(any, any));
+      verifyNever(mockUrlLauncher.launchUrl(any, argThat(isA<LaunchOptions>())));
     });
 
     test('04. tidak mencoba membuka URL jika canLaunchUrl mengembalikan false',
@@ -139,7 +139,7 @@ void main() {
       final capturedCanLaunchUrl =
           verify(mockUrlLauncher.canLaunch(captureAny)).captured.single;
       expect(capturedCanLaunchUrl, contains('https://wa.me/6281234567890'));
-      verifyNever(mockUrlLauncher.launchUrl(any, any));
+      verifyNever(mockUrlLauncher.launchUrl(any, argThat(isA<LaunchOptions>())));
     });
   });
 }
