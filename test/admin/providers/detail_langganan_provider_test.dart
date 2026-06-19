@@ -1,4 +1,3 @@
-
 // path: test/admin/providers/detail_langganan_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -102,8 +101,8 @@ void main() {
         expect(e, isA<Exception>());
       }
 
-      verify(mockPelangganOpSqlite.ambilBerdasarkanId(any)).called(0);
-      verify(mockPaketOpSqlite.ambilBerdasarkanId(any)).called(0);
+      verifyNever(mockPelangganOpSqlite.ambilBerdasarkanId(any));
+      verifyNever(mockPaketOpSqlite.ambilBerdasarkanId(any));
     });
 
     test('03. should return state with null customer and package when ids are null',
@@ -119,8 +118,8 @@ void main() {
       expect(result.customer, isNull);
       expect(result.package, isNull);
 
-      verify(mockPelangganOpSqlite.ambilBerdasarkanId(any)).called(0);
-      verify(mockPaketOpSqlite.ambilBerdasarkanId(any)).called(0);
+      verifyNever(mockPelangganOpSqlite.ambilBerdasarkanId(any));
+      verifyNever(mockPaketOpSqlite.ambilBerdasarkanId(any));
     });
   });
 }

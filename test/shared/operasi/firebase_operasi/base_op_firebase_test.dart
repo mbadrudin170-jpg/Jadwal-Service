@@ -6,7 +6,14 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 
-class MockStatusOpFirebase extends Mock implements StatusOpFirebase {}
+class MockStatusOpFirebase extends Mock implements StatusOpFirebase {
+  @override
+  Future<void> perbaruiStatusGlobal() => super.noSuchMethod(
+        Invocation.method(#perbaruiStatusGlobal, []),
+        returnValue: Future<void>.value(),
+        returnValueForMissingStub: Future<void>.value(),
+      );
+}
 
 void main() {
   group('BaseOpFirebase', () {
@@ -16,7 +23,6 @@ void main() {
 
     const collectionName = 'test_collection';
     const docId = 'test_doc';
-    final data = {'nama': 'Test'};
 
     setUp(() {
       fakeFirestore = FakeFirebaseFirestore();
@@ -25,17 +31,23 @@ void main() {
         firestore: fakeFirestore,
         statusOp: mockStatusOp,
       );
+
+      when(mockStatusOp.perbaruiStatusGlobal()).thenAnswer((_) async {});
     });
 
     test(
       '01. tambah - harus menambahkan dokumen dan memperbarui status',
       () async {
+        // Eksplisit mendefinisikan Map<String, dynamic> agar menerima FieldValue
+        final Map<String, dynamic> data = {'nama': 'Test'};
         final docRef = await baseOpFirebase.tambah(collectionName, data);
 
         final doc = await docRef.get();
+        final docData = doc.data() as Map<String, dynamic>?;
+
         expect(doc.exists, isTrue);
-        expect(doc.data()?['nama'], 'Test');
-        expect(doc.data()?[NamaKolom.diperbaruiPada], isNotNull);
+        expect(docData?['nama'], 'Test');
+        expect(docData?[NamaKolom.diperbaruiPada], isNotNull);
 
         verify(mockStatusOp.perbaruiStatusGlobal()).called(1);
       },
@@ -44,15 +56,18 @@ void main() {
     test(
       '02. sisipkan - harus menyisipkan dokumen dan memperbarui status',
       () async {
+        final Map<String, dynamic> data = {'nama': 'Test'};
         await baseOpFirebase.sisipkan(collectionName, docId, data);
 
         final doc = await fakeFirestore
             .collection(collectionName)
             .doc(docId)
             .get();
+        final docData = doc.data() as Map<String, dynamic>?;
+
         expect(doc.exists, isTrue);
-        expect(doc.data()?['nama'], 'Test');
-        expect(doc.data()?[NamaKolom.diperbaruiPada], isNotNull);
+        expect(docData?['nama'], 'Test');
+        expect(docData?[NamaKolom.diperbaruiPada], isNotNull);
 
         verify(mockStatusOp.perbaruiStatusGlobal()).called(1);
       },
@@ -61,8 +76,9 @@ void main() {
     test(
       '03. update - harus memperbarui dokumen dan memperbarui status',
       () async {
+        final Map<String, dynamic> data = {'nama': 'Test'};
         await fakeFirestore.collection(collectionName).doc(docId).set(data);
-        final updatedData = {'nama': 'Updated Test'};
+        final Map<String, dynamic> updatedData = {'nama': 'Updated Test'};
 
         await baseOpFirebase.update(collectionName, docId, updatedData);
 
@@ -70,8 +86,10 @@ void main() {
             .collection(collectionName)
             .doc(docId)
             .get();
-        expect(doc.data()?['nama'], 'Updated Test');
-        expect(doc.data()?[NamaKolom.diperbaruiPada], isNotNull);
+        final docData = doc.data() as Map<String, dynamic>?;
+
+        expect(docData?['nama'], 'Updated Test');
+        expect(docData?[NamaKolom.diperbaruiPada], isNotNull);
 
         verify(mockStatusOp.perbaruiStatusGlobal()).called(1);
       },
@@ -80,6 +98,7 @@ void main() {
     test(
       '04. hapusSementara - harus melakukan soft delete dan memperbarui status',
       () async {
+        final Map<String, dynamic> data = {'nama': 'Test'};
         await fakeFirestore.collection(collectionName).doc(docId).set(data);
 
         await baseOpFirebase.hapusSementara(collectionName, docId);
@@ -88,9 +107,11 @@ void main() {
             .collection(collectionName)
             .doc(docId)
             .get();
-        expect(doc.data()?[NamaKolom.dihapus], isTrue);
-        expect(doc.data()?[NamaKolom.diperbaruiPada], isNotNull);
-        expect(doc.data()?[NamaKolom.diarsipkanPada], isNotNull);
+        final docData = doc.data() as Map<String, dynamic>?;
+
+        expect(docData?[NamaKolom.dihapus], isTrue);
+        expect(docData?[NamaKolom.diperbaruiPada], isNotNull);
+        expect(docData?[NamaKolom.diarsipkanPada], isNotNull);
 
         verify(mockStatusOp.perbaruiStatusGlobal()).called(1);
       },
@@ -99,6 +120,7 @@ void main() {
     test(
       '05. hapusPermanen - harus menghapus dokumen dan memperbarui status',
       () async {
+        final Map<String, dynamic> data = {'nama': 'Test'};
         await fakeFirestore.collection(collectionName).doc(docId).set(data);
 
         await baseOpFirebase.hapusPermanen(collectionName, docId);
@@ -130,7 +152,8 @@ void main() {
         expect(count, 2);
         final snapshot = await fakeFirestore.collection(collectionName).get();
         for (final doc in snapshot.docs) {
-          expect(doc.data()[NamaKolom.dihapus], isTrue);
+          final docData = doc.data() as Map<String, dynamic>;
+          expect(docData[NamaKolom.dihapus], isTrue);
         }
 
         verify(mockStatusOp.perbaruiStatusGlobal()).called(1);
@@ -140,7 +163,8 @@ void main() {
     test(
       '07. insertOrUpdateBatch - harus menyisipkan atau memperbarui batch',
       () async {
-        final items = [
+        // Deklarasi tipe List<Map<String, dynamic>> secara eksplisit
+        final List<Map<String, dynamic>> items = [
           {'id': 'doc1', 'nama': 'Doc 1'},
           {'id': 'doc2', 'nama': 'Doc 2'},
           {'id': 'doc1', 'nama': 'Updated Doc 1'},
@@ -157,15 +181,14 @@ void main() {
             .doc('doc2')
             .get();
 
-        expect(doc1.data()?['nama'], 'Updated Doc 1');
-        expect(doc2.data()?['nama'], 'Doc 2');
+        final docData1 = doc1.data() as Map<String, dynamic>?;
+        final docData2 = doc2.data() as Map<String, dynamic>?;
+
+        expect(docData1?['nama'], 'Updated Doc 1');
+        expect(docData2?['nama'], 'Doc 2');
 
         verify(mockStatusOp.perbaruiStatusGlobal()).called(1);
       },
     );
   });
-}
-
-extension on Object? {
-  operator [](String other) {}
 }

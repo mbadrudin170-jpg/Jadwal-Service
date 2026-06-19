@@ -45,31 +45,18 @@ void main() {
     testWidgets('03. harus menavigasi ke rute dengan argumen', (tester) async {
       await pumpWidget(tester, initialRoute: '/');
       const arguments = 'test_argument';
+      
       LayananNavigasi.navigateTo('/test', arguments: arguments);
       await tester.pumpAndSettle();
 
-      final settings = tester.routeSettings('/test');
+      // Mengambil BuildContext dari widget di rute '/test' yang sedang aktif
+      final testPageContext = tester.element(find.text('Test'));
+      
+      // Ambil RouteSettings dari ModalRoute aktif di konteks tersebut
+      final settings = ModalRoute.of(testPageContext)?.settings;
+
       expect(settings?.name, '/test');
       expect(settings?.arguments, arguments);
     });
   });
-}
-
-extension on WidgetTester {
-  RouteSettings? routeSettings(String routeName) {
-    RouteSettings? settings;
-    try {
-      final state = widget<Navigator>(find.byType(Navigator)).
-          // ignore: invalid_use_of_protected_member
-          createState();
-      // ignore: invalid_use_of_protected_member
-      state.didChangeDependencies();
-      // ignore: invalid_use_of_protected_member
-      final routes = state.widget.onGenerateInitialRoutes!(state, routeName);
-      settings = routes.last.settings;
-    } catch (e) {
-      // Handle error if needed
-    }
-    return settings;
-  }
 }

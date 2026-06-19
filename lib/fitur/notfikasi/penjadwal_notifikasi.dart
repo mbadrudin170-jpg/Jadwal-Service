@@ -10,12 +10,13 @@ import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart'
 
 class PenjadwalNotifikasi {
   static Future<void> aturNotifikasiLangganan(
-    LayananNotifikasi notifikasiServis,
+    LayananNotifikasi layananNotifikasi,
     final String userId, {
     @visibleForTesting TransaksiOpFirebase? transaksiOp,
   }) async {
     Log.info(
-        'Memulai pengecekan untuk penjadwalan notifikasi untuk pengguna: $userId');
+      'Memulai pengecekan untuk penjadwalan notifikasi untuk pengguna: $userId',
+    );
     final endNotificationId = userId.hashCode;
     final midNotificationId = '${userId}_midpoint'.hashCode;
 
@@ -23,24 +24,25 @@ class PenjadwalNotifikasi {
     final int alarmId = endNotificationId;
 
     try {
-      final transactionOperation = transaksiOp ?? TransaksiOpFirebase();
+      final transaksiOpFirebase = transaksiOp ?? TransaksiOpFirebase();
 
       // Dapatkan transaksi lunas terbaru yang akan datang dari Firebase.
-      final transaction = await transactionOperation
+      final transaksi = await transaksiOpFirebase
           .ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(userId);
 
       // Logika utama penjadwalan notifikasi
-      if (transaction != null &&
-          transaction.tanggalMulai != null &&
-          transaction.tanggalBerakhir != null &&
-          transaction.tanggalBerakhir!.isAfter(DateTime.now())) {
+      if (transaksi != null &&
+          transaksi.tanggalMulai != null &&
+          transaksi.tanggalBerakhir != null &&
+          transaksi.tanggalBerakhir!.isAfter(DateTime.now())) {
         // -- Penjadwalan Notifikasi & Alarm Akhir Periode --
-        final scheduledTime = transaction.tanggalBerakhir!;
+        final scheduledTime = transaksi.tanggalBerakhir!;
         Log.info(
-            'Langganan aktif ditemukan (ID: ${transaction.id}). Menjadwalkan notifikasi & alarm akhir pada $scheduledTime');
+          'Langganan aktif ditemukan (ID: ${transaksi.id}). Menjadwalkan notifikasi & alarm akhir pada $scheduledTime',
+        );
 
         // 1. Jadwalkan Notifikasi Visual
-        await notifikasiServis.perbaruiJadwalNotifikasi(
+        await layananNotifikasi.perbaruiJadwalNotifikasi(
           id: endNotificationId,
           title: 'Langganan Telah Berakhir',
           body:
@@ -58,18 +60,21 @@ class PenjadwalNotifikasi {
           wakeup: true, // Membangunkan perangkat jika dalam mode sleep
         );
         Log.info(
-            'Alarm untuk ID $alarmId berhasil dijadwalkan pada $scheduledTime');
+          'Alarm untuk ID $alarmId berhasil dijadwalkan pada $scheduledTime',
+        );
 
         // -- Logika untuk Notifikasi Tengah Periode (tidak berubah) --
-        final totalDuration =
-            transaction.tanggalBerakhir!.difference(transaction.tanggalMulai!);
+        final totalDuration = transaksi.tanggalBerakhir!.difference(
+          transaksi.tanggalMulai!,
+        );
         final midpointDuration = totalDuration.inSeconds ~/ 2;
-        final midpointDate =
-            transaction.tanggalMulai!.add(Duration(seconds: midpointDuration));
+        final midpointDate = transaksi.tanggalMulai!.add(
+          Duration(seconds: midpointDuration),
+        );
 
         if (midpointDate.isAfter(DateTime.now())) {
           Log.info('Menjadwalkan notifikasi tengah periode pada $midpointDate');
-          await notifikasiServis.perbaruiJadwalNotifikasi(
+          await layananNotifikasi.perbaruiJadwalNotifikasi(
             id: midNotificationId,
             title: 'Status Langganan Anda',
             body:
@@ -79,23 +84,25 @@ class PenjadwalNotifikasi {
           );
         } else {
           Log.info(
-              'Tanggal tengah periode sudah lewat. Membatalkan notifikasi jika ada.');
-          await notifikasiServis.batalNotifikasi(midNotificationId);
+            'Tanggal tengah periode sudah lewat. Membatalkan notifikasi jika ada.',
+          );
+          await layananNotifikasi.batalNotifikasi(midNotificationId);
         }
       } else {
         // Jika tidak ada langganan aktif, batalkan semua notifikasi DAN alarm.
         Log.info(
-            'Tidak ada langganan aktif. Membatalkan semua notifikasi dan alarm untuk pengguna ini.');
-        await notifikasiServis.batalNotifikasi(endNotificationId);
-        await notifikasiServis.batalNotifikasi(midNotificationId);
+          'Tidak ada langganan aktif. Membatalkan semua notifikasi dan alarm untuk pengguna ini.',
+        );
+        await layananNotifikasi.batalNotifikasi(endNotificationId);
+        await layananNotifikasi.batalNotifikasi(midNotificationId);
         await AndroidAlarmManager.cancel(alarmId);
         Log.info('Alarm dengan ID $alarmId juga dibatalkan.');
       }
     } on Exception catch (e, st) {
       Log.error('Gagal mengatur notifikasi dari Firebase', e: e, s: st);
       // Jika terjadi error, coba batalkan semua notifikasi dan alarm untuk kebersihan.
-      await notifikasiServis.batalNotifikasi(endNotificationId);
-      await notifikasiServis.batalNotifikasi(midNotificationId);
+      await layananNotifikasi.batalNotifikasi(endNotificationId);
+      await layananNotifikasi.batalNotifikasi(midNotificationId);
       await AndroidAlarmManager.cancel(alarmId);
       Log.info('Alarm dengan ID $alarmId juga dibatalkan karena error.');
     }
