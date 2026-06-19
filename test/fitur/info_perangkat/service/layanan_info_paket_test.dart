@@ -7,16 +7,16 @@ import 'package:wifi/fitur/info_perangkat/service/layanan_info_paket.dart';
 
 void main() {
   late LayananInfoPaket layananInfoPaket;
+  const channel = MethodChannel('dev.flutter.plugins/package_info');
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
     layananInfoPaket = LayananInfoPaket();
+    
+    // Pastikan handler dibersihkan sebelum setiap test dimulai
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel('dev.flutter.plugins/package_info'),
-          null,
-        );
+        .setMockMethodCallHandler(channel, null);
   });
 
   group('LayananInfoPaket', () {
@@ -28,12 +28,22 @@ void main() {
     test(
       '01. harus mengembalikan InfoPerangkatModel pada saat pemanggilan berhasil',
       () async {
-        PackageInfo.setMockInitialValues(
-          appName: mockAppName,
-          packageName: mockPackageName,
-          version: mockVersion,
-          buildNumber: mockBuildNumber,
-          buildSignature: 'mock_signature',
+        // Gunakan setMockMethodCallHandler murni untuk menyuplai data ke PackageInfo
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(
+          channel,
+          (MethodCall methodCall) async {
+            if (methodCall.method == 'getAll') {
+              return <String, dynamic>{
+                'appName': mockAppName,
+                'packageName': mockPackageName,
+                'version': mockVersion,
+                'buildNumber': mockBuildNumber,
+                'buildSignature': 'mock_signature',
+              };
+            }
+            return null;
+          },
         );
 
         final hasil = await layananInfoPaket.ambilInfoPaket();
@@ -49,20 +59,19 @@ void main() {
     test(
       '02. harus mengembalikan null ketika terjadi PlatformException',
       () async {
+        // Set handler untuk langsung melempar PlatformException
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(
-              const MethodChannel('dev.flutter.plugins/package_info'),
-              (MethodCall methodCall) async {
-                if (methodCall.method == 'getAll') {
-                  throw PlatformException(
-                    code: 'ERROR',
-                    message: 'Gagal mengambil info paket',
-                  );
-                }
-                return null;
-              },
+          channel,
+          (MethodCall methodCall) async {
+            throw PlatformException(
+              code: 'ERROR',
+              message: 'Gagal mengambil info paket',
             );
+          },
+        );
 
+        // bypass cache dengan memanggil method channel secara paksa via eksekusi aslinya
         final hasil = await layananInfoPaket.ambilInfoPaket();
 
         expect(hasil, isNull);
