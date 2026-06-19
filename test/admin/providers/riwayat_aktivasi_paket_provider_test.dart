@@ -1,5 +1,3 @@
-
-// path: test/admin/providers/riwayat_aktivasi_paket_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -13,6 +11,7 @@ import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 
+// Pastikan file mock ini di-import dengan benar setelah build_runner selesai
 import 'riwayat_aktivasi_paket_provider_test.mocks.dart';
 
 @GenerateMocks([TransaksiOpSqlite, PelangganOpSqlite])
@@ -35,6 +34,7 @@ void main() {
     });
 
     final now = DateTime.now();
+
     final pelanggan1 = PelangganModel(
       id: 'cust1',
       nama: 'Beta',
@@ -43,6 +43,7 @@ void main() {
       macAddress: 'mac1',
       kataSandi: 'pass1',
     );
+
     final pelanggan2 = PelangganModel(
       id: 'cust2',
       nama: 'Alpha',
@@ -100,39 +101,48 @@ void main() {
     final pelangganList = [pelanggan1, pelanggan2];
 
     test('01. build should load and sort data by endDate by default', () async {
-      when(mockTransaksiOpSqlite.ambilBerdasarkanStatusAktivasi())
-          .thenAnswer((_) async => transaksiList);
-      when(mockPelangganOpSqlite.ambilSemua())
-          .thenAnswer((_) async => pelangganList);
+      // Menggunakan .toList() agar list di-clone dan aman dari in-place mutation sorting
+      when(
+        mockTransaksiOpSqlite.ambilBerdasarkanStatusAktivasi(),
+      ).thenAnswer((_) async => transaksiList.toList());
+      when(
+        mockPelangganOpSqlite.ambilSemua(),
+      ).thenAnswer((_) async => pelangganList.toList());
 
       final result = await container.read(riwayatAktivasiPaketProvider.future);
 
       expect(result.items.length, 3);
       expect(result.sortBy, SortOption.endDate);
-      // trx3 (hari ini) < trx2 (20 hari lagi) < trx1 (25 hari lagi)
-      expect(result.items.map((e) => e.transaksi.id).toList(),
-          ['trx3', 'trx2', 'trx1']);
+      // Ekspektasi urutan sesuai logic provider yang baru: trx3 -> trx2 -> trx1
+      expect(result.items.map((e) => e.transaksi.id).toList(), [
+        'trx3',
+        'trx2',
+        'trx1',
+      ]);
     });
 
     test('02. changeSort should re-sort the list', () async {
-      // Initial load
-      when(mockTransaksiOpSqlite.ambilBerdasarkanStatusAktivasi())
-          .thenAnswer((_) async => transaksiList);
-      when(mockPelangganOpSqlite.ambilSemua())
-          .thenAnswer((_) async => pelangganList);
+      when(
+        mockTransaksiOpSqlite.ambilBerdasarkanStatusAktivasi(),
+      ).thenAnswer((_) async => transaksiList.toList());
+      when(
+        mockPelangganOpSqlite.ambilSemua(),
+      ).thenAnswer((_) async => pelangganList.toList());
 
       await container.read(riwayatAktivasiPaketProvider.future);
 
-      // Change sort to Name A-Z
+      // Ubah sort ke Nama A-Z
       container
           .read(riwayatAktivasiPaketProvider.notifier)
           .changeSort(SortOption.nameAZ);
 
       final newState = container.read(riwayatAktivasiPaketProvider).value!;
       expect(newState.sortBy, SortOption.nameAZ);
-      // Alpha (trx2) < Beta (trx1) < Beta (trx3)
-      expect(newState.items.map((e) => e.transaksi.id).toList(),
-          ['trx2', 'trx1', 'trx3']);
+      expect(newState.items.map((e) => e.transaksi.id).toList(), [
+        'trx2',
+        'trx1',
+        'trx3',
+      ]);
     });
   });
 }
