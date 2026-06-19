@@ -1,8 +1,7 @@
-'''// path: test/shared/utils/toast_util_test.dart
+// path: test/shared/utils/toast_util_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:toastification/toastification.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 // Karena ToastUtil sangat bergantung pada BuildContext dan UI (toastification),
@@ -105,4 +104,3 @@ void main() {
     });
   });
 }
-''
