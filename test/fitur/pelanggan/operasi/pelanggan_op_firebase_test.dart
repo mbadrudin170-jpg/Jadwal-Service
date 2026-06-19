@@ -1,4 +1,3 @@
-
 // path: test/fitur/pelanggan/operasi/pelanggan_op_firebase_test.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -49,7 +48,7 @@ void main() {
       await pelangganOpFirebase.tambahPelanggan(pelangganModel);
 
       verify(mockBaseOpFirebase.sisipkan(
-        'pelanggan',
+        'customer', // Diubah menjadi 'customer' sesuai NamaTabel.pelanggan
         pelangganModel.id,
         any, // data
       )).called(1);
@@ -62,7 +61,7 @@ void main() {
       await pelangganOpFirebase.perbaruiPelanggan(pelangganModel);
 
       verify(mockBaseOpFirebase.update(
-        'pelanggan',
+        'customer', // Diubah menjadi 'customer' sesuai NamaTabel.pelanggan
         pelangganModel.id,
         any, // data
       )).called(1);
@@ -74,8 +73,10 @@ void main() {
 
       await pelangganOpFirebase.softDelete(pelangganModel.id);
 
-      verify(mockBaseOpFirebase.hapusSementara('pelanggan', pelangganModel.id))
-          .called(1);
+      verify(mockBaseOpFirebase.hapusSementara(
+        'customer', // Diubah menjadi 'customer' sesuai NamaTabel.pelanggan
+        pelangganModel.id,
+      )).called(1);
     });
 
     test('04. harus memanggil base.update saat perbaruiTerakhirAktif', () async {
@@ -85,14 +86,14 @@ void main() {
       await pelangganOpFirebase.perbaruiTerakhirAktif(pelangganModel.id);
 
       verify(mockBaseOpFirebase.update(
-        'pelanggan',
+        'customer', // Diubah menjadi 'customer' sesuai NamaTabel.pelanggan
         pelangganModel.id,
-        any, // data
+        any, // Menggunakan any karena FieldValue instance sulit dibandingkan literal
       )).called(1);
     });
 
     test('05. harus mengembalikan pelanggan saat ambilBerdasarkanId berhasil', () async {
-       when(mockFirestore.collection(any)).thenReturn(mockCollectionReference);
+      when(mockFirestore.collection(any)).thenReturn(mockCollectionReference);
       when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
       when(mockDocumentReference.get()).thenAnswer((_) async => mockDocumentSnapshot);
       when(mockDocumentSnapshot.exists).thenReturn(true);
@@ -105,8 +106,8 @@ void main() {
       expect(result?.id, pelangganModel.id);
     });
 
-     test('06. harus mengembalikan null saat ambilBerdasarkanId tidak menemukan data', () async {
-       when(mockFirestore.collection(any)).thenReturn(mockCollectionReference);
+    test('06. harus mengembalikan null saat ambilBerdasarkanId tidak menemukan data', () async {
+      when(mockFirestore.collection(any)).thenReturn(mockCollectionReference);
       when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
       when(mockDocumentReference.get()).thenAnswer((_) async => mockDocumentSnapshot);
       when(mockDocumentSnapshot.exists).thenReturn(false);
@@ -115,6 +116,5 @@ void main() {
 
       expect(result, isNull);
     });
-
   });
 }
