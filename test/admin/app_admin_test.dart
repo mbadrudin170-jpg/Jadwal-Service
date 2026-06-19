@@ -118,7 +118,7 @@ void main() {
     );
     when(
       mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-        waktuPenjadwalanHapusDataArsip: anyNamed('retentionDays'),
+        waktuPenjadwalanHapusDataArsip: anyNamed('waktuPenjadwalanHapusDataArsip'),
       ),
     ).thenAnswer((_) async => 1);
   });
@@ -212,7 +212,7 @@ void main() {
       (tester) async {
         final container = makeProviderContainer(
           sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
-          themeValue: .data(ThemeMode.light),
+          themeValue: const AsyncValue.data(ThemeMode.light),
         );
 
         await tester.pumpWidget(
@@ -282,7 +282,7 @@ void main() {
       verifyNever(mockUnduhanAwalService.jalankanUnduhanAwal());
       verifyNever(
         mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-          waktuPenjadwalanHapusDataArsip: anyNamed('retentionDays'),
+          waktuPenjadwalanHapusDataArsip: anyNamed('waktuPenjadwalanHapusDataArsip'),
         ),
       );
     });

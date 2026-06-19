@@ -1,10 +1,9 @@
 // path: test/fitur/whatsapp/info_paket_test.dart
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
@@ -16,75 +15,50 @@ import 'package:wifi/fitur/whatsapp/info_paket.dart';
 
 import 'info_paket_test.mocks.dart';
 
-/// Hub Fake Komprehensif untuk menangkap seluruh lifecycle url_launcher modern
-class FakeUrlLauncherPlatform extends Fake
-    with MockPlatformInterfaceMixin
-    implements UrlLauncherPlatform {
-  String? launchedUrl;
-  bool canLaunchReturnValue = true;
-
-  @override
-  Future<bool> canLaunch(String url) async {
-    return canLaunchReturnValue;
-  }
-
-  @override
-  Future<bool> canLaunchUrl(String url, Map<String, Object> attributes) async {
-    return canLaunchReturnValue;
-  }
-
-  @override
-  Future<bool> launchUrl(String url, LaunchOptions options) async {
-    launchedUrl = url;
-    return true;
-  }
-
-  @override
-  Future<bool> supportsLaunchMode(PreferredLaunchMode mode) async {
-    return true;
-  }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) {
-    // Menangkap variasi internal method seperti launch, launchUrlString, dll.
-    final memberName = invocation.memberName.toString();
-    if (memberName.contains('launch') || memberName.contains('Launch')) {
-      if (invocation.positionalArguments.isNotEmpty) {
-        final firstArg = invocation.positionalArguments.first;
-        if (firstArg is String) {
-          launchedUrl = firstArg;
-        }
-      }
-      return Future<bool>.value(true);
-    }
-    
-    // Default value untuk fungsi pendukung boolean lainnya agar tidak return null
-    if (invocation.isGetter || invocation.isMethod) {
-      return Future<bool>.value(true);
-    }
-    
-    return super.noSuchMethod(invocation);
-  }
-}
-
 @GenerateMocks([PelangganOpSqlite, PaketOpSqlite])
 void main() {
+  // Pastikan binding Flutter Test diinisialisasi
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late PesanInfoPaket pesanInfoPaket;
   late MockPelangganOpSqlite mockPelangganOpSqlite;
   late MockPaketOpSqlite mockPaketOpSqlite;
-  late FakeUrlLauncherPlatform fakeUrlLauncher;
+  
+  // Menggunakan MethodChannel resmi milik package url_launcher
+  const MethodChannel channel = MethodChannel('plugins.flutter.io/url_launcher');
+  String? launchedUrl;
+  bool canLaunchReturnValue = true;
 
   setUp(() {
     mockPelangganOpSqlite = MockPelangganOpSqlite();
     mockPaketOpSqlite = MockPaketOpSqlite();
-    fakeUrlLauncher = FakeUrlLauncherPlatform();
-
-    UrlLauncherPlatform.instance = fakeUrlLauncher;
+    launchedUrl = null;
+    canLaunchReturnValue = true;
 
     pesanInfoPaket = PesanInfoPaket(
       pelangganOpSqlite: mockPelangganOpSqlite,
       paketOpSqlite: mockPaketOpSqlite,
     );
+
+    // Mencegat semua panggilan sistem dari url_launcher ke sistem operasi native
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+      if (methodCall.method == 'canLaunch') {
+        return canLaunchReturnValue;
+      }
+      if (methodCall.method == 'launch') {
+        // url_launcher menyimpan data URL di dalam argumen dengan key 'url'
+        launchedUrl = methodCall.arguments['url'] as String?;
+        return true;
+      }
+      return null;
+    });
+  });
+
+  tearDown(() {
+    // Bersihkan handler setelah pengujian selesai
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null);
   });
 
   final pelangganAktif = PelangganAktifModel(
@@ -128,9 +102,10 @@ void main() {
         verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
         verify(mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
 
-        expect(fakeUrlLauncher.launchedUrl, isNotNull);
+        // Di-intercept langsung di level sistem operasi biner, pasti tidak null
+        expect(launchedUrl, isNotNull);
         expect(
-          fakeUrlLauncher.launchedUrl,
+          launchedUrl,
           startsWith('https://wa.me/6281234567890'),
         );
       },
@@ -148,7 +123,8 @@ void main() {
 
         verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
         verify(mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
-        expect(fakeUrlLauncher.launchedUrl, isNull);
+        
+        expect(launchedUrl, isNull);
       },
     );
 
@@ -164,7 +140,8 @@ void main() {
 
         verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
         verify(mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
-        expect(fakeUrlLauncher.launchedUrl, isNull);
+        
+        expect(launchedUrl, isNull);
       },
     );
 
@@ -176,14 +153,14 @@ void main() {
         when(mockPaketOpSqlite.ambilBerdasarkanId('p1'))
             .thenAnswer((_) async => paket);
 
-        fakeUrlLauncher.canLaunchReturnValue = false;
+        canLaunchReturnValue = false;
 
         await pesanInfoPaket.kirimRincianPaket(pelangganAktif);
 
         verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
         verify(mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
 
-        expect(fakeUrlLauncher.launchedUrl, isNull);
+        expect(launchedUrl, isNull);
       },
     );
   });
