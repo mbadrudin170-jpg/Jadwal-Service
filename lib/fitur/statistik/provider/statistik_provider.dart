@@ -10,33 +10,34 @@ import 'package:wifi/shared/debug/log.dart';
 part 'statistik_provider.g.dart';
 
 class StatistikState {
-  final double pendapatanBulanIni;
+  final double totalPendaptanPerbulan;
   final int totalPelanggan;
-  final int jumlahLanggananAktif;
-  final int jumlahFeedbackBaru;
-  final List<PaketTerlarisModel> bestSellingPackages;
+  final int totalPelangganAktif;
+  final int totalFeedback;
+  final List<PaketTerlarisModel> paketTerlaris;
 
   StatistikState({
-    this.pendapatanBulanIni = 0.0,
+    this.totalPendaptanPerbulan = 0.0,
     this.totalPelanggan = 0,
-    this.jumlahLanggananAktif = 0,
-    this.jumlahFeedbackBaru = 0,
-    this.bestSellingPackages = const [],
+    this.totalPelangganAktif = 0,
+    this.totalFeedback = 0,
+    this.paketTerlaris = const [],
   });
 
   StatistikState copyWith({
-    double? pendapatanBulanIni,
+    double? totalPendaptanPerbulan,
     int? totalPelanggan,
     int? jumlahLanggananAktif,
     int? jumlahFeedbackBaru,
-    List<PaketTerlarisModel>? bestSellingPackages,
+    List<PaketTerlarisModel>? paketTerlaris,
   }) {
     return StatistikState(
-      pendapatanBulanIni: pendapatanBulanIni ?? this.pendapatanBulanIni,
+      totalPendaptanPerbulan:
+          totalPendaptanPerbulan ?? this.totalPendaptanPerbulan,
       totalPelanggan: totalPelanggan ?? this.totalPelanggan,
-      jumlahLanggananAktif: jumlahLanggananAktif ?? this.jumlahLanggananAktif,
-      jumlahFeedbackBaru: jumlahFeedbackBaru ?? this.jumlahFeedbackBaru,
-      bestSellingPackages: bestSellingPackages ?? this.bestSellingPackages,
+      totalPelangganAktif: jumlahLanggananAktif ?? this.totalPelangganAktif,
+      totalFeedback: jumlahFeedbackBaru ?? this.totalFeedback,
+      paketTerlaris: paketTerlaris ?? this.paketTerlaris,
     );
   }
 }
@@ -67,11 +68,11 @@ class Statistik extends _$Statistik {
       Log.info('[StatistikNotifier] Semua data sekuensial berhasil dimuat.');
 
       return StatistikState(
-        pendapatanBulanIni: pendapatan,
+        totalPendaptanPerbulan: pendapatan,
         totalPelanggan: pelanggan,
-        jumlahLanggananAktif: langgananAktif,
-        jumlahFeedbackBaru: feedbackBaru,
-        bestSellingPackages: paketTerlaris,
+        totalPelangganAktif: langgananAktif,
+        totalFeedback: feedbackBaru,
+        paketTerlaris: paketTerlaris,
       );
     } catch (e, st) {
       Log.error(

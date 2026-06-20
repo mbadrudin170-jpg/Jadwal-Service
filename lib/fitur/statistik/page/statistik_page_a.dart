@@ -114,7 +114,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                           ),
                         ),
                         title: 'Langganan Aktif',
-                        value: data.jumlahLanggananAktif.toString(),
+                        value: data.totalPelangganAktif.toString(),
                         icon: TIcons.wifi,
                         color: Colors.green,
                       ),
@@ -127,10 +127,10 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                         ),
                         title: 'Pendapatan Bulan Ini',
                         value: FormatUang.formatMataUang(
-                          data.pendapatanBulanIni,
+                          data.totalPendaptanPerbulan,
                         ),
                         icon: TIcons.money,
-                        color: data.pendapatanBulanIni < 0
+                        color: data.totalPendaptanPerbulan < 0
                             ? Colors.red
                             : Colors.orange,
                       ),
@@ -139,7 +139,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                           /* Navigasi ke halaman feedback */
                         },
                         title: 'Feedback Baru',
-                        value: data.jumlahFeedbackBaru.toString(),
+                        value: data.totalFeedback.toString(),
                         icon: TIcons.feedback,
                         color: Colors.purple,
                       ),
@@ -164,7 +164,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                     ),
                   ),
                   gapH12,
-                  _buildBestSellingPackages(theme, data.bestSellingPackages),
+                  _buildBestSellingPackages(theme, data.paketTerlaris),
                 ],
               ),
             );
