@@ -1,9 +1,10 @@
 // path: lib/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart
 
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
+import 'package:wifi/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart';
@@ -20,28 +21,9 @@ import 'package:wifi/shared/utils/toast_util.dart';
 
 enum AdvancedOption { softDeleteAll, arsipkanKadaluarsa, cancel }
 
-String _getSortLabel(SortOption option) {
-  switch (option) {
-    case SortOption.berakhirHariIni:
-      return 'Berakhir Hari Ini';
-    case SortOption.tanggalBerakhir:
-      return 'Tanggal Berakhir';
-    case SortOption.tanggalMulai:
-      return 'Tanggal Mulai';
-    case SortOption.lunas:
-      return 'Lunas';
-    case SortOption.belumLunas:
-      return 'Belum Lunas';
-    case SortOption.namaAZ:
-      return 'Nama A-Z';
-    case SortOption.namaZA:
-      return 'Nama Z-A';
-    case SortOption.terbaru:
-      return 'Terbaru';
-    case SortOption.terlama:
-      return 'Terlama';
-  }
-}
+final urutanPelangganAktifProvider = StateProvider<OpsiUrutkan>(
+  (ref) => OpsiUrutkan.berakhirHariIni,
+);
 
 class PelangganAktifPage extends ConsumerStatefulWidget {
   const PelangganAktifPage({super.key});
@@ -82,7 +64,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     }
 
     if (mounted) {
-      await ref.read(pelangganAktifProvider.notifier).fetchActiveCustomers();
+      await ref.read(pelangganAktifProvider.notifier).perbaruiData();
     }
   }
 
@@ -108,7 +90,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     } catch (e) {
       Log.error('Gagal arsip otomatis saat refresh', e: e);
     }
-    await ref.read(pelangganAktifProvider.notifier).fetchActiveCustomers();
+    await ref.read(pelangganAktifProvider.notifier).perbaruiData();
   }
 
   Future<void> _softDeleteCustomer(
@@ -146,7 +128,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
             'Pelanggan "$namaPelanggan" berhasil diarsipkan.',
           );
         }
-        await ref.read(pelangganAktifProvider.notifier).fetchActiveCustomers();
+        await ref.read(pelangganAktifProvider.notifier).perbaruiData();
       } on Exception catch (e, s) {
         Log.error('Gagal soft delete pelanggan ID: $idPelanggan', e: e, s: s);
         if (mounted) {
@@ -159,13 +141,9 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
   }
 
   Future<void> _showSortDialog() async {
-    final state = ref.read(pelangganAktifProvider).value;
-    if (state == null) {
-      ToastUtil.info(context, 'Data sedang dimuat, coba sesaat lagi.');
-      return;
-    }
+    final currentSort = ref.read(urutanPelangganAktifProvider);
 
-    await showDialog<SortOption>(
+    await showDialog<OpsiUrutkan>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Urutkan Berdasarkan'),
@@ -180,8 +158,8 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: SortOption.values.map((o) {
-                    final diPilih = state.sortBy == o;
+                  children: OpsiUrutkan.values.map((o) {
+                    final diPilih = currentSort == o;
                     return ListTile(
                       dense: true,
                       visualDensity: const VisualDensity(vertical: -2),
@@ -189,7 +167,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                         horizontal: TSizes.p24,
                       ),
                       title: Text(
-                        _getSortLabel(o),
+                        PengurutPelangganAktif.getSortLabel(o),
                         style: TextStyle(
                           fontSize: TSizes.p16,
                           fontWeight: diPilih
@@ -208,7 +186,8 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                             )
                           : null,
                       onTap: () {
-                        ref.read(pelangganAktifProvider.notifier).setSortBy(o);
+                        ref.read(urutanPelangganAktifProvider.notifier).state =
+                            o;
                         Navigator.pop(ctx);
                       },
                     );
@@ -286,9 +265,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
             if (mounted) {
               ToastUtil.success(context, 'Berhasil mengarsipkan  pelanggan.');
             }
-            await ref
-                .read(pelangganAktifProvider.notifier)
-                .fetchActiveCustomers();
+            await ref.read(pelangganAktifProvider.notifier).perbaruiData();
           } catch (e, s) {
             Log.error('Gagal mengarsipkan semua pelanggan aktif', e: e, s: s);
             if (mounted) {
@@ -312,9 +289,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
               '$count pelanggan kadaluarsa diarsipkan.',
             );
           }
-          await ref
-              .read(pelangganAktifProvider.notifier)
-              .fetchActiveCustomers();
+          await ref.read(pelangganAktifProvider.notifier).perbaruiData();
         } catch (e, s) {
           Log.error('Gagal mengarsipkan pelanggan kadaluarsa', e: e, s: s);
           if (mounted) {
@@ -383,9 +358,13 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
             return Center(child: Text('Terjadi kesalahan: $error'));
           },
           data: (state) {
-            final customersFromProvider = state.daftarPelangganAktif;
+            final sortBy = ref.watch(urutanPelangganAktifProvider);
+            final urutkanPelangganAktif = PengurutPelangganAktif.urutkan(
+              state.daftarPelangganAktif,
+              sortBy,
+            );
             final query = _searchController.text.toLowerCase();
-            final displayedCustomers = customersFromProvider
+            final displayedCustomers = urutkanPelangganAktif
                 .where((c) => c.namaPelanggan.toLowerCase().contains(query))
                 .toList();
 

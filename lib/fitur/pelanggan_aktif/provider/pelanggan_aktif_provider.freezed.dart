@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PelangganAktifState {
 
- List<DetailPelangganAktifModel> get daftarPelangganAktif; SortOption get sortBy;
+ List<DetailPelangganAktifModel> get daftarPelangganAktif;
 /// Create a copy of PelangganAktifState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $PelangganAktifStateCopyWith<PelangganAktifState> get copyWith => _$PelangganAkt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PelangganAktifState&&const DeepCollectionEquality().equals(other.daftarPelangganAktif, daftarPelangganAktif)&&(identical(other.sortBy, sortBy) || other.sortBy == sortBy));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PelangganAktifState&&const DeepCollectionEquality().equals(other.daftarPelangganAktif, daftarPelangganAktif));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(daftarPelangganAktif),sortBy);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(daftarPelangganAktif));
 
 @override
 String toString() {
-  return 'PelangganAktifState(daftarPelangganAktif: $daftarPelangganAktif, sortBy: $sortBy)';
+  return 'PelangganAktifState(daftarPelangganAktif: $daftarPelangganAktif)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $PelangganAktifStateCopyWith<$Res>  {
   factory $PelangganAktifStateCopyWith(PelangganAktifState value, $Res Function(PelangganAktifState) _then) = _$PelangganAktifStateCopyWithImpl;
 @useResult
 $Res call({
- List<DetailPelangganAktifModel> daftarPelangganAktif, SortOption sortBy
+ List<DetailPelangganAktifModel> daftarPelangganAktif
 });
 
 
@@ -62,11 +62,10 @@ class _$PelangganAktifStateCopyWithImpl<$Res>
 
 /// Create a copy of PelangganAktifState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? daftarPelangganAktif = null,Object? sortBy = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? daftarPelangganAktif = null,}) {
   return _then(_self.copyWith(
 daftarPelangganAktif: null == daftarPelangganAktif ? _self.daftarPelangganAktif : daftarPelangganAktif // ignore: cast_nullable_to_non_nullable
-as List<DetailPelangganAktifModel>,sortBy: null == sortBy ? _self.sortBy : sortBy // ignore: cast_nullable_to_non_nullable
-as SortOption,
+as List<DetailPelangganAktifModel>,
   ));
 }
 
@@ -151,10 +150,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif,  SortOption sortBy)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PelangganAktifState() when $default != null:
-return $default(_that.daftarPelangganAktif,_that.sortBy);case _:
+return $default(_that.daftarPelangganAktif);case _:
   return orElse();
 
 }
@@ -172,10 +171,10 @@ return $default(_that.daftarPelangganAktif,_that.sortBy);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif,  SortOption sortBy)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif)  $default,) {final _that = this;
 switch (_that) {
 case _PelangganAktifState():
-return $default(_that.daftarPelangganAktif,_that.sortBy);case _:
+return $default(_that.daftarPelangganAktif);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -192,10 +191,10 @@ return $default(_that.daftarPelangganAktif,_that.sortBy);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<DetailPelangganAktifModel> daftarPelangganAktif,  SortOption sortBy)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<DetailPelangganAktifModel> daftarPelangganAktif)?  $default,) {final _that = this;
 switch (_that) {
 case _PelangganAktifState() when $default != null:
-return $default(_that.daftarPelangganAktif,_that.sortBy);case _:
+return $default(_that.daftarPelangganAktif);case _:
   return null;
 
 }
@@ -207,7 +206,7 @@ return $default(_that.daftarPelangganAktif,_that.sortBy);case _:
 
 
 class _PelangganAktifState implements PelangganAktifState {
-  const _PelangganAktifState({final  List<DetailPelangganAktifModel> daftarPelangganAktif = const [], this.sortBy = SortOption.berakhirHariIni}): _daftarPelangganAktif = daftarPelangganAktif;
+  const _PelangganAktifState({final  List<DetailPelangganAktifModel> daftarPelangganAktif = const []}): _daftarPelangganAktif = daftarPelangganAktif;
   
 
  final  List<DetailPelangganAktifModel> _daftarPelangganAktif;
@@ -217,7 +216,6 @@ class _PelangganAktifState implements PelangganAktifState {
   return EqualUnmodifiableListView(_daftarPelangganAktif);
 }
 
-@override@JsonKey() final  SortOption sortBy;
 
 /// Create a copy of PelangganAktifState
 /// with the given fields replaced by the non-null parameter values.
@@ -229,16 +227,16 @@ _$PelangganAktifStateCopyWith<_PelangganAktifState> get copyWith => __$Pelanggan
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PelangganAktifState&&const DeepCollectionEquality().equals(other._daftarPelangganAktif, _daftarPelangganAktif)&&(identical(other.sortBy, sortBy) || other.sortBy == sortBy));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PelangganAktifState&&const DeepCollectionEquality().equals(other._daftarPelangganAktif, _daftarPelangganAktif));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_daftarPelangganAktif),sortBy);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_daftarPelangganAktif));
 
 @override
 String toString() {
-  return 'PelangganAktifState(daftarPelangganAktif: $daftarPelangganAktif, sortBy: $sortBy)';
+  return 'PelangganAktifState(daftarPelangganAktif: $daftarPelangganAktif)';
 }
 
 
@@ -249,7 +247,7 @@ abstract mixin class _$PelangganAktifStateCopyWith<$Res> implements $PelangganAk
   factory _$PelangganAktifStateCopyWith(_PelangganAktifState value, $Res Function(_PelangganAktifState) _then) = __$PelangganAktifStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<DetailPelangganAktifModel> daftarPelangganAktif, SortOption sortBy
+ List<DetailPelangganAktifModel> daftarPelangganAktif
 });
 
 
@@ -266,11 +264,10 @@ class __$PelangganAktifStateCopyWithImpl<$Res>
 
 /// Create a copy of PelangganAktifState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? daftarPelangganAktif = null,Object? sortBy = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? daftarPelangganAktif = null,}) {
   return _then(_PelangganAktifState(
 daftarPelangganAktif: null == daftarPelangganAktif ? _self._daftarPelangganAktif : daftarPelangganAktif // ignore: cast_nullable_to_non_nullable
-as List<DetailPelangganAktifModel>,sortBy: null == sortBy ? _self.sortBy : sortBy // ignore: cast_nullable_to_non_nullable
-as SortOption,
+as List<DetailPelangganAktifModel>,
   ));
 }
 

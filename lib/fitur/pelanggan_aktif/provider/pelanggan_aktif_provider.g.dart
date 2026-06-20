@@ -20,7 +20,7 @@ final class PelangganAktifProvider
         argument: null,
         retry: null,
         name: r'pelangganAktifProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -33,7 +33,7 @@ final class PelangganAktifProvider
   PelangganAktif create() => PelangganAktif();
 }
 
-String _$pelangganAktifHash() => r'5bb79e36d5469c68b3f86158d5e252dd12648c01';
+String _$pelangganAktifHash() => r'19966ebda7965082eebcd1f50d6f947335bcef1a';
 
 abstract class _$PelangganAktif extends $AsyncNotifier<PelangganAktifState> {
   FutureOr<PelangganAktifState> build();

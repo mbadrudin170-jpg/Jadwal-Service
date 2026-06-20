@@ -27,24 +27,29 @@ class LayananPeluncuran {
   Future<void> jadwalkanUlangTugasArsip(ProviderContainer container) async {
     Log.info('Memulai penjadwalan ulang tugas pengarsipan...');
     final penjadwalAlarm = container.read(penjadwalAlarmProvider);
-    final pelangganAktifOpSqlite =
-        container.read(pelangganAktifOpSqliteProvider);
+    final pelangganAktifOpSqlite = container.read(
+      pelangganAktifOpSqliteProvider,
+    );
 
     try {
-      final daftarPelangganAktif =
-          await pelangganAktifOpSqlite.getAllActiveCustomersWithDetails();
+      final daftarPelangganAktif = await pelangganAktifOpSqlite
+          .ambilSemuaPelangganAktifDenganDetail();
 
       await penjadwalAlarm.batalkan(idArsipKadaluarsaSekaliJalan);
       Log.info(
-          'Alarm sekali jalan (ID: $idArsipKadaluarsaSekaliJalan) berhasil dibatalkan.');
+        'Alarm sekali jalan (ID: $idArsipKadaluarsaSekaliJalan) berhasil dibatalkan.',
+      );
 
       if (daftarPelangganAktif.isEmpty) {
         Log.warning('Tidak ada pelanggan aktif, tidak ada penjadwalan ulang.');
         return;
       }
 
-      daftarPelangganAktif.sort((a, b) => a.pelangganAktif.tanggalBerakhir
-          .compareTo(b.pelangganAktif.tanggalBerakhir));
+      daftarPelangganAktif.sort(
+        (a, b) => a.pelangganAktif.tanggalBerakhir.compareTo(
+          b.pelangganAktif.tanggalBerakhir,
+        ),
+      );
 
       final tanggalKadaluarsaTerdekat =
           daftarPelangganAktif.first.pelangganAktif.tanggalBerakhir;
@@ -59,7 +64,8 @@ class LayananPeluncuran {
       );
 
       Log.info(
-          'Penjadwalan ulang berhasil. Alarm sekali jalan diatur untuk: $tanggalKadaluarsaTerdekat');
+        'Penjadwalan ulang berhasil. Alarm sekali jalan diatur untuk: $tanggalKadaluarsaTerdekat',
+      );
     } on Exception catch (e, st) {
       Log.error('Gagal menjadwalkan ulang tugas pengarsipan', e: e, s: st);
     }

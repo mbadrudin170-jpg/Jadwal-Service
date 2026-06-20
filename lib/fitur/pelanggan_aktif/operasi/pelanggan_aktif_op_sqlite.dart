@@ -63,7 +63,7 @@ class PelangganAktifOpSqlite {
   }
 
   Future<List<DetailPelangganAktifModel>>
-  getAllActiveCustomersWithDetails() async {
+  ambilSemuaPelangganAktifDenganDetail() async {
     final db = await sqliteDb.database;
     Log.info(
       'Mengambil semua pelanggan aktif dengan detail yang belum berakhir (JOIN)',
