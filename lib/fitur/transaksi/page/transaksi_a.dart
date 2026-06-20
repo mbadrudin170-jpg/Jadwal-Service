@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
+import 'package:wifi/fitur/transaksi/helper/pengurut_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
@@ -14,27 +15,6 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/widget/widget_ringkasan_keuangan.dart';
-
-enum SortBy { terbaru, terlama, jumlahTerbesar, jumlahTerkecil }
-
-/// Extension untuk memberikan fungsionalitas tambahan pada [SortBy].
-extension SortByX on SortBy {
-  /// Mengembalikan nama yang mudah dibaca untuk setiap kriteria urutan.
-  String get name {
-    switch (this) {
-      case SortBy.terbaru:
-        return 'Terbaru';
-      case SortBy.terlama:
-        return 'Terlama';
-      case SortBy.jumlahTerbesar:
-        return 'Jumlah Tertinggi';
-      case SortBy.jumlahTerkecil:
-        return 'Jumlah Terendah';
-    }
-  }
-}
-
-//===============[ REFACTORED WIDGETS ]===============================
 
 /// Halaman utama yang menampilkan daftar transaksi dan ringkasannya.
 class TransaksiA extends ConsumerWidget {
@@ -87,8 +67,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentSortBy =
-        ref.watch(transaksiProvider).value?.sortBy ?? SortBy.terbaru;
+    final currentSortBy = ref.watch(pengurutTransaksiProvider);
     return AppBar(
       title: const Text('Transaksi'),
       actions: [
@@ -127,14 +106,12 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
             groupValue: currentSortBy,
             onChanged: (value) => Navigator.pop(context, value),
             child: Column(
-              children: SortBy.values
-                  .map(
-                    (sortBy) => RadioListTile<SortBy>(
-                      title: Text(sortBy.name),
-                      value: sortBy,
-                    ),
-                  )
-                  .toList(),
+              children: .map(
+                (sortBy) => RadioListTile<SortBy>(
+                  title: Text(PengurutTransaksi.getSortLabel()),
+                  value: sortBy,
+                ),
+              ).toList(),
             ),
           ),
         ],
