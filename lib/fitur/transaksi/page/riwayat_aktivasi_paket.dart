@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/lainnya/riwayat_aktivasi_paket.dart
+// path lib/fitur/transaksi/page/riwayat_aktivasi_paket.dart
 
 import 'dart:async';
 
@@ -14,11 +14,45 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 
-class RiwayatAktivasiPaket extends ConsumerWidget {
+class RiwayatAktivasiPaket extends ConsumerStatefulWidget {
   const RiwayatAktivasiPaket({super.key});
+  @override
+  ConsumerState<RiwayatAktivasiPaket> createState() =>
+      _RiwayatAktivasiPaketState();
+}
+
+class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
+  final ScrollController _pengendaliScroll = ScrollController();
+  int _jumlahTampil = 20;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    _pengendaliScroll.addListener(_deteksiScroll);
+  }
+
+  @override
+  void dispose() {
+    _pengendaliScroll.removeListener(_deteksiScroll);
+    _pengendaliScroll.dispose();
+    super.dispose();
+  }
+
+  void _deteksiScroll() {
+    // Menambah data jika scroll mencapai batas bawah
+    if (_pengendaliScroll.position.pixels >=
+        _pengendaliScroll.position.maxScrollExtent - 200) {
+      final state = ref.read(riwayatAktivasiPaketProvider).value;
+      if (state != null && _jumlahTampil < state.items.length) {
+        setState(() {
+          _jumlahTampil += 20;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final historyAsync = ref.watch(riwayatAktivasiPaketProvider);
     final paketOpSqlite = ref.watch(paketOpSqliteProvider);
     return Scaffold(
@@ -48,13 +82,25 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
               child: Text('Tidak ada riwayat langganan ditemukan.'),
             );
           }
+          final itemsTampil = state.items.take(_jumlahTampil).toList();
           return ListView.builder(
-            itemCount: state.items.length,
+            controller: _pengendaliScroll,
+            itemCount:
+                state.items.length +
+                (_jumlahTampil < state.items.length ? 1 : 0),
             itemBuilder: (context, index) {
-              final item = state.items[index];
-              final transaction = item.transaksi;
-              final paymentStatusColor =
-                  transaction.statusPembayaran == StatusPembayaran.paid
+              if (index == itemsTampil.length) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              final item = itemsTampil[index];
+              final transaksi = item.transaksi;
+              final warnaStatusPembayaran =
+                  transaksi.statusPembayaran == StatusPembayaran.paid
                   ? Colors.green
                   : Colors.red;
               return Card(
@@ -62,13 +108,13 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
                 child: ListTile(
                   onTap: () async {
                     Log.info('Melihat detail riwayat langganan.', {
-                      'transactionId': transaction.id,
+                      'transactionId': transaksi.id,
                     });
                     await Navigator.push<bool>(
                       context,
                       MaterialPageRoute(
                         builder: (context) => DetailRiwayatAktivasiPage(
-                          transactionId: transaction.id,
+                          transactionId: transaksi.id,
                         ),
                       ),
                     );
@@ -82,23 +128,23 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
                     children: [
                       PackageNameWidget(
                         paketFuture: paketOpSqlite.ambilBerdasarkanId(
-                          transaction.idPaket ?? '',
+                          transaksi.idPaket ?? '',
                         ),
-                        style: TextStyle(color: paymentStatusColor),
+                        style: TextStyle(color: warnaStatusPembayaran),
                       ),
                       gapH4,
                       Text(
-                        'Status: ${transaction.statusPembayaran.displayName}',
+                        'Status: ${transaksi.statusPembayaran.displayName}',
                         style: TextStyle(
-                          color: paymentStatusColor,
+                          color: warnaStatusPembayaran,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       gapH4,
-                      if (transaction.tanggalMulai != null &&
-                          transaction.tanggalBerakhir != null)
+                      if (transaksi.tanggalMulai != null &&
+                          transaksi.tanggalBerakhir != null)
                         Text(
-                          'Aktif: ${FormatTanggal.formatDasar(transaction.tanggalMulai!)} - ${FormatTanggal.formatDasar(transaction.tanggalBerakhir!)}',
+                          'Aktif: ${FormatTanggal.formatDasar(transaksi.tanggalMulai!)} - ${FormatTanggal.formatDasar(transaksi.tanggalBerakhir!)}',
                         ),
                     ],
                   ),

@@ -10,7 +10,7 @@ import 'package:wifi/data_dummy/halaman_data_dummy.dart';
 import 'package:wifi/fitur/versi_apk/page/versi_apk_page.dart';
 import 'package:wifi/fitur/event/page/event_page_a.dart';
 import 'package:wifi/fitur/paket/page/paket.dart';
-import 'package:wifi/admin/halaman/lainnya/riwayat_aktivasi_paket.dart';
+import 'package:wifi/fitur/transaksi/page/riwayat_aktivasi_paket.dart';
 import 'package:wifi/fitur/info_perangkat/page/tentang_aplikasi.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';

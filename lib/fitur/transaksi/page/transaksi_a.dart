@@ -204,15 +204,15 @@ class _TransactionBody extends ConsumerWidget {
         children: [
           // Ringkasan Keuangan (selalu ditampilkan)
           TransactionSummary(
-            income: state.totalPemasukan,
-            expense: state.totalPengeluaran,
+            pemasukan: state.totalPemasukan,
+            pengeluaran: state.totalPengeluaran,
             total: state.total,
           ),
           // Bagian ini akan berganti antara list dan pesan kosong
           Expanded(
             child: state.transaksi.isEmpty
                 ? const Center(child: Text('Tidak ada transaksi'))
-                : _TransactionListView(transactions: state.transaksi),
+                : _TransactionListView(transaksi: state.transaksi),
           ),
         ],
       ),
@@ -221,22 +221,66 @@ class _TransactionBody extends ConsumerWidget {
 }
 
 /// Widget yang bertanggung jawab untuk membangun ListView dari transaksi.
-class _TransactionListView extends ConsumerWidget {
-  final List<TransaksiModel> transactions;
-
-  const _TransactionListView({required this.transactions});
+class _TransactionListView extends ConsumerStatefulWidget {
+  final List<TransaksiModel> transaksi;
+  const _TransactionListView({required this.transaksi});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final groupedTransactions = kelompokkanTransaksiPerTanggal(transactions);
+  ConsumerState<_TransactionListView> createState() =>
+      _TransactionListViewState();
+}
+
+class _TransactionListViewState extends ConsumerState<_TransactionListView> {
+  final ScrollController _pengendaliScroll = ScrollController();
+  int _jumlahTampil = 20;
+
+  @override
+  void initState() {
+    super.initState();
+    _pengendaliScroll.addListener(_deteksiScroll);
+  }
+
+  @override
+  void dispose() {
+    _pengendaliScroll.removeListener(_deteksiScroll);
+    _pengendaliScroll.dispose();
+    super.dispose();
+  }
+
+  void _deteksiScroll() {
+    if (_pengendaliScroll.position.pixels >=
+        _pengendaliScroll.position.maxScrollExtent - 200) {
+      if (_jumlahTampil < widget.transaksi.length) {
+        setState(() {
+          _jumlahTampil += 20;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final transaksiTampil = widget.transaksi.take(_jumlahTampil).toList();
+    final grupTransaksi = kelompokkanTransaksiPerTanggal(transaksiTampil);
 
     return ListView.builder(
+      controller: _pengendaliScroll,
       key: const PageStorageKey('transaction_list_key'),
-      itemCount: groupedTransactions.length,
+      itemCount:
+          grupTransaksi.length +
+          (_jumlahTampil < widget.transaksi.length ? 1 : 0),
       itemBuilder: (context, index) {
-        final date = groupedTransactions.keys.elementAt(index);
-        final transactionsOnDate = groupedTransactions[date]!;
-        final dailyTotal = transactionsOnDate.fold<double>(
+        if (index == grupTransaksi.length) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        final date = grupTransaksi.keys.elementAt(index);
+        final transactionsOnDate = grupTransaksi[date]!;
+        final totalHarian = transactionsOnDate.fold<double>(
           0.0,
           (sum, item) =>
               sum +
@@ -246,17 +290,17 @@ class _TransactionListView extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            bangunHeaderBagian(date, dailyTotal),
+            bangunHeaderBagian(date, totalHarian),
             ...transactionsOnDate.map(
-              (transaction) => bangunItemTransaksi(
+              (transaksi) => bangunItemTransaksi(
                 context,
-                transaction,
-                onTap: () => _navigasiKeDetailTransaksi(context, transaction),
+                transaksi,
+                onTap: () => _navigasiKeDetailTransaksi(context, transaksi),
                 onEdit: () =>
-                    _navigasiKeFormTransaksi(context, transaksi: transaction),
+                    _navigasiKeFormTransaksi(context, transaksi: transaksi),
                 onDelete: () => ref
                     .read(transaksiProvider.notifier)
-                    .softDelete(transaction.id),
+                    .softDelete(transaksi.id),
               ),
             ),
           ],
@@ -297,14 +341,14 @@ class _TransactionListView extends ConsumerWidget {
 // karena sudah cukup baik dan bisa digunakan kembali.
 
 class TransactionSummary extends StatelessWidget {
-  final double income;
-  final double expense;
+  final double pemasukan;
+  final double pengeluaran;
   final double total;
 
   const TransactionSummary({
     super.key,
-    required this.income,
-    required this.expense,
+    required this.pemasukan,
+    required this.pengeluaran,
     required this.total,
   });
 
@@ -321,13 +365,13 @@ class TransactionSummary extends StatelessWidget {
             bangunRingkasanInfoKeuangan(
               context: context,
               label: 'Pemasukan',
-              jumlah: income,
+              jumlah: pemasukan,
               color: Colors.green,
             ),
             bangunRingkasanInfoKeuangan(
               context: context,
               label: 'Pengeluaran',
-              jumlah: expense,
+              jumlah: pengeluaran,
               color: Colors.red,
             ),
             bangunRingkasanInfoKeuangan(

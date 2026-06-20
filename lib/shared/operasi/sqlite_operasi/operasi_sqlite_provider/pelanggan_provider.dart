@@ -13,7 +13,8 @@ part 'pelanggan_provider.g.dart';
 @riverpod
 Future<List<(PelangganModel, int)>> daftarPelanggan(Ref ref) async {
   Log.info(
-      'Mendapatkan daftar pelanggan aktif beserta poin dari SQLite via pelangganProvider...');
+    'Mendapatkan daftar pelanggan aktif beserta poin dari SQLite via pelangganProvider...',
+  );
 
   final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
   final poinOpSqlite = ref.watch(sqlitePointsDataSourceProvider);

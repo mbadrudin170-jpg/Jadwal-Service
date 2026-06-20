@@ -234,8 +234,8 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
     // PERBAIKAN: Tambahkan await karena ini adalah operasi async
     await _notifikasiServis.jadwalNotifikasi(
       id: 2,
-      title: 'Tes Notifikasi Terjadwal',
-      body: 'Notifikasi ini dijadwalkan untuk 5 detik dari sekarang.',
+      judul: 'Tes Notifikasi Terjadwal',
+      pesan: 'Notifikasi ini dijadwalkan untuk 5 detik dari sekarang.',
       payload: 'scheduled_notification_payload',
       jadwal: waktuJadwal,
     );
@@ -257,8 +257,8 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
     // PERBAIKAN: Ambil context SEBELUM AWAIT.
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-    final daftarNotifikasi =
-        await _notifikasiServis.plugin.pendingNotificationRequests();
+    final daftarNotifikasi = await _notifikasiServis.plugin
+        .pendingNotificationRequests();
 
     // PERBAIKAN: Pemeriksaan `mounted` setelah AWAIT.
     if (!mounted) return;
@@ -274,12 +274,14 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
       Log.info('Ditemukan ${daftarNotifikasi.length} notifikasi terjadwal:');
       for (final notif in daftarNotifikasi) {
         Log.info(
-            '- ID: ${notif.id}, Judul: ${notif.title}, Payload: ${notif.payload}');
+          '- ID: ${notif.id}, Judul: ${notif.title}, Payload: ${notif.payload}',
+        );
       }
       scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text(
-              'Ditemukan ${daftarNotifikasi.length} notifikasi terjadwal. Cek log untuk detail.'),
+            'Ditemukan ${daftarNotifikasi.length} notifikasi terjadwal. Cek log untuk detail.',
+          ),
         ),
       );
     }
@@ -302,9 +304,7 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tes Fitur Notifikasi'),
-      ),
+      appBar: AppBar(title: const Text('Tes Fitur Notifikasi')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -354,7 +354,7 @@ import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 
 class DaftarAkunPage extends ConsumerWidget {
   const DaftarAkunPage({super.key});
@@ -456,14 +456,14 @@ class DaftarAkunPage extends ConsumerWidget {
     try {
       await ref.read(pengelolaAkunProvider.notifier).login(pelanggan);
       final activityService = await ref.read(
-        userActivityServiceProvider.future,
+        layananAktivitasUserProvider.future,
       );
       Log.info('Mulai memilih akun', {
         'customer_id': pelanggan.id,
         'nama': pelanggan.nama,
       });
 
-      await activityService.pingAktivitas(pelanggan.id, force: true);
+      await activityService.pingAktivitas(pelanggan.id, paksa: true);
 
       if (!context.mounted) return;
       await navigator.pushAndRemoveUntil(
@@ -1144,6 +1144,897 @@ $PelangganModelCopyWith<$Res>? get akunSaatIni {
 }
 
 // dart format on
+// path: lib/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart
+
+import 'dart:async';
+
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
+import 'package:wifi/fitur/paket/core/perhitungan_paket.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
+import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/shared/common/teks.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/fitur/notfikasi/enum/tipe_notifikasi_enum.dart';
+import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
+import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
+import 'package:wifi/shared/widget/input/input_angka.dart';
+
+class FormPelangganAktif extends ConsumerStatefulWidget {
+  final PelangganAktifModel? pelangganAktif;
+
+  const FormPelangganAktif({super.key, this.pelangganAktif});
+
+  @override
+  ConsumerState<FormPelangganAktif> createState() => _FormPelangganAktifState();
+}
+
+class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
+  final _formKey = GlobalKey<FormState>();
+
+  List<PelangganModel> _pelangganList = [];
+  List<PaketModel> _daftarPaket = [];
+  List<DompetModel> _dompetList = [];
+  List<KategoriModel> _kategoriPemasukanList = [];
+  List<KategoriModel> _kategoriPengeluaranList = [];
+  List<KategoriModel> get _kategoriList =>
+      _gunakanPoin ? _kategoriPengeluaranList : _kategoriPemasukanList;
+  PelangganModel? _pelangganDipilih;
+  PaketModel? _paketDipilih;
+  DompetModel? _dompetDipilih;
+  KategoriModel? _kategoriDipilih;
+  bool _isLoading = true;
+  bool _menyimpan = false;
+  bool _gunakanPoin = false;
+  late TextEditingController _durasiBonusController;
+  TipeDurasiPaket _tipeBonusDurasi = TipeDurasiPaket.minutes;
+  bool _bonus = false;
+  int _saldoPoinPelanggan = 0;
+  DateTime? _pilihTanggal;
+  TimeOfDay? _pilihJam;
+  StatusPembayaran _statusPembayaran = StatusPembayaran.paid;
+  bool get _modeEdit => widget.pelangganAktif != null;
+  int hitungPoinEfektif() {
+    if (_paketDipilih == null) {
+      return 0;
+    }
+    return _gunakanPoin ? _paketDipilih!.poinPenukaran : 0;
+  }
+
+  int hitungSisaPoin() {
+    final poinDipakai = hitungPoinEfektif();
+    return (_saldoPoinPelanggan - poinDipakai).clamp(0, 999999999);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _durasiBonusController = TextEditingController();
+    Log.info('FormPelangganAktif initState, isEditMode=$_modeEdit');
+    unawaited(_loadAllData());
+  }
+
+  Future<void> _loadAllData() async {
+    setState(() => _isLoading = true);
+    Log.info('Memulai memuat semua data untuk FormPelangganAktif');
+    final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
+    final paketOpsqlite = ref.read(paketOpSqliteProvider);
+    final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
+    final dompetOpSqlite = ref.read(dompetOpSqliteProvider);
+    final kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
+    try {
+      final pa = widget.pelangganAktif;
+      final transaksiTerkaitFuture = pa?.idTransaksi != null
+          ? transaksiOperasi.ambilBerdasarkanId(pa!.idTransaksi)
+          : Future<TransaksiModel?>.value();
+
+      final hasil = await Future.wait<Object?>([
+        pelangganOpSqlite.ambilSemua(),
+        paketOpsqlite.ambilSemua(),
+        dompetOpSqlite.ambilSemua(),
+        kategoriOpSqlite.ambilSemua(),
+        transaksiTerkaitFuture,
+      ]);
+
+      if (!mounted) {
+        return;
+      }
+
+      final daftarPelanggan = (hasil[0] as List<PelangganModel>)
+        ..sort((a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
+
+      final daftarPaket = (hasil[1] as List<PaketModel>)
+        ..sort(
+          (a, b) => PerhitunganPaket()
+              .hitungDurasiPaket(a)
+              .compareTo(PerhitunganPaket().hitungDurasiPaket(b)),
+        );
+
+      final daftarDompet = (hasil[2] as List<DompetModel>)
+          .where((d) => !d.dihapus)
+          .toList();
+
+      final semuaKategori = hasil[3] as List<KategoriModel>;
+      final kategoriPemasukanList = semuaKategori
+          .where((k) => k.tipe == TipeKategori.income && !k.diHapus)
+          .toList();
+      final daftarKategoriPengeluaran = semuaKategori
+          .where((k) => k.tipe == TipeKategori.expense && !k.diHapus)
+          .toList();
+
+      final transaksiTerkait = hasil.length > 4 && hasil[4] is TransaksiModel
+          ? hasil[4] as TransaksiModel?
+          : null;
+      setState(() {
+        _pelangganList = daftarPelanggan;
+        _daftarPaket = daftarPaket;
+        _dompetList = daftarDompet;
+        _kategoriPemasukanList = kategoriPemasukanList;
+        _kategoriPengeluaranList = daftarKategoriPengeluaran;
+        Log.info('Semua data berhasil dimuat.');
+      });
+
+      if (_modeEdit) {
+        await _mapEditData(transaksiTerkait);
+      } else {
+        _mapNewData();
+      }
+
+      setState(() {
+        _isLoading = false;
+        Log.info('Semua data berhasil dimuat.');
+      });
+    } catch (e, s) {
+      Log.error('Gagal memuat data referensi', e: e, s: s);
+      if (mounted) {
+        ToastUtil.error(context, 'Gagal memuat data: $e');
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _mapEditData(TransaksiModel? transaksi) async {
+    final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
+    final pa = widget.pelangganAktif!;
+    Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
+
+    _pelangganDipilih = _pelangganList.firstWhereOrNull(
+      (p) => p.id == pa.idPelanggan,
+    );
+    _paketDipilih = _daftarPaket.firstWhereOrNull((p) => p.id == pa.idPaket);
+
+    if (transaksi != null) {
+      Log.info(
+        'Transaksi terkait (ID: ${transaksi.id}) ditemukan. Memetakan dompet dan kategori.',
+      );
+      _dompetDipilih = _dompetList.firstWhereOrNull(
+        (d) => d.id == transaksi.idDompet,
+      );
+      final kategoriSumber = transaksi.tipe == TipeTransaksi.income
+          ? _kategoriPemasukanList
+          : _kategoriPengeluaranList;
+      _kategoriDipilih = kategoriSumber.firstWhereOrNull(
+        (k) => k.id == transaksi.idKategori,
+      );
+
+      if (transaksi.durasiBonus > 0) {
+        _bonus = true;
+        _durasiBonusController.text = transaksi.durasiBonus.toString();
+        _tipeBonusDurasi = transaksi.tipeDurasiBonus ?? TipeDurasiPaket.hours;
+      }
+    } else {
+      Log.warning(
+        'Transaksi terkait untuk PelangganAktif ID: ${pa.id} tidak ditemukan.',
+      );
+      if (mounted) {
+        ToastUtil.info(
+          context,
+          'Info: Transaksi asli tidak ditemukan, pilih ulang dompet/kategori.',
+        );
+      }
+    }
+
+    _pilihTanggal = pa.tanggalMulai;
+    _pilihJam = TimeOfDay.fromDateTime(pa.tanggalMulai);
+    _statusPembayaran = pa.status;
+
+    if (_pelangganDipilih != null) {
+      await transaksiOperasi.ambilTotalPoin(_pelangganDipilih!.id).then((poin) {
+        if (mounted) {
+          setState(() => _saldoPoinPelanggan = poin);
+        }
+      });
+    }
+
+    Log.info('Pemetaan data edit selesai.');
+  }
+
+  void _mapNewData() {
+    Log.info('Menginisialisasi form untuk entri baru.');
+    final now = DateTime.now();
+    _pilihTanggal = now;
+    _pilihJam = TimeOfDay.fromDateTime(now);
+    if (_dompetList.isNotEmpty) {
+      _dompetDipilih = _dompetList.first;
+    }
+    if (_kategoriPemasukanList.isNotEmpty) {
+      _kategoriDipilih =
+          _kategoriPemasukanList.firstWhereOrNull(
+            (k) => k.nama.toLowerCase() == 'aktivasi paket',
+          ) ??
+          _kategoriPemasukanList.first;
+    }
+  }
+
+  Future<void> _memilihTanggal(BuildContext context) async {
+    Log.info('Memilih tanggal, saat ini: $_pilihTanggal');
+    final terpilih = await showDatePicker(
+      context: context,
+      initialDate: _pilihTanggal ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (terpilih != null && terpilih != _pilihTanggal) {
+      setState(() => _pilihTanggal = terpilih);
+      Log.info('Tanggal dipilih: ${FormatTanggal.formatDasar(terpilih)}');
+    }
+  }
+
+  Future<void> _memilihJam(BuildContext context) async {
+    Log.info('Memilih waktu, saat ini: $_pilihJam');
+    final initial = _pilihJam ?? TimeOfDay.fromDateTime(DateTime.now());
+    final terpilih = await showTimePicker(
+      context: context,
+      initialTime: initial,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+        child: child!,
+      ),
+    );
+    if (terpilih != null && terpilih != _pilihJam) {
+      setState(() => _pilihJam = terpilih);
+      Log.info('Waktu dipilih: ${terpilih.hour}:${terpilih.minute}');
+    }
+  }
+
+  Future<PelangganAktifModel?> _simpanData() async {
+    Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
+    final notifikasiOpFirebase = ref.read(notifikasiOpFirebaseProvider);
+    final pelangganAktifOpsqlite = ref.read(pelangganAktifOpSqliteProvider);
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      Log.warning('Validasi form gagal');
+      if (mounted) {
+        ToastUtil.error(context, 'Data belum lengkap');
+      }
+      return null;
+    }
+
+    if (_pelangganDipilih == null ||
+        _paketDipilih == null ||
+        _pilihTanggal == null ||
+        _pilihJam == null ||
+        _dompetDipilih == null ||
+        _kategoriDipilih == null) {
+      Log.warning('Data form belum lengkap');
+      if (mounted) {
+        ToastUtil.error(context, 'Harap lengkapi semua data');
+      }
+      return null;
+    }
+
+    try {
+      final tanggalMulai = DateTime(
+        _pilihTanggal!.year,
+        _pilihTanggal!.month,
+        _pilihTanggal!.day,
+        _pilihJam!.hour,
+        _pilihJam!.minute,
+      );
+      final int durasiBonus = _bonus
+          ? (int.tryParse(_durasiBonusController.text) ?? 0)
+          : 0;
+      final DateTime tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
+        tanggalMulai,
+        _paketDipilih!,
+        durasiBonus: durasiBonus,
+        tipeDurasiBonus: _bonus ? _tipeBonusDurasi : null,
+      );
+
+      final idTransaksi =
+          (_modeEdit && widget.pelangganAktif?.idTransaksi != null)
+          ? widget.pelangganAktif!.idTransaksi
+          : const Uuid().v4();
+
+      final pelangganAktifData = PelangganAktifModel(
+        id: _modeEdit ? widget.pelangganAktif!.id : const Uuid().v4(),
+        idPelanggan: _pelangganDipilih!.id,
+        idPaket: _paketDipilih!.id,
+        tanggalMulai: tanggalMulai,
+        tanggalBerakhir: tanggalBerakhir,
+        status: _statusPembayaran,
+        idTransaksi: idTransaksi,
+      );
+
+      final transaksiData = TransaksiModel(
+        id: idTransaksi,
+        tanggal: tanggalMulai,
+        deskripsi: 'Aktivasi Paket: ${_paketDipilih!.nama}',
+        jumlah: _gunakanPoin ? 0 : _paketDipilih!.harga.toDouble(),
+        tipe: _gunakanPoin ? TipeTransaksi.expense : TipeTransaksi.income,
+        idDompet: _dompetDipilih!.id,
+        idKategori: _kategoriDipilih!.id,
+        idPelanggan: _pelangganDipilih!.id,
+        idPaket: _paketDipilih!.id,
+        statusPembayaran: _statusPembayaran,
+        poinDidapat: _gunakanPoin ? 0 : _paketDipilih!.poinHadiah,
+        poinDigunakan: _gunakanPoin ? _paketDipilih!.poinPenukaran : 0,
+        durasiPaket: _paketDipilih!.durasi,
+        tipeDurasiPaket: _paketDipilih!.tipe,
+        durasiBonus: durasiBonus,
+        tipeDurasiBonus: _bonus ? _tipeBonusDurasi : null,
+        tanggalMulai: tanggalMulai,
+        tanggalBerakhir: tanggalBerakhir,
+        statusAktivasi: true,
+      );
+      Log.info(
+        'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$idTransaksi',
+      );
+
+      PelangganAktifModel pelangganAktifHasil;
+      if (_modeEdit) {
+        pelangganAktifHasil = await pelangganAktifOpsqlite.updateActiveCustomer(
+          pelangganAktifData,
+        );
+        await ref
+            .read(transaksiProvider.notifier)
+            .updateTransaksi(transaksiData);
+        notifikasiOpFirebase.deleteByTransactionId(idTransaksi);
+        Log.info(
+          'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
+        );
+      } else {
+        pelangganAktifHasil = await pelangganAktifOpsqlite.tambahPelangganAktif(
+          pelangganAktifData,
+        );
+        await ref
+            .read(transaksiProvider.notifier)
+            .tambahTransaksi(transaksiData);
+      }
+      ref.invalidate(pelangganAktifProvider);
+
+      final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
+      final durasiSetengahJalan = Duration(
+        microseconds: (totalDurasi.inMicroseconds / 2).round(),
+      );
+      final tanggalNotifikasiSetengahJalan = tanggalMulai.add(
+        durasiSetengahJalan,
+      );
+
+      final List<NotifikasiModel> daftarNotifikasi = [
+        NotifikasiModel(
+          id: const Uuid().v4(),
+          tanggalMulai: tanggalMulai,
+          tanggalBerakhir: tanggalBerakhir,
+          userId: _pelangganDipilih!.id,
+          tanggalTampil: tanggalNotifikasiSetengahJalan,
+          judul: 'Info: Setengah Perjalanan Paket',
+          deskripsi:
+              'Anda telah menggunakan 50% dari masa aktif paket ${_paketDipilih!.nama}.',
+          idTujuan: idTransaksi,
+          tipe: TipeNotifikasiEnum.transaksi,
+          diperbaruiPada: DateTime.now().toUtc(),
+        ),
+        NotifikasiModel(
+          id: const Uuid().v4(),
+          tanggalMulai: tanggalMulai,
+          tanggalBerakhir: tanggalBerakhir,
+          userId: _pelangganDipilih!.id,
+          tanggalTampil: tanggalBerakhir.subtract(const Duration(days: 1)),
+          judul: 'Pengingat: Masa Aktif Segera Habis',
+          deskripsi:
+              'Masa aktif paket ${_paketDipilih!.nama} Anda akan berakhir besok.',
+          idTujuan: idTransaksi,
+          tipe: TipeNotifikasiEnum.transaksi,
+          diperbaruiPada: DateTime.now().toUtc(),
+        ),
+        NotifikasiModel(
+          id: const Uuid().v4(),
+          tanggalMulai: tanggalMulai,
+          tanggalBerakhir: tanggalBerakhir,
+          userId: _pelangganDipilih!.id,
+          tanggalTampil: tanggalBerakhir,
+          judul: 'Masa Aktif Paket Habis',
+          deskripsi:
+              'Masa aktif untuk paket ${_paketDipilih!.nama} telah berakhir hari ini.',
+          idTujuan: idTransaksi,
+          tipe: TipeNotifikasiEnum.transaksi,
+          diperbaruiPada: DateTime.now().toUtc(),
+        ),
+        NotifikasiModel(
+          id: const Uuid().v4(),
+          tanggalMulai: tanggalMulai,
+          tanggalBerakhir: tanggalBerakhir,
+          userId: _pelangganDipilih!.id,
+          tanggalTampil: tanggalBerakhir.add(const Duration(days: 1)),
+          judul: 'Masa Aktif Telah Berakhir',
+          deskripsi:
+              'Masa aktif untuk paket ${_paketDipilih!.nama} telah berakhir kemarin. Silakan perpanjang.',
+          idTujuan: idTransaksi,
+          tipe: TipeNotifikasiEnum.transaksi,
+          diperbaruiPada: DateTime.now().toUtc(),
+        ),
+      ];
+      Log.info('data notifikasi untuk masa aktif paket telah dibuat,');
+
+      for (final notif in daftarNotifikasi) {
+        notifikasiOpFirebase.addNotifikasi(notif);
+      }
+
+      final isOnline = await ref
+          .read(koneksiInternetServiceProvider)
+          .cekKoneksiLokal();
+      if (isOnline) {
+        Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
+        ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
+      } else {
+        Log.warning('Koneksi offline, sinkronisasi akan dijalankan nanti.');
+      }
+      Log.info('Berhasil menyimpan, id hasil=${pelangganAktifHasil.id}');
+      return pelangganAktifHasil;
+    } catch (e, s) {
+      Log.error('Gagal menyimpan data pelanggan aktif.', e: e, s: s);
+      if (mounted) {
+        ToastUtil.error(context, 'Gagal menyimpan: $e');
+      }
+      return null;
+    }
+  }
+
+  void _invalidateSemuaProvider() {
+    ref
+      ..invalidate(pelangganAktifOpSqliteProvider)
+      ..invalidate(transaksiOpSqliteProvider)
+      ..invalidate(transaksiOpFirebaseProvider)
+      ..invalidate(dompetOpSqliteProvider)
+      ..invalidate(statistikProvider)
+      ..invalidate(pelangganAktifProvider);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          _modeEdit ? 'Edit Pelanggan Aktif' : 'Form Pelanggan Aktif',
+        ),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(TSizes.p16),
+              child: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildPoinSwitch(),
+                      gapH16,
+                      _buildPelangganDropdown(),
+                      gapH16,
+                      _buildPaketDropdown(),
+                      gapH16,
+                      _buildDompetDropdown(),
+                      gapH16,
+                      _buildTombolBonus(),
+                      _buildDurasiBonus(),
+                      gapH16,
+                      _buildKategoriDropdown(),
+                      gapH24,
+                      PemilihTanggalWaktuWidget(
+                        tanggalTerpilih: _pilihTanggal,
+                        waktuTerpilih: _pilihJam,
+                        onPilihTanggal: () => _memilihTanggal(context),
+                        onPilihWaktu: () => _memilihJam(context),
+                      ),
+                      gapH8,
+                      _buildStatusPembayaranButtons(),
+                      gapH24,
+                      _buildInfoTanggalBerakhir(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+      bottomNavigationBar: _buildTombolSimpan(),
+    );
+  }
+
+  Widget _buildPoinSwitch() {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: TSizes.p16,
+        vertical: TSizes.p8,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Gunakan Poin',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              gapH4,
+              if (_gunakanPoin)
+                Text(
+                  'Poin dipakai: ${hitungPoinEfektif()}',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
+              Text(
+                'Sisa poin: ${hitungSisaPoin()}',
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              ),
+            ],
+          ),
+          Switch(
+            value: _gunakanPoin,
+            onChanged: (value) {
+              if (!mounted) return;
+              setState(() {
+                _gunakanPoin = value;
+                Log.info(
+                  'Penggunaan poin diubah: $_gunakanPoin, poin efektif=${hitungPoinEfektif()}',
+                );
+                if (!_kategoriList.contains(_kategoriDipilih)) {
+                  _kategoriDipilih = _kategoriList.isNotEmpty
+                      ? _kategoriList.first
+                      : null;
+                }
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPelangganDropdown() {
+    final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
+    return DropdownButtonFormField<PelangganModel>(
+      key: const Key('pelanggan_dropdown'),
+      decoration: const InputDecoration(
+        labelText: 'Pilih Pelanggan',
+        border: OutlineInputBorder(),
+      ),
+      initialValue: _pelangganDipilih,
+      items: _pelangganList
+          .map((p) => DropdownMenuItem(value: p, child: Text(p.nama)))
+          .toList(),
+      onChanged: (newValue) async {
+        if (newValue == null) {
+          return;
+        }
+        final saldoPoin = await transaksiOperasi.ambilTotalPoin(newValue.id);
+        if (mounted) {
+          setState(() {
+            Log.info(
+              'Pelanggan dipilih: id=${newValue.id} nama=${newValue.nama}, saldoPoin=$saldoPoin',
+            );
+            _pelangganDipilih = newValue;
+            _saldoPoinPelanggan = saldoPoin;
+          });
+        }
+      },
+      validator: (v) => v == null ? 'Pelanggan tidak boleh kosong' : null,
+    );
+  }
+
+  Widget _buildPaketDropdown() {
+    return DropdownButtonFormField<PaketModel>(
+      key: const Key('paket_dropdown'),
+      decoration: const InputDecoration(
+        labelText: 'Pilih Paket',
+        border: OutlineInputBorder(),
+      ),
+      initialValue: _paketDipilih,
+      items: _daftarPaket
+          .map((p) => DropdownMenuItem(value: p, child: Text(p.nama)))
+          .toList(),
+      onChanged: (newValue) {
+        if (!mounted) return;
+        Log.info(
+          'Paket dipilih: id=${(newValue)?.id} nama=${(newValue)?.nama}',
+        );
+        setState(() => _paketDipilih = newValue);
+      },
+      validator: (v) => v == null ? 'Paket tidak boleh kosong' : null,
+    );
+  }
+
+  Widget _buildDompetDropdown() {
+    return DropdownButtonFormField<DompetModel>(
+      key: const Key('dompet_dropdown'),
+      decoration: const InputDecoration(
+        labelText: 'Pilih Dompet',
+        border: OutlineInputBorder(),
+      ),
+      initialValue: _dompetDipilih,
+      items: _dompetList
+          .map((d) => DropdownMenuItem(value: d, child: Text(d.nama)))
+          .toList(),
+      onChanged: (newValue) {
+        Log.info('Dompet dipilih: id=${newValue?.id} nama=${newValue?.nama}');
+        setState(() => _dompetDipilih = newValue);
+      },
+      validator: (v) => v == null ? 'Dompet tidak boleh kosong' : null,
+    );
+  }
+
+  Widget _buildKategoriDropdown() {
+    return DropdownButtonFormField<KategoriModel>(
+      key: const Key('kategori_dropdown'),
+      decoration: const InputDecoration(
+        labelText: 'Pilih Kategori Transaksi',
+        border: OutlineInputBorder(),
+      ),
+      initialValue: _kategoriDipilih,
+      items: _kategoriList
+          .map((k) => DropdownMenuItem(value: k, child: Text(k.nama)))
+          .toList(),
+      onChanged: (newValue) {
+        Log.info('Kategori dipilih: id=${newValue?.id} nama=${newValue?.nama}');
+        setState(() => _kategoriDipilih = newValue);
+      },
+      validator: (v) => v == null ? 'Kategori tidak boleh kosong' : null,
+    );
+  }
+
+  Widget _buildStatusPembayaranButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _statusPembayaran == StatusPembayaran.paid
+                  ? Theme.of(context).primaryColor
+                  : Colors.grey[200],
+              foregroundColor: _statusPembayaran == StatusPembayaran.paid
+                  ? Colors.white
+                  : Colors.black,
+            ),
+            onPressed: () {
+              Log.info('Status pembayaran diubah: paid');
+              setState(() => _statusPembayaran = StatusPembayaran.paid);
+            },
+            child: const Text('Lunas'),
+          ),
+        ),
+        gapW8,
+        Expanded(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _statusPembayaran == StatusPembayaran.unpaid
+                  ? Theme.of(context).primaryColor
+                  : Colors.grey[200],
+              foregroundColor: _statusPembayaran == StatusPembayaran.unpaid
+                  ? Colors.white
+                  : Colors.black,
+            ),
+            onPressed: () {
+              Log.info('Status pembayaran diubah: unpaid');
+              setState(() => _statusPembayaran = StatusPembayaran.unpaid);
+            },
+            child: const Text('Belum Lunas'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoTanggalBerakhir() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Tanggal Mulai:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              (_pilihTanggal == null || _pilihJam == null)
+                  ? 'Pilih Tanggal & Jam'
+                  : FormatWaktuLengkap.formatSingkat(
+                      DateTime(
+                        _pilihTanggal!.year,
+                        _pilihTanggal!.month,
+                        _pilihTanggal!.day,
+                        _pilihJam!.hour,
+                        _pilihJam!.minute,
+                      ),
+                    ),
+            ),
+          ],
+        ),
+        gapH8,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Tanggal Berakhir:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text((() {
+              if (_pilihTanggal != null &&
+                  _pilihJam != null &&
+                  _paketDipilih != null) {
+                final startDate = DateTime(
+                  _pilihTanggal!.year,
+                  _pilihTanggal!.month,
+                  _pilihTanggal!.day,
+                  _pilihJam!.hour,
+                  _pilihJam!.minute,
+                );
+                final int nilaiBonus = _bonus
+                    ? (int.tryParse(_durasiBonusController.text) ?? 0)
+                    : 0;
+                final DateTime endDate = PerhitunganUtil.hitungTanggalBerakhir(
+                  startDate,
+                  _paketDipilih!,
+                  durasiBonus: nilaiBonus,
+                  tipeDurasiBonus: _bonus ? _tipeBonusDurasi : null,
+                );
+
+                return FormatWaktuLengkap.formatSingkat(endDate);
+              } else {
+                return 'Pilih paket & tanggal mulai';
+              }
+            }())),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTombolBonus() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const TeksIsiBesar('Bonus'),
+        Switch(
+          value: _bonus,
+          onChanged: (value) {
+            setState(() {
+              _bonus = value;
+              Log.info('Status bonus diubah: $_bonus');
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDurasiBonus() {
+    if (!_bonus) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        gapH8,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 2,
+              child: InputAngka(
+                controller: _durasiBonusController,
+                label: 'Durasi Bonus ',
+                validasi: _bonus,
+                prefixIcon: TIcons.timer,
+              ),
+            ),
+            gapW8,
+            Expanded(
+              child: DropdownButtonFormField<TipeDurasiPaket>(
+                key: const Key('dropdown_bonus_duration_type'),
+                initialValue: _tipeBonusDurasi,
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+                items: TipeDurasiPaket.values.map((type) {
+                  return DropdownMenuItem(
+                    value: type,
+                    child: Text(type.displayName),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      _tipeBonusDurasi = newValue;
+                      Log.info('Tipe durasi bonus diubah: $_tipeBonusDurasi');
+                    });
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTombolSimpan() {
+    return Padding(
+      padding: const EdgeInsets.all(TSizes.p16),
+      child: ElevatedButton(
+        onPressed: _menyimpan
+            ? null
+            : () async {
+                setState(() => _menyimpan = true);
+                Log.info('Tombol Simpan ditekan');
+                final hasil = await _simpanData();
+
+                if (!mounted) {
+                  setState(() => _menyimpan = false);
+                  return;
+                }
+                if (hasil != null) {
+                  ToastUtil.success(
+                    context,
+                    'Data berhasil disimpan',
+                  ); // ✅ Pesan jelas
+                  _invalidateSemuaProvider();
+                  Navigator.pop(context);
+                  Log.info(
+                    'Form berhasil disimpan, memicu refresh dompet, statistik, dan menutup halaman.',
+                  );
+                } else {
+                  ToastUtil.error(context, ' Data tidak terimpan');
+                  Log.warning('Form gagal disimpan, pesan: ${hasil}');
+                }
+              },
+        style: ElevatedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 50),
+        ),
+        child: _menyimpan
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : const Text('Simpan'),
+      ),
+    );
+  }
+}
 // path: lib/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart
 
 import 'dart:async';
@@ -1155,7 +2046,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/fitur/paket/page/detail_paket.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
-import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
+import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
@@ -1537,7 +2428,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
+import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
@@ -1645,11 +2536,11 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
   }
 
   Future<void> _softDeleteCustomer(
-    final DetailPelangganAktifModel customer,
+    final DetailPelangganAktifModel pelanggan,
   ) async {
-    final idPelanggan = customer.pelangganAktif.id;
-    final namaPelanggan = customer.namaPelanggan;
-    final idTransaksi = customer.pelangganAktif.idTransaksi;
+    final idPelanggan = pelanggan.pelangganAktif.id;
+    final namaPelanggan = pelanggan.namaPelanggan;
+    final idTransaksi = pelanggan.pelangganAktif.idTransaksi;
     final bool? konfirmasi = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -1692,8 +2583,8 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
   }
 
   Future<void> _showSortDialog() async {
-    final currentState = ref.read(pelangganAktifProvider).value;
-    if (currentState == null) {
+    final state = ref.read(pelangganAktifProvider).value;
+    if (state == null) {
       ToastUtil.info(context, 'Data sedang dimuat, coba sesaat lagi.');
       return;
     }
@@ -1714,7 +2605,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: SortOption.values.map((o) {
-                    final diPilih = currentState.sortBy == o;
+                    final diPilih = state.sortBy == o;
                     return ListTile(
                       dense: true,
                       visualDensity: const VisualDensity(vertical: -2),
@@ -1761,14 +2652,6 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     );
   }
 
-  Future<void> _navigasiKeForm() async {
-    Log.info('Navigasi ke form tambah pelanggan aktif');
-    await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(builder: (_) => const FormPelangganAktif()),
-    );
-  }
-
   Future<void> _advancedOptions() async {
     Log.info('Membuka opsi lanjutan');
     final AdvancedOption? selected = await showDialog<AdvancedOption>(
@@ -1800,9 +2683,9 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     switch (selected) {
       case AdvancedOption.softDeleteAll:
         Log.warning('Opsi arsipkan semua dipilih');
-        final bool? confirm = await showDialog<bool>(
+        final bool? konfirmasi = await showDialog<bool>(
           context: context,
-          builder: (final ctx) => AlertDialog(
+          builder: (ctx) => AlertDialog(
             title: const Text('Konfirmasi Arsipkan Semua'),
             content: const Text(
               'Yakin ingin mengarsipkan SEMUA pelanggan aktif?',
@@ -1819,7 +2702,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
             ],
           ),
         );
-        if (confirm ?? false) {
+        if (konfirmasi ?? false) {
           try {
             Log.warning('Eksekusi arsipkan semua pelanggan aktif');
             await _pelangganAktifOpSqlite.softDeleteAll();
@@ -1830,7 +2713,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
             await ref
                 .read(pelangganAktifProvider.notifier)
                 .fetchActiveCustomers();
-          } on Exception catch (e, s) {
+          } catch (e, s) {
             Log.error('Gagal mengarsipkan semua pelanggan aktif', e: e, s: s);
             if (mounted) {
               ToastUtil.error(
@@ -1856,7 +2739,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
           await ref
               .read(pelangganAktifProvider.notifier)
               .fetchActiveCustomers();
-        } on Exception catch (e, s) {
+        } catch (e, s) {
           Log.error('Gagal mengarsipkan pelanggan kadaluarsa', e: e, s: s);
           if (mounted) {
             ToastUtil.error(
@@ -2005,7 +2888,10 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'fab_active_customer',
-        onPressed: _navigasiKeForm,
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const FormPelangganAktif()),
+        ),
         child: const Icon(TIcons.add),
       ),
     );
@@ -2046,7 +2932,7 @@ final class PelangganAktifProvider
   PelangganAktif create() => PelangganAktif();
 }
 
-String _$pelangganAktifHash() => r'5152338eb12fd69389c1b7956c18de602ceea1f8';
+String _$pelangganAktifHash() => r'5bb79e36d5469c68b3f86158d5e252dd12648c01';
 
 abstract class _$PelangganAktif extends $AsyncNotifier<PelangganAktifState> {
   FutureOr<PelangganAktifState> build();
@@ -2346,7 +3232,7 @@ as SortOption,
 }
 
 // dart format on
-// path: lib/admin/providers/pelanggan_aktif_provider.dart
+// path: lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart
 
 import 'dart:async';
 
@@ -2354,8 +3240,8 @@ import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 part 'pelanggan_aktif_provider.g.dart';
@@ -2471,12 +3357,18 @@ class PelangganAktif extends _$PelangganAktif {
   }
 
   Future<PelangganAktifState> _loadData() async {
-    final operation = ref.watch(pelangganAktifOpSqliteProvider);
-    final results = await Future.wait([
-      operation.getAllActiveCustomersWithDetails(),
-    ]);
+    // Gunakan `ref.read` karena ini ada di dalam method build
+    final operasi = ref.read(pelangganAktifOpSqliteProvider);
+    final hasil = await operasi.getAllActiveCustomersWithDetails();
 
-    return PelangganAktifState(daftarPelangganAktif: results[0]);
+    // Urutkan data saat pertama kali dimuat
+    const urutanAwal = SortOption.berakhirHariIni;
+    final dataTerurut = _sortData(hasil, urutanAwal);
+
+    return PelangganAktifState(
+      daftarPelangganAktif: dataTerurut,
+      sortBy: urutanAwal,
+    );
   }
 
   Future<void> fetchActiveCustomers() async {
@@ -2543,7 +3435,7 @@ class PelangganAktifOpSqlite {
   final BaseOpSqlite _baseOpSqlite;
   final LayananNotifikasi _layananNotifikasi;
   final PelangganOpSqlite _pelangganOpSqlite;
-  final String _tableName = NamaTabel.pelangganAktif;
+  final String _namaTabel = NamaTabel.pelangganAktif;
   final String _namaTabelCustomer = NamaTabel.pelanggan;
   final String _namaTabelPaket = NamaTabel.paket;
 
@@ -2557,7 +3449,7 @@ class PelangganAktifOpSqlite {
   }) : _baseOpSqlite = baseOpSqlite,
        _pelangganOpSqlite = pelangganOpSqlite,
        _layananNotifikasi = layananNotifikasi {
-    Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_tableName');
+    Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_namaTabel');
   }
 
   Future<void> rescheduleAllNotifications() async {
@@ -2601,7 +3493,7 @@ class PelangganAktifOpSqlite {
         ac.*,
         c.${NamaKolom.nama} as customer_name,
         p.${NamaKolom.nama} as package_name
-      FROM $_tableName ac
+      FROM $_namaTabel ac
       LEFT JOIN $_namaTabelCustomer c ON ac.${NamaKolom.idPelanggan} = c.${NamaKolom.id}
       LEFT JOIN $_namaTabelPaket p ON ac.${NamaKolom.idPaket} = p.${NamaKolom.id}
       WHERE ac.${NamaKolom.dihapus} = 0
@@ -2646,7 +3538,7 @@ class PelangganAktifOpSqlite {
       ) async {
         final data = customerToSave.toSqlite();
         await txn.insert(
-          _tableName,
+          _namaTabel,
           data,
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
@@ -2664,10 +3556,10 @@ class PelangganAktifOpSqlite {
   Future<List<PelangganAktifModel>> ambilSemua() async {
     try {
       final db = await sqliteDb.database;
-      Log.info('Mengambil semua active customer dari tabel $_tableName');
+      Log.info('Mengambil semua active customer dari tabel $_namaTabel');
 
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.dihapus} = ?',
         whereArgs: [0],
       );
@@ -2683,13 +3575,13 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<PelangganAktifModel?> getById(final String id) async {
+  Future<PelangganAktifModel?> ambilBerdasarkanid(final String id) async {
     try {
       final db = await sqliteDb.database;
-      Log.info('Mencari active customer dengan ID: $id di tabel $_tableName');
+      Log.info('Mencari active customer dengan ID: $id di tabel $_namaTabel');
 
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.id} = ?',
         whereArgs: [id],
       );
@@ -2722,7 +3614,7 @@ class PelangganAktifOpSqlite {
       ) async {
         final data = customerToSave.toSqlite();
         await txn.update(
-          _tableName,
+          _namaTabel,
           data,
           where: '${NamaKolom.id} = ?',
           whereArgs: [customerToSave.id],
@@ -2743,72 +3635,70 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<void> scheduleNotification(
-    final PelangganAktifModel activeCustomer,
-  ) async {
+  Future<void> scheduleNotification(PelangganAktifModel pelangganAktif) async {
     try {
       Log.info(
-        '(RE)SCHEDULING: Menjadwalkan notifikasi untuk active customer ID: ${activeCustomer.id}',
+        '(RE)SCHEDULING: Menjadwalkan notifikasi untuk active customer ID: ${pelangganAktif.id}',
       );
 
       final pelanggan = await _pelangganOpSqlite.ambilBerdasarkanId(
-        activeCustomer.idPelanggan,
+        pelangganAktif.idPelanggan,
       );
       final customerName = pelanggan?.nama ?? 'Tanpa Nama';
 
-      await _layananNotifikasi.batalNotifikasi(activeCustomer.id.hashCode);
+      await _layananNotifikasi.batalNotifikasi(pelangganAktif.id.hashCode);
       await _layananNotifikasi.batalNotifikasi(
-        (activeCustomer.id.hashCode + 1),
+        (pelangganAktif.id.hashCode + 1),
       );
       await _layananNotifikasi.batalNotifikasi(
-        (activeCustomer.id.hashCode + 2),
+        (pelangganAktif.id.hashCode + 2),
       );
       Log.info(
         'Membatalkan notifikasi yang ada sebelum menjadwalkan ulang notifiaksi',
       );
 
-      final tanggalBerakhir = activeCustomer.tanggalBerakhir;
+      final tanggalBerakhir = pelangganAktif.tanggalBerakhir;
       if (tanggalBerakhir.isAfter(DateTime.now())) {
         await _layananNotifikasi.jadwalNotifikasi(
-          id: (activeCustomer.id.hashCode + 2),
-          title: 'Masa Aktif Habis!',
-          body: 'Paket WiFi untuk $customerName telah berakhir sekarang.',
+          id: (pelangganAktif.id.hashCode + 2),
+          judul: 'Masa Aktif Habis!',
+          pesan: 'Paket WiFi untuk $customerName telah berakhir sekarang.',
           jadwal: tanggalBerakhir,
         );
       }
 
-      final jadwalH1 = activeCustomer.tanggalBerakhir.subtract(
+      final jadwalH1 = pelangganAktif.tanggalBerakhir.subtract(
         const Duration(days: 1),
       );
       if (jadwalH1.isAfter(DateTime.now())) {
         await _layananNotifikasi.jadwalNotifikasi(
-          id: activeCustomer.id.hashCode,
-          title: 'Paket Akan Segera Berakhir',
-          body: 'Paket untuk pelanggan $customerName akan berakhir besok.',
+          id: pelangganAktif.id.hashCode,
+          judul: 'Paket Akan Segera Berakhir',
+          pesan: 'Paket untuk pelanggan $customerName akan berakhir besok.',
           jadwal: jadwalH1,
         );
       }
 
-      final jadwalH3 = activeCustomer.tanggalBerakhir.subtract(
+      final jadwalH3 = pelangganAktif.tanggalBerakhir.subtract(
         const Duration(days: 3),
       );
       if (jadwalH3.isAfter(DateTime.now())) {
         await _layananNotifikasi.jadwalNotifikasi(
-          id: (activeCustomer.id.hashCode + 1),
-          title: 'Pengingat Paket',
-          body:
+          id: (pelangganAktif.id.hashCode + 1),
+          judul: 'Pengingat Paket',
+          pesan:
               'Paket untuk pelanggan $customerName akan berakhir dalam 3 hari.',
           jadwal: jadwalH3,
         );
       }
 
       Log.info(
-        'Penjadwalan notifikasi selesai untuk ID: ${activeCustomer.id}',
+        'Penjadwalan notifikasi selesai untuk ID: ${pelangganAktif.id}',
         {'h3': jadwalH3, 'h1': jadwalH1, 'h0': tanggalBerakhir},
       );
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error(
-        'Gagal menjadwalkan notifikasi untuk ID: ${activeCustomer.id}',
+        'Gagal menjadwalkan notifikasi untuk ID: ${pelangganAktif.id}',
         e: e,
         s: st,
       );
@@ -2816,30 +3706,30 @@ class PelangganAktifOpSqlite {
   }
 
   Future<void> sisipkanAtauPerbaruiBatch(
-    final List<PelangganAktifModel> items, {
+    final List<PelangganAktifModel> daftarPelangganAktif, {
     final bool dariServer = false,
   }) async {
     try {
       Log.info(
-        'Memproses batch ${items.length} active customer di $_tableName',
+        'Memproses batch ${daftarPelangganAktif.length} active customer di $_namaTabel',
       );
 
-      final data = items
-          .map(
-            (final item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
-          )
+      final data = daftarPelangganAktif
+          .map((item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite())
           .toList();
 
       await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
-        _tableName,
+        _namaTabel,
         data,
         dariServer: dariServer,
       );
 
-      Log.info('Batch ${items.length} active customer berhasil diproses');
-    } on Exception catch (e, st) {
+      Log.info(
+        'Batch ${daftarPelangganAktif.length} active customer berhasil diproses',
+      );
+    } catch (e, st) {
       Log.error(
-        'Gagal memproses batch ${items.length} active customer',
+        'Gagal memproses batch ${daftarPelangganAktif.length} active customer',
         e: e,
         s: st,
       );
@@ -2847,28 +3737,25 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<void> softDelete(
-    final String id, {
-    final bool fromServer = false,
-  }) async {
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
     try {
       Log.info('Mengarsipkan active customer ID: $id');
 
-      final activeCustomer = await getById(id);
-      if (activeCustomer == null) {
+      final pelangganAktif = await ambilBerdasarkanid(id);
+      if (pelangganAktif == null) {
         Log.info('Active customer ID: $id tidak ditemukan');
         return;
       }
 
       await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
-        final archivedCustomer = activeCustomer.copyWith(
+        final archivedCustomer = pelangganAktif.copyWith(
           diperbaruiPada: _nowUtc,
           diHapus: true,
           diarsipkanPada: _nowUtc,
         );
 
         await txn.update(
-          _tableName,
+          _namaTabel,
           archivedCustomer.toSqlite(),
           where: '${NamaKolom.id} = ?',
           whereArgs: [id],
@@ -2877,18 +3764,19 @@ class PelangganAktifOpSqlite {
         await _layananNotifikasi.batalNotifikasi(id.hashCode);
         await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
         await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
+
         Log.info('Notifikasi telah di batalkan pada fungsi softDelete');
-      }, dariServer: fromServer);
+      }, dariServer: dariServer);
 
       Log.info('Active customer ID: $id berhasil diarsipkan');
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error('Gagal mengarsipkan active customer ID: $id', e: e, s: st);
       rethrow;
     }
   }
 
   Future<void> hapusPermanenDataSoftDelete({
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     try {
       await _baseOpSqlite.runComplexOperation<void>((
@@ -2897,7 +3785,7 @@ class PelangganAktifOpSqlite {
         final deadline = _nowUtc.subtract(const Duration(days: 30));
 
         final List<Map<String, dynamic>> expiredCustomers = await txn.query(
-          _tableName,
+          _namaTabel,
           where:
               '${NamaKolom.diarsipkanPada} IS NOT NULL AND ${NamaKolom.diarsipkanPada} < ?',
           whereArgs: [deadline.millisecondsSinceEpoch],
@@ -2912,18 +3800,18 @@ class PelangganAktifOpSqlite {
             .map((final map) => map[NamaKolom.id] as String)
             .toList();
 
-        final count = await txn.delete(
-          _tableName,
+        final jumlah = await txn.delete(
+          _namaTabel,
           where:
               '${NamaKolom.id} IN (${List.filled(idsToDelete.length, '?').join(',')})',
           whereArgs: idsToDelete,
         );
 
         Log.info(
-          '$count active customer telah dihapus permanen dari $_tableName',
+          '$jumlah active customer telah dihapus permanen dari $_namaTabel',
         );
-      }, dariServer: fromServer);
-    } on Exception catch (e, st) {
+      }, dariServer: dariServer);
+    } catch (e, st) {
       Log.error(
         'Gagal menghapus permanen active customer diarsipkan',
         e: e,
@@ -2933,13 +3821,13 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<int> arsipkanLanggananKadaluarsa({bool fromServer = false}) async {
+  Future<int> arsipkanLanggananKadaluarsa({bool dariServer = false}) async {
     try {
       Log.info('Memeriksa active customer kadaluarsa');
       final db = await sqliteDb.database;
 
       final List<Map<String, dynamic>> expiredCustomers = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.tangglberakhir} < ? AND ${NamaKolom.dihapus} = 0',
         whereArgs: [_nowUtc.millisecondsSinceEpoch],
       );
@@ -2957,7 +3845,7 @@ class PelangganAktifOpSqlite {
         final Transaction txn,
       ) async {
         await txn.update(
-          _tableName,
+          _namaTabel,
           {
             NamaKolom.dihapus: 1,
             NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
@@ -2973,62 +3861,62 @@ class PelangganAktifOpSqlite {
           await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
           await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
         }
-      }, dariServer: fromServer);
+      }, dariServer: dariServer);
 
       Log.info(
         '${idsToArchive.length} active customer kadaluarsa telah diarsipkan',
       );
       return idsToArchive.length;
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error('Gagal mengarsipkan active customer kadaluarsa', e: e, s: st);
       rethrow;
     }
   }
 
-  Future<int> softDeleteAll({final bool fromServer = false}) async {
+  Future<int> softDeleteAll({bool dariServer = false}) async {
     try {
       Log.info('Mengarsipkan SEMUA active customer');
-      final allCustomers = await ambilSemua();
+      final pelangganAktif = await ambilSemua();
 
-      if (allCustomers.isEmpty) {
+      if (pelangganAktif.isEmpty) {
         Log.info('Tidak ada active customer untuk diarsipkan');
         return 0;
       }
 
-      final idsToArchive = allCustomers.map((final p) => p.id).toList();
+      final dataUntukDiarsip = pelangganAktif.map((p) => p.id).toList();
 
       await _baseOpSqlite.runComplexOperation<void>((
         final Transaction txn,
       ) async {
         await txn.update(
-          _tableName,
+          _namaTabel,
           {
             NamaKolom.dihapus: 1,
             NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
             NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
           },
           where:
-              '${NamaKolom.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
-          whereArgs: idsToArchive,
+              '${NamaKolom.id} IN (${List.filled(dataUntukDiarsip.length, '?').join(',')})',
+          whereArgs: dataUntukDiarsip,
         );
 
-        for (final id in idsToArchive) {
+        for (final id in dataUntukDiarsip) {
           await _layananNotifikasi.batalNotifikasi(id.hashCode);
           await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
           await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
         }
-      }, dariServer: fromServer);
+      }, dariServer: dariServer);
 
-      Log.info('${idsToArchive.length} active customer telah diarsipkan');
-      return idsToArchive.length;
-    } on Exception catch (e, st) {
+      Log.info('${dataUntukDiarsip.length} active customer telah diarsipkan');
+      return dataUntukDiarsip.length;
+    } catch (e, st) {
       Log.error('Gagal mengarsipkan semua active customer', e: e, s: st);
       rethrow;
     }
   }
 
   Future<List<PelangganAktifModel>> ambilBerdasarkanIds(
-    final List<String> ids,
+    List<String> ids,
   ) async {
     try {
       if (ids.isEmpty) {
@@ -3039,16 +3927,16 @@ class PelangganAktifOpSqlite {
       final db = await sqliteDb.database;
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.id} IN ($placeholders)',
         whereArgs: ids,
       );
 
       Log.info('Ditemukan ${maps.length} dari ${ids.length} active customer');
-      return List.generate(maps.length, (final i) {
+      return List.generate(maps.length, (i) {
         return PelangganAktifModel.fromSqlite(maps[i]);
       });
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error('Gagal mengambil active customer berdasarkan IDs', e: e, s: st);
       rethrow;
     }
@@ -3616,6 +4504,187 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
     );
   }
 }
+// path lib/fitur/info_perangkat/page/tentang_aplikasi.dart
+
+import 'dart:async';
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
+
+class TentangAplikasiPage extends StatefulWidget {
+  const TentangAplikasiPage({super.key});
+
+  @override
+  State<TentangAplikasiPage> createState() => _TentangAplikasiPageState();
+}
+
+class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
+  PackageInfo _infoPerangkat = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+  );
+
+  String _minSDK = 'Android 5.0 (Lollipop)';
+  String _deviceArch = 'Unknown';
+
+  @override
+  void initState() {
+    super.initState();
+    Log.info('Menginisialisasi halaman Tentang Aplikasi');
+    unawaited(_loadData());
+  }
+
+  Future<void> _loadData() async {
+    Log.info('Memulai pengambilan informasi aplikasi dan perangkat');
+
+    try {
+      Log.info('Mengambil PackageInfo dari platform');
+      final infoPerangkat = await PackageInfo.fromPlatform();
+
+      Log.info(
+        'PackageInfo berhasil diambil - Nama: ${infoPerangkat.appName}, Versi: ${infoPerangkat.version}, Build: ${infoPerangkat.buildNumber}, Package: ${infoPerangkat.packageName}',
+      );
+
+      String deviceArch = 'Unknown';
+
+      if (Platform.isAndroid) {
+        Log.info('Platform terdeteksi: Android, mengambil DeviceInfo');
+        final deviceInfo = DeviceInfoPlugin();
+        final androidInfo = await deviceInfo.androidInfo;
+
+        deviceArch = androidInfo.supportedAbis.join(', ');
+        Log.info(
+          'Device info Android berhasil diambil - Arsitektur: $deviceArch, Android Version: ${androidInfo.version.release} (SDK ${androidInfo.version.sdkInt}), Pabrikan: ${androidInfo.manufacturer}, Model: ${androidInfo.model}',
+        );
+      } else if (Platform.isIOS) {
+        Log.info('Platform terdeteksi: iOS');
+        deviceArch = 'iOS (arm64)';
+      } else {
+        Log.info('Platform tidak dikenal: ${Platform.operatingSystem}');
+        deviceArch = Platform.operatingSystem;
+      }
+
+      setState(() {
+        _infoPerangkat = infoPerangkat;
+        _deviceArch = deviceArch;
+        _minSDK = 'Android 5.0 (Lollipop)';
+        Log.info(
+          'State diperbarui - MinSDK: $_minSDK, Arsitektur: $_deviceArch',
+        );
+      });
+
+      Log.info('Proses inisialisasi informasi aplikasi selesai');
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal mengambil informasi aplikasi atau perangkat',
+        e: e,
+        s: st,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Log.info('Membangun UI halaman Tentang Aplikasi');
+    Log.info(
+      'Informasi yang ditampilkan - App: ${_infoPerangkat.appName}, Versi: ${_infoPerangkat.version}, Build: ${_infoPerangkat.buildNumber}',
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Tentang Aplikasi'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Log.info('Kembali ke halaman sebelumnya dari Tentang Aplikasi');
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(20.0),
+        children: <Widget>[
+          gapH20,
+          const Icon(Icons.wifi_tethering, size: 80, color: Colors.deepPurple),
+          gapH20,
+          Text(
+            _infoPerangkat.appName,
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          gapH8,
+          Text(
+            'Versi ${_infoPerangkat.version}',
+            style: Theme.of(context).textTheme.titleMedium,
+            textAlign: TextAlign.center,
+          ),
+          gapH24,
+          const Text(
+            'Aplikasi ini membantu Anda mengelola pelanggan dan layanan WiFi dengan lebih mudah. Lacak pembayaran, kelola paket, dan dapatkan notifikasi penting langsung di perangkat Anda.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16),
+          ),
+          gapH32,
+          Card(
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Informasi Teknis',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const Divider(height: 20),
+                  _buildInfoRow('Nomor Build', _infoPerangkat.buildNumber),
+                  _buildInfoRow('Minimal OS', _minSDK),
+                  _buildInfoRow('Arsitektur Perangkat', _deviceArch),
+                ],
+              ),
+            ),
+          ),
+          gapH40,
+          const Text(
+            '© 2024 Dibuat dengan Penuh Semangat',
+            style: TextStyle(color: Colors.grey, fontSize: 12),
+            textAlign: TextAlign.center,
+          ),
+          gapH20,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    Log.info('Membangun baris info teknis - $label: $value');
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: const TextStyle(color: Colors.grey),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 // path: lib/fitur/info_perangkat/enum/arsitektur_apk.dart
 
 enum ArsitekturApk {
@@ -4018,7 +5087,7 @@ class LayananInfoPerangkat {
     };
   }
 }
-// path: lib/fitur/poin/page/points_page.dart
+// path lib/fitur/poin/page/halaman_poin.dart
 
 import 'dart:async';
 
@@ -4027,6 +5096,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
+import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/widget/poin_page_ui.dart';
@@ -4043,59 +5113,63 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
-import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
+import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dart';
 
-class PoinPage extends ConsumerStatefulWidget {
+class HalamanPoin extends ConsumerStatefulWidget {
   final String idPelanggan;
-  final bool showAd;
+  final bool tampilkanIklan;
 
-  const PoinPage({super.key, required this.idPelanggan, this.showAd = false});
+  const HalamanPoin({
+    super.key,
+    required this.idPelanggan,
+    this.tampilkanIklan = false,
+  });
 
   @override
-  ConsumerState<PoinPage> createState() => _PointsPageState();
+  ConsumerState<HalamanPoin> createState() => _HalamanPoinState();
 }
 
-class _PointsPageState extends ConsumerState<PoinPage> {
-  final _interstitialAdService = InterstitialAdService();
-  MenuPoin _selectedMenu = MenuPoin.penukaran;
-  late final Widget _appBarTitle;
-  bool _isTukarPoin = false;
+class _HalamanPoinState extends ConsumerState<HalamanPoin> {
+  final _layananIklanInterstisial = LayananIklanInterstisial();
+  MenuPoin _menuTerpilih = MenuPoin.penukaran;
+  late final Widget _judulAppBar;
+  bool _sedangTukarPoin = false;
 
   @override
   void initState() {
     super.initState();
-    final isFirebase = ref.read(appRoleProvider) == AppRole.user;
+    final pakaiFirebase = ref.read(appRoleProvider) == AppRole.user;
 
     Log.info(
       'Initializing PointsPage for customer: ${widget.idPelanggan} with role: ${ref.read(appRoleProvider)}',
     );
 
-    _appBarTitle = Row(
+    _judulAppBar = Row(
       children: [
         const Text('Poin: '),
         Expanded(
           child: NamaPelangganWidget(
             idPelanggan: widget.idPelanggan,
-            useFirebase: isFirebase,
+            pakaiFirebase: pakaiFirebase,
           ),
         ),
       ],
     );
 
-    if (widget.showAd) {
+    if (widget.tampilkanIklan) {
       Log.info('Preloading interstitial ad for PointsPage.');
-      unawaited(_interstitialAdService.preloadAd());
+      unawaited(_layananIklanInterstisial.preloadAd());
     }
   }
 
   Future<void> _tukarPoin(
     BuildContext context,
     WidgetRef ref,
-    PaketModel reward,
-    int currentPoints,
+    PaketModel hadiah,
+    int poinSaatIni,
   ) async {
-    if (_isTukarPoin) return;
-    setState(() => _isTukarPoin = true);
+    if (_sedangTukarPoin) return;
+    setState(() => _sedangTukarPoin = true);
     try {
       final role = ref.read(appRoleProvider);
       if (role == AppRole.admin) {
@@ -4109,14 +5183,14 @@ class _PointsPageState extends ConsumerState<PoinPage> {
 
       final isOnline = await ref
           .read(koneksiInternetServiceProvider)
-          .cekInternet(ref);
+          .cekInternet();
       if (!isOnline) {
         ToastUtil.warning(context, 'Cek koneksi internet Anda');
         return;
       }
 
-      final bool enoughPoints = currentPoints >= reward.poinPenukaran;
-      if (!enoughPoints) {
+      final bool poinCukup = poinSaatIni >= hadiah.poinPenukaran;
+      if (!poinCukup) {
         ToastUtil.warning(
           context,
           'Poin Anda tidak mencukupi untuk menukar hadiah ini.',
@@ -4128,7 +5202,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
         context: context,
         builder: (dialogContext) => AlertDialog(
           title: const Text('Konfirmasi Penukaran'),
-          content: Text('Anda yakin ingin menukar poin dengan ${reward.nama}?'),
+          content: Text('Anda yakin ingin menukar poin dengan ${hadiah.nama}?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -4143,31 +5217,31 @@ class _PointsPageState extends ConsumerState<PoinPage> {
       );
 
       if (dikonfirmasi ?? false) {
-        Log.info('Pengguna mengonfirmasi penukaran untuk: ${reward.nama}');
+        Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
         try {
           final dataPelanggan = await ref
               .read(pelangganOpSqliteProvider)
               .ambilBerdasarkanId(widget.idPelanggan);
 
-          final now = DateTime.now();
+          final sekarang = DateTime.now();
           final idOrder = const Uuid().v4();
 
-          final orderData = OrderModel(
+          final dataPesanan = OrderModel(
             id: idOrder,
             idPelanggan: widget.idPelanggan,
-            idPaket: reward.id,
-            tanggal: now,
+            idPaket: hadiah.id,
+            tanggal: sekarang,
           );
 
           final notifikasiData = NotifikasiModel(
             id: const Uuid().v4(),
-            tanggalMulai: now,
-            tanggalBerakhir: now,
-            tanggalTampil: now,
+            tanggalMulai: sekarang,
+            tanggalBerakhir: sekarang,
+            tanggalTampil: sekarang,
             judul: 'Order Paket',
             deskripsi: 'pelanggan ${dataPelanggan?.nama} melakukan order',
             tipe: TipeNotifikasiEnum.order,
-            diperbaruiPada: now,
+            diperbaruiPada: sekarang,
             idTujuan: idOrder,
             userId: widget.idPelanggan,
           );
@@ -4177,12 +5251,12 @@ class _PointsPageState extends ConsumerState<PoinPage> {
             'berhasil membuat order baru untuk id pelanggan: ${widget.idPelanggan}',
           );
 
-          await ref.read(orderOpFirebaseProvider).addOrder(orderData);
+          await ref.read(orderOpFirebaseProvider).addOrder(dataPesanan);
           Log.info('berhasil membuat notifikasi untuk paket');
 
           ref.invalidate(pointsPageDataProvider);
           ref.invalidate(pointsHistoryProvider);
-
+          ref.invalidate(orderProvider);
           if (!mounted) return;
           ToastUtil.success(
             context,
@@ -4195,21 +5269,21 @@ class _PointsPageState extends ConsumerState<PoinPage> {
         }
       }
     } finally {
-      setState(() => _isTukarPoin = false);
+      setState(() => _sedangTukarPoin = false);
     }
   }
 
-  Future<void> _navigasiKeDetailtransaksi(TransaksiModel transaction) async {
+  Future<void> _navigasiKeDetailTransaksi(TransaksiModel transaksi) async {
     if (!mounted) return;
-    Log.info('Navigating to transaction detail for ID: ${transaction.id}');
-    PaketModel? package;
-    if (transaction.idPaket != null && transaction.idPaket!.isNotEmpty) {
+    Log.info('Navigating to transaction detail for ID: ${transaksi.id}');
+    PaketModel? paket;
+    if (transaksi.idPaket != null && transaksi.idPaket!.isNotEmpty) {
       final dataSource = ref.read(pointsDataSourceProvider);
       try {
-        package = await dataSource.getPaketByid(transaction.idPaket!);
+        paket = await dataSource.getPaketByid(transaksi.idPaket!);
       } on Exception catch (e, st) {
         Log.error(
-          'Failed to get package ${transaction.idPaket}: $e',
+          'Failed to get package ${transaksi.idPaket}: $e',
           e: e,
           s: st,
         );
@@ -4220,79 +5294,79 @@ class _PointsPageState extends ConsumerState<PoinPage> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            DetailTransaksiU(transaksi: transaction, paket: package),
+            DetailTransaksiU(transaksi: transaksi, paket: paket),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    Log.info('Building PointsPage UI, selected menu: $_selectedMenu');
+    Log.info('Building PointsPage UI, selected menu: $_menuTerpilih');
     // Tonton provider data utama.
-    final asyncData = ref.watch(pointsPageDataProvider(widget.idPelanggan));
+    final dataAsync = ref.watch(pointsPageDataProvider(widget.idPelanggan));
 
-    return asyncData.when(
+    return dataAsync.when(
       loading: () => Scaffold(
-        appBar: AppBar(title: _appBarTitle),
+        appBar: AppBar(title: _judulAppBar),
         body: const Center(child: CircularProgressIndicator()),
       ),
       error: (err, stack) => Scaffold(
-        appBar: AppBar(title: _appBarTitle),
+        appBar: AppBar(title: _judulAppBar),
         body: Center(child: Text('Error: $err')),
       ),
-      data: (pageData) {
+      data: (dataHalaman) {
         return PoinPageUi(
-          appBarTitle: _appBarTitle,
-          totalPoin: pageData.totalPoints,
-          menuPilihan: _selectedMenu,
+          appBarTitle: _judulAppBar,
+          totalPoin: dataHalaman.totalPoin,
+          menuPilihan: _menuTerpilih,
           onSelectionChanged: (newSelection) async {
             final selection = newSelection.first;
             Log.info('Points menu changed to: $selection');
-            setState(() => _selectedMenu = selection);
+            setState(() => _menuTerpilih = selection);
 
-            if (selection == MenuPoin.riwayat && widget.showAd) {
-              await _interstitialAdService.show();
+            if (selection == MenuPoin.riwayat && widget.tampilkanIklan) {
+              await _layananIklanInterstisial.show();
             }
           },
-          contentView: _selectedMenu == MenuPoin.penukaran
-              ? _buildRewardList(pageData.rewards, pageData.totalPoints)
-              : _buildPointsHistory(),
-          bottomWidget: widget.showAd ? const BannerAdsWidget() : null,
+          contentView: _menuTerpilih == MenuPoin.penukaran
+              ? _bangunDaftarHadiah(dataHalaman.hadiah, dataHalaman.totalPoin)
+              : _bangunRiwayatPoin(),
+          bottomWidget: widget.tampilkanIklan ? const BannerAdsWidget() : null,
         );
       },
     );
   }
 
-  Widget _buildRewardList(List<PaketModel> rewardList, int totalPoints) {
+  Widget _bangunDaftarHadiah(List<PaketModel> daftarHadiah, int totalPoin) {
     Log.info('Building reward list.');
-    if (rewardList.isEmpty) {
+    if (daftarHadiah.isEmpty) {
       return const Center(child: Text('Belum ada hadiah yang tersedia'));
     }
     return ListView.builder(
-      itemCount: rewardList.length,
+      itemCount: daftarHadiah.length,
       itemBuilder: (context, index) {
-        final reward = rewardList[index];
-        final enoughPoints = totalPoints >= reward.poinPenukaran;
-        final progress = reward.poinPenukaran > 0
-            ? (totalPoints / reward.poinPenukaran).clamp(0.0, 1.0)
+        final hadiah = daftarHadiah[index];
+        final poinCukup = totalPoin >= hadiah.poinPenukaran;
+        final progress = hadiah.poinPenukaran > 0
+            ? (totalPoin / hadiah.poinPenukaran).clamp(0.0, 1.0)
             : 1.0;
-        final poinKurang = totalPoints - reward.poinPenukaran;
+        final selisihPoin = totalPoin - hadiah.poinPenukaran;
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: ListTile(
-            title: Text(reward.nama),
+            title: Text(hadiah.nama),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('${reward.poinPenukaran} Poin'),
+                    Text('${hadiah.poinPenukaran} Poin'),
                     ElevatedButton(
-                      onPressed: _isTukarPoin
+                      onPressed: _sedangTukarPoin
                           ? null
-                          : () => _tukarPoin(context, ref, reward, totalPoints),
-                      child: _isTukarPoin
+                          : () => _tukarPoin(context, ref, hadiah, totalPoin),
+                      child: _sedangTukarPoin
                           ? const CircularProgressIndicator()
                           : const Text('Tukar'),
                     ),
@@ -4304,16 +5378,16 @@ class _PointsPageState extends ConsumerState<PoinPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Poin: $totalPoints / ${reward.poinPenukaran}',
+                      'Poin: $totalPoin / ${hadiah.poinPenukaran}',
                       style: TextStyle(
                         fontSize: 12,
-                        color: enoughPoints ? Colors.green : Colors.grey,
+                        color: poinCukup ? Colors.green : Colors.grey,
                       ),
                     ),
                     Text(
-                      '$poinKurang',
+                      '$selisihPoin',
                       style: TextStyle(
-                        color: enoughPoints ? Colors.green : Colors.red,
+                        color: poinCukup ? Colors.green : Colors.red,
                         fontSize: 16,
                       ),
                     ),
@@ -4327,11 +5401,11 @@ class _PointsPageState extends ConsumerState<PoinPage> {
     );
   }
 
-  Widget _buildPointsHistory() {
+  Widget _bangunRiwayatPoin() {
     Log.info('Building points history.');
-    final asyncHistory = ref.watch(pointsHistoryProvider(widget.idPelanggan));
+    final riwayatAsync = ref.watch(pointsHistoryProvider(widget.idPelanggan));
 
-    return asyncHistory.when(
+    return riwayatAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Error: $err')),
       data: (history) {
@@ -4341,37 +5415,39 @@ class _PointsPageState extends ConsumerState<PoinPage> {
         return ListView.builder(
           itemCount: history.length,
           itemBuilder: (context, index) {
-            final tx = history[index];
-            final isAddition = tx.poinDidapat > 0;
-            final pointsValue = isAddition ? tx.poinDidapat : tx.poinDigunakan;
-            final pointsStr = isAddition ? '+$pointsValue' : '-$pointsValue';
+            final transaksi = history[index];
+            final apakahPenambahan = transaksi.poinDidapat > 0;
+            final nilaiPoin = apakahPenambahan
+                ? transaksi.poinDidapat
+                : transaksi.poinDigunakan;
+            final teksPoin = apakahPenambahan ? '+$nilaiPoin' : '-$nilaiPoin';
 
-            final bool isUnpaid =
-                tx.statusPembayaran == StatusPembayaran.unpaid;
-            final Color pointColor = isUnpaid
+            final bool apakahBelumBayar =
+                transaksi.statusPembayaran == StatusPembayaran.unpaid;
+            final Color warnaPoin = apakahBelumBayar
                 ? Colors.grey
-                : isAddition
+                : apakahPenambahan
                 ? Colors.green
                 : Colors.red;
             return InkWell(
-              onTap: () => _navigasiKeDetailtransaksi(tx),
+              onTap: () => _navigasiKeDetailTransaksi(transaksi),
               child: Card(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 child: ListTile(
                   leading: Icon(
-                    isUnpaid
+                    apakahBelumBayar
                         ? TIcons.hourglass
-                        : isAddition
+                        : apakahPenambahan
                         ? TIcons.arrowUp
                         : TIcons.arrowDown,
-                    color: pointColor,
+                    color: warnaPoin,
                   ),
-                  title: Text(tx.deskripsi),
-                  subtitle: Text(FormatTanggal.formatDasar(tx.tanggal)),
+                  title: Text(transaksi.deskripsi),
+                  subtitle: Text(FormatTanggal.formatDasar(transaksi.tanggal)),
                   trailing: Text(
-                    pointsStr,
+                    teksPoin,
                     style: TextStyle(
-                      color: pointColor,
+                      color: warnaPoin,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -4593,7 +5669,7 @@ final class PoinProvider extends $AsyncNotifierProvider<Poin, PoinState> {
   }
 }
 
-String _$poinHash() => r'e6a66d42809f4e8bc3071870a6da5bf8c6988edc';
+String _$poinHash() => r'7a1dc7aa51ae4c63d22063b3f8d68046339bb078';
 
 final class PoinFamily extends $Family
     with
@@ -4613,8 +5689,8 @@ final class PoinFamily extends $Family
         isAutoDispose: true,
       );
 
-  PoinProvider call(Ref ref, String customerId) =>
-      PoinProvider._(argument: (ref, customerId), from: this);
+  PoinProvider call(Ref ref, String idPelanggan) =>
+      PoinProvider._(argument: (ref, idPelanggan), from: this);
 
   @override
   String toString() => r'poinProvider';
@@ -4623,9 +5699,9 @@ final class PoinFamily extends $Family
 abstract class _$Poin extends $AsyncNotifier<PoinState> {
   late final _$args = ref.$arg as (Ref, String);
   Ref get ref => _$args.$1;
-  String get customerId => _$args.$2;
+  String get idPelanggan => _$args.$2;
 
-  FutureOr<PoinState> build(Ref ref, String customerId);
+  FutureOr<PoinState> build(Ref ref, String idPelanggan);
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
@@ -4744,7 +5820,7 @@ final class PointsPageDataProvider
   }
 }
 
-String _$pointsPageDataHash() => r'b1649862381c7d14126a1724896af09c087cc58b';
+String _$pointsPageDataHash() => r'bcbdc2f48789b311ce5a5f09c5ce5764e7a5f8f8';
 
 final class PointsPageDataFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<PointsPageData>, String> {
@@ -4757,8 +5833,8 @@ final class PointsPageDataFamily extends $Family
         isAutoDispose: true,
       );
 
-  PointsPageDataProvider call(String customerId) =>
-      PointsPageDataProvider._(argument: customerId, from: this);
+  PointsPageDataProvider call(String idPelanggan) =>
+      PointsPageDataProvider._(argument: idPelanggan, from: this);
 
   @override
   String toString() => r'pointsPageDataProvider';
@@ -4821,7 +5897,7 @@ final class PointsHistoryProvider
   }
 }
 
-String _$pointsHistoryHash() => r'0821fe98315b076f5495d3698e386cb61db4b144';
+String _$pointsHistoryHash() => r'61d9e7e5c1a7b88f4eab1423a5ed17acb4313dae';
 
 final class PointsHistoryFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<TransaksiModel>>, String> {
@@ -4834,8 +5910,8 @@ final class PointsHistoryFamily extends $Family
         isAutoDispose: true,
       );
 
-  PointsHistoryProvider call(String customerId) =>
-      PointsHistoryProvider._(argument: customerId, from: this);
+  PointsHistoryProvider call(String idPelanggan) =>
+      PointsHistoryProvider._(argument: idPelanggan, from: this);
 
   @override
   String toString() => r'pointsHistoryProvider';
@@ -4874,7 +5950,7 @@ part 'poin_provider.freezed.dart';
 @freezed
 abstract class PoinState with _$PoinState {
   const factory PoinState({
-    @Default([]) List<PaketModel> rewards,
+    @Default([]) List<PaketModel> hadiah,
     @Default([]) List<TransaksiModel> transaksi,
     @Default(0) int totalPoin,
   }) = _PoinState;
@@ -4883,14 +5959,14 @@ abstract class PoinState with _$PoinState {
 @riverpod
 class Poin extends _$Poin {
   @override
-  FutureOr<PoinState> build(Ref ref, String customerId) async {
+  FutureOr<PoinState> build(Ref ref, String idPelanggan) async {
     final dataSource = ref.watch(pointsDataSourceProvider);
 
-    final rewards = await dataSource.getPublicPackages();
-    final transaksi = await dataSource.getPointsTransactions(customerId);
-    final totalPoin = await dataSource.ambilTotalPoin(customerId);
+    final hadiah = await dataSource.getPublicPackages();
+    final transaksi = await dataSource.getPointsTransactions(idPelanggan);
+    final totalPoin = await dataSource.ambilTotalPoin(idPelanggan);
     return PoinState(
-      rewards: rewards,
+      hadiah: hadiah,
       transaksi: transaksi,
       totalPoin: totalPoin,
     );
@@ -4907,27 +5983,24 @@ PointsPageDataSource pointsDataSource(Ref ref) {
   }
 }
 
-typedef PointsPageData = ({int totalPoints, List<PaketModel> rewards});
+typedef PointsPageData = ({int totalPoin, List<PaketModel> hadiah});
 
 @riverpod
-Future<PointsPageData> pointsPageData(Ref ref, String customerId) async {
+Future<PointsPageData> pointsPageData(Ref ref, String idPelanggan) async {
   final dataSource = ref.watch(pointsDataSourceProvider);
 
-  final [totalPoints, rewards] = await Future.wait([
-    dataSource.ambilTotalPoin(customerId),
+  final [totalPoin, hadiah] = await Future.wait([
+    dataSource.ambilTotalPoin(idPelanggan),
     dataSource.getPublicPackages(),
   ]);
 
-  return (
-    totalPoints: totalPoints as int,
-    rewards: rewards as List<PaketModel>
-  );
+  return (totalPoin: totalPoin as int, hadiah: hadiah as List<PaketModel>);
 }
 
 @riverpod
-Future<List<TransaksiModel>> pointsHistory(Ref ref, String customerId) {
+Future<List<TransaksiModel>> pointsHistory(Ref ref, String idPelanggan) {
   final dataSource = ref.watch(pointsDataSourceProvider);
-  return dataSource.getPointsTransactions(customerId);
+  return dataSource.getPointsTransactions(idPelanggan);
 }
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
@@ -4945,7 +6018,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PoinState {
 
- List<PaketModel> get rewards; List<TransaksiModel> get transaksi; int get totalPoin;
+ List<PaketModel> get hadiah; List<TransaksiModel> get transaksi; int get totalPoin;
 /// Create a copy of PoinState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4956,16 +6029,16 @@ $PoinStateCopyWith<PoinState> get copyWith => _$PoinStateCopyWithImpl<PoinState>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PoinState&&const DeepCollectionEquality().equals(other.rewards, rewards)&&const DeepCollectionEquality().equals(other.transaksi, transaksi)&&(identical(other.totalPoin, totalPoin) || other.totalPoin == totalPoin));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PoinState&&const DeepCollectionEquality().equals(other.hadiah, hadiah)&&const DeepCollectionEquality().equals(other.transaksi, transaksi)&&(identical(other.totalPoin, totalPoin) || other.totalPoin == totalPoin));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(rewards),const DeepCollectionEquality().hash(transaksi),totalPoin);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(hadiah),const DeepCollectionEquality().hash(transaksi),totalPoin);
 
 @override
 String toString() {
-  return 'PoinState(rewards: $rewards, transaksi: $transaksi, totalPoin: $totalPoin)';
+  return 'PoinState(hadiah: $hadiah, transaksi: $transaksi, totalPoin: $totalPoin)';
 }
 
 
@@ -4976,7 +6049,7 @@ abstract mixin class $PoinStateCopyWith<$Res>  {
   factory $PoinStateCopyWith(PoinState value, $Res Function(PoinState) _then) = _$PoinStateCopyWithImpl;
 @useResult
 $Res call({
- List<PaketModel> rewards, List<TransaksiModel> transaksi, int totalPoin
+ List<PaketModel> hadiah, List<TransaksiModel> transaksi, int totalPoin
 });
 
 
@@ -4993,9 +6066,9 @@ class _$PoinStateCopyWithImpl<$Res>
 
 /// Create a copy of PoinState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rewards = null,Object? transaksi = null,Object? totalPoin = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? hadiah = null,Object? transaksi = null,Object? totalPoin = null,}) {
   return _then(_self.copyWith(
-rewards: null == rewards ? _self.rewards : rewards // ignore: cast_nullable_to_non_nullable
+hadiah: null == hadiah ? _self.hadiah : hadiah // ignore: cast_nullable_to_non_nullable
 as List<PaketModel>,transaksi: null == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
 as List<TransaksiModel>,totalPoin: null == totalPoin ? _self.totalPoin : totalPoin // ignore: cast_nullable_to_non_nullable
 as int,
@@ -5083,10 +6156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<PaketModel> rewards,  List<TransaksiModel> transaksi,  int totalPoin)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<PaketModel> hadiah,  List<TransaksiModel> transaksi,  int totalPoin)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PoinState() when $default != null:
-return $default(_that.rewards,_that.transaksi,_that.totalPoin);case _:
+return $default(_that.hadiah,_that.transaksi,_that.totalPoin);case _:
   return orElse();
 
 }
@@ -5104,10 +6177,10 @@ return $default(_that.rewards,_that.transaksi,_that.totalPoin);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<PaketModel> rewards,  List<TransaksiModel> transaksi,  int totalPoin)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<PaketModel> hadiah,  List<TransaksiModel> transaksi,  int totalPoin)  $default,) {final _that = this;
 switch (_that) {
 case _PoinState():
-return $default(_that.rewards,_that.transaksi,_that.totalPoin);case _:
+return $default(_that.hadiah,_that.transaksi,_that.totalPoin);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -5124,10 +6197,10 @@ return $default(_that.rewards,_that.transaksi,_that.totalPoin);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<PaketModel> rewards,  List<TransaksiModel> transaksi,  int totalPoin)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<PaketModel> hadiah,  List<TransaksiModel> transaksi,  int totalPoin)?  $default,) {final _that = this;
 switch (_that) {
 case _PoinState() when $default != null:
-return $default(_that.rewards,_that.transaksi,_that.totalPoin);case _:
+return $default(_that.hadiah,_that.transaksi,_that.totalPoin);case _:
   return null;
 
 }
@@ -5139,14 +6212,14 @@ return $default(_that.rewards,_that.transaksi,_that.totalPoin);case _:
 
 
 class _PoinState implements PoinState {
-  const _PoinState({final  List<PaketModel> rewards = const [], final  List<TransaksiModel> transaksi = const [], this.totalPoin = 0}): _rewards = rewards,_transaksi = transaksi;
+  const _PoinState({final  List<PaketModel> hadiah = const [], final  List<TransaksiModel> transaksi = const [], this.totalPoin = 0}): _hadiah = hadiah,_transaksi = transaksi;
   
 
- final  List<PaketModel> _rewards;
-@override@JsonKey() List<PaketModel> get rewards {
-  if (_rewards is EqualUnmodifiableListView) return _rewards;
+ final  List<PaketModel> _hadiah;
+@override@JsonKey() List<PaketModel> get hadiah {
+  if (_hadiah is EqualUnmodifiableListView) return _hadiah;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_rewards);
+  return EqualUnmodifiableListView(_hadiah);
 }
 
  final  List<TransaksiModel> _transaksi;
@@ -5168,16 +6241,16 @@ _$PoinStateCopyWith<_PoinState> get copyWith => __$PoinStateCopyWithImpl<_PoinSt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PoinState&&const DeepCollectionEquality().equals(other._rewards, _rewards)&&const DeepCollectionEquality().equals(other._transaksi, _transaksi)&&(identical(other.totalPoin, totalPoin) || other.totalPoin == totalPoin));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PoinState&&const DeepCollectionEquality().equals(other._hadiah, _hadiah)&&const DeepCollectionEquality().equals(other._transaksi, _transaksi)&&(identical(other.totalPoin, totalPoin) || other.totalPoin == totalPoin));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_rewards),const DeepCollectionEquality().hash(_transaksi),totalPoin);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_hadiah),const DeepCollectionEquality().hash(_transaksi),totalPoin);
 
 @override
 String toString() {
-  return 'PoinState(rewards: $rewards, transaksi: $transaksi, totalPoin: $totalPoin)';
+  return 'PoinState(hadiah: $hadiah, transaksi: $transaksi, totalPoin: $totalPoin)';
 }
 
 
@@ -5188,7 +6261,7 @@ abstract mixin class _$PoinStateCopyWith<$Res> implements $PoinStateCopyWith<$Re
   factory _$PoinStateCopyWith(_PoinState value, $Res Function(_PoinState) _then) = __$PoinStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<PaketModel> rewards, List<TransaksiModel> transaksi, int totalPoin
+ List<PaketModel> hadiah, List<TransaksiModel> transaksi, int totalPoin
 });
 
 
@@ -5205,9 +6278,9 @@ class __$PoinStateCopyWithImpl<$Res>
 
 /// Create a copy of PoinState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rewards = null,Object? transaksi = null,Object? totalPoin = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? hadiah = null,Object? transaksi = null,Object? totalPoin = null,}) {
   return _then(_PoinState(
-rewards: null == rewards ? _self._rewards : rewards // ignore: cast_nullable_to_non_nullable
+hadiah: null == hadiah ? _self._hadiah : hadiah // ignore: cast_nullable_to_non_nullable
 as List<PaketModel>,transaksi: null == transaksi ? _self._transaksi : transaksi // ignore: cast_nullable_to_non_nullable
 as List<TransaksiModel>,totalPoin: null == totalPoin ? _self.totalPoin : totalPoin // ignore: cast_nullable_to_non_nullable
 as int,
@@ -5291,8 +6364,8 @@ class SQLitePointsDataSource implements PointsPageDataSource {
   SQLitePointsDataSource({
     required TransaksiOpSqlite transaksiOpSqlite,
     required PaketOpSqlite paketOpSqlite,
-  })  : _transaksiOpSqlite = transaksiOpSqlite,
-        _paketOpSqlite = paketOpSqlite;
+  }) : _transaksiOpSqlite = transaksiOpSqlite,
+       _paketOpSqlite = paketOpSqlite;
 
   @override
   Future<int> ambilTotalPoin(String customerId) {
@@ -5306,8 +6379,11 @@ class SQLitePointsDataSource implements PointsPageDataSource {
 
   @override
   Future<List<TransaksiModel>> getPointsTransactions(
-      final String customerId) async {
-    final history = await _transaksiOpSqlite.getByIdPelanggan(customerId);
+    final String customerId,
+  ) async {
+    final history = await _transaksiOpSqlite.ambilBerdasarkanIdPelanggan(
+      customerId,
+    );
     return history
         .where((t) => t.poinDidapat > 0 || t.poinDigunakan > 0)
         .toList();
@@ -6472,17 +7548,16 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
     };
   }
 }
-// path: lib/fitur/speedtest/page/uji_kecepatan_page.dart
+// path lib/fitur/speedtest/page/uji_kecepatan_page.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/speedtest/provider/ping_provider.dart';
 import 'package:wifi/fitur/speedtest/provider/uji_kecepatan_provider.dart';
-import 'package:wifi/shared/common/text.dart';
+import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 
-/// Halaman untuk melakukan pengujian kecepatan internet.
 class HalamanUjiKecepatan extends ConsumerStatefulWidget {
   const HalamanUjiKecepatan({super.key});
 
@@ -6509,9 +7584,7 @@ class _HalamanUjiKecepatanState extends ConsumerState<HalamanUjiKecepatan> {
     final statusUji = ref.watch(ujiKecepatanProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const TeksJudulSedang('Uji Kecepatan Internet'),
-      ),
+      appBar: AppBar(title: const Text('Uji Kecepatan Internet')),
       body: Padding(
         padding: const EdgeInsets.all(TSizes.p16),
         child: Column(
@@ -6547,13 +7620,11 @@ class _HalamanUjiKecepatanState extends ConsumerState<HalamanUjiKecepatan> {
             ),
             gapH24,
             if (statusUji.sedangMenguji)
-              const Center(
-                child: CircularProgressIndicator(),
-              )
+              const Center(child: CircularProgressIndicator())
             else
               ElevatedButton.icon(
                 onPressed: () {
-                  ref.invalidate(pingProvider);
+                  ref.invalidate(httpPingProvider);
                   ref
                       .read(ujiKecepatanProvider.notifier)
                       .mulaiPengujian(context);
@@ -6615,6 +7686,7 @@ class _KartuHasilUji extends StatelessWidget {
 }
 // path: lib/fitur/speedtest/provider/uji_kecepatan_provider.dart
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_test_plus/flutter_speed_test_plus.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -6639,22 +7711,26 @@ abstract class UjiKecepatanState with _$UjiKecepatanState {
 
 @riverpod
 class UjiKecepatan extends _$UjiKecepatan {
+  FlutterInternetSpeedTest? _alatUji;
+  Timer? _timer;
+  bool _isFinished = false;
+
   @override
   UjiKecepatanState build() {
     return const UjiKecepatanState();
   }
 
-  /// Memulai proses pengujian kecepatan internet menggunakan data server yang sebenarnya.
   Future<void> mulaiPengujian(
     BuildContext context, {
     FlutterInternetSpeedTest? alatUjiManual,
   }) async {
     Log.info('Memulai siklus pengujian kecepatan internet');
-    final alatUji = alatUjiManual ?? FlutterInternetSpeedTest();
+    _timer?.cancel();
+    _isFinished = false;
+    _alatUji = alatUjiManual ?? FlutterInternetSpeedTest();
 
     if (!context.mounted) return;
 
-    // Mengatur status awal pengujian
     state = state.copyWith(
       sedangMenguji: true,
       statusPesan: 'Menghubungkan ke server...',
@@ -6666,88 +7742,111 @@ class UjiKecepatan extends _$UjiKecepatan {
     // Get Ping
     try {
       state = state.copyWith(statusPesan: 'Mengukur ping...');
-      final pingAsync = await ref.read(pingProvider.future);
-      final pingTime = pingAsync.response?.time?.inMilliseconds;
-      if (pingTime != null) {
-        state = state.copyWith(ping: pingTime);
-      }
+      // Perbaikan: httpPingProvider langsung mengembalikan int milidetik
+      final pingTime = await ref.read(httpPingProvider.future);
+      state = state.copyWith(ping: pingTime);
     } catch (e) {
       Log.warning('Gagal mendapatkan ping: $e');
-      state = state.copyWith(ping: -1); // Indicate error
+      state = state.copyWith(ping: -1);
     }
 
-    try {
-      await alatUji.startTesting(
-        onStarted: () {
-          state = state.copyWith(statusPesan: 'Memulai pengujian...');
-        },
-        onDefaultServerSelectionInProgress: () {
-          state = state.copyWith(statusPesan: 'Mencari server terbaik...');
-        },
-        onDefaultServerSelectionDone: (klien) {
+    // Mulai pengujian (tanpa await)
+    _alatUji!.startTesting(
+      onStarted: () {
+        state = state.copyWith(statusPesan: 'Memulai pengujian...');
+      },
+      onDefaultServerSelectionInProgress: () {
+        state = state.copyWith(statusPesan: 'Mencari server terbaik...');
+      },
+      onDefaultServerSelectionDone: (klien) {
+        state = state.copyWith(
+          statusPesan: 'Server terhubung: ${klien?.isp ?? "Otomatis"}',
+        );
+      },
+      onProgress: (persentase, dataUji) {
+        double kecepatanDalamMbps = dataUji.transferRate;
+        if (dataUji.unit == SpeedUnit.kbps) kecepatanDalamMbps /= 1000;
+
+        if (dataUji.type == TestType.download) {
           state = state.copyWith(
-            statusPesan: 'Server terhubung: ${klien?.isp ?? "Otomatis"}',
+            kecepatanUnduh: kecepatanDalamMbps,
+            statusPesan: 'Menguji unduh: ${persentase.toStringAsFixed(0)}%',
           );
-        },
-        onProgress: (persentase, dataUji) {
-          double kecepatanDalamMbps = dataUji.transferRate;
-          if (dataUji.unit == SpeedUnit.kbps) kecepatanDalamMbps /= 1000;
-
-          if (dataUji.type == TestType.download) {
-            state = state.copyWith(
-              kecepatanUnduh: kecepatanDalamMbps,
-              statusPesan: 'Menguji unduh: ${persentase.toStringAsFixed(0)}%',
-            );
-          } else {
-            state = state.copyWith(
-              kecepatanUnggah: kecepatanDalamMbps,
-              statusPesan: 'Menguji unggah: ${persentase.toStringAsFixed(0)}%',
-            );
-          }
-        },
-        onCompleted: (unduh, unggah) {
-          /// Menghitung hasil akhir dalam Mbps.
-          double hasilUnduhDalamMbps = unduh.transferRate;
-          if (unduh.unit == SpeedUnit.kbps) hasilUnduhDalamMbps /= 1000;
-
-          double hasilUnggahDalamMbps = unggah.transferRate;
-          if (unggah.unit == SpeedUnit.kbps) hasilUnggahDalamMbps /= 1000;
-
+        } else {
           state = state.copyWith(
-            kecepatanUnduh: hasilUnduhDalamMbps,
-            kecepatanUnggah: hasilUnggahDalamMbps,
-            sedangMenguji: false,
-            statusPesan: 'Pengujian selesai',
+            kecepatanUnggah: kecepatanDalamMbps,
+            statusPesan: 'Menguji unggah: ${persentase.toStringAsFixed(0)}%',
           );
+        }
+      },
+      onCompleted: (unduh, unggah) {
+        _timer?.cancel(); // Batalkan timer
+        if (_isFinished) return;
+        _isFinished = true;
 
-          if (context.mounted) {
-            ToastUtil.success(context, 'Uji kecepatan berhasil diselesaikan');
-          }
-        },
-        onError: (e, s) {
-          state = state.copyWith(
-            sedangMenguji: false,
-            statusPesan: 'Gagal melakukan pengujian',
-          );
-          Log.error('Gagal saat melakukan uji kecepatan: $e (Kode: $s)');
-          if (context.mounted) {
-            ToastUtil.error(context, 'Gagal melakukan uji kecepatan: $e');
-          }
-        },
-      );
-    } catch (e, st) {
+        double hasilUnduhDalamMbps = unduh.transferRate;
+        if (unduh.unit == SpeedUnit.kbps) hasilUnduhDalamMbps /= 1000;
+
+        double hasilUnggahDalamMbps = unggah.transferRate;
+        if (unggah.unit == SpeedUnit.kbps) hasilUnggahDalamMbps /= 1000;
+
+        state = state.copyWith(
+          kecepatanUnduh: hasilUnduhDalamMbps,
+          kecepatanUnggah: hasilUnggahDalamMbps,
+          sedangMenguji: false,
+          statusPesan: 'Pengujian selesai',
+        );
+
+        if (context.mounted) {
+          ToastUtil.success(context, 'Uji kecepatan berhasil diselesaikan');
+        }
+      },
+      onCancel: () {
+        _timer?.cancel();
+        if (_isFinished) return;
+        _isFinished = true;
+        state = state.copyWith(
+          sedangMenguji: false,
+          statusPesan: 'Pengujian dibatalkan',
+        );
+        if (context.mounted) {
+          ToastUtil.info(context, 'Pengujian dibatalkan');
+        }
+      },
+      onError: (e, s) {
+        _timer?.cancel(); // Batalkan timer
+        if (_isFinished) return;
+        _isFinished = true;
+        state = state.copyWith(
+          sedangMenguji: false,
+          statusPesan: 'Gagal melakukan pengujian',
+        );
+        Log.error('Gagal saat melakukan uji kecepatan: $e (Kode: $s)');
+        if (context.mounted) {
+          ToastUtil.error(context, 'Gagal melakukan uji kecepatan: $e');
+        }
+      },
+    );
+
+    // Perbaikan: Durasi timeout diubah ke 30 detik agar tes tidak mati di tengah jalan
+    _timer = Timer(const Duration(seconds: 30), () {
+      if (_isFinished) return;
+      _isFinished = true;
+      _alatUji?.cancelTest();
       state = state.copyWith(
         sedangMenguji: false,
-        statusPesan: 'Gagal melakukan pengujian',
+        statusPesan: 'Pengujian dihentikan (batas waktu)',
       );
-      Log.error('Gagal saat melakukan uji kecepatan', e: e, s: st);
-
       if (context.mounted) {
-        ToastUtil.error(
-          context,
-          'Gagal melakukan uji kecepatan. Silakan coba lagi.',
-        );
+        ToastUtil.info(context, 'Pengujian dihentikan karena batas waktu');
       }
+    });
+  }
+
+  /// Membatalkan pengujian yang sedang berjalan
+  Future<void> batalkanPengujian() async {
+    if (_alatUji != null && state.sedangMenguji) {
+      await _alatUji!.cancelTest();
     }
   }
 }
@@ -6794,7 +7893,7 @@ final class UjiKecepatanProvider
   }
 }
 
-String _$ujiKecepatanHash() => r'0e21a025bbb3ba1f995cde9470abccb16d2b9ecb';
+String _$ujiKecepatanHash() => r'8b8816c635793187e2bfa5391198044bf9ce14f5';
 
 abstract class _$UjiKecepatan extends $Notifier<UjiKecepatanState> {
   UjiKecepatanState build();
@@ -7097,15 +8196,38 @@ as String,
 
 // dart format on
 // path: lib/fitur/speedtest/provider/ping_provider.dart
-import 'package:dart_ping/dart_ping.dart';
+import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'ping_provider.g.dart';
 
 @riverpod
-Future<PingData> ping(Ref ref) async {
-  final ping = Ping('google.com', count: 1);
-  return await ping.stream.first;
+Future<int> httpPing(Ref ref) async {
+  final stopwatch = Stopwatch()..start();
+  try {
+    final response = await http
+        .head(Uri.parse('https://www.google.com'))
+        .timeout(const Duration(seconds: 5));
+
+    if (response.statusCode == 200) {
+      return stopwatch.elapsedMilliseconds;
+    } else {
+      throw Exception('HTTP status ${response.statusCode}');
+    }
+  } catch (e) {
+    // Fallback ke host lain jika google.com gagal
+    try {
+      final response = await http
+          .head(Uri.parse('https://www.cloudflare.com'))
+          .timeout(const Duration(seconds: 5));
+      if (response.statusCode == 200) {
+        return stopwatch.elapsedMilliseconds;
+      }
+    } catch (_) {}
+    rethrow; // Gagal semua host
+  } finally {
+    stopwatch.stop();
+  }
 }
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
@@ -7118,39 +8240,38 @@ part of 'ping_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(ping)
-final pingProvider = PingProvider._();
+@ProviderFor(httpPing)
+final httpPingProvider = HttpPingProvider._();
 
-final class PingProvider
-    extends
-        $FunctionalProvider<AsyncValue<PingData>, PingData, FutureOr<PingData>>
-    with $FutureModifier<PingData>, $FutureProvider<PingData> {
-  PingProvider._()
+final class HttpPingProvider
+    extends $FunctionalProvider<AsyncValue<int>, int, FutureOr<int>>
+    with $FutureModifier<int>, $FutureProvider<int> {
+  HttpPingProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'pingProvider',
+        name: r'httpPingProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$pingHash();
+  String debugGetCreateSourceHash() => _$httpPingHash();
 
   @$internal
   @override
-  $FutureProviderElement<PingData> $createElement($ProviderPointer pointer) =>
+  $FutureProviderElement<int> $createElement($ProviderPointer pointer) =>
       $FutureProviderElement(pointer);
 
   @override
-  FutureOr<PingData> create(Ref ref) {
-    return ping(ref);
+  FutureOr<int> create(Ref ref) {
+    return httpPing(ref);
   }
 }
 
-String _$pingHash() => r'de3619f38b8d1ec1fa0cd4d1698c18096a086f6c';
+String _$httpPingHash() => r'd40359925cf1b6fb94c217e43ce8a68657a76a73';
 // path: lib/fitur/paket/page/form_paket.dart
 
 import 'package:flutter/material.dart';
@@ -7477,7 +8598,7 @@ import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/page/form_paket.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
-import 'package:wifi/shared/common/text.dart';
+import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -7814,7 +8935,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/page/form_paket.dart';
-import 'package:wifi/shared/common/text.dart';
+import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 
@@ -8201,6 +9322,27 @@ Future<PaketModel> detailPaket(Ref ref, String id) async {
     throw Exception('Paket dengan id $id tidak ditemukan');
   }
   return paket;
+}
+// path: lib/fitur/paket/core/perhitungan_paket.dart
+
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+
+/// Kelas utilitas untuk melakukan perhitungan terkait paket.
+class PerhitunganPaket {
+  /// Menghitung durasi paket dalam satuan menit.
+  int hitungDurasiPaket(PaketModel paket) {
+    switch (paket.tipe) {
+      case TipeDurasiPaket.minutes:
+        return paket.durasi;
+      case TipeDurasiPaket.hours:
+        return paket.durasi * 60;
+      case TipeDurasiPaket.days:
+        return paket.durasi * 24 * 60;
+      case TipeDurasiPaket.months:
+        return paket.durasi * 30 * 24 * 60; // Asumsi 1 bulan = 30 hari
+    }
+  }
 }
 // path: lib/fitur/paket/operasi/paket_op_firebase.dart
 
@@ -9014,21 +10156,21 @@ import 'package:wifi/shared/utils/format_util.dart';
 
 final pesanInfoPaketProvider = Provider<PesanInfoPaket>((ref) {
   return PesanInfoPaket(
-    pelangganAktifOpSqlite: ref.read(pelangganOpSqliteProvider),
+    pelangganOpSqlite: ref.read(pelangganOpSqliteProvider),
     paketOpSqlite: ref.read(paketOpSqliteProvider),
   );
 });
 
 /// Kelas untuk mengirim pesan informasi paket melalui WhatsApp.
 class PesanInfoPaket {
-  final PelangganOpSqlite _pelangganAktifOpSqlite;
+  final PelangganOpSqlite _pelangganOpSqlite;
   final PaketOpSqlite _paketOpSqlite;
 
   PesanInfoPaket({
-    required PelangganOpSqlite pelangganAktifOpSqlite,
+    required PelangganOpSqlite pelangganOpSqlite,
     required PaketOpSqlite paketOpSqlite,
-  }) : _pelangganAktifOpSqlite = pelangganAktifOpSqlite,
-       _paketOpSqlite = paketOpSqlite;
+  })  : _pelangganOpSqlite = pelangganOpSqlite,
+        _paketOpSqlite = paketOpSqlite;
 
   /// Mengambil detail pelanggan dan paket, membuat pesan,
   /// lalu mengirimkannya melalui WhatsApp.
@@ -9041,7 +10183,7 @@ class PesanInfoPaket {
       Log.info(
         'Mengambil data pelanggan dengan ID: ${pelangganAktif.idPelanggan}',
       );
-      final PelangganModel? pelanggan = await _pelangganAktifOpSqlite
+      final PelangganModel? pelanggan = await _pelangganOpSqlite
           .ambilBerdasarkanId(pelangganAktif.idPelanggan);
       Log.info('Mengambil data paket dengan ID: ${pelangganAktif.idPaket}');
       final PaketModel? paket = await _paketOpSqlite.ambilBerdasarkanId(
@@ -9170,7 +10312,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/provider/order_provider.dart';
-import 'package:wifi/shared/common/text.dart';
+import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
@@ -10045,7 +11187,7 @@ import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 
 part 'order_provider.g.dart';
 part 'order_provider.freezed.dart';
@@ -10948,11 +12090,674 @@ as DateTime?,
 }
 
 // dart format on
+// path lib/fitur/kategori/page/form_kategori.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
+
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
+import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
+
+/// Halaman form untuk menambah atau mengedit kategori dan sub-kategori.
+class CategoryForm extends ConsumerStatefulWidget {
+  /// Model kategori yang akan diedit. Jika null, maka form akan membuat kategori baru.
+  final KategoriModel? kategori;
+
+  /// Model sub-kategori yang akan diedit.
+  final SubKategoriModel? subKategori;
+
+  /// ID kategori induk untuk membuat sub-kategori baru.
+  final String? idKategoriInduk;
+
+  /// Konstruktor untuk CategoryForm.
+  const CategoryForm({
+    super.key,
+    this.kategori,
+    this.subKategori,
+    this.idKategoriInduk,
+  });
+
+  @override
+  ConsumerState<CategoryForm> createState() => _CategoryFormState();
+}
+
+class _CategoryFormState extends ConsumerState<CategoryForm> {
+  final _formKey = GlobalKey<FormState>();
+  late TipeKategori _tipe;
+  late TextEditingController _namaController;
+  final _namaFocusNode = FocusNode();
+
+  final List<TextEditingController> _subKategoriControllers = [];
+  final List<SubKategoriModel?> _subKategoriModels = [];
+
+  bool get _modeEdit => widget.kategori != null || widget.subKategori != null;
+  bool get _modeSubKategori =>
+      widget.subKategori != null || widget.idKategoriInduk != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final isEditMode = widget.kategori != null || widget.subKategori != null;
+    final isSubKategoriMode =
+        widget.subKategori != null || widget.idKategoriInduk != null;
+
+    Log.info(
+      '''Membuat state untuk CategoryForm. Mode: ${isEditMode ? "EDIT" : "TAMBAH BARU"}, Jenis: ${isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}, ${widget.kategori != null ? "Kategori: ${widget.kategori!.nama} (ID: ${widget.kategori!.id})" : ""}${widget.subKategori != null ? "Sub-Kategori: ${widget.subKategori!.nama} (ID: ${widget.subKategori!.id})" : ""}${widget.idKategoriInduk != null ? "ID Kategori Induk: ${widget.idKategoriInduk}" : ""}''',
+    );
+
+    Log.info('========================================');
+    Log.info('LIFECYCLE: initState() - Halaman CategoryForm');
+    Log.info('========================================');
+
+    Log.info('Membuat TextEditingController untuk input nama.');
+    _namaController = TextEditingController();
+    Log.info('TextEditingController berhasil dibuat.');
+
+    Log.info('Membuat FocusNode untuk input nama.');
+    Log.info('FocusNode berhasil dibuat: ${_namaFocusNode.hashCode}');
+
+    if (widget.kategori != null) {
+      Log.info('MODE EDIT KATEGORI UTAMA terdeteksi.');
+      Log.info('Data kategori yang akan diedit:');
+      Log.info('  - ID: ${widget.kategori!.id}');
+      Log.info('  - Nama: ${widget.kategori!.nama}');
+      Log.info('  - Tipe: ${widget.kategori!.tipe}');
+      Log.info(
+        '  - Jumlah Sub-Kategori: ${widget.kategori!.idSubKategori.length}',
+      );
+      Log.info('  - Diperbarui: ${widget.kategori!.diperbaruiPada}');
+      Log.info('  - isDeleted: ${widget.kategori!.diHapus}');
+      Log.info('  - Diarsipkan: ${widget.kategori!.diarsipkanPada ?? "NULL"}');
+
+      Log.info(
+        'Mengisi TextEditingController dengan nama kategori: "${widget.kategori!.nama}"',
+      );
+      _namaController.text = widget.kategori!.nama;
+      _tipe = widget.kategori!.tipe;
+      Log.info('Tipe kategori diatur ke: ${widget.kategori!.tipe}');
+
+      Log.info('Memuat sub-kategori yang sudah ada untuk diedit.');
+      for (final sub in widget.kategori!.idSubKategori) {
+        _subKategoriControllers.add(TextEditingController(text: sub.nama));
+        _subKategoriModels.add(sub);
+      }
+      Log.info('${_subKategoriControllers.length} sub-kategori dimuat.');
+    } else if (widget.subKategori != null) {
+      Log.info('MODE EDIT SUB-KATEGORI terdeteksi.');
+      Log.info('Data sub-kategori yang akan diedit:');
+      Log.info('  - ID: ${widget.subKategori!.id}');
+      Log.info('  - Nama: ${widget.subKategori!.nama}');
+      Log.info('  - ID Kategori Induk: ${widget.subKategori!.idKategori}');
+      Log.info('  - Diperbarui: ${widget.subKategori!.diperbaruiPada}');
+
+      Log.info(
+        'Mengisi TextEditingController dengan nama sub-kategori: "${widget.subKategori!.nama}"',
+      );
+      _namaController.text = widget.subKategori!.nama;
+      // FIX: Inisialisasi _tipe untuk menghindari LateInitializationError.
+      // Nilai ini tidak digunakan saat menyimpan sub-kategori, jadi aman diatur ke default.
+      _tipe = TipeKategori.income;
+      Log.info(
+        'Tipe kategori diatur ke default: $_tipe (tidak relevan untuk edit sub-kategori).',
+      );
+    } else {
+      Log.info('MODE TAMBAH BARU terdeteksi.');
+      Log.info('Form akan membuat kategori baru dengan:');
+      Log.info('  - ID: Akan digenerate otomatis menggunakan UUID v4');
+      Log.info('  - Tipe Default: income');
+      Log.info('  - Nama: Dari input pengguna');
+      Log.info('  - Sub-Kategori: Opsional, bisa ditambahkan multiple');
+      Log.info('  - Diperbarui: Akan diatur oleh lapisan Operasi Data');
+
+      Log.info('Mengatur tipe default ke income.');
+      _tipe = TipeKategori.income;
+      Log.info('Tipe kategori diatur ke: $_tipe');
+
+      Log.info('Menambahkan field input sub-kategori pertama secara default.');
+      _tambahInputSubKategori();
+    }
+
+    Log.info(
+      'Inisialisasi CategoryForm selesai. Siap menerima input dari pengguna.',
+    );
+  }
+
+  @override
+  void dispose() {
+    Log.info('========================================');
+    Log.info('LIFECYCLE: dispose() - Halaman CategoryForm');
+    Log.info('Membersihkan resource:');
+    Log.info('  - Mendispose TextEditingController utama (_namaController)');
+    Log.info('  - Mendispose FocusNode (_namaFocusNode)');
+    Log.info(
+      '  - Mendispose ${_subKategoriControllers.length} TextEditingController sub-kategori',
+    );
+    Log.info('========================================');
+
+    _namaController.dispose();
+    _namaFocusNode.dispose();
+
+    for (int i = 0; i < _subKategoriControllers.length; i++) {
+      Log.info('  Mendispose sub-kategori controller ke-${i + 1}');
+      _subKategoriControllers[i].dispose();
+    }
+
+    Log.info('Semua resource berhasil dibersihkan.');
+    super.dispose();
+  }
+
+  void _tambahInputSubKategori() {
+    Log.info('========================================');
+    Log.info('AKSI: Menambahkan field input sub-kategori baru');
+    Log.info(
+      'Jumlah field sub-kategori sebelum ditambah: ${_subKategoriControllers.length}',
+    );
+    Log.info('========================================');
+
+    setState(() {
+      _subKategoriControllers.add(TextEditingController());
+      _subKategoriModels.add(null);
+    });
+
+    Log.info('Field sub-kategori baru berhasil ditambahkan.');
+    Log.info(
+      'Jumlah field sub-kategori sekarang: ${_subKategoriControllers.length}',
+    );
+    Log.info('Index field baru: ${_subKategoriControllers.length - 1}');
+  }
+
+  void _hapusInputSubKategori(final int index) {
+    Log.info('========================================');
+    Log.info('AKSI: Menghapus field input sub-kategori');
+    Log.info('Index yang akan dihapus: $index');
+    Log.info(
+      'Jumlah field sub-kategori sebelum dihapus: ${_subKategoriControllers.length}',
+    );
+
+    if (index >= 0 && index < _subKategoriControllers.length) {
+      Log.info(
+        'Nilai field sebelum dihapus: "${_subKategoriControllers[index].text}"',
+      );
+    } else {
+      Log.warning(
+        'Index $index tidak valid. Jumlah field: ${_subKategoriControllers.length}',
+      );
+    }
+    Log.info('========================================');
+
+    setState(() {
+      Log.info('Mendispose controller pada index $index.');
+      _subKategoriControllers[index].dispose();
+      Log.info('Menghapus controller dari list.');
+      _subKategoriControllers.removeAt(index);
+      _subKategoriModels.removeAt(index);
+    });
+
+    Log.info('Field sub-kategori berhasil dihapus.');
+    Log.info(
+      'Jumlah field sub-kategori sekarang: ${_subKategoriControllers.length}',
+    );
+  }
+
+  Future<void> _saveForm() async {
+    final kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
+    Log.info('Mode: ${_modeEdit ? "EDIT" : "TAMBAH BARU"}');
+    Log.info(
+      'Jenis: ${_modeSubKategori ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',
+    );
+    Log.info('Nama yang akan disimpan: "${_namaController.text}"');
+    if (!_modeSubKategori || !_modeEdit) {
+      Log.info('Tipe kategori: $_tipe');
+    }
+
+    Log.info('Memvalidasi form...');
+    if (_formKey.currentState!.validate()) {
+      Log.info('Validasi form BERHASIL. Semua input valid.');
+
+      try {
+        if (_modeEdit && widget.subKategori != null) {
+          final String parentCategoryId = widget.subKategori!.idKategori;
+
+          Log.info('Data sub-kategori sebelum update:');
+          Log.info('  - ID: ${widget.subKategori!.id}');
+          Log.info('  - Nama Lama: ${widget.subKategori!.nama}');
+          Log.info('  - Nama Baru: ${_namaController.text}');
+          Log.info('  - ID Kategori Induk: $parentCategoryId');
+
+          Log.info(
+            'Mengambil data kategori induk dengan ID: $parentCategoryId',
+          );
+          final kategoriInduk =
+              await kategoriOpSqlite.ambilKategoriBerdasarkanId(
+                    parentCategoryId,
+                  )
+                  as KategoriModel?;
+
+          if (kategoriInduk == null) {
+            throw Exception('Kategori induk tidak ditemukan.');
+          }
+
+          Log.info(
+            'Kategori induk ditemukan: ${kategoriInduk.nama} (memiliki ${kategoriInduk.idSubKategori.length} sub-kategori).',
+          );
+          Log.info(
+            'Mencari index sub-kategori dengan ID: ${widget.subKategori!.id} dalam daftar sub-kategori.',
+          );
+
+          final subKategoriIndex = kategoriInduk.idSubKategori.indexWhere(
+            (final s) => s.id == widget.subKategori!.id,
+          );
+
+          if (subKategoriIndex != -1) {
+            Log.info('Sub-kategori ditemukan pada index: $subKategoriIndex');
+            Log.info(
+              'Nama sub-kategori sebelum update: "${kategoriInduk.idSubKategori[subKategoriIndex].nama}"',
+            );
+
+            Log.info('Membuat salinan sub-kategori dengan nama baru.');
+            final subKategoriDiperbarui = kategoriInduk
+                .idSubKategori[subKategoriIndex]
+                .copyWith(nama: _namaController.text);
+
+            Log.info(
+              'Mengganti sub-kategori pada index $subKategoriIndex dengan data baru.',
+            );
+            kategoriInduk.idSubKategori[subKategoriIndex] =
+                subKategoriDiperbarui;
+
+            Log.info(
+              'Memanggil _kategoriOperasi.updateCategory() untuk menyimpan perubahan kategori induk.',
+            );
+            await kategoriOpSqlite.updateKategori(kategoriInduk);
+
+            Log.info('Update sub-kategori BERHASIL.');
+            Log.info(
+              'Nama sub-kategori berubah dari "${widget.subKategori!.nama}" menjadi "${_namaController.text}"',
+            );
+          } else {
+            Log.error(
+              'Sub-kategori dengan ID ${widget.subKategori!.id} tidak ditemukan dalam daftar sub-kategori kategori induk.',
+            );
+            throw Exception('Sub-kategori tidak ditemukan untuk diedit.');
+          }
+        } else if (_modeEdit && widget.kategori != null) {
+          Log.info('========================================');
+          Log.info('PROSES UPDATE KATEGORI UTAMA (MODE EDIT KATEGORI)');
+          Log.info('========================================');
+
+          Log.info('Memproses daftar sub-kategori untuk update...');
+          final List<SubKategoriModel> newSubCategoryList = [];
+          for (int i = 0; i < _subKategoriControllers.length; i++) {
+            final controller = _subKategoriControllers[i];
+            final originalModel = _subKategoriModels[i];
+
+            if (controller.text.isNotEmpty) {
+              if (originalModel != null) {
+                // Ini adalah sub-kategori yang sudah ada yang mungkin telah diedit
+                newSubCategoryList.add(
+                  originalModel.copyWith(nama: controller.text),
+                );
+              } else {
+                // Ini adalah sub-kategori baru
+                newSubCategoryList.add(
+                  SubKategoriModel(
+                    id: const Uuid().v4(),
+                    nama: controller.text,
+                    idKategori: widget.kategori!.id,
+                  ),
+                );
+              }
+            }
+          }
+
+          final kategoriDiperbarui = widget.kategori!.copyWith(
+            nama: _namaController.text,
+            tipe: _tipe,
+            idSubKategori: newSubCategoryList,
+          );
+
+          Log.info(
+            'Memanggil _kategoriOperasi.updateCategory() untuk menyimpan perubahan.',
+          );
+          await kategoriOpSqlite.updateKategori(kategoriDiperbarui);
+
+          Log.info('Update kategori utama BERHASIL.');
+        } else {
+          final String kategoriId = const Uuid().v4();
+          Log.info('UUID berhasil digenerate: $kategoriId');
+
+          Log.info(
+            'Memproses ${_subKategoriControllers.length} field input sub-kategori.',
+          );
+
+          int subKategoriKosong = 0;
+          int subKategoriTerisi = 0;
+
+          final List<SubKategoriModel> subKategoriList = _subKategoriControllers
+              .where((final controller) {
+                final isEmpty = controller.text.isEmpty;
+                if (isEmpty) {
+                  subKategoriKosong++;
+                  Log.info(
+                    '  Sub-kategori dengan nilai "${controller.text}" akan DIABAIKAN karena kosong.',
+                  );
+                } else {
+                  subKategoriTerisi++;
+                  Log.info(
+                    '  Sub-kategori dengan nilai "${controller.text}" akan DISIMPAN.',
+                  );
+                }
+                return !isEmpty;
+              })
+              .map((final controller) {
+                return SubKategoriModel(
+                  id: const Uuid().v4(),
+                  nama: controller.text,
+                  idKategori: kategoriId,
+                );
+              })
+              .toList();
+
+          Log.info(
+            'Ringkasan sub-kategori: $subKategoriTerisi akan disimpan, $subKategoriKosong diabaikan.',
+          );
+
+          Log.info('Membuat objek CategoryModel baru.');
+          final kategoriBaru = KategoriModel(
+            id: kategoriId,
+            nama: _namaController.text,
+            tipe: _tipe,
+            idSubKategori: subKategoriList,
+          );
+
+          Log.info('Objek CategoryModel berhasil dibuat:');
+          Log.info('  - ID: ${kategoriBaru.id}');
+          Log.info('  - Nama: ${kategoriBaru.nama}');
+          Log.info('  - Tipe: ${kategoriBaru.tipe}');
+          Log.info(
+            '  - Jumlah Sub-Kategori: ${kategoriBaru.idSubKategori.length}',
+          );
+          Log.info('  - Diperbarui: Akan diatur oleh lapisan Operasi Data.');
+
+          Log.info(
+            'Memanggil _kategoriOperasi.createCategory() untuk menyimpan kategori baru.',
+          );
+          await kategoriOpSqlite.tambahKategori(kategoriBaru);
+        }
+
+        if (!mounted) {
+          Log.warning(
+            'Widget sudah tidak mounted setelah penyimpanan berhasil. Tidak dapat menampilkan SnackBar atau melakukan Navigator.pop.',
+          );
+          return;
+        }
+
+        final hasConnection = await  ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
+        if (hasConnection) {
+          final syncCheckService = ref.read(layananCekSinkronisasiProvider);
+          syncCheckService.jalankanCekSinkronisasi();
+          if (mounted) {
+            ToastUtil.success(
+              context,
+              'Kategori berhasil disimpan dan disinkronkan.',
+            );
+          }
+        } else {
+          if (mounted) {
+            ToastUtil.info(
+              context,
+              'Koneksi offline. Data disimpan lokal dan akan disinkronkan saat online.',
+            );
+          }
+        }
+        if (mounted) {
+          Navigator.pop(context, true);
+        }
+      } on Exception catch (e, s) {
+        Log.error(
+          'Gagal menyimpan ${_modeSubKategori ? 'sub-kategori' : 'kategori'}. Proses ${_modeEdit ? 'update' : 'create'} mengalami kegagalan. Kemungkinan penyebab: koneksi database gagal, constraint violation, data tidak valid, atau terjadi error saat operasi database.',
+          e: e,
+          s: s,
+        );
+
+        if (!mounted) {
+          Log.warning(
+            'Widget sudah tidak mounted setelah error. Tidak dapat menampilkan SnackBar error.',
+          );
+          return;
+        }
+
+        Log.info(
+          'Widget masih mounted. Menampilkan SnackBar error ke pengguna.',
+        );
+        if (mounted) {
+          ToastUtil.error(context, 'Gagal menyimpan: $e');
+        }
+        Log.info('SnackBar error telah ditampilkan.');
+      }
+    } else {
+      Log.warning('Validasi form GAGAL. Terdapat input yang tidak valid.');
+      Log.warning(
+        'Kemungkinan penyebab: Nama kategori/sub-kategori kosong atau tidak memenuhi kriteria validasi.',
+      );
+      Log.info('Form tidak akan disimpan sampai semua input valid.');
+    }
+  }
+
+  @override
+  Widget build(final BuildContext context) {
+    String judul = 'Form Kategori';
+    if (_modeEdit && widget.kategori != null) judul = 'Edit Kategori';
+    if (_modeEdit && widget.subKategori != null) judul = 'Edit Sub-Kategori';
+    if (!_modeEdit && widget.idKategoriInduk != null) {
+      judul = 'Tambah Sub-Kategori';
+    }
+    if (!_modeEdit && widget.kategori == null && widget.subKategori == null) {
+      judul = 'Tambah Kategori Baru';
+    }
+
+    Log.info('========================================');
+    Log.info('LIFECYCLE: build() - Membangun UI CategoryForm');
+    Log.info('Judul halaman: "$judul"');
+    Log.info('Mode: ${_modeEdit ? "EDIT" : "TAMBAH BARU"}');
+    Log.info(
+      'Jenis: ${_modeSubKategori ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',
+    );
+    Log.info('Nama di controller: "${_namaController.text}"');
+    // Log.info('Tipe terpilih: $_tipe');
+    Log.info('Jumlah field sub-kategori: ${_subKategoriControllers.length}');
+    Log.info('========================================');
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(judul),
+        leading: BackButton(
+          onPressed: () {
+            Log.info(
+              'NAVIGASI: Tombol Kembali ditekan. Kembali ke halaman sebelumnya dengan result false (tidak ada perubahan).',
+            );
+            Navigator.pop(context, false);
+          },
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(TSizes.p16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: _namaController,
+                  focusNode: _namaFocusNode,
+                  decoration: InputDecoration(
+                    labelText: _modeSubKategori
+                        ? 'Nama Sub-Kategori'
+                        : 'Nama Kategori',
+                    border: const OutlineInputBorder(),
+                  ),
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: ( _) {
+                    Log.info(
+                      'INPUT: Field nama disubmit melalui keyboard (TextInputAction.done).',
+                    );
+                    Log.info('Nilai yang disubmit: "${_namaController.text}"');
+                    Log.info('Menghilangkan fokus dari input.');
+                    FocusScope.of(context).unfocus();
+                  },
+                  onChanged: (final value) {
+                    Log.info(
+                      'INPUT: Nama ${_modeSubKategori ? "sub-kategori" : "kategori"} berubah menjadi: "$value" (panjang: ${value.length} karakter)',
+                    );
+                  },
+                  validator: (final value) {
+                    Log.info(
+                      'VALIDASI: Memvalidasi input nama. Nilai: "${value ?? "NULL"}"',
+                    );
+                    if (value == null || value.isEmpty) {
+                      Log.warning('VALIDASI GAGAL: Nama kosong.');
+                      return 'Nama tidak boleh kosong';
+                    }
+                    Log.info('VALIDASI BERHASIL: Nama valid.');
+                    return null;
+                  },
+                ),
+                gapH16,
+                if (!_modeSubKategori) ...[
+                  DropdownButtonFormField<TipeKategori>(
+                    initialValue: _tipe,
+                    decoration: const InputDecoration(
+                      labelText: 'Tipe',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: TipeKategori.values
+                        .where(
+                          (final type) =>
+                              type == TipeKategori.income ||
+                              type == TipeKategori.expense,
+                        )
+                        .map((final TipeKategori category) {
+                          Log.info(
+                            'Membuat DropdownMenuItem untuk: ${category.displayName}',
+                          );
+
+                          return DropdownMenuItem<TipeKategori>(
+                            value: category,
+                            child: Text(category.displayName),
+                          );
+                        })
+                        .toList(),
+                    onChanged: (final TipeKategori? newValue) {
+                      if (newValue != null) {
+                        Log.info('DROPDOWN: Tipe kategori diubah.');
+                        Log.info('  - Tipe Lama: $_tipe');
+                        Log.info('  - Tipe Baru: $newValue');
+                        setState(() {
+                          _tipe = newValue;
+                        });
+                        Log.info('State _tipe berhasil diperbarui ke: $_tipe');
+                      }
+                    },
+                  ),
+                  gapH24,
+                ],
+                if (!_modeSubKategori) ...[
+                  const Text(
+                    'Sub-Kategori',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const Divider(),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _subKategoriControllers.length,
+                    itemBuilder: (final context, final index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: TSizes.p8,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: _subKategoriControllers[index],
+                                decoration: InputDecoration(
+                                  labelText: 'Nama Sub-Kategori ${index + 1}',
+                                  border: const OutlineInputBorder(),
+                                ),
+                                onChanged: (final value) {
+                                  Log.info(
+                                    'INPUT: Sub-kategori ke-${index + 1} berubah menjadi: "$value" (panjang: ${value.length} karakter)',
+                                  );
+                                },
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                TIcons.delete,
+                                color: Colors.red,
+                              ),
+                              onPressed: () {
+                                Log.info(
+                                  'AKSI: Tombol hapus sub-kategori ke-${index + 1} ditekan.',
+                                );
+                                _hapusInputSubKategori(index);
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  gapH8,
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: () {
+                        Log.info(
+                          'AKSI: Tombol "Tambah Input" sub-kategori ditekan.',
+                        );
+                        _tambahInputSubKategori();
+                      },
+                      icon: const Icon(TIcons.add),
+                      label: const Text('Tambah Input'),
+                    ),
+                  ),
+                ],
+                gapH20,
+                ElevatedButton(
+                  onPressed: () async {
+                    Log.info('AKSI: Tombol Simpan ditekan oleh pengguna.');
+                    await _saveForm();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  child: const Text('Simpan'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 // path: lib/fitur/kategori/page/kategori.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/form/form_kategori.dart';
+import 'package:wifi/fitur/kategori/page/form_kategori.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
@@ -12611,7 +14416,7 @@ import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
-import 'package:wifi/fitur/transaksi/page/detail_transaksi.dart';
+import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
@@ -12619,13 +14424,13 @@ import 'package:wifi/shared/widget/summary_info_widget.dart';
 
 class DataDetailDompet {
   final DompetModel dompet;
-  final List<TransaksiModel> transaksi;
+  final List<TransaksiModel> daftarTransaksi;
   final double totalPemasukan;
   final double totalPengeluaran;
 
   DataDetailDompet({
     required this.dompet,
-    required this.transaksi,
+    required this.daftarTransaksi,
     required this.totalPemasukan,
     required this.totalPengeluaran,
   });
@@ -12666,7 +14471,7 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
     try {
       final hasil = await Future.wait([
         dompetOpSqlite.ambilBerdasarkanId(widget.dompet.id),
-        transaksiOpsqlite.getTransactionsByWalletId(widget.dompet.id),
+        transaksiOpsqlite.ambilBerdasarkanIdDompet(widget.dompet.id),
       ]);
 
       final dompet = hasil[0] as DompetModel?;
@@ -12695,7 +14500,7 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
 
       return DataDetailDompet(
         dompet: dompet,
-        transaksi: daftarTransaksi,
+        daftarTransaksi: daftarTransaksi,
         totalPemasukan: pemasukan,
         totalPengeluaran: pengeluaran,
       );
@@ -12712,16 +14517,14 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
     });
   }
 
-  Future<void> _navigasiKeDetailTransaksi(
-    TransaksiModel transaction,
-  ) async {
+  Future<void> _navigasiKeDetailTransaksi(TransaksiModel transaction) async {
     Log.info(
       'Navigasi ke TransactionDetailPage dari WalletDetail untuk transaksi ID: ${transaction.id}',
     );
     final hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (context) => DetailTransaksi(transaksi: transaction),
+        builder: (context) => DetailTransaksiA(transaksi: transaction),
       ),
     );
 
@@ -12735,9 +14538,7 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
     }
   }
 
-  Future<void> _navigasiKeFormTransaksi({
-    TransaksiModel? transaksi,
-  }) async {
+  Future<void> _navigasiKeFormTransaksi({TransaksiModel? transaksi}) async {
     Log.info(
       'Membuka FormTransaksiPage untuk mengedit transaksi ID: ${transaksi?.id} dari WalletDetail.',
     );
@@ -12814,9 +14615,9 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
               ),
               const Divider(height: 1),
               Expanded(
-                child: data.transaksi.isEmpty
+                child: data.daftarTransaksi.isEmpty
                     ? const Center(child: Text('Belum ada transaksi.'))
-                    : _bangunDaftarTransaksi(data.transaksi),
+                    : _bangunDaftarTransaksi(data.daftarTransaksi),
               ),
             ],
           );
@@ -12825,8 +14626,8 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
     );
   }
 
-  Widget _bangunDaftarTransaksi(List<TransaksiModel> transactionData) {
-    final transaksiPerTanggal = kelompokkanTransaksiPerTanggal(transactionData);
+  Widget _bangunDaftarTransaksi(List<TransaksiModel> daftarTransaksi) {
+    final transaksiPerTanggal = kelompokkanTransaksiPerTanggal(daftarTransaksi);
     final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
     return ListView.builder(
       itemCount: transaksiPerTanggal.length,
@@ -12880,7 +14681,7 @@ import 'package:wifi/fitur/dompet/page/detail_dompet.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/dompet/page/form_dompet.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
-import 'package:wifi/shared/common/text.dart';
+import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -12892,7 +14693,7 @@ class DompetPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Log.info('Membangun UI untuk Halaman Wallet (ConsumerWidget).');
-    final walletStateAsync = ref.watch(dompetProvider);
+    final dompetStateAsync = ref.watch(dompetProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dompet'),
@@ -12904,7 +14705,7 @@ class DompetPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: walletStateAsync.when(
+      body: dompetStateAsync.when(
         loading: () {
           Log.info('WalletProvider sedang loading.');
           return const Center(child: CircularProgressIndicator());
@@ -12920,9 +14721,9 @@ class DompetPage extends ConsumerWidget {
         },
         data: (walletState) {
           Log.info(
-            'WalletProvider berhasil memuat ${walletState.wallets.length} dompet.',
+            'WalletProvider berhasil memuat ${walletState.daftarDompet.length} dompet.',
           );
-          final wallets = walletState.wallets;
+          final wallets = walletState.daftarDompet;
           if (wallets.isEmpty) {
             return Center(
               child: Text(
@@ -12946,7 +14747,7 @@ class DompetPage extends ConsumerWidget {
                   itemBuilder: (context, index) {
                     final wallet = wallets[index];
                     return WalletCard(
-                      wallet: wallet,
+                      dompet: wallet,
                       onTap: () => _navigateToDetail(context, ref, wallet),
                       onLongPress: () =>
                           _showArchiveOneDialog(context, ref, wallet),
@@ -12960,20 +14761,20 @@ class DompetPage extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'fab_wallet',
-        onPressed: () => _navigateToAddForm(context, ref),
+        onPressed: () => _navigasiKeForm(context, ref),
         tooltip: 'Tambah Dompet',
         child: const Icon(TIcons.add),
       ),
     );
   }
 
-  Future<void> _navigateToAddForm(BuildContext context, WidgetRef ref) async {
+  Future<void> _navigasiKeForm(BuildContext context, WidgetRef ref) async {
     Log.info('Navigasi ke halaman tambah dompet.');
-    final result = await Navigator.push<bool>(
+    final hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(builder: (context) => const FormDompet()),
     );
-    if (result ?? false) {
+    if (hasil ?? false) {
       Log.info('Berhasil menambahkan dompet baru, memicu refresh.');
       ref.read(dompetProvider.notifier).refresh();
     }
@@ -12982,13 +14783,13 @@ class DompetPage extends ConsumerWidget {
   Future<void> _navigateToDetail(
     BuildContext context,
     WidgetRef ref,
-    DompetModel wallet,
+    DompetModel dompet,
   ) async {
-    Log.info('Navigasi ke detail dompet: "${wallet.nama}".');
+    Log.info('Navigasi ke detail dompet: "${dompet.nama}".');
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => DetailDompet(dompet: wallet),
+        builder: (context) => DetailDompet(dompet: dompet),
       ),
     );
     Log.info('Kembali dari detail dompet, memicu refresh.');
@@ -12997,7 +14798,7 @@ class DompetPage extends ConsumerWidget {
 
   Future<void> _showDeleteAllDialog(BuildContext context, WidgetRef ref) async {
     Log.info('Menampilkan dialog konfirmasi hapus semua dompet.');
-    final wallets = ref.read(dompetProvider).value?.wallets ?? [];
+    final wallets = ref.read(dompetProvider).value?.daftarDompet ?? [];
 
     if (wallets.isEmpty) {
       Log.warning('Tidak ada dompet untuk dihapus.');
@@ -13055,7 +14856,7 @@ class DompetPage extends ConsumerWidget {
   Future<void> _showArchiveOneDialog(
     BuildContext context,
     WidgetRef ref,
-    DompetModel wallet,
+    DompetModel dompet,
   ) async {
     await showDialog<void>(
       context: context,
@@ -13063,7 +14864,7 @@ class DompetPage extends ConsumerWidget {
         return AlertDialog(
           title: const Text('Konfirmasi Arsip'),
           content: Text(
-            'Apakah Anda yakin ingin mengarsipkan dompet "${wallet.nama}"?',
+            'Apakah Anda yakin ingin mengarsipkan dompet "${dompet.nama}"?',
           ),
           actions: <Widget>[
             TextButton(
@@ -13077,7 +14878,7 @@ class DompetPage extends ConsumerWidget {
                 unawaited(
                   ref
                       .read(dompetProvider.notifier)
-                      .softDelete(wallet.id)
+                      .softDelete(dompet.id)
                       .then((_) {
                         if (context.mounted) {
                           ToastUtil.success(
@@ -13103,21 +14904,21 @@ class DompetPage extends ConsumerWidget {
 }
 
 class WalletCard extends StatelessWidget {
-  final DompetModel wallet;
+  final DompetModel dompet;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
 
   const WalletCard({
     super.key,
-    required this.wallet,
+    required this.dompet,
     required this.onTap,
     required this.onLongPress,
   });
 
   @override
   Widget build(BuildContext context) {
-    Log.info('WalletCard build: name=${wallet.nama} balance=${wallet.saldo}');
-    final subtitleColor = wallet.saldo < 0
+    Log.info('WalletCard build: name=${dompet.nama} balance=${dompet.saldo}');
+    final subtitleColor = dompet.saldo < 0
         ? context.colorScheme.error
         : context.textTheme.bodySmall?.color;
     return Card(
@@ -13134,9 +14935,9 @@ class WalletCard extends StatelessWidget {
           size: 40,
           color: TColors.primaryColor,
         ),
-        title: TeksJudulSedang(wallet.nama),
+        title: TeksJudulSedang(dompet.nama),
         subtitle: TeksIsiSedang(
-          'Saldo: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(wallet.saldo)}',
+          'Saldo: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(dompet.saldo)}',
           warna: subtitleColor,
         ),
         onTap: onTap,
@@ -13183,9 +14984,11 @@ class _WalletFormState extends ConsumerState<FormDompet> {
   @override
   void initState() {
     super.initState();
-    final isEditMode = widget.dompet != null;
-    Log.info('Membuat state WalletForm. '
-        'Mode: ${isEditMode ? "EDIT (ID: ${widget.dompet!.id}, Nama: ${widget.dompet!.nama}, Saldo: ${widget.dompet!.saldo})" : "TAMBAH BARU"}');
+    final modeEdit = widget.dompet != null;
+    Log.info(
+      'Membuat state WalletForm. '
+      'Mode: ${modeEdit ? "EDIT (ID: ${widget.dompet!.id}, Nama: ${widget.dompet!.nama}, Saldo: ${widget.dompet!.saldo})" : "TAMBAH BARU"}',
+    );
     _dompetOpSqlite = ref.read(dompetOpSqliteProvider);
 
     Log.info('Membuat FocusNode untuk input nama dompet.');
@@ -13233,20 +15036,21 @@ class _WalletFormState extends ConsumerState<FormDompet> {
           );
           Log.info('Saldo tetap: ${widget.dompet!.saldo}');
 
-          final dataToUdpate = DompetModel(
+          final dataBaru = DompetModel(
             id: widget.dompet!.id,
             nama: _namaController.text,
             saldo: widget.dompet!.saldo,
           );
 
-          await _dompetOpSqlite.updateDompet(dataToUdpate);
+          await _dompetOpSqlite.updateDompet(dataBaru);
           Log.info('Update dompet berhasil.');
         } else {
           Log.info('Proses TAMBAH dompet baru');
 
           final id = const Uuid().v4();
           Log.info(
-              'UUID baru: $id, Nama: ${_namaController.text}, Saldo awal: 0.0');
+            'UUID baru: $id, Nama: ${_namaController.text}, Saldo awal: 0.0',
+          );
 
           final dataBaru = DompetModel(
             id: id,
@@ -13260,19 +15064,24 @@ class _WalletFormState extends ConsumerState<FormDompet> {
 
         if (!mounted) return;
 
-        final cekKoneksiLokal =
-            await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
+        final cekKoneksiLokal = await ref
+            .read(koneksiInternetServiceProvider)
+            .cekKoneksiLokal();
         if (cekKoneksiLokal) {
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
 
           if (mounted) {
             ToastUtil.success(
-                context, 'Dompet berhasil disimpan dan disinkronkan.');
+              context,
+              'Dompet berhasil disimpan dan disinkronkan.',
+            );
           }
         } else {
           if (mounted) {
-            ToastUtil.info(context,
-                'Dompet disimpan lokal. Sinkronisasi akan dilakukan saat online.');
+            ToastUtil.info(
+              context,
+              'Dompet disimpan lokal. Sinkronisasi akan dilakukan saat online.',
+            );
           }
         }
         if (mounted) {
@@ -13331,7 +15140,8 @@ class _WalletFormState extends ConsumerState<FormDompet> {
                 },
                 onChanged: (value) {
                   Log.info(
-                      'Nama dompet berubah: "$value" (${value.length} karakter)');
+                    'Nama dompet berubah: "$value" (${value.length} karakter)',
+                  );
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -13396,7 +15206,7 @@ final class DompetProvider extends $AsyncNotifierProvider<Dompet, DompetState> {
   Dompet create() => Dompet();
 }
 
-String _$dompetHash() => r'b068af33c16b891d5948e4c75897bf32e43c1acb';
+String _$dompetHash() => r'1d7c2433ccf492b780a0ca9427d4bfde347b1df1';
 
 abstract class _$Dompet extends $AsyncNotifier<DompetState> {
   FutureOr<DompetState> build();
@@ -13431,7 +15241,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DompetState {
 
- List<DompetModel> get wallets; double get totalSaldoPositif; double get totalSaldoNegatif; double get totalSaldo;
+ List<DompetModel> get daftarDompet; double get totalSaldoPositif; double get totalSaldoNegatif; double get totalSaldo;
 /// Create a copy of DompetState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -13442,16 +15252,16 @@ $DompetStateCopyWith<DompetState> get copyWith => _$DompetStateCopyWithImpl<Domp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DompetState&&const DeepCollectionEquality().equals(other.wallets, wallets)&&(identical(other.totalSaldoPositif, totalSaldoPositif) || other.totalSaldoPositif == totalSaldoPositif)&&(identical(other.totalSaldoNegatif, totalSaldoNegatif) || other.totalSaldoNegatif == totalSaldoNegatif)&&(identical(other.totalSaldo, totalSaldo) || other.totalSaldo == totalSaldo));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DompetState&&const DeepCollectionEquality().equals(other.daftarDompet, daftarDompet)&&(identical(other.totalSaldoPositif, totalSaldoPositif) || other.totalSaldoPositif == totalSaldoPositif)&&(identical(other.totalSaldoNegatif, totalSaldoNegatif) || other.totalSaldoNegatif == totalSaldoNegatif)&&(identical(other.totalSaldo, totalSaldo) || other.totalSaldo == totalSaldo));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(wallets),totalSaldoPositif,totalSaldoNegatif,totalSaldo);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(daftarDompet),totalSaldoPositif,totalSaldoNegatif,totalSaldo);
 
 @override
 String toString() {
-  return 'DompetState(wallets: $wallets, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
+  return 'DompetState(daftarDompet: $daftarDompet, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
 }
 
 
@@ -13462,7 +15272,7 @@ abstract mixin class $DompetStateCopyWith<$Res>  {
   factory $DompetStateCopyWith(DompetState value, $Res Function(DompetState) _then) = _$DompetStateCopyWithImpl;
 @useResult
 $Res call({
- List<DompetModel> wallets, double totalSaldoPositif, double totalSaldoNegatif, double totalSaldo
+ List<DompetModel> daftarDompet, double totalSaldoPositif, double totalSaldoNegatif, double totalSaldo
 });
 
 
@@ -13479,9 +15289,9 @@ class _$DompetStateCopyWithImpl<$Res>
 
 /// Create a copy of DompetState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? wallets = null,Object? totalSaldoPositif = null,Object? totalSaldoNegatif = null,Object? totalSaldo = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? daftarDompet = null,Object? totalSaldoPositif = null,Object? totalSaldoNegatif = null,Object? totalSaldo = null,}) {
   return _then(_self.copyWith(
-wallets: null == wallets ? _self.wallets : wallets // ignore: cast_nullable_to_non_nullable
+daftarDompet: null == daftarDompet ? _self.daftarDompet : daftarDompet // ignore: cast_nullable_to_non_nullable
 as List<DompetModel>,totalSaldoPositif: null == totalSaldoPositif ? _self.totalSaldoPositif : totalSaldoPositif // ignore: cast_nullable_to_non_nullable
 as double,totalSaldoNegatif: null == totalSaldoNegatif ? _self.totalSaldoNegatif : totalSaldoNegatif // ignore: cast_nullable_to_non_nullable
 as double,totalSaldo: null == totalSaldo ? _self.totalSaldo : totalSaldo // ignore: cast_nullable_to_non_nullable
@@ -13570,10 +15380,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<DompetModel> wallets,  double totalSaldoPositif,  double totalSaldoNegatif,  double totalSaldo)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<DompetModel> daftarDompet,  double totalSaldoPositif,  double totalSaldoNegatif,  double totalSaldo)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DompetState() when $default != null:
-return $default(_that.wallets,_that.totalSaldoPositif,_that.totalSaldoNegatif,_that.totalSaldo);case _:
+return $default(_that.daftarDompet,_that.totalSaldoPositif,_that.totalSaldoNegatif,_that.totalSaldo);case _:
   return orElse();
 
 }
@@ -13591,10 +15401,10 @@ return $default(_that.wallets,_that.totalSaldoPositif,_that.totalSaldoNegatif,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<DompetModel> wallets,  double totalSaldoPositif,  double totalSaldoNegatif,  double totalSaldo)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<DompetModel> daftarDompet,  double totalSaldoPositif,  double totalSaldoNegatif,  double totalSaldo)  $default,) {final _that = this;
 switch (_that) {
 case _DompetState():
-return $default(_that.wallets,_that.totalSaldoPositif,_that.totalSaldoNegatif,_that.totalSaldo);case _:
+return $default(_that.daftarDompet,_that.totalSaldoPositif,_that.totalSaldoNegatif,_that.totalSaldo);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -13611,10 +15421,10 @@ return $default(_that.wallets,_that.totalSaldoPositif,_that.totalSaldoNegatif,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<DompetModel> wallets,  double totalSaldoPositif,  double totalSaldoNegatif,  double totalSaldo)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<DompetModel> daftarDompet,  double totalSaldoPositif,  double totalSaldoNegatif,  double totalSaldo)?  $default,) {final _that = this;
 switch (_that) {
 case _DompetState() when $default != null:
-return $default(_that.wallets,_that.totalSaldoPositif,_that.totalSaldoNegatif,_that.totalSaldo);case _:
+return $default(_that.daftarDompet,_that.totalSaldoPositif,_that.totalSaldoNegatif,_that.totalSaldo);case _:
   return null;
 
 }
@@ -13626,14 +15436,14 @@ return $default(_that.wallets,_that.totalSaldoPositif,_that.totalSaldoNegatif,_t
 
 
 class _DompetState implements DompetState {
-  const _DompetState({final  List<DompetModel> wallets = const [], this.totalSaldoPositif = 0.0, this.totalSaldoNegatif = 0.0, this.totalSaldo = 0.0}): _wallets = wallets;
+  const _DompetState({final  List<DompetModel> daftarDompet = const [], this.totalSaldoPositif = 0.0, this.totalSaldoNegatif = 0.0, this.totalSaldo = 0.0}): _daftarDompet = daftarDompet;
   
 
- final  List<DompetModel> _wallets;
-@override@JsonKey() List<DompetModel> get wallets {
-  if (_wallets is EqualUnmodifiableListView) return _wallets;
+ final  List<DompetModel> _daftarDompet;
+@override@JsonKey() List<DompetModel> get daftarDompet {
+  if (_daftarDompet is EqualUnmodifiableListView) return _daftarDompet;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_wallets);
+  return EqualUnmodifiableListView(_daftarDompet);
 }
 
 @override@JsonKey() final  double totalSaldoPositif;
@@ -13650,16 +15460,16 @@ _$DompetStateCopyWith<_DompetState> get copyWith => __$DompetStateCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DompetState&&const DeepCollectionEquality().equals(other._wallets, _wallets)&&(identical(other.totalSaldoPositif, totalSaldoPositif) || other.totalSaldoPositif == totalSaldoPositif)&&(identical(other.totalSaldoNegatif, totalSaldoNegatif) || other.totalSaldoNegatif == totalSaldoNegatif)&&(identical(other.totalSaldo, totalSaldo) || other.totalSaldo == totalSaldo));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DompetState&&const DeepCollectionEquality().equals(other._daftarDompet, _daftarDompet)&&(identical(other.totalSaldoPositif, totalSaldoPositif) || other.totalSaldoPositif == totalSaldoPositif)&&(identical(other.totalSaldoNegatif, totalSaldoNegatif) || other.totalSaldoNegatif == totalSaldoNegatif)&&(identical(other.totalSaldo, totalSaldo) || other.totalSaldo == totalSaldo));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_wallets),totalSaldoPositif,totalSaldoNegatif,totalSaldo);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_daftarDompet),totalSaldoPositif,totalSaldoNegatif,totalSaldo);
 
 @override
 String toString() {
-  return 'DompetState(wallets: $wallets, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
+  return 'DompetState(daftarDompet: $daftarDompet, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
 }
 
 
@@ -13670,7 +15480,7 @@ abstract mixin class _$DompetStateCopyWith<$Res> implements $DompetStateCopyWith
   factory _$DompetStateCopyWith(_DompetState value, $Res Function(_DompetState) _then) = __$DompetStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<DompetModel> wallets, double totalSaldoPositif, double totalSaldoNegatif, double totalSaldo
+ List<DompetModel> daftarDompet, double totalSaldoPositif, double totalSaldoNegatif, double totalSaldo
 });
 
 
@@ -13687,9 +15497,9 @@ class __$DompetStateCopyWithImpl<$Res>
 
 /// Create a copy of DompetState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? wallets = null,Object? totalSaldoPositif = null,Object? totalSaldoNegatif = null,Object? totalSaldo = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? daftarDompet = null,Object? totalSaldoPositif = null,Object? totalSaldoNegatif = null,Object? totalSaldo = null,}) {
   return _then(_DompetState(
-wallets: null == wallets ? _self._wallets : wallets // ignore: cast_nullable_to_non_nullable
+daftarDompet: null == daftarDompet ? _self._daftarDompet : daftarDompet // ignore: cast_nullable_to_non_nullable
 as List<DompetModel>,totalSaldoPositif: null == totalSaldoPositif ? _self.totalSaldoPositif : totalSaldoPositif // ignore: cast_nullable_to_non_nullable
 as double,totalSaldoNegatif: null == totalSaldoNegatif ? _self.totalSaldoNegatif : totalSaldoNegatif // ignore: cast_nullable_to_non_nullable
 as double,totalSaldo: null == totalSaldo ? _self.totalSaldo : totalSaldo // ignore: cast_nullable_to_non_nullable
@@ -13716,7 +15526,7 @@ part 'dompet_provider.g.dart';
 @freezed
 abstract class DompetState with _$DompetState {
   const factory DompetState({
-    @Default([]) List<DompetModel> wallets,
+    @Default([]) List<DompetModel> daftarDompet,
     @Default(0.0) double totalSaldoPositif,
     @Default(0.0) double totalSaldoNegatif,
     @Default(0.0) double totalSaldo,
@@ -13740,7 +15550,7 @@ class Dompet extends _$Dompet {
     ]);
 
     return DompetState(
-      wallets: results[0] as List<DompetModel>,
+      daftarDompet: results[0] as List<DompetModel>,
       totalSaldoPositif: results[1] as double,
       totalSaldoNegatif: (results[2] as double).abs(),
       totalSaldo: results[3] as double,
@@ -13748,20 +15558,20 @@ class Dompet extends _$Dompet {
   }
 
   /// fungsi untuk menambah data dompet baru
-  Future<void> tambahDompet(DompetModel wallet) async {
+  Future<void> tambahDompet(DompetModel dompet) async {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(dompetOpSqliteProvider);
-      await operation.tambahDompet(wallet);
+      await operation.tambahDompet(dompet);
 
       return _loadData();
     });
   }
 
   /// fungsi untuk update satu data dompet
-  Future<void> updateDompet(DompetModel wallet) async {
+  Future<void> updateDompet(DompetModel dompet) async {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(dompetOpSqliteProvider);
-      await operation.updateDompet(wallet);
+      await operation.updateDompet(dompet);
       return _loadData();
     });
   }
@@ -13993,18 +15803,18 @@ class DompetOpSqlite {
   }
 
   Future<void> sisipkanAtauPerbaruiBatch(
-    final List<DompetModel> items, {
+    final List<DompetModel> daftarDompet, {
     final bool dariServer = false,
   }) async {
-    Log.info('Memulai batch insert/update untuk ${items.length} data dompet.');
-    if (items.isEmpty) {
+    Log.info('Memulai batch insert/update untuk ${daftarDompet.length} data dompet.');
+    if (daftarDompet.isEmpty) {
       Log.warning('Daftar dompet kosong, membatalkan operasi batch.');
       return;
     }
     try {
-      final data = items
+      final data = daftarDompet
           .map(
-            (final item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
+            ( item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
           )
           .toList();
       await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
@@ -14384,7 +16194,7 @@ abstract class DompetModel with _$DompetModel implements HasId {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/shared/common/text.dart';
+import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/fitur/event/model/event_model.dart';
@@ -14514,6 +16324,508 @@ class DetailEventA extends ConsumerWidget {
     );
   }
 }
+// path lib/fitur/event/page/manage_announcement_page.dart
+
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/fitur/event/model/event_model.dart';
+import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
+import 'package:wifi/shared/services/layanan_penyimpanan_gambar.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
+
+class ManageAnnouncementPage extends ConsumerStatefulWidget {
+  const ManageAnnouncementPage({super.key, this.event});
+  final EventModel? event;
+
+  @override
+  ConsumerState<ManageAnnouncementPage> createState() =>
+      _ManageAnnouncementPageState();
+}
+
+class _ManageAnnouncementPageState
+    extends ConsumerState<ManageAnnouncementPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _imageUrlController = TextEditingController();
+  final _scrollController = ScrollController();
+  late bool _isSwitched;
+  EventModel? _selectedAnnouncement;
+  DateTime? _selectedStartDate;
+  DateTime? _selectedEndDate;
+
+  File? _selectedImage;
+  bool _isUploading = false;
+  final ImagePicker _picker = ImagePicker();
+  bool get _isEditMode => widget.event != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_isEditMode) {
+      _selectedAnnouncement = widget.event;
+      _imageUrlController.text = widget.event!.linkGambar;
+      _isSwitched = widget.event!.statusAktif;
+      _selectedStartDate = widget.event!.tanggalMulai;
+      _selectedEndDate = widget.event!.tanggalBerakhir;
+    } else {
+      _isSwitched = false;
+    }
+    unawaited(_loadData());
+  }
+
+  @override
+  void dispose() {
+    _imageUrlController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadData() async {
+    if (widget.event != null) return;
+
+    final operator = ref.read(eventOpSupabaseProvider);
+    try {
+      final announcements = await operator.ambilSemuaEvent();
+      final EventModel? activeAnnouncement = announcements
+          .cast<EventModel?>()
+          .firstWhere(
+            (ann) => ann?.statusAktif ?? false,
+            orElse: () {
+              Log.info('Tidak ada pengumuman aktif ditemukan untuk dimuat.');
+              return null;
+            },
+          );
+
+      setState(() {
+        _selectedAnnouncement = activeAnnouncement;
+        _imageUrlController.text = activeAnnouncement?.linkGambar ?? '';
+        _isSwitched = activeAnnouncement?.statusAktif ?? false;
+        _selectedStartDate = activeAnnouncement?.tanggalMulai;
+        _selectedEndDate = activeAnnouncement?.tanggalBerakhir;
+      });
+    } on Exception catch (e, st) {
+      Log.error('Gagal memuat pengumuman', e: e, s: st);
+      if (!mounted) return;
+      ToastUtil.error(context, 'Gagal memuat data pengumuman.');
+    }
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          _selectedImage = File(image.path);
+        });
+      }
+    } catch (e, st) {
+      Log.error('Gagal memilih gambar', e: e, s: st);
+      if (!mounted) return;
+      ToastUtil.error(context, 'Gagal memilih gambar dari galeri.');
+    }
+  }
+
+  Future<void> _selectDate(bool isStartDate) async {
+    DateTime initialDate = DateTime.now();
+    if (isStartDate) {
+      if (_selectedStartDate != null) {
+        initialDate = _selectedStartDate!;
+      }
+    } else {
+      if (_selectedEndDate != null) {
+        initialDate = _selectedEndDate!;
+      }
+    }
+    DateTime? pickedDate;
+    try {
+      pickedDate = await showDatePicker(
+        context: context,
+        initialDate: initialDate,
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2101),
+      );
+    } catch (e, st) {
+      Log.error('Error saat memilih tanggal', e: e, s: st);
+      if (!mounted) return;
+      ToastUtil.error(context, 'Gagal membuka pemilih tanggal');
+    }
+
+    if (pickedDate != null) {
+      setState(() {
+        final currentDateTime = isStartDate
+            ? _selectedStartDate
+            : _selectedEndDate;
+        final newDateTime = DateTime(
+          pickedDate!.year,
+          pickedDate.month,
+          pickedDate.day,
+          currentDateTime?.hour ?? DateTime.now().hour,
+          currentDateTime?.minute ?? DateTime.now().minute,
+        );
+        if (isStartDate) {
+          _selectedStartDate = newDateTime;
+        } else {
+          _selectedEndDate = newDateTime;
+        }
+      });
+    }
+  }
+
+  Future<void> _selectTime(bool isStartTime) async {
+    TimeOfDay initialTime = TimeOfDay.now();
+    final DateTime? currentDateTime = isStartTime
+        ? _selectedStartDate
+        : _selectedEndDate;
+    if (currentDateTime != null) {
+      initialTime = TimeOfDay(
+        hour: currentDateTime.hour,
+        minute: currentDateTime.minute,
+      );
+    } else {
+      initialTime = TimeOfDay.now();
+    }
+    TimeOfDay? pickedTime;
+    try {
+      pickedTime = await showTimePicker(
+        context: context,
+        initialTime: initialTime,
+        builder: (BuildContext context, Widget? child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+            child: child!,
+          );
+        },
+      );
+    } catch (e, st) {
+      Log.error('Error saat memilih waktu', e: e, s: st);
+      if (!mounted) return;
+      ToastUtil.error(context, 'Gagal membuka pemilih waktu');
+    }
+
+    if (pickedTime != null) {
+      setState(() {
+        final DateTime? dateToUpdate = isStartTime
+            ? _selectedStartDate
+            : _selectedEndDate;
+        final DateTime datePart = dateToUpdate ?? DateTime.now();
+
+        final newDateTime = DateTime(
+          datePart.year,
+          datePart.month,
+          datePart.day,
+          pickedTime!.hour,
+          pickedTime.minute,
+        );
+        if (isStartTime) {
+          _selectedStartDate = newDateTime;
+        } else {
+          _selectedEndDate = newDateTime;
+        }
+      });
+    }
+  }
+
+  Future<void> _simpanForm() async {
+    // 1. Validasi manual tanggal dan gambar karena tidak memakai TextFormField bawaan
+    if (_selectedStartDate == null || _selectedEndDate == null) {
+      ToastUtil.error(context, 'Harap pilih tanggal mulai dan selesai');
+      return;
+    }
+
+    if (_selectedImage == null && _imageUrlController.text.trim().isEmpty) {
+      ToastUtil.error(
+        context,
+        'Harap pilih atau sediakan gambar untuk pengumuman.',
+      );
+      return;
+    }
+
+    if (_selectedEndDate!.isBefore(_selectedStartDate!)) {
+      ToastUtil.error(
+        context,
+        'Tanggal selesai tidak boleh sebelum tanggal mulai',
+      );
+      return;
+    }
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    String imageUrl = _imageUrlController.text.trim();
+
+    // 2. Proses upload gambar ke storage jika admin memilih file gambar baru
+    if (_selectedImage != null) {
+      final storageService = ref.read(layananPenyimpananGambarProvider);
+      try {
+        final String uploadUrl = await storageService.unggahGambar(
+          _selectedImage!,
+          NamaTabel.event,
+        );
+        imageUrl = uploadUrl;
+        if (imageUrl.isEmpty) {
+          throw Exception('URL gambar kosong dari storage service.');
+        }
+      } catch (e, st) {
+        Log.error('Gagal mengunggah gambar', e: e, s: st);
+        if (!mounted) return;
+        ToastUtil.error(context, 'Gagal mengunggah gambar. Silakan coba lagi.');
+        setState(() {
+          _isUploading = false;
+        });
+        return;
+      }
+    }
+
+    final eventOpSupabase = ref.read(eventOpSupabaseProvider);
+    final bool isActive = _isSwitched;
+    final DateTime now = DateTime.now();
+
+    // 3. REFAKTORISASI STRUKTUR OBJEK: Dipisahkan tegas antara Edit data vs Buat baru
+    // Menjamin kolom 'not null' di Supabase selalu terisi dengan data terbaru dari UI
+    final EventModel announcementToSave = _isEditMode
+        ? _selectedAnnouncement!.copyWith(
+            linkGambar: imageUrl,
+            statusAktif: isActive,
+            tanggalMulai: _selectedStartDate!,
+            tanggalBerakhir: _selectedEndDate!,
+            diperbaruiPada: now,
+          )
+        : EventModel(
+            id: const Uuid().v4(),
+            tanggalDibuat: now,
+            diperbaruiPada: now,
+            linkGambar: imageUrl,
+            statusAktif: isActive,
+            tanggalMulai: _selectedStartDate!,
+            tanggalBerakhir: _selectedEndDate!,
+          );
+
+    // 4. Manajemen status aktif (Hanya izinkan satu pengumuman yang aktif secara simultan)
+    if (isActive) {
+      try {
+        final currentActive = await eventOpSupabase.ambilEventAktif();
+        if (currentActive != null &&
+            currentActive.id != announcementToSave.id) {
+          final oldActive = currentActive.copyWith(
+            statusAktif: false,
+            diperbaruiPada: now,
+          );
+          await eventOpSupabase.perbaruiEvent(oldActive);
+        }
+      } catch (e, st) {
+        Log.error('Gagal menonaktifkan pengumuman lama', e: e, s: st);
+        if (!mounted) return;
+        ToastUtil.error(
+          context,
+          'Gagal menonaktifkan pengumuman lain yang aktif.',
+        );
+        setState(() {
+          _isUploading = false;
+        });
+        return;
+      }
+    }
+
+    // 5. Eksekusi penyimpanan ke Supabase via Provider
+    try {
+      if (_isEditMode) {
+        await eventOpSupabase.perbaruiEvent(announcementToSave);
+      } else {
+        await eventOpSupabase.tambahEvent(announcementToSave);
+      }
+      final _ = ref.refresh(eventOpSupabaseProvider);
+      if (!mounted) return;
+      ToastUtil.success(context, 'Pengumuman berhasil disimpan!');
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } catch (e, st) {
+      Log.error('Gagal menyimpan pengumuman', e: e, s: st);
+      if (!mounted) return;
+      ToastUtil.error(context, 'Gagal menyimpan pengumuman.');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Kelola Pengumuman')),
+      body: SingleChildScrollView(
+        controller: _scrollController,
+        padding: const EdgeInsets.all(TSizes.p16),
+        child: Form(
+          key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Detail Pengumuman',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              gapH16,
+              // Image Preview and Picker
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400),
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.grey.shade50,
+                ),
+                clipBehavior:
+                    Clip.antiAlias, // Mencegah gambar keluar dari border radius
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // 1. TAMPILAN JIKA ADA GAMBAR (LOKAL / URL)
+                    if (_selectedImage != null)
+                      Image.file(
+                        _selectedImage!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      )
+                    else if (_imageUrlController.text.isNotEmpty)
+                      Image.network(
+                        _imageUrlController.text,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Center(
+                              child: Text('Gagal memuat gambar dari URL'),
+                            ),
+                      )
+                    else
+                      // Tampilan placeholder jika sama sekali belum ada gambar
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.image,
+                            size: 50,
+                            color: Colors.grey.shade400,
+                          ),
+                          gapH8,
+                          Text(
+                            'Belum ada gambar terpilih',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
+
+                    // 2. TOMBOL AKSI (Ditempatkan secara dinamis menggunakan Positioned)
+                    Positioned(
+                      bottom: 12,
+                      right: 12,
+                      child: ElevatedButton.icon(
+                        onPressed: _isUploading ? null : _pickImage,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black.withValues(alpha: 0.7),
+                          foregroundColor: Colors.white,
+                          elevation: 2,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                        ),
+                        icon: Icon(
+                          _selectedImage != null ||
+                                  _imageUrlController.text.isNotEmpty
+                              ? TIcons.edit
+                              : TIcons.upload,
+                          size: 18,
+                        ),
+                        label: Text(
+                          _selectedImage != null ||
+                                  _imageUrlController.text.isNotEmpty
+                              ? 'Ubah Gambar'
+                              : 'Pilih Gambar',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              gapH16,
+
+              PemilihTanggalWaktuWidget(
+                teksLabel: 'Mulai:',
+                tanggalTerpilih: _selectedStartDate,
+                waktuTerpilih: _selectedStartDate == null
+                    ? null
+                    : TimeOfDay(
+                        hour: _selectedStartDate!.hour,
+                        minute: _selectedStartDate!.minute,
+                      ),
+                onPilihTanggal: () => _selectDate(true),
+                onPilihWaktu: () => _selectTime(true),
+              ),
+              PemilihTanggalWaktuWidget(
+                teksLabel: 'Selesai:',
+                tanggalTerpilih: _selectedEndDate,
+                waktuTerpilih: _selectedEndDate == null
+                    ? null
+                    : TimeOfDay(
+                        hour: _selectedEndDate!.hour,
+                        minute: _selectedEndDate!.minute,
+                      ),
+                onPilihTanggal: () => _selectDate(false),
+                onPilihWaktu: () => _selectTime(false),
+              ),
+              gapH16,
+              SwitchListTile(
+                title: const Text('Aktifkan Pengumuman'),
+                subtitle: const Text(
+                  'Jika diaktifkan, pengumuman ini akan tampil di aplikasi.',
+                ),
+                value: _isSwitched,
+                secondary: const Icon(TIcons.toggleOn),
+                onChanged: (bool value) {
+                  setState(() {
+                    _isSwitched = value;
+                  });
+                },
+                contentPadding: EdgeInsets.zero,
+              ),
+              gapH16,
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: _isUploading
+              ? const Center(child: CircularProgressIndicator())
+              : ElevatedButton.icon(
+                  icon: Icon(_isEditMode ? TIcons.edit : TIcons.save),
+                  label: Text(
+                    !_isEditMode ? 'Simpan Pengumuman' : 'Perbarui Pengumuman',
+                  ),
+                  onPressed: _isUploading ? null : _simpanForm,
+                ),
+        ),
+      ),
+    );
+  }
+}
 // path: lib/fitur/event/page/event_page_u.dart
 
 import 'dart:async';
@@ -14613,7 +16925,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/event/page/detail_event_a.dart';
-import 'package:wifi/admin/halaman/lainnya/manage_announcement_page.dart';
+import 'package:wifi/fitur/event/page/manage_announcement_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/fitur/event/model/event_model.dart';
@@ -15501,7 +17813,7 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 
 class UpdateApkPage extends ConsumerStatefulWidget {
   final VersiApkModel infoApk;
@@ -16568,8 +18880,11 @@ import 'package:wifi/shared/utils/toast_util.dart';
 class FormVersiApk extends ConsumerStatefulWidget {
   final VersiApkModel? versiApk;
 
-  const FormVersiApk(
-      {super.key, this.versiApk, final VersiApkOpSqlite? versiApkOpSqlite});
+  const FormVersiApk({
+    super.key,
+    this.versiApk,
+    final VersiApkOpSqlite? versiApkOpSqlite,
+  });
   @override
   ConsumerState<FormVersiApk> createState() => _FormVersiApkState();
 }
@@ -16633,7 +18948,7 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
         _youtubeTutorialController.text = versiTerakhir.linkYoutubeTutorial;
         final buildUniversalBerikutnya =
             (versiTerakhir.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0) +
-                1;
+            1;
         final buildBit32Berikutnya =
             (versiTerakhir.nomorBuildTerakhir[ArsitekturApk.bit32] ?? 0) + 1;
         final buildBit64Berikutnya =
@@ -16749,14 +19064,10 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
         );
       }
       if (_build32Controller.text.isNotEmpty) {
-        nomorBuild[ArsitekturApk.bit32] = int.parse(
-          _build32Controller.text,
-        );
+        nomorBuild[ArsitekturApk.bit32] = int.parse(_build32Controller.text);
       }
       if (_build64Controller.text.isNotEmpty) {
-        nomorBuild[ArsitekturApk.bit64] = int.parse(
-          _build64Controller.text,
-        );
+        nomorBuild[ArsitekturApk.bit64] = int.parse(_build64Controller.text);
       }
 
       final tautanUnduhan = <ArsitekturApk, String>{};
@@ -16787,15 +19098,17 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
           Log.info('Menjalankan perintah tambah data baru...');
           await apkVersionOperasi.tambahVersiApk(dataToSave);
         }
-
-        final isonline = await KoneksiInternetService().cekKoneksiLokal();
+        final internetService = ref.read(koneksiInternetServiceProvider);
+        final isonline = await internetService.cekKoneksiLokal();
         if (isonline) {
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
         } else {
           Log.info('Tidak ada koneksi internet, melewati proses sinkronisasi.');
           if (mounted) {
-            ToastUtil.info(context,
-                'Data lokal disimpan. Sinkronisasi akan dilakukan saat online.');
+            ToastUtil.info(
+              context,
+              'Data lokal disimpan. Sinkronisasi akan dilakukan saat online.',
+            );
           }
         }
 
@@ -16843,8 +19156,9 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
                     ),
                     validator: (final v) => v!.isEmpty ? 'Wajib diisi' : null,
                     onFieldSubmitted: (final _) {
-                      FocusScope.of(context)
-                          .requestFocus(_buildUniversalFocusNode);
+                      FocusScope.of(
+                        context,
+                      ).requestFocus(_buildUniversalFocusNode);
                     },
                   ),
                   gapH24,
@@ -16906,10 +19220,7 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
                     textInputAction: TextInputAction.done,
                     decoration: const InputDecoration(
                       labelText: 'URL Tutorial YouTube',
-                      prefixIcon: Icon(
-                        TIcons.youtube,
-                        color: Colors.red,
-                      ),
+                      prefixIcon: Icon(TIcons.youtube, color: Colors.red),
                       border: OutlineInputBorder(),
                     ),
                     onFieldSubmitted: (final _) => _saveForm(),
@@ -16937,8 +19248,9 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
                     gapH12,
                     Text(
                       'Menyimpan...',
-                      style: context.textTheme.bodyMedium
-                          ?.copyWith(color: Colors.white),
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: Colors.white,
+                      ),
                     ),
                   ],
                 ),
@@ -16983,8 +19295,9 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
       child: TextFormField(
         controller: controller,
         focusNode: focusNode,
-        textInputAction:
-            nextFocusNode != null ? TextInputAction.next : TextInputAction.done,
+        textInputAction: nextFocusNode != null
+            ? TextInputAction.next
+            : TextInputAction.done,
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
@@ -17010,8 +19323,9 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
       child: TextFormField(
         controller: controller,
         focusNode: focusNode,
-        textInputAction:
-            nextFocusNode != null ? TextInputAction.next : TextInputAction.done,
+        textInputAction: nextFocusNode != null
+            ? TextInputAction.next
+            : TextInputAction.done,
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
@@ -18122,7 +20436,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 
 class FeedbackPageU extends ConsumerWidget {
   const FeedbackPageU({super.key});
@@ -18277,7 +20591,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 
 /// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
 class FormFeedBackU extends ConsumerStatefulWidget {
@@ -19316,7 +21630,7 @@ class FeedbackOpSqlite {
   }
 
   /// Menghapus semua kritik dan saran dari database secara permanen.
-  Future<void> deleteAll({final bool fromServer = false}) async {
+  Future<void> deleteAll({final bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai deleteAllFeedback. Ini adalah operasi destruktif.',
     );
@@ -19329,43 +21643,17 @@ class FeedbackOpSqlite {
           'Berhasil deleteAllFeedback. Total baris yang dihapus: $count',
         );
         return count;
-      }, dariServer: fromServer);
-    } on Exception catch (e, st) {
+      }, dariServer: dariServer);
+    } catch (e, st) {
       Log.error('Gagal saat deleteAllFeedback', e: e, s: st);
       rethrow;
     }
   }
 
-  /// Menghapus semua kritik dan saran dari seorang pengguna berdasarkan [userId].
-  Future<void> deleteByUserId(
-    final String userId, {
-    final bool fromServer = false,
-  }) async {
-    Log.warning(
-      'PERINGATAN: Memulai deleteByUserId (hard delete) untuk userId: $userId',
-    );
-    try {
-      await baseOpSqlite.runComplexOperation<int>((
-        final Transaction txn,
-      ) async {
-        final int deletedCount = await txn.delete(
-          _namaTabel,
-          where: '${NamaKolom.userId} = ?',
-          whereArgs: [userId],
-        );
-        Log.info(
-          'Berhasil menghapus $deletedCount kritik & saran dari user: $userId',
-        );
-        return deletedCount;
-      }, dariServer: fromServer);
-    } on Exception catch (e, st) {
-      Log.error('Gagal saat deleteByUserId untuk userId: $userId', e: e, s: st);
-      rethrow;
-    }
-  }
-
   /// Mengambil beberapa [FeedbackModel] berdasarkan daftar [ids].
-  Future<List<FeedbackModel>> getByIds(final List<String> ids) async {
+  Future<List<FeedbackModel>> ambilBerdasarkanIds(
+     List<String> ids,
+  ) async {
     Log.info('Memulai getFeedbackByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning(
@@ -19380,15 +21668,15 @@ class FeedbackOpSqlite {
         where: 'id IN (${List.filled(ids.length, '?').join(',')})',
         whereArgs: ids,
       );
-      final feedbackList = List.generate(
+      final daftarFeedback = List.generate(
         maps.length,
         (final i) => FeedbackModel.fromSqlite(maps[i]),
       );
       Log.info(
-        'Berhasil mengambil ${feedbackList.length} data kritik_saran dari ${ids.length} ID yang diminta.',
+        'Berhasil mengambil ${daftarFeedback.length} data kritik_saran dari ${ids.length} ID yang diminta.',
       );
-      return feedbackList;
-    } on Exception catch (e, st) {
+      return daftarFeedback;
+    }  catch (e, st) {
       Log.error('Gagal saat getFeedbackByIds', e: e, s: st);
       rethrow;
     }
@@ -19415,8 +21703,8 @@ class FeedbackOpFirebase {
   FeedbackOpFirebase({
     required FirebaseFirestore firestore,
     required BaseOpFirebase baseOpFirebase,
-  })  : _firestore = firestore,
-        _baseOpFirebase = baseOpFirebase {
+  }) : _firestore = firestore,
+       _baseOpFirebase = baseOpFirebase {
     Log.info('FeedbackOpFirebase diinisialisasi.');
   }
 
@@ -19434,23 +21722,23 @@ class FeedbackOpFirebase {
   }
 
   /// Memperbarui isi feedback.
-  Future<void> perbaruiFeedback(String docId, String newContent) async {
-    Log.info('Mendelegasikan pembaruan feedback: $docId');
-    await _baseOpFirebase.update(_namaKoleksi, docId, {
-      NamaKolom.pesan: newContent,
+  Future<void> perbaruiFeedback(String id, String pesanBaru) async {
+    Log.info('Mendelegasikan pembaruan feedback: $id');
+    await _baseOpFirebase.update(_namaKoleksi, id, {
+      NamaKolom.pesan: pesanBaru,
     });
   }
 
   /// Menghapus feedback secara permanen dari Firestore.
-  Future<void> delete(final String docId) async {
-    Log.warning('Mendelegasikan penghapusan permanen feedback: $docId');
-    await _baseOpFirebase.hapusPermanen(_namaKoleksi, docId);
+  Future<void> delete(final String id) async {
+    Log.warning('Mendelegasikan penghapusan permanen feedback: $id');
+    await _baseOpFirebase.hapusPermanen(_namaKoleksi, id);
   }
 
   /// Melakukan soft delete pada feedback di Firestore.
-  Future<void> softDeleteFeedback(final String docId) async {
-    Log.info('Mendelegasikan soft delete feedback: $docId');
-    await _baseOpFirebase.hapusSementara(_namaKoleksi, docId);
+  Future<void> softDeleteFeedback(String id) async {
+    Log.info('Mendelegasikan soft delete feedback: $id');
+    await _baseOpFirebase.hapusSementara(_namaKoleksi, id);
   }
 
   // =======================================================================
@@ -19467,34 +21755,34 @@ class FeedbackOpFirebase {
           .orderBy(NamaKolom.tanggal, descending: true)
           .snapshots()
           .map((snapshot) {
-        try {
-          return snapshot.docs.map((doc) {
-            return FeedbackModel.fromFirebase(
-              doc.id,
-              doc.data() as Map<String, dynamic>,
-            );
-          }).toList();
-        } catch (e, s) {
-          Log.error('Error saat mem-parsing data feedback', e: e, s: s);
-          // Melempar kembali error untuk ditangani oleh handleError
-          throw Exception('Gagal mem-parsing data feedback: $e');
-        }
-      }).handleError((Object e, StackTrace s) {
-        Log.error('Error pada stream feedback untuk: $userId', e: e, s: s);
-        // Buat StreamController untuk memancarkan error
-        final controller = StreamController<List<FeedbackModel>>();
-        controller.addError(e, s);
-        controller.close();
-        return controller.stream;
-      });
+            try {
+              return snapshot.docs.map((doc) {
+                return FeedbackModel.fromFirebase(
+                  doc.id,
+                  doc.data() as Map<String, dynamic>,
+                );
+              }).toList();
+            } catch (e, s) {
+              Log.error('Error saat mem-parsing data feedback', e: e, s: s);
+              // Melempar kembali error untuk ditangani oleh handleError
+              throw Exception('Gagal mem-parsing data feedback: $e');
+            }
+          })
+          .handleError((Object e, StackTrace s) {
+            Log.error('Error pada stream feedback untuk: $userId', e: e, s: s);
+            // Melempar kembali error asli agar mengalir ke downstream (diterima oleh listen/unit test)
+            throw e;
+          });
     } catch (e, s) {
-      Log.error('Gagal membuat query feedback untuk userId: $userId',
-          e: e, s: s);
+      Log.error(
+        'Gagal membuat query feedback untuk userId: $userId',
+        e: e,
+        s: s,
+      );
       return Stream.error(e, s);
     }
   }
-}
-// path: lib/fitur/feedback/model/feedback_model.dart
+}// path: lib/fitur/feedback/model/feedback_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -19906,7 +22194,8 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
     _tanggalBerakhir = widget.transaksi.tanggalBerakhir ?? DateTime.now();
     _statusPembayaran = widget.transaksi.statusPembayaran;
     Log.info(
-        'Form edit riwayat langganan diinisialisasi untuk transaksi ID: ${widget.transaksi.id}');
+      'Form edit riwayat langganan diinisialisasi untuk transaksi ID: ${widget.transaksi.id}',
+    );
   }
 
   Future<void> _selectDateTime(bool isStartDate) async {
@@ -19949,7 +22238,8 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
         } else {
           _tanggalBerakhir = newDateTime;
           Log.info(
-              'Tanggal & waktu berakhir diubah menjadi: $_tanggalBerakhir');
+            'Tanggal & waktu berakhir diubah menjadi: $_tanggalBerakhir',
+          );
         }
       });
     }
@@ -19976,7 +22266,7 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
         diperbaruiPada: DateTime.now(),
       );
 
-      await transaksiOpSqlite.updateTransaction(
+      await transaksiOpSqlite.perbaruiTransaksi(
         widget.transaksi.id,
         updateTransaksi,
       );
@@ -19991,19 +22281,24 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
 
       if (!mounted) return;
 
-      final isOnline =
-          await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
+      final isOnline = await ref
+          .read(koneksiInternetServiceProvider)
+          .cekKoneksiLokal();
       if (isOnline) {
         final syncCheckService = ref.read(layananCekSinkronisasiProvider);
         syncCheckService.jalankanCekSinkronisasi();
         if (mounted) {
-          ToastUtil.success(context,
-              'Riwayat langganan berhasil diperbarui dan disinkronkan.');
+          ToastUtil.success(
+            context,
+            'Riwayat langganan berhasil diperbarui dan disinkronkan.',
+          );
         }
       } else {
         if (mounted) {
-          ToastUtil.info(context,
-              'Koneksi offline. Data disimpan lokal dan akan disinkronkan saat online.');
+          ToastUtil.info(
+            context,
+            'Koneksi offline. Data disimpan lokal dan akan disinkronkan saat online.',
+          );
         }
       }
 
@@ -20031,7 +22326,8 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
       final jadwal = tanggalBerakhir;
       if (jadwal.isAfter(DateTime.now())) {
         Log.info(
-            'Menjadwalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi pada $jadwal');
+          'Menjadwalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi pada $jadwal',
+        );
         await layananNotifikasi.perbaruiJadwalNotifikasi(
           id: idNotifikasi,
           title: 'Langganan Telah Berakhir',
@@ -20042,7 +22338,8 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
       }
     } else if (wasPaid && !isNowPaid) {
       Log.info(
-          'Membatalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi karena status tidak lagi LUNAS.');
+        'Membatalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi karena status tidak lagi LUNAS.',
+      );
       await layananNotifikasi.batalNotifikasi(idNotifikasi);
     }
   }
@@ -20050,9 +22347,7 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Riwayat Langganan'),
-      ),
+      appBar: AppBar(title: const Text('Edit Riwayat Langganan')),
       body: Padding(
         padding: const EdgeInsets.all(TSizes.p16),
         child: Form(
@@ -20089,7 +22384,8 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
                     setState(() {
                       _statusPembayaran = newValue;
                       Log.info(
-                          'Status pembayaran diubah menjadi: $_statusPembayaran');
+                        'Status pembayaran diubah menjadi: $_statusPembayaran',
+                      );
                     });
                   }
                 },
@@ -21123,6 +23419,8 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
+import 'package:wifi/shared/common/teks.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
@@ -21131,9 +23429,14 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 
-enum SortMode { endDateNewest, endDateOldest, statusPaid, statusUnpaid }
+enum SortMode {
+  tanggalBerakhirTerbaru,
+  tanggalBerakhirTerlama,
+  lunas,
+  belumLunas,
+}
 
 class TransaksiU extends ConsumerStatefulWidget {
   const TransaksiU({super.key});
@@ -21143,30 +23446,85 @@ class TransaksiU extends ConsumerStatefulWidget {
 }
 
 class _TransaksiUState extends ConsumerState<TransaksiU> {
-  final TransaksiOpFirebase _transactionOpFirebase = TransaksiOpFirebase();
+  final TransaksiOpFirebase _transaksiOpFirebase = TransaksiOpFirebase();
+  final ScrollController _pengendaliScroll = ScrollController();
 
-  SortMode _sortMode = SortMode.endDateNewest;
-  late Future<List<TransaksiModel>> _historyFuture;
+  SortMode _modeUrutan = SortMode.tanggalBerakhirTerbaru;
+
+  List<TransaksiModel> _semuaTransaksi = [];
+  List<TransaksiModel> _transaksiTampil = [];
+  int _jumlahTampil = 20;
+  bool _sedangMemuatAwal = true;
+  bool _sedangMemuatLebih = false;
+  Object? _errorAwal;
 
   @override
   void initState() {
     super.initState();
-    _historyFuture = _loadHistory();
+    _pengendaliScroll.addListener(_deteksiScroll);
+    // Jalankan pemuatan awal setelah frame pertama dirender
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _muatDataAwal();
+    });
   }
 
-  Future<List<TransaksiModel>> _loadHistory() async {
-    final userId = await ref.watch(userIdProvider.future);
+  @override
+  void dispose() {
+    _pengendaliScroll.removeListener(_deteksiScroll);
+    _pengendaliScroll.dispose();
+    super.dispose();
+  }
 
-    if (userId == null) return [];
-    final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
-    final customer = await customerOpFirebase.ambilBerdasarkanId(userId);
-    if (customer == null) return [];
-    return _transactionOpFirebase.ambilBerdasarkanIdPelanggan(customer.id);
+  Future<void> _muatDataAwal() async {
+    setState(() {
+      _sedangMemuatAwal = true;
+      _errorAwal = null;
+    });
+
+    try {
+      final userId = await ref.read(userIdProvider.future);
+
+      if (userId == null) {
+        setState(() {
+          _semuaTransaksi = [];
+          _transaksiTampil = [];
+          _sedangMemuatAwal = false;
+        });
+        return;
+      }
+
+      final pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
+      final pelanggan = await pelangganOpFirebase.ambilBerdasarkanId(userId);
+      if (pelanggan == null) {
+        setState(() {
+          _semuaTransaksi = [];
+          _transaksiTampil = [];
+          _sedangMemuatAwal = false;
+        });
+        return;
+      }
+
+      final hasil = await _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(
+        pelanggan.id,
+      );
+
+      setState(() {
+        _semuaTransaksi = hasil;
+        _perbaruiTransaksiTampil(aturUlang: true);
+        _sedangMemuatAwal = false;
+      });
+    } on Object catch (e, st) {
+      Log.error('Gagal memuat riwayat transaksi', e: e, s: st);
+      setState(() {
+        _errorAwal = e;
+        _sedangMemuatAwal = false;
+      });
+    }
   }
 
   List<TransaksiModel> _sortHistory(List<TransaksiModel> history) {
-    switch (_sortMode) {
-      case SortMode.endDateNewest:
+    switch (_modeUrutan) {
+      case SortMode.tanggalBerakhirTerbaru:
         history.sort((a, b) {
           if (a.tanggalBerakhir == null && b.tanggalBerakhir == null) return 0;
           if (a.tanggalBerakhir == null) return 1;
@@ -21174,7 +23532,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
           return b.tanggalBerakhir!.compareTo(a.tanggalBerakhir!);
         });
         break;
-      case SortMode.endDateOldest:
+      case SortMode.tanggalBerakhirTerlama:
         history.sort((a, b) {
           if (a.tanggalBerakhir == null && b.tanggalBerakhir == null) return 0;
           if (a.tanggalBerakhir == null) return 1;
@@ -21182,14 +23540,14 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
           return a.tanggalBerakhir!.compareTo(b.tanggalBerakhir!);
         });
         break;
-      case SortMode.statusPaid:
+      case SortMode.lunas:
         history.sort((a, b) {
           final statusA = a.statusPembayaran == StatusPembayaran.paid ? 0 : 1;
           final statusB = b.statusPembayaran == StatusPembayaran.paid ? 0 : 1;
           return statusA.compareTo(statusB);
         });
         break;
-      case SortMode.statusUnpaid:
+      case SortMode.belumLunas:
         history.sort((a, b) {
           final statusA = a.statusPembayaran == StatusPembayaran.unpaid ? 0 : 1;
           final statusB = b.statusPembayaran == StatusPembayaran.unpaid ? 0 : 1;
@@ -21200,22 +23558,62 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
     return history;
   }
 
-  Future<void> _refreshHistory() async {
+  void _deteksiScroll() {
+    if (_pengendaliScroll.position.pixels >=
+        _pengendaliScroll.position.maxScrollExtent - 200) {
+      if (!_sedangMemuatLebih &&
+          _transaksiTampil.length < _semuaTransaksi.length) {
+        _muatLebihBanyak();
+      }
+    }
+  }
+
+  Future<void> _muatLebihBanyak() async {
+    Log.info('Memulai memuat lebih banyak riwayat transaksi');
     setState(() {
-      _historyFuture = _loadHistory();
+      _sedangMemuatLebih = true;
+    });
+
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+
+    setState(() {
+      _jumlahTampil += 20;
+      _perbaruiTransaksiTampil();
+      _sedangMemuatLebih = false;
+    });
+
+    Log.info(
+      'Berhasil memuat lebih banyak transaksi, total tampil: $_jumlahTampil',
+    );
+  }
+
+  void _perbaruiTransaksiTampil({bool aturUlang = false}) {
+    if (aturUlang) {
+      _jumlahTampil = 20;
+    }
+
+    final riwayatUrut = _sortHistory(List.from(_semuaTransaksi));
+
+    setState(() {
+      _transaksiTampil = riwayatUrut.take(_jumlahTampil).toList();
     });
   }
 
-  Future<void> _navigateToTransactionDetail(
+  Future<void> _refreshRiwayat() async {
+    await _muatDataAwal();
+  }
+
+  Future<void> _navigasiKeDetailTransaksi(
     TransaksiModel tx,
-    Future<PaketModel?> packageFuture,
+    Future<PaketModel?> paketfuture,
   ) async {
-    final package = await packageFuture;
+    final paket = await paketfuture;
     await ref.read(interstitialAdServiceProvider).show();
+    if (!mounted) return;
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (context) => DetailTransaksiU(transaksi: tx, paket: package),
+        builder: (context) => DetailTransaksiU(transaksi: tx, paket: paket),
       ),
     );
     await ref.read(interstitialAdServiceProvider).show();
@@ -21223,31 +23621,37 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
 
   @override
   Widget build(BuildContext context) {
-    final packageOpFirebase = ref.read(paketOpFirebaseProvider);
-    final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
+    final paketOpFirebase = ref.read(paketOpFirebaseProvider);
+    final pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
     final userId = ref.watch(userIdProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Langganan'),
         actions: [
           PopupMenuButton<SortMode>(
-            onSelected: (SortMode result) => setState(() => _sortMode = result),
+            onSelected: (SortMode hasil) {
+              setState(() {
+                _modeUrutan = hasil;
+                _perbaruiTransaksiTampil(aturUlang: true);
+              });
+            },
             itemBuilder: (BuildContext context) => [
               const PopupMenuItem(
-                value: SortMode.endDateNewest,
-                child: Text('Tanggal Berakhir (Terbaru)'),
+                value: SortMode.tanggalBerakhirTerbaru,
+                child: TeksIsiSedang('Tanggal Berakhir (Terbaru)'),
               ),
               const PopupMenuItem(
-                value: SortMode.endDateOldest,
-                child: Text('Tanggal Berakhir (Terlama)'),
+                value: SortMode.tanggalBerakhirTerlama,
+                child: TeksIsiSedang('Tanggal Berakhir (Terlama)'),
               ),
               const PopupMenuItem(
-                value: SortMode.statusPaid,
-                child: Text('Status: Lunas'),
+                value: SortMode.lunas,
+                child: TeksIsiSedang('Status: Lunas'),
               ),
               const PopupMenuItem(
-                value: SortMode.statusUnpaid,
-                child: Text('Status: Belum Lunas'),
+                value: SortMode.belumLunas,
+                child: TeksIsiSedang('Status: Belum Lunas'),
               ),
             ],
             icon: const Icon(TIcons.sort),
@@ -21257,7 +23661,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
       body: StreamBuilder<PelangganModel?>(
         stream: userId.when(
           data: (id) => id != null
-              ? customerOpFirebase.ambilStreanPelanggan(id)
+              ? pelangganOpFirebase.ambilStreamBerdasarkanId(id)
               : const Stream.empty(),
           loading: () => const Stream.empty(),
           error: (_, __) => const Stream.empty(),
@@ -21267,100 +23671,99 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
             return const Center(child: CircularProgressIndicator());
           }
           if (customerSnapshot.hasError) {
-            return Center(child: Text('Error: ${customerSnapshot.error}'));
+            return Center(
+              child: TeksIsiSedang('Error: ${customerSnapshot.error}'),
+            );
           }
           if (!customerSnapshot.hasData || customerSnapshot.data == null) {
-            return const Center(child: Text('Data pelanggan tidak ditemukan.'));
+            return const Center(
+              child: TeksIsiSedang('Data pelanggan tidak ditemukan.'),
+            );
           }
+
           return Column(
             children: [
               Expanded(
-                child: FutureBuilder<List<TransaksiModel>>(
-                  future: _historyFuture,
-                  builder: (context, historySnapshot) {
-                    if (historySnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (historySnapshot.hasError) {
-                      return Center(
-                        child: Text('Gagal memuat: ${historySnapshot.error}'),
-                      );
-                    }
-                    if (!historySnapshot.hasData ||
-                        historySnapshot.data!.isEmpty) {
-                      return const Center(child: Text('Tidak ada riwayat.'));
-                    }
-                    final sorted = _sortHistory(
-                      List.from(historySnapshot.data!),
-                    );
-                    return RefreshIndicator(
-                      onRefresh: _refreshHistory,
-                      child: ListView.builder(
-                        itemCount: sorted.length,
-                        itemBuilder: (context, index) {
-                          final tx = sorted[index];
-                          final packageFuture = tx.idPaket != null
-                              ? packageOpFirebase.ambilBerdasarkanId(
-                                  tx.idPaket!,
-                                )
-                              : Future<PaketModel?>.value();
-                          final activeText = tx.tanggalBerakhir != null
-                              ? PerhitunganUtil.ambilTeksSisaMasaAktif(
-                                  tx.tanggalBerakhir!,
-                                )
-                              : 'N/A';
-                          final activeColor = tx.tanggalBerakhir != null
-                              ? PerhitunganUtil.ambilWarnaSisaMasaAktif(
-                                  tx.tanggalBerakhir!,
-                                )
-                              : Colors.grey;
-                          return Card(
-                            key: ValueKey(tx.id),
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            child: ListTile(
-                              leading: const Icon(TIcons.receiptLong),
-                              title: PackageNameWidget(
-                                paketFuture: packageFuture,
+                child: _sedangMemuatAwal
+                    ? const Center(child: CircularProgressIndicator())
+                    : _errorAwal != null
+                    ? Center(child: TeksIsiSedang('Gagal memuat: $_errorAwal'))
+                    : _transaksiTampil.isEmpty
+                    ? const Center(child: TeksIsiSedang('Tidak ada riwayat.'))
+                    : RefreshIndicator(
+                        onRefresh: _refreshRiwayat,
+                        child: ListView.builder(
+                          controller: _pengendaliScroll,
+                          itemCount:
+                              _transaksiTampil.length +
+                              (_sedangMemuatLebih ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index == _transaksiTampil.length) {
+                              return const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
+
+                            final tx = _transaksiTampil[index];
+                            final paketFuture = tx.idPaket != null
+                                ? paketOpFirebase.ambilBerdasarkanId(
+                                    tx.idPaket!,
+                                  )
+                                : Future<PaketModel?>.value();
+                            final teksAktif = tx.tanggalBerakhir != null
+                                ? PerhitunganUtil.ambilTeksSisaMasaAktif(
+                                    tx.tanggalBerakhir!,
+                                  )
+                                : '--';
+                            final warnaAktif = tx.tanggalBerakhir != null
+                                ? PerhitunganUtil.ambilWarnaSisaMasaAktif(
+                                    tx.tanggalBerakhir!,
+                                  )
+                                : Colors.grey;
+
+                            return Card(
+                              key: ValueKey(tx.id),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
                               ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (tx.tanggalBerakhir != null)
-                                    Text(
-                                      'Berakhir - ${FormatWaktuLengkap.formatSingkat(tx.tanggalBerakhir!)}',
-                                    ),
-                                  Text(
-                                    'Status: ${tx.statusPembayaran.displayName}',
-                                    style: TextStyle(
-                                      color:
+                              child: ListTile(
+                                leading: const Icon(TIcons.receiptLong),
+                                title: PackageNameWidget(
+                                  paketFuture: paketFuture,
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (tx.tanggalBerakhir != null)
+                                      TeksIsiSedang(
+                                        'Berakhir - ${FormatWaktuLengkap.formatSingkat(tx.tanggalBerakhir!)}',
+                                      ),
+                                    TeksIsiSedang(
+                                      'Status: ${tx.statusPembayaran.displayName}',
+                                      warna:
                                           tx.statusPembayaran ==
                                               StatusPembayaran.paid
                                           ? Colors.green
                                           : Colors.red,
                                     ),
-                                  ),
-                                  Text(
-                                    'Masa Aktif: $activeText',
-                                    style: TextStyle(color: activeColor),
-                                  ),
-                                ],
+                                    TeksIsiSedang(
+                                      'Masa Aktif: $teksAktif',
+                                      warna: warnaAktif,
+                                    ),
+                                  ],
+                                ),
+                                trailing: const Icon(TIcons.chevronRight),
+                                onTap: () =>
+                                    _navigasiKeDetailTransaksi(tx, paketFuture),
                               ),
-                              trailing: const Icon(TIcons.chevronRight),
-                              onTap: () => _navigateToTransactionDetail(
-                                tx,
-                                packageFuture,
-                              ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
-                    );
-                  },
-                ),
               ),
             ],
           );
@@ -21369,449 +23772,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
     );
   }
 }
-// path: lib/fitur/transaksi/page/detail_transaksi_u.dart
-
-import 'package:flutter/material.dart';
-import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart'; // DIUBAH
-
-class DetailTransaksiU extends StatelessWidget {
-  final TransaksiModel transaksi;
-  final PaketModel? paket;
-
-  const DetailTransaksiU({super.key, required this.transaksi, this.paket});
-
-  @override
-  Widget build(BuildContext context) {
-    Log.info(
-      'Membangun halaman TransactionDetailPage untuk transaksi ID: ${transaksi.id}',
-    );
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Transaksi'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildInfoRow(
-              'Tanggal:',
-              FormatWaktuLengkap.formatSingkat(transaksi.tanggal),
-            ),
-            _buildInfoRow('Keterangan:', transaksi.deskripsi),
-            _buildInfoRow(
-              'Jumlah:',
-              FormatUang.formatMataUang(transaksi.jumlah),
-            ),
-            _buildInfoRow('Tipe:', transaksi.tipe.displayName),
-            if (paket != null)
-              _buildInfoRow('Paket:', paket!.nama)
-            else if (transaksi.idPaket != null)
-              _buildInfoRow('Paket:', 'Memuat...'),
-            _buildInfoRow(
-              'Status Pembayaran:',
-              transaksi.statusPembayaran.displayName,
-            ),
-            if (transaksi.tanggalMulai != null)
-              _buildInfoRow(
-                'Tanggal Mulai:',
-                FormatWaktuLengkap.formatSingkat(transaksi.tanggalMulai!),
-              ),
-            if (transaksi.tanggalBerakhir != null)
-              _buildInfoRow(
-                'Tanggal Berakhir:',
-                FormatWaktuLengkap.formatSingkat(transaksi.tanggalBerakhir!),
-              ),
-            _buildInfoRow(
-              'Poin didapat:',
-              transaksi.poinDidapat.toString(),
-            ),
-            _buildInfoRow(
-              'Poin digunakan:',
-              transaksi.poinDigunakan.toString(),
-            ),
-            if (transaksi.durasiBonus > 0 && transaksi.tipeDurasiBonus != null)
-              _buildInfoRow('Bonus',
-                  '${transaksi.durasiBonus} ${transaksi.tipeDurasiBonus!.displayName}')
-          ],
-        ),
-      ),
-      // DIUBAH
-      bottomNavigationBar: const BannerAdsWidget(),
-    );
-  }
-
-  Widget _buildInfoRow(final String label, final dynamic value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: value is Widget ? value : Text(value.toString()),
-          ),
-        ],
-      ),
-    );
-  }
-}
-// path: lib/fitur/transaksi/page/transaksi_page_a.dart
-
-import 'dart:async';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/page/detail_transaksi.dart';
-import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
-import 'package:wifi/shared/widget/widget_ringkasan_keuangan.dart';
-
-enum SortBy { newest, oldest, highestAmount, lowestAmount }
-
-/// Extension untuk memberikan fungsionalitas tambahan pada [SortBy].
-extension SortByX on SortBy {
-  /// Mengembalikan nama yang mudah dibaca untuk setiap kriteria urutan.
-  String get name {
-    switch (this) {
-      case SortBy.newest:
-        return 'Terbaru';
-      case SortBy.oldest:
-        return 'Terlama';
-      case SortBy.highestAmount:
-        return 'Jumlah Tertinggi';
-      case SortBy.lowestAmount:
-        return 'Jumlah Terendah';
-    }
-  }
-}
-
-//===============[ REFACTORED WIDGETS ]===============================
-
-/// Halaman utama yang menampilkan daftar transaksi dan ringkasannya.
-class TransaksiPageA extends ConsumerWidget {
-  const TransaksiPageA({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final asyncState = ref.watch(transaksiProvider);
-
-    return Scaffold(
-      appBar: const _TransactionAppBar(), // Widget AppBar yang diekstrak
-      body: asyncState.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
-        data: (state) =>
-            _TransactionBody(state: state), // Widget Body yang diekstrak
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Log.info('FAB tambah transaksi ditekan.');
-          unawaited(_naviagasiKeForm(context));
-        },
-        child: const Icon(TIcons.add),
-      ),
-    );
-  }
-
-  /// Navigasi ke halaman form untuk menambah/mengedit transaksi.
-  Future<void> _naviagasiKeForm(
-    BuildContext context, {
-    TransaksiModel? transaction,
-  }) async {
-    Log.info(
-      transaction == null
-          ? 'Membuka FormTransaksiPage untuk menambah entri baru.'
-          : 'Membuka FormTransaksiPage untuk mengedit transaksi: ${transaction.id}',
-    );
-    await Navigator.push(
-      context,
-      MaterialPageRoute<bool>(
-        builder: (context) => FormTransaksi(transaksi: transaction),
-      ),
-    );
-  }
-}
-
-/// AppBar khusus untuk Halaman Transaksi, meng-handle semua aksi.
-class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
-  const _TransactionAppBar();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final currentSortBy =
-        ref.watch(transaksiProvider).value?.sortBy ?? SortBy.newest;
-    return AppBar(
-      title: const Text('Transaksi'),
-      actions: [
-        // Tombol Sort
-        IconButton(
-          onPressed: () => _showSortDialog(context, ref, currentSortBy),
-          icon: const Icon(TIcons.filter),
-          tooltip: 'Urutkan',
-        ),
-
-        // Tombol Hapus Semua
-        IconButton(
-          onPressed: () => _deleteAllTransactions(context, ref),
-          icon: const Icon(TIcons.delete),
-          tooltip: 'Hapus Semua Transaksi',
-        ),
-      ],
-    );
-  }
-
-  //
-  /// Menampilkan dialog untuk memilih metode pengurutan.
-  Future<void> _showSortDialog(
-    BuildContext context,
-    WidgetRef ref,
-    SortBy currentSortBy,
-  ) async {
-    Log.info('Membuka dialog pengurutan transaksi.');
-
-    final newSort = await showDialog<SortBy>(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: const Text('Urutkan Berdasarkan'),
-        children: [
-          RadioGroup<SortBy>(
-            groupValue: currentSortBy,
-            onChanged: (value) => Navigator.pop(context, value),
-            child: Column(
-              children: SortBy.values
-                  .map(
-                    (sortBy) => RadioListTile<SortBy>(
-                      title: Text(sortBy.name),
-                      value: sortBy,
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (newSort != null) {
-      // Memanggil method di notifier untuk mengubah urutan
-      ref.read(transaksiProvider.notifier).sortTransactions(newSort);
-    }
-  }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-}
-
-/// Menampilkan dialog konfirmasi untuk menghapus semua transaksi.
-Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
-  final konfirmasi = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Konfirmasi'),
-      content: const Text(
-        'Anda yakin ingin menghapus semua transaksi? Tindakan ini tidak dapat diurungkan.',
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('Batal'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(context, true),
-          style: TextButton.styleFrom(foregroundColor: Colors.red),
-          child: const Text('Hapus'),
-        ),
-      ],
-    ),
-  );
-
-  if ((konfirmasi ?? false) && context.mounted) {
-    try {
-      await ref.read(transaksiProvider.notifier).softDeleteAll();
-
-      if (context.mounted) {
-        ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
-      }
-    } on Exception catch (e, s) {
-      Log.error('Gagal menghapus semua transaksi.', e: e, s: s);
-      if (context.mounted) {
-        ToastUtil.error(context, 'Gagal menghapus transaksi: $e');
-      }
-    }
-  }
-}
-
-/// Body utama Halaman Transaksi.
-class _TransactionBody extends ConsumerWidget {
-  final TransaksiState state;
-
-  const _TransactionBody({required this.state});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return RefreshIndicator(
-      onRefresh: () => ref.read(transaksiProvider.notifier).refresh(),
-      child: Column(
-        children: [
-          // Ringkasan Keuangan (selalu ditampilkan)
-          TransactionSummary(
-            income: state.totalIncome,
-            expense: state.totalExpense,
-            total: state.netTotal,
-          ),
-          // Bagian ini akan berganti antara list dan pesan kosong
-          Expanded(
-            child: state.transaksi.isEmpty
-                ? const Center(child: Text('Tidak ada transaksi'))
-                : _TransactionListView(transactions: state.transaksi),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Widget yang bertanggung jawab untuk membangun ListView dari transaksi.
-class _TransactionListView extends ConsumerWidget {
-  final List<TransaksiModel> transactions;
-
-  const _TransactionListView({required this.transactions});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final groupedTransactions = kelompokkanTransaksiPerTanggal(transactions);
-
-    return ListView.builder(
-      key: const PageStorageKey('transaction_list_key'),
-      itemCount: groupedTransactions.length,
-      itemBuilder: (context, index) {
-        final date = groupedTransactions.keys.elementAt(index);
-        final transactionsOnDate = groupedTransactions[date]!;
-        final dailyTotal = transactionsOnDate.fold<double>(
-          0.0,
-          (sum, item) =>
-              sum +
-              (item.tipe == TipeTransaksi.income ? item.jumlah : -item.jumlah),
-        );
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            bangunHeaderBagian(date, dailyTotal),
-            ...transactionsOnDate.map(
-              (transaction) => bangunItemTransaksi(
-                context,
-                transaction,
-                onTap: () => _navigasiKeDetailTransaksi(context, transaction),
-                onEdit: () =>
-                    _navigasiKeFormTransaksi(context, transaksi: transaction),
-                onDelete: () => ref
-                    .read(transaksiProvider.notifier)
-                    .softDelete(transaction.id),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  /// Navigasi ke halaman detail transaksi.
-  Future<void> _navigasiKeDetailTransaksi(
-    BuildContext context,
-    TransaksiModel transaksi,
-  ) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (context) => DetailTransaksi(transaksi: transaksi),
-      ),
-    );
-  }
-
-  /// Navigasi ke halaman form (dibutuhkan di sini untuk action onEdit).
-  Future<void> _navigasiKeFormTransaksi(
-    BuildContext context, {
-    TransaksiModel? transaksi,
-  }) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute<bool>(
-        builder: (context) => FormTransaksi(transaksi: transaksi),
-      ),
-    );
-  }
-}
-
-//===============[ UNCHANGED WIDGETS ]===============================
-// Widget TransactionSummary dan buildFinancialSummaryInfo tidak perlu diubah
-// karena sudah cukup baik dan bisa digunakan kembali.
-
-class TransactionSummary extends StatelessWidget {
-  final double income;
-  final double expense;
-  final double total;
-
-  const TransactionSummary({
-    super.key,
-    required this.income,
-    required this.expense,
-    required this.total,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(8.0),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            bangunRingkasanInfoKeuangan(
-              context: context,
-              label: 'Pemasukan',
-              jumlah: income,
-              color: Colors.green,
-            ),
-            bangunRingkasanInfoKeuangan(
-              context: context,
-              label: 'Pengeluaran',
-              jumlah: expense,
-              color: Colors.red,
-            ),
-            bangunRingkasanInfoKeuangan(
-              context: context,
-              label: 'Total',
-              jumlah: total,
-              color: total >= 0 ? Colors.blue : Colors.red,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-// path: lib/fitur/transaksi/page/detail_transaksi.dart
+// path lib/fitur/transaksi/page/detail_transaksi_a.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21830,26 +23791,29 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah transaksi.
-class DetailTransaksi extends ConsumerStatefulWidget {
+class DetailTransaksiA extends ConsumerStatefulWidget {
   /// Model transaksi yang akan ditampilkan.
   final TransaksiModel transaksi;
 
   /// Konstruktor untuk TransactionDetailPage.
-  const DetailTransaksi({super.key, required this.transaksi});
+  const DetailTransaksiA({super.key, required this.transaksi});
 
   @override
-  ConsumerState<DetailTransaksi> createState() => _DetailTransaksistate();
+  ConsumerState<DetailTransaksiA> createState() => _DetailTransaksiAState();
 }
 
-class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
+class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
   late final DompetOpSqlite _dompetOpSqlite = ref.watch(dompetOpSqliteProvider);
-  late final KategoriOpSqlite _kategoriOpSqlite =
-      ref.watch(kategoriOpSqliteProvider);
-  late final PelangganOpSqlite _pelangganOpsqlite =
-      ref.watch(pelangganOpSqliteProvider);
+  late final KategoriOpSqlite _kategoriOpSqlite = ref.watch(
+    kategoriOpSqliteProvider,
+  );
+  late final PelangganOpSqlite _pelangganOpsqlite = ref.watch(
+    pelangganOpSqliteProvider,
+  );
   late final PaketOpSqlite _paketOpSqlite = ref.watch(paketOpSqliteProvider);
-  late final SubKategoriOpSqlite _subKategoriOpSqlite =
-      ref.watch(subKategoriOpSqliteProvider);
+  late final SubKategoriOpSqlite _subKategoriOpSqlite = ref.watch(
+    subKategoriOpSqliteProvider,
+  );
 
   late TransaksiModel _currentTransaction;
   bool _diUpdate = false;
@@ -21887,7 +23851,8 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
 
   Future<void> _navigasiKeForm() async {
     Log.info(
-        'Membuka FormTransaksiPage dari halaman detail untuk mengedit transaksi: ${_currentTransaction.id}');
+      'Membuka FormTransaksiPage dari halaman detail untuk mengedit transaksi: ${_currentTransaction.id}',
+    );
     final isSaved = await Navigator.push<bool?>(
       context,
       MaterialPageRoute(
@@ -21897,11 +23862,13 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
 
     if (isSaved ?? false) {
       Log.info(
-          'Form edit melaporkan keberhasilan penyimpanan. Memuat ulang data transaksi dari database.');
+        'Form edit melaporkan keberhasilan penyimpanan. Memuat ulang data transaksi dari database.',
+      );
       try {
         final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
-        final transaksi =
-            await transaksiOpSqlite.ambilBerdasarkanId(_currentTransaction.id);
+        final transaksi = await transaksiOpSqlite.ambilBerdasarkanId(
+          _currentTransaction.id,
+        );
 
         if (transaksi != null) {
           Log.info('Berhasil memuat data transaksi terbaru. Memperbarui UI.');
@@ -21911,12 +23878,16 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
           });
         } else {
           Log.warning(
-              'Gagal memuat ulang transaksi: data tidak ditemukan setelah update.');
+            'Gagal memuat ulang transaksi: data tidak ditemukan setelah update.',
+          );
           if (mounted) Navigator.pop(context, true);
         }
       } catch (e, s) {
-        Log.error('Gagal memuat ulang data transaksi setelah edit.',
-            e: e, s: s);
+        Log.error(
+          'Gagal memuat ulang data transaksi setelah edit.',
+          e: e,
+          s: s,
+        );
         if (mounted) {
           ToastUtil.error(context, 'Gagal memuat data terbaru.');
         }
@@ -21955,7 +23926,9 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
               FormatWaktuLengkap.formatSingkat(transaksi.tanggal),
             ),
             _buildDetailRow(
-                'Jumlah', FormatUang.formatMataUang(transaksi.jumlah)),
+              'Jumlah',
+              FormatUang.formatMataUang(transaksi.jumlah),
+            ),
             _buildDetailRow('Tipe', transaksi.tipe.displayName),
             _buildFutureDetailRow(
               'Dompet',
@@ -22017,9 +23990,13 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
               transaksi.statusPembayaran.displayName,
             ),
             _buildDetailRow(
-                'Poin Dihasilkan', transaksi.poinDidapat.toString()),
+              'Poin Dihasilkan',
+              transaksi.poinDidapat.toString(),
+            ),
             _buildDetailRow(
-                'Poin Digunakan', transaksi.poinDigunakan.toString()),
+              'Poin Digunakan',
+              transaksi.poinDigunakan.toString(),
+            ),
             if (transaksi.tanggalMulai != null)
               _buildDetailRow(
                 'Masa Aktif Mulai',
@@ -22031,8 +24008,10 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
                 FormatWaktuLengkap.formatSingkat(transaksi.tanggalBerakhir!),
               ),
             if (transaksi.durasiBonus > 0 && transaksi.tipeDurasiBonus != null)
-              _buildDetailRow('Bonus',
-                  '${transaksi.durasiBonus} ${transaksi.tipeDurasiBonus?.displayName}')
+              _buildDetailRow(
+                'Bonus',
+                '${transaksi.durasiBonus} ${transaksi.tipeDurasiBonus?.displayName}',
+              ),
           ],
         ),
       ),
@@ -22069,6 +24048,302 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
     );
   }
 }
+// path: lib/fitur/transaksi/page/detail_transaksi_u.dart
+
+import 'package:flutter/material.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart'; // DIUBAH
+
+class DetailTransaksiU extends StatelessWidget {
+  final TransaksiModel transaksi;
+  final PaketModel? paket;
+
+  const DetailTransaksiU({super.key, required this.transaksi, this.paket});
+
+  @override
+  Widget build(BuildContext context) {
+    Log.info(
+      'Membangun halaman TransactionDetailPage untuk transaksi ID: ${transaksi.id}',
+    );
+    return Scaffold(
+      appBar: AppBar(title: const Text('Detail Transaksi')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildInfoRow(
+              'Tanggal:',
+              FormatWaktuLengkap.formatSingkat(transaksi.tanggal),
+            ),
+            _buildInfoRow('Keterangan:', transaksi.deskripsi),
+            _buildInfoRow(
+              'Jumlah:',
+              FormatUang.formatMataUang(transaksi.jumlah),
+            ),
+            _buildInfoRow('Tipe:', transaksi.tipe.displayName),
+            if (paket != null)
+              _buildInfoRow('Paket:', paket!.nama)
+            else if (transaksi.idPaket != null)
+              _buildInfoRow('Paket:', 'Memuat...'),
+            _buildInfoRow(
+              'Status Pembayaran:',
+              transaksi.statusPembayaran.displayName,
+            ),
+            if (transaksi.tanggalMulai != null)
+              _buildInfoRow(
+                'Tanggal Mulai:',
+                FormatWaktuLengkap.formatSingkat(transaksi.tanggalMulai!),
+              ),
+            if (transaksi.tanggalBerakhir != null)
+              _buildInfoRow(
+                'Tanggal Berakhir:',
+                FormatWaktuLengkap.formatSingkat(transaksi.tanggalBerakhir!),
+              ),
+            _buildInfoRow('Poin didapat:', transaksi.poinDidapat.toString()),
+            _buildInfoRow(
+              'Poin digunakan:',
+              transaksi.poinDigunakan.toString(),
+            ),
+            if (transaksi.durasiBonus > 0 && transaksi.tipeDurasiBonus != null)
+              _buildInfoRow(
+                'Bonus',
+                '${transaksi.durasiBonus} ${transaksi.tipeDurasiBonus!.displayName}',
+              ),
+          ],
+        ),
+      ),
+      // DIUBAH
+      bottomNavigationBar: const BannerAdsWidget(),
+    );
+  }
+
+  Widget _buildInfoRow(String label, dynamic value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(child: value is Widget ? value : Text(value.toString())),
+        ],
+      ),
+    );
+  }
+}
+// path lib/fitur/transaksi/page/riwayat_aktivasi_paket.dart
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/widget/package_name.dart';
+
+class RiwayatAktivasiPaket extends ConsumerStatefulWidget {
+  const RiwayatAktivasiPaket({super.key});
+  @override
+  ConsumerState<RiwayatAktivasiPaket> createState() =>
+      _RiwayatAktivasiPaketState();
+}
+
+class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
+  final ScrollController _pengendaliScroll = ScrollController();
+  int _jumlahTampil = 20;
+
+  @override
+  void initState() {
+    super.initState();
+    _pengendaliScroll.addListener(_deteksiScroll);
+  }
+
+  @override
+  void dispose() {
+    _pengendaliScroll.removeListener(_deteksiScroll);
+    _pengendaliScroll.dispose();
+    super.dispose();
+  }
+
+  void _deteksiScroll() {
+    // Menambah data jika scroll mencapai batas bawah
+    if (_pengendaliScroll.position.pixels >=
+        _pengendaliScroll.position.maxScrollExtent - 200) {
+      final state = ref.read(riwayatAktivasiPaketProvider).value;
+      if (state != null && _jumlahTampil < state.items.length) {
+        setState(() {
+          _jumlahTampil += 20;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final historyAsync = ref.watch(riwayatAktivasiPaketProvider);
+    final paketOpSqlite = ref.watch(paketOpSqliteProvider);
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Riwayat Langganan'),
+        actions: [
+          IconButton(
+            icon: const Icon(TIcons.filter),
+            onPressed: () {
+              if (historyAsync.hasValue) {
+                Log.info('Membuka dialog pengurutan riwayat langganan.');
+                unawaited(
+                  _showSortDialog(context, ref, historyAsync.value!.sortBy),
+                );
+              }
+            },
+            tooltip: 'Urutkan',
+          ),
+        ],
+      ),
+      body: historyAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text('Error: $error')),
+        data: (state) {
+          if (state.items.isEmpty) {
+            return const Center(
+              child: Text('Tidak ada riwayat langganan ditemukan.'),
+            );
+          }
+          final itemsTampil = state.items.take(_jumlahTampil).toList();
+          return ListView.builder(
+            controller: _pengendaliScroll,
+            itemCount:
+                state.items.length +
+                (_jumlahTampil < state.items.length ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == itemsTampil.length) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              final item = itemsTampil[index];
+              final transaksi = item.transaksi;
+              final warnaStatusPembayaran =
+                  transaksi.statusPembayaran == StatusPembayaran.paid
+                  ? Colors.green
+                  : Colors.red;
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                child: ListTile(
+                  onTap: () async {
+                    Log.info('Melihat detail riwayat langganan.', {
+                      'transactionId': transaksi.id,
+                    });
+                    await Navigator.push<bool>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailRiwayatAktivasiPage(
+                          transactionId: transaksi.id,
+                        ),
+                      ),
+                    );
+                  },
+                  title: Text(
+                    item.customerName,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      PackageNameWidget(
+                        paketFuture: paketOpSqlite.ambilBerdasarkanId(
+                          transaksi.idPaket ?? '',
+                        ),
+                        style: TextStyle(color: warnaStatusPembayaran),
+                      ),
+                      gapH4,
+                      Text(
+                        'Status: ${transaksi.statusPembayaran.displayName}',
+                        style: TextStyle(
+                          color: warnaStatusPembayaran,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      gapH4,
+                      if (transaksi.tanggalMulai != null &&
+                          transaksi.tanggalBerakhir != null)
+                        Text(
+                          'Aktif: ${FormatTanggal.formatDasar(transaksi.tanggalMulai!)} - ${FormatTanggal.formatDasar(transaksi.tanggalBerakhir!)}',
+                        ),
+                    ],
+                  ),
+                  trailing: const Icon(TIcons.chevronRight),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _showSortDialog(
+    BuildContext context,
+    WidgetRef ref,
+    SortOption currentSort,
+  ) async {
+    final SortOption? selected = await showDialog<SortOption>(
+      context: context,
+      builder: (BuildContext context) {
+        Widget buildOption(String text, SortOption value) {
+          return SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, value),
+            child: Text(
+              text,
+              style: TextStyle(
+                fontWeight: currentSort == value
+                    ? FontWeight.bold
+                    : FontWeight.normal,
+              ),
+            ),
+          );
+        }
+
+        return SimpleDialog(
+          title: const Text('Urutkan Berdasarkan'),
+          children: <Widget>[
+            buildOption('Berakhir Hari Ini', SortOption.beralhirHariIni),
+            buildOption('Tanggal Berakhir', SortOption.tanggalBerakhir),
+            buildOption('Nama A-Z', SortOption.namaAZ),
+            buildOption('Nama Z-A', SortOption.namaZA),
+            buildOption('Lunas', SortOption.lunas),
+            buildOption('Belum Lunas', SortOption.belumLunas),
+            buildOption('Update Terbaru', SortOption.diperbaruiPadaAZ),
+            buildOption('Update Terlama', SortOption.diperbaruiPadaZA),
+          ],
+        );
+      },
+    );
+
+    if (selected != null) {
+      ref.read(riwayatAktivasiPaketProvider.notifier).changeSort(selected);
+    }
+  }
+}
 // path: lib/fitur/transaksi/page/form_transaksi.dart
 
 import 'dart:async';
@@ -22092,6 +24367,8 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/input/input_rupiah.dart';
+import 'package:wifi/shared/widget/input/input_teks.dart';
 import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
 
 class FormTransaksi extends ConsumerStatefulWidget {
@@ -22108,6 +24385,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
   final _jumlahController = TextEditingController();
   final _keteranganController = TextEditingController();
   final _jumlahFocusNode = FocusNode();
+  final _keteranganFocusNode = FocusNode();
   DateTime? _tanggalDipilih;
   TimeOfDay? _jamDipilih;
 
@@ -22271,7 +24549,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     });
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _pilihTanggal(BuildContext context) async {
     Log.info('Memilih tanggal, saat ini: $_tanggalDipilih');
     final picked = await showDatePicker(
       context: context,
@@ -22285,7 +24563,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     }
   }
 
-  Future<void> _selectTime(BuildContext context) async {
+  Future<void> _pilihJam(BuildContext context) async {
     Log.info('Memilih waktu, saat ini: $_jamDipilih');
     final initial = _jamDipilih ?? TimeOfDay.fromDateTime(DateTime.now());
     final picked = await showTimePicker(
@@ -22336,7 +24614,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
           Log.info(
             'Menjalankan operasi UPDATE untuk transaksi ID: ${transaksi.id}',
           );
-          await _transaksiOpSqlite.updateTransaction(
+          await _transaksiOpSqlite.perbaruiTransaksi(
             widget.transaksi!.id,
             transaksi,
           );
@@ -22480,41 +24758,25 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                         },
                       ),
                     ),
-                    TextFormField(
+                    InputTeks(
                       controller: _keteranganController,
-                      decoration: const InputDecoration(
-                        labelText: 'Keterangan',
-                      ),
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) {
-                        FocusScope.of(context).requestFocus(_jumlahFocusNode);
-                      },
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Keterangan tidak boleh kosong'
-                          : null,
+                      label: 'Keterangan',
+                      focusNode: _keteranganFocusNode,
+                      nextFocusNode: _jumlahFocusNode,
                     ),
-                    TextFormField(
+
+                    InputRupiah(
                       controller: _jumlahController,
                       focusNode: _jumlahFocusNode,
-                      decoration: const InputDecoration(labelText: 'Jumlah'),
-                      keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.done,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Jumlah tidak boleh kosong';
-                        }
-                        if (double.tryParse(value) == null) {
-                          return 'Format jumlah tidak valid';
-                        }
-                        return null;
-                      },
                     ),
+
                     gapH24,
                     PemilihTanggalWaktuWidget(
                       tanggalTerpilih: _tanggalDipilih,
                       waktuTerpilih: _jamDipilih,
-                      onPilihTanggal: () => _selectDate(context),
-                      onPilihWaktu: () => _selectTime(context),
+                      onPilihTanggal: () => _pilihTanggal(context),
+                      onPilihWaktu: () => _pilihJam(context),
                     ),
                     DropdownButtonFormField<DompetModel>(
                       key: ValueKey<DompetModel?>(_dompetDipilih),
@@ -22526,14 +24788,14 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                           child: Text(dompet.nama),
                         );
                       }).toList(),
-                      onChanged: (val) {
+                      onChanged: (v) {
                         Log.info(
-                          'Pengguna memilih dompet: ${val?.nama ?? "null"}',
+                          'Pengguna memilih dompet: ${v?.nama ?? "null"}',
                         );
-                        setState(() => _dompetDipilih = val);
+                        setState(() => _dompetDipilih = v);
                       },
-                      validator: (val) =>
-                          val == null ? 'Dompet harus dipilih' : null,
+                      validator: (v) =>
+                          v == null ? 'Dompet harus dipilih' : null,
                     ),
                     if (_tipe == TipeTransaksi.transfer)
                       DropdownButtonFormField<DompetModel>(
@@ -22633,7 +24895,396 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     _jumlahController.dispose();
     _keteranganController.dispose();
     _jumlahFocusNode.dispose();
+    _keteranganFocusNode.dispose();
     super.dispose();
+  }
+}
+// path lib/fitur/transaksi/page/transaksi_a.dart
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
+import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
+import 'package:wifi/shared/widget/widget_ringkasan_keuangan.dart';
+
+enum SortBy { terbaru, terlama, jumlahTerbesar, jumlahTerkecil }
+
+/// Extension untuk memberikan fungsionalitas tambahan pada [SortBy].
+extension SortByX on SortBy {
+  /// Mengembalikan nama yang mudah dibaca untuk setiap kriteria urutan.
+  String get name {
+    switch (this) {
+      case SortBy.terbaru:
+        return 'Terbaru';
+      case SortBy.terlama:
+        return 'Terlama';
+      case SortBy.jumlahTerbesar:
+        return 'Jumlah Tertinggi';
+      case SortBy.jumlahTerkecil:
+        return 'Jumlah Terendah';
+    }
+  }
+}
+
+//===============[ REFACTORED WIDGETS ]===============================
+
+/// Halaman utama yang menampilkan daftar transaksi dan ringkasannya.
+class TransaksiA extends ConsumerWidget {
+  const TransaksiA({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncState = ref.watch(transaksiProvider);
+
+    return Scaffold(
+      appBar: const _TransactionAppBar(), // Widget AppBar yang diekstrak
+      body: asyncState.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text('Error: $err')),
+        data: (state) =>
+            _TransactionBody(state: state), // Widget Body yang diekstrak
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Log.info('FAB tambah transaksi ditekan.');
+          unawaited(_naviagasiKeForm(context));
+        },
+        child: const Icon(TIcons.add),
+      ),
+    );
+  }
+
+  /// Navigasi ke halaman form untuk menambah/mengedit transaksi.
+  Future<void> _naviagasiKeForm(
+    BuildContext context, {
+    TransaksiModel? transaksi,
+  }) async {
+    Log.info(
+      transaksi == null
+          ? 'Membuka FormTransaksiPage untuk menambah entri baru.'
+          : 'Membuka FormTransaksiPage untuk mengedit transaksi: ${transaksi.id}',
+    );
+    await Navigator.push(
+      context,
+      MaterialPageRoute<bool>(
+        builder: (context) => FormTransaksi(transaksi: transaksi),
+      ),
+    );
+  }
+}
+
+/// AppBar khusus untuk Halaman Transaksi, meng-handle semua aksi.
+class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
+  const _TransactionAppBar();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentSortBy =
+        ref.watch(transaksiProvider).value?.sortBy ?? SortBy.terbaru;
+    return AppBar(
+      title: const Text('Transaksi'),
+      actions: [
+        // Tombol Sort
+        IconButton(
+          onPressed: () => _showSortDialog(context, ref, currentSortBy),
+          icon: const Icon(TIcons.filter),
+          tooltip: 'Urutkan',
+        ),
+
+        // Tombol Hapus Semua
+        IconButton(
+          onPressed: () => _deleteAllTransactions(context, ref),
+          icon: const Icon(TIcons.delete),
+          tooltip: 'Hapus Semua Transaksi',
+        ),
+      ],
+    );
+  }
+
+  //
+  /// Menampilkan dialog untuk memilih metode pengurutan.
+  Future<void> _showSortDialog(
+    BuildContext context,
+    WidgetRef ref,
+    SortBy currentSortBy,
+  ) async {
+    Log.info('Membuka dialog pengurutan transaksi.');
+
+    final newSort = await showDialog<SortBy>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Urutkan Berdasarkan'),
+        children: [
+          RadioGroup<SortBy>(
+            groupValue: currentSortBy,
+            onChanged: (value) => Navigator.pop(context, value),
+            child: Column(
+              children: SortBy.values
+                  .map(
+                    (sortBy) => RadioListTile<SortBy>(
+                      title: Text(sortBy.name),
+                      value: sortBy,
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (newSort != null) {
+      // Memanggil method di notifier untuk mengubah urutan
+      ref.read(transaksiProvider.notifier).sortTransactions(newSort);
+    }
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+/// Menampilkan dialog konfirmasi untuk menghapus semua transaksi.
+Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
+  final konfirmasi = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Konfirmasi'),
+      content: const Text(
+        'Anda yakin ingin menghapus semua transaksi? Tindakan ini tidak dapat diurungkan.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Batal'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          style: TextButton.styleFrom(foregroundColor: Colors.red),
+          child: const Text('Hapus'),
+        ),
+      ],
+    ),
+  );
+
+  if ((konfirmasi ?? false) && context.mounted) {
+    try {
+      await ref.read(transaksiProvider.notifier).softDeleteAll();
+
+      if (context.mounted) {
+        ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
+      }
+    } on Exception catch (e, s) {
+      Log.error('Gagal menghapus semua transaksi.', e: e, s: s);
+      if (context.mounted) {
+        ToastUtil.error(context, 'Gagal menghapus transaksi: $e');
+      }
+    }
+  }
+}
+
+/// Body utama Halaman Transaksi.
+class _TransactionBody extends ConsumerWidget {
+  final TransaksiState state;
+
+  const _TransactionBody({required this.state});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return RefreshIndicator(
+      onRefresh: () => ref.read(transaksiProvider.notifier).refresh(),
+      child: Column(
+        children: [
+          // Ringkasan Keuangan (selalu ditampilkan)
+          TransactionSummary(
+            pemasukan: state.totalPemasukan,
+            pengeluaran: state.totalPengeluaran,
+            total: state.total,
+          ),
+          // Bagian ini akan berganti antara list dan pesan kosong
+          Expanded(
+            child: state.transaksi.isEmpty
+                ? const Center(child: Text('Tidak ada transaksi'))
+                : _TransactionListView(transaksi: state.transaksi),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Widget yang bertanggung jawab untuk membangun ListView dari transaksi.
+class _TransactionListView extends ConsumerStatefulWidget {
+  final List<TransaksiModel> transaksi;
+  const _TransactionListView({required this.transaksi});
+
+  @override
+  ConsumerState<_TransactionListView> createState() =>
+      _TransactionListViewState();
+}
+
+class _TransactionListViewState extends ConsumerState<_TransactionListView> {
+  final ScrollController _pengendaliScroll = ScrollController();
+  int _jumlahTampil = 20;
+
+  @override
+  void initState() {
+    super.initState();
+    _pengendaliScroll.addListener(_deteksiScroll);
+  }
+
+  @override
+  void dispose() {
+    _pengendaliScroll.removeListener(_deteksiScroll);
+    _pengendaliScroll.dispose();
+    super.dispose();
+  }
+
+  void _deteksiScroll() {
+    if (_pengendaliScroll.position.pixels >=
+        _pengendaliScroll.position.maxScrollExtent - 200) {
+      if (_jumlahTampil < widget.transaksi.length) {
+        setState(() {
+          _jumlahTampil += 20;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final transaksiTampil = widget.transaksi.take(_jumlahTampil).toList();
+    final grupTransaksi = kelompokkanTransaksiPerTanggal(transaksiTampil);
+
+    return ListView.builder(
+      controller: _pengendaliScroll,
+      key: const PageStorageKey('transaction_list_key'),
+      itemCount:
+          grupTransaksi.length +
+          (_jumlahTampil < widget.transaksi.length ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == grupTransaksi.length) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        final date = grupTransaksi.keys.elementAt(index);
+        final transactionsOnDate = grupTransaksi[date]!;
+        final totalHarian = transactionsOnDate.fold<double>(
+          0.0,
+          (sum, item) =>
+              sum +
+              (item.tipe == TipeTransaksi.income ? item.jumlah : -item.jumlah),
+        );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            bangunHeaderBagian(date, totalHarian),
+            ...transactionsOnDate.map(
+              (transaksi) => bangunItemTransaksi(
+                context,
+                transaksi,
+                onTap: () => _navigasiKeDetailTransaksi(context, transaksi),
+                onEdit: () =>
+                    _navigasiKeFormTransaksi(context, transaksi: transaksi),
+                onDelete: () => ref
+                    .read(transaksiProvider.notifier)
+                    .softDelete(transaksi.id),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Navigasi ke halaman detail transaksi.
+  Future<void> _navigasiKeDetailTransaksi(
+    BuildContext context,
+    TransaksiModel transaksi,
+  ) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (context) => DetailTransaksiA(transaksi: transaksi),
+      ),
+    );
+  }
+
+  /// Navigasi ke halaman form (dibutuhkan di sini untuk action onEdit).
+  Future<void> _navigasiKeFormTransaksi(
+    BuildContext context, {
+    TransaksiModel? transaksi,
+  }) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<bool>(
+        builder: (context) => FormTransaksi(transaksi: transaksi),
+      ),
+    );
+  }
+}
+
+//===============[ UNCHANGED WIDGETS ]===============================
+// Widget TransactionSummary dan buildFinancialSummaryInfo tidak perlu diubah
+// karena sudah cukup baik dan bisa digunakan kembali.
+
+class TransactionSummary extends StatelessWidget {
+  final double pemasukan;
+  final double pengeluaran;
+  final double total;
+
+  const TransactionSummary({
+    super.key,
+    required this.pemasukan,
+    required this.pengeluaran,
+    required this.total,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.all(8.0),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            bangunRingkasanInfoKeuangan(
+              context: context,
+              label: 'Pemasukan',
+              jumlah: pemasukan,
+              color: Colors.green,
+            ),
+            bangunRingkasanInfoKeuangan(
+              context: context,
+              label: 'Pengeluaran',
+              jumlah: pengeluaran,
+              color: Colors.red,
+            ),
+            bangunRingkasanInfoKeuangan(
+              context: context,
+              label: 'Total',
+              jumlah: total,
+              color: total >= 0 ? Colors.blue : Colors.red,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 // GENERATED CODE - DO NOT MODIFY BY HAND
@@ -22652,7 +25303,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TransaksiState {
 
- List<TransaksiModel> get transaksi; double get totalIncome; double get totalExpense; double get netTotal; SortBy get sortBy;
+ List<TransaksiModel> get transaksi; double get totalPemasukan; double get totalPengeluaran; double get total; SortBy get sortBy;
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -22663,16 +25314,16 @@ $TransaksiStateCopyWith<TransaksiState> get copyWith => _$TransaksiStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransaksiState&&const DeepCollectionEquality().equals(other.transaksi, transaksi)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense)&&(identical(other.netTotal, netTotal) || other.netTotal == netTotal)&&(identical(other.sortBy, sortBy) || other.sortBy == sortBy));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransaksiState&&const DeepCollectionEquality().equals(other.transaksi, transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total)&&(identical(other.sortBy, sortBy) || other.sortBy == sortBy));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(transaksi),totalIncome,totalExpense,netTotal,sortBy);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(transaksi),totalPemasukan,totalPengeluaran,total,sortBy);
 
 @override
 String toString() {
-  return 'TransaksiState(transaksi: $transaksi, totalIncome: $totalIncome, totalExpense: $totalExpense, netTotal: $netTotal, sortBy: $sortBy)';
+  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total, sortBy: $sortBy)';
 }
 
 
@@ -22683,7 +25334,7 @@ abstract mixin class $TransaksiStateCopyWith<$Res>  {
   factory $TransaksiStateCopyWith(TransaksiState value, $Res Function(TransaksiState) _then) = _$TransaksiStateCopyWithImpl;
 @useResult
 $Res call({
- List<TransaksiModel> transaksi, double totalIncome, double totalExpense, double netTotal, SortBy sortBy
+ List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total, SortBy sortBy
 });
 
 
@@ -22700,12 +25351,12 @@ class _$TransaksiStateCopyWithImpl<$Res>
 
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? transaksi = null,Object? totalIncome = null,Object? totalExpense = null,Object? netTotal = null,Object? sortBy = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,Object? sortBy = null,}) {
   return _then(_self.copyWith(
 transaksi: null == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
-as List<TransaksiModel>,totalIncome: null == totalIncome ? _self.totalIncome : totalIncome // ignore: cast_nullable_to_non_nullable
-as double,totalExpense: null == totalExpense ? _self.totalExpense : totalExpense // ignore: cast_nullable_to_non_nullable
-as double,netTotal: null == netTotal ? _self.netTotal : netTotal // ignore: cast_nullable_to_non_nullable
+as List<TransaksiModel>,totalPemasukan: null == totalPemasukan ? _self.totalPemasukan : totalPemasukan // ignore: cast_nullable_to_non_nullable
+as double,totalPengeluaran: null == totalPengeluaran ? _self.totalPengeluaran : totalPengeluaran // ignore: cast_nullable_to_non_nullable
+as double,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
 as double,sortBy: null == sortBy ? _self.sortBy : sortBy // ignore: cast_nullable_to_non_nullable
 as SortBy,
   ));
@@ -22792,10 +25443,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalIncome,  double totalExpense,  double netTotal,  SortBy sortBy)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  SortBy sortBy)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TransaksiState() when $default != null:
-return $default(_that.transaksi,_that.totalIncome,_that.totalExpense,_that.netTotal,_that.sortBy);case _:
+return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.sortBy);case _:
   return orElse();
 
 }
@@ -22813,10 +25464,10 @@ return $default(_that.transaksi,_that.totalIncome,_that.totalExpense,_that.netTo
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalIncome,  double totalExpense,  double netTotal,  SortBy sortBy)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  SortBy sortBy)  $default,) {final _that = this;
 switch (_that) {
 case _TransaksiState():
-return $default(_that.transaksi,_that.totalIncome,_that.totalExpense,_that.netTotal,_that.sortBy);case _:
+return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.sortBy);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -22833,10 +25484,10 @@ return $default(_that.transaksi,_that.totalIncome,_that.totalExpense,_that.netTo
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<TransaksiModel> transaksi,  double totalIncome,  double totalExpense,  double netTotal,  SortBy sortBy)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  SortBy sortBy)?  $default,) {final _that = this;
 switch (_that) {
 case _TransaksiState() when $default != null:
-return $default(_that.transaksi,_that.totalIncome,_that.totalExpense,_that.netTotal,_that.sortBy);case _:
+return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.sortBy);case _:
   return null;
 
 }
@@ -22848,7 +25499,7 @@ return $default(_that.transaksi,_that.totalIncome,_that.totalExpense,_that.netTo
 
 
 class _TransaksiState implements TransaksiState {
-  const _TransaksiState({final  List<TransaksiModel> transaksi = const [], this.totalIncome = 0.0, this.totalExpense = 0.0, this.netTotal = 0.0, this.sortBy = SortBy.newest}): _transaksi = transaksi;
+  const _TransaksiState({final  List<TransaksiModel> transaksi = const [], this.totalPemasukan = 0.0, this.totalPengeluaran = 0.0, this.total = 0.0, this.sortBy = SortBy.terbaru}): _transaksi = transaksi;
   
 
  final  List<TransaksiModel> _transaksi;
@@ -22858,9 +25509,9 @@ class _TransaksiState implements TransaksiState {
   return EqualUnmodifiableListView(_transaksi);
 }
 
-@override@JsonKey() final  double totalIncome;
-@override@JsonKey() final  double totalExpense;
-@override@JsonKey() final  double netTotal;
+@override@JsonKey() final  double totalPemasukan;
+@override@JsonKey() final  double totalPengeluaran;
+@override@JsonKey() final  double total;
 @override@JsonKey() final  SortBy sortBy;
 
 /// Create a copy of TransaksiState
@@ -22873,16 +25524,16 @@ _$TransaksiStateCopyWith<_TransaksiState> get copyWith => __$TransaksiStateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransaksiState&&const DeepCollectionEquality().equals(other._transaksi, _transaksi)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense)&&(identical(other.netTotal, netTotal) || other.netTotal == netTotal)&&(identical(other.sortBy, sortBy) || other.sortBy == sortBy));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransaksiState&&const DeepCollectionEquality().equals(other._transaksi, _transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total)&&(identical(other.sortBy, sortBy) || other.sortBy == sortBy));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_transaksi),totalIncome,totalExpense,netTotal,sortBy);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_transaksi),totalPemasukan,totalPengeluaran,total,sortBy);
 
 @override
 String toString() {
-  return 'TransaksiState(transaksi: $transaksi, totalIncome: $totalIncome, totalExpense: $totalExpense, netTotal: $netTotal, sortBy: $sortBy)';
+  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total, sortBy: $sortBy)';
 }
 
 
@@ -22893,7 +25544,7 @@ abstract mixin class _$TransaksiStateCopyWith<$Res> implements $TransaksiStateCo
   factory _$TransaksiStateCopyWith(_TransaksiState value, $Res Function(_TransaksiState) _then) = __$TransaksiStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<TransaksiModel> transaksi, double totalIncome, double totalExpense, double netTotal, SortBy sortBy
+ List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total, SortBy sortBy
 });
 
 
@@ -22910,12 +25561,12 @@ class __$TransaksiStateCopyWithImpl<$Res>
 
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? transaksi = null,Object? totalIncome = null,Object? totalExpense = null,Object? netTotal = null,Object? sortBy = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,Object? sortBy = null,}) {
   return _then(_TransaksiState(
 transaksi: null == transaksi ? _self._transaksi : transaksi // ignore: cast_nullable_to_non_nullable
-as List<TransaksiModel>,totalIncome: null == totalIncome ? _self.totalIncome : totalIncome // ignore: cast_nullable_to_non_nullable
-as double,totalExpense: null == totalExpense ? _self.totalExpense : totalExpense // ignore: cast_nullable_to_non_nullable
-as double,netTotal: null == netTotal ? _self.netTotal : netTotal // ignore: cast_nullable_to_non_nullable
+as List<TransaksiModel>,totalPemasukan: null == totalPemasukan ? _self.totalPemasukan : totalPemasukan // ignore: cast_nullable_to_non_nullable
+as double,totalPengeluaran: null == totalPengeluaran ? _self.totalPengeluaran : totalPengeluaran // ignore: cast_nullable_to_non_nullable
+as double,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
 as double,sortBy: null == sortBy ? _self.sortBy : sortBy // ignore: cast_nullable_to_non_nullable
 as SortBy,
   ));
@@ -22931,7 +25582,7 @@ import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/transaksi/page/transaksi_page_a.dart'; // Impor enum SortBy
+import 'package:wifi/fitur/transaksi/page/transaksi_a.dart'; // Impor enum SortBy
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
@@ -22945,10 +25596,10 @@ part 'transaksi_provider.g.dart';
 abstract class TransaksiState with _$TransaksiState {
   const factory TransaksiState({
     @Default([]) List<TransaksiModel> transaksi,
-    @Default(0.0) double totalIncome,
-    @Default(0.0) double totalExpense,
-    @Default(0.0) double netTotal,
-    @Default(SortBy.newest) SortBy sortBy,
+    @Default(0.0) double totalPemasukan,
+    @Default(0.0) double totalPengeluaran,
+    @Default(0.0) double total,
+    @Default(SortBy.terbaru) SortBy sortBy,
   }) = _TransaksiState;
 }
 
@@ -22961,29 +25612,29 @@ class Transaksi extends _$Transaksi {
   @override
   FutureOr<TransaksiState> build() {
     // Menentukan sorting default saat pertama kali build dijalankan
-    return _loadData(SortBy.newest);
+    return _loadData(SortBy.terbaru);
   }
 
   // PERBAIKAN 2: Passing nilai sortBy ke dalam fungsi load data
   // untuk menghindari pembacaan `state.value` yang tidak menentu saat async loading
   Future<TransaksiState> _loadData(SortBy targetSortBy) async {
-    final results = await Future.wait([
-      _transaksiOpSqlite.getAllTransactions(),
+    final hasil = await Future.wait([
+      _transaksiOpSqlite.ambilSemua(),
       _transaksiOpSqlite.getTotalIncome(),
       _transaksiOpSqlite.getTotalExpense(),
       _transaksiOpSqlite.getNetTotal(),
     ]);
 
-    final transaksi = results[0] as List<TransaksiModel>;
+    final transaksi = hasil[0] as List<TransaksiModel>;
 
     // Jalankan sorting lokal sebelum state dilempar ke UI
     _performSort(transaksi, targetSortBy);
 
     return TransaksiState(
       transaksi: transaksi,
-      totalIncome: results[1] as double,
-      totalExpense: results[2] as double,
-      netTotal: results[3] as double,
+      totalPemasukan: hasil[1] as double,
+      totalPengeluaran: hasil[2] as double,
+      total: hasil[3] as double,
       sortBy: targetSortBy,
     );
   }
@@ -22995,28 +25646,28 @@ class Transaksi extends _$Transaksi {
     // Jika tipe sorting-nya sama, tidak perlu memproses ulang data
     if (currentState.sortBy == newSortBy) return;
 
-    final List<TransaksiModel> sortedTransactions =
-        List.from(currentState.transaksi);
+    final List<TransaksiModel> sortedTransactions = List.from(
+      currentState.transaksi,
+    );
     _performSort(sortedTransactions, newSortBy);
 
-    state = AsyncValue.data(currentState.copyWith(
-      transaksi: sortedTransactions,
-      sortBy: newSortBy,
-    ));
+    state = AsyncValue.data(
+      currentState.copyWith(transaksi: sortedTransactions, sortBy: newSortBy),
+    );
   }
 
   void _performSort(List<TransaksiModel> transactions, SortBy sortBy) {
     switch (sortBy) {
-      case SortBy.newest:
+      case SortBy.terbaru:
         transactions.sort((a, b) => b.tanggal.compareTo(a.tanggal));
         break;
-      case SortBy.oldest:
+      case SortBy.terlama:
         transactions.sort((a, b) => a.tanggal.compareTo(b.tanggal));
         break;
-      case SortBy.highestAmount:
+      case SortBy.jumlahTerbesar:
         transactions.sort((a, b) => b.jumlah.compareTo(a.jumlah));
         break;
-      case SortBy.lowestAmount:
+      case SortBy.jumlahTerkecil:
         transactions.sort((a, b) => a.jumlah.compareTo(b.jumlah));
         break;
     }
@@ -23026,23 +25677,23 @@ class Transaksi extends _$Transaksi {
   // Fungsi Mutasi Data (Gunakan ref.read di dalam scope aksi ini aman)
   // ==========================================================
 
-  Future<void> tambahTransaksi(TransaksiModel transaction) async {
+  Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     // Ambil sorting saat ini sebelum masuk state loading
-    final currentSort = state.value?.sortBy ?? SortBy.newest;
+    final currentSort = state.value?.sortBy ?? SortBy.terbaru;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await _transaksiOpSqlite.tambahTransaksi(transaction);
+      await _transaksiOpSqlite.tambahTransaksi(transaksi);
       ref.invalidate(dompetProvider);
       ref.invalidate(statistikProvider);
       return _loadData(currentSort);
     });
   }
 
-  Future<void> updateTransaction(TransaksiModel transaction) async {
-    final currentSort = state.value?.sortBy ?? SortBy.newest;
+  Future<void> updateTransaksi(TransaksiModel transaksi) async {
+    final currentSort = state.value?.sortBy ?? SortBy.terbaru;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await _transaksiOpSqlite.updateTransaction(transaction.id, transaction);
+      await _transaksiOpSqlite.perbaruiTransaksi(transaksi.id, transaksi);
       ref.invalidate(dompetProvider);
       ref.invalidate(statistikProvider);
       return _loadData(currentSort);
@@ -23050,7 +25701,7 @@ class Transaksi extends _$Transaksi {
   }
 
   Future<void> softDelete(String id) async {
-    final currentSort = state.value?.sortBy ?? SortBy.newest;
+    final currentSort = state.value?.sortBy ?? SortBy.terbaru;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.softDelete(id);
@@ -23066,12 +25717,12 @@ class Transaksi extends _$Transaksi {
       await _transaksiOpSqlite.softDeleteAll();
       ref.invalidate(dompetProvider);
       ref.invalidate(statistikProvider);
-      return _loadData(SortBy.newest);
+      return _loadData(SortBy.terbaru);
     });
   }
 
   Future<void> refresh() async {
-    final currentSort = state.value?.sortBy ?? SortBy.newest;
+    final currentSort = state.value?.sortBy ?? SortBy.terbaru;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() => _loadData(currentSort));
   }
@@ -23111,7 +25762,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'b6a3abfb901c2ba9e5d7a9b140efdc84c13d29f2';
+String _$transaksiHash() => r'565147443600c913780be0858e5ad7f4a298b1da';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -23150,23 +25801,20 @@ class TransaksiOpSqlite {
   final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
   final _nowUtc = DateTime.now().toUtc();
 
-  TransaksiOpSqlite({
-    required this.sqliteDb,
-    required this.baseOpSqlite,
-  });
+  TransaksiOpSqlite({required this.sqliteDb, required this.baseOpSqlite});
 
   Future<Database> get _sqliteDb async => await sqliteDb.database;
 
   /// Menghitung ulang saldo dompet berdasarkan semua transaksi terkait dan memperbaruinya.
   /// Operasi ini harus dijalankan di dalam sebuah transaksi database [txn].
-  Future<void> _recalculateAndUpdateWalletBalance(
+  Future<void> _hitungUlangDanPerbaruiSaldoDompet(
     final String idDompet,
     final DatabaseExecutor txn,
   ) async {
     try {
       Log.info('Memulai hitung ulang saldo untuk Wallet ID: $idDompet');
 
-      final totalResult = await txn.rawQuery(
+      final hasilTotal = await txn.rawQuery(
         '''
         SELECT
           COALESCE(SUM(
@@ -23196,21 +25844,18 @@ class TransaksiOpSqlite {
         [idDompet, idDompet, idDompet, idDompet, idDompet, idDompet],
       );
 
-      final totalBalance =
-          (totalResult.first['total'] as num?)?.toDouble() ?? 0.0;
+      final saldoTotal = (hasilTotal.first['total'] as num?)?.toDouble() ?? 0.0;
 
       await txn.update(
         NamaTabel.dompet,
-        {
-          NamaKolom.saldo: totalBalance,
-          NamaKolom.diperbaruiPada: _nowEpoch,
-        },
+        {NamaKolom.saldo: saldoTotal, NamaKolom.diperbaruiPada: _nowEpoch},
         where: '${NamaKolom.id} = ?',
         whereArgs: [idDompet],
       );
 
       Log.info(
-          'Berhasil update saldo Wallet ID: $idDompet menjadi $totalBalance');
+        'Berhasil update saldo Wallet ID: $idDompet menjadi $saldoTotal',
+      );
     } on Exception catch (e, st) {
       Log.error('Gagal hitung ulang saldo Wallet ID: $idDompet', e: e, s: st);
       rethrow;
@@ -23223,30 +25868,31 @@ class TransaksiOpSqlite {
     final bool fromServer = false,
   }) async {
     try {
-      final id = await baseOpSqlite.runComplexOperation<int>(
-        (final Transaction txn) async {
-          Log.info('Memulai transaksi database untuk addTransaction');
-          final data = transaction.copyWith(diperbaruiPada: _nowUtc);
+      final id = await baseOpSqlite.runComplexOperation<int>((
+        final Transaction txn,
+      ) async {
+        Log.info('Memulai transaksi database untuk addTransaction');
+        final data = transaction.copyWith(diperbaruiPada: _nowUtc);
 
-          final newId = await txn.insert(
-            _tabel,
-            data.toSqlite(),
-            conflictAlgorithm: ConflictAlgorithm.replace,
-          );
+        final newId = await txn.insert(
+          _tabel,
+          data.toSqlite(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+        Log.info(
+          'Data transaksi berhasil masuk ke tabel dengan row ID: $newId',
+        );
+
+        await _hitungUlangDanPerbaruiSaldoDompet(data.idDompet, txn);
+        if (data.tipe == TipeTransaksi.transfer &&
+            data.idDompetTujuan != null) {
           Log.info(
-              'Data transaksi berhasil masuk ke tabel dengan row ID: $newId');
-
-          await _recalculateAndUpdateWalletBalance(data.idDompet, txn);
-          if (data.tipe == TipeTransaksi.transfer &&
-              data.idDompetTujuan != null) {
-            Log.info(
-                'Deteksi transaksi transfer, menghitung saldo wallet tujuan');
-            await _recalculateAndUpdateWalletBalance(data.idDompetTujuan!, txn);
-          }
-          return newId;
-        },
-        dariServer: fromServer,
-      );
+            'Deteksi transaksi transfer, menghitung saldo wallet tujuan',
+          );
+          await _hitungUlangDanPerbaruiSaldoDompet(data.idDompetTujuan!, txn);
+        }
+        return newId;
+      }, dariServer: fromServer);
       Log.info('Proses addTransaction ID: ${transaction.id} berhasil');
       return id;
     } on Exception catch (e, st) {
@@ -23256,22 +25902,24 @@ class TransaksiOpSqlite {
   }
 
   /// Mengambil semua transaksi yang tidak dihapus dari database.
-  Future<List<TransaksiModel>> getAllTransactions() async {
+  Future<List<TransaksiModel>> ambilSemua({
+    bool tampilkanYangDiarsip = false,
+  }) async {
     try {
       Log.info('Mengambil data semua transaksi dari SQLite');
       final db = await sqliteDb.database;
+      final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = ?';
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
-        where: '${NamaKolom.dihapus} = ?',
-        whereArgs: [0],
+        where: query,
         orderBy: '${NamaKolom.tanggal} DESC',
       );
 
       Log.info('Berhasil mengambil ${maps.length} data transaksi dari SQLite');
-      return List.generate(maps.length, (final i) {
+      return List.generate(maps.length, (i) {
         return TransaksiModel.fromSqlite(maps[i]);
       });
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error('Gagal mengambil semua transaksi', e: e, s: st);
       return [];
     }
@@ -23296,85 +25944,52 @@ class TransaksiOpSqlite {
 
       Log.info('Transaksi ID: $id ditemukan');
       return TransaksiModel.fromSqlite(maps.first);
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error('Gagal mengambil transaksi ID: $id', e: e, s: st);
       return null;
     }
   }
 
-  /// Mengambil transaksi lunas terbaru dari seorang pengguna.
-  Future<TransaksiModel?> getLatestPaidTransactionByUserId(
-      final String customerId) async {
-    try {
-      final db = await _sqliteDb;
-      Log.info(
-          'Mencari transaksi lunas terbaru untuk pengguna ID: $customerId');
-
-      final List<Map<String, dynamic>> maps = await db.query(
-        _tabel,
-        where:
-            '${NamaKolom.idPelanggan} = ? AND ${NamaKolom.statusPembayaran} = ? AND ${NamaKolom.dihapus} = ?',
-        whereArgs: [customerId, StatusPembayaran.paid.name, 0],
-        orderBy: '${NamaKolom.tangglberakhir} DESC',
-        limit: 1,
-      );
-
-      if (maps.isEmpty) {
-        Log.warning(
-            'Tidak ada transaksi lunas yang aktif untuk pengguna ID: $customerId');
-        return null;
-      }
-
-      Log.info(
-          'Transaksi lunas terbaru ditemukan untuk pengguna ID: $customerId');
-      return TransaksiModel.fromSqlite(maps.first);
-    } on Exception catch (e, st) {
-      Log.error(
-          'Gagal mengambil transaksi lunas terbaru untuk pengguna ID: $customerId',
-          e: e,
-          s: st);
-      return null;
-    }
-  }
-
   /// Mengambil semua transaksi untuk seorang pelanggan.
-  Future<List<TransaksiModel>> getByIdPelanggan(
-    final String customerId,
+  Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
+    String idPelanggan,
   ) async {
     try {
       final db = await _sqliteDb;
-      Log.info('Mengambil transaksi untuk Customer ID: $customerId');
+      Log.info('Mengambil transaksi untuk Customer ID: $idPelanggan');
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
         where: '${NamaKolom.idPelanggan} = ? AND ${NamaKolom.dihapus} = ?',
-        whereArgs: [customerId, 0],
+        whereArgs: [idPelanggan, 0],
         orderBy: '${NamaKolom.tanggal} DESC',
       );
       Log.info(
-          'Ditemukan ${maps.length} transaksi untuk Customer ID: $customerId');
+        'Ditemukan ${maps.length} transaksi untuk Customer ID: $idPelanggan',
+      );
       return List.generate(maps.length, (i) {
         return TransaksiModel.fromSqlite(maps[i]);
       });
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error('Error ambil transaksi customer', e: e, s: st);
       return [];
     }
   }
 
   /// Mengambil semua transaksi yang terkait dengan sebuah dompet (baik sebagai sumber maupun tujuan).
-  Future<List<TransaksiModel>> getTransactionsByWalletId(
-      final String walletId) async {
+  Future<List<TransaksiModel>> ambilBerdasarkanIdDompet(
+    final String idDompet,
+  ) async {
     try {
       final db = await _sqliteDb;
-      Log.info('Mengambil transaksi terkait Wallet ID: $walletId');
+      Log.info('Mengambil transaksi terkait Wallet ID: $idDompet');
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
         where:
             '(${NamaKolom.idDompet} = ? OR ${NamaKolom.idDompetTujuan} = ?) AND ${NamaKolom.dihapus} = ?',
-        whereArgs: [walletId, walletId, 0],
+        whereArgs: [idDompet, idDompet, 0],
         orderBy: '${NamaKolom.tanggal} DESC',
       );
-      Log.info('Ditemukan ${maps.length} transaksi untuk Wallet ID: $walletId');
+      Log.info('Ditemukan ${maps.length} transaksi untuk Wallet ID: $idDompet');
       return List.generate(maps.length, (final i) {
         return TransaksiModel.fromSqlite(maps[i]);
       });
@@ -23385,7 +26000,7 @@ class TransaksiOpSqlite {
   }
 
   /// Mengambil semua transaksi yang merupakan aktivasi paket.
-  Future<List<TransaksiModel>> getTransactionsByPackageActivation() async {
+  Future<List<TransaksiModel>> ambilBerdasarkanStatusAktivasi() async {
     try {
       final db = await _sqliteDb;
       Log.info('Mengambil transaksi dengan status isActivated = 1');
@@ -23406,46 +26021,53 @@ class TransaksiOpSqlite {
   }
 
   /// Memperbarui data transaksi yang ada dan menghitung ulang saldo dompet yang terpengaruh.
-  Future<void> updateTransaction(
+  Future<void> perbaruiTransaksi(
     final String id,
-    final TransaksiModel newTransaction, {
-    final bool fromServer = false,
+    final TransaksiModel transaksi, {
+    final bool dariServer = false,
   }) async {
     try {
-      await baseOpSqlite.runComplexOperation<void>(
-        (final Transaction txn) async {
-          Log.info('Memulai update transaksi database ID: $id');
-          final maps = await txn
-              .query(_tabel, where: '${NamaKolom.id} = ?', whereArgs: [id]);
+      await baseOpSqlite.runComplexOperation<void>((
+        final Transaction txn,
+      ) async {
+        Log.info('Memulai update transaksi database ID: $id');
+        final maps = await txn.query(
+          _tabel,
+          where: '${NamaKolom.id} = ?',
+          whereArgs: [id],
+        );
 
-          if (maps.isNotEmpty) {
-            final oldTransaction = TransaksiModel.fromSqlite(maps.first);
-            final updateData = newTransaction.copyWith(diperbaruiPada: _nowUtc);
-            await txn.update(_tabel, updateData.toSqlite(),
-                where: '${NamaKolom.id} = ?', whereArgs: [id]);
-            Log.info('Data transaksi ID: $id diperbarui');
+        if (maps.isNotEmpty) {
+          final oldTransaction = TransaksiModel.fromSqlite(maps.first);
+          final updateData = transaksi.copyWith(diperbaruiPada: _nowUtc);
+          await txn.update(
+            _tabel,
+            updateData.toSqlite(),
+            where: '${NamaKolom.id} = ?',
+            whereArgs: [id],
+          );
+          Log.info('Data transaksi ID: $id diperbarui');
 
-            final affectedWallets = <String>{};
-            affectedWallets.add(oldTransaction.idDompet);
-            affectedWallets.add(updateData.idDompet);
-            if (oldTransaction.idDompetTujuan != null) {
-              affectedWallets.add(oldTransaction.idDompetTujuan!);
-            }
-            if (updateData.idDompetTujuan != null) {
-              affectedWallets.add(updateData.idDompetTujuan!);
-            }
-
-            Log.info(
-                'Mengupdate saldo untuk wallet yang terpengaruh: $affectedWallets');
-            for (final walletId in affectedWallets) {
-              await _recalculateAndUpdateWalletBalance(walletId, txn);
-            }
-          } else {
-            Log.warning('Update gagal: Transaksi ID $id tidak ditemukan');
+          final dompetTerpengaruh = <String>{};
+          dompetTerpengaruh.add(oldTransaction.idDompet);
+          dompetTerpengaruh.add(updateData.idDompet);
+          if (oldTransaction.idDompetTujuan != null) {
+            dompetTerpengaruh.add(oldTransaction.idDompetTujuan!);
           }
-        },
-        dariServer: fromServer,
-      );
+          if (updateData.idDompetTujuan != null) {
+            dompetTerpengaruh.add(updateData.idDompetTujuan!);
+          }
+
+          Log.info(
+            'Mengupdate saldo untuk wallet yang terpengaruh: $dompetTerpengaruh',
+          );
+          for (final idDompet in dompetTerpengaruh) {
+            await _hitungUlangDanPerbaruiSaldoDompet(idDompet, txn);
+          }
+        } else {
+          Log.warning('Update gagal: Transaksi ID $id tidak ditemukan');
+        }
+      }, dariServer: dariServer);
       Log.info('Proses updateTransaction ID: $id selesai');
     } on Exception catch (e, st) {
       Log.error('Gagal update transaksi ID: $id', e: e, s: st);
@@ -23456,44 +26078,47 @@ class TransaksiOpSqlite {
   /// Menandai transaksi sebagai dihapus (soft delete) dan menghitung ulang saldo dompet.
   Future<void> softDelete(
     final String id, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     try {
-      await baseOpSqlite.runComplexOperation<void>(
-        (final Transaction txn) async {
-          Log.info('Memulai soft delete atomik untuk ID: $id');
-          final maps = await txn
-              .query(_tabel, where: '${NamaKolom.id} = ?', whereArgs: [id]);
+      await baseOpSqlite.runComplexOperation<void>((
+        final Transaction txn,
+      ) async {
+        Log.info('Memulai soft delete atomik untuk ID: $id');
+        final maps = await txn.query(
+          _tabel,
+          where: '${NamaKolom.id} = ?',
+          whereArgs: [id],
+        );
 
-          if (maps.isEmpty) {
-            Log.warning('Soft delete gagal: Transaksi ID $id tidak ditemukan');
-            return;
-          }
+        if (maps.isEmpty) {
+          Log.warning('Soft delete gagal: Transaksi ID $id tidak ditemukan');
+          return;
+        }
 
-          final oldTransaction = TransaksiModel.fromSqlite(maps.first);
-          await txn.update(
-            _tabel,
-            {
-              NamaKolom.dihapus: 1,
-              NamaKolom.diperbaruiPada: _nowEpoch,
-              NamaKolom.diarsipkanPada: _nowEpoch,
-            },
-            where: '${NamaKolom.id} = ?',
-            whereArgs: [id],
+        final transaksiLama = TransaksiModel.fromSqlite(maps.first);
+        await txn.update(
+          _tabel,
+          {
+            NamaKolom.dihapus: 1,
+            NamaKolom.diperbaruiPada: _nowEpoch,
+            NamaKolom.diarsipkanPada: _nowEpoch,
+          },
+          where: '${NamaKolom.id} = ?',
+          whereArgs: [id],
+        );
+
+        Log.info('Flag isDeleted diatur ke 1 untuk ID: $id');
+
+        await _hitungUlangDanPerbaruiSaldoDompet(transaksiLama.idDompet, txn);
+        if (transaksiLama.tipe == TipeTransaksi.transfer &&
+            transaksiLama.idDompetTujuan != null) {
+          await _hitungUlangDanPerbaruiSaldoDompet(
+            transaksiLama.idDompetTujuan!,
+            txn,
           );
-
-          Log.info('Flag isDeleted diatur ke 1 untuk ID: $id');
-
-          await _recalculateAndUpdateWalletBalance(
-              oldTransaction.idDompet, txn);
-          if (oldTransaction.tipe == TipeTransaksi.transfer &&
-              oldTransaction.idDompetTujuan != null) {
-            await _recalculateAndUpdateWalletBalance(
-                oldTransaction.idDompetTujuan!, txn);
-          }
-        },
-        dariServer: fromServer,
-      );
+        }
+      }, dariServer: dariServer);
       Log.info('Transaksi ID: $id berhasil diarsipkan secara atomik');
     } on Exception catch (e, st) {
       Log.error('Gagal mengarsipkan transaksi ID: $id', e: e, s: st);
@@ -23502,37 +26127,32 @@ class TransaksiOpSqlite {
   }
 
   /// Menandai semua transaksi sebagai dihapus dan mereset saldo semua dompet menjadi 0.
-  Future<int> softDeleteAll({final bool fromServer = false}) async {
+  Future<int> softDeleteAll({bool dariServer = false}) async {
     try {
-      final count = await baseOpSqlite.runComplexOperation<int>(
-        (final Transaction txn) async {
-          Log.warning('Memulai soft delete semua transaksi secara atomik');
-          final rowsAffected = await txn.update(
-            _tabel,
-            {
-              NamaKolom.dihapus: 1,
-              NamaKolom.diperbaruiPada: _nowEpoch,
-              NamaKolom.diarsipkanPada: _nowEpoch,
-            },
-            where: '${NamaKolom.dihapus} = ?',
-            whereArgs: [0],
-          );
-          Log.info('$rowsAffected transaksi telah ditandai sebagai dihapus');
+      final count = await baseOpSqlite.runComplexOperation<int>((
+        final Transaction txn,
+      ) async {
+        Log.warning('Memulai soft delete semua transaksi secara atomik');
+        final rowsAffected = await txn.update(
+          _tabel,
+          {
+            NamaKolom.dihapus: 1,
+            NamaKolom.diperbaruiPada: _nowEpoch,
+            NamaKolom.diarsipkanPada: _nowEpoch,
+          },
+          where: '${NamaKolom.dihapus} = ?',
+          whereArgs: [0],
+        );
+        Log.info('$rowsAffected transaksi telah ditandai sebagai dihapus');
 
-          await txn.update(
-            NamaTabel.dompet,
-            {
-              NamaKolom.saldo: 0,
-              NamaKolom.diperbaruiPada: _nowEpoch,
-            },
-          );
-          Log.info(
-              'Semua saldo dompet direset ke 0 setelah penghapusan massal');
+        await txn.update(NamaTabel.dompet, {
+          NamaKolom.saldo: 0,
+          NamaKolom.diperbaruiPada: _nowEpoch,
+        });
+        Log.info('Semua saldo dompet direset ke 0 setelah penghapusan massal');
 
-          return rowsAffected;
-        },
-        dariServer: fromServer,
-      );
+        return rowsAffected;
+      }, dariServer: dariServer);
       return count;
     } on Exception catch (e, st) {
       Log.error('Gagal menghapus semua transaksi', e: e, s: st);
@@ -23546,7 +26166,8 @@ class TransaksiOpSqlite {
       final db = await _sqliteDb;
       Log.info('Menghitung total seluruh pemasukan');
       final result = await db.rawQuery(
-          "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabel WHERE ${NamaKolom.tipe} = 'income' AND ${NamaKolom.dihapus} = 0");
+        "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabel WHERE ${NamaKolom.tipe} = 'income' AND ${NamaKolom.dihapus} = 0",
+      );
       double total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
@@ -23565,7 +26186,8 @@ class TransaksiOpSqlite {
       final db = await _sqliteDb;
       Log.info('Menghitung total seluruh pengeluaran');
       final result = await db.rawQuery(
-          "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabel WHERE ${NamaKolom.tipe} = 'expense' AND ${NamaKolom.dihapus} = 0");
+        "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabel WHERE ${NamaKolom.tipe} = 'expense' AND ${NamaKolom.dihapus} = 0",
+      );
       double total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
@@ -23589,13 +26211,14 @@ class TransaksiOpSqlite {
   }
 
   /// Menghitung total poin yang diperoleh seorang pelanggan.
-  Future<int> getEarnedPoints(final String customerId) async {
+  Future<int> ambilPoinDidapat(final String idPelanggan) async {
     try {
       final db = await sqliteDb.database;
-      Log.info('Menghitung poin yang dihasilkan Customer: $customerId');
+      Log.info('Menghitung poin yang dihasilkan Customer: $idPelanggan');
       final result = await db.rawQuery(
-          'SELECT SUM(${NamaKolom.poinDidapat}) as total FROM $_tabel WHERE ${NamaKolom.idPelanggan} = ? AND ${NamaKolom.dihapus} = 0 AND ${NamaKolom.statusPembayaran} = ?',
-          [customerId, StatusPembayaran.paid.name]);
+        'SELECT SUM(${NamaKolom.poinDidapat}) as total FROM $_tabel WHERE ${NamaKolom.idPelanggan} = ? AND ${NamaKolom.dihapus} = 0 AND ${NamaKolom.statusPembayaran} = ?',
+        [idPelanggan, StatusPembayaran.paid.name],
+      );
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin dihasilkan: $total');
       return total;
@@ -23606,13 +26229,14 @@ class TransaksiOpSqlite {
   }
 
   /// Menghitung total poin yang digunakan seorang pelanggan.
-  Future<int> getUsedPoints(final String customerId) async {
+  Future<int> ambilPoinDigunakan(final String idPelanggan) async {
     try {
       final db = await sqliteDb.database;
-      Log.info('Menghitung poin yang digunakan Customer: $customerId');
+      Log.info('Menghitung poin yang digunakan Customer: $idPelanggan');
       final result = await db.rawQuery(
-          'SELECT SUM(${NamaKolom.poinDigunakan}) as total FROM $_tabel WHERE ${NamaKolom.idPelanggan} = ? AND ${NamaKolom.dihapus} = 0 AND ${NamaKolom.statusPembayaran} = ?',
-          [customerId, StatusPembayaran.paid.name]);
+        'SELECT SUM(${NamaKolom.poinDigunakan}) as total FROM $_tabel WHERE ${NamaKolom.idPelanggan} = ? AND ${NamaKolom.dihapus} = 0 AND ${NamaKolom.statusPembayaran} = ?',
+        [idPelanggan, StatusPembayaran.paid.name],
+      );
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin digunakan: $total');
       return total;
@@ -23623,54 +26247,56 @@ class TransaksiOpSqlite {
   }
 
   /// Menghitung total saldo poin seorang pelanggan.
-  Future<int> ambilTotalPoin(String customerId) async {
-    Log.info('Menghitung saldo poin akhir Customer: $customerId');
-    final earnedPoints = await getEarnedPoints(customerId);
-    final usedPoints = await getUsedPoints(customerId);
-    final total = earnedPoints - usedPoints;
+  Future<int> ambilTotalPoin(String idPelanggan) async {
+    Log.info('Menghitung saldo poin akhir Customer: $idPelanggan');
+    final poinDidapat = await ambilPoinDidapat(idPelanggan);
+    final poinDigunakan = await ambilPoinDigunakan(idPelanggan);
+    final total = poinDidapat - poinDigunakan;
     Log.info(
-        'Saldo poin akhir Customer $customerId: $total (earned=$earnedPoints, used=$usedPoints)');
+      'Saldo poin akhir Customer $idPelanggan: $total (earned=$poinDidapat, used=$poinDigunakan)',
+    );
     return total;
   }
 
   /// Memasukkan atau memperbarui beberapa transaksi sekaligus (batch) dan menghitung ulang saldo dompet yang terpengaruh.
   Future<void> sisipkanAtauPerbaruiBatch(
-    final List<TransaksiModel> items, {
+    final List<TransaksiModel> transaksi, {
     final bool dariServer = false,
   }) async {
-    if (items.isEmpty) {
+    if (transaksi.isEmpty) {
       Log.warning('Batch dibatalkan karena daftar transaksi kosong');
       return;
     }
-    final Set<String> affectedWallets = {};
+    final Set<String> dompetTerpengaruh = {};
 
     try {
-      await baseOpSqlite.runComplexOperation<void>(
-        (final Transaction txn) async {
-          Log.info(
-              'Memulai proses Batch insert/update untuk ${items.length} item');
-          final batch = txn.batch();
-          for (final item in items) {
-            batch.insert(
-              _tabel,
-              item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            );
-            affectedWallets.add(item.idDompet);
-            if (item.idDompetTujuan != null) {
-              affectedWallets.add(item.idDompetTujuan!);
-            }
+      await baseOpSqlite.runComplexOperation<void>((
+        final Transaction txn,
+      ) async {
+        Log.info(
+          'Memulai proses Batch insert/update untuk ${transaksi.length} item',
+        );
+        final batch = txn.batch();
+        for (final item in transaksi) {
+          batch.insert(
+            _tabel,
+            item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+          dompetTerpengaruh.add(item.idDompet);
+          if (item.idDompetTujuan != null) {
+            dompetTerpengaruh.add(item.idDompetTujuan!);
           }
-          await batch.commit(noResult: true);
-          Log.info(
-              'Batch commit selesai. Menghitung ulang saldo untuk wallet: $affectedWallets');
+        }
+        await batch.commit(noResult: true);
+        Log.info(
+          'Batch commit selesai. Menghitung ulang saldo untuk wallet: $dompetTerpengaruh',
+        );
 
-          for (final walletId in affectedWallets) {
-            await _recalculateAndUpdateWalletBalance(walletId, txn);
-          }
-        },
-        dariServer: dariServer,
-      );
+        for (final walletId in dompetTerpengaruh) {
+          await _hitungUlangDanPerbaruiSaldoDompet(walletId, txn);
+        }
+      }, dariServer: dariServer);
       Log.info('Proses Batch transaksi berhasil sepenuhnya');
     } on Exception catch (e, st) {
       Log.error('Gagal menjalankan Batch transaksi', e: e, s: st);
@@ -23679,8 +26305,9 @@ class TransaksiOpSqlite {
   }
 
   /// Mengambil beberapa transaksi berdasarkan daftar ID.
-  Future<List<TransaksiModel>> getTransactionsByIds(
-      final List<String> ids) async {
+  Future<List<TransaksiModel>> ambilBerdasarkanIds(
+    final List<String> ids,
+  ) async {
     if (ids.isEmpty) {
       Log.warning('Pencarian Batch ID dibatalkan karena list ID kosong');
       return [];
@@ -23728,11 +26355,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     Log.info('Menambahkan transaksi baru: ${transaksi.id}');
     try {
-      await sisipkan(
-        NamaTabel.transaksi,
-        transaksi.id,
-        transaksi.toFirebase(),
-      );
+      await sisipkan(NamaTabel.transaksi, transaksi.id, transaksi.toFirebase());
       Log.info('Berhasil menambahkan transaksi: ${transaksi.id}');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal menambahkan transaksi: ${transaksi.id}', e: e, s: s);
@@ -23747,11 +26370,14 @@ class TransaksiOpFirebase extends BaseOpFirebase {
   ) async {
     try {
       Log.info(
-          'Mencari transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan');
+        'Mencari transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan',
+      );
       final querySnapshot = await _koleksi
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
-          .where(NamaKolom.statusPembayaran,
-              isEqualTo: StatusPembayaran.paid.name)
+          .where(
+            NamaKolom.statusPembayaran,
+            isEqualTo: StatusPembayaran.paid.name,
+          )
           .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.tangglberakhir, descending: true)
           .limit(1)
@@ -23759,20 +26385,23 @@ class TransaksiOpFirebase extends BaseOpFirebase {
 
       if (querySnapshot.docs.isEmpty) {
         Log.warning(
-            'Tidak ada transaksi lunas yang aktif dari Firebase untuk pengguna ID: $idPelanggan');
+          'Tidak ada transaksi lunas yang aktif dari Firebase untuk pengguna ID: $idPelanggan',
+        );
         return null;
       }
 
       final doc = querySnapshot.docs.first;
       final data = doc.data() as Map<String, dynamic>;
       Log.info(
-          'Transaksi lunas terbaru dari Firebase ditemukan untuk pengguna ID: $idPelanggan');
+        'Transaksi lunas terbaru dari Firebase ditemukan untuk pengguna ID: $idPelanggan',
+      );
       return TransaksiModel.fromFirebase(doc.id, data);
     } on Exception catch (e, s) {
       Log.error(
-          'Error mengambil transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan',
-          e: e,
-          s: s);
+        'Error mengambil transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan',
+        e: e,
+        s: s,
+      );
       return null;
     }
   }
@@ -23807,8 +26436,10 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       final querySnapshot = await _koleksi
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           .where(NamaKolom.dihapus, isEqualTo: false)
-          .where(NamaKolom.statusPembayaran,
-              isEqualTo: StatusPembayaran.paid.name)
+          .where(
+            NamaKolom.statusPembayaran,
+            isEqualTo: StatusPembayaran.paid.name,
+          )
           .get();
 
       int totalPoin = 0;
@@ -23824,21 +26455,6 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       return 0;
     }
   }
-
-  /// Menghapus transaksi dari Firestore secara permanen.
-  Future<void> hapusTransaksi(String idTransaksi) async {
-    Log.warning(
-        'Memulai penghapusan permanen transaksi di Firestore: $idTransaksi');
-    try {
-      await hapusPermanen(NamaTabel.transaksi, idTransaksi);
-      Log.info('Penghapusan permanen transaksi berhasil: $idTransaksi');
-    } on FirebaseException catch (e, s) {
-      Log.error('Gagal menghapus transaksi secara permanen: $idTransaksi',
-          e: e, s: s);
-      rethrow;
-    }
-  }
-
   /// Melakukan soft delete pada transaksi di Firestore.
   Future<void> hapusSementaraTransaksi(String idTransaksi) async {
     Log.info('Memulai soft delete transaksi di Firestore: $idTransaksi');
@@ -23846,8 +26462,11 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       await hapusSementara(NamaTabel.transaksi, idTransaksi);
       Log.info('Soft delete transaksi berhasil: $idTransaksi');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan soft delete transaksi: $idTransaksi',
-          e: e, s: s);
+      Log.error(
+        'Gagal melakukan soft delete transaksi: $idTransaksi',
+        e: e,
+        s: s,
+      );
       rethrow;
     }
   }
@@ -23886,7 +26505,8 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       }).toList();
 
       Log.info(
-          '${daftarPaketAktif.length} paket aktif ditemukan untuk: $idPelanggan');
+        '${daftarPaketAktif.length} paket aktif ditemukan untuk: $idPelanggan',
+      );
       return daftarPaketAktif;
     } on Exception catch (e, s) {
       Log.error(
@@ -24493,34 +27113,24 @@ as bool,
 }
 
 // dart format on
-// path: lib/fitur/pelanggan/page/user/edit_profile_page.dart
+// path lib/fitur/pelanggan/page/user/edit_profile_page.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
-import 'package:wifi/shared/theme/app_colors.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/input/input_password.dart';
+import 'package:wifi/shared/widget/input/input_teks.dart';
+import 'package:wifi/shared/widget/input/input_telepon.dart';
 
-/// Halaman untuk mengedit profil pengguna.
-///
-/// Memungkinkan pengguna untuk mengubah nama, nomor telepon, dan password mereka.
 class EditProfilePage extends ConsumerStatefulWidget {
-  /// Data pelanggan yang akan diedit.
-  final PelangganModel customer;
+  final PelangganModel pelanggan;
 
-  // /// ID unik pengguna yang sedang login.
-  // final String userId;
-
-  /// Membuat instance dari [EditProfilePage].
-  const EditProfilePage({
-    super.key,
-    required this.customer,
-    // required this.userId,
-  });
+  const EditProfilePage({super.key, required this.pelanggan});
 
   @override
   ConsumerState<EditProfilePage> createState() => _EditProfilePageState();
@@ -24528,67 +27138,114 @@ class EditProfilePage extends ConsumerStatefulWidget {
 
 class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _phoneController;
+  late TextEditingController _namaController;
+  late TextEditingController _teleponController;
   late TextEditingController _passwordController;
-  final _internetConnectionService = KoneksiInternetService();
 
-  bool _isPasswordVisible = false;
+  final _namaFocusNode = FocusNode();
+  final _teleponFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  bool _menyimpan = false;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.customer.nama);
-    _phoneController = TextEditingController(text: widget.customer.telepon);
+    Log.info('EditProfilePage.initState - mulai inisialisasi controller.');
+    _namaController = TextEditingController(text: widget.pelanggan.nama);
+    _teleponController = TextEditingController(text: widget.pelanggan.telepon);
     _passwordController = TextEditingController(
-      text: widget.customer.kataSandi,
+      text: widget.pelanggan.kataSandi,
+    );
+    Log.info(
+      'EditProfilePage.initState - data pelanggan dimuat: id=${widget.pelanggan.id}, nama=${widget.pelanggan.nama}, telepon=${widget.pelanggan.telepon}.',
     );
   }
 
-  Future<void> _saveChanges() async {
+  Future<void> _simpanForm() async {
+    Log.info('SimpanForm dipanggil - validasi form dimulai.');
     if (_formKey.currentState?.validate() ?? false) {
+      Log.info('Form valid - memproses penyimpanan perubahan profil.');
       final navigator = Navigator.of(context);
 
       try {
-        final isOnline = await _internetConnectionService.cekInternet(ref);
+        Log.info('Memeriksa koneksi internet sebelum menyimpan perubahan.');
+        final isOnline = await ref
+            .read(koneksiInternetServiceProvider)
+            .cekInternet();
+        Log.info('Hasil cek koneksi: isOnline=$isOnline');
+
         if (!isOnline) {
           if (mounted) {
             ToastUtil.info(context, 'Cek koneksi internet Anda.');
           }
+          Log.info(
+            'Proses simpan dibatalkan karena tidak ada koneksi internet.',
+          );
           return;
         }
 
-        final updatedCustomer = widget.customer.copyWith(
-          nama: _nameController.text,
-          telepon: _phoneController.text,
+        final dataPelanggan = widget.pelanggan.copyWith(
+          nama: _namaController.text,
+          telepon: _teleponController.text,
           kataSandi: _passwordController.text,
         );
-        final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
-        await customerOpFirebase.perbaruiPelanggan(updatedCustomer);
+
+        Log.info(
+          'Menyiapkan update pelanggan: id=${dataPelanggan.id}, nama=${dataPelanggan.nama}, telepon=${dataPelanggan.telepon}.',
+        );
+
+        final pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
+        Log.info(
+          'Memanggil pelangganOpFirebase.perbaruiPelanggan untuk id=${dataPelanggan.id}.',
+        );
+        await pelangganOpFirebase.perbaruiPelanggan(dataPelanggan);
+        Log.info('perbaruiPelanggan selesai untuk id=${dataPelanggan.id}.');
         ref.invalidate(pelangganOpFirebaseProvider);
-        if (!mounted) return;
+        Log.info(
+          'Provider pelangganOpFirebase di-invalidate agar data terbaru diambil.',
+        );
+
+        if (!mounted) {
+          Log.info(
+            'Widget tidak lagi mounted setelah update; tidak menampilkan toast atau menutup halaman.',
+          );
+          return;
+        }
 
         ToastUtil.success(context, 'Profil berhasil diperbarui.');
+        Log.info('Toast sukses ditampilkan, menutup halaman edit.');
 
         navigator.pop(context);
-      } on Exception catch (e, st) {
+      } catch (e, st) {
         Log.error('Gagal menyimpan perubahan profil', e: e, s: st);
-        if (!mounted) return;
+        if (!mounted) {
+          Log.error(
+            'Widget tidak mounted saat terjadi error: tidak menampilkan toast.',
+          );
+          return;
+        }
         ToastUtil.error(context, 'Gagal menyimpan perubahan: $e');
       }
+    } else {
+      Log.info('Form tidak valid - pembatalan penyimpanan.');
     }
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _phoneController.dispose();
+    Log.info('EditProfilePage.dispose - membuang controller.');
+    _namaController.dispose();
+    _teleponController.dispose();
     _passwordController.dispose();
+    _namaFocusNode.dispose();
+    _teleponFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(final BuildContext context) {
+    Log.info('Membangun UI EditProfilePage.');
     return Scaffold(
       appBar: AppBar(title: const Text('Edit Profil')),
       body: Padding(
@@ -24597,65 +27254,48 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Nama Lengkap'),
-                validator: (final value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Nama tidak boleh kosong';
-                  }
-                  return null;
-                },
+              InputTeks(
+                focusNode: _namaFocusNode,
+                controller: _namaController,
+                nextFocusNode: _teleponFocusNode,
+                label: 'Nama Lengkap',
+                prefixIcon: TIcons.person,
               ),
               gapH16,
-              TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'No. HP'),
-                keyboardType: TextInputType.phone,
-                validator: (final value) {
-                  if (value == null || value.isEmpty) {
-                    return 'No. HP tidak boleh kosong';
-                  }
-                  return null;
-                },
+              InputTelepon(
+                controller: _teleponController,
+                focusNode: _teleponFocusNode,
+                nextFocusNode: _passwordFocusNode,
               ),
+
               gapH16,
-              TextFormField(
+              InputPassword(
                 controller: _passwordController,
-                obscureText: !_isPasswordVisible,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isPasswordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                  ),
-                ),
-                validator: (final value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Password tidak boleh kosong';
-                  }
-                  return null;
-                },
+                focusNode: _passwordFocusNode,
+                textInputAction: TextInputAction.done,
               ),
               gapH32,
               ElevatedButton(
-                onPressed: _saveChanges,
+                onPressed: _menyimpan
+                    ? null
+                    : () async {
+                        setState(() => _menyimpan = true);
+                        try {
+                          await _simpanForm();
+                        } finally {
+                          if (mounted) setState(() => _menyimpan = false);
+                        }
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: TColors.primaryColor,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text(
-                  'SIMPAN',
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
+                child: _menyimpan
+                    ? const CircularProgressIndicator()
+                    : const Text(
+                        'SIMPAN',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
               ),
             ],
           ),
@@ -24669,7 +27309,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/poin/page/points_page.dart';
+import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
@@ -24745,7 +27385,7 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
     final bool? hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) => EditProfilePage(customer: pelanggan),
+        builder: (context) => EditProfilePage(pelanggan: pelanggan),
       ),
     );
     await ref.read(interstitialAdServiceProvider).show();
@@ -24763,9 +27403,10 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
     final bool? hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) => PoinPage(
+        builder: (context) => HalamanPoin(
           idPelanggan: idPelanggan,
-          showAd: true, // Tampilkan iklan di halaman poin untuk pengguna
+          tampilkanIklan:
+              true, // Tampilkan iklan di halaman poin untuk pengguna
         ),
       ),
     );
@@ -24839,7 +27480,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
-import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
+import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -25220,6 +27861,254 @@ class _PelangganState extends ConsumerState<Pelanggan> {
     }
   }
 }
+// path lib/fitur/pelanggan/page/admin/form_pelanggan.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
+import 'package:wifi/shared/widget/input/input_password.dart';
+import 'package:wifi/shared/widget/input/input_teks.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/input/input_telepon.dart';
+
+class FormPelanggan extends ConsumerStatefulWidget {
+  final PelangganModel? pelanggan;
+
+  const FormPelanggan({super.key, this.pelanggan});
+
+  @override
+  ConsumerState<FormPelanggan> createState() => _CustomerFormState();
+}
+
+class _CustomerFormState extends ConsumerState<FormPelanggan> {
+  final _formKey = GlobalKey<FormState>();
+  final _namaController = TextEditingController();
+  final _teleponController = TextEditingController();
+  final _alamatController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _macAddressController = TextEditingController();
+
+  final _namaFocusNode = FocusNode();
+  final _teleponFocusNode = FocusNode();
+  final _alamatFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  final _macAddressFocusNode = FocusNode();
+
+  bool get _modeEdit => widget.pelanggan != null;
+  bool _menyimpan = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Log.info(
+      'Membuka CustomerForm dalam mode: ${_modeEdit ? "Edit" : "Tambah"}.',
+    );
+    if (_modeEdit) {
+      Log.info(
+        'Mode Edit: Mempopulasikan form dengan data pelanggan ID: ${widget.pelanggan!.id}',
+      );
+      _namaController.text = widget.pelanggan!.nama;
+      _teleponController.text = widget.pelanggan!.telepon;
+      _alamatController.text = widget.pelanggan!.alamat;
+      _passwordController.text = widget.pelanggan!.kataSandi;
+      _macAddressController.text = widget.pelanggan!.macAddress;
+    }
+  }
+
+  @override
+  void dispose() {
+    Log.info(
+      'Menjalankan dispose di CustomerForm. Membersihkan semua controllers dan focus nodes.',
+    );
+    _namaController.dispose();
+    _teleponController.dispose();
+    _alamatController.dispose();
+    _passwordController.dispose();
+    _macAddressController.dispose();
+    _namaFocusNode.dispose();
+    _teleponFocusNode.dispose();
+    _alamatFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _macAddressFocusNode.dispose();
+    super.dispose();
+  }
+
+  Future<void> _simpanPelanggan() async {
+    final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
+    Log.info('Tombol "Simpan" ditekan.');
+    if (_formKey.currentState!.validate()) {
+      Log.info('Form valid. Memulai proses penyimpanan.');
+      setState(() => _menyimpan = true);
+
+      final pelangganBaru = PelangganModel(
+        id: _modeEdit ? widget.pelanggan!.id : const Uuid().v4(),
+        nama: _namaController.text.trim(),
+        telepon: _teleponController.text.trim(),
+        alamat: _alamatController.text.trim(),
+        kataSandi: _passwordController.text, // No trim for password
+        macAddress: _macAddressController.text.trim().toUpperCase(),
+      );
+
+      Log.info(
+        'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}',
+      );
+
+      try {
+        if (_modeEdit) {
+          Log.info(
+            'Menjalankan operasi UPDATE untuk pelanggan ID: ${pelangganBaru.id}',
+          );
+          await pelangganOpSqlite.perbaruiPelanggan(pelangganBaru);
+        } else {
+          Log.info(
+            'Menjalankan operasi CREATE untuk pelanggan baru: ${pelangganBaru.nama}',
+          );
+          await pelangganOpSqlite.tambahPelanggan(pelangganBaru);
+        }
+
+        if (!mounted) return;
+
+        try {
+          final cekKoneksi = await ref
+              .read(koneksiInternetServiceProvider)
+              .cekKoneksiLokal();
+          if (cekKoneksi) {
+            Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
+            ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
+            if (mounted) {
+              ToastUtil.success(
+                context,
+                'Data pelanggan berhasil disimpan & disinkronkan.',
+              );
+            }
+          } else {
+            Log.info('Tidak ada koneksi internet, sinkronisasi dilewati.');
+            if (mounted) {
+              ToastUtil.info(
+                context,
+                'Koneksi offline. Data disimpan lokal, akan sinkron saat online.',
+              );
+            }
+          }
+        } catch (e) {
+          Log.info('Sinkronisasi gagal $e');
+        }
+
+        ref.invalidate(daftarPelangganProvider);
+
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } catch (e, s) {
+        Log.error('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
+        if (mounted) {
+          ToastUtil.error(context, 'Gagal menyimpan data: $e');
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _menyimpan = false);
+          Log.info('Proses penyimpanan selesai. isSaving diatur ke false.');
+        }
+      }
+    } else {
+      Log.warning('Form tidak valid. Proses penyimpanan dibatalkan.');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Log.info('Membangun UI CustomerForm. isSaving: $_menyimpan');
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_modeEdit ? 'Edit Pelanggan' : 'Tambah Pelanggan'),
+        leading: BackButton(
+          onPressed: () {
+            Log.info('Tombol "Back" ditekan. Kembali tanpa menyimpan.');
+            Navigator.pop(context, false);
+          },
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(TSizes.p16),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                InputTeks(
+                  controller: _namaController,
+                  focusNode: _namaFocusNode,
+                  nextFocusNode: _teleponFocusNode,
+                  label: 'Nama Pelanggan',
+                  prefixIcon: TIcons.personOutlined,
+                ),
+                gapH16,
+                InputTelepon(
+                  controller: _teleponController,
+                  focusNode: _teleponFocusNode,
+                  nextFocusNode: _alamatFocusNode,
+                  textInputAction: TextInputAction.next,
+                ),
+                gapH16,
+                InputTeks(
+                  controller: _alamatController,
+                  focusNode: _alamatFocusNode,
+                  nextFocusNode: _passwordFocusNode,
+                  label: 'Alamat Lengkap',
+                  prefixIcon: TIcons.home,
+                ),
+                gapH16,
+                InputPassword(
+                  controller: _passwordController,
+                  focusNode: _passwordFocusNode,
+                  nextFocusNode: _macAddressFocusNode,
+                ),
+                gapH16,
+                InputTeks(
+                  controller: _macAddressController,
+                  focusNode: _macAddressFocusNode,
+                  onSubmitted: (_) => _simpanPelanggan(),
+                  label: 'MAC Address',
+                  prefixIcon: TIcons.router,
+                  textInputAction: TextInputAction.done,
+                ),
+                gapH32,
+                ElevatedButton(
+                  onPressed: _menyimpan ? null : _simpanPelanggan,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: _menyimpan
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
+                        )
+                      : const Text('SIMPAN'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 // path: lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
 
 import 'dart:async';
@@ -25228,9 +28117,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
+import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/poin/page/points_page.dart';
+import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -25286,7 +28175,7 @@ MAC : ${customer.macAddress}
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => PoinPage(idPelanggan: pelanggan.id),
+        builder: (context) => HalamanPoin(idPelanggan: pelanggan.id),
       ),
     );
   }
@@ -25521,7 +28410,7 @@ class LayananAktivitasUser {
   }) : _pelangganOpFirebase = pelangganOpFirebase,
        _prefs = prefs;
 
-  Future<void> pingAktivitas(String id, {bool force = false}) async {
+  Future<void> pingAktivitas(String id, {bool paksa = false}) async {
     if (id.isEmpty) {
       Log.warning('pingActivity: customerId kosong, proses dibatalkan.');
       return;
@@ -25531,7 +28420,7 @@ class LayananAktivitasUser {
       final pingTerakhir = _prefs.getInt(kunciPingTerakhirAktif);
       final now = DateTime.now();
 
-      if (pingTerakhir != null && !force) {
+      if (pingTerakhir != null && !paksa) {
         final waktuPingTerakhir = DateTime.fromMillisecondsSinceEpoch(
           pingTerakhir,
         );
@@ -25544,7 +28433,7 @@ class LayananAktivitasUser {
       }
 
       Log.info(
-        'pingActivity: Mengirim ping aktivitas untuk user: $id (Force: $force)',
+        'pingActivity: Mengirim ping aktivitas untuk user: $id (Force: $paksa)',
       );
 
       unawaited(_pelangganOpFirebase.perbaruiTerakhirAktif(id));
@@ -25656,7 +28545,7 @@ class PelangganOpFirebase {
     }
   }
 
-  Stream<PelangganModel?> ambilStreanPelanggan(String id) {
+  Stream<PelangganModel?> ambilStreamBerdasarkanId(String id) {
     Log.info('Streaming data pelanggan untuk: $id');
     return _koleksiPelanggan
         .doc(id)
@@ -25781,23 +28670,23 @@ class PelangganOpSqlite {
   }
 
   Future<void> perbaruiPelanggan(
-    PelangganModel customer, {
+    PelangganModel pelanggan, {
     bool dariServer = false,
   }) async {
-    Log.info('Memulai pembaruan untuk customer ID: ${customer.id}');
+    Log.info('Memulai pembaruan untuk customer ID: ${pelanggan.id}');
     try {
-      final data = customer
+      final data = pelanggan
           .copyWith(diperbaruiPada: DateTime.now().toUtc())
           .toSqlite();
 
       await _baseOpSqlite.update(
         _tabel,
         data,
-        customer.id,
+        pelanggan.id,
         dariServer: dariServer,
       );
 
-      Log.info('Berhasil memperbarui customer ID: ${customer.id}.');
+      Log.info('Berhasil memperbarui customer ID: ${pelanggan.id}.');
     } catch (e, s) {
       Log.error('Gagal memperbarui customer.', e: e, s: s);
       rethrow;
@@ -26584,7 +29473,8 @@ import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart
 
 @pragma('vm:entry-point')
 void onDidReceiveBackgroundNotificationResponse(
-    final NotificationResponse response) {
+  final NotificationResponse response,
+) {
   final String? payload = response.payload;
   if (response.payload != null) {
     debugPrint('notification payload: $payload');
@@ -26640,7 +29530,8 @@ class LayananNotifikasi {
     Log.info('Memeriksa status inisialisasi zona waktu.');
     if (_zonaWaktuTelahDiinisialisasi) {
       Log.info(
-          'Inisialisasi zona waktu dilewati karena sudah berhasil dilakukan sebelumnya.');
+        'Inisialisasi zona waktu dilewati karena sudah berhasil dilakukan sebelumnya.',
+      );
       return;
     }
 
@@ -26674,7 +29565,8 @@ class LayananNotifikasi {
 
       tz.setLocalLocation(lokasi);
       Log.info(
-          'Zona waktu lokal berhasil diatur ke: ${lokasi.name}. Inisialisasi selesai.');
+        'Zona waktu lokal berhasil diatur ke: ${lokasi.name}. Inisialisasi selesai.',
+      );
 
       _zonaWaktuTelahDiinisialisasi = true;
     } on Exception catch (e, st) {
@@ -26734,16 +29626,20 @@ class LayananNotifikasi {
       importance: Importance.max,
     );
     Log.info(
-        'Objek AndroidNotificationChannel dibuat: ${channelNotifikasiPenting!.id}');
+      'Objek AndroidNotificationChannel dibuat: ${channelNotifikasiPenting!.id}',
+    );
 
-    final androidPlugin = plugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
 
     await androidPlugin?.requestNotificationsPermission();
     await androidPlugin?.requestExactAlarmsPermission();
     if (androidPlugin == null) {
       Log.warning(
-          'Gagal mendapatkan implementasi plugin Android. Tidak dapat membuat channel.');
+        'Gagal mendapatkan implementasi plugin Android. Tidak dapat membuat channel.',
+      );
       return;
     }
     try {
@@ -26759,21 +29655,23 @@ class LayananNotifikasi {
   void pantauNotifUmum(NotifikasiOpFirebase notifikasiOp) {
     Log.info('Memulai pemantauan notifikasi umum dari Firebase...');
     unawaited(_langgananNotifikasiFirebase?.cancel());
-    _langgananNotifikasiFirebase =
-        notifikasiOp.getKhususAdmin().listen((listNotifikasi) async {
-      for (final notifikasi in listNotifikasi) {
-        if (!_idNotifikasiTampil.contains(notifikasi.id)) {
-          await tampilkanNotifikasiLangsung(
-            title: notifikasi.judul,
-            body: notifikasi.deskripsi,
-            payload: 'notifikasi_id_${notifikasi.id}',
-          );
-          _idNotifikasiTampil.add(notifikasi.id);
+    _langgananNotifikasiFirebase = notifikasiOp.getKhususAdmin().listen(
+      (listNotifikasi) async {
+        for (final notifikasi in listNotifikasi) {
+          if (!_idNotifikasiTampil.contains(notifikasi.id)) {
+            await tampilkanNotifikasiLangsung(
+              title: notifikasi.judul,
+              body: notifikasi.deskripsi,
+              payload: 'notifikasi_id_${notifikasi.id}',
+            );
+            _idNotifikasiTampil.add(notifikasi.id);
+          }
         }
-      }
-    }, onError: (Object e, StackTrace st) {
-      Log.error('Error pada stream notifikasi umum', e: e, s: st);
-    });
+      },
+      onError: (Object e, StackTrace st) {
+        Log.error('Error pada stream notifikasi umum', e: e, s: st);
+      },
+    );
   }
 
   void pantauNotifUser(NotifikasiOpFirebase notifikasiOp, String userId) {
@@ -26781,36 +29679,36 @@ class LayananNotifikasi {
 
     unawaited(_langgananNotifikasiFirebase?.cancel());
 
-    _langgananNotifikasiFirebase = notifikasiOp.getByUserId(userId).listen(
-      (listNotifikasi) async {
-        Log.info(
-            'Menerima ${listNotifikasi.length} notifikasi aktif dari stream.');
-        for (final notifikasi in listNotifikasi) {
-          // Hanya tampilkan notifikasi jika ID-nya belum pernah ditampilkan sebelumnya
-          if (!_idNotifikasiTampil.contains(notifikasi.id)) {
+    _langgananNotifikasiFirebase = notifikasiOp
+        .getByUserId(userId)
+        .listen(
+          (listNotifikasi) async {
             Log.info(
-                'Menampilkan notifikasi baru: ${notifikasi.id} - ${notifikasi.judul}');
-            await tampilkanNotifikasiLangsung(
-              title: notifikasi.judul,
-              body: notifikasi.deskripsi,
-              payload: 'notifikasi_id_${notifikasi.id}',
+              'Menerima ${listNotifikasi.length} notifikasi aktif dari stream.',
             );
-            // Tandai notifikasi ini sebagai sudah ditampilkan
-            _idNotifikasiTampil.add(notifikasi.id);
-          }
-        }
-      },
-      onError: (Object e, StackTrace st) {
-        Log.error(
-          'Error pada stream notifikasi Firebase',
-          e: e,
-          s: st,
+            for (final notifikasi in listNotifikasi) {
+              // Hanya tampilkan notifikasi jika ID-nya belum pernah ditampilkan sebelumnya
+              if (!_idNotifikasiTampil.contains(notifikasi.id)) {
+                Log.info(
+                  'Menampilkan notifikasi baru: ${notifikasi.id} - ${notifikasi.judul}',
+                );
+                await tampilkanNotifikasiLangsung(
+                  title: notifikasi.judul,
+                  body: notifikasi.deskripsi,
+                  payload: 'notifikasi_id_${notifikasi.id}',
+                );
+                // Tandai notifikasi ini sebagai sudah ditampilkan
+                _idNotifikasiTampil.add(notifikasi.id);
+              }
+            }
+          },
+          onError: (Object e, StackTrace st) {
+            Log.error('Error pada stream notifikasi Firebase', e: e, s: st);
+          },
+          onDone: () {
+            Log.warning('Stream notifikasi Firebase selesai.');
+          },
         );
-      },
-      onDone: () {
-        Log.warning('Stream notifikasi Firebase selesai.');
-      },
-    );
   }
 
   void hentikanPemantauanNotifikasi() {
@@ -26829,24 +29727,23 @@ class LayananNotifikasi {
         return;
       }
 
-      final AndroidFlutterLocalNotificationsPlugin? androidPlugin =
-          plugin.resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
+      final AndroidFlutterLocalNotificationsPlugin? androidPlugin = plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       if (androidPlugin != null) {
-        final bool? granted =
-            await androidPlugin.requestNotificationsPermission();
+        final bool? granted = await androidPlugin
+            .requestNotificationsPermission();
         Log.info(
-            'Izin notifikasi diberikan oleh pengguna: ${granted ?? false}');
+          'Izin notifikasi diberikan oleh pengguna: ${granted ?? false}',
+        );
       } else {
         Log.warning(
-            'Gagal mendapatkan implementasi plugin Android. Tidak dapat meminta izin.');
+          'Gagal mendapatkan implementasi plugin Android. Tidak dapat meminta izin.',
+        );
       }
     } on Exception catch (e, s) {
-      Log.error(
-        'Gagal meminta izin notifikasi',
-        e: e,
-        s: s,
-      );
+      Log.error('Gagal meminta izin notifikasi', e: e, s: s);
     }
   }
 
@@ -26880,11 +29777,10 @@ class LayananNotifikasi {
     final String? payload,
   }) async {
     Log.info(
-        'Memeriksa channel notifikasi sebelum menampilkan notifikasi langsung.');
+      'Memeriksa channel notifikasi sebelum menampilkan notifikasi langsung.',
+    );
     if (channelNotifikasiPenting == null) {
-      Log.error(
-        'Gagal menampilkan notifikasi: Channel belum diinisialisasi.',
-      );
+      Log.error('Gagal menampilkan notifikasi: Channel belum diinisialisasi.');
       return;
     }
     Log.info('Channel notifikasi ditemukan: ${channelNotifikasiPenting!.id}');
@@ -26912,11 +29808,7 @@ class LayananNotifikasi {
       );
       Log.info('Notifikasi langsung berhasil ditampilkan di layar.');
     } on Exception catch (e, s) {
-      Log.error(
-        'Gagal menampilkan notifikasi langsung',
-        e: e,
-        s: s,
-      );
+      Log.error('Gagal menampilkan notifikasi langsung', e: e, s: s);
     }
   }
 
@@ -26926,16 +29818,14 @@ class LayananNotifikasi {
   /// [id] harus unik untuk setiap notifikasi yang dijadwalkan.
   Future<void> jadwalNotifikasi({
     required final int id,
-    required final String title,
-    required final String body,
+    required final String judul,
+    required final String pesan,
     required final DateTime jadwal,
     final String? payload,
   }) async {
     Log.info('Memeriksa channel notifikasi sebelum menjadwalkan notifikasi.');
     if (channelNotifikasiPenting == null) {
-      Log.error(
-        'Gagal menjadwalkan notifikasi: Channel belum diinisialisasi.',
-      );
+      Log.error('Gagal menjadwalkan notifikasi: Channel belum diinisialisasi.');
       return;
     }
     Log.info('Channel notifikasi ditemukan: ${channelNotifikasiPenting!.id}');
@@ -26949,7 +29839,8 @@ class LayananNotifikasi {
     final bool hasPermission = await pastikanIzinExactAlarm();
     if (!hasPermission) {
       Log.error(
-          'Gagal menjadwalkan notifikasi karena izin exact alarm ditolak.');
+        'Gagal menjadwalkan notifikasi karena izin exact alarm ditolak.',
+      );
       // Mungkin tampilkan snackbar ke pengguna di sini
       return;
     }
@@ -26967,15 +29858,18 @@ class LayananNotifikasi {
     final notificationDetails = NotificationDetails(android: androidDetails);
 
     try {
-      final tz.TZDateTime scheduledTZDate =
-          tz.TZDateTime.from(jadwal, tz.local);
+      final tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(
+        jadwal,
+        tz.local,
+      );
       Log.info(
-          'Waktu notifikasi dikonversi ke zona waktu lokal (${tz.local.name}): $scheduledTZDate');
+        'Waktu notifikasi dikonversi ke zona waktu lokal (${tz.local.name}): $scheduledTZDate',
+      );
 
       await plugin.zonedSchedule(
         id: id,
-        title: title,
-        body: body,
+        title: judul,
+        body: pesan,
         scheduledDate: scheduledTZDate,
         notificationDetails: notificationDetails,
         payload: payload,
@@ -26983,11 +29877,7 @@ class LayananNotifikasi {
       );
       Log.info('Notifikasi terjadwal berhasil didaftarkan ke sistem.');
     } on Exception catch (e, s) {
-      Log.error(
-        'Gagal mendaftarkan jadwal notifikasi',
-        e: e,
-        s: s,
-      );
+      Log.error('Gagal mendaftarkan jadwal notifikasi', e: e, s: s);
     }
   }
 
@@ -27007,8 +29897,8 @@ class LayananNotifikasi {
     await batalNotifikasi(id);
     await jadwalNotifikasi(
       id: id,
-      title: title,
-      body: body,
+      judul: title,
+      pesan: body,
       jadwal: jadwal,
       payload: payload,
     );
@@ -27024,11 +29914,7 @@ class LayananNotifikasi {
       await plugin.cancel(id: id);
       Log.info('Perintah pembatalan untuk notifikasi ID: $id telah dikirim.');
     } on Exception catch (e, s) {
-      Log.error(
-        'Gagal membatalkan notifikasi ID: $id',
-        e: e,
-        s: s,
-      );
+      Log.error('Gagal membatalkan notifikasi ID: $id', e: e, s: s);
     }
   }
 
@@ -27079,7 +29965,7 @@ class LayananNotifikasi {
     }
   }
 }
-// path: lib/shared/services/notifikasi/penjadwal_notifikasi.dart
+// path: lib/fitur/notfikasi/penjadwal_notifikasi.dart
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -27091,11 +29977,13 @@ import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart'
 
 class PenjadwalNotifikasi {
   static Future<void> aturNotifikasiLangganan(
-    LayananNotifikasi notifikasiServis,
-    final String userId,
-  ) async {
+    LayananNotifikasi layananNotifikasi,
+    final String userId, {
+    @visibleForTesting TransaksiOpFirebase? transaksiOp,
+  }) async {
     Log.info(
-        'Memulai pengecekan untuk penjadwalan notifikasi untuk pengguna: $userId');
+      'Memulai pengecekan untuk penjadwalan notifikasi untuk pengguna: $userId',
+    );
     final endNotificationId = userId.hashCode;
     final midNotificationId = '${userId}_midpoint'.hashCode;
 
@@ -27103,24 +29991,25 @@ class PenjadwalNotifikasi {
     final int alarmId = endNotificationId;
 
     try {
-      final transactionOperation = TransaksiOpFirebase();
+      final transaksiOpFirebase = transaksiOp ?? TransaksiOpFirebase();
 
       // Dapatkan transaksi lunas terbaru yang akan datang dari Firebase.
-      final transaction = await transactionOperation
+      final transaksi = await transaksiOpFirebase
           .ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(userId);
 
       // Logika utama penjadwalan notifikasi
-      if (transaction != null &&
-          transaction.tanggalMulai != null &&
-          transaction.tanggalBerakhir != null &&
-          transaction.tanggalBerakhir!.isAfter(DateTime.now())) {
+      if (transaksi != null &&
+          transaksi.tanggalMulai != null &&
+          transaksi.tanggalBerakhir != null &&
+          transaksi.tanggalBerakhir!.isAfter(DateTime.now())) {
         // -- Penjadwalan Notifikasi & Alarm Akhir Periode --
-        final scheduledTime = transaction.tanggalBerakhir!;
+        final scheduledTime = transaksi.tanggalBerakhir!;
         Log.info(
-            'Langganan aktif ditemukan (ID: ${transaction.id}). Menjadwalkan notifikasi & alarm akhir pada $scheduledTime');
+          'Langganan aktif ditemukan (ID: ${transaksi.id}). Menjadwalkan notifikasi & alarm akhir pada $scheduledTime',
+        );
 
         // 1. Jadwalkan Notifikasi Visual
-        await notifikasiServis.perbaruiJadwalNotifikasi(
+        await layananNotifikasi.perbaruiJadwalNotifikasi(
           id: endNotificationId,
           title: 'Langganan Telah Berakhir',
           body:
@@ -27138,18 +30027,21 @@ class PenjadwalNotifikasi {
           wakeup: true, // Membangunkan perangkat jika dalam mode sleep
         );
         Log.info(
-            'Alarm untuk ID $alarmId berhasil dijadwalkan pada $scheduledTime');
+          'Alarm untuk ID $alarmId berhasil dijadwalkan pada $scheduledTime',
+        );
 
         // -- Logika untuk Notifikasi Tengah Periode (tidak berubah) --
-        final totalDuration =
-            transaction.tanggalBerakhir!.difference(transaction.tanggalMulai!);
+        final totalDuration = transaksi.tanggalBerakhir!.difference(
+          transaksi.tanggalMulai!,
+        );
         final midpointDuration = totalDuration.inSeconds ~/ 2;
-        final midpointDate =
-            transaction.tanggalMulai!.add(Duration(seconds: midpointDuration));
+        final midpointDate = transaksi.tanggalMulai!.add(
+          Duration(seconds: midpointDuration),
+        );
 
         if (midpointDate.isAfter(DateTime.now())) {
           Log.info('Menjadwalkan notifikasi tengah periode pada $midpointDate');
-          await notifikasiServis.perbaruiJadwalNotifikasi(
+          await layananNotifikasi.perbaruiJadwalNotifikasi(
             id: midNotificationId,
             title: 'Status Langganan Anda',
             body:
@@ -27159,23 +30051,25 @@ class PenjadwalNotifikasi {
           );
         } else {
           Log.info(
-              'Tanggal tengah periode sudah lewat. Membatalkan notifikasi jika ada.');
-          await notifikasiServis.batalNotifikasi(midNotificationId);
+            'Tanggal tengah periode sudah lewat. Membatalkan notifikasi jika ada.',
+          );
+          await layananNotifikasi.batalNotifikasi(midNotificationId);
         }
       } else {
         // Jika tidak ada langganan aktif, batalkan semua notifikasi DAN alarm.
         Log.info(
-            'Tidak ada langganan aktif. Membatalkan semua notifikasi dan alarm untuk pengguna ini.');
-        await notifikasiServis.batalNotifikasi(endNotificationId);
-        await notifikasiServis.batalNotifikasi(midNotificationId);
+          'Tidak ada langganan aktif. Membatalkan semua notifikasi dan alarm untuk pengguna ini.',
+        );
+        await layananNotifikasi.batalNotifikasi(endNotificationId);
+        await layananNotifikasi.batalNotifikasi(midNotificationId);
         await AndroidAlarmManager.cancel(alarmId);
         Log.info('Alarm dengan ID $alarmId juga dibatalkan.');
       }
     } on Exception catch (e, st) {
       Log.error('Gagal mengatur notifikasi dari Firebase', e: e, s: st);
       // Jika terjadi error, coba batalkan semua notifikasi dan alarm untuk kebersihan.
-      await notifikasiServis.batalNotifikasi(endNotificationId);
-      await notifikasiServis.batalNotifikasi(midNotificationId);
+      await layananNotifikasi.batalNotifikasi(endNotificationId);
+      await layananNotifikasi.batalNotifikasi(midNotificationId);
       await AndroidAlarmManager.cancel(alarmId);
       Log.info('Alarm dengan ID $alarmId juga dibatalkan karena error.');
     }
@@ -28866,13 +31760,13 @@ class LayananCekSinkronisasi {
   }
 
   Future<bool> _periksaDanJalankanUnggah() async {
+    final DateTime sekarang = DateTime.now();
     try {
       final bool adaDataUntukUnggah = await _pengecekanDataBaru
           .apakahSqliteAdaDataBaru();
 
       if (adaDataUntukUnggah) {
         await _layananUnggah.unggahSemuaData();
-        final DateTime sekarang = DateTime.now();
         await _pengelolaSinkronisasi.simpanWaktuTerakhirUnggah(sekarang);
         await _pengecekanDataBaru.resetButuhUpload();
         Log.info('Metadata sinkronisasi berhasil diperbarui: $sekarang.');
@@ -28881,7 +31775,7 @@ class LayananCekSinkronisasi {
         Log.info('Tidak ditemukan record baru. Melewati fase pengunggahan.');
         return false;
       }
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error('Kegagalan Operasional saat unggah.', e: e, s: s);
       return false;
     }
@@ -28896,7 +31790,7 @@ class LayananCekSinkronisasi {
             NamaKolom.diperbaruiPada: FieldValue.serverTimestamp(),
           }, SetOptions(merge: true));
       Log.info('Dokumen ${NamaTabel.statusGlobal}/global berhasil diperbarui.');
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error(
         'Gagal memperbarui dokumen ${NamaTabel.statusGlobal}/global.',
         e: e,
@@ -28921,7 +31815,7 @@ class LayananCekSinkronisasi {
       } else {
         Log.info('Cloud tidak memiliki pembaruan data.');
       }
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error('Kegagalan Operasional saat unduh.', e: e, s: s);
     }
   }
@@ -28947,7 +31841,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
-import 'package:wifi/fitur/transaksi/page/transaksi_page_a.dart';
+import 'package:wifi/fitur/transaksi/page/transaksi_a.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan.dart';
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
@@ -29065,7 +31959,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute<void>(
-                            builder: (_) => const TransaksiPageA(),
+                            builder: (_) => const TransaksiA(),
                           ),
                         ),
                         title: 'Pendapatan Bulan Ini',
@@ -29588,7 +32482,7 @@ class StatistikOpSqlite {
     Log.info('Mulai menghitung paket terlaris.');
     try {
       final daftarPaket = await _paketOpsqlite.ambilSemua();
-      final daftartransaksi = await _transaksiOpSqlite.getAllTransactions();
+      final daftartransaksi = await _transaksiOpSqlite.ambilSemua();
 
       if (daftartransaksi.isEmpty) {
         Log.warning('Tidak ada transaksi, mengembalikan list paket kosong.');
@@ -29834,7 +32728,7 @@ abstract class PenjadwalAlarm {
 
   Future<bool> batalkan(int id);
 }
-// path lib/user/page/profile_page.dart
+// path: lib/user/page/profile_page.dart
 
 import 'dart:async';
 
@@ -29843,7 +32737,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan_u.dart';
-import 'package:wifi/fitur/poin/page/points_page.dart';
+import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -29856,19 +32750,19 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 
-class _ProfileData {
-  final PelangganModel customer;
-  final int totalPoints;
-  final TransaksiModel? paketAktif;
-  final PaketModel? packageModel;
+class _DaataProfil {
+  final PelangganModel pelanggan;
+  final int totalPoin;
+  final TransaksiModel? transaksi;
+  final PaketModel? paket;
 
-  _ProfileData({
-    required this.customer,
-    required this.totalPoints,
-    this.paketAktif,
-    this.packageModel,
+  _DaataProfil({
+    required this.pelanggan,
+    required this.totalPoin,
+    this.transaksi,
+    this.paket,
   });
 }
 
@@ -29881,73 +32775,80 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
-  late final PelangganOpFirebase _customerOp;
-  late final TransaksiOpFirebase _transactionOp;
-  late final PaketOpFirebase _packageOp;
+  late final PelangganOpFirebase _pelangganOpFirebase;
+  late final TransaksiOpFirebase _transaksiOpFirebase;
+  late final PaketOpFirebase _paketOpFirebase;
 
   // DIUBAH: Hanya satu Future yang mengelola semua data untuk halaman ini.
-  Future<_ProfileData>? _futureProfileData;
+  Future<_DaataProfil>? _futureProfileData;
 
   @override
   void initState() {
     super.initState();
     unawaited(ref.read(interstitialAdServiceProvider).preloadAd());
-    _customerOp = ref.read(pelangganOpFirebaseProvider);
-    _transactionOp = ref.read(transaksiOpFirebaseProvider);
-    _packageOp = ref.read(paketOpFirebaseProvider);
+    _pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
+    _transaksiOpFirebase = ref.read(transaksiOpFirebaseProvider);
+    _paketOpFirebase = ref.read(paketOpFirebaseProvider);
     _futureProfileData = _loadProfileData();
   }
 
   // PENJELASAN: Ini adalah inti dari perbaikan. Method ini bertanggung jawab untuk
   // mengambil semua data yang diperlukan secara efisien.
-  Future<_ProfileData> _loadProfileData() async {
+  Future<_DaataProfil> _loadProfileData() async {
     final userId = await ref.watch(userIdProvider.future);
     if (userId == null) {
       throw Exception('ID Pengguna tidak ditemukan, mohon login kembali.');
     }
     Log.info('Memulai pengambilan data profil lengkap untuk userId: $userId.');
     try {
-      final customer = await _customerOp.ambilBerdasarkanId(userId);
-      if (customer == null) {
+      final pelanggan = await _pelangganOpFirebase.ambilBerdasarkanId(userId);
+      if (pelanggan == null) {
         throw Exception('Pelanggan dengan ID  tidak ditemukan.');
       }
-      Log.info('Data pelanggan berhasil diambil: ${customer.nama}.');
+      Log.info('Data pelanggan berhasil diambil: ${pelanggan.nama}.');
 
-      final results = await Future.wait([
-        _transactionOp.ambilTotalPoin(customer.id),
-        _transactionOp.ambilBerdasarkanIdPelanggan(customer.id),
+      final hasil = await Future.wait([
+        _transaksiOpFirebase.ambilTotalPoin(pelanggan.id),
+        _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(pelanggan.id),
       ]);
 
-      final totalPoints = results[0] as int;
-      final activeSubscriptions = results[1] as List<TransaksiModel>;
+      final totalPoin = hasil[0] as int;
+      final daftarPaketAktif = hasil[1] as List<TransaksiModel>;
       Log.info(
-        'Total poin diambil: $totalPoints. Langganan aktif ditemukan: ${activeSubscriptions.length}.',
+        'Total poin diambil: $totalPoin. Langganan aktif ditemukan: ${daftarPaketAktif.length}.',
       );
+      final sekarang = DateTime.now();
+      final daftarMasihAktif = daftarPaketAktif
+          .where(
+            (trx) =>
+                trx.tanggalBerakhir != null &&
+                trx.tanggalBerakhir!.isAfter(sekarang),
+          )
+          .toList();
+      TransaksiModel? paketAktif;
+      PaketModel? paket;
 
-      TransaksiModel? lastSubscription;
-      PaketModel? packageModel;
-
-      if (activeSubscriptions.isNotEmpty) {
-        lastSubscription = activeSubscriptions.reduce(
+      if (daftarMasihAktif.isNotEmpty) {
+        paketAktif = daftarPaketAktif.reduce(
           (a, b) => a.tanggalBerakhir!.isAfter(b.tanggalBerakhir!) ? a : b,
         );
         Log.info(
-          'Langganan terakhir berakhir pada: ${lastSubscription.tanggalBerakhir}.',
+          'Langganan terakhir berakhir pada: ${paketAktif.tanggalBerakhir}.',
         );
 
-        if (lastSubscription.idPaket != null) {
-          packageModel = await _packageOp.ambilBerdasarkanId(
-            lastSubscription.idPaket!,
+        if (paketAktif.idPaket != null) {
+          paket = await _paketOpFirebase.ambilBerdasarkanId(
+            paketAktif.idPaket!,
           );
-          Log.info('Detail paket "${packageModel?.nama}" berhasil diambil.');
+          Log.info('Detail paket "${paket?.nama}" berhasil diambil.');
         }
       }
 
-      return _ProfileData(
-        customer: customer,
-        totalPoints: totalPoints,
-        paketAktif: lastSubscription,
-        packageModel: packageModel,
+      return _DaataProfil(
+        pelanggan: pelanggan,
+        totalPoin: totalPoin,
+        transaksi: paketAktif,
+        paket: paket,
       );
     } on Exception catch (e, st) {
       Log.error('Gagal total memuat data profil.', e: e, s: st);
@@ -29974,7 +32875,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     Log.info('Membangun UI untuk ProfilePage.');
     return Scaffold(
       appBar: AppBar(title: const Text('Profil Pelanggan')),
-      body: FutureBuilder<_ProfileData>(
+      body: FutureBuilder<_DaataProfil>(
         future: _futureProfileData,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -29996,7 +32897,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           }
 
           final profileData = snapshot.data!;
-          final customer = profileData.customer;
+          final pelanggan = profileData.pelanggan;
 
           return RefreshIndicator(
             onRefresh: _reloadData,
@@ -30011,16 +32912,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     _InfoItem(
                       icon: TIcons.personOutlined,
                       label: 'Nama Lengkap',
-                      value: customer.nama,
+                      value: pelanggan.nama,
                       trailingIcon: TIcons.chevronRight,
-                      onTap: () => _navigateToDetail(customer.id),
+                      onTap: () => _navigasiKeDetail(pelanggan.id),
                     ),
                     _InfoItem(
                       icon: TIcons.points,
                       label: 'Poin',
-                      value: profileData.totalPoints.toString(),
+                      value: profileData.totalPoin.toString(),
                       trailingIcon: TIcons.chevronRight,
-                      onTap: () => _navigateToPointsPage(customer.id),
+                      onTap: () => _navigasiKePoin(pelanggan.id),
                     ),
                   ],
                 ),
@@ -30030,10 +32931,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   title: 'Informasi Paket Aktif',
                   icon: TIcons.wifi,
                   children: [
-                    _buildActivePackageDetails(
+                    _buildDetailPaketAktif(
                       context,
-                      profileData.paketAktif,
-                      profileData.packageModel,
+                      profileData.transaksi,
+                      profileData.paket,
                     ),
                   ],
                 ),
@@ -30045,12 +32946,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildActivePackageDetails(
+  Widget _buildDetailPaketAktif(
     BuildContext context,
-    TransaksiModel? lastSubscription,
-    PaketModel? packageModel,
+    TransaksiModel? transaksi,
+    PaketModel? paket,
   ) {
-    if (lastSubscription == null) {
+    if (transaksi == null) {
       return const _InfoItem(
         icon: TIcons.noWifi,
         label: 'Paket Aktif',
@@ -30058,14 +32959,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       );
     }
 
-    final String activePeriodText = PerhitunganUtil.ambilTeksSisaMasaAktif(
-      lastSubscription.tanggalBerakhir!,
+    final String teksMasaAktif = PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
+      transaksi.tanggalBerakhir!,
     );
-    final Color activePeriodColor = PerhitunganUtil.ambilWarnaSisaMasaAktif(
-      lastSubscription.tanggalBerakhir!,
+    final Color warnaMasaAktif = PerhitunganUtil.ambilWarnaSisaMasaAktif(
+      transaksi.tanggalBerakhir!,
     );
-    final Color paymentStatusColor =
-        lastSubscription.statusPembayaran == StatusPembayaran.paid
+    final Color warnaStatuspembayaran =
+        transaksi.statusPembayaran == StatusPembayaran.paid
         ? Colors.green
         : Colors.red;
 
@@ -30074,50 +32975,45 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         _InfoItem(
           icon: TIcons.wifi,
           label: 'Paket',
-          value: packageModel?.nama ?? 'Tidak tersedia',
+          value: paket?.nama ?? 'Tidak tersedia',
         ),
-        if (lastSubscription.tanggalMulai != null)
+        if (transaksi.tanggalMulai != null)
           _InfoItem(
             icon: TIcons.dateRange,
             label: 'Aktif Sejak',
-            value: FormatWaktuLengkap.formatSingkat(
-              lastSubscription.tanggalMulai!,
-            ),
+            value: FormatWaktuLengkap.formatSingkat(transaksi.tanggalMulai!),
           ),
         _InfoItem(
           icon: TIcons.dateRange,
           label: 'Berakhir Pada',
-          value: FormatWaktuLengkap.formatSingkat(
-            lastSubscription.tanggalBerakhir!,
-          ),
+          value: FormatWaktuLengkap.formatSingkat(transaksi.tanggalBerakhir!),
         ),
         _InfoItem(
           icon: TIcons.hourglass,
           label: 'Masa Aktif',
-          value: activePeriodText,
-          valueColor: activePeriodColor,
+          value: teksMasaAktif,
+          valueColor: warnaMasaAktif,
         ),
         _InfoItem(
           icon: TIcons.successOutlined,
           label: 'Status Pembayaran',
-          value: lastSubscription.statusPembayaran.displayName
+          value: transaksi.statusPembayaran.displayName
               .replaceAll('_', ' ')
               .toUpperCase(),
-          valueColor: paymentStatusColor,
+          valueColor: warnaStatuspembayaran,
         ),
-        if (lastSubscription.durasiBonus > 0 &&
-            lastSubscription.tipeDurasiBonus != null)
+        if (transaksi.durasiBonus > 0 && transaksi.tipeDurasiBonus != null)
           _InfoItem(
             icon: TIcons.bonus,
             label: 'Bonus',
             value:
-                '${lastSubscription.durasiBonus} ${lastSubscription.tipeDurasiBonus!.displayName}',
+                '${transaksi.durasiBonus} ${transaksi.tipeDurasiBonus!.displayName}',
           ),
       ],
     );
   }
 
-  Future<void> _navigateToDetail(String userId) async {
+  Future<void> _navigasiKeDetail(String userId) async {
     await ref.read(interstitialAdServiceProvider).show();
     try {
       final hasChanged = await Navigator.push<bool>(
@@ -30136,13 +33032,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
   }
 
-  Future<void> _navigateToPointsPage(String customerId) async {
+  Future<void> _navigasiKePoin(String idPelanggan) async {
     await ref.read(interstitialAdServiceProvider).show();
     try {
       await Navigator.push<void>(
         context,
         MaterialPageRoute<bool>(
-          builder: (context) => PoinPage(idPelanggan: customerId, showAd: true),
+          builder: (context) =>
+              HalamanPoin(idPelanggan: idPelanggan, tampilkanIklan: true),
         ),
       );
       await ref.read(interstitialAdServiceProvider).show();
@@ -30275,12 +33172,12 @@ import 'package:wifi/fitur/event/page/event_page_u.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/fitur/versi_apk/page/update_apk_page_u.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 
 /// Record yang berisi informasi tentang pembaruan aplikasi.
-typedef UpdateInfoRecord = ({
+typedef InfoPembaruanRecord = ({
   bool isUpdateRequired,
   VersiApkModel? apkInfo,
   InfoPerangkatModel? packageInfo,
@@ -30303,27 +33200,27 @@ class SplashScreenUser extends ConsumerStatefulWidget {
 
 class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   final SettingsOpFirebase _settingsOp = SettingsOpFirebase();
-  final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
+  final idUnitIklan = IdInterstitialAds.interstitialAdUnitIds[0];
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((final _) {
-      unawaited(_initializeApp());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _inisialisasiAplikasi();
     });
   }
 
-  Future<void> _initializeApp() async {
+  Future<void> _inisialisasiAplikasi() async {
     try {
       Log.info('Memulai inisialisasi dari Splash Screen...');
-      await _initializeOfflineServices();
+      await _inisialisasiLayananOffline();
 
-      final isConnected = await ref
+      final terhubung = await ref
           .watch(koneksiInternetServiceProvider)
           .cekKoneksiLokal();
 
-      if (isConnected) {
-        await _initializeOnlineServices();
+      if (terhubung) {
+        await _lanjutkanInisialisasi();
 
         final eventInfo = await _cekEvent();
         if (eventInfo != null) {
@@ -30344,27 +33241,27 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
         if (mounted) {
           ToastUtil.info(context, 'Anda sedang offline.');
         }
-        await _navigateToNextPage();
+        await _navigasiKeHalamanBerikutnya();
       }
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error('Error kritis saat inisialisasi', e: e, s: st);
       if (mounted) {
         ToastUtil.error(context, 'Gagal terhubung ke server.');
       }
-      await _navigateToNextPage();
+      await _navigasiKeHalamanBerikutnya();
     }
   }
 
   Future<void> _continueInitialization() async {
-    final maintenanceSettings = await _checkMaintenanceMode();
-    if (maintenanceSettings != null) {
+    final pengaturanPemeliharaan = await _periksaModePemeliharaan();
+    if (pengaturanPemeliharaan != null) {
       if (!mounted) return;
       unawaited(
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => MaintenancePage(
-              infoMaintenance: maintenanceSettings.infoMaintenance,
-              onRefresh: _initializeApp,
+              infoMaintenance: pengaturanPemeliharaan.infoMaintenance,
+              onRefresh: _inisialisasiAplikasi,
               onExit: SystemNavigator.pop,
             ),
           ),
@@ -30373,26 +33270,26 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       return;
     }
 
-    final updateInfo = await _checkAppUpdate();
-    if (updateInfo != null) {
+    final infoPembaruan = await _periksaPembaruanAplikasi();
+    if (infoPembaruan != null) {
       if (!mounted) return;
       unawaited(
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => UpdateApkPage(
-              infoApk: updateInfo.apkInfo!,
-              infoPaket: updateInfo.packageInfo!,
-              arsitektur: updateInfo.architecture!,
+              infoApk: infoPembaruan.apkInfo!,
+              infoPaket: infoPembaruan.packageInfo!,
+              arsitektur: infoPembaruan.architecture!,
             ),
           ),
         ),
       );
       return;
     }
-    await _navigateToNextPage();
+    await _navigasiKeHalamanBerikutnya();
   }
 
-  Future<void> _initializeOfflineServices() async {
+  Future<void> _inisialisasiLayananOffline() async {
     await LayananNotifikasi().inisialisasiNotifikasi(
       iconName: 'ic_notification',
     );
@@ -30400,7 +33297,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     await initializeDateFormatting('id_ID');
   }
 
-  Future<void> _initializeOnlineServices() async {
+  Future<void> _lanjutkanInisialisasi() async {
     try {
       await MobileAds.instance.initialize();
       FirebaseFirestore.instance.settings = const Settings(
@@ -30417,54 +33314,54 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     return infoEvent;
   }
 
-  Future<UpdateInfoRecord?> _checkAppUpdate() async {
+  Future<InfoPembaruanRecord?> _periksaPembaruanAplikasi() async {
     if (!mounted) return null;
-    final updateService = LayananCekUpdateApk(
+    final layananCekUpdateApk = LayananCekUpdateApk(
       prefs: widget.prefs,
       penyimpananLokal: widget.penyimpananLokal,
       context: context,
     );
-    final updateInfo = await updateService.ambilInfoUpdate();
-    if (updateInfo.perluUpdate) {
+    final infoUpdate = await layananCekUpdateApk.ambilInfoUpdate();
+    if (infoUpdate.perluUpdate) {
       return (
-        isUpdateRequired: updateInfo.perluUpdate,
-        apkInfo: updateInfo.infoApk,
-        packageInfo: updateInfo.infoPaket,
-        architecture: updateInfo.arsitektur,
+        isUpdateRequired: infoUpdate.perluUpdate,
+        apkInfo: infoUpdate.infoApk,
+        packageInfo: infoUpdate.infoPaket,
+        architecture: infoUpdate.arsitektur,
       );
     }
     return null;
   }
 
-  Future<SettingsModel?> _checkMaintenanceMode() async {
+  Future<SettingsModel?> _periksaModePemeliharaan() async {
     try {
-      final settingsMap = await _settingsOp.ambilPengaturan();
-      final settings = SettingsModel.fromFirebase(settingsMap);
-      if (settings.modeMaintenance) {
-        return settings;
+      final petaPengaturan = await _settingsOp.ambilPengaturan();
+      final pengaturan = SettingsModel.fromFirebase(petaPengaturan);
+      if (pengaturan.modeMaintenance) {
+        return pengaturan;
       }
       return null;
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error('Gagal memeriksa mode pemeliharaan', e: e, s: st);
       return null;
     }
   }
 
-  Future<void> _navigateToNextPage() async {
+  Future<void> _navigasiKeHalamanBerikutnya() async {
     if (!mounted) return;
     final pengelolaAkun = await ref.read(pengelolaAkunProvider.future);
     final akunAktif = pengelolaAkun.akunSaatIni;
 
     if (akunAktif != null) {
-      final isConnected = await ref
+      final terhubung = await ref
           .read(koneksiInternetServiceProvider)
           .cekKoneksiLokal();
 
-      if (isConnected) {
-        final userActivityService = await ref.read(
-          userActivityServiceProvider.future,
+      if (terhubung) {
+        final layananAktivitasUser = await ref.read(
+          layananAktivitasUserProvider.future,
         );
-        unawaited(userActivityService.pingAktivitas(akunAktif.id));
+        unawaited(layananAktivitasUser.pingAktivitas(akunAktif.id));
       }
       if (!mounted) return;
       unawaited(
@@ -30483,7 +33380,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(
         child: Column(
@@ -30511,7 +33408,7 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/user/page/profile_page.dart';
 import 'package:wifi/fitur/settings/page/settings_page_u.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_u.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 import 'package:wifi/user/widget/ads/app_open/app_lifecycle_reactor.dart';
 import 'package:wifi/user/widget/ads/app_open/app_open_ad_service.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
@@ -30525,10 +33422,11 @@ class MainPage extends ConsumerStatefulWidget {
 }
 
 class _MainPageState extends ConsumerState<MainPage> {
-  int _selectedIndex = 0;
-  late final List<Widget> _pages;
-  late final AppLifecycleReactor _appLifecycleReactor;
-  final LayananIklanBukaAplikasi _appOpenAdService = LayananIklanBukaAplikasi();
+  int _indeksTerpilih = 0;
+  late final List<Widget> _daftarHalaman;
+  late final AppLifecycleReactor _reaktorSiklusHidup;
+  final LayananIklanBukaAplikasi _layananIklanBukaAplikasi =
+      LayananIklanBukaAplikasi();
 
   @override
   void initState() {
@@ -30536,50 +33434,53 @@ class _MainPageState extends ConsumerState<MainPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final userId = await ref.read(userIdProvider.future);
       if (userId != null) {
-        final notifikasiServis = ref.read(notifikasiServisProvider);
+        final notifikasiServis = ref.read(layananNotifikasiProvider);
         PenjadwalNotifikasi.aturNotifikasiLangganan(notifikasiServis, userId);
 
-        final userActivityService = await ref.read(
-          userActivityServiceProvider.future,
+        final layananAktivitasUser = await ref.read(
+          layananAktivitasUserProvider.future,
         );
-        await userActivityService.pingAktivitas(userId);
+        await layananAktivitasUser.pingAktivitas(userId);
       }
     });
 
-    _pages = [
+    _daftarHalaman = [
       const ProfilePage(),
       const TransaksiU(),
       const OrderPage(),
       const HalamanUjiKecepatan(),
       const SettingsPageU(),
     ];
-    _appLifecycleReactor = AppLifecycleReactor(
-      appOpenAdService: _appOpenAdService,
+    _reaktorSiklusHidup = AppLifecycleReactor(
+      appOpenAdService: _layananIklanBukaAplikasi,
     );
-    _appLifecycleReactor.listenToAppStateChanges();
+    _reaktorSiklusHidup.listenToAppStateChanges();
     FlutterNativeSplash.remove();
   }
 
-  void _onItemTapped(int index) {
+  void _ketikaItemDiketuk(int index) {
     Log.info('Item navigasi diketuk: index $index');
-    if (_selectedIndex == index) {
+    if (_indeksTerpilih == index) {
       return;
     }
 
     setState(() {
-      _selectedIndex = index;
+      _indeksTerpilih = index;
     });
   }
 
   @override
-  Widget build(final BuildContext context) {
-    Log.info('Membangun MainPage untuk indeks halaman: $_selectedIndex');
+  Widget build(BuildContext context) {
+    Log.info('Membangun MainPage untuk indeks halaman: $_indeksTerpilih');
 
     return Scaffold(
       body: Column(
         children: [
           Expanded(
-            child: IndexedStack(index: _selectedIndex, children: _pages),
+            child: IndexedStack(
+              index: _indeksTerpilih,
+              children: _daftarHalaman,
+            ),
           ),
           const BannerAdsWidget(),
         ],
@@ -30596,8 +33497,8 @@ class _MainPageState extends ConsumerState<MainPage> {
             label: 'Pengaturan',
           ),
         ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+        currentIndex: _indeksTerpilih,
+        onTap: _ketikaItemDiketuk,
       ),
     );
   }
@@ -30605,9 +33506,11 @@ class _MainPageState extends ConsumerState<MainPage> {
 // path: lib/user/page/login_page.dart
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/data_dummy/halaman_data_dummy.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
@@ -30619,10 +33522,10 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/input/input_angka.dart';
 import 'package:wifi/shared/widget/input/input_password.dart';
+import 'package:wifi/shared/widget/input/input_telepon.dart';
 import 'package:wifi/user/page/main_page.dart';
-import 'package:wifi/user/providers/user_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -30631,8 +33534,10 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _teleponController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final _teleponFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
 
   bool _sedangLogin = false;
 
@@ -30642,13 +33547,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     FlutterNativeSplash.remove();
   }
 
-  Future<void> _showErrorAlert(String message) async {
+  Future<void> _showErrorAlert(String pesan) async {
     if (!mounted) return;
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Akun tidak ditemukan'),
-        content: Text(message),
+        content: Text(pesan),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -30660,11 +33565,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   Future<void> _prosesLogin() async {
-    final phone = _phoneController.text.trim();
-    final password = _passwordController.text.trim();
+    final telepon = _teleponController.text.trim();
+    final kataSandi = _passwordController.text.trim();
 
-    if (phone.isEmpty || password.isEmpty) {
-      await _showErrorAlert('Nomor telepon dan password tidak boleh kosong.');
+    // Validasi format
+    if (telepon.isEmpty || kataSandi.isEmpty) {
+      return;
+    }
+    if (!RegExp(r'^[0-9]{10,13}$').hasMatch(telepon)) {
+      await _showErrorAlert('Nomor telepon tidak valid (minimal 10 digit).');
       return;
     }
 
@@ -30673,80 +33582,59 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     try {
       final internetService = ref.read(koneksiInternetServiceProvider);
-      final isConnected = await internetService.cekInternet(ref);
-      if (!mounted) return;
+      final isConnected = await internetService.cekInternet();
       if (!isConnected) {
-        ToastUtil.error(
-          context,
-          'Tidak ada koneksi internet. Periksa jaringan Anda.',
-        );
+        if (!mounted) return;
+        ToastUtil.error(context, 'Tidak ada koneksi internet.');
         return;
       }
+
+      // Proses login ke Firestore
       final firestore = ref.read(firestoreProvider);
       final querySnapshot = await firestore
           .collection(NamaTabel.pelanggan)
-          .where(NamaKolom.telepon, isEqualTo: phone)
-          .where(NamaKolom.kataSandi, isEqualTo: password)
+          .where(NamaKolom.telepon, isEqualTo: telepon)
+          .where(NamaKolom.kataSandi, isEqualTo: kataSandi)
           .where(NamaKolom.dihapus, isEqualTo: false)
           .limit(1)
           .get();
+
       if (!mounted) return;
 
-      if (querySnapshot.docs.isNotEmpty) {
-        final userDoc = querySnapshot.docs.first;
-        final customer = PelangganModel.fromFirebase(
-          userDoc.id,
-          userDoc.data(),
+      if (querySnapshot.docs.isEmpty) {
+        await _showErrorAlert('Nomor telepon tidak terdaftar.');
+        return;
+      }
+
+      // Verifikasi password (misal dengan hash)
+      final userDoc = querySnapshot.docs.first;
+      final pelanggan = PelangganModel.fromFirebase(userDoc.id, userDoc.data());
+      await ref.read(pengelolaAkunProvider.notifier).login(pelanggan);
+
+      // Navigasi
+      if (!mounted) return;
+      unawaited(
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (_) => const MainPage())),
+      );
+
+      // Tugas sekunder
+      try {
+        final layananAktivitasUser = await ref.read(
+          layananAktivitasUserProvider.future,
         );
-        Log.info('Pengguna berhasil login: ${customer.nama}');
-
-        // 1. Simpan sesi (kritis)
-        await ref.read(pengelolaAkunProvider.notifier).login(customer);
-        Log.info('menyimpan token login pada saat login untuk ${customer.id}');
-
-        // 2. Langsung navigasi (kritis untuk UX)
-        if (!mounted) return;
-        unawaited(
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute<void>(
-              builder: (final context) => const MainPage(),
-            ),
-          ),
-        );
-
-        // 3. Lakukan tugas sekunder setelah navigasi berhasil
-        // Kesalahan di sini tidak akan mengganggu pengguna
-        try {
-          final activityService = await ref.read(
-            userActivityServiceProvider.future,
-          );
-          activityService.pingAktivitas(customer.id, force: true);
-          Log.info(
-            'memperbarui last aktif user setelah login berhasil ${customer.id}',
-          );
-        } catch (e, s) {
-          // Hanya catat error ini untuk debug, jangan tampilkan ke pengguna
-          Log.error('Gagal ping activity setelah login', e: e, s: s);
-        }
-
-        return; // Selesai
-      } else {
-        setState(() => _sedangLogin = false);
-        await _showErrorAlert(
-          'Nomor telepon atau password yang Anda masukkan salah.',
-        );
+        layananAktivitasUser.pingAktivitas(pelanggan.id, paksa: true);
+      } catch (e, s) {
+        Log.error('Gagal ping activity', e: e, s: s);
       }
     } catch (e, s) {
-      Log.error('Terjadi kesalahan saat login.', e: e, s: s);
-      if (mounted) setState(() => _sedangLogin = false);
-      if (!mounted) return;
-      await _showErrorAlert(
-        'Terjadi kesalahan koneksi ke server. Silakan coba lagi.',
-      );
-    } finally {
+      Log.error('Login error', e: e, s: s);
       if (mounted) {
-        setState(() => _sedangLogin = false);
+        await _showErrorAlert('Terjadi kesalahan. Silakan coba lagi.');
       }
+    } finally {
+      if (mounted) setState(() => _sedangLogin = false);
     }
   }
 
@@ -30773,8 +33661,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   void dispose() {
-    _phoneController.dispose();
+    _teleponController.dispose();
     _passwordController.dispose();
+    _teleponFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -30796,19 +33686,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 textAlign: TextAlign.center,
               ),
               gapH32,
-              InputAngka(
-                controller: _phoneController,
+              InputTelepon(
+                controller: _teleponController,
                 label: 'Nomor Telepon',
+                focusNode: _teleponFocusNode,
+                nextFocusNode: _passwordFocusNode,
                 prefixIcon: TIcons.phoneAndroid,
+                keyboardType: TextInputType.phone,
                 enabled: !_sedangLogin,
               ),
               gapH16,
               InputPassword(
                 controller: _passwordController,
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Password tidak boleh kosong'
-                    : null,
-                onFieldSubmitted: (p0) => _prosesLogin(),
+                focusNode: _passwordFocusNode,
+                onSubmitted: (_) => _prosesLogin(),
                 textInputAction: TextInputAction.done,
                 enabled: !_sedangLogin,
               ),
@@ -30867,29 +33758,52 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
               gapH8,
               Align(
-                child: TextButton(
-                  onPressed: _sedangLogin
-                      ? null
-                      : () {
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (kDebugMode)
+                      TextButton(
+                        onPressed: () {
                           unawaited(
-                            showDialog<void>(
-                              context: context,
-                              builder: (ctx) => AlertDialog(
-                                title: const Text('Fitur Dalam Pengembangan'),
-                                content: const Text(
-                                  'Fitur ini sedang kami kerjakan.',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    child: const Text('OK'),
-                                    onPressed: () => Navigator.of(ctx).pop(),
-                                  ),
-                                ],
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder: (context) => const HalamanDataDummy(),
                               ),
                             ),
                           );
                         },
-                  child: const Text('Lupa Sandi?'),
+                        child: const Text('Debug: Dummy'),
+                      ),
+
+                    TextButton(
+                      onPressed: _sedangLogin
+                          ? null
+                          : () {
+                              unawaited(
+                                showDialog<void>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text(
+                                      'Fitur Dalam Pengembangan',
+                                    ),
+                                    content: const Text(
+                                      'Fitur ini sedang kami kerjakan.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        child: const Text('OK'),
+                                        onPressed: () =>
+                                            Navigator.of(ctx).pop(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                      child: const Text('Lupa Sandi?'),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -31485,35 +34399,23 @@ class AppLifecycleReactor {
     }
   }
 }
-// path: lib/user/widget/ads/interstitial/interstitial_ad_service.dart
-// DIUBAH: Logika dan state management dirombak total untuk keandalan.
-
 import 'dart:async';
 
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 
-/// Service singleton untuk mengelola dan menampilkan iklan Interstitial secara andal.
-class InterstitialAdService {
-  // --- State Iklan ---
+class LayananIklanInterstisial {
   InterstitialAd? _interstitialAd;
-
-  // PENJELASAN: _isPreloading digunakan untuk mencegah beberapa panggilan `preloadAd` berjalan bersamaan.
   bool _isPreloading = false;
-
-  // PENJELASAN: _isAdLoaded adalah state yang menandakan apakah iklan sudah dimuat dan siap ditampilkan.
   bool _isAdLoaded = false;
+  final _idIklan = IdInterstitialAds.interstitialAdUnitIdMediasi;
 
-  final _adUnitId = IdInterstitialAds.interstitialAdUnitIdMediasi;
-
-  /// Memulai proses pemuatan iklan di latar belakang.
-  /// Metode ini aman untuk dipanggil beberapa kali; ia akan mencegah pemuatan ganda.
   Future<void> preloadAd() async {
-    // PENJELASAN: Mencegah pemuatan baru jika sudah ada iklan yang siap atau sedang dalam proses loading.
     if (_isAdLoaded || _isPreloading) {
       Log.info(
-          '[InterstitialAd] Pemuatan dibatalkan (iklan sudah siap atau sedang dimuat).');
+        '[InterstitialAd] Pemuatan dibatalkan (iklan sudah siap atau sedang dimuat).',
+      );
       return;
     }
 
@@ -31521,20 +34423,20 @@ class InterstitialAdService {
     Log.info('[InterstitialAd] Memulai memuat iklan...');
 
     await InterstitialAd.load(
-      adUnitId: _adUnitId,
+      adUnitId: _idIklan,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
           Log.info('[InterstitialAd] Iklan BERHASIL dimuat.');
           _interstitialAd = ad;
-          _isAdLoaded = true; // State diubah menjadi 'siap'
+          _isAdLoaded = true;
           _isPreloading = false;
         },
-        onAdFailedToLoad: (error) {
+        onAdFailedToLoad: (e) {
           Log.error(
             '[InterstitialAd] Iklan GAGAL dimuat.',
-            e: error,
-            data: {'adUnitId': _adUnitId},
+            e: e,
+            data: {'adUnitId': _idIklan},
           );
           _interstitialAd = null;
           _isAdLoaded = false;
@@ -31544,10 +34446,7 @@ class InterstitialAdService {
     );
   }
 
-  /// Menampilkan iklan jika sudah siap. Setelah ditampilkan, iklan akan dibuang
-  /// dan iklan baru akan dimuat secara otomatis di latar belakang.
   Future<void> show() async {
-    // PENJELASAN: Pemeriksaan utama. Hanya jika _interstitialAd tidak null DAN _isAdLoaded true.
     if (_interstitialAd != null && _isAdLoaded) {
       Log.info('[InterstitialAd] Iklan sudah siap, mencoba menampilkan...');
 
@@ -31557,33 +34456,26 @@ class InterstitialAdService {
         },
         onAdDismissedFullScreenContent: (ad) {
           Log.info('[InterstitialAd] Iklan ditutup, memuat yang baru.');
-          // [WAJIB] Buang iklan yang sudah ditampilkan dan reset state.
           ad.dispose();
           _interstitialAd = null;
           _isAdLoaded = false;
-          // Langsung muat iklan baru untuk permintaan selanjutnya.
           unawaited(preloadAd());
         },
         onAdFailedToShowFullScreenContent: (ad, error) {
           Log.error('[InterstitialAd] Gagal menampilkan iklan.', e: error);
-          // Buang iklan yang gagal tampil dan reset state.
           ad.dispose();
           _interstitialAd = null;
           _isAdLoaded = false;
           unawaited(preloadAd());
         },
       );
-
-      // PENJELASAN: Pemanggilan .show() sekarang aman karena berada di dalam blok `if`.
       await _interstitialAd!.show();
     } else {
       Log.warning('[InterstitialAd] Gagal menampilkan: Iklan belum siap.');
-      // Jika tidak siap, coba muat lagi untuk kesempatan berikutnya. Tidak perlu menunggu (no await).
       unawaited(preloadAd());
     }
   }
 
-  /// Membuang sumber daya iklan saat tidak lagi diperlukan.
   void dispose() {
     Log.info('[InterstitialAd] Service di-dispose, membuang iklan.');
     _interstitialAd?.dispose();
@@ -32007,7 +34899,7 @@ class LayananPenyimpananLokal {
 }
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'user_providers.dart';
+part of 'user_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -32067,10 +34959,10 @@ abstract class _$AppReadiness extends $Notifier<bool> {
   }
 }
 
-@ProviderFor(notifikasiServis)
-final notifikasiServisProvider = NotifikasiServisProvider._();
+@ProviderFor(layananNotifikasi)
+final layananNotifikasiProvider = LayananNotifikasiProvider._();
 
-final class NotifikasiServisProvider
+final class LayananNotifikasiProvider
     extends
         $FunctionalProvider<
           LayananNotifikasi,
@@ -32078,19 +34970,19 @@ final class NotifikasiServisProvider
           LayananNotifikasi
         >
     with $Provider<LayananNotifikasi> {
-  NotifikasiServisProvider._()
+  LayananNotifikasiProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'notifikasiServisProvider',
+        name: r'layananNotifikasiProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$notifikasiServisHash();
+  String debugGetCreateSourceHash() => _$layananNotifikasiHash();
 
   @$internal
   @override
@@ -32100,7 +34992,7 @@ final class NotifikasiServisProvider
 
   @override
   LayananNotifikasi create(Ref ref) {
-    return notifikasiServis(ref);
+    return layananNotifikasi(ref);
   }
 
   /// {@macro riverpod.override_with_value}
@@ -32112,7 +35004,7 @@ final class NotifikasiServisProvider
   }
 }
 
-String _$notifikasiServisHash() => r'8ee9ef8aa539ede9bcf4c98a6d46d7b823066886';
+String _$layananNotifikasiHash() => r'0488b6d7e1938bf8b5cb9a658a2634c4e9894c4f';
 
 @ProviderFor(userId)
 final userIdProvider = UserIdProvider._();
@@ -32147,10 +35039,10 @@ final class UserIdProvider
 
 String _$userIdHash() => r'99159f4d22bbc50c367bcbb1bf5f8ce4a1958fad';
 
-@ProviderFor(userActivityService)
-final userActivityServiceProvider = UserActivityServiceProvider._();
+@ProviderFor(layananAktivitasUser)
+final layananAktivitasUserProvider = LayananAktivitasUserProvider._();
 
-final class UserActivityServiceProvider
+final class LayananAktivitasUserProvider
     extends
         $FunctionalProvider<
           AsyncValue<LayananAktivitasUser>,
@@ -32160,19 +35052,19 @@ final class UserActivityServiceProvider
     with
         $FutureModifier<LayananAktivitasUser>,
         $FutureProvider<LayananAktivitasUser> {
-  UserActivityServiceProvider._()
+  LayananAktivitasUserProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'userActivityServiceProvider',
+        name: r'layananAktivitasUserProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$userActivityServiceHash();
+  String debugGetCreateSourceHash() => _$layananAktivitasUserHash();
 
   @$internal
   @override
@@ -32182,12 +35074,12 @@ final class UserActivityServiceProvider
 
   @override
   FutureOr<LayananAktivitasUser> create(Ref ref) {
-    return userActivityService(ref);
+    return layananAktivitasUser(ref);
   }
 }
 
-String _$userActivityServiceHash() =>
-    r'1e427fa42a8b37738d4fe0f902a096a942cbb75b';
+String _$layananAktivitasUserHash() =>
+    r'477083226beda5c128fa3b908af23aef036f99e0';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'ad_providers.dart';
@@ -32205,11 +35097,11 @@ final interstitialAdServiceProvider = InterstitialAdServiceProvider._();
 final class InterstitialAdServiceProvider
     extends
         $FunctionalProvider<
-          InterstitialAdService,
-          InterstitialAdService,
-          InterstitialAdService
+          LayananIklanInterstisial,
+          LayananIklanInterstisial,
+          LayananIklanInterstisial
         >
-    with $Provider<InterstitialAdService> {
+    with $Provider<LayananIklanInterstisial> {
   InterstitialAdServiceProvider._()
     : super(
         from: null,
@@ -32226,27 +35118,28 @@ final class InterstitialAdServiceProvider
 
   @$internal
   @override
-  $ProviderElement<InterstitialAdService> $createElement(
+  $ProviderElement<LayananIklanInterstisial> $createElement(
     $ProviderPointer pointer,
   ) => $ProviderElement(pointer);
 
   @override
-  InterstitialAdService create(Ref ref) {
+  LayananIklanInterstisial create(Ref ref) {
     return interstitialAdService(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(InterstitialAdService value) {
+  Override overrideWithValue(LayananIklanInterstisial value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<InterstitialAdService>(value),
+      providerOverride: $SyncValueProvider<LayananIklanInterstisial>(value),
     );
   }
 }
 
 String _$interstitialAdServiceHash() =>
-    r'd4fe88e6ac6338c21aaacda38dc34da38059dba8';
-// path: lib/user/providers/user_providers.dart
+    r'221f2fe478c760ee29cce528654c5184cab324ff';
+// path lib/user/providers/user_provider.dart
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
@@ -32254,7 +35147,7 @@ import 'package:wifi/fitur/pelanggan/core/layanan_aktivitas_user.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 
-part 'user_providers.g.dart';
+part 'user_provider.g.dart';
 
 @riverpod
 class AppReadiness extends _$AppReadiness {
@@ -32266,7 +35159,7 @@ class AppReadiness extends _$AppReadiness {
 }
 
 @riverpod
-LayananNotifikasi notifikasiServis(Ref ref) {
+LayananNotifikasi layananNotifikasi(Ref ref) {
   return LayananNotifikasi();
 }
 
@@ -32277,7 +35170,7 @@ Future<String?> userId(Ref ref) async {
 }
 
 @riverpod
-Future<LayananAktivitasUser> userActivityService(Ref ref) async {
+Future<LayananAktivitasUser> layananAktivitasUser(Ref ref) async {
   final customerOp = ref.watch(pelangganOpFirebaseProvider);
   final prefs = ref.watch(sharedPreferencesProvider.future);
   return LayananAktivitasUser(
@@ -32288,13 +35181,13 @@ Future<LayananAktivitasUser> userActivityService(Ref ref) async {
 // path: lib/user/providers/ad_providers.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
+import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dart';
 
 part 'ad_providers.g.dart';
 
 @Riverpod(keepAlive: true)
-InterstitialAdService interstitialAdService(Ref ref) {
-  final service = InterstitialAdService();
+LayananIklanInterstisial interstitialAdService(Ref ref) {
+  final service = LayananIklanInterstisial();
 
   ref.onDispose(service.dispose);
 
@@ -32373,7 +35266,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
         title: const Text('Aplikasi dalam Perbaikan'),
         automaticallyImplyLeading: false,
       ),
-      body: _MaintenanceContent(
+      body: _KontenMaintenance(
         infoMaintenance: widget.infoMaintenance,
         isLoading: _isLoading,
         onRefresh: _refreshData,
@@ -32384,13 +35277,13 @@ class _MaintenancePageState extends State<MaintenancePage> {
 }
 
 /// Widget private yang bertanggung jawab untuk menampilkan konten UI halaman maintenance.
-class _MaintenanceContent extends StatelessWidget {
+class _KontenMaintenance extends StatelessWidget {
   final String infoMaintenance;
   final bool isLoading;
   final VoidCallback onRefresh;
   final VoidCallback onExit;
 
-  const _MaintenanceContent({
+  const _KontenMaintenance({
     required this.infoMaintenance,
     required this.isLoading,
     required this.onRefresh,
@@ -32401,7 +35294,7 @@ class _MaintenanceContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    final Widget refreshButtonIcon = isLoading
+    final Widget ikonTombolSegarkan = isLoading
         ? Container(
             width: 24, // Nilai ini spesifik untuk ukuran ikon, jadi tetap
             height: 24,
@@ -32439,7 +35332,7 @@ class _MaintenanceContent extends StatelessWidget {
             gapH32, // Menggunakan gapH
             ElevatedButton.icon(
               onPressed: isLoading ? null : onRefresh,
-              icon: refreshButtonIcon,
+              icon: ikonTombolSegarkan,
               label: const Text('Coba Lagi'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
@@ -32464,7 +35357,9 @@ class _MaintenanceContent extends StatelessWidget {
     );
   }
 }
-// path: lib/user/app_user.dart
+// path lib/user/app_user.dart
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:toastification/toastification.dart';
@@ -32494,7 +35389,6 @@ class AppUser extends ConsumerWidget {
     );
 
     if (firstError.hasError) {
-      // Perbaikan 2: Gunakan properti `stackTrace` yang benar.
       return _ErrorApp(
         error: firstError.error,
         stackTrace: firstError.stackTrace,
@@ -32831,7 +35725,7 @@ class LayananPreferensi {
     Log.info('Semua timestamp sinkronisasi telah di-reset.');
   }
 }
-// path: lib/shared/common/text.dart
+// path lib/shared/common/teks.dart
 
 import 'package:flutter/material.dart';
 
@@ -33393,10 +36287,11 @@ class ParserUtil {
     return false;
   }
 }
-// path: lib/shared/utils/calculation_util.dart
+// path: lib/shared/utils/perhitungan_util.dart
 
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
@@ -33412,18 +36307,22 @@ class PerhitunganUtil {
     Log.info('  - Tanggal Mulai: ${tanggalMulai.toIso8601String()}');
     Log.info('  - Nama Paket: ${paket.nama}');
 
-    DateTime hasil = _tambahDurasi(tanggalMulai, paket.tipe, paket.durasi);
+    DateTime hasil = _tambahDurasiTanggalBerakhir(
+      tanggalMulai,
+      paket.tipe,
+      paket.durasi,
+    );
 
     if (durasiBonus != null && durasiBonus > 0 && tipeDurasiBonus != null) {
       Log.info('  - Menambahkan Bonus: $durasiBonus ${tipeDurasiBonus.name}');
-      hasil = _tambahDurasi(hasil, tipeDurasiBonus, durasiBonus);
+      hasil = _tambahDurasiTanggalBerakhir(hasil, tipeDurasiBonus, durasiBonus);
     }
 
     Log.info('  - Hasil Tanggal Berakhir: ${hasil.toIso8601String()}');
     return hasil;
   }
 
-  static DateTime _tambahDurasi(
+  static DateTime _tambahDurasiTanggalBerakhir(
     final DateTime asal,
     final TipeDurasiPaket tipe,
     final int jumlah,
@@ -33440,8 +36339,10 @@ class PerhitunganUtil {
     }
   }
 
-  static String getPoinKadaluarsa(
-      {required DateTime tanggalMulai, DateTime? sekarang}) {
+  static String poinKadaluarsa({
+    required DateTime tanggalMulai,
+    DateTime? sekarang,
+  }) {
     final tanggalSekarang = sekarang ?? DateTime.now();
     final selisihHari = tanggalSekarang.difference(tanggalMulai).inDays;
 
@@ -33451,9 +36352,9 @@ class PerhitunganUtil {
     return '';
   }
 
-  static int sisaHari(DateTime endDate, {DateTime? seakrang}) {
-    final selisihHari = DateUtils.dateOnly(seakrang ?? DateTime.now());
-    final tanggalBerakhir = DateUtils.dateOnly(endDate);
+  static int sisaHari(DateTime target, {DateTime? sekarang}) {
+    final selisihHari = DateUtils.dateOnly(sekarang ?? DateTime.now());
+    final tanggalBerakhir = DateUtils.dateOnly(target);
     return tanggalBerakhir.difference(selisihHari).inDays;
   }
 
@@ -33478,11 +36379,23 @@ class PerhitunganUtil {
     }
   }
 
+  /// Fungsi untuk pengujian menggunakan pustaka timeago.
+  static String cobaAmbilTeksSisaMasaAktif(
+    final DateTime tanggalBerakhir, {
+    final DateTime? sekarang,
+  }) {
+    // Inisialisasi locale Bahasa Indonesia untuk timeago.
+    // Idealnya, ini dipanggil sekali di main.dart.
+    timeago.setLocaleMessages('id', timeago.IdMessages());
+
+    return timeago.format(tanggalBerakhir, locale: 'id', clock: sekarang);
+  }
+
   static Color ambilWarnaSisaMasaAktif(
     final DateTime tanggalBerakhir, {
     final DateTime? sekarang,
   }) {
-    final sisa = sisaHari(tanggalBerakhir, seakrang: sekarang);
+    final sisa = sisaHari(tanggalBerakhir, sekarang: sekarang);
 
     if (sisa > 7) {
       return Colors.green;
@@ -33789,7 +36702,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 
 /// Widget yang menampilkan nama pelanggan berdasarkan ID dari dua sumber data.
 ///
-/// Secara default, mengambil data dari SQLite. Jika [useFirebase] diatur ke true,
+/// Secara default, mengambil data dari SQLite. Jika [pakaiFirebase] diatur ke true,
 /// maka akan mengambil data dari Firebase secara real-time.
 class NamaPelangganWidget extends ConsumerWidget {
   /// ID pelanggan yang akan dicari namanya.
@@ -33799,18 +36712,18 @@ class NamaPelangganWidget extends ConsumerWidget {
   final TextStyle? style;
 
   /// Tentukan `true` untuk menggunakan Firebase, `false` (default) untuk SQLite.
-  final bool useFirebase;
+  final bool pakaiFirebase;
 
   const NamaPelangganWidget({
     super.key,
     required this.idPelanggan,
     this.style,
-    this.useFirebase = false,
+    this.pakaiFirebase = false,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (useFirebase) {
+    if (pakaiFirebase) {
       return _buildFromFirebase(ref);
     }
     return _buildFromSqlite(ref);
@@ -33820,7 +36733,7 @@ class NamaPelangganWidget extends ConsumerWidget {
   Widget _buildFromFirebase(WidgetRef ref) {
     final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
     return StreamBuilder<PelangganModel?>(
-      stream: customerOpFirebase.ambilStreanPelanggan(idPelanggan),
+      stream: customerOpFirebase.ambilStreamBerdasarkanId(idPelanggan),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Text('...', style: style);
@@ -33903,11 +36816,26 @@ class InputRupiah extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final bool wajib;
+  final IconData? prefixIcon;
+  final TextInputAction textInputAction;
+  final bool enabled;
+  final AutovalidateMode autovalidateMode;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
+  final void Function(String)? onSubmitted;
+
   const InputRupiah({
     super.key,
     required this.controller,
-    required this.label,
-    required this.wajib,
+    this.label = 'Jumlah',
+    this.wajib = true,
+    this.prefixIcon,
+    this.textInputAction = TextInputAction.next,
+    this.enabled = true,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
+    this.focusNode,
+    this.nextFocusNode,
+    this.onSubmitted,
   });
 
   @override
@@ -33915,7 +36843,19 @@ class InputRupiah extends StatelessWidget {
     return TextFormField(
       controller: controller,
       keyboardType: TextInputType.number,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: autovalidateMode,
+      textInputAction: textInputAction,
+      enabled: enabled,
+      focusNode: focusNode,
+      onTapOutside: (event) => FocusScope.of(context).unfocus(),
+      onFieldSubmitted: (v) {
+        if (onSubmitted != null) {
+          onSubmitted!(v);
+        }
+        if (nextFocusNode != null) {
+          FocusScope.of(context).requestFocus(nextFocusNode);
+        }
+      },
       inputFormatters: [
         CurrencyTextInputFormatter.currency(
           locale: 'id',
@@ -33926,6 +36866,7 @@ class InputRupiah extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
       ),
       validator: (value) {
         if (wajib && (value == null || value.trim().isEmpty)) {
@@ -33949,18 +36890,25 @@ class InputPassword extends StatefulWidget {
   final String? Function(String?)? validator;
   final Widget prefixIcon;
   final TextInputAction textInputAction;
-  final void Function(String)? onFieldSubmitted;
   final bool enabled;
+  final AutovalidateMode autovalidateMode;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
+  final void Function(String)? onSubmitted;
 
   const InputPassword({
     super.key,
     required this.controller,
-    this.label = 'Password',
     this.validator,
+
+    this.label = 'Password',
     this.enabled = true,
     this.prefixIcon = const Icon(TIcons.lock),
     this.textInputAction = TextInputAction.next,
-    this.onFieldSubmitted,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
+    this.focusNode,
+    this.nextFocusNode,
+    this.onSubmitted,
   });
 
   @override
@@ -33974,12 +36922,29 @@ class _InputPasswordState extends State<InputPassword> {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: widget.controller,
+      focusNode: widget.focusNode,
       obscureText: passwordTersembunyi,
-      validator: widget.validator,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: widget.autovalidateMode,
       textInputAction: widget.textInputAction,
-      onFieldSubmitted: widget.onFieldSubmitted,
+      onFieldSubmitted: (v) {
+        if (widget.nextFocusNode != null) {
+          FocusScope.of(context).requestFocus(widget.nextFocusNode);
+        }
+        if (widget.onSubmitted != null) {
+          widget.onSubmitted!(v);
+        }
+    },
+      onTapOutside: (event) => FocusScope.of(context).unfocus(),
       enabled: widget.enabled,
+      validator:
+          widget.validator ??
+          (value) {
+            if (value == null || value.isEmpty) {
+              return 'Password tidak boleh kosong';
+            }
+            return null;
+          },
+
       decoration: InputDecoration(
         labelText: widget.label,
         border: const OutlineInputBorder(),
@@ -33989,11 +36954,9 @@ class _InputPasswordState extends State<InputPassword> {
             passwordTersembunyi ? Icons.visibility_off : Icons.visibility,
           ),
           onPressed: () {
-            setState(
-              () {
-                passwordTersembunyi = !passwordTersembunyi;
-              },
-            );
+            setState(() {
+              passwordTersembunyi = !passwordTersembunyi;
+            });
           },
         ),
       ),
@@ -34013,26 +36976,47 @@ class InputAngka extends StatelessWidget {
   final bool? validasi;
   final TextInputAction textInputAction;
   final bool enabled;
+  final TextInputType keyboardType;
+  final AutovalidateMode autovalidateMode;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
+  final void Function(String)? onSubmitted;
 
   const InputAngka({
     super.key,
     required this.controller,
-    required this.label,
+    this.label = 'Nomor Telepon',
     this.wajib = true,
     this.prefixIcon,
     this.validasi = false,
     this.textInputAction = TextInputAction.next,
     this.enabled = true,
+    this.keyboardType = TextInputType.number,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
+    this.focusNode,
+    this.nextFocusNode,
+    this.onSubmitted,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
-      keyboardType: TextInputType.number,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      keyboardType: keyboardType,
+      autovalidateMode: autovalidateMode,
       textInputAction: textInputAction,
       enabled: enabled,
+      focusNode: focusNode,
+      
+      onTapOutside: (event) => FocusScope.of(context).unfocus(),
+      onFieldSubmitted: (v) {
+        if (onSubmitted != null) {
+          onSubmitted!(v);
+        }
+        if (nextFocusNode != null) {
+          FocusScope.of(context).requestFocus(nextFocusNode);
+        }
+      },
       inputFormatters: [
         CurrencyTextInputFormatter.currency(
           locale: 'id',
@@ -34061,6 +37045,80 @@ class InputAngka extends StatelessWidget {
     );
   }
 }
+// path lib/shared/widget/input/input_telepon.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+
+class InputTelepon extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final bool wajib;
+  final IconData? prefixIcon;
+  final bool? validasi;
+  final TextInputAction textInputAction;
+  final bool enabled;
+  final TextInputType keyboardType;
+  final AutovalidateMode autovalidateMode;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
+  final void Function(String)? onSubmitted;
+
+  const InputTelepon({
+    super.key,
+    required this.controller,
+    this.label = 'Nomor Telepon',
+    this.wajib = true,
+    this.prefixIcon = TIcons.phoneAndroid,
+    this.validasi = false,
+    this.textInputAction = TextInputAction.next,
+    this.enabled = true,
+    this.keyboardType = TextInputType.phone,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
+    this.focusNode,
+    this.nextFocusNode,
+    this.onSubmitted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      autovalidateMode: autovalidateMode,
+      textInputAction: textInputAction,
+      enabled: enabled,
+      focusNode: focusNode,
+      onTapOutside: (event) => FocusScope.of(context).unfocus(),
+      onFieldSubmitted: (v) {
+        if (onSubmitted != null) {
+          onSubmitted!(v);
+        }
+        if (nextFocusNode != null) {
+          FocusScope.of(context).requestFocus(nextFocusNode);
+        }
+      },
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+      ),
+      validator: (value) {
+        if (wajib && validasi! && (value == null || value.trim().isEmpty)) {
+          return '$label wajib diisi';
+        }
+        if (value != null &&
+            value.trim().isNotEmpty &&
+            value.trim().length < 10) {
+          return 'Nomor telepon minimal 10 digit';
+        }
+        return null;
+      },
+    );
+  }
+}
 // path: lib/shared/widget/input/input_teks.dart
 
 import 'package:flutter/material.dart';
@@ -34073,6 +37131,10 @@ class InputTeks extends StatelessWidget {
   final AutovalidateMode autovalidateMode;
   final TextInputAction textInputAction;
   final IconData? prefixIcon;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
+  final bool enabled;
+  final void Function(String)? onSubmitted;
 
   const InputTeks({
     super.key,
@@ -34083,6 +37145,10 @@ class InputTeks extends StatelessWidget {
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
     this.textInputAction = TextInputAction.next,
     this.prefixIcon,
+    this.focusNode,
+    this.nextFocusNode,
+    this.enabled = true,
+    this.onSubmitted,
   });
 
   @override
@@ -34090,12 +37156,24 @@ class InputTeks extends StatelessWidget {
     return TextFormField(
       controller: controller,
       autovalidateMode: autovalidateMode,
+      enabled: enabled,
+      focusNode: focusNode,
+      onTapOutside: (event) => FocusScope.of(context).unfocus(),
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
       ),
-      validator: validator ??
+      onFieldSubmitted: (v) {
+        if (nextFocusNode != null) {
+          FocusScope.of(context).requestFocus(nextFocusNode);
+        }
+        if (onSubmitted != null) {
+          onSubmitted!(v);
+        }
+      },
+      validator:
+          validator ??
           (value) {
             if (wajib && (value == null || value.trim().isEmpty)) {
               return '$label wajib diisi';
@@ -34999,6 +38077,7 @@ class AppTheme {
       foregroundColor: Colors.white,
       titleTextStyle: _teksModeTerang.headlineSmall?.copyWith(
         color: Colors.white,
+        fontWeight: FontWeight.bold,
       ),
     ),
     listTileTheme: ListTileThemeData(
@@ -35029,7 +38108,9 @@ class AppTheme {
     appBarTheme: AppBarTheme(
       backgroundColor: TColors.darkSurface,
       foregroundColor: Colors.white,
-      titleTextStyle: _teksModeGelap.headlineSmall,
+      titleTextStyle: _teksModeGelap.headlineSmall?.copyWith(
+        fontWeight: FontWeight.bold,
+      ),
     ),
     cardTheme: const CardThemeData(color: TColors.darkSurface),
     listTileTheme: ListTileThemeData(
@@ -35619,36 +38700,34 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
 import 'package:wifi/fitur/speedtest/provider/ping_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 
+// 1. Masukkan 'ref' ke dalam service agar bisa membaca provider lain
 final koneksiInternetServiceProvider = Provider<KoneksiInternetService>((ref) {
-  return KoneksiInternetService();
+  return KoneksiInternetService(ref);
 });
 
-/// Kelas layanan untuk memeriksa status koneksi internet.
 class KoneksiInternetService {
   final Connectivity _connectivity;
+  final Ref _ref;
 
-  KoneksiInternetService({
-    Connectivity? connectivity,
-    http.Client? httpClient,
-    String? urlPencarian,
-    Duration? durasiBatasWaktu,
-  }) : _connectivity = connectivity ?? Connectivity() {
+  KoneksiInternetService(this._ref, {Connectivity? connectivity})
+    : _connectivity = connectivity ?? Connectivity() {
     Log.info('KoneksiInternetService diinisialisasi.');
   }
 
-  /// mengecek apakah perangkat terhubung ke wifi ataupun data
   Future<bool> cekKoneksiLokal() async {
     Log.info('[Lokal] Memulai pemeriksaan status koneksi perangkat...');
     try {
       final hasilKoneksi = await _connectivity.checkConnectivity();
       Log.info('[Lokal] Hasil mentah konektivitas: $hasilKoneksi');
 
-      final isOnline = hasilKoneksi.contains(ConnectivityResult.mobile) ||
-          hasilKoneksi.contains(ConnectivityResult.wifi);
+      final isOnline =
+          hasilKoneksi.contains(ConnectivityResult.mobile) ||
+          hasilKoneksi.contains(ConnectivityResult.wifi) ||
+          hasilKoneksi.contains(ConnectivityResult.ethernet) ||
+          hasilKoneksi.contains(ConnectivityResult.vpn);
 
       if (isOnline) {
         Log.info('[Lokal] ✅ Sukses: Perangkat terhubung ke jaringan lokal.');
@@ -35656,30 +38735,34 @@ class KoneksiInternetService {
         Log.warning('[Lokal] ❌ Gagal: Tidak ada koneksi jaringan lokal.');
       }
       return isOnline;
-    } on Exception catch (e, st) {
-      Log.error(
-        '[Lokal] ❌ Fatal: Gagal memeriksa koneksi lokal.',
-        e: e,
-        s: st,
-      );
+    } catch (e, st) {
+      Log.error('[Lokal] ❌ Fatal: Gagal memeriksa koneksi lokal.', e: e, s: st);
       return false;
     }
   }
 
-  Future<bool> cekInternet(WidgetRef ref) async {
+  // 3. Hapus parameter 'WidgetRef ref' karena sekarang menggunakan '_ref' internal
+  Future<bool> cekInternet() async {
     Log.info('[Internet] Memulai pemeriksaan status koneksi perangkat...');
+
     final lokal = await cekKoneksiLokal();
     if (!lokal) {
       Log.warning('[Internet] Gagal: Tidak ada koneksi lokal.');
       return false;
     }
+
     try {
-      final hasilPing = await ref.read(pingProvider.future);
-      final berhasil = hasilPing.response?.time != null;
-      Log.info(berhasil ? 'Ping berhasil' : 'Ping gagal (timeout)');
-      return berhasil;
-    } catch (e) {
-      Log.error('Ping error: $e');
+      // 4. Panggil httpPingProvider.future di sini
+      // Karena menggunakan riverpod_annotation, nama provider otomatis menjadi 'httpPingProvider'
+      final durasiMs = await _ref.read(httpPingProvider.future);
+
+      Log.info('[Internet] HTTP Ping berhasil! Waktu respons: ${durasiMs}ms');
+      return true;
+    } on TimeoutException catch (e, st) {
+      Log.warning('[Internet] HTTP Ping timeout: $e $st');
+      return false;
+    } catch (e, st) {
+      Log.error('[Internet] HTTP Ping error/gagal: $e', e: e, s: st);
       return false;
     }
   }
@@ -37993,18 +41076,19 @@ class PembersihanDataOperasi {
   PembersihanDataOperasi({
     @visibleForTesting final SqliteDatabase? sqliteDb,
     @visibleForTesting final FirebaseFirestore? firestore,
-  })  : _sqliteDb = sqliteDb ?? SqliteDatabase.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance;
+  }) : _sqliteDb = sqliteDb ?? SqliteDatabase.instance,
+       _firestore = firestore ?? FirebaseFirestore.instance;
 
   Future<int> hapusPermanentDataYangDiarsip({
-    required final int retentionDays,
+    required final int waktuPenjadwalanHapusDataArsip,
   }) async {
     Log.info(
-      'Memulai proses pembersihan data arsip yang lebih tua dari $retentionDays hari (SQLite & Firestore).',
+      'Memulai proses pembersihan data arsip yang lebih tua dari $waktuPenjadwalanHapusDataArsip hari (SQLite & Firestore).',
     );
     int totalDataDihapus = 0;
-    final timeLimit =
-        DateTime.now().toUtc().subtract(Duration(days: retentionDays));
+    final timeLimit = DateTime.now().toUtc().subtract(
+      Duration(days: waktuPenjadwalanHapusDataArsip),
+    );
     final timeLimitEpoch = timeLimit.millisecondsSinceEpoch;
     Log.info(
       'Batas waktu untuk penghapusan arsip diatur ke: ${timeLimit.toIso8601String()} (UTC)',
@@ -38022,7 +41106,7 @@ class PembersihanDataOperasi {
       NamaTabel.pesananPelanggan,
       NamaTabel.versiApkUser,
       NamaTabel.feedback,
-      NamaTabel.notifikasi
+      NamaTabel.notifikasi,
     ];
 
     // --- Langkah 1: Hapus dari Database Lokal (SQLite) ---
@@ -38056,12 +41140,14 @@ class PembersihanDataOperasi {
         final deletedRows = await db.rawDelete(query, [timeLimitEpoch]);
         if (deletedRows > 0) {
           Log.info(
-              '[SQLite - $table] Berhasil menghapus $deletedRows baris data kadaluarsa.');
+            '[SQLite - $table] Berhasil menghapus $deletedRows baris data kadaluarsa.',
+          );
           totalDihapus += deletedRows;
         }
       }
       Log.info(
-          'Total $totalDihapus baris data arsip kadaluarsa berhasil dihapus dari database SQLite.');
+        'Total $totalDihapus baris data arsip kadaluarsa berhasil dihapus dari database SQLite.',
+      );
     } on Exception catch (e, s) {
       Log.error('Gagal menjalankan pembersihan data di SQLite.', e: e, s: s);
     }
@@ -38070,7 +41156,9 @@ class PembersihanDataOperasi {
 
   /// Membersihkan data kadaluarsa dari database remote Firestore.
   Future<int> _hapusDataFirebase(
-      List<String> koleksi, DateTime timeLimit) async {
+    List<String> koleksi,
+    DateTime timeLimit,
+  ) async {
     int totalDihapus = 0;
     try {
       Log.info('Memulai proses pembersihan data untuk Firestore...');
@@ -38109,7 +41197,8 @@ class PembersihanDataOperasi {
 
       if (dokumenDitemukan > 0) {
         Log.info(
-            'Melakukan commit batch pembersihan data untuk Firestore ($dokumenDitemukan dokumen)...');
+          'Melakukan commit batch pembersihan data untuk Firestore ($dokumenDitemukan dokumen)...',
+        );
         await batch.commit();
         totalDihapus = dokumenDitemukan;
         Log.info(
@@ -38117,11 +41206,15 @@ class PembersihanDataOperasi {
         );
       } else {
         Log.info(
-            'Tidak ada data arsip kadaluarsa (isDeleted:true) untuk dihapus di Firestore.');
+          'Tidak ada data arsip kadaluarsa (isDeleted:true) untuk dihapus di Firestore.',
+        );
       }
     } catch (e, s) {
-      Log.error('Gagal menjalankan batch pembersihan data di Firestore.',
-          e: e, s: s);
+      Log.error(
+        'Gagal menjalankan batch pembersihan data di Firestore.',
+        e: e,
+        s: s,
+      );
       // Melempar error karena kegagalan di Firestore bisa jadi lebih kritis.
       rethrow;
     }
@@ -39590,193 +42683,198 @@ class DataDummy {
 
   /// Daftar dummy untuk [OrderModel]
   static List<OrderModel> get orders => [
-        OrderModel(
-          id: 'ORD-001',
-          idPelanggan: customerBudiId,
-          idPaket: paketHematId,
-          tanggal: DateTime.now().subtract(const Duration(hours: 2)),
-        ),
-        OrderModel(
-          id: 'ORD-002',
-          idPelanggan: customerSitiId,
-          idPaket: paketPremiumId,
-          tanggal: DateTime.now().subtract(const Duration(days: 1)),
-          status: StatusOrderEnum.diproses,
-        ),
-        OrderModel(
-          id: 'ORD-003',
-          idPelanggan: agusSetiawanId,
-          idPaket: paketGamerId,
-          tanggal: DateTime.now().subtract(const Duration(days: 2)),
-          status: StatusOrderEnum.selesai,
-        ),
-      ];
+    OrderModel(
+      id: 'ORD-001',
+      idPelanggan: customerBudiId,
+      idPaket: paketHematId,
+      tanggal: DateTime.now().subtract(const Duration(hours: 2)),
+    ),
+    OrderModel(
+      id: 'ORD-002',
+      idPelanggan: customerSitiId,
+      idPaket: paketPremiumId,
+      tanggal: DateTime.now().subtract(const Duration(days: 1)),
+      status: StatusOrderEnum.diproses,
+    ),
+    OrderModel(
+      id: 'ORD-003',
+      idPelanggan: agusSetiawanId,
+      idPaket: paketGamerId,
+      tanggal: DateTime.now().subtract(const Duration(days: 2)),
+      status: StatusOrderEnum.selesai,
+    ),
+  ];
 
   /// Daftar dummy untuk [PelangganModel]
   static List<PelangganModel> get customers => [
-        const PelangganModel(
-          id: customerBudiId,
-          nama: 'Budi Santoso',
-          telepon: '081234567890',
-          kataSandi: 'password123',
-          alamat: 'Jl. Merdeka No. 10, Jakarta',
-          macAddress: '00:1B:44:11:3A:B7',
-        ),
-        const PelangganModel(
-          id: customerSitiId,
-          nama: 'Siti Aminah',
-          telepon: '087654321098',
-          kataSandi: 'password456',
-          alamat: 'Jl. Pahlawan No. 25, Surabaya',
-          macAddress: '00:1B:44:11:3A:B8',
-        ),
-        const PelangganModel(
-          id: agusSetiawanId,
-          nama: 'Agus Setiawan',
-          telepon: '089987654321',
-          kataSandi: 'password789',
-          alamat: 'Jl. Kemerdekaan No. 5, Bandung',
-          macAddress: '00:1B:44:11:3A:B9',
-        ),
-      ];
+    const PelangganModel(
+      id: customerBudiId,
+      nama: 'Budi Santoso',
+      telepon: '08568050170',
+      kataSandi: '1',
+      alamat: 'Jl. Merdeka No. 10, Jakarta',
+      macAddress: '00:1B:44:11:3A:B7',
+    ),
+    const PelangganModel(
+      id: customerSitiId,
+      nama: 'Siti Aminah',
+      telepon: '08568050170',
+      kataSandi: '2',
+      alamat: 'Jl. Pahlawan No. 25, Surabaya',
+      macAddress: '00:1B:44:11:3A:B8',
+    ),
+    const PelangganModel(
+      id: agusSetiawanId,
+      nama: 'Agus Setiawan',
+      telepon: '08568050170',
+      kataSandi: '3',
+      alamat: 'Jl. Kemerdekaan No. 5, Bandung',
+      macAddress: '00:1B:44:11:3A:B9',
+    ),
+  ];
 
   /// Daftar dummy untuk [PaketModel]
   static List<PaketModel> get paket => [
-        const PaketModel(
-          id: paketHematId,
-          nama: 'Paket Hemat 10 Mbps',
-          harga: 150000,
-          durasi: 30,
-          tipe: TipeDurasiPaket.days,
-        ),
-        const PaketModel(
-          id: paketPremiumId,
-          nama: 'Paket Premium 50 Mbps',
-          harga: 350000,
-          durasi: 30,
-          tipe: TipeDurasiPaket.days,
-        ),
-        const PaketModel(
-          id: paketGamerId,
-          nama: 'Paket Gamer 100 Mbps',
-          harga: 500000,
-          durasi: 30,
-          tipe: TipeDurasiPaket.days,
-        ),
-      ];
+    const PaketModel(
+      id: paketHematId,
+      nama: 'Paket Hemat 10 Mbps',
+      harga: 150000,
+      durasi: 30,
+      tipe: TipeDurasiPaket.days,
+    ),
+    const PaketModel(
+      id: paketPremiumId,
+      nama: 'Paket Premium 50 Mbps',
+      harga: 350000,
+      durasi: 30,
+      tipe: TipeDurasiPaket.days,
+    ),
+    const PaketModel(
+      id: paketGamerId,
+      nama: 'Paket Gamer 100 Mbps',
+      harga: 500000,
+      durasi: 30,
+      tipe: TipeDurasiPaket.days,
+    ),
+  ];
 
   /// Daftar dummy untuk [KategoriModel]
   static List<KategoriModel> get categories => [
-        const KategoriModel(
-            id: kategoriPembayaranId,
-            nama: 'Pembayaran',
-            tipe: TipeKategori.income),
-        const KategoriModel(
-            id: kategoriLainnyaId, nama: 'Lainnya', tipe: TipeKategori.expense),
-      ];
+    const KategoriModel(
+      id: kategoriPembayaranId,
+      nama: 'Pembayaran',
+      tipe: TipeKategori.income,
+    ),
+    const KategoriModel(
+      id: kategoriLainnyaId,
+      nama: 'Lainnya',
+      tipe: TipeKategori.expense,
+    ),
+  ];
 
   static List<SubKategoriModel> get subCategories => [
-        const SubKategoriModel(
-          id: subKategoriInternetId,
-          idKategori: kategoriPembayaranId,
-          nama: 'Internet',
-        ),
-        const SubKategoriModel(
-          id: subKategoriTransportId,
-          idKategori: kategoriLainnyaId,
-          nama: 'Transportasi',
-        ),
-      ];
+    const SubKategoriModel(
+      id: subKategoriInternetId,
+      idKategori: kategoriPembayaranId,
+      nama: 'Internet',
+    ),
+    const SubKategoriModel(
+      id: subKategoriTransportId,
+      idKategori: kategoriLainnyaId,
+      nama: 'Transportasi',
+    ),
+  ];
 
   /// Daftar dummy untuk [DompetModel]
   static List<DompetModel> get wallets => [
-        const DompetModel(id: walletBudiId, nama: 'Dompet Budi', saldo: 500000),
-        const DompetModel(
-            id: walletSitiId, nama: 'Dompet Siti', saldo: 1000000),
-      ];
+    const DompetModel(id: walletBudiId, nama: 'Dompet Budi', saldo: 500000),
+    const DompetModel(id: walletSitiId, nama: 'Dompet Siti', saldo: 1000000),
+  ];
 
   /// Daftar dummy untuk [TransaksiModel]
   static List<TransaksiModel> get transactions => [
-        TransaksiModel(
-            id: transactionBudiId,
-            idDompet: walletBudiId,
-            idKategori: kategoriPembayaranId,
-            tipe: TipeTransaksi.expense,
-            jumlah: 150000,
-            deskripsi: 'Pembayaran paket hemat',
-            tanggal: DateTime.now(),
-            statusPembayaran: StatusPembayaran.paid,
-            idPelanggan: customerBudiId,
-            idPaket: paketHematId),
-        TransaksiModel(
-          id: transactionSitiId,
-          idDompet: walletSitiId,
-          idKategori: kategoriPembayaranId,
-          tipe: TipeTransaksi.expense,
-          jumlah: 350000,
-          deskripsi: 'Pembayaran paket premium',
-          tanggal: DateTime.now().subtract(const Duration(days: 1)),
-          statusPembayaran: StatusPembayaran.paid,
-          idPelanggan: customerSitiId,
-          idPaket: paketPremiumId,
-        ),
-      ];
+    TransaksiModel(
+      id: transactionBudiId,
+      idDompet: walletBudiId,
+      idKategori: kategoriPembayaranId,
+      tipe: TipeTransaksi.expense,
+      jumlah: 150000,
+      deskripsi: 'Pembayaran paket hemat',
+      tanggal: DateTime.now(),
+      statusPembayaran: StatusPembayaran.paid,
+      idPelanggan: customerBudiId,
+      idPaket: paketHematId,
+    ),
+    TransaksiModel(
+      id: transactionSitiId,
+      idDompet: walletSitiId,
+      idKategori: kategoriPembayaranId,
+      tipe: TipeTransaksi.expense,
+      jumlah: 350000,
+      deskripsi: 'Pembayaran paket premium',
+      tanggal: DateTime.now().subtract(const Duration(days: 1)),
+      statusPembayaran: StatusPembayaran.paid,
+      idPelanggan: customerSitiId,
+      idPaket: paketPremiumId,
+    ),
+  ];
 
   /// Daftar dummy untuk [PelangganAktifModel]
   static List<PelangganAktifModel> get activeCustomers => [
-        PelangganAktifModel(
-          id: activeCustomerBudiId,
-          idPelanggan: customerBudiId,
-          idPaket: paketHematId,
-          tanggalMulai: DateTime.now().subtract(const Duration(days: 10)),
-          tanggalBerakhir: DateTime.now().add(const Duration(days: 20)),
-          status: StatusPembayaran.paid,
-          idTransaksi: transactionBudiId,
-        ),
-        PelangganAktifModel(
-          id: activeCustomerSitiId,
-          idPelanggan: customerSitiId,
-          idPaket: paketPremiumId,
-          tanggalMulai: DateTime.now().subtract(const Duration(days: 5)),
-          tanggalBerakhir: DateTime.now().add(const Duration(days: 25)),
-          status: StatusPembayaran.paid,
-          idTransaksi: transactionSitiId,
-        ),
-      ];
+    PelangganAktifModel(
+      id: activeCustomerBudiId,
+      idPelanggan: customerBudiId,
+      idPaket: paketHematId,
+      tanggalMulai: DateTime.now().subtract(const Duration(days: 10)),
+      tanggalBerakhir: DateTime.now().add(const Duration(days: 20)),
+      status: StatusPembayaran.paid,
+      idTransaksi: transactionBudiId,
+    ),
+    PelangganAktifModel(
+      id: activeCustomerSitiId,
+      idPelanggan: customerSitiId,
+      idPaket: paketPremiumId,
+      tanggalMulai: DateTime.now().subtract(const Duration(days: 5)),
+      tanggalBerakhir: DateTime.now().add(const Duration(days: 25)),
+      status: StatusPembayaran.paid,
+      idTransaksi: transactionSitiId,
+    ),
+  ];
 
   /// Daftar dummy untuk [FeedbackModel]
   static List<FeedbackModel> get feedbacks => [
-        FeedbackModel(
-          id: feedbackBudiId,
-          userId: customerBudiId,
-          pesan: 'Koneksi internet sangat stabil, terima kasih!',
-          tanggal: DateTime.now().subtract(const Duration(days: 3)),
-        ),
-        FeedbackModel(
-          id: feedbackSitiId,
-          userId: customerSitiId,
-          pesan: 'Kecepatan download kadang melambat di malam hari.',
-          tanggal: DateTime.now().subtract(const Duration(hours: 12)),
-        ),
-      ];
+    FeedbackModel(
+      id: feedbackBudiId,
+      userId: customerBudiId,
+      pesan: 'Koneksi internet sangat stabil, terima kasih!',
+      tanggal: DateTime.now().subtract(const Duration(days: 3)),
+    ),
+    FeedbackModel(
+      id: feedbackSitiId,
+      userId: customerSitiId,
+      pesan: 'Kecepatan download kadang melambat di malam hari.',
+      tanggal: DateTime.now().subtract(const Duration(hours: 12)),
+    ),
+  ];
 
   /// Daftar dummy untuk [VersiApkModel]
   static List<VersiApkModel> get apkVersions => [
-        const VersiApkModel(
-            id: apkAdminV1Id,
-            versiTerkahir: '1.0.0',
-            catatanRilis: 'Versi pertama aplikasi admin.',
-            nomorBuildTerakhir: {ArsitekturApk.arm64: 1},
-            linkDownload: {ArsitekturApk.arm64: '/path/to/admin-v1.0.0.apk'},
-            wajibUpdate: true,
-            linkYoutubeTutorial: 'https://youtu.be/dQw4w9WgXcQ'),
-      ];
+    const VersiApkModel(
+      id: apkAdminV1Id,
+      versiTerkahir: '1.0.0',
+      catatanRilis: 'Versi pertama aplikasi admin.',
+      nomorBuildTerakhir: {ArsitekturApk.arm64: 1},
+      linkDownload: {ArsitekturApk.arm64: '/path/to/admin-v1.0.0.apk'},
+      wajibUpdate: true,
+      linkYoutubeTutorial: 'https://youtu.be/dQw4w9WgXcQ',
+    ),
+  ];
 
   /// Data dummy untuk [SettingsModel]
   static SettingsModel get settings => const SettingsModel(
-        waktuOtomatisSinkronisasi: 12,
-        waktuOtomatisHapusDataArsip: 90,
-      );
+    waktuOtomatisSinkronisasi: 12,
+    waktuOtomatisHapusDataArsip: 90,
+  );
 }
 // path: lib/data_dummy/halaman_data_dummy.dart
 
@@ -39794,17 +42892,28 @@ class HalamanDataDummy extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Halaman Data Dummy'),
-      ),
+      appBar: AppBar(title: const Text('Halaman Data Dummy')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _tombolFitur(
             context: context,
+            onPressed: () => _tambahSemuaData(context, ref),
+            label: 'TAMBAH SEMUA DATA DUMMY',
+            icon: Icons.abc_outlined,
+            color: Colors.green,
+          ),
+          const Divider(height: 32, thickness: 2),
+          _tombolFitur(
+            context: context,
             onPressed: () async {
-              await _tambahData(context, ref, 'Pesanan', DataDummy.orders,
-                  ref.read(orderOpSqliteProvider).sisipkanAtauPerbaruiBatch);
+              await _tambahData(
+                context,
+                ref,
+                'Pesanan',
+                DataDummy.orders,
+                ref.read(orderOpSqliteProvider).sisipkanAtauPerbaruiBatch,
+              );
               ref.invalidate(orderOpSqliteProvider);
             },
             label: 'Tambah Pesanan Dummy',
@@ -39814,13 +42923,12 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(
-                  context,
-                  ref,
-                  'Pelanggan',
-                  DataDummy.customers,
-                  ref
-                      .read(pelangganOpSqliteProvider)
-                      .sisipkanAtauPerbaruiBatch);
+                context,
+                ref,
+                'Pelanggan',
+                DataDummy.customers,
+                ref.read(pelangganOpSqliteProvider).sisipkanAtauPerbaruiBatch,
+              );
               ref.invalidate(pelangganOpSqliteProvider);
             },
             label: 'Tambah Pelanggan Dummy',
@@ -39829,8 +42937,13 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData(context, ref, 'Paket', DataDummy.paket,
-                  ref.read(paketOpSqliteProvider).sisipkanAtauPerbaruiBatch);
+              await _tambahData(
+                context,
+                ref,
+                'Paket',
+                DataDummy.paket,
+                ref.read(paketOpSqliteProvider).sisipkanAtauPerbaruiBatch,
+              );
               ref.invalidate(paketOpSqliteProvider);
             },
             label: 'Tambah Paket Dummy',
@@ -39840,13 +42953,14 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(
-                  context,
-                  ref,
-                  'Kategori',
-                  DataDummy.categories,
-                  (data, {dariServer = false}) => ref
-                      .read(kategoriOpSqliteProvider)
-                      .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer));
+                context,
+                ref,
+                'Kategori',
+                DataDummy.categories,
+                (data, {dariServer = false}) => ref
+                    .read(kategoriOpSqliteProvider)
+                    .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer),
+              );
               ref.invalidate(kategoriOpSqliteProvider);
             },
             label: 'Tambah Kategori Dummy',
@@ -39856,13 +42970,14 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(
-                  context,
-                  ref,
-                  'Sub Kategori',
-                  DataDummy.subCategories,
-                  (data, {dariServer = false}) => ref
-                      .read(subKategoriOpSqliteProvider)
-                      .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer));
+                context,
+                ref,
+                'Sub Kategori',
+                DataDummy.subCategories,
+                (data, {dariServer = false}) => ref
+                    .read(subKategoriOpSqliteProvider)
+                    .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer),
+              );
               ref.invalidate(subKategoriOpSqliteProvider);
             },
             label: 'Tambah Sub Kategori Dummy',
@@ -39872,13 +42987,14 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(
-                  context,
-                  ref,
-                  'Dompet',
-                  DataDummy.wallets,
-                  (data, {dariServer = false}) => ref
-                      .read(dompetOpSqliteProvider)
-                      .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer));
+                context,
+                ref,
+                'Dompet',
+                DataDummy.wallets,
+                (data, {dariServer = false}) => ref
+                    .read(dompetOpSqliteProvider)
+                    .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer),
+              );
               ref.invalidate(dompetOpSqliteProvider);
             },
             label: 'Tambah Dompet Dummy',
@@ -39921,8 +43037,13 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData(context, ref, 'Feedback', DataDummy.feedbacks,
-                  ref.read(feedbackOpSqliteProvider).sisipkanAtauPerbaruiBatch);
+              await _tambahData(
+                context,
+                ref,
+                'Feedback',
+                DataDummy.feedbacks,
+                ref.read(feedbackOpSqliteProvider).sisipkanAtauPerbaruiBatch,
+              );
               ref.invalidate(feedbackOpSqliteProvider);
             },
             label: 'Tambah Feedback Dummy',
@@ -39932,11 +43053,12 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(
-                  context,
-                  ref,
-                  'Versi APK',
-                  DataDummy.apkVersions,
-                  ref.read(versiApkOpSqliteProvider).sisipkanAtauPerbaruiBatch);
+                context,
+                ref,
+                'Versi APK',
+                DataDummy.apkVersions,
+                ref.read(versiApkOpSqliteProvider).sisipkanAtauPerbaruiBatch,
+              );
               ref.invalidate(versiApkOpSqliteProvider);
             },
             label: 'Tambah Versi APK Dummy',
@@ -39962,6 +43084,7 @@ class HalamanDataDummy extends ConsumerWidget {
     required VoidCallback onPressed,
     required String label,
     required IconData icon,
+    Color? color,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -39972,6 +43095,8 @@ class HalamanDataDummy extends ConsumerWidget {
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
           textStyle: const TextStyle(fontSize: 16),
+          backgroundColor: color,
+          foregroundColor: color != null ? Colors.white : null,
         ),
       ),
     );
@@ -39996,14 +43121,12 @@ class HalamanDataDummy extends ConsumerWidget {
         );
       }
     } catch (e, s) {
-      Log.error(
-        'Gagal menambahkan data $modelName dummy',
-        e: e,
-        s: s,
-      );
+      Log.error('Gagal menambahkan data $modelName dummy', e: e, s: s);
       if (context.mounted) {
         ToastUtil.error(
-            context, 'Terjadi kesalahan saat menambah $modelName: $e');
+          context,
+          'Terjadi kesalahan saat menambah $modelName: $e',
+        );
       }
     }
   }
@@ -40017,17 +43140,98 @@ class HalamanDataDummy extends ConsumerWidget {
 
       if (context.mounted) {
         ToastUtil.success(
-            context, 'Berhasil menambahkan/memperbarui data Pengaturan dummy.');
+          context,
+          'Berhasil menambahkan/memperbarui data Pengaturan dummy.',
+        );
       }
     } catch (e, s) {
-      Log.error(
-        'Gagal menambahkan data Pengaturan dummy',
-        e: e,
-        s: s,
-      );
+      Log.error('Gagal menambahkan data Pengaturan dummy', e: e, s: s);
       if (context.mounted) {
         ToastUtil.error(
-            context, 'Terjadi kesalahan saat menambah Pengaturan: $e');
+          context,
+          'Terjadi kesalahan saat menambah Pengaturan: $e',
+        );
+      }
+    }
+  }
+
+  /// 3. Menambahkan semua data dummy sekaligus.
+  Future<void> _tambahSemuaData(BuildContext context, WidgetRef ref) async {
+    try {
+      Log.info('Memulai proses penambahan SEMUA data dummy');
+
+      // List of operations to run
+      await ref
+          .read(pelangganOpSqliteProvider)
+          .sisipkanAtauPerbaruiBatch(DataDummy.customers);
+      await ref
+          .read(paketOpSqliteProvider)
+          .sisipkanAtauPerbaruiBatch(DataDummy.paket);
+      await ref
+          .read(kategoriOpSqliteProvider)
+          .sisipkanAtauPerbaruiBatch(DataDummy.categories);
+      await ref
+          .read(subKategoriOpSqliteProvider)
+          .sisipkanAtauPerbaruiBatch(DataDummy.subCategories);
+      await ref
+          .read(dompetOpSqliteProvider)
+          .sisipkanAtauPerbaruiBatch(DataDummy.wallets);
+      await ref
+          .read(transaksiOpSqliteProvider)
+          .sisipkanAtauPerbaruiBatch(DataDummy.transactions);
+      await ref
+          .read(pelangganAktifOpSqliteProvider)
+          .sisipkanAtauPerbaruiBatch(DataDummy.activeCustomers);
+      await ref
+          .read(orderOpSqliteProvider)
+          .sisipkanAtauPerbaruiBatch(DataDummy.orders);
+      await ref
+          .read(feedbackOpSqliteProvider)
+          .sisipkanAtauPerbaruiBatch(DataDummy.feedbacks);
+      await ref
+          .read(versiApkOpSqliteProvider)
+          .sisipkanAtauPerbaruiBatch(DataDummy.apkVersions);
+      await ref
+          .read(settingsOpSqliteProvider)
+          .saveOrUpdateSettings(DataDummy.settings);
+
+      // Invalidate all related providers
+      ref.invalidate(pelangganOpSqliteProvider);
+      ref.invalidate(paketOpSqliteProvider);
+      ref.invalidate(kategoriOpSqliteProvider);
+      ref.invalidate(subKategoriOpSqliteProvider);
+      ref.invalidate(dompetOpSqliteProvider);
+      ref.invalidate(transaksiOpSqliteProvider);
+      ref.invalidate(pelangganAktifProvider);
+      ref.invalidate(orderOpSqliteProvider);
+      ref.invalidate(feedbackOpSqliteProvider);
+      ref.invalidate(versiApkOpSqliteProvider);
+      ref.invalidate(settingsOpSqliteProvider);
+
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Berhasil'),
+            content: const Text(
+              'Semua data dummy telah berhasil ditambahkan ke database lokal.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e, s) {
+      Log.error('Gagal menambahkan semua data dummy', e: e, s: s);
+      if (context.mounted) {
+        ToastUtil.error(
+          context,
+          'Terjadi kesalahan saat menambah semua data: $e',
+        );
       }
     }
   }
@@ -40445,9 +43649,7 @@ class SqliteDatabase {
     }
 
     if (oldVersion < 47) {
-      Log.info(
-        '[MIGRASI v47] Memulai migrasi skema destruktif.',
-      );
+      Log.info('[MIGRASI v47] Memulai migrasi skema destruktif.');
       await _migrateToV47(db);
     }
 
@@ -40459,16 +43661,12 @@ class SqliteDatabase {
     }
 
     if (oldVersion < 49) {
-      Log.info(
-        '[MIGRASI v49] Rename semua kolom ke snake_case Inggris.',
-      );
+      Log.info('[MIGRASI v49] Rename semua kolom ke snake_case Inggris.');
       await _migrateToV49(db);
     }
 
     if (oldVersion < 50) {
-      Log.info(
-        '[MIGRASI v50] Rename semua nama tabel ke snake_case Inggris.',
-      );
+      Log.info('[MIGRASI v50] Rename semua nama tabel ke snake_case Inggris.');
       await _migrateToV50(db);
     }
 
@@ -40480,9 +43678,7 @@ class SqliteDatabase {
     }
 
     if (oldVersion < 52) {
-      Log.info(
-        '[MIGRASI v52] Membuat tabel `${NamaTabel.notifikasi}`.',
-      );
+      Log.info('[MIGRASI v52] Membuat tabel `${NamaTabel.notifikasi}`.');
       await _migrateToV52(db);
     }
 
@@ -40496,7 +43692,8 @@ class SqliteDatabase {
     Log.info('========================================');
     Log.info('PROSES UPGRADE DATABASE SELESAI');
     Log.info(
-        'Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.');
+      'Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.',
+    );
     Log.info('========================================');
   }
 
@@ -40506,7 +43703,8 @@ class SqliteDatabase {
       'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN ${NamaKolom.terkahirAktif} INTEGER',
     );
     Log.info(
-        '[MIGRASI v51] Penambahan kolom ${NamaKolom.terkahirAktif} selesai.');
+      '[MIGRASI v51] Penambahan kolom ${NamaKolom.terkahirAktif} selesai.',
+    );
   }
 
   Future<void> _migrateToV52(final Database db) async {
@@ -40517,13 +43715,15 @@ class SqliteDatabase {
 
   Future<void> _migrateToV53(final Database db) async {
     Log.info(
-        '[MIGRASI v53] Menambahkan kolom durasi_bonus dan durasi_bonus_type...');
+      '[MIGRASI v53] Menambahkan kolom durasi_bonus dan durasi_bonus_type...',
+    );
 
     const String tableName = NamaTabel.transaksi;
     // Mengambil informasi kolom yang ada saat ini di tabel transactions
     final results = await db.rawQuery('PRAGMA table_info("$tableName")');
-    final existingColumns =
-        results.map((row) => row['name'] as String).toList();
+    final existingColumns = results
+        .map((row) => row['name'] as String)
+        .toList();
 
     // Hanya tambahkan kolom jika belum ada dalam daftar kolom yang ada
     if (!existingColumns.contains(NamaKolom.durasiBonus)) {
@@ -40586,154 +43786,214 @@ class SqliteDatabase {
 
     await db.execute('ALTER TABLE dompet RENAME COLUMN namaDompet TO name');
     await db.execute('ALTER TABLE dompet RENAME COLUMN saldo TO balance');
-    await db
-        .execute('ALTER TABLE dompet RENAME COLUMN diperbarui TO updated_at');
-    await db
-        .execute('ALTER TABLE dompet RENAME COLUMN diarsipkan TO archived_at');
+    await db.execute(
+      'ALTER TABLE dompet RENAME COLUMN diperbarui TO updated_at',
+    );
+    await db.execute(
+      'ALTER TABLE dompet RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute('ALTER TABLE kategori RENAME COLUMN nama TO name');
     await db.execute('ALTER TABLE kategori RENAME COLUMN tipe TO type');
     await db.execute(
-        'ALTER TABLE kategori RENAME COLUMN id_sub_kategori TO sub_category_id');
-    await db
-        .execute('ALTER TABLE kategori RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE kategori RENAME COLUMN id_sub_kategori TO sub_category_id',
+    );
     await db.execute(
-        'ALTER TABLE kategori RENAME COLUMN diarsipkan TO archived_at');
+      'ALTER TABLE kategori RENAME COLUMN diperbarui TO updated_at',
+    );
+    await db.execute(
+      'ALTER TABLE kategori RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute('ALTER TABLE sub_kategori RENAME COLUMN nama TO name');
     await db.execute(
-        'ALTER TABLE sub_kategori RENAME COLUMN id_kategori TO category_id');
+      'ALTER TABLE sub_kategori RENAME COLUMN id_kategori TO category_id',
+    );
     await db.execute(
-        'ALTER TABLE sub_kategori RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE sub_kategori RENAME COLUMN diperbarui TO updated_at',
+    );
     await db.execute(
-        'ALTER TABLE sub_kategori RENAME COLUMN diarsipkan TO archived_at');
+      'ALTER TABLE sub_kategori RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute('ALTER TABLE paket RENAME COLUMN nama TO name');
     await db.execute('ALTER TABLE paket RENAME COLUMN harga TO price');
     await db.execute('ALTER TABLE paket RENAME COLUMN durasi TO duration');
     await db.execute('ALTER TABLE paket RENAME COLUMN tipe TO type');
-    await db
-        .execute('ALTER TABLE paket RENAME COLUMN jumlahPoin TO earned_points');
-    await db
-        .execute('ALTER TABLE paket RENAME COLUMN diperbarui TO updated_at');
-    await db
-        .execute('ALTER TABLE paket RENAME COLUMN diarsipkan TO archived_at');
     await db.execute(
-        'ALTER TABLE paket RENAME COLUMN poin_hadiah TO reward_points');
+      'ALTER TABLE paket RENAME COLUMN jumlahPoin TO earned_points',
+    );
     await db.execute(
-        'ALTER TABLE paket RENAME COLUMN poin_penukaran TO redemption_points');
+      'ALTER TABLE paket RENAME COLUMN diperbarui TO updated_at',
+    );
+    await db.execute(
+      'ALTER TABLE paket RENAME COLUMN diarsipkan TO archived_at',
+    );
+    await db.execute(
+      'ALTER TABLE paket RENAME COLUMN poin_hadiah TO reward_points',
+    );
+    await db.execute(
+      'ALTER TABLE paket RENAME COLUMN poin_penukaran TO redemption_points',
+    );
 
     await db.execute('ALTER TABLE pelanggan RENAME COLUMN nama TO name');
     await db.execute('ALTER TABLE pelanggan RENAME COLUMN telepon TO phone');
     await db.execute('ALTER TABLE pelanggan RENAME COLUMN alamat TO address');
     await db.execute(
-        'ALTER TABLE pelanggan RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE pelanggan RENAME COLUMN diperbarui TO updated_at',
+    );
     await db.execute(
-        'ALTER TABLE pelanggan RENAME COLUMN diarsipkan TO archived_at');
+      'ALTER TABLE pelanggan RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME COLUMN id_pelanggan TO customer_id');
+      'ALTER TABLE pelanggan_aktif RENAME COLUMN id_pelanggan TO customer_id',
+    );
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME COLUMN id_paket TO package_id');
+      'ALTER TABLE pelanggan_aktif RENAME COLUMN id_paket TO package_id',
+    );
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME COLUMN id_transaksi TO transaction_id');
+      'ALTER TABLE pelanggan_aktif RENAME COLUMN id_transaksi TO transaction_id',
+    );
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME COLUMN tanggal_mulai TO start_date');
+      'ALTER TABLE pelanggan_aktif RENAME COLUMN tanggal_mulai TO start_date',
+    );
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME COLUMN tanggal_berakhir TO end_date');
+      'ALTER TABLE pelanggan_aktif RENAME COLUMN tanggal_berakhir TO end_date',
+    );
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE pelanggan_aktif RENAME COLUMN diperbarui TO updated_at',
+    );
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME COLUMN diarsipkan TO archived_at');
+      'ALTER TABLE pelanggan_aktif RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN keterangan TO description');
+      'ALTER TABLE transaksi RENAME COLUMN keterangan TO description',
+    );
     await db.execute('ALTER TABLE transaksi RENAME COLUMN jumlah TO amount');
     await db.execute('ALTER TABLE transaksi RENAME COLUMN tanggal TO date');
     await db.execute('ALTER TABLE transaksi RENAME COLUMN tipe TO type');
-    await db
-        .execute('ALTER TABLE transaksi RENAME COLUMN id_dompet TO wallet_id');
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN id_kategori TO category_id');
+      'ALTER TABLE transaksi RENAME COLUMN id_dompet TO wallet_id',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN id_sub_kategori TO sub_category_id');
+      'ALTER TABLE transaksi RENAME COLUMN id_kategori TO category_id',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN id_pelanggan TO customer_id');
-    await db
-        .execute('ALTER TABLE transaksi RENAME COLUMN id_paket TO package_id');
+      'ALTER TABLE transaksi RENAME COLUMN id_sub_kategori TO sub_category_id',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE transaksi RENAME COLUMN id_pelanggan TO customer_id',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN diarsipkan TO archived_at');
+      'ALTER TABLE transaksi RENAME COLUMN id_paket TO package_id',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN id_dompet_tujuan TO destination_wallet_id');
+      'ALTER TABLE transaksi RENAME COLUMN diperbarui TO updated_at',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN poin_yang_dihasilkan TO earned_points');
+      'ALTER TABLE transaksi RENAME COLUMN diarsipkan TO archived_at',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN poin_yang_digunakan TO used_points');
+      'ALTER TABLE transaksi RENAME COLUMN id_dompet_tujuan TO destination_wallet_id',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN status_pembayaran TO payment_status');
+      'ALTER TABLE transaksi RENAME COLUMN poin_yang_dihasilkan TO earned_points',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN durasi_paket TO package_duration');
+      'ALTER TABLE transaksi RENAME COLUMN poin_yang_digunakan TO used_points',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN tipe_durasi_paket TO duration_type');
+      'ALTER TABLE transaksi RENAME COLUMN status_pembayaran TO payment_status',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN tanggal_mulai TO start_date');
+      'ALTER TABLE transaksi RENAME COLUMN durasi_paket TO package_duration',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN tanggal_berakhir TO end_date');
+      'ALTER TABLE transaksi RENAME COLUMN tipe_durasi_paket TO duration_type',
+    );
     await db.execute(
-        'ALTER TABLE transaksi RENAME COLUMN aktivasi_paket TO is_activated');
+      'ALTER TABLE transaksi RENAME COLUMN tanggal_mulai TO start_date',
+    );
+    await db.execute(
+      'ALTER TABLE transaksi RENAME COLUMN tanggal_berakhir TO end_date',
+    );
+    await db.execute(
+      'ALTER TABLE transaksi RENAME COLUMN aktivasi_paket TO is_activated',
+    );
 
     await db.execute('ALTER TABLE kritik_saran RENAME COLUMN isi TO content');
     await db.execute('ALTER TABLE kritik_saran RENAME COLUMN tanggal TO date');
     await db.execute(
-        'ALTER TABLE kritik_saran RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE kritik_saran RENAME COLUMN diperbarui TO updated_at',
+    );
     await db.execute(
-        'ALTER TABLE kritik_saran RENAME COLUMN diarsipkan TO archived_at');
+      'ALTER TABLE kritik_saran RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute(
-        'ALTER TABLE pesanan RENAME COLUMN id_pelanggan TO customer_id');
-    await db
-        .execute('ALTER TABLE pesanan RENAME COLUMN id_paket TO package_id');
+      'ALTER TABLE pesanan RENAME COLUMN id_pelanggan TO customer_id',
+    );
+    await db.execute(
+      'ALTER TABLE pesanan RENAME COLUMN id_paket TO package_id',
+    );
     await db.execute('ALTER TABLE pesanan RENAME COLUMN tanggal TO date');
-    await db
-        .execute('ALTER TABLE pesanan RENAME COLUMN diperbarui TO updated_at');
-    await db
-        .execute('ALTER TABLE pesanan RENAME COLUMN diarsipkan TO archived_at');
+    await db.execute(
+      'ALTER TABLE pesanan RENAME COLUMN diperbarui TO updated_at',
+    );
+    await db.execute(
+      'ALTER TABLE pesanan RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME COLUMN catatan_rilis TO release_notes');
+      'ALTER TABLE versi_apk_user RENAME COLUMN catatan_rilis TO release_notes',
+    );
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME COLUMN nomor_build_terbaru TO latest_build_number');
+      'ALTER TABLE versi_apk_user RENAME COLUMN nomor_build_terbaru TO latest_build_number',
+    );
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME COLUMN tautan_unduhan TO download_links');
+      'ALTER TABLE versi_apk_user RENAME COLUMN tautan_unduhan TO download_links',
+    );
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME COLUMN versi_terbaru TO latest_version');
+      'ALTER TABLE versi_apk_user RENAME COLUMN versi_terbaru TO latest_version',
+    );
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME COLUMN wajib_update TO is_update_required');
+      'ALTER TABLE versi_apk_user RENAME COLUMN wajib_update TO is_update_required',
+    );
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE versi_apk_user RENAME COLUMN diperbarui TO updated_at',
+    );
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME COLUMN diarsipkan TO archived_at');
+      'ALTER TABLE versi_apk_user RENAME COLUMN diarsipkan TO archived_at',
+    );
 
     await db.execute(
-        'ALTER TABLE pengaturan RENAME COLUMN interval_sinkronisasi_otomatis TO auto_sync_interval');
+      'ALTER TABLE pengaturan RENAME COLUMN interval_sinkronisasi_otomatis TO auto_sync_interval',
+    );
     await db.execute(
-        'ALTER TABLE pengaturan RENAME COLUMN hapus_otomatis_data_arsip TO auto_delete_archive_days');
+      'ALTER TABLE pengaturan RENAME COLUMN hapus_otomatis_data_arsip TO auto_delete_archive_days',
+    );
     await db.execute(
-        'ALTER TABLE pengaturan RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE pengaturan RENAME COLUMN diperbarui TO updated_at',
+    );
     await db.execute(
-        'ALTER TABLE pengaturan RENAME COLUMN mode_pemeliharaan TO maintenance_mode');
+      'ALTER TABLE pengaturan RENAME COLUMN mode_pemeliharaan TO maintenance_mode',
+    );
     await db.execute(
-        'ALTER TABLE pengaturan RENAME COLUMN info_pemeliharaan TO maintenance_info');
+      'ALTER TABLE pengaturan RENAME COLUMN info_pemeliharaan TO maintenance_info',
+    );
 
-    await db
-        .execute('ALTER TABLE status_unggah RENAME COLUMN tabel TO table_name');
     await db.execute(
-        'ALTER TABLE status_unggah RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE status_unggah RENAME COLUMN tabel TO table_name',
+    );
+    await db.execute(
+      'ALTER TABLE status_unggah RENAME COLUMN diperbarui TO updated_at',
+    );
 
     await db.execute(
-        'ALTER TABLE status_aplikasi RENAME COLUMN diperbarui TO updated_at');
+      'ALTER TABLE status_aplikasi RENAME COLUMN diperbarui TO updated_at',
+    );
 
     await db.execute('ALTER TABLE pesan RENAME COLUMN isi TO content');
     await db.execute('ALTER TABLE pesan RENAME COLUMN tanggal TO date');
@@ -40747,27 +44007,34 @@ class SqliteDatabase {
 
     await db.execute('ALTER TABLE dompet RENAME TO ${NamaTabel.dompet}');
     await db.execute('ALTER TABLE kategori RENAME TO ${NamaTabel.kategori}');
-    await db
-        .execute('ALTER TABLE sub_kategori RENAME TO ${NamaTabel.subKategori}');
+    await db.execute(
+      'ALTER TABLE sub_kategori RENAME TO ${NamaTabel.subKategori}',
+    );
     await db.execute('ALTER TABLE paket RENAME TO ${NamaTabel.paket}');
     await db.execute('ALTER TABLE pelanggan RENAME TO ${NamaTabel.pelanggan}');
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME TO ${NamaTabel.pelangganAktif}');
+      'ALTER TABLE pelanggan_aktif RENAME TO ${NamaTabel.pelangganAktif}',
+    );
 
     // diperbaiki: Ditambahkan escaping double quotes ("") untuk tabel transaction via TableNameValue
-    await db
-        .execute('ALTER TABLE transaksi RENAME TO "${NamaTabel.transaksi}"');
-    await db
-        .execute('ALTER TABLE kritik_saran RENAME TO ${NamaTabel.feedback}');
+    await db.execute(
+      'ALTER TABLE transaksi RENAME TO "${NamaTabel.transaksi}"',
+    );
+    await db.execute(
+      'ALTER TABLE kritik_saran RENAME TO ${NamaTabel.feedback}',
+    );
 
     // diperbaiki: Ditambahkan escaping double quotes ("") untuk tabel order via TableNameValue
     await db.execute(
-        'ALTER TABLE pesanan RENAME TO "${NamaTabel.pesananPelanggan}"');
+      'ALTER TABLE pesanan RENAME TO "${NamaTabel.pesananPelanggan}"',
+    );
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME TO ${NamaTabel.versiApkUser}');
+      'ALTER TABLE versi_apk_user RENAME TO ${NamaTabel.versiApkUser}',
+    );
     await db.execute('ALTER TABLE pengaturan RENAME TO ${NamaTabel.settings}');
     await db.execute(
-        'ALTER TABLE status_unggah RENAME TO ${NamaTabel.statusUnggah}');
+      'ALTER TABLE status_unggah RENAME TO ${NamaTabel.statusUnggah}',
+    );
     await db.execute('ALTER TABLE pesan RENAME TO ${NamaTabel.pesan}');
 
     Log.info('[MIGRASI v50] Semua rename tabel selesai.');
@@ -40777,7 +44044,8 @@ class SqliteDatabase {
   Future<void> membuatTabel(Database db, int version) async {
     Log.info('========================================');
     Log.info(
-        'MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version');
+      'MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version',
+    );
     Log.info('========================================');
     final batch = db.batch();
     _membuatSemuaTabel(batch);
@@ -40804,8 +44072,9 @@ class SqliteDatabase {
     batch.execute(_tabelSetting);
     batch.execute(_tabelStatusUnggah);
     batch.execute(_tabelPesan);
-    batch
-        .execute(_tabelNotification); // 2. Tambahkan pembuatan tabel notifikasi
+    batch.execute(
+      _tabelNotification,
+    ); // 2. Tambahkan pembuatan tabel notifikasi
     Log.info('Semua 14 definisi tabel (v52) ditambahkan ke batch.');
 
     // diperbaiki: Index ditargetkan menggunakan escaping keyword "transaction" otomatis dari TableNameValue
@@ -40843,7 +44112,8 @@ class SqliteDatabase {
   // DEFINISI TABEL v51 (snake_case nama tabel + nama kolom via konstanta)
   // ============================================================
 
-  static const String _tabelDompet = '''
+  static const String _tabelDompet =
+      '''
     CREATE TABLE ${NamaTabel.dompet}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.nama} TEXT NOT NULL,
@@ -40854,7 +44124,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelTransaksi = '''
+  static const String _tabelTransaksi =
+      '''
     CREATE TABLE "${NamaTabel.transaksi}" (
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.deskripsi} TEXT NOT NULL,
@@ -40883,7 +44154,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelVersiApkUser = '''
+  static const String _tabelVersiApkUser =
+      '''
     CREATE TABLE ${NamaTabel.versiApkUser}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.catatanRilis} TEXT NOT NULL,
@@ -40898,7 +44170,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelStatusUnggah = '''
+  static const String _tabelStatusUnggah =
+      '''
     CREATE TABLE ${NamaTabel.statusUnggah}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.value} TEXT NOT NULL,
@@ -40906,7 +44179,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelPesan = '''
+  static const String _tabelPesan =
+      '''
     CREATE TABLE ${NamaTabel.pesan}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.pesan} TEXT NOT NULL,
@@ -40915,7 +44189,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelSetting = '''
+  static const String _tabelSetting =
+      '''
     CREATE TABLE ${NamaTabel.settings}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.waktuOtomatisSinkronisasi} INTEGER NOT NULL DEFAULT 24,
@@ -40926,7 +44201,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelKategori = '''
+  static const String _tabelKategori =
+      '''
     CREATE TABLE ${NamaTabel.kategori}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.nama} TEXT NOT NULL,
@@ -40938,7 +44214,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelSubKategori = '''
+  static const String _tabelSubKategori =
+      '''
     CREATE TABLE ${NamaTabel.subKategori}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.nama} TEXT NOT NULL,
@@ -40950,7 +44227,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelPaket = '''
+  static const String _tabelPaket =
+      '''
     CREATE TABLE ${NamaTabel.paket}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.nama} TEXT NOT NULL,
@@ -40967,7 +44245,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelPelanggan = '''
+  static const String _tabelPelanggan =
+      '''
     CREATE TABLE ${NamaTabel.pelanggan}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.nama} TEXT NOT NULL,
@@ -40983,7 +44262,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelPelangganAktif = '''
+  static const String _tabelPelangganAktif =
+      '''
     CREATE TABLE ${NamaTabel.pelangganAktif}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.idPelanggan} TEXT NOT NULL,
@@ -41001,7 +44281,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelFeedback = '''
+  static const String _tabelFeedback =
+      '''
     CREATE TABLE ${NamaTabel.feedback}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.pesan} TEXT NOT NULL,
@@ -41014,7 +44295,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static const String _tabelOrder = '''
+  static const String _tabelOrder =
+      '''
     CREATE TABLE "${NamaTabel.pesananPelanggan}" (
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.idPelanggan} TEXT NOT NULL,
@@ -41030,7 +44312,8 @@ class SqliteDatabase {
   ''';
 
   // 1. Definisi tabel notifikasi
-  static const String _tabelNotification = '''
+  static const String _tabelNotification =
+      '''
     CREATE TABLE ${NamaTabel.notifikasi}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.pesan} TEXT NOT NULL,
@@ -41417,11 +44700,12 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       await LayananLatarBelakang.inisialisasi();
 
       await notifikasiServis.inisialisasiNotifikasi(
-          iconName: 'ic_notification');
+        iconName: 'ic_notification',
+      );
       await notifikasiServis.mintaIzin();
 
-      final launchDetails =
-          await notifikasiServis.getDetailPeluncuranNotifikasi();
+      final launchDetails = await notifikasiServis
+          .getDetailPeluncuranNotifikasi();
       final prefs = ref.read(sharedPreferencesProvider).requireValue;
       if (launchDetails?.didNotificationLaunchApp ?? false) {
         final payload = launchDetails?.notificationResponse?.payload;
@@ -41438,38 +44722,48 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
       await sqliteDb.database;
 
-      final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
-      await pelangganAktifOpSqlite.hapusPermanenDataSoftDelete();
+      try {
+        final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
+        await pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
+      } catch (e) {
+        Log.error('gagal menghapus data yang status nya diarsipkan');
+      }
 
-      final isOnline = await koneksiInternetService.cekInternet(ref);
+      final isOnline = await koneksiInternetService.cekInternet();
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
 
         final unduhanAwalService = ref.read(providerLayananUnduhanAwal);
         try {
           await unduhanAwalService.jalankanUnduhanAwal().timeout(
-                const Duration(seconds: 30),
-              );
+            const Duration(seconds: 30),
+          );
           Log.info('Initial download berhasil diselesaikan.');
-        } on TimeoutException {
+        } catch (e) {
           Log.warning(
-              'Initial download memakan waktu terlalu lama (timeout). Melanjutkan inisialisasi...');
+            'Initial download memakan waktu terlalu lama (timeout). Melanjutkan inisialisasi... $e',
+          );
         }
 
-        final dataPengaturan =
-            await ref.read(settingsOpSqliteProvider).ambilSettings();
-        final retentionDays = dataPengaturan.waktuOtomatisHapusDataArsip;
-        final dataCleaningOperation = ref.read(pembersihanDataOperasiProvider);
-        await dataCleaningOperation
-            .hapusPermanentDataYangDiarsip(retentionDays: retentionDays)
+        final dataPengaturan = await ref
+            .read(settingsOpSqliteProvider)
+            .ambilSettings();
+        final waktuPenjadwalanHapusDataArsip =
+            dataPengaturan.waktuOtomatisHapusDataArsip;
+        final pembersihanDataOperasi = ref.read(pembersihanDataOperasiProvider);
+        await pembersihanDataOperasi
+            .hapusPermanentDataYangDiarsip(
+              waktuPenjadwalanHapusDataArsip: waktuPenjadwalanHapusDataArsip,
+            )
             .timeout(const Duration(seconds: 5));
       } else {
         Log.warning(
-            'Perangkat offline, melewati proses unduhan data awal dan pembersihan.');
+          'Perangkat offline, melewati proses unduhan data awal dan pembersihan.',
+        );
       }
 
       return isOnline;
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error('Error kritis selama inisialisasi sekunder.', e: e, s: s);
       return false;
     }
@@ -41483,15 +44777,17 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
         if (snapshot.connectionState == ConnectionState.done) {
           final bool isOffline = !(snapshot.data ?? false);
           if (snapshot.hasError) {
-            Log.error('Error pada FutureBuilder inisialisasi',
-                e: snapshot.error);
+            Log.error(
+              'Error pada FutureBuilder inisialisasi',
+              e: snapshot.error,
+            );
           }
           return AppMaterial(isOffline: isOffline);
         }
         return const MaterialApp(
           home: Scaffold(
-              body:
-                  Center(child: CircularProgressIndicator())), // Initial splash
+            body: Center(child: CircularProgressIndicator()),
+          ), // Initial splash
         );
       },
     );
@@ -41520,16 +44816,10 @@ class AppMaterial extends ConsumerWidget {
         ),
       ),
       loading: () => const MaterialApp(
-        home: Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
+        home: Scaffold(body: Center(child: CircularProgressIndicator())),
       ),
       error: (err, stack) => MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: Text('Gagal memuat tema: $err'),
-          ),
-        ),
+        home: Scaffold(body: Center(child: Text('Gagal memuat tema: $err'))),
       ),
     );
   }
@@ -41770,849 +45060,13 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
     );
   }
 }
-// path: lib/admin/halaman/lainnya/manage_announcement_page.dart
-
-import 'dart:async';
-import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/event/model/event_model.dart';
-import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
-import 'package:wifi/shared/services/layanan_penyimpanan_gambar.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
-import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
-
-class ManageAnnouncementPage extends ConsumerStatefulWidget {
-  const ManageAnnouncementPage({super.key, this.event});
-  final EventModel? event;
-
-  @override
-  ConsumerState<ManageAnnouncementPage> createState() =>
-      _ManageAnnouncementPageState();
-}
-
-class _ManageAnnouncementPageState
-    extends ConsumerState<ManageAnnouncementPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _imageUrlController = TextEditingController();
-  final _scrollController = ScrollController();
-  late bool _isSwitched;
-  EventModel? _selectedAnnouncement;
-  DateTime? _selectedStartDate;
-  DateTime? _selectedEndDate;
-
-  File? _selectedImage;
-  bool _isUploading = false;
-  final ImagePicker _picker = ImagePicker();
-  bool get _isEditMode => widget.event != null;
-
-  @override
-  void initState() {
-    super.initState();
-    if (_isEditMode) {
-      _selectedAnnouncement = widget.event;
-      _imageUrlController.text = widget.event!.linkGambar;
-      _isSwitched = widget.event!.statusAktif;
-      _selectedStartDate = widget.event!.tanggalMulai;
-      _selectedEndDate = widget.event!.tanggalBerakhir;
-    } else {
-      _isSwitched = false;
-    }
-    unawaited(_loadData());
-  }
-
-  @override
-  void dispose() {
-    _imageUrlController.dispose();
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _loadData() async {
-    if (widget.event != null) return;
-
-    final operator = ref.read(eventOpSupabaseProvider);
-    try {
-      final announcements = await operator.ambilSemuaEvent();
-      final EventModel? activeAnnouncement = announcements
-          .cast<EventModel?>()
-          .firstWhere(
-            (ann) => ann?.statusAktif ?? false,
-            orElse: () {
-              Log.info('Tidak ada pengumuman aktif ditemukan untuk dimuat.');
-              return null;
-            },
-          );
-
-      setState(() {
-        _selectedAnnouncement = activeAnnouncement;
-        _imageUrlController.text = activeAnnouncement?.linkGambar ?? '';
-        _isSwitched = activeAnnouncement?.statusAktif ?? false;
-        _selectedStartDate = activeAnnouncement?.tanggalMulai;
-        _selectedEndDate = activeAnnouncement?.tanggalBerakhir;
-      });
-    } on Exception catch (e, st) {
-      Log.error('Gagal memuat pengumuman', e: e, s: st);
-      if (!mounted) return;
-      ToastUtil.error(context, 'Gagal memuat data pengumuman.');
-    }
-  }
-
-  Future<void> _pickImage() async {
-    try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-      if (image != null) {
-        setState(() {
-          _selectedImage = File(image.path);
-        });
-      }
-    } catch (e, st) {
-      Log.error('Gagal memilih gambar', e: e, s: st);
-      if (!mounted) return;
-      ToastUtil.error(context, 'Gagal memilih gambar dari galeri.');
-    }
-  }
-
-  Future<void> _selectDate(bool isStartDate) async {
-    DateTime initialDate = DateTime.now();
-    if (isStartDate) {
-      if (_selectedStartDate != null) {
-        initialDate = _selectedStartDate!;
-      }
-    } else {
-      if (_selectedEndDate != null) {
-        initialDate = _selectedEndDate!;
-      }
-    }
-    DateTime? pickedDate;
-    try {
-      pickedDate = await showDatePicker(
-        context: context,
-        initialDate: initialDate,
-        firstDate: DateTime(2000),
-        lastDate: DateTime(2101),
-      );
-    } catch (e, st) {
-      Log.error('Error saat memilih tanggal', e: e, s: st);
-      if (!mounted) return;
-      ToastUtil.error(context, 'Gagal membuka pemilih tanggal');
-    }
-
-    if (pickedDate != null) {
-      setState(() {
-        final currentDateTime = isStartDate
-            ? _selectedStartDate
-            : _selectedEndDate;
-        final newDateTime = DateTime(
-          pickedDate!.year,
-          pickedDate.month,
-          pickedDate.day,
-          currentDateTime?.hour ?? DateTime.now().hour,
-          currentDateTime?.minute ?? DateTime.now().minute,
-        );
-        if (isStartDate) {
-          _selectedStartDate = newDateTime;
-        } else {
-          _selectedEndDate = newDateTime;
-        }
-      });
-    }
-  }
-
-  Future<void> _selectTime(bool isStartTime) async {
-    TimeOfDay initialTime = TimeOfDay.now();
-    final DateTime? currentDateTime = isStartTime
-        ? _selectedStartDate
-        : _selectedEndDate;
-    if (currentDateTime != null) {
-      initialTime = TimeOfDay(
-        hour: currentDateTime.hour,
-        minute: currentDateTime.minute,
-      );
-    } else {
-      initialTime = TimeOfDay.now();
-    }
-    TimeOfDay? pickedTime;
-    try {
-      pickedTime = await showTimePicker(
-        context: context,
-        initialTime: initialTime,
-        builder: (BuildContext context, Widget? child) {
-          return MediaQuery(
-            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-            child: child!,
-          );
-        },
-      );
-    } catch (e, st) {
-      Log.error('Error saat memilih waktu', e: e, s: st);
-      if (!mounted) return;
-      ToastUtil.error(context, 'Gagal membuka pemilih waktu');
-    }
-
-    if (pickedTime != null) {
-      setState(() {
-        final DateTime? dateToUpdate = isStartTime
-            ? _selectedStartDate
-            : _selectedEndDate;
-        final DateTime datePart = dateToUpdate ?? DateTime.now();
-
-        final newDateTime = DateTime(
-          datePart.year,
-          datePart.month,
-          datePart.day,
-          pickedTime!.hour,
-          pickedTime.minute,
-        );
-        if (isStartTime) {
-          _selectedStartDate = newDateTime;
-        } else {
-          _selectedEndDate = newDateTime;
-        }
-      });
-    }
-  }
-
-  Future<void> _simpanForm() async {
-    // 1. Validasi manual tanggal dan gambar karena tidak memakai TextFormField bawaan
-    if (_selectedStartDate == null || _selectedEndDate == null) {
-      ToastUtil.error(context, 'Harap pilih tanggal mulai dan selesai');
-      return;
-    }
-
-    if (_selectedImage == null && _imageUrlController.text.trim().isEmpty) {
-      ToastUtil.error(
-        context,
-        'Harap pilih atau sediakan gambar untuk pengumuman.',
-      );
-      return;
-    }
-
-    if (_selectedEndDate!.isBefore(_selectedStartDate!)) {
-      ToastUtil.error(
-        context,
-        'Tanggal selesai tidak boleh sebelum tanggal mulai',
-      );
-      return;
-    }
-
-    setState(() {
-      _isUploading = true;
-    });
-
-    String imageUrl = _imageUrlController.text.trim();
-
-    // 2. Proses upload gambar ke storage jika admin memilih file gambar baru
-    if (_selectedImage != null) {
-      final storageService = ref.read(layananPenyimpananGambarProvider);
-      try {
-        final String uploadUrl = await storageService.unggahGambar(
-          _selectedImage!,
-          NamaTabel.event,
-        );
-        imageUrl = uploadUrl;
-        if (imageUrl.isEmpty) {
-          throw Exception('URL gambar kosong dari storage service.');
-        }
-      } catch (e, st) {
-        Log.error('Gagal mengunggah gambar', e: e, s: st);
-        if (!mounted) return;
-        ToastUtil.error(context, 'Gagal mengunggah gambar. Silakan coba lagi.');
-        setState(() {
-          _isUploading = false;
-        });
-        return;
-      }
-    }
-
-    final eventOpSupabase = ref.read(eventOpSupabaseProvider);
-    final bool isActive = _isSwitched;
-    final DateTime now = DateTime.now();
-
-    // 3. REFAKTORISASI STRUKTUR OBJEK: Dipisahkan tegas antara Edit data vs Buat baru
-    // Menjamin kolom 'not null' di Supabase selalu terisi dengan data terbaru dari UI
-    final EventModel announcementToSave = _isEditMode
-        ? _selectedAnnouncement!.copyWith(
-            linkGambar: imageUrl,
-            statusAktif: isActive,
-            tanggalMulai: _selectedStartDate!,
-            tanggalBerakhir: _selectedEndDate!,
-            diperbaruiPada: now,
-          )
-        : EventModel(
-            id: const Uuid().v4(),
-            tanggalDibuat: now,
-            diperbaruiPada: now,
-            linkGambar: imageUrl,
-            statusAktif: isActive,
-            tanggalMulai: _selectedStartDate!,
-            tanggalBerakhir: _selectedEndDate!,
-          );
-
-    // 4. Manajemen status aktif (Hanya izinkan satu pengumuman yang aktif secara simultan)
-    if (isActive) {
-      try {
-        final currentActive = await eventOpSupabase.ambilEventAktif();
-        if (currentActive != null &&
-            currentActive.id != announcementToSave.id) {
-          final oldActive = currentActive.copyWith(
-            statusAktif: false,
-            diperbaruiPada: now,
-          );
-          await eventOpSupabase.perbaruiEvent(oldActive);
-        }
-      } catch (e, st) {
-        Log.error('Gagal menonaktifkan pengumuman lama', e: e, s: st);
-        if (!mounted) return;
-        ToastUtil.error(
-          context,
-          'Gagal menonaktifkan pengumuman lain yang aktif.',
-        );
-        setState(() {
-          _isUploading = false;
-        });
-        return;
-      }
-    }
-
-    // 5. Eksekusi penyimpanan ke Supabase via Provider
-    try {
-      if (_isEditMode) {
-        await eventOpSupabase.perbaruiEvent(announcementToSave);
-      } else {
-        await eventOpSupabase.tambahEvent(announcementToSave);
-      }
-      final _ = ref.refresh(eventOpSupabaseProvider);
-      if (!mounted) return;
-      ToastUtil.success(context, 'Pengumuman berhasil disimpan!');
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
-    } catch (e, st) {
-      Log.error('Gagal menyimpan pengumuman', e: e, s: st);
-      if (!mounted) return;
-      ToastUtil.error(context, 'Gagal menyimpan pengumuman.');
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isUploading = false;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Kelola Pengumuman')),
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(TSizes.p16),
-        child: Form(
-          key: _formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Detail Pengumuman',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              gapH16,
-              // Image Preview and Picker
-              Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade400),
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.grey.shade50,
-                ),
-                clipBehavior:
-                    Clip.antiAlias, // Mencegah gambar keluar dari border radius
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // 1. TAMPILAN JIKA ADA GAMBAR (LOKAL / URL)
-                    if (_selectedImage != null)
-                      Image.file(
-                        _selectedImage!,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                      )
-                    else if (_imageUrlController.text.isNotEmpty)
-                      Image.network(
-                        _imageUrlController.text,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Center(
-                              child: Text('Gagal memuat gambar dari URL'),
-                            ),
-                      )
-                    else
-                      // Tampilan placeholder jika sama sekali belum ada gambar
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.image,
-                            size: 50,
-                            color: Colors.grey.shade400,
-                          ),
-                          gapH8,
-                          Text(
-                            'Belum ada gambar terpilih',
-                            style: TextStyle(color: Colors.grey.shade600),
-                          ),
-                        ],
-                      ),
-
-                    // 2. TOMBOL AKSI (Ditempatkan secara dinamis menggunakan Positioned)
-                    Positioned(
-                      bottom: 12,
-                      right: 12,
-                      child: ElevatedButton.icon(
-                        onPressed: _isUploading ? null : _pickImage,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black.withValues(alpha: 0.7),
-                          foregroundColor: Colors.white,
-                          elevation: 2,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                        ),
-                        icon: Icon(
-                          _selectedImage != null ||
-                                  _imageUrlController.text.isNotEmpty
-                              ? TIcons.edit
-                              : TIcons.upload,
-                          size: 18,
-                        ),
-                        label: Text(
-                          _selectedImage != null ||
-                                  _imageUrlController.text.isNotEmpty
-                              ? 'Ubah Gambar'
-                              : 'Pilih Gambar',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              gapH16,
-
-              PemilihTanggalWaktuWidget(
-                teksLabel: 'Mulai:',
-                tanggalTerpilih: _selectedStartDate,
-                waktuTerpilih: _selectedStartDate == null
-                    ? null
-                    : TimeOfDay(
-                        hour: _selectedStartDate!.hour,
-                        minute: _selectedStartDate!.minute,
-                      ),
-                onPilihTanggal: () => _selectDate(true),
-                onPilihWaktu: () => _selectTime(true),
-              ),
-              PemilihTanggalWaktuWidget(
-                teksLabel: 'Selesai:',
-                tanggalTerpilih: _selectedEndDate,
-                waktuTerpilih: _selectedEndDate == null
-                    ? null
-                    : TimeOfDay(
-                        hour: _selectedEndDate!.hour,
-                        minute: _selectedEndDate!.minute,
-                      ),
-                onPilihTanggal: () => _selectDate(false),
-                onPilihWaktu: () => _selectTime(false),
-              ),
-              gapH16,
-              SwitchListTile(
-                title: const Text('Aktifkan Pengumuman'),
-                subtitle: const Text(
-                  'Jika diaktifkan, pengumuman ini akan tampil di aplikasi.',
-                ),
-                value: _isSwitched,
-                secondary: const Icon(TIcons.toggleOn),
-                onChanged: (bool value) {
-                  setState(() {
-                    _isSwitched = value;
-                  });
-                },
-                contentPadding: EdgeInsets.zero,
-              ),
-              gapH16,
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: _isUploading
-              ? const Center(child: CircularProgressIndicator())
-              : ElevatedButton.icon(
-                  icon: Icon(_isEditMode ? TIcons.edit : TIcons.save),
-                  label: Text(
-                    !_isEditMode ? 'Simpan Pengumuman' : 'Perbarui Pengumuman',
-                  ),
-                  onPressed: _isUploading ? null : _simpanForm,
-                ),
-        ),
-      ),
-    );
-  }
-}
-// path: lib/admin/halaman/lainnya/riwayat_aktivasi_paket.dart
-
-import 'dart:async';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
-import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/widget/package_name.dart';
-
-class RiwayatAktivasiPaket extends ConsumerWidget {
-  const RiwayatAktivasiPaket({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final historyAsync = ref.watch(riwayatAktivasiPaketProvider);
-    final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Riwayat Langganan'),
-        actions: [
-          IconButton(
-            icon: const Icon(TIcons.filter),
-            onPressed: () {
-              if (historyAsync.hasValue) {
-                Log.info('Membuka dialog pengurutan riwayat langganan.');
-                unawaited(
-                    _showSortDialog(context, ref, historyAsync.value!.sortBy));
-              }
-            },
-            tooltip: 'Urutkan',
-          ),
-        ],
-      ),
-      body: historyAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
-        data: (state) {
-          if (state.items.isEmpty) {
-            return const Center(
-                child: Text('Tidak ada riwayat langganan ditemukan.'));
-          }
-          return ListView.builder(
-            itemCount: state.items.length,
-            itemBuilder: (context, index) {
-              final item = state.items[index];
-              final transaction = item.transaksi;
-              final paymentStatusColor =
-                  transaction.statusPembayaran == StatusPembayaran.paid
-                      ? Colors.green
-                      : Colors.red;
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                child: ListTile(
-                  onTap: () async {
-                    Log.info('Melihat detail riwayat langganan.',
-                        {'transactionId': transaction.id});
-                    await Navigator.push<bool>(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailRiwayatAktivasiPage(
-                          transactionId: transaction.id,
-                        ),
-                      ),
-                    );
-                  },
-                  title: Text(
-                    item.customerName,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      PackageNameWidget(
-                        paketFuture: paketOpSqlite
-                            .ambilBerdasarkanId(transaction.idPaket ?? ''),
-                        style: TextStyle(color: paymentStatusColor),
-                      ),
-                      gapH4,
-                      Text(
-                        'Status: ${transaction.statusPembayaran.displayName}',
-                        style: TextStyle(
-                          color: paymentStatusColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      gapH4,
-                      if (transaction.tanggalMulai != null &&
-                          transaction.tanggalBerakhir != null)
-                        Text(
-                          'Aktif: ${FormatTanggal.formatDasar(transaction.tanggalMulai!)} - ${FormatTanggal.formatDasar(transaction.tanggalBerakhir!)}',
-                        ),
-                    ],
-                  ),
-                  trailing: const Icon(TIcons.chevronRight),
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Future<void> _showSortDialog(
-      BuildContext context, WidgetRef ref, SortOption currentSort) async {
-    final SortOption? selected = await showDialog<SortOption>(
-      context: context,
-      builder: (BuildContext context) {
-        Widget buildOption(String text, SortOption value) {
-          return SimpleDialogOption(
-            onPressed: () => Navigator.pop(context, value),
-            child: Text(text,
-                style: TextStyle(
-                    fontWeight: currentSort == value
-                        ? FontWeight.bold
-                        : FontWeight.normal)),
-          );
-        }
-
-        return SimpleDialog(
-          title: const Text('Urutkan Berdasarkan'),
-          children: <Widget>[
-            buildOption('Berakhir Hari Ini', SortOption.endingToday),
-            buildOption('Tanggal Berakhir', SortOption.endDate),
-            buildOption('Nama A-Z', SortOption.nameAZ),
-            buildOption('Nama Z-A', SortOption.nameZA),
-            buildOption('Lunas', SortOption.paid),
-            buildOption('Belum Lunas', SortOption.unpaid),
-            buildOption('Update Terbaru', SortOption.updatedAtAZ),
-            buildOption('Update Terlama', SortOption.updatedAtZA),
-          ],
-        );
-      },
-    );
-
-    if (selected != null) {
-      ref.read(riwayatAktivasiPaketProvider.notifier).changeSort(selected);
-    }
-  }
-}
-// path: lib/halaman/lainnya/tentang_aplikasi.dart
-
-// File ini bertanggung jawab untuk menampilkan informasi tentang aplikasi,
-// seperti versi, nama, dan deskripsi singkat.
-
-import 'dart:async';
-import 'dart:io';
-
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/theme.dart';
-
-/// Halaman yang menampilkan detail tentang aplikasi, seperti versi, build, dan informasi teknis lainnya.
-class TentangAplikasiPage extends StatefulWidget {
-  /// Membuat instance dari [TentangAplikasiPage].
-  const TentangAplikasiPage({super.key});
-
-  @override
-  State<TentangAplikasiPage> createState() => _TentangAplikasiPageState();
-}
-
-class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
-  // Informasi paket aplikasi akan disimpan di sini.
-  PackageInfo _infoPerangkat = PackageInfo(
-    appName: 'Unknown',
-    packageName: 'Unknown',
-    version: 'Unknown',
-    buildNumber: 'Unknown',
-  );
-
-  String _minSDK = 'Android 5.0 (Lollipop)';
-  String _deviceArch = 'Unknown';
-
-  @override
-  void initState() {
-    super.initState();
-    Log.info('Menginisialisasi halaman Tentang Aplikasi');
-    unawaited(_loadData());
-  }
-
-  Future<void> _loadData() async {
-    Log.info('Memulai pengambilan informasi aplikasi dan perangkat');
-
-    try {
-      Log.info('Mengambil PackageInfo dari platform');
-      final infoPerangkat = await PackageInfo.fromPlatform();
-
-      Log.info(
-        'PackageInfo berhasil diambil - Nama: ${infoPerangkat.appName}, Versi: ${infoPerangkat.version}, Build: ${infoPerangkat.buildNumber}, Package: ${infoPerangkat.packageName}',
-      );
-
-      String deviceArch = 'Unknown';
-
-      if (Platform.isAndroid) {
-        Log.info('Platform terdeteksi: Android, mengambil DeviceInfo');
-        final deviceInfo = DeviceInfoPlugin();
-        final androidInfo = await deviceInfo.androidInfo;
-
-        deviceArch = androidInfo.supportedAbis.join(', ');
-        Log.info(
-          'Device info Android berhasil diambil - Arsitektur: $deviceArch, Android Version: ${androidInfo.version.release} (SDK ${androidInfo.version.sdkInt}), Pabrikan: ${androidInfo.manufacturer}, Model: ${androidInfo.model}',
-        );
-      } else if (Platform.isIOS) {
-        Log.info('Platform terdeteksi: iOS');
-        deviceArch = 'iOS (arm64)';
-      } else {
-        Log.info('Platform tidak dikenal: ${Platform.operatingSystem}');
-        deviceArch = Platform.operatingSystem;
-      }
-
-      setState(() {
-        _infoPerangkat = infoPerangkat;
-        _deviceArch = deviceArch;
-        _minSDK = 'Android 5.0 (Lollipop)';
-        Log.info(
-          'State diperbarui - MinSDK: $_minSDK, Arsitektur: $_deviceArch',
-        );
-      });
-
-      Log.info('Proses inisialisasi informasi aplikasi selesai');
-    } on Exception catch (e, st) {
-      Log.error(
-        'Gagal mengambil informasi aplikasi atau perangkat',
-        e: e,
-        s: st,
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Log.info('Membangun UI halaman Tentang Aplikasi');
-    Log.info(
-      'Informasi yang ditampilkan - App: ${_infoPerangkat.appName}, Versi: ${_infoPerangkat.version}, Build: ${_infoPerangkat.buildNumber}',
-    );
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tentang Aplikasi'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Log.info('Kembali ke halaman sebelumnya dari Tentang Aplikasi');
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(20.0),
-        children: <Widget>[
-          gapH20,
-          const Icon(Icons.wifi_tethering, size: 80, color: Colors.deepPurple),
-          gapH20,
-          Text(
-            _infoPerangkat.appName,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          gapH8,
-          Text(
-            'Versi ${_infoPerangkat.version}',
-            style: Theme.of(context).textTheme.titleMedium,
-            textAlign: TextAlign.center,
-          ),
-          gapH24,
-          const Text(
-            'Aplikasi ini membantu Anda mengelola pelanggan dan layanan WiFi dengan lebih mudah. Lacak pembayaran, kelola paket, dan dapatkan notifikasi penting langsung di perangkat Anda.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16),
-          ),
-          gapH32,
-          Card(
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Informasi Teknis',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const Divider(height: 20),
-                  _buildInfoRow('Nomor Build', _infoPerangkat.buildNumber),
-                  _buildInfoRow('Minimal OS', _minSDK),
-                  _buildInfoRow('Arsitektur Perangkat', _deviceArch),
-                ],
-              ),
-            ),
-          ),
-          gapH40,
-          const Text(
-            '© 2024 Dibuat dengan Penuh Semangat',
-            style: TextStyle(color: Colors.grey, fontSize: 12),
-            textAlign: TextAlign.center,
-          ),
-          gapH20,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    Log.info('Membangun baris info teknis - $label: $value');
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-          Expanded(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: const TextStyle(color: Colors.grey),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 // path: lib/admin/halaman/tes/halaman_tes.dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
-import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
+import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dart';
 
 /// Halaman untuk melakukan tes fungsionalitas.
 class HalamanTes extends StatefulWidget {
@@ -42624,7 +45078,7 @@ class HalamanTes extends StatefulWidget {
 }
 
 class _HalamanTesState extends State<HalamanTes> {
-  final InterstitialAdService _adService = InterstitialAdService();
+  final LayananIklanInterstisial _adService = LayananIklanInterstisial();
   final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
 
   @override
@@ -42636,9 +45090,7 @@ class _HalamanTesState extends State<HalamanTes> {
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Halaman Tes Iklan'),
-      ),
+      appBar: AppBar(title: const Text('Halaman Tes Iklan')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -42651,7 +45103,7 @@ class _HalamanTesState extends State<HalamanTes> {
                 unawaited(_adService.show());
               },
             ),
-      gapH40,
+            gapH40,
             // [PERBAIKAN] Menampilkan status kesiapan iklan untuk debugging
             StreamBuilder<void>(
               stream: Stream.periodic(const Duration(seconds: 1)),
@@ -42659,10 +45111,7 @@ class _HalamanTesState extends State<HalamanTes> {
                 return const Text(
                   'ok',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 );
               },
             ),
@@ -42948,1872 +45397,6 @@ class BoxInfo extends StatelessWidget {
     );
   }
 }
-// path: lib/admin/halaman/form/form_pelanggan.dart
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
-import 'package:wifi/shared/utils/toast_util.dart';
-
-class FormPelanggan extends ConsumerStatefulWidget {
-  final PelangganModel? pelanggan;
-
-  const FormPelanggan({super.key, this.pelanggan});
-
-  @override
-  ConsumerState<FormPelanggan> createState() => _CustomerFormState();
-}
-
-class _CustomerFormState extends ConsumerState<FormPelanggan> {
-  final _formKey = GlobalKey<FormState>();
-  final _namaController = TextEditingController();
-  final _teleponController = TextEditingController();
-  final _alamatController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _macAddressController = TextEditingController();
-
-  final _namaFocusNode = FocusNode();
-  final _teleponFocusNode = FocusNode();
-  final _alamatFocusNode = FocusNode();
-  final _passwordFocusNode = FocusNode();
-  final _macAddressFocusNode = FocusNode();
-
-  bool get _modeEdit => widget.pelanggan != null;
-  bool _passwordTerlihat = false;
-  bool _menyimpan = false;
-
-  @override
-  void initState() {
-    super.initState();
-    Log.info(
-      'Membuka CustomerForm dalam mode: ${_modeEdit ? "Edit" : "Tambah"}.',
-    );
-    if (_modeEdit) {
-      Log.info(
-        'Mode Edit: Mempopulasikan form dengan data pelanggan ID: ${widget.pelanggan!.id}',
-      );
-      _namaController.text = widget.pelanggan!.nama;
-      _teleponController.text = widget.pelanggan!.telepon;
-      _alamatController.text = widget.pelanggan!.alamat;
-      _passwordController.text = widget.pelanggan!.kataSandi;
-      _macAddressController.text = widget.pelanggan!.macAddress;
-    }
-  }
-
-  @override
-  void dispose() {
-    Log.info(
-      'Menjalankan dispose di CustomerForm. Membersihkan semua controllers dan focus nodes.',
-    );
-    _namaController.dispose();
-    _teleponController.dispose();
-    _alamatController.dispose();
-    _passwordController.dispose();
-    _macAddressController.dispose();
-    _namaFocusNode.dispose();
-    _teleponFocusNode.dispose();
-    _alamatFocusNode.dispose();
-    _passwordFocusNode.dispose();
-    _macAddressFocusNode.dispose();
-    super.dispose();
-  }
-
-  Future<void> _simpanPelanggan() async {
-    final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
-    Log.info('Tombol "Simpan" ditekan.');
-    if (_formKey.currentState!.validate()) {
-      Log.info('Form valid. Memulai proses penyimpanan.');
-      setState(() => _menyimpan = true);
-
-      final pelangganBaru = PelangganModel(
-        id: _modeEdit ? widget.pelanggan!.id : const Uuid().v4(),
-        nama: _namaController.text.trim(),
-        telepon: _teleponController.text.trim(),
-        alamat: _alamatController.text.trim(),
-        kataSandi: _passwordController.text, // No trim for password
-        macAddress: _macAddressController.text.trim().toUpperCase(),
-      );
-
-      Log.info(
-          'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}');
-
-      try {
-        if (_modeEdit) {
-          Log.info(
-            'Menjalankan operasi UPDATE untuk pelanggan ID: ${pelangganBaru.id}',
-          );
-          await pelangganOpSqlite.perbaruiPelanggan(pelangganBaru);
-        } else {
-          Log.info(
-            'Menjalankan operasi CREATE untuk pelanggan baru: ${pelangganBaru.nama}',
-          );
-          await pelangganOpSqlite.tambahPelanggan(pelangganBaru);
-        }
-
-        if (!mounted) return;
-
-        final cekKoneksi =
-            await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
-        if (cekKoneksi) {
-          Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
-          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
-          if (mounted) {
-            ToastUtil.success(
-                context, 'Data pelanggan berhasil disimpan & disinkronkan.');
-          }
-        } else {
-          Log.info('Tidak ada koneksi internet, sinkronisasi dilewati.');
-          if (mounted) {
-            ToastUtil.info(context,
-                'Koneksi offline. Data disimpan lokal, akan sinkron saat online.');
-          }
-        }
-
-        // Membatalkan provider setelah menampilkan toast dan sebelum pop
-        ref.invalidate(daftarPelangganProvider);
-
-        if (mounted) {
-          Navigator.pop(context);
-        }
-      } catch (e, s) {
-        Log.error('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
-        if (mounted) {
-          ToastUtil.error(context, 'Gagal menyimpan data: $e');
-        }
-      } finally {
-        if (mounted) {
-          setState(() => _menyimpan = false);
-          Log.info('Proses penyimpanan selesai. isSaving diatur ke false.');
-        }
-      }
-    } else {
-      Log.warning('Form tidak valid. Proses penyimpanan dibatalkan.');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Log.info('Membangun UI CustomerForm. isSaving: $_menyimpan');
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _modeEdit ? 'Edit Pelanggan' : 'Tambah Pelanggan',
-        ),
-        leading: BackButton(
-          onPressed: () {
-            Log.info('Tombol "Back" ditekan. Kembali tanpa menyimpan.');
-            Navigator.pop(context, false);
-          },
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(TSizes.p16),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildTextField(
-                  controller: _namaController,
-                  focusNode: _namaFocusNode,
-                  label: 'Nama Pelanggan',
-                  icon: TIcons.personOutlined,
-                  nextFocus: _teleponFocusNode,
-                  validator: (v) => (v == null || v.isEmpty)
-                      ? 'Nama tidak boleh kosong'
-                      : null,
-                ),
-                gapH16,
-                _buildTextField(
-                  controller: _teleponController,
-                  focusNode: _teleponFocusNode,
-                  label: 'Nomor Telepon (WhatsApp)',
-                  icon: TIcons.phoneAndroid,
-                  keyboard: TextInputType.phone,
-                  nextFocus: _alamatFocusNode,
-                  validator: (v) => (v == null || v.isEmpty)
-                      ? 'Telepon tidak boleh kosong'
-                      : null,
-                ),
-                gapH16,
-                _buildTextField(
-                  controller: _alamatController,
-                  focusNode: _alamatFocusNode,
-                  label: 'Alamat Lengkap',
-                  icon: TIcons.home,
-                  nextFocus: _passwordFocusNode,
-                  validator: (v) => (v == null || v.isEmpty)
-                      ? 'Alamat tidak boleh kosong'
-                      : null,
-                ),
-                gapH16,
-                TextFormField(
-                  controller: _passwordController,
-                  focusNode: _passwordFocusNode,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: const Icon(TIcons.lock),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _passwordTerlihat ? TIcons.show : TIcons.hide,
-                      ),
-                      onPressed: () {
-                        Log.info('Visibilitas password diubah.');
-                        setState(
-                          () => _passwordTerlihat = !_passwordTerlihat,
-                        );
-                      },
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  obscureText: !_passwordTerlihat,
-                  textInputAction: TextInputAction.next,
-                  onFieldSubmitted: (_) =>
-                      FocusScope.of(context).requestFocus(_macAddressFocusNode),
-                  validator: (v) => (v == null || v.isEmpty)
-                      ? 'Password tidak boleh kosong'
-                      : null,
-                ),
-                gapH16,
-                _buildTextField(
-                  controller: _macAddressController,
-                  focusNode: _macAddressFocusNode,
-                  label: 'MAC Address',
-                  icon: TIcons.router,
-                  hint: 'XX:XX:XX:XX:XX:XX',
-                  action: TextInputAction.done,
-                  onSubmitted: (_) => _macAddressFocusNode.unfocus(),
-                  validator: (v) => (v == null || v.isEmpty)
-                      ? 'MAC Address tidak boleh kosong'
-                      : null,
-                ),
-                gapH32,
-                ElevatedButton(
-                  onPressed: _menyimpan ? null : _simpanPelanggan,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: _menyimpan
-                      ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 3,
-                          ),
-                        )
-                      : const Text(
-                          'SIMPAN',
-                        ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required final TextEditingController controller,
-    required final FocusNode focusNode,
-    required final String label,
-    required final IconData icon,
-    final String? hint,
-    final TextInputType keyboard = TextInputType.text,
-    final TextInputAction action = TextInputAction.next,
-    final FocusNode? nextFocus,
-    final void Function(String)? onSubmitted,
-    final String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      focusNode: focusNode,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      keyboardType: keyboard,
-      textInputAction: action,
-      onFieldSubmitted: (final v) {
-        if (nextFocus != null) FocusScope.of(context).requestFocus(nextFocus);
-        if (onSubmitted != null) onSubmitted(v);
-      },
-      validator: validator,
-    );
-  }
-}
-// path: lib/admin/halaman/form/form_pelanggan_aktif.dart
-
-import 'dart:async';
-
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/dompet/model/dompet_model.dart';
-import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
-import 'package:wifi/fitur/kategori/model/kategori_model.dart';
-import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
-import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
-import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
-import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
-import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
-import 'package:wifi/shared/common/text.dart';
-import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/notfikasi/enum/tipe_notifikasi_enum.dart';
-import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
-import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/perhitungan_util.dart';
-import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
-import 'package:wifi/shared/widget/input/input_angka.dart';
-
-class FormPelangganAktif extends ConsumerStatefulWidget {
-  final PelangganAktifModel? pelangganAktif;
-
-  const FormPelangganAktif({super.key, this.pelangganAktif});
-
-  @override
-  ConsumerState<FormPelangganAktif> createState() => _FormPelangganAktifState();
-}
-
-class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
-  final _formKey = GlobalKey<FormState>();
-
-  List<PelangganModel> _pelangganList = [];
-  List<PaketModel> _daftarPaket = [];
-  List<DompetModel> _dompetList = [];
-  List<KategoriModel> _kategoriPemasukanList = [];
-  List<KategoriModel> _kategoriPengeluaranList = [];
-  List<KategoriModel> get _kategoriList =>
-      _gunakanPoin ? _kategoriPengeluaranList : _kategoriPemasukanList;
-  PelangganModel? _pelangganDipilih;
-  PaketModel? _paketDipilih;
-  DompetModel? _dompetDipilih;
-  KategoriModel? _kategoriDipilih;
-  bool _isLoading = true;
-  bool _menyimpan = false;
-  bool _gunakanPoin = false;
-  late TextEditingController _bonusDurationController;
-  TipeDurasiPaket _tipeBonusDurasi = TipeDurasiPaket.minutes;
-  bool _bonus = false;
-  int _saldoPoinPelanggan = 0;
-  DateTime? _pilihTanggal;
-  TimeOfDay? _pilihJam;
-  StatusPembayaran _statusPembayaran = StatusPembayaran.paid;
-  bool get _modeEdit => widget.pelangganAktif != null;
-  int hitungPoinEfektif() {
-    if (_paketDipilih == null) {
-      return 0;
-    }
-    return _gunakanPoin ? _paketDipilih!.poinPenukaran : 0;
-  }
-
-  int hitungSisaPoin() {
-    final poinDipakai = hitungPoinEfektif();
-    return (_saldoPoinPelanggan - poinDipakai).clamp(0, 999999999);
-  }
-
-  int _getDurationInMinutes(PaketModel paket) {
-    switch (paket.tipe) {
-      case TipeDurasiPaket.minutes:
-        return paket.durasi;
-      case TipeDurasiPaket.hours:
-        return paket.durasi * 60;
-      case TipeDurasiPaket.days:
-        return paket.durasi * 24 * 60;
-      case TipeDurasiPaket.months:
-        return paket.durasi * 30 * 24 * 60;
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _bonusDurationController = TextEditingController();
-    Log.info('FormPelangganAktif initState, isEditMode=$_modeEdit');
-    unawaited(_loadAllData());
-  }
-
-  Future<void> _loadAllData() async {
-    setState(() => _isLoading = true);
-    Log.info('Memulai memuat semua data untuk FormPelangganAktif');
-    final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
-    final paketOpsqlite = ref.read(paketOpSqliteProvider);
-    final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
-    final dompetOpSqlite = ref.read(dompetOpSqliteProvider);
-    final kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
-    try {
-      final pa = widget.pelangganAktif;
-      final transaksiTerkaitFuture = pa?.idTransaksi != null
-          ? transaksiOperasi.ambilBerdasarkanId(pa!.idTransaksi)
-          : Future<TransaksiModel?>.value();
-
-      final hasil = await Future.wait<Object?>([
-        pelangganOpSqlite.ambilSemua(),
-        paketOpsqlite.ambilSemua(),
-        dompetOpSqlite.ambilSemua(),
-        kategoriOpSqlite.ambilSemua(),
-        transaksiTerkaitFuture,
-      ]);
-
-      if (!mounted) {
-        return;
-      }
-
-      final daftarPelanggan = (hasil[0] as List<PelangganModel>)
-        ..sort((a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
-
-      final daftarPaket = (hasil[1] as List<PaketModel>)
-        ..sort(
-          (a, b) =>
-              _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)),
-        );
-
-      final daftarDompet = (hasil[2] as List<DompetModel>)
-          .where((d) => !d.dihapus)
-          .toList();
-
-      final semuaKategori = hasil[3] as List<KategoriModel>;
-      final kategoriPemasukanList = semuaKategori
-          .where((k) => k.tipe == TipeKategori.income && !k.diHapus)
-          .toList();
-      final daftarKategoriPengeluaran = semuaKategori
-          .where((k) => k.tipe == TipeKategori.expense && !k.diHapus)
-          .toList();
-
-      final transaksiTerkait = hasil.length > 4 && hasil[4] is TransaksiModel
-          ? hasil[4] as TransaksiModel?
-          : null;
-      setState(() {
-        _pelangganList = daftarPelanggan;
-        _daftarPaket = daftarPaket;
-        _dompetList = daftarDompet;
-        _kategoriPemasukanList = kategoriPemasukanList;
-        _kategoriPengeluaranList = daftarKategoriPengeluaran;
-        Log.info('Semua data berhasil dimuat.');
-      });
-
-      if (_modeEdit) {
-        await _mapEditData(transaksiTerkait);
-      } else {
-        _mapNewData();
-      }
-
-      setState(() {
-        _isLoading = false;
-        Log.info('Semua data berhasil dimuat.');
-      });
-    } catch (e, s) {
-      Log.error('Gagal memuat data referensi', e: e, s: s);
-      if (mounted) {
-        ToastUtil.error(context, 'Gagal memuat data: $e');
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  Future<void> _mapEditData(TransaksiModel? transaksi) async {
-    final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
-    final pa = widget.pelangganAktif!;
-    Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
-
-    _pelangganDipilih = _pelangganList.firstWhereOrNull(
-      (p) => p.id == pa.idPelanggan,
-    );
-    _paketDipilih = _daftarPaket.firstWhereOrNull((p) => p.id == pa.idPaket);
-
-    if (transaksi != null) {
-      Log.info(
-        'Transaksi terkait (ID: ${transaksi.id}) ditemukan. Memetakan dompet dan kategori.',
-      );
-      _dompetDipilih = _dompetList.firstWhereOrNull(
-        (d) => d.id == transaksi.idDompet,
-      );
-      final kategoriSumber = transaksi.tipe == TipeTransaksi.income
-          ? _kategoriPemasukanList
-          : _kategoriPengeluaranList;
-      _kategoriDipilih = kategoriSumber.firstWhereOrNull(
-        (k) => k.id == transaksi.idKategori,
-      );
-
-      if (transaksi.durasiBonus > 0) {
-        _bonus = true;
-        _bonusDurationController.text = transaksi.durasiBonus.toString();
-        _tipeBonusDurasi = transaksi.tipeDurasiBonus ?? TipeDurasiPaket.hours;
-      }
-    } else {
-      Log.warning(
-        'Transaksi terkait untuk PelangganAktif ID: ${pa.id} tidak ditemukan.',
-      );
-      if (mounted) {
-        ToastUtil.info(
-          context,
-          'Info: Transaksi asli tidak ditemukan, pilih ulang dompet/kategori.',
-        );
-      }
-    }
-
-    _pilihTanggal = pa.tanggalMulai;
-    _pilihJam = TimeOfDay.fromDateTime(pa.tanggalMulai);
-    _statusPembayaran = pa.status;
-
-    if (_pelangganDipilih != null) {
-      await transaksiOperasi.ambilTotalPoin(_pelangganDipilih!.id).then((poin) {
-        if (mounted) {
-          setState(() => _saldoPoinPelanggan = poin);
-        }
-      });
-    }
-
-    Log.info('Pemetaan data edit selesai.');
-  }
-
-  void _mapNewData() {
-    Log.info('Menginisialisasi form untuk entri baru.');
-    final now = DateTime.now();
-    _pilihTanggal = now;
-    _pilihJam = TimeOfDay.fromDateTime(now);
-    if (_dompetList.isNotEmpty) {
-      _dompetDipilih = _dompetList.first;
-    }
-    if (_kategoriPemasukanList.isNotEmpty) {
-      _kategoriDipilih =
-          _kategoriPemasukanList.firstWhereOrNull(
-            (k) => k.nama.toLowerCase() == 'aktivasi paket',
-          ) ??
-          _kategoriPemasukanList.first;
-    }
-  }
-
-  Future<void> _memilihTanggal(BuildContext context) async {
-    Log.info('Memilih tanggal, saat ini: $_pilihTanggal');
-    final terpilih = await showDatePicker(
-      context: context,
-      initialDate: _pilihTanggal ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (terpilih != null && terpilih != _pilihTanggal) {
-      setState(() => _pilihTanggal = terpilih);
-      Log.info('Tanggal dipilih: ${FormatTanggal.formatDasar(terpilih)}');
-    }
-  }
-
-  Future<void> _memilihJam(BuildContext context) async {
-    Log.info('Memilih waktu, saat ini: $_pilihJam');
-    final initial = _pilihJam ?? TimeOfDay.fromDateTime(DateTime.now());
-    final terpilih = await showTimePicker(
-      context: context,
-      initialTime: initial,
-      builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-        child: child!,
-      ),
-    );
-    if (terpilih != null && terpilih != _pilihJam) {
-      setState(() => _pilihJam = terpilih);
-      Log.info('Waktu dipilih: ${terpilih.hour}:${terpilih.minute}');
-    }
-  }
-
-  Future<PelangganAktifModel?> _simpanData() async {
-    Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
-    final notifikasiOpFirebase = ref.read(notifikasiOpFirebaseProvider);
-    final pelangganAktifOpsqlite = ref.read(pelangganAktifOpSqliteProvider);
-    if (!(_formKey.currentState?.validate() ?? false)) {
-      Log.warning('Validasi form gagal');
-      if (mounted) {
-        ToastUtil.error(context, 'Data belum lengkap');
-      }
-      return null;
-    }
-
-    if (_pelangganDipilih == null ||
-        _paketDipilih == null ||
-        _pilihTanggal == null ||
-        _pilihJam == null ||
-        _dompetDipilih == null ||
-        _kategoriDipilih == null) {
-      Log.warning('Data form belum lengkap');
-      if (mounted) {
-        ToastUtil.error(context, 'Harap lengkapi semua data');
-      }
-      return null;
-    }
-
-    try {
-      final tanggalMulai = DateTime(
-        _pilihTanggal!.year,
-        _pilihTanggal!.month,
-        _pilihTanggal!.day,
-        _pilihJam!.hour,
-        _pilihJam!.minute,
-      );
-      final int durasiBonus = _bonus
-          ? (int.tryParse(_bonusDurationController.text) ?? 0)
-          : 0;
-      final DateTime tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
-        tanggalMulai,
-        _paketDipilih!,
-        durasiBonus: durasiBonus,
-        tipeDurasiBonus: _bonus ? _tipeBonusDurasi : null,
-      );
-
-      final idTransaksi =
-          (_modeEdit && widget.pelangganAktif?.idTransaksi != null)
-          ? widget.pelangganAktif!.idTransaksi
-          : const Uuid().v4();
-
-      final pelangganAktifData = PelangganAktifModel(
-        id: _modeEdit ? widget.pelangganAktif!.id : const Uuid().v4(),
-        idPelanggan: _pelangganDipilih!.id,
-        idPaket: _paketDipilih!.id,
-        tanggalMulai: tanggalMulai,
-        tanggalBerakhir: tanggalBerakhir,
-        status: _statusPembayaran,
-        idTransaksi: idTransaksi,
-      );
-
-      final transaksiData = TransaksiModel(
-        id: idTransaksi,
-        tanggal: tanggalMulai,
-        deskripsi: 'Aktivasi Paket: ${_paketDipilih!.nama}',
-        jumlah: _gunakanPoin ? 0 : _paketDipilih!.harga.toDouble(),
-        tipe: _gunakanPoin ? TipeTransaksi.expense : TipeTransaksi.income,
-        idDompet: _dompetDipilih!.id,
-        idKategori: _kategoriDipilih!.id,
-        idPelanggan: _pelangganDipilih!.id,
-        idPaket: _paketDipilih!.id,
-        statusPembayaran: _statusPembayaran,
-        poinDidapat: _gunakanPoin ? 0 : _paketDipilih!.poinHadiah,
-        poinDigunakan: _gunakanPoin ? _paketDipilih!.poinPenukaran : 0,
-        durasiPaket: _paketDipilih!.durasi,
-        tipeDurasiPaket: _paketDipilih!.tipe,
-        durasiBonus: durasiBonus,
-        tipeDurasiBonus: _bonus ? _tipeBonusDurasi : null,
-        tanggalMulai: tanggalMulai,
-        tanggalBerakhir: tanggalBerakhir,
-        statusAktivasi: true,
-      );
-      Log.info(
-        'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$idTransaksi',
-      );
-
-      PelangganAktifModel pelangganAktifHasil;
-      if (_modeEdit) {
-        pelangganAktifHasil = await pelangganAktifOpsqlite.updateActiveCustomer(
-          pelangganAktifData,
-        );
-        await ref
-            .read(transaksiProvider.notifier)
-            .updateTransaction(transaksiData);
-        notifikasiOpFirebase.deleteByTransactionId(idTransaksi);
-        Log.info(
-          'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
-        );
-      } else {
-        pelangganAktifHasil = await pelangganAktifOpsqlite.tambahPelangganAktif(
-          pelangganAktifData,
-        );
-        await ref
-            .read(transaksiProvider.notifier)
-            .tambahTransaksi(transaksiData);
-      }
-      ref.invalidate(pelangganAktifProvider);
-
-      final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
-      final durasiSetengahJalan = Duration(
-        microseconds: (totalDurasi.inMicroseconds / 2).round(),
-      );
-      final tanggalNotifikasiSetengahJalan = tanggalMulai.add(
-        durasiSetengahJalan,
-      );
-
-      final List<NotifikasiModel> daftarNotifikasi = [
-        NotifikasiModel(
-          id: const Uuid().v4(),
-          tanggalMulai: tanggalMulai,
-          tanggalBerakhir: tanggalBerakhir,
-          userId: _pelangganDipilih!.id,
-          tanggalTampil: tanggalNotifikasiSetengahJalan,
-          judul: 'Info: Setengah Perjalanan Paket',
-          deskripsi:
-              'Anda telah menggunakan 50% dari masa aktif paket ${_paketDipilih!.nama}.',
-          idTujuan: idTransaksi,
-          tipe: TipeNotifikasiEnum.transaksi,
-          diperbaruiPada: DateTime.now().toUtc(),
-        ),
-        NotifikasiModel(
-          id: const Uuid().v4(),
-          tanggalMulai: tanggalMulai,
-          tanggalBerakhir: tanggalBerakhir,
-          userId: _pelangganDipilih!.id,
-          tanggalTampil: tanggalBerakhir.subtract(const Duration(days: 1)),
-          judul: 'Pengingat: Masa Aktif Segera Habis',
-          deskripsi:
-              'Masa aktif paket ${_paketDipilih!.nama} Anda akan berakhir besok.',
-          idTujuan: idTransaksi,
-          tipe: TipeNotifikasiEnum.transaksi,
-          diperbaruiPada: DateTime.now().toUtc(),
-        ),
-        NotifikasiModel(
-          id: const Uuid().v4(),
-          tanggalMulai: tanggalMulai,
-          tanggalBerakhir: tanggalBerakhir,
-          userId: _pelangganDipilih!.id,
-          tanggalTampil: tanggalBerakhir,
-          judul: 'Masa Aktif Paket Habis',
-          deskripsi:
-              'Masa aktif untuk paket ${_paketDipilih!.nama} telah berakhir hari ini.',
-          idTujuan: idTransaksi,
-          tipe: TipeNotifikasiEnum.transaksi,
-          diperbaruiPada: DateTime.now().toUtc(),
-        ),
-        NotifikasiModel(
-          id: const Uuid().v4(),
-          tanggalMulai: tanggalMulai,
-          tanggalBerakhir: tanggalBerakhir,
-          userId: _pelangganDipilih!.id,
-          tanggalTampil: tanggalBerakhir.add(const Duration(days: 1)),
-          judul: 'Masa Aktif Telah Berakhir',
-          deskripsi:
-              'Masa aktif untuk paket ${_paketDipilih!.nama} telah berakhir kemarin. Silakan perpanjang.',
-          idTujuan: idTransaksi,
-          tipe: TipeNotifikasiEnum.transaksi,
-          diperbaruiPada: DateTime.now().toUtc(),
-        ),
-      ];
-      Log.info('data notifikasi untuk masa aktif paket telah dibuat,');
-
-      for (final notif in daftarNotifikasi) {
-        notifikasiOpFirebase.addNotifikasi(notif);
-      }
-
-      final isOnline = await ref
-          .read(koneksiInternetServiceProvider)
-          .cekKoneksiLokal();
-      if (isOnline) {
-        Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
-        ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
-      } else {
-        Log.warning('Koneksi offline, sinkronisasi akan dijalankan nanti.');
-      }
-      Log.info('Berhasil menyimpan, id hasil=${pelangganAktifHasil.id}');
-      return pelangganAktifHasil;
-    } catch (e, s) {
-      Log.error('Gagal menyimpan data pelanggan aktif.', e: e, s: s);
-      if (mounted) {
-        ToastUtil.error(context, 'Gagal menyimpan: $e');
-      }
-      return null;
-    }
-  }
-
-  void _invalidateSemuaProvider() {
-    ref
-      ..invalidate(pelangganAktifOpSqliteProvider)
-      ..invalidate(transaksiOpSqliteProvider)
-      ..invalidate(transaksiOpFirebaseProvider)
-      ..invalidate(dompetOpSqliteProvider)
-      ..invalidate(statistikProvider)
-      ..invalidate(pelangganAktifProvider);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _modeEdit ? 'Edit Pelanggan Aktif' : 'Form Pelanggan Aktif',
-        ),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(TSizes.p16),
-              child: Form(
-                key: _formKey,
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildPoinSwitch(),
-                      gapH16,
-                      _buildPelangganDropdown(),
-                      gapH16,
-                      _buildPaketDropdown(),
-                      gapH16,
-                      _buildDompetDropdown(),
-                      gapH16,
-                      _buildTombolBonus(),
-                      _buildDurasiBonus(),
-                      gapH16,
-                      _buildKategoriDropdown(),
-                      gapH24,
-                      PemilihTanggalWaktuWidget(
-                        tanggalTerpilih: _pilihTanggal,
-                        waktuTerpilih: _pilihJam,
-                        onPilihTanggal: () => _memilihTanggal(context),
-                        onPilihWaktu: () => _memilihJam(context),
-                      ),
-                      gapH8,
-                      _buildStatusPembayaranButtons(),
-                      gapH24,
-                      _buildInfoTanggalBerakhir(),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-      bottomNavigationBar: _buildTombolSimpan(),
-    );
-  }
-
-  Widget _buildPoinSwitch() {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: TSizes.p16,
-        vertical: TSizes.p8,
-      ),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Gunakan Poin',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              gapH4,
-              if (_gunakanPoin)
-                Text(
-                  'Poin dipakai: ${hitungPoinEfektif()}',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                ),
-              Text(
-                'Sisa poin: ${hitungSisaPoin()}',
-                style: TextStyle(color: Colors.grey[600], fontSize: 12),
-              ),
-            ],
-          ),
-          Switch(
-            value: _gunakanPoin,
-            onChanged: (value) {
-              if (!mounted) return;
-              setState(() {
-                _gunakanPoin = value;
-                Log.info(
-                  'Penggunaan poin diubah: $_gunakanPoin, poin efektif=${hitungPoinEfektif()}',
-                );
-                if (!_kategoriList.contains(_kategoriDipilih)) {
-                  _kategoriDipilih = _kategoriList.isNotEmpty
-                      ? _kategoriList.first
-                      : null;
-                }
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPelangganDropdown() {
-    final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
-    return DropdownButtonFormField<PelangganModel>(
-      key: const Key('pelanggan_dropdown'),
-      decoration: const InputDecoration(
-        labelText: 'Pilih Pelanggan',
-        border: OutlineInputBorder(),
-      ),
-      initialValue: _pelangganDipilih,
-      items: _pelangganList
-          .map((p) => DropdownMenuItem(value: p, child: Text(p.nama)))
-          .toList(),
-      onChanged: (newValue) async {
-        if (newValue == null) {
-          return;
-        }
-        final saldoPoin = await transaksiOperasi.ambilTotalPoin(newValue.id);
-        if (mounted) {
-          setState(() {
-            Log.info(
-              'Pelanggan dipilih: id=${newValue.id} nama=${newValue.nama}, saldoPoin=$saldoPoin',
-            );
-            _pelangganDipilih = newValue;
-            _saldoPoinPelanggan = saldoPoin;
-          });
-        }
-      },
-      validator: (v) => v == null ? 'Pelanggan tidak boleh kosong' : null,
-    );
-  }
-
-  Widget _buildPaketDropdown() {
-    return DropdownButtonFormField<PaketModel>(
-      key: const Key('paket_dropdown'),
-      decoration: const InputDecoration(
-        labelText: 'Pilih Paket',
-        border: OutlineInputBorder(),
-      ),
-      initialValue: _paketDipilih,
-      items: _daftarPaket
-          .map((p) => DropdownMenuItem(value: p, child: Text(p.nama)))
-          .toList(),
-      onChanged: (newValue) {
-        if (!mounted) return;
-        Log.info(
-          'Paket dipilih: id=${(newValue)?.id} nama=${(newValue)?.nama}',
-        );
-        setState(() => _paketDipilih = newValue);
-      },
-      validator: (v) => v == null ? 'Paket tidak boleh kosong' : null,
-    );
-  }
-
-  Widget _buildDompetDropdown() {
-    return DropdownButtonFormField<DompetModel>(
-      key: const Key('dompet_dropdown'),
-      decoration: const InputDecoration(
-        labelText: 'Pilih Dompet',
-        border: OutlineInputBorder(),
-      ),
-      initialValue: _dompetDipilih,
-      items: _dompetList
-          .map((d) => DropdownMenuItem(value: d, child: Text(d.nama)))
-          .toList(),
-      onChanged: (newValue) {
-        Log.info('Dompet dipilih: id=${newValue?.id} nama=${newValue?.nama}');
-        setState(() => _dompetDipilih = newValue);
-      },
-      validator: (v) => v == null ? 'Dompet tidak boleh kosong' : null,
-    );
-  }
-
-  Widget _buildKategoriDropdown() {
-    return DropdownButtonFormField<KategoriModel>(
-      key: const Key('kategori_dropdown'),
-      decoration: const InputDecoration(
-        labelText: 'Pilih Kategori Transaksi',
-        border: OutlineInputBorder(),
-      ),
-      initialValue: _kategoriDipilih,
-      items: _kategoriList
-          .map((k) => DropdownMenuItem(value: k, child: Text(k.nama)))
-          .toList(),
-      onChanged: (newValue) {
-        Log.info('Kategori dipilih: id=${newValue?.id} nama=${newValue?.nama}');
-        setState(() => _kategoriDipilih = newValue);
-      },
-      validator: (v) => v == null ? 'Kategori tidak boleh kosong' : null,
-    );
-  }
-
-  Widget _buildStatusPembayaranButtons() {
-    return Row(
-      children: [
-        Expanded(
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _statusPembayaran == StatusPembayaran.paid
-                  ? Theme.of(context).primaryColor
-                  : Colors.grey[200],
-              foregroundColor: _statusPembayaran == StatusPembayaran.paid
-                  ? Colors.white
-                  : Colors.black,
-            ),
-            onPressed: () {
-              Log.info('Status pembayaran diubah: paid');
-              setState(() => _statusPembayaran = StatusPembayaran.paid);
-            },
-            child: const Text('Lunas'),
-          ),
-        ),
-        gapW8,
-        Expanded(
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _statusPembayaran == StatusPembayaran.unpaid
-                  ? Theme.of(context).primaryColor
-                  : Colors.grey[200],
-              foregroundColor: _statusPembayaran == StatusPembayaran.unpaid
-                  ? Colors.white
-                  : Colors.black,
-            ),
-            onPressed: () {
-              Log.info('Status pembayaran diubah: unpaid');
-              setState(() => _statusPembayaran = StatusPembayaran.unpaid);
-            },
-            child: const Text('Belum Lunas'),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInfoTanggalBerakhir() {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Tanggal Mulai:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(
-              (_pilihTanggal == null || _pilihJam == null)
-                  ? 'Pilih Tanggal & Jam'
-                  : FormatWaktuLengkap.formatSingkat(
-                      DateTime(
-                        _pilihTanggal!.year,
-                        _pilihTanggal!.month,
-                        _pilihTanggal!.day,
-                        _pilihJam!.hour,
-                        _pilihJam!.minute,
-                      ),
-                    ),
-            ),
-          ],
-        ),
-        gapH8,
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Tanggal Berakhir:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text((() {
-              if (_pilihTanggal != null &&
-                  _pilihJam != null &&
-                  _paketDipilih != null) {
-                final startDate = DateTime(
-                  _pilihTanggal!.year,
-                  _pilihTanggal!.month,
-                  _pilihTanggal!.day,
-                  _pilihJam!.hour,
-                  _pilihJam!.minute,
-                );
-                final int nilaiBonus = _bonus
-                    ? (int.tryParse(_bonusDurationController.text) ?? 0)
-                    : 0;
-                final DateTime endDate = PerhitunganUtil.hitungTanggalBerakhir(
-                  startDate,
-                  _paketDipilih!,
-                  durasiBonus: nilaiBonus,
-                  tipeDurasiBonus: _bonus ? _tipeBonusDurasi : null,
-                );
-
-                return FormatWaktuLengkap.formatSingkat(endDate);
-              } else {
-                return 'Pilih paket & tanggal mulai';
-              }
-            }())),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTombolBonus() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const TeksIsiBesar('Bonus'),
-        Switch(
-          value: _bonus,
-          onChanged: (value) {
-            setState(() {
-              _bonus = value;
-              Log.info('Status bonus diubah: $_bonus');
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDurasiBonus() {
-    if (!_bonus) return const SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        gapH8,
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: InputAngka(
-                controller: _bonusDurationController,
-                label: 'Durasi Bonus ',
-                validasi: _bonus,
-                prefixIcon: TIcons.timer,
-              ),
-            ),
-            gapW8,
-            Expanded(
-              child: DropdownButtonFormField<TipeDurasiPaket>(
-                key: const Key('dropdown_bonus_duration_type'),
-                initialValue: _tipeBonusDurasi,
-                decoration: const InputDecoration(border: OutlineInputBorder()),
-                items: TipeDurasiPaket.values.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Text(type.displayName),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  if (newValue != null) {
-                    setState(() {
-                      _tipeBonusDurasi = newValue;
-                      Log.info('Tipe durasi bonus diubah: $_tipeBonusDurasi');
-                    });
-                  }
-                },
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTombolSimpan() {
-    return Padding(
-      padding: const EdgeInsets.all(TSizes.p16),
-      child: ElevatedButton(
-        onPressed: _menyimpan
-            ? null
-            : () async {
-                setState(() => _menyimpan = true);
-                Log.info('Tombol Simpan ditekan');
-                final navigator = Navigator.of(context);
-                final hasil = await _simpanData();
-
-                if (!mounted) {
-                  setState(() => _menyimpan = false);
-                  return;
-                }
-                if (hasil != null) {
-                  ToastUtil.success(
-                    context,
-                    'Data berhasil disimpan',
-                  ); // ✅ Pesan jelas
-                  _invalidateSemuaProvider();
-                  navigator.pop();
-                  Log.info(
-                    'Form berhasil disimpan, memicu refresh dompet, statistik, dan menutup halaman.',
-                  );
-                } else {
-                  ToastUtil.error(context, ' Data tidak terimpan');
-                  Log.warning('Form gagal disimpan, pesan: ${hasil}');
-                }
-              },
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size(double.infinity, 50),
-        ),
-        child: _menyimpan
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : const Text('Simpan'),
-      ),
-    );
-  }
-}
-// path: lib/admin/halaman/form/form_kategori.dart
-
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
-
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
-import 'package:wifi/fitur/kategori/model/kategori_model.dart';
-import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
-import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
-import 'package:wifi/shared/utils/toast_util.dart';
-
-/// Halaman form untuk menambah atau mengedit kategori dan sub-kategori.
-class CategoryForm extends ConsumerStatefulWidget {
-  /// Model kategori yang akan diedit. Jika null, maka form akan membuat kategori baru.
-  final KategoriModel? kategori;
-
-  /// Model sub-kategori yang akan diedit.
-  final SubKategoriModel? subKategori;
-
-  /// ID kategori induk untuk membuat sub-kategori baru.
-  final String? idKategoriInduk;
-
-  /// Konstruktor untuk CategoryForm.
-  const CategoryForm({
-    super.key,
-    this.kategori,
-    this.subKategori,
-    this.idKategoriInduk,
-  });
-
-  @override
-  ConsumerState<CategoryForm> createState() => _CategoryFormState();
-}
-
-class _CategoryFormState extends ConsumerState<CategoryForm> {
-  final _formKey = GlobalKey<FormState>();
-  late TipeKategori _tipe;
-  late TextEditingController _namaController;
-  final _namaFocusNode = FocusNode();
-
-  final List<TextEditingController> _subKategoriControllers = [];
-  final List<SubKategoriModel?> _subKategoriModels = [];
-
-  bool get _modeEdit => widget.kategori != null || widget.subKategori != null;
-  bool get _isSubKategoriMode =>
-      widget.subKategori != null || widget.idKategoriInduk != null;
-
-  @override
-  void initState() {
-    super.initState();
-    final isEditMode = widget.kategori != null || widget.subKategori != null;
-    final isSubKategoriMode =
-        widget.subKategori != null || widget.idKategoriInduk != null;
-
-    Log.info(
-      '''Membuat state untuk CategoryForm. Mode: ${isEditMode ? "EDIT" : "TAMBAH BARU"}, Jenis: ${isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}, ${widget.kategori != null ? "Kategori: ${widget.kategori!.nama} (ID: ${widget.kategori!.id})" : ""}${widget.subKategori != null ? "Sub-Kategori: ${widget.subKategori!.nama} (ID: ${widget.subKategori!.id})" : ""}${widget.idKategoriInduk != null ? "ID Kategori Induk: ${widget.idKategoriInduk}" : ""}''',
-    );
-
-    Log.info('========================================');
-    Log.info('LIFECYCLE: initState() - Halaman CategoryForm');
-    Log.info('========================================');
-
-    Log.info(
-      'Membuat TextEditingController untuk input nama.',
-    );
-    _namaController = TextEditingController();
-    Log.info(
-      'TextEditingController berhasil dibuat.',
-    );
-
-    Log.info('Membuat FocusNode untuk input nama.');
-    Log.info('FocusNode berhasil dibuat: ${_namaFocusNode.hashCode}');
-
-    if (widget.kategori != null) {
-      Log.info('MODE EDIT KATEGORI UTAMA terdeteksi.');
-      Log.info('Data kategori yang akan diedit:');
-      Log.info('  - ID: ${widget.kategori!.id}');
-      Log.info('  - Nama: ${widget.kategori!.nama}');
-      Log.info('  - Tipe: ${widget.kategori!.tipe}');
-      Log.info(
-        '  - Jumlah Sub-Kategori: ${widget.kategori!.idSubKategori.length}',
-      );
-      Log.info('  - Diperbarui: ${widget.kategori!.diperbaruiPada}');
-      Log.info('  - isDeleted: ${widget.kategori!.diHapus}');
-      Log.info('  - Diarsipkan: ${widget.kategori!.diarsipkanPada ?? "NULL"}');
-
-      Log.info(
-        'Mengisi TextEditingController dengan nama kategori: "${widget.kategori!.nama}"',
-      );
-      _namaController.text = widget.kategori!.nama;
-      _tipe = widget.kategori!.tipe;
-      Log.info('Tipe kategori diatur ke: ${widget.kategori!.tipe}');
-
-      Log.info('Memuat sub-kategori yang sudah ada untuk diedit.');
-      for (final sub in widget.kategori!.idSubKategori) {
-        _subKategoriControllers.add(TextEditingController(text: sub.nama));
-        _subKategoriModels.add(sub);
-      }
-      Log.info('${_subKategoriControllers.length} sub-kategori dimuat.');
-    } else if (widget.subKategori != null) {
-      Log.info('MODE EDIT SUB-KATEGORI terdeteksi.');
-      Log.info('Data sub-kategori yang akan diedit:');
-      Log.info('  - ID: ${widget.subKategori!.id}');
-      Log.info('  - Nama: ${widget.subKategori!.nama}');
-      Log.info('  - ID Kategori Induk: ${widget.subKategori!.idKategori}');
-      Log.info('  - Diperbarui: ${widget.subKategori!.diperbaruiPada}');
-
-      Log.info(
-        'Mengisi TextEditingController dengan nama sub-kategori: "${widget.subKategori!.nama}"',
-      );
-      _namaController.text = widget.subKategori!.nama;
-      // FIX: Inisialisasi _tipe untuk menghindari LateInitializationError.
-      // Nilai ini tidak digunakan saat menyimpan sub-kategori, jadi aman diatur ke default.
-      _tipe = TipeKategori.income;
-      Log.info(
-          'Tipe kategori diatur ke default: $_tipe (tidak relevan untuk edit sub-kategori).');
-    } else {
-      Log.info(
-        'MODE TAMBAH BARU terdeteksi.',
-      );
-      Log.info('Form akan membuat kategori baru dengan:');
-      Log.info('  - ID: Akan digenerate otomatis menggunakan UUID v4');
-      Log.info('  - Tipe Default: income');
-      Log.info('  - Nama: Dari input pengguna');
-      Log.info('  - Sub-Kategori: Opsional, bisa ditambahkan multiple');
-      Log.info('  - Diperbarui: Akan diatur oleh lapisan Operasi Data');
-
-      Log.info('Mengatur tipe default ke income.');
-      _tipe = TipeKategori.income;
-      Log.info('Tipe kategori diatur ke: $_tipe');
-
-      Log.info('Menambahkan field input sub-kategori pertama secara default.');
-      _tambahInputSubKategori();
-    }
-
-    Log.info(
-      'Inisialisasi CategoryForm selesai. Siap menerima input dari pengguna.',
-    );
-  }
-
-  @override
-  void dispose() {
-    Log.info('========================================');
-    Log.info('LIFECYCLE: dispose() - Halaman CategoryForm');
-    Log.info('Membersihkan resource:');
-    Log.info('  - Mendispose TextEditingController utama (_namaController)');
-    Log.info('  - Mendispose FocusNode (_namaFocusNode)');
-    Log.info(
-      '  - Mendispose ${_subKategoriControllers.length} TextEditingController sub-kategori',
-    );
-    Log.info('========================================');
-
-    _namaController.dispose();
-    _namaFocusNode.dispose();
-
-    for (int i = 0; i < _subKategoriControllers.length; i++) {
-      Log.info('  Mendispose sub-kategori controller ke-${i + 1}');
-      _subKategoriControllers[i].dispose();
-    }
-
-    Log.info('Semua resource berhasil dibersihkan.');
-    super.dispose();
-  }
-
-  void _tambahInputSubKategori() {
-    Log.info('========================================');
-    Log.info('AKSI: Menambahkan field input sub-kategori baru');
-    Log.info(
-      'Jumlah field sub-kategori sebelum ditambah: ${_subKategoriControllers.length}',
-    );
-    Log.info('========================================');
-
-    setState(() {
-      _subKategoriControllers.add(TextEditingController());
-      _subKategoriModels.add(null);
-    });
-
-    Log.info('Field sub-kategori baru berhasil ditambahkan.');
-    Log.info(
-      'Jumlah field sub-kategori sekarang: ${_subKategoriControllers.length}',
-    );
-    Log.info('Index field baru: ${_subKategoriControllers.length - 1}');
-  }
-
-  void _hapusInputSubKategori(final int index) {
-    Log.info('========================================');
-    Log.info('AKSI: Menghapus field input sub-kategori');
-    Log.info('Index yang akan dihapus: $index');
-    Log.info(
-      'Jumlah field sub-kategori sebelum dihapus: ${_subKategoriControllers.length}',
-    );
-
-    if (index >= 0 && index < _subKategoriControllers.length) {
-      Log.info(
-        'Nilai field sebelum dihapus: "${_subKategoriControllers[index].text}"',
-      );
-    } else {
-      Log.warning(
-        'Index $index tidak valid. Jumlah field: ${_subKategoriControllers.length}',
-      );
-    }
-    Log.info('========================================');
-
-    setState(() {
-      Log.info('Mendispose controller pada index $index.');
-      _subKategoriControllers[index].dispose();
-      Log.info('Menghapus controller dari list.');
-      _subKategoriControllers.removeAt(index);
-      _subKategoriModels.removeAt(index);
-    });
-
-    Log.info('Field sub-kategori berhasil dihapus.');
-    Log.info(
-      'Jumlah field sub-kategori sekarang: ${_subKategoriControllers.length}',
-    );
-  }
-
-  Future<void> _saveForm() async {
-    final kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
-    Log.info('Mode: ${_modeEdit ? "EDIT" : "TAMBAH BARU"}');
-    Log.info(
-      'Jenis: ${_isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',
-    );
-    Log.info('Nama yang akan disimpan: "${_namaController.text}"');
-    if (!_isSubKategoriMode || !_modeEdit) {
-      Log.info('Tipe kategori: $_tipe');
-    }
-
-    Log.info('Memvalidasi form...');
-    if (_formKey.currentState!.validate()) {
-      Log.info('Validasi form BERHASIL. Semua input valid.');
-
-      try {
-        if (_modeEdit && widget.subKategori != null) {
-          final String parentCategoryId = widget.subKategori!.idKategori;
-
-          Log.info('Data sub-kategori sebelum update:');
-          Log.info('  - ID: ${widget.subKategori!.id}');
-          Log.info('  - Nama Lama: ${widget.subKategori!.nama}');
-          Log.info('  - Nama Baru: ${_namaController.text}');
-          Log.info('  - ID Kategori Induk: $parentCategoryId');
-
-          Log.info(
-            'Mengambil data kategori induk dengan ID: $parentCategoryId',
-          );
-          final kategoriInduk = await kategoriOpSqlite
-              .ambilKategoriBerdasarkanId(parentCategoryId) as KategoriModel?;
-
-          if (kategoriInduk == null) {
-            throw Exception('Kategori induk tidak ditemukan.');
-          }
-
-          Log.info(
-            'Kategori induk ditemukan: ${kategoriInduk.nama} (memiliki ${kategoriInduk.idSubKategori.length} sub-kategori).',
-          );
-          Log.info(
-            'Mencari index sub-kategori dengan ID: ${widget.subKategori!.id} dalam daftar sub-kategori.',
-          );
-
-          final subKategoriIndex = kategoriInduk.idSubKategori
-              .indexWhere((final s) => s.id == widget.subKategori!.id);
-
-          if (subKategoriIndex != -1) {
-            Log.info('Sub-kategori ditemukan pada index: $subKategoriIndex');
-            Log.info(
-              'Nama sub-kategori sebelum update: "${kategoriInduk.idSubKategori[subKategoriIndex].nama}"',
-            );
-
-            Log.info(
-              'Membuat salinan sub-kategori dengan nama baru.',
-            );
-            final subKategoriDiperbarui =
-                kategoriInduk.idSubKategori[subKategoriIndex].copyWith(
-              nama: _namaController.text,
-            );
-
-            Log.info(
-              'Mengganti sub-kategori pada index $subKategoriIndex dengan data baru.',
-            );
-            kategoriInduk.idSubKategori[subKategoriIndex] =
-                subKategoriDiperbarui;
-
-            Log.info(
-              'Memanggil _kategoriOperasi.updateCategory() untuk menyimpan perubahan kategori induk.',
-            );
-            await kategoriOpSqlite.updateKategori(kategoriInduk);
-
-            Log.info('Update sub-kategori BERHASIL.');
-            Log.info(
-              'Nama sub-kategori berubah dari "${widget.subKategori!.nama}" menjadi "${_namaController.text}"',
-            );
-          } else {
-            Log.error(
-              'Sub-kategori dengan ID ${widget.subKategori!.id} tidak ditemukan dalam daftar sub-kategori kategori induk.',
-            );
-            throw Exception('Sub-kategori tidak ditemukan untuk diedit.');
-          }
-        } else if (_modeEdit && widget.kategori != null) {
-          Log.info('========================================');
-          Log.info('PROSES UPDATE KATEGORI UTAMA (MODE EDIT KATEGORI)');
-          Log.info('========================================');
-
-          Log.info('Memproses daftar sub-kategori untuk update...');
-          final List<SubKategoriModel> newSubCategoryList = [];
-          for (int i = 0; i < _subKategoriControllers.length; i++) {
-            final controller = _subKategoriControllers[i];
-            final originalModel = _subKategoriModels[i];
-
-            if (controller.text.isNotEmpty) {
-              if (originalModel != null) {
-                // Ini adalah sub-kategori yang sudah ada yang mungkin telah diedit
-                newSubCategoryList
-                    .add(originalModel.copyWith(nama: controller.text));
-              } else {
-                // Ini adalah sub-kategori baru
-                newSubCategoryList.add(SubKategoriModel(
-                  id: const Uuid().v4(),
-                  nama: controller.text,
-                  idKategori: widget.kategori!.id,
-                ));
-              }
-            }
-          }
-
-          final kategoriDiperbarui = widget.kategori!.copyWith(
-            nama: _namaController.text,
-            tipe: _tipe,
-            idSubKategori: newSubCategoryList,
-          );
-
-          Log.info(
-            'Memanggil _kategoriOperasi.updateCategory() untuk menyimpan perubahan.',
-          );
-          await kategoriOpSqlite.updateKategori(kategoriDiperbarui);
-
-          Log.info('Update kategori utama BERHASIL.');
-        } else {
-          final String kategoriId = const Uuid().v4();
-          Log.info('UUID berhasil digenerate: $kategoriId');
-
-          Log.info(
-            'Memproses ${_subKategoriControllers.length} field input sub-kategori.',
-          );
-
-          int subKategoriKosong = 0;
-          int subKategoriTerisi = 0;
-
-          final List<SubKategoriModel> subKategoriList =
-              _subKategoriControllers.where((final controller) {
-            final isEmpty = controller.text.isEmpty;
-            if (isEmpty) {
-              subKategoriKosong++;
-              Log.info(
-                '  Sub-kategori dengan nilai "${controller.text}" akan DIABAIKAN karena kosong.',
-              );
-            } else {
-              subKategoriTerisi++;
-              Log.info(
-                '  Sub-kategori dengan nilai "${controller.text}" akan DISIMPAN.',
-              );
-            }
-            return !isEmpty;
-          }).map((final controller) {
-            return SubKategoriModel(
-              id: const Uuid().v4(),
-              nama: controller.text,
-              idKategori: kategoriId,
-            );
-          }).toList();
-
-          Log.info(
-            'Ringkasan sub-kategori: $subKategoriTerisi akan disimpan, $subKategoriKosong diabaikan.',
-          );
-
-          Log.info('Membuat objek CategoryModel baru.');
-          final kategoriBaru = KategoriModel(
-            id: kategoriId,
-            nama: _namaController.text,
-            tipe: _tipe,
-            idSubKategori: subKategoriList,
-          );
-
-          Log.info('Objek CategoryModel berhasil dibuat:');
-          Log.info('  - ID: ${kategoriBaru.id}');
-          Log.info('  - Nama: ${kategoriBaru.nama}');
-          Log.info('  - Tipe: ${kategoriBaru.tipe}');
-          Log.info(
-            '  - Jumlah Sub-Kategori: ${kategoriBaru.idSubKategori.length}',
-          );
-          Log.info('  - Diperbarui: Akan diatur oleh lapisan Operasi Data.');
-
-          Log.info(
-            'Memanggil _kategoriOperasi.createCategory() untuk menyimpan kategori baru.',
-          );
-          await kategoriOpSqlite.tambahKategori(kategoriBaru);
-        }
-
-        if (!mounted) {
-          Log.warning(
-            'Widget sudah tidak mounted setelah penyimpanan berhasil. Tidak dapat menampilkan SnackBar atau melakukan Navigator.pop.',
-          );
-          return;
-        }
-
-        final hasConnection = await KoneksiInternetService().cekKoneksiLokal();
-        if (hasConnection) {
-          final syncCheckService = ref.read(layananCekSinkronisasiProvider);
-          syncCheckService.jalankanCekSinkronisasi();
-          if (mounted) {
-            ToastUtil.success(
-                context, 'Kategori berhasil disimpan dan disinkronkan.');
-          }
-        } else {
-          if (mounted) {
-            ToastUtil.info(context,
-                'Koneksi offline. Data disimpan lokal dan akan disinkronkan saat online.');
-          }
-        }
-        if (mounted) {
-          Navigator.pop(context, true);
-        }
-      } on Exception catch (e, s) {
-        Log.error(
-          'Gagal menyimpan ${_isSubKategoriMode ? 'sub-kategori' : 'kategori'}. Proses ${_modeEdit ? 'update' : 'create'} mengalami kegagalan. Kemungkinan penyebab: koneksi database gagal, constraint violation, data tidak valid, atau terjadi error saat operasi database.',
-          e: e,
-          s: s,
-        );
-
-        if (!mounted) {
-          Log.warning(
-            'Widget sudah tidak mounted setelah error. Tidak dapat menampilkan SnackBar error.',
-          );
-          return;
-        }
-
-        Log.info(
-          'Widget masih mounted. Menampilkan SnackBar error ke pengguna.',
-        );
-        if (mounted) {
-          ToastUtil.error(context, 'Gagal menyimpan: $e');
-        }
-        Log.info('SnackBar error telah ditampilkan.');
-      }
-    } else {
-      Log.warning('Validasi form GAGAL. Terdapat input yang tidak valid.');
-      Log.warning(
-        'Kemungkinan penyebab: Nama kategori/sub-kategori kosong atau tidak memenuhi kriteria validasi.',
-      );
-      Log.info('Form tidak akan disimpan sampai semua input valid.');
-    }
-  }
-
-  @override
-  Widget build(final BuildContext context) {
-    String judul = 'Form Kategori';
-    if (_modeEdit && widget.kategori != null) judul = 'Edit Kategori';
-    if (_modeEdit && widget.subKategori != null) judul = 'Edit Sub-Kategori';
-    if (!_modeEdit && widget.idKategoriInduk != null) {
-      judul = 'Tambah Sub-Kategori';
-    }
-    if (!_modeEdit && widget.kategori == null && widget.subKategori == null) {
-      judul = 'Tambah Kategori Baru';
-    }
-
-    Log.info('========================================');
-    Log.info('LIFECYCLE: build() - Membangun UI CategoryForm');
-    Log.info('Judul halaman: "$judul"');
-    Log.info('Mode: ${_modeEdit ? "EDIT" : "TAMBAH BARU"}');
-    Log.info(
-      'Jenis: ${_isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',
-    );
-    Log.info('Nama di controller: "${_namaController.text}"');
-    // Log.info('Tipe terpilih: $_tipe');
-    Log.info('Jumlah field sub-kategori: ${_subKategoriControllers.length}');
-    Log.info('========================================');
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(judul),
-        leading: BackButton(
-          onPressed: () {
-            Log.info(
-              'NAVIGASI: Tombol Kembali ditekan. Kembali ke halaman sebelumnya dengan result false (tidak ada perubahan).',
-            );
-            Navigator.pop(context, false);
-          },
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(TSizes.p16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  controller: _namaController,
-                  focusNode: _namaFocusNode,
-                  decoration: InputDecoration(
-                    labelText: _isSubKategoriMode
-                        ? 'Nama Sub-Kategori'
-                        : 'Nama Kategori',
-                    border: const OutlineInputBorder(),
-                  ),
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (final _) {
-                    Log.info(
-                      'INPUT: Field nama disubmit melalui keyboard (TextInputAction.done).',
-                    );
-                    Log.info('Nilai yang disubmit: "${_namaController.text}"');
-                    Log.info('Menghilangkan fokus dari input.');
-                    FocusScope.of(context).unfocus();
-                  },
-                  onChanged: (final value) {
-                    Log.info(
-                      'INPUT: Nama ${_isSubKategoriMode ? "sub-kategori" : "kategori"} berubah menjadi: "$value" (panjang: ${value.length} karakter)',
-                    );
-                  },
-                  validator: (final value) {
-                    Log.info(
-                      'VALIDASI: Memvalidasi input nama. Nilai: "${value ?? "NULL"}"',
-                    );
-                    if (value == null || value.isEmpty) {
-                      Log.warning('VALIDASI GAGAL: Nama kosong.');
-                      return 'Nama tidak boleh kosong';
-                    }
-                    Log.info('VALIDASI BERHASIL: Nama valid.');
-                    return null;
-                  },
-                ),
-                gapH16,
-                if (!_isSubKategoriMode) ...[
-                  DropdownButtonFormField<TipeKategori>(
-                    initialValue: _tipe,
-                    decoration: const InputDecoration(
-                      labelText: 'Tipe',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: TipeKategori.values
-                        .where((final type) =>
-                            type == TipeKategori.income ||
-                            type == TipeKategori.expense)
-                        .map((final TipeKategori category) {
-                      Log.info(
-                          'Membuat DropdownMenuItem untuk: ${category.displayName}');
-
-                      return DropdownMenuItem<TipeKategori>(
-                        value: category,
-                        child: Text(category.displayName),
-                      );
-                    }).toList(),
-                    onChanged: (final TipeKategori? newValue) {
-                      if (newValue != null) {
-                        Log.info('DROPDOWN: Tipe kategori diubah.');
-                        Log.info('  - Tipe Lama: $_tipe');
-                        Log.info('  - Tipe Baru: $newValue');
-                        setState(() {
-                          _tipe = newValue;
-                        });
-                        Log.info('State _tipe berhasil diperbarui ke: $_tipe');
-                      }
-                    },
-                  ),
-                  gapH24,
-                ],
-                if (!_isSubKategoriMode) ...[
-                  const Text(
-                    'Sub-Kategori',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const Divider(),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _subKategoriControllers.length,
-                    itemBuilder: (final context, final index) {
-                      return Padding(
-                        padding:
-                            const EdgeInsets.symmetric(vertical: TSizes.p8),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _subKategoriControllers[index],
-                                decoration: InputDecoration(
-                                  labelText: 'Nama Sub-Kategori ${index + 1}',
-                                  border: const OutlineInputBorder(),
-                                ),
-                                onChanged: (final value) {
-                                  Log.info(
-                                    'INPUT: Sub-kategori ke-${index + 1} berubah menjadi: "$value" (panjang: ${value.length} karakter)',
-                                  );
-                                },
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(
-                                TIcons.delete,
-                                color: Colors.red,
-                              ),
-                              onPressed: () {
-                                Log.info(
-                                  'AKSI: Tombol hapus sub-kategori ke-${index + 1} ditekan.',
-                                );
-                                _hapusInputSubKategori(index);
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  gapH8,
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton.icon(
-                      onPressed: () {
-                        Log.info(
-                          'AKSI: Tombol "Tambah Input" sub-kategori ditekan.',
-                        );
-                        _tambahInputSubKategori();
-                      },
-                      icon: const Icon(TIcons.add),
-                      label: const Text('Tambah Input'),
-                    ),
-                  ),
-                ],
-                gapH20,
-                ElevatedButton(
-                  onPressed: () async {
-                    Log.info('AKSI: Tombol Simpan ditekan oleh pengguna.');
-                    await _saveForm();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                  child: const Text('Simpan'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 // path: lib/admin/halaman/tab/lainnya.dart
 
 import 'dart:async';
@@ -44826,8 +45409,8 @@ import 'package:wifi/data_dummy/halaman_data_dummy.dart';
 import 'package:wifi/fitur/versi_apk/page/versi_apk_page.dart';
 import 'package:wifi/fitur/event/page/event_page_a.dart';
 import 'package:wifi/fitur/paket/page/paket.dart';
-import 'package:wifi/admin/halaman/lainnya/riwayat_aktivasi_paket.dart';
-import 'package:wifi/admin/halaman/lainnya/tentang_aplikasi.dart';
+import 'package:wifi/fitur/transaksi/page/riwayat_aktivasi_paket.dart';
+import 'package:wifi/fitur/info_perangkat/page/tentang_aplikasi.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
 import 'package:wifi/fitur/kategori/page/kategori.dart';
@@ -45006,6 +45589,100 @@ class _LainnyaPageState extends State<LainnyaPage> {
   }
 }
 // path: lib/admin/providers/customer_provider.dart
+import 'dart:async';
+
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
+
+part 'customer_provider.g.dart';
+
+@riverpod
+class CustomerNotifier extends _$CustomerNotifier {
+  late PelangganOpFirebase _pelangganOpFirebase;
+  List<PelangganModel> _semuaPelanggan = [];
+  
+  @override
+  Future<List<PelangganModel>> build() async {
+    _pelangganOpFirebase = ref.watch(pelangganOpFirebaseProvider);
+    final pelanggan = await _pelangganOpFirebase.ambilSemuaPelanggan();
+    _semuaPelanggan = pelanggan;
+    return pelanggan;
+  }
+
+  Future<void> search(String query) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      if (query.isEmpty) {
+        return _semuaPelanggan;
+      }
+      return _semuaPelanggan
+          .where((pelanggan) =>
+              pelanggan.nama.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+}
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'customer_provider.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(CustomerNotifier)
+final customerProvider = CustomerNotifierProvider._();
+
+final class CustomerNotifierProvider
+    extends $AsyncNotifierProvider<CustomerNotifier, List<PelangganModel>> {
+  CustomerNotifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'customerProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$customerNotifierHash();
+
+  @$internal
+  @override
+  CustomerNotifier create() => CustomerNotifier();
+}
+
+String _$customerNotifierHash() => r'6b33de3f6bdcfb270db1501a328b8b0851d5993d';
+
+abstract class _$CustomerNotifier extends $AsyncNotifier<List<PelangganModel>> {
+  FutureOr<List<PelangganModel>> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref
+            as $Ref<AsyncValue<List<PelangganModel>>, List<PelangganModel>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                AsyncValue<List<PelangganModel>>,
+                List<PelangganModel>
+              >,
+              AsyncValue<List<PelangganModel>>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'detail_langganan_provider.dart';
@@ -45116,14 +45793,14 @@ class TransactionWithCustomer {
 }
 
 enum SortOption {
-  endDate,
-  nameAZ,
-  nameZA,
-  endingToday,
-  updatedAtAZ,
-  updatedAtZA,
-  paid,
-  unpaid
+  tanggalBerakhir,
+  namaAZ,
+  namaZA,
+  beralhirHariIni,
+  diperbaruiPadaAZ,
+  diperbaruiPadaZA,
+  lunas,
+  belumLunas,
 }
 
 class RiwayatAktivasiPaketState {
@@ -45132,7 +45809,7 @@ class RiwayatAktivasiPaketState {
 
   RiwayatAktivasiPaketState({
     this.items = const [],
-    this.sortBy = SortOption.endingToday,
+    this.sortBy = SortOption.beralhirHariIni,
   });
 
   RiwayatAktivasiPaketState copyWith({
@@ -45152,7 +45829,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
   FutureOr<RiwayatAktivasiPaketState> build() {
     ref.watch(transaksiOpSqliteProvider);
     ref.watch(pelangganOpSqliteProvider);
-    return _loadData(SortOption.endDate);
+    return _loadData(SortOption.tanggalBerakhir);
   }
 
   Future<RiwayatAktivasiPaketState> _loadData(SortOption targetSort) async {
@@ -45160,8 +45837,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
 
-    final transaksi =
-        await transaksiOpSqlite.getTransactionsByPackageActivation();
+    final transaksi = await transaksiOpSqlite.ambilBerdasarkanStatusAktivasi();
     final pealnggan = await pelangganOpSqlite.ambilSemua();
 
     // Buat peta untuk pencarian cepat
@@ -45178,10 +45854,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     // Urutkan data gabungan
     _performSort(combinedList, targetSort);
 
-    return RiwayatAktivasiPaketState(
-      items: combinedList,
-      sortBy: targetSort,
-    );
+    return RiwayatAktivasiPaketState(items: combinedList, sortBy: targetSort);
   }
 
   void changeSort(SortOption newSort) {
@@ -45190,19 +45863,19 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     final currentState = state.value!;
     if (currentState.sortBy == newSort) return;
 
-    final List<TransactionWithCustomer> sortedList =
-        List.from(currentState.items);
+    final List<TransactionWithCustomer> sortedList = List.from(
+      currentState.items,
+    );
     _performSort(sortedList, newSort);
 
-    state = AsyncValue.data(currentState.copyWith(
-      items: sortedList,
-      sortBy: newSort,
-    ));
+    state = AsyncValue.data(
+      currentState.copyWith(items: sortedList, sortBy: newSort),
+    );
   }
 
   void _performSort(List<TransactionWithCustomer> list, SortOption option) {
     switch (option) {
-      case SortOption.endDate:
+      case SortOption.tanggalBerakhir:
         list.sort((a, b) {
           if (a.transaksi.tanggalBerakhir == null &&
               b.transaksi.tanggalBerakhir == null) {
@@ -45210,12 +45883,14 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           }
           if (a.transaksi.tanggalBerakhir == null) return 1;
           if (b.transaksi.tanggalBerakhir == null) return -1;
-          final dateCompare = b.transaksi.tanggalBerakhir!
-              .compareTo(a.transaksi.tanggalBerakhir!);
+          final dateCompare = a.transaksi.tanggalBerakhir!.compareTo(
+            b.transaksi.tanggalBerakhir!,
+          );
           if (dateCompare != 0) return dateCompare;
           return a.transaksi.id.compareTo(b.transaksi.id);
         });
-      case SortOption.updatedAtAZ:
+        break;
+      case SortOption.diperbaruiPadaAZ:
         list.sort((a, b) {
           final updateAtA = a.transaksi.diperbaruiPada;
           final updateAtB = b.transaksi.diperbaruiPada;
@@ -45225,7 +45900,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           return updateAtB.compareTo(updateAtA);
         });
         break;
-      case SortOption.updatedAtZA:
+      case SortOption.diperbaruiPadaZA:
         list.sort((a, b) {
           final updateAtA = a.transaksi.diperbaruiPada;
           final updateAtB = b.transaksi.diperbaruiPada;
@@ -45234,22 +45909,37 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           if (updateAtB == null) return 1;
           return updateAtA.compareTo(updateAtB);
         });
-      case SortOption.nameAZ:
-        list.sort((a, b) => a.customerName
-            .toLowerCase()
-            .compareTo(b.customerName.toLowerCase()));
-      case SortOption.nameZA:
-        list.sort((a, b) => b.customerName
-            .toLowerCase()
-            .compareTo(a.customerName.toLowerCase()));
-      case SortOption.endingToday:
+        break;
+
+      case SortOption.namaAZ:
+        list.sort((a, b) {
+          final nameCompare = a.customerName.toLowerCase().compareTo(
+            b.customerName.toLowerCase(),
+          );
+          if (nameCompare != 0) return nameCompare;
+          // Jika nama sama, urutkan berdasarkan ID transaksi (trx1 < trx3)
+          return a.transaksi.id.compareTo(b.transaksi.id);
+        });
+        break;
+      case SortOption.namaZA:
+        list.sort((a, b) {
+          final nameCompare = b.customerName.toLowerCase().compareTo(
+            a.customerName.toLowerCase(),
+          );
+          if (nameCompare != 0) return nameCompare;
+          return a.transaksi.id.compareTo(b.transaksi.id);
+        });
+        break;
+      case SortOption.beralhirHariIni:
         final now = DateTime.now();
         list.sort((a, b) {
-          final isTodayA = a.transaksi.tanggalBerakhir != null &&
+          final isTodayA =
+              a.transaksi.tanggalBerakhir != null &&
               a.transaksi.tanggalBerakhir!.year == now.year &&
               a.transaksi.tanggalBerakhir!.month == now.month &&
               a.transaksi.tanggalBerakhir!.day == now.day;
-          final isTodayB = b.transaksi.tanggalBerakhir != null &&
+          final isTodayB =
+              b.transaksi.tanggalBerakhir != null &&
               b.transaksi.tanggalBerakhir!.year == now.year &&
               b.transaksi.tanggalBerakhir!.month == now.month &&
               b.transaksi.tanggalBerakhir!.day == now.day;
@@ -45263,19 +45953,25 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           }
           if (a.transaksi.tanggalBerakhir == null) return 1;
           if (b.transaksi.tanggalBerakhir == null) return -1;
-          return a.transaksi.tanggalBerakhir!
-              .compareTo(b.transaksi.tanggalBerakhir!);
+          return a.transaksi.tanggalBerakhir!.compareTo(
+            b.transaksi.tanggalBerakhir!,
+          );
         });
-      case SortOption.paid:
+        break;
+
+      case SortOption.lunas:
         list.sort((a, b) {
           final isPaidA = a.transaksi.statusPembayaran == StatusPembayaran.paid;
           final isPaidB = b.transaksi.statusPembayaran == StatusPembayaran.paid;
           if (isPaidA && !isPaidB) return -1;
           if (!isPaidA && isPaidB) return 1;
-          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal)
-              .compareTo(a.transaksi.diperbaruiPada ?? a.transaksi.tanggal);
+          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal).compareTo(
+            a.transaksi.diperbaruiPada ?? a.transaksi.tanggal,
+          );
         });
-      case SortOption.unpaid:
+        break;
+
+      case SortOption.belumLunas:
         list.sort((a, b) {
           final isUnpaidA =
               a.transaksi.statusPembayaran == StatusPembayaran.unpaid;
@@ -45283,9 +45979,11 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
               b.transaksi.statusPembayaran == StatusPembayaran.unpaid;
           if (isUnpaidA && !isUnpaidB) return -1;
           if (!isUnpaidA && isUnpaidB) return 1;
-          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal)
-              .compareTo(a.transaksi.diperbaruiPada ?? a.transaksi.tanggal);
+          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal).compareTo(
+            a.transaksi.diperbaruiPada ?? a.transaksi.tanggal,
+          );
         });
+        break;
     }
   }
 }
@@ -45729,7 +46427,7 @@ final class RiwayatAktivasiPaketProvider
 }
 
 String _$riwayatAktivasiPaketHash() =>
-    r'192a5788ec05e15cd2108fef75cb01ca7819f9dc';
+    r'd49db32fddd5d548dcf460f0d815c77e01dd7df9';
 
 abstract class _$RiwayatAktivasiPaket
     extends $AsyncNotifier<RiwayatAktivasiPaketState> {
@@ -45771,10 +46469,11 @@ import 'package:wifi/fitur/dompet/page/dompet_page.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/fitur/statistik/page/statistik_page_a.dart';
-import 'package:wifi/fitur/transaksi/page/transaksi_page_a.dart';
+import 'package:wifi/fitur/transaksi/page/transaksi_a.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:workmanager/workmanager.dart';
@@ -45820,9 +46519,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
       unawaited(_initAwal());
     });
 
-    _langgananKoneksi = Connectivity().onConnectivityChanged.listen(
-          _koneksiBerubah,
-        );
+    _koneksiBerubah();
   }
 
   Future<void> _initAwal() async {
@@ -45832,9 +46529,13 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     _cekDanTampilkanPesanOffline();
     Log.info('Menjalankan pengecekan langganan kadaluarsa.');
 
-    final expiredService = ref.read(arsipLanggananKadaluarsaServiceProvider);
-    await expiredService.prosesArsipLanggananKadaluarsa();
-    await _syncJikaOnline().timeout(const Duration(seconds: 5));
+    try {
+      final expiredService = ref.read(arsipLanggananKadaluarsaServiceProvider);
+      await expiredService.prosesArsipLanggananKadaluarsa();
+      await _syncJikaOnline().timeout(const Duration(seconds: 5));
+    } catch (e, s) {
+      Log.info('gagal arsip langganan kadaluarsa $e $s');
+    }
   }
 
   @override
@@ -45861,10 +46562,11 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     Log.info('Tugas sinkronisasi periodik dijadwalkan.');
   }
 
-  Future<void> _koneksiBerubah(List<ConnectivityResult> hasil) async {
-    final terkoneksi = hasil.contains(ConnectivityResult.mobile) ||
-        hasil.contains(ConnectivityResult.wifi);
-    if (terkoneksi) {
+  Future<void> _koneksiBerubah() async {
+    final isOnline = await ref
+        .read(koneksiInternetServiceProvider)
+        .cekInternet();
+    if (isOnline) {
       Log.info('Koneksi kembali online. Memicu sinkronisasi.');
       await _syncJikaOnline();
     } else {
@@ -45879,7 +46581,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     try {
       await _syncService.jalankanCekSinkronisasi();
       Log.info('Sinkronisasi data selesai.');
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error('Gagal sinkronisasi data.', e: e, s: s);
     } finally {
       if (mounted) setState(() => _sedangSync = false);
@@ -45911,7 +46613,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   final _halamanTab = <Widget>[
     const PelangganAktifPage(),
     const DompetPage(),
-    const TransaksiPageA(),
+    const TransaksiA(),
     const StatistikPageA(),
     const OrderPage(),
     const LainnyaPage(),
