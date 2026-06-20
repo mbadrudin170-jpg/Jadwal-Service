@@ -130,15 +130,15 @@ class StatistikOpSqlite {
       final db = await SqliteDatabase.instance.database;
       const String namaTabel = '"${NamaTabel.pelanggan}"';
 
-      final result = await db.rawQuery('''
+      final hasil = await db.rawQuery('''
         SELECT COUNT(*) 
         FROM $namaTabel 
         WHERE ${NamaKolom.dihapus} = 0
         ''');
 
-      Log.info('Query total pelanggan selesai. Hasil mentah: $result');
+      Log.info('Query total pelanggan selesai. Hasil mentah: $hasil');
 
-      final jumlah = Sqflite.firstIntValue(result) ?? 0;
+      final jumlah = Sqflite.firstIntValue(hasil) ?? 0;
       Log.info('Total pelanggan yang dihitung: $jumlah');
       return jumlah;
     } catch (e, st) {
