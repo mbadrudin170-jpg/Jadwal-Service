@@ -6,21 +6,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'ping_provider.g.dart';
 
 @riverpod
-Future<PingData> ping(Ref ref) async {
-  final ping = Ping('google.com', count: 1);
-  ref.onDispose(() {
-    ping.stop();
-  });
-
-  try {
-    final PingData terakhir = await ping.stream.first;
-    return terakhir;
-  } finally {
-    await ping.stop();
-  }
-}
-
-@riverpod
 Future<int> httpPing(Ref ref) async {
   final stopwatch = Stopwatch()..start();
   try {
