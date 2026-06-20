@@ -20,8 +20,11 @@ import 'package:wifi/shared/utils/toast_util.dart';
 class FormVersiApk extends ConsumerStatefulWidget {
   final VersiApkModel? versiApk;
 
-  const FormVersiApk(
-      {super.key, this.versiApk, final VersiApkOpSqlite? versiApkOpSqlite});
+  const FormVersiApk({
+    super.key,
+    this.versiApk,
+    final VersiApkOpSqlite? versiApkOpSqlite,
+  });
   @override
   ConsumerState<FormVersiApk> createState() => _FormVersiApkState();
 }
@@ -85,7 +88,7 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
         _youtubeTutorialController.text = versiTerakhir.linkYoutubeTutorial;
         final buildUniversalBerikutnya =
             (versiTerakhir.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0) +
-                1;
+            1;
         final buildBit32Berikutnya =
             (versiTerakhir.nomorBuildTerakhir[ArsitekturApk.bit32] ?? 0) + 1;
         final buildBit64Berikutnya =
@@ -201,14 +204,10 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
         );
       }
       if (_build32Controller.text.isNotEmpty) {
-        nomorBuild[ArsitekturApk.bit32] = int.parse(
-          _build32Controller.text,
-        );
+        nomorBuild[ArsitekturApk.bit32] = int.parse(_build32Controller.text);
       }
       if (_build64Controller.text.isNotEmpty) {
-        nomorBuild[ArsitekturApk.bit64] = int.parse(
-          _build64Controller.text,
-        );
+        nomorBuild[ArsitekturApk.bit64] = int.parse(_build64Controller.text);
       }
 
       final tautanUnduhan = <ArsitekturApk, String>{};
@@ -239,15 +238,17 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
           Log.info('Menjalankan perintah tambah data baru...');
           await apkVersionOperasi.tambahVersiApk(dataToSave);
         }
-
-        final isonline = await KoneksiInternetService().cekKoneksiLokal();
+        final internetService = ref.read(koneksiInternetServiceProvider);
+        final isonline = await internetService.cekKoneksiLokal();
         if (isonline) {
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
         } else {
           Log.info('Tidak ada koneksi internet, melewati proses sinkronisasi.');
           if (mounted) {
-            ToastUtil.info(context,
-                'Data lokal disimpan. Sinkronisasi akan dilakukan saat online.');
+            ToastUtil.info(
+              context,
+              'Data lokal disimpan. Sinkronisasi akan dilakukan saat online.',
+            );
           }
         }
 
@@ -295,8 +296,9 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
                     ),
                     validator: (final v) => v!.isEmpty ? 'Wajib diisi' : null,
                     onFieldSubmitted: (final _) {
-                      FocusScope.of(context)
-                          .requestFocus(_buildUniversalFocusNode);
+                      FocusScope.of(
+                        context,
+                      ).requestFocus(_buildUniversalFocusNode);
                     },
                   ),
                   gapH24,
@@ -358,10 +360,7 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
                     textInputAction: TextInputAction.done,
                     decoration: const InputDecoration(
                       labelText: 'URL Tutorial YouTube',
-                      prefixIcon: Icon(
-                        TIcons.youtube,
-                        color: Colors.red,
-                      ),
+                      prefixIcon: Icon(TIcons.youtube, color: Colors.red),
                       border: OutlineInputBorder(),
                     ),
                     onFieldSubmitted: (final _) => _saveForm(),
@@ -389,8 +388,9 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
                     gapH12,
                     Text(
                       'Menyimpan...',
-                      style: context.textTheme.bodyMedium
-                          ?.copyWith(color: Colors.white),
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: Colors.white,
+                      ),
                     ),
                   ],
                 ),
@@ -435,8 +435,9 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
       child: TextFormField(
         controller: controller,
         focusNode: focusNode,
-        textInputAction:
-            nextFocusNode != null ? TextInputAction.next : TextInputAction.done,
+        textInputAction: nextFocusNode != null
+            ? TextInputAction.next
+            : TextInputAction.done,
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
@@ -462,8 +463,9 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
       child: TextFormField(
         controller: controller,
         focusNode: focusNode,
-        textInputAction:
-            nextFocusNode != null ? TextInputAction.next : TextInputAction.done,
+        textInputAction: nextFocusNode != null
+            ? TextInputAction.next
+            : TextInputAction.done,
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),

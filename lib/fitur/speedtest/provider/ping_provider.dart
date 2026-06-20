@@ -1,5 +1,4 @@
 // path: lib/fitur/speedtest/provider/ping_provider.dart
-import 'package:dart_ping/dart_ping.dart';
 import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

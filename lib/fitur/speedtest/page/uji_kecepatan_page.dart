@@ -74,7 +74,7 @@ class _HalamanUjiKecepatanState extends ConsumerState<HalamanUjiKecepatan> {
             else
               ElevatedButton.icon(
                 onPressed: () {
-                  ref.invalidate(pingProvider);
+                  ref.invalidate(httpPingProvider);
                   ref
                       .read(ujiKecepatanProvider.notifier)
                       .mulaiPengujian(context);

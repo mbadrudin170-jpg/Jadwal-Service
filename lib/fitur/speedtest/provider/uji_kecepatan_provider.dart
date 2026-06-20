@@ -56,7 +56,7 @@ class UjiKecepatan extends _$UjiKecepatan {
     // Get Ping
     try {
       state = state.copyWith(statusPesan: 'Mengukur ping...');
-      final pingAsync = await ref.read(pingProvider.future);
+      final pingAsync = await ref.read(httpPingProvider.future);
       final pingTime = pingAsync.response?.time?.inMilliseconds;
       if (pingTime != null) {
         state = state.copyWith(ping: pingTime);

@@ -89,7 +89,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
         Log.error('gagal menghapus data yang status nya diarsipkan');
       }
 
-      final isOnline = await koneksiInternetService.cekInternet(ref);
+      final isOnline = await koneksiInternetService.cekInternet();
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
 

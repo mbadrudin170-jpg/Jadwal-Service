@@ -14,7 +14,7 @@ final koneksiInternetServiceProvider = Provider<KoneksiInternetService>((ref) {
 
 class KoneksiInternetService {
   final Connectivity _connectivity;
-  final Ref _ref; // 2. Simpan referensi Ref di sini
+  final Ref _ref;
 
   KoneksiInternetService(this._ref, {Connectivity? connectivity})
     : _connectivity = connectivity ?? Connectivity() {

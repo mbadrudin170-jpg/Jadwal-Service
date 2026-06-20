@@ -30,7 +30,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   final _namaFocusNode = FocusNode();
   final _teleponFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
-  final _koneksiInternetService = KoneksiInternetService();
   bool _menyimpan = false;
 
   @override
@@ -55,7 +54,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
       try {
         Log.info('Memeriksa koneksi internet sebelum menyimpan perubahan.');
-        final isOnline = await _koneksiInternetService.cekInternet(ref);
+        final isOnline = await ref.read(koneksiInternetServiceProvider).cekInternet();
         Log.info('Hasil cek koneksi: isOnline=$isOnline');
 
         if (!isOnline) {

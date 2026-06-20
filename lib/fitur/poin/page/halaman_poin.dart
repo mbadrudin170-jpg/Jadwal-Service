@@ -94,7 +94,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
       final isOnline = await ref
           .read(koneksiInternetServiceProvider)
-          .cekInternet(ref);
+          .cekInternet();
       if (!isOnline) {
         ToastUtil.warning(context, 'Cek koneksi internet Anda');
         return;

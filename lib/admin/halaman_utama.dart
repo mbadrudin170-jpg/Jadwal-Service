@@ -108,7 +108,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   Future<void> _koneksiBerubah() async {
     final isOnline = await ref
         .read(koneksiInternetServiceProvider)
-        .cekInternet(ref);
+        .cekInternet();
     if (isOnline) {
       Log.info('Koneksi kembali online. Memicu sinkronisasi.');
       await _syncJikaOnline();
