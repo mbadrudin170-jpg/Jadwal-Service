@@ -8,9 +8,9 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/input/input_angka.dart';
 import 'package:wifi/shared/widget/input/input_password.dart';
 import 'package:wifi/shared/widget/input/input_teks.dart';
+import 'package:wifi/shared/widget/input/input_telepon.dart';
 
 class EditProfilePage extends ConsumerStatefulWidget {
   final PelangganModel pelanggan;
@@ -54,7 +54,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
       try {
         Log.info('Memeriksa koneksi internet sebelum menyimpan perubahan.');
-        final isOnline = await ref.read(koneksiInternetServiceProvider).cekInternet();
+        final isOnline = await ref
+            .read(koneksiInternetServiceProvider)
+            .cekInternet();
         Log.info('Hasil cek koneksi: isOnline=$isOnline');
 
         if (!isOnline) {
@@ -83,7 +85,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         );
         await pelangganOpFirebase.perbaruiPelanggan(dataPelanggan);
         Log.info('perbaruiPelanggan selesai untuk id=${dataPelanggan.id}.');
-
         ref.invalidate(pelangganOpFirebaseProvider);
         Log.info(
           'Provider pelangganOpFirebase di-invalidate agar data terbaru diambil.',
@@ -139,28 +140,24 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           child: ListView(
             children: [
               InputTeks(
+                focusNode: _namaFocusNode,
                 controller: _namaController,
+                nextFocusNode: _teleponFocusNode,
                 label: 'Nama Lengkap',
                 prefixIcon: TIcons.person,
-                focusNode: _namaFocusNode,
               ),
               gapH16,
-              InputAngka(
+              InputTelepon(
                 controller: _teleponController,
-                label: 'No. HP',
-                keyboardType: TextInputType.phone,
-                prefixIcon: TIcons.phoneAndroid,
                 focusNode: _teleponFocusNode,
+                nextFocusNode: _passwordFocusNode,
               ),
 
               gapH16,
               InputPassword(
                 controller: _passwordController,
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Password tidak boleh kosong'
-                    : null,
-                textInputAction: TextInputAction.done,
                 focusNode: _passwordFocusNode,
+                textInputAction: TextInputAction.done,
               ),
               gapH32,
               ElevatedButton(
@@ -178,10 +175,12 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                   backgroundColor: TColors.primaryColor,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text(
-                  'SIMPAN',
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
+                child: _menyimpan
+                    ? const CircularProgressIndicator()
+                    : const Text(
+                        'SIMPAN',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
               ),
             ],
           ),

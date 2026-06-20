@@ -70,10 +70,11 @@ void main() {
   late MockNotificationResponse mockNotificationResponse;
 
   setUpAll(() {
-    (AppRole.admin);
-    (ThemeMode.system);
-    (const SettingsModel());
-    (const Duration());
+    // MENYEDIAKAN DUMMY OBJECT UNTUK MOCKITO AGAR TIDAK TERJADI EXTRA POSITIONAL ARGUMENTS ERROR
+    provideDummy<AppRole>(AppRole.admin);
+    provideDummy<ThemeMode>(ThemeMode.system);
+    provideDummy<SettingsModel>(const SettingsModel());
+    provideDummy<Duration>(const Duration());
   });
 
   setUp(() {
@@ -110,7 +111,7 @@ void main() {
       mockPelangganAktifOpSqlite.hapusPermanenDataSoftDelete(),
     ).thenAnswer((_) async => 1);
     when(
-      mockKoneksiInternetService.cekInternet(any),
+      mockKoneksiInternetService.cekInternet(),
     ).thenAnswer((_) async => true);
     when(mockUnduhanAwalService.jalankanUnduhanAwal()).thenAnswer((_) async {});
     when(mockSettingsOpSqlite.ambilSettings()).thenAnswer(
@@ -118,7 +119,9 @@ void main() {
     );
     when(
       mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-        waktuPenjadwalanHapusDataArsip: anyNamed('waktuPenjadwalanHapusDataArsip'),
+        waktuPenjadwalanHapusDataArsip: anyNamed(
+          'waktuPenjadwalanHapusDataArsip',
+        ),
       ),
     ).thenAnswer((_) async => 1);
   });
@@ -229,7 +232,7 @@ void main() {
 
     testWidgets('02. inisialisasi berhasil saat online', (tester) async {
       when(
-        mockKoneksiInternetService.cekInternet(any),
+        mockKoneksiInternetService.cekInternet(),
       ).thenAnswer((_) async => true);
 
       final container = makeProviderContainer(
@@ -259,7 +262,7 @@ void main() {
 
     testWidgets('03. inisialisasi berhasil saat offline', (tester) async {
       when(
-        mockKoneksiInternetService.cekInternet(any),
+        mockKoneksiInternetService.cekInternet(),
       ).thenAnswer((_) async => false);
 
       final container = makeProviderContainer(
@@ -282,7 +285,9 @@ void main() {
       verifyNever(mockUnduhanAwalService.jalankanUnduhanAwal());
       verifyNever(
         mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-          waktuPenjadwalanHapusDataArsip: anyNamed('waktuPenjadwalanHapusDataArsip'),
+          waktuPenjadwalanHapusDataArsip: anyNamed(
+            'waktuPenjadwalanHapusDataArsip',
+          ),
         ),
       );
     });

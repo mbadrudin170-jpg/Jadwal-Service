@@ -27,7 +27,7 @@ class InputTelepon extends StatelessWidget {
     this.validasi = false,
     this.textInputAction = TextInputAction.next,
     this.enabled = true,
-    this.keyboardType = TextInputType.number,
+    this.keyboardType = TextInputType.phone,
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
     this.focusNode,
     this.nextFocusNode,

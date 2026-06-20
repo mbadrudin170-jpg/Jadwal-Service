@@ -42,6 +42,7 @@ class InputAngka extends StatelessWidget {
       textInputAction: textInputAction,
       enabled: enabled,
       focusNode: focusNode,
+      
       onTapOutside: (event) => FocusScope.of(context).unfocus(),
       onFieldSubmitted: (v) {
         if (onSubmitted != null) {
