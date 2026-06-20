@@ -243,9 +243,7 @@ class FeedbackOpSqlite {
   }
 
   /// Mengambil beberapa [FeedbackModel] berdasarkan daftar [ids].
-  Future<List<FeedbackModel>> ambilBerdasarkanIds(
-     List<String> ids,
-  ) async {
+  Future<List<FeedbackModel>> ambilBerdasarkanIds(List<String> ids) async {
     Log.info('Memulai getFeedbackByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning(
@@ -268,7 +266,7 @@ class FeedbackOpSqlite {
         'Berhasil mengambil ${daftarFeedback.length} data kritik_saran dari ${ids.length} ID yang diminta.',
       );
       return daftarFeedback;
-    }  catch (e, st) {
+    } catch (e, st) {
       Log.error('Gagal saat getFeedbackByIds', e: e, s: st);
       rethrow;
     }
