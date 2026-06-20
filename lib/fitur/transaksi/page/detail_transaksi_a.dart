@@ -1,4 +1,4 @@
-// path: lib/fitur/transaksi/page/detail_transaksi.dart
+// path lib/fitur/transaksi/page/detail_transaksi_a.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,26 +17,29 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah transaksi.
-class DetailTransaksi extends ConsumerStatefulWidget {
+class DetailTransaksiA extends ConsumerStatefulWidget {
   /// Model transaksi yang akan ditampilkan.
   final TransaksiModel transaksi;
 
   /// Konstruktor untuk TransactionDetailPage.
-  const DetailTransaksi({super.key, required this.transaksi});
+  const DetailTransaksiA({super.key, required this.transaksi});
 
   @override
-  ConsumerState<DetailTransaksi> createState() => _DetailTransaksistate();
+  ConsumerState<DetailTransaksiA> createState() => _DetailTransaksiAState();
 }
 
-class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
+class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
   late final DompetOpSqlite _dompetOpSqlite = ref.watch(dompetOpSqliteProvider);
-  late final KategoriOpSqlite _kategoriOpSqlite =
-      ref.watch(kategoriOpSqliteProvider);
-  late final PelangganOpSqlite _pelangganOpsqlite =
-      ref.watch(pelangganOpSqliteProvider);
+  late final KategoriOpSqlite _kategoriOpSqlite = ref.watch(
+    kategoriOpSqliteProvider,
+  );
+  late final PelangganOpSqlite _pelangganOpsqlite = ref.watch(
+    pelangganOpSqliteProvider,
+  );
   late final PaketOpSqlite _paketOpSqlite = ref.watch(paketOpSqliteProvider);
-  late final SubKategoriOpSqlite _subKategoriOpSqlite =
-      ref.watch(subKategoriOpSqliteProvider);
+  late final SubKategoriOpSqlite _subKategoriOpSqlite = ref.watch(
+    subKategoriOpSqliteProvider,
+  );
 
   late TransaksiModel _currentTransaction;
   bool _diUpdate = false;
@@ -74,7 +77,8 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
 
   Future<void> _navigasiKeForm() async {
     Log.info(
-        'Membuka FormTransaksiPage dari halaman detail untuk mengedit transaksi: ${_currentTransaction.id}');
+      'Membuka FormTransaksiPage dari halaman detail untuk mengedit transaksi: ${_currentTransaction.id}',
+    );
     final isSaved = await Navigator.push<bool?>(
       context,
       MaterialPageRoute(
@@ -84,11 +88,13 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
 
     if (isSaved ?? false) {
       Log.info(
-          'Form edit melaporkan keberhasilan penyimpanan. Memuat ulang data transaksi dari database.');
+        'Form edit melaporkan keberhasilan penyimpanan. Memuat ulang data transaksi dari database.',
+      );
       try {
         final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
-        final transaksi =
-            await transaksiOpSqlite.ambilBerdasarkanId(_currentTransaction.id);
+        final transaksi = await transaksiOpSqlite.ambilBerdasarkanId(
+          _currentTransaction.id,
+        );
 
         if (transaksi != null) {
           Log.info('Berhasil memuat data transaksi terbaru. Memperbarui UI.');
@@ -98,12 +104,16 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
           });
         } else {
           Log.warning(
-              'Gagal memuat ulang transaksi: data tidak ditemukan setelah update.');
+            'Gagal memuat ulang transaksi: data tidak ditemukan setelah update.',
+          );
           if (mounted) Navigator.pop(context, true);
         }
       } catch (e, s) {
-        Log.error('Gagal memuat ulang data transaksi setelah edit.',
-            e: e, s: s);
+        Log.error(
+          'Gagal memuat ulang data transaksi setelah edit.',
+          e: e,
+          s: s,
+        );
         if (mounted) {
           ToastUtil.error(context, 'Gagal memuat data terbaru.');
         }
@@ -142,7 +152,9 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
               FormatWaktuLengkap.formatSingkat(transaksi.tanggal),
             ),
             _buildDetailRow(
-                'Jumlah', FormatUang.formatMataUang(transaksi.jumlah)),
+              'Jumlah',
+              FormatUang.formatMataUang(transaksi.jumlah),
+            ),
             _buildDetailRow('Tipe', transaksi.tipe.displayName),
             _buildFutureDetailRow(
               'Dompet',
@@ -204,9 +216,13 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
               transaksi.statusPembayaran.displayName,
             ),
             _buildDetailRow(
-                'Poin Dihasilkan', transaksi.poinDidapat.toString()),
+              'Poin Dihasilkan',
+              transaksi.poinDidapat.toString(),
+            ),
             _buildDetailRow(
-                'Poin Digunakan', transaksi.poinDigunakan.toString()),
+              'Poin Digunakan',
+              transaksi.poinDigunakan.toString(),
+            ),
             if (transaksi.tanggalMulai != null)
               _buildDetailRow(
                 'Masa Aktif Mulai',
@@ -218,8 +234,10 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
                 FormatWaktuLengkap.formatSingkat(transaksi.tanggalBerakhir!),
               ),
             if (transaksi.durasiBonus > 0 && transaksi.tipeDurasiBonus != null)
-              _buildDetailRow('Bonus',
-                  '${transaksi.durasiBonus} ${transaksi.tipeDurasiBonus?.displayName}')
+              _buildDetailRow(
+                'Bonus',
+                '${transaksi.durasiBonus} ${transaksi.tipeDurasiBonus?.displayName}',
+              ),
           ],
         ),
       ),

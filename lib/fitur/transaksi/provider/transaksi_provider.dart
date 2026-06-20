@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/transaksi/page/transaksi_page_a.dart'; // Impor enum SortBy
+import 'package:wifi/fitur/transaksi/page/transaksi_a.dart'; // Impor enum SortBy
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
@@ -21,7 +21,7 @@ abstract class TransaksiState with _$TransaksiState {
     @Default(0.0) double totalPemasukan,
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
-    @Default(SortBy.newest) SortBy sortBy,
+    @Default(SortBy.terbaru) SortBy sortBy,
   }) = _TransaksiState;
 }
 
@@ -34,7 +34,7 @@ class Transaksi extends _$Transaksi {
   @override
   FutureOr<TransaksiState> build() {
     // Menentukan sorting default saat pertama kali build dijalankan
-    return _loadData(SortBy.newest);
+    return _loadData(SortBy.terbaru);
   }
 
   // PERBAIKAN 2: Passing nilai sortBy ke dalam fungsi load data
@@ -80,16 +80,16 @@ class Transaksi extends _$Transaksi {
 
   void _performSort(List<TransaksiModel> transactions, SortBy sortBy) {
     switch (sortBy) {
-      case SortBy.newest:
+      case SortBy.terbaru:
         transactions.sort((a, b) => b.tanggal.compareTo(a.tanggal));
         break;
-      case SortBy.oldest:
+      case SortBy.terlama:
         transactions.sort((a, b) => a.tanggal.compareTo(b.tanggal));
         break;
-      case SortBy.highestAmount:
+      case SortBy.jumlahTerbesar:
         transactions.sort((a, b) => b.jumlah.compareTo(a.jumlah));
         break;
-      case SortBy.lowestAmount:
+      case SortBy.jumlahTerkecil:
         transactions.sort((a, b) => a.jumlah.compareTo(b.jumlah));
         break;
     }
@@ -101,7 +101,7 @@ class Transaksi extends _$Transaksi {
 
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     // Ambil sorting saat ini sebelum masuk state loading
-    final currentSort = state.value?.sortBy ?? SortBy.newest;
+    final currentSort = state.value?.sortBy ?? SortBy.terbaru;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.tambahTransaksi(transaksi);
@@ -112,7 +112,7 @@ class Transaksi extends _$Transaksi {
   }
 
   Future<void> updateTransaksi(TransaksiModel transaksi) async {
-    final currentSort = state.value?.sortBy ?? SortBy.newest;
+    final currentSort = state.value?.sortBy ?? SortBy.terbaru;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.perbaruiTransaksi(transaksi.id, transaksi);
@@ -123,7 +123,7 @@ class Transaksi extends _$Transaksi {
   }
 
   Future<void> softDelete(String id) async {
-    final currentSort = state.value?.sortBy ?? SortBy.newest;
+    final currentSort = state.value?.sortBy ?? SortBy.terbaru;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.softDelete(id);
@@ -139,12 +139,12 @@ class Transaksi extends _$Transaksi {
       await _transaksiOpSqlite.softDeleteAll();
       ref.invalidate(dompetProvider);
       ref.invalidate(statistikProvider);
-      return _loadData(SortBy.newest);
+      return _loadData(SortBy.terbaru);
     });
   }
 
   Future<void> refresh() async {
-    final currentSort = state.value?.sortBy ?? SortBy.newest;
+    final currentSort = state.value?.sortBy ?? SortBy.terbaru;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() => _loadData(currentSort));
   }

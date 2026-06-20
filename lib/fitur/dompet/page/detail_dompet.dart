@@ -11,7 +11,7 @@ import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
-import 'package:wifi/fitur/transaksi/page/detail_transaksi.dart';
+import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
@@ -119,7 +119,7 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
     final hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (context) => DetailTransaksi(transaksi: transaction),
+        builder: (context) => DetailTransaksiA(transaksi: transaction),
       ),
     );
 

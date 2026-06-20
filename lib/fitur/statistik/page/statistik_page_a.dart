@@ -4,7 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
-import 'package:wifi/fitur/transaksi/page/transaksi_page_a.dart';
+import 'package:wifi/fitur/transaksi/page/transaksi_a.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan.dart';
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
@@ -122,7 +122,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute<void>(
-                            builder: (_) => const TransaksiPageA(),
+                            builder: (_) => const TransaksiA(),
                           ),
                         ),
                         title: 'Pendapatan Bulan Ini',

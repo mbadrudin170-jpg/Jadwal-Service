@@ -210,7 +210,7 @@ return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_tha
 
 
 class _TransaksiState implements TransaksiState {
-  const _TransaksiState({final  List<TransaksiModel> transaksi = const [], this.totalPemasukan = 0.0, this.totalPengeluaran = 0.0, this.total = 0.0, this.sortBy = SortBy.newest}): _transaksi = transaksi;
+  const _TransaksiState({final  List<TransaksiModel> transaksi = const [], this.totalPemasukan = 0.0, this.totalPengeluaran = 0.0, this.total = 0.0, this.sortBy = SortBy.terbaru}): _transaksi = transaksi;
   
 
  final  List<TransaksiModel> _transaksi;

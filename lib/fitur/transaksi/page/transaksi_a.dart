@@ -1,4 +1,4 @@
-// path: lib/fitur/transaksi/page/transaksi_page_a.dart
+// path lib/fitur/transaksi/page/transaksi_a.dart
 
 import 'dart:async';
 
@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/page/detail_transaksi.dart';
+import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -15,20 +15,20 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/widget/widget_ringkasan_keuangan.dart';
 
-enum SortBy { newest, oldest, highestAmount, lowestAmount }
+enum SortBy { terbaru, terlama, jumlahTerbesar, jumlahTerkecil }
 
 /// Extension untuk memberikan fungsionalitas tambahan pada [SortBy].
 extension SortByX on SortBy {
   /// Mengembalikan nama yang mudah dibaca untuk setiap kriteria urutan.
   String get name {
     switch (this) {
-      case SortBy.newest:
+      case SortBy.terbaru:
         return 'Terbaru';
-      case SortBy.oldest:
+      case SortBy.terlama:
         return 'Terlama';
-      case SortBy.highestAmount:
+      case SortBy.jumlahTerbesar:
         return 'Jumlah Tertinggi';
-      case SortBy.lowestAmount:
+      case SortBy.jumlahTerkecil:
         return 'Jumlah Terendah';
     }
   }
@@ -37,8 +37,8 @@ extension SortByX on SortBy {
 //===============[ REFACTORED WIDGETS ]===============================
 
 /// Halaman utama yang menampilkan daftar transaksi dan ringkasannya.
-class TransaksiPageA extends ConsumerWidget {
-  const TransaksiPageA({super.key});
+class TransaksiA extends ConsumerWidget {
+  const TransaksiA({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -88,7 +88,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentSortBy =
-        ref.watch(transaksiProvider).value?.sortBy ?? SortBy.newest;
+        ref.watch(transaksiProvider).value?.sortBy ?? SortBy.terbaru;
     return AppBar(
       title: const Text('Transaksi'),
       actions: [
@@ -273,7 +273,7 @@ class _TransactionListView extends ConsumerWidget {
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => DetailTransaksi(transaksi: transaksi),
+        builder: (context) => DetailTransaksiA(transaksi: transaksi),
       ),
     );
   }
