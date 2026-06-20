@@ -31,7 +31,6 @@ class Transaksi extends _$Transaksi {
 
   @override
   FutureOr<TransaksiState> build() {
-    // Menentukan sorting default saat pertama kali build dijalankan
     return _loadData();
   }
 
@@ -55,19 +54,6 @@ class Transaksi extends _$Transaksi {
     );
   }
 
-  void sortTransactions() {
-    if (!state.hasValue) return;
-    final currentState = state.value!;
-
-    final List<TransaksiModel> sortedTransactions = List.from(
-      currentState.transaksi,
-    );
-
-    state = AsyncValue.data(
-      currentState.copyWith(transaksi: sortedTransactions),
-    );
-  }
-
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     // Ambil sorting saat ini sebelum masuk state loading
     state = const AsyncLoading();
@@ -80,7 +66,6 @@ class Transaksi extends _$Transaksi {
   }
 
   Future<void> updateTransaksi(TransaksiModel transaksi) async {
-    state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.perbaruiTransaksi(transaksi.id, transaksi);
       ref.invalidate(dompetProvider);
@@ -90,7 +75,6 @@ class Transaksi extends _$Transaksi {
   }
 
   Future<void> softDelete(String id) async {
-    state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.softDelete(id);
       ref.invalidate(dompetProvider);
@@ -100,7 +84,6 @@ class Transaksi extends _$Transaksi {
   }
 
   Future<void> softDeleteAll() async {
-    state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.softDeleteAll();
       ref.invalidate(dompetProvider);

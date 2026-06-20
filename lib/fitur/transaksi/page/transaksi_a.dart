@@ -1,7 +1,6 @@
-// path lib/fitur/transaksi/page/transaksi_a.dart
+// path: lib/fitur/transaksi/page/transaksi_a.dart
 
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
@@ -16,7 +15,9 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/widget/widget_ringkasan_keuangan.dart';
 
-/// Halaman utama yang menampilkan daftar transaksi dan ringkasannya.
+// ============================================================
+// Halaman Utama
+// ============================================================
 class TransaksiA extends ConsumerWidget {
   const TransaksiA({super.key});
 
@@ -25,12 +26,11 @@ class TransaksiA extends ConsumerWidget {
     final asyncState = ref.watch(transaksiProvider);
 
     return Scaffold(
-      appBar: const _TransactionAppBar(), // Widget AppBar yang diekstrak
+      appBar: const _TransactionAppBar(),
       body: asyncState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
-        data: (state) =>
-            _TransactionBody(state: state), // Widget Body yang diekstrak
+        data: (state) => _TransactionBody(state: state),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -42,16 +42,10 @@ class TransaksiA extends ConsumerWidget {
     );
   }
 
-  /// Navigasi ke halaman form untuk menambah/mengedit transaksi.
   Future<void> _naviagasiKeForm(
     BuildContext context, {
     TransaksiModel? transaksi,
   }) async {
-    Log.info(
-      transaksi == null
-          ? 'Membuka FormTransaksiPage untuk menambah entri baru.'
-          : 'Membuka FormTransaksiPage untuk mengedit transaksi: ${transaksi.id}',
-    );
     await Navigator.push(
       context,
       MaterialPageRoute<bool>(
@@ -61,7 +55,9 @@ class TransaksiA extends ConsumerWidget {
   }
 }
 
-/// AppBar khusus untuk Halaman Transaksi, meng-handle semua aksi.
+// ============================================================
+// AppBar
+// ============================================================
 class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const _TransactionAppBar();
 
@@ -71,14 +67,11 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
     return AppBar(
       title: const Text('Transaksi'),
       actions: [
-        // Tombol Sort
         IconButton(
           onPressed: () => _showSortDialog(context, ref, currentSortBy),
           icon: const Icon(TIcons.filter),
           tooltip: 'Urutkan',
         ),
-
-        // Tombol Hapus Semua
         IconButton(
           onPressed: () => _deleteAllTransactions(context, ref),
           icon: const Icon(TIcons.delete),
@@ -88,8 +81,6 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 
-  //
-  /// Menampilkan dialog untuk memilih metode pengurutan.
   Future<void> _showSortDialog(
     BuildContext context,
     WidgetRef ref,
@@ -130,7 +121,9 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-/// Menampilkan dialog konfirmasi untuk menghapus semua transaksi.
+// ============================================================
+// Dialog Hapus Semua (tidak berubah)
+// ============================================================
 Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
   final konfirmasi = await showDialog<bool>(
     context: context,
@@ -156,7 +149,6 @@ Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
   if ((konfirmasi ?? false) && context.mounted) {
     try {
       await ref.read(transaksiProvider.notifier).softDeleteAll();
-
       if (context.mounted) {
         ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
       }
@@ -169,7 +161,9 @@ Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
   }
 }
 
-/// Body utama Halaman Transaksi.
+// ============================================================
+// Body (dengan sorting)
+// ============================================================
 class _TransactionBody extends ConsumerWidget {
   final TransaksiState state;
 
@@ -177,21 +171,27 @@ class _TransactionBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // ✅ Perbaikan 4: Ambil preferensi sorting dan urutkan data
+    final sortBy = ref.watch(pengurutTransaksiProvider);
+    final sortedTransactions = PengurutTransaksi.urutkan(
+      state.transaksi,
+      sortBy,
+    );
+
     return RefreshIndicator(
       onRefresh: () => ref.read(transaksiProvider.notifier).refresh(),
       child: Column(
         children: [
-          // Ringkasan Keuangan (selalu ditampilkan)
           TransactionSummary(
             pemasukan: state.totalPemasukan,
             pengeluaran: state.totalPengeluaran,
             total: state.total,
           ),
-          // Bagian ini akan berganti antara list dan pesan kosong
           Expanded(
-            child: state.transaksi.isEmpty
+            // ✅ Perbaikan 5: Gunakan sortedTransactions
+            child: sortedTransactions.isEmpty
                 ? const Center(child: Text('Tidak ada transaksi'))
-                : _TransactionListView(transaksi: state.transaksi),
+                : _TransactionListView(transaksi: sortedTransactions),
           ),
         ],
       ),
@@ -199,7 +199,9 @@ class _TransactionBody extends ConsumerWidget {
   }
 }
 
-/// Widget yang bertanggung jawab untuk membangun ListView dari transaksi.
+// ============================================================
+// ListView (tidak berubah)
+// ============================================================
 class _TransactionListView extends ConsumerStatefulWidget {
   final List<TransaksiModel> transaksi;
   const _TransactionListView({required this.transaksi});
@@ -288,7 +290,6 @@ class _TransactionListViewState extends ConsumerState<_TransactionListView> {
     );
   }
 
-  /// Navigasi ke halaman detail transaksi.
   Future<void> _navigasiKeDetailTransaksi(
     BuildContext context,
     TransaksiModel transaksi,
@@ -301,7 +302,6 @@ class _TransactionListViewState extends ConsumerState<_TransactionListView> {
     );
   }
 
-  /// Navigasi ke halaman form (dibutuhkan di sini untuk action onEdit).
   Future<void> _navigasiKeFormTransaksi(
     BuildContext context, {
     TransaksiModel? transaksi,
@@ -315,10 +315,9 @@ class _TransactionListViewState extends ConsumerState<_TransactionListView> {
   }
 }
 
-//===============[ UNCHANGED WIDGETS ]===============================
-// Widget TransactionSummary dan buildFinancialSummaryInfo tidak perlu diubah
-// karena sudah cukup baik dan bisa digunakan kembali.
-
+// ============================================================
+// Widget Ringkasan (tidak diubah)
+// ============================================================
 class TransactionSummary extends StatelessWidget {
   final double pemasukan;
   final double pengeluaran;
