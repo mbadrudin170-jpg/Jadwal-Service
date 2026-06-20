@@ -19,9 +19,7 @@ class DetailTransaksiU extends StatelessWidget {
       'Membangun halaman TransactionDetailPage untuk transaksi ID: ${transaksi.id}',
     );
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Transaksi'),
-      ),
+      appBar: AppBar(title: const Text('Detail Transaksi')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -55,17 +53,16 @@ class DetailTransaksiU extends StatelessWidget {
                 'Tanggal Berakhir:',
                 FormatWaktuLengkap.formatSingkat(transaksi.tanggalBerakhir!),
               ),
-            _buildInfoRow(
-              'Poin didapat:',
-              transaksi.poinDidapat.toString(),
-            ),
+            _buildInfoRow('Poin didapat:', transaksi.poinDidapat.toString()),
             _buildInfoRow(
               'Poin digunakan:',
               transaksi.poinDigunakan.toString(),
             ),
             if (transaksi.durasiBonus > 0 && transaksi.tipeDurasiBonus != null)
-              _buildInfoRow('Bonus',
-                  '${transaksi.durasiBonus} ${transaksi.tipeDurasiBonus!.displayName}')
+              _buildInfoRow(
+                'Bonus',
+                '${transaksi.durasiBonus} ${transaksi.tipeDurasiBonus!.displayName}',
+              ),
           ],
         ),
       ),
@@ -74,7 +71,7 @@ class DetailTransaksiU extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(final String label, final dynamic value) {
+  Widget _buildInfoRow(String label, dynamic value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -88,9 +85,7 @@ class DetailTransaksiU extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          Expanded(
-            child: value is Widget ? value : Text(value.toString()),
-          ),
+          Expanded(child: value is Widget ? value : Text(value.toString())),
         ],
       ),
     );

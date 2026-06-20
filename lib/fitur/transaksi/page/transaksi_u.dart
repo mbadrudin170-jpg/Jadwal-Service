@@ -192,7 +192,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
     await _muatDataAwal();
   }
 
-  Future<void> _navigateToTransactionDetail(
+  Future<void> _navigasiKeDetailTransaksi(
     TransaksiModel tx,
     Future<PaketModel?> paketfuture,
   ) async {
@@ -306,7 +306,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                                 ? PerhitunganUtil.ambilTeksSisaMasaAktif(
                                     tx.tanggalBerakhir!,
                                   )
-                                : 'N/A';
+                                : '--';
                             final warnaAktif = tx.tanggalBerakhir != null
                                 ? PerhitunganUtil.ambilWarnaSisaMasaAktif(
                                     tx.tanggalBerakhir!,
@@ -346,10 +346,8 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                                   ],
                                 ),
                                 trailing: const Icon(TIcons.chevronRight),
-                                onTap: () => _navigateToTransactionDetail(
-                                  tx,
-                                  paketFuture,
-                                ),
+                                onTap: () =>
+                                    _navigasiKeDetailTransaksi(tx, paketFuture),
                               ),
                             );
                           },
