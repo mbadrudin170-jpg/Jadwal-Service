@@ -77,8 +77,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     try {
       final internetService = ref.read(koneksiInternetServiceProvider);
-      final isConnected = await internetService.cekInternet(ref);
+      final isConnected = await internetService.cekInternet();
       if (!isConnected) {
+        if (!mounted) return;
         ToastUtil.error(context, 'Tidak ada koneksi internet.');
         return;
       }

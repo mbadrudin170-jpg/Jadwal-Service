@@ -7,7 +7,6 @@ import 'dart:async' as _i8;
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as _i2;
-import 'package:flutter_riverpod/flutter_riverpod.dart' as _i12;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:shared_preferences/src/shared_preferences_legacy.dart' as _i7;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' as _i3;
@@ -16,15 +15,15 @@ import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart' as _i9;
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart'
     as _i5;
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart'
-    as _i13;
+    as _i12;
 import 'package:wifi/fitur/settings/model/settings_model.dart' as _i6;
-import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart' as _i16;
-import 'package:wifi/fitur/sinkronisasi/layanan_unduhan_awal.dart' as _i15;
-import 'package:wifi/shared/export/model.dart' as _i14;
+import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart' as _i15;
+import 'package:wifi/fitur/sinkronisasi/layanan_unduhan_awal.dart' as _i14;
+import 'package:wifi/shared/export/model.dart' as _i13;
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart'
     as _i10;
 import 'package:wifi/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart'
-    as _i17;
+    as _i16;
 import 'package:wifi/shared/services/koneksi_internet_service.dart' as _i11;
 
 // ignore_for_file: type=lint
@@ -376,9 +375,9 @@ class MockKoneksiInternetService extends _i1.Mock
           as _i8.Future<bool>);
 
   @override
-  _i8.Future<bool> cekInternet(_i12.WidgetRef? ref) =>
+  _i8.Future<bool> cekInternet() =>
       (super.noSuchMethod(
-            Invocation.method(#cekInternet, [ref]),
+            Invocation.method(#cekInternet, []),
             returnValue: _i8.Future<bool>.value(false),
           )
           as _i8.Future<bool>);
@@ -422,7 +421,7 @@ class MockSqliteDatabase extends _i1.Mock implements _i4.SqliteDatabase {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPelangganAktifOpSqlite extends _i1.Mock
-    implements _i13.PelangganAktifOpSqlite {
+    implements _i12.PelangganAktifOpSqlite {
   MockPelangganAktifOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
@@ -448,15 +447,15 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
           as _i8.Future<void>);
 
   @override
-  _i8.Future<List<_i14.DetailPelangganAktifModel>>
+  _i8.Future<List<_i13.DetailPelangganAktifModel>>
   getAllActiveCustomersWithDetails() =>
       (super.noSuchMethod(
             Invocation.method(#getAllActiveCustomersWithDetails, []),
-            returnValue: _i8.Future<List<_i14.DetailPelangganAktifModel>>.value(
-              <_i14.DetailPelangganAktifModel>[],
+            returnValue: _i8.Future<List<_i13.DetailPelangganAktifModel>>.value(
+              <_i13.DetailPelangganAktifModel>[],
             ),
           )
-          as _i8.Future<List<_i14.DetailPelangganAktifModel>>);
+          as _i8.Future<List<_i13.DetailPelangganAktifModel>>);
 
   @override
   _i8.Future<_i5.PelangganAktifModel> tambahPelangganAktif(
@@ -606,7 +605,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockLayananUnduhanAwal extends _i1.Mock
-    implements _i15.LayananUnduhanAwal {
+    implements _i14.LayananUnduhanAwal {
   MockLayananUnduhanAwal() {
     _i1.throwOnMissingStub(this);
   }
@@ -624,7 +623,7 @@ class MockLayananUnduhanAwal extends _i1.Mock
 /// A class which mocks [SettingsOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSettingsOpSqlite extends _i1.Mock implements _i16.SettingsOpSqlite {
+class MockSettingsOpSqlite extends _i1.Mock implements _i15.SettingsOpSqlite {
   MockSettingsOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
@@ -703,7 +702,7 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i16.SettingsOpSqlite {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPembersihanDataOperasi extends _i1.Mock
-    implements _i17.PembersihanDataOperasi {
+    implements _i16.PembersihanDataOperasi {
   MockPembersihanDataOperasi() {
     _i1.throwOnMissingStub(this);
   }

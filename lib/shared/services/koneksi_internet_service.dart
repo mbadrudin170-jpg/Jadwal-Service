@@ -4,24 +4,20 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
 import 'package:wifi/fitur/speedtest/provider/ping_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 
+// 1. Masukkan 'ref' ke dalam service agar bisa membaca provider lain
 final koneksiInternetServiceProvider = Provider<KoneksiInternetService>((ref) {
-  return KoneksiInternetService();
+  return KoneksiInternetService(ref);
 });
 
-/// Kelas layanan untuk memeriksa status koneksi internet.
 class KoneksiInternetService {
   final Connectivity _connectivity;
+  final Ref _ref; // 2. Simpan referensi Ref di sini
 
-  KoneksiInternetService({
-    Connectivity? connectivity,
-    http.Client? httpClient,
-    String? urlPencarian,
-    Duration? durasiBatasWaktu,
-  }) : _connectivity = connectivity ?? Connectivity() {
+  KoneksiInternetService(this._ref, {Connectivity? connectivity})
+    : _connectivity = connectivity ?? Connectivity() {
     Log.info('KoneksiInternetService diinisialisasi.');
   }
 
@@ -49,35 +45,28 @@ class KoneksiInternetService {
     }
   }
 
-  Future<bool> cekInternet(WidgetRef ref) async {
+  // 3. Hapus parameter 'WidgetRef ref' karena sekarang menggunakan '_ref' internal
+  Future<bool> cekInternet() async {
     Log.info('[Internet] Memulai pemeriksaan status koneksi perangkat...');
 
-    // cek koneksi lokal dulu
     final lokal = await cekKoneksiLokal();
     if (!lokal) {
       Log.warning('[Internet] Gagal: Tidak ada koneksi lokal.');
       return false;
     }
 
-    bool isConnected = false;
-
     try {
-      isConnected = lokal;
+      // 4. Panggil httpPingProvider.future di sini
+      // Karena menggunakan riverpod_annotation, nama provider otomatis menjadi 'httpPingProvider'
+      final durasiMs = await _ref.read(httpPingProvider.future);
 
-      final hasilPing = await ref.read(pingProvider.future);
-      isConnected = hasilPing.response?.time != null;
-
-      Log.info(
-        isConnected
-            ? '[Internet] Ping berhasil'
-            : '[Internet] Ping gagal (timeout)',
-      );
-      return isConnected;
+      Log.info('[Internet] HTTP Ping berhasil! Waktu respons: ${durasiMs}ms');
+      return true;
     } on TimeoutException catch (e, st) {
-      Log.warning('[Internet] Ping timeout: $e $st');
+      Log.warning('[Internet] HTTP Ping timeout: $e $st');
       return false;
     } catch (e, st) {
-      Log.error('[Internet] Ping error: $e', e: e, s: st);
+      Log.error('[Internet] HTTP Ping error/gagal: $e', e: e, s: st);
       return false;
     }
   }

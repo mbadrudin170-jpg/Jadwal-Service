@@ -5,13 +5,12 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
 
-import 'package:flutter/src/widgets/navigator.dart' as _i9;
-import 'package:flutter_riverpod/flutter_riverpod.dart' as _i7;
+import 'package:flutter/src/widgets/navigator.dart' as _i8;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart' as _i5;
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart' as _i3;
-import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart' as _i8;
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart' as _i7;
 import 'package:wifi/shared/services/koneksi_internet_service.dart' as _i6;
 
 // ignore_for_file: type=lint
@@ -182,9 +181,9 @@ class MockKoneksiInternetService extends _i1.Mock
           as _i4.Future<bool>);
 
   @override
-  _i4.Future<bool> cekInternet(_i7.WidgetRef? ref) =>
+  _i4.Future<bool> cekInternet() =>
       (super.noSuchMethod(
-            Invocation.method(#cekInternet, [ref]),
+            Invocation.method(#cekInternet, []),
             returnValue: _i4.Future<bool>.value(false),
           )
           as _i4.Future<bool>);
@@ -194,7 +193,7 @@ class MockKoneksiInternetService extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockLayananCekSinkronisasi extends _i1.Mock
-    implements _i8.LayananCekSinkronisasi {
+    implements _i7.LayananCekSinkronisasi {
   MockLayananCekSinkronisasi() {
     _i1.throwOnMissingStub(this);
   }
@@ -212,20 +211,20 @@ class MockLayananCekSinkronisasi extends _i1.Mock
 /// A class which mocks [NavigatorObserver].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockNavigatorObserver extends _i1.Mock implements _i9.NavigatorObserver {
+class MockNavigatorObserver extends _i1.Mock implements _i8.NavigatorObserver {
   MockNavigatorObserver() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  void didPush(_i9.Route<dynamic>? route, _i9.Route<dynamic>? previousRoute) =>
+  void didPush(_i8.Route<dynamic>? route, _i8.Route<dynamic>? previousRoute) =>
       super.noSuchMethod(
         Invocation.method(#didPush, [route, previousRoute]),
         returnValueForMissingStub: null,
       );
 
   @override
-  void didPop(_i9.Route<dynamic>? route, _i9.Route<dynamic>? previousRoute) =>
+  void didPop(_i8.Route<dynamic>? route, _i8.Route<dynamic>? previousRoute) =>
       super.noSuchMethod(
         Invocation.method(#didPop, [route, previousRoute]),
         returnValueForMissingStub: null,
@@ -233,8 +232,8 @@ class MockNavigatorObserver extends _i1.Mock implements _i9.NavigatorObserver {
 
   @override
   void didRemove(
-    _i9.Route<dynamic>? route,
-    _i9.Route<dynamic>? previousRoute,
+    _i8.Route<dynamic>? route,
+    _i8.Route<dynamic>? previousRoute,
   ) => super.noSuchMethod(
     Invocation.method(#didRemove, [route, previousRoute]),
     returnValueForMissingStub: null,
@@ -242,8 +241,8 @@ class MockNavigatorObserver extends _i1.Mock implements _i9.NavigatorObserver {
 
   @override
   void didReplace({
-    _i9.Route<dynamic>? newRoute,
-    _i9.Route<dynamic>? oldRoute,
+    _i8.Route<dynamic>? newRoute,
+    _i8.Route<dynamic>? oldRoute,
   }) => super.noSuchMethod(
     Invocation.method(#didReplace, [], {
       #newRoute: newRoute,
@@ -254,8 +253,8 @@ class MockNavigatorObserver extends _i1.Mock implements _i9.NavigatorObserver {
 
   @override
   void didChangeTop(
-    _i9.Route<dynamic>? topRoute,
-    _i9.Route<dynamic>? previousTopRoute,
+    _i8.Route<dynamic>? topRoute,
+    _i8.Route<dynamic>? previousTopRoute,
   ) => super.noSuchMethod(
     Invocation.method(#didChangeTop, [topRoute, previousTopRoute]),
     returnValueForMissingStub: null,
@@ -263,8 +262,8 @@ class MockNavigatorObserver extends _i1.Mock implements _i9.NavigatorObserver {
 
   @override
   void didStartUserGesture(
-    _i9.Route<dynamic>? route,
-    _i9.Route<dynamic>? previousRoute,
+    _i8.Route<dynamic>? route,
+    _i8.Route<dynamic>? previousRoute,
   ) => super.noSuchMethod(
     Invocation.method(#didStartUserGesture, [route, previousRoute]),
     returnValueForMissingStub: null,
