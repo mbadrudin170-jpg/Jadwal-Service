@@ -8,15 +8,11 @@ part 'ping_provider.g.dart';
 @riverpod
 Future<PingData> ping(Ref ref) async {
   final ping = Ping('google.com', count: 1);
-
-  // Pastikan proses dihentikan jika provider di-dispose sebelum selesai
   ref.onDispose(() {
-    // tidak perlu await di sini; stop() dipanggil untuk membersihkan proses
     ping.stop();
   });
 
   try {
-    // Tunggu event terakhir (ringkasan) setelah proses selesai
     final PingData terakhir = await ping.stream.first;
     return terakhir;
   } finally {

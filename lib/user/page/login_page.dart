@@ -76,7 +76,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     setState(() => _sedangLogin = true);
 
     try {
-      // Cek internet
       final internetService = ref.read(koneksiInternetServiceProvider);
       final isConnected = await internetService.cekInternet(ref);
       if (!isConnected) {

@@ -3,7 +3,6 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:wifi/fitur/speedtest/provider/ping_provider.dart';
@@ -34,7 +33,9 @@ class KoneksiInternetService {
 
       final isOnline =
           hasilKoneksi.contains(ConnectivityResult.mobile) ||
-          hasilKoneksi.contains(ConnectivityResult.wifi);
+          hasilKoneksi.contains(ConnectivityResult.wifi) ||
+          hasilKoneksi.contains(ConnectivityResult.ethernet) ||
+          hasilKoneksi.contains(ConnectivityResult.vpn);
 
       if (isOnline) {
         Log.info('[Lokal] ✅ Sukses: Perangkat terhubung ke jaringan lokal.');
@@ -42,7 +43,7 @@ class KoneksiInternetService {
         Log.warning('[Lokal] ❌ Gagal: Tidak ada koneksi jaringan lokal.');
       }
       return isOnline;
-    } on Exception catch (e, st) {
+    } catch (e, st) {
       Log.error('[Lokal] ❌ Fatal: Gagal memeriksa koneksi lokal.', e: e, s: st);
       return false;
     }
@@ -61,17 +62,10 @@ class KoneksiInternetService {
     bool isConnected = false;
 
     try {
-      if (kDebugMode) {
-        Log.info(
-          '[Internet] kDebugMode aktif: menggunakan cekKoneksiLokal untuk pengecekan.',
-        );
-        isConnected = lokal; // karena sudah dicek lokal di atas
-      } else {
-        final hasilPing = await ref
-            .read(pingProvider.future)
-            .timeout(const Duration(seconds: 7));
-        isConnected = hasilPing.response?.time != null;
-      }
+      isConnected = lokal;
+
+      final hasilPing = await ref.read(pingProvider.future);
+      isConnected = hasilPing.response?.time != null;
 
       Log.info(
         isConnected
