@@ -106,12 +106,14 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
             groupValue: currentSortBy,
             onChanged: (value) => Navigator.pop(context, value),
             child: Column(
-              children: .map(
-                (sortBy) => RadioListTile<SortBy>(
-                  title: Text(PengurutTransaksi.getSortLabel()),
-                  value: sortBy,
-                ),
-              ).toList(),
+              children: SortBy.values
+                  .map(
+                    (sortBy) => RadioListTile<SortBy>(
+                      title: Text(PengurutTransaksi.getSortLabel(sortBy)),
+                      value: sortBy,
+                    ),
+                  )
+                  .toList(),
             ),
           ),
         ],
@@ -120,7 +122,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     if (newSort != null) {
       // Memanggil method di notifier untuk mengubah urutan
-      ref.read(transaksiProvider.notifier).sortTransactions(newSort);
+      ref.read(pengurutTransaksiProvider.notifier).state = newSort;
     }
   }
 
