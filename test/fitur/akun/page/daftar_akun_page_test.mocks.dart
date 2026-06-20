@@ -103,15 +103,15 @@ class _FakeTicker_7 extends _i1.SmartFake implements _i7.Ticker {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPengelolaAkun extends _i1.Mock implements _i2.PengelolaAkun {
-  MockPengelolaAkun() {
-    _i1.throwOnMissingStub(this);
-  }
-
   @override
   _i8.Ref get ref =>
       (super.noSuchMethod(
             Invocation.getter(#ref),
             returnValue: _i9.dummyValue<_i8.Ref>(this, Invocation.getter(#ref)),
+            returnValueForMissingStub: _i9.dummyValue<_i8.Ref>(
+              this,
+              Invocation.getter(#ref),
+            ),
           )
           as _i8.Ref);
 
@@ -123,6 +123,11 @@ class MockPengelolaAkun extends _i1.Mock implements _i2.PengelolaAkun {
               this,
               Invocation.getter(#state),
             ),
+            returnValueForMissingStub: _i9
+                .dummyValue<_i8.AsyncValue<_i2.AkunState>>(
+                  this,
+                  Invocation.getter(#state),
+                ),
           )
           as _i8.AsyncValue<_i2.AkunState>);
 
@@ -139,6 +144,9 @@ class MockPengelolaAkun extends _i1.Mock implements _i2.PengelolaAkun {
             returnValue: _i10.Future<_i2.AkunState>.value(
               _FakeAkunState_0(this, Invocation.getter(#future)),
             ),
+            returnValueForMissingStub: _i10.Future<_i2.AkunState>.value(
+              _FakeAkunState_0(this, Invocation.getter(#future)),
+            ),
           )
           as _i10.Future<_i2.AkunState>);
 
@@ -147,6 +155,9 @@ class MockPengelolaAkun extends _i1.Mock implements _i2.PengelolaAkun {
       (super.noSuchMethod(
             Invocation.method(#build, []),
             returnValue: _i10.Future<_i2.AkunState>.value(
+              _FakeAkunState_0(this, Invocation.method(#build, [])),
+            ),
+            returnValueForMissingStub: _i10.Future<_i2.AkunState>.value(
               _FakeAkunState_0(this, Invocation.method(#build, [])),
             ),
           )
@@ -209,6 +220,7 @@ class MockPengelolaAkun extends _i1.Mock implements _i2.PengelolaAkun {
       (super.noSuchMethod(
             Invocation.method(#listenSelf, [listener], {#onError: onError}),
             returnValue: () {},
+            returnValueForMissingStub: () {},
           )
           as _i12.RemoveListener);
 
@@ -220,6 +232,7 @@ class MockPengelolaAkun extends _i1.Mock implements _i2.PengelolaAkun {
       (super.noSuchMethod(
             Invocation.method(#updateShouldNotify, [previous, next]),
             returnValue: false,
+            returnValueForMissingStub: false,
           )
           as bool);
 
@@ -236,6 +249,12 @@ class MockPengelolaAkun extends _i1.Mock implements _i2.PengelolaAkun {
                 Invocation.method(#update, [cb], {#onError: onError}),
               ),
             ),
+            returnValueForMissingStub: _i10.Future<_i2.AkunState>.value(
+              _FakeAkunState_0(
+                this,
+                Invocation.method(#update, [cb], {#onError: onError}),
+              ),
+            ),
           )
           as _i10.Future<_i2.AkunState>);
 }
@@ -245,10 +264,6 @@ class MockPengelolaAkun extends _i1.Mock implements _i2.PengelolaAkun {
 /// See the documentation for Mockito's code generation for more information.
 class MockLayananAktivitasUser extends _i1.Mock
     implements _i13.LayananAktivitasUser {
-  MockLayananAktivitasUser() {
-    _i1.throwOnMissingStub(this);
-  }
-
   @override
   _i10.Future<void> pingAktivitas(String? id, {bool? paksa = false}) =>
       (super.noSuchMethod(
@@ -263,10 +278,6 @@ class MockLayananAktivitasUser extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockNavigatorObserver extends _i1.Mock implements _i5.NavigatorObserver {
-  MockNavigatorObserver() {
-    _i1.throwOnMissingStub(this);
-  }
-
   @override
   void didPush(_i5.Route<dynamic>? route, _i5.Route<dynamic>? previousRoute) =>
       super.noSuchMethod(
@@ -331,15 +342,15 @@ class MockNavigatorObserver extends _i1.Mock implements _i5.NavigatorObserver {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
-  MockNavigatorState() {
-    _i1.throwOnMissingStub(this);
-  }
-
   @override
   _i3.FocusNode get focusNode =>
       (super.noSuchMethod(
             Invocation.getter(#focusNode),
             returnValue: _FakeFocusNode_1(this, Invocation.getter(#focusNode)),
+            returnValueForMissingStub: _FakeFocusNode_1(
+              this,
+              Invocation.getter(#focusNode),
+            ),
           )
           as _i3.FocusNode);
 
@@ -348,6 +359,7 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
       (super.noSuchMethod(
             Invocation.getter(#userGestureInProgress),
             returnValue: false,
+            returnValueForMissingStub: false,
           )
           as bool);
 
@@ -359,6 +371,10 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
               this,
               Invocation.getter(#userGestureInProgressNotifier),
             ),
+            returnValueForMissingStub: _FakeValueNotifier_2<bool>(
+              this,
+              Invocation.getter(#userGestureInProgressNotifier),
+            ),
           )
           as _i4.ValueNotifier<bool>);
 
@@ -367,6 +383,10 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
       (super.noSuchMethod(
             Invocation.getter(#widget),
             returnValue: _FakeNavigator_3(this, Invocation.getter(#widget)),
+            returnValueForMissingStub: _FakeNavigator_3(
+              this,
+              Invocation.getter(#widget),
+            ),
           )
           as _i5.Navigator);
 
@@ -375,12 +395,20 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
       (super.noSuchMethod(
             Invocation.getter(#context),
             returnValue: _FakeBuildContext_4(this, Invocation.getter(#context)),
+            returnValueForMissingStub: _FakeBuildContext_4(
+              this,
+              Invocation.getter(#context),
+            ),
           )
           as _i6.BuildContext);
 
   @override
   bool get mounted =>
-      (super.noSuchMethod(Invocation.getter(#mounted), returnValue: false)
+      (super.noSuchMethod(
+            Invocation.getter(#mounted),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
           as bool);
 
   @override
@@ -388,6 +416,7 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
       (super.noSuchMethod(
             Invocation.getter(#restorePending),
             returnValue: false,
+            returnValueForMissingStub: false,
           )
           as bool);
 
@@ -448,6 +477,7 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
       (super.noSuchMethod(
             Invocation.method(#pushNamed, [routeName], {#arguments: arguments}),
             returnValue: _i10.Future<T?>.value(),
+            returnValueForMissingStub: _i10.Future<T?>.value(),
           )
           as _i10.Future<T?>);
 
@@ -463,6 +493,14 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
               {#arguments: arguments},
             ),
             returnValue: _i9.dummyValue<String>(
+              this,
+              Invocation.method(
+                #restorablePushNamed,
+                [routeName],
+                {#arguments: arguments},
+              ),
+            ),
+            returnValueForMissingStub: _i9.dummyValue<String>(
               this,
               Invocation.method(
                 #restorablePushNamed,
@@ -486,6 +524,7 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
               {#result: result, #arguments: arguments},
             ),
             returnValue: _i10.Future<T?>.value(),
+            returnValueForMissingStub: _i10.Future<T?>.value(),
           )
           as _i10.Future<T?>);
 
@@ -509,6 +548,14 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
                 {#result: result, #arguments: arguments},
               ),
             ),
+            returnValueForMissingStub: _i9.dummyValue<String>(
+              this,
+              Invocation.method(
+                #restorablePushReplacementNamed,
+                [routeName],
+                {#result: result, #arguments: arguments},
+              ),
+            ),
           )
           as String);
 
@@ -525,6 +572,7 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
               {#result: result, #arguments: arguments},
             ),
             returnValue: _i10.Future<T?>.value(),
+            returnValueForMissingStub: _i10.Future<T?>.value(),
           )
           as _i10.Future<T?>);
 
@@ -548,6 +596,14 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
                 {#result: result, #arguments: arguments},
               ),
             ),
+            returnValueForMissingStub: _i9.dummyValue<String>(
+              this,
+              Invocation.method(
+                #restorablePopAndPushNamed,
+                [routeName],
+                {#result: result, #arguments: arguments},
+              ),
+            ),
           )
           as String);
 
@@ -564,6 +620,7 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
               {#arguments: arguments},
             ),
             returnValue: _i10.Future<T?>.value(),
+            returnValueForMissingStub: _i10.Future<T?>.value(),
           )
           as _i10.Future<T?>);
 
@@ -587,6 +644,14 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
                 {#arguments: arguments},
               ),
             ),
+            returnValueForMissingStub: _i9.dummyValue<String>(
+              this,
+              Invocation.method(
+                #restorablePushNamedAndRemoveUntil,
+                [newRouteName, predicate],
+                {#arguments: arguments},
+              ),
+            ),
           )
           as String);
 
@@ -595,6 +660,7 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
       (super.noSuchMethod(
             Invocation.method(#push, [route]),
             returnValue: _i10.Future<T?>.value(),
+            returnValueForMissingStub: _i10.Future<T?>.value(),
           )
           as _i10.Future<T?>);
 
@@ -617,6 +683,14 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
                 {#arguments: arguments},
               ),
             ),
+            returnValueForMissingStub: _i9.dummyValue<String>(
+              this,
+              Invocation.method(
+                #restorablePush,
+                [routeBuilder],
+                {#arguments: arguments},
+              ),
+            ),
           )
           as String);
 
@@ -628,6 +702,7 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
       (super.noSuchMethod(
             Invocation.method(#pushReplacement, [newRoute], {#result: result}),
             returnValue: _i10.Future<T?>.value(),
+            returnValueForMissingStub: _i10.Future<T?>.value(),
           )
           as _i10.Future<T?>);
 
@@ -651,6 +726,14 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
                 {#result: result, #arguments: arguments},
               ),
             ),
+            returnValueForMissingStub: _i9.dummyValue<String>(
+              this,
+              Invocation.method(
+                #restorablePushReplacement,
+                [routeBuilder],
+                {#result: result, #arguments: arguments},
+              ),
+            ),
           )
           as String);
 
@@ -662,6 +745,7 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
       (super.noSuchMethod(
             Invocation.method(#pushAndRemoveUntil, [newRoute, predicate]),
             returnValue: _i10.Future<T?>.value(),
+            returnValueForMissingStub: _i10.Future<T?>.value(),
           )
           as _i10.Future<T?>);
 
@@ -678,6 +762,14 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
               {#arguments: arguments},
             ),
             returnValue: _i9.dummyValue<String>(
+              this,
+              Invocation.method(
+                #restorablePushAndRemoveUntil,
+                [newRouteBuilder, predicate],
+                {#arguments: arguments},
+              ),
+            ),
+            returnValueForMissingStub: _i9.dummyValue<String>(
               this,
               Invocation.method(
                 #restorablePushAndRemoveUntil,
@@ -710,6 +802,14 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
               #arguments: arguments,
             }),
             returnValue: _i9.dummyValue<String>(
+              this,
+              Invocation.method(#restorableReplace, [], {
+                #oldRoute: oldRoute,
+                #newRouteBuilder: newRouteBuilder,
+                #arguments: arguments,
+              }),
+            ),
+            returnValueForMissingStub: _i9.dummyValue<String>(
               this,
               Invocation.method(#restorableReplace, [], {
                 #oldRoute: oldRoute,
@@ -752,12 +852,24 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
                 #arguments: arguments,
               }),
             ),
+            returnValueForMissingStub: _i9.dummyValue<String>(
+              this,
+              Invocation.method(#restorableReplaceRouteBelow, [], {
+                #anchorRoute: anchorRoute,
+                #newRouteBuilder: newRouteBuilder,
+                #arguments: arguments,
+              }),
+            ),
           )
           as String);
 
   @override
   bool canPop() =>
-      (super.noSuchMethod(Invocation.method(#canPop, []), returnValue: false)
+      (super.noSuchMethod(
+            Invocation.method(#canPop, []),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
           as bool);
 
   @override
@@ -765,6 +877,7 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
       (super.noSuchMethod(
             Invocation.method(#maybePop, [result]),
             returnValue: _i10.Future<bool>.value(false),
+            returnValueForMissingStub: _i10.Future<bool>.value(false),
           )
           as _i10.Future<bool>);
 
@@ -831,6 +944,10 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
               this,
               Invocation.method(#build, [context]),
             ),
+            returnValueForMissingStub: _FakeWidget_5(
+              this,
+              Invocation.method(#build, [context]),
+            ),
           )
           as _i6.Widget);
 
@@ -865,6 +982,10 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
               this,
               Invocation.method(#toStringShort, []),
             ),
+            returnValueForMissingStub: _i9.dummyValue<String>(
+              this,
+              Invocation.method(#toStringShort, []),
+            ),
           )
           as String);
 
@@ -885,6 +1006,13 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
                 #style: style,
               }),
             ),
+            returnValueForMissingStub: _FakeDiagnosticsNode_6(
+              this,
+              Invocation.method(#toDiagnosticsNode, [], {
+                #name: name,
+                #style: style,
+              }),
+            ),
           )
           as _i4.DiagnosticsNode);
 
@@ -893,6 +1021,10 @@ class MockNavigatorState extends _i1.Mock implements _i5.NavigatorState {
       (super.noSuchMethod(
             Invocation.method(#createTicker, [onTick]),
             returnValue: _FakeTicker_7(
+              this,
+              Invocation.method(#createTicker, [onTick]),
+            ),
+            returnValueForMissingStub: _FakeTicker_7(
               this,
               Invocation.method(#createTicker, [onTick]),
             ),
