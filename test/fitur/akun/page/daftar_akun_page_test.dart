@@ -10,31 +10,63 @@ import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/pelanggan/core/layanan_aktivitas_user.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/shared/providers/shared_providers.dart'; // Ditambahkan untuk layananPenyimpananLokalProvider
 import 'package:wifi/user/providers/user_provider.dart';
+import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
-// Import file mocks yang digenerate oleh build_runner
 import 'daftar_akun_page_test.mocks.dart';
 
+// Membuat objek Fake untuk mensimulasikan Notifier secara aman tanpa merusak internal Riverpod
+class FakePengelolaAkun extends PengelolaAkun {
+  final Future<AkunState> Function() onBuild;
+
+  FakePengelolaAkun(this.onBuild);
+
+  // Menyimpan riwayat pemanggilan untuk keperluan verifikasi (assert)
+  final List<PelangganModel> loginCalls = [];
+  final List<String> hapusAkunCalls = [];
+  int hapusTokenLoginCalls = 0;
+
+  @override
+  Future<AkunState> build() => onBuild();
+
+  @override
+  Future<void> login(PelangganModel pelanggan) async {
+    loginCalls.add(pelanggan);
+  }
+
+  @override
+  Future<void> hapusAkun(String id) async {
+    hapusAkunCalls.add(id);
+  }
+
+  @override
+  Future<void> hapusTokenLogin() async {
+    hapusTokenLoginCalls++;
+  }
+}
+
+// Objek Fake untuk mengontrol data penyimpanan lokal pada skenario keluar akun
+class FakeLayananPenyimpananLokal extends Fake
+    implements LayananPenyimpananLokal {
+  final PelangganModel? akunTerdaftar;
+  FakeLayananPenyimpananLokal(this.akunTerdaftar);
+
+  @override
+  Future<PelangganModel?> ambilAkunLogin() async => akunTerdaftar;
+}
+
 @GenerateNiceMocks([
-  MockSpec<PengelolaAkun>(),
   MockSpec<LayananAktivitasUser>(),
   MockSpec<NavigatorObserver>(),
-  MockSpec<NavigatorState>(),
 ])
 void main() {
-  late MockPengelolaAkun mockPengelolaAkun;
   late MockLayananAktivitasUser mockLayananAktivitasUser;
   late PelangganModel pelanggan1;
   late PelangganModel pelanggan2;
 
   setUp(() {
-    mockPengelolaAkun = MockPengelolaAkun();
     mockLayananAktivitasUser = MockLayananAktivitasUser();
-
-    // Stub fungsionalitas aksi dasar tetap di setUp global
-    when(mockPengelolaAkun.login(any)).thenAnswer((_) async => Future.value());
-    when(mockPengelolaAkun.hapusAkun(any)).thenAnswer((_) async => Future.value());
-    when(mockPengelolaAkun.hapusTokenLogin()).thenAnswer((_) async => Future.value());
 
     pelanggan1 = const PelangganModel(
       id: 'user1',
@@ -56,13 +88,18 @@ void main() {
 
   Widget createWidgetUnderTest({
     required NavigatorObserver navigatorObserver,
+    required PengelolaAkun notifier,
+    PelangganModel? akunLokal,
     String? currentUserId,
   }) {
     return ProviderScope(
       overrides: [
-        pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
+        pengelolaAkunProvider.overrideWith(() => notifier),
         layananAktivitasUserProvider.overrideWith(
           (ref) => Future.value(mockLayananAktivitasUser),
+        ),
+        layananPenyimpananLokalProvider.overrideWith(
+          (ref) => Future.value(FakeLayananPenyimpananLokal(akunLokal)),
         ),
         userIdProvider.overrideWith((ref) => currentUserId),
       ],
@@ -78,11 +115,14 @@ void main() {
       '01. harus menampilkan CircularProgressIndicator saat loading',
       (tester) async {
         final localObserver = MockNavigatorObserver();
-        when(mockPengelolaAkun.build()).thenAnswer((_) => Completer<AkunState>().future);
-        when(mockPengelolaAkun.future).thenAnswer((_) => Completer<AkunState>().future);
+        final completer = Completer<AkunState>();
+        final fakeNotifier = FakePengelolaAkun(() => completer.future);
 
         await tester.pumpWidget(
-          createWidgetUnderTest(navigatorObserver: localObserver),
+          createWidgetUnderTest(
+            navigatorObserver: localObserver,
+            notifier: fakeNotifier,
+          ),
         );
         await tester.pump();
 
@@ -94,12 +134,15 @@ void main() {
       tester,
     ) async {
       final localObserver = MockNavigatorObserver();
-      final error = Exception('Gagal memuat');
-      when(mockPengelolaAkun.build()).thenThrow(error);
-      when(mockPengelolaAkun.future).thenThrow(error);
+      final fakeNotifier = FakePengelolaAkun(
+        () => Future.error(Exception('Gagal memuat')),
+      );
 
       await tester.pumpWidget(
-        createWidgetUnderTest(navigatorObserver: localObserver),
+        createWidgetUnderTest(
+          navigatorObserver: localObserver,
+          notifier: fakeNotifier,
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -111,11 +154,13 @@ void main() {
     ) async {
       final localObserver = MockNavigatorObserver();
       final emptyState = const AkunState(daftarAkunTersimpan: []);
-      when(mockPengelolaAkun.build()).thenAnswer((_) async => emptyState);
-      when(mockPengelolaAkun.future).thenAnswer((_) async => emptyState);
+      final fakeNotifier = FakePengelolaAkun(() => Future.value(emptyState));
 
       await tester.pumpWidget(
-        createWidgetUnderTest(navigatorObserver: localObserver),
+        createWidgetUnderTest(
+          navigatorObserver: localObserver,
+          notifier: fakeNotifier,
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -133,11 +178,13 @@ void main() {
         akunSaatIni: null,
         daftarAkunTersimpan: [pelanggan1, pelanggan2],
       );
-      when(mockPengelolaAkun.build()).thenAnswer((_) async => dataState);
-      when(mockPengelolaAkun.future).thenAnswer((_) async => dataState);
+      final fakeNotifier = FakePengelolaAkun(() => Future.value(dataState));
 
       await tester.pumpWidget(
-        createWidgetUnderTest(navigatorObserver: localObserver),
+        createWidgetUnderTest(
+          navigatorObserver: localObserver,
+          notifier: fakeNotifier,
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -149,45 +196,48 @@ void main() {
   });
 
   group('Interaksi Pengguna', () {
-    testWidgets('05. harus login dan navigasi ke main_page.dart saat akun dipilih', (
-      tester,
-    ) async {
-      final localObserver = MockNavigatorObserver();
+    testWidgets(
+      '05. harus login dan navigasi ke main_page.dart saat akun dipilih',
+      (tester) async {
+        final localObserver = MockNavigatorObserver();
+        final dataState = AkunState(daftarAkunTersimpan: [pelanggan1]);
+        final fakeNotifier = FakePengelolaAkun(() => Future.value(dataState));
 
-      final dataState = AkunState(daftarAkunTersimpan: [pelanggan1]);
-      when(mockPengelolaAkun.build()).thenAnswer((_) async => dataState);
-      when(mockPengelolaAkun.future).thenAnswer((_) async => dataState);
-      when(
-        mockLayananAktivitasUser.pingAktivitas(any, paksa: anyNamed('paksa')),
-      ).thenAnswer((_) async => Future.value());
+        when(
+          mockLayananAktivitasUser.pingAktivitas(any, paksa: anyNamed('paksa')),
+        ).thenAnswer((_) async => Future.value());
 
-      await tester.pumpWidget(
-        createWidgetUnderTest(navigatorObserver: localObserver),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createWidgetUnderTest(
+            navigatorObserver: localObserver,
+            notifier: fakeNotifier,
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.text('John Doe'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('John Doe'));
+        await tester.pumpAndSettle();
 
-      verify(mockPengelolaAkun.login(pelanggan1)).called(1);
-      verify(localObserver.didPush(any, any)).called(1);
-    });
+        expect(fakeNotifier.loginCalls.length, 1);
+        expect(fakeNotifier.loginCalls.first, pelanggan1);
+        verify(localObserver.didPush(any, any)).called(1);
+      },
+    );
 
     testWidgets('06. harus menampilkan dialog hapus saat long press', (
       tester,
     ) async {
       final localObserver = MockNavigatorObserver();
-
       final dataState = AkunState(
         akunSaatIni: pelanggan2,
         daftarAkunTersimpan: [pelanggan1, pelanggan2],
       );
-      when(mockPengelolaAkun.build()).thenAnswer((_) async => dataState);
-      when(mockPengelolaAkun.future).thenAnswer((_) async => dataState);
+      final fakeNotifier = FakePengelolaAkun(() => Future.value(dataState));
 
       await tester.pumpWidget(
         createWidgetUnderTest(
           navigatorObserver: localObserver,
+          notifier: fakeNotifier,
           currentUserId: pelanggan2.id,
         ),
       );
@@ -202,7 +252,7 @@ void main() {
       await tester.tap(find.text('Hapus'));
       await tester.pumpAndSettle();
 
-      verify(mockPengelolaAkun.hapusAkun(pelanggan1.id)).called(1);
+      expect(fakeNotifier.hapusAkunCalls, [pelanggan1.id]);
       expect(find.byType(AlertDialog), findsNothing);
     });
 
@@ -210,29 +260,21 @@ void main() {
       tester,
     ) async {
       final localObserver = MockNavigatorObserver();
-
       final dataState = AkunState(
         akunSaatIni: pelanggan1,
         daftarAkunTersimpan: [pelanggan1],
       );
-      
-      // SOLUSI: Cukup gunakan build() dan future() yang konsisten mengembalikan dataState.
-      // Riverpod secara otomatis membungkus nilai return dari .build() menjadi AsyncData<AkunState>.
-      when(mockPengelolaAkun.build()).thenAnswer((_) async => dataState);
-      when(mockPengelolaAkun.future).thenAnswer((_) async => dataState);
+      final fakeNotifier = FakePengelolaAkun(() => Future.value(dataState));
 
       await tester.pumpWidget(
         createWidgetUnderTest(
           navigatorObserver: localObserver,
+          notifier: fakeNotifier,
           currentUserId: pelanggan1.id,
         ),
       );
-      
-      // panggil pump sekali untuk memicu resolusi Future provider asinkronus awal
-      await tester.pump();
       await tester.pumpAndSettle();
 
-      // Memastikan item akun ter-render dengan sukses
       expect(find.text('John Doe'), findsOneWidget);
 
       await tester.longPress(find.text('John Doe'));
@@ -242,22 +284,23 @@ void main() {
       await tester.tap(find.text('Hapus'));
       await tester.pumpAndSettle();
 
-      verify(mockPengelolaAkun.hapusAkun(pelanggan1.id)).called(1);
+      expect(fakeNotifier.hapusAkunCalls, [pelanggan1.id]);
       verify(localObserver.didPush(any, any)).called(1);
     });
 
     testWidgets('08. harus menampilkan dialog keluar', (tester) async {
       final localObserver = MockNavigatorObserver();
-
       final dataState = AkunState(
         akunSaatIni: null,
         daftarAkunTersimpan: [pelanggan1, pelanggan2],
       );
-      when(mockPengelolaAkun.build()).thenAnswer((_) async => dataState);
-      when(mockPengelolaAkun.future).thenAnswer((_) async => dataState);
+      final fakeNotifier = FakePengelolaAkun(() => Future.value(dataState));
 
       await tester.pumpWidget(
-        createWidgetUnderTest(navigatorObserver: localObserver),
+        createWidgetUnderTest(
+          navigatorObserver: localObserver,
+          notifier: fakeNotifier,
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -272,16 +315,17 @@ void main() {
 
     testWidgets('09. harus keluar dan hapus token', (tester) async {
       final localObserver = MockNavigatorObserver();
-
       final dataState = AkunState(
         akunSaatIni: null,
         daftarAkunTersimpan: [pelanggan1, pelanggan2],
       );
-      when(mockPengelolaAkun.build()).thenAnswer((_) async => dataState);
-      when(mockPengelolaAkun.future).thenAnswer((_) async => dataState);
+      final fakeNotifier = FakePengelolaAkun(() => Future.value(dataState));
 
       await tester.pumpWidget(
-        createWidgetUnderTest(navigatorObserver: localObserver),
+        createWidgetUnderTest(
+          navigatorObserver: localObserver,
+          notifier: fakeNotifier,
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -289,28 +333,31 @@ void main() {
       await tester.pumpAndSettle();
 
       final tombolKeluarSaja = find.byWidgetPredicate(
-        (widget) => widget is TextButton && widget.child is Text && (widget.child as Text).data == 'Keluar',
+        (widget) =>
+            widget is TextButton &&
+            widget.child is Text &&
+            (widget.child as Text).data == 'Keluar',
       );
       await tester.tap(tombolKeluarSaja);
       await tester.pumpAndSettle();
 
-      verify(mockPengelolaAkun.hapusTokenLogin()).called(1);
+      expect(fakeNotifier.hapusTokenLoginCalls, 1);
       verify(localObserver.didPush(any, any)).called(1);
     });
 
     testWidgets('10. harus keluar dan hapus akun', (tester) async {
       final localObserver = MockNavigatorObserver();
-
       final dataState = AkunState(
         akunSaatIni: pelanggan1,
         daftarAkunTersimpan: [pelanggan1],
       );
-      when(mockPengelolaAkun.build()).thenAnswer((_) async => dataState);
-      when(mockPengelolaAkun.future).thenAnswer((_) async => dataState);
+      final fakeNotifier = FakePengelolaAkun(() => Future.value(dataState));
 
       await tester.pumpWidget(
         createWidgetUnderTest(
           navigatorObserver: localObserver,
+          notifier: fakeNotifier,
+          akunLokal: pelanggan1,
           currentUserId: pelanggan1.id,
         ),
       );
@@ -322,7 +369,7 @@ void main() {
       await tester.tap(find.text('Keluar & Hapus Akun'));
       await tester.pumpAndSettle();
 
-      verify(mockPengelolaAkun.hapusAkun(pelanggan1.id)).called(1);
+      expect(fakeNotifier.hapusAkunCalls, [pelanggan1.id]);
       verify(localObserver.didPush(any, any)).called(1);
     });
   });
