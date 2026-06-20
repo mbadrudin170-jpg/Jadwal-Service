@@ -16,7 +16,7 @@ class TransactionWithCustomer {
 
   TransactionWithCustomer({required this.transaksi, this.pelanggan});
 
-  String get customerName => pelanggan?.nama ?? 'Tidak diketahui';
+  String get namaPelanggan => pelanggan?.nama ?? 'Tidak diketahui';
 }
 
 enum SortOption {
@@ -140,8 +140,8 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
 
       case SortOption.namaAZ:
         list.sort((a, b) {
-          final nameCompare = a.customerName.toLowerCase().compareTo(
-            b.customerName.toLowerCase(),
+          final nameCompare = a.namaPelanggan.toLowerCase().compareTo(
+            b.namaPelanggan.toLowerCase(),
           );
           if (nameCompare != 0) return nameCompare;
           // Jika nama sama, urutkan berdasarkan ID transaksi (trx1 < trx3)
@@ -150,8 +150,8 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
         break;
       case SortOption.namaZA:
         list.sort((a, b) {
-          final nameCompare = b.customerName.toLowerCase().compareTo(
-            a.customerName.toLowerCase(),
+          final nameCompare = b.namaPelanggan.toLowerCase().compareTo(
+            a.namaPelanggan.toLowerCase(),
           );
           if (nameCompare != 0) return nameCompare;
           return a.transaksi.id.compareTo(b.transaksi.id);

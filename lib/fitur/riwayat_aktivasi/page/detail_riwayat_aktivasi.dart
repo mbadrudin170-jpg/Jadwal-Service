@@ -12,13 +12,13 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 class DetailRiwayatAktivasiPage extends ConsumerWidget {
-  final String transactionId;
-  const DetailRiwayatAktivasiPage({super.key, required this.transactionId});
+  final String idTransaksi;
+  const DetailRiwayatAktivasiPage({super.key, required this.idTransaksi});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch data gabungan langsung dari provider
-    final detailAsync = ref.watch(ambilDetailLanggananProvider(transactionId));
+    final detailAsync = ref.watch(ambilDetailLanggananProvider(idTransaksi));
 
     return detailAsync.when(
       loading: () =>
@@ -31,11 +31,11 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
           );
         }
 
-        final transaction = data.transaction;
-        final customer = data.customer;
-        final package = data.package;
-        final paymentStatusColor =
-            transaction?.statusPembayaran == StatusPembayaran.paid
+        final transaksi = data.transaksi;
+        final pelanggan = data.pelanggan;
+        final paket = data.paket;
+        final warnaStatusPembayaran =
+            transaksi?.statusPembayaran == StatusPembayaran.paid
             ? Colors.green
             : Colors.red;
 
@@ -50,7 +50,7 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          FromRiwayatAktivasi(transaksi: transaction!),
+                          FromRiwayatAktivasi(transaksi: transaksi!),
                     ),
                   );
                 },
@@ -59,26 +59,26 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
           ),
           body: RefreshIndicator(
             onRefresh: () async =>
-                ref.invalidate(ambilDetailLanggananProvider(transactionId)),
+                ref.invalidate(ambilDetailLanggananProvider(idTransaksi)),
             child: ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
                 // CARD 1: INFORMASI PELANGGAN
                 _buildCard(
                   title: 'Informasi Pelanggan',
-                  onTap: customer == null
+                  onTap: pelanggan == null
                       ? null
                       : () => Navigator.push(
                           context,
                           MaterialPageRoute<void>(
                             builder: (context) =>
-                                DetailPelanggan(idPelanggan: customer.id),
+                                DetailPelanggan(idPelanggan: pelanggan.id),
                           ),
                         ),
                   children: [
                     _buildRow(
                       'Nama Pelanggan',
-                      customer?.nama ?? 'Tidak Diketahui',
+                      pelanggan?.nama ?? 'Tidak Diketahui',
                     ),
                   ],
                 ),
@@ -87,44 +87,41 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                 // CARD 2: INFORMASI PAKET
                 _buildCard(
                   title: 'Informasi Paket',
-                  onTap: package == null
+                  onTap: paket == null
                       ? null
                       : () => Navigator.push(
                           context,
                           MaterialPageRoute<void>(
-                            builder: (context) =>
-                                DetailPaketPage(paket: package),
+                            builder: (context) => DetailPaketPage(paket: paket),
                           ),
                         ),
                   children: [
-                    _buildRow('Nama Paket', package?.nama ?? 'Tidak Diketahui'),
+                    _buildRow('Nama Paket', paket?.nama ?? 'Tidak Diketahui'),
                     _buildRow(
                       'Harga',
-                      FormatUang.formatMataUang(
-                        (package?.harga ?? 0).toDouble(),
-                      ),
+                      FormatUang.formatMataUang((paket?.harga ?? 0).toDouble()),
                     ),
                     _buildRow(
                       'Durasi',
-                      '${package?.durasi ?? 0} ${package?.tipe.displayName ?? ""}',
+                      '${paket?.durasi ?? 0} ${paket?.tipe.displayName ?? ""}',
                     ),
                   ],
                 ),
                 gapH16,
                 // CARD 3: POIN TRANSAKSI
-                if (transaction!.poinDidapat > 0 ||
-                    transaction.poinDigunakan > 0) ...[
+                if (transaksi!.poinDidapat > 0 ||
+                    transaksi.poinDigunakan > 0) ...[
                   _buildCard(
                     title: 'Informasi Poin',
                     children: [
                       _buildRow(
                         'Poin Dihasilkan',
-                        '+${transaction.poinDidapat} Poin',
+                        '+${transaksi.poinDidapat} Poin',
                         color: Colors.green,
                       ),
                       _buildRow(
                         'Poin Digunakan',
-                        '-${transaction.poinDigunakan} Poin',
+                        '-${transaksi.poinDigunakan} Poin',
                         color: Colors.red,
                       ),
                     ],
@@ -136,24 +133,24 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                 _buildCard(
                   title: 'Waktu & Status',
                   children: [
-                    if (transaction.tanggalMulai != null)
+                    if (transaksi.tanggalMulai != null)
                       _buildRow(
                         'Tanggal Mulai',
                         FormatWaktuLengkap.formatSingkat(
-                          transaction.tanggalMulai!,
+                          transaksi.tanggalMulai!,
                         ),
                       ),
-                    if (transaction.tanggalBerakhir != null)
+                    if (transaksi.tanggalBerakhir != null)
                       _buildRow(
                         'Tanggal Berakhir',
                         FormatWaktuLengkap.formatSingkat(
-                          transaction.tanggalBerakhir!,
+                          transaksi.tanggalBerakhir!,
                         ),
                       ),
                     _buildRow(
                       'Status Pembayaran',
-                      transaction.statusPembayaran.displayName.toUpperCase(),
-                      color: paymentStatusColor,
+                      transaksi.statusPembayaran.displayName.toUpperCase(),
+                      color: warnaStatusPembayaran,
                       isBold: true,
                     ),
                   ],

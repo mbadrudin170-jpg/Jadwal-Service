@@ -9,6 +9,9 @@ import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -49,6 +52,67 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
         });
       }
     }
+  }
+
+  Future<void> _dialogOpsi(TransaksiModel transaksi) async {
+    final aksiDipilih = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Pilih Aksi'),
+          children: <Widget>[
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, 'edit'),
+              child: const Text('Edit'),
+            ),
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, 'hapus'),
+              child: const Text('Hapus'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (aksiDipilih != null) {
+      // Lakukan sesuatu berdasarkan aksi yang dipilih
+      Log.info('Aksi dipilih: $aksiDipilih');
+
+      if (aksiDipilih == 'edit') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FormTransaksi(transaksi: transaksi),
+          ),
+        );
+      } else if (aksiDipilih == 'hapus') {
+        // Panggil fungsi hapus
+        _dialogKonfirmasiSoftDelete(transaksi);
+      }
+    }
+  }
+
+  Future<void> _dialogKonfirmasiSoftDelete(TransaksiModel transaksi) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi'),
+        content: const Text('Apakah Anda yakin ingin menghapus transaksi ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              ref.read(transaksiProvider.notifier).softDelete(transaksi.id);
+              Navigator.pop(context);
+            },
+            child: const Text('Iya', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -114,13 +178,14 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => DetailRiwayatAktivasiPage(
-                          transactionId: transaksi.id,
+                          idTransaksi: transaksi.id,
                         ),
                       ),
                     );
                   },
+                  onLongPress: () => _dialogOpsi(transaksi),
                   title: Text(
-                    item.customerName,
+                    item.namaPelanggan,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Column(

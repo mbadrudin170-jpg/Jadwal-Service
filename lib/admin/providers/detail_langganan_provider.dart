@@ -13,9 +13,9 @@ part 'detail_langganan_provider.g.dart';
 @freezed
 abstract class DetailLanggananState with _$DetailLanggananState {
   const factory DetailLanggananState({
-    TransaksiModel? transaction,
-    PelangganModel? customer,
-    PaketModel? package,
+    TransaksiModel? transaksi,
+    PelangganModel? pelanggan,
+    PaketModel? paket,
   }) = _DetailLanggananState;
 }
 
@@ -44,8 +44,8 @@ Future<DetailLanggananState?> ambilDetailLangganan(
   ]);
 
   return DetailLanggananState(
-    transaction: transaksi,
-    customer: hasil[0] as PelangganModel?,
-    package: hasil[1] as PaketModel?,
+    transaksi: transaksi,
+    pelanggan: hasil[0] as PelangganModel?,
+    paket: hasil[1] as PaketModel?,
   );
 }

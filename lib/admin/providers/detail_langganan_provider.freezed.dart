@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DetailLanggananState {
 
- TransaksiModel? get transaction; PelangganModel? get customer; PaketModel? get package;
+ TransaksiModel? get transaksi; PelangganModel? get pelanggan; PaketModel? get paket;
 /// Create a copy of DetailLanggananState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $DetailLanggananStateCopyWith<DetailLanggananState> get copyWith => _$DetailLang
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DetailLanggananState&&(identical(other.transaction, transaction) || other.transaction == transaction)&&(identical(other.customer, customer) || other.customer == customer)&&(identical(other.package, package) || other.package == package));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DetailLanggananState&&(identical(other.transaksi, transaksi) || other.transaksi == transaksi)&&(identical(other.pelanggan, pelanggan) || other.pelanggan == pelanggan)&&(identical(other.paket, paket) || other.paket == paket));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,transaction,customer,package);
+int get hashCode => Object.hash(runtimeType,transaksi,pelanggan,paket);
 
 @override
 String toString() {
-  return 'DetailLanggananState(transaction: $transaction, customer: $customer, package: $package)';
+  return 'DetailLanggananState(transaksi: $transaksi, pelanggan: $pelanggan, paket: $paket)';
 }
 
 
@@ -45,11 +45,11 @@ abstract mixin class $DetailLanggananStateCopyWith<$Res>  {
   factory $DetailLanggananStateCopyWith(DetailLanggananState value, $Res Function(DetailLanggananState) _then) = _$DetailLanggananStateCopyWithImpl;
 @useResult
 $Res call({
- TransaksiModel? transaction, PelangganModel? customer, PaketModel? package
+ TransaksiModel? transaksi, PelangganModel? pelanggan, PaketModel? paket
 });
 
 
-$TransaksiModelCopyWith<$Res>? get transaction;$PelangganModelCopyWith<$Res>? get customer;$PaketModelCopyWith<$Res>? get package;
+$TransaksiModelCopyWith<$Res>? get transaksi;$PelangganModelCopyWith<$Res>? get pelanggan;$PaketModelCopyWith<$Res>? get paket;
 
 }
 /// @nodoc
@@ -62,11 +62,11 @@ class _$DetailLanggananStateCopyWithImpl<$Res>
 
 /// Create a copy of DetailLanggananState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? transaction = freezed,Object? customer = freezed,Object? package = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? transaksi = freezed,Object? pelanggan = freezed,Object? paket = freezed,}) {
   return _then(_self.copyWith(
-transaction: freezed == transaction ? _self.transaction : transaction // ignore: cast_nullable_to_non_nullable
-as TransaksiModel?,customer: freezed == customer ? _self.customer : customer // ignore: cast_nullable_to_non_nullable
-as PelangganModel?,package: freezed == package ? _self.package : package // ignore: cast_nullable_to_non_nullable
+transaksi: freezed == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
+as TransaksiModel?,pelanggan: freezed == pelanggan ? _self.pelanggan : pelanggan // ignore: cast_nullable_to_non_nullable
+as PelangganModel?,paket: freezed == paket ? _self.paket : paket // ignore: cast_nullable_to_non_nullable
 as PaketModel?,
   ));
 }
@@ -74,37 +74,37 @@ as PaketModel?,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$TransaksiModelCopyWith<$Res>? get transaction {
-    if (_self.transaction == null) {
+$TransaksiModelCopyWith<$Res>? get transaksi {
+    if (_self.transaksi == null) {
     return null;
   }
 
-  return $TransaksiModelCopyWith<$Res>(_self.transaction!, (value) {
-    return _then(_self.copyWith(transaction: value));
+  return $TransaksiModelCopyWith<$Res>(_self.transaksi!, (value) {
+    return _then(_self.copyWith(transaksi: value));
   });
 }/// Create a copy of DetailLanggananState
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$PelangganModelCopyWith<$Res>? get customer {
-    if (_self.customer == null) {
+$PelangganModelCopyWith<$Res>? get pelanggan {
+    if (_self.pelanggan == null) {
     return null;
   }
 
-  return $PelangganModelCopyWith<$Res>(_self.customer!, (value) {
-    return _then(_self.copyWith(customer: value));
+  return $PelangganModelCopyWith<$Res>(_self.pelanggan!, (value) {
+    return _then(_self.copyWith(pelanggan: value));
   });
 }/// Create a copy of DetailLanggananState
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$PaketModelCopyWith<$Res>? get package {
-    if (_self.package == null) {
+$PaketModelCopyWith<$Res>? get paket {
+    if (_self.paket == null) {
     return null;
   }
 
-  return $PaketModelCopyWith<$Res>(_self.package!, (value) {
-    return _then(_self.copyWith(package: value));
+  return $PaketModelCopyWith<$Res>(_self.paket!, (value) {
+    return _then(_self.copyWith(paket: value));
   });
 }
 }
@@ -188,10 +188,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( TransaksiModel? transaction,  PelangganModel? customer,  PaketModel? package)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( TransaksiModel? transaksi,  PelangganModel? pelanggan,  PaketModel? paket)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DetailLanggananState() when $default != null:
-return $default(_that.transaction,_that.customer,_that.package);case _:
+return $default(_that.transaksi,_that.pelanggan,_that.paket);case _:
   return orElse();
 
 }
@@ -209,10 +209,10 @@ return $default(_that.transaction,_that.customer,_that.package);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( TransaksiModel? transaction,  PelangganModel? customer,  PaketModel? package)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( TransaksiModel? transaksi,  PelangganModel? pelanggan,  PaketModel? paket)  $default,) {final _that = this;
 switch (_that) {
 case _DetailLanggananState():
-return $default(_that.transaction,_that.customer,_that.package);case _:
+return $default(_that.transaksi,_that.pelanggan,_that.paket);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -229,10 +229,10 @@ return $default(_that.transaction,_that.customer,_that.package);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( TransaksiModel? transaction,  PelangganModel? customer,  PaketModel? package)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( TransaksiModel? transaksi,  PelangganModel? pelanggan,  PaketModel? paket)?  $default,) {final _that = this;
 switch (_that) {
 case _DetailLanggananState() when $default != null:
-return $default(_that.transaction,_that.customer,_that.package);case _:
+return $default(_that.transaksi,_that.pelanggan,_that.paket);case _:
   return null;
 
 }
@@ -244,12 +244,12 @@ return $default(_that.transaction,_that.customer,_that.package);case _:
 
 
 class _DetailLanggananState implements DetailLanggananState {
-  const _DetailLanggananState({this.transaction, this.customer, this.package});
+  const _DetailLanggananState({this.transaksi, this.pelanggan, this.paket});
   
 
-@override final  TransaksiModel? transaction;
-@override final  PelangganModel? customer;
-@override final  PaketModel? package;
+@override final  TransaksiModel? transaksi;
+@override final  PelangganModel? pelanggan;
+@override final  PaketModel? paket;
 
 /// Create a copy of DetailLanggananState
 /// with the given fields replaced by the non-null parameter values.
@@ -261,16 +261,16 @@ _$DetailLanggananStateCopyWith<_DetailLanggananState> get copyWith => __$DetailL
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DetailLanggananState&&(identical(other.transaction, transaction) || other.transaction == transaction)&&(identical(other.customer, customer) || other.customer == customer)&&(identical(other.package, package) || other.package == package));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DetailLanggananState&&(identical(other.transaksi, transaksi) || other.transaksi == transaksi)&&(identical(other.pelanggan, pelanggan) || other.pelanggan == pelanggan)&&(identical(other.paket, paket) || other.paket == paket));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,transaction,customer,package);
+int get hashCode => Object.hash(runtimeType,transaksi,pelanggan,paket);
 
 @override
 String toString() {
-  return 'DetailLanggananState(transaction: $transaction, customer: $customer, package: $package)';
+  return 'DetailLanggananState(transaksi: $transaksi, pelanggan: $pelanggan, paket: $paket)';
 }
 
 
@@ -281,11 +281,11 @@ abstract mixin class _$DetailLanggananStateCopyWith<$Res> implements $DetailLang
   factory _$DetailLanggananStateCopyWith(_DetailLanggananState value, $Res Function(_DetailLanggananState) _then) = __$DetailLanggananStateCopyWithImpl;
 @override @useResult
 $Res call({
- TransaksiModel? transaction, PelangganModel? customer, PaketModel? package
+ TransaksiModel? transaksi, PelangganModel? pelanggan, PaketModel? paket
 });
 
 
-@override $TransaksiModelCopyWith<$Res>? get transaction;@override $PelangganModelCopyWith<$Res>? get customer;@override $PaketModelCopyWith<$Res>? get package;
+@override $TransaksiModelCopyWith<$Res>? get transaksi;@override $PelangganModelCopyWith<$Res>? get pelanggan;@override $PaketModelCopyWith<$Res>? get paket;
 
 }
 /// @nodoc
@@ -298,11 +298,11 @@ class __$DetailLanggananStateCopyWithImpl<$Res>
 
 /// Create a copy of DetailLanggananState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? transaction = freezed,Object? customer = freezed,Object? package = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? transaksi = freezed,Object? pelanggan = freezed,Object? paket = freezed,}) {
   return _then(_DetailLanggananState(
-transaction: freezed == transaction ? _self.transaction : transaction // ignore: cast_nullable_to_non_nullable
-as TransaksiModel?,customer: freezed == customer ? _self.customer : customer // ignore: cast_nullable_to_non_nullable
-as PelangganModel?,package: freezed == package ? _self.package : package // ignore: cast_nullable_to_non_nullable
+transaksi: freezed == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
+as TransaksiModel?,pelanggan: freezed == pelanggan ? _self.pelanggan : pelanggan // ignore: cast_nullable_to_non_nullable
+as PelangganModel?,paket: freezed == paket ? _self.paket : paket // ignore: cast_nullable_to_non_nullable
 as PaketModel?,
   ));
 }
@@ -311,37 +311,37 @@ as PaketModel?,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$TransaksiModelCopyWith<$Res>? get transaction {
-    if (_self.transaction == null) {
+$TransaksiModelCopyWith<$Res>? get transaksi {
+    if (_self.transaksi == null) {
     return null;
   }
 
-  return $TransaksiModelCopyWith<$Res>(_self.transaction!, (value) {
-    return _then(_self.copyWith(transaction: value));
+  return $TransaksiModelCopyWith<$Res>(_self.transaksi!, (value) {
+    return _then(_self.copyWith(transaksi: value));
   });
 }/// Create a copy of DetailLanggananState
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$PelangganModelCopyWith<$Res>? get customer {
-    if (_self.customer == null) {
+$PelangganModelCopyWith<$Res>? get pelanggan {
+    if (_self.pelanggan == null) {
     return null;
   }
 
-  return $PelangganModelCopyWith<$Res>(_self.customer!, (value) {
-    return _then(_self.copyWith(customer: value));
+  return $PelangganModelCopyWith<$Res>(_self.pelanggan!, (value) {
+    return _then(_self.copyWith(pelanggan: value));
   });
 }/// Create a copy of DetailLanggananState
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$PaketModelCopyWith<$Res>? get package {
-    if (_self.package == null) {
+$PaketModelCopyWith<$Res>? get paket {
+    if (_self.paket == null) {
     return null;
   }
 
-  return $PaketModelCopyWith<$Res>(_self.package!, (value) {
-    return _then(_self.copyWith(package: value));
+  return $PaketModelCopyWith<$Res>(_self.paket!, (value) {
+    return _then(_self.copyWith(paket: value));
   });
 }
 }
