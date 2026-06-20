@@ -64,7 +64,6 @@ void main() {
         layananAktivitasUserProvider.overrideWith(
           (ref) => Future.value(mockLayananAktivitasUser),
         ),
-        // Menggunakan overrideWithProvider agar AsyncValue langsung bernilai Data tanpa melewati fase Loading asinkronus
         userIdProvider.overrideWith((ref) => currentUserId),
       ],
       child: MaterialApp(
@@ -216,6 +215,9 @@ void main() {
         akunSaatIni: pelanggan1,
         daftarAkunTersimpan: [pelanggan1],
       );
+      
+      // SOLUSI: Cukup gunakan build() dan future() yang konsisten mengembalikan dataState.
+      // Riverpod secara otomatis membungkus nilai return dari .build() menjadi AsyncData<AkunState>.
       when(mockPengelolaAkun.build()).thenAnswer((_) async => dataState);
       when(mockPengelolaAkun.future).thenAnswer((_) async => dataState);
 
@@ -225,8 +227,12 @@ void main() {
           currentUserId: pelanggan1.id,
         ),
       );
+      
+      // panggil pump sekali untuk memicu resolusi Future provider asinkronus awal
+      await tester.pump();
       await tester.pumpAndSettle();
 
+      // Memastikan item akun ter-render dengan sukses
       expect(find.text('John Doe'), findsOneWidget);
 
       await tester.longPress(find.text('John Doe'));
