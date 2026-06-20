@@ -11,19 +11,19 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
-import 'package:wifi/user/services/interstitial_ad_service.dart';
+import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dart';
 
 import 'detail_pelanggan_u_test.mocks.dart';
 
 @GenerateMocks([
   PelangganOpFirebase,
   TransaksiOpFirebase,
-  InterstitialAdService,
+  LayananIklanInterstisial,
 ])
 void main() {
   late MockPelangganOpFirebase mockPelangganOp;
   late MockTransaksiOpFirebase mockTransaksiOp;
-  late MockInterstitialAdService mockInterstitialAd;
+  late MockLayananIklanInterstisial mockInterstitialAd;
 
   final mockPelanggan = PelangganModel(
     id: 'user123',
@@ -37,7 +37,7 @@ void main() {
   setUp(() {
     mockPelangganOp = MockPelangganOpFirebase();
     mockTransaksiOp = MockTransaksiOpFirebase();
-    mockInterstitialAd = MockInterstitialAdService();
+    mockInterstitialAd = MockLayananIklanInterstisial();
   });
 
   Widget createWidgetUnderTest() {
@@ -47,22 +47,22 @@ void main() {
         transaksiOpFirebaseProvider.overrideWithValue(mockTransaksiOp),
         interstitialAdServiceProvider.overrideWithValue(mockInterstitialAd),
       ],
-      child: const MaterialApp(
-        home: DetailPelangganU(userId: 'user123'),
-      ),
+      child: const MaterialApp(home: DetailPelangganU(userId: 'user123')),
     );
   }
 
   group('DetailPelangganU Widget Tests', () {
-    testWidgets('01. harus menampilkan loading indicator saat data dimuat',
-        (tester) async {
+    testWidgets('01. harus menampilkan loading indicator saat data dimuat', (
+      tester,
+    ) async {
       // Arrange
-      when(mockPelangganOp.ambilBerdasarkanId('user123'))
-          .thenAnswer((_) async {
+      when(mockPelangganOp.ambilBerdasarkanId('user123')).thenAnswer((_) async {
         await Future.delayed(const Duration(seconds: 1));
         return mockPelanggan;
       });
-      when(mockTransaksiOp.ambilTotalPoin('user123')).thenAnswer((_) async => 150);
+      when(
+        mockTransaksiOp.ambilTotalPoin('user123'),
+      ).thenAnswer((_) async => 150);
 
       // Act
       await tester.pumpWidget(createWidgetUnderTest());
@@ -75,8 +75,9 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('02. harus menampilkan pesan error jika data gagal dimuat',
-        (tester) async {
+    testWidgets('02. harus menampilkan pesan error jika data gagal dimuat', (
+      tester,
+    ) async {
       // Arrange
       final exception = Exception('Firestore error');
       when(mockPelangganOp.ambilBerdasarkanId('user123')).thenThrow(exception);
@@ -90,29 +91,38 @@ void main() {
       expect(find.textContaining('Gagal memuat data'), findsOneWidget);
     });
 
-    testWidgets('03. harus menampilkan DetailPelangganUI saat data berhasil dimuat',
-        (tester) async {
+    testWidgets(
+      '03. harus menampilkan DetailPelangganUI saat data berhasil dimuat',
+      (tester) async {
+        // Arrange
+        when(
+          mockPelangganOp.ambilBerdasarkanId('user123'),
+        ).thenAnswer((_) async => mockPelanggan);
+        when(
+          mockTransaksiOp.ambilTotalPoin('user123'),
+        ).thenAnswer((_) async => 150);
+
+        // Act
+        await tester.pumpWidget(createWidgetUnderTest());
+        await tester.pumpAndSettle();
+
+        // Assert
+        expect(find.byType(DetailPelangganUI), findsOneWidget);
+        expect(find.text('Pelanggan Uji'), findsOneWidget);
+        expect(find.text('150'), findsOneWidget);
+      },
+    );
+
+    testWidgets('04. harus menavigasi ke halaman edit dan menampilkan iklan', (
+      tester,
+    ) async {
       // Arrange
-      when(mockPelangganOp.ambilBerdasarkanId('user123'))
-          .thenAnswer((_) async => mockPelanggan);
-      when(mockTransaksiOp.ambilTotalPoin('user123')).thenAnswer((_) async => 150);
-
-      // Act
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
-
-      // Assert
-      expect(find.byType(DetailPelangganUI), findsOneWidget);
-      expect(find.text('Pelanggan Uji'), findsOneWidget);
-      expect(find.text('150'), findsOneWidget);
-    });
-
-    testWidgets('04. harus menavigasi ke halaman edit dan menampilkan iklan',
-        (tester) async {
-      // Arrange
-      when(mockPelangganOp.ambilBerdasarkanId('user123'))
-          .thenAnswer((_) async => mockPelanggan);
-      when(mockTransaksiOp.ambilTotalPoin('user123')).thenAnswer((_) async => 150);
+      when(
+        mockPelangganOp.ambilBerdasarkanId('user123'),
+      ).thenAnswer((_) async => mockPelanggan);
+      when(
+        mockTransaksiOp.ambilTotalPoin('user123'),
+      ).thenAnswer((_) async => 150);
       when(mockInterstitialAd.show()).thenAnswer((_) async {});
 
       await tester.pumpWidget(createWidgetUnderTest());
