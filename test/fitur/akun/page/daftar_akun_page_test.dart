@@ -14,7 +14,7 @@ import 'package:wifi/user/providers/user_provider.dart';
 
 import 'daftar_akun_page_test.mocks.dart';
 
-@GenerateMocks([PengelolaAkun, LayananAktivitasUser, NavigatorObserver])
+@GenerateMocks([PengelolaAkun, LayananAktivitasUser, NavigatorObserver, NavigatorState])
 void main() {
   late MockPengelolaAkun mockPengelolaAkun;
   late MockLayananAktivitasUser mockLayananAktivitasUser;
@@ -26,6 +26,10 @@ void main() {
     mockPengelolaAkun = MockPengelolaAkun();
     mockLayananAktivitasUser = MockLayananAktivitasUser();
     mockNavigatorObserver = MockNavigatorObserver();
+
+    // Menggunakan thenAnswer untuk menghasilkan instance baru setiap kali dipanggil,
+    // mencegah error 'observer.navigator == null' saat rebuilding widget.
+    when(mockNavigatorObserver.navigator).thenAnswer((_) => MockNavigatorState());
 
     // Default stub for the build method
     when(mockPengelolaAkun.build())
