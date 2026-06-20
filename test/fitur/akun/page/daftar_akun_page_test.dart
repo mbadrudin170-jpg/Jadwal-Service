@@ -1,6 +1,7 @@
 // path: test/fitur/akun/page/daftar_akun_page_test.dart
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart'; // TAMBAHKAN IMPORT INI
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,7 +11,8 @@ import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/pelanggan/core/layanan_aktivitas_user.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/shared/providers/shared_providers.dart'; // Ditambahkan untuk layananPenyimpananLokalProvider
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart'; // TAMBAHKAN IMPORT INI
+import 'package:wifi/shared/providers/shared_providers.dart'; 
 import 'package:wifi/user/providers/user_provider.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
@@ -59,14 +61,17 @@ class FakeLayananPenyimpananLokal extends Fake
 @GenerateNiceMocks([
   MockSpec<LayananAktivitasUser>(),
   MockSpec<NavigatorObserver>(),
+  MockSpec<FirebaseFirestore>(), // TAMBAHKAN MOCK INI
 ])
 void main() {
   late MockLayananAktivitasUser mockLayananAktivitasUser;
+  late MockFirebaseFirestore mockFirebaseFirestore; // TAMBAHKAN VARIABEL INI
   late PelangganModel pelanggan1;
   late PelangganModel pelanggan2;
 
   setUp(() {
     mockLayananAktivitasUser = MockLayananAktivitasUser();
+    mockFirebaseFirestore = MockFirebaseFirestore(); // INISIALISASI MOCK DI SINI
 
     pelanggan1 = const PelangganModel(
       id: 'user1',
@@ -94,6 +99,7 @@ void main() {
   }) {
     return ProviderScope(
       overrides: [
+        firestoreProvider.overrideWithValue(mockFirebaseFirestore), // TAMBAHKAN OVERRIDE INI
         pengelolaAkunProvider.overrideWith(() => notifier),
         layananAktivitasUserProvider.overrideWith(
           (ref) => Future.value(mockLayananAktivitasUser),
