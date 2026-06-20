@@ -56,11 +56,9 @@ class UjiKecepatan extends _$UjiKecepatan {
     // Get Ping
     try {
       state = state.copyWith(statusPesan: 'Mengukur ping...');
-      final pingAsync = await ref.read(httpPingProvider.future);
-      final pingTime = pingAsync.response?.time?.inMilliseconds;
-      if (pingTime != null) {
-        state = state.copyWith(ping: pingTime);
-      }
+      // Perbaikan: httpPingProvider langsung mengembalikan int milidetik
+      final pingTime = await ref.read(httpPingProvider.future);
+      state = state.copyWith(ping: pingTime);
     } catch (e) {
       Log.warning('Gagal mendapatkan ping: $e');
       state = state.copyWith(ping: -1);
@@ -96,7 +94,7 @@ class UjiKecepatan extends _$UjiKecepatan {
         }
       },
       onCompleted: (unduh, unggah) {
-        _timer?.cancel(); // 🔥 Batalkan timer
+        _timer?.cancel(); // Batalkan timer
         if (_isFinished) return;
         _isFinished = true;
 
@@ -130,7 +128,7 @@ class UjiKecepatan extends _$UjiKecepatan {
         }
       },
       onError: (e, s) {
-        _timer?.cancel(); // 🔥 Batalkan timer
+        _timer?.cancel(); // Batalkan timer
         if (_isFinished) return;
         _isFinished = true;
         state = state.copyWith(
@@ -144,8 +142,8 @@ class UjiKecepatan extends _$UjiKecepatan {
       },
     );
 
-    // Timer timeout (5 detik) berjalan paralel
-    _timer = Timer(const Duration(seconds: 5), () {
+    // Perbaikan: Durasi timeout diubah ke 30 detik agar tes tidak mati di tengah jalan
+    _timer = Timer(const Duration(seconds: 30), () {
       if (_isFinished) return;
       _isFinished = true;
       _alatUji?.cancelTest();
