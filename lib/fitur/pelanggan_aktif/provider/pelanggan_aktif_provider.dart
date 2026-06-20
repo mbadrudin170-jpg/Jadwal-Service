@@ -26,7 +26,6 @@ class PelangganAktif extends _$PelangganAktif {
   }
 
   Future<PelangganAktifState> _ambilData() async {
-    // Gunakan `ref.read` karena ini ada di dalam method build
     final operasi = ref.read(pelangganAktifOpSqliteProvider);
     final hasil = await operasi.ambilSemuaPelangganAktifDenganDetail();
 
