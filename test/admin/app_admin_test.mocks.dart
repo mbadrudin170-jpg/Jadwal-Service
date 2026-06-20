@@ -450,7 +450,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   _i8.Future<List<_i13.DetailPelangganAktifModel>>
   ambilSemuaPelangganAktifDenganDetail() =>
       (super.noSuchMethod(
-            Invocation.method(#getAllActiveCustomersWithDetails, []),
+            Invocation.method(#ambilSemuaPelangganAktifDenganDetail, []),
             returnValue: _i8.Future<List<_i13.DetailPelangganAktifModel>>.value(
               <_i13.DetailPelangganAktifModel>[],
             ),
