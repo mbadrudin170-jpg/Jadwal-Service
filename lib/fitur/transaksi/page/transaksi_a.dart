@@ -65,17 +65,17 @@ class TransaksiA extends ConsumerWidget {
   /// Navigasi ke halaman form untuk menambah/mengedit transaksi.
   Future<void> _naviagasiKeForm(
     BuildContext context, {
-    TransaksiModel? transaction,
+    TransaksiModel? transaksi,
   }) async {
     Log.info(
-      transaction == null
+      transaksi == null
           ? 'Membuka FormTransaksiPage untuk menambah entri baru.'
-          : 'Membuka FormTransaksiPage untuk mengedit transaksi: ${transaction.id}',
+          : 'Membuka FormTransaksiPage untuk mengedit transaksi: ${transaksi.id}',
     );
     await Navigator.push(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) => FormTransaksi(transaksi: transaction),
+        builder: (context) => FormTransaksi(transaksi: transaksi),
       ),
     );
   }
