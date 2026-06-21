@@ -56,6 +56,7 @@ class DaftarAkunPage extends ConsumerWidget {
                         ),
                         title: Text(akun.nama),
                         onTap: () async {
+                          if (!context.mounted) return;
                           await _pilihAkun(context, ref, akun);
                         },
                         onLongPress: () =>
@@ -121,7 +122,7 @@ class DaftarAkunPage extends ConsumerWidget {
         'nama': pelanggan.nama,
       });
 
-       unawaited(activityService.pingAktivitas(pelanggan.id, paksa: true));
+      unawaited(activityService.pingAktivitas(pelanggan.id, paksa: true));
 
       if (!context.mounted) return;
       await navigator.pushAndRemoveUntil(
@@ -131,7 +132,7 @@ class DaftarAkunPage extends ConsumerWidget {
     } on Exception catch (e, st) {
       Log.error(
         'Gagal menyimpan akun yang dipilih',
-        e: e,m
+        e: e,
         s: st,
         data: {'customer_id': pelanggan.id},
       );
@@ -223,11 +224,9 @@ class DaftarAkunPage extends ConsumerWidget {
     });
 
     await ref.read(pengelolaAkunProvider.notifier).hapusAkun(customer.id);
-
-    if (context.mounted) {
-      ToastUtil.success(context, 'Akun berhasil dihapus, silakan login ulang');
-    }
-
+    if (!context.mounted) return;
+    
+    ToastUtil.success(context, 'Akun berhasil dihapus, silakan login ulang');
     await navigator.pushAndRemoveUntil(
       MaterialPageRoute<void>(builder: (context) => const LoginPage()),
       (route) => false,
