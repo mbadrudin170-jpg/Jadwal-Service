@@ -26,18 +26,24 @@ class RiwayatAktivasiPaket extends ConsumerStatefulWidget {
 
 class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
   final ScrollController _pengendaliScroll = ScrollController();
+  final TextEditingController _cariController = TextEditingController();
+  late final FocusNode _cariFocusNode;
   int _jumlahTampil = 20;
+  String _kataKunciCari = '';
 
   @override
   void initState() {
     super.initState();
     _pengendaliScroll.addListener(_deteksiScroll);
+    _cariFocusNode = FocusNode();
   }
 
   @override
   void dispose() {
     _pengendaliScroll.removeListener(_deteksiScroll);
     _pengendaliScroll.dispose();
+    _cariController.dispose();
+    _cariFocusNode.dispose();
     super.dispose();
   }
 
@@ -52,6 +58,31 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
         });
       }
     }
+  }
+
+  /// Filter data berdasarkan kata kunci cari
+  List<TransactionWithCustomer> _filterData(
+    List<TransactionWithCustomer> items,
+    String katakunci,
+  ) {
+    if (katakunci.isEmpty) return items;
+
+    final katakunciLower = katakunci.toLowerCase();
+    return items.where((item) {
+      // Cari di nama pelanggan
+      if (item.namaPelanggan.toLowerCase().contains(katakunciLower)) {
+        return true;
+      }
+      // Cari di deskripsi/keterangan
+      if (item.transaksi.deskripsi.toLowerCase().contains(katakunciLower)) {
+        return true;
+      }
+      // Cari di ID transaksi
+      if (item.transaksi.id.toLowerCase().contains(katakunciLower)) {
+        return true;
+      }
+      return false;
+    }).toList();
   }
 
   Future<void> _dialogOpsi(TransaksiModel transaksi) async {
@@ -121,43 +152,79 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
     final paketOpSqlite = ref.watch(paketOpSqliteProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Riwayat Langganan'),
+        title: _kataKunciCari.isEmpty
+            ? const Text('Riwayat Langganan')
+            : TextField(
+                controller: _cariController,
+                focusNode: _cariFocusNode,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: 'Cari data',
+                  hintStyle: const TextStyle(color: Colors.white),
+                  border: InputBorder.none,
+                  suffixIcon: _kataKunciCari.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(TIcons.close, color: Colors.white),
+                          onPressed: () {
+                            _cariController.clear();
+                            setState(() {
+                              _kataKunciCari = '';
+                              _jumlahTampil = 20;
+                            });
+                          },
+                        )
+                      : null,
+                ),
+                style: const TextStyle(color: Colors.white),
+                onChanged: (value) {
+                  setState(() {
+                    _kataKunciCari = value;
+                    _jumlahTampil = 20;
+                  });
+                },
+              ),
         actions: [
-          IconButton(
-            onPressed: () {
-              
-            },
-            icon: Icon(TIcons.search),
-          ),
-          IconButton(
-            icon: const Icon(TIcons.filter),
-            onPressed: () {
-              if (historyAsync.hasValue) {
-                Log.info('Membuka dialog pengurutan riwayat langganan.');
-                unawaited(
-                  _showSortDialog(context, ref, historyAsync.value!.sortBy),
-                );
-              }
-            },
-            tooltip: 'Urutkan',
-          ),
+          if (_kataKunciCari.isEmpty)
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _kataKunciCari = ' ';
+                });
+                Future.microtask(() => _cariFocusNode.requestFocus());
+              },
+              icon: Icon(TIcons.search),
+            ),
+          if (_kataKunciCari.isEmpty)
+            IconButton(
+              icon: const Icon(TIcons.filter),
+              onPressed: () {
+                if (historyAsync.hasValue) {
+                  Log.info('Membuka dialog pengurutan riwayat langganan.');
+                  unawaited(
+                    _showSortDialog(context, ref, historyAsync.value!.sortBy),
+                  );
+                }
+              },
+              tooltip: 'Urutkan',
+            ),
         ],
       ),
       body: historyAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('Error: $error')),
         data: (state) {
-          if (state.items.isEmpty) {
+          final itemsFiltered = _filterData(state.items, _kataKunciCari);
+          if (itemsFiltered.isEmpty) {
             return const Center(
               child: Text('Tidak ada riwayat langganan ditemukan.'),
             );
           }
-          final itemsTampil = state.items.take(_jumlahTampil).toList();
+          final itemsTampil = itemsFiltered.take(_jumlahTampil).toList();
           return ListView.builder(
             controller: _pengendaliScroll,
             itemCount:
-                state.items.length +
-                (_jumlahTampil < state.items.length ? 1 : 0),
+                itemsFiltered.length +
+                (_jumlahTampil < itemsFiltered.length ? 1 : 0),
             itemBuilder: (context, index) {
               if (index == itemsTampil.length) {
                 return const Center(
