@@ -81,7 +81,7 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
 
   Widget _buildKartuPoin() {
     return TotalPointCard(
-      points: widget.totalPoin,
+      poin: widget.totalPoin,
       onTap: () {
         if (widget.navigasiKePoin != null) {
           Log.info('Kartu Poin ditekan, navigasi ke halaman poin.');

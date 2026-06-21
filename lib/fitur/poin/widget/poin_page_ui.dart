@@ -36,10 +36,7 @@ class PoinPageUi extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: appBarTitle,
-        elevation: 1,
-      ),
+      appBar: AppBar(title: appBarTitle, elevation: 1),
       body: Column(
         children: [
           _buildInfoPoinHeader(context),
@@ -57,11 +54,7 @@ class PoinPageUi extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24),
       color: Theme.of(context).primaryColor.withAlpha(15),
-      child: Center(
-        child: TotalPointCard(
-          points: totalPoin,
-        ),
-      ),
+      child: Center(child: TotalPointCard(poin: totalPoin)),
     );
   }
 
@@ -70,7 +63,10 @@ class PoinPageUi extends StatelessWidget {
     final primaryColor = theme.primaryColor;
 
     Widget buildSegment(
-        final MenuPoin menu, final String label, final IconData icon) {
+      final MenuPoin menu,
+      final String label,
+      final IconData icon,
+    ) {
       final bool isSelected = menuPilihan == menu;
       return Expanded(
         child: InkWell(
@@ -88,16 +84,18 @@ class PoinPageUi extends StatelessWidget {
                 Icon(
                   icon,
                   size: 20,
-                  color:
-                      isSelected ? Colors.white : theme.colorScheme.onSurface,
+                  color: isSelected
+                      ? Colors.white
+                      : theme.colorScheme.onSurface,
                 ),
                 gapH8,
                 Text(
                   label,
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
-                    color:
-                        isSelected ? Colors.white : theme.colorScheme.onSurface,
+                    color: isSelected
+                        ? Colors.white
+                        : theme.colorScheme.onSurface,
                   ),
                 ),
               ],
