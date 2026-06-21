@@ -125,7 +125,7 @@ class TransaksiOpSqlite {
     try {
       Log.info('Mengambil data semua transaksi dari SQLite');
       final db = await sqliteDb.database;
-      final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = ?';
+      final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = 0';
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
         where: query,
