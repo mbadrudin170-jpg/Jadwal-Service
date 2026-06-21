@@ -1,4 +1,5 @@
-// path: lib/shared/widget/card/point_card.dart
+// path lib/fitur/poin/widget/point_card.dart
+
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -39,10 +40,7 @@ class TotalPointCard extends StatelessWidget {
       decoration: BoxDecoration(
         // Latar belakang gradien untuk nuansa modern.
         gradient: LinearGradient(
-          colors: [
-            themeColor,
-            Color.lerp(themeColor, Colors.black, 0.25)!,
-          ],
+          colors: [themeColor, Color.lerp(themeColor, Colors.black, 0.25)!],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -81,15 +79,17 @@ class TotalPointCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color:
-                          Colors.white.withAlpha(26), // Menggunakan withAlpha
+                      color: Colors.white.withAlpha(
+                        26,
+                      ), // Menggunakan withAlpha
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.white
-                              .withAlpha(26), // Menggunakan withAlpha
+                          color: Colors.white.withAlpha(
+                            26,
+                          ), // Menggunakan withAlpha
                           blurRadius: 10,
-                        )
+                        ),
                       ],
                     ),
                     child: Icon(
@@ -106,8 +106,9 @@ class TotalPointCard extends StatelessWidget {
                       Text(
                         'Total Poin',
                         style: textTheme.titleMedium?.copyWith(
-                          color: Colors.white
-                              .withAlpha(204), // Menggunakan withAlpha
+                          color: Colors.white.withAlpha(
+                            204,
+                          ), // Menggunakan withAlpha
                           fontWeight: FontWeight.w500,
                         ),
                       ),

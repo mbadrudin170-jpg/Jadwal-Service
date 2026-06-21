@@ -12,6 +12,8 @@ import 'package:shared_preferences/src/shared_preferences_legacy.dart' as _i7;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' as _i3;
 import 'package:wifi/admin/data/sqlite.dart' as _i4;
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart' as _i9;
+import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart'
+    as _i10;
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart'
     as _i5;
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart'
@@ -20,8 +22,6 @@ import 'package:wifi/fitur/settings/model/settings_model.dart' as _i6;
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart' as _i15;
 import 'package:wifi/fitur/sinkronisasi/layanan_unduhan_awal.dart' as _i14;
 import 'package:wifi/shared/export/model.dart' as _i13;
-import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart'
-    as _i10;
 import 'package:wifi/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart'
     as _i16;
 import 'package:wifi/shared/services/koneksi_internet_service.dart' as _i11;

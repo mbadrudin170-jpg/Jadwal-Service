@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../../fitur/pelanggan/provider/pelanggan_provider.dart';
+part of 'pelanggan_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator

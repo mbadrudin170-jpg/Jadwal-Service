@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
-import 'package:wifi/shared/widget/card/point_card.dart';
+import 'package:wifi/fitur/poin/widget/point_card.dart';
 
 /// Menu yang tersedia di halaman poin.
 enum MenuPoin {
