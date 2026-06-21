@@ -21,8 +21,7 @@ void main() {
       void callback() {}
 
       await expectLater(
-          scheduler.jadwalkanSekali(time, id, callback,
-              bangunkan: true, tepatWaktu: true),
+          scheduler.jadwalkanSekali(time, id, callback),
           completes);
     });
 

@@ -24,6 +24,22 @@ linter:
     prefer_final_fields: true
     prefer_final_locals: true
 
+    avoid_redundant_argument_values: true
+    unnecessary_lambdas: true
+    unnecessary_overrides: true
+
+    sort_child_properties_last: true
+    use_key_in_widget_constructors: true
+    prefer_if_null_operators: true
+    prefer_is_empty: true
+    prefer_is_not_empty: true
+
+    prefer_const_literals_to_create_immutables: true
+    prefer_const_declarations: true
+
+    depend_on_referenced_packages: true
+    secure_pubspec_urls: true
+
 analyzer:
   exclude:
     - "**/*.g.dart"

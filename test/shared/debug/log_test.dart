@@ -1,7 +1,7 @@
 // path: test/shared/debug/log_test.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   group('Log', () {

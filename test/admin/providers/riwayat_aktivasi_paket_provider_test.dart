@@ -5,11 +5,11 @@ import 'package:mockito/mockito.dart';
 import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 
 // Pastikan file mock ini di-import dengan benar setelah build_runner selesai
 import 'riwayat_aktivasi_paket_provider_test.mocks.dart';
@@ -74,7 +74,6 @@ void main() {
         idPaket: 'pkg2',
         tanggal: now.subtract(const Duration(days: 10)),
         tanggalBerakhir: now.add(const Duration(days: 20)),
-        statusPembayaran: StatusPembayaran.unpaid,
         diperbaruiPada: now,
         deskripsi: 'deskripsi',
         jumlah: 75000,

@@ -47,7 +47,6 @@ void main() {
       verify(mockBaseOpSqlite.sisipkan(
         NamaTabel.dompet,
         any,
-        dariServer: false,
       )).called(1);
     });
 
@@ -87,7 +86,6 @@ void main() {
         NamaTabel.dompet,
         any,
         dompetModel.id,
-        dariServer: false,
       )).called(1);
     });
 
@@ -100,7 +98,6 @@ void main() {
       verify(mockBaseOpSqlite.softDelete(
         NamaTabel.dompet,
         '1',
-        dariServer: false,
       )).called(1);
     });
     
@@ -112,7 +109,6 @@ void main() {
 
       verify(mockBaseOpSqlite.softDeleteAll(
         NamaTabel.dompet,
-        dariServer: false,
       )).called(1);
     });
 
@@ -154,7 +150,6 @@ void main() {
       verify(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
         NamaTabel.dompet,
         any,
-        dariServer: false,
       )).called(1);
     });
   });

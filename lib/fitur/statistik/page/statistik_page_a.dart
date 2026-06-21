@@ -47,22 +47,22 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
   ];
 
   List<FlSpot> get _currentSpots => switch (_selectedRange) {
-    ChartRange.harian => _dailySpots,
-    ChartRange.mingguan => _weeklySpots,
-    ChartRange.bulanan => _monthlySpots,
-  };
+        ChartRange.harian => _dailySpots,
+        ChartRange.mingguan => _weeklySpots,
+        ChartRange.bulanan => _monthlySpots,
+      };
 
   double get _maxX => switch (_selectedRange) {
-    ChartRange.harian => 6,
-    ChartRange.mingguan => 3,
-    ChartRange.bulanan => 4,
-  };
+        ChartRange.harian => 6,
+        ChartRange.mingguan => 3,
+        ChartRange.bulanan => 4,
+      };
 
   double get _maxY => switch (_selectedRange) {
-    ChartRange.harian => 2,
-    ChartRange.mingguan => 3,
-    ChartRange.bulanan => 6,
-  };
+        ChartRange.harian => 2,
+        ChartRange.mingguan => 3,
+        ChartRange.bulanan => 6,
+      };
 
   @override
   Widget build(BuildContext context) {

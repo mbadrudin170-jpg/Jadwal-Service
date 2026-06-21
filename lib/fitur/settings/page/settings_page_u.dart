@@ -1,7 +1,5 @@
 // path: lib/user/page/settings_page_user.dart
-// diubah: Menambahkan tombol navigasi ke Halaman Tes hanya dalam mode debug.
 
-// tambahkan ini
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -42,7 +40,7 @@ class SettingsPageU extends ConsumerWidget {
                     },
                   ),
                   loading: () => const SizedBox.shrink(),
-                  error: (_, _) => const Icon(TIcons.error),
+                  error: (_, __) => const Icon(TIcons.error),
                 );
               },
             ),

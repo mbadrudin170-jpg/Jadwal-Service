@@ -24,7 +24,6 @@ void main() {
       tanggal: testDate,
       userId: 'user-456',
       diperbaruiPada: testDate,
-      dihapus: false,
     );
 
     test('01. harus membuat instance FeedbackModel yang valid', () {

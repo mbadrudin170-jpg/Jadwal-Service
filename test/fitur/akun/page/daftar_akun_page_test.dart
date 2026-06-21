@@ -164,7 +164,7 @@ void main() {
       tester,
     ) async {
       final pengamatLokal = MockNavigatorObserver();
-      final statusKosong = const AkunState(daftarAkunTersimpan: []);
+      const statusKosong = AkunState();
       final pengelolaPalsu = FakePengelolaAkun(
         () => Future.value(statusKosong),
       );
@@ -188,7 +188,6 @@ void main() {
     ) async {
       final pengamatLokal = MockNavigatorObserver();
       final statusData = AkunState(
-        akunSaatIni: null,
         daftarAkunTersimpan: [pelanggan1, pelanggan2],
       );
       final pengelolaPalsu = FakePengelolaAkun(() => Future.value(statusData));
@@ -310,7 +309,6 @@ void main() {
     testWidgets('08. harus menampilkan dialog keluar', (tester) async {
       final pengamatLokal = MockNavigatorObserver();
       final statusData = AkunState(
-        akunSaatIni: null,
         daftarAkunTersimpan: [pelanggan1, pelanggan2],
       );
       final pengelolaPalsu = FakePengelolaAkun(() => Future.value(statusData));
@@ -335,7 +333,6 @@ void main() {
     testWidgets('09. harus keluar dan hapus token', (tester) async {
       final pengamatLokal = MockNavigatorObserver();
       final statusData = AkunState(
-        akunSaatIni: null,
         daftarAkunTersimpan: [pelanggan1, pelanggan2],
       );
       final pengelolaPalsu = FakePengelolaAkun(() => Future.value(statusData));

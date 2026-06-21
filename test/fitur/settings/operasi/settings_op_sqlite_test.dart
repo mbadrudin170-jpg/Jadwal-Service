@@ -38,7 +38,6 @@ void main() {
   const String id = idGlobalSetting;
 
   final settingsModel = SettingsModel(
-    id: id,
     waktuOtomatisSinkronisasi: 48,
     diperbaruiPada: DateTime(2023),
   );
@@ -95,7 +94,6 @@ void main() {
       verify(mockBaseOpSqlite.sisipkan(
         namaTabel,
         argThat(isA<Map<String, dynamic>>()),
-        dariServer: false,
       )).called(1);
     });
 
@@ -133,7 +131,6 @@ void main() {
       final captured = verify(mockBaseOpSqlite.sisipkan(
         namaTabel,
         captureAny,
-        dariServer: false,
       )).captured;
 
       final Map<String, dynamic> capturedData = captured.first as Map<String, dynamic>;
@@ -179,7 +176,6 @@ void main() {
         namaTabel,
         captureAny,
         id,
-        dariServer: false,
       )).captured;
 
       final Map<String, dynamic> capturedData = captured.first as Map<String, dynamic>;
@@ -223,7 +219,6 @@ void main() {
       final captured = verify(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
         namaTabel,
         captureAny,
-        dariServer: false,
       )).captured;
 
       final List<Map<String, dynamic>> capturedList = captured.first as List<Map<String, dynamic>>;

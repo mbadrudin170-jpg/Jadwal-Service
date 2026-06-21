@@ -871,7 +871,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                   );
                 } else {
                   ToastUtil.error(context, ' Data tidak terimpan');
-                  Log.warning('Form gagal disimpan, pesan: ${hasil}');
+                  Log.warning('Form gagal disimpan, pesan: $hasil');
                 }
               },
         style: ElevatedButton.styleFrom(

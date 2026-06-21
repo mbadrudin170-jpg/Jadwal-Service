@@ -6,7 +6,7 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 
 void main() {
   group('EventModel', () {
-    final tDateTime = DateTime(2023, 1, 1, 10, 0, 0);
+    final tDateTime = DateTime(2023, 1, 1, 10);
 
     final tEventModel = EventModel(
       id: 'evt-123',

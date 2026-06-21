@@ -25,7 +25,9 @@ void main() {
   late MockPaketOpSqlite mockPaketOpSqlite;
 
   // Menggunakan MethodChannel resmi milik package url_launcher
-  const MethodChannel channel = MethodChannel('plugins.flutter.io/url_launcher');
+  const MethodChannel channel = MethodChannel(
+    'plugins.flutter.io/url_launcher',
+  );
   String? launchedUrl;
   bool canLaunchReturnValue = true;
 
@@ -43,16 +45,18 @@ void main() {
     // Mencegat semua panggilan sistem dari url_launcher ke sistem operasi native
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-      if (methodCall.method == 'canLaunch') {
-        return canLaunchReturnValue;
-      }
-      if (methodCall.method == 'launch') {
-        // url_launcher menyimpan data URL di dalam argumen dengan key 'url'
-        launchedUrl = (methodCall.arguments as Map<String, dynamic>)['url'] as String?;
-        return true;
-      }
-      return null;
-    });
+          if (methodCall.method == 'canLaunch') {
+            return canLaunchReturnValue;
+          }
+          if (methodCall.method == 'launch') {
+            // url_launcher menyimpan data URL di dalam argumen dengan key 'url'
+            launchedUrl =
+                (methodCall.arguments as Map<String, dynamic>)['url']
+                    as String?;
+            return true;
+          }
+          return null;
+        });
   });
 
   tearDown(() {
@@ -66,12 +70,12 @@ void main() {
     idPelanggan: 'c1',
     idPaket: 'p1',
     idTransaksi: 't1',
-    tanggalMulai: DateTime(2023, 1, 1),
+    tanggalMulai: DateTime(2023),
     tanggalBerakhir: DateTime(2023, 1, 31),
     status: StatusPembayaran.paid,
   );
 
-  final pelanggan = const PelangganModel(
+  const pelanggan = PelangganModel(
     id: 'c1',
     nama: 'John Doe',
     telepon: '081234567890',
@@ -80,7 +84,7 @@ void main() {
     macAddress: 'AA:BB:CC:DD:EE:FF',
   );
 
-  final paket = const PaketModel(
+  const paket = PaketModel(
     id: 'p1',
     nama: 'Paket Kencang',
     harga: 100000,
@@ -92,10 +96,12 @@ void main() {
     test(
       '01. harus mengirim rincian paket jika pelanggan dan paket ditemukan dan URL bisa dibuka',
       () async {
-        when(mockPelangganOpSqlite.ambilBerdasarkanId('c1'))
-            .thenAnswer((_) async => pelanggan);
-        when(mockPaketOpSqlite.ambilBerdasarkanId('p1'))
-            .thenAnswer((_) async => paket);
+        when(
+          mockPelangganOpSqlite.ambilBerdasarkanId('c1'),
+        ).thenAnswer((_) async => pelanggan);
+        when(
+          mockPaketOpSqlite.ambilBerdasarkanId('p1'),
+        ).thenAnswer((_) async => paket);
 
         await pesanInfoPaket.kirimRincianPaket(pelangganAktif);
 
@@ -104,20 +110,19 @@ void main() {
 
         // Di-intercept langsung di level sistem operasi biner, pasti tidak null
         expect(launchedUrl, isNotNull);
-        expect(
-          launchedUrl,
-          startsWith('https://wa.me/6281234567890'),
-        );
+        expect(launchedUrl, startsWith('https://wa.me/6281234567890'));
       },
     );
 
     test(
       '02. tidak mengirim rincian paket jika pelanggan tidak ditemukan',
       () async {
-        when(mockPelangganOpSqlite.ambilBerdasarkanId('c1'))
-            .thenAnswer((_) async => null);
-        when(mockPaketOpSqlite.ambilBerdasarkanId('p1'))
-            .thenAnswer((_) async => paket);
+        when(
+          mockPelangganOpSqlite.ambilBerdasarkanId('c1'),
+        ).thenAnswer((_) async => null);
+        when(
+          mockPaketOpSqlite.ambilBerdasarkanId('p1'),
+        ).thenAnswer((_) async => paket);
 
         await pesanInfoPaket.kirimRincianPaket(pelangganAktif);
 
@@ -131,10 +136,12 @@ void main() {
     test(
       '03. tidak mengirim rincian paket jika paket tidak ditemukan',
       () async {
-        when(mockPelangganOpSqlite.ambilBerdasarkanId('c1'))
-            .thenAnswer((_) async => pelanggan);
-        when(mockPaketOpSqlite.ambilBerdasarkanId('p1'))
-            .thenAnswer((_) async => null);
+        when(
+          mockPelangganOpSqlite.ambilBerdasarkanId('c1'),
+        ).thenAnswer((_) async => pelanggan);
+        when(
+          mockPaketOpSqlite.ambilBerdasarkanId('p1'),
+        ).thenAnswer((_) async => null);
 
         await pesanInfoPaket.kirimRincianPaket(pelangganAktif);
 
@@ -148,10 +155,12 @@ void main() {
     test(
       '04. tidak mencoba membuka URL jika canLaunch mengembalikan false',
       () async {
-        when(mockPelangganOpSqlite.ambilBerdasarkanId('c1'))
-            .thenAnswer((_) async => pelanggan);
-        when(mockPaketOpSqlite.ambilBerdasarkanId('p1'))
-            .thenAnswer((_) async => paket);
+        when(
+          mockPelangganOpSqlite.ambilBerdasarkanId('c1'),
+        ).thenAnswer((_) async => pelanggan);
+        when(
+          mockPaketOpSqlite.ambilBerdasarkanId('p1'),
+        ).thenAnswer((_) async => paket);
 
         canLaunchReturnValue = false;
 

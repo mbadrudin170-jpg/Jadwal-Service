@@ -11,7 +11,6 @@ void main() {
         packageName: 'com.test.app',
         version: '1.0.0',
         buildNumber: '1',
-        buildSignature: '',
       );
 
       final model = InfoPerangkatModel.fromPackageInfo(packageInfo);
