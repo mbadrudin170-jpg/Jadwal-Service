@@ -4277,13 +4277,14 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
       NamaKolom.idPelanggan: idPelanggan,
       NamaKolom.idPaket: idPaket,
       NamaKolom.idTransaksi: idTransaksi,
-      NamaKolom.tanggalMulai: tanggalMulai.millisecondsSinceEpoch,
-      NamaKolom.tangglBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
+      NamaKolom.tanggalMulai: tanggalMulai.toUtc().millisecondsSinceEpoch,
+      NamaKolom.tangglBerakhir: tanggalBerakhir.toUtc().millisecondsSinceEpoch,
       NamaKolom.status: status.name,
-      NamaKolom.diperbaruiPada:
-          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada: (diperbaruiPada ?? DateTime.now())
+          .toUtc()
+          .millisecondsSinceEpoch,
       NamaKolom.dihapus: diHapus ? 1 : 0,
-      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.toUtc().millisecondsSinceEpoch,
     };
   }
 
@@ -37347,17 +37348,19 @@ class PerhitunganUtil {
     final DateTime tanggalBerakhir, {
     final DateTime? sekarang,
   }) {
-    final sisaHari = tanggalBerakhir.difference(sekarang ?? DateTime.now());
+    final nowUtc = (sekarang ?? DateTime.now()).toUtc();
+    final endUtc = tanggalBerakhir.toUtc();
+    final sisa = endUtc.difference(nowUtc);
 
-    if (sisaHari.isNegative) {
+    if (sisa.isNegative) {
       return 'Berakhir';
     } else {
-      if (sisaHari.inDays > 0) {
-        return 'Sisa ${sisaHari.inDays} hari';
-      } else if (sisaHari.inHours > 0) {
-        return 'Sisa ${sisaHari.inHours} jam';
-      } else if (sisaHari.inMinutes > 0) {
-        return 'Sisa ${sisaHari.inMinutes} menit';
+      if (sisa.inDays > 0) {
+        return 'Sisa ${sisa.inDays} hari';
+      } else if (sisa.inHours > 0) {
+        return 'Sisa ${sisa.inHours} jam';
+      } else if (sisa.inMinutes > 0) {
+        return 'Sisa ${sisa.inMinutes} menit';
       } else {
         return 'Berakhir dalam beberapa saat';
       }
