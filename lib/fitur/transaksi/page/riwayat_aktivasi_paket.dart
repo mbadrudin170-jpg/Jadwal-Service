@@ -12,6 +12,7 @@ import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -153,7 +154,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
     return Scaffold(
       appBar: AppBar(
         title: _kataKunciCari.isEmpty
-            ? const Text('Riwayat Langganan')
+            ? const TeksJudulBesar('Riwayat Langganan', warna: Colors.white)
             : TextField(
                 controller: _cariController,
                 focusNode: _cariFocusNode,
