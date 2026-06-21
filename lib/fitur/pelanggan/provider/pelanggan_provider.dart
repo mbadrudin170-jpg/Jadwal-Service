@@ -1,4 +1,4 @@
-// path: lib/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart
+// path lib/fitur/pelanggan/provider/pelanggan_provider.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';

@@ -7,7 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
 import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 
 void main() {
   // Data mock untuk PelangganModel
