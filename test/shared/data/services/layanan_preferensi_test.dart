@@ -6,7 +6,6 @@ import 'package:wifi/shared/data/services/layanan_preferensi.dart';
 void main() {
   group('LayananPreferensi', () {
     const String kunciTerakhirUnduh = 'terakhir_unduh';
-    const String kunciTerakhirUnggah = 'terakhir_unggah';
 
     setUp(() async {
       // Inisialisasi dengan nilai kosong sebelum setiap tes
@@ -69,7 +68,7 @@ void main() {
     });
     
     test('07. _simpanTimestamp menyimpan nilai dalam format UTC', () async {
-      final waktuLokal = DateTime(2023, 1, 1, 10, 0, 0); // Waktu lokal
+      final waktuLokal = DateTime(2023, 1, 1, 10); // Waktu lokal
       await LayananPreferensi.simpanWaktuTerakhirUnduh(waktuLokal);
 
       final prefs = await SharedPreferences.getInstance();
