@@ -1,5 +1,7 @@
 // path: lib/fitur/akun/page/daftar_akun_page.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
@@ -119,7 +121,7 @@ class DaftarAkunPage extends ConsumerWidget {
         'nama': pelanggan.nama,
       });
 
-      await activityService.pingAktivitas(pelanggan.id, paksa: true);
+       unawaited(activityService.pingAktivitas(pelanggan.id, paksa: true));
 
       if (!context.mounted) return;
       await navigator.pushAndRemoveUntil(
@@ -129,7 +131,7 @@ class DaftarAkunPage extends ConsumerWidget {
     } on Exception catch (e, st) {
       Log.error(
         'Gagal menyimpan akun yang dipilih',
-        e: e,
+        e: e,m
         s: st,
         data: {'customer_id': pelanggan.id},
       );
