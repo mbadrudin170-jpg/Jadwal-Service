@@ -1,18 +1,19 @@
 // path: lib/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart
 
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:wifi/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart';
-import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart';
+import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
-import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -392,7 +393,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                   child: InkWell(
                     onLongPress: () => _softDeleteCustomer(detail),
                     onTap: () async {
-                      await Navigator.push(
+                      await Navigator.push<void>(
                         context,
                         MaterialPageRoute<void>(
                           builder: (_) =>
@@ -443,9 +444,9 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'fab_active_customer',
-        onPressed: () => Navigator.push(
+        onPressed: () => Navigator.push<void>(
           context,
-          MaterialPageRoute(builder: (_) => const FormPelangganAktif()),
+          MaterialPageRoute<void>(builder: (_) => const FormPelangganAktif()),
         ),
         child: const Icon(TIcons.add),
       ),

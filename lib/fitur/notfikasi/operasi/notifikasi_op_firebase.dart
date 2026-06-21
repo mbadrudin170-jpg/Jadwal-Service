@@ -1,11 +1,11 @@
 // path lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
 class NotifikasiOpFirebase {

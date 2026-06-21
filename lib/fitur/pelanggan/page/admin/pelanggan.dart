@@ -40,7 +40,7 @@ final filteredCustomersProvider =
                 (tuple) => tuple.$1.nama.toLowerCase().contains(searchQuery),
               )
               .toList();
-          if (filtered.isNotEmpty)
+          if (filtered.isNotEmpty) {
             switch (sortOption) {
               case UrutanPelanggan.namaAZ:
                 filtered.sort(
@@ -77,6 +77,7 @@ final filteredCustomersProvider =
                 filtered.sort((a, b) => a.$2.compareTo(b.$2));
                 break;
             }
+          }
           return AsyncData(filtered);
         },
         loading: () => const AsyncLoading(),

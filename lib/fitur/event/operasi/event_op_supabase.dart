@@ -2,10 +2,10 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:wifi/fitur/event/model/event_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/event/model/event_model.dart';
 
 class EventOpSupabase {
   EventOpSupabase({SupabaseClient? supabase})

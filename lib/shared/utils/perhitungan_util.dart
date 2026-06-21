@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 
 class PerhitunganUtil {
   static DateTime hitungTanggalBerakhir(

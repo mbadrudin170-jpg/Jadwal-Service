@@ -3,8 +3,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_unduh_data.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 class LayananUnduhanAwal {

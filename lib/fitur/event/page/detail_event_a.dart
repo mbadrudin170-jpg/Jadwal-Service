@@ -2,11 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/event/model/event_model.dart';
+import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/fitur/event/model/event_model.dart';
-import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 
 class DetailEventA extends ConsumerWidget {
   final EventModel event;

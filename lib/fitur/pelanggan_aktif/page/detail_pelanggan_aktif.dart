@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:wifi/fitur/paket/page/detail_paket.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
-import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/page/detail_paket.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/whatsapp/info_paket.dart';
@@ -24,51 +24,49 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-final detailPleangganAktifProvider =
-    FutureProvider.family<
-      ({
-        PelangganModel? pelanggan,
-        PaketModel? paket,
-        TransaksiModel? transaksi,
-        PelangganAktifModel pelangganAktif,
-      }),
-      String
-    >((ref, id) async {
-      final pelangganAktifState = await ref.watch(
-        pelangganAktifProvider.future,
-      );
-      final daftarPelangganAktif = pelangganAktifState.daftarPelangganAktif;
+final detailPleangganAktifProvider = FutureProvider.family<
+    ({
+      PelangganModel? pelanggan,
+      PaketModel? paket,
+      TransaksiModel? transaksi,
+      PelangganAktifModel pelangganAktif,
+    }),
+    String>((ref, id) async {
+  final pelangganAktifState = await ref.watch(
+    pelangganAktifProvider.future,
+  );
+  final daftarPelangganAktif = pelangganAktifState.daftarPelangganAktif;
 
-      final detailPelangganAktif = daftarPelangganAktif.firstWhereOrNull(
-        (detail) => detail.pelangganAktif.id == id,
-      );
+  final detailPelangganAktif = daftarPelangganAktif.firstWhereOrNull(
+    (detail) => detail.pelangganAktif.id == id,
+  );
 
-      if (detailPelangganAktif == null) {
-        throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
-      }
+  if (detailPelangganAktif == null) {
+    throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
+  }
 
-      final pelangganAktif = detailPelangganAktif.pelangganAktif;
+  final pelangganAktif = detailPelangganAktif.pelangganAktif;
 
-      final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
-      final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-      final transaksiOpsqlite = ref.watch(transaksiOpSqliteProvider);
-      final hasil = await Future.wait<Object?>([
-        pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.idPelanggan),
-        pelangganAktif.idPaket.isNotEmpty
-            ? paketOpSqlite.ambilBerdasarkanId(pelangganAktif.idPaket)
-            : Future<PaketModel?>.value(),
-        (pelangganAktif.idTransaksi.isNotEmpty)
-            ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.idTransaksi)
-            : Future<TransaksiModel?>.value(),
-      ]);
+  final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
+  final paketOpSqlite = ref.watch(paketOpSqliteProvider);
+  final transaksiOpsqlite = ref.watch(transaksiOpSqliteProvider);
+  final hasil = await Future.wait<Object?>([
+    pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.idPelanggan),
+    pelangganAktif.idPaket.isNotEmpty
+        ? paketOpSqlite.ambilBerdasarkanId(pelangganAktif.idPaket)
+        : Future<PaketModel?>.value(),
+    (pelangganAktif.idTransaksi.isNotEmpty)
+        ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.idTransaksi)
+        : Future<TransaksiModel?>.value(),
+  ]);
 
-      return (
-        pelanggan: hasil[0] as PelangganModel?,
-        paket: hasil[1] as PaketModel?,
-        transaksi: hasil[2] as TransaksiModel?,
-        pelangganAktif: pelangganAktif,
-      );
-    });
+  return (
+    pelanggan: hasil[0] as PelangganModel?,
+    paket: hasil[1] as PaketModel?,
+    transaksi: hasil[2] as TransaksiModel?,
+    pelangganAktif: pelangganAktif,
+  );
+});
 
 class DetailPelangganAktif extends ConsumerStatefulWidget {
   final PelangganAktifModel pelangganAktif;
@@ -149,8 +147,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
       PaketModel? paket,
       TransaksiModel? transaksi,
       PelangganAktifModel pelangganAktif,
-    })
-    data,
+    }) data,
   ) {
     final pelangganAktif = data.pelangganAktif;
     final pelanggan = data.pelanggan;
@@ -205,7 +202,9 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                           child: Text(
                             pelanggan?.nama ?? pelangganAktif.idPelanggan,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.headlineSmall
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
                                 ?.copyWith(color: Colors.blue),
                           ),
                         ),
@@ -276,11 +275,11 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                           pelangganAktif.tanggalBerakhir,
                         ),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: PerhitunganUtil.ambilWarnaSisaMasaAktif(
-                            pelangganAktif.tanggalBerakhir,
-                          ),
-                          fontWeight: FontWeight.bold,
-                        ),
+                              color: PerhitunganUtil.ambilWarnaSisaMasaAktif(
+                                pelangganAktif.tanggalBerakhir,
+                              ),
+                              fontWeight: FontWeight.bold,
+                            ),
                         textAlign: TextAlign.center,
                       ),
                       gapH24,
@@ -365,10 +364,10 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                   Text(
                     value,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline,
-                    ),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
                   ),
                   gapH8,
                   FaIcon(

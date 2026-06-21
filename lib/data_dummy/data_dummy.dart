@@ -6,6 +6,7 @@ import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
+import 'package:wifi/fitur/order/enum/status_order_enum.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
@@ -16,7 +17,6 @@ import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
-import 'package:wifi/fitur/order/enum/status_order_enum.dart';
 import 'package:wifi/shared/export/model.dart';
 
 /// Kelas penyedia data dummy untuk keperluan testing UI dan pengembangan.

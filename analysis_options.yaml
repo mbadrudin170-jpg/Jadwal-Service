@@ -41,8 +41,13 @@ analyzer:
     close_sinks: error
     avoid_void_async: error
 
-    prefer_const_constructors: warning
-    prefer_const_constructors_in_immutables: warning
+    prefer_const_constructors: error
+    prefer_const_constructors_in_immutables: error
+    use_super_parameters: error
+    always_use_package_imports: error
+    prefer_final_locals: error
+    prefer_final_fields: error
+    directives_ordering: error
 
 
   language:

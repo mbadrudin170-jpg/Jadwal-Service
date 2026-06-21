@@ -5,14 +5,14 @@ import 'dart:async';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wifi/fitur/info_perangkat/service/layanan_info_perangkat.dart';
+import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
 import 'package:wifi/fitur/info_perangkat/service/layanan_info_paket.dart';
+import 'package:wifi/fitur/info_perangkat/service/layanan_info_perangkat.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/versi_apk/operasi/versi_apk_op_firebase.dart';
 import 'package:wifi/fitur/versi_apk/page/update_apk_page_u.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
 /// Kelas layanan untuk memeriksa pembaruan aplikasi.

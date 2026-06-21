@@ -10,9 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page_u.dart';
+import 'package:wifi/fitur/info_perangkat/page/info_apk_page_user.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/fitur/info_perangkat/page/info_apk_page_user.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
 /// Halaman pengaturan untuk pengguna.
@@ -42,7 +42,7 @@ class SettingsPageU extends ConsumerWidget {
                     },
                   ),
                   loading: () => const SizedBox.shrink(),
-                  error: (_, __) => const Icon(TIcons.error),
+                  error: (_, _) => const Icon(TIcons.error),
                 );
               },
             ),

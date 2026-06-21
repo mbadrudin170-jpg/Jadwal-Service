@@ -3,8 +3,8 @@
 // ditambah: Menambahkan logging untuk error di FutureBuilder.
 
 import 'package:flutter/material.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 /// Widget yang menampilkan nama paket berdasarkan Future yang diberikan.
 ///
