@@ -73,17 +73,19 @@ class PerhitunganUtil {
     final DateTime tanggalBerakhir, {
     final DateTime? sekarang,
   }) {
-    final sisaHari = tanggalBerakhir.difference(sekarang ?? DateTime.now());
+    final nowUtc = (sekarang ?? DateTime.now()).toUtc();
+    final endUtc = tanggalBerakhir.toUtc();
+    final sisa = endUtc.difference(nowUtc);
 
-    if (sisaHari.isNegative) {
+    if (sisa.isNegative) {
       return 'Berakhir';
     } else {
-      if (sisaHari.inDays > 0) {
-        return 'Sisa ${sisaHari.inDays} hari';
-      } else if (sisaHari.inHours > 0) {
-        return 'Sisa ${sisaHari.inHours} jam';
-      } else if (sisaHari.inMinutes > 0) {
-        return 'Sisa ${sisaHari.inMinutes} menit';
+      if (sisa.inDays > 0) {
+        return 'Sisa ${sisa.inDays} hari';
+      } else if (sisa.inHours > 0) {
+        return 'Sisa ${sisa.inHours} jam';
+      } else if (sisa.inMinutes > 0) {
+        return 'Sisa ${sisa.inMinutes} menit';
       } else {
         return 'Berakhir dalam beberapa saat';
       }

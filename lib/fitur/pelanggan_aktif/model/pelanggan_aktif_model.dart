@@ -71,13 +71,14 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
       NamaKolom.idPelanggan: idPelanggan,
       NamaKolom.idPaket: idPaket,
       NamaKolom.idTransaksi: idTransaksi,
-      NamaKolom.tanggalMulai: tanggalMulai.millisecondsSinceEpoch,
-      NamaKolom.tangglBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
+      NamaKolom.tanggalMulai: tanggalMulai.toUtc().millisecondsSinceEpoch,
+      NamaKolom.tangglBerakhir: tanggalBerakhir.toUtc().millisecondsSinceEpoch,
       NamaKolom.status: status.name,
-      NamaKolom.diperbaruiPada:
-          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada: (diperbaruiPada ?? DateTime.now())
+          .toUtc()
+          .millisecondsSinceEpoch,
       NamaKolom.dihapus: diHapus ? 1 : 0,
-      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.toUtc().millisecondsSinceEpoch,
     };
   }
 
