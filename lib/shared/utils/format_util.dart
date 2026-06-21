@@ -60,7 +60,7 @@ class FormatUang {
       symbol: 'Rp ',
       decimalDigits: 0,
     );
-    return formatter.format(amount);
+    return formatter.format(amount.abs());
   }
 }
 
