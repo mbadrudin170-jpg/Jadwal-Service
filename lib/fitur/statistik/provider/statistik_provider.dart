@@ -59,11 +59,11 @@ class Statistik extends _$Statistik {
   Future<StatistikState> _muatData() async {
     try {
       Log.info('[StatistikNotifier] Memulai pemuatan data sekuensial...');
-      final pendapatan = await _statistikOpSlite.ambilPendapatanBulanIni();
+      final pendapatan = await _statistikOpSlite.ambilTotalPendapatan();
       final pelanggan = await _statistikOpSlite.ambilTotalPelanggan();
       final langgananAktif = await _statistikOpSlite
           .ambilJumlahLanggananAktif();
-      final feedbackBaru = await _statistikOpSlite.ambilJumlahFeedbackBaru();
+      final feedbackBaru = await _statistikOpSlite.ambilTotalFeedback();
       final paketTerlaris = await _statistikOpSlite.ambilPaketTerlaris();
       Log.info('[StatistikNotifier] Semua data sekuensial berhasil dimuat.');
 

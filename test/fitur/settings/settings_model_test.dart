@@ -1,8 +1,8 @@
 // path: test/fitur/settings/settings_model_test.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   group('SettingsModel', () {

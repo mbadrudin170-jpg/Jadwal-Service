@@ -79,10 +79,7 @@ class StatistikOpSqlite {
     }
   }
 
-  Future<double> ambilPendapatanBulanIni() async {
-    Log.info(
-      'Mulai mengambil pendapatan bersih (paid-unpaid) bulan ini dari SQLite.',
-    );
+  Future<double> ambilTotalPendapatan() async {
     try {
       final db = await SqliteDatabase.instance.database;
       const String namaTabel = '"${NamaTabel.transaksi}"';
@@ -160,7 +157,7 @@ class StatistikOpSqlite {
     }
   }
 
-  Future<int> ambilJumlahFeedbackBaru() async {
+  Future<int> ambilTotalFeedback() async {
     Log.info('Mulai mengambil jumlah feedback baru.');
     try {
       final daftarFeedbackAktif = await _statistikOpSliteProvider
