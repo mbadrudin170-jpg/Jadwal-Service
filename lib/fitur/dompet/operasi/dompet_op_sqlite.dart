@@ -59,7 +59,7 @@ class DompetOpSqlite {
     }
   }
 
-  Future<DompetModel?> ambilBerdasarkanId( String id) async {
+  Future<DompetModel?> ambilBerdasarkanId(String id) async {
     Log.info('Memulai getById untuk ID: $id');
     try {
       final db = await sqliteDb.database;
@@ -83,19 +83,11 @@ class DompetOpSqlite {
     }
   }
 
-  Future<void> updateDompet(
-    final DompetModel wallet, {
-    final bool fromServer = false,
-  }) async {
+  Future<void> updateDompet(DompetModel wallet) async {
     Log.info('Memulai updateDompet untuk wallet ID: ${wallet.id}');
     try {
-      final data = wallet.copyWith(diarsipkanPada: _nowUtc).toSqlite();
-      await _baseOpSqlite.update(
-        _tabelDompet,
-        data,
-        wallet.id,
-        dariServer: fromServer,
-      );
+      final data = wallet.copyWith(diperbaruiPada: _nowUtc).toSqlite();
+      await _baseOpSqlite.update(_tabelDompet, data, wallet.id);
       Log.info('Berhasil updateDompet untuk ID: ${wallet.id}.');
     } on Exception catch (e, st) {
       Log.error('Gagal saat updateDompet untuk ID: ${wallet.id}', e: e, s: st);
@@ -205,16 +197,16 @@ class DompetOpSqlite {
     final List<DompetModel> daftarDompet, {
     final bool dariServer = false,
   }) async {
-    Log.info('Memulai batch insert/update untuk ${daftarDompet.length} data dompet.');
+    Log.info(
+      'Memulai batch insert/update untuk ${daftarDompet.length} data dompet.',
+    );
     if (daftarDompet.isEmpty) {
       Log.warning('Daftar dompet kosong, membatalkan operasi batch.');
       return;
     }
     try {
       final data = daftarDompet
-          .map(
-            ( item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
-          )
+          .map((item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite())
           .toList();
       await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
         _tabelDompet,

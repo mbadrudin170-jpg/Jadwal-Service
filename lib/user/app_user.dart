@@ -1,6 +1,5 @@
 // path lib/user/app_user.dart
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:toastification/toastification.dart';
@@ -16,6 +15,7 @@ class AppUser extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(layananNotifikasiProvider);
+    ref.watch(pengontrolNotifikasiProvider);
 
     final themeAsync = ref.watch(temaProvider);
     final prefsAsync = ref.watch(sharedPreferencesProvider);

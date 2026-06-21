@@ -161,7 +161,7 @@ class AppMaterial extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(layananNotifikasiProvider);
-
+ref.watch(pengontrolNotifikasiProvider);
     final temaAsync = ref.watch(temaProvider);
 
     return temaAsync.when(
