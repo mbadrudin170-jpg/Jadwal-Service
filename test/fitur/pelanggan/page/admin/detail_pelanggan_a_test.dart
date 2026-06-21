@@ -1,13 +1,14 @@
 // path: test/fitur/pelanggan/page/admin/detail_pelanggan_a_test.dart
 import 'dart:async'; // Tambahkan baris ini untuk mengatasi error Completer
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
-import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
+import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
 
 void main() {
   // Data mock untuk PelangganModel
@@ -36,7 +37,8 @@ void main() {
       // Arrange
       await tester.pumpWidget(
         createWidgetUnderTest('id-123', [
-          pelangganDetailProvider('id-123').overrideWith((ref) => Completer<(PelangganModel?, int)>().future),
+          pelangganDetailProvider('id-123')
+              .overrideWith((ref) => Completer<(PelangganModel?, int)>().future),
         ]),
       );
 
