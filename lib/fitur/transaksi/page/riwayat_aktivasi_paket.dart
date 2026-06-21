@@ -124,6 +124,12 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
         title: const Text('Riwayat Langganan'),
         actions: [
           IconButton(
+            onPressed: () {
+              
+            },
+            icon: Icon(TIcons.search),
+          ),
+          IconButton(
             icon: const Icon(TIcons.filter),
             onPressed: () {
               if (historyAsync.hasValue) {
