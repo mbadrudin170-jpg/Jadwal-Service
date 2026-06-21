@@ -32,7 +32,7 @@ import 'package:flutter_local_notifications_platform_interface/flutter_local_not
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:timezone/timezone.dart' as _i7;
 import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart' as _i17;
-import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart'
+import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart'
     as _i16;
 
 // ignore_for_file: type=lint

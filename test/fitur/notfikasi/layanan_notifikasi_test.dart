@@ -12,7 +12,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:wifi/fitur/notfikasi/enum/tipe_notifikasi_enum.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
+import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart';
 
 import 'layanan_notifikasi_test.mocks.dart';
 

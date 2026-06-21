@@ -1,4 +1,4 @@
-// path: lib/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart
+// path lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -11,7 +11,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 class NotifikasiOpFirebase {
   final FirebaseFirestore _firestore;
   final BaseOpFirebase _baseOp;
-  final String _collection = NamaTabel.notifikasi;
+  final String _koleksi = NamaTabel.notifikasi;
 
   NotifikasiOpFirebase({
     required FirebaseFirestore firestore,
@@ -23,7 +23,7 @@ class NotifikasiOpFirebase {
     /// Mengambil notifikasi yang sedang aktif.
     final now = DateTime.now();
     return _firestore
-        .collection(_collection)
+        .collection(_koleksi)
         .where(NamaKolom.dihapus, isEqualTo: false)
         .where(NamaKolom.setatusDibaca, isEqualTo: false)
         .where(NamaKolom.tanggalTampil,
@@ -39,7 +39,7 @@ class NotifikasiOpFirebase {
   /// Mendapatkan stream notifikasi aktif untuk user tertentu (belum dibaca & belum dihapus)
   Stream<List<NotifikasiModel>> getByUserId(String userId) {
     return _firestore
-        .collection(_collection)
+        .collection(_koleksi)
         .where(NamaKolom.userId,
             isEqualTo: userId) // Diperbaiki dari idTujuan ke userId
         .where(NamaKolom.dihapus, isEqualTo: false)
@@ -52,7 +52,7 @@ class NotifikasiOpFirebase {
 
   Stream<List<NotifikasiModel>> getById(String id) {
     return _firestore
-        .collection(_collection)
+        .collection(_koleksi)
         .doc(id)
         .snapshots()
         .map((snapshot) {
@@ -69,7 +69,7 @@ class NotifikasiOpFirebase {
 // TODO : tambahkan unit test
   Stream<List<NotifikasiModel>> getKhususAdmin() {
     return _firestore
-        .collection(_collection)
+        .collection(_koleksi)
         .where(NamaKolom.tipe, whereIn: [
           TipeNotifikasiEnum.order.name,
           TipeNotifikasiEnum.transaksi.name
@@ -86,7 +86,7 @@ class NotifikasiOpFirebase {
     try {
       Log.info('Saving notification to Firebase via BaseOp: ${notifikasi.id}');
       await _baseOp.sisipkan(
-        _collection,
+        _koleksi,
         notifikasi.id,
         notifikasi.toFirebase(),
       );
@@ -101,7 +101,7 @@ class NotifikasiOpFirebase {
       Log.info(
           'Updating notification in Firebase via BaseOp: ${notifikasi.id}');
       await _baseOp.update(
-        _collection,
+        _koleksi,
         notifikasi.id,
         notifikasi.toFirebase(),
       );
@@ -114,7 +114,7 @@ class NotifikasiOpFirebase {
   Future<void> deleteNotif(String id) async {
     try {
       Log.info('Deleting notification from Firebase via BaseOp: $id');
-      await _baseOp.hapusPermanen(_collection, id);
+      await _baseOp.hapusPermanen(_koleksi, id);
     } catch (e) {
       Log.error('Error deleting notification: $e');
       rethrow;
@@ -126,7 +126,7 @@ class NotifikasiOpFirebase {
       Log.info(
           'Menghapus notifikasi berdasarkan idTujuan (transactionId): $transactionId');
       final querySnapshot = await _firestore
-          .collection(_collection)
+          .collection(_koleksi)
           .where(NamaKolom.idTujuan, isEqualTo: transactionId)
           .get();
 
@@ -147,7 +147,7 @@ class NotifikasiOpFirebase {
   Future<void> tandaiSudahDibaca(String id) async {
     try {
       Log.info('Marking notification as read via BaseOp: $id');
-      await _baseOp.update(_collection, id, {
+      await _baseOp.update(_koleksi, id, {
         NamaKolom.setatusDibaca: true,
       });
     } catch (e) {
