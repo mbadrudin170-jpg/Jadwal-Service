@@ -50,26 +50,27 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
     Log.info('Creating NotifikasiModel from SQLite: ${map[NamaKolom.id]}');
     return NotifikasiModel(
       id: map[NamaKolom.id] as String? ?? const Uuid().v4(),
-      tanggalMulai: ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]) ??
+      tanggalMulai:
+          ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]) ??
           DateTime.now(),
       tanggalBerakhir:
-          ParserUtil.parseDateTime(map[NamaKolom.tangglberakhir]) ??
-              DateTime.now(),
+          ParserUtil.parseDateTime(map[NamaKolom.tangglBerakhir]) ??
+          DateTime.now(),
       judul: map[NamaKolom.judul] as String? ?? '',
       deskripsi: map[NamaKolom.deskripsi] as String? ?? '',
       setatusDibaca: ParserUtil.parseBool(map[NamaKolom.setatusDibaca]),
-      tipe: _safeParseEnum(
-            TipeNotifikasiEnum.values,
-            map[NamaKolom.tipe],
-          ) ??
+      tipe:
+          _safeParseEnum(TipeNotifikasiEnum.values, map[NamaKolom.tipe]) ??
           TipeNotifikasiEnum.transaksi,
-      diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]) ??
+      diperbaruiPada:
+          ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]) ??
           DateTime.now(),
       idTujuan: map[NamaKolom.idTujuan] as String? ?? '',
       userId: map[NamaKolom.userId] as String? ?? '',
       dihapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
-      tanggalTampil: ParserUtil.parseDateTime(map[NamaKolom.tanggalTampil]) ??
+      tanggalTampil:
+          ParserUtil.parseDateTime(map[NamaKolom.tanggalTampil]) ??
           DateTime.now(),
     );
   }
@@ -78,7 +79,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
     return {
       NamaKolom.id: id,
       NamaKolom.tanggalMulai: tanggalMulai.millisecondsSinceEpoch,
-      NamaKolom.tangglberakhir: tanggalBerakhir.millisecondsSinceEpoch,
+      NamaKolom.tangglBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
       NamaKolom.judul: judul,
       NamaKolom.deskripsi: deskripsi,
       NamaKolom.setatusDibaca: setatusDibaca ? 1 : 0,
@@ -93,28 +94,30 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
   }
 
   factory NotifikasiModel.fromFirebase(
-      final String id, final Map<String, dynamic> data) {
+    final String id,
+    final Map<String, dynamic> data,
+  ) {
     Log.info('Creating NotifikasiModel from Firebase: $id');
     return NotifikasiModel(
       id: id,
-      tanggalMulai: ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]) ??
+      tanggalMulai:
+          ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]) ??
           DateTime.now(),
       tanggalBerakhir:
-          ParserUtil.parseDateTime(data[NamaKolom.tangglberakhir]) ??
-              DateTime.now(),
-      tanggalTampil: ParserUtil.parseDateTime(data[NamaKolom.tanggalTampil]) ??
+          ParserUtil.parseDateTime(data[NamaKolom.tangglBerakhir]) ??
+          DateTime.now(),
+      tanggalTampil:
+          ParserUtil.parseDateTime(data[NamaKolom.tanggalTampil]) ??
           DateTime.now(),
       judul: data[NamaKolom.judul] as String? ?? '',
       deskripsi: data[NamaKolom.deskripsi] as String? ?? '',
       setatusDibaca: ParserUtil.parseBool(data[NamaKolom.setatusDibaca]),
-      tipe: _safeParseEnum(
-            TipeNotifikasiEnum.values,
-            data[NamaKolom.tipe],
-          ) ??
+      tipe:
+          _safeParseEnum(TipeNotifikasiEnum.values, data[NamaKolom.tipe]) ??
           TipeNotifikasiEnum.transaksi,
       diperbaruiPada:
           ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]) ??
-              DateTime.now(),
+          DateTime.now(),
       idTujuan: data[NamaKolom.idTujuan] as String? ?? '',
       userId: data[NamaKolom.userId] as String? ?? '',
       dihapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
@@ -126,7 +129,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
     return {
       NamaKolom.id: id,
       NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai.toUtc()),
-      NamaKolom.tangglberakhir: Timestamp.fromDate(tanggalBerakhir.toUtc()),
+      NamaKolom.tangglBerakhir: Timestamp.fromDate(tanggalBerakhir.toUtc()),
       NamaKolom.judul: judul,
       NamaKolom.deskripsi: deskripsi,
       NamaKolom.setatusDibaca: setatusDibaca,

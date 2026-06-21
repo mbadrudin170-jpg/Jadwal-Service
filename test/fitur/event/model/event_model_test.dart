@@ -34,7 +34,7 @@ void main() {
             NamaKolom.statusAktif: true,
             NamaKolom.tanggalDibuat: tDateTime.toIso8601String(),
             NamaKolom.tanggalMulai: tDateTime.toIso8601String(),
-            NamaKolom.tangglberakhir: tDateTime.toIso8601String(),
+            NamaKolom.tangglBerakhir: tDateTime.toIso8601String(),
             NamaKolom.diperbaruiPada: tDateTime.toIso8601String(),
           };
 
@@ -53,7 +53,7 @@ void main() {
           NamaKolom.linkGambar: 'https://example.com/image.png',
           NamaKolom.statusAktif: true,
           NamaKolom.tanggalMulai: tDateTime.toIso8601String(),
-          NamaKolom.tangglberakhir: tDateTime.toIso8601String(),
+          NamaKolom.tangglBerakhir: tDateTime.toIso8601String(),
           NamaKolom.tanggalDibuat: tDateTime.toIso8601String(),
           NamaKolom.diperbaruiPada: tDateTime.toIso8601String(),
         };
@@ -71,7 +71,7 @@ void main() {
             NamaKolom.statusAktif: 1,
             NamaKolom.tanggalDibuat: tDateTime.millisecondsSinceEpoch,
             NamaKolom.tanggalMulai: tDateTime.millisecondsSinceEpoch,
-            NamaKolom.tangglberakhir: tDateTime.millisecondsSinceEpoch,
+            NamaKolom.tangglBerakhir: tDateTime.millisecondsSinceEpoch,
             NamaKolom.diperbaruiPada: tDateTime.millisecondsSinceEpoch,
           };
 
@@ -92,7 +92,7 @@ void main() {
             NamaKolom.statusAktif: 1,
             NamaKolom.tanggalDibuat: tDateTime.millisecondsSinceEpoch,
             NamaKolom.tanggalMulai: tDateTime.millisecondsSinceEpoch,
-            NamaKolom.tangglberakhir: tDateTime.millisecondsSinceEpoch,
+            NamaKolom.tangglBerakhir: tDateTime.millisecondsSinceEpoch,
             NamaKolom.diperbaruiPada: tDateTime.millisecondsSinceEpoch,
           };
           expect(result, expectedMap);

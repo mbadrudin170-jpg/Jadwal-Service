@@ -80,9 +80,9 @@ class FirebaseMigrationService {
       'tanggalMulai': NamaKolom.tanggalMulai,
       'TanggalMulai': NamaKolom.tanggalMulai,
       'tanggal_mulai': NamaKolom.tanggalMulai,
-      'tanggalBerakhir': NamaKolom.tangglberakhir,
-      'TanggalBerakhir': NamaKolom.tangglberakhir,
-      'tanggal_berakhir': NamaKolom.tangglberakhir,
+      'tanggalBerakhir': NamaKolom.tangglBerakhir,
+      'TanggalBerakhir': NamaKolom.tangglBerakhir,
+      'tanggal_berakhir': NamaKolom.tangglBerakhir,
       'status': NamaKolom.status,
       'diperbarui': NamaKolom.diperbaruiPada,
       'diarsipkan': NamaKolom.diarsipkanPada,
@@ -107,10 +107,10 @@ class FirebaseMigrationService {
       'durasi_paket': NamaKolom.durasiPaket,
       'tipe_durasi_paket': NamaKolom.tipeDurasiPaket,
       'TanggalMulai': NamaKolom.tanggalMulai,
-      'tanggal_berakhir': NamaKolom.tangglberakhir,
+      'tanggal_berakhir': NamaKolom.tangglBerakhir,
       'aktivasi_paket': NamaKolom.statusAktivasi,
       'tanggalMulai': NamaKolom.tanggalMulai,
-      'tanggalBerakhir': NamaKolom.tangglberakhir,
+      'tanggalBerakhir': NamaKolom.tangglBerakhir,
       'tipeDuraisiPaket': NamaKolom.tipeDurasiPaket,
       'tipeDurasiPaket': NamaKolom.tipeDurasiPaket,
       'aktivasiPaket': NamaKolom.statusAktivasi,
@@ -152,9 +152,7 @@ class FirebaseMigrationService {
       'info_pemeliharaan': NamaKolom.infoMaintenance,
       'diperbarui': NamaKolom.diperbaruiPada,
     },
-    NamaTabel.statusGlobal: {
-      'diperbarui': NamaKolom.diperbaruiPada,
-    },
+    NamaTabel.statusGlobal: {'diperbarui': NamaKolom.diperbaruiPada},
     NamaTabel.statusUnggah: {
       'value': NamaKolom.value,
       'diperbarui': NamaKolom.diperbaruiPada,
@@ -176,26 +174,33 @@ class FirebaseMigrationService {
     required final List<String> logs,
   }) async {
     Log.info(
-        'Memulai migrasi singleton dari "$legacyCollectionName" ke "$newCollectionName" dengan ID "$newDocId"');
+      'Memulai migrasi singleton dari "$legacyCollectionName" ke "$newCollectionName" dengan ID "$newDocId"',
+    );
 
     final QuerySnapshot snapshot;
     try {
-      snapshot =
-          await _firestore.collection(legacyCollectionName).limit(1).get();
+      snapshot = await _firestore
+          .collection(legacyCollectionName)
+          .limit(1)
+          .get();
     } on Exception catch (e) {
       Log.warning(
-          'Koleksi singleton $legacyCollectionName tidak ditemukan, lewati migrasi',
-          e);
+        'Koleksi singleton $legacyCollectionName tidak ditemukan, lewati migrasi',
+        e,
+      );
       logs.add(
-          '  - Koleksi singleton `$legacyCollectionName` tidak ditemukan, dilewati.');
+        '  - Koleksi singleton `$legacyCollectionName` tidak ditemukan, dilewati.',
+      );
       return;
     }
 
     if (snapshot.docs.isEmpty) {
       Log.info(
-          'Koleksi singleton $legacyCollectionName kosong, akan dihapus nanti.');
+        'Koleksi singleton $legacyCollectionName kosong, akan dihapus nanti.',
+      );
       logs.add(
-          '  - Koleksi singleton `$legacyCollectionName` kosong, dilewati.');
+        '  - Koleksi singleton `$legacyCollectionName` kosong, dilewati.',
+      );
       return;
     }
 
@@ -222,10 +227,12 @@ class FirebaseMigrationService {
     batch.set(newDocRef, updateData, SetOptions(merge: true));
 
     logs.add(
-        '  - [Migrasi Singleton] Dokumen dari `$legacyCollectionName` ke `$newCollectionName/$newDocId` disiapkan.');
+      '  - [Migrasi Singleton] Dokumen dari `$legacyCollectionName` ke `$newCollectionName/$newDocId` disiapkan.',
+    );
     for (final entry in renamedCount.entries) {
       logs.add(
-          '    - ${entry.key} -> ${columnMapping[entry.key]} : 1 field akan di-rename.');
+        '    - ${entry.key} -> ${columnMapping[entry.key]} : 1 field akan di-rename.',
+      );
     }
   }
 
@@ -238,16 +245,20 @@ class FirebaseMigrationService {
     required final List<String> logs,
   }) async {
     Log.info(
-        'Memulai migrasi dari koleksi "$legacyCollectionName" ke "$newCollectionName"');
+      'Memulai migrasi dari koleksi "$legacyCollectionName" ke "$newCollectionName"',
+    );
 
     final QuerySnapshot snapshot;
     try {
       snapshot = await _firestore.collection(legacyCollectionName).get();
     } on Exception catch (e) {
       Log.warning(
-          'Koleksi $legacyCollectionName tidak ditemukan, lewati migrasi', e);
+        'Koleksi $legacyCollectionName tidak ditemukan, lewati migrasi',
+        e,
+      );
       logs.add(
-          '  - Koleksi `$legacyCollectionName` tidak ditemukan, dilewati.');
+        '  - Koleksi `$legacyCollectionName` tidak ditemukan, dilewati.',
+      );
       return;
     }
 
@@ -292,10 +303,12 @@ class FirebaseMigrationService {
 
     if (migratedCount > 0) {
       logs.add(
-          '  - [Migrasi] $migratedCount dokumen dari `$legacyCollectionName` ke `$newCollectionName` disiapkan.');
+        '  - [Migrasi] $migratedCount dokumen dari `$legacyCollectionName` ke `$newCollectionName` disiapkan.',
+      );
       for (final entry in renamedCount.entries) {
         logs.add(
-            '    - ${entry.key} -> ${columnMapping[entry.key]} : ${entry.value} field akan di-rename.');
+          '    - ${entry.key} -> ${columnMapping[entry.key]} : ${entry.value} field akan di-rename.',
+        );
       }
     }
   }
@@ -307,8 +320,9 @@ class FirebaseMigrationService {
     final List<String> logs,
   ) async {
     Log.info('Memulai migrasi isDeleted untuk koleksi: $collectionName');
-    final QuerySnapshot snapshot =
-        await _firestore.collection(collectionName).get();
+    final QuerySnapshot snapshot = await _firestore
+        .collection(collectionName)
+        .get();
     int migratedCount = 0;
     for (final doc in snapshot.docs) {
       final data = doc.data() as Map<String, dynamic>;
@@ -320,7 +334,8 @@ class FirebaseMigrationService {
     }
     if (migratedCount > 0) {
       logs.add(
-          '  - [isDeleted] $migratedCount dokumen akan dimigrasi di `$collectionName`.');
+        '  - [isDeleted] $migratedCount dokumen akan dimigrasi di `$collectionName`.',
+      );
     }
   }
 
@@ -369,7 +384,9 @@ class FirebaseMigrationService {
 
   /// Migrasi untuk field `isPublic` menjadi `is_public`.
   Future<void> _migrateIsPublic(
-      final WriteBatch batch, final List<String> logs) async {
+    final WriteBatch batch,
+    final List<String> logs,
+  ) async {
     const collectionName = NamaTabel.paket;
     final snapshot = await _firestore.collection(collectionName).get();
     int count = 0;
@@ -385,7 +402,8 @@ class FirebaseMigrationService {
     }
     if (count > 0) {
       logs.add(
-          '  - [isPublic -> ${NamaKolom.statusPublik}] $count dokumen akan dimigrasi.');
+        '  - [isPublic -> ${NamaKolom.statusPublik}] $count dokumen akan dimigrasi.',
+      );
     }
   }
 
@@ -417,7 +435,7 @@ class FirebaseMigrationService {
         update[NamaKolom.nomorBuildTerakhir] = {
           'universal': val,
           'bit_32': 0,
-          'bit_64': 0
+          'bit_64': 0,
         };
       }
       if (oldLink != null && oldLink is! Map) {
@@ -429,7 +447,7 @@ class FirebaseMigrationService {
         update[NamaKolom.linkDownload] = {
           'universal': link,
           'bit_32': '',
-          'bit_64': ''
+          'bit_64': '',
         };
       }
       if (update.isNotEmpty) {
@@ -445,7 +463,8 @@ class FirebaseMigrationService {
     }
     if (buildCount > 0) {
       logs.add(
-          '  - [${NamaKolom.nomorBuildTerakhir}] $buildCount dokumen dimigrasi.');
+        '  - [${NamaKolom.nomorBuildTerakhir}] $buildCount dokumen dimigrasi.',
+      );
     }
     if (linkCount > 0) {
       logs.add('  - [${NamaKolom.linkDownload}] $linkCount dokumen dimigrasi.');
@@ -457,7 +476,9 @@ class FirebaseMigrationService {
 
   /// Migrasi untuk field `value` di koleksi `upload_status`.
   Future<void> _migrateUploadStatusValue(
-      final WriteBatch batch, final List<String> logs) async {
+    final WriteBatch batch,
+    final List<String> logs,
+  ) async {
     const collectionName = NamaTabel.statusUnggah;
     final snapshot = await _firestore.collection(collectionName).get();
     int count = 0;
@@ -485,8 +506,10 @@ class FirebaseMigrationService {
     final List<String> logs,
     final void Function(String) onProgress,
   ) async {
-    final checkSnapshot =
-        await _firestore.collection(collectionName).limit(1).get();
+    final checkSnapshot = await _firestore
+        .collection(collectionName)
+        .limit(1)
+        .get();
     if (checkSnapshot.docs.isEmpty) {
       Log.info('Koleksi `$collectionName` tidak ada, tidak perlu dihapus.');
       return;
@@ -508,9 +531,11 @@ class FirebaseMigrationService {
       if (docCount > 0) {
         await deleteBatch.commit();
         logs.add(
-            '  - [HAPUS] Koleksi lama `$collectionName` ($docCount dokumen) telah dihapus.');
+          '  - [HAPUS] Koleksi lama `$collectionName` ($docCount dokumen) telah dihapus.',
+        );
         Log.info(
-            'Koleksi lama `$collectionName` ($docCount dokumen) berhasil dihapus.');
+          'Koleksi lama `$collectionName` ($docCount dokumen) berhasil dihapus.',
+        );
         onProgress('Koleksi `$collectionName` berhasil dihapus.');
       }
     } on Exception catch (e, s) {
@@ -523,7 +548,8 @@ class FirebaseMigrationService {
 
   /// Menganalisis dan menjalankan semua migrasi data Firebase yang diperlukan.
   Future<List<String>> runAllMigrations(
-      final void Function(String) onProgress) async {
+    final void Function(String) onProgress,
+  ) async {
     Log.info('Memulai semua migrasi Firebase');
     onProgress('Memulai semua migrasi...');
     final batch = _firestore.batch();
@@ -600,8 +626,10 @@ class FirebaseMigrationService {
     onProgress('Menganalisis migrasi khusus `upload_status value`...');
     await _migrateUploadStatusValue(batch, logs);
 
-    if (logs.any((final log) =>
-        !log.contains('ditemukan, dilewati') && !log.contains('kosong'))) {
+    if (logs.any(
+      (final log) =>
+          !log.contains('ditemukan, dilewati') && !log.contains('kosong'),
+    )) {
       onProgress('Menjalankan semua perubahan data...');
       try {
         await batch.commit();

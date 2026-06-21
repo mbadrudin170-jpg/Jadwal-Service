@@ -32,7 +32,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
         map[NamaKolom.tanggalMulai],
       );
       final tanggalBerakhir = ParserUtil.parseDateTime(
-        map[NamaKolom.tangglberakhir],
+        map[NamaKolom.tangglBerakhir],
       );
 
       if (tanggalMulai == null) {
@@ -72,7 +72,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
       NamaKolom.idPaket: idPaket,
       NamaKolom.idTransaksi: idTransaksi,
       NamaKolom.tanggalMulai: tanggalMulai.millisecondsSinceEpoch,
-      NamaKolom.tangglberakhir: tanggalBerakhir.millisecondsSinceEpoch,
+      NamaKolom.tangglBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
       NamaKolom.status: status.name,
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
@@ -90,7 +90,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
         data[NamaKolom.tanggalMulai],
       );
       final tanggalBerakhir = ParserUtil.parseDateTime(
-        data[NamaKolom.tangglberakhir],
+        data[NamaKolom.tangglBerakhir],
       );
 
       if (tanggalMulai == null) {
@@ -135,7 +135,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
       NamaKolom.idPaket: idPaket,
       NamaKolom.idTransaksi: idTransaksi,
       NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai.toUtc()),
-      NamaKolom.tangglberakhir: Timestamp.fromDate(tanggalBerakhir.toUtc()),
+      NamaKolom.tangglBerakhir: Timestamp.fromDate(tanggalBerakhir.toUtc()),
       NamaKolom.status: status.name,
       NamaKolom.dihapus: diHapus,
       NamaKolom.diperbaruiPada: Timestamp.fromDate(

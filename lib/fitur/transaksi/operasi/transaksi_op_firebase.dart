@@ -46,7 +46,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
             isEqualTo: StatusPembayaran.paid.name,
           )
           .where(NamaKolom.dihapus, isEqualTo: false)
-          .orderBy(NamaKolom.tangglberakhir, descending: true)
+          .orderBy(NamaKolom.tangglBerakhir, descending: true)
           .limit(1)
           .get();
 
@@ -122,6 +122,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       return 0;
     }
   }
+
   /// Melakukan soft delete pada transaksi di Firestore.
   Future<void> hapusSementaraTransaksi(String idTransaksi) async {
     Log.info('Memulai soft delete transaksi di Firestore: $idTransaksi');
@@ -154,7 +155,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
           // 2. Pastikan transaksi tidak dihapus
           .where(NamaKolom.dihapus, isEqualTo: false)
           // 3. Filter utama: endDate harus lebih besar dari waktu sekarang
-          .where(NamaKolom.tangglberakhir, isGreaterThan: now)
+          .where(NamaKolom.tangglBerakhir, isGreaterThan: now)
           .get();
 
       // Jika tidak ada dokumen yang cocok, kembalikan list kosong

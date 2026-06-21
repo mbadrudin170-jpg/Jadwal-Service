@@ -67,7 +67,8 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
           ParserUtil.parseDateTime(map[NamaKolom.tanggal]) ?? DateTime.now(),
       deskripsi: map[NamaKolom.deskripsi] as String? ?? '',
       jumlah: (map[NamaKolom.jumlah] as num? ?? 0).toDouble(),
-      tipe: _safeParseEnum(TipeTransaksi.values, map[NamaKolom.tipe]) ??
+      tipe:
+          _safeParseEnum(TipeTransaksi.values, map[NamaKolom.tipe]) ??
           TipeTransaksi.expense,
       idDompet: map[NamaKolom.idDompet] as String? ?? '',
       idKategori: map[NamaKolom.idKategori] as String? ?? '',
@@ -75,7 +76,8 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       idPelanggan: map[NamaKolom.idPelanggan] as String?,
       idPaket: map[NamaKolom.idPaket] as String?,
       idSubKategori: map[NamaKolom.idSubKategori] as String?,
-      statusPembayaran: _safeParseEnum(
+      statusPembayaran:
+          _safeParseEnum(
             StatusPembayaran.values,
             map[NamaKolom.statusPembayaran],
           ) ??
@@ -87,14 +89,16 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       durasiPaket: (map[NamaKolom.durasiPaket] as num?)?.toInt(),
       tipeDurasiPaket: _safeParseEnum(
-          TipeDurasiPaket.values, map[NamaKolom.tipeDurasiPaket]),
+        TipeDurasiPaket.values,
+        map[NamaKolom.tipeDurasiPaket],
+      ),
       durasiBonus: (map[NamaKolom.durasiBonus] as num? ?? 0).toInt(),
       tipeDurasiBonus: _safeParseEnum(
         TipeDurasiPaket.values,
         map[NamaKolom.tipeDurasiBonus],
       ),
       tanggalMulai: ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]),
-      tanggalBerakhir: ParserUtil.parseDateTime(map[NamaKolom.tangglberakhir]),
+      tanggalBerakhir: ParserUtil.parseDateTime(map[NamaKolom.tangglBerakhir]),
       statusAktivasi: ParserUtil.parseBool(map[NamaKolom.statusAktivasi]),
     );
   }
@@ -124,13 +128,15 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       NamaKolom.durasiBonus: durasiBonus,
       NamaKolom.tipeDurasiBonus: tipeDurasiBonus?.name,
       NamaKolom.tanggalMulai: tanggalMulai?.millisecondsSinceEpoch,
-      NamaKolom.tangglberakhir: tanggalBerakhir?.millisecondsSinceEpoch,
+      NamaKolom.tangglBerakhir: tanggalBerakhir?.millisecondsSinceEpoch,
       NamaKolom.statusAktivasi: statusAktivasi ? 1 : 0,
     };
   }
 
   factory TransaksiModel.fromFirebase(
-      final String id, final Map<String, dynamic> data) {
+    final String id,
+    final Map<String, dynamic> data,
+  ) {
     Log.info('Membuat TransaksiModel dari Firebase: $id');
     return TransaksiModel(
       id: id,
@@ -138,7 +144,8 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
           ParserUtil.parseDateTime(data[NamaKolom.tanggal]) ?? DateTime.now(),
       deskripsi: data[NamaKolom.deskripsi] as String? ?? '',
       jumlah: (data[NamaKolom.jumlah] as num? ?? 0).toDouble(),
-      tipe: _safeParseEnum(TipeTransaksi.values, data[NamaKolom.tipe]) ??
+      tipe:
+          _safeParseEnum(TipeTransaksi.values, data[NamaKolom.tipe]) ??
           TipeTransaksi.expense,
       idDompet: data[NamaKolom.idDompet] as String? ?? '',
       idKategori: data[NamaKolom.idKategori] as String? ?? '',
@@ -146,7 +153,8 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       idPelanggan: data[NamaKolom.idPelanggan] as String?,
       idPaket: data[NamaKolom.idPaket] as String?,
       idSubKategori: data[NamaKolom.idSubKategori] as String?,
-      statusPembayaran: _safeParseEnum(
+      statusPembayaran:
+          _safeParseEnum(
             StatusPembayaran.values,
             data[NamaKolom.statusPembayaran],
           ) ??
@@ -158,14 +166,16 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       durasiPaket: (data[NamaKolom.durasiPaket] as num?)?.toInt(),
       tipeDurasiPaket: _safeParseEnum(
-          TipeDurasiPaket.values, data[NamaKolom.tipeDurasiPaket]),
+        TipeDurasiPaket.values,
+        data[NamaKolom.tipeDurasiPaket],
+      ),
       durasiBonus: (data[NamaKolom.durasiBonus] as num? ?? 0).toInt(),
       tipeDurasiBonus: _safeParseEnum(
         TipeDurasiPaket.values,
         data[NamaKolom.tipeDurasiBonus],
       ),
       tanggalMulai: ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]),
-      tanggalBerakhir: ParserUtil.parseDateTime(data[NamaKolom.tangglberakhir]),
+      tanggalBerakhir: ParserUtil.parseDateTime(data[NamaKolom.tangglBerakhir]),
       statusAktivasi: ParserUtil.parseBool(data[NamaKolom.statusAktivasi]),
     );
   }
@@ -186,8 +196,9 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       NamaKolom.statusPembayaran: statusPembayaran.name,
       NamaKolom.poinDidapat: poinDidapat,
       NamaKolom.poinDigunakan: poinDigunakan,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()).toUtc(),
+      ),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,
@@ -199,7 +210,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       NamaKolom.tanggalMulai: tanggalMulai != null
           ? Timestamp.fromDate(tanggalMulai!.toUtc())
           : null,
-      NamaKolom.tangglberakhir: tanggalBerakhir != null
+      NamaKolom.tangglBerakhir: tanggalBerakhir != null
           ? Timestamp.fromDate(tanggalBerakhir!.toUtc())
           : null,
       NamaKolom.statusAktivasi: statusAktivasi,
