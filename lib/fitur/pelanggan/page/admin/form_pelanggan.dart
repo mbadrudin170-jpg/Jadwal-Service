@@ -1,19 +1,21 @@
 // path lib/fitur/pelanggan/page/admin/form_pelanggan.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_password.dart';
 import 'package:wifi/shared/widget/input/input_teks.dart';
-import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_telepon.dart';
 
 class FormPelanggan extends ConsumerStatefulWidget {
@@ -119,7 +121,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
               .cekKoneksiLokal();
           if (cekKoneksi) {
             Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
-            ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
+            unawaited(ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi());
             if (mounted) {
               ToastUtil.success(
                 context,

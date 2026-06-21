@@ -286,16 +286,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Future<void> _navigasiKeDetail(String userId) async {
     await ref.read(interstitialAdServiceProvider).show();
     try {
-      final hasChanged = await Navigator.push<bool>(
+      await Navigator.push<bool>(
         context,
         MaterialPageRoute<bool>(
           builder: (context) => DetailPelangganU(userId: userId),
         ),
       );
       await ref.read(interstitialAdServiceProvider).show();
-      if (hasChanged ?? false) {
-        _reloadData();
-      }
     } on Exception catch (e, st) {
       Log.error('Gagal navigasi ke detail pelanggan.', e: e, s: st);
       if (mounted) ToastUtil.error(context, 'Gagal membuka halaman detail.');

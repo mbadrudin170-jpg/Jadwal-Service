@@ -1,5 +1,7 @@
 // path: lib/fitur/dompet/page/form_dompet.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -120,7 +122,9 @@ class _WalletFormState extends ConsumerState<FormDompet> {
             .read(koneksiInternetServiceProvider)
             .cekKoneksiLokal();
         if (cekKoneksiLokal) {
-          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
+          unawaited(
+            ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+          );
 
           if (mounted) {
             ToastUtil.success(

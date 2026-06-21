@@ -10,22 +10,22 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
+import 'package:wifi/fitur/notfikasi/enum/tipe_notifikasi_enum.dart';
+import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
 import 'package:wifi/fitur/paket/core/perhitungan_paket.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
-import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/notfikasi/enum/tipe_notifikasi_enum.dart';
-import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -33,8 +33,8 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
 import 'package:wifi/shared/widget/input/input_angka.dart';
+import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
 
 class FormPelangganAktif extends ConsumerStatefulWidget {
   final PelangganAktifModel? pelangganAktif;
@@ -364,7 +364,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         await ref
             .read(transaksiProvider.notifier)
             .updateTransaksi(transaksiData);
-        notifikasiOpFirebase.deleteByTransactionId(idTransaksi);
+        await notifikasiOpFirebase.hpausBerdasarkanIdTransaksi(idTransaksi);
         Log.info(
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
         );
@@ -443,7 +443,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       Log.info('data notifikasi untuk masa aktif paket telah dibuat,');
 
       for (final notif in daftarNotifikasi) {
-        notifikasiOpFirebase.addNotifikasi(notif);
+        await notifikasiOpFirebase.addNotifikasi(notif);
       }
 
       final isOnline = await ref
@@ -451,7 +451,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           .cekKoneksiLokal();
       if (isOnline) {
         Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
-        ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
       } else {
         Log.warning('Koneksi offline, sinkronisasi akan dijalankan nanti.');
       }

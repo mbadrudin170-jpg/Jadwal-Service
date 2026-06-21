@@ -3,11 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/page/user/edit_profile_page.dart';
+import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
 import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
-import 'package:wifi/fitur/pelanggan/page/user/edit_profile_page.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 
@@ -76,6 +76,7 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
   /// Navigasi ke halaman edit profil, lalu menampilkan iklan saat kembali.
   Future<void> _navigasiKeEdit(PelangganModel pelanggan) async {
     await ref.read(interstitialAdServiceProvider).show();
+    if (!mounted) return;
     final bool? hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
@@ -94,6 +95,8 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
 
   Future<void> _navigasiKePoin(String idPelanggan) async {
     await ref.read(interstitialAdServiceProvider).show();
+    if (!mounted) return;
+
     final bool? hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(

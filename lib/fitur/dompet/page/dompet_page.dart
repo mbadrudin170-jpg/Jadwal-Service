@@ -5,9 +5,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-
-import 'package:wifi/fitur/dompet/page/detail_dompet.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/page/detail_dompet.dart';
 import 'package:wifi/fitur/dompet/page/form_dompet.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
@@ -105,7 +104,7 @@ class DompetPage extends ConsumerWidget {
     );
     if (hasil ?? false) {
       Log.info('Berhasil menambahkan dompet baru, memicu refresh.');
-      ref.read(dompetProvider.notifier).refresh();
+      await ref.read(dompetProvider.notifier).refresh();
     }
   }
 
@@ -122,7 +121,7 @@ class DompetPage extends ConsumerWidget {
       ),
     );
     Log.info('Kembali dari detail dompet, memicu refresh.');
-    ref.read(dompetProvider.notifier).refresh();
+    await ref.read(dompetProvider.notifier).refresh();
   }
 
   Future<void> _showDeleteAllDialog(BuildContext context, WidgetRef ref) async {

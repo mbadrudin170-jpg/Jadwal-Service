@@ -1,5 +1,7 @@
 // path lib/fitur/kategori/page/form_kategori.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -412,7 +414,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
         final hasConnection = await  ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
         if (hasConnection) {
           final syncCheckService = ref.read(layananCekSinkronisasiProvider);
-          syncCheckService.jalankanCekSinkronisasi();
+          unawaited(syncCheckService.jalankanCekSinkronisasi());
           if (mounted) {
             ToastUtil.success(
               context,

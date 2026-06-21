@@ -126,7 +126,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           ],
         ),
       );
-
+      if (!mounted) return;
       if (dikonfirmasi ?? false) {
         Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
         try {
@@ -164,10 +164,11 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
           await ref.read(orderOpFirebaseProvider).addOrder(dataPesanan);
           Log.info('berhasil membuat notifikasi untuk paket');
-
+          if (!mounted) return;
           ref.invalidate(pointsPageDataProvider);
           ref.invalidate(pointsHistoryProvider);
           ref.invalidate(orderProvider);
+
           if (!mounted) return;
           ToastUtil.success(
             context,

@@ -331,7 +331,7 @@ class HalamanDataDummy extends ConsumerWidget {
       ref.invalidate(settingsOpSqliteProvider);
 
       if (context.mounted) {
-        showDialog(
+        await showDialog<void>(
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Berhasil'),

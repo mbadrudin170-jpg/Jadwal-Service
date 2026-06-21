@@ -4,13 +4,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
+import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -21,7 +21,7 @@ enum UrutanPelanggan {
   terakhirOnline,
   terbaruOnline,
   poinTerbanyak,
-  pointerkecil,
+  poinTerkecil,
 }
 
 // --- Combined & Filtered Data Provider ---
@@ -40,41 +40,43 @@ final filteredCustomersProvider =
                 (tuple) => tuple.$1.nama.toLowerCase().contains(searchQuery),
               )
               .toList();
-
-          switch (sortOption) {
-            case UrutanPelanggan.namaAZ:
-              filtered.sort(
-                (a, b) =>
-                    a.$1.nama.toLowerCase().compareTo(b.$1.nama.toLowerCase()),
-              );
-              break;
-            case UrutanPelanggan.namaZa:
-              filtered.sort(
-                (a, b) =>
-                    b.$1.nama.toLowerCase().compareTo(a.$1.nama.toLowerCase()),
-              );
-              break;
-            case UrutanPelanggan.terakhirOnline:
-              filtered.sort((a, b) {
-                if (a.$1.terkahirAktif == null) return 1;
-                if (b.$1.terkahirAktif == null) return -1;
-                return b.$1.terkahirAktif!.compareTo(a.$1.terkahirAktif!);
-              });
-              break;
-            case UrutanPelanggan.terbaruOnline:
-              filtered.sort((a, b) {
-                if (a.$1.terkahirAktif == null) return -1;
-                if (b.$1.terkahirAktif == null) return 1;
-                return a.$1.terkahirAktif!.compareTo(b.$1.terkahirAktif!);
-              });
-              break;
-            case UrutanPelanggan.poinTerbanyak:
-              filtered.sort((a, b) => b.$2.compareTo(a.$2));
-              break;
-            case UrutanPelanggan.pointerkecil:
-              filtered.sort((a, b) => a.$2.compareTo(b.$2));
-              break;
-          }
+          if (filtered.isNotEmpty)
+            switch (sortOption) {
+              case UrutanPelanggan.namaAZ:
+                filtered.sort(
+                  (a, b) => a.$1.nama.toLowerCase().compareTo(
+                    b.$1.nama.toLowerCase(),
+                  ),
+                );
+                break;
+              case UrutanPelanggan.namaZa:
+                filtered.sort(
+                  (a, b) => b.$1.nama.toLowerCase().compareTo(
+                    a.$1.nama.toLowerCase(),
+                  ),
+                );
+                break;
+              case UrutanPelanggan.terakhirOnline:
+                filtered.sort((a, b) {
+                  if (a.$1.terkahirAktif == null) return 1;
+                  if (b.$1.terkahirAktif == null) return -1;
+                  return b.$1.terkahirAktif!.compareTo(a.$1.terkahirAktif!);
+                });
+                break;
+              case UrutanPelanggan.terbaruOnline:
+                filtered.sort((a, b) {
+                  if (a.$1.terkahirAktif == null) return -1;
+                  if (b.$1.terkahirAktif == null) return 1;
+                  return a.$1.terkahirAktif!.compareTo(b.$1.terkahirAktif!);
+                });
+                break;
+              case UrutanPelanggan.poinTerbanyak:
+                filtered.sort((a, b) => b.$2.compareTo(a.$2));
+                break;
+              case UrutanPelanggan.poinTerkecil:
+                filtered.sort((a, b) => a.$2.compareTo(b.$2));
+                break;
+            }
           return AsyncData(filtered);
         },
         loading: () => const AsyncLoading(),
@@ -92,6 +94,8 @@ class Pelanggan extends ConsumerStatefulWidget {
 
 class _PelangganState extends ConsumerState<Pelanggan> {
   late final TextEditingController _searchController;
+
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -148,9 +152,14 @@ class _PelangganState extends ConsumerState<Pelanggan> {
                 hintStyle: TextStyle(color: Colors.white70),
               ),
               style: const TextStyle(color: Colors.white),
-              onChanged: (query) => ref
-                  .read(searchQueryPelangganProvider.notifier)
-                  .updateQuery(query),
+              onChanged: (query) {
+                if (_debounce?.isActive ?? false) _debounce!.cancel();
+                _debounce = Timer(const Duration(milliseconds: 300), () {
+                  ref
+                      .read(searchQueryPelangganProvider.notifier)
+                      .updateQuery(query);
+                });
+              },
             )
           : const Text('Daftar Pelanggan'),
       actions: [
@@ -275,7 +284,7 @@ class _PelangganState extends ConsumerState<Pelanggan> {
             UrutanPelanggan.terbaruOnline,
           ),
           buildOption('Poin (Tertinggi)', UrutanPelanggan.poinTerbanyak),
-          buildOption('Poin (Terendah)', UrutanPelanggan.pointerkecil),
+          buildOption('Poin (Terendah)', UrutanPelanggan.poinTerkecil),
         ],
       ),
     );
@@ -323,21 +332,18 @@ class _PelangganState extends ConsumerState<Pelanggan> {
                 );
                 if (result ?? false) {
                   ref.invalidate(daftarPelangganProvider);
-                  if (context.mounted) {
-                    ToastUtil.success(
-                      context,
-                      'Pelanggan berhasil diperbarui.',
-                    );
-                  }
+
+                  if (!mounted) return;
+                  ToastUtil.success(context, 'Pelanggan berhasil diperbarui.');
                 }
               },
             ),
             ListTile(
               leading: const Icon(TIcons.archive),
               title: const Text('Arsipkan Pelanggan'),
-              onTap: () {
-                Navigator.of(dialogContext).pop();
-                unawaited(_dialogKonfirmasiSoftDelete(pelanggan));
+              onTap: () async {
+                Navigator.of(context).pop();
+                await _dialogKonfirmasiSoftDelete(pelanggan);
               },
             ),
           ],
@@ -375,9 +381,9 @@ class _PelangganState extends ConsumerState<Pelanggan> {
     try {
       await ref.read(pelangganOpSqliteProvider).softDelete(id);
       ref.invalidate(daftarPelangganProvider);
-      if (context.mounted) {
-        ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
-      }
+      if (!mounted) return;
+
+      ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
     } on Exception catch (e, s) {
       Log.error('Gagal mengarsipkan pelanggan', e: e, s: s);
       if (context.mounted) {
