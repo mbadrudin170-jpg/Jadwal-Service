@@ -27,7 +27,8 @@ void main() {
     mockTransaksiOp = MockTransaksiOpFirebase();
 
     TestWidgetsFlutterBinding.ensureInitialized();
-    channel.setMockMethodCallHandler((MethodCall methodCall) async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
       log.add(methodCall);
       if (methodCall.method == 'oneShotAt' || methodCall.method == 'cancel') {
         return true;
@@ -38,7 +39,8 @@ void main() {
   });
 
   tearDown(() {
-    channel.setMockMethodCallHandler(null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null);
   });
 
   const userId = 'user123';
@@ -110,9 +112,10 @@ void main() {
       // Verifikasi alarm manager
       expect(log.where((call) => call.method == 'oneShotAt'), isNotEmpty);
       final oneShotCall = log.firstWhere((call) => call.method == 'oneShotAt');
-      expect(oneShotCall.arguments['alarmId'], alarmId);
-      expect(oneShotCall.arguments['wakeup'], true);
-      expect(oneShotCall.arguments['exact'], true);
+      final arguments = oneShotCall.arguments as Map<String, dynamic>;
+      expect(arguments['alarmId'], alarmId);
+      expect(arguments['wakeup'], true);
+      expect(arguments['exact'], true);
     });
 
     test(
@@ -143,8 +146,7 @@ void main() {
               title: anyNamed('title'),
               body: anyNamed('body'),
               jadwal: anyNamed('jadwal'),
-              payload: anyNamed('payload')))
-          .thenAnswer((_) async {});
+              payload: anyNamed('payload'))).thenAnswer((_) async {});
 
       // Act
       await PenjadwalNotifikasi.aturNotifikasiLangganan(

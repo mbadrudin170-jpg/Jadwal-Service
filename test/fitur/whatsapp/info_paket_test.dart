@@ -23,7 +23,7 @@ void main() {
   late PesanInfoPaket pesanInfoPaket;
   late MockPelangganOpSqlite mockPelangganOpSqlite;
   late MockPaketOpSqlite mockPaketOpSqlite;
-  
+
   // Menggunakan MethodChannel resmi milik package url_launcher
   const MethodChannel channel = MethodChannel('plugins.flutter.io/url_launcher');
   String? launchedUrl;
@@ -48,7 +48,7 @@ void main() {
       }
       if (methodCall.method == 'launch') {
         // url_launcher menyimpan data URL di dalam argumen dengan key 'url'
-        launchedUrl = methodCall.arguments['url'] as String?;
+        launchedUrl = (methodCall.arguments as Map<String, dynamic>)['url'] as String?;
         return true;
       }
       return null;
@@ -123,7 +123,7 @@ void main() {
 
         verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
         verify(mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
-        
+
         expect(launchedUrl, isNull);
       },
     );
@@ -140,7 +140,7 @@ void main() {
 
         verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
         verify(mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
-        
+
         expect(launchedUrl, isNull);
       },
     );

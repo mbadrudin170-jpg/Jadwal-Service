@@ -8,11 +8,9 @@ import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 
 class MockStatusOpFirebase extends Mock implements StatusOpFirebase {
   @override
-  Future<void> perbaruiStatusGlobal() => super.noSuchMethod(
-        Invocation.method(#perbaruiStatusGlobal, []),
-        returnValue: Future<void>.value(),
-        returnValueForMissingStub: Future<void>.value(),
-      );
+  Future<void> perbaruiStatusGlobal() {
+    return Future.value();
+  }
 }
 
 void main() {
@@ -152,7 +150,7 @@ void main() {
         expect(count, 2);
         final snapshot = await fakeFirestore.collection(collectionName).get();
         for (final doc in snapshot.docs) {
-          final docData = doc.data() as Map<String, dynamic>;
+          final docData = doc.data();
           expect(docData[NamaKolom.dihapus], isTrue);
         }
 

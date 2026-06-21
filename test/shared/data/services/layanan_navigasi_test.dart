@@ -36,7 +36,7 @@ void main() {
     testWidgets('02. harus menavigasi ke rute bernama', (tester) async {
       await pumpWidget(tester);
 
-      LayananNavigasi.navigateTo('/test');
+      await LayananNavigasi.navigateTo('/test');
       await tester.pumpAndSettle();
 
       expect(find.text('Test'), findsOneWidget);
@@ -45,13 +45,13 @@ void main() {
     testWidgets('03. harus menavigasi ke rute dengan argumen', (tester) async {
       await pumpWidget(tester, initialRoute: '/');
       const arguments = 'test_argument';
-      
-      LayananNavigasi.navigateTo('/test', arguments: arguments);
+
+      await LayananNavigasi.navigateTo('/test', arguments: arguments);
       await tester.pumpAndSettle();
 
       // Mengambil BuildContext dari widget di rute '/test' yang sedang aktif
       final testPageContext = tester.element(find.text('Test'));
-      
+
       // Ambil RouteSettings dari ModalRoute aktif di konteks tersebut
       final settings = ModalRoute.of(testPageContext)?.settings;
 

@@ -23,8 +23,6 @@ linter:
     directives_ordering: true
     prefer_final_fields: true
     prefer_final_locals: true
-    prefer_const_constructors: warning
-    prefer_const_constructors_in_immutables: warning
 
 analyzer:
   exclude:
@@ -42,6 +40,10 @@ analyzer:
     cancel_subscriptions: error
     close_sinks: error
     avoid_void_async: error
+
+    prefer_const_constructors: warning
+    prefer_const_constructors_in_immutables: warning
+
 
   language:
     strict-casts: true
