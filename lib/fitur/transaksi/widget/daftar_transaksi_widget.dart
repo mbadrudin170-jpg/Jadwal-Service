@@ -1,4 +1,4 @@
-// path: lib/shared/widget/daftar_transaksi_widget.dart
+// path lib/fitur/transaksi/widget/daftar_transaksi_widget.dart
 
 import 'dart:async';
 
@@ -28,7 +28,7 @@ Map<DateTime, List<TransaksiModel>> kelompokkanTransaksiPerTanggal(
 }
 
 /// Membangun widget header untuk sebuah seksi transaksi berdasarkan tanggal.
-Widget bangunHeaderBagian(DateTime date, double total) {
+Widget bangunHeaderBagian(DateTime tanggal, double total) {
   return Builder(builder: (context) {
     final textTheme = Theme.of(context).textTheme;
     return Padding(
@@ -37,7 +37,7 @@ Widget bangunHeaderBagian(DateTime date, double total) {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            FormatTanggal.formatSingkat(date),
+            FormatTanggal.formatSingkat(tanggal),
             style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           Text(

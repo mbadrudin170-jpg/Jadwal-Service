@@ -14,7 +14,7 @@ import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
+import 'package:wifi/fitur/transaksi/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/widget/summary_info_widget.dart';
 
 class DataDetailDompet {
