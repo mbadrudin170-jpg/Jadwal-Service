@@ -74,7 +74,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   }
 
   Future<void> _tukarPoin(
-    WidgetRef ref,
+    WidgetRef ref, // removed BuildContext context
     PaketModel hadiah,
     int poinSaatIni,
   ) async {
@@ -84,6 +84,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       final role = ref.read(appRoleProvider);
       if (role == AppRole.admin) {
         Log.warning('Admin mencoba menukar poin, operasi diblokir.');
+        if (!mounted) return; // guard for this.context
         ToastUtil.error(
           context,
           'Admin tidak dapat menukar poin dari antarmuka ini.',
@@ -102,14 +103,16 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
       final bool poinCukup = poinSaatIni >= hadiah.poinPenukaran;
       if (!poinCukup) {
+        if (!mounted) return;
         ToastUtil.warning(
           context,
           'Poin Anda tidak mencukupi untuk menukar hadiah ini.',
         );
         return;
       }
+
       final bool? dikonfirmasi = await showDialog<bool>(
-        context: context,
+        context: context, // use this.context
         builder: (dialogContext) => AlertDialog(
           title: const Text('Konfirmasi Penukaran'),
           content: Text('Anda yakin ingin menukar poin dengan ${hadiah.nama}?'),
@@ -125,62 +128,65 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           ],
         ),
       );
-      if (!mounted)
-        if (dikonfirmasi ?? false) {
-          Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
-          try {
-            final dataPelanggan = await ref
-                .read(pelangganOpSqliteProvider)
-                .ambilBerdasarkanId(widget.idPelanggan);
 
-            final sekarang = DateTime.now();
-            final idOrder = const Uuid().v4();
+      if (!mounted) return; // guard after dialog
 
-            final dataPesanan = OrderModel(
-              id: idOrder,
-              idPelanggan: widget.idPelanggan,
-              idPaket: hadiah.id,
-              tanggal: sekarang,
-            );
+      if (dikonfirmasi ?? false) {
+        Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
+        try {
+          final dataPelanggan = await ref
+              .read(pelangganOpSqliteProvider)
+              .ambilBerdasarkanId(widget.idPelanggan);
 
-            final notifikasiData = NotifikasiModel(
-              id: const Uuid().v4(),
-              tanggalMulai: sekarang,
-              tanggalBerakhir: sekarang,
-              tanggalTampil: sekarang,
-              judul: 'Order Paket',
-              deskripsi: 'pelanggan ${dataPelanggan?.nama} melakukan order',
-              tipe: TipeNotifikasiEnum.order,
-              diperbaruiPada: sekarang,
-              idTujuan: idOrder,
-              userId: widget.idPelanggan,
-            );
+          final sekarang = DateTime.now();
+          final idOrder = const Uuid().v4();
 
-            await ref
-                .read(notifikasiOpFirebaseProvider)
-                .addNotifikasi(notifikasiData);
-            Log.info(
-              'berhasil membuat order baru untuk id pelanggan: ${widget.idPelanggan}',
-            );
+          final dataPesanan = OrderModel(
+            id: idOrder,
+            idPelanggan: widget.idPelanggan,
+            idPaket: hadiah.id,
+            tanggal: sekarang,
+          );
 
-            await ref.read(orderOpFirebaseProvider).addOrder(dataPesanan);
-            Log.info('berhasil membuat notifikasi untuk paket');
-            if (!mounted) return;
-            ref.invalidate(pointsPageDataProvider);
-            ref.invalidate(pointsHistoryProvider);
-            ref.invalidate(orderProvider);
+          final notifikasiData = NotifikasiModel(
+            id: const Uuid().v4(),
+            tanggalMulai: sekarang,
+            tanggalBerakhir: sekarang,
+            tanggalTampil: sekarang,
+            judul: 'Order Paket',
+            deskripsi: 'pelanggan ${dataPelanggan?.nama} melakukan order',
+            tipe: TipeNotifikasiEnum.order,
+            diperbaruiPada: sekarang,
+            idTujuan: idOrder,
+            userId: widget.idPelanggan,
+          );
 
-            if (context.mounted)
-              ToastUtil.success(
-                context,
-                'Order sudah terkirim menunggu konfirmasi Admin',
-              );
-          } on Exception catch (e, st) {
-            Log.error('Gagal menukar poin: $e', e: e, s: st);
-            if (!mounted) return;
-            ToastUtil.error(context, 'Terjadi kesalahan saat menukar poin.');
-          }
+          await ref
+              .read(notifikasiOpFirebaseProvider)
+              .addNotifikasi(notifikasiData);
+          Log.info(
+            'berhasil membuat order baru untuk id pelanggan: ${widget.idPelanggan}',
+          );
+
+          await ref.read(orderOpFirebaseProvider).addOrder(dataPesanan);
+          Log.info('berhasil membuat notifikasi untuk paket');
+
+          if (!mounted) return;
+          ref.invalidate(pointsPageDataProvider);
+          ref.invalidate(pointsHistoryProvider);
+          ref.invalidate(orderProvider);
+
+          if (!mounted) return; // guard for this.context
+          ToastUtil.success(
+            context,
+            'Order sudah terkirim menunggu konfirmasi Admin',
+          );
+        } on Exception catch (e, st) {
+          Log.error('Gagal menukar poin: $e', e: e, s: st);
+          if (!mounted) return;
+          ToastUtil.error(context, 'Terjadi kesalahan saat menukar poin.');
         }
+      }
     } finally {
       setState(() => _sedangTukarPoin = false);
     }
