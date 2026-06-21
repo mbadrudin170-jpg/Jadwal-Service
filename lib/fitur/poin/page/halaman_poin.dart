@@ -74,7 +74,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   }
 
   Future<void> _tukarPoin(
-    BuildContext context,
     WidgetRef ref,
     PaketModel hadiah,
     int poinSaatIni,
@@ -95,6 +94,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       final isOnline = await ref
           .read(koneksiInternetServiceProvider)
           .cekInternet();
+      if (!mounted) return;
       if (!isOnline) {
         ToastUtil.warning(context, 'Cek koneksi internet Anda');
         return;
@@ -108,7 +108,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         );
         return;
       }
-
       final bool? dikonfirmasi = await showDialog<bool>(
         context: context,
         builder: (dialogContext) => AlertDialog(
@@ -126,60 +125,62 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           ],
         ),
       );
-      if (!mounted) return;
-      if (dikonfirmasi ?? false) {
-        Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
-        try {
-          final dataPelanggan = await ref
-              .read(pelangganOpSqliteProvider)
-              .ambilBerdasarkanId(widget.idPelanggan);
+      if (!mounted)
+        if (dikonfirmasi ?? false) {
+          Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
+          try {
+            final dataPelanggan = await ref
+                .read(pelangganOpSqliteProvider)
+                .ambilBerdasarkanId(widget.idPelanggan);
 
-          final sekarang = DateTime.now();
-          final idOrder = const Uuid().v4();
+            final sekarang = DateTime.now();
+            final idOrder = const Uuid().v4();
 
-          final dataPesanan = OrderModel(
-            id: idOrder,
-            idPelanggan: widget.idPelanggan,
-            idPaket: hadiah.id,
-            tanggal: sekarang,
-          );
+            final dataPesanan = OrderModel(
+              id: idOrder,
+              idPelanggan: widget.idPelanggan,
+              idPaket: hadiah.id,
+              tanggal: sekarang,
+            );
 
-          final notifikasiData = NotifikasiModel(
-            id: const Uuid().v4(),
-            tanggalMulai: sekarang,
-            tanggalBerakhir: sekarang,
-            tanggalTampil: sekarang,
-            judul: 'Order Paket',
-            deskripsi: 'pelanggan ${dataPelanggan?.nama} melakukan order',
-            tipe: TipeNotifikasiEnum.order,
-            diperbaruiPada: sekarang,
-            idTujuan: idOrder,
-            userId: widget.idPelanggan,
-          );
+            final notifikasiData = NotifikasiModel(
+              id: const Uuid().v4(),
+              tanggalMulai: sekarang,
+              tanggalBerakhir: sekarang,
+              tanggalTampil: sekarang,
+              judul: 'Order Paket',
+              deskripsi: 'pelanggan ${dataPelanggan?.nama} melakukan order',
+              tipe: TipeNotifikasiEnum.order,
+              diperbaruiPada: sekarang,
+              idTujuan: idOrder,
+              userId: widget.idPelanggan,
+            );
 
-          ref.read(notifikasiOpFirebaseProvider).addNotifikasi(notifikasiData);
-          Log.info(
-            'berhasil membuat order baru untuk id pelanggan: ${widget.idPelanggan}',
-          );
+            await ref
+                .read(notifikasiOpFirebaseProvider)
+                .addNotifikasi(notifikasiData);
+            Log.info(
+              'berhasil membuat order baru untuk id pelanggan: ${widget.idPelanggan}',
+            );
 
-          await ref.read(orderOpFirebaseProvider).addOrder(dataPesanan);
-          Log.info('berhasil membuat notifikasi untuk paket');
-          if (!mounted) return;
-          ref.invalidate(pointsPageDataProvider);
-          ref.invalidate(pointsHistoryProvider);
-          ref.invalidate(orderProvider);
+            await ref.read(orderOpFirebaseProvider).addOrder(dataPesanan);
+            Log.info('berhasil membuat notifikasi untuk paket');
+            if (!mounted) return;
+            ref.invalidate(pointsPageDataProvider);
+            ref.invalidate(pointsHistoryProvider);
+            ref.invalidate(orderProvider);
 
-          if (!mounted) return;
-          ToastUtil.success(
-            context,
-            'Order sudah terkirim menunggu konfirmasi Admin',
-          );
-        } on Exception catch (e, st) {
-          Log.error('Gagal menukar poin: $e', e: e, s: st);
-          if (!mounted) return;
-          ToastUtil.error(context, 'Terjadi kesalahan saat menukar poin.');
+            if (context.mounted)
+              ToastUtil.success(
+                context,
+                'Order sudah terkirim menunggu konfirmasi Admin',
+              );
+          } on Exception catch (e, st) {
+            Log.error('Gagal menukar poin: $e', e: e, s: st);
+            if (!mounted) return;
+            ToastUtil.error(context, 'Terjadi kesalahan saat menukar poin.');
+          }
         }
-      }
     } finally {
       setState(() => _sedangTukarPoin = false);
     }
@@ -277,7 +278,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
                     ElevatedButton(
                       onPressed: _sedangTukarPoin
                           ? null
-                          : () => _tukarPoin(context, ref, hadiah, totalPoin),
+                          : () => _tukarPoin(ref, hadiah, totalPoin),
                       child: _sedangTukarPoin
                           ? const CircularProgressIndicator()
                           : const Text('Tukar'),
