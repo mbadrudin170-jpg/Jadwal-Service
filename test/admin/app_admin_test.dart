@@ -201,7 +201,7 @@ void main() {
       (tester) async {
         final container = makeProviderContainer(
           sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
-          themeValue: AsyncValue.data(ThemeMode.light),
+          themeValue: const AsyncValue.data(ThemeMode.light),
         );
         await tester.pumpWidget(createWidget(container));
         expect(find.byType(AppInitializer), findsOneWidget);
@@ -237,7 +237,7 @@ void main() {
 
       final container = makeProviderContainer(
         sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
-        themeValue: AsyncValue.data(ThemeMode.light),
+        themeValue: const AsyncValue.data(ThemeMode.light),
       );
 
       await tester.pumpWidget(
@@ -267,7 +267,7 @@ void main() {
 
       final container = makeProviderContainer(
         sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
-        themeValue: AsyncValue.data(ThemeMode.light),
+        themeValue: const AsyncValue.data(ThemeMode.light),
       );
 
       await tester.pumpWidget(
@@ -300,7 +300,7 @@ void main() {
 
       final container = makeProviderContainer(
         sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
-        themeValue: AsyncValue.data(ThemeMode.light),
+        themeValue: const AsyncValue.data(ThemeMode.light),
       );
 
       await tester.pumpWidget(
@@ -325,7 +325,7 @@ void main() {
 
       final container = makeProviderContainer(
         sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
-        themeValue: AsyncValue.data(ThemeMode.light),
+        themeValue: const AsyncValue.data(ThemeMode.light),
       );
 
       await tester.pumpWidget(
@@ -351,7 +351,7 @@ void main() {
 
       final container = makeProviderContainer(
         sharedPrefsValue: AsyncValue.data(mockSharedPreferences),
-        themeValue: AsyncValue.data(ThemeMode.light),
+        themeValue: const AsyncValue.data(ThemeMode.light),
       );
 
       await tester.pumpWidget(
@@ -403,7 +403,7 @@ void main() {
       '03. harus merender MaterialApp dengan tema yang benar saat data tersedia',
       (tester) async {
         final container = makeProviderContainer(
-          themeValue: AsyncValue.data(ThemeMode.dark),
+          themeValue: const AsyncValue.data(ThemeMode.dark),
         );
         await tester.pumpWidget(
           UncontrolledProviderScope(
@@ -425,7 +425,7 @@ void main() {
       tester,
     ) async {
       final container = makeProviderContainer(
-        themeValue: AsyncValue.data(ThemeMode.light),
+        themeValue: const AsyncValue.data(ThemeMode.light),
       );
       await tester.pumpWidget(
         UncontrolledProviderScope(

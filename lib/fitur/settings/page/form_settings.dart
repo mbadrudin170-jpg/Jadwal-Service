@@ -1,5 +1,7 @@
 // path: lib/fitur/settings/page/form_settings.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
@@ -79,7 +81,7 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
         final hasConnection = await internetConnectionService.cekKoneksiLokal();
         if (hasConnection) {
           final syncCheckService = ref.read(layananCekSinkronisasiProvider);
-          syncCheckService.jalankanCekSinkronisasi();
+          unawaited(syncCheckService.jalankanCekSinkronisasi());
           if (mounted) {
             ToastUtil.success(
                 context, 'Pengaturan berhasil disimpan dan disinkronkan.');

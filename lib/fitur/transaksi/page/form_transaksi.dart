@@ -12,10 +12,10 @@ import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
-import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -287,7 +287,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
             .cekKoneksiLokal();
         if (isOnline) {
           final layananekSikronisasi = ref.read(layananCekSinkronisasiProvider);
-          layananekSikronisasi.jalankanCekSinkronisasi();
+          unawaited(layananekSikronisasi.jalankanCekSinkronisasi());
           if (mounted) {
             ToastUtil.success(
               context,

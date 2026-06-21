@@ -119,7 +119,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         final layananAktivitasUser = await ref.read(
           layananAktivitasUserProvider.future,
         );
-        layananAktivitasUser.pingAktivitas(pelanggan.id, paksa: true);
+        unawaited(layananAktivitasUser.pingAktivitas(pelanggan.id, paksa: true));
       } catch (e, s) {
         Log.error('Gagal ping activity', e: e, s: s);
       }

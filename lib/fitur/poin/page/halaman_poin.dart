@@ -73,18 +73,13 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     }
   }
 
-  Future<void> _tukarPoin(
-    WidgetRef ref, // removed BuildContext context
-    PaketModel hadiah,
-    int poinSaatIni,
-  ) async {
+  Future<void> _tukarPoin(PaketModel hadiah, int poinSaatIni) async {
     if (_sedangTukarPoin) return;
     setState(() => _sedangTukarPoin = true);
     try {
       final role = ref.read(appRoleProvider);
       if (role == AppRole.admin) {
         Log.warning('Admin mencoba menukar poin, operasi diblokir.');
-        if (!mounted) return; // guard for this.context
         ToastUtil.error(
           context,
           'Admin tidak dapat menukar poin dari antarmuka ini.',
@@ -103,16 +98,14 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
       final bool poinCukup = poinSaatIni >= hadiah.poinPenukaran;
       if (!poinCukup) {
-        if (!mounted) return;
         ToastUtil.warning(
           context,
           'Poin Anda tidak mencukupi untuk menukar hadiah ini.',
         );
         return;
       }
-
       final bool? dikonfirmasi = await showDialog<bool>(
-        context: context, // use this.context
+        context: context,
         builder: (dialogContext) => AlertDialog(
           title: const Text('Konfirmasi Penukaran'),
           content: Text('Anda yakin ingin menukar poin dengan ${hadiah.nama}?'),
@@ -129,8 +122,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         ),
       );
 
-      if (!mounted) return; // guard after dialog
-
+      if (!mounted) return;
       if (dikonfirmasi ?? false) {
         Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
         try {
@@ -170,13 +162,11 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
           await ref.read(orderOpFirebaseProvider).addOrder(dataPesanan);
           Log.info('berhasil membuat notifikasi untuk paket');
-
           if (!mounted) return;
           ref.invalidate(pointsPageDataProvider);
           ref.invalidate(pointsHistoryProvider);
           ref.invalidate(orderProvider);
 
-          if (!mounted) return; // guard for this.context
           ToastUtil.success(
             context,
             'Order sudah terkirim menunggu konfirmasi Admin',
@@ -188,7 +178,9 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         }
       }
     } finally {
-      setState(() => _sedangTukarPoin = false);
+      if (mounted) {
+        setState(() => _sedangTukarPoin = false);
+      }
     }
   }
 
@@ -221,7 +213,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   @override
   Widget build(BuildContext context) {
     Log.info('Building PointsPage UI, selected menu: $_menuTerpilih');
-    // Tonton provider data utama.
     final dataAsync = ref.watch(pointsPageDataProvider(widget.idPelanggan));
 
     return dataAsync.when(
@@ -284,7 +275,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
                     ElevatedButton(
                       onPressed: _sedangTukarPoin
                           ? null
-                          : () => _tukarPoin(ref, hadiah, totalPoin),
+                          : () => _tukarPoin(hadiah, totalPoin),
                       child: _sedangTukarPoin
                           ? const CircularProgressIndicator()
                           : const Text('Tukar'),

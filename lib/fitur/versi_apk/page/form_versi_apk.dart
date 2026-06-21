@@ -7,9 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/fitur/versi_apk/operasi/versi_apk_op_sqlite.dart';
-import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -153,11 +153,11 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
   Future<void> _saveForm() async {
     final apkVersionOperasi = ref.read(versiApkOpSqliteProvider);
     if (!_formKey.currentState!.validate()) {
-      _scrollController.animateTo(
+      unawaited(_scrollController.animateTo(
         0.0,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
-      );
+      ));
       return;
     }
 
@@ -166,7 +166,7 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
       FocusScope.of(context).unfocus();
       final konfirmasi = await showDialog<bool>(
         context: context,
-        builder: (final context) => AlertDialog(
+        builder: (context) => AlertDialog(
           title: Row(
             children: [
               Icon(TIcons.infoOutlined, color: context.colorScheme.primary),
@@ -241,7 +241,9 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
         final internetService = ref.read(koneksiInternetServiceProvider);
         final isonline = await internetService.cekKoneksiLokal();
         if (isonline) {
-          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
+          unawaited(
+            ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+          );
         } else {
           Log.info('Tidak ada koneksi internet, melewati proses sinkronisasi.');
           if (mounted) {
@@ -363,12 +365,12 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
                       prefixIcon: Icon(TIcons.youtube, color: Colors.red),
                       border: OutlineInputBorder(),
                     ),
-                    onFieldSubmitted: (final _) => _saveForm(),
+                    onFieldSubmitted: (_) => _saveForm(),
                   ),
                   SwitchListTile(
                     title: const Text('Wajib Update'),
                     value: _perluUpdate,
-                    onChanged: (final bool value) {
+                    onChanged: (bool value) {
                       Log.info('Switch Wajib Update diubah ke: $value');
                       setState(() => _perluUpdate = value);
                     },

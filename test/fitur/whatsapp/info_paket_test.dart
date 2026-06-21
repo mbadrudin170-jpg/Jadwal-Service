@@ -71,7 +71,7 @@ void main() {
     status: StatusPembayaran.paid,
   );
 
-  final pelanggan = PelangganModel(
+  final pelanggan = const PelangganModel(
     id: 'c1',
     nama: 'John Doe',
     telepon: '081234567890',
@@ -80,7 +80,7 @@ void main() {
     macAddress: 'AA:BB:CC:DD:EE:FF',
   );
 
-  final paket = PaketModel(
+  final paket = const PaketModel(
     id: 'p1',
     nama: 'Paket Kencang',
     harga: 100000,

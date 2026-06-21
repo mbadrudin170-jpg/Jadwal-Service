@@ -5,7 +5,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
 import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan_u.dart';
 import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
@@ -13,9 +15,7 @@ import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -286,6 +286,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Future<void> _navigasiKeDetail(String userId) async {
     await ref.read(interstitialAdServiceProvider).show();
     try {
+      if (!mounted) return;
       await Navigator.push<bool>(
         context,
         MaterialPageRoute<bool>(
@@ -302,6 +303,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Future<void> _navigasiKePoin(String idPelanggan) async {
     await ref.read(interstitialAdServiceProvider).show();
     try {
+      if (!mounted) return;
+
       await Navigator.push<void>(
         context,
         MaterialPageRoute<bool>(

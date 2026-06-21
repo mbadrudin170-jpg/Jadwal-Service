@@ -111,15 +111,18 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
       Log.info('Aksi dipilih: $aksiDipilih');
 
       if (aksiDipilih == 'edit') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => FormTransaksi(transaksi: transaksi),
+        if (!mounted) return;
+        unawaited(
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FormTransaksi(transaksi: transaksi),
+            ),
           ),
         );
       } else if (aksiDipilih == 'hapus') {
         // Panggil fungsi hapus
-        _dialogKonfirmasiSoftDelete(transaksi);
+        unawaited(_dialogKonfirmasiSoftDelete(transaksi));
       }
     }
   }
@@ -193,7 +196,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
                 });
                 Future.microtask(() => _cariFocusNode.requestFocus());
               },
-              icon: Icon(TIcons.search),
+              icon: const Icon(TIcons.search),
             ),
           if (_kataKunciCari.isEmpty)
             IconButton(
@@ -230,7 +233,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
               if (index == itemsTampil.length) {
                 return const Center(
                   child: Padding(
-                    padding: EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(8.0),
                     child: CircularProgressIndicator(),
                   ),
                 );

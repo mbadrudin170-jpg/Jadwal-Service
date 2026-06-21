@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
+import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/fitur/versi_apk/service/update_service.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
-import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
-import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -151,15 +151,18 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
     final userId = await ref.watch(userIdProvider.future);
     if (userId != null) {
       Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
+      if (!mounted) return;
       unawaited(
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const MainPage()),
         ),
       );
     } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: ((context) => const LoginPage())),
-      );
+      if (!mounted) return;
+
+      unawaited(Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: ((_) => const LoginPage())),
+      ));
     }
   }
 

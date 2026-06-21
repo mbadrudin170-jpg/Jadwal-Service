@@ -65,81 +65,83 @@ class UjiKecepatan extends _$UjiKecepatan {
     }
 
     // Mulai pengujian (tanpa await)
-    _alatUji!.startTesting(
-      onStarted: () {
-        state = state.copyWith(statusPesan: 'Memulai pengujian...');
-      },
-      onDefaultServerSelectionInProgress: () {
-        state = state.copyWith(statusPesan: 'Mencari server terbaik...');
-      },
-      onDefaultServerSelectionDone: (klien) {
-        state = state.copyWith(
-          statusPesan: 'Server terhubung: ${klien?.isp ?? "Otomatis"}',
-        );
-      },
-      onProgress: (persentase, dataUji) {
-        double kecepatanDalamMbps = dataUji.transferRate;
-        if (dataUji.unit == SpeedUnit.kbps) kecepatanDalamMbps /= 1000;
-
-        if (dataUji.type == TestType.download) {
+    unawaited(
+      _alatUji!.startTesting(
+        onStarted: () {
+          state = state.copyWith(statusPesan: 'Memulai pengujian...');
+        },
+        onDefaultServerSelectionInProgress: () {
+          state = state.copyWith(statusPesan: 'Mencari server terbaik...');
+        },
+        onDefaultServerSelectionDone: (klien) {
           state = state.copyWith(
-            kecepatanUnduh: kecepatanDalamMbps,
-            statusPesan: 'Menguji unduh: ${persentase.toStringAsFixed(0)}%',
+            statusPesan: 'Server terhubung: ${klien?.isp ?? "Otomatis"}',
           );
-        } else {
+        },
+        onProgress: (persentase, dataUji) {
+          double kecepatanDalamMbps = dataUji.transferRate;
+          if (dataUji.unit == SpeedUnit.kbps) kecepatanDalamMbps /= 1000;
+
+          if (dataUji.type == TestType.download) {
+            state = state.copyWith(
+              kecepatanUnduh: kecepatanDalamMbps,
+              statusPesan: 'Menguji unduh: ${persentase.toStringAsFixed(0)}%',
+            );
+          } else {
+            state = state.copyWith(
+              kecepatanUnggah: kecepatanDalamMbps,
+              statusPesan: 'Menguji unggah: ${persentase.toStringAsFixed(0)}%',
+            );
+          }
+        },
+        onCompleted: (unduh, unggah) {
+          _timer?.cancel(); // Batalkan timer
+          if (_isFinished) return;
+          _isFinished = true;
+
+          double hasilUnduhDalamMbps = unduh.transferRate;
+          if (unduh.unit == SpeedUnit.kbps) hasilUnduhDalamMbps /= 1000;
+
+          double hasilUnggahDalamMbps = unggah.transferRate;
+          if (unggah.unit == SpeedUnit.kbps) hasilUnggahDalamMbps /= 1000;
+
           state = state.copyWith(
-            kecepatanUnggah: kecepatanDalamMbps,
-            statusPesan: 'Menguji unggah: ${persentase.toStringAsFixed(0)}%',
+            kecepatanUnduh: hasilUnduhDalamMbps,
+            kecepatanUnggah: hasilUnggahDalamMbps,
+            sedangMenguji: false,
+            statusPesan: 'Pengujian selesai',
           );
-        }
-      },
-      onCompleted: (unduh, unggah) {
-        _timer?.cancel(); // Batalkan timer
-        if (_isFinished) return;
-        _isFinished = true;
 
-        double hasilUnduhDalamMbps = unduh.transferRate;
-        if (unduh.unit == SpeedUnit.kbps) hasilUnduhDalamMbps /= 1000;
-
-        double hasilUnggahDalamMbps = unggah.transferRate;
-        if (unggah.unit == SpeedUnit.kbps) hasilUnggahDalamMbps /= 1000;
-
-        state = state.copyWith(
-          kecepatanUnduh: hasilUnduhDalamMbps,
-          kecepatanUnggah: hasilUnggahDalamMbps,
-          sedangMenguji: false,
-          statusPesan: 'Pengujian selesai',
-        );
-
-        if (context.mounted) {
-          ToastUtil.success(context, 'Uji kecepatan berhasil diselesaikan');
-        }
-      },
-      onCancel: () {
-        _timer?.cancel();
-        if (_isFinished) return;
-        _isFinished = true;
-        state = state.copyWith(
-          sedangMenguji: false,
-          statusPesan: 'Pengujian dibatalkan',
-        );
-        if (context.mounted) {
-          ToastUtil.info(context, 'Pengujian dibatalkan');
-        }
-      },
-      onError: (e, s) {
-        _timer?.cancel(); // Batalkan timer
-        if (_isFinished) return;
-        _isFinished = true;
-        state = state.copyWith(
-          sedangMenguji: false,
-          statusPesan: 'Gagal melakukan pengujian',
-        );
-        Log.error('Gagal saat melakukan uji kecepatan: $e (Kode: $s)');
-        if (context.mounted) {
-          ToastUtil.error(context, 'Gagal melakukan uji kecepatan: $e');
-        }
-      },
+          if (context.mounted) {
+            ToastUtil.success(context, 'Uji kecepatan berhasil diselesaikan');
+          }
+        },
+        onCancel: () {
+          _timer?.cancel();
+          if (_isFinished) return;
+          _isFinished = true;
+          state = state.copyWith(
+            sedangMenguji: false,
+            statusPesan: 'Pengujian dibatalkan',
+          );
+          if (context.mounted) {
+            ToastUtil.info(context, 'Pengujian dibatalkan');
+          }
+        },
+        onError: (e, s) {
+          _timer?.cancel(); // Batalkan timer
+          if (_isFinished) return;
+          _isFinished = true;
+          state = state.copyWith(
+            sedangMenguji: false,
+            statusPesan: 'Gagal melakukan pengujian',
+          );
+          Log.error('Gagal saat melakukan uji kecepatan: $e (Kode: $s)');
+          if (context.mounted) {
+            ToastUtil.error(context, 'Gagal melakukan uji kecepatan: $e');
+          }
+        },
+      ),
     );
 
     // Perbaikan: Durasi timeout diubah ke 30 detik agar tes tidak mati di tengah jalan

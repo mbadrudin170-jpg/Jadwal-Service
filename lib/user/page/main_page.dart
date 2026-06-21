@@ -1,5 +1,7 @@
 // path: lib/user/page/main_page.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,7 +40,7 @@ class _MainPageState extends ConsumerState<MainPage> {
       final userId = await ref.read(userIdProvider.future);
       if (userId != null) {
         final notifikasiServis = ref.read(layananNotifikasiProvider);
-        PenjadwalNotifikasi.aturNotifikasiLangganan(notifikasiServis, userId);
+        unawaited(PenjadwalNotifikasi.aturNotifikasiLangganan(notifikasiServis, userId));
 
         final layananAktivitasUser = await ref.read(
           layananAktivitasUserProvider.future,
