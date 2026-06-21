@@ -74,7 +74,7 @@ void main() {
       tipe: TipeDurasiPaket.months,
     );
 
-    test('01. should return DetailLanggananState when all data is available',
+    test('01. harus mengembalikan DetailLanggananState ketika semua data tersedia',
         () async {
       when(mockTransaksiOpSqlite.ambilBerdasarkanId(idTransaksi))
           .thenAnswer((_) async => transaksi);
@@ -86,26 +86,23 @@ void main() {
       final result = await container.read(ambilDetailLanggananProvider(idTransaksi).future);
 
       expect(result, isA<DetailLanggananState>());
-      expect(result!.transaction, transaksi);
-      expect(result.customer, pelanggan);
-      expect(result.package, paket);
+      expect(result!.transaksi, transaksi);
+      expect(result.pelanggan, pelanggan);
+      expect(result.paket, paket);
     });
 
-    test('02. should return null when transaction is not found', () async {
+    test('02. harus mengembalikan null ketika transaksi tidak ditemukan', () async {
       when(mockTransaksiOpSqlite.ambilBerdasarkanId(idTransaksi))
           .thenAnswer((_) async => null);
 
-      try {
-        await container.read(ambilDetailLanggananProvider(idTransaksi).future);
-      } catch (e) {
-        expect(e, isA<Exception>());
-      }
+      final result = await container.read(ambilDetailLanggananProvider(idTransaksi).future);
+      expect(result, isNull);
 
       verifyNever(mockPelangganOpSqlite.ambilBerdasarkanId(any));
       verifyNever(mockPaketOpSqlite.ambilBerdasarkanId(any));
     });
 
-    test('03. should return state with null customer and package when ids are null',
+    test('03. harus mengembalikan state dengan pelanggan dan paket null ketika id-nya null',
         () async {
       final transaksiTanpaRelasi = transaksi.copyWith(idPelanggan: null, idPaket: null);
       when(mockTransaksiOpSqlite.ambilBerdasarkanId(idTransaksi))
@@ -114,9 +111,9 @@ void main() {
       final result = await container.read(ambilDetailLanggananProvider(idTransaksi).future);
 
       expect(result, isA<DetailLanggananState>());
-      expect(result!.transaction, transaksiTanpaRelasi);
-      expect(result.customer, isNull);
-      expect(result.package, isNull);
+      expect(result!.transaksi, transaksiTanpaRelasi);
+      expect(result.pelanggan, isNull);
+      expect(result.paket, isNull);
 
       verifyNever(mockPelangganOpSqlite.ambilBerdasarkanId(any));
       verifyNever(mockPaketOpSqlite.ambilBerdasarkanId(any));
