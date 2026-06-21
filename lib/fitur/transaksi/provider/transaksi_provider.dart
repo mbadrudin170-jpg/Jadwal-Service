@@ -94,6 +94,6 @@ class Transaksi extends _$Transaksi {
 
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() => _loadData());
+    state = await AsyncValue.guard(_loadData);
   }
 }

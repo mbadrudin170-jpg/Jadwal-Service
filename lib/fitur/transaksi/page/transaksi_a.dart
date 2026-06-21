@@ -1,7 +1,5 @@
 // path: lib/fitur/transaksi/page/transaksi_a.dart
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
@@ -36,7 +34,7 @@ class TransaksiA extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Log.info('FAB tambah transaksi ditekan.');
-          unawaited(_naviagasiKeForm(context));
+          _naviagasiKeForm(context);
         },
         child: const Icon(TIcons.add),
       ),

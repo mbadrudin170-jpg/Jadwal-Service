@@ -40,7 +40,7 @@ class SettingsPageU extends ConsumerWidget {
                     },
                   ),
                   loading: () => const SizedBox.shrink(),
-                  error: (_, __) => const Icon(TIcons.error),
+                  error: (_, _) => const Icon(TIcons.error),
                 );
               },
             ),

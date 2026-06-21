@@ -195,7 +195,6 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                   controller: _teleponController,
                   focusNode: _teleponFocusNode,
                   nextFocusNode: _alamatFocusNode,
-                  textInputAction: TextInputAction.next,
                 ),
                 gapH16,
                 InputTeks(

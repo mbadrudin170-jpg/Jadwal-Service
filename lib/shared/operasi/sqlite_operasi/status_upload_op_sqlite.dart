@@ -23,7 +23,7 @@ class StatusUploadOpSqlite {
 
   /// Konstruktor untuk `UploadStatusOperation`.
   StatusUploadOpSqlite({@visibleForTesting SqliteDatabase? sqliteDb})
-      : _sqliteDb = sqliteDb ?? SqliteDatabase.instance {
+    : _sqliteDb = sqliteDb ?? SqliteDatabase.instance {
     Log.info('UploadStatusOperation instance dibuat.');
   }
 
@@ -36,7 +36,6 @@ class StatusUploadOpSqlite {
     try {
       final db = transaction ?? await _sqliteDb.database;
       final data = StatusUnggahModel(
-        id: idNeedUpload,
         butuhUnggah: needUpload,
         diperbaruiPada: DateTime.now().toUtc(),
       );
@@ -64,8 +63,9 @@ class StatusUploadOpSqlite {
         whereArgs: [idNeedUpload],
       );
       if (query.isNotEmpty) {
-        final needUpload =
-            StatusUnggahModel.fromSqlite(query.first).butuhUnggah;
+        final needUpload = StatusUnggahModel.fromSqlite(
+          query.first,
+        ).butuhUnggah;
         Log.info('getNeedUpload berhasil: needUpload=$needUpload');
         return needUpload;
       }
@@ -102,7 +102,8 @@ class StatusUploadOpSqlite {
       if (query.isNotEmpty) {
         final data = StatusUnggahModel.fromSqlite(query.first);
         Log.info(
-            'getUploadStatusModel berhasil: needUpload=${data.butuhUnggah}');
+          'getUploadStatusModel berhasil: needUpload=${data.butuhUnggah}',
+        );
         return data;
       }
       Log.info('getUploadStatusModel: tidak ada data, mengembalikan null');

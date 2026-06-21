@@ -132,7 +132,7 @@ class _PelangganState extends ConsumerState<Pelanggan> {
         child: _buildContent(),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _naviagsiKeForm(),
+        onPressed: _naviagsiKeForm,
         tooltip: 'Tambah Pelanggan',
         child: const Icon(TIcons.add),
       ),
@@ -177,7 +177,7 @@ class _PelangganState extends ConsumerState<Pelanggan> {
         IconButton(
           icon: const Icon(TIcons.sort),
           tooltip: 'Urutkan',
-          onPressed: () => _dialogSort(),
+          onPressed: _dialogSort,
         ),
       ],
     );

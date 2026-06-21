@@ -26,11 +26,11 @@ class LayananCekSinkronisasi {
     required LayananUnduhData layananUnduh,
     required LayananPengecekanDataBaru pengecekanDataBaru,
     required FirebaseFirestore firestore,
-  })  : _pengelolaSinkronisasi = pengelolaSinkronisasi,
-        _layananUnggah = layananUnggah,
-        _layananUnduh = layananUnduh,
-        _pengecekanDataBaru = pengecekanDataBaru,
-        _firestore = firestore {
+  }) : _pengelolaSinkronisasi = pengelolaSinkronisasi,
+       _layananUnggah = layananUnggah,
+       _layananUnduh = layananUnduh,
+       _pengecekanDataBaru = pengecekanDataBaru,
+       _firestore = firestore {
     Log.info('SyncCheckService diinisialisasi dengan dependency injection.');
   }
 
@@ -53,8 +53,8 @@ class LayananCekSinkronisasi {
   Future<bool> _periksaDanJalankanUnggah() async {
     final DateTime sekarang = DateTime.now();
     try {
-      final bool adaDataUntukUnggah =
-          await _pengecekanDataBaru.apakahSqliteAdaDataBaru();
+      final bool adaDataUntukUnggah = await _pengecekanDataBaru
+          .apakahSqliteAdaDataBaru();
 
       if (adaDataUntukUnggah) {
         await _layananUnggah.unggahSemuaData();
@@ -78,8 +78,8 @@ class LayananCekSinkronisasi {
           .collection(NamaTabel.statusGlobal)
           .doc(globalStatusId)
           .set({
-        NamaKolom.diperbaruiPada: FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+            NamaKolom.diperbaruiPada: FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
       Log.info('Dokumen ${NamaTabel.statusGlobal}/global berhasil diperbarui.');
     } catch (e, s) {
       Log.error(
@@ -92,11 +92,11 @@ class LayananCekSinkronisasi {
 
   Future<void> _periksaDanJalankanUnduh() async {
     try {
-      final bool adaDataBaruDiServer =
-          await _pengecekanDataBaru.apakahFirebaseAdaDataBaru(
-        namaKoleksi: NamaTabel.statusGlobal,
-        idDokumen: globalStatusId,
-      );
+      final bool adaDataBaruDiServer = await _pengecekanDataBaru
+          .apakahFirebaseAdaDataBaru(
+            namaKoleksi: NamaTabel.statusGlobal,
+            idDokumen: globalStatusId,
+          );
 
       if (adaDataBaruDiServer) {
         await _layananUnduh.unduhSemuaData();
@@ -117,7 +117,7 @@ class LayananCekSinkronisasi {
 // ============================================================
 final layananCekSinkronisasiProvider = Provider<LayananCekSinkronisasi>((ref) {
   return LayananCekSinkronisasi(
-    pengelolaSinkronisasi: ref.read(PengelolaSinkronisasiProvider),
+    pengelolaSinkronisasi: ref.read(pengelolaSinkronisasiProvider),
     layananUnggah: ref.read(layananUnggahDataProvider), // harus sudah ada
     layananUnduh: ref.read(layananUnduhDataProvider), // sudah ada
     pengecekanDataBaru: ref.read(

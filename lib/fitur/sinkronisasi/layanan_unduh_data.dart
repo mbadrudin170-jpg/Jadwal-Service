@@ -52,19 +52,19 @@ class LayananUnduhData {
     required VersiApkOpSqlite operasiVersiApk,
     required SettingsOpSqlite operasiPengaturan,
     required PengelolaSinkronisasi pengelolaSinkronisasi,
-  })  : _pengelolaSinkronisasi = pengelolaSinkronisasi,
-        _firestore = firestore,
-        _operasiDompet = operasiDompet,
-        _operasiKategori = operasiKategori,
-        _operasiPaket = operasiPaket,
-        _operasiPelanggan = operasiPelanggan,
-        _operasiPelangganAktif = operasiPelangganAktif,
-        _operasiTransaksi = operasiTransaksi,
-        _operasiUmpanBalik = operasiUmpanBalik,
-        _operasiPesanan = operasiPesanan,
-        _operasiSubKategori = operasiSubKategori,
-        _operasiVersiApk = operasiVersiApk,
-        _operasiPengaturan = operasiPengaturan {
+  }) : _pengelolaSinkronisasi = pengelolaSinkronisasi,
+       _firestore = firestore,
+       _operasiDompet = operasiDompet,
+       _operasiKategori = operasiKategori,
+       _operasiPaket = operasiPaket,
+       _operasiPelanggan = operasiPelanggan,
+       _operasiPelangganAktif = operasiPelangganAktif,
+       _operasiTransaksi = operasiTransaksi,
+       _operasiUmpanBalik = operasiUmpanBalik,
+       _operasiPesanan = operasiPesanan,
+       _operasiSubKategori = operasiSubKategori,
+       _operasiVersiApk = operasiVersiApk,
+       _operasiPengaturan = operasiPengaturan {
     Log.info('LayananUnduhData diinisialisasi dengan dependency injection.');
   }
 
@@ -82,19 +82,19 @@ class LayananUnduhData {
     required final SubKategoriOpSqlite operasiSubKategori,
     required final VersiApkOpSqlite operasiVersiApk,
     required final SettingsOpSqlite operasiPengaturan,
-  })  : _firestore = firestore,
-        _pengelolaSinkronisasi = syncManager,
-        _operasiDompet = operasiDompet,
-        _operasiKategori = operasiKategori,
-        _operasiPaket = operasiPaket,
-        _operasiPelanggan = operasiPelanggan,
-        _operasiPelangganAktif = operasiPelangganAktif,
-        _operasiTransaksi = operasiTransaksi,
-        _operasiUmpanBalik = operasiUmpanBalik,
-        _operasiPesanan = operasiPesanan,
-        _operasiSubKategori = operasiSubKategori,
-        _operasiVersiApk = operasiVersiApk,
-        _operasiPengaturan = operasiPengaturan {
+  }) : _firestore = firestore,
+       _pengelolaSinkronisasi = syncManager,
+       _operasiDompet = operasiDompet,
+       _operasiKategori = operasiKategori,
+       _operasiPaket = operasiPaket,
+       _operasiPelanggan = operasiPelanggan,
+       _operasiPelangganAktif = operasiPelangganAktif,
+       _operasiTransaksi = operasiTransaksi,
+       _operasiUmpanBalik = operasiUmpanBalik,
+       _operasiPesanan = operasiPesanan,
+       _operasiSubKategori = operasiSubKategori,
+       _operasiVersiApk = operasiVersiApk,
+       _operasiPengaturan = operasiPengaturan {
     Log.info('LayananUnduhData berhasil diinisialisasi untuk pengujian.');
   }
 
@@ -122,11 +122,7 @@ class LayananUnduhData {
         'Prosedur unduh data massal selesai sepenuhnya. Total durasi: ${stopwatch.elapsed.inMilliseconds} ms.',
       );
     } catch (e, s) {
-      Log.error(
-        'Kegagalan kritis selama prosedur unduh massal.',
-        e: e,
-        s: s,
-      );
+      Log.error('Kegagalan kritis selama prosedur unduh massal.', e: e, s: s);
       rethrow;
     }
   }
@@ -135,8 +131,8 @@ class LayananUnduhData {
   Future<void> unduhDataPengaturan() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PENGATURAN]');
     try {
-      final lastDownloadTime =
-          await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
+      final lastDownloadTime = await _pengelolaSinkronisasi
+          .ambilWaktuTerakhirUnduh();
       const namaKoleksi = NamaTabel.settings;
       final docRef = _firestore.collection(namaKoleksi).doc(idGlobalSetting);
       final doc = await docRef.get(const GetOptions(source: Source.server));
@@ -149,7 +145,8 @@ class LayananUnduhData {
 
           if (fieldValue is! Timestamp) {
             Log.error(
-                'Inkompatibilitas Tipe: Field "${NamaKolom.diperbaruiPada}" bukan Timestamp.');
+              'Inkompatibilitas Tipe: Field "${NamaKolom.diperbaruiPada}" bukan Timestamp.',
+            );
             return;
           }
 
@@ -168,7 +165,8 @@ class LayananUnduhData {
           }
         } else {
           Log.warning(
-              'Dokumen pengaturan tidak memiliki field "${NamaKolom.diperbaruiPada}".');
+            'Dokumen pengaturan tidak memiliki field "${NamaKolom.diperbaruiPada}".',
+          );
         }
       } else {
         Log.warning('Dokumen pengaturan tidak ditemukan di server.');
@@ -181,8 +179,8 @@ class LayananUnduhData {
 
   Future<void> unduhDataDompet() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [DOMPET]');
-    final lastDownloadTime =
-        await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
+    final lastDownloadTime = await _pengelolaSinkronisasi
+        .ambilWaktuTerakhirUnduh();
     await sinkronkanKoleksi<DompetModel>(
       namaKoleksi: NamaTabel.dompet,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -194,8 +192,8 @@ class LayananUnduhData {
 
   Future<void> unduhDataKategori() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [KATEGORI]');
-    final lastDownloadTime =
-        await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
+    final lastDownloadTime = await _pengelolaSinkronisasi
+        .ambilWaktuTerakhirUnduh();
     await sinkronkanKoleksi<KategoriModel>(
       namaKoleksi: NamaTabel.kategori,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -207,8 +205,8 @@ class LayananUnduhData {
 
   Future<void> unduhDataPaket() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PAKET]');
-    final lastDownloadTime =
-        await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
+    final lastDownloadTime = await _pengelolaSinkronisasi
+        .ambilWaktuTerakhirUnduh();
     await sinkronkanKoleksi<PaketModel>(
       namaKoleksi: NamaTabel.paket,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -220,8 +218,8 @@ class LayananUnduhData {
 
   Future<void> unduhDataPelanggan() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PELANGGAN]');
-    final lastDownloadTime =
-        await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
+    final lastDownloadTime = await _pengelolaSinkronisasi
+        .ambilWaktuTerakhirUnduh();
     await sinkronkanKoleksi<PelangganModel>(
       namaKoleksi: NamaTabel.pelanggan,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -233,8 +231,8 @@ class LayananUnduhData {
 
   Future<void> unduhDataPelangganAktif() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PELANGGAN AKTIF]');
-    final lastDownloadTime =
-        await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
+    final lastDownloadTime = await _pengelolaSinkronisasi
+        .ambilWaktuTerakhirUnduh();
     await sinkronkanKoleksi<PelangganAktifModel>(
       namaKoleksi: NamaTabel.pelangganAktif,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -246,8 +244,8 @@ class LayananUnduhData {
 
   Future<void> unduhDataTransaksi() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [TRANSAKSI]');
-    final lastDownloadTime =
-        await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
+    final lastDownloadTime = await _pengelolaSinkronisasi
+        .ambilWaktuTerakhirUnduh();
     await sinkronkanKoleksi<TransaksiModel>(
       namaKoleksi: NamaTabel.transaksi,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -259,8 +257,8 @@ class LayananUnduhData {
 
   Future<void> unduhDataUmpanBalik() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [UMPAN BALIK]');
-    final lastDownloadTime =
-        await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
+    final lastDownloadTime = await _pengelolaSinkronisasi
+        .ambilWaktuTerakhirUnduh();
     await sinkronkanKoleksi<FeedbackModel>(
       namaKoleksi: NamaTabel.feedback,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -272,8 +270,8 @@ class LayananUnduhData {
 
   Future<void> unduhDataPesanan() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PESANAN]');
-    final lastDownloadTime =
-        await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
+    final lastDownloadTime = await _pengelolaSinkronisasi
+        .ambilWaktuTerakhirUnduh();
     await sinkronkanKoleksi<OrderModel>(
       namaKoleksi: NamaTabel.pesananPelanggan,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -285,8 +283,8 @@ class LayananUnduhData {
 
   Future<void> unduhDataSubKategori() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [SUB KATEGORI]');
-    final lastDownloadTime =
-        await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
+    final lastDownloadTime = await _pengelolaSinkronisasi
+        .ambilWaktuTerakhirUnduh();
     await sinkronkanKoleksi<SubKategoriModel>(
       namaKoleksi: NamaTabel.subKategori,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -298,8 +296,8 @@ class LayananUnduhData {
 
   Future<void> unduhDataVersiApk() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [VERSI APK]');
-    final lastDownloadTime =
-        await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
+    final lastDownloadTime = await _pengelolaSinkronisasi
+        .ambilWaktuTerakhirUnduh();
     await sinkronkanKoleksi<VersiApkModel>(
       namaKoleksi: NamaTabel.versiApkUser,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -313,7 +311,7 @@ class LayananUnduhData {
     required final String namaKoleksi,
     required final DateTime waktuTerakhirUnduh,
     required final T Function(String id, Map<String, dynamic> data)
-        dariFirebase,
+    dariFirebase,
     required final Future<void> Function(List<T>) operasiBatch,
   }) async {
     Log.info(
@@ -345,7 +343,8 @@ class LayananUnduhData {
 
         if (daftarData.isNotEmpty) {
           Log.info(
-              'Mengirim ${daftarData.length} item ke operasi batch lokal.');
+            'Mengirim ${daftarData.length} item ke operasi batch lokal.',
+          );
           await operasiBatch(daftarData);
           Log.info('Sinkronisasi masuk untuk [$namaKoleksi] berhasil.');
         } else {
@@ -357,11 +356,7 @@ class LayananUnduhData {
         Log.info('Koleksi [$namaKoleksi] sudah sinkron.');
       }
     } on Exception catch (e, s) {
-      Log.error(
-        'Kegagalan sinkronisasi koleksi: $namaKoleksi',
-        e: e,
-        s: s,
-      );
+      Log.error('Kegagalan sinkronisasi koleksi: $namaKoleksi', e: e, s: s);
       rethrow;
     }
   }
@@ -370,7 +365,7 @@ class LayananUnduhData {
 final layananUnduhDataProvider = Provider<LayananUnduhData>((ref) {
   return LayananUnduhData(
     firestore: FirebaseFirestore.instance,
-    syncManager: ref.read(PengelolaSinkronisasiProvider),
+    syncManager: ref.read(pengelolaSinkronisasiProvider),
     operasiDompet: ref.read(dompetOpSqliteProvider),
     operasiKategori: ref.read(kategoriOpSqliteProvider),
     operasiPaket: ref.read(paketOpSqliteProvider),
@@ -382,6 +377,6 @@ final layananUnduhDataProvider = Provider<LayananUnduhData>((ref) {
     operasiSubKategori: ref.read(subKategoriOpSqliteProvider),
     operasiVersiApk: ref.read(versiApkOpSqliteProvider),
     operasiPengaturan: ref.read(settingsOpSqliteProvider),
-    pengelolaSinkronisasi: ref.read(PengelolaSinkronisasiProvider),
+    pengelolaSinkronisasi: ref.read(pengelolaSinkronisasiProvider),
   );
 });

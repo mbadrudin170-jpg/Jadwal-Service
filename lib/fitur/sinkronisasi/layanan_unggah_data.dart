@@ -30,9 +30,9 @@ class LayananUnggahData {
     required SqliteDatabase sqliteDb,
     required FirebaseFirestore firestore,
     required PengelolaSinkronisasi syncManager,
-  })  : _sqliteDb = sqliteDb,
-        _firestore = firestore,
-        _syncManager = syncManager {
+  }) : _sqliteDb = sqliteDb,
+       _firestore = firestore,
+       _syncManager = syncManager {
     Log.info('UploadDataService diinisialisasi dengan dependency injection.');
   }
 
@@ -82,12 +82,13 @@ class LayananUnggahData {
       Log.info('========================================');
     } on Exception catch (e, s) {
       Log.error(
-          'Gagal selama proses unggah massal ke Firestore. '
-          'Satu atau lebih fungsi unggah spesifik mengalami kegagalan. '
-          'Proses unggah tidak dapat diselesaikan sepenuhnya. '
-          'Error ini akan dilempar ulang ke service layer untuk penanganan lebih lanjut.',
-          e: e,
-          s: s);
+        'Gagal selama proses unggah massal ke Firestore. '
+        'Satu atau lebih fungsi unggah spesifik mengalami kegagalan. '
+        'Proses unggah tidak dapat diselesaikan sepenuhnya. '
+        'Error ini akan dilempar ulang ke service layer untuk penanganan lebih lanjut.',
+        e: e,
+        s: s,
+      );
       rethrow;
     }
   }
@@ -113,11 +114,12 @@ class LayananUnggahData {
       Log.info('Proses unggah data dompet selesai dengan sukses.');
     } catch (e, s) {
       Log.error(
-          'Gagal mengunggah data dompet. '
-          'Kemungkinan penyebab: gagal membaca data dari SQLite, '
-          'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
-          e: e,
-          s: s);
+        'Gagal mengunggah data dompet. '
+        'Kemungkinan penyebab: gagal membaca data dari SQLite, '
+        'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
+        e: e,
+        s: s,
+      );
       rethrow;
     }
   }
@@ -613,6 +615,6 @@ final layananUnggahDataProvider = Provider<LayananUnggahData>((ref) {
   return LayananUnggahData(
     sqliteDb: ref.read(sqliteDatabaseProvider),
     firestore: FirebaseFirestore.instance,
-    syncManager: ref.read(PengelolaSinkronisasiProvider),
+    syncManager: ref.read(pengelolaSinkronisasiProvider),
   );
 });

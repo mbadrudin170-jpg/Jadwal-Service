@@ -1,10 +1,7 @@
 // path lib/fitur/transaksi/page/riwayat_aktivasi_paket.dart
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
@@ -112,17 +109,15 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
 
       if (aksiDipilih == 'edit') {
         if (!mounted) return;
-        unawaited(
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FormTransaksi(transaksi: transaksi),
-            ),
+        await Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (context) => FormTransaksi(transaksi: transaksi),
           ),
         );
       } else if (aksiDipilih == 'hapus') {
         // Panggil fungsi hapus
-        unawaited(_dialogKonfirmasiSoftDelete(transaksi));
+        await _dialogKonfirmasiSoftDelete(transaksi);
       }
     }
   }
@@ -204,9 +199,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
               onPressed: () {
                 if (historyAsync.hasValue) {
                   Log.info('Membuka dialog pengurutan riwayat langganan.');
-                  unawaited(
-                    _showSortDialog(context, ref, historyAsync.value!.sortBy),
-                  );
+                  _showSortDialog(context, ref, historyAsync.value!.sortBy);
                 }
               },
               tooltip: 'Urutkan',
@@ -227,13 +220,12 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
           return ListView.builder(
             controller: _pengendaliScroll,
             itemCount:
-                itemsFiltered.length +
-                (_jumlahTampil < itemsFiltered.length ? 1 : 0),
+                itemsFiltered.length + (_jumlahTampil < itemsFiltered.length ? 1 : 0),
             itemBuilder: (context, index) {
               if (index == itemsTampil.length) {
                 return const Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: EdgeInsets.all(8.0),
                     child: CircularProgressIndicator(),
                   ),
                 );
@@ -242,8 +234,8 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
               final transaksi = item.transaksi;
               final warnaStatusPembayaran =
                   transaksi.statusPembayaran == StatusPembayaran.paid
-                  ? Colors.green
-                  : Colors.red;
+                      ? Colors.green
+                      : Colors.red;
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                 child: ListTile(

@@ -27,9 +27,7 @@ class SettingsAdminPage extends ConsumerWidget {
     Log.info('Navigasi ke halaman Form Edit Pengaturan');
     final hasil = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
-        builder: (context) => FormSettings(settings: settings),
-      ),
+      MaterialPageRoute(builder: (context) => FormSettings(settings: settings)),
     );
 
     if ((hasil ?? false) && context.mounted) {
@@ -39,7 +37,9 @@ class SettingsAdminPage extends ConsumerWidget {
   }
 
   Future<void> _resetWaktuSinkroniasi(
-      BuildContext context, WidgetRef ref) async {
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     Log.info('Tombol Reset Waktu Sinkronisasi ditekan.');
     final konfirmasi = await showDialog<bool>(
       context: context,
@@ -63,7 +63,7 @@ class SettingsAdminPage extends ConsumerWidget {
 
     if ((konfirmasi ?? false) && context.mounted) {
       try {
-        await ref.read(PengelolaSinkronisasiProvider).resetWaktuSinkronisasi();
+        await ref.read(pengelolaSinkronisasiProvider).resetWaktuSinkronisasi();
         if (context.mounted) {
           ToastUtil.success(context, 'Waktu sinkronisasi berhasil di-reset.');
         }
@@ -82,9 +82,7 @@ class SettingsAdminPage extends ConsumerWidget {
     final settingsAsyncValue = ref.watch(settingsProvider);
     final tema = ref.watch(temaProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pengaturan Aplikasi'),
-      ),
+      appBar: AppBar(title: const Text('Pengaturan Aplikasi')),
       body: settingsAsyncValue.when(
         data: (settings) {
           Log.info('Data pengaturan tersedia, menampilkan detail.');
@@ -112,13 +110,18 @@ class SettingsAdminPage extends ConsumerWidget {
                       Card(
                         elevation: 2,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         child: ListTile(
                           contentPadding: const EdgeInsets.symmetric(
-                              vertical: 5, horizontal: 15),
+                            vertical: 5,
+                            horizontal: 15,
+                          ),
                           leading: const Icon(Icons.palette_outlined, size: 40),
-                          title: const Text('Mode Tema Aplikasi',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          title: const Text(
+                            'Mode Tema Aplikasi',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                           trailing: ThemeMenuWidget(
                             currentThemeMode: tema.value ?? ThemeMode.system,
                             onThemeSelected: (theme) async {
@@ -204,11 +207,7 @@ class SettingsAdminPage extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, s) {
-          Log.error(
-            'Gagal memuat pengaturan',
-            e: e,
-            s: s,
-          );
+          Log.error('Gagal memuat pengaturan', e: e, s: s);
           return Center(child: Text('Error: $e'));
         },
       ),

@@ -183,11 +183,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               gapH32,
               InputTelepon(
                 controller: _teleponController,
-                label: 'Nomor Telepon',
                 focusNode: _teleponFocusNode,
                 nextFocusNode: _passwordFocusNode,
-                prefixIcon: TIcons.phoneAndroid,
-                keyboardType: TextInputType.phone,
                 enabled: !_sedangLogin,
               ),
               gapH16,

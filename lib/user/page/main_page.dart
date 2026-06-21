@@ -45,7 +45,7 @@ class _MainPageState extends ConsumerState<MainPage> {
         final layananAktivitasUser = await ref.read(
           layananAktivitasUserProvider.future,
         );
-        await layananAktivitasUser.pingAktivitas(userId);
+         unawaited(layananAktivitasUser.pingAktivitas(userId));
       }
     });
 

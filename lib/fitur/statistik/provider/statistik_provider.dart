@@ -35,8 +35,8 @@ class StatistikState {
       totalPendaptanPerbulan:
           totalPendaptanPerbulan ?? this.totalPendaptanPerbulan,
       totalPelanggan: totalPelanggan ?? this.totalPelanggan,
-      totalPelangganAktif: jumlahLanggananAktif ?? this.totalPelangganAktif,
-      totalFeedback: jumlahFeedbackBaru ?? this.totalFeedback,
+      totalPelangganAktif: jumlahLanggananAktif ?? totalPelangganAktif,
+      totalFeedback: jumlahFeedbackBaru ?? totalFeedback,
       paketTerlaris: paketTerlaris ?? this.paketTerlaris,
     );
   }

@@ -60,11 +60,7 @@ class LayananPengecekanDataBaru {
       await _statusUploadOpSqlite.resetStatusUpload();
       Log.info('Bendera need_upload berhasil direset.');
     } on Exception catch (e, s) {
-      Log.error(
-        'Gagal mereset bendera need_upload.',
-        e: e,
-        s: s,
-      );
+      Log.error('Gagal mereset bendera need_upload.', e: e, s: s);
     }
   }
 
@@ -105,8 +101,9 @@ class LayananPengecekanDataBaru {
           Log.info(
             'Field "${NamaKolom.diperbaruiPada}" ditemukan. Mem-parsing nilai: ${data[NamaKolom.diperbaruiPada]}',
           );
-          final DateTime? diperbaruiPada =
-              ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]);
+          final DateTime? diperbaruiPada = ParserUtil.parseDateTime(
+            data[NamaKolom.diperbaruiPada],
+          );
 
           if (diperbaruiPada == null) {
             Log.warning(
@@ -119,8 +116,9 @@ class LayananPengecekanDataBaru {
 
           Log.info('Waktu pembaruan di server adalah: $diperbaruiPada');
 
-          final bool apakahLebihBaru =
-              diperbaruiPada.isAfter(tanggalTerakhirDownload);
+          final bool apakahLebihBaru = diperbaruiPada.isAfter(
+            tanggalTerakhirDownload,
+          );
           if (apakahLebihBaru) {
             Log.info(
               'Kesimpulan: Waktu server ($diperbaruiPada) lebih baru daripada waktu lokal ($tanggalTerakhirDownload). PENGUNDUHAN DATA DIPERLUKAN untuk menjaga aktualitas data.',
@@ -154,11 +152,14 @@ class LayananPengecekanDataBaru {
   }
 }
 
-final pengecekanDataBaruServiceProvider =
-    Provider<LayananPengecekanDataBaru>((ref) {
-  return LayananPengecekanDataBaru(
-    firestore: FirebaseFirestore.instance,
-    syncManager: ref.read(PengelolaSinkronisasiProvider),
-    uploadStatusOperation: ref.read(statusUploadOpSlite),
-  );
-});
+final pengecekanDataBaruServiceProvider = Provider<LayananPengecekanDataBaru>(
+  (
+    ref,
+  ) {
+    return LayananPengecekanDataBaru(
+      firestore: FirebaseFirestore.instance,
+      syncManager: ref.read(pengelolaSinkronisasiProvider),
+      uploadStatusOperation: ref.read(statusUploadOpSlite),
+    );
+  },
+);

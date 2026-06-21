@@ -1,7 +1,5 @@
 // path: lib/fitur/versi_apk/page/update_apk_page_u.dart
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,7 +55,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
         .map((final e) => e.trim())
         .where((final e) => e.isNotEmpty)
         .toList();
-    unawaited(_pulseController.repeat(reverse: true));
+    _pulseController.repeat(reverse: true);
     // TODO: Implementasi pengambilan ukuran file jika memungkinkan
   }
 
@@ -152,17 +150,15 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
     if (userId != null) {
       Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
       if (!mounted) return;
-      unawaited(
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const MainPage()),
-        ),
+      await Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (_) => const MainPage()),
       );
     } else {
       if (!mounted) return;
 
-      unawaited(Navigator.of(context).pushReplacement(
+      await Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(builder: ((_) => const LoginPage())),
-      ));
+      );
     }
   }
 

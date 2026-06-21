@@ -1,7 +1,5 @@
 // path: lib/user/page/subscription_history_user.dart
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
@@ -253,7 +251,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
               ? pelangganOpFirebase.ambilStreamBerdasarkanId(id)
               : const Stream.empty(),
           loading: () => const Stream.empty(),
-          error: (_, __) => const Stream.empty(),
+          error: (_, _) => const Stream.empty(),
         ),
         builder: (context, customerSnapshot) {
           if (customerSnapshot.connectionState == ConnectionState.waiting) {
