@@ -5,11 +5,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
 import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan_u.dart';
 import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dart';
 
@@ -57,7 +57,7 @@ void main() {
     ) async {
       // Arrange
       when(mockPelangganOp.ambilBerdasarkanId('user123')).thenAnswer((_) async {
-        await Future.delayed(const Duration(seconds: 1));
+        await Future<void>.delayed(const Duration(seconds: 1));
         return mockPelanggan;
       });
       when(
