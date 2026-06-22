@@ -39,7 +39,10 @@ class PengingatService {
         );
         return;
       }
-      final userId = _ref.read(userIdProvider).value ?? '';
+      final userId = await _ref.read(userIdProvider.future);
+      if (userId == null) {
+        return;
+      }
 
       final transaksiOpFirebase = _ref.read(transaksiOpFirebaseProvider);
       final daftarBelumLunas = await transaksiOpFirebase

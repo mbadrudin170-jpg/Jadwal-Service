@@ -14,7 +14,8 @@ part 'shared_providers.g.dart';
 @Riverpod(keepAlive: true)
 AppRole appRole(Ref ref) {
   throw UnimplementedError(
-      'appRoleProvider harus di-override di dalam ProviderScope');
+    'appRoleProvider harus di-override di dalam ProviderScope',
+  );
 }
 
 @Riverpod(keepAlive: true)
@@ -55,12 +56,16 @@ void pengontrolNotifikasi(Ref ref) {
           final pelanggan = await penyimpananLokal.ambilAkunLogin();
           if (pelanggan != null) {
             Log.info(
-                'User login terdeteksi, memulai pemantauan untuk ${pelanggan.id}');
+              'User login terdeteksi, memulai pemantauan untuk ${pelanggan.id}',
+            );
             layananNotifikasi.pantauNotifUser(
-                notifikasiOpFirebase, pelanggan.id);
+              notifikasiOpFirebase,
+              pelanggan.id,
+            );
           } else {
             Log.info(
-                'User logout terdeteksi, menghentikan pemantauan notifikasi.');
+              'User logout terdeteksi, menghentikan pemantauan notifikasi.',
+            );
             layananNotifikasi.hentikanPemantauanNotifikasi();
           }
         },
@@ -75,7 +80,8 @@ void pengontrolNotifikasi(Ref ref) {
 
   ref.onDispose(() {
     Log.info(
-        'Notifikasi controller di-dispose, menghentikan semua pemantauan.');
+      'Notifikasi controller di-dispose, menghentikan semua pemantauan.',
+    );
     layananNotifikasi.hentikanPemantauanNotifikasi();
   });
 }
