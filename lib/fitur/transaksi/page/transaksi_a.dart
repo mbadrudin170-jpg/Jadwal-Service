@@ -67,7 +67,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
       title: const Text('Transaksi'),
       actions: [
         IconButton(
-          onPressed: () => _showSortDialog(context, ref, currentSortBy),
+          onPressed: () => _tampilkanDialogUrutan(context, ref, currentSortBy),
           icon: const Icon(TIcons.filter),
           tooltip: 'Urutkan',
         ),
@@ -80,7 +80,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 
-  Future<void> _showSortDialog(
+  Future<void> _tampilkanDialogUrutan(
     BuildContext context,
     WidgetRef ref,
     SortBy currentSortBy,
@@ -99,7 +99,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
               children: SortBy.values
                   .map(
                     (sortBy) => RadioListTile<SortBy>(
-                      title: Text(PengurutTransaksi.getSortLabel(sortBy)),
+                      title: Text(PengurutTransaksi.ambilLabelUrutan(sortBy)),
                       value: sortBy,
                     ),
                   )

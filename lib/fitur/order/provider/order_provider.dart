@@ -35,8 +35,6 @@ class Order extends _$Order {
   Future<void> tambahOrder(OrderModel order) async {
     final orderOpSqlite = ref.read(orderOpSqliteProvider);
     await orderOpSqlite.tambahOrder(order);
-
-    // Reload data setelah tambah
     state = await AsyncValue.guard(() async {
       final daftarPesanan = await ref.read(daftarPesananProvider.future);
       return OrderState(

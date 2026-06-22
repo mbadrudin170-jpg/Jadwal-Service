@@ -630,15 +630,12 @@ class DaftarAkunPage extends ConsumerWidget {
             onPressed: () async {
               final navigator = Navigator.of(context);
               final dialogNavigator = Navigator.of(dialogContext);
-
               try {
                 final akunLogin = await ref.read(userIdProvider.future);
                 if (dialogNavigator.context.mounted) {
                   dialogNavigator.pop(); // Tutup dialog
                 }
-
                 if (!context.mounted) return;
-
                 if (akunLogin == customer.id) {
                   await _tanganiHapusAkunAktif(
                     context,
@@ -654,7 +651,6 @@ class DaftarAkunPage extends ConsumerWidget {
                   await ref
                       .read(pengelolaAkunProvider.notifier)
                       .hapusAkun(customer.id);
-
                   if (!context.mounted) return;
                   ToastUtil.success(context, 'Akun berhasil dihapus');
                 }
@@ -690,10 +686,8 @@ class DaftarAkunPage extends ConsumerWidget {
       'customer_id': customer.id,
       'nama': customer.nama,
     });
-
     await ref.read(pengelolaAkunProvider.notifier).hapusAkun(customer.id);
     if (!context.mounted) return;
-    
     ToastUtil.success(context, 'Akun berhasil dihapus, silakan login ulang');
     await navigator.pushAndRemoveUntil(
       MaterialPageRoute<void>(builder: (context) => const LoginPage()),
@@ -726,17 +720,15 @@ class DaftarAkunPage extends ConsumerWidget {
                       .read(pengelolaAkunProvider.notifier)
                       .hapusAkun(akun.id);
                 }
-
                 if (dialogNavigator.context.mounted) {
                   dialogNavigator.pop();
                 }
-
+                await Future<void>.delayed(Duration.zero);
                 if (!context.mounted) return;
                 ToastUtil.success(
                   context,
                   'Anda telah keluar dan akun dihapus',
                 );
-
                 await navigator.pushAndRemoveUntil(
                   MaterialPageRoute<void>(
                     builder: (context) => const LoginPage(),
@@ -776,10 +768,9 @@ class DaftarAkunPage extends ConsumerWidget {
                 if (dialogNavigator.context.mounted) {
                   dialogNavigator.pop();
                 }
-
+                await Future<void>.delayed(Duration.zero);
                 if (!context.mounted) return;
                 ToastUtil.success(context, 'Token berhasil dihapus');
-
                 await navigator.pushAndRemoveUntil(
                   MaterialPageRoute<void>(
                     builder: (context) => const LoginPage(),
@@ -1365,8 +1356,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   void initState() {
     super.initState();
     _durasiBonusController = TextEditingController();
-    Log.info('FormPelangganAktif initState, isEditMode=$_modeEdit');
-    unawaited(_loadAllData());
+    _loadAllData().catchError((Object e, StackTrace st) {
+      Log.error('Gagal memuat data di FormPelangganAktif', e: e, s: st);
+      if (mounted) {
+        ToastUtil.error(context, 'Gagal memuat data. Silakan coba lagi.');
+        setState(() => _isLoading = false);
+      }
+    });
   }
 
   Future<void> _loadAllData() async {
@@ -2294,7 +2290,7 @@ class DetailPelangganAktif extends ConsumerStatefulWidget {
 }
 
 class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
-  Future<void> _launchWhatsApp(String phone) async {
+  Future<void> _bukaWhatsApp(String phone) async {
     String formatNomor = phone.replaceAll(RegExp(r'[^0-9]'), '');
 
     if (formatNomor.startsWith('0')) {
@@ -2569,7 +2565,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
         children: [
           Text(label, style: Theme.of(context).textTheme.titleMedium),
           InkWell(
-            onTap: () => _launchWhatsApp(value),
+            onTap: () => _bukaWhatsApp(value),
             borderRadius: BorderRadius.circular(8),
             child: Padding(
               padding: const EdgeInsets.symmetric(
@@ -2626,7 +2622,7 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-enum AdvancedOption { softDeleteAll, arsipkanKadaluarsa, cancel }
+enum OpsiLanjutan { softDeleteAll, arsipkanKadaluarsa, cancel }
 
 final urutanPelangganAktifProvider = StateProvider<OpsiUrutkan>(
   (ref) => OpsiUrutkan.berakhirHariIni,
@@ -2636,10 +2632,10 @@ class PelangganAktifPage extends ConsumerStatefulWidget {
   const PelangganAktifPage({super.key});
 
   @override
-  ActiveCustomerPageState createState() => ActiveCustomerPageState();
+  ConsumerState<PelangganAktifPage> createState() => _PelangganAktifPageState();
 }
 
-class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
+class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
     with AutomaticKeepAliveClientMixin<PelangganAktifPage> {
   bool _mencari = false;
   final TextEditingController _searchController = TextEditingController();
@@ -2755,7 +2751,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     }
   }
 
-  Future<void> _showSortDialog() async {
+  Future<void> _tampilkanDialogUrutan() async {
     final currentSort = ref.read(urutanPelangganAktifProvider);
 
     await showDialog<OpsiUrutkan>(
@@ -2782,7 +2778,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                         horizontal: TSizes.p24,
                       ),
                       title: Text(
-                        PengurutPelangganAktif.getSortLabel(o),
+                        PengurutPelangganAktif.ambilLabelUrutan(o),
                         style: TextStyle(
                           fontSize: TSizes.p16,
                           fontWeight: diPilih
@@ -2822,27 +2818,27 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     );
   }
 
-  Future<void> _advancedOptions() async {
+  Future<void> _opsiLanjutan() async {
     Log.info('Membuka opsi lanjutan');
-    final AdvancedOption? selected = await showDialog<AdvancedOption>(
+    final OpsiLanjutan? selected = await showDialog<OpsiLanjutan>(
       context: context,
       builder: (ctx) => SimpleDialog(
         title: const Text('Opsi Lanjutan'),
         children: [
           SimpleDialogOption(
             onPressed: () =>
-                Navigator.pop(ctx, AdvancedOption.arsipkanKadaluarsa),
+                Navigator.pop(ctx, OpsiLanjutan.arsipkanKadaluarsa),
             child: const Text('Arsipkan pelanggan kadaluarsa'),
           ),
           SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, AdvancedOption.softDeleteAll),
+            onPressed: () => Navigator.pop(ctx, OpsiLanjutan.softDeleteAll),
             child: const Text(
               'Hapus Semua',
               style: TextStyle(color: Colors.red),
             ),
           ),
           SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, AdvancedOption.cancel),
+            onPressed: () => Navigator.pop(ctx, OpsiLanjutan.cancel),
             child: const Text('Batal'),
           ),
         ],
@@ -2851,7 +2847,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
 
     if (!mounted) return;
     switch (selected) {
-      case AdvancedOption.softDeleteAll:
+      case OpsiLanjutan.softDeleteAll:
         Log.warning('Opsi arsipkan semua dipilih');
         final bool? konfirmasi = await showDialog<bool>(
           context: context,
@@ -2892,7 +2888,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
           }
         }
         break;
-      case AdvancedOption.arsipkanKadaluarsa:
+      case OpsiLanjutan.arsipkanKadaluarsa:
         try {
           Log.info('Mulai arsipkan pelanggan kadaluarsa');
           final count = await _pelangganAktifOpSqlite
@@ -2956,11 +2952,11 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                 ),
                 IconButton(
                   icon: const Icon(TIcons.filter),
-                  onPressed: _showSortDialog,
+                  onPressed: _tampilkanDialogUrutan,
                 ),
                 IconButton(
                   icon: const Icon(TIcons.delete),
-                  onPressed: _advancedOptions,
+                  onPressed: _opsiLanjutan,
                 ),
               ],
       ),
@@ -3172,7 +3168,7 @@ class PengurutPelangganAktif {
     return sorted;
   }
 
-  static String getSortLabel(OpsiUrutkan option) {
+  static String ambilLabelUrutan(OpsiUrutkan option) {
     switch (option) {
       case OpsiUrutkan.berakhirHariIni:
         return 'Berakhir Hari Ini';
@@ -11667,7 +11663,22 @@ class Order extends _$Order {
   @override
   FutureOr<OrderState> build() async {
     final daftarPesanan = await ref.watch(daftarPesananProvider.future);
-    return OrderState(daftarOrder: daftarPesanan, totalDaftar: daftarPesanan.length);
+    return OrderState(
+      daftarOrder: daftarPesanan,
+      totalDaftar: daftarPesanan.length,
+    );
+  }
+
+  Future<void> tambahOrder(OrderModel order) async {
+    final orderOpSqlite = ref.read(orderOpSqliteProvider);
+    await orderOpSqlite.tambahOrder(order);
+    state = await AsyncValue.guard(() async {
+      final daftarPesanan = await ref.read(daftarPesananProvider.future);
+      return OrderState(
+        daftarOrder: daftarPesanan,
+        totalDaftar: daftarPesanan.length,
+      );
+    });
   }
 }
 
@@ -19004,18 +19015,11 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-enum SortOrder {
-  buildZA,
-  buildAZ,
-  versionZA,
-  versionAZ,
-}
+enum UrutanSortir { buildZA, buildAZ, versionZA, versionAZ }
 
 class VersiApkPage extends ConsumerStatefulWidget {
   final VersiApkOpSqlite? operation;
-
   const VersiApkPage({super.key, this.operation});
-
   @override
   ConsumerState<VersiApkPage> createState() => _VersiApkState();
 }
@@ -19025,8 +19029,7 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
   List<VersiApkModel> _daftarVersiApk = [];
   bool _loading = true;
   String? _error;
-  SortOrder _currentSort = SortOrder.buildZA;
-
+  UrutanSortir _currentSort = UrutanSortir.buildZA;
   @override
   void initState() {
     super.initState();
@@ -19040,15 +19043,14 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
     _daftarVersiApk.sort((final a, final b) {
       final buildA = a.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0;
       final buildB = b.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0;
-
       switch (_currentSort) {
-        case SortOrder.buildZA:
+        case UrutanSortir.buildZA:
           return buildB.compareTo(buildA);
-        case SortOrder.buildAZ:
+        case UrutanSortir.buildAZ:
           return buildA.compareTo(buildB);
-        case SortOrder.versionZA:
+        case UrutanSortir.versionZA:
           return b.versiTerkahir.compareTo(a.versiTerkahir);
-        case SortOrder.versionAZ:
+        case UrutanSortir.versionAZ:
           return a.versiTerkahir.compareTo(b.versiTerkahir);
       }
     });
@@ -19057,12 +19059,10 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
   Future<void> _loadData() async {
     Log.info('Memuat data versi APK aktif');
     if (!mounted) return;
-
     setState(() {
       _loading = true;
       _error = null;
     });
-
     try {
       final daftarVersi = await _versiApkOpSqlite.ambilSemuaVersiApkAktif();
       Log.info('Berhasil memuat ${daftarVersi.length} data versi APK aktif');
@@ -19129,9 +19129,9 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
     }
   }
 
-  Future<void> _showSortDialog() async {
+  Future<void> _tampilkanDialogUrutan() async {
     if (!mounted) return;
-    final newSort = await showDialog<SortOrder>(
+    final newSort = await showDialog<UrutanSortir>(
       context: context,
       builder: (final context) {
         return _SortDialog(currentSort: _currentSort);
@@ -19183,15 +19183,18 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
       context: context,
       builder: (c) => AlertDialog(
         title: const Text('Arsipkan Versi APK?'),
-        content:
-            Text('Anda yakin ingin mengarsipkan versi ${versi.versiTerkahir}?'),
+        content: Text(
+          'Anda yakin ingin mengarsipkan versi ${versi.versiTerkahir}?',
+        ),
         actions: [
           TextButton(
-              child: const Text('Batal'),
-              onPressed: () => Navigator.pop(c, false)),
+            child: const Text('Batal'),
+            onPressed: () => Navigator.pop(c, false),
+          ),
           TextButton(
-              child: const Text('Arsipkan'),
-              onPressed: () => Navigator.pop(c, true)),
+            child: const Text('Arsipkan'),
+            onPressed: () => Navigator.pop(c, true),
+          ),
         ],
       ),
     );
@@ -19209,7 +19212,9 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
         _daftarVersiApk.removeWhere((final v) => v.id == version.id);
       });
       ToastUtil.success(
-          context, 'Versi ${version.versiTerkahir} berhasil diarsipkan.');
+        context,
+        'Versi ${version.versiTerkahir} berhasil diarsipkan.',
+      );
     } on Exception catch (e, s) {
       Log.error('Gagal soft delete data ID: ${version.id}', e: e, s: s);
       if (!mounted) return;
@@ -19224,14 +19229,17 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
       builder: (c) => AlertDialog(
         title: const Text('Arsipkan Semua Versi?'),
         content: const Text(
-            'Anda yakin ingin mengarsipkan semua versi APK yang aktif?'),
+          'Anda yakin ingin mengarsipkan semua versi APK yang aktif?',
+        ),
         actions: [
           TextButton(
-              child: const Text('Batal'),
-              onPressed: () => Navigator.pop(c, false)),
+            child: const Text('Batal'),
+            onPressed: () => Navigator.pop(c, false),
+          ),
           TextButton(
-              child: const Text('Arsipkan Semua'),
-              onPressed: () => Navigator.pop(c, true)),
+            child: const Text('Arsipkan Semua'),
+            onPressed: () => Navigator.pop(c, true),
+          ),
         ],
       ),
     );
@@ -19268,7 +19276,7 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
           ),
           IconButton(
             icon: const Icon(Icons.sort),
-            onPressed: _showSortDialog,
+            onPressed: _tampilkanDialogUrutan,
             tooltip: 'Urutkan',
           ),
         ],
@@ -19332,14 +19340,14 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
 
 class _SortDialog extends StatefulWidget {
   const _SortDialog({required this.currentSort});
-  final SortOrder currentSort;
+  final UrutanSortir currentSort;
 
   @override
   State<_SortDialog> createState() => _SortDialogState();
 }
 
 class _SortDialogState extends State<_SortDialog> {
-  late SortOrder _selectedSort;
+  late UrutanSortir _selectedSort;
 
   @override
   void initState() {
@@ -19351,9 +19359,9 @@ class _SortDialogState extends State<_SortDialog> {
   Widget build(final BuildContext context) {
     return AlertDialog(
       title: const Text('Urutkan Berdasarkan'),
-      content: RadioGroup<SortOrder>(
+      content: RadioGroup<UrutanSortir>(
         groupValue: _selectedSort,
-        onChanged: (final SortOrder? value) {
+        onChanged: (final UrutanSortir? value) {
           if (value != null) {
             setState(() {
               _selectedSort = value;
@@ -19362,8 +19370,8 @@ class _SortDialogState extends State<_SortDialog> {
         },
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: SortOrder.values.map((final order) {
-            return RadioListTile<SortOrder>(
+          children: UrutanSortir.values.map((final order) {
+            return RadioListTile<UrutanSortir>(
               title: Text(_getSortName(order)),
               value: order,
             );
@@ -19384,15 +19392,15 @@ class _SortDialogState extends State<_SortDialog> {
   }
 }
 
-String _getSortName(final SortOrder order) {
+String _getSortName(final UrutanSortir order) {
   switch (order) {
-    case SortOrder.buildZA:
+    case UrutanSortir.buildZA:
       return 'Build (Terbaru ke Terlama)';
-    case SortOrder.buildAZ:
+    case UrutanSortir.buildAZ:
       return 'Build (Terlama ke Terbaru)';
-    case SortOrder.versionZA:
+    case UrutanSortir.versionZA:
       return 'Versi (Z-A)';
-    case SortOrder.versionAZ:
+    case UrutanSortir.versionAZ:
       return 'Versi (A-Z)';
   }
 }
@@ -24972,7 +24980,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
               onPressed: () {
                 if (historyAsync.hasValue) {
                   Log.info('Membuka dialog pengurutan riwayat langganan.');
-                  _showSortDialog(context, ref, historyAsync.value!.sortBy);
+                  _tampilkanDialogUrutan(context, ref, historyAsync.value!.sortBy);
                 }
               },
               tooltip: 'Urutkan',
@@ -25065,7 +25073,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
     );
   }
 
-  Future<void> _showSortDialog(
+  Future<void> _tampilkanDialogUrutan(
     BuildContext context,
     WidgetRef ref,
     SortOption currentSort,
@@ -25729,7 +25737,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
       title: const Text('Transaksi'),
       actions: [
         IconButton(
-          onPressed: () => _showSortDialog(context, ref, currentSortBy),
+          onPressed: () => _tampilkanDialogUrutan(context, ref, currentSortBy),
           icon: const Icon(TIcons.filter),
           tooltip: 'Urutkan',
         ),
@@ -25742,7 +25750,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 
-  Future<void> _showSortDialog(
+  Future<void> _tampilkanDialogUrutan(
     BuildContext context,
     WidgetRef ref,
     SortBy currentSortBy,
@@ -25761,7 +25769,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
               children: SortBy.values
                   .map(
                     (sortBy) => RadioListTile<SortBy>(
-                      title: Text(PengurutTransaksi.getSortLabel(sortBy)),
+                      title: Text(PengurutTransaksi.ambilLabelUrutan(sortBy)),
                       value: sortBy,
                     ),
                   )
@@ -26276,7 +26284,9 @@ import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 
 enum SortBy { terbaru, terlama, jumlahTerbesar, jumlahTerkecil }
 
-final pengurutTransaksiProvider = StateProvider<SortBy>((ref) => SortBy.terbaru);
+final pengurutTransaksiProvider = StateProvider<SortBy>(
+  (ref) => SortBy.terbaru,
+);
 
 class PengurutTransaksi {
   static List<TransaksiModel> urutkan(
@@ -26301,7 +26311,7 @@ class PengurutTransaksi {
     return sorted;
   }
 
-  static String getSortLabel(SortBy option) {
+  static String ambilLabelUrutan(SortBy option) {
     switch (option) {
       case SortBy.terbaru:
         return 'Terbaru';
@@ -28633,8 +28643,6 @@ class _PelangganState extends ConsumerState<Pelanggan> {
 
   @override
   Widget build(BuildContext context) {
-    // Listen to changes in the search query provider and update the controller.
-    // This is useful when the query is cleared programmatically.
     ref.listen(searchQueryPelangganProvider, (_, next) {
       if (_searchController.text != next) {
         _searchController.text = next;
@@ -31632,26 +31640,24 @@ class PenjadwalNotifikasi {
   }
 }
 
-/// Fungsi callback yang akan dieksekusi oleh AlarmManager.
-/// Harus berupa top-level function atau static method.
 @pragma('vm:entry-point')
 Future<void> _callbackAlarm() async {
-  // Isolate baru tidak berbagi memori atau inisialisasi.
-  // Kita harus menginisialisasi semua service yang dibutuhkan di sini.
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-
-  Log.info('ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...');
-  // Pastikan ExpiredSubscriptionCheckService diimpor dengan benar di atas.
-
-  final container = ProviderContainer();
   try {
-    final service = container.read(arsipLanggananKadaluarsaServiceProvider);
-    await service.prosesArsipLanggananKadaluarsa();
-  } finally {
-    container.dispose();
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+
+    final container = ProviderContainer();
+    try {
+      final service = container.read(arsipLanggananKadaluarsaServiceProvider);
+      await service.prosesArsipLanggananKadaluarsa();
+    } catch (e, st) {
+      Log.error('Gagal menjalankan callback alarm', e: e, s: st);
+    } finally {
+      container.dispose();
+    }
+  } catch (e, st) {
+    Log.error('Gagal inisialisasi callback alarm', e: e, s: st);
   }
-  Log.info('ALARM SELESAI: Proses pengecekan langganan kedaluwarsa selesai.');
 }
 
 
@@ -33467,6 +33473,7 @@ class LayananCekSinkronisasi {
   final LayananUnduhData _layananUnduh;
   final LayananPengecekanDataBaru _pengecekanDataBaru;
   final FirebaseFirestore _firestore;
+  bool _berjalan = false;
 
   /// Konstruktor dengan injeksi dependensi (wajib).
   LayananCekSinkronisasi({
@@ -33486,17 +33493,23 @@ class LayananCekSinkronisasi {
   /// Menjalankan seluruh proses pengecekan dan sinkronisasi data.
   Future<void> jalankanCekSinkronisasi() async {
     Log.info('Memulai siklus orkestrasi sinkronisasi global.');
-
-    final bool sudahUnggahData = await _periksaDanJalankanUnggah();
-    await _periksaDanJalankanUnduh();
-
-    if (sudahUnggahData) {
-      Log.info(
-        'Pemicu sinkronisasi: Ada data baru yang berhasil diunggah ke server.',
-      );
-      await _perbaruiStatusGlobal();
+    if (_berjalan) {
+      return;
     }
-    Log.info('Seluruh siklus runSyncCheck() telah berakhir dengan sukses.');
+    _berjalan = true;
+    try {
+      final bool sudahUnggahData = await _periksaDanJalankanUnggah();
+      await _periksaDanJalankanUnduh();
+      if (sudahUnggahData) {
+        Log.info(
+          'Pemicu sinkronisasi: Ada data baru yang berhasil diunggah ke server.',
+        );
+        await _perbaruiStatusGlobal();
+      }
+      Log.info('Seluruh siklus runSyncCheck() telah berakhir dengan sukses.');
+    } finally {
+      _berjalan = false;
+    }
   }
 
   Future<bool> _periksaDanJalankanUnggah() async {
@@ -35158,8 +35171,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
 import 'package:wifi/fitur/notfikasi/pengingat_paket_belum_lunas.dart';
+import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';
 import 'package:wifi/fitur/settings/page/settings_page_u.dart';
 import 'package:wifi/fitur/speedtest/page/uji_kecepatan_page.dart';
@@ -35175,7 +35188,6 @@ import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 /// Halaman utama aplikasi yang berfungsi sebagai container untuk navigasi bawah.
 class MainPage extends ConsumerStatefulWidget {
   const MainPage({super.key});
-
   @override
   ConsumerState<MainPage> createState() => _MainPageState();
 }
@@ -35197,17 +35209,14 @@ class _MainPageState extends ConsumerState<MainPage> {
         unawaited(
           PenjadwalNotifikasi.aturNotifikasiLangganan(notifikasiServis, userId),
         );
-
         final layananAktivitasUser = await ref.read(
           layananAktivitasUserProvider.future,
         );
         unawaited(layananAktivitasUser.pingAktivitas(userId));
-
         final pengingatService = ref.read(pengingatServiceProvider);
         unawaited(pengingatService.cekDanTampilkanPengingatTagihan());
       }
     });
-
     _daftarHalaman = [
       const ProfilePage(),
       const TransaksiU(),
@@ -35227,7 +35236,6 @@ class _MainPageState extends ConsumerState<MainPage> {
     if (_indeksTerpilih == index) {
       return;
     }
-
     setState(() {
       _indeksTerpilih = index;
     });
@@ -35236,7 +35244,6 @@ class _MainPageState extends ConsumerState<MainPage> {
   @override
   Widget build(BuildContext context) {
     Log.info('Membangun MainPage untuk indeks halaman: $_indeksTerpilih');
-
     return Scaffold(
       body: Column(
         children: [

@@ -114,8 +114,6 @@ class _PelangganState extends ConsumerState<Pelanggan> {
 
   @override
   Widget build(BuildContext context) {
-    // Listen to changes in the search query provider and update the controller.
-    // This is useful when the query is cleared programmatically.
     ref.listen(searchQueryPelangganProvider, (_, next) {
       if (_searchController.text != next) {
         _searchController.text = next;

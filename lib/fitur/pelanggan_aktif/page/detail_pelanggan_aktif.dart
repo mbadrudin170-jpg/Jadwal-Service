@@ -77,7 +77,7 @@ class DetailPelangganAktif extends ConsumerStatefulWidget {
 }
 
 class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
-  Future<void> _launchWhatsApp(String phone) async {
+  Future<void> _bukaWhatsApp(String phone) async {
     String formatNomor = phone.replaceAll(RegExp(r'[^0-9]'), '');
 
     if (formatNomor.startsWith('0')) {
@@ -352,7 +352,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
         children: [
           Text(label, style: Theme.of(context).textTheme.titleMedium),
           InkWell(
-            onTap: () => _launchWhatsApp(value),
+            onTap: () => _bukaWhatsApp(value),
             borderRadius: BorderRadius.circular(8),
             child: Padding(
               padding: const EdgeInsets.symmetric(

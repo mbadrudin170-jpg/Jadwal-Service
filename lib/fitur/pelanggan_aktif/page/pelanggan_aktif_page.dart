@@ -20,7 +20,7 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-enum AdvancedOption { softDeleteAll, arsipkanKadaluarsa, cancel }
+enum OpsiLanjutan { softDeleteAll, arsipkanKadaluarsa, cancel }
 
 final urutanPelangganAktifProvider = StateProvider<OpsiUrutkan>(
   (ref) => OpsiUrutkan.berakhirHariIni,
@@ -30,10 +30,10 @@ class PelangganAktifPage extends ConsumerStatefulWidget {
   const PelangganAktifPage({super.key});
 
   @override
-  ActiveCustomerPageState createState() => ActiveCustomerPageState();
+  ConsumerState<PelangganAktifPage> createState() => _PelangganAktifPageState();
 }
 
-class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
+class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
     with AutomaticKeepAliveClientMixin<PelangganAktifPage> {
   bool _mencari = false;
   final TextEditingController _searchController = TextEditingController();
@@ -149,7 +149,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     }
   }
 
-  Future<void> _showSortDialog() async {
+  Future<void> _tampilkanDialogUrutan() async {
     final currentSort = ref.read(urutanPelangganAktifProvider);
 
     await showDialog<OpsiUrutkan>(
@@ -176,7 +176,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                         horizontal: TSizes.p24,
                       ),
                       title: Text(
-                        PengurutPelangganAktif.getSortLabel(o),
+                        PengurutPelangganAktif.ambilLabelUrutan(o),
                         style: TextStyle(
                           fontSize: TSizes.p16,
                           fontWeight: diPilih
@@ -216,27 +216,27 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     );
   }
 
-  Future<void> _advancedOptions() async {
+  Future<void> _opsiLanjutan() async {
     Log.info('Membuka opsi lanjutan');
-    final AdvancedOption? selected = await showDialog<AdvancedOption>(
+    final OpsiLanjutan? selected = await showDialog<OpsiLanjutan>(
       context: context,
       builder: (ctx) => SimpleDialog(
         title: const Text('Opsi Lanjutan'),
         children: [
           SimpleDialogOption(
             onPressed: () =>
-                Navigator.pop(ctx, AdvancedOption.arsipkanKadaluarsa),
+                Navigator.pop(ctx, OpsiLanjutan.arsipkanKadaluarsa),
             child: const Text('Arsipkan pelanggan kadaluarsa'),
           ),
           SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, AdvancedOption.softDeleteAll),
+            onPressed: () => Navigator.pop(ctx, OpsiLanjutan.softDeleteAll),
             child: const Text(
               'Hapus Semua',
               style: TextStyle(color: Colors.red),
             ),
           ),
           SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, AdvancedOption.cancel),
+            onPressed: () => Navigator.pop(ctx, OpsiLanjutan.cancel),
             child: const Text('Batal'),
           ),
         ],
@@ -245,7 +245,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
 
     if (!mounted) return;
     switch (selected) {
-      case AdvancedOption.softDeleteAll:
+      case OpsiLanjutan.softDeleteAll:
         Log.warning('Opsi arsipkan semua dipilih');
         final bool? konfirmasi = await showDialog<bool>(
           context: context,
@@ -286,7 +286,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
           }
         }
         break;
-      case AdvancedOption.arsipkanKadaluarsa:
+      case OpsiLanjutan.arsipkanKadaluarsa:
         try {
           Log.info('Mulai arsipkan pelanggan kadaluarsa');
           final count = await _pelangganAktifOpSqlite
@@ -350,11 +350,11 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                 ),
                 IconButton(
                   icon: const Icon(TIcons.filter),
-                  onPressed: _showSortDialog,
+                  onPressed: _tampilkanDialogUrutan,
                 ),
                 IconButton(
                   icon: const Icon(TIcons.delete),
-                  onPressed: _advancedOptions,
+                  onPressed: _opsiLanjutan,
                 ),
               ],
       ),

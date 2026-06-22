@@ -199,7 +199,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
               onPressed: () {
                 if (historyAsync.hasValue) {
                   Log.info('Membuka dialog pengurutan riwayat langganan.');
-                  _showSortDialog(context, ref, historyAsync.value!.sortBy);
+                  _tampilkanDialogUrutan(context, ref, historyAsync.value!.sortBy);
                 }
               },
               tooltip: 'Urutkan',
@@ -292,7 +292,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
     );
   }
 
-  Future<void> _showSortDialog(
+  Future<void> _tampilkanDialogUrutan(
     BuildContext context,
     WidgetRef ref,
     SortOption currentSort,

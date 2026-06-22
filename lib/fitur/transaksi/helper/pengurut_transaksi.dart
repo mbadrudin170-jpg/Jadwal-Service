@@ -5,7 +5,9 @@ import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 
 enum SortBy { terbaru, terlama, jumlahTerbesar, jumlahTerkecil }
 
-final pengurutTransaksiProvider = StateProvider<SortBy>((ref) => SortBy.terbaru);
+final pengurutTransaksiProvider = StateProvider<SortBy>(
+  (ref) => SortBy.terbaru,
+);
 
 class PengurutTransaksi {
   static List<TransaksiModel> urutkan(
@@ -30,7 +32,7 @@ class PengurutTransaksi {
     return sorted;
   }
 
-  static String getSortLabel(SortBy option) {
+  static String ambilLabelUrutan(SortBy option) {
     switch (option) {
       case SortBy.terbaru:
         return 'Terbaru';

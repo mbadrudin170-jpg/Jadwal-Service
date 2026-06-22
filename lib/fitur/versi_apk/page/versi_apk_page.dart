@@ -12,18 +12,11 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-enum SortOrder {
-  buildZA,
-  buildAZ,
-  versionZA,
-  versionAZ,
-}
+enum UrutanSortir { buildZA, buildAZ, versionZA, versionAZ }
 
 class VersiApkPage extends ConsumerStatefulWidget {
   final VersiApkOpSqlite? operation;
-
   const VersiApkPage({super.key, this.operation});
-
   @override
   ConsumerState<VersiApkPage> createState() => _VersiApkState();
 }
@@ -33,8 +26,7 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
   List<VersiApkModel> _daftarVersiApk = [];
   bool _loading = true;
   String? _error;
-  SortOrder _currentSort = SortOrder.buildZA;
-
+  UrutanSortir _currentSort = UrutanSortir.buildZA;
   @override
   void initState() {
     super.initState();
@@ -48,15 +40,14 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
     _daftarVersiApk.sort((final a, final b) {
       final buildA = a.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0;
       final buildB = b.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0;
-
       switch (_currentSort) {
-        case SortOrder.buildZA:
+        case UrutanSortir.buildZA:
           return buildB.compareTo(buildA);
-        case SortOrder.buildAZ:
+        case UrutanSortir.buildAZ:
           return buildA.compareTo(buildB);
-        case SortOrder.versionZA:
+        case UrutanSortir.versionZA:
           return b.versiTerkahir.compareTo(a.versiTerkahir);
-        case SortOrder.versionAZ:
+        case UrutanSortir.versionAZ:
           return a.versiTerkahir.compareTo(b.versiTerkahir);
       }
     });
@@ -65,12 +56,10 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
   Future<void> _loadData() async {
     Log.info('Memuat data versi APK aktif');
     if (!mounted) return;
-
     setState(() {
       _loading = true;
       _error = null;
     });
-
     try {
       final daftarVersi = await _versiApkOpSqlite.ambilSemuaVersiApkAktif();
       Log.info('Berhasil memuat ${daftarVersi.length} data versi APK aktif');
@@ -137,9 +126,9 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
     }
   }
 
-  Future<void> _showSortDialog() async {
+  Future<void> _tampilkanDialogUrutan() async {
     if (!mounted) return;
-    final newSort = await showDialog<SortOrder>(
+    final newSort = await showDialog<UrutanSortir>(
       context: context,
       builder: (final context) {
         return _SortDialog(currentSort: _currentSort);
@@ -191,15 +180,18 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
       context: context,
       builder: (c) => AlertDialog(
         title: const Text('Arsipkan Versi APK?'),
-        content:
-            Text('Anda yakin ingin mengarsipkan versi ${versi.versiTerkahir}?'),
+        content: Text(
+          'Anda yakin ingin mengarsipkan versi ${versi.versiTerkahir}?',
+        ),
         actions: [
           TextButton(
-              child: const Text('Batal'),
-              onPressed: () => Navigator.pop(c, false)),
+            child: const Text('Batal'),
+            onPressed: () => Navigator.pop(c, false),
+          ),
           TextButton(
-              child: const Text('Arsipkan'),
-              onPressed: () => Navigator.pop(c, true)),
+            child: const Text('Arsipkan'),
+            onPressed: () => Navigator.pop(c, true),
+          ),
         ],
       ),
     );
@@ -217,7 +209,9 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
         _daftarVersiApk.removeWhere((final v) => v.id == version.id);
       });
       ToastUtil.success(
-          context, 'Versi ${version.versiTerkahir} berhasil diarsipkan.');
+        context,
+        'Versi ${version.versiTerkahir} berhasil diarsipkan.',
+      );
     } on Exception catch (e, s) {
       Log.error('Gagal soft delete data ID: ${version.id}', e: e, s: s);
       if (!mounted) return;
@@ -232,14 +226,17 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
       builder: (c) => AlertDialog(
         title: const Text('Arsipkan Semua Versi?'),
         content: const Text(
-            'Anda yakin ingin mengarsipkan semua versi APK yang aktif?'),
+          'Anda yakin ingin mengarsipkan semua versi APK yang aktif?',
+        ),
         actions: [
           TextButton(
-              child: const Text('Batal'),
-              onPressed: () => Navigator.pop(c, false)),
+            child: const Text('Batal'),
+            onPressed: () => Navigator.pop(c, false),
+          ),
           TextButton(
-              child: const Text('Arsipkan Semua'),
-              onPressed: () => Navigator.pop(c, true)),
+            child: const Text('Arsipkan Semua'),
+            onPressed: () => Navigator.pop(c, true),
+          ),
         ],
       ),
     );
@@ -276,7 +273,7 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
           ),
           IconButton(
             icon: const Icon(Icons.sort),
-            onPressed: _showSortDialog,
+            onPressed: _tampilkanDialogUrutan,
             tooltip: 'Urutkan',
           ),
         ],
@@ -340,14 +337,14 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
 
 class _SortDialog extends StatefulWidget {
   const _SortDialog({required this.currentSort});
-  final SortOrder currentSort;
+  final UrutanSortir currentSort;
 
   @override
   State<_SortDialog> createState() => _SortDialogState();
 }
 
 class _SortDialogState extends State<_SortDialog> {
-  late SortOrder _selectedSort;
+  late UrutanSortir _selectedSort;
 
   @override
   void initState() {
@@ -359,9 +356,9 @@ class _SortDialogState extends State<_SortDialog> {
   Widget build(final BuildContext context) {
     return AlertDialog(
       title: const Text('Urutkan Berdasarkan'),
-      content: RadioGroup<SortOrder>(
+      content: RadioGroup<UrutanSortir>(
         groupValue: _selectedSort,
-        onChanged: (final SortOrder? value) {
+        onChanged: (final UrutanSortir? value) {
           if (value != null) {
             setState(() {
               _selectedSort = value;
@@ -370,8 +367,8 @@ class _SortDialogState extends State<_SortDialog> {
         },
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: SortOrder.values.map((final order) {
-            return RadioListTile<SortOrder>(
+          children: UrutanSortir.values.map((final order) {
+            return RadioListTile<UrutanSortir>(
               title: Text(_getSortName(order)),
               value: order,
             );
@@ -392,15 +389,15 @@ class _SortDialogState extends State<_SortDialog> {
   }
 }
 
-String _getSortName(final SortOrder order) {
+String _getSortName(final UrutanSortir order) {
   switch (order) {
-    case SortOrder.buildZA:
+    case UrutanSortir.buildZA:
       return 'Build (Terbaru ke Terlama)';
-    case SortOrder.buildAZ:
+    case UrutanSortir.buildAZ:
       return 'Build (Terlama ke Terbaru)';
-    case SortOrder.versionZA:
+    case UrutanSortir.versionZA:
       return 'Versi (Z-A)';
-    case SortOrder.versionAZ:
+    case UrutanSortir.versionAZ:
       return 'Versi (A-Z)';
   }
 }
