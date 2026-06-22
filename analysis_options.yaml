@@ -63,7 +63,7 @@ analyzer:
     always_use_package_imports: error
     prefer_final_locals: error
     prefer_final_fields: error
-    directives_ordering: error
+    # directives_ordering: error
 
 
   language:

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
+import 'package:wifi/fitur/notfikasi/pwngingat_paket_belum_lunas.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';
 import 'package:wifi/fitur/settings/page/settings_page_u.dart';
 import 'package:wifi/fitur/speedtest/page/uji_kecepatan_page.dart';
@@ -40,12 +41,17 @@ class _MainPageState extends ConsumerState<MainPage> {
       final userId = await ref.read(userIdProvider.future);
       if (userId != null) {
         final notifikasiServis = ref.read(layananNotifikasiProvider);
-        unawaited(PenjadwalNotifikasi.aturNotifikasiLangganan(notifikasiServis, userId));
+        unawaited(
+          PenjadwalNotifikasi.aturNotifikasiLangganan(notifikasiServis, userId),
+        );
 
         final layananAktivitasUser = await ref.read(
           layananAktivitasUserProvider.future,
         );
-         unawaited(layananAktivitasUser.pingAktivitas(userId));
+        unawaited(layananAktivitasUser.pingAktivitas(userId));
+
+        final pengingatService = ref.read(pengingatServiceProvider);
+        unawaited(pengingatService.cekDanTampilkanPengingatTagihan());
       }
     });
 
