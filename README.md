@@ -27574,7 +27574,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
     String? idPelanggan,
     String? idPaket,
     String? idSubKategori,
-    @Default(StatusPembayaran.unpaid) StatusPembayaran statusPembayaran,
+    @Default(StatusPembayaran.paid) StatusPembayaran statusPembayaran,
     @Default(0) int poinDidapat,
     @Default(0) int poinDigunakan,
     DateTime? diperbaruiPada,
@@ -34160,6 +34160,7 @@ import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
@@ -34232,41 +34233,31 @@ class StatistikOpSqlite {
   Future<double> ambilTotalPendapatan() async {
     try {
       final db = await SqliteDatabase.instance.database;
-      const String namaTabel = '"${NamaTabel.transaksi}"';
-      final String statusLunas = StatusPembayaran.paid.name;
-      final String statusBelumLunas = StatusPembayaran.unpaid.name;
-
       final List<Map<String, dynamic>> hasil = await db.rawQuery(
         '''
-        SELECT SUM(
-          CASE
-            WHEN ${NamaKolom.statusPembayaran} = ? THEN ${NamaKolom.jumlah}
-            WHEN ${NamaKolom.statusPembayaran} = ? THEN -${NamaKolom.jumlah}
-            ELSE 0
-          END
-        ) as total
-        FROM $namaTabel
-        WHERE ${NamaKolom.dihapus} = 0
-        ''',
-        [statusLunas, statusBelumLunas],
+      SELECT SUM(
+        CASE
+          WHEN ${NamaKolom.tipe} = ? THEN ${NamaKolom.jumlah}
+          WHEN ${NamaKolom.tipe} = ? THEN -${NamaKolom.jumlah}
+          ELSE 0
+        END
+      ) as total
+      FROM ${NamaTabel.transaksi}
+      WHERE ${NamaKolom.dihapus} = 0
+        AND ${NamaKolom.statusPembayaran} = ?
+      ''',
+        [
+          TipeTransaksi.income.name,
+          TipeTransaksi.expense.name,
+          StatusPembayaran.paid.name,
+        ],
       );
 
-      Log.info('Query pendapatan bersih selesai. Hasil mentah: $hasil');
-
-      if (hasil.isNotEmpty && hasil.first['total'] != null) {
-        final total = (hasil.first['total'] as num).toDouble();
-        Log.info('Total pendapatan bersih yang dihitung: $total');
-        return total;
-      } else {
-        Log.info('Tidak ada transaksi ditemukan bulan ini, mengembalikan 0.0');
-        return 0.0;
-      }
+      final total = (hasil.first['total'] as num?)?.toDouble() ?? 0.0;
+      Log.info('Total pendapatan bersih: $total');
+      return total;
     } catch (e, st) {
-      Log.error(
-        'Gagal mengambil pendapatan bersih bulan ini dari SQLite.',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal mengambil pendapatan bersih.', e: e, s: st);
       rethrow;
     }
   }
@@ -34276,15 +34267,12 @@ class StatistikOpSqlite {
     try {
       final db = await SqliteDatabase.instance.database;
       const String namaTabel = '"${NamaTabel.pelanggan}"';
-
       final hasil = await db.rawQuery('''
         SELECT COUNT(*) 
         FROM $namaTabel 
         WHERE ${NamaKolom.dihapus} = 0
         ''');
-
       Log.info('Query total pelanggan selesai. Hasil mentah: $hasil');
-
       final jumlah = Sqflite.firstIntValue(hasil) ?? 0;
       Log.info('Total pelanggan yang dihitung: $jumlah');
       return jumlah;

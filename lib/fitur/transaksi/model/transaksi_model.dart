@@ -28,7 +28,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
     String? idPelanggan,
     String? idPaket,
     String? idSubKategori,
-    @Default(StatusPembayaran.unpaid) StatusPembayaran statusPembayaran,
+    @Default(StatusPembayaran.paid) StatusPembayaran statusPembayaran,
     @Default(0) int poinDidapat,
     @Default(0) int poinDigunakan,
     DateTime? diperbaruiPada,
