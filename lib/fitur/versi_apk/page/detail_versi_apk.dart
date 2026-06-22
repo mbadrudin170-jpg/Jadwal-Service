@@ -40,7 +40,7 @@ class _DetailVersiApkState extends ConsumerState<DetailVersiApk> {
         widget.versiApkOPSqlite ?? ref.read(versiApkOpSqliteProvider);
   }
 
-  Future<void> _navigasiKeEdit() async {
+  Future<void> _bukaFormEdit() async {
     Log.info('Tombol edit APK ditekan, versi=${_versiApk.versiTerkahir}');
     final hasil = await Navigator.push<bool>(
       context,
@@ -94,7 +94,7 @@ class _DetailVersiApkState extends ConsumerState<DetailVersiApk> {
           IconButton(
             icon: const Icon(TIcons.edit),
             tooltip: 'Edit Data',
-            onPressed: _navigasiKeEdit,
+            onPressed: _bukaFormEdit,
           ),
         ],
       ),

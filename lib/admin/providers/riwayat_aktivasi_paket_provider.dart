@@ -10,16 +10,16 @@ import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 
 part 'riwayat_aktivasi_paket_provider.g.dart';
 
-class TransactionWithCustomer {
+class TransaksiDenganPelanggan {
   final TransaksiModel transaksi;
   final PelangganModel? pelanggan;
 
-  TransactionWithCustomer({required this.transaksi, this.pelanggan});
+  TransaksiDenganPelanggan({required this.transaksi, this.pelanggan});
 
   String get namaPelanggan => pelanggan?.nama ?? 'Tidak diketahui';
 }
 
-enum SortOption {
+enum OpsiUrutan {
   tanggalBerakhir,
   namaAZ,
   namaZA,
@@ -31,17 +31,17 @@ enum SortOption {
 }
 
 class RiwayatAktivasiPaketState {
-  final List<TransactionWithCustomer> items;
-  final SortOption sortBy;
+  final List<TransaksiDenganPelanggan> items;
+  final OpsiUrutan sortBy;
 
   RiwayatAktivasiPaketState({
     this.items = const [],
-    this.sortBy = SortOption.beralhirHariIni,
+    this.sortBy = OpsiUrutan.beralhirHariIni,
   });
 
   RiwayatAktivasiPaketState copyWith({
-    List<TransactionWithCustomer>? items,
-    SortOption? sortBy,
+    List<TransaksiDenganPelanggan>? items,
+    OpsiUrutan? sortBy,
   }) {
     return RiwayatAktivasiPaketState(
       items: items ?? this.items,
@@ -56,10 +56,10 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
   FutureOr<RiwayatAktivasiPaketState> build() {
     ref.watch(transaksiOpSqliteProvider);
     ref.watch(pelangganOpSqliteProvider);
-    return _loadData(SortOption.tanggalBerakhir);
+    return _loadData(OpsiUrutan.tanggalBerakhir);
   }
 
-  Future<RiwayatAktivasiPaketState> _loadData(SortOption targetSort) async {
+  Future<RiwayatAktivasiPaketState> _loadData(OpsiUrutan targetSort) async {
     // 3. Ambil kedua data stream
     final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
@@ -72,7 +72,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
 
     // 4. Gabungkan data
     final combinedList = transaksi.map((trans) {
-      return TransactionWithCustomer(
+      return TransaksiDenganPelanggan(
         transaksi: trans,
         pelanggan: customerMap[trans.idPelanggan],
       );
@@ -84,13 +84,13 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     return RiwayatAktivasiPaketState(items: combinedList, sortBy: targetSort);
   }
 
-  void changeSort(SortOption newSort) {
+  void changeSort(OpsiUrutan newSort) {
     if (!state.hasValue) return;
 
     final currentState = state.value!;
     if (currentState.sortBy == newSort) return;
 
-    final List<TransactionWithCustomer> sortedList = List.from(
+    final List<TransaksiDenganPelanggan> sortedList = List.from(
       currentState.items,
     );
     _performSort(sortedList, newSort);
@@ -100,9 +100,9 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     );
   }
 
-  void _performSort(List<TransactionWithCustomer> list, SortOption option) {
+  void _performSort(List<TransaksiDenganPelanggan> list, OpsiUrutan option) {
     switch (option) {
-      case SortOption.tanggalBerakhir:
+      case OpsiUrutan.tanggalBerakhir:
         list.sort((a, b) {
           if (a.transaksi.tanggalBerakhir == null &&
               b.transaksi.tanggalBerakhir == null) {
@@ -117,7 +117,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           return a.transaksi.id.compareTo(b.transaksi.id);
         });
         break;
-      case SortOption.diperbaruiPadaAZ:
+      case OpsiUrutan.diperbaruiPadaAZ:
         list.sort((a, b) {
           final updateAtA = a.transaksi.diperbaruiPada;
           final updateAtB = b.transaksi.diperbaruiPada;
@@ -127,7 +127,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           return updateAtB.compareTo(updateAtA);
         });
         break;
-      case SortOption.diperbaruiPadaZA:
+      case OpsiUrutan.diperbaruiPadaZA:
         list.sort((a, b) {
           final updateAtA = a.transaksi.diperbaruiPada;
           final updateAtB = b.transaksi.diperbaruiPada;
@@ -138,7 +138,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
         });
         break;
 
-      case SortOption.namaAZ:
+      case OpsiUrutan.namaAZ:
         list.sort((a, b) {
           final nameCompare = a.namaPelanggan.toLowerCase().compareTo(
             b.namaPelanggan.toLowerCase(),
@@ -148,7 +148,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           return a.transaksi.id.compareTo(b.transaksi.id);
         });
         break;
-      case SortOption.namaZA:
+      case OpsiUrutan.namaZA:
         list.sort((a, b) {
           final nameCompare = b.namaPelanggan.toLowerCase().compareTo(
             a.namaPelanggan.toLowerCase(),
@@ -157,7 +157,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           return a.transaksi.id.compareTo(b.transaksi.id);
         });
         break;
-      case SortOption.beralhirHariIni:
+      case OpsiUrutan.beralhirHariIni:
         final now = DateTime.now();
         list.sort((a, b) {
           final isTodayA =
@@ -186,7 +186,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
         });
         break;
 
-      case SortOption.lunas:
+      case OpsiUrutan.lunas:
         list.sort((a, b) {
           final isPaidA = a.transaksi.statusPembayaran == StatusPembayaran.paid;
           final isPaidB = b.transaksi.statusPembayaran == StatusPembayaran.paid;
@@ -198,7 +198,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
         });
         break;
 
-      case SortOption.belumLunas:
+      case OpsiUrutan.belumLunas:
         list.sort((a, b) {
           final isUnpaidA =
               a.transaksi.statusPembayaran == StatusPembayaran.unpaid;

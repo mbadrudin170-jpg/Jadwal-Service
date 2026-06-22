@@ -27,7 +27,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
   final TextEditingController _cariController = TextEditingController();
   late final FocusNode _cariFocusNode;
   int _jumlahTampil = 20;
-  String _kataKunciCari = '';
+  String _queryCari = '';
 
   @override
   void initState() {
@@ -59,8 +59,8 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
   }
 
   /// Filter data berdasarkan kata kunci cari
-  List<TransactionWithCustomer> _filterData(
-    List<TransactionWithCustomer> items,
+  List<TransaksiDenganPelanggan> _filterData(
+    List<TransaksiDenganPelanggan> items,
     String katakunci,
   ) {
     if (katakunci.isEmpty) return items;
@@ -151,7 +151,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
     final paketOpSqlite = ref.watch(paketOpSqliteProvider);
     return Scaffold(
       appBar: AppBar(
-        title: _kataKunciCari.isEmpty
+        title: _queryCari.isEmpty
             ? const TeksJudulBesar('Riwayat Langganan', warna: Colors.white)
             : TextField(
                 controller: _cariController,
@@ -161,13 +161,13 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
                   hintText: 'Cari data',
                   hintStyle: const TextStyle(color: Colors.white),
                   border: InputBorder.none,
-                  suffixIcon: _kataKunciCari.isNotEmpty
+                  suffixIcon: _queryCari.isNotEmpty
                       ? IconButton(
                           icon: const Icon(TIcons.close, color: Colors.white),
                           onPressed: () {
                             _cariController.clear();
                             setState(() {
-                              _kataKunciCari = '';
+                              _queryCari = '';
                               _jumlahTampil = 20;
                             });
                           },
@@ -177,29 +177,33 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
                 style: const TextStyle(color: Colors.white),
                 onChanged: (value) {
                   setState(() {
-                    _kataKunciCari = value;
+                    _queryCari = value;
                     _jumlahTampil = 20;
                   });
                 },
               ),
         actions: [
-          if (_kataKunciCari.isEmpty)
+          if (_queryCari.isEmpty)
             IconButton(
               onPressed: () {
                 setState(() {
-                  _kataKunciCari = ' ';
+                  _queryCari = ' ';
                 });
                 Future.microtask(() => _cariFocusNode.requestFocus());
               },
               icon: const Icon(TIcons.search),
             ),
-          if (_kataKunciCari.isEmpty)
+          if (_queryCari.isEmpty)
             IconButton(
               icon: const Icon(TIcons.filter),
               onPressed: () {
                 if (historyAsync.hasValue) {
                   Log.info('Membuka dialog pengurutan riwayat langganan.');
-                  _tampilkanDialogUrutan(context, ref, historyAsync.value!.sortBy);
+                  _tampilkanDialogUrutan(
+                    context,
+                    ref,
+                    historyAsync.value!.sortBy,
+                  );
                 }
               },
               tooltip: 'Urutkan',
@@ -210,7 +214,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('Error: $error')),
         data: (state) {
-          final itemsFiltered = _filterData(state.items, _kataKunciCari);
+          final itemsFiltered = _filterData(state.items, _queryCari);
           if (itemsFiltered.isEmpty) {
             return const Center(
               child: Text('Tidak ada riwayat langganan ditemukan.'),
@@ -220,7 +224,8 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
           return ListView.builder(
             controller: _pengendaliScroll,
             itemCount:
-                itemsFiltered.length + (_jumlahTampil < itemsFiltered.length ? 1 : 0),
+                itemsFiltered.length +
+                (_jumlahTampil < itemsFiltered.length ? 1 : 0),
             itemBuilder: (context, index) {
               if (index == itemsTampil.length) {
                 return const Center(
@@ -234,8 +239,8 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
               final transaksi = item.transaksi;
               final warnaStatusPembayaran =
                   transaksi.statusPembayaran == StatusPembayaran.paid
-                      ? Colors.green
-                      : Colors.red;
+                  ? Colors.green
+                  : Colors.red;
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                 child: ListTile(
@@ -295,12 +300,12 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
   Future<void> _tampilkanDialogUrutan(
     BuildContext context,
     WidgetRef ref,
-    SortOption currentSort,
+    OpsiUrutan currentSort,
   ) async {
-    final SortOption? selected = await showDialog<SortOption>(
+    final OpsiUrutan? selected = await showDialog<OpsiUrutan>(
       context: context,
       builder: (BuildContext context) {
-        Widget buildOption(String text, SortOption value) {
+        Widget buildOption(String text, OpsiUrutan value) {
           return SimpleDialogOption(
             onPressed: () => Navigator.pop(context, value),
             child: Text(
@@ -317,14 +322,14 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
         return SimpleDialog(
           title: const Text('Urutkan Berdasarkan'),
           children: <Widget>[
-            buildOption('Berakhir Hari Ini', SortOption.beralhirHariIni),
-            buildOption('Tanggal Berakhir', SortOption.tanggalBerakhir),
-            buildOption('Nama A-Z', SortOption.namaAZ),
-            buildOption('Nama Z-A', SortOption.namaZA),
-            buildOption('Lunas', SortOption.lunas),
-            buildOption('Belum Lunas', SortOption.belumLunas),
-            buildOption('Update Terbaru', SortOption.diperbaruiPadaAZ),
-            buildOption('Update Terlama', SortOption.diperbaruiPadaZA),
+            buildOption('Berakhir Hari Ini', OpsiUrutan.beralhirHariIni),
+            buildOption('Tanggal Berakhir', OpsiUrutan.tanggalBerakhir),
+            buildOption('Nama A-Z', OpsiUrutan.namaAZ),
+            buildOption('Nama Z-A', OpsiUrutan.namaZA),
+            buildOption('Lunas', OpsiUrutan.lunas),
+            buildOption('Belum Lunas', OpsiUrutan.belumLunas),
+            buildOption('Update Terbaru', OpsiUrutan.diperbaruiPadaAZ),
+            buildOption('Update Terlama', OpsiUrutan.diperbaruiPadaZA),
           ],
         );
       },

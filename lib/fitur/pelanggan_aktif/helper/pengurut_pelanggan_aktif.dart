@@ -100,7 +100,7 @@ class PengurutPelangganAktif {
     return sorted;
   }
 
-  static String ambilLabelUrutan(OpsiUrutkan option) {
+  static String ambilTeksUrutan(OpsiUrutkan option) {
     switch (option) {
       case OpsiUrutkan.berakhirHariIni:
         return 'Berakhir Hari Ini';

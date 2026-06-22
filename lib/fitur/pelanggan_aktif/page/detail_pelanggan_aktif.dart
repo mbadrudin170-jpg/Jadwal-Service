@@ -106,7 +106,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
     }
   }
 
-  Future<void> _navigasiKeEdit(PelangganAktifModel pelangganaktif) async {
+  Future<void> _bukaFormEdit(PelangganAktifModel pelangganaktif) async {
     Log.info('Navigasi ke form edit pelanggan aktif ID: ${pelangganaktif.id}');
     await Navigator.push<void>(
       context,
@@ -160,7 +160,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
         actions: [
           IconButton(
             icon: const Icon(TIcons.edit),
-            onPressed: () => _navigasiKeEdit(pelangganAktif),
+            onPressed: () => _bukaFormEdit(pelangganAktif),
           ),
         ],
       ),

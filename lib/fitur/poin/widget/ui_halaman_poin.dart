@@ -1,12 +1,12 @@
-// path: lib/fitur/poin/widget/poin_page_ui.dart
+// path lib/fitur/poin/widget/ui_halaman_poin.dart
 
 import 'package:flutter/material.dart';
-import 'package:wifi/fitur/poin/widget/point_card.dart';
+import 'package:wifi/fitur/poin/widget/kartu_total_poin.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 
 /// Menu yang tersedia di halaman poin.
-enum MenuPoin {
+enum OpsiMenuPoin {
   /// Menu penukaran hadiah.
   penukaran,
 
@@ -15,15 +15,15 @@ enum MenuPoin {
 }
 
 /// UI halaman poin yang dapat digunakan kembali.
-class PoinPageUi extends StatelessWidget {
+class UiHalamanPoin extends StatelessWidget {
   final Widget appBarTitle;
   final int totalPoin;
-  final MenuPoin menuPilihan;
-  final ValueChanged<Set<MenuPoin>> onSelectionChanged;
+  final OpsiMenuPoin menuPilihan;
+  final ValueChanged<Set<OpsiMenuPoin>> onSelectionChanged;
   final Widget contentView;
   final Widget? bottomWidget;
 
-  const PoinPageUi({
+  const UiHalamanPoin({
     super.key,
     required this.appBarTitle,
     required this.totalPoin,
@@ -54,7 +54,7 @@ class PoinPageUi extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24),
       color: Theme.of(context).primaryColor.withAlpha(15),
-      child: Center(child: TotalPointCard(poin: totalPoin)),
+      child: Center(child: KartuTotalPoin(poin: totalPoin)),
     );
   }
 
@@ -63,7 +63,7 @@ class PoinPageUi extends StatelessWidget {
     final primaryColor = theme.primaryColor;
 
     Widget buildSegment(
-      final MenuPoin menu,
+      final OpsiMenuPoin menu,
       final String label,
       final IconData icon,
     ) {
@@ -115,7 +115,7 @@ class PoinPageUi extends StatelessWidget {
       child: Stack(
         children: [
           AnimatedAlign(
-            alignment: menuPilihan == MenuPoin.penukaran
+            alignment: menuPilihan == OpsiMenuPoin.penukaran
                 ? Alignment.centerLeft
                 : Alignment.centerRight,
             duration: const Duration(milliseconds: 300),
@@ -144,8 +144,12 @@ class PoinPageUi extends StatelessWidget {
           ),
           Row(
             children: [
-              buildSegment(MenuPoin.penukaran, 'Tukar Hadiah', TIcons.gift),
-              buildSegment(MenuPoin.riwayat, 'Riwayat Poin', TIcons.history),
+              buildSegment(OpsiMenuPoin.penukaran, 'Tukar Hadiah', TIcons.gift),
+              buildSegment(
+                OpsiMenuPoin.riwayat,
+                'Riwayat Poin',
+                TIcons.history,
+              ),
             ],
           ),
         ],

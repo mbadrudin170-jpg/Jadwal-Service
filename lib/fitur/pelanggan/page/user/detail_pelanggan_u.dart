@@ -74,7 +74,7 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
   }
 
   /// Navigasi ke halaman edit profil, lalu menampilkan iklan saat kembali.
-  Future<void> _navigasiKeEdit(PelangganModel pelanggan) async {
+  Future<void> _bukaFormEdit(PelangganModel pelanggan) async {
     await ref.read(interstitialAdServiceProvider).show();
     if (!mounted) return;
     final bool? hasil = await Navigator.push<bool>(
@@ -160,7 +160,7 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
             body: DetailPelangganUI(
               pelanggan: data.pelanggan,
               totalPoin: data.totalPoin,
-              navigasiKeEdit: () => _navigasiKeEdit(data.pelanggan),
+              navigasiKeEdit: () => _bukaFormEdit(data.pelanggan),
               navigasiKePoin: () => _navigasiKePoin(data.pelanggan.id),
             ),
             bottomNavigationBar: const BannerAdsWidget(),

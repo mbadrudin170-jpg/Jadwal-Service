@@ -1,16 +1,16 @@
-// path lib/fitur/poin/widget/point_card.dart
+// path lib/fitur/poin/widget/kartu_total_poin.dart
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
-class TotalPointCard extends StatelessWidget {
+class KartuTotalPoin extends StatelessWidget {
   final int poin;
   final IconData icon;
   final Color warna;
   final VoidCallback? onTap;
 
-  const TotalPointCard({
+  const KartuTotalPoin({
     super.key,
     required this.poin,
     this.icon = TIcons.points,
@@ -19,7 +19,7 @@ class TotalPointCard extends StatelessWidget {
   });
 
   @override
-  Widget build( BuildContext context) {
+  Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
     return DecoratedBox(

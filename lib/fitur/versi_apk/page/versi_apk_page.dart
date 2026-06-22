@@ -94,7 +94,7 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
     unawaited(_loadData());
   }
 
-  Future<void> _navigasiKeEdit(VersiApkModel versiApk) async {
+  Future<void> _bukaFormEdit(VersiApkModel versiApk) async {
     if (!mounted) return;
     final result = await Navigator.push<bool>(
       context,
@@ -152,7 +152,7 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
           SimpleDialogOption(
             onPressed: () {
               Navigator.pop(c);
-              unawaited(_navigasiKeEdit(versi));
+              unawaited(_bukaFormEdit(versi));
             },
             child: const ListTile(
               leading: Icon(TIcons.edit),

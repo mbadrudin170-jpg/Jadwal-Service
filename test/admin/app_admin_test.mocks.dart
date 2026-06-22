@@ -501,7 +501,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
           as _i8.Future<_i5.PelangganAktifModel?>);
 
   @override
-  _i8.Future<_i5.PelangganAktifModel> updateActiveCustomer(
+  _i8.Future<_i5.PelangganAktifModel> updatePelangganAktif(
     _i5.PelangganAktifModel? activeCustomer, {
     bool? fromServer = false,
   }) =>

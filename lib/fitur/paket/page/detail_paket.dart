@@ -29,7 +29,7 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
     Log.info('Data paket berhasil dimuat: ${_paket.nama}, ID: ${_paket.id}.');
   }
 
-  Future<void> _navigasiKeEdit() async {
+  Future<void> _bukaFormEdit() async {
     Log.info('Navigasi ke form edit paket: ${_paket.nama}.');
     final result = await Navigator.push<bool>(
       context,
@@ -53,7 +53,7 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
         title: Text(_paket.nama),
         actions: [
           IconButton(
-            onPressed: _navigasiKeEdit,
+            onPressed: _bukaFormEdit,
             icon: const Icon(TIcons.edit),
             tooltip: 'Edit Paket',
           ),

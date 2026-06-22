@@ -162,7 +162,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
           if (kDebugMode)
             _buildMenuItem(
               context: context,
-              icon: TIcons.activeCustomer,
+              icon: TIcons.pelangganAktif,
               title: 'halamana tambah data dummy',
               onTap: () => _navigateTo(const HalamanDataDummy(), 'Halaman Tes'),
             ),

@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/poin/widget/point_card.dart';
+import 'package:wifi/fitur/poin/widget/kartu_total_poin.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -80,7 +80,7 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
   }
 
   Widget _buildKartuPoin() {
-    return TotalPointCard(
+    return KartuTotalPoin(
       poin: widget.totalPoin,
       onTap: () {
         if (widget.navigasiKePoin != null) {

@@ -54,7 +54,7 @@ PelangganOpSqlite pelangganOpSqlite(Ref ref) {
 /// Provider untuk menyediakan instance dari [PelangganAktifOpSqlite].
 @Riverpod(keepAlive: true)
 PelangganAktifOpSqlite pelangganAktifOpSqlite(Ref ref) {
-  Log.info('Membuat instance ActiveCustomerOperation via @riverpod...');
+  Log.info('Membuat instance PelangganAktifOperation via @riverpod...');
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
   final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);

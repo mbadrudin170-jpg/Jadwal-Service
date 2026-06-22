@@ -10,7 +10,7 @@ import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/poin/provider/poin_provider.dart';
-import 'package:wifi/fitur/poin/widget/poin_page_ui.dart';
+import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -42,7 +42,7 @@ class HalamanPoin extends ConsumerStatefulWidget {
 
 class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   final _layananIklanInterstisial = LayananIklanInterstisial();
-  MenuPoin _menuTerpilih = MenuPoin.penukaran;
+  OpsiMenuPoin _menuAktif = OpsiMenuPoin.penukaran;
   late final Widget _judulAppBar;
   bool _sedangTukarPoin = false;
 
@@ -212,7 +212,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
   @override
   Widget build(BuildContext context) {
-    Log.info('Building PointsPage UI, selected menu: $_menuTerpilih');
+    Log.info('Building PointsPage UI, selected menu: $_menuAktif');
     final dataAsync = ref.watch(pointsPageDataProvider(widget.idPelanggan));
 
     return dataAsync.when(
@@ -225,20 +225,20 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         body: Center(child: Text('Error: $err')),
       ),
       data: (dataHalaman) {
-        return PoinPageUi(
+        return UiHalamanPoin(
           appBarTitle: _judulAppBar,
           totalPoin: dataHalaman.totalPoin,
-          menuPilihan: _menuTerpilih,
+          menuPilihan: _menuAktif,
           onSelectionChanged: (newSelection) async {
             final selection = newSelection.first;
             Log.info('Points menu changed to: $selection');
-            setState(() => _menuTerpilih = selection);
+            setState(() => _menuAktif = selection);
 
-            if (selection == MenuPoin.riwayat && widget.tampilkanIklan) {
+            if (selection == OpsiMenuPoin.riwayat && widget.tampilkanIklan) {
               await _layananIklanInterstisial.show();
             }
           },
-          contentView: _menuTerpilih == MenuPoin.penukaran
+          contentView: _menuAktif == OpsiMenuPoin.penukaran
               ? _bangunDaftarHadiah(dataHalaman.hadiah, dataHalaman.totalPoin)
               : _bangunRiwayatPoin(),
           bottomWidget: widget.tampilkanIklan ? const BannerAdsWidget() : null,

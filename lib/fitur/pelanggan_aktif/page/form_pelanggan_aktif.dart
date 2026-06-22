@@ -48,7 +48,7 @@ class FormPelangganAktif extends ConsumerStatefulWidget {
 class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   final _formKey = GlobalKey<FormState>();
 
-  List<PelangganModel> _pelangganList = [];
+  List<PelangganModel> _daftarPelanggan = [];
   List<PaketModel> _daftarPaket = [];
   List<DompetModel> _dompetList = [];
   List<KategoriModel> _kategoriPemasukanList = [];
@@ -147,7 +147,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           ? hasil[4] as TransaksiModel?
           : null;
       setState(() {
-        _pelangganList = daftarPelanggan;
+        _daftarPelanggan = daftarPelanggan;
         _daftarPaket = daftarPaket;
         _dompetList = daftarDompet;
         _kategoriPemasukanList = kategoriPemasukanList;
@@ -181,7 +181,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     final pa = widget.pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
 
-    _pelangganDipilih = _pelangganList.firstWhereOrNull(
+    _pelangganDipilih = _daftarPelanggan.firstWhereOrNull(
       (p) => p.id == pa.idPelanggan,
     );
     _paketDipilih = _daftarPaket.firstWhereOrNull((p) => p.id == pa.idPaket);
@@ -365,7 +365,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
       PelangganAktifModel pelangganAktifHasil;
       if (_modeEdit) {
-        pelangganAktifHasil = await pelangganAktifOpsqlite.updateActiveCustomer(
+        pelangganAktifHasil = await pelangganAktifOpsqlite.updatePelangganAktif(
           pelangganAktifData,
         );
         await ref
@@ -604,7 +604,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         border: OutlineInputBorder(),
       ),
       initialValue: _pelangganDipilih,
-      items: _pelangganList
+      items: _daftarPelanggan
           .map((p) => DropdownMenuItem(value: p, child: Text(p.nama)))
           .toList(),
       onChanged: (newValue) async {

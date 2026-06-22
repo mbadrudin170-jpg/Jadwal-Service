@@ -74,7 +74,7 @@ class TIcons {
   static const IconData customers = Icons.group;
 
   /// Ikon untuk pelanggan aktif di navigasi utama.
-  static const IconData activeCustomer = Icons.person_pin_circle;
+  static const IconData pelangganAktif = Icons.person_pin_circle;
 
   /// Ikon untuk menu transaksi.
   static const IconData transactions = Icons.swap_horiz;

@@ -34,7 +34,7 @@ class PelangganAktifOpSqlite {
        _pelangganOpSqlite = pelangganOpSqlite,
        _layananNotifikasi = layananNotifikasi,
        _transaksiOpSqlite = transaksiOpSqlite {
-    Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_namaTabel');
+    Log.info('PelangganAktifOperation diinisialisasi - Tabel: $_namaTabel');
   }
 
   Future<void> rescheduleAllNotifications() async {
@@ -51,8 +51,8 @@ class PelangganAktifOpSqlite {
         'Ditemukan ${pelangganAktif.length} pelanggan aktif. Menjadwalkan ulang satu per satu...',
       );
 
-      for (final activeCustomer in pelangganAktif) {
-        await scheduleNotification(activeCustomer);
+      for (final pelangganAktif in pelangganAktif) {
+        await scheduleNotification(pelangganAktif);
       }
 
       Log.info('PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI SELESAI.');
@@ -172,9 +172,9 @@ class PelangganAktifOpSqlite {
       );
 
       if (maps.isNotEmpty) {
-        final activeCustomer = PelangganAktifModel.fromSqlite(maps.first);
+        final pelangganAktif = PelangganAktifModel.fromSqlite(maps.first);
         Log.info('Active customer ID: $id ditemukan');
-        return activeCustomer;
+        return pelangganAktif;
       }
 
       Log.info('Active customer ID: $id tidak ditemukan');
@@ -185,12 +185,12 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<PelangganAktifModel> updateActiveCustomer(
-    final PelangganAktifModel activeCustomer, {
+  Future<PelangganAktifModel> updatePelangganAktif(
+    final PelangganAktifModel pelangganAktif, {
     final bool fromServer = false,
   }) async {
     try {
-      final customerToSave = activeCustomer.copyWith(diperbaruiPada: _nowUtc);
+      final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
 
       Log.info('Memperbarui active customer ID: ${customerToSave.id}');
 
@@ -212,7 +212,7 @@ class PelangganAktifOpSqlite {
       return customerToSave;
     } on Exception catch (e, st) {
       Log.error(
-        'Gagal memperbarui active customer ID: ${activeCustomer.id}',
+        'Gagal memperbarui active customer ID: ${pelangganAktif.id}',
         e: e,
         s: st,
       );
@@ -550,7 +550,7 @@ class PelangganAktifOpSqlite {
   ) async {
     try {
       if (ids.isEmpty) {
-        Log.info('getActiveCustomersByIds dipanggil dengan list ID kosong');
+        Log.info('getPelangganAktifsByIds dipanggil dengan list ID kosong');
         return [];
       }
 

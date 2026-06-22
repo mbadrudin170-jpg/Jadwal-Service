@@ -176,7 +176,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
                         horizontal: TSizes.p24,
                       ),
                       title: Text(
-                        PengurutPelangganAktif.ambilLabelUrutan(o),
+                        PengurutPelangganAktif.ambilTeksUrutan(o),
                         style: TextStyle(
                           fontSize: TSizes.p16,
                           fontWeight: diPilih

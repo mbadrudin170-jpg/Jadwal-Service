@@ -111,7 +111,7 @@ void main() {
       final result = await container.read(riwayatAktivasiPaketProvider.future);
 
       expect(result.items.length, 3);
-      expect(result.sortBy, SortOption.tanggalBerakhir);
+      expect(result.sortBy, OpsiUrutan.tanggalBerakhir);
       // Ekspektasi urutan sesuai logic provider yang baru: trx3 -> trx2 -> trx1
       expect(result.items.map((e) => e.transaksi.id).toList(), [
         'trx3',
@@ -133,10 +133,10 @@ void main() {
       // Ubah sort ke Nama A-Z
       container
           .read(riwayatAktivasiPaketProvider.notifier)
-          .changeSort(SortOption.namaAZ);
+          .changeSort(OpsiUrutan.namaAZ);
 
       final newState = container.read(riwayatAktivasiPaketProvider).value!;
-      expect(newState.sortBy, SortOption.namaAZ);
+      expect(newState.sortBy, OpsiUrutan.namaAZ);
       expect(newState.items.map((e) => e.transaksi.id).toList(), [
         'trx2',
         'trx1',

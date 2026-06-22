@@ -171,7 +171,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(TIcons.activeCustomer),
+            icon: Icon(TIcons.pelangganAktif),
             label: 'Aktif',
           ),
           BottomNavigationBarItem(icon: Icon(TIcons.wallet), label: 'Dompet'),

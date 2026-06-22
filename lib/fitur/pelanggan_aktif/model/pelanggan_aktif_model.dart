@@ -57,7 +57,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
         diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
         diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
       );
-      Log.info('ActiveCustomerModel loaded from SQLite: ${model.id}');
+      Log.info('PelangganAktifModel loaded from SQLite: ${model.id}');
       return model;
     } catch (e, s) {
       Log.error('Failed to parse from SQLite: $map', e: e, s: s);
@@ -120,7 +120,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
           data[NamaKolom.diarsipkanPada],
         ),
       );
-      Log.info('ActiveCustomerModel loaded from Firebase: ${model.id}');
+      Log.info('PelangganAktifModel loaded from Firebase: ${model.id}');
       return model;
     } catch (e, stack) {
       Log.error('Failed to parse from Firebase: $data', e: e, s: stack);
@@ -129,7 +129,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
   }
 
   Map<String, dynamic> toFirebase() {
-    Log.info('Preparing toFirebase for ActiveCustomerModel $id');
+    Log.info('Preparing toFirebase for PelangganAktifModel $id');
     return {
       NamaKolom.id: id,
       NamaKolom.idPelanggan: idPelanggan,

@@ -32,7 +32,7 @@ class PengurutTransaksi {
     return sorted;
   }
 
-  static String ambilLabelUrutan(SortBy option) {
+  static String ambilTeksUrutan(SortBy option) {
     switch (option) {
       case SortBy.terbaru:
         return 'Terbaru';
