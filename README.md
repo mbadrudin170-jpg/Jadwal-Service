@@ -27307,7 +27307,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
     }
   }
 
-  Future<List<TransaksiModel?>> ambilTransaksiBelumLunasBerdasarkanIdPelanggan(
+  Future<List<TransaksiModel>> ambilBelumLunasBerdasarkanIdPelanggan(
     String idPelanggan,
   ) async {
     try {
@@ -27315,21 +27315,20 @@ class TransaksiOpFirebase extends BaseOpFirebase {
           .where(NamaKolom.statusPembayaran, isEqualTo: StatusPembayaran.unpaid)
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.tanggal, descending: true)
           .get();
       // jika query tidak cocok atau daftar kosong kembalikan daftar kosong
       if (querySnapshot.docs.isEmpty) {
         Log.info('Tidak ada paket aktif yang ditemukan untuk: $idPelanggan');
         return [];
       }
-      final daftarPaketBelumLunas = querySnapshot.docs.map((doc) {
-        return TransaksiModel.fromFirebase(
-          doc.id,
-          doc.data() as Map<String, dynamic>,
-        );
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return TransaksiModel.fromFirebase(doc.id, data);
       }).toList();
-      return daftarPaketBelumLunas;
     } on Exception catch (e, s) {
       Log.error('terjadi error saat pengambilan dftar belum lunas', e: e, s: s);
+      return [];
     }
   }
 
@@ -30908,7 +30907,7 @@ Future<void> alarmCallback() async {
 // path: lib/fitur/notfikasi/layanan_notifikasi.dart
 
 import 'dart:async';
-import 'dart:io'; // untuk Platform
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -30935,9 +30934,6 @@ void onDidReceiveBackgroundNotificationResponse(
 class LayananNotifikasi {
   static LayananNotifikasi? _instance;
 
-  /// Menyediakan instance tunggal (Singleton) dari [LayananNotifikasi].
-  ///
-  /// Jika instance belum ada, ia akan membuat yang baru.
   factory LayananNotifikasi() {
     if (_instance == null) {
       Log.info('Membuat instance baru untuk NotifikasiServis (Singleton).');
@@ -30948,34 +30944,20 @@ class LayananNotifikasi {
     return _instance!;
   }
 
-  /// Plugin utama untuk berinteraksi dengan notifikasi lokal.
   final FlutterLocalNotificationsPlugin plugin;
-
   final Random _random = Random();
-
-  /// Channel notifikasi Android untuk pesan-pesan penting.
   AndroidNotificationChannel? channelNotifikasiPenting;
-
   static bool _zonaWaktuTelahDiinisialisasi = false;
-
-  /// untuk mencegah notifikasi ganda saat stream diperbarui.
   final Set<String> _idNotifikasiTampil = {};
   StreamSubscription<List<NotifikasiModel>>? _langgananNotifikasiFirebase;
 
-  /// Konstruktor internal privat untuk implementasi Singleton.
   LayananNotifikasi._internal() : plugin = FlutterLocalNotificationsPlugin() {
     Log.info('Konstruktor internal NotifikasiServis dipanggil.');
   }
 
-  /// Konstruktor khusus untuk tujuan pengujian.
-  /// Memungkinkan injeksi plugin palsu (mock).
   @visibleForTesting
   LayananNotifikasi.testing(this.plugin);
 
-  // 1. Menginisialisasi konfigurasi zona waktu
-  /// Menginisialisasi konfigurasi zona waktu untuk penjadwalan notifikasi.
-  /// mengembalikan 'GMT' yang ambigu, dan menggantinya dengan 'Asia/Jakarta'
-  /// agar penjadwalan sesuai dengan waktu lokal Indonesia.
   Future<void> _inisialisasiZonaWaktu() async {
     Log.info('Memeriksa status inisialisasi zona waktu.');
     if (_zonaWaktuTelahDiinisialisasi) {
@@ -30989,12 +30971,10 @@ class LayananNotifikasi {
       Log.info('Memulai inisialisasi data zona waktu...');
       tz.initializeTimeZones();
 
-      // [FIXED] Mengambil properti .identifier dari objek TimezoneInfo
       String zonaWaktuLokal =
           (await FlutterTimezone.getLocalTimezone()).identifier;
       Log.info('Zona waktu terdeteksi dari perangkat: $zonaWaktuLokal');
 
-      // [DIPERBAIKI] Jika emulator mengembalikan "GMT" yang ambigu, gunakan "Asia/Jakarta".
       if (zonaWaktuLokal == 'GMT') {
         Log.warning(
           'Zona waktu "GMT" terdeteksi (kemungkinan dari emulator). Menggunakan "Asia/Jakarta" sebagai fallback.',
@@ -31028,12 +31008,6 @@ class LayananNotifikasi {
     }
   }
 
-  // 2. Menginisialisasi layanan notifikasi
-  /// Menginisialisasi layanan notifikasi.
-  ///
-  /// Wajib dipanggil sebelum menggunakan fitur notifikasi lainnya.
-  ///
-  /// [iconName] adalah nama resource drawable untuk ikon notifikasi Android.
   Future<void> inisialisasiNotifikasi({required final String iconName}) async {
     Log.info('Memulai proses inisialisasi NotifikasiServis...');
 
@@ -31042,7 +31016,6 @@ class LayananNotifikasi {
     await _setupAndroidChannel();
 
     final android = AndroidInitializationSettings(iconName);
-
     const ios = DarwinInitializationSettings();
     final settings = InitializationSettings(android: android, iOS: ios);
 
@@ -31064,8 +31037,6 @@ class LayananNotifikasi {
     }
   }
 
-  // 3. Menyiapkan channel notifikasi khusus untuk Android
-  /// Menyiapkan channel notifikasi khusus untuk Android.
   Future<void> _setupAndroidChannel() async {
     Log.info('Memulai pengaturan channel notifikasi Android.');
     channelNotifikasiPenting = const AndroidNotificationChannel(
@@ -31137,7 +31108,6 @@ class LayananNotifikasi {
               'Menerima ${listNotifikasi.length} notifikasi aktif dari stream.',
             );
             for (final notifikasi in listNotifikasi) {
-              // Hanya tampilkan notifikasi jika ID-nya belum pernah ditampilkan sebelumnya
               if (!_idNotifikasiTampil.contains(notifikasi.id)) {
                 Log.info(
                   'Menampilkan notifikasi baru: ${notifikasi.id} - ${notifikasi.judul}',
@@ -31147,7 +31117,6 @@ class LayananNotifikasi {
                   body: notifikasi.deskripsi,
                   payload: 'notifikasi_id_${notifikasi.id}',
                 );
-                // Tandai notifikasi ini sebagai sudah ditampilkan
                 _idNotifikasiTampil.add(notifikasi.id);
               }
             }
@@ -31167,8 +31136,6 @@ class LayananNotifikasi {
     _idNotifikasiTampil.clear();
   }
 
-  // 4. Meminta izin dari pengguna untuk menampilkan notifikasi
-  /// Meminta izin dari pengguna untuk menampilkan notifikasi.
   Future<void> mintaIzin() async {
     Log.info('Meminta izin notifikasi dari pengguna...');
     try {
@@ -31197,11 +31164,6 @@ class LayananNotifikasi {
     }
   }
 
-  // 5. Mendapatkan detail notifikasi peluncuran aplikasi
-  /// Mendapatkan detail notifikasi yang menyebabkan aplikasi diluncurkan.
-  ///
-  /// Berguna untuk menangani aksi setelah pengguna men-tap notifikasi
-  /// saat aplikasi dalam keadaan terminasi.
   Future<NotificationAppLaunchDetails?> getDetailPeluncuranNotifikasi() async {
     Log.info('Memeriksa apakah aplikasi diluncurkan melalui notifikasi...');
     final details = await plugin.getNotificationAppLaunchDetails();
@@ -31217,10 +31179,6 @@ class LayananNotifikasi {
     return details;
   }
 
-  // 6. Menampilkan notifikasi secara langsung
-  /// Menampilkan notifikasi secara langsung (instan).
-  ///
-  /// ID notifikasi dibuat secara acak.
   Future<void> tampilkanNotifikasiLangsung({
     required final String title,
     required final String body,
@@ -31235,7 +31193,6 @@ class LayananNotifikasi {
     }
     Log.info('Channel notifikasi ditemukan: ${channelNotifikasiPenting!.id}');
 
-    // Gunakan hash code dari payload atau title/body jika payload null, agar lebih konsisten
     final int id = payload?.hashCode ?? _random.nextInt(pow(2, 31).toInt());
     Log.info('Mengirim notifikasi langsung (ID: $id, Judul: $title)');
 
@@ -31262,10 +31219,6 @@ class LayananNotifikasi {
     }
   }
 
-  // 7. Menjadwalkan notifikasi di masa depan
-  /// Menjadwalkan notifikasi untuk ditampilkan di masa depan.
-  ///
-  /// [id] harus unik untuk setiap notifikasi yang dijadwalkan.
   Future<void> jadwalNotifikasi({
     required final int id,
     required final String judul,
@@ -31285,13 +31238,11 @@ class LayananNotifikasi {
       Log.info('ID: ${notif.id}, Title: ${notif.title}, Scheduled: $notif');
     }
 
-    // Memastikan izin exact alarm diberikan sebelum menjadwalkan
     final bool hasPermission = await pastikanIzinExactAlarm();
     if (!hasPermission) {
       Log.error(
         'Gagal menjadwalkan notifikasi karena izin exact alarm ditolak.',
       );
-      // Mungkin tampilkan snackbar ke pengguna di sini
       return;
     }
 
@@ -31303,7 +31254,6 @@ class LayananNotifikasi {
       channelDescription: channelNotifikasiPenting!.description,
       importance: Importance.max,
       priority: Priority.high,
-      // DIPERBAIKI: Menggunakan resource dari @drawable yang sudah terverifikasi ada.
     );
     final notificationDetails = NotificationDetails(android: androidDetails);
 
@@ -31331,10 +31281,6 @@ class LayananNotifikasi {
     }
   }
 
-  // 8. Memperbarui notifikasi yang sudah ada
-  /// Memperbarui notifikasi yang sudah ada atau menjadwalkannya jika belum ada.
-  ///
-  /// Ini adalah kombinasi dari `batalNotifikasi` dan `jadwalNotifikasi`.
   Future<void> perbaruiJadwalNotifikasi({
     required final int id,
     required final String title,
@@ -31356,8 +31302,6 @@ class LayananNotifikasi {
     Log.info('Pembaruan jadwal selesai dilakukan untuk ID: $id.');
   }
 
-  // 9. Membatalkan notifikasi tertentu
-  /// Membatalkan notifikasi yang terjadwal atau yang sedang ditampilkan.
   Future<void> batalNotifikasi(int id) async {
     Log.info('Membatalkan notifikasi aktif/terjadwal dengan ID: $id');
     try {
@@ -31368,8 +31312,6 @@ class LayananNotifikasi {
     }
   }
 
-  // 10. Membatalkan semua notifikasi
-  /// Membatalkan semua notifikasi yang telah dibuat oleh aplikasi.
   Future<void> batalSemuaNotifikasi() async {
     Log.info(
       'Membersihkan semua notifikasi yang ada (aktif maupun terjadwal)...',
@@ -31386,9 +31328,6 @@ class LayananNotifikasi {
     }
   }
 
-  // 11. Memastikan izin Exact Alarm di Android
-  /// Memastikan aplikasi memiliki izin Exact Alarm di Android.
-  /// Jika tidak, arahkan pengguna ke pengaturan.
   Future<bool> pastikanIzinExactAlarm() async {
     if (!Platform.isAndroid) return true;
 
@@ -31408,14 +31347,11 @@ class LayananNotifikasi {
         return true;
       } else {
         Log.error('Izin SCHEDULE_EXACT_ALARM ditolak oleh pengguna.');
-        // Optionally, open app settings
-        // await openAppSettings();
         return false;
       }
     }
   }
 }
-
 
 // File: lib/fitur/notfikasi/pengingat_paket_belum_lunas.dart
 // path lib/fitur/notfikasi/pengingat_paket_belum_lunas.dart
@@ -31423,13 +31359,12 @@ class LayananNotifikasi {
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
-import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/user/providers/user_provider.dart';
+import 'package:wifi/user/providers/user_provider.dart'
+    hide layananNotifikasiProvider;
 
 const String waktuTerkahirNotif = 'last_notif_date';
 
@@ -31463,10 +31398,8 @@ class PengingatService {
       final userId = _ref.read(userIdProvider).value ?? '';
 
       final transaksiOpFirebase = _ref.read(transaksiOpFirebaseProvider);
-      final daftarBelumLunas = transaksiOpFirebase
-          .ambilBerdasarkanIdPelanggan(userId)
-          .where((t) => t.statusPembayaran == StatusPembayaran.unpaid)
-          .toList();
+      final daftarBelumLunas = await transaksiOpFirebase
+          .ambilBelumLunasBerdasarkanIdPelanggan(userId);
 
       if (daftarBelumLunas.isNotEmpty) {
         Log.info(

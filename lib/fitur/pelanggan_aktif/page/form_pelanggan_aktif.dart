@@ -155,6 +155,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       } else {
         _mapNewData();
       }
+      if (!mounted) return;
 
       setState(() {
         _isLoading = false;
@@ -604,6 +605,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             Log.info(
               'Pelanggan dipilih: id=${newValue.id} nama=${newValue.nama}, saldoPoin=$saldoPoin',
             );
+
             _pelangganDipilih = newValue;
             _saldoPoinPelanggan = saldoPoin;
           });

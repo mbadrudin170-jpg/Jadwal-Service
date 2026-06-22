@@ -255,6 +255,20 @@ class MockTransaksiOpFirebase extends _i1.Mock
           as _i5.Future<_i8.TransaksiModel?>);
 
   @override
+  _i5.Future<List<_i8.TransaksiModel>> ambilBelumLunasBerdasarkanIdPelanggan(
+    String? idPelanggan,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilBelumLunasBerdasarkanIdPelanggan, [
+              idPelanggan,
+            ]),
+            returnValue: _i5.Future<List<_i8.TransaksiModel>>.value(
+              <_i8.TransaksiModel>[],
+            ),
+          )
+          as _i5.Future<List<_i8.TransaksiModel>>);
+
+  @override
   _i5.Future<List<_i8.TransaksiModel>> ambilBerdasarkanIdPelanggan(
     String? idPelanggan,
   ) =>
@@ -275,9 +289,9 @@ class MockTransaksiOpFirebase extends _i1.Mock
           as _i5.Future<int>);
 
   @override
-  _i5.Future<void> softDeleteTransaksi(String? idTransaksi) =>
+  _i5.Future<void> softDeleteTransaksi(String? id) =>
       (super.noSuchMethod(
-            Invocation.method(#hapusSementaraTransaksi, [idTransaksi]),
+            Invocation.method(#softDeleteTransaksi, [id]),
             returnValue: _i5.Future<void>.value(),
             returnValueForMissingStub: _i5.Future<void>.value(),
           )
