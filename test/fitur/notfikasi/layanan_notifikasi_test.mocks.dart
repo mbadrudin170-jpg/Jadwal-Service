@@ -651,9 +651,9 @@ class MockNotifikasiOpFirebase extends _i1.Mock
           as _i3.Future<void>);
 
   @override
-  _i3.Future<void> hpausBerdasarkanIdTransaksi(String? transactionId) =>
+  _i3.Future<void> hapusBerdasarkanIdTransaksi(String? idTransaksi) =>
       (super.noSuchMethod(
-            Invocation.method(#deleteByTransactionId, [transactionId]),
+            Invocation.method(#hapusBerdasarkanIdTransaksi, [idTransaksi]),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )

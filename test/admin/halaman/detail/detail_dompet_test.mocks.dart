@@ -98,16 +98,9 @@ class MockDompetOpSqlite extends _i1.Mock implements _i4.DompetOpSqlite {
           as _i5.Future<_i6.DompetModel?>);
 
   @override
-  _i5.Future<void> updateDompet(
-    _i6.DompetModel? wallet, {
-    bool? fromServer = false,
-  }) =>
+  _i5.Future<void> updateDompet(_i6.DompetModel? wallet) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #updateDompet,
-              [wallet],
-              {#fromServer: fromServer},
-            ),
+            Invocation.method(#updateDompet, [wallet]),
             returnValue: _i5.Future<void>.value(),
             returnValueForMissingStub: _i5.Future<void>.value(),
           )

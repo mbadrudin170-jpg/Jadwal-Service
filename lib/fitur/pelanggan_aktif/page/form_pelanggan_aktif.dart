@@ -364,7 +364,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         await ref
             .read(transaksiProvider.notifier)
             .updateTransaksi(transaksiData);
-        await notifikasiOpFirebase.hpausBerdasarkanIdTransaksi(idTransaksi);
+        await notifikasiOpFirebase.hapusBerdasarkanIdTransaksi(idTransaksi);
         Log.info(
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
         );

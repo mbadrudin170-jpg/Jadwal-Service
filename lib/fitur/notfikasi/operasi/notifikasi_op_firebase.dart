@@ -1,4 +1,4 @@
-// path lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
+// path: lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
@@ -121,14 +121,14 @@ class NotifikasiOpFirebase {
     }
   }
 
-  Future<void> hpausBerdasarkanIdTransaksi(String transactionId) async {
+  Future<void> hapusBerdasarkanIdTransaksi(String idTransaksi) async {
     try {
       Log.info(
-        'Menghapus notifikasi berdasarkan idTujuan (transactionId): $transactionId',
+        'Menghapus notifikasi berdasarkan idTujuan (transactionId): $idTransaksi',
       );
       final querySnapshot = await _firestore
           .collection(_koleksi)
-          .where(NamaKolom.idTujuan, isEqualTo: transactionId)
+          .where(NamaKolom.idTujuan, isEqualTo: idTransaksi)
           .get();
 
       final batch = _firestore.batch();

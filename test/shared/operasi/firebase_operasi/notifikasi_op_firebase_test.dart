@@ -477,7 +477,7 @@ void main() {
             .doc(notif2.id)
             .set(notif2.toFirebase());
 
-        await notifikasiOp.hpausBerdasarkanIdTransaksi('trx123');
+        await notifikasiOp.hapusBerdasarkanIdTransaksi('trx123');
 
         final snapshot = await firestore.collection(NamaTabel.notifikasi).get();
         expect(snapshot.docs.length, 1);
@@ -493,7 +493,7 @@ void main() {
             .doc(notif1.id)
             .set(notif1.toFirebase());
 
-        await notifikasiOp.hpausBerdasarkanIdTransaksi('trx-tidak-ada');
+        await notifikasiOp.hapusBerdasarkanIdTransaksi('trx-tidak-ada');
 
         final snapshot = await firestore.collection(NamaTabel.notifikasi).get();
         expect(snapshot.docs.length, 1);

@@ -88,7 +88,7 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      expect(container.read(sqliteProvider), isA<AsyncLoading>());
+      expect(container.read(sqliteProvider), isA<AsyncLoading<Database>>());
 
       await expectLater(container.read(sqliteProvider.future), completes);
 
