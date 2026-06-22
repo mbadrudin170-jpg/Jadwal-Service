@@ -931,9 +931,6 @@ class PengelolaAkun extends _$PengelolaAkun {
       layananPenyimpananLokalProvider.future,
     );
 
-    final keadaanSaatIni = state.value;
-    if (keadaanSaatIni == null) return;
-
     await penyimpananLokal.hapusAkun(id);
     final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
     final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
@@ -1437,6 +1434,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       } else {
         _mapNewData();
       }
+
       if (!mounted) return;
 
       setState(() {
@@ -2663,10 +2661,10 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     await ref.read(pelangganAktifProvider.notifier).perbaruiData();
   }
 
-  Future<void> _softDeleteCustomer(
+  Future<void> _softDeletePelangganAktif(
     final DetailPelangganAktifModel pelanggan,
   ) async {
-    final idPelanggan = pelanggan.pelangganAktif.id;
+    final idPelangganAktif = pelanggan.pelangganAktif.id;
     final namaPelanggan = pelanggan.namaPelanggan;
     final idTransaksi = pelanggan.pelangganAktif.idTransaksi;
     final bool? konfirmasi = await showDialog<bool>(
@@ -2689,9 +2687,11 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
 
     if (konfirmasi ?? false) {
       try {
-        await _pelangganAktifOpSqlite.softDelete(idPelanggan);
-        await _transaksiOpsqlite.softDelete(idTransaksi);
-        Log.info('Berhasil soft delete pelanggan ID: $idPelanggan');
+        await _pelangganAktifOpSqlite.softDeletePelangganAktifDanTransaksi(
+          idPelangganAktif,
+          idTransaksi,
+        );
+        Log.info('Berhasil soft delete pelanggan ID: $idPelangganAktif');
         if (mounted) {
           ToastUtil.success(
             context,
@@ -2700,13 +2700,19 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
         }
         await ref.read(pelangganAktifProvider.notifier).perbaruiData();
       } on Exception catch (e, s) {
-        Log.error('Gagal soft delete pelanggan ID: $idPelanggan', e: e, s: s);
+        Log.error(
+          'Gagal soft delete pelanggan ID: $idPelangganAktif',
+          e: e,
+          s: s,
+        );
         if (mounted) {
           ToastUtil.error(context, 'Gagal mengarsipkan pelanggan: $e');
         }
       }
     } else {
-      Log.info('Soft delete pelanggan ID: $idPelanggan dibatalkan oleh user');
+      Log.info(
+        'Soft delete pelanggan ID: $idPelangganAktif dibatalkan oleh user',
+      );
     }
   }
 
@@ -2960,7 +2966,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                     bottom: TSizes.p12,
                   ),
                   child: InkWell(
-                    onLongPress: () => _softDeleteCustomer(detail),
+                    onLongPress: () => _softDeletePelangganAktif(detail),
                     onTap: () async {
                       await Navigator.push<void>(
                         context,
@@ -3544,8 +3550,8 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
-import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -3557,6 +3563,7 @@ class PelangganAktifOpSqlite {
   final BaseOpSqlite _baseOpSqlite;
   final LayananNotifikasi _layananNotifikasi;
   final PelangganOpSqlite _pelangganOpSqlite;
+  final TransaksiOpSqlite _transaksiOpSqlite;
   final String _namaTabel = NamaTabel.pelangganAktif;
   final String _namaTabelCustomer = NamaTabel.pelanggan;
   final String _namaTabelPaket = NamaTabel.paket;
@@ -3568,9 +3575,11 @@ class PelangganAktifOpSqlite {
     required BaseOpSqlite baseOpSqlite,
     required PelangganOpSqlite pelangganOpSqlite,
     required LayananNotifikasi layananNotifikasi,
+    required TransaksiOpSqlite transaksiOpSqlite,
   }) : _baseOpSqlite = baseOpSqlite,
        _pelangganOpSqlite = pelangganOpSqlite,
-       _layananNotifikasi = layananNotifikasi {
+       _layananNotifikasi = layananNotifikasi,
+       _transaksiOpSqlite = transaksiOpSqlite {
     Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_namaTabel');
   }
 
@@ -3897,13 +3906,58 @@ class PelangganAktifOpSqlite {
     }
   }
 
+  Future<void> softDeletePelangganAktifDanTransaksi(
+    String idPelangganAKtif,
+    String? idTransaksi, {
+    bool dariServer = false,
+  }) async {
+    final pelangganAktif = await ambilBerdasarkanid(idPelangganAKtif);
+    if (pelangganAktif == null) {
+      Log.info('Pelanggan aktif dengan ID $idPelangganAKtif tidak ditemukan');
+      return;
+    }
+    TransaksiModel? transaksi;
+    if (idTransaksi != null) {
+      transaksi = await _transaksiOpSqlite.ambilBerdasarkanId(idTransaksi);
+      if (transaksi == null) {
+        Log.info('Transaksi dengan ID $idTransaksi tidak ditemukan');
+      }
+    }
+    await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+      final archivedCustomer = pelangganAktif.copyWith(
+        diperbaruiPada: _nowUtc,
+        diHapus: true,
+        diarsipkanPada: _nowUtc,
+      );
+
+      await txn.update(
+        _namaTabel,
+        archivedCustomer.toSqlite(),
+        where: '${NamaKolom.id} = ?',
+        whereArgs: [idPelangganAKtif],
+      );
+      if (idTransaksi != null && transaksi != null) {
+        final transkasiArsip = transaksi.copyWith(
+          diperbaruiPada: _nowUtc,
+          diHapus: true,
+          diarsipkanPada: _nowUtc,
+        );
+
+        await txn.update(
+          NamaTabel.transaksi,
+          transkasiArsip.toSqlite(),
+          where: '${NamaKolom.id} = ?',
+          whereArgs: [idTransaksi],
+        );
+      }
+    });
+  }
+
   Future<void> hapusPermanenDataSoftDelete({
     final bool dariServer = false,
   }) async {
     try {
-      await _baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
         final deadline = _nowUtc.subtract(const Duration(days: 30));
 
         final List<Map<String, dynamic>> expiredCustomers = await txn.query(
@@ -23240,12 +23294,13 @@ PelangganAktifOpSqlite pelangganAktifOpSqlite(Ref ref) {
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
   final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
   final layananNotifikasi = ref.watch(layananNotifikasiProvider);
-
+final transaksiOpSqlite=ref.watch(transaksiOpSqliteProvider);
   return PelangganAktifOpSqlite(
     sqliteDb: sqliteDb,
     baseOpSqlite: baseOpSqlite,
     pelangganOpSqlite: pelangganOpSqlite,
     layananNotifikasi: layananNotifikasi,
+    transaksiOpSqlite: transaksiOpSqlite,
   );
 }
 
@@ -25027,6 +25082,7 @@ import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
+import 'package:wifi/fitur/event/page/event_page_a.dart';
 import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
@@ -25119,33 +25175,23 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         _jumlahController.text = trx.jumlah.abs().toString();
         _tanggalDipilih = trx.tanggal;
         _jamDipilih = TimeOfDay.fromDateTime(trx.tanggal);
-        _dompetDipilih = _daftarDompet.firstWhere(
-          (d) => d.id == trx.idDompet,
-          orElse: () {
-            Log.warning(
-              'Dompet asal dengan ID ${trx.idDompet} tidak ditemukan. Menggunakan dompet pertama dari daftar.',
-            );
-            return _daftarDompet.first;
-          },
-        );
+        _dompetDipilih =
+            _daftarDompet.firstWhereOrNull((d) => d.id == trx.idDompet) ??
+            _daftarDompet.firstOrNull;
 
         if (trx.tipe == TipeTransaksi.transfer && trx.idDompetTujuan != null) {
-          _dompetTujuanDipilih = _daftarDompet.firstWhere(
-            (final d) => d.id == trx.idDompetTujuan,
-            orElse: () {
-              Log.warning(
-                'Dompet tujuan dengan ID ${trx.idDompetTujuan} tidak ditemukan. Menggunakan dompet pertama dari daftar.',
-              );
-              return _daftarDompet.first;
-            },
-          );
+          _dompetTujuanDipilih =
+              _daftarDompet.firstWhereOrNull(
+                (d) => d.id == trx.idDompetTujuan,
+              ) ??
+              _daftarDompet.firstOrNull;
         }
 
         _filterKategoriInternal();
 
         if (trx.idKategori.isNotEmpty) {
           _kategoriDipilih = _kategoriDifilter.cast<KategoriModel?>().firstWhere(
-            (final k) => k?.id == trx.idKategori,
+            (k) => k?.id == trx.idKategori,
             orElse: () {
               Log.warning(
                 'Kategori dengan ID ${trx.idKategori} tidak ditemukan setelah filter.',
@@ -25158,7 +25204,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
             _subKategoriDipilih = _kategoriDipilih!.idSubKategori
                 .cast<SubKategoriModel?>()
                 .firstWhere(
-                  (final sk) => sk?.id == trx.idSubKategori,
+                  (sk) => sk?.id == trx.idSubKategori,
                   orElse: () {
                     Log.warning(
                       'Sub-kategori dengan ID ${trx.idSubKategori} tidak ditemukan.',

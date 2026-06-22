@@ -94,10 +94,10 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     await ref.read(pelangganAktifProvider.notifier).perbaruiData();
   }
 
-  Future<void> _softDeletePelangganAktiff(
+  Future<void> _softDeletePelangganAktif(
     final DetailPelangganAktifModel pelanggan,
   ) async {
-    final idPelanggan = pelanggan.pelangganAktif.id;
+    final idPelangganAktif = pelanggan.pelangganAktif.id;
     final namaPelanggan = pelanggan.namaPelanggan;
     final idTransaksi = pelanggan.pelangganAktif.idTransaksi;
     final bool? konfirmasi = await showDialog<bool>(
@@ -120,9 +120,11 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
 
     if (konfirmasi ?? false) {
       try {
-        await _pelangganAktifOpSqlite.softDelete(idPelanggan);
-        await _transaksiOpsqlite.softDelete(idTransaksi);
-        Log.info('Berhasil soft delete pelanggan ID: $idPelanggan');
+        await _pelangganAktifOpSqlite.softDeletePelangganAktifDanTransaksi(
+          idPelangganAktif,
+          idTransaksi,
+        );
+        Log.info('Berhasil soft delete pelanggan ID: $idPelangganAktif');
         if (mounted) {
           ToastUtil.success(
             context,
@@ -131,13 +133,19 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
         }
         await ref.read(pelangganAktifProvider.notifier).perbaruiData();
       } on Exception catch (e, s) {
-        Log.error('Gagal soft delete pelanggan ID: $idPelanggan', e: e, s: s);
+        Log.error(
+          'Gagal soft delete pelanggan ID: $idPelangganAktif',
+          e: e,
+          s: s,
+        );
         if (mounted) {
           ToastUtil.error(context, 'Gagal mengarsipkan pelanggan: $e');
         }
       }
     } else {
-      Log.info('Soft delete pelanggan ID: $idPelanggan dibatalkan oleh user');
+      Log.info(
+        'Soft delete pelanggan ID: $idPelangganAktif dibatalkan oleh user',
+      );
     }
   }
 
@@ -391,7 +399,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                     bottom: TSizes.p12,
                   ),
                   child: InkWell(
-                    onLongPress: () => _softDeletePelangganAktiff(detail),
+                    onLongPress: () => _softDeletePelangganAktif(detail),
                     onTap: () async {
                       await Navigator.push<void>(
                         context,

@@ -59,12 +59,13 @@ PelangganAktifOpSqlite pelangganAktifOpSqlite(Ref ref) {
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
   final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
   final layananNotifikasi = ref.watch(layananNotifikasiProvider);
-
+final transaksiOpSqlite=ref.watch(transaksiOpSqliteProvider);
   return PelangganAktifOpSqlite(
     sqliteDb: sqliteDb,
     baseOpSqlite: baseOpSqlite,
     pelangganOpSqlite: pelangganOpSqlite,
     layananNotifikasi: layananNotifikasi,
+    transaksiOpSqlite: transaksiOpSqlite,
   );
 }
 

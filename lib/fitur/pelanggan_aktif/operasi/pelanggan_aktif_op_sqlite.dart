@@ -4,8 +4,8 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
-import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -17,6 +17,7 @@ class PelangganAktifOpSqlite {
   final BaseOpSqlite _baseOpSqlite;
   final LayananNotifikasi _layananNotifikasi;
   final PelangganOpSqlite _pelangganOpSqlite;
+  final TransaksiOpSqlite _transaksiOpSqlite;
   final String _namaTabel = NamaTabel.pelangganAktif;
   final String _namaTabelCustomer = NamaTabel.pelanggan;
   final String _namaTabelPaket = NamaTabel.paket;
@@ -28,9 +29,11 @@ class PelangganAktifOpSqlite {
     required BaseOpSqlite baseOpSqlite,
     required PelangganOpSqlite pelangganOpSqlite,
     required LayananNotifikasi layananNotifikasi,
+    required TransaksiOpSqlite transaksiOpSqlite,
   }) : _baseOpSqlite = baseOpSqlite,
        _pelangganOpSqlite = pelangganOpSqlite,
-       _layananNotifikasi = layananNotifikasi {
+       _layananNotifikasi = layananNotifikasi,
+       _transaksiOpSqlite = transaksiOpSqlite {
     Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_namaTabel');
   }
 
@@ -359,25 +362,47 @@ class PelangganAktifOpSqlite {
 
   Future<void> softDeletePelangganAktifDanTransaksi(
     String idPelangganAKtif,
-    String? idTransaksi,
-  ) async {
+    String? idTransaksi, {
+    bool dariServer = false,
+  }) async {
+    final pelangganAktif = await ambilBerdasarkanid(idPelangganAKtif);
+    if (pelangganAktif == null) {
+      Log.info('Pelanggan aktif dengan ID $idPelangganAKtif tidak ditemukan');
+      return;
+    }
+    TransaksiModel? transaksi;
+    if (idTransaksi != null) {
+      transaksi = await _transaksiOpSqlite.ambilBerdasarkanId(idTransaksi);
+      if (transaksi == null) {
+        Log.info('Transaksi dengan ID $idTransaksi tidak ditemukan');
+      }
+    }
     await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+      final archivedCustomer = pelangganAktif.copyWith(
+        diperbaruiPada: _nowUtc,
+        diHapus: true,
+        diarsipkanPada: _nowUtc,
+      );
+
       await txn.update(
         _namaTabel,
-        {
-          NamaKolom.dihapus: 1,
-          NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
-          NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
-        },
+        archivedCustomer.toSqlite(),
         where: '${NamaKolom.id} = ?',
         whereArgs: [idPelangganAKtif],
       );
-      if (idTransaksi != null) {
-        await txn.update(NamaTabel.transaksi, {
-          NamaKolom.dihapus: 1,
-          NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
-          NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
-        });
+      if (idTransaksi != null && transaksi != null) {
+        final transkasiArsip = transaksi.copyWith(
+          diperbaruiPada: _nowUtc,
+          diHapus: true,
+          diarsipkanPada: _nowUtc,
+        );
+
+        await txn.update(
+          NamaTabel.transaksi,
+          transkasiArsip.toSqlite(),
+          where: '${NamaKolom.id} = ?',
+          whereArgs: [idTransaksi],
+        );
       }
     });
   }
