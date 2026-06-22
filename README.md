@@ -1850,10 +1850,16 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                 Log.info(
                   'Penggunaan poin diubah: $_gunakanPoin, poin efektif=${hitungPoinEfektif()}',
                 );
-                if (!_kategoriList.contains(_kategoriDipilih)) {
-                  _kategoriDipilih = _kategoriList.isNotEmpty
-                      ? _kategoriList.first
-                      : null;
+                _kategoriDipilih = null;
+                if (_kategoriList.isNotEmpty) {
+                  _kategoriDipilih = _kategoriList.first;
+                  Log.info(
+                    'Kategori otomatis dipilih: ${_kategoriDipilih!.nama} (${_kategoriList.length} kategori tersedia)',
+                  );
+                } else {
+                  Log.warning(
+                    'Tidak ada kategori tersedia untuk mode ${_gunakanPoin ? "pengeluaran" : "pemasukan"}',
+                  );
                 }
               });
             },
@@ -1885,9 +1891,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             Log.info(
               'Pelanggan dipilih: id=${newValue.id} nama=${newValue.nama}, saldoPoin=$saldoPoin',
             );
-
             _pelangganDipilih = newValue;
             _saldoPoinPelanggan = saldoPoin;
+            if (_kategoriList.isNotEmpty && _kategoriDipilih == null) {
+              _kategoriDipilih = _kategoriList.first;
+            }
           });
         }
       },
@@ -1937,6 +1945,30 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Widget _buildKategoriDropdown() {
+    if (_kategoriList.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(TSizes.p12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.orange.shade300),
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.orange.shade50,
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.orange.shade700),
+            gapW8,
+            Expanded(
+              child: Text(
+                _gunakanPoin
+                    ? 'Belum ada kategori pengeluaran. Buat kategori terlebih dahulu.'
+                    : 'Belum ada kategori pemasukan. Buat kategori terlebih dahulu.',
+                style: TextStyle(color: Colors.orange.shade700, fontSize: 14),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return DropdownButtonFormField<KategoriModel>(
       key: const Key('kategori_dropdown'),
       decoration: const InputDecoration(
@@ -1951,7 +1983,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         Log.info('Kategori dipilih: id=${newValue?.id} nama=${newValue?.nama}');
         setState(() => _kategoriDipilih = newValue);
       },
-      validator: (v) => v == null ? 'Kategori tidak boleh kosong' : null,
+      validator: (v) {
+        if (v == null) {
+          return _kategoriList.isEmpty
+              ? 'Tidak ada kategori tersedia. Silakan buat kategori terlebih dahulu.'
+              : 'Kategori tidak boleh kosong';
+        }
+        return null;
+      },
     );
   }
 
@@ -31435,19 +31474,19 @@ class PengingatService {
       final prefs = await _ref.read(sharedPreferencesProvider.future);
       final hariIni = DateFormat('yyyy-MM-dd').format(DateTime.now());
       final terakhirNotif = prefs.getString(waktuTerkahirNotif) ?? '';
-
       if (terakhirNotif == hariIni) {
         Log.info(
           '[PengingatTagihan] Notifikasi sudah tampil hari ini, dilewati.',
         );
         return;
       }
-      final userId = _ref.read(userIdProvider).value ?? '';
-
+      final userId = await _ref.read(userIdProvider.future);
+      if (userId == null) {
+        return;
+      }
       final transaksiOpFirebase = _ref.read(transaksiOpFirebaseProvider);
       final daftarBelumLunas = await transaksiOpFirebase
           .ambilBelumLunasBerdasarkanIdPelanggan(userId);
-
       if (daftarBelumLunas.isNotEmpty) {
         Log.info(
           '[PengingatTagihan] Ditemukan ${daftarBelumLunas.length} paket belum lunas.',
@@ -40457,7 +40496,8 @@ part 'shared_providers.g.dart';
 @Riverpod(keepAlive: true)
 AppRole appRole(Ref ref) {
   throw UnimplementedError(
-      'appRoleProvider harus di-override di dalam ProviderScope');
+    'appRoleProvider harus di-override di dalam ProviderScope',
+  );
 }
 
 @Riverpod(keepAlive: true)
@@ -40498,12 +40538,16 @@ void pengontrolNotifikasi(Ref ref) {
           final pelanggan = await penyimpananLokal.ambilAkunLogin();
           if (pelanggan != null) {
             Log.info(
-                'User login terdeteksi, memulai pemantauan untuk ${pelanggan.id}');
+              'User login terdeteksi, memulai pemantauan untuk ${pelanggan.id}',
+            );
             layananNotifikasi.pantauNotifUser(
-                notifikasiOpFirebase, pelanggan.id);
+              notifikasiOpFirebase,
+              pelanggan.id,
+            );
           } else {
             Log.info(
-                'User logout terdeteksi, menghentikan pemantauan notifikasi.');
+              'User logout terdeteksi, menghentikan pemantauan notifikasi.',
+            );
             layananNotifikasi.hentikanPemantauanNotifikasi();
           }
         },
@@ -40518,7 +40562,8 @@ void pengontrolNotifikasi(Ref ref) {
 
   ref.onDispose(() {
     Log.info(
-        'Notifikasi controller di-dispose, menghentikan semua pemantauan.');
+      'Notifikasi controller di-dispose, menghentikan semua pemantauan.',
+    );
     layananNotifikasi.hentikanPemantauanNotifikasi();
   });
 }

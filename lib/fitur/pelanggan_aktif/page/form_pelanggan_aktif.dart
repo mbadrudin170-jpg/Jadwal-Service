@@ -571,10 +571,16 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                 Log.info(
                   'Penggunaan poin diubah: $_gunakanPoin, poin efektif=${hitungPoinEfektif()}',
                 );
-                if (!_kategoriList.contains(_kategoriDipilih)) {
-                  _kategoriDipilih = _kategoriList.isNotEmpty
-                      ? _kategoriList.first
-                      : null;
+                _kategoriDipilih = null;
+                if (_kategoriList.isNotEmpty) {
+                  _kategoriDipilih = _kategoriList.first;
+                  Log.info(
+                    'Kategori otomatis dipilih: ${_kategoriDipilih!.nama} (${_kategoriList.length} kategori tersedia)',
+                  );
+                } else {
+                  Log.warning(
+                    'Tidak ada kategori tersedia untuk mode ${_gunakanPoin ? "pengeluaran" : "pemasukan"}',
+                  );
                 }
               });
             },
@@ -606,9 +612,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             Log.info(
               'Pelanggan dipilih: id=${newValue.id} nama=${newValue.nama}, saldoPoin=$saldoPoin',
             );
-
             _pelangganDipilih = newValue;
             _saldoPoinPelanggan = saldoPoin;
+            if (_kategoriList.isNotEmpty && _kategoriDipilih == null) {
+              _kategoriDipilih = _kategoriList.first;
+            }
           });
         }
       },
@@ -658,6 +666,30 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Widget _buildKategoriDropdown() {
+    if (_kategoriList.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(TSizes.p12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.orange.shade300),
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.orange.shade50,
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.orange.shade700),
+            gapW8,
+            Expanded(
+              child: Text(
+                _gunakanPoin
+                    ? 'Belum ada kategori pengeluaran. Buat kategori terlebih dahulu.'
+                    : 'Belum ada kategori pemasukan. Buat kategori terlebih dahulu.',
+                style: TextStyle(color: Colors.orange.shade700, fontSize: 14),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return DropdownButtonFormField<KategoriModel>(
       key: const Key('kategori_dropdown'),
       decoration: const InputDecoration(
@@ -672,7 +704,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         Log.info('Kategori dipilih: id=${newValue?.id} nama=${newValue?.nama}');
         setState(() => _kategoriDipilih = newValue);
       },
-      validator: (v) => v == null ? 'Kategori tidak boleh kosong' : null,
+      validator: (v) {
+        if (v == null) {
+          return _kategoriList.isEmpty
+              ? 'Tidak ada kategori tersedia. Silakan buat kategori terlebih dahulu.'
+              : 'Kategori tidak boleh kosong';
+        }
+        return null;
+      },
     );
   }
 
