@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
+import 'package:wifi/fitur/event/page/event_page_a.dart';
 import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
@@ -100,33 +101,23 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         _jumlahController.text = trx.jumlah.abs().toString();
         _tanggalDipilih = trx.tanggal;
         _jamDipilih = TimeOfDay.fromDateTime(trx.tanggal);
-        _dompetDipilih = _daftarDompet.firstWhere(
-          (d) => d.id == trx.idDompet,
-          orElse: () {
-            Log.warning(
-              'Dompet asal dengan ID ${trx.idDompet} tidak ditemukan. Menggunakan dompet pertama dari daftar.',
-            );
-            return _daftarDompet.first;
-          },
-        );
+        _dompetDipilih =
+            _daftarDompet.firstWhereOrNull((d) => d.id == trx.idDompet) ??
+            _daftarDompet.firstOrNull;
 
         if (trx.tipe == TipeTransaksi.transfer && trx.idDompetTujuan != null) {
-          _dompetTujuanDipilih = _daftarDompet.firstWhere(
-            (final d) => d.id == trx.idDompetTujuan,
-            orElse: () {
-              Log.warning(
-                'Dompet tujuan dengan ID ${trx.idDompetTujuan} tidak ditemukan. Menggunakan dompet pertama dari daftar.',
-              );
-              return _daftarDompet.first;
-            },
-          );
+          _dompetTujuanDipilih =
+              _daftarDompet.firstWhereOrNull(
+                (d) => d.id == trx.idDompetTujuan,
+              ) ??
+              _daftarDompet.firstOrNull;
         }
 
         _filterKategoriInternal();
 
         if (trx.idKategori.isNotEmpty) {
           _kategoriDipilih = _kategoriDifilter.cast<KategoriModel?>().firstWhere(
-            (final k) => k?.id == trx.idKategori,
+            (k) => k?.id == trx.idKategori,
             orElse: () {
               Log.warning(
                 'Kategori dengan ID ${trx.idKategori} tidak ditemukan setelah filter.',
@@ -139,7 +130,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
             _subKategoriDipilih = _kategoriDipilih!.idSubKategori
                 .cast<SubKategoriModel?>()
                 .firstWhere(
-                  (final sk) => sk?.id == trx.idSubKategori,
+                  (sk) => sk?.id == trx.idSubKategori,
                   orElse: () {
                     Log.warning(
                       'Sub-kategori dengan ID ${trx.idSubKategori} tidak ditemukan.',

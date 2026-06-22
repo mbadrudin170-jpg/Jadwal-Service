@@ -65,9 +65,6 @@ class PengelolaAkun extends _$PengelolaAkun {
       layananPenyimpananLokalProvider.future,
     );
 
-    final keadaanSaatIni = state.value;
-    if (keadaanSaatIni == null) return;
-
     await penyimpananLokal.hapusAkun(id);
     final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
     final akunSaatIni = await penyimpananLokal.ambilAkunLogin();

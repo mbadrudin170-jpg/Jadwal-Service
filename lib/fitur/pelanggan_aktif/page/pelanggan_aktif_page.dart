@@ -94,7 +94,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     await ref.read(pelangganAktifProvider.notifier).perbaruiData();
   }
 
-  Future<void> _softDeleteCustomer(
+  Future<void> _softDeletePelangganAktiff(
     final DetailPelangganAktifModel pelanggan,
   ) async {
     final idPelanggan = pelanggan.pelangganAktif.id;
@@ -391,7 +391,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                     bottom: TSizes.p12,
                   ),
                   child: InkWell(
-                    onLongPress: () => _softDeleteCustomer(detail),
+                    onLongPress: () => _softDeletePelangganAktiff(detail),
                     onTap: () async {
                       await Navigator.push<void>(
                         context,

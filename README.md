@@ -890,8 +890,9 @@ class PengelolaAkun extends _$PengelolaAkun {
   }
 
   Future<AkunState> _initAwal(Ref ref) async {
-    final penyimpananLokal =
-        await ref.watch(layananPenyimpananLokalProvider.future);
+    final penyimpananLokal = await ref.watch(
+      layananPenyimpananLokalProvider.future,
+    );
     final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
     final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
     return AkunState(akunSaatIni: akunSaatIni, daftarAkunTersimpan: daftarAkun);
@@ -899,76 +900,74 @@ class PengelolaAkun extends _$PengelolaAkun {
 
   // 1. Login / simpan akun
   Future<void> login(PelangganModel akun) async {
-    final penyimpananLokal =
-        await ref.read(layananPenyimpananLokalProvider.future);
+    final penyimpananLokal = await ref.read(
+      layananPenyimpananLokalProvider.future,
+    );
 
     await penyimpananLokal.simpanAkunSaatIni(akun);
     final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
-    state = AsyncValue.data(AkunState(
-      akunSaatIni: akun,
-      daftarAkunTersimpan: daftarAkun,
-    ));
+    state = AsyncData(
+      AkunState(akunSaatIni: akun, daftarAkunTersimpan: daftarAkun),
+    );
   }
 
   // 2. Logout (hapus akun saat ini)
   Future<void> logout() async {
-    final penyimpananLokal =
-        await ref.read(layananPenyimpananLokalProvider.future);
+    final penyimpananLokal = await ref.read(
+      layananPenyimpananLokalProvider.future,
+    );
 
     await penyimpananLokal.hapusAkunSaatIni();
     final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
     final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
-    state = AsyncValue.data(AkunState(
-      akunSaatIni: akunSaatIni,
-      daftarAkunTersimpan: daftarAkun,
-    ));
+    state = AsyncData(
+      AkunState(akunSaatIni: akunSaatIni, daftarAkunTersimpan: daftarAkun),
+    );
   }
 
   // 3. Hapus akun tertentu dari daftar
   Future<void> hapusAkun(String id) async {
-    final penyimpananLokal =
-        await ref.read(layananPenyimpananLokalProvider.future);
+    final penyimpananLokal = await ref.read(
+      layananPenyimpananLokalProvider.future,
+    );
 
     final keadaanSaatIni = state.value;
     if (keadaanSaatIni == null) return;
 
     await penyimpananLokal.hapusAkun(id);
-    final daftarBaru =
-        keadaanSaatIni.daftarAkunTersimpan.where((a) => a.id != id).toList();
-    final akunBaru = keadaanSaatIni.akunSaatIni?.id == id
-        ? null
-        : keadaanSaatIni.akunSaatIni;
-    state = AsyncValue.data(AkunState(
-      akunSaatIni: akunBaru,
-      daftarAkunTersimpan: daftarBaru,
-    ));
+    final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
+    final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
+    state = AsyncData(
+      AkunState(akunSaatIni: akunSaatIni, daftarAkunTersimpan: daftarAkun),
+    );
   }
 
   Future<void> hapusTokenLogin() async {
-    final penyimpananLokal =
-        await ref.read(layananPenyimpananLokalProvider.future);
+    final penyimpananLokal = await ref.read(
+      layananPenyimpananLokalProvider.future,
+    );
     await penyimpananLokal.hapusTokenLogin();
 
     final keadaanSaatIni = state.value;
     final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
-    final daftarAkun = keadaanSaatIni?.daftarAkunTersimpan ??
+    final daftarAkun =
+        keadaanSaatIni?.daftarAkunTersimpan ??
         await penyimpananLokal.ambilDaftarAkun();
-    state = AsyncValue.data(AkunState(
-      akunSaatIni: akunSaatIni,
-      daftarAkunTersimpan: daftarAkun,
-    ));
+    state = AsyncData(
+      AkunState(akunSaatIni: akunSaatIni, daftarAkunTersimpan: daftarAkun),
+    );
   }
 
   // 4. Segarkan manual (jika diperlukan)
   Future<void> refresh() async {
-    final penyimpananLokal =
-        await ref.read(layananPenyimpananLokalProvider.future);
+    final penyimpananLokal = await ref.read(
+      layananPenyimpananLokalProvider.future,
+    );
     final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
     final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
-    state = AsyncValue.data(AkunState(
-      akunSaatIni: akunSaatIni,
-      daftarAkunTersimpan: daftarAkun,
-    ));
+    state = AsyncData(
+      AkunState(akunSaatIni: akunSaatIni, daftarAkunTersimpan: daftarAkun),
+    );
   }
 }
 
@@ -1438,6 +1437,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       } else {
         _mapNewData();
       }
+      if (!mounted) return;
 
       setState(() {
         _isLoading = false;
@@ -1887,6 +1887,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             Log.info(
               'Pelanggan dipilih: id=${newValue.id} nama=${newValue.nama}, saldoPoin=$saldoPoin',
             );
+
             _pelangganDipilih = newValue;
             _saldoPoinPelanggan = saldoPoin;
           });
