@@ -357,13 +357,36 @@ class PelangganAktifOpSqlite {
     }
   }
 
+  Future<void> softDeletePelangganAktifDanTransaksi(
+    String idPelangganAKtif,
+    String? idTransaksi,
+  ) async {
+    await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+      await txn.update(
+        _namaTabel,
+        {
+          NamaKolom.dihapus: 1,
+          NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
+          NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
+        },
+        where: '${NamaKolom.id} = ?',
+        whereArgs: [idPelangganAKtif],
+      );
+      if (idTransaksi != null) {
+        await txn.update(NamaTabel.transaksi, {
+          NamaKolom.dihapus: 1,
+          NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
+          NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
+        });
+      }
+    });
+  }
+
   Future<void> hapusPermanenDataSoftDelete({
     final bool dariServer = false,
   }) async {
     try {
-      await _baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
         final deadline = _nowUtc.subtract(const Duration(days: 30));
 
         final List<Map<String, dynamic>> expiredCustomers = await txn.query(
