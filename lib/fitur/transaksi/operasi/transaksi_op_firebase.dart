@@ -73,6 +73,31 @@ class TransaksiOpFirebase extends BaseOpFirebase {
     }
   }
 
+  Future<List<TransaksiModel>> ambilBelumLunasBerdasarkanIdPelanggan(
+    String idPelanggan,
+  ) async {
+    try {
+      final querySnapshot = await _koleksi
+          .where(NamaKolom.statusPembayaran, isEqualTo: StatusPembayaran.unpaid)
+          .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.tanggal, descending: true)
+          .get();
+      // jika query tidak cocok atau daftar kosong kembalikan daftar kosong
+      if (querySnapshot.docs.isEmpty) {
+        Log.info('Tidak ada paket aktif yang ditemukan untuk: $idPelanggan');
+        return [];
+      }
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return TransaksiModel.fromFirebase(doc.id, data);
+      }).toList();
+    } on Exception catch (e, s) {
+      Log.error('terjadi error saat pengambilan dftar belum lunas', e: e, s: s);
+      return [];
+    }
+  }
+
   /// Mengambil semua transaksi untuk seorang pelanggan.
   Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
     String idPelanggan,
@@ -124,17 +149,13 @@ class TransaksiOpFirebase extends BaseOpFirebase {
   }
 
   /// Melakukan soft delete pada transaksi di Firestore.
-  Future<void> hapusSementaraTransaksi(String idTransaksi) async {
-    Log.info('Memulai soft delete transaksi di Firestore: $idTransaksi');
+  Future<void> softDeleteTransaksi(String id) async {
+    Log.info('Memulai soft delete transaksi di Firestore: $id');
     try {
-      await hapusSementara(NamaTabel.transaksi, idTransaksi);
-      Log.info('Soft delete transaksi berhasil: $idTransaksi');
+      await hapusSementara(NamaTabel.transaksi, id);
+      Log.info('Soft delete transaksi berhasil: $id');
     } on FirebaseException catch (e, s) {
-      Log.error(
-        'Gagal melakukan soft delete transaksi: $idTransaksi',
-        e: e,
-        s: s,
-      );
+      Log.error('Gagal melakukan soft delete transaksi: $id', e: e, s: s);
       rethrow;
     }
   }

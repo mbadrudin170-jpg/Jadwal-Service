@@ -1,12 +1,16 @@
-// path: lib/fitur/notfikasi/pengingat_paket_belum_lunas.dart
+// path lib/fitur/notfikasi/pengingat_paket_belum_lunas.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
-import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart'
+    hide layananNotifikasiProvider;
+
+const String waktuTerkahirNotif = 'last_notif_date';
 
 /// Service untuk mengecek paket belum lunas dan menampilkan notifikasi pengingat.
 class PengingatService {
@@ -21,20 +25,25 @@ class PengingatService {
     Log.info('[PengingatTagihan] Memulai pengecekan paket belum lunas.');
 
     try {
-      final prefs = await _ref.read(sharedPreferencesProvider.future);
-      final hariIni = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      final terakhirNotif = prefs.getString('last_notif_date') ?? '';
-
-      if (terakhirNotif == hariIni) {
-        Log.info('[PengingatTagihan] Notifikasi sudah tampil hari ini, dilewati.');
+      final role = _ref.read(appRoleProvider);
+      if (role == AppRole.admin) {
         return;
       }
+      final prefs = await _ref.read(sharedPreferencesProvider.future);
+      final hariIni = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final terakhirNotif = prefs.getString(waktuTerkahirNotif) ?? '';
 
-      // Ambil transaksi dengan status belum lunas dari provider
-      final transaksiState = await _ref.read(transaksiProvider.future);
-      final daftarBelumLunas = transaksiState.transaksi
-          .where((t) => t.statusPembayaran == StatusPembayaran.unpaid)
-          .toList();
+      if (terakhirNotif == hariIni) {
+        Log.info(
+          '[PengingatTagihan] Notifikasi sudah tampil hari ini, dilewati.',
+        );
+        return;
+      }
+      final userId = _ref.read(userIdProvider).value ?? '';
+
+      final transaksiOpFirebase = _ref.read(transaksiOpFirebaseProvider);
+      final daftarBelumLunas = await transaksiOpFirebase
+          .ambilBelumLunasBerdasarkanIdPelanggan(userId);
 
       if (daftarBelumLunas.isNotEmpty) {
         Log.info(
@@ -45,7 +54,7 @@ class PengingatService {
           body:
               'Anda memiliki ${daftarBelumLunas.length} paket yang belum lunas. Segera lakukan pembayaran.',
         );
-        await prefs.setString('last_notif_date', hariIni);
+        await prefs.setString(waktuTerkahirNotif, hariIni);
         Log.info('[PengingatTagihan] Notifikasi berhasil ditampilkan.');
       } else {
         Log.info('[PengingatTagihan] Tidak ada paket belum lunas.');

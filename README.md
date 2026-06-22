@@ -27307,6 +27307,32 @@ class TransaksiOpFirebase extends BaseOpFirebase {
     }
   }
 
+  Future<List<TransaksiModel?>> ambilTransaksiBelumLunasBerdasarkanIdPelanggan(
+    String idPelanggan,
+  ) async {
+    try {
+      final querySnapshot = await _koleksi
+          .where(NamaKolom.statusPembayaran, isEqualTo: StatusPembayaran.unpaid)
+          .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .get();
+      // jika query tidak cocok atau daftar kosong kembalikan daftar kosong
+      if (querySnapshot.docs.isEmpty) {
+        Log.info('Tidak ada paket aktif yang ditemukan untuk: $idPelanggan');
+        return [];
+      }
+      final daftarPaketBelumLunas = querySnapshot.docs.map((doc) {
+        return TransaksiModel.fromFirebase(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }).toList();
+      return daftarPaketBelumLunas;
+    } on Exception catch (e, s) {
+      Log.error('terjadi error saat pengambilan dftar belum lunas', e: e, s: s);
+    }
+  }
+
   /// Mengambil semua transaksi untuk seorang pelanggan.
   Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
     String idPelanggan,
@@ -27358,17 +27384,13 @@ class TransaksiOpFirebase extends BaseOpFirebase {
   }
 
   /// Melakukan soft delete pada transaksi di Firestore.
-  Future<void> hapusSementaraTransaksi(String idTransaksi) async {
-    Log.info('Memulai soft delete transaksi di Firestore: $idTransaksi');
+  Future<void> softDeleteTransaksi(String id) async {
+    Log.info('Memulai soft delete transaksi di Firestore: $id');
     try {
-      await hapusSementara(NamaTabel.transaksi, idTransaksi);
-      Log.info('Soft delete transaksi berhasil: $idTransaksi');
+      await hapusSementara(NamaTabel.transaksi, id);
+      Log.info('Soft delete transaksi berhasil: $id');
     } on FirebaseException catch (e, s) {
-      Log.error(
-        'Gagal melakukan soft delete transaksi: $idTransaksi',
-        e: e,
-        s: s,
-      );
+      Log.error('Gagal melakukan soft delete transaksi: $id', e: e, s: s);
       rethrow;
     }
   }
@@ -30591,12 +30613,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/notfikasi/pengingat_paket_belum_lunas.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:workmanager/workmanager.dart';
 
 const String namaTugasSinkronisasi = 'syncDataTask';
 const String namaTugasJadwalUlangNotifikasi = 'rescheduleNotificationsTask';
+const String namaTugasPengingatTagihan = 'reminder_unpaid_packages';
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
@@ -30611,8 +30635,9 @@ void callbackDispatcher() {
       switch (tugas) {
         case namaTugasSinkronisasi:
           try {
-            final layananCekSinkronisasi =
-                container.read(layananCekSinkronisasiProvider);
+            final layananCekSinkronisasi = container.read(
+              layananCekSinkronisasiProvider,
+            );
             await layananCekSinkronisasi.jalankanCekSinkronisasi();
             Log.info('Background task "$tugas" selesai dengan sukses.');
             return true;
@@ -30624,14 +30649,15 @@ void callbackDispatcher() {
             );
             return false;
           }
-
         case namaTugasJadwalUlangNotifikasi:
           try {
-            final pelangganAktifOpSqlite =
-                container.read(pelangganAktifOpSqliteProvider);
+            final pelangganAktifOpSqlite = container.read(
+              pelangganAktifOpSqliteProvider,
+            );
             await pelangganAktifOpSqlite.rescheduleAllNotifications();
             Log.info(
-                'Background task "$tugas" (reschedule) selesai dengan sukses.');
+              'Background task "$tugas" (reschedule) selesai dengan sukses.',
+            );
             return true;
           } on Object catch (e, st) {
             Log.error(
@@ -30642,6 +30668,12 @@ void callbackDispatcher() {
             return false;
           }
 
+        case namaTugasPengingatTagihan:
+          final pengingatService = container.read(pengingatServiceProvider);
+          await pengingatService.cekDanTampilkanPengingatTagihan();
+          Log.info('Background task "$tugas" selesai dengan sukses.');
+          return true;
+
         default:
           Log.warning('Task tidak dikenal: $tugas');
           return false;
@@ -30649,7 +30681,8 @@ void callbackDispatcher() {
     } finally {
       container.dispose();
       Log.info(
-          'ProviderContainer berhasil di-dispose untuk mencegah kebocoran memori.');
+        'ProviderContainer berhasil di-dispose untuk mencegah kebocoran memori.',
+      );
     }
   });
 }
@@ -30670,13 +30703,12 @@ Future<void> _inisialisasiIsolatLatarBelakang() async {
 class LayananLatarBelakang {
   static Future<void> inisialisasi() async {
     try {
-      await Workmanager().initialize(
-        callbackDispatcher,
-      );
+      await Workmanager().initialize(callbackDispatcher);
       Log.info('Workmanager berhasil diinisialisasi.');
 
       await daftarTugasSinkronisasiPeriodik();
       await daftarTugasJadwalUlangPeriodik();
+      await daftarTugasPengingatTagihanPeriodik();
     } on Exception catch (e, st) {
       Log.error('Gagal menginisialisasi background services.', e: e, s: st);
     }
@@ -30685,15 +30717,18 @@ class LayananLatarBelakang {
   @pragma('vm:entry-point')
   static Future<void> periksaDanArsipkanPelangganKedaluwarsa() async {
     Log.info(
-        'Alarm terpicu: Memulai pemeriksaan dan pengarsipan pelanggan kedaluwarsa.');
+      'Alarm terpicu: Memulai pemeriksaan dan pengarsipan pelanggan kedaluwarsa.',
+    );
     await _inisialisasiIsolatLatarBelakang();
     final container = ProviderContainer();
     try {
-      final pelangganAktifOpsqlite =
-          container.read(pelangganAktifOpSqliteProvider);
+      final pelangganAktifOpsqlite = container.read(
+        pelangganAktifOpSqliteProvider,
+      );
       final jumlah = await pelangganAktifOpsqlite.arsipkanLanggananKadaluarsa();
       Log.info(
-          'Proses pengarsipan selesai. $jumlah pelanggan kedaluwarsa telah diarsipkan.');
+        'Proses pengarsipan selesai. $jumlah pelanggan kedaluwarsa telah diarsipkan.',
+      );
     } on Exception catch (e, st) {
       Log.error(
         'Gagal menjalankan periksaDanArsipkanPelangganKedaluwarsa di background',
@@ -30714,9 +30749,7 @@ class LayananLatarBelakang {
         frequency: const Duration(minutes: 15),
         existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
         initialDelay: const Duration(minutes: 1),
-        constraints: Constraints(
-          networkType: NetworkType.connected,
-        ),
+        constraints: Constraints(networkType: NetworkType.connected),
       );
       Log.info(
         'Tugas sinkronisasi periodik ($namaTugasSinkronisasi) berhasil didaftarkan.',
@@ -30734,16 +30767,31 @@ class LayananLatarBelakang {
         frequency: const Duration(hours: 24),
         existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
         initialDelay: const Duration(minutes: 5),
-        constraints: Constraints(
-          networkType: NetworkType.notRequired,
-        ),
+        constraints: Constraints(networkType: NetworkType.notRequired),
       );
       Log.info(
         'Tugas penjadwalan ulang notifikasi ($namaTugasJadwalUlangNotifikasi) berhasil didaftarkan.',
       );
     } on Exception catch (e, st) {
-      Log.error('Gagal mendaftarkan tugas penjadwalan ulang notifikasi.',
-          e: e, s: st);
+      Log.error(
+        'Gagal mendaftarkan tugas penjadwalan ulang notifikasi.',
+        e: e,
+        s: st,
+      );
+    }
+  }
+
+  static Future<void> daftarTugasPengingatTagihanPeriodik() async {
+    try {
+      await Workmanager().registerPeriodicTask(
+        namaTugasPengingatTagihan,
+        namaTugasPengingatTagihan,
+        frequency: const Duration(hours: 24),
+        initialDelay: const Duration(hours: 1),
+        constraints: Constraints(networkType: NetworkType.notRequired),
+      );
+    } on Exception catch (e, s) {
+      Log.error('Gagal medaftarkan tugas pengingat tagihan', e: e, s: s);
     }
   }
 
@@ -31369,6 +31417,90 @@ class LayananNotifikasi {
 }
 
 
+// File: lib/fitur/notfikasi/pengingat_paket_belum_lunas.dart
+// path lib/fitur/notfikasi/pengingat_paket_belum_lunas.dart
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart';
+
+const String waktuTerkahirNotif = 'last_notif_date';
+
+/// Service untuk mengecek paket belum lunas dan menampilkan notifikasi pengingat.
+class PengingatService {
+  final LayananNotifikasi _notifServis;
+  final Ref _ref;
+
+  PengingatService(this._ref, this._notifServis);
+
+  /// Mengecek transaksi dengan status belum lunas dan menampilkan notifikasi
+  /// jika ada dan belum pernah ditampilkan hari ini.
+  Future<void> cekDanTampilkanPengingatTagihan() async {
+    Log.info('[PengingatTagihan] Memulai pengecekan paket belum lunas.');
+
+    try {
+      final role = _ref.read(appRoleProvider);
+      if (role == AppRole.admin) {
+        return;
+      }
+      final prefs = await _ref.read(sharedPreferencesProvider.future);
+      final hariIni = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final terakhirNotif = prefs.getString(waktuTerkahirNotif) ?? '';
+
+      if (terakhirNotif == hariIni) {
+        Log.info(
+          '[PengingatTagihan] Notifikasi sudah tampil hari ini, dilewati.',
+        );
+        return;
+      }
+      final userId = _ref.read(userIdProvider).value ?? '';
+
+      final transaksiOpFirebase = _ref.read(transaksiOpFirebaseProvider);
+      final daftarBelumLunas = transaksiOpFirebase
+          .ambilBerdasarkanIdPelanggan(userId)
+          .where((t) => t.statusPembayaran == StatusPembayaran.unpaid)
+          .toList();
+
+      if (daftarBelumLunas.isNotEmpty) {
+        Log.info(
+          '[PengingatTagihan] Ditemukan ${daftarBelumLunas.length} paket belum lunas.',
+        );
+        await _notifServis.tampilkanNotifikasiLangsung(
+          title: 'Pengingat Tagihan',
+          body:
+              'Anda memiliki ${daftarBelumLunas.length} paket yang belum lunas. Segera lakukan pembayaran.',
+        );
+        await prefs.setString(waktuTerkahirNotif, hariIni);
+        Log.info('[PengingatTagihan] Notifikasi berhasil ditampilkan.');
+      } else {
+        Log.info('[PengingatTagihan] Tidak ada paket belum lunas.');
+      }
+    } on Exception catch (e, st) {
+      Log.error(
+        '[PengingatTagihan] Gagal mengecek atau menampilkan notifikasi.',
+        e: e,
+        s: st,
+      );
+      // Tidak perlu menampilkan toast ke user karena ini proses background,
+      // cukup log saja.
+    }
+  }
+}
+
+/// Provider untuk service pengingat.
+final pengingatServiceProvider = Provider<PengingatService>((ref) {
+  final notifServis = ref.watch(layananNotifikasiProvider);
+  return PengingatService(ref, notifServis);
+});
+
+
 // File: lib/fitur/notfikasi/penjadwal_notifikasi.dart
 // path: lib/fitur/notfikasi/penjadwal_notifikasi.dart
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
@@ -31684,53 +31816,6 @@ extension TipeNotifikasiExtension on TipeNotifikasiEnum {
       case TipeNotifikasiEnum.info:
         return 'Info';
     }
-  }
-}
-
-
-// File: lib/fitur/notfikasi/pwngingat_paket_belum_lunas.dart
-// path lib/fitur/notfikasi/pwngingat_paket_belum_lunas.dart
-
-import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart'; // Sesuaikan path Anda
-
-class PengingatService {
-  final LayananNotifikasi _notifServis = LayananNotifikasi();
-
-  Future<void> cekDanTampilkanNotif() async {
-    // 1. Cek apakah notifikasi sudah tampil hari ini
-    final prefs = await SharedPreferences.getInstance();
-    final String hariIni = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    final String terakhirNotif = prefs.getString('last_notif_date') ?? '';
-
-    if (terakhirNotif == hariIni) {
-      // Jika sudah tampil hari ini, hentikan proses
-      return;
-    }
-
-    // 2. Cek data paket (sesuaikan dengan logic Anda)
-    // Asumsi: Anda memiliki fungsi untuk mengambil daftar paket
-    final daftarPaket = await _ambilDataPaketBelumLunas();
-
-    if (daftarPaket.isNotEmpty) {
-      // 3. Tampilkan Notifikasi
-      await _notifServis.tampilkanNotifikasiLangsung(
-        title: 'Pengingat Tagihan',
-        body:
-            'Anda memiliki ${daftarPaket.length} paket yang belum lunas. Segera lakukan pembayaran.',
-      );
-
-      // 4. Update flag di SharedPreferences agar tidak muncul lagi hari ini
-      await prefs.setString('last_notif_date', hariIni);
-    }
-  }
-
-  // Contoh fungsi dummy untuk mengambil data paket
-  Future<List<dynamic>> _ambilDataPaketBelumLunas() async {
-    // Implementasi logic database/provider Anda di sini
-    // Contoh: return await ref.read(transaksiProvider.future).where((t) => !t.isLunas).toList();
-    return [];
   }
 }
 
@@ -35067,6 +35152,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
+import 'package:wifi/fitur/notfikasi/pengingat_paket_belum_lunas.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';
 import 'package:wifi/fitur/settings/page/settings_page_u.dart';
 import 'package:wifi/fitur/speedtest/page/uji_kecepatan_page.dart';
@@ -35101,12 +35187,17 @@ class _MainPageState extends ConsumerState<MainPage> {
       final userId = await ref.read(userIdProvider.future);
       if (userId != null) {
         final notifikasiServis = ref.read(layananNotifikasiProvider);
-        unawaited(PenjadwalNotifikasi.aturNotifikasiLangganan(notifikasiServis, userId));
+        unawaited(
+          PenjadwalNotifikasi.aturNotifikasiLangganan(notifikasiServis, userId),
+        );
 
         final layananAktivitasUser = await ref.read(
           layananAktivitasUserProvider.future,
         );
-         unawaited(layananAktivitasUser.pingAktivitas(userId));
+        unawaited(layananAktivitasUser.pingAktivitas(userId));
+
+        final pengingatService = ref.read(pengingatServiceProvider);
+        unawaited(pengingatService.cekDanTampilkanPengingatTagihan());
       }
     });
 

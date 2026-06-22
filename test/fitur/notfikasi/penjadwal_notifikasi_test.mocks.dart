@@ -275,7 +275,7 @@ class MockTransaksiOpFirebase extends _i1.Mock
           as _i5.Future<int>);
 
   @override
-  _i5.Future<void> hapusSementaraTransaksi(String? idTransaksi) =>
+  _i5.Future<void> softDeleteTransaksi(String? idTransaksi) =>
       (super.noSuchMethod(
             Invocation.method(#hapusSementaraTransaksi, [idTransaksi]),
             returnValue: _i5.Future<void>.value(),

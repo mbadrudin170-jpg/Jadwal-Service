@@ -4,7 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/notfikasi/pwngingat_paket_belum_lunas.dart';
+import 'package:wifi/fitur/notfikasi/pengingat_paket_belum_lunas.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:workmanager/workmanager.dart';
@@ -99,6 +99,7 @@ class LayananLatarBelakang {
 
       await daftarTugasSinkronisasiPeriodik();
       await daftarTugasJadwalUlangPeriodik();
+      await daftarTugasPengingatTagihanPeriodik();
     } on Exception catch (e, st) {
       Log.error('Gagal menginisialisasi background services.', e: e, s: st);
     }
