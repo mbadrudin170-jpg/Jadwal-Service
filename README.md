@@ -1,3 +1,121 @@
+// File: pubspec.yaml
+
+name: wifi
+description: "Pengingat service rutin"
+publish_to: 'none'
+version: 1.0.1+2
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  android_alarm_manager_plus: ^5.0.0
+  cached_network_image: ^3.4.1
+  cloud_firestore: ^6.5.0
+  collection: ^1.19.1
+  connectivity_plus: ^6.1.5
+  cupertino_icons: ^1.0.9
+  currency_text_input_formatter: ^2.3.0
+  device_info_plus: ^13.1.0
+  dio: ^5.9.2
+  file_picker: ^12.0.0-beta.5
+  firebase_core: ^4.10.0
+  fl_chart: ^1.2.0
+  flutter_dotenv: ^6.0.1
+  flutter_local_notifications: ^22.0.1
+  flutter_native_splash: ^2.4.7
+  flutter_riverpod: ^3.3.2
+  flutter_speed_test_plus: ^1.0.10
+  flutter_test:
+    sdk: flutter
+  flutter_timezone: ^5.1.0
+  font_awesome_flutter: ^11.0.0
+  freezed_annotation: ^3.1.0
+  gma_mediation_unity: ^1.8.0
+  go_router: ^17.2.3
+  google_mobile_ads: ^8.0.0
+  http: ^1.6.0
+  image: ^4.9.1
+  image_picker: ^1.2.2
+  intl: ^0.20.2
+  jiffy: ^6.4.5
+  json_annotation: ^4.12.0
+  meta: ^1.18.0
+  open_filex: ^4.7.0
+  package_info_plus: ^10.1.0
+  path: ^1.9.1
+  path_provider: ^2.1.5
+  permission_handler: ^12.0.2
+  riverpod_annotation: ^4.0.3
+  rxdart: ^0.28.0
+  shared_preferences: ^2.5.5
+  sqflite: ^2.4.2+1
+  sqflite_common_ffi: ^2.4.0+3
+  supabase_flutter: ^2.14.1
+  timeago: ^3.7.1
+  timezone: ^0.11.0
+  toastification: ^3.2.0
+  url_launcher: ^6.3.2
+  uuid: ^4.5.3
+  workmanager: ^0.9.0+3
+
+dev_dependencies:
+  riverpod_lint: ^3.1.4
+  build_runner: ^2.15.0
+  connectivity_plus_platform_interface: ^2.1.0
+  device_info_plus_platform_interface: ^8.1.0
+  fake_cloud_firestore: ^4.1.1
+  flutter_launcher_icons: ^0.14.4
+  flutter_lints: ^6.0.0
+  freezed: ^3.2.5
+  json_serializable: ^6.14.0
+  mockito: ^5.6.4
+  plugin_platform_interface: ^2.1.8
+  rename: ^3.1.0
+  riverpod_generator: ^4.0.3
+  workmanager_platform_interface: ^0.9.1+1
+  url_launcher_platform_interface: ^2.3.2 
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  color_dark: "#FFFFFF"
+  image: assets/image/splash.png
+  
+  android_12:
+    color: "#FFFFFF"
+    color_dark: "#FFFFFF"
+    image: assets/image/splash.png
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: false
+  image_path: "assets/image/ikon_apk.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env
+    - assets/image/
+    - assets/fonts/
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/inter/Inter_18pt-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/inter/Inter_18pt-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/inter/Inter_18pt-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/inter/Inter_18pt-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/inter/Inter_18pt-ExtraBold.ttf
+          weight: 800
+
+
+// File: lib/tes_fitur/tes_iklan.dart
 // path: lib/tes_fitur/tes_iklan.dart
 
 import 'package:flutter/material.dart';
@@ -198,6 +316,9 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
     );
   }
 }
+
+
+// File: lib/tes_fitur/tes_notifikasi.dart
 // path: lib/tes_fitur/tes_notifikasi.dart
 import 'package:flutter/material.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
@@ -342,6 +463,9 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
     );
   }
 }
+
+
+// File: lib/fitur/akun/page/daftar_akun_page.dart
 // path: lib/fitur/akun/page/daftar_akun_page.dart
 
 import 'dart:async';
@@ -680,6 +804,9 @@ class DaftarAkunPage extends ConsumerWidget {
     );
   }
 }
+
+
+// File: lib/fitur/akun/provider/akun_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'akun_provider.dart';
@@ -734,6 +861,9 @@ abstract class _$PengelolaAkun extends $AsyncNotifier<AkunState> {
     return element.handleCreate(ref, build);
   }
 }
+
+
+// File: lib/fitur/akun/provider/akun_provider.dart
 // path: lib/fitur/akun/provider/akun_provider.dart
 
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -841,6 +971,9 @@ class PengelolaAkun extends _$PengelolaAkun {
     ));
   }
 }
+
+
+// File: lib/fitur/akun/provider/akun_provider.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -1145,6 +1278,9 @@ $PelangganModelCopyWith<$Res>? get akunSaatIni {
 }
 
 // dart format on
+
+
+// File: lib/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart
 // path: lib/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart
 
 import 'dart:async';
@@ -1511,7 +1647,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         await ref
             .read(transaksiProvider.notifier)
             .updateTransaksi(transaksiData);
-        await notifikasiOpFirebase.hpausBerdasarkanIdTransaksi(idTransaksi);
+        await notifikasiOpFirebase.hapusBerdasarkanIdTransaksi(idTransaksi);
         Log.info(
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
         );
@@ -2038,6 +2174,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     );
   }
 }
+
+
+// File: lib/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart
 // path: lib/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart
 
 import 'dart:async';
@@ -2424,6 +2563,9 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
     );
   }
 }
+
+
+// File: lib/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart
 // path: lib/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart
 
 import 'dart:async';
@@ -2879,6 +3021,9 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
     );
   }
 }
+
+
+// File: lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart
 // path lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart
 
 import 'package:wifi/shared/export/model.dart';
@@ -3004,6 +3149,9 @@ class PengurutPelangganAktif {
     }
   }
 }
+
+
+// File: lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'pelanggan_aktif_provider.dart';
@@ -3059,6 +3207,9 @@ abstract class _$PelangganAktif extends $AsyncNotifier<PelangganAktifState> {
     return element.handleCreate(ref, build);
   }
 }
+
+
+// File: lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -3336,6 +3487,9 @@ as List<DetailPelangganAktifModel>,
 }
 
 // dart format on
+
+
+// File: lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart
 // path: lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart
 
 import 'dart:async';
@@ -3380,6 +3534,9 @@ class PelangganAktif extends _$PelangganAktif {
     });
   }
 }
+
+
+// File: lib/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart
 // path: lib/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart
 
 import 'package:sqflite/sqflite.dart';
@@ -3906,6 +4063,9 @@ class PelangganAktifOpSqlite {
     }
   }
 }
+
+
+// File: lib/fitur/pelanggan_aktif/model/pelanggan_aktif_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -4204,6 +4364,9 @@ as DateTime?,
 }
 
 // dart format on
+
+
+// File: lib/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart
 // path: lib/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -4354,6 +4517,9 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
     };
   }
 }
+
+
+// File: lib/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart
 // path: lib/shared/model/active_customer_detail_model.dart
 
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
@@ -4371,6 +4537,9 @@ class DetailPelangganAktifModel {
     required this.namaPaket,
   });
 }
+
+
+// File: lib/fitur/info_perangkat/page/info_apk_page_user.dart
 // path: lib/fitur/info_perangkat/page/info_apk_page_user.dart
 
 import 'dart:async';
@@ -4469,6 +4638,9 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
     );
   }
 }
+
+
+// File: lib/fitur/info_perangkat/page/tentang_aplikasi.dart
 // path lib/fitur/info_perangkat/page/tentang_aplikasi.dart
 
 import 'dart:async';
@@ -4650,6 +4822,9 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
     );
   }
 }
+
+
+// File: lib/fitur/info_perangkat/enum/arsitektur_apk.dart
 // path: lib/fitur/info_perangkat/enum/arsitektur_apk.dart
 
 enum ArsitekturApk {
@@ -4659,6 +4834,9 @@ enum ArsitekturApk {
   x86_64,
   arm64,
 }
+
+
+// File: lib/fitur/info_perangkat/model/info_perangkat_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -4939,6 +5117,9 @@ as String,
 }
 
 // dart format on
+
+
+// File: lib/fitur/info_perangkat/model/info_perangkat_model.dart
 // path: lib/fitur/info_perangkat/model/info_perangkat_model.dart
 
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -4965,6 +5146,9 @@ abstract class InfoPerangkatModel with _$InfoPerangkatModel {
     );
   }
 }
+
+
+// File: lib/fitur/info_perangkat/service/layanan_info_paket.dart
 // path: lib/fitur/info_perangkat/service/layanan_info_paket.dart
 
 import 'package:package_info_plus/package_info_plus.dart';
@@ -4994,6 +5178,9 @@ class LayananInfoPaket {
     }
   }
 }
+
+
+// File: lib/fitur/info_perangkat/service/layanan_info_perangkat.dart
 // path: lib/fitur/info_perangkat/service/layanan_info_perangkat.dart
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -5052,6 +5239,9 @@ class LayananInfoPerangkat {
     };
   }
 }
+
+
+// File: lib/fitur/poin/page/halaman_poin.dart
 // path lib/fitur/poin/page/halaman_poin.dart
 
 import 'dart:async';
@@ -5425,6 +5615,9 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     );
   }
 }
+
+
+// File: lib/fitur/poin/widget/point_card.dart
 // path lib/fitur/poin/widget/point_card.dart
 
 import 'package:flutter/material.dart';
@@ -5530,6 +5723,9 @@ class TotalPointCard extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/fitur/poin/widget/poin_page_ui.dart
 // path: lib/fitur/poin/widget/poin_page_ui.dart
 
 import 'package:flutter/material.dart';
@@ -5685,6 +5881,9 @@ class PoinPageUi extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/fitur/poin/provider/poin_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'poin_provider.dart';
@@ -5983,6 +6182,9 @@ final class PointsHistoryFamily extends $Family
   @override
   String toString() => r'pointsHistoryProvider';
 }
+
+
+// File: lib/fitur/poin/provider/points_page_data_source.dart
 // path: lib/fitur/poin/provider/points_page_data_source.dart
 
 import 'package:wifi/fitur/paket/model/paket_model.dart';
@@ -5999,6 +6201,9 @@ abstract class PointsPageDataSource {
 
   bool get isFirebase;
 }
+
+
+// File: lib/fitur/poin/provider/poin_provider.dart
 // path: lib/fitur/poin/provider/poin_provider.dart
 
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -6069,6 +6274,9 @@ Future<List<TransaksiModel>> pointsHistory(Ref ref, String idPelanggan) {
   final dataSource = ref.watch(pointsDataSourceProvider);
   return dataSource.getPointsTransactions(idPelanggan);
 }
+
+
+// File: lib/fitur/poin/provider/poin_provider.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -6358,6 +6566,9 @@ as int,
 }
 
 // dart format on
+
+
+// File: lib/fitur/poin/operasi/firebase_points_data_source.dart
 // path: lib/fitur/poin/poin/firebase_points_data_source.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6414,6 +6625,9 @@ final firebasePointsDataSourceProvider =
     packageOpFirebase: ref.watch(paketOpFirebaseProvider),
   );
 });
+
+
+// File: lib/fitur/poin/operasi/sqlite_points_data_source.dart
 // path: lib/fitur/poin/operasi/sqlite_points_data_source.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6471,6 +6685,9 @@ final sqlitePointsDataSourceProvider = Provider<SQLitePointsDataSource>((ref) {
     paketOpSqlite: ref.watch(paketOpSqliteProvider),
   );
 });
+
+
+// File: lib/fitur/settings/page/settings_page_a.dart
 // path: lib/fitur/settings/page/settings_page_a.dart
 
 import 'package:flutter/material.dart';
@@ -6711,6 +6928,9 @@ class SettingsAdminPage extends ConsumerWidget {
     );
   }
 }
+
+
+// File: lib/fitur/settings/page/settings_page_u.dart
 // path: lib/user/page/settings_page_user.dart
 
 import 'dart:async';
@@ -6860,6 +7080,9 @@ class _SettingsMenuItem extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/fitur/settings/page/form_settings.dart
 // path: lib/fitur/settings/page/form_settings.dart
 
 import 'dart:async';
@@ -7058,6 +7281,9 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
     );
   }
 }
+
+
+// File: lib/fitur/settings/operasi/settings_op_sqlite.dart
 // path: lib/fitur/settings/operasi/settings_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
@@ -7213,6 +7439,9 @@ class SettingsOpSqlite {
     }
   }
 }
+
+
+// File: lib/fitur/settings/operasi/settings_op_firebase.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -7253,6 +7482,9 @@ class SettingsOpFirebase {
     }
   }
 }
+
+
+// File: lib/fitur/settings/model/settings_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -7539,6 +7771,9 @@ as DateTime?,
 }
 
 // dart format on
+
+
+// File: lib/fitur/settings/model/settings_model.dart
 // path: lib/fitur/settings/model/settings_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7614,6 +7849,9 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
     };
   }
 }
+
+
+// File: lib/fitur/speedtest/page/uji_kecepatan_page.dart
 // path lib/fitur/speedtest/page/uji_kecepatan_page.dart
 
 import 'package:flutter/material.dart';
@@ -7750,6 +7988,9 @@ class _KartuHasilUji extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/fitur/speedtest/provider/uji_kecepatan_provider.dart
 // path: lib/fitur/speedtest/provider/uji_kecepatan_provider.dart
 
 import 'dart:async';
@@ -7918,6 +8159,9 @@ class UjiKecepatan extends _$UjiKecepatan {
     }
   }
 }
+
+
+// File: lib/fitur/speedtest/provider/uji_kecepatan_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'uji_kecepatan_provider.dart';
@@ -7961,7 +8205,7 @@ final class UjiKecepatanProvider
   }
 }
 
-String _$ujiKecepatanHash() => r'8b8816c635793187e2bfa5391198044bf9ce14f5';
+String _$ujiKecepatanHash() => r'cb57f096e109003f5e522824994b884bbc64ae0a';
 
 abstract class _$UjiKecepatan extends $Notifier<UjiKecepatanState> {
   UjiKecepatanState build();
@@ -7980,6 +8224,9 @@ abstract class _$UjiKecepatan extends $Notifier<UjiKecepatanState> {
     return element.handleCreate(ref, build);
   }
 }
+
+
+// File: lib/fitur/speedtest/provider/uji_kecepatan_provider.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -8263,6 +8510,9 @@ as String,
 }
 
 // dart format on
+
+
+// File: lib/fitur/speedtest/provider/ping_provider.dart
 // path: lib/fitur/speedtest/provider/ping_provider.dart
 import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -8297,6 +8547,9 @@ Future<int> httpPing(Ref ref) async {
     stopwatch.stop();
   }
 }
+
+
+// File: lib/fitur/speedtest/provider/ping_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'ping_provider.dart';
@@ -8340,6 +8593,9 @@ final class HttpPingProvider
 }
 
 String _$httpPingHash() => r'd40359925cf1b6fb94c217e43ce8a68657a76a73';
+
+
+// File: lib/fitur/paket/page/form_paket.dart
 // path: lib/fitur/paket/page/form_paket.dart
 
 import 'package:flutter/material.dart';
@@ -8653,6 +8909,9 @@ class _PackageFormState extends ConsumerState<FormPaket> {
     super.dispose();
   }
 }
+
+
+// File: lib/fitur/paket/page/paket.dart
 // path: lib/admin/halaman/lainnya/paket.dart
 
 import 'dart:async';
@@ -8995,6 +9254,9 @@ Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
     },
   );
 }
+
+
+// File: lib/fitur/paket/page/detail_paket.dart
 // path: lib/admin/halaman/detail/detail_paket.dart
 
 import 'package:flutter/material.dart';
@@ -9175,6 +9437,9 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
     );
   }
 }
+
+
+// File: lib/fitur/paket/provider/paket_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'paket_provider.dart';
@@ -9350,6 +9615,9 @@ final class DetailPaketFamily extends $Family
   @override
   String toString() => r'detailPaketProvider';
 }
+
+
+// File: lib/fitur/paket/provider/paket_provider.dart
 // path: lib/fitur/paket/provider/paket_provider.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -9390,6 +9658,9 @@ Future<PaketModel> detailPaket(Ref ref, String id) async {
   }
   return paket;
 }
+
+
+// File: lib/fitur/paket/core/perhitungan_paket.dart
 // path: lib/fitur/paket/core/perhitungan_paket.dart
 
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
@@ -9411,6 +9682,9 @@ class PerhitunganPaket {
     }
   }
 }
+
+
+// File: lib/fitur/paket/operasi/paket_op_firebase.dart
 // path: lib/fitur/paket/operasi/paket_op_firebase.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9509,6 +9783,9 @@ class PaketOpFirebase {
     }
   }
 }
+
+
+// File: lib/fitur/paket/operasi/paket_op_sqlite.dart
 // path: lib/fitur/paket/operasi/paket_op_sqlite.dart
 
 import 'package:meta/meta.dart';
@@ -9775,6 +10052,9 @@ class PaketOpSqlite {
     }
   }
 }
+
+
+// File: lib/fitur/paket/enum/tipe_durasi_paket.dart
 // path: lib/fitur/paket/enum/tipe_durasi_paket.dart
 
 enum TipeDurasiPaket {
@@ -9799,6 +10079,9 @@ enum TipeDurasiPaket {
     }
   }
 }
+
+
+// File: lib/fitur/paket/model/paket_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -10100,6 +10383,9 @@ as DateTime?,
 }
 
 // dart format on
+
+
+// File: lib/fitur/paket/model/paket_model.dart
 // path: lib/fitur/paket/model/paket_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10208,6 +10494,9 @@ abstract class PaketModel with _$PaketModel implements HasId {
     };
   }
 }
+
+
+// File: lib/fitur/whatsapp/info_paket.dart
 // path: lib/fitur/whatsapp/info_paket.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10370,6 +10659,9 @@ Semoga harimu menyenangkan!
     }
   }
 }
+
+
+// File: lib/fitur/order/page/order_page.dart
 // path: lib/fitur/order/page/order_page.dart
 
 import 'dart:async';
@@ -10860,6 +11152,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     );
   }
 }
+
+
+// File: lib/fitur/order/provider/order_provider.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -11152,6 +11447,9 @@ as int,
 }
 
 // dart format on
+
+
+// File: lib/fitur/order/provider/order_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'order_provider.dart';
@@ -11244,6 +11542,9 @@ final class DaftarPesananProvider
 }
 
 String _$daftarPesananHash() => r'985b77ac229b046bcd94359a99868638c8397648';
+
+
+// File: lib/fitur/order/provider/order_provider.dart
 // path: lib/fitur/order/provider/order_provider.dart
 
 import 'package:flutter/foundation.dart';
@@ -11291,6 +11592,9 @@ Future<List<OrderModel>> daftarPesanan(Ref ref) async {
   }
   return [];
 }
+
+
+// File: lib/fitur/order/operasi/order_op_sqlite.dart
 // path: lib/fitur/order/operasi/order_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
@@ -11552,6 +11856,9 @@ class OrderOpsqlite {
     }
   }
 }
+
+
+// File: lib/fitur/order/operasi/order_op_firebase.dart
 // path: lib/fitur/order/operasi/order_op_firebase.dart
 
 import 'dart:async';
@@ -11744,6 +12051,9 @@ class OrderOpFirebase extends BaseOpFirebase {
     }
   }
 }
+
+
+// File: lib/fitur/order/enum/status_order_enum.dart
 // path: lib/fitur/order/enum/status_order_enum.dart
 
 enum StatusOrderEnum {
@@ -11768,6 +12078,9 @@ enum StatusOrderEnum {
     }
   }
 }
+
+
+// File: lib/fitur/order/model/order_model.dart
 // path: lib/fitur/order/model/order_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11865,6 +12178,9 @@ abstract class OrderModel with _$OrderModel implements HasId {
     );
   }
 }
+
+
+// File: lib/fitur/order/model/order_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -12157,6 +12473,9 @@ as DateTime?,
 }
 
 // dart format on
+
+
+// File: lib/fitur/kategori/page/form_kategori.dart
 // path lib/fitur/kategori/page/form_kategori.dart
 
 import 'dart:async';
@@ -12822,6 +13141,9 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
     );
   }
 }
+
+
+// File: lib/fitur/kategori/page/kategori.dart
 // path: lib/fitur/kategori/page/kategori.dart
 
 import 'package:flutter/material.dart';
@@ -13146,6 +13468,9 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
     );
   }
 }
+
+
+// File: lib/fitur/kategori/operasi/sub_kategori_op_sqlite.dart
 // path: lib/fitur/kategori/operasi/sub_kategori_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
@@ -13374,6 +13699,9 @@ class SubKategoriOpSqlite {
     }
   }
 }
+
+
+// File: lib/fitur/kategori/operasi/kategori_op_sqlite.dart
 // path: lib/fitur/kategori/operasi/kategori_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
@@ -13618,6 +13946,9 @@ class KategoriOpSqlite {
     }
   }
 }
+
+
+// File: lib/fitur/kategori/enum/tipe_kategori.dart
 // path: lib/fitur/kategori/enum/tipe_kategori.dart
 
 /// Enum untuk mendefinisikan tipe-tipe kategori transaksi.
@@ -13644,6 +13975,9 @@ extension CategoryTypeExtension on TipeKategori {
     }
   }
 }
+
+
+// File: lib/fitur/kategori/model/kategori_model.dart
 // path: lib/fitur/kategori/model/kategori_model.dart
 
 import 'dart:convert';
@@ -13820,6 +14154,9 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
     };
   }
 }
+
+
+// File: lib/fitur/kategori/model/sub_kategori_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -14106,6 +14443,9 @@ as DateTime?,
 }
 
 // dart format on
+
+
+// File: lib/fitur/kategori/model/kategori_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -14401,6 +14741,9 @@ as DateTime?,
 }
 
 // dart format on
+
+
+// File: lib/fitur/kategori/model/sub_kategori_model.dart
 // path: lib/fitur/kategori/model/sub_kategori_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14472,6 +14815,9 @@ abstract class SubKategoriModel with _$SubKategoriModel implements HasId {
     };
   }
 }
+
+
+// File: lib/fitur/dompet/page/detail_dompet.dart
 // path: lib/fitur/dompet/page/detail_dompet.dart
 
 import 'dart:async';
@@ -14737,6 +15083,9 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
     );
   }
 }
+
+
+// File: lib/fitur/dompet/page/dompet_page.dart
 // path: lib/fitur/dompet/page/dompet_page.dart
 
 import 'dart:async';
@@ -15013,6 +15362,9 @@ class WalletCard extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/fitur/dompet/page/form_dompet.dart
 // path: lib/fitur/dompet/page/form_dompet.dart
 
 import 'dart:async';
@@ -15243,6 +15595,9 @@ class _WalletFormState extends ConsumerState<FormDompet> {
     );
   }
 }
+
+
+// File: lib/fitur/dompet/provider/dompet_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'dompet_provider.dart';
@@ -15296,6 +15651,9 @@ abstract class _$Dompet extends $AsyncNotifier<DompetState> {
     return element.handleCreate(ref, build);
   }
 }
+
+
+// File: lib/fitur/dompet/provider/dompet_provider.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -15582,6 +15940,9 @@ as double,
 }
 
 // dart format on
+
+
+// File: lib/fitur/dompet/provider/dompet_provider.dart
 // path: lib/fitur/dompet/provider/dompet_provider.dart
 
 import 'dart:async';
@@ -15670,6 +16031,9 @@ class Dompet extends _$Dompet {
     state = await AsyncValue.guard(_loadData);
   }
 }
+
+
+// File: lib/fitur/dompet/operasi/dompet_op_sqlite.dart
 // path: lib/fitur/dompet/operasi/dompet_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
@@ -15892,6 +16256,9 @@ class DompetOpSqlite {
     }
   }
 }
+
+
+// File: lib/fitur/dompet/model/dompet_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -16178,6 +16545,9 @@ as DateTime?,
 }
 
 // dart format on
+
+
+// File: lib/fitur/dompet/model/dompet_model.dart
 // path: lib/fitur/dompet/model/dompet_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16253,6 +16623,9 @@ abstract class DompetModel with _$DompetModel implements HasId {
     };
   }
 }
+
+
+// File: lib/fitur/event/page/detail_event_a.dart
 // path: lib/fitur/event/page/detail_event_a.dart
 
 import 'package:flutter/material.dart';
@@ -16387,6 +16760,9 @@ class DetailEventA extends ConsumerWidget {
     );
   }
 }
+
+
+// File: lib/fitur/event/page/manage_announcement_page.dart
 // path lib/fitur/event/page/manage_announcement_page.dart
 
 import 'dart:async';
@@ -16889,6 +17265,9 @@ class _ManageAnnouncementPageState
     );
   }
 }
+
+
+// File: lib/fitur/event/page/event_page_u.dart
 // path: lib/fitur/event/page/event_page_u.dart
 
 import 'dart:async';
@@ -16981,6 +17360,9 @@ class _EventPageUState extends ConsumerState<EventPageU> {
     ));
   }
 }
+
+
+// File: lib/fitur/event/page/event_page_a.dart
 // path: lib/fitur/event/page/event_page_a.dart
 
 import 'dart:async';
@@ -17162,6 +17544,9 @@ extension IterableExtension<T> on Iterable<T> {
     return null;
   }
 }
+
+
+// File: lib/fitur/event/operasi/event_op_supabase.dart
 // path: lib/fitur/event/operasi/event_op_supabase.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17320,6 +17705,9 @@ class EventOpSupabase {
 final eventOpSupabaseProvider = Provider<EventOpSupabase>((ref) {
   return EventOpSupabase();
 });
+
+
+// File: lib/fitur/event/model/event_model.dart
 // path: lib/fitur/event/model/event_model.dart
 
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -17414,6 +17802,9 @@ abstract class EventModel with _$EventModel implements HasId {
     };
   }
 }
+
+
+// File: lib/fitur/event/model/event_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -17703,6 +18094,9 @@ as DateTime?,
 }
 
 // dart format on
+
+
+// File: lib/fitur/versi_apk/page/detail_versi_apk.dart
 // path: lib/fitur/versi_apk/page/detail_versi_apk.dart
 
 import 'dart:async';
@@ -17858,6 +18252,9 @@ class _DetailVersiApkState extends ConsumerState<DetailVersiApk> {
     );
   }
 }
+
+
+// File: lib/fitur/versi_apk/page/update_apk_page_u.dart
 // path: lib/fitur/versi_apk/page/update_apk_page_u.dart
 
 import 'package:flutter/material.dart';
@@ -18496,6 +18893,9 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
     );
   }
 }
+
+
+// File: lib/fitur/versi_apk/page/versi_apk_page.dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -18919,6 +19319,9 @@ class RadioGroup<T> extends StatelessWidget {
     return child;
   }
 }
+
+
+// File: lib/fitur/versi_apk/page/form_versi_apk.dart
 // path: lib/fitur/versi_apk/page/form_versi_apk.dart
 
 import 'dart:async';
@@ -19404,6 +19807,9 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
     );
   }
 }
+
+
+// File: lib/fitur/versi_apk/operasi/versi_apk_op_sqlite.dart
 // path: lib/fitur/versi_apk/operasi/versi_apk_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
@@ -19728,6 +20134,9 @@ class VersiApkOpSqlite {
     }
   }
 }
+
+
+// File: lib/fitur/versi_apk/operasi/versi_apk_op_firebase.dart
 // path: lib/fitur/versi_apk/operasi/versi_apk_op_firebase.dart
 
 
@@ -19774,6 +20183,9 @@ class VersiApkOpFirebase {
     }
   }
 }
+
+
+// File: lib/fitur/versi_apk/model/versi_apk_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -20084,6 +20496,9 @@ as DateTime?,
 }
 
 // dart format on
+
+
+// File: lib/fitur/versi_apk/model/versi_apk_model.dart
 // path: lib/fitur/versi_apk/model/versi_apk_model.dart
 
 import 'dart:convert';
@@ -20266,6 +20681,9 @@ abstract class VersiApkModel with _$VersiApkModel implements HasId {
     };
   }
 }
+
+
+// File: lib/fitur/versi_apk/service/update_service.dart
 // path: lib/fitur/versi_apk/service/update_service.dart
 
 import 'dart:io';
@@ -20321,6 +20739,9 @@ class UpdateService {
     }
   }
 }
+
+
+// File: lib/fitur/versi_apk/service/layanan_cek_update_apk.dart
 // path: lib/fitur/versi_apk/service/layanan_cek_update_apk.dart
 
 import 'dart:async';
@@ -20487,6 +20908,9 @@ class LayananCekUpdateApk {
     }
   }
 }
+
+
+// File: lib/fitur/feedback/page/feedback_page_u.dart
 // path: lib/fitur/feedback/page/feedback_page_u.dart
 
 import 'dart:async';
@@ -20644,6 +21068,9 @@ class FeedbackPageU extends ConsumerWidget {
     }
   }
 }
+
+
+// File: lib/fitur/feedback/page/form_feedback_u.dart
 // path: lib/fitur/feedback/page/form_feedback_u.dart
 
 import 'package:flutter/material.dart';
@@ -20773,6 +21200,9 @@ class _FormKritikDanSaranState extends ConsumerState<FormFeedBackU> {
     );
   }
 }
+
+
+// File: lib/fitur/feedback/page/feedback_page_a.dart
 // path: lib/fitur/feedback/page/feedback_page_a.dart
 
 import 'dart:async';
@@ -21037,6 +21467,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
     ];
   }
 }
+
+
+// File: lib/fitur/feedback/page/feedback_detail_a.dart
 // path: lib/fitur/feedback/page/feedback_detail_a.dart
 
 import 'dart:async';
@@ -21323,6 +21756,9 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
     );
   }
 }
+
+
+// File: lib/fitur/feedback/provider/feedback_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'feedback_provider.dart';
@@ -21450,6 +21886,9 @@ final class DetailFeedbackFamily extends $Family
   @override
   String toString() => r'detailFeedbackProvider';
 }
+
+
+// File: lib/fitur/feedback/provider/feedback_provider.dart
 // path: lib/fitur/feedback/provider/feedback_provider.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -21469,6 +21908,9 @@ Future<FeedbackModel> detailFeedback(Ref ref, String id) async {
   final feedbackOpSqlite = ref.watch(feedbackOpSqliteProvider);
   return await feedbackOpSqlite.ambilBerdasarkanId(id);
 }
+
+
+// File: lib/fitur/feedback/operasi/feedback_op_sqlite.dart
 // path: lib/fitur/feedback/operasi/feedback_op_sqlite.dart
 
 import 'package:sqflite/sqflite.dart';
@@ -21743,6 +22185,9 @@ class FeedbackOpSqlite {
     }
   }
 }
+
+
+// File: lib/fitur/feedback/operasi/feedback_op_firebase.dart
 // path: lib/fitur/feedback/operasi/feedback_op_firebase.dart
 
 import 'dart:async';
@@ -21843,6 +22288,9 @@ class FeedbackOpFirebase {
     }
   }
 }
+
+
+// File: lib/fitur/feedback/model/feedback_model.dart
 // path: lib/fitur/feedback/model/feedback_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -21926,6 +22374,9 @@ abstract class FeedbackModel with _$FeedbackModel implements HasId {
     };
   }
 }
+
+
+// File: lib/fitur/feedback/model/feedback_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -22215,6 +22666,9 @@ as DateTime?,
 }
 
 // dart format on
+
+
+// File: lib/fitur/riwayat_aktivasi/page/form_riwayat_aktivasi.dart
 // path: lib/fitur/riwayat_aktivasi/page/form_riwayat_aktivasi.dart
 
 import 'dart:async';
@@ -22489,6 +22943,9 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
     );
   }
 }
+
+
+// File: lib/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart
 // path: lib/admin/halaman/detail/subscription_history_detail.dart
 
 import 'package:flutter/material.dart';
@@ -22714,7 +23171,13 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
     );
   }
 }
+
+
+// File: lib/fitur/database/sqlite_user.dart
 // path: lib/fitur/database/sqlite_user.dart
+
+
+// File: lib/fitur/database/provider/operasi_sqlite_provider.dart
 // path: lib/fitur/database/provider/operasi_sqlite_provider.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -22859,6 +23322,9 @@ DompetOpSqlite dompetOpSqlite(Ref ref) {
 
   return DompetOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
 }
+
+
+// File: lib/fitur/database/provider/operasi_sqlite_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'operasi_sqlite_provider.dart';
@@ -23468,6 +23934,9 @@ final class DompetOpSqliteProvider
 }
 
 String _$dompetOpSqliteHash() => r'934eed2b1b930b0551825d1f18b2d291057f8753';
+
+
+// File: lib/fitur/transaksi/page/transaksi_u.dart
 // path: lib/user/page/subscription_history_user.dart
 
 import 'package:flutter/material.dart';
@@ -23829,6 +24298,9 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
     );
   }
 }
+
+
+// File: lib/fitur/transaksi/page/detail_transaksi_a.dart
 // path lib/fitur/transaksi/page/detail_transaksi_a.dart
 
 import 'package:flutter/material.dart';
@@ -24105,6 +24577,9 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
     );
   }
 }
+
+
+// File: lib/fitur/transaksi/page/detail_transaksi_u.dart
 // path: lib/fitur/transaksi/page/detail_transaksi_u.dart
 
 import 'package:flutter/material.dart';
@@ -24198,6 +24673,9 @@ class DetailTransaksiU extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/fitur/transaksi/page/riwayat_aktivasi_paket.dart
 // path lib/fitur/transaksi/page/riwayat_aktivasi_paket.dart
 
 import 'package:flutter/material.dart';
@@ -24535,6 +25013,9 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
     }
   }
 }
+
+
+// File: lib/fitur/transaksi/page/form_transaksi.dart
 // path: lib/fitur/transaksi/page/form_transaksi.dart
 
 import 'dart:async';
@@ -25090,6 +25571,9 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     super.dispose();
   }
 }
+
+
+// File: lib/fitur/transaksi/page/transaksi_a.dart
 // path: lib/fitur/transaksi/page/transaksi_a.dart
 
 import 'package:flutter/material.dart';
@@ -25455,6 +25939,9 @@ class TransactionSummary extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/fitur/transaksi/widget/daftar_transaksi_widget.dart
 // path lib/fitur/transaksi/widget/daftar_transaksi_widget.dart
 
 import 'dart:async';
@@ -25693,6 +26180,9 @@ Widget bangunItemTransaksi(
     onDelete: onDelete,
   );
 }
+
+
+// File: lib/fitur/transaksi/helper/pengurut_transaksi.dart
 // path lib/fitur/transaksi/helper/pengurut_transaksi.dart
 
 import 'package:flutter_riverpod/legacy.dart';
@@ -25738,6 +26228,9 @@ class PengurutTransaksi {
     }
   }
 }
+
+
+// File: lib/fitur/transaksi/provider/transaksi_provider.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -26024,6 +26517,9 @@ as double,
 }
 
 // dart format on
+
+
+// File: lib/fitur/transaksi/provider/transaksi_provider.dart
 // path: lib/admin/providers/transaksi_provider.dart
 
 import 'dart:async';
@@ -26123,6 +26619,9 @@ class Transaksi extends _$Transaksi {
     state = await AsyncValue.guard(_loadData);
   }
 }
+
+
+// File: lib/fitur/transaksi/provider/transaksi_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'transaksi_provider.dart';
@@ -26158,7 +26657,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'70b391e93038961bf53fe7fa251997d22afbc17e';
+String _$transaksiHash() => r'15fedb78a0e77476dc9809675cff24f52cd0219c';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -26177,6 +26676,9 @@ abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
     return element.handleCreate(ref, build);
   }
 }
+
+
+// File: lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart
 // path: lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart
 
 import 'package:sqflite/sqflite.dart';
@@ -26727,6 +27229,9 @@ class TransaksiOpSqlite {
     }
   }
 }
+
+
+// File: lib/fitur/transaksi/operasi/transaksi_op_firebase.dart
 // path: lib/fitur/transaksi/operasi/transaksi_op_firebase.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -26916,6 +27421,9 @@ class TransaksiOpFirebase extends BaseOpFirebase {
     }
   }
 }
+
+
+// File: lib/fitur/transaksi/enum/status_pembayaran.dart
 // path: lib/fitur/transaksi/enum/status_pembayaran.dart
 
 /// Enum untuk status pembayaran transaksi atau tagihan.
@@ -26936,6 +27444,9 @@ enum StatusPembayaran {
     }
   }
 }
+
+
+// File: lib/fitur/transaksi/enum/tipe_transaksi.dart
 // path: lib/shared/enum/transaction_type_enum.dart
 // diperbaiki: Menambahkan dokumentasi untuk getter.
 
@@ -26962,6 +27473,9 @@ enum TipeTransaksi {
     }
   }
 }
+
+
+// File: lib/fitur/transaksi/model/transaksi_model.dart
 // path: lib/fitur/transaksi/model/transaksi_model.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -27181,6 +27695,9 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
     };
   }
 }
+
+
+// File: lib/fitur/transaksi/model/transaksi_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -27521,6 +28038,9 @@ as bool,
 }
 
 // dart format on
+
+
+// File: lib/fitur/pelanggan/page/user/edit_profile_page.dart
 // path lib/fitur/pelanggan/page/user/edit_profile_page.dart
 
 import 'package:flutter/material.dart';
@@ -27712,6 +28232,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     );
   }
 }
+
+
+// File: lib/fitur/pelanggan/page/user/detail_pelanggan_u.dart
 // path: lib/fitur/pelanggan/page/user/detail_pelanggan_u.dart
 
 import 'package:flutter/material.dart';
@@ -27884,6 +28407,9 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
     );
   }
 }
+
+
+// File: lib/fitur/pelanggan/page/admin/pelanggan.dart
 // path: lib/fitur/pelanggan/page/admin/pelanggan.dart
 
 import 'dart:async';
@@ -28279,6 +28805,9 @@ class _PelangganState extends ConsumerState<Pelanggan> {
     }
   }
 }
+
+
+// File: lib/fitur/pelanggan/page/admin/form_pelanggan.dart
 // path lib/fitur/pelanggan/page/admin/form_pelanggan.dart
 
 import 'dart:async';
@@ -28528,6 +29057,9 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
     );
   }
 }
+
+
+// File: lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
 // path: lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
 
 import 'dart:async';
@@ -28638,6 +29170,9 @@ MAC : ${customer.macAddress}
     );
   }
 }
+
+
+// File: lib/fitur/pelanggan/widget/detail_pelanggan_ui.dart
 // path: lib/fitur/pelanggan/widget/detail_pelanggan_ui.dart
 
 import 'package:flutter/material.dart';
@@ -28807,6 +29342,9 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
     );
   }
 }
+
+
+// File: lib/fitur/pelanggan/provider/pelanggan_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'pelanggan_provider.dart';
@@ -29137,6 +29675,9 @@ final class PelangganDetailFamily extends $Family
   @override
   String toString() => r'pelangganDetailProvider';
 }
+
+
+// File: lib/fitur/pelanggan/provider/pelanggan_provider.dart
 // path lib/fitur/pelanggan/provider/pelanggan_provider.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -29217,6 +29758,9 @@ Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
 
   return (pelanggan, poin);
 }
+
+
+// File: lib/fitur/pelanggan/core/layanan_aktivitas_user.dart
 // path: lib/shared/services/user_activity_service.dart
 
 import 'dart:async';
@@ -29280,6 +29824,9 @@ class LayananAktivitasUser {
     }
   }
 }
+
+
+// File: lib/fitur/pelanggan/operasi/pelanggan_op_firebase.dart
 // path: lib/fitur/pelanggan/operasi/pelanggan_op_firebase.dart
 
 import 'dart:async';
@@ -29409,6 +29956,9 @@ class PelangganOpFirebase {
     }
   }
 }
+
+
+// File: lib/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart
 // path: lib/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
@@ -29627,6 +30177,9 @@ class PelangganOpSqlite {
     }
   }
 }
+
+
+// File: lib/fitur/pelanggan/model/pelanggan_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -29925,6 +30478,9 @@ as DateTime?,
 }
 
 // dart format on
+
+
+// File: lib/fitur/pelanggan/model/pelanggan_model.dart
 // path: lib/fitur/pelanggan/model/pelanggan_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30026,6 +30582,9 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
     };
   }
 }
+
+
+// File: lib/fitur/background/layanan_latar_belakang.dart
 // path: lib/fitur/background/background_service.dart
 
 import 'package:firebase_core/firebase_core.dart';
@@ -30193,6 +30752,9 @@ class LayananLatarBelakang {
     Log.info('Semua background tasks telah dibatalkan.');
   }
 }
+
+
+// File: lib/fitur/background/layanan_peluncuran.dart
 // path: lib/fitur/background/boot_service.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30266,6 +30828,9 @@ class LayananPeluncuran {
     }
   }
 }
+
+
+// File: lib/fitur/background/alarm_utils.dart
 // path: lib/fitur/background/alarm_utils.dart
 
 import 'package:firebase_core/firebase_core.dart';
@@ -30289,6 +30854,9 @@ Future<void> alarmCallback() async {
   }
   Log.info('ALARM SELESAI: Proses pengecekan langganan kedaluwarsa selesai.');
 }
+
+
+// File: lib/fitur/notfikasi/layanan_notifikasi.dart
 // path: lib/fitur/notfikasi/layanan_notifikasi.dart
 
 import 'dart:async';
@@ -30799,6 +31367,9 @@ class LayananNotifikasi {
     }
   }
 }
+
+
+// File: lib/fitur/notfikasi/penjadwal_notifikasi.dart
 // path: lib/fitur/notfikasi/penjadwal_notifikasi.dart
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -30931,7 +31502,10 @@ Future<void> _callbackAlarm() async {
   }
   Log.info('ALARM SELESAI: Proses pengecekan langganan kedaluwarsa selesai.');
 }
-// path lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
+
+
+// File: lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
+// path: lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
@@ -31054,14 +31628,14 @@ class NotifikasiOpFirebase {
     }
   }
 
-  Future<void> hpausBerdasarkanIdTransaksi(String transactionId) async {
+  Future<void> hapusBerdasarkanIdTransaksi(String idTransaksi) async {
     try {
       Log.info(
-        'Menghapus notifikasi berdasarkan idTujuan (transactionId): $transactionId',
+        'Menghapus notifikasi berdasarkan idTujuan (transactionId): $idTransaksi',
       );
       final querySnapshot = await _firestore
           .collection(_koleksi)
-          .where(NamaKolom.idTujuan, isEqualTo: transactionId)
+          .where(NamaKolom.idTujuan, isEqualTo: idTransaksi)
           .get();
 
       final batch = _firestore.batch();
@@ -31091,6 +31665,9 @@ class NotifikasiOpFirebase {
     }
   }
 }
+
+
+// File: lib/fitur/notfikasi/enum/tipe_notifikasi_enum.dart
 // path: lib/fitur/notfikasi/enum/tipe_notifikasi_enum.dart
 
 enum TipeNotifikasiEnum { transaksi, events, order, info }
@@ -31109,6 +31686,56 @@ extension TipeNotifikasiExtension on TipeNotifikasiEnum {
     }
   }
 }
+
+
+// File: lib/fitur/notfikasi/pwngingat_paket_belum_lunas.dart
+// path lib/fitur/notfikasi/pwngingat_paket_belum_lunas.dart
+
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart'; // Sesuaikan path Anda
+
+class PengingatService {
+  final LayananNotifikasi _notifServis = LayananNotifikasi();
+
+  Future<void> cekDanTampilkanNotif() async {
+    // 1. Cek apakah notifikasi sudah tampil hari ini
+    final prefs = await SharedPreferences.getInstance();
+    final String hariIni = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final String terakhirNotif = prefs.getString('last_notif_date') ?? '';
+
+    if (terakhirNotif == hariIni) {
+      // Jika sudah tampil hari ini, hentikan proses
+      return;
+    }
+
+    // 2. Cek data paket (sesuaikan dengan logic Anda)
+    // Asumsi: Anda memiliki fungsi untuk mengambil daftar paket
+    final daftarPaket = await _ambilDataPaketBelumLunas();
+
+    if (daftarPaket.isNotEmpty) {
+      // 3. Tampilkan Notifikasi
+      await _notifServis.tampilkanNotifikasiLangsung(
+        title: 'Pengingat Tagihan',
+        body:
+            'Anda memiliki ${daftarPaket.length} paket yang belum lunas. Segera lakukan pembayaran.',
+      );
+
+      // 4. Update flag di SharedPreferences agar tidak muncul lagi hari ini
+      await prefs.setString('last_notif_date', hariIni);
+    }
+  }
+
+  // Contoh fungsi dummy untuk mengambil data paket
+  Future<List<dynamic>> _ambilDataPaketBelumLunas() async {
+    // Implementasi logic database/provider Anda di sini
+    // Contoh: return await ref.read(transaksiProvider.future).where((t) => !t.isLunas).toList();
+    return [];
+  }
+}
+
+
+// File: lib/fitur/notfikasi/model/notifikasi_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -31416,6 +32043,9 @@ as DateTime?,
 }
 
 // dart format on
+
+
+// File: lib/fitur/notfikasi/model/notifikasi_model.dart
 // path: lib/fitur/notfikasi/model/notifikasi_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -31563,6 +32193,9 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
     };
   }
 }
+
+
+// File: lib/fitur/sinkronisasi/layanan_unduhan_awal.dart
 // path: lib/shared/data/sync/unduhan_awal_service.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31699,6 +32332,9 @@ final providerLayananUnduhanAwal = Provider<LayananUnduhanAwal>((ref) {
     layananUnduhData: ref.read(layananUnduhDataProvider),
   );
 });
+
+
+// File: lib/fitur/sinkronisasi/layanan_unduh_data.dart
 // path: lib/shared/data/sync/layanan_unduh_data.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -32081,6 +32717,9 @@ final layananUnduhDataProvider = Provider<LayananUnduhData>((ref) {
     pengelolaSinkronisasi: ref.read(pengelolaSinkronisasiProvider),
   );
 });
+
+
+// File: lib/fitur/sinkronisasi/layanan_unggah_data.dart
 // path: lib/shared/data/sync/layanan_unggah_data.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -32701,6 +33340,9 @@ final layananUnggahDataProvider = Provider<LayananUnggahData>((ref) {
     syncManager: ref.read(pengelolaSinkronisasiProvider),
   );
 });
+
+
+// File: lib/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart
 // path: lib/shared/data/services/layanan_cek_sinkronisasi.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -32829,6 +33471,9 @@ final layananCekSinkronisasiProvider = Provider<LayananCekSinkronisasi>((ref) {
     firestore: FirebaseFirestore.instance,
   );
 });
+
+
+// File: lib/fitur/statistik/page/statistik_page_a.dart
 // path: lib/admin/halaman/tab/statistik_page_a.dart
 
 import 'package:fl_chart/fl_chart.dart';
@@ -33280,6 +33925,9 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     );
   }
 }
+
+
+// File: lib/fitur/statistik/provider/statistik_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'statistik_provider.dart';
@@ -33315,7 +33963,7 @@ final class StatistikProvider
   Statistik create() => Statistik();
 }
 
-String _$statistikHash() => r'6df300b3e337255e0c26aa99cfa6c5169eb4812d';
+String _$statistikHash() => r'a44c162f2ccfb02046d78fe88200e970689989e3';
 
 abstract class _$Statistik extends $AsyncNotifier<StatistikState> {
   FutureOr<StatistikState> build();
@@ -33334,6 +33982,9 @@ abstract class _$Statistik extends $AsyncNotifier<StatistikState> {
     return element.handleCreate(ref, build);
   }
 }
+
+
+// File: lib/fitur/statistik/provider/statistik_provider.dart
 // path: lib/fitur/statistik/provider/statistik_provider.dart
 
 import 'dart:async';
@@ -33429,6 +34080,9 @@ class Statistik extends _$Statistik {
     Log.info('[StatistikNotifier] Refresh selesai.');
   }
 }
+
+
+// File: lib/fitur/statistik/operasi/statistik_op_sqlite.dart
 // path: lib/fitur/statistik/operasi/statistik_op_sqlite.dart
 
 import 'package:collection/collection.dart';
@@ -33602,6 +34256,9 @@ class StatistikOpSqlite {
     }
   }
 }
+
+
+// File: lib/fitur/statistik/model/paket_terlaris_model.dart
 // path: lib/fitur/statistik/model/paket_terlaris_model.dart
 
 import 'package:wifi/fitur/paket/model/paket_model.dart';
@@ -33612,6 +34269,9 @@ class PaketTerlarisModel {
 
   PaketTerlarisModel({required this.paket, required this.totalTerjual});
 }
+
+
+// File: lib/fitur/alarm/penjadwal_alarm_android.dart
 // path: lib/shared/services/alarm/android_alarm_scheduler.dart
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33688,6 +34348,9 @@ class PenjadwalAlarmAndroid implements PenjadwalAlarm {
     return AndroidAlarmManager.cancel(id);
   }
 }
+
+
+// File: lib/fitur/alarm/penjadwal_alarm.dart
 // path: lib/fitur/alarm/penjadwal_alarm.dart
 
 abstract class PenjadwalAlarm {
@@ -33720,6 +34383,9 @@ abstract class PenjadwalAlarm {
 
   Future<bool> batalkan(int id);
 }
+
+
+// File: lib/user/page/profile_page.dart
 // path: lib/user/page/profile_page.dart
 
 import 'dart:async';
@@ -34134,6 +34800,9 @@ class _InfoItem extends StatelessWidget {
     return content;
   }
 }
+
+
+// File: lib/user/page/splash_screen_user.dart
 // path: lib/user/page/splash_screen_user.dart
 
 import 'dart:async';
@@ -34387,6 +35056,9 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     );
   }
 }
+
+
+// File: lib/user/page/main_page.dart
 // path: lib/user/page/main_page.dart
 
 import 'dart:async';
@@ -34497,6 +35169,9 @@ class _MainPageState extends ConsumerState<MainPage> {
     );
   }
 }
+
+
+// File: lib/user/page/login_page.dart
 // path: lib/user/page/login_page.dart
 import 'dart:async';
 
@@ -34804,6 +35479,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 }
+
+
+// File: lib/user/firebase_option/firebase_option_user_dev.dart
 // path: lib/user/firebase_option/firebase_option_user_dev.dart
 // File generated by FlutterFire CLI.
 // ignore_for_file: type=lint
@@ -34874,6 +35552,9 @@ class DefaultFirebaseOptions {
     storageBucket: 'flutter-coding-9f081.firebasestorage.app',
   );
 }
+
+
+// File: lib/user/firebase_option/firebase_option_user_prod.dart
 // File generated by FlutterFire CLI.
 // ignore_for_file: type=lint
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
@@ -34936,6 +35617,9 @@ class DefaultFirebaseOptions {
     storageBucket: 'studio-5934431625-6eeb1.firebasestorage.app',
   );
 }
+
+
+// File: lib/user/widget/theme_menu_widget.dart
 // path: lib/user/widget/theme_menu_widget.dart
 // diubah: Menggunakan ikon terpusat dari kelas TIcons.
 
@@ -35024,6 +35708,9 @@ class ThemeMenuWidget extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/user/widget/error_message.dart
 // path: lib/user/widget/error_message.dart
 import 'package:flutter/material.dart';
 
@@ -35090,6 +35777,9 @@ class ErrorMessage extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/user/widget/ads/banner/id_banner_ads.dart
 // path: lib/user/widget/ads/banner/id_banner_ads.dart
 import 'package:flutter/foundation.dart';
 
@@ -35138,6 +35828,9 @@ class IdBannerAds {
     return _prodBanner2;
   }
 }
+
+
+// File: lib/user/widget/ads/banner/banner_ads_widget.dart
 // path: lib/user/widget/ads/banner/banner_ads_widget.dart
 
 import 'package:flutter/material.dart';
@@ -35214,6 +35907,9 @@ class _BannerAdsWidgetState extends State<BannerAdsWidget> {
     }
   }
 }
+
+
+// File: lib/user/widget/ads/app_open/app_open_ad_service.dart
 // path: lib/user/widget/ads/app_open/app_open_ad_service.dart
 import 'dart:async';
 
@@ -35322,6 +36018,9 @@ class LayananIklanBukaAplikasi {
     await _iklanBukaAplikasi!.show();
   }
 }
+
+
+// File: lib/user/widget/ads/app_open/id_app_open_ads.dart
 // path: lib/user/widget/ads/app_open/id_app_open_ads.dart
 import 'package:flutter/foundation.dart';
 
@@ -35341,6 +36040,9 @@ class IdAppOpenAds {
     return _prodAppOpenAd;
   }
 }
+
+
+// File: lib/user/widget/ads/app_open/app_lifecycle_reactor.dart
 // path: lib/user/widget/ads/app_open/app_lifecycle_reactor.dart
 import 'dart:async';
 
@@ -35384,6 +36086,9 @@ class AppLifecycleReactor {
     }
   }
 }
+
+
+// File: lib/user/widget/ads/interstitial/layanan_iklan_interstisial.dart
 import 'dart:async';
 
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -35467,6 +36172,9 @@ class LayananIklanInterstisial {
     _interstitialAd = null;
   }
 }
+
+
+// File: lib/user/widget/ads/interstitial/id_interstitial_ads.dart
 // path: lib/user/widget/ads/interstitial/id_interstitial_ads.dart
 import 'package:flutter/foundation.dart';
 
@@ -35510,6 +36218,9 @@ class IdInterstitialAds {
     return _prodInterstitial1;
   }
 }
+
+
+// File: lib/user/widget/ads/bonused_mediator/bonused_mediator_ad_service.dart
 // path: lib/user/widget/ads/bonused_mediator/bonused_mediator_ad_service.dart
 import 'dart:async';
 
@@ -35625,6 +36336,9 @@ class BonusedMediatorAdService {
     Log.info('BonusedMediatorAdService disposed.');
   }
 }
+
+
+// File: lib/user/widget/ads/bonused_mediator/id_bonused_mediator_ads.dart
 // path: lib/user/widget/ads/bonused_mediator/id_bonused_mediator_ads.dart
 import 'package:flutter/foundation.dart';
 
@@ -35646,6 +36360,9 @@ class IdBonusedMediatorAds {
     return _prodBonusedMediatorAd;
   }
 }
+
+
+// File: lib/user/widget/data_not_found.dart
 // path: lib/user/widget/data_not_found.dart
 import 'package:flutter/material.dart';
 
@@ -35689,6 +36406,9 @@ class DataNotFound extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/user/services/storage/layanan_penyimpanan_lokal.dart
 // path: lib/user/services/storage/layanan_penyimpanan_lokal.dart
 
 import 'dart:convert';
@@ -35882,6 +36602,9 @@ class LayananPenyimpananLokal {
     Log.info('[Hapus Semua Data] Semua data berhasil dihapus.');
   }
 }
+
+
+// File: lib/user/providers/user_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'user_provider.dart';
@@ -36065,6 +36788,9 @@ final class LayananAktivitasUserProvider
 
 String _$layananAktivitasUserHash() =>
     r'477083226beda5c128fa3b908af23aef036f99e0';
+
+
+// File: lib/user/providers/ad_providers.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'ad_providers.dart';
@@ -36123,6 +36849,9 @@ final class InterstitialAdServiceProvider
 
 String _$interstitialAdServiceHash() =>
     r'221f2fe478c760ee29cce528654c5184cab324ff';
+
+
+// File: lib/user/providers/user_provider.dart
 // path lib/user/providers/user_provider.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -36163,6 +36892,9 @@ Future<LayananAktivitasUser> layananAktivitasUser(Ref ref) async {
     prefs: await prefs,
   );
 }
+
+
+// File: lib/user/providers/ad_providers.dart
 // path: lib/user/providers/ad_providers.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -36178,6 +36910,9 @@ LayananIklanInterstisial interstitialAdService(Ref ref) {
 
   return service;
 }
+
+
+// File: lib/user/maintenance_page.dart
 // path: lib/user/maintenance_page.dart
 
 import 'dart:async';
@@ -36342,6 +37077,9 @@ class _KontenMaintenance extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/user/app_user.dart
 // path lib/user/app_user.dart
 
 import 'package:flutter/material.dart';
@@ -36439,6 +37177,9 @@ class _ErrorApp extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/shared/data/services/layanan_pengecekan_data_baru.dart
 // path: lib/shared/data/services/pengecekan_data_baru_service.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -36604,6 +37345,9 @@ final pengecekanDataBaruServiceProvider = Provider<LayananPengecekanDataBaru>(
     );
   },
 );
+
+
+// File: lib/shared/data/services/layanan_navigasi.dart
 // path: lib/shared/data/services/layanan_navigasi.dart
 
 import 'package:flutter/material.dart';
@@ -36621,6 +37365,9 @@ class LayananNavigasi {
     );
   }
 }
+
+
+// File: lib/shared/data/services/layanan_preferensi.dart
 // path: lib/shared/data/services/layanan_preferensi.dart
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36711,6 +37458,9 @@ class LayananPreferensi {
     Log.info('Semua timestamp sinkronisasi telah di-reset.');
   }
 }
+
+
+// File: lib/shared/common/teks.dart
 // path lib/shared/common/teks.dart
 
 import 'package:flutter/material.dart';
@@ -36975,6 +37725,9 @@ class TeksLabelBesar extends _TeksDasar {
   TextStyle? dapatkanGayaDasar(BuildContext context) =>
       Theme.of(context).textTheme.labelLarge;
 }
+
+
+// File: lib/shared/debug/log.dart
 // path: lib/shared/debug/log.dart
 import 'dart:convert';
 import 'dart:developer' as dev;
@@ -37114,6 +37867,9 @@ class Log {
     );
   }
 }
+
+
+// File: lib/shared/debug/global_key.dart
 // path: lib/shared/debug/global_key.dart
 import 'package:flutter/material.dart';
 
@@ -37122,6 +37878,9 @@ import 'package:flutter/material.dart';
 /// Hapus file ini dan penggunaannya setelah selesai debugging.
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
+
+
+// File: lib/shared/utils/toast_util.dart
 // path: lib/shared/utils/toast_util.dart
 
 import 'package:flutter/material.dart';
@@ -37238,6 +37997,9 @@ class ToastUtil {
     final Object? logData,
   }) => _show(context, message, duration: duration, logData: logData);
 }
+
+
+// File: lib/shared/utils/parser_util.dart
 // path: lib/shared/utils/parser_util.dart
 // baru: File utilitas untuk parsing data secara konsisten.
 
@@ -37273,6 +38035,9 @@ class ParserUtil {
     return false;
   }
 }
+
+
+// File: lib/shared/utils/perhitungan_util.dart
 // path: lib/shared/utils/perhitungan_util.dart
 
 import 'package:flutter/material.dart';
@@ -37394,6 +38159,9 @@ class PerhitunganUtil {
     }
   }
 }
+
+
+// File: lib/shared/utils/format_util.dart
 import 'package:intl/intl.dart';
 
 class FormatWaktuLengkap {
@@ -37468,6 +38236,9 @@ class FormatNomor {
     return formatter.format(value);
   }
 }
+
+
+// File: lib/shared/utils/pengelola_sinkronisasi.dart
 // path: lib/shared/utils/sync_manager.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37516,6 +38287,9 @@ class PengelolaSinkronisasi {
     Log.info('Waktu sinkronisasi (unduh dan unggah) berhasil di-reset.');
   }
 }
+
+
+// File: lib/shared/widget/thousands_input_formatter.dart
 // path: lib/shared/widget/thousands_input_formatter.dart
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -37585,6 +38359,9 @@ class ThousandsAndNegativeInputFormatter extends TextInputFormatter {
     );
   }
 }
+
+
+// File: lib/shared/widget/nama_pelanggan_widget.dart
 // path: lib/shared/widget/nama_pelanggan_widget.dart
 
 import 'package:flutter/material.dart';
@@ -37701,6 +38478,9 @@ class NamaPelangganWidget extends ConsumerWidget {
     );
   }
 }
+
+
+// File: lib/shared/widget/input/input_rupiah.dart
 // path: lib/shared/widget/input/input_rupiah.dart
 
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
@@ -37771,6 +38551,9 @@ class InputRupiah extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/shared/widget/input/input_password.dart
 // path: lib/shared/widget/input/input_password.dart
 
 // lib/shared/widget/input_password.dart
@@ -37857,6 +38640,9 @@ class _InputPasswordState extends State<InputPassword> {
     );
   }
 }
+
+
+// File: lib/shared/widget/input/input_angka.dart
 // path: lib/shared/widget/input/input_angka.dart
 
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
@@ -37939,6 +38725,9 @@ class InputAngka extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/shared/widget/input/input_telepon.dart
 // path lib/shared/widget/input/input_telepon.dart
 
 import 'package:flutter/material.dart';
@@ -38013,6 +38802,9 @@ class InputTelepon extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/shared/widget/input/input_teks.dart
 // path: lib/shared/widget/input/input_teks.dart
 
 import 'package:flutter/material.dart';
@@ -38077,6 +38869,9 @@ class InputTeks extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/shared/widget/summary_info_widget.dart
 // path: lib/shared/widget/summary_info_widget.dart
 // digunakan oleh: lib/admin/halaman/detail/wallet_detail.dart
 
@@ -38114,6 +38909,9 @@ Widget buildSummaryInfo({
     ],
   );
 }
+
+
+// File: lib/shared/widget/package_name.dart
 // path: lib/shared/widget/package_name.dart
 // digunakan oleh: lib/user/page/riwayat_langganan_user.dart
 // ditambah: Menambahkan logging untuk error di FutureBuilder.
@@ -38177,6 +38975,9 @@ class PackageNameWidget extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/shared/widget/widget_ringkasan_keuangan.dart
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -38335,6 +39136,9 @@ extension EkstensiRingkasanKeuangan on BuildContext {
     ToastUtil.info(this, message);
   }
 }
+
+
+// File: lib/shared/widget/pemilih_tanggal_waktu_widget.dart
 // path: lib/shared/widget/pemilih_tanggal_waktu_widget.dart
 
 import 'package:flutter/material.dart';
@@ -38392,16 +39196,25 @@ class PemilihTanggalWaktuWidget extends StatelessWidget {
   }
 }
 
+
+// File: lib/shared/export/enum.dart
+
 // path: lib/shared/export/enum.dart
 export '../../fitur/notfikasi/enum/tipe_notifikasi_enum.dart';
 export '../../fitur/order/enum/status_order_enum.dart';
-export '../enum/app_role_enum.dart';// path: lib/shared/export/op_firebase.dart
+export '../enum/app_role_enum.dart';
+
+// File: lib/shared/export/op_firebase.dart
+// path: lib/shared/export/op_firebase.dart
 export '../../fitur/feedback/operasi/feedback_op_firebase.dart';
 export '../../fitur/paket/operasi/paket_op_firebase.dart';
 export '../../fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
 export '../../fitur/settings/operasi/settings_op_firebase.dart';
 export '../../fitur/transaksi/operasi/transaksi_op_firebase.dart';
 export '../../fitur/versi_apk/operasi/versi_apk_op_firebase.dart';
+
+
+// File: lib/shared/export/model.dart
 // path: lib/shared/export/model.dart
 export '../../fitur/event/model/event_model.dart';
 export '../../fitur/notfikasi/model/notifikasi_model.dart';
@@ -38409,6 +39222,9 @@ export '../../fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 export '../../fitur/transaksi/model/transaksi_model.dart';
 export '../model/status_model.dart';
 export '../model/status_unggah_model.dart';
+
+
+// File: lib/shared/export/theme.dart
 // path: lib/shared/export/theme.dart
 
 export '../theme/app_colors.dart';
@@ -38416,6 +39232,9 @@ export '../theme/app_icons.dart';
 export '../theme/app_sizes.dart';
 export '../theme/app_theme.dart';
 export '../theme/tema_provider.dart';
+
+
+// File: lib/shared/export/operation.dart
 // path: lib/shared/export/operation.dart
 // Fitur: [Operation Export]
 // Tujuan: Mengekspor semua kelas operasi dari satu file untuk impor yang lebih bersih.
@@ -38433,6 +39252,9 @@ export 'package:wifi/fitur/versi_apk/operasi/versi_apk_op_sqlite.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
+
+
+// File: lib/shared/theme/tema_provider.dart
 // path: lib/shared/theme/tema_provider.dart
 
 import 'package:flutter/material.dart';
@@ -38476,6 +39298,9 @@ class TemaNotifier extends AsyncNotifier<ThemeMode> {
     return tema == ThemeMode.dark;
   }
 }
+
+
+// File: lib/shared/theme/app_theme.dart
 // path: lib/shared/theme/app_theme.dart
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
@@ -38657,6 +39482,9 @@ extension ThemeContext on BuildContext {
   /// Memudahkan akses ke colorScheme: context.colorScheme
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
 }
+
+
+// File: lib/shared/theme/app_colors.dart
 // path: lib/shared/theme/app_colors.dart
 // diubah: Menambahkan definisi warna yang hilang untuk tema terang dan gelap.
 
@@ -38713,6 +39541,9 @@ class TColors {
     Log.info('Warna tema berhasil diinisialisasi.');
   }
 }
+
+
+// File: lib/shared/theme/app_icons.dart
 // path: lib/shared/theme/app_icons.dart
 // diubah: Menambahkan ikon 'toggle_on' dan 'toggle_off' untuk status switch.
 import 'package:flutter/material.dart';
@@ -39016,6 +39847,9 @@ class TIcons {
   /// Ikon untuk waktu atau pengukur waktu (timer).
   static const IconData timer = Icons.timer_outlined;
 }
+
+
+// File: lib/shared/theme/app_sizes.dart
 // path: lib/shared/theme/app_sizes.dart
 
 import 'package:flutter/widgets.dart';
@@ -39069,6 +39903,9 @@ const gapW32 = SizedBox(width: TSizes.p32);
 const gapW40 = SizedBox(width: TSizes.p40);
 const gapW48 = SizedBox(width: TSizes.p48);
 const gapW64 = SizedBox(width: TSizes.p64);
+
+
+// File: lib/shared/services/arsipkan_langganan_kadaluarsa_service.dart
 // path: lib/shared/services/arsipkan_langganan_kadaluarsa_service.dart
 
 
@@ -39114,6 +39951,9 @@ final arsipLanggananKadaluarsaServiceProvider =
     pelangganAktifOpSqlite: ref.read(pelangganAktifOpSqliteProvider),
   );
 });
+
+
+// File: lib/shared/services/layanan_penyimpanan_gambar.dart
 // path: lib/shared/services/layanan_penyimpanan_gambar.dart
 
 import 'dart:io';
@@ -39217,6 +40057,9 @@ class LayananPenyimpananGambar {
 
 final layananPenyimpananGambarProvider =
     Provider((ref) => LayananPenyimpananGambar());
+
+
+// File: lib/shared/services/koneksi_internet_service.dart
 // path: lib/shared/services/koneksi_internet_service.dart
 
 import 'dart:async';
@@ -39290,6 +40133,9 @@ class KoneksiInternetService {
     }
   }
 }
+
+
+// File: lib/shared/providers/shared_providers.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'shared_providers.dart';
@@ -39533,6 +40379,9 @@ final class PengontrolNotifikasiProvider
 
 String _$pengontrolNotifikasiHash() =>
     r'fe0141bb5b26e3c4daf18499c674c1c4b59be7e5';
+
+
+// File: lib/shared/providers/shared_providers.dart
 // path: lib/shared/providers/shared_providers.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39614,6 +40463,9 @@ void pengontrolNotifikasi(Ref ref) {
     layananNotifikasi.hentikanPemantauanNotifikasi();
   });
 }
+
+
+// File: lib/shared/operasi/firebase_operasi/base_op_firebase.dart
 // path: lib/shared/operasi/firebase_operasi/base_op_firebase.dart
 
 import 'dart:async';
@@ -39834,6 +40686,9 @@ class BaseOpFirebase {
     }
   }
 }
+
+
+// File: lib/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'firebase_operation_provider.dart';
@@ -40387,6 +41242,9 @@ final class ActiveNotificationsStreamProvider
 
 String _$activeNotificationsStreamHash() =>
     r'4e4561520c50e9b2e39a656e772df96e1d145bc8';
+
+
+// File: lib/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart
 // path: lib/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -40491,6 +41349,9 @@ Stream<List<NotifikasiModel>> activeNotificationsStream(Ref ref) {
   final notifikasiOp = ref.read(notifikasiOpFirebaseProvider);
   return notifikasiOp.getNotifAktif();
 }
+
+
+// File: lib/shared/operasi/firebase_operasi/status_op_firebase.dart
 // path: lib/shared/operasi/firebase_operasi/status_op_firebase.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -40536,6 +41397,9 @@ class StatusOpFirebase {
     }
   }
 }
+
+
+// File: lib/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart
 // path: lib/shared/operasi/upload_status_operasi.dart
 
 import 'package:flutter/foundation.dart';
@@ -40652,6 +41516,9 @@ class StatusUploadOpSqlite {
     }
   }
 }
+
+
+// File: lib/shared/operasi/sqlite_operasi/base_op_sqlite.dart
 // path: lib/shared/operasi/sqlite_operasi/base_op_sqlite.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41015,6 +41882,9 @@ class BaseOpSqlite {
     }
   }
 }
+
+
+// File: lib/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart
 // path: lib/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -41178,6 +42048,9 @@ class PembersihanDataOperasi {
     return totalDihapus;
   }
 }
+
+
+// File: lib/shared/enum/app_role_enum.dart
 // path: lib/shared/enum/app_role_enum.dart
 
 
@@ -41189,12 +42062,18 @@ enum AppRole {
   /// Peran pengguna biasa dengan hak akses terbatas.
   user,
 }
+
+
+// File: lib/shared/enum/url_supabase_enum.dart
 // path: lib/shared/enum/url_supabase_enum.dart
 
 enum UrlSupabaseEnum {
   urLSupabase,
   anonKeySupabase,
 }
+
+
+// File: lib/shared/constant/app_constants.dart
 // path: lib/shared/constant/app_constants.dart
 
 /// Berisi konstanta kunci untuk variabel lingkungan (dotenv).
@@ -41202,6 +42081,9 @@ class AppConstants {
   static const String supabaseUrlKey = 'SUPABASE_URL';
   static const String supabasePublishableKey = 'SUPABASE_ANON_KEY';
 }
+
+
+// File: lib/shared/constant/nama_kolom.dart
 // path: lib/shared/constant/nama_kolom.dart
 
 abstract final class NamaKolom {
@@ -41266,6 +42148,9 @@ abstract final class NamaKolom {
   static const String durasiBonus = 'durasi_bonus';
   static const String tipeDurasiBonus = 'durasi_bonus_type';
 }
+
+
+// File: lib/shared/constant/nama_tabel.dart
 // path: lib/shared/constant/nama_tabel.dart
 
 abstract final class NamaTabel {
@@ -41287,6 +42172,9 @@ abstract final class NamaTabel {
   static const String statusGlobal = 'status_global';
   static const String event = 'events';
 }
+
+
+// File: lib/shared/model/has_id.dart
 // path: lib/shared/model/has_id.dart
 // new file: Refactored from memiliki_id.dart to use English naming conventions.
 
@@ -41310,6 +42198,9 @@ abstract class HasId {
   /// Typically uses a UUID v4 or an ID from the database.
   String get id;
 }
+
+
+// File: lib/shared/model/status_unggah_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -41579,6 +42470,9 @@ as DateTime?,
 }
 
 // dart format on
+
+
+// File: lib/shared/model/status_model.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -41853,6 +42747,9 @@ as DateTime?,
 }
 
 // dart format on
+
+
+// File: lib/shared/model/status_unggah_model.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -41908,6 +42805,9 @@ abstract class StatusUnggahModel with _$StatusUnggahModel {
     return 'UploadStatusModel(id: $id, needUpload: $butuhUnggah, diperbaruiPada: $diperbaruiPada)';
   }
 }
+
+
+// File: lib/shared/model/status_model.dart
 // path: lib/shared/model/status_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -41963,6 +42863,9 @@ abstract class StatusModel with _$StatusModel implements HasId {
     };
   }
 }
+
+
+// File: lib/services/firebase_migration/firebase_migration_service.dart
 // path: lib/services/firebase_migration/firebase_migration_service.dart
 // Diperbarui: Menambahkan migrasi khusus untuk koleksi singleton (status, settings).
 
@@ -42621,6 +43524,9 @@ class FirebaseMigrationService {
     return logs;
   }
 }
+
+
+// File: lib/data_dummy/data_dummy.dart
 // path: lib/data_dummy/data_dummy.dart
 
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
@@ -42861,6 +43767,9 @@ class DataDummy {
     waktuOtomatisHapusDataArsip: 90,
   );
 }
+
+
+// File: lib/data_dummy/halaman_data_dummy.dart
 // path: lib/data_dummy/halaman_data_dummy.dart
 
 import 'package:flutter/material.dart';
@@ -43221,6 +44130,9 @@ class HalamanDataDummy extends ConsumerWidget {
     }
   }
 }
+
+
+// File: lib/main/main_user/user_prod.dart
 // path: lib/main/main_user/user_prod.dart
 // PERUBAHAN: Menambahkan inisialisasi NotifikasiServis agar APK user bisa menampilkan notifikasi.
 
@@ -43294,6 +44206,9 @@ void main() async {
     ),
   );
 }
+
+
+// File: lib/main/main_user/user_dev.dart
 // path: lib/main/main_user/user_dev.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -43365,6 +44280,9 @@ void main() async {
     ),
   );
 }
+
+
+// File: lib/main/main_admin/admin_prod.dart
 // path: lib/main/main_admin/admin_prod.dart
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -43443,6 +44361,9 @@ void main() async {
     ),
   );
 }
+
+
+// File: lib/main/main_admin/admin_dev.dart
 // path: lib/main/main_admin/admin_dev.dart
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -43523,6 +44444,9 @@ void main() async {
     ),
   );
 }
+
+
+// File: lib/admin/data/sqlite.dart
 // path: lib/admin/data/sqlite.dart
 
 import 'dart:io';
@@ -44434,6 +45358,9 @@ class SqliteDatabase {
     )
   ''';
 }
+
+
+// File: lib/admin/firebase_option/firebase_option_admin_dev.dart
 // path: lib/admin/firebase_option/firebase_option_admin_dev.dart
 // File generated by FlutterFire CLI.
 // ignore_for_file: type=lint
@@ -44502,6 +45429,9 @@ class DefaultFirebaseOptions {
 
   // Android options are specific to the 'com.wifi.admin' app.
 }
+
+
+// File: lib/admin/firebase_option/firebase_option_admin_prod.dart
 // File generated by FlutterFire CLI.
 // ignore_for_file: type=lint
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
@@ -44564,6 +45494,9 @@ class DefaultFirebaseOptions {
     storageBucket: 'studio-5934431625-6eeb1.firebasestorage.app',
   );
 }
+
+
+// File: lib/admin/splash_screen_admin.dart
 // path: lib/admin/splash_screen_admin.dart
 // diubah: Mengganti onBackground yang usang dengan onSurface yang benar.
 // diubah: Menambahkan dokumentasi untuk mengatasi error public_member_api_docs.
@@ -44623,6 +45556,9 @@ class SplashScreen extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/admin/app_admin.dart
 // path: lib/admin/app_admin.dart
 import 'dart:async';
 
@@ -44809,6 +45745,9 @@ ref.watch(pengontrolNotifikasiProvider);
     );
   }
 }
+
+
+// File: lib/admin/halaman/lainnya/halaman_migrasi.dart
 // path: lib/admin/halaman/lainnya/halaman_migrasi.dart
 // Diperbarui: Tombol dinonaktifkan permanen & snackbar otomatis setelah migrasi.
 
@@ -45045,6 +45984,9 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
     );
   }
 }
+
+
+// File: lib/admin/halaman/tes/halaman_tes.dart
 // path: lib/admin/halaman/tes/halaman_tes.dart
 import 'dart:async';
 
@@ -45107,6 +46049,9 @@ class _HalamanTesState extends State<HalamanTes> {
     );
   }
 }
+
+
+// File: lib/admin/halaman/tes/contoh_simpan_status.dart
 // // path: lib/halaman/tes/contoh_simpan_status.dart
 // import 'package:admin_wifi/data/operasi/status_unggah_operasi.dart';
 // import 'package:admin_wifi/enum/nama_tabel_enum.dart';
@@ -45152,6 +46097,9 @@ class _HalamanTesState extends State<HalamanTes> {
 //     debugPrint("------------------------------------");
 //   }
 // }
+
+
+// File: lib/admin/halaman/widget/nama_pelanggan.dart
 // path: lib/admin/halaman/widget/nama_pelanggan.dart
 
 import 'package:flutter/material.dart';
@@ -45207,6 +46155,9 @@ class CustomerNameWidget extends ConsumerWidget {
     );
   }
 }
+
+
+// File: lib/admin/halaman/widget/tombol_aksi.dart
 // path: lib/admin/halaman/widget/tombol_aksi.dart
 import 'package:flutter/material.dart';
 
@@ -45240,6 +46191,9 @@ class TombolAksi extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/admin/halaman/widget/nama_paket_widget.dart
 // path: lib/admin/halaman/widget/nama_paket_widget.dart
 
 import 'package:flutter/material.dart';
@@ -45294,6 +46248,9 @@ class PackageNameWidget extends ConsumerWidget {
     );
   }
 }
+
+
+// File: lib/admin/halaman/widget/container_with_border.dart
 // path: lib/admin/halaman/widget/container_with_border.dart
 import 'package:flutter/material.dart';
 
@@ -45319,6 +46276,9 @@ class ContainerWithBorder extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/admin/halaman/widget/box_info.dart
 // path: lib/admin/halaman/widget/box_info.dart
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -45382,6 +46342,9 @@ class BoxInfo extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/admin/halaman/tab/lainnya.dart
 // path: lib/admin/halaman/tab/lainnya.dart
 
 import 'dart:async';
@@ -45572,6 +46535,9 @@ class _LainnyaPageState extends State<LainnyaPage> {
     );
   }
 }
+
+
+// File: lib/admin/providers/customer_provider.dart
 // path: lib/admin/providers/customer_provider.dart
 import 'dart:async';
 
@@ -45608,6 +46574,9 @@ class CustomerNotifier extends _$CustomerNotifier {
     });
   }
 }
+
+
+// File: lib/admin/providers/customer_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'customer_provider.dart';
@@ -45667,6 +46636,9 @@ abstract class _$CustomerNotifier extends $AsyncNotifier<List<PelangganModel>> {
     return element.handleCreate(ref, build);
   }
 }
+
+
+// File: lib/admin/providers/detail_langganan_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'detail_langganan_provider.dart';
@@ -45755,6 +46727,9 @@ final class AmbilDetailLanggananFamily extends $Family
   @override
   String toString() => r'ambilDetailLanggananProvider';
 }
+
+
+// File: lib/admin/providers/riwayat_aktivasi_paket_provider.dart
 // path: lib/admin/providers/riwayat_aktivasi_paket_provider.dart
 
 import 'dart:async';
@@ -45971,6 +46946,9 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     }
   }
 }
+
+
+// File: lib/admin/providers/detail_langganan_provider.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -46320,6 +47298,9 @@ $PaketModelCopyWith<$Res>? get paket {
 }
 
 // dart format on
+
+
+// File: lib/admin/providers/detail_langganan_provider.dart
 // path: lib/admin/providers/detail_langganan_provider.dart
 
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -46371,6 +47352,9 @@ Future<DetailLanggananState?> ambilDetailLangganan(
     paket: hasil[1] as PaketModel?,
   );
 }
+
+
+// File: lib/admin/providers/riwayat_aktivasi_paket_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'riwayat_aktivasi_paket_provider.dart';
@@ -46439,6 +47423,9 @@ abstract class _$RiwayatAktivasiPaket
     return element.handleCreate(ref, build);
   }
 }
+
+
+// File: lib/admin/halaman_utama.dart
 // path: lib/admin/halaman_utama.dart
 import 'dart:async';
 
@@ -46638,3 +47625,1098 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     );
   }
 }
+
+
+// File: prompt/aturan_penamaan.md
+Berikut aturan naming versi **ringkas, jelas, dan siap dipakai** (Indonesia clean style):
+
+---
+
+# 📌 Aturan Naming (Class, Variabel, Parameter, Function)
+
+## 1. CLASS → “Siapa / tanggung jawabnya”
+
+* Gunakan **kata benda**
+* Nama mewakili **entitas atau layanan**
+
+**Contoh:**
+
+* `Pelanggan`
+* `Transaksi`
+* `AutentikasiService`
+* `SinkronisasiData`
+
+---
+
+## 2. VARIABEL → “Menyimpan apa”
+
+* Gunakan **kata benda**
+* Harus spesifik, jangan umum
+
+**Contoh:**
+
+* `namaPelanggan`
+* `jumlahTagihan`
+* `statusPembayaran`
+
+❌ Hindari: `data`, `info`, `temp`
+
+---
+
+## 3. PARAMETER → “Input untuk apa”
+
+* Sama seperti variabel, tapi konteksnya input fungsi
+* Harus jelas maknanya
+
+**Contoh:**
+
+```dart
+void simpanPelanggan(String namaPelanggan)
+```
+
+---
+
+## 4. FUNCTION → “Melakukan apa”
+
+* Gunakan **kata kerja + objek**
+* Harus menggambarkan aksi
+
+**Contoh:**
+
+* `hitungTagihan()`
+* `ambilDataPelanggan()`
+* `simpanTransaksi()`
+* `hapusPelanggan()`
+
+---
+
+## 5. ATURAN UMUM
+
+* Pakai **bahasa Indonesia konsisten**
+* Jangan campur Inggris & Indonesia dalam satu konsep
+* Nama harus **jelas tanpa perlu baca isi kode**
+* Jangan terlalu panjang, tapi juga jangan ambigu
+
+---
+
+## 6. TEST CEPAT (wajib sebelum pakai nama)
+
+Tanya:
+
+* Apakah langsung paham fungsinya?
+* Apakah ini jelas tanpa konteks tambahan?
+* Apakah ini tidak bisa disalahartikan?
+
+Kalau “tidak yakin” → ganti nama.
+
+---
+
+
+// File: prompt/struktur_proyek.md
+jadwal-service-02257685:~/myapp{master}$ ls -R lib
+lib:
+admin  data_dummy  fitur  main  services  shared  tes_fitur  user
+
+lib/admin:
+app_admin.dart  firebase_option  halaman_utama.dart  splash_screen_admin.dart
+data            halaman          providers
+
+lib/admin/data:
+sqlite.dart
+
+lib/admin/firebase_option:
+firebase_option_admin_dev.dart  firebase_option_admin_prod.dart
+
+lib/admin/halaman:
+lainnya  pembantu  tab  tes  widget
+
+lib/admin/halaman/lainnya:
+halaman_migrasi.dart
+
+lib/admin/halaman/pembantu:
+
+lib/admin/halaman/tab:
+lainnya.dart
+
+lib/admin/halaman/tes:
+contoh_simpan_status.dart  halaman_tes.dart
+
+lib/admin/halaman/widget:
+box_info.dart               nama_paket_widget.dart  tombol_aksi.dart
+container_with_border.dart  nama_pelanggan.dart
+
+lib/admin/providers:
+customer_provider.dart                  detail_langganan_provider.g.dart
+customer_provider.g.dart                riwayat_aktivasi_paket_provider.dart
+detail_langganan_provider.dart          riwayat_aktivasi_paket_provider.g.dart
+detail_langganan_provider.freezed.dart
+
+lib/data_dummy:
+data_dummy.dart  halaman_data_dummy.dart
+
+lib/fitur:
+akun        dompet          kategori   pelanggan         settings      transaksi
+alarm       event           notfikasi  pelanggan_aktif   sinkronisasi  versi_apk
+background  feedback        order      poin              speedtest     whatsapp
+database    info_perangkat  paket      riwayat_aktivasi  statistik
+
+lib/fitur/akun:
+page  provider
+
+lib/fitur/akun/page:
+daftar_akun_page.dart
+
+lib/fitur/akun/provider:
+akun_provider.dart  akun_provider.freezed.dart  akun_provider.g.dart
+
+lib/fitur/alarm:
+penjadwal_alarm_android.dart  penjadwal_alarm.dart
+
+lib/fitur/background:
+alarm_utils.dart  layanan_latar_belakang.dart  layanan_peluncuran.dart
+
+lib/fitur/database:
+provider  sqlite_user.dart
+
+lib/fitur/database/provider:
+operasi_sqlite_provider.dart  operasi_sqlite_provider.g.dart
+
+lib/fitur/dompet:
+model  operasi  page  provider
+
+lib/fitur/dompet/model:
+dompet_model.dart  dompet_model.freezed.dart
+
+lib/fitur/dompet/operasi:
+dompet_op_sqlite.dart
+
+lib/fitur/dompet/page:
+detail_dompet.dart  dompet_page.dart  form_dompet.dart
+
+lib/fitur/dompet/provider:
+dompet_provider.dart  dompet_provider.freezed.dart  dompet_provider.g.dart
+
+lib/fitur/event:
+model  operasi  page
+
+lib/fitur/event/model:
+event_model.dart  event_model.freezed.dart
+
+lib/fitur/event/operasi:
+event_op_supabase.dart
+
+lib/fitur/event/page:
+detail_event_a.dart  event_page_a.dart  event_page_u.dart  manage_announcement_page.dart
+
+lib/fitur/feedback:
+model  operasi  page  provider
+
+lib/fitur/feedback/model:
+feedback_model.dart  feedback_model.freezed.dart
+
+lib/fitur/feedback/operasi:
+feedback_op_firebase.dart  feedback_op_sqlite.dart
+
+lib/fitur/feedback/page:
+feedback_detail_a.dart  feedback_page_a.dart  feedback_page_u.dart  form_feedback_u.dart
+
+lib/fitur/feedback/provider:
+feedback_provider.dart  feedback_provider.g.dart
+
+lib/fitur/info_perangkat:
+enum  model  page  service
+
+lib/fitur/info_perangkat/enum:
+arsitektur_apk.dart
+
+lib/fitur/info_perangkat/model:
+info_perangkat_model.dart  info_perangkat_model.freezed.dart
+
+lib/fitur/info_perangkat/page:
+info_apk_page_user.dart  tentang_aplikasi.dart
+
+lib/fitur/info_perangkat/service:
+layanan_info_paket.dart  layanan_info_perangkat.dart
+
+lib/fitur/kategori:
+enum  model  operasi  page
+
+lib/fitur/kategori/enum:
+tipe_kategori.dart
+
+lib/fitur/kategori/model:
+kategori_model.dart          sub_kategori_model.dart
+kategori_model.freezed.dart  sub_kategori_model.freezed.dart
+
+lib/fitur/kategori/operasi:
+kategori_op_sqlite.dart  sub_kategori_op_sqlite.dart
+
+lib/fitur/kategori/page:
+form_kategori.dart  kategori.dart
+
+lib/fitur/notfikasi:
+enum  layanan_notifikasi.dart  model  penjadwal_notifikasi.dart
+
+lib/fitur/notfikasi/enum:
+tipe_notifikasi_enum.dart
+
+lib/fitur/notfikasi/model:
+notifikasi_model.dart  notifikasi_model.freezed.dart
+
+lib/fitur/order:
+enum  model  operasi  page  provider
+
+lib/fitur/order/enum:
+status_order_enum.dart
+
+lib/fitur/order/model:
+order_model.dart  order_model.freezed.dart
+
+lib/fitur/order/operasi:
+order_op_firebase.dart  order_op_sqlite.dart
+
+lib/fitur/order/page:
+order_page.dart
+
+lib/fitur/order/provider:
+order_provider.dart  order_provider.freezed.dart  order_provider.g.dart
+
+lib/fitur/paket:
+core  enum  model  operasi  page  provider
+
+lib/fitur/paket/core:
+perhitungan_paket.dart
+
+lib/fitur/paket/enum:
+tipe_durasi_paket.dart
+
+lib/fitur/paket/model:
+paket_model.dart  paket_model.freezed.dart
+
+lib/fitur/paket/operasi:
+paket_op_firebase.dart  paket_op_sqlite.dart
+
+lib/fitur/paket/page:
+detail_paket.dart  form_paket.dart  paket.dart
+
+lib/fitur/paket/provider:
+paket_provider.dart  paket_provider.g.dart
+
+lib/fitur/pelanggan:
+core  model  operasi  page  widget
+
+lib/fitur/pelanggan/core:
+layanan_aktivitas_user.dart
+
+lib/fitur/pelanggan/model:
+pelanggan_model.dart  pelanggan_model.freezed.dart
+
+lib/fitur/pelanggan/operasi:
+pelanggan_op_firebase.dart  pelanggan_op_sqlite.dart
+
+lib/fitur/pelanggan/page:
+admin  user
+
+lib/fitur/pelanggan/page/admin:
+detail_pelanggan_a.dart  form_pelanggan.dart  pelanggan.dart
+
+lib/fitur/pelanggan/page/user:
+detail_pelanggan_u.dart  edit_profile_page.dart
+
+lib/fitur/pelanggan/widget:
+detail_pelanggan_ui.dart
+
+lib/fitur/pelanggan_aktif:
+model  operasi  page  provider
+
+lib/fitur/pelanggan_aktif/model:
+detail_pelanggan_aktif_model.dart  pelanggan_aktif_model.freezed.dart
+pelanggan_aktif_model.dart
+
+lib/fitur/pelanggan_aktif/operasi:
+pelanggan_aktif_op_sqlite.dart
+
+lib/fitur/pelanggan_aktif/page:
+detail_pelanggan_aktif.dart  form_pelanggan_aktif.dart  pelanggan_aktif_page.dart
+
+lib/fitur/pelanggan_aktif/provider:
+pelanggan_aktif_provider.dart          pelanggan_aktif_provider.g.dart
+pelanggan_aktif_provider.freezed.dart
+
+lib/fitur/poin:
+operasi  page  provider  widget
+
+lib/fitur/poin/operasi:
+firebase_points_data_source.dart  sqlite_points_data_source.dart
+
+lib/fitur/poin/page:
+halaman_poin.dart
+
+lib/fitur/poin/provider:
+poin_provider.dart          poin_provider.g.dart
+poin_provider.freezed.dart  points_page_data_source.dart
+
+lib/fitur/poin/widget:
+poin_page_ui.dart
+
+lib/fitur/riwayat_aktivasi:
+page
+
+lib/fitur/riwayat_aktivasi/page:
+detail_riwayat_aktivasi.dart  form_riwayat_aktivasi.dart
+
+lib/fitur/settings:
+model  operasi  page
+
+lib/fitur/settings/model:
+settings_model.dart  settings_model.freezed.dart
+
+lib/fitur/settings/operasi:
+settings_op_firebase.dart  settings_op_sqlite.dart
+
+lib/fitur/settings/page:
+form_settings.dart  settings_page_a.dart  settings_page_u.dart
+
+lib/fitur/sinkronisasi:
+layanan_cek_sinkronisasi.dart  layanan_unduh_data.dart
+layanan_unduhan_awal.dart      layanan_unggah_data.dart
+
+lib/fitur/speedtest:
+page  provider
+
+lib/fitur/speedtest/page:
+uji_kecepatan_page.dart
+
+lib/fitur/speedtest/provider:
+ping_provider.dart    uji_kecepatan_provider.dart          uji_kecepatan_provider.g.dart
+ping_provider.g.dart  uji_kecepatan_provider.freezed.dart
+
+lib/fitur/statistik:
+model  operasi  page  provider
+
+lib/fitur/statistik/model:
+paket_terlaris_model.dart
+
+lib/fitur/statistik/operasi:
+statistik_op_sqlite.dart
+
+lib/fitur/statistik/page:
+statistik_page_a.dart
+
+lib/fitur/statistik/provider:
+statistik_provider.dart  statistik_provider.g.dart
+
+lib/fitur/transaksi:
+enum  model  operasi  page  provider
+
+lib/fitur/transaksi/enum:
+status_pembayaran.dart  tipe_transaksi.dart
+
+lib/fitur/transaksi/model:
+transaksi_model.dart  transaksi_model.freezed.dart
+
+lib/fitur/transaksi/operasi:
+transaksi_op_firebase.dart  transaksi_op_sqlite.dart
+
+lib/fitur/transaksi/page:
+detail_transaksi_a.dart  form_transaksi.dart          transaksi_a.dart
+detail_transaksi_u.dart  riwayat_aktivasi_paket.dart  transaksi_u.dart
+
+lib/fitur/transaksi/provider:
+transaksi_provider.dart  transaksi_provider.freezed.dart  transaksi_provider.g.dart
+
+lib/fitur/versi_apk:
+model  operasi  page  provider  service
+
+lib/fitur/versi_apk/model:
+versi_apk_model.dart  versi_apk_model.freezed.dart
+
+lib/fitur/versi_apk/operasi:
+versi_apk_op_firebase.dart  versi_apk_op_sqlite.dart
+
+lib/fitur/versi_apk/page:
+detail_versi_apk.dart  form_versi_apk.dart  update_apk_page_u.dart  versi_apk_page.dart
+
+lib/fitur/versi_apk/provider:
+
+lib/fitur/versi_apk/service:
+layanan_cek_update_apk.dart  update_service.dart
+
+lib/fitur/whatsapp:
+info_paket.dart
+
+lib/main:
+main_admin  main_user
+
+lib/main/main_admin:
+admin_dev.dart  admin_prod.dart
+
+lib/main/main_user:
+user_dev.dart  user_prod.dart
+
+lib/services:
+firebase_migration
+
+lib/services/firebase_migration:
+firebase_migration_service.dart
+
+lib/shared:
+common    data   enum    model    providers  theme  widget
+constant  debug  export  operasi  services   utils
+
+lib/shared/common:
+teks.dart
+
+lib/shared/constant:
+app_constants.dart  nama_kolom.dart  nama_tabel.dart
+
+lib/shared/data:
+services
+
+lib/shared/data/services:
+layanan_navigasi.dart  layanan_pengecekan_data_baru.dart  layanan_preferensi.dart
+
+lib/shared/debug:
+global_key.dart  log.dart
+
+lib/shared/enum:
+app_role_enum.dart  url_supabase_enum.dart
+
+lib/shared/export:
+enum.dart  model.dart  operation.dart  op_firebase.dart  theme.dart
+
+lib/shared/model:
+has_id.dart        status_model.freezed.dart  status_unggah_model.freezed.dart
+status_model.dart  status_unggah_model.dart
+
+lib/shared/operasi:
+firebase_operasi  sqlite_operasi
+
+lib/shared/operasi/firebase_operasi:
+base_op_firebase.dart        notifikasi_op_firebase.dart
+firebase_operation_provider  status_op_firebase.dart
+
+lib/shared/operasi/firebase_operasi/firebase_operation_provider:
+firebase_operation_provider.dart  firebase_operation_provider.g.dart
+
+lib/shared/operasi/sqlite_operasi:
+base_op_sqlite.dart      pembersihan_data_operasi.dart
+operasi_sqlite_provider  status_upload_op_sqlite.dart
+
+lib/shared/operasi/sqlite_operasi/operasi_sqlite_provider:
+pelanggan_provider.dart  pelanggan_provider.g.dart
+
+lib/shared/providers:
+shared_providers.dart  shared_providers.g.dart
+
+lib/shared/services:
+arsipkan_langganan_kadaluarsa_service.dart  layanan_penyimpanan_gambar.dart
+koneksi_internet_service.dart
+
+lib/shared/theme:
+app_colors.dart  app_icons.dart  app_sizes.dart  app_theme.dart  tema_provider.dart
+
+lib/shared/utils:
+active_customer_sorter.dart  parser_util.dart             perhitungan_util.dart
+format_util.dart             pengelola_sinkronisasi.dart  toast_util.dart
+
+lib/shared/widget:
+card                          page
+daftar_transaksi_widget.dart  pemilih_tanggal_waktu_widget.dart
+input                         summary_info_widget.dart
+nama_pelanggan_widget.dart    thousands_input_formatter.dart
+package_name.dart             widget_ringkasan_keuangan.dart
+
+lib/shared/widget/card:
+point_card.dart
+
+lib/shared/widget/input:
+input_angka.dart     input_rupiah.dart  input_telepon.dart
+input_password.dart  input_teks.dart
+
+lib/shared/widget/page:
+
+lib/tes_fitur:
+tes_iklan.dart  tes_notifikasi.dart
+
+lib/user:
+app_user.dart  firebase_option  maintenance_page.dart  page  providers  services  widget
+
+lib/user/firebase_option:
+firebase_option_user_dev.dart  firebase_option_user_prod.dart
+
+lib/user/page:
+login_page.dart  main_page.dart  profile_page.dart  splash_screen_user.dart
+
+lib/user/providers:
+ad_providers.dart  ad_providers.g.dart  user_provider.dart  user_provider.g.dart
+
+lib/user/services:
+storage
+
+lib/user/services/storage:
+layanan_penyimpanan_lokal.dart
+
+lib/user/widget:
+ads  data_not_found.dart  error_message.dart  theme_menu_widget.dart
+
+lib/user/widget/ads:
+app_open  banner  bonused_mediator  interstitial
+
+lib/user/widget/ads/app_open:
+app_lifecycle_reactor.dart  app_open_ad_service.dart  id_app_open_ads.dart
+
+lib/user/widget/ads/banner:
+banner_ads_widget.dart  id_banner_ads.dart
+
+lib/user/widget/ads/bonused_mediator:
+bonused_mediator_ad_service.dart  id_bonused_mediator_ads.dart
+
+lib/user/widget/ads/interstitial:
+id_interstitial_ads.dart  layanan_iklan_interstisial.dart
+jadwal-service-02257685:~/myapp{master}$ 
+
+// File: prompt/aturan_analisis_error.md
+# // path: prompt/aturan_analisis_error.md
+
+
+---
+
+### Aturan Analisis error
+1. jika terjadi error  maka AI di wajibkan meminta file yang bersangkutan kepada pengguna, misalnya jika ada sebuah kode yang error didalam file maka AI harus melakukan analysa apakah kode ini menggunakan kode dari file lain, maka AI wajib meminta ke pengguna dan  membaca file yang di import nya itu
+2. kalau AI tidak tahu path file yang di import nya itu maka AI di wajibkan menjalankan `ls -R lib test` agar bisa lebih akurat lagi.
+3. AI hanya berfokus pada kode yang bermasalah saja dan jangan menyentuh kode yang tidak bermasalah, tetapi kalau kode tersebut bersangkutan dengan kode yang error maka AI boleh menyentuh kode itu.
+
+
+// File: prompt/aturan_test.md
+Baik, saya akan perbaiki aturan **"Aturan Unit Test Mockito"** agar konsisten dan lebih praktis. Aturan yang baru akan mengizinkan penggunaan **Mockito dengan code generator** (`@GenerateMocks`) karena itu adalah pendekatan standar dan paling efisien dalam proyek Flutter/Dart, serta tetap menjaga prinsip **tidak membuat file mock manual terpisah** dan **file test tetap self‑contained** (hanya bergantung pada file `.mocks.dart` yang dihasilkan di folder yang sama).
+
+---
+
+## 🔄 Aturan Unit Test Mockito (Versi Revisi)
+
+### 1. Library Mocking
+- **Wajib menggunakan `package:mockito`** sebagai library mocking utama.
+- **Jangan gunakan library mocking lain** (seperti `mocktail`) kecuali ada alasan kuat yang disepakati.
+
+### 2. Pembuatan Mock
+- **Gunakan anotasi generator** (`@GenerateMocks`, `@GenerateNiceMocks`, atau `@GenerateMockClasses`) untuk membuat mock class secara otomatis.
+- **Contoh:**
+  ```dart
+  import 'package:mockito/annotations.dart';
+  import 'package:mockito/mockito.dart';
+  import 'file_test.mocks.dart';
+
+  @GenerateMocks([Repository, Service])
+  void main() { ... }
+  ```
+- **Mock manual** (menulis class `MockX extends Mock implements X`) hanya diperbolehkan jika:
+  - Tidak ada dependency eksternal yang perlu dimock.
+  - Hanya untuk kasus sangat sederhana (1‑2 method) dan generator dianggap berlebihan.
+
+### 3. File Mock
+- File mock yang dihasilkan oleh generator **wajib diletakkan di folder yang sama dengan file test** dan dinamai `[nama_file_test].mocks.dart`.
+- **Contoh:** Untuk `test/fitur/akun/akun_provider_test.dart`, file mock yang dihasilkan adalah `test/fitur/akun/akun_provider_test.mocks.dart`.
+- **Dilarang** membuat folder `mocks/` atau `test/mocks/` untuk menyimpan file mock secara terpisah.
+- **Dilarang** membuat file mock manual dengan nama `*_mock.dart` atau `*_mocks.dart` selain yang dihasilkan oleh generator.
+
+### 4. Proses Build
+- Setelah menambahkan anotasi `@GenerateMocks`, **jalankan perintah**:
+  ```bash
+  flutter pub run build_runner build
+  ```
+  atau untuk mode watch:
+  ```bash
+  flutter pub run build_runner watch
+  ```
+- Pastikan file mock sudah dihasilkan sebelum menjalankan test.
+
+### 5. Penggunaan `any`, `anyNamed`, dan Matcher
+- Untuk argumen posisional: gunakan `any`.
+- Untuk argumen bernama: gunakan `anyNamed('nama')`.
+- Untuk matcher kompleks: gunakan `argThat`, `captureAny`, dll.
+- **Contoh valid:**
+  ```dart
+  when(mock.method(any, namedParam: anyNamed('namedParam'))).thenReturn(...);
+  ```
+
+### 6. Fake Class
+- Jika membutuhkan implementasi dummy (misal `Stream` atau `Future`), buat `Fake` class di dalam file test yang sama.
+- **Contoh:**
+  ```dart
+  class FakeUser extends Fake implements User {}
+  ```
+
+### 7. Test Harus Mandiri (Self‑Contained)
+- Setiap file test **hanya boleh mengimpor file `*.mocks.dart` yang dihasilkan dari file itu sendiri**.
+- Jangan mengimpor file mock dari file test lain.
+- Tidak ada ketergantungan pada folder mock global.
+
+### 8. Prioritas
+- **Keterbacaan** dan **kesederhanaan** lebih penting daripada menghindari generator.
+- Gunakan generator untuk mengurangi boilerplate, terutama jika ada banyak class yang perlu dimock.
+
+### 9. Larangan
+- ❌ Jangan membuat mock manual secara berlebihan.
+- ❌ Jangan membuat folder `mocks/` atau `test/mocks/`.
+- ❌ Jangan menggunakan `@GenerateMocks` tanpa menjalankan `build_runner`.
+
+---
+
+## 🌟 Ringkasan Singkat (Checklist)
+
+| ✅ Wajib | ❌ Dilarang |
+|---------|------------|
+| Gunakan Mockito | Gunakan library lain |
+| Gunakan `@GenerateMocks` | Buat mock manual panjang |
+| Jalankan `build_runner` | Lupa menjalankan generator |
+| File `.mocks.dart` di folder yang sama | File mock di folder terpisah |
+| Import `.mocks.dart` di file test | Impor dari file test lain |
+| Gunakan `anyNamed` untuk named arg | Gunakan `any` untuk named arg |
+| Buat `Fake` untuk implementasi dummy | Buat `Fake` di file terpisah |
+
+---
+
+## 📌 Contoh Struktur yang Diinginkan (Baru)
+
+```text
+lib/
+└── fitur/
+    └── akun/
+        └── provider/
+            └── akun_provider.dart
+
+test/
+└── fitur/
+    └── akun/
+        └── provider/
+            ├── akun_provider_test.dart
+            └── akun_provider_test.mocks.dart   # dihasilkan oleh build_runner
+```
+
+---
+
+Dengan aturan baru ini, Anda tetap menggunakan Mockito secara konsisten, memanfaatkan generator untuk kemudahan, tetapi tetap menjaga agar file test mandiri dan tidak ada mock global. Saya akan sesuaikan semua jawaban saya ke depan dengan aturan ini. Apakah Anda setuju dengan revisi ini?
+
+// File: prompt/aturan_pribadi.md
+Tolong pahami dan selalu ingat aturan ini
+
+1. jika kode yang sedang dikerjakan ternyata diimport dari file lain AI wajib melihat file file yang diimport itu,jika file yang di import juga menggunakan kode yang dimpoert dari file lain maka AI wajib membaca nya juga. agar tidak salah file AI harus menajalankan ls -R lib atau ls -R test jika itu file test.
+2. penulisan kode, AI wajib menuliskan kode yang sesuai dengan versi paket saya di pubspec.yaml, kalau bisa lihat dokumentasinya dengan menjalankan read_package_uris dan pub_dev_search,
+3. kode di setiap file harus konsisten.
+
+
+// File: prompt/build.md
+# Aturan untuk melakukan build apk dengan Alias
+
+## Alur Kerja Build (WAJIB DIIKUTI)
+
+**1. SEBELUM Build: Cek Versi Terakhir**
+
+Sebelum menjalankan build, **selalu periksa riwayat versi terakhir** di file log untuk menentukan `[nama-versi]` dan `[nomor-build]` yang akan digunakan.
+
+-   **Lihat riwayat Admin:** `docs/build/build_apk_admin.md`
+-   **Lihat riwayat User:** `docs/build/build_apk_user.md`
+
+**2. SAAT Build: Jalankan Perintah Alias**
+
+Gunakan alias yang sesuai dengan `nama-versi` dan `nomor-build` yang sudah Anda tentukan di langkah 1.
+
+**3. SETELAH Build Berhasil: Catat Versi Baru**
+
+Setelah proses build selesai **tanpa error**, segera **WAJIB catat versi baru** ke dalam file log yang sesuai.
+
+1.  Buka file log yang relevan (misal, `docs/build/build_apk_admin.md`).
+2.  **Tambahkan entri baru** di baris paling atas dengan format berikut:
+
+    ```
+    # [Tanggal dan Jam Build]
+    version: [nama-versi]+[nomor-build]
+    ```
+
+    **Contoh Entri Baru:**
+    ```
+    # 19 Mei 24, 10:30
+    version: 1.0.1+3
+    ```
+
+Tindakan ini **krusial** untuk menjaga riwayat build tetap akurat dan menghindari konflik versi.
+
+---
+
+## Detail Perintah Build
+
+### Build Apk Admin Prod
+
+**Contoh Penggunaan (berdasarkan Langkah 1):**
+```bash
+# Format: fbuildadmin [nama-versi] [nomor-build]
+# Contoh jika versi terakhir di log adalah 1.0.1+2, maka build selanjutnya adalah 1.0.2+3
+fbuildadmin 1.1.1 1
+```
+
+### Build Apk User Prod
+
+**Contoh Penggunaan (berdasarkan Langkah 1):**
+```bash
+# Format: fbuilduser [nama-versi] [nomor-build]
+# Contoh jika versi terakhir di log adalah 1.0.0+1, maka build selanjutnya adalah 1.0.1+2
+fbuilduser 1.1.1 1
+
+```
+
+---
+
+## Lokasi Output
+
+File APK yang dihasilkan akan berada di direktori: `build/app/outputs/flutter-apk/`.
+
+
+// File: prompt/penyisipan_log_sanckbar.md
+# // path: prompt/penyisipan_log_sanckbar.md
+---
+
+**Aturan Logging dan Toast untuk Asisten Koding Flutter:**
+
+0. **Prasyarat: Pahami Implementasi**
+   - Sebelum menyisipkan kode apa pun, **baca dan pahami** isi file berikut:
+     - `lib/shared/debug/log.dart` (kelas `Log`)
+     - `lib/shared/utils/toast_util.dart` (kelas `ToastUtil`)
+   - Gunakan hanya method dan tanda tangan yang tersedia di kedua kelas tersebut.
+   - Jangan membuat asumsi tentang fitur yang tidak ada; ikuti persis API yang disediakan.
+
+1. **Logging**
+   - Jangan pernah menggunakan `print()`, `debugPrint()`, atau `log()` bawaan.
+   - Gunakan class `Log` dari path `lib/shared/debug/log.dart`.
+   - Class `Log` punya method:
+     - `Log.info(pesan, data?)` untuk informasi
+     - `Log.warning(pesan, data?)` untuk peringatan
+     - `Log.error(pesan, {e, st, data})` untuk error (bisa menyertakan exception & stacktrace)
+   - Selalu sertakan pesan yang jelas, dan jika ada data relevan (response API, objek state, dll) masukkan sebagai parameter `data`.
+
+2. **Toast**
+   - Jangan pernah langsung pakai `ScaffoldMessenger.of(context).showSnackBar(...)` atau widget `SnackBar`.
+   - Gunakan class `ToastUtil` dari path `lib/shared/utils/toast_util.dart`.
+   - `ToastUtil` punya method statis:
+     - `ToastUtil.success(context, pesan, {logData})`
+     - `ToastUtil.error(context, pesan, {logData})`
+     - `ToastUtil.warning(context, pesan, {logData})`
+     - `ToastUtil.info(context, pesan, {logData})`
+   - `logData` bersifat opsional, hanya untuk log internal (tidak tampil ke user), tapi tetap cantumkan jika ada data tambahan.
+   - Method-method ini otomatis mencatat log sesuai tipe, jadi setelah memanggil `ToastUtil` **tidak perlu** lagi memanggil `Log` secara manual, **kecuali** untuk error (lihat poin 3).
+
+3. **Penanganan Error (WAJIB)**
+   - Setiap kali terjadi error, **harus** melakukan dua hal:
+     a. **Log error** menggunakan `Log.error(...)` agar tercatat detail exception, stacktrace, dan data.
+     b. **Tampilkan Toast error** menggunakan `ToastUtil.error(context, pesanUser, ...)` agar pengguna mendapat notifikasi.
+   - **Jangan hanya** memanggil `Log.error` tanpa Toast, atau sebaliknya. Keduanya wajib ada.
+   - **Aturan linter**: Gunakan `on` untuk menangkap tipe exception spesifik. Jangan gunakan `catch` polos tanpa `on`. Minimal `on Exception catch (e, st)` atau lebih spesifik. Jika tidak yakin, gunakan `on Object catch (e, st)`.
+   - Toast untuk error harus menampilkan pesan yang ramah pengguna, sementara `Log.error` bisa berisi detail teknis.
+
+4. **Pencatatan di Setiap Alur Kerja (WAJIB)**
+   - Setiap fungsi atau metode yang melakukan aksi signifikan (misal: fetch data, submit form, proses perhitungan, navigasi dengan data) **harus**:
+     a. Mencatat log di awal proses (contoh: `Log.info('Memulai mengambil data pengguna')`).
+     b. Setelah selesai, memberikan notifikasi ke pengguna menggunakan `ToastUtil` (contoh: `ToastUtil.success(context, 'Data berhasil diambil')`).
+   - Untuk operasi yang hanya memberi informasi tanpa efek besar, cukup gunakan `ToastUtil.info()` (sudah termasuk log).
+   - Untuk operasi yang menghasilkan peringatan (misal data kosong), gunakan `ToastUtil.warning()`.
+   - **Jangan sampai** ada aksi penting yang tidak meninggalkan jejak log atau tidak memberi tahu pengguna melalui Toast.
+
+5. **Impor**
+   - Setiap file yang membutuhkan log atau toast wajib mengimpor:
+     ```dart
+     import 'package:wifi/shared/debug/log.dart';
+     import 'package:wifi/shared/utils/toast_util.dart';
+     ```
+
+6. **Hanya Menyisipkan Log dan Toast (Jangan Mengubah Kode Asli)**
+   - Fokus hanya menambahkan pemanggilan `Log` dan `ToastUtil` sesuai aturan di atas.
+   - **Jangan mengubah** struktur, logika, alur navigasi, nama fungsi/variabel, atau perilaku kode yang sudah ada.
+   - Jika operasi penting belum memiliki penanganan error, tambahkan **blok `try`/`on Exception catch` minimal** untuk mencatat log dan menampilkan toast error, tetapi **biarkan isi blok `try` sama persis** dengan kode asli (tidak diubah).
+   - Jangan menambahkan fungsionalitas baru, refaktor, atau "perbaikan" yang tidak diminta.
+
+
+// File: prompt/aturan_ai.md
+# Aturan Penggunaan Radio Button Flutter
+
+1. **Dilarang menggunakan widget `RadioListTile`.**
+2. **Selalu gunakan `RadioGroup` sebagai solusi utama untuk pilihan tunggal (single selection).**
+3. **Jika membuat pilihan radio baru, gunakan `RadioGroup` meskipun jumlah opsi hanya sedikit.**
+4. **Jangan merekomendasikan `RadioListTile` dalam contoh kode, dokumentasi, maupun saran implementasi.**
+5. **Jangan mengganti `RadioGroup` yang sudah ada menjadi `RadioListTile`.**
+6. **Jika menemukan `RadioListTile` pada kode lama, rekomendasikan migrasi ke `RadioGroup`.**
+7. **Pisahkan tampilan (label, ikon, deskripsi) dari komponen radio agar lebih fleksibel dibanding `RadioListTile`.**
+8. **Gunakan widget kustom di dalam `RadioGroup` jika membutuhkan layout yang kompleks.**
+9. **Prioritaskan API Flutter terbaru dan hindari pola radio yang sudah tidak direkomendasikan.**
+10. **Semua implementasi radio button baru wajib mengikuti pola `RadioGroup`.**
+11. **Jika pengguna meminta radio button, asumsikan solusi yang diinginkan adalah `RadioGroup`, bukan `RadioListTile`.**
+12. **Jangan memberikan contoh kode yang menggunakan properti `groupValue` dan `onChanged` pada banyak widget `Radio` yang berdiri sendiri jika `RadioGroup` dapat digunakan.**
+13. **Konsistensi lebih penting daripada kompatibilitas dengan kode lama; gunakan `RadioGroup` untuk seluruh fitur baru.**
+14. **Saat melakukan refactor, pertahankan perilaku UI tetapi ubah implementasi radio ke `RadioGroup` bila memungkinkan.**
+15. **Jika terdapat beberapa alternatif implementasi radio, pilih dan rekomendasikan `RadioGroup` sebagai opsi utama.**
+
+# Ringkasan Singkat
+
+* ❌ Jangan gunakan `RadioListTile`.
+* ❌ Jangan merekomendasikan `RadioListTile`.
+* ✅ Gunakan `RadioGroup`.
+* ✅ Semua radio button baru menggunakan `RadioGroup`.
+* ✅ Migrasikan kode lama ke `RadioGroup` jika memungkinkan.
+
+# Aturan Perbaikan Unit Test
+
+1. **Dilarang mengubah unit test yang sudah lulus (passing test).**
+2. **Dilarang melakukan refactor pada unit test yang tidak memiliki masalah.**
+3. **Fokus hanya pada unit test yang gagal (failing test).**
+4. **Perbaikan harus seminimal mungkin untuk membuat test kembali lulus.**
+5. **Jangan mengubah assertion yang sudah benar dan berhasil dijalankan.**
+6. **Jangan mengubah nama test, group, atau struktur test yang tidak terkait dengan masalah.**
+7. **Jangan memindahkan kode test yang sudah berfungsi dengan baik.**
+8. **Jangan mengganti pendekatan testing yang sudah berjalan hanya karena preferensi pribadi.**
+9. **Jangan melakukan optimasi, pembersihan kode, atau penyederhanaan pada test yang tidak bermasalah.**
+10. **Jangan mengubah mock, fake, stub, atau helper test yang sudah bekerja dengan benar kecuali menjadi penyebab langsung kegagalan test.**
+11. **Perubahan harus dibatasi pada area yang menyebabkan error.**
+12. **Jika hanya satu test yang gagal, jangan mengubah test lain yang lulus.**
+13. **Jika hanya satu blok kode yang bermasalah, jangan mengubah file test secara menyeluruh.**
+14. **Pertahankan perilaku, cakupan, dan tujuan test yang sudah ada.**
+15. **Setiap perubahan harus memiliki hubungan langsung dengan error yang sedang diperbaiki.**
+16. **Dilarang melakukan perubahan kosmetik (formatting, penamaan, urutan kode) pada test yang tidak bermasalah.**
+17. **Jangan menulis ulang seluruh file test jika cukup memperbaiki beberapa baris saja.**
+18. **Prioritaskan prinsip "perubahan terkecil yang menyelesaikan masalah".**
+19. **Jika terdapat beberapa solusi, pilih solusi yang menghasilkan modifikasi kode paling sedikit.**
+20. **Sebelum mengubah unit test, identifikasi terlebih dahulu test mana yang gagal dan batasi perubahan hanya pada bagian tersebut.**
+
+# Ringkasan Singkat
+
+* ❌ Jangan sentuh test yang sudah lulus.
+* ❌ Jangan refactor test yang tidak bermasalah.
+* ❌ Jangan menulis ulang file test secara keseluruhan.
+* ✅ Perbaiki hanya test yang gagal.
+* ✅ Ubah hanya baris yang menyebabkan error.
+* ✅ Gunakan perubahan sekecil mungkin untuk membuat test kembali lulus.
+
+# Aturan Analisis File Sebelum Mengubah Kode
+
+1. **Wajib membaca seluruh isi file yang akan diubah sebelum melakukan perubahan apa pun.**
+2. **Dilarang langsung menulis atau mengubah kode tanpa memahami isi file terlebih dahulu.**
+3. **Pahami tujuan, tanggung jawab, dan alur kerja file sebelum melakukan modifikasi.**
+4. **Identifikasi seluruh fungsi, class, provider, model, state, dan konstanta yang ada di dalam file.**
+5. **Periksa seluruh import yang digunakan oleh file tersebut.**
+6. **Baca file-file yang menjadi dependency langsung dari file yang sedang dikerjakan.**
+7. **Pahami hubungan antara file yang sedang diubah dengan file lain yang terkait.**
+8. **Jangan membuat asumsi terhadap isi file yang belum dibaca.**
+9. **Jika terdapat dependency yang belum diberikan, minta file tersebut terlebih dahulu.**
+10. **Pastikan memahami alur data masuk dan keluar dari file sebelum mengubah logika.**
+
+# Aturan Membaca Dependency
+
+11. **Wajib membaca file yang dipanggil langsung oleh file yang sedang dikerjakan jika memengaruhi logika perubahan.**
+12. **Wajib membaca model yang digunakan oleh file tersebut.**
+13. **Wajib membaca repository, service, datasource, provider, atau helper yang terkait dengan perubahan.**
+14. **Wajib membaca interface atau abstract class yang digunakan.**
+15. **Jika suatu fungsi berasal dari file lain, pahami implementasinya sebelum mengubah kode yang bergantung padanya.**
+16. **Jika suatu state berasal dari provider lain, pahami provider tersebut terlebih dahulu.**
+17. **Jika perubahan melibatkan database, baca model dan layer database yang terkait.**
+18. **Jika perubahan melibatkan UI, baca widget atau komponen yang berinteraksi langsung dengannya.**
+19. **Jika perubahan melibatkan navigasi, baca alur navigasi yang terkait.**
+20. **Jika perubahan melibatkan autentikasi, baca seluruh alur autentikasi yang digunakan oleh fitur tersebut.**
+
+# Aturan Sebelum Menulis Solusi
+
+21. **Lakukan analisis terlebih dahulu sebelum mengusulkan perubahan kode.**
+22. **Jelaskan file mana saja yang sudah dibaca dan dipahami.**
+23. **Identifikasi file tambahan yang masih diperlukan sebelum implementasi dimulai.**
+24. **Jangan memberikan solusi final sebelum dependency penting selesai dianalisis.**
+25. **Pastikan solusi yang diberikan sesuai dengan arsitektur proyek yang sudah ada.**
+26. **Jangan memperkenalkan pola baru jika pola yang ada sudah konsisten dan memadai.**
+27. **Utamakan konsistensi dengan struktur proyek yang sudah berjalan.**
+28. **Periksa dampak perubahan terhadap file lain yang terhubung.**
+29. **Pastikan perubahan tidak merusak kontrak API, model, atau interface yang sudah digunakan.**
+30. **Pastikan perubahan tetap kompatibel dengan kode yang sudah ada.**
+
+# Aturan Jika Informasi Belum Lengkap
+
+31. **Jika file yang diperlukan belum tersedia, hentikan implementasi dan minta file tersebut.**
+32. **Jangan menebak isi file yang belum diberikan.**
+33. **Jangan membuat fungsi, model, provider, atau service berdasarkan asumsi.**
+34. **Jangan mengubah arsitektur karena keterbatasan informasi.**
+35. **Tentukan secara jelas file apa saja yang masih perlu dikirim.**
+36. **Sebutkan alasan mengapa file tersebut diperlukan.**
+37. **Tunggu hingga file yang diperlukan tersedia sebelum melakukan perubahan.**
+
+# Checklist Sebelum Mengubah Kode
+
+* ✅ Sudah membaca seluruh file yang akan diubah.
+* ✅ Sudah membaca dependency yang relevan.
+* ✅ Sudah memahami alur data.
+* ✅ Sudah memahami model yang digunakan.
+* ✅ Sudah memahami provider/repository/service terkait.
+* ✅ Sudah mengecek dampak perubahan ke file lain.
+* ✅ Tidak ada asumsi terhadap file yang belum dibaca.
+* ✅ Semua file penting sudah tersedia.
+
+# Ringkasan Singkat
+
+* Baca file yang akan diubah terlebih dahulu.
+* Baca dependency yang digunakan file tersebut.
+* Jangan membuat asumsi terhadap file yang belum dibaca.
+* Jika ada dependency yang belum tersedia, minta file tersebut.
+* Analisis dulu, implementasi kemudian.
+* Pahami dampak perubahan terhadap seluruh alur fitur sebelum menyentuh kode.
+# Aturan Penomoran Unit Test
+
+1. **Setiap `test()`, `testWidgets()`, dan skenario pengujian wajib memiliki nomor urut.**
+2. **Nomor urut harus diletakkan di awal nama test.**
+3. **Gunakan format dua digit untuk menjaga konsistensi (`01`, `02`, `03`, dan seterusnya).**
+4. **Penomoran harus berurutan dalam setiap `group()`.**
+5. **Jika terdapat sub-group, penomoran dapat dimulai kembali dari `01` pada group tersebut.**
+6. **Jangan melewati nomor urut tanpa alasan yang jelas.**
+7. **Jika menambahkan test baru, sesuaikan nomor agar tetap berurutan.**
+8. **Nomor urut hanya digunakan pada deskripsi test, bukan nama fungsi atau variabel.**
+9. **Setiap deskripsi test tetap wajib menggunakan Bahasa Indonesia.**
+10. **Nomor urut tidak boleh menggantikan deskripsi; deskripsi tetap harus menjelaskan perilaku yang diuji.**
+
+# Format yang Wajib Digunakan
+
+```dart
+test('01. harus mengembalikan akun yang sedang login', () async {});
+test('02. harus menghapus token login saat logout', () async {});
+test('03. harus menampilkan error ketika penyimpanan gagal', () async {});
+```
+
+# Contoh Group
+
+```dart
+group('Provider Akun', () {
+  test(
+    '01. harus mengembalikan akun yang sedang login',
+    () async {},
+  );
+
+  test(
+    '02. harus menghapus token login saat logout',
+    () async {},
+  );
+
+  test(
+    '03. harus menampilkan error ketika penyimpanan gagal',
+    () async {},
+  );
+});
+```
+
+# Contoh yang Salah
+
+```dart
+test('harus mengembalikan akun yang sedang login', () async {});
+```
+
+Alasan: tidak memiliki nomor urut.
+
+```dart
+test('1. harus mengembalikan akun yang sedang login', () async {});
+```
+
+Alasan: tidak menggunakan format dua digit.
+
+```dart
+test('03. harus mengembalikan akun yang sedang login', () async {});
+test('07. harus menghapus token login saat logout', () async {});
+```
+
+Alasan: nomor tidak berurutan.
+
+# Aturan Tambahan untuk File Test Baru
+
+11. **Sebelum membuat test, identifikasi seluruh skenario yang akan diuji.**
+12. **Susun urutan test berdasarkan alur logika fitur, bukan secara acak.**
+13. **Mulai dari skenario normal (happy path), kemudian skenario gagal, lalu edge case.**
+14. **Nomor urut harus mencerminkan urutan pembacaan yang logis.**
+15. **Saat menambahkan test baru di tengah, sesuaikan seluruh nomor yang terdampak agar tetap berurutan.**
+
+# Ringkasan Singkat
+
+* ✅ Semua test wajib bernomor.
+* ✅ Format nomor: `01.`, `02.`, `03.`
+* ✅ Nomor di awal deskripsi test.
+* ✅ Deskripsi tetap menggunakan Bahasa Indonesia.
+* ✅ Nomor harus berurutan dalam setiap group.
+* ❌ Jangan membuat test tanpa nomor urut.
+* ❌ Jangan menggunakan format `1.`, `2.`, `3.`.
+* ❌ Jangan membuat nomor yang loncat-loncat.
+
+
+// File: prompt/flutter.md
+
+
+// File: prompt/aturan_penulisan_kode.md
+# // path: prompt/aturan_penulisan_kode.md
+
+---
+
+### Aturan Ngoding Flutter (AI)
+
+**0. Bahasa Percakapan dengan AI**
+Seluruh percakapan antara AI dan pengembang **wajib menggunakan Bahasa Indonesia**, baik saat menjelaskan kode, memberi saran, maupun menanggapi pertanyaan. Aturan ini berlaku mutlak dalam sesi ini.
+
+**1. Bahasa Komentar dan Percakapan**
+Seluruh komentar di dalam kode serta percakapan dengan AI wajib menggunakan **Bahasa Indonesia**.
+
+**2. Penamaan dalam Kode**
+Seluruh nama **fungsi, variabel, props, parameter, file, dan class** wajib ditulis dalam **Bahasa Indonesia**.
+
+**3. Format dan Kerapihan Kode**
+- Wajib menggunakan *trailing comma* di setiap widget tree agar auto-format rapi (sesuai `dart format`).
+- Gunakan `const` constructor sebanyak mungkin untuk widget stateless.
+- Pisahkan widget besar menjadi widget-widget kecil yang fokus pada satu tanggung jawab.
+- Jika widget tree sudah menjorok terlalu dalam (nested), ekstrak bagian tersebut menjadi widget private di file yang sama.
+- Maksimal satu widget publik per file, kecuali widget private kecil yang hanya digunakan dalam file yang sama.
+
+**4. Penggunaan Ikon Wajib dari `AppIcons`**
+- Semua ikon dalam aplikasi **harus diambil dari class `AppIcons`** (`lib/shared/theme/app_icons.dart`), **tidak boleh** menggunakan `Icons.xxx` secara langsung di widget.
+- Tujuan: menjaga konsistensi ikon di seluruh aplikasi dan memudahkan penggantian ikon secara terpusat.
+
+**5. Komentar Path di Awal Setiap File**
+- Setiap file kode Dart **wajib** diawali dengan komentar yang menyebutkan path file relatif terhadap root proyek, contoh: `// path: lib/screens/home_screen.dart` dan harus sesuai dengan path aslinya jangan sampai komentar path nya ini tidak sesuai dengan tempat file nya berada.
+- Komentar path diletakkan pada baris pertama file, sebelum `import` atau deklarasi lainnya.
+- Tujuan: memudahkan identifikasi lokasi file, terutama saat salin-tempel atau diskusi kode.
+
+**6. Menjalankan `flutter analyze` Setiap Selesai Perubahan**
+- Setelah menyelesaikan setiap perubahan kode (fitur baru, perbaikan bug, atau refaktor), **wajib menjalankan `flutter analyze`** untuk memastikan tidak ada *error* atau *warning* yang tertinggal.
+- Jika ditemukan masalah, perbaiki terlebih dahulu sebelum melanjutkan ke tugas lain atau menganggap pekerjaan selesai.
+- Tujuan: menjaga kualitas kode, mencegah akumulasi masalah, dan mendeteksi kesalahan sejak dini.
+
+**7. Komentar Fungsi**
+Tambahkan sebuah komentar di setiap fungsi di dalam sebuah file, contoh: `/// Menginisialisasi konfigurasi zona waktu`.
+
+**8. Aturan `withOpacity`**
+Dilarang menggunakan `withOpacity`. Gunakan `withValues` atau `withAlpha` untuk menjaga konsistensi proyek.
+
+**9. Aturan Riverpod**
+- Semua state management harus menggunakan `flutter_riverpod` dengan `riverpod_annotation` untuk menjaga konsistensi.
+- Setiap UI yang membutuhkan data akan memanggil provider yang sesuai.
+- Untuk provider yang datanya perlu dijaga selama aplikasi berjalan, gunakan anotasi `@Riverpod(keepAlive: true)`.
+
+## Nama Variabel, fungsi dan parameter
+1. nama nya harus dalam bahasa indonesia, dan jangan lupa harus pendek tapi jelas agar hanya dengan membaca nama nya saja kita bisa tahu tujuan kode ini dibuat.
+4. dan untuk kata dibawah ini tidak boleh dirubah ke indonesia
+ - context
+ - icon
+ - icons
+ - 
+
+
+## Text
+1. harus menggunakan text custom dari lib/shared/common/text.dart dan pilih yang sesuai kalau semisal ui membutuhkan parameter dari text maka tambahkan parameter nya itu ke textcustom jadi ui tinggal menggunakan text custom saja.
+
+// File: prompt/aturan_kepatuhan_ai.md
+# // path: prompt/aturan_kepatuhan_ai.md
+
+---
+
+### Aturan Kepatuhan AI
+
+**Tujuan:** Memastikan AI selalu patuh terhadap instruksi pengguna, tidak membantah, tidak memaksakan pendapat, dan tidak memberikan saran yang tidak diminta.
+
+**1. Patuhi Semua Perintah Tanpa Bantahan**
+- AI wajib mengikuti semua instruksi pengguna tanpa membantah, berdebat, atau mempertanyakan keputusan pengguna.
+- AI tidak boleh menggunakan frasa yang meragukan seperti: "tapi", "sebaiknya", "menurut saya", "lebih baik", "saya sarankan", kecuali pengguna secara eksplisit meminta pendapat.
