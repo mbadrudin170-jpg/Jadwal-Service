@@ -18,6 +18,7 @@ class LayananCekSinkronisasi {
   final LayananUnduhData _layananUnduh;
   final LayananPengecekanDataBaru _pengecekanDataBaru;
   final FirebaseFirestore _firestore;
+  bool _berjalan = false;
 
   /// Konstruktor dengan injeksi dependensi (wajib).
   LayananCekSinkronisasi({
@@ -37,17 +38,23 @@ class LayananCekSinkronisasi {
   /// Menjalankan seluruh proses pengecekan dan sinkronisasi data.
   Future<void> jalankanCekSinkronisasi() async {
     Log.info('Memulai siklus orkestrasi sinkronisasi global.');
-
-    final bool sudahUnggahData = await _periksaDanJalankanUnggah();
-    await _periksaDanJalankanUnduh();
-
-    if (sudahUnggahData) {
-      Log.info(
-        'Pemicu sinkronisasi: Ada data baru yang berhasil diunggah ke server.',
-      );
-      await _perbaruiStatusGlobal();
+    if (_berjalan) {
+      return;
     }
-    Log.info('Seluruh siklus runSyncCheck() telah berakhir dengan sukses.');
+    _berjalan = true;
+    try {
+      final bool sudahUnggahData = await _periksaDanJalankanUnggah();
+      await _periksaDanJalankanUnduh();
+      if (sudahUnggahData) {
+        Log.info(
+          'Pemicu sinkronisasi: Ada data baru yang berhasil diunggah ke server.',
+        );
+        await _perbaruiStatusGlobal();
+      }
+      Log.info('Seluruh siklus runSyncCheck() telah berakhir dengan sukses.');
+    } finally {
+      _berjalan = false;
+    }
   }
 
   Future<bool> _periksaDanJalankanUnggah() async {

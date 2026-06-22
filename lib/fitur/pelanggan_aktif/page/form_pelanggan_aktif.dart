@@ -86,8 +86,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   void initState() {
     super.initState();
     _durasiBonusController = TextEditingController();
-    Log.info('FormPelangganAktif initState, isEditMode=$_modeEdit');
-    unawaited(_loadAllData());
+    _loadAllData().catchError((Object e, StackTrace st) {
+      Log.error('Gagal memuat data di FormPelangganAktif', e: e, s: st);
+      if (mounted) {
+        ToastUtil.error(context, 'Gagal memuat data. Silakan coba lagi.');
+        setState(() => _isLoading = false);
+      }
+    });
   }
 
   Future<void> _loadAllData() async {

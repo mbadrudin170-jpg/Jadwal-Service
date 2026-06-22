@@ -26,7 +26,24 @@ class Order extends _$Order {
   @override
   FutureOr<OrderState> build() async {
     final daftarPesanan = await ref.watch(daftarPesananProvider.future);
-    return OrderState(daftarOrder: daftarPesanan, totalDaftar: daftarPesanan.length);
+    return OrderState(
+      daftarOrder: daftarPesanan,
+      totalDaftar: daftarPesanan.length,
+    );
+  }
+
+  Future<void> tambahOrder(OrderModel order) async {
+    final orderOpSqlite = ref.read(orderOpSqliteProvider);
+    await orderOpSqlite.tambahOrder(order);
+
+    // Reload data setelah tambah
+    state = await AsyncValue.guard(() async {
+      final daftarPesanan = await ref.read(daftarPesananProvider.future);
+      return OrderState(
+        daftarOrder: daftarPesanan,
+        totalDaftar: daftarPesanan.length,
+      );
+    });
   }
 }
 

@@ -162,15 +162,12 @@ class DaftarAkunPage extends ConsumerWidget {
             onPressed: () async {
               final navigator = Navigator.of(context);
               final dialogNavigator = Navigator.of(dialogContext);
-
               try {
                 final akunLogin = await ref.read(userIdProvider.future);
                 if (dialogNavigator.context.mounted) {
                   dialogNavigator.pop(); // Tutup dialog
                 }
-
                 if (!context.mounted) return;
-
                 if (akunLogin == customer.id) {
                   await _tanganiHapusAkunAktif(
                     context,
@@ -186,7 +183,6 @@ class DaftarAkunPage extends ConsumerWidget {
                   await ref
                       .read(pengelolaAkunProvider.notifier)
                       .hapusAkun(customer.id);
-
                   if (!context.mounted) return;
                   ToastUtil.success(context, 'Akun berhasil dihapus');
                 }
@@ -222,10 +218,8 @@ class DaftarAkunPage extends ConsumerWidget {
       'customer_id': customer.id,
       'nama': customer.nama,
     });
-
     await ref.read(pengelolaAkunProvider.notifier).hapusAkun(customer.id);
     if (!context.mounted) return;
-    
     ToastUtil.success(context, 'Akun berhasil dihapus, silakan login ulang');
     await navigator.pushAndRemoveUntil(
       MaterialPageRoute<void>(builder: (context) => const LoginPage()),
@@ -258,17 +252,15 @@ class DaftarAkunPage extends ConsumerWidget {
                       .read(pengelolaAkunProvider.notifier)
                       .hapusAkun(akun.id);
                 }
-
                 if (dialogNavigator.context.mounted) {
                   dialogNavigator.pop();
                 }
-
+                await Future<void>.delayed(Duration.zero);
                 if (!context.mounted) return;
                 ToastUtil.success(
                   context,
                   'Anda telah keluar dan akun dihapus',
                 );
-
                 await navigator.pushAndRemoveUntil(
                   MaterialPageRoute<void>(
                     builder: (context) => const LoginPage(),
@@ -308,10 +300,9 @@ class DaftarAkunPage extends ConsumerWidget {
                 if (dialogNavigator.context.mounted) {
                   dialogNavigator.pop();
                 }
-
+                await Future<void>.delayed(Duration.zero);
                 if (!context.mounted) return;
                 ToastUtil.success(context, 'Token berhasil dihapus');
-
                 await navigator.pushAndRemoveUntil(
                   MaterialPageRoute<void>(
                     builder: (context) => const LoginPage(),

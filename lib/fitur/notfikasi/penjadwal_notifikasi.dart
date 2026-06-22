@@ -109,24 +109,22 @@ class PenjadwalNotifikasi {
   }
 }
 
-/// Fungsi callback yang akan dieksekusi oleh AlarmManager.
-/// Harus berupa top-level function atau static method.
 @pragma('vm:entry-point')
 Future<void> _callbackAlarm() async {
-  // Isolate baru tidak berbagi memori atau inisialisasi.
-  // Kita harus menginisialisasi semua service yang dibutuhkan di sini.
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-
-  Log.info('ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...');
-  // Pastikan ExpiredSubscriptionCheckService diimpor dengan benar di atas.
-
-  final container = ProviderContainer();
   try {
-    final service = container.read(arsipLanggananKadaluarsaServiceProvider);
-    await service.prosesArsipLanggananKadaluarsa();
-  } finally {
-    container.dispose();
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+
+    final container = ProviderContainer();
+    try {
+      final service = container.read(arsipLanggananKadaluarsaServiceProvider);
+      await service.prosesArsipLanggananKadaluarsa();
+    } catch (e, st) {
+      Log.error('Gagal menjalankan callback alarm', e: e, s: st);
+    } finally {
+      container.dispose();
+    }
+  } catch (e, st) {
+    Log.error('Gagal inisialisasi callback alarm', e: e, s: st);
   }
-  Log.info('ALARM SELESAI: Proses pengecekan langganan kedaluwarsa selesai.');
 }
