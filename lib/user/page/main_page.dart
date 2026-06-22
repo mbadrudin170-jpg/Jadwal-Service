@@ -5,8 +5,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
 import 'package:wifi/fitur/notfikasi/pengingat_paket_belum_lunas.dart';
+import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';
 import 'package:wifi/fitur/settings/page/settings_page_u.dart';
 import 'package:wifi/fitur/speedtest/page/uji_kecepatan_page.dart';
@@ -22,7 +22,6 @@ import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 /// Halaman utama aplikasi yang berfungsi sebagai container untuk navigasi bawah.
 class MainPage extends ConsumerStatefulWidget {
   const MainPage({super.key});
-
   @override
   ConsumerState<MainPage> createState() => _MainPageState();
 }
@@ -44,17 +43,14 @@ class _MainPageState extends ConsumerState<MainPage> {
         unawaited(
           PenjadwalNotifikasi.aturNotifikasiLangganan(notifikasiServis, userId),
         );
-
         final layananAktivitasUser = await ref.read(
           layananAktivitasUserProvider.future,
         );
         unawaited(layananAktivitasUser.pingAktivitas(userId));
-
         final pengingatService = ref.read(pengingatServiceProvider);
         unawaited(pengingatService.cekDanTampilkanPengingatTagihan());
       }
     });
-
     _daftarHalaman = [
       const ProfilePage(),
       const TransaksiU(),
@@ -74,7 +70,6 @@ class _MainPageState extends ConsumerState<MainPage> {
     if (_indeksTerpilih == index) {
       return;
     }
-
     setState(() {
       _indeksTerpilih = index;
     });
@@ -83,7 +78,6 @@ class _MainPageState extends ConsumerState<MainPage> {
   @override
   Widget build(BuildContext context) {
     Log.info('Membangun MainPage untuk indeks halaman: $_indeksTerpilih');
-
     return Scaffold(
       body: Column(
         children: [
