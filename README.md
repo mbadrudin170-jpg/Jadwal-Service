@@ -1318,7 +1318,7 @@ class FormPelangganAktif extends ConsumerStatefulWidget {
 class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   final _formKey = GlobalKey<FormState>();
 
-  List<PelangganModel> _pelangganList = [];
+  List<PelangganModel> _daftarPelanggan = [];
   List<PaketModel> _daftarPaket = [];
   List<DompetModel> _dompetList = [];
   List<KategoriModel> _kategoriPemasukanList = [];
@@ -1417,7 +1417,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           ? hasil[4] as TransaksiModel?
           : null;
       setState(() {
-        _pelangganList = daftarPelanggan;
+        _daftarPelanggan = daftarPelanggan;
         _daftarPaket = daftarPaket;
         _dompetList = daftarDompet;
         _kategoriPemasukanList = kategoriPemasukanList;
@@ -1451,7 +1451,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     final pa = widget.pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
 
-    _pelangganDipilih = _pelangganList.firstWhereOrNull(
+    _pelangganDipilih = _daftarPelanggan.firstWhereOrNull(
       (p) => p.id == pa.idPelanggan,
     );
     _paketDipilih = _daftarPaket.firstWhereOrNull((p) => p.id == pa.idPaket);
@@ -1635,7 +1635,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
       PelangganAktifModel pelangganAktifHasil;
       if (_modeEdit) {
-        pelangganAktifHasil = await pelangganAktifOpsqlite.updateActiveCustomer(
+        pelangganAktifHasil = await pelangganAktifOpsqlite.updatePelangganAktif(
           pelangganAktifData,
         );
         await ref
@@ -1874,7 +1874,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         border: OutlineInputBorder(),
       ),
       initialValue: _pelangganDipilih,
-      items: _pelangganList
+      items: _daftarPelanggan
           .map((p) => DropdownMenuItem(value: p, child: Text(p.nama)))
           .toList(),
       onChanged: (newValue) async {
@@ -2319,7 +2319,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
     }
   }
 
-  Future<void> _navigasiKeEdit(PelangganAktifModel pelangganaktif) async {
+  Future<void> _bukaFormEdit(PelangganAktifModel pelangganaktif) async {
     Log.info('Navigasi ke form edit pelanggan aktif ID: ${pelangganaktif.id}');
     await Navigator.push<void>(
       context,
@@ -2373,7 +2373,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
         actions: [
           IconButton(
             icon: const Icon(TIcons.edit),
-            onPressed: () => _navigasiKeEdit(pelangganAktif),
+            onPressed: () => _bukaFormEdit(pelangganAktif),
           ),
         ],
       ),
@@ -2778,7 +2778,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
                         horizontal: TSizes.p24,
                       ),
                       title: Text(
-                        PengurutPelangganAktif.ambilLabelUrutan(o),
+                        PengurutPelangganAktif.ambilTeksUrutan(o),
                         style: TextStyle(
                           fontSize: TSizes.p16,
                           fontWeight: diPilih
@@ -3168,7 +3168,7 @@ class PengurutPelangganAktif {
     return sorted;
   }
 
-  static String ambilLabelUrutan(OpsiUrutkan option) {
+  static String ambilTeksUrutan(OpsiUrutkan option) {
     switch (option) {
       case OpsiUrutkan.berakhirHariIni:
         return 'Berakhir Hari Ini';
@@ -3615,7 +3615,7 @@ class PelangganAktifOpSqlite {
        _pelangganOpSqlite = pelangganOpSqlite,
        _layananNotifikasi = layananNotifikasi,
        _transaksiOpSqlite = transaksiOpSqlite {
-    Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_namaTabel');
+    Log.info('PelangganAktifOperation diinisialisasi - Tabel: $_namaTabel');
   }
 
   Future<void> rescheduleAllNotifications() async {
@@ -3632,8 +3632,8 @@ class PelangganAktifOpSqlite {
         'Ditemukan ${pelangganAktif.length} pelanggan aktif. Menjadwalkan ulang satu per satu...',
       );
 
-      for (final activeCustomer in pelangganAktif) {
-        await scheduleNotification(activeCustomer);
+      for (final pelangganAktif in pelangganAktif) {
+        await scheduleNotification(pelangganAktif);
       }
 
       Log.info('PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI SELESAI.');
@@ -3753,9 +3753,9 @@ class PelangganAktifOpSqlite {
       );
 
       if (maps.isNotEmpty) {
-        final activeCustomer = PelangganAktifModel.fromSqlite(maps.first);
+        final pelangganAktif = PelangganAktifModel.fromSqlite(maps.first);
         Log.info('Active customer ID: $id ditemukan');
-        return activeCustomer;
+        return pelangganAktif;
       }
 
       Log.info('Active customer ID: $id tidak ditemukan');
@@ -3766,12 +3766,12 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<PelangganAktifModel> updateActiveCustomer(
-    final PelangganAktifModel activeCustomer, {
+  Future<PelangganAktifModel> updatePelangganAktif(
+    final PelangganAktifModel pelangganAktif, {
     final bool fromServer = false,
   }) async {
     try {
-      final customerToSave = activeCustomer.copyWith(diperbaruiPada: _nowUtc);
+      final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
 
       Log.info('Memperbarui active customer ID: ${customerToSave.id}');
 
@@ -3793,7 +3793,7 @@ class PelangganAktifOpSqlite {
       return customerToSave;
     } on Exception catch (e, st) {
       Log.error(
-        'Gagal memperbarui active customer ID: ${activeCustomer.id}',
+        'Gagal memperbarui active customer ID: ${pelangganAktif.id}',
         e: e,
         s: st,
       );
@@ -4131,7 +4131,7 @@ class PelangganAktifOpSqlite {
   ) async {
     try {
       if (ids.isEmpty) {
-        Log.info('getActiveCustomersByIds dipanggil dengan list ID kosong');
+        Log.info('getPelangganAktifsByIds dipanggil dengan list ID kosong');
         return [];
       }
 
@@ -4516,7 +4516,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
         diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
         diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
       );
-      Log.info('ActiveCustomerModel loaded from SQLite: ${model.id}');
+      Log.info('PelangganAktifModel loaded from SQLite: ${model.id}');
       return model;
     } catch (e, s) {
       Log.error('Failed to parse from SQLite: $map', e: e, s: s);
@@ -4579,7 +4579,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
           data[NamaKolom.diarsipkanPada],
         ),
       );
-      Log.info('ActiveCustomerModel loaded from Firebase: ${model.id}');
+      Log.info('PelangganAktifModel loaded from Firebase: ${model.id}');
       return model;
     } catch (e, stack) {
       Log.error('Failed to parse from Firebase: $data', e: e, s: stack);
@@ -4588,7 +4588,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
   }
 
   Map<String, dynamic> toFirebase() {
-    Log.info('Preparing toFirebase for ActiveCustomerModel $id');
+    Log.info('Preparing toFirebase for PelangganAktifModel $id');
     return {
       NamaKolom.id: id,
       NamaKolom.idPelanggan: idPelanggan,
@@ -5344,7 +5344,7 @@ import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/poin/provider/poin_provider.dart';
-import 'package:wifi/fitur/poin/widget/poin_page_ui.dart';
+import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -5376,7 +5376,7 @@ class HalamanPoin extends ConsumerStatefulWidget {
 
 class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   final _layananIklanInterstisial = LayananIklanInterstisial();
-  MenuPoin _menuTerpilih = MenuPoin.penukaran;
+  OpsiMenuPoin _menuAktif = OpsiMenuPoin.penukaran;
   late final Widget _judulAppBar;
   bool _sedangTukarPoin = false;
 
@@ -5546,7 +5546,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
   @override
   Widget build(BuildContext context) {
-    Log.info('Building PointsPage UI, selected menu: $_menuTerpilih');
+    Log.info('Building PointsPage UI, selected menu: $_menuAktif');
     final dataAsync = ref.watch(pointsPageDataProvider(widget.idPelanggan));
 
     return dataAsync.when(
@@ -5559,20 +5559,20 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         body: Center(child: Text('Error: $err')),
       ),
       data: (dataHalaman) {
-        return PoinPageUi(
+        return UiHalamanPoin(
           appBarTitle: _judulAppBar,
           totalPoin: dataHalaman.totalPoin,
-          menuPilihan: _menuTerpilih,
+          menuPilihan: _menuAktif,
           onSelectionChanged: (newSelection) async {
             final selection = newSelection.first;
             Log.info('Points menu changed to: $selection');
-            setState(() => _menuTerpilih = selection);
+            setState(() => _menuAktif = selection);
 
-            if (selection == MenuPoin.riwayat && widget.tampilkanIklan) {
+            if (selection == OpsiMenuPoin.riwayat && widget.tampilkanIklan) {
               await _layananIklanInterstisial.show();
             }
           },
-          contentView: _menuTerpilih == MenuPoin.penukaran
+          contentView: _menuAktif == OpsiMenuPoin.penukaran
               ? _bangunDaftarHadiah(dataHalaman.hadiah, dataHalaman.totalPoin)
               : _bangunRiwayatPoin(),
           bottomWidget: widget.tampilkanIklan ? const BannerAdsWidget() : null,
@@ -5707,20 +5707,20 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 }
 
 
-// File: lib/fitur/poin/widget/point_card.dart
-// path lib/fitur/poin/widget/point_card.dart
+// File: lib/fitur/poin/widget/kartu_total_poin.dart
+// path lib/fitur/poin/widget/kartu_total_poin.dart
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
-class TotalPointCard extends StatelessWidget {
+class KartuTotalPoin extends StatelessWidget {
   final int poin;
   final IconData icon;
   final Color warna;
   final VoidCallback? onTap;
 
-  const TotalPointCard({
+  const KartuTotalPoin({
     super.key,
     required this.poin,
     this.icon = TIcons.points,
@@ -5729,7 +5729,7 @@ class TotalPointCard extends StatelessWidget {
   });
 
   @override
-  Widget build( BuildContext context) {
+  Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
     return DecoratedBox(
@@ -5815,16 +5815,16 @@ class TotalPointCard extends StatelessWidget {
 }
 
 
-// File: lib/fitur/poin/widget/poin_page_ui.dart
-// path: lib/fitur/poin/widget/poin_page_ui.dart
+// File: lib/fitur/poin/widget/ui_halaman_poin.dart
+// path lib/fitur/poin/widget/ui_halaman_poin.dart
 
 import 'package:flutter/material.dart';
-import 'package:wifi/fitur/poin/widget/point_card.dart';
+import 'package:wifi/fitur/poin/widget/kartu_total_poin.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 
 /// Menu yang tersedia di halaman poin.
-enum MenuPoin {
+enum OpsiMenuPoin {
   /// Menu penukaran hadiah.
   penukaran,
 
@@ -5833,15 +5833,15 @@ enum MenuPoin {
 }
 
 /// UI halaman poin yang dapat digunakan kembali.
-class PoinPageUi extends StatelessWidget {
+class UiHalamanPoin extends StatelessWidget {
   final Widget appBarTitle;
   final int totalPoin;
-  final MenuPoin menuPilihan;
-  final ValueChanged<Set<MenuPoin>> onSelectionChanged;
+  final OpsiMenuPoin menuPilihan;
+  final ValueChanged<Set<OpsiMenuPoin>> onSelectionChanged;
   final Widget contentView;
   final Widget? bottomWidget;
 
-  const PoinPageUi({
+  const UiHalamanPoin({
     super.key,
     required this.appBarTitle,
     required this.totalPoin,
@@ -5872,7 +5872,7 @@ class PoinPageUi extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24),
       color: Theme.of(context).primaryColor.withAlpha(15),
-      child: Center(child: TotalPointCard(poin: totalPoin)),
+      child: Center(child: KartuTotalPoin(poin: totalPoin)),
     );
   }
 
@@ -5881,7 +5881,7 @@ class PoinPageUi extends StatelessWidget {
     final primaryColor = theme.primaryColor;
 
     Widget buildSegment(
-      final MenuPoin menu,
+      final OpsiMenuPoin menu,
       final String label,
       final IconData icon,
     ) {
@@ -5933,7 +5933,7 @@ class PoinPageUi extends StatelessWidget {
       child: Stack(
         children: [
           AnimatedAlign(
-            alignment: menuPilihan == MenuPoin.penukaran
+            alignment: menuPilihan == OpsiMenuPoin.penukaran
                 ? Alignment.centerLeft
                 : Alignment.centerRight,
             duration: const Duration(milliseconds: 300),
@@ -5962,8 +5962,12 @@ class PoinPageUi extends StatelessWidget {
           ),
           Row(
             children: [
-              buildSegment(MenuPoin.penukaran, 'Tukar Hadiah', TIcons.gift),
-              buildSegment(MenuPoin.riwayat, 'Riwayat Poin', TIcons.history),
+              buildSegment(OpsiMenuPoin.penukaran, 'Tukar Hadiah', TIcons.gift),
+              buildSegment(
+                OpsiMenuPoin.riwayat,
+                'Riwayat Poin',
+                TIcons.history,
+              ),
             ],
           ),
         ],
@@ -9378,7 +9382,7 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
     Log.info('Data paket berhasil dimuat: ${_paket.nama}, ID: ${_paket.id}.');
   }
 
-  Future<void> _navigasiKeEdit() async {
+  Future<void> _bukaFormEdit() async {
     Log.info('Navigasi ke form edit paket: ${_paket.nama}.');
     final result = await Navigator.push<bool>(
       context,
@@ -9402,7 +9406,7 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
         title: Text(_paket.nama),
         actions: [
           IconButton(
-            onPressed: _navigasiKeEdit,
+            onPressed: _bukaFormEdit,
             icon: const Icon(TIcons.edit),
             tooltip: 'Edit Paket',
           ),
@@ -18244,7 +18248,7 @@ class _DetailVersiApkState extends ConsumerState<DetailVersiApk> {
         widget.versiApkOPSqlite ?? ref.read(versiApkOpSqliteProvider);
   }
 
-  Future<void> _navigasiKeEdit() async {
+  Future<void> _bukaFormEdit() async {
     Log.info('Tombol edit APK ditekan, versi=${_versiApk.versiTerkahir}');
     final hasil = await Navigator.push<bool>(
       context,
@@ -18298,7 +18302,7 @@ class _DetailVersiApkState extends ConsumerState<DetailVersiApk> {
           IconButton(
             icon: const Icon(TIcons.edit),
             tooltip: 'Edit Data',
-            onPressed: _navigasiKeEdit,
+            onPressed: _bukaFormEdit,
           ),
         ],
       ),
@@ -19097,7 +19101,7 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
     unawaited(_loadData());
   }
 
-  Future<void> _navigasiKeEdit(VersiApkModel versiApk) async {
+  Future<void> _bukaFormEdit(VersiApkModel versiApk) async {
     if (!mounted) return;
     final result = await Navigator.push<bool>(
       context,
@@ -19155,7 +19159,7 @@ class _VersiApkState extends ConsumerState<VersiApkPage> {
           SimpleDialogOption(
             onPressed: () {
               Navigator.pop(c);
-              unawaited(_navigasiKeEdit(versi));
+              unawaited(_bukaFormEdit(versi));
             },
             child: const ListTile(
               leading: Icon(TIcons.edit),
@@ -23336,7 +23340,7 @@ PelangganOpSqlite pelangganOpSqlite(Ref ref) {
 /// Provider untuk menyediakan instance dari [PelangganAktifOpSqlite].
 @Riverpod(keepAlive: true)
 PelangganAktifOpSqlite pelangganAktifOpSqlite(Ref ref) {
-  Log.info('Membuat instance ActiveCustomerOperation via @riverpod...');
+  Log.info('Membuat instance PelangganAktifOperation via @riverpod...');
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
   final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
@@ -24808,7 +24812,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
   final TextEditingController _cariController = TextEditingController();
   late final FocusNode _cariFocusNode;
   int _jumlahTampil = 20;
-  String _kataKunciCari = '';
+  String _queryCari = '';
 
   @override
   void initState() {
@@ -24840,8 +24844,8 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
   }
 
   /// Filter data berdasarkan kata kunci cari
-  List<TransactionWithCustomer> _filterData(
-    List<TransactionWithCustomer> items,
+  List<TransaksiDenganPelanggan> _filterData(
+    List<TransaksiDenganPelanggan> items,
     String katakunci,
   ) {
     if (katakunci.isEmpty) return items;
@@ -24932,7 +24936,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
     final paketOpSqlite = ref.watch(paketOpSqliteProvider);
     return Scaffold(
       appBar: AppBar(
-        title: _kataKunciCari.isEmpty
+        title: _queryCari.isEmpty
             ? const TeksJudulBesar('Riwayat Langganan', warna: Colors.white)
             : TextField(
                 controller: _cariController,
@@ -24942,13 +24946,13 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
                   hintText: 'Cari data',
                   hintStyle: const TextStyle(color: Colors.white),
                   border: InputBorder.none,
-                  suffixIcon: _kataKunciCari.isNotEmpty
+                  suffixIcon: _queryCari.isNotEmpty
                       ? IconButton(
                           icon: const Icon(TIcons.close, color: Colors.white),
                           onPressed: () {
                             _cariController.clear();
                             setState(() {
-                              _kataKunciCari = '';
+                              _queryCari = '';
                               _jumlahTampil = 20;
                             });
                           },
@@ -24958,29 +24962,33 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
                 style: const TextStyle(color: Colors.white),
                 onChanged: (value) {
                   setState(() {
-                    _kataKunciCari = value;
+                    _queryCari = value;
                     _jumlahTampil = 20;
                   });
                 },
               ),
         actions: [
-          if (_kataKunciCari.isEmpty)
+          if (_queryCari.isEmpty)
             IconButton(
               onPressed: () {
                 setState(() {
-                  _kataKunciCari = ' ';
+                  _queryCari = ' ';
                 });
                 Future.microtask(() => _cariFocusNode.requestFocus());
               },
               icon: const Icon(TIcons.search),
             ),
-          if (_kataKunciCari.isEmpty)
+          if (_queryCari.isEmpty)
             IconButton(
               icon: const Icon(TIcons.filter),
               onPressed: () {
                 if (historyAsync.hasValue) {
                   Log.info('Membuka dialog pengurutan riwayat langganan.');
-                  _tampilkanDialogUrutan(context, ref, historyAsync.value!.sortBy);
+                  _tampilkanDialogUrutan(
+                    context,
+                    ref,
+                    historyAsync.value!.sortBy,
+                  );
                 }
               },
               tooltip: 'Urutkan',
@@ -24991,7 +24999,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('Error: $error')),
         data: (state) {
-          final itemsFiltered = _filterData(state.items, _kataKunciCari);
+          final itemsFiltered = _filterData(state.items, _queryCari);
           if (itemsFiltered.isEmpty) {
             return const Center(
               child: Text('Tidak ada riwayat langganan ditemukan.'),
@@ -25001,7 +25009,8 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
           return ListView.builder(
             controller: _pengendaliScroll,
             itemCount:
-                itemsFiltered.length + (_jumlahTampil < itemsFiltered.length ? 1 : 0),
+                itemsFiltered.length +
+                (_jumlahTampil < itemsFiltered.length ? 1 : 0),
             itemBuilder: (context, index) {
               if (index == itemsTampil.length) {
                 return const Center(
@@ -25015,8 +25024,8 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
               final transaksi = item.transaksi;
               final warnaStatusPembayaran =
                   transaksi.statusPembayaran == StatusPembayaran.paid
-                      ? Colors.green
-                      : Colors.red;
+                  ? Colors.green
+                  : Colors.red;
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                 child: ListTile(
@@ -25076,12 +25085,12 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
   Future<void> _tampilkanDialogUrutan(
     BuildContext context,
     WidgetRef ref,
-    SortOption currentSort,
+    OpsiUrutan currentSort,
   ) async {
-    final SortOption? selected = await showDialog<SortOption>(
+    final OpsiUrutan? selected = await showDialog<OpsiUrutan>(
       context: context,
       builder: (BuildContext context) {
-        Widget buildOption(String text, SortOption value) {
+        Widget buildOption(String text, OpsiUrutan value) {
           return SimpleDialogOption(
             onPressed: () => Navigator.pop(context, value),
             child: Text(
@@ -25098,14 +25107,14 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
         return SimpleDialog(
           title: const Text('Urutkan Berdasarkan'),
           children: <Widget>[
-            buildOption('Berakhir Hari Ini', SortOption.beralhirHariIni),
-            buildOption('Tanggal Berakhir', SortOption.tanggalBerakhir),
-            buildOption('Nama A-Z', SortOption.namaAZ),
-            buildOption('Nama Z-A', SortOption.namaZA),
-            buildOption('Lunas', SortOption.lunas),
-            buildOption('Belum Lunas', SortOption.belumLunas),
-            buildOption('Update Terbaru', SortOption.diperbaruiPadaAZ),
-            buildOption('Update Terlama', SortOption.diperbaruiPadaZA),
+            buildOption('Berakhir Hari Ini', OpsiUrutan.beralhirHariIni),
+            buildOption('Tanggal Berakhir', OpsiUrutan.tanggalBerakhir),
+            buildOption('Nama A-Z', OpsiUrutan.namaAZ),
+            buildOption('Nama Z-A', OpsiUrutan.namaZA),
+            buildOption('Lunas', OpsiUrutan.lunas),
+            buildOption('Belum Lunas', OpsiUrutan.belumLunas),
+            buildOption('Update Terbaru', OpsiUrutan.diperbaruiPadaAZ),
+            buildOption('Update Terlama', OpsiUrutan.diperbaruiPadaZA),
           ],
         );
       },
@@ -25769,7 +25778,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
               children: SortBy.values
                   .map(
                     (sortBy) => RadioListTile<SortBy>(
-                      title: Text(PengurutTransaksi.ambilLabelUrutan(sortBy)),
+                      title: Text(PengurutTransaksi.ambilTeksUrutan(sortBy)),
                       value: sortBy,
                     ),
                   )
@@ -26311,7 +26320,7 @@ class PengurutTransaksi {
     return sorted;
   }
 
-  static String ambilLabelUrutan(SortBy option) {
+  static String ambilTeksUrutan(SortBy option) {
     switch (option) {
       case SortBy.terbaru:
         return 'Terbaru';
@@ -28428,7 +28437,7 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
   }
 
   /// Navigasi ke halaman edit profil, lalu menampilkan iklan saat kembali.
-  Future<void> _navigasiKeEdit(PelangganModel pelanggan) async {
+  Future<void> _bukaFormEdit(PelangganModel pelanggan) async {
     await ref.read(interstitialAdServiceProvider).show();
     if (!mounted) return;
     final bool? hasil = await Navigator.push<bool>(
@@ -28514,7 +28523,7 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
             body: DetailPelangganUI(
               pelanggan: data.pelanggan,
               totalPoin: data.totalPoin,
-              navigasiKeEdit: () => _navigasiKeEdit(data.pelanggan),
+              navigasiKeEdit: () => _bukaFormEdit(data.pelanggan),
               navigasiKePoin: () => _navigasiKePoin(data.pelanggan.id),
             ),
             bottomNavigationBar: const BannerAdsWidget(),
@@ -29293,7 +29302,7 @@ MAC : ${customer.macAddress}
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/poin/widget/point_card.dart';
+import 'package:wifi/fitur/poin/widget/kartu_total_poin.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -29370,7 +29379,7 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
   }
 
   Widget _buildKartuPoin() {
-    return TotalPointCard(
+    return KartuTotalPoin(
       poin: widget.totalPoin,
       onTap: () {
         if (widget.navigasiKePoin != null) {
@@ -39725,7 +39734,7 @@ class TIcons {
   static const IconData customers = Icons.group;
 
   /// Ikon untuk pelanggan aktif di navigasi utama.
-  static const IconData activeCustomer = Icons.person_pin_circle;
+  static const IconData pelangganAktif = Icons.person_pin_circle;
 
   /// Ikon untuk menu transaksi.
   static const IconData transactions = Icons.swap_horiz;
@@ -46620,7 +46629,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
           if (kDebugMode)
             _buildMenuItem(
               context: context,
-              icon: TIcons.activeCustomer,
+              icon: TIcons.pelangganAktif,
               title: 'halamana tambah data dummy',
               onTap: () => _navigateTo(const HalamanDataDummy(), 'Halaman Tes'),
             ),
@@ -46853,16 +46862,14 @@ import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 
 part 'riwayat_aktivasi_paket_provider.g.dart';
 
-class TransactionWithCustomer {
+class TransaksiDenganPelanggan {
   final TransaksiModel transaksi;
   final PelangganModel? pelanggan;
-
-  TransactionWithCustomer({required this.transaksi, this.pelanggan});
-
+  TransaksiDenganPelanggan({required this.transaksi, this.pelanggan});
   String get namaPelanggan => pelanggan?.nama ?? 'Tidak diketahui';
 }
 
-enum SortOption {
+enum OpsiUrutan {
   tanggalBerakhir,
   namaAZ,
   namaZA,
@@ -46874,17 +46881,16 @@ enum SortOption {
 }
 
 class RiwayatAktivasiPaketState {
-  final List<TransactionWithCustomer> items;
-  final SortOption sortBy;
-
+  final List<TransaksiDenganPelanggan> items;
+  final OpsiUrutan sortBy;
   RiwayatAktivasiPaketState({
     this.items = const [],
-    this.sortBy = SortOption.beralhirHariIni,
+    this.sortBy = OpsiUrutan.beralhirHariIni,
   });
 
   RiwayatAktivasiPaketState copyWith({
-    List<TransactionWithCustomer>? items,
-    SortOption? sortBy,
+    List<TransaksiDenganPelanggan>? items,
+    OpsiUrutan? sortBy,
   }) {
     return RiwayatAktivasiPaketState(
       items: items ?? this.items,
@@ -46899,53 +46905,41 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
   FutureOr<RiwayatAktivasiPaketState> build() {
     ref.watch(transaksiOpSqliteProvider);
     ref.watch(pelangganOpSqliteProvider);
-    return _loadData(SortOption.tanggalBerakhir);
+    return _loadData(OpsiUrutan.tanggalBerakhir);
   }
 
-  Future<RiwayatAktivasiPaketState> _loadData(SortOption targetSort) async {
-    // 3. Ambil kedua data stream
+  Future<RiwayatAktivasiPaketState> _loadData(OpsiUrutan targetSort) async {
     final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
-
     final transaksi = await transaksiOpSqlite.ambilBerdasarkanStatusAktivasi();
     final pealnggan = await pelangganOpSqlite.ambilSemua();
-
-    // Buat peta untuk pencarian cepat
     final customerMap = {for (var c in pealnggan) c.id: c};
-
-    // 4. Gabungkan data
     final combinedList = transaksi.map((trans) {
-      return TransactionWithCustomer(
+      return TransaksiDenganPelanggan(
         transaksi: trans,
         pelanggan: customerMap[trans.idPelanggan],
       );
     }).toList();
-
-    // Urutkan data gabungan
     _performSort(combinedList, targetSort);
-
     return RiwayatAktivasiPaketState(items: combinedList, sortBy: targetSort);
   }
 
-  void changeSort(SortOption newSort) {
+  void changeSort(OpsiUrutan newSort) {
     if (!state.hasValue) return;
-
     final currentState = state.value!;
     if (currentState.sortBy == newSort) return;
-
-    final List<TransactionWithCustomer> sortedList = List.from(
+    final List<TransaksiDenganPelanggan> sortedList = List.from(
       currentState.items,
     );
     _performSort(sortedList, newSort);
-
     state = AsyncValue.data(
       currentState.copyWith(items: sortedList, sortBy: newSort),
     );
   }
 
-  void _performSort(List<TransactionWithCustomer> list, SortOption option) {
+  void _performSort(List<TransaksiDenganPelanggan> list, OpsiUrutan option) {
     switch (option) {
-      case SortOption.tanggalBerakhir:
+      case OpsiUrutan.tanggalBerakhir:
         list.sort((a, b) {
           if (a.transaksi.tanggalBerakhir == null &&
               b.transaksi.tanggalBerakhir == null) {
@@ -46960,7 +46954,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           return a.transaksi.id.compareTo(b.transaksi.id);
         });
         break;
-      case SortOption.diperbaruiPadaAZ:
+      case OpsiUrutan.diperbaruiPadaAZ:
         list.sort((a, b) {
           final updateAtA = a.transaksi.diperbaruiPada;
           final updateAtB = b.transaksi.diperbaruiPada;
@@ -46970,7 +46964,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           return updateAtB.compareTo(updateAtA);
         });
         break;
-      case SortOption.diperbaruiPadaZA:
+      case OpsiUrutan.diperbaruiPadaZA:
         list.sort((a, b) {
           final updateAtA = a.transaksi.diperbaruiPada;
           final updateAtB = b.transaksi.diperbaruiPada;
@@ -46980,8 +46974,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           return updateAtA.compareTo(updateAtB);
         });
         break;
-
-      case SortOption.namaAZ:
+      case OpsiUrutan.namaAZ:
         list.sort((a, b) {
           final nameCompare = a.namaPelanggan.toLowerCase().compareTo(
             b.namaPelanggan.toLowerCase(),
@@ -46991,7 +46984,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           return a.transaksi.id.compareTo(b.transaksi.id);
         });
         break;
-      case SortOption.namaZA:
+      case OpsiUrutan.namaZA:
         list.sort((a, b) {
           final nameCompare = b.namaPelanggan.toLowerCase().compareTo(
             a.namaPelanggan.toLowerCase(),
@@ -47000,7 +46993,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           return a.transaksi.id.compareTo(b.transaksi.id);
         });
         break;
-      case SortOption.beralhirHariIni:
+      case OpsiUrutan.beralhirHariIni:
         final now = DateTime.now();
         list.sort((a, b) {
           final isTodayA =
@@ -47013,10 +47006,8 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
               b.transaksi.tanggalBerakhir!.year == now.year &&
               b.transaksi.tanggalBerakhir!.month == now.month &&
               b.transaksi.tanggalBerakhir!.day == now.day;
-
           if (isTodayA && !isTodayB) return -1;
           if (!isTodayA && isTodayB) return 1;
-
           if (a.transaksi.tanggalBerakhir == null &&
               b.transaksi.tanggalBerakhir == null) {
             return 0;
@@ -47028,8 +47019,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           );
         });
         break;
-
-      case SortOption.lunas:
+      case OpsiUrutan.lunas:
         list.sort((a, b) {
           final isPaidA = a.transaksi.statusPembayaran == StatusPembayaran.paid;
           final isPaidB = b.transaksi.statusPembayaran == StatusPembayaran.paid;
@@ -47040,8 +47030,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           );
         });
         break;
-
-      case SortOption.belumLunas:
+      case OpsiUrutan.belumLunas:
         list.sort((a, b) {
           final isUnpaidA =
               a.transaksi.statusPembayaran == StatusPembayaran.unpaid;
@@ -47710,7 +47699,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(TIcons.activeCustomer),
+            icon: Icon(TIcons.pelangganAktif),
             label: 'Aktif',
           ),
           BottomNavigationBarItem(icon: Icon(TIcons.wallet), label: 'Dompet'),
