@@ -32,7 +32,6 @@ class PengingatService {
       final prefs = await _ref.read(sharedPreferencesProvider.future);
       final hariIni = DateFormat('yyyy-MM-dd').format(DateTime.now());
       final terakhirNotif = prefs.getString(waktuTerkahirNotif) ?? '';
-
       if (terakhirNotif == hariIni) {
         Log.info(
           '[PengingatTagihan] Notifikasi sudah tampil hari ini, dilewati.',
@@ -43,11 +42,9 @@ class PengingatService {
       if (userId == null) {
         return;
       }
-
       final transaksiOpFirebase = _ref.read(transaksiOpFirebaseProvider);
       final daftarBelumLunas = await transaksiOpFirebase
           .ambilBelumLunasBerdasarkanIdPelanggan(userId);
-
       if (daftarBelumLunas.isNotEmpty) {
         Log.info(
           '[PengingatTagihan] Ditemukan ${daftarBelumLunas.length} paket belum lunas.',
