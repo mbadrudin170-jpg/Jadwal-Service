@@ -13,9 +13,7 @@ part 'riwayat_aktivasi_paket_provider.g.dart';
 class TransaksiDenganPelanggan {
   final TransaksiModel transaksi;
   final PelangganModel? pelanggan;
-
   TransaksiDenganPelanggan({required this.transaksi, this.pelanggan});
-
   String get namaPelanggan => pelanggan?.nama ?? 'Tidak diketahui';
 }
 
@@ -33,7 +31,6 @@ enum OpsiUrutan {
 class RiwayatAktivasiPaketState {
   final List<TransaksiDenganPelanggan> items;
   final OpsiUrutan sortBy;
-
   RiwayatAktivasiPaketState({
     this.items = const [],
     this.sortBy = OpsiUrutan.beralhirHariIni,
@@ -63,7 +60,8 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
     final transaksi = await transaksiOpSqlite.ambilBerdasarkanStatusAktivasi();
-    final pealnggan = await pelangganOpSqlite.ambilSemua();    final customerMap = {for (var c in pealnggan) c.id: c};
+    final pealnggan = await pelangganOpSqlite.ambilSemua();
+    final customerMap = {for (var c in pealnggan) c.id: c};
     final combinedList = transaksi.map((trans) {
       return TransaksiDenganPelanggan(
         transaksi: trans,
