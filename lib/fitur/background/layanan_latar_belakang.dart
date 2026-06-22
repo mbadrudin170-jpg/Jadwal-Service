@@ -4,12 +4,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/notfikasi/pwngingat_paket_belum_lunas.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:workmanager/workmanager.dart';
 
 const String namaTugasSinkronisasi = 'syncDataTask';
 const String namaTugasJadwalUlangNotifikasi = 'rescheduleNotificationsTask';
+const String namaTugasPengingatTagihan = 'reminder_unpaid_packages';
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
@@ -24,8 +26,9 @@ void callbackDispatcher() {
       switch (tugas) {
         case namaTugasSinkronisasi:
           try {
-            final layananCekSinkronisasi =
-                container.read(layananCekSinkronisasiProvider);
+            final layananCekSinkronisasi = container.read(
+              layananCekSinkronisasiProvider,
+            );
             await layananCekSinkronisasi.jalankanCekSinkronisasi();
             Log.info('Background task "$tugas" selesai dengan sukses.');
             return true;
@@ -37,14 +40,15 @@ void callbackDispatcher() {
             );
             return false;
           }
-
         case namaTugasJadwalUlangNotifikasi:
           try {
-            final pelangganAktifOpSqlite =
-                container.read(pelangganAktifOpSqliteProvider);
+            final pelangganAktifOpSqlite = container.read(
+              pelangganAktifOpSqliteProvider,
+            );
             await pelangganAktifOpSqlite.rescheduleAllNotifications();
             Log.info(
-                'Background task "$tugas" (reschedule) selesai dengan sukses.');
+              'Background task "$tugas" (reschedule) selesai dengan sukses.',
+            );
             return true;
           } on Object catch (e, st) {
             Log.error(
@@ -55,6 +59,12 @@ void callbackDispatcher() {
             return false;
           }
 
+        case namaTugasPengingatTagihan:
+          final pengingatService = container.read(pengingatServiceProvider);
+          await pengingatService.cekDanTampilkanPengingatTagihan();
+          Log.info('Background task "$tugas" selesai dengan sukses.');
+          return true;
+
         default:
           Log.warning('Task tidak dikenal: $tugas');
           return false;
@@ -62,7 +72,8 @@ void callbackDispatcher() {
     } finally {
       container.dispose();
       Log.info(
-          'ProviderContainer berhasil di-dispose untuk mencegah kebocoran memori.');
+        'ProviderContainer berhasil di-dispose untuk mencegah kebocoran memori.',
+      );
     }
   });
 }
@@ -83,9 +94,7 @@ Future<void> _inisialisasiIsolatLatarBelakang() async {
 class LayananLatarBelakang {
   static Future<void> inisialisasi() async {
     try {
-      await Workmanager().initialize(
-        callbackDispatcher,
-      );
+      await Workmanager().initialize(callbackDispatcher);
       Log.info('Workmanager berhasil diinisialisasi.');
 
       await daftarTugasSinkronisasiPeriodik();
@@ -98,15 +107,18 @@ class LayananLatarBelakang {
   @pragma('vm:entry-point')
   static Future<void> periksaDanArsipkanPelangganKedaluwarsa() async {
     Log.info(
-        'Alarm terpicu: Memulai pemeriksaan dan pengarsipan pelanggan kedaluwarsa.');
+      'Alarm terpicu: Memulai pemeriksaan dan pengarsipan pelanggan kedaluwarsa.',
+    );
     await _inisialisasiIsolatLatarBelakang();
     final container = ProviderContainer();
     try {
-      final pelangganAktifOpsqlite =
-          container.read(pelangganAktifOpSqliteProvider);
+      final pelangganAktifOpsqlite = container.read(
+        pelangganAktifOpSqliteProvider,
+      );
       final jumlah = await pelangganAktifOpsqlite.arsipkanLanggananKadaluarsa();
       Log.info(
-          'Proses pengarsipan selesai. $jumlah pelanggan kedaluwarsa telah diarsipkan.');
+        'Proses pengarsipan selesai. $jumlah pelanggan kedaluwarsa telah diarsipkan.',
+      );
     } on Exception catch (e, st) {
       Log.error(
         'Gagal menjalankan periksaDanArsipkanPelangganKedaluwarsa di background',
@@ -127,9 +139,7 @@ class LayananLatarBelakang {
         frequency: const Duration(minutes: 15),
         existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
         initialDelay: const Duration(minutes: 1),
-        constraints: Constraints(
-          networkType: NetworkType.connected,
-        ),
+        constraints: Constraints(networkType: NetworkType.connected),
       );
       Log.info(
         'Tugas sinkronisasi periodik ($namaTugasSinkronisasi) berhasil didaftarkan.',
@@ -147,16 +157,31 @@ class LayananLatarBelakang {
         frequency: const Duration(hours: 24),
         existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
         initialDelay: const Duration(minutes: 5),
-        constraints: Constraints(
-          networkType: NetworkType.notRequired,
-        ),
+        constraints: Constraints(networkType: NetworkType.notRequired),
       );
       Log.info(
         'Tugas penjadwalan ulang notifikasi ($namaTugasJadwalUlangNotifikasi) berhasil didaftarkan.',
       );
     } on Exception catch (e, st) {
-      Log.error('Gagal mendaftarkan tugas penjadwalan ulang notifikasi.',
-          e: e, s: st);
+      Log.error(
+        'Gagal mendaftarkan tugas penjadwalan ulang notifikasi.',
+        e: e,
+        s: st,
+      );
+    }
+  }
+
+  static Future<void> daftarTugasPengingatTagihanPeriodik() async {
+    try {
+      await Workmanager().registerPeriodicTask(
+        namaTugasPengingatTagihan,
+        namaTugasPengingatTagihan,
+        frequency: const Duration(hours: 24),
+        initialDelay: const Duration(hours: 1),
+        constraints: Constraints(networkType: NetworkType.notRequired),
+      );
+    } on Exception catch (e, s) {
+      Log.error('Gagal medaftarkan tugas pengingat tagihan', e: e, s: s);
     }
   }
 
