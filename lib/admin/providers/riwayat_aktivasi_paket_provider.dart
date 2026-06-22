@@ -60,41 +60,28 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
   }
 
   Future<RiwayatAktivasiPaketState> _loadData(OpsiUrutan targetSort) async {
-    // 3. Ambil kedua data stream
     final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
-
     final transaksi = await transaksiOpSqlite.ambilBerdasarkanStatusAktivasi();
-    final pealnggan = await pelangganOpSqlite.ambilSemua();
-
-    // Buat peta untuk pencarian cepat
-    final customerMap = {for (var c in pealnggan) c.id: c};
-
-    // 4. Gabungkan data
+    final pealnggan = await pelangganOpSqlite.ambilSemua();    final customerMap = {for (var c in pealnggan) c.id: c};
     final combinedList = transaksi.map((trans) {
       return TransaksiDenganPelanggan(
         transaksi: trans,
         pelanggan: customerMap[trans.idPelanggan],
       );
     }).toList();
-
-    // Urutkan data gabungan
     _performSort(combinedList, targetSort);
-
     return RiwayatAktivasiPaketState(items: combinedList, sortBy: targetSort);
   }
 
   void changeSort(OpsiUrutan newSort) {
     if (!state.hasValue) return;
-
     final currentState = state.value!;
     if (currentState.sortBy == newSort) return;
-
     final List<TransaksiDenganPelanggan> sortedList = List.from(
       currentState.items,
     );
     _performSort(sortedList, newSort);
-
     state = AsyncValue.data(
       currentState.copyWith(items: sortedList, sortBy: newSort),
     );
@@ -137,7 +124,6 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           return updateAtA.compareTo(updateAtB);
         });
         break;
-
       case OpsiUrutan.namaAZ:
         list.sort((a, b) {
           final nameCompare = a.namaPelanggan.toLowerCase().compareTo(
@@ -170,10 +156,8 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
               b.transaksi.tanggalBerakhir!.year == now.year &&
               b.transaksi.tanggalBerakhir!.month == now.month &&
               b.transaksi.tanggalBerakhir!.day == now.day;
-
           if (isTodayA && !isTodayB) return -1;
           if (!isTodayA && isTodayB) return 1;
-
           if (a.transaksi.tanggalBerakhir == null &&
               b.transaksi.tanggalBerakhir == null) {
             return 0;
@@ -185,7 +169,6 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           );
         });
         break;
-
       case OpsiUrutan.lunas:
         list.sort((a, b) {
           final isPaidA = a.transaksi.statusPembayaran == StatusPembayaran.paid;
@@ -197,7 +180,6 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           );
         });
         break;
-
       case OpsiUrutan.belumLunas:
         list.sort((a, b) {
           final isUnpaidA =
