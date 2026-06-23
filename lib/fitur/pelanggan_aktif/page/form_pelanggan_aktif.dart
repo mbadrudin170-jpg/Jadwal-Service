@@ -10,7 +10,6 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
-import 'package:wifi/fitur/notfikasi/enum/tipe_notifikasi_enum.dart';
 import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
 import 'package:wifi/fitur/paket/core/perhitungan_paket.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
@@ -26,6 +25,7 @@ import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -401,6 +401,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           deskripsi:
               'Anda telah menggunakan 50% dari masa aktif paket ${_paketDipilih!.nama}.',
           idTujuan: idTransaksi,
+          targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
           diperbaruiPada: DateTime.now().toUtc(),
         ),
@@ -414,6 +415,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           deskripsi:
               'Masa aktif paket ${_paketDipilih!.nama} Anda akan berakhir besok.',
           idTujuan: idTransaksi,
+          targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
           diperbaruiPada: DateTime.now().toUtc(),
         ),
@@ -427,6 +429,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           deskripsi:
               'Masa aktif untuk paket ${_paketDipilih!.nama} telah berakhir hari ini.',
           idTujuan: idTransaksi,
+          targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
           diperbaruiPada: DateTime.now().toUtc(),
         ),
@@ -440,6 +443,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           deskripsi:
               'Masa aktif untuk paket ${_paketDipilih!.nama} telah berakhir kemarin. Silakan perpanjang.',
           idTujuan: idTransaksi,
+          targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
           diperbaruiPada: DateTime.now().toUtc(),
         ),
