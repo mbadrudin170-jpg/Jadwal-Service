@@ -70,7 +70,9 @@ MAC : ${customer.macAddress}
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final detailAsync = ref.watch(pelangganDetailProvider(idPelanggan));
+    final detailAsync = ref
+        .watch(pelangganProvider.future)
+        .ambilDetailPelanggan(idPelanggan);
     return detailAsync.when(
       loading: () => Scaffold(
         appBar: AppBar(title: const Text('Memuat Detail...')),

@@ -33,7 +33,7 @@ final class PelangganProvider
   Pelanggan create() => Pelanggan();
 }
 
-String _$pelangganHash() => r'54647d4d7c061b25cf1384b58d7ab79740113cff';
+String _$pelangganHash() => r'3ec31d5924cc83f05532477305b0ebaaff54dcba';
 
 abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   FutureOr<PelangganState> build();
@@ -240,81 +240,4 @@ abstract class _$SearchQueryPelanggan extends $Notifier<String> {
             >;
     return element.handleCreate(ref, build);
   }
-}
-
-@ProviderFor(pelangganDetail)
-final pelangganDetailProvider = PelangganDetailFamily._();
-
-final class PelangganDetailProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<(PelangganModel?, int)>,
-          (PelangganModel?, int),
-          FutureOr<(PelangganModel?, int)>
-        >
-    with
-        $FutureModifier<(PelangganModel?, int)>,
-        $FutureProvider<(PelangganModel?, int)> {
-  PelangganDetailProvider._({
-    required PelangganDetailFamily super.from,
-    required String super.argument,
-  }) : super(
-         retry: null,
-         name: r'pelangganDetailProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$pelangganDetailHash();
-
-  @override
-  String toString() {
-    return r'pelangganDetailProvider'
-        ''
-        '($argument)';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<(PelangganModel?, int)> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<(PelangganModel?, int)> create(Ref ref) {
-    final argument = this.argument as String;
-    return pelangganDetail(ref, argument);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is PelangganDetailProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$pelangganDetailHash() => r'f035ec5051457c1093e90687ba33b06fe986510c';
-
-final class PelangganDetailFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<(PelangganModel?, int)>, String> {
-  PelangganDetailFamily._()
-    : super(
-        retry: null,
-        name: r'pelangganDetailProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  PelangganDetailProvider call(String id) =>
-      PelangganDetailProvider._(argument: id, from: this);
-
-  @override
-  String toString() => r'pelangganDetailProvider';
 }
