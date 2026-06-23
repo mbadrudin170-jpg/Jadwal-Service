@@ -9,6 +9,7 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -23,21 +24,22 @@ enum UrutanPelanggan {
   poinTerbanyak,
   poinTerkecil,
 }
+// path: lib/fitur/pelanggan/page/admin/pelanggan.dart
 
 /// Provider untuk mendapatkan daftar pelanggan dengan poin
 final pelangganDenganPoinProvider =
     FutureProvider.autoDispose<List<(PelangganModel, int)>>((ref) async {
       final pelangganState = await ref.watch(pelangganProvider.future);
-      final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
-
+      final transaksiNotifier = ref.watch(
+        transaksiProvider.notifier,
+      ); // ✅ Gunakan notifier
       final daftarPelanggan = pelangganState.daftarPelanggan;
 
-      // ✅ Ambil poin secara paralel
-      final List<Future<int>> futures = daftarPelanggan
-          .map((p) => transaksiOpSqlite.ambilTotalPoin(p.id))
-          .toList();
-
-      final semuaPoin = await Future.wait(futures);
+      // ✅ Ambil poin melalui method di transaksiProvider
+      final List<int> semuaPoin = await transaksiNotifier
+          .getTotalPoinBanyakPelangganParallel(
+            daftarPelanggan.map((p) => p.id).toList(),
+          );
 
       final hasil = <(PelangganModel, int)>[];
       for (int i = 0; i < daftarPelanggan.length; i++) {
@@ -46,8 +48,6 @@ final pelangganDenganPoinProvider =
 
       return hasil;
     });
-
-/// Provider lokal untuk memfilter dan mengurutkan pelanggan secara reaktif berdasarkan state modern.
 final filteredCustomersProvider =
     Provider.autoDispose<AsyncValue<List<(PelangganModel, int)>>>((ref) {
       final pelangganWithPoints = ref.watch(pelangganDenganPoinProvider);

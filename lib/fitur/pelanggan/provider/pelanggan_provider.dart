@@ -127,6 +127,5 @@ Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
   final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
   final pelanggan = await pelangganOpSqlte.ambilBerdasarkanId(id);
   final poin = await transaksiOpSqlite.ambilTotalPoin(id);
-
   return (pelanggan, poin);
 }
