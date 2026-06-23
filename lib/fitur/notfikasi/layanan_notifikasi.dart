@@ -237,7 +237,6 @@ class LayananNotifikasi {
         Log.warning('Permintaan izin tidak berlaku untuk platform web.');
         return;
       }
-
       final AndroidFlutterLocalNotificationsPlugin? androidPlugin = plugin
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
@@ -269,7 +268,6 @@ class LayananNotifikasi {
     } else {
       Log.info('Aplikasi diluncurkan secara normal (bukan dari notifikasi).');
     }
-
     return details;
   }
 
@@ -289,7 +287,6 @@ class LayananNotifikasi {
 
     final int id = payload?.hashCode ?? _random.nextInt(pow(2, 31).toInt());
     Log.info('Mengirim notifikasi langsung (ID: $id, Judul: $title)');
-
     final androidDetails = AndroidNotificationDetails(
       channelNotifikasiPenting!.id,
       channelNotifikasiPenting!.name,
@@ -298,7 +295,6 @@ class LayananNotifikasi {
       priority: Priority.high,
     );
     final notificationDetails = NotificationDetails(android: androidDetails);
-
     try {
       await plugin.show(
         id: id,
@@ -339,9 +335,7 @@ class LayananNotifikasi {
       );
       return;
     }
-
     Log.info('Merencanakan notifikasi terjadwal (ID: $id) pada waktu: $jadwal');
-
     final androidDetails = AndroidNotificationDetails(
       channelNotifikasiPenting!.id,
       channelNotifikasiPenting!.name,
@@ -350,7 +344,6 @@ class LayananNotifikasi {
       priority: Priority.high,
     );
     final notificationDetails = NotificationDetails(android: androidDetails);
-
     try {
       final tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(
         jadwal,
@@ -359,7 +352,6 @@ class LayananNotifikasi {
       Log.info(
         'Waktu notifikasi dikonversi ke zona waktu lokal (${tz.local.name}): $scheduledTZDate',
       );
-
       await plugin.zonedSchedule(
         id: id,
         title: judul,
@@ -392,7 +384,6 @@ class LayananNotifikasi {
       jadwal: jadwal,
       payload: payload,
     );
-
     Log.info('Pembaruan jadwal selesai dilakukan untuk ID: $id.');
   }
 
@@ -424,11 +415,9 @@ class LayananNotifikasi {
 
   Future<bool> pastikanIzinExactAlarm() async {
     if (!Platform.isAndroid) return true;
-
     Log.info('Memeriksa izin SCHEDULE_EXACT_ALARM.');
     final status = await Permission.scheduleExactAlarm.status;
     Log.info('Status izin SCHEDULE_EXACT_ALARM saat ini: $status');
-
     if (status.isGranted) {
       Log.info('Izin SCHEDULE_EXACT_ALARM sudah diberikan.');
       return true;
