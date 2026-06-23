@@ -322,12 +322,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         durasiBonus: durasiBonus,
         tipeDurasiBonus: _bonus ? _tipeBonusDurasi : null,
       );
-
       final idTransaksi =
           (_modeEdit && widget.pelangganAktif?.idTransaksi != null)
           ? widget.pelangganAktif!.idTransaksi
           : const Uuid().v4();
-
       final pelangganAktifData = PelangganAktifModel(
         id: _modeEdit ? widget.pelangganAktif!.id : const Uuid().v4(),
         idPelanggan: _pelangganDipilih!.id,
@@ -338,7 +336,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         idTransaksi: idTransaksi,
         diperbaruiPada: DateTime.now().toUtc(),
       );
-
       final transaksiData = TransaksiModel(
         id: idTransaksi,
         tanggal: tanggalMulai,

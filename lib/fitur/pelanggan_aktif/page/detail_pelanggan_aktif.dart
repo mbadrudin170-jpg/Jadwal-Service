@@ -79,6 +79,13 @@ class DetailPelangganAktif extends ConsumerStatefulWidget {
 }
 
 class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
+  @override
+  void initState() {
+    super.initState();
+    Log.info('Membuka halaman Detail Pelanggan Aktif');
+    Log.info('  - ID Pelanggan Aktif: ${widget.pelangganAktif.id}');
+  }
+
   Future<void> _bukaWhatsApp(String phone) async {
     String formatNomor = phone.replaceAll(RegExp(r'[^0-9]'), '');
 
@@ -108,22 +115,17 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
     }
   }
 
-  Future<void> _bukaFormEdit(PelangganAktifModel pelangganaktif) async {
+  void _bukaFormEdit(PelangganAktifModel pelangganaktif) {
     Log.info('Navigasi ke form edit pelanggan aktif ID: ${pelangganaktif.id}');
-    await Navigator.push<void>(
-      context,
-      MaterialPageRoute<void>(
-        builder: (context) =>
-            FormPelangganAktif(pelangganAktif: pelangganaktif),
+    unawaited(
+      Navigator.push<void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (context) =>
+              FormPelangganAktif(pelangganAktif: pelangganaktif),
+        ),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    Log.info('Membuka halaman Detail Pelanggan Aktif');
-    Log.info('  - ID Pelanggan Aktif: ${widget.pelangganAktif.id}');
   }
 
   @override
