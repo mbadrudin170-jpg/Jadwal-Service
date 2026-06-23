@@ -121,11 +121,11 @@ class SearchQueryPelanggan extends _$SearchQueryPelanggan {
   void clear() => state = '';
 }
 
-// @riverpod
-// Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
-//   final pelangganOpSqlte = ref.watch(pelangganOpSqliteProvider);
-//   final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
-//   final pelanggan = await pelangganOpSqlte.ambilBerdasarkanId(id);
-//   final poin = await transaksiOpSqlite.ambilTotalPoin(id);
-//   return (pelanggan, poin);
-// }
+@riverpod
+Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
+  final pelangganOpSqlte = ref.watch(pelangganOpSqliteProvider);
+  final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
+  final pelanggan = await pelangganOpSqlte.ambilBerdasarkanId(id);
+  final poin = await transaksiOpSqlite.ambilTotalPoin(id);
+  return (pelanggan, poin);
+}
