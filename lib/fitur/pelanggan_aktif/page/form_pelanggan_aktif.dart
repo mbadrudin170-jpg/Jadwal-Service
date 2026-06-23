@@ -461,9 +461,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
   void _invalidateSemuaProvider() {
     ref
-      ..invalidate(pelangganAktifOpSqliteProvider)
-      ..invalidate(transaksiOpSqliteProvider)
-      ..invalidate(transaksiOpFirebaseProvider)
       ..invalidate(dompetOpSqliteProvider)
       ..invalidate(statistikProvider)
       ..invalidate(pelangganAktifProvider);
