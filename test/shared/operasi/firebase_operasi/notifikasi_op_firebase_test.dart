@@ -291,7 +291,7 @@ void main() {
             .doc(notifTransaksi.id)
             .set(notifTransaksi.toFirebase());
 
-        final stream = notifikasiOp.getKhususAdmin();
+        final stream = notifikasiOp.ambilKhususAdmin();
 
         expect(
           stream,
@@ -320,7 +320,7 @@ void main() {
             .doc(notifInfo.id)
             .set(notifInfo.toFirebase());
 
-        final stream = notifikasiOp.getKhususAdmin();
+        final stream = notifikasiOp.ambilKhususAdmin();
 
         expect(
           stream,
@@ -345,7 +345,7 @@ void main() {
             .doc(notifInfo.id)
             .set(notifInfo.toFirebase());
 
-        final stream = notifikasiOp.getKhususAdmin();
+        final stream = notifikasiOp.ambilKhususAdmin();
 
         expect(stream, emits(isEmpty));
       },

@@ -20,7 +20,6 @@ class NotifikasiOpFirebase {
        _baseOp = baseOp;
 
   Stream<List<NotifikasiModel>> getNotifAktif() {
-    /// Mengambil notifikasi yang sedang aktif.
     final now = DateTime.now();
     return _firestore
         .collection(_koleksi)
@@ -69,18 +68,17 @@ class NotifikasiOpFirebase {
   }
 
   // TODO : tambahkan unit test
-  Stream<List<NotifikasiModel>> getKhususAdmin() {
+  Stream<List<NotifikasiModel>> ambilKhususAdmin() {
+    final now = DateTime.now();
     return _firestore
         .collection(_koleksi)
-        .where(
-          NamaKolom.tipe,
-          whereIn: [
-            TipeNotifikasiEnum.order.name,
-            TipeNotifikasiEnum.transaksi.name,
-          ],
-        )
+        .where(NamaKolom.tipe, isEqualTo: TipeNotifikasiEnum.order.name)
         .where(NamaKolom.setatusDibaca, isEqualTo: false)
         .where(NamaKolom.dihapus, isEqualTo: false)
+        .where(
+          NamaKolom.tanggalTampil,
+          isLessThanOrEqualTo: Timestamp.fromDate(now),
+        )
         .snapshots()
         .map(
           (snapshot) => snapshot.docs

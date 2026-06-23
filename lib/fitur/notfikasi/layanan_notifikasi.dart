@@ -170,7 +170,7 @@ class LayananNotifikasi {
   void pantauNotifUmum(NotifikasiOpFirebase notifikasiOp) {
     Log.info('Memulai pemantauan notifikasi umum dari Firebase...');
     unawaited(_langgananNotifikasiFirebase?.cancel());
-    _langgananNotifikasiFirebase = notifikasiOp.getKhususAdmin().listen(
+    _langgananNotifikasiFirebase = notifikasiOp.ambilKhususAdmin().listen(
       (listNotifikasi) async {
         for (final notifikasi in listNotifikasi) {
           if (!_idNotifikasiTampil.contains(notifikasi.id)) {
