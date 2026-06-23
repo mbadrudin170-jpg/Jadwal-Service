@@ -46,9 +46,7 @@ final detailPleangganAktifProvider =
       if (detailPelangganAktif == null) {
         throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
       }
-
       final pelangganAktif = detailPelangganAktif.pelangganAktif;
-
       final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
       final paketOpSqlite = ref.watch(paketOpSqliteProvider);
       final transaksiOpsqlite = ref.watch(transaksiOpSqliteProvider);
@@ -94,9 +92,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
     } else if (!formatNomor.startsWith('62')) {
       formatNomor = '62$formatNomor';
     }
-
     final Uri whatsappUri = Uri.parse('https://wa.me/$formatNomor');
-
     try {
       Log.info('Mencoba membuka WhatsApp: $formatNomor');
       if (await canLaunchUrl(whatsappUri)) {

@@ -20,12 +20,12 @@ abstract class TransaksiState with _$TransaksiState {
     @Default(0.0) double totalPemasukan,
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
+    @Default(0) int totalPoin,
   }) = _TransaksiState;
 }
 
 @riverpod
 class Transaksi extends _$Transaksi {
-  // PERBAIKAN 1: Gunakan ref.watch agar reaktif dan aman sesuai standar resmi
   TransaksiOpSqlite get _transaksiOpSqlite =>
       ref.watch(transaksiOpSqliteProvider);
 
@@ -42,6 +42,7 @@ class Transaksi extends _$Transaksi {
       _transaksiOpSqlite.getTotalIncome(),
       _transaksiOpSqlite.getTotalExpense(),
       _transaksiOpSqlite.getNetTotal(),
+      _transaksiOpSqlite.ambilTotalPoin(idPelanggan)
     ]);
 
     final transaksi = hasil[0] as List<TransaksiModel>;

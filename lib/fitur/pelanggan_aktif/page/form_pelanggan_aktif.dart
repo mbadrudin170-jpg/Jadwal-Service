@@ -867,20 +867,17 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             : () async {
                 setState(() {
                   _menyimpan = true;
-                  _isLoading = true;
                 });
                 Log.info('Tombol Simpan ditekan');
                 final bool berhasil = await _simpanData();
                 if (!mounted) {
                   setState(() {
                     _menyimpan = false;
-                    _isLoading = false;
                   });
                   return;
                 }
                 setState(() {
                   _menyimpan = false;
-                  _isLoading = false;
                 });
                 if (berhasil) {
                   ToastUtil.success(context, 'Data berhasil disimpan');

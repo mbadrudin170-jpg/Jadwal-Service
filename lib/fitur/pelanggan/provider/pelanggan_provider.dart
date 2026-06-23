@@ -1,13 +1,51 @@
 // path lib/fitur/pelanggan/provider/pelanggan_provider.dart
 
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan.dart';
 import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/operation.dart';
 
 part 'pelanggan_provider.g.dart';
+part 'pelanggan_provider.freezed.dart';
+
+@freezed
+abstract class PelangganState with _$PelangganState {
+  const factory PelangganState({
+    @Default([]) List<PelangganModel> daftarPelanggan,
+    @Default(0) int jumlahPelanggan,
+    @Default(0) int totalPoin,
+  }) = _PelangganState;
+}
+
+@Riverpod(keepAlive: true)
+class PelangganNotifier extends _$PelangganNotifier {
+  PelangganOpSqlite get pelangganOpSqlite =>
+      ref.watch(pelangganOpSqliteProvider);
+  SQLitePointsDataSource get poinDataSource =>
+      ref.watch(sqlitePointsDataSourceProvider);
+
+  @override
+  FutureOr<PelangganState> build() {
+    return _ambilData();
+  }
+
+  Future<PelangganState> _ambilData() async {
+    final hasil = await pelangganOpSqlite.ambilSemua();
+    double totalPoin = 0;
+    for (final pelanggan in hasil) {
+      totalPoin += await poinDataSource.ambilTotalPoin(pelanggan.id);
+    }
+    return PelangganState(
+      daftarPelanggan: hasil,
+      jumlahPelanggan: hasil.length,
+      totalPoin: totalPoin.toInt(),
+    );
+  }
+}
 
 /// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
 @riverpod

@@ -2,13 +2,13 @@
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
+
 part 'pelanggan_aktif_provider.g.dart';
 part 'pelanggan_aktif_provider.freezed.dart';
 
@@ -24,7 +24,6 @@ abstract class PelangganAktifState with _$PelangganAktifState {
 class PelangganAktif extends _$PelangganAktif {
   PelangganAktifOpSqlite get pelangganAktifOpSqlite =>
       ref.watch(pelangganAktifOpSqliteProvider);
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   FutureOr<PelangganAktifState> build() {
