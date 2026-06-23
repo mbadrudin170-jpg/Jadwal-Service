@@ -209,7 +209,7 @@ final class PelangganAktifOpSqliteProvider
 }
 
 String _$pelangganAktifOpSqliteHash() =>
-    r'65aa2f35af222e917b96ca308cefd69c03afed45';
+    r'394bfd626877725c0b48bbe6e2dddb05fcfd18a1';
 
 /// Provider untuk menyediakan instance dari [VersiApkOpSqlite].
 

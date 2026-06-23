@@ -14,8 +14,6 @@ import 'package:wifi/admin/data/sqlite.dart' as _i4;
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart' as _i9;
 import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart'
     as _i10;
-import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart'
-    as _i13;
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart'
     as _i5;
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart'
@@ -23,6 +21,7 @@ import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dar
 import 'package:wifi/fitur/settings/model/settings_model.dart' as _i6;
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart' as _i15;
 import 'package:wifi/fitur/sinkronisasi/layanan_unduhan_awal.dart' as _i14;
+import 'package:wifi/shared/export/model.dart' as _i13;
 import 'package:wifi/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart'
     as _i16;
 import 'package:wifi/shared/services/koneksi_internet_service.dart' as _i11;
@@ -502,21 +501,21 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
 
   @override
   _i8.Future<_i5.PelangganAktifModel> updatePelangganAktif(
-    _i5.PelangganAktifModel? activeCustomer, {
+    _i5.PelangganAktifModel? pelangganAktif, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
-              #updateActiveCustomer,
-              [activeCustomer],
+              #updatePelangganAktif,
+              [pelangganAktif],
               {#fromServer: fromServer},
             ),
             returnValue: _i8.Future<_i5.PelangganAktifModel>.value(
               _FakePelangganAktifModel_3(
                 this,
                 Invocation.method(
-                  #updateActiveCustomer,
-                  [activeCustomer],
+                  #updatePelangganAktif,
+                  [pelangganAktif],
                   {#fromServer: fromServer},
                 ),
               ),
@@ -555,6 +554,23 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   _i8.Future<void> softDelete(String? id, {bool? dariServer = false}) =>
       (super.noSuchMethod(
             Invocation.method(#softDelete, [id], {#dariServer: dariServer}),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> softDeletePelangganAktifDanTransaksi(
+    String? idPelangganAKtif,
+    String? idTransaksi, {
+    bool? dariServer = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #softDeletePelangganAktifDanTransaksi,
+              [idPelangganAKtif, idTransaksi],
+              {#dariServer: dariServer},
+            ),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),
           )

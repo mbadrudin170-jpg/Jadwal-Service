@@ -229,7 +229,7 @@ return $default(_that.id,_that.tanggal,_that.deskripsi,_that.jumlah,_that.tipe,_
 
 
 class _TransaksiModel extends TransaksiModel {
-  const _TransaksiModel({required this.id, required this.tanggal, required this.deskripsi, required this.jumlah, required this.tipe, required this.idDompet, required this.idKategori, this.idDompetTujuan, this.idPelanggan, this.idPaket, this.idSubKategori, this.statusPembayaran = StatusPembayaran.unpaid, this.poinDidapat = 0, this.poinDigunakan = 0, this.diperbaruiPada, this.diarsipkanPada, this.diHapus = false, this.durasiPaket, this.tipeDurasiPaket, this.durasiBonus = 0, this.tipeDurasiBonus, this.tanggalMulai, this.tanggalBerakhir, this.statusAktivasi = false}): super._();
+  const _TransaksiModel({required this.id, required this.tanggal, required this.deskripsi, required this.jumlah, required this.tipe, required this.idDompet, required this.idKategori, this.idDompetTujuan, this.idPelanggan, this.idPaket, this.idSubKategori, this.statusPembayaran = StatusPembayaran.paid, this.poinDidapat = 0, this.poinDigunakan = 0, this.diperbaruiPada, this.diarsipkanPada, this.diHapus = false, this.durasiPaket, this.tipeDurasiPaket, this.durasiBonus = 0, this.tipeDurasiBonus, this.tanggalMulai, this.tanggalBerakhir, this.statusAktivasi = false}): super._();
   
 
 @override final  String id;
