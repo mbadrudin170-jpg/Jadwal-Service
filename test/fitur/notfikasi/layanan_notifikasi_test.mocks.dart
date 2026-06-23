@@ -618,7 +618,7 @@ class MockNotifikasiOpFirebase extends _i1.Mock
   @override
   _i3.Stream<List<_i17.NotifikasiModel>> ambilKhususAdmin() =>
       (super.noSuchMethod(
-            Invocation.method(#getKhususAdmin, []),
+            Invocation.method(#ambilKhususAdmin, []),
             returnValue: _i3.Stream<List<_i17.NotifikasiModel>>.empty(),
           )
           as _i3.Stream<List<_i17.NotifikasiModel>>);
@@ -642,9 +642,9 @@ class MockNotifikasiOpFirebase extends _i1.Mock
           as _i3.Future<void>);
 
   @override
-  _i3.Future<void> deleteNotif(String? id) =>
+  _i3.Future<void> softDeleteNotifikasi(String? id) =>
       (super.noSuchMethod(
-            Invocation.method(#deleteNotif, [id]),
+            Invocation.method(#softDeleteNotifikasi, [id]),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )

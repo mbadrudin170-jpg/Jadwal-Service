@@ -41,10 +41,8 @@ class NotifikasiOpFirebase {
   Stream<List<NotifikasiModel>> getByUserId(String userId) {
     return _firestore
         .collection(_koleksi)
-        .where(
-          NamaKolom.userId,
-          isEqualTo: userId,
-        ) // Diperbaiki dari idTujuan ke userId
+        .where(NamaKolom.userId, isEqualTo: userId)
+        .where(NamaKolom.targetRole, isEqualTo: AppRole.user)
         .where(NamaKolom.dihapus, isEqualTo: false)
         .where(NamaKolom.setatusDibaca, isEqualTo: false)
         .snapshots()
@@ -72,6 +70,7 @@ class NotifikasiOpFirebase {
     final now = DateTime.now();
     return _firestore
         .collection(_koleksi)
+        .where(NamaKolom.targetRole, isEqualTo: AppRole.admin)
         .where(NamaKolom.tipe, isEqualTo: TipeNotifikasiEnum.order.name)
         .where(NamaKolom.setatusDibaca, isEqualTo: false)
         .where(NamaKolom.dihapus, isEqualTo: false)

@@ -28,6 +28,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
     required String userId,
     @Default(false) bool dihapus,
     DateTime? diarsipkanPada,
+    required AppRole targetRole,
   }) = _NotifikasiModel;
 
   static T? _safeParseEnum<T extends Enum>(
@@ -66,6 +67,9 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
           ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]) ??
           DateTime.now(),
       idTujuan: map[NamaKolom.idTujuan] as String? ?? '',
+      targetRole:
+          _safeParseEnum(AppRole.values, map[NamaKolom.targetRole]) ??
+          AppRole.user,
       userId: map[NamaKolom.userId] as String? ?? '',
       dihapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
@@ -86,6 +90,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
       NamaKolom.tipe: tipe.name,
       NamaKolom.diperbaruiPada: diperbaruiPada?.millisecondsSinceEpoch,
       NamaKolom.idTujuan: idTujuan,
+      NamaKolom.targetRole: targetRole,
       NamaKolom.userId: userId,
       NamaKolom.dihapus: dihapus ? 1 : 0,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
@@ -119,6 +124,9 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
           ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]) ??
           DateTime.now(),
       idTujuan: data[NamaKolom.idTujuan] as String? ?? '',
+      targetRole:
+          _safeParseEnum(AppRole.values, data[NamaKolom.targetRole]) ??
+          AppRole.user,
       userId: data[NamaKolom.userId] as String? ?? '',
       dihapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
@@ -136,6 +144,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
       NamaKolom.tipe: tipe.name,
       NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada!.toUtc()),
       NamaKolom.idTujuan: idTujuan,
+      NamaKolom.targetRole: targetRole,
       NamaKolom.userId: userId,
       NamaKolom.dihapus: dihapus,
       NamaKolom.tanggalTampil: Timestamp.fromDate(tanggalTampil.toUtc()),

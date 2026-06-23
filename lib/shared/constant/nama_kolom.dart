@@ -61,4 +61,5 @@ abstract final class NamaKolom {
   static const String tanggalTampil = 'tanggal_tampil';
   static const String durasiBonus = 'durasi_bonus';
   static const String tipeDurasiBonus = 'durasi_bonus_type';
+  static const String targetRole = 'target_role';
 }

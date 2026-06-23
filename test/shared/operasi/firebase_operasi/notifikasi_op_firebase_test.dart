@@ -290,9 +290,7 @@ void main() {
             .collection(NamaTabel.notifikasi)
             .doc(notifTransaksi.id)
             .set(notifTransaksi.toFirebase());
-
         final stream = notifikasiOp.ambilKhususAdmin();
-
         expect(
           stream,
           emits(

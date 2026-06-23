@@ -172,7 +172,7 @@ class MockBaseOpFirebase extends _i1.Mock implements _i5.BaseOpFirebase {
   @override
   _i4.Future<void> softDelete(String? collectionName, String? docId) =>
       (super.noSuchMethod(
-            Invocation.method(#hapusSementara, [collectionName, docId]),
+            Invocation.method(#softDelete, [collectionName, docId]),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
@@ -510,6 +510,7 @@ class MockFirebaseFirestore extends _i1.Mock implements _i2.FirebaseFirestore {
 /// A class which mocks [CollectionReference].
 ///
 /// See the documentation for Mockito's code generation for more information.
+// ignore: must_be_immutable
 class MockCollectionReference<T extends Object?> extends _i1.Mock
     implements _i2.CollectionReference<T> {
   MockCollectionReference() {
@@ -921,6 +922,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
 /// A class which mocks [DocumentReference].
 ///
 /// See the documentation for Mockito's code generation for more information.
+// ignore: must_be_immutable
 class MockDocumentReference<T extends Object?> extends _i1.Mock
     implements _i2.DocumentReference<T> {
   MockDocumentReference() {

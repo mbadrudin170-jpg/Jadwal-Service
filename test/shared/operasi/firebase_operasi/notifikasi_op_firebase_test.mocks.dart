@@ -101,7 +101,7 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
   @override
   _i4.Future<void> softDelete(String? collectionName, String? docId) =>
       (super.noSuchMethod(
-            Invocation.method(#hapusSementara, [collectionName, docId]),
+            Invocation.method(#softDelete, [collectionName, docId]),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )

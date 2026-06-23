@@ -362,7 +362,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       Log.info(
         'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$idTransaksi',
       );
-
       PelangganAktifModel pelangganAktifHasil;
       if (_modeEdit) {
         pelangganAktifHasil = await pelangganAktifOpsqlite.updatePelangganAktif(
@@ -384,7 +383,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             .tambahTransaksi(transaksiData);
       }
       ref.invalidate(pelangganAktifProvider);
-
       final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
       final durasiSetengahJalan = Duration(
         microseconds: (totalDurasi.inMicroseconds / 2).round(),
@@ -392,7 +390,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final tanggalNotifikasiSetengahJalan = tanggalMulai.add(
         durasiSetengahJalan,
       );
-
       final List<NotifikasiModel> daftarNotifikasi = [
         NotifikasiModel(
           id: const Uuid().v4(),
@@ -448,11 +445,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         ),
       ];
       Log.info('data notifikasi untuk masa aktif paket telah dibuat,');
-
       for (final notif in daftarNotifikasi) {
         await notifikasiOpFirebase.addNotifikasi(notif);
       }
-
       final isOnline = await ref
           .read(koneksiInternetServiceProvider)
           .cekKoneksiLokal();

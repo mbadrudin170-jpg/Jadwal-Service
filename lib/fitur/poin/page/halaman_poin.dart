@@ -86,7 +86,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         );
         return;
       }
-
       final isOnline = await ref
           .read(koneksiInternetServiceProvider)
           .cekInternet();
@@ -95,7 +94,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         ToastUtil.warning(context, 'Cek koneksi internet Anda');
         return;
       }
-
       final bool poinCukup = poinSaatIni >= hadiah.poinPenukaran;
       if (!poinCukup) {
         ToastUtil.warning(
@@ -121,7 +119,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           ],
         ),
       );
-
       if (!mounted) return;
       if (dikonfirmasi ?? false) {
         Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
@@ -129,17 +126,14 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           final dataPelanggan = await ref
               .read(pelangganOpSqliteProvider)
               .ambilBerdasarkanId(widget.idPelanggan);
-
           final sekarang = DateTime.now();
           final idOrder = const Uuid().v4();
-
           final dataPesanan = OrderModel(
             id: idOrder,
             idPelanggan: widget.idPelanggan,
             idPaket: hadiah.id,
             tanggal: sekarang,
           );
-
           final notifikasiData = NotifikasiModel(
             id: const Uuid().v4(),
             tanggalMulai: sekarang,
@@ -151,22 +145,20 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             diperbaruiPada: sekarang,
             idTujuan: idOrder,
             userId: widget.idPelanggan,
+            targetRole: AppRole.admin,
           );
-
           await ref
               .read(notifikasiOpFirebaseProvider)
               .addNotifikasi(notifikasiData);
           Log.info(
             'berhasil membuat order baru untuk id pelanggan: ${widget.idPelanggan}',
           );
-
           await ref.read(orderOpFirebaseProvider).addOrder(dataPesanan);
           Log.info('berhasil membuat notifikasi untuk paket');
           if (!mounted) return;
           ref.invalidate(pointsPageDataProvider);
           ref.invalidate(pointsHistoryProvider);
           ref.invalidate(orderProvider);
-
           ToastUtil.success(
             context,
             'Order sudah terkirim menunggu konfirmasi Admin',
@@ -214,7 +206,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   Widget build(BuildContext context) {
     Log.info('Building PointsPage UI, selected menu: $_menuAktif');
     final dataAsync = ref.watch(pointsPageDataProvider(widget.idPelanggan));
-
     return dataAsync.when(
       loading: () => Scaffold(
         appBar: AppBar(title: _judulAppBar),
