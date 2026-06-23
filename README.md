@@ -12009,7 +12009,7 @@ class OrderOpFirebase extends BaseOpFirebase {
   /// 3. Menghapus pesanan (soft delete)
   Future<void> softDeleteOrder(String orderId) async {
     Log.info('Menghapus pesanan: $orderId');
-    await _baseOp.hapusSementara(_namaKoleksi, orderId);
+    await _baseOp.softDelete(_namaKoleksi, orderId);
   }
 
   /// 4. Mendapatkan stream semua pesanan
@@ -22350,7 +22350,7 @@ class FeedbackOpFirebase {
   /// Melakukan soft delete pada feedback di Firestore.
   Future<void> softDeleteFeedback(String id) async {
     Log.info('Mendelegasikan soft delete feedback: $id');
-    await _baseOpFirebase.hapusSementara(_namaKoleksi, id);
+    await _baseOpFirebase.softDelete(_namaKoleksi, id);
   }
 
   // =======================================================================
@@ -27491,7 +27491,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
   Future<void> softDeleteTransaksi(String id) async {
     Log.info('Memulai soft delete transaksi di Firestore: $id');
     try {
-      await hapusSementara(NamaTabel.transaksi, id);
+      await softDelete(NamaTabel.transaksi, id);
       Log.info('Soft delete transaksi berhasil: $id');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal melakukan soft delete transaksi: $id', e: e, s: s);
@@ -29998,7 +29998,7 @@ class PelangganOpFirebase {
 
   Future<void> softDelete(String id) async {
     Log.info('Mendelegasikan soft delete pelanggan: $id');
-    await _baseOpFirebase.hapusSementara(_namaKoleksi, id);
+    await _baseOpFirebase.softDelete(_namaKoleksi, id);
   }
 
   Future<void> perbaruiTerakhirAktif(String id) async {
@@ -31179,7 +31179,7 @@ class LayananNotifikasi {
   void pantauNotifUmum(NotifikasiOpFirebase notifikasiOp) {
     Log.info('Memulai pemantauan notifikasi umum dari Firebase...');
     unawaited(_langgananNotifikasiFirebase?.cancel());
-    _langgananNotifikasiFirebase = notifikasiOp.getKhususAdmin().listen(
+    _langgananNotifikasiFirebase = notifikasiOp.ambilKhususAdmin().listen(
       (listNotifikasi) async {
         for (final notifikasi in listNotifikasi) {
           if (!_idNotifikasiTampil.contains(notifikasi.id)) {
@@ -31189,6 +31189,7 @@ class LayananNotifikasi {
               payload: 'notifikasi_id_${notifikasi.id}',
             );
             _idNotifikasiTampil.add(notifikasi.id);
+            await notifikasiOp.softDeleteNotifikasi(notifikasi.id);
           }
         }
       },
@@ -31456,6 +31457,7 @@ class LayananNotifikasi {
   }
 }
 
+
 // File: lib/fitur/notfikasi/pengingat_paket_belum_lunas.dart
 // path lib/fitur/notfikasi/pengingat_paket_belum_lunas.dart
 
@@ -31693,7 +31695,6 @@ class NotifikasiOpFirebase {
        _baseOp = baseOp;
 
   Stream<List<NotifikasiModel>> getNotifAktif() {
-    /// Mengambil notifikasi yang sedang aktif.
     final now = DateTime.now();
     return _firestore
         .collection(_koleksi)
@@ -31742,18 +31743,17 @@ class NotifikasiOpFirebase {
   }
 
   // TODO : tambahkan unit test
-  Stream<List<NotifikasiModel>> getKhususAdmin() {
+  Stream<List<NotifikasiModel>> ambilKhususAdmin() {
+    final now = DateTime.now();
     return _firestore
         .collection(_koleksi)
-        .where(
-          NamaKolom.tipe,
-          whereIn: [
-            TipeNotifikasiEnum.order.name,
-            TipeNotifikasiEnum.transaksi.name,
-          ],
-        )
+        .where(NamaKolom.tipe, isEqualTo: TipeNotifikasiEnum.order.name)
         .where(NamaKolom.setatusDibaca, isEqualTo: false)
         .where(NamaKolom.dihapus, isEqualTo: false)
+        .where(
+          NamaKolom.tanggalTampil,
+          isLessThanOrEqualTo: Timestamp.fromDate(now),
+        )
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
@@ -31784,12 +31784,13 @@ class NotifikasiOpFirebase {
     }
   }
 
-  Future<void> deleteNotif(String id) async {
+  Future<void> softDeleteNotifikasi(String id) async {
     try {
-      Log.info('Deleting notification from Firebase via BaseOp: $id');
-      await _baseOp.hapusPermanen(_koleksi, id);
-    } catch (e) {
-      Log.error('Error deleting notification: $e');
+      Log.info('Soft delete notifikasi: $id');
+      await _baseOp.softDelete(_koleksi, id);
+      Log.info('Soft delete notifikasi berhasil: $id');
+    } catch (e, s) {
+      Log.error('gagal fungsi soft delete notifikasi$e$s');
       rethrow;
     }
   }
@@ -31803,7 +31804,6 @@ class NotifikasiOpFirebase {
           .collection(_koleksi)
           .where(NamaKolom.idTujuan, isEqualTo: idTransaksi)
           .get();
-
       final batch = _firestore.batch();
       for (final doc in querySnapshot.docs) {
         batch.delete(doc.reference);
@@ -37207,38 +37207,28 @@ import 'package:wifi/user/page/splash_screen_user.dart';
 
 class AppUser extends ConsumerWidget {
   const AppUser({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(layananNotifikasiProvider);
     ref.watch(pengontrolNotifikasiProvider);
-
     final themeAsync = ref.watch(temaProvider);
     final prefsAsync = ref.watch(sharedPreferencesProvider);
     final localStorageAsync = ref.watch(layananPenyimpananLokalProvider);
-
-    // 1. Gabungkan semua state provider ke dalam satu list.
     final allProviders = [themeAsync, prefsAsync, localStorageAsync];
-
     final firstError = allProviders.firstWhere(
       (provider) => provider.hasError && provider.error != null,
       orElse: () => const AsyncValue.data(true),
     );
-
     if (firstError.hasError) {
       return _ErrorApp(
         error: firstError.error,
         stackTrace: firstError.stackTrace,
       );
     }
-
-    // 3. Cek apakah ada provider yang masih loading.
     final isLoading = allProviders.any((provider) => provider.isLoading);
     if (isLoading) {
       return const _LoadingApp();
     }
-
-    // 4. Jika semua provider berhasil mendapatkan data, bangun UI utama.
     return ToastificationWrapper(
       child: MaterialApp(
         scaffoldMessengerKey: scaffoldMessengerKey,
@@ -37255,10 +37245,8 @@ class AppUser extends ConsumerWidget {
   }
 }
 
-/// Widget untuk menampilkan state loading aplikasi.
 class _LoadingApp extends StatelessWidget {
   const _LoadingApp();
-
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
@@ -37267,13 +37255,10 @@ class _LoadingApp extends StatelessWidget {
   }
 }
 
-/// Widget untuk menampilkan state error aplikasi.
 class _ErrorApp extends StatelessWidget {
   final Object? error;
   final StackTrace? stackTrace;
-
   const _ErrorApp({this.error, this.stackTrace});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -40540,9 +40525,7 @@ void pengontrolNotifikasi(Ref ref) {
   final role = ref.watch(appRoleProvider);
   final layananNotifikasi = ref.watch(layananNotifikasiProvider);
   final notifikasiOpFirebase = ref.watch(notifikasiOpFirebaseProvider);
-
   Log.info('Menginisialisasi Notifikasi Controller untuk peran: $role');
-
   if (role == AppRole.admin) {
     Log.info('Mode Admin: Memulai pemantauan notifikasi umum.');
     layananNotifikasi.pantauNotifUmum(notifikasiOpFirebase);
@@ -40605,10 +40588,11 @@ class BaseOpFirebase {
   final StatusOpFirebase _statusOp;
 
   /// Konstruktor dengan injeksi dependensi untuk pengujian.
-  BaseOpFirebase(
-      {final FirebaseFirestore? firestore, final StatusOpFirebase? statusOp})
-      : firestore = firestore ?? FirebaseFirestore.instance,
-        _statusOp = statusOp ?? StatusOpFirebase(firestore: firestore) {
+  BaseOpFirebase({
+    final FirebaseFirestore? firestore,
+    final StatusOpFirebase? statusOp,
+  }) : firestore = firestore ?? FirebaseFirestore.instance,
+       _statusOp = statusOp ?? StatusOpFirebase(firestore: firestore) {
     Log.info('BaseOpFirebase diinisialisasi.');
   }
 
@@ -40630,8 +40614,12 @@ class BaseOpFirebase {
       Log.info('Base add berhasil: ${docRef.path}');
       return docRef;
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan base add',
-          e: e, s: s, data: {'collection': collectionName});
+      Log.error(
+        'Gagal melakukan base add',
+        e: e,
+        s: s,
+        data: {'collection': collectionName},
+      );
       rethrow;
     }
   }
@@ -40654,8 +40642,12 @@ class BaseOpFirebase {
       unawaited(_statusOp.perbaruiStatusGlobal());
       Log.info('Base insert berhasil: $collectionName/$docId');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan base insert',
-          e: e, s: s, data: {'collection': collectionName, 'docId': docId});
+      Log.error(
+        'Gagal melakukan base insert',
+        e: e,
+        s: s,
+        data: {'collection': collectionName, 'docId': docId},
+      );
       rethrow;
     }
   }
@@ -40678,8 +40670,12 @@ class BaseOpFirebase {
       unawaited(_statusOp.perbaruiStatusGlobal());
       Log.info('Base update berhasil: $collectionName/$docId');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan base update',
-          e: e, s: s, data: {'collection': collectionName, 'docId': docId});
+      Log.error(
+        'Gagal melakukan base update',
+        e: e,
+        s: s,
+        data: {'collection': collectionName, 'docId': docId},
+      );
       rethrow;
     }
   }
@@ -40689,8 +40685,7 @@ class BaseOpFirebase {
   /// Ini akan mengatur `isDeleted` menjadi true dan memperbarui `updatedAt`.
   /// [collectionName]: Nama koleksi target.
   /// [docId]: ID dokumen yang akan di-soft-delete.
-  Future<void> hapusSementara(
-      final String collectionName, final String docId) async {
+  Future<void> softDelete(String collectionName, String docId) async {
     Log.info('Base softDelete: $collectionName/$docId');
     try {
       final docRef = firestore.collection(collectionName).doc(docId);
@@ -40702,8 +40697,12 @@ class BaseOpFirebase {
       unawaited(_statusOp.perbaruiStatusGlobal());
       Log.info('Base softDelete berhasil: $collectionName/$docId');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan base softDelete',
-          e: e, s: s, data: {'collection': collectionName, 'docId': docId});
+      Log.error(
+        'Gagal melakukan base softDelete',
+        e: e,
+        s: s,
+        data: {'collection': collectionName, 'docId': docId},
+      );
       rethrow;
     }
   }
@@ -40713,7 +40712,9 @@ class BaseOpFirebase {
   /// [collectionName]: Nama koleksi target.
   /// [docId]: ID dokumen yang akan dihapus.
   Future<void> hapusPermanen(
-      final String collectionName, final String docId) async {
+    final String collectionName,
+    final String docId,
+  ) async {
     Log.warning('Base delete (permanen): $collectionName/$docId');
     try {
       final docRef = firestore.collection(collectionName).doc(docId);
@@ -40721,8 +40722,12 @@ class BaseOpFirebase {
       unawaited(_statusOp.perbaruiStatusGlobal());
       Log.info('Base delete (permanen) berhasil: $collectionName/$docId');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan base delete (permanen)',
-          e: e, s: s, data: {'collection': collectionName, 'docId': docId});
+      Log.error(
+        'Gagal melakukan base delete (permanen)',
+        e: e,
+        s: s,
+        data: {'collection': collectionName, 'docId': docId},
+      );
       rethrow;
     }
   }
@@ -40760,11 +40765,16 @@ class BaseOpFirebase {
 
       final count = querySnapshot.docs.length;
       Log.info(
-          'Base softDeleteAll berhasil: $count dokumen di $collectionName telah di-soft-delete.');
+        'Base softDeleteAll berhasil: $count dokumen di $collectionName telah di-soft-delete.',
+      );
       return count;
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan base softDeleteAll',
-          e: e, s: s, data: {'collection': collectionName});
+      Log.error(
+        'Gagal melakukan base softDeleteAll',
+        e: e,
+        s: s,
+        data: {'collection': collectionName},
+      );
       rethrow;
     }
   }
@@ -40784,7 +40794,8 @@ class BaseOpFirebase {
       return;
     }
     Log.info(
-        'Base insertOrUpdateBatch: Memulai untuk ${items.length} item di $collectionName');
+      'Base insertOrUpdateBatch: Memulai untuk ${items.length} item di $collectionName',
+    );
     try {
       final batch = firestore.batch();
       for (final item in items) {
@@ -40800,8 +40811,12 @@ class BaseOpFirebase {
       unawaited(_statusOp.perbaruiStatusGlobal());
       Log.info('Base insertOrUpdateBatch berhasil.');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan base insertOrUpdateBatch',
-          e: e, s: s, data: {'collection': collectionName});
+      Log.error(
+        'Gagal melakukan base insertOrUpdateBatch',
+        e: e,
+        s: s,
+        data: {'collection': collectionName},
+      );
       rethrow;
     }
   }
@@ -45842,7 +45857,7 @@ class AppMaterial extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(layananNotifikasiProvider);
-ref.watch(pengontrolNotifikasiProvider);
+    ref.watch(pengontrolNotifikasiProvider);
     final temaAsync = ref.watch(temaProvider);
 
     return temaAsync.when(
