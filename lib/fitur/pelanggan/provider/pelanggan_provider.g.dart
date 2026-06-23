@@ -288,12 +288,8 @@ abstract class _$SearchQueryPelanggan extends $Notifier<String> {
   }
 }
 
-/// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
-
 @ProviderFor(pelangganDetail)
 final pelangganDetailProvider = PelangganDetailFamily._();
-
-/// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 
 final class PelangganDetailProvider
     extends
@@ -305,7 +301,6 @@ final class PelangganDetailProvider
     with
         $FutureModifier<(PelangganModel?, int)>,
         $FutureProvider<(PelangganModel?, int)> {
-  /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
   PelangganDetailProvider._({
     required PelangganDetailFamily super.from,
     required String super.argument,
@@ -352,8 +347,6 @@ final class PelangganDetailProvider
 
 String _$pelangganDetailHash() => r'f035ec5051457c1093e90687ba33b06fe986510c';
 
-/// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
-
 final class PelangganDetailFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<(PelangganModel?, int)>, String> {
   PelangganDetailFamily._()
@@ -364,8 +357,6 @@ final class PelangganDetailFamily extends $Family
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
-
-  /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 
   PelangganDetailProvider call(String id) =>
       PelangganDetailProvider._(argument: id, from: this);

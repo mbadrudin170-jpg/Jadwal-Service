@@ -332,7 +332,6 @@ class _PelangganState extends ConsumerState<Pelanggan> {
         builder: (context) => DetailPelanggan(idPelanggan: idPelanggan),
       ),
     );
-    ref.invalidate(daftarPelangganProvider);
   }
 
   Future<void> _dialogOpsi(PelangganModel pelanggan) async {
@@ -355,8 +354,6 @@ class _PelangganState extends ConsumerState<Pelanggan> {
                   ),
                 );
                 if (result ?? false) {
-                  ref.invalidate(daftarPelangganProvider);
-
                   if (!mounted) return;
                   ToastUtil.success(context, 'Pelanggan berhasil diperbarui.');
                 }
@@ -404,9 +401,7 @@ class _PelangganState extends ConsumerState<Pelanggan> {
   Future<void> _softDeleteCustomer(String id) async {
     try {
       await ref.read(pelangganOpSqliteProvider).softDelete(id);
-      ref.invalidate(daftarPelangganProvider);
       if (!mounted) return;
-
       ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
     } on Exception catch (e, s) {
       Log.error('Gagal mengarsipkan pelanggan', e: e, s: s);

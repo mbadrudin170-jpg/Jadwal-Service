@@ -10,6 +10,7 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -28,6 +29,9 @@ class FormPelanggan extends ConsumerStatefulWidget {
 }
 
 class _CustomerFormState extends ConsumerState<FormPelanggan> {
+  PelangganNotifier get pelangganNotifier =>
+      ref.watch(pelangganNotifierProvider);
+
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   final _teleponController = TextEditingController();
@@ -81,12 +85,12 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
   }
 
   Future<void> _simpanPelanggan() async {
+    if (_menyimpan) return;
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
     Log.info('Tombol "Simpan" ditekan.');
     if (_formKey.currentState!.validate()) {
       Log.info('Form valid. Memulai proses penyimpanan.');
       setState(() => _menyimpan = true);
-
       final pelangganBaru = PelangganModel(
         id: _modeEdit ? widget.pelanggan!.id : const Uuid().v4(),
         nama: _namaController.text.trim(),
@@ -95,7 +99,6 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         kataSandi: _passwordController.text, // No trim for password
         macAddress: _macAddressController.text.trim().toUpperCase(),
       );
-
       Log.info(
         'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}',
       );
@@ -112,16 +115,18 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           );
           await pelangganOpSqlite.tambahPelanggan(pelangganBaru);
         }
-
         if (!mounted) return;
-
         try {
           final cekKoneksi = await ref
               .read(koneksiInternetServiceProvider)
               .cekKoneksiLokal();
           if (cekKoneksi) {
             Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
-            unawaited(ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi());
+            unawaited(
+              ref
+                  .read(layananCekSinkronisasiProvider)
+                  .jalankanCekSinkronisasi(),
+            );
             if (mounted) {
               ToastUtil.success(
                 context,
@@ -140,9 +145,6 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         } catch (e) {
           Log.info('Sinkronisasi gagal $e');
         }
-
-        ref.invalidate(daftarPelangganProvider);
-
         if (mounted) {
           Navigator.pop(context);
         }

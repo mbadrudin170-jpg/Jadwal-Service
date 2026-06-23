@@ -120,7 +120,6 @@ class SearchQueryPelanggan extends _$SearchQueryPelanggan {
   void clear() => state = '';
 }
 
-/// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 @riverpod
 Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
   final pelangganOpSqlte = ref.watch(pelangganOpSqliteProvider);
