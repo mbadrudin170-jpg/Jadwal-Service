@@ -833,7 +833,7 @@ final class PengelolaAkunProvider
   PengelolaAkun create() => PengelolaAkun();
 }
 
-String _$pengelolaAkunHash() => r'767b6cd3a26c63c4414209743d751f88c72d71ca';
+String _$pengelolaAkunHash() => r'ba76bd1084517e5309c25756509fef9e9bd68a69';
 
 abstract class _$PengelolaAkun extends $AsyncNotifier<AkunState> {
   FutureOr<AkunState> build();
@@ -11578,7 +11578,7 @@ final class OrderProvider extends $AsyncNotifierProvider<Order, OrderState> {
   Order create() => Order();
 }
 
-String _$orderHash() => r'ea806d3a6c6352749cab14181a64bf6909a339dd';
+String _$orderHash() => r'adfe09f2a8ad1a583ffa7a5b7553d58716312283';
 
 abstract class _$Order extends $AsyncNotifier<OrderState> {
   FutureOr<OrderState> build();
@@ -23643,7 +23643,7 @@ final class PelangganAktifOpSqliteProvider
 }
 
 String _$pelangganAktifOpSqliteHash() =>
-    r'65aa2f35af222e917b96ca308cefd69c03afed45';
+    r'394bfd626877725c0b48bbe6e2dddb05fcfd18a1';
 
 /// Provider untuk menyediakan instance dari [VersiApkOpSqlite].
 
@@ -28055,7 +28055,7 @@ return $default(_that.id,_that.tanggal,_that.deskripsi,_that.jumlah,_that.tipe,_
 
 
 class _TransaksiModel extends TransaksiModel {
-  const _TransaksiModel({required this.id, required this.tanggal, required this.deskripsi, required this.jumlah, required this.tipe, required this.idDompet, required this.idKategori, this.idDompetTujuan, this.idPelanggan, this.idPaket, this.idSubKategori, this.statusPembayaran = StatusPembayaran.unpaid, this.poinDidapat = 0, this.poinDigunakan = 0, this.diperbaruiPada, this.diarsipkanPada, this.diHapus = false, this.durasiPaket, this.tipeDurasiPaket, this.durasiBonus = 0, this.tipeDurasiBonus, this.tanggalMulai, this.tanggalBerakhir, this.statusAktivasi = false}): super._();
+  const _TransaksiModel({required this.id, required this.tanggal, required this.deskripsi, required this.jumlah, required this.tipe, required this.idDompet, required this.idKategori, this.idDompetTujuan, this.idPelanggan, this.idPaket, this.idSubKategori, this.statusPembayaran = StatusPembayaran.paid, this.poinDidapat = 0, this.poinDigunakan = 0, this.diperbaruiPada, this.diarsipkanPada, this.diHapus = false, this.durasiPaket, this.tipeDurasiPaket, this.durasiBonus = 0, this.tipeDurasiBonus, this.tanggalMulai, this.tanggalBerakhir, this.statusAktivasi = false}): super._();
   
 
 @override final  String id;
@@ -47495,7 +47495,7 @@ final class RiwayatAktivasiPaketProvider
 }
 
 String _$riwayatAktivasiPaketHash() =>
-    r'73363c4e6c29072d8843927b7b30c7a303e07732';
+    r'848c55cea1eabe76cf3717e2e16d428f5a31f4f7';
 
 abstract class _$RiwayatAktivasiPaket
     extends $AsyncNotifier<RiwayatAktivasiPaketState> {

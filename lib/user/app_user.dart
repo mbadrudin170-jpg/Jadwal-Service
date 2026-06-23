@@ -11,38 +11,28 @@ import 'package:wifi/user/page/splash_screen_user.dart';
 
 class AppUser extends ConsumerWidget {
   const AppUser({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(layananNotifikasiProvider);
     ref.watch(pengontrolNotifikasiProvider);
-
     final themeAsync = ref.watch(temaProvider);
     final prefsAsync = ref.watch(sharedPreferencesProvider);
     final localStorageAsync = ref.watch(layananPenyimpananLokalProvider);
-
-    // 1. Gabungkan semua state provider ke dalam satu list.
     final allProviders = [themeAsync, prefsAsync, localStorageAsync];
-
     final firstError = allProviders.firstWhere(
       (provider) => provider.hasError && provider.error != null,
       orElse: () => const AsyncValue.data(true),
     );
-
     if (firstError.hasError) {
       return _ErrorApp(
         error: firstError.error,
         stackTrace: firstError.stackTrace,
       );
     }
-
-    // 3. Cek apakah ada provider yang masih loading.
     final isLoading = allProviders.any((provider) => provider.isLoading);
     if (isLoading) {
       return const _LoadingApp();
     }
-
-    // 4. Jika semua provider berhasil mendapatkan data, bangun UI utama.
     return ToastificationWrapper(
       child: MaterialApp(
         scaffoldMessengerKey: scaffoldMessengerKey,
@@ -59,10 +49,8 @@ class AppUser extends ConsumerWidget {
   }
 }
 
-/// Widget untuk menampilkan state loading aplikasi.
 class _LoadingApp extends StatelessWidget {
   const _LoadingApp();
-
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
@@ -71,13 +59,10 @@ class _LoadingApp extends StatelessWidget {
   }
 }
 
-/// Widget untuk menampilkan state error aplikasi.
 class _ErrorApp extends StatelessWidget {
   final Object? error;
   final StackTrace? stackTrace;
-
   const _ErrorApp({this.error, this.stackTrace});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
