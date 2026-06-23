@@ -5,12 +5,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -29,9 +27,6 @@ class FormPelanggan extends ConsumerStatefulWidget {
 }
 
 class _CustomerFormState extends ConsumerState<FormPelanggan> {
-  PelangganNotifier get pelangganNotifier =>
-      ref.watch(pelangganNotifierProvider);
-
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   final _teleponController = TextEditingController();
@@ -86,7 +81,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
 
   Future<void> _simpanPelanggan() async {
     if (_menyimpan) return;
-    final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
+    final pelangganNotifier = ref.read(pelangganProvider.notifier);
     Log.info('Tombol "Simpan" ditekan.');
     if (_formKey.currentState!.validate()) {
       Log.info('Form valid. Memulai proses penyimpanan.');
@@ -108,12 +103,12 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           Log.info(
             'Menjalankan operasi UPDATE untuk pelanggan ID: ${pelangganBaru.id}',
           );
-          await pelangganOpSqlite.perbaruiPelanggan(pelangganBaru);
+          await pelangganNotifier.perbaruiPelanggan(pelangganBaru);
         } else {
           Log.info(
             'Menjalankan operasi CREATE untuk pelanggan baru: ${pelangganBaru.nama}',
           );
-          await pelangganOpSqlite.tambahPelanggan(pelangganBaru);
+          await pelangganNotifier.tambahPelanggan(pelangganBaru);
         }
         if (!mounted) return;
         try {

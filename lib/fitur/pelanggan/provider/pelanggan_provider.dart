@@ -22,7 +22,7 @@ abstract class PelangganState with _$PelangganState {
 }
 
 @Riverpod(keepAlive: true)
-class PelangganNotifier extends _$PelangganNotifier {
+class Pelanggan extends _$Pelanggan {
   PelangganOpSqlite get pelangganOpSqlite =>
       ref.watch(pelangganOpSqliteProvider);
   SQLitePointsDataSource get poinDataSource =>
@@ -44,6 +44,20 @@ class PelangganNotifier extends _$PelangganNotifier {
       jumlahPelanggan: hasil.length,
       totalPoin: totalPoin.toInt(),
     );
+  }
+
+  Future<void> tambahPelanggan(PelangganModel pelanggan) async {
+    state = await AsyncValue.guard(() async {
+      await pelangganOpSqlite.tambahPelanggan(pelanggan);
+      return _ambilData();
+    });
+  }
+
+  Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
+    state = await AsyncValue.guard(() async {
+      await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
+      return _ambilData();
+    });
   }
 
   Future<void> softDelete(String id) async {

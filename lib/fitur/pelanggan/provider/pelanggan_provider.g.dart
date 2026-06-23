@@ -9,12 +9,12 @@ part of 'pelanggan_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(PelangganNotifier)
-final pelangganProvider = PelangganNotifierProvider._();
+@ProviderFor(Pelanggan)
+final pelangganProvider = PelangganProvider._();
 
-final class PelangganNotifierProvider
-    extends $AsyncNotifierProvider<PelangganNotifier, PelangganState> {
-  PelangganNotifierProvider._()
+final class PelangganProvider
+    extends $AsyncNotifierProvider<Pelanggan, PelangganState> {
+  PelangganProvider._()
     : super(
         from: null,
         argument: null,
@@ -26,16 +26,16 @@ final class PelangganNotifierProvider
       );
 
   @override
-  String debugGetCreateSourceHash() => _$pelangganNotifierHash();
+  String debugGetCreateSourceHash() => _$pelangganHash();
 
   @$internal
   @override
-  PelangganNotifier create() => PelangganNotifier();
+  Pelanggan create() => Pelanggan();
 }
 
-String _$pelangganNotifierHash() => r'94a4f1118f60b18d219bd892566e600432c4b1a4';
+String _$pelangganHash() => r'7c7a1fc81cf5bc8c4e848c7d77c3b854aea10a56';
 
-abstract class _$PelangganNotifier extends $AsyncNotifier<PelangganState> {
+abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   FutureOr<PelangganState> build();
   @$mustCallSuper
   @override
