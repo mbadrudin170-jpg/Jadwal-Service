@@ -55,7 +55,6 @@ class Transaksi extends _$Transaksi {
   }
 
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
-    // Ambil sorting saat ini sebelum masuk state loading
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.tambahTransaksi(transaksi);

@@ -273,7 +273,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   Future<PelangganAktifModel?> _simpanData() async {
     Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
     final notifikasiOpFirebase = ref.read(notifikasiOpFirebaseProvider);
-    final pelangganAktifOpsqlite = ref.read(pelangganAktifOpSqliteProvider);
+    final pelangganAktifOpsqlite = ref.read(pelangganAktifProvider.notifier);
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Validasi form gagal');
       if (mounted) {
@@ -361,9 +361,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
         );
       } else {
-        pelangganAktifHasil = await pelangganAktifOpsqlite.tambahPelangganAktif(
-          pelangganAktifData,
-        );
+        await pelangganAktifOpsqlite.tambahPelangganAktif(pelangganAktifData);
         await ref
             .read(transaksiProvider.notifier)
             .tambahTransaksi(transaksiData);
