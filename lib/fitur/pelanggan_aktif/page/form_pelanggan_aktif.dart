@@ -95,6 +95,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     });
   }
 
+  @override
+  void dispose() {
+    _durasiBonusController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadAllData() async {
     setState(() => _isLoading = true);
     Log.info('Memulai memuat semua data untuk FormPelangganAktif');
@@ -108,7 +114,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final transaksiTerkaitFuture = pa?.idTransaksi != null
           ? transaksiOperasi.ambilBerdasarkanId(pa!.idTransaksi)
           : Future<TransaksiModel?>.value();
-
       final hasil = await Future.wait<Object?>([
         pelangganOpSqlite.ambilSemua(),
         paketOpsqlite.ambilSemua(),
@@ -116,21 +121,17 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         kategoriOpSqlite.ambilSemua(),
         transaksiTerkaitFuture,
       ]);
-
       if (!mounted) {
         return;
       }
-
       final daftarPelanggan = (hasil[0] as List<PelangganModel>)
         ..sort((a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
-
       final daftarPaket = (hasil[1] as List<PaketModel>)
         ..sort(
           (a, b) => PerhitunganPaket()
               .hitungDurasiPaket(a)
               .compareTo(PerhitunganPaket().hitungDurasiPaket(b)),
         );
-
       final daftarDompet = (hasil[2] as List<DompetModel>)
           .where((d) => !d.dihapus)
           .toList();
@@ -142,7 +143,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final daftarKategoriPengeluaran = semuaKategori
           .where((k) => k.tipe == TipeKategori.expense && !k.diHapus)
           .toList();
-
       final transaksiTerkait = hasil.length > 4 && hasil[4] is TransaksiModel
           ? hasil[4] as TransaksiModel?
           : null;
@@ -154,15 +154,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         _kategoriPengeluaranList = daftarKategoriPengeluaran;
         Log.info('Semua data berhasil dimuat.');
       });
-
       if (_modeEdit) {
         await _mapEditData(transaksiTerkait);
       } else {
         _mapNewData();
       }
-
       if (!mounted) return;
-
       setState(() {
         _isLoading = false;
         Log.info('Semua data berhasil dimuat.');
@@ -180,12 +177,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
     final pa = widget.pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
-
     _pelangganDipilih = _daftarPelanggan.firstWhereOrNull(
       (p) => p.id == pa.idPelanggan,
     );
     _paketDipilih = _daftarPaket.firstWhereOrNull((p) => p.id == pa.idPaket);
-
     if (transaksi != null) {
       Log.info(
         'Transaksi terkait (ID: ${transaksi.id}) ditemukan. Memetakan dompet dan kategori.',
@@ -199,7 +194,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       _kategoriDipilih = kategoriSumber.firstWhereOrNull(
         (k) => k.id == transaksi.idKategori,
       );
-
       if (transaksi.durasiBonus > 0) {
         _bonus = true;
         _durasiBonusController.text = transaksi.durasiBonus.toString();
@@ -216,19 +210,15 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         );
       }
     }
-
     _pilihTanggal = pa.tanggalMulai;
     _pilihJam = TimeOfDay.fromDateTime(pa.tanggalMulai);
     _statusPembayaran = pa.status;
-
     if (_pelangganDipilih != null) {
-      await transaksiOperasi.ambilTotalPoin(_pelangganDipilih!.id).then((poin) {
-        if (mounted) {
-          setState(() => _saldoPoinPelanggan = poin);
-        }
-      });
+      final poin = await transaksiOperasi.ambilTotalPoin(_pelangganDipilih!.id);
+      if (mounted) {
+        setState(() => _saldoPoinPelanggan = poin);
+      }
     }
-
     Log.info('Pemetaan data edit selesai.');
   }
 
@@ -291,7 +281,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       }
       return null;
     }
-
     if (_pelangganDipilih == null ||
         _paketDipilih == null ||
         _pilihTanggal == null ||
@@ -304,7 +293,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       }
       return null;
     }
-
     try {
       final tanggalMulai = DateTime(
         _pilihTanggal!.year,
@@ -380,7 +368,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             .read(transaksiProvider.notifier)
             .tambahTransaksi(transaksiData);
       }
-      ref.invalidate(pelangganAktifProvider);
       final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
       final durasiSetengahJalan = Duration(
         microseconds: (totalDurasi.inMicroseconds / 2).round(),
@@ -898,16 +885,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                 setState(() => _menyimpan = true);
                 Log.info('Tombol Simpan ditekan');
                 final hasil = await _simpanData();
-
                 if (!mounted) {
                   setState(() => _menyimpan = false);
                   return;
                 }
                 if (hasil != null) {
-                  ToastUtil.success(
-                    context,
-                    'Data berhasil disimpan',
-                  ); // ✅ Pesan jelas
+                  ToastUtil.success(context, 'Data berhasil disimpan');
                   _invalidateSemuaProvider();
                   Navigator.pop(context);
                   Log.info(
