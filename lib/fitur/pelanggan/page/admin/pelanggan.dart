@@ -209,7 +209,6 @@ class _PelangganState extends ConsumerState<Pelanggan> {
   Widget _buildContent() {
     final pelangganAsync = ref.watch(filteredCustomersProvider);
     final sedangMencari = ref.watch(searchQueryPelangganProvider).isNotEmpty;
-
     return pelangganAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, s) {

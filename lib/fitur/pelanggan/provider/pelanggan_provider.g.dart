@@ -33,7 +33,7 @@ final class PelangganProvider
   Pelanggan create() => Pelanggan();
 }
 
-String _$pelangganHash() => r'7c7a1fc81cf5bc8c4e848c7d77c3b854aea10a56';
+String _$pelangganHash() => r'7d8f7106be646f79db26a03a7f47b4cd46b00532';
 
 abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   FutureOr<PelangganState> build();
@@ -52,52 +52,6 @@ abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
     return element.handleCreate(ref, build);
   }
 }
-
-/// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
-
-@ProviderFor(daftarPelanggan)
-final daftarPelangganProvider = DaftarPelangganProvider._();
-
-/// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
-
-final class DaftarPelangganProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<(PelangganModel, int)>>,
-          List<(PelangganModel, int)>,
-          FutureOr<List<(PelangganModel, int)>>
-        >
-    with
-        $FutureModifier<List<(PelangganModel, int)>>,
-        $FutureProvider<List<(PelangganModel, int)>> {
-  /// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
-  DaftarPelangganProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'daftarPelangganProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$daftarPelangganHash();
-
-  @$internal
-  @override
-  $FutureProviderElement<List<(PelangganModel, int)>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<List<(PelangganModel, int)>> create(Ref ref) {
-    return daftarPelanggan(ref);
-  }
-}
-
-String _$daftarPelangganHash() => r'f24525e3d25136931b13e885f84dba257d39dd00';
 
 /// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
 
