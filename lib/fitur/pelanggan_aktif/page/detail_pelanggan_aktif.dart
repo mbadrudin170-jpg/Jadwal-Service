@@ -24,49 +24,51 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-final detailPleangganAktifProvider = FutureProvider.family<
-    ({
-      PelangganModel? pelanggan,
-      PaketModel? paket,
-      TransaksiModel? transaksi,
-      PelangganAktifModel pelangganAktif,
-    }),
-    String>((ref, id) async {
-  final pelangganAktifState = await ref.watch(
-    pelangganAktifProvider.future,
-  );
-  final daftarPelangganAktif = pelangganAktifState.daftarPelangganAktif;
+final detailPleangganAktifProvider =
+    FutureProvider.family<
+      ({
+        PelangganModel? pelanggan,
+        PaketModel? paket,
+        TransaksiModel? transaksi,
+        PelangganAktifModel pelangganAktif,
+      }),
+      String
+    >((ref, id) async {
+      final pelangganAktifState = await ref.watch(
+        pelangganAktifProvider.future,
+      );
+      final daftarPelangganAktif = pelangganAktifState.daftarPelangganAktif;
 
-  final detailPelangganAktif = daftarPelangganAktif.firstWhereOrNull(
-    (detail) => detail.pelangganAktif.id == id,
-  );
+      final detailPelangganAktif = daftarPelangganAktif.firstWhereOrNull(
+        (detail) => detail.pelangganAktif.id == id,
+      );
 
-  if (detailPelangganAktif == null) {
-    throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
-  }
+      if (detailPelangganAktif == null) {
+        throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
+      }
 
-  final pelangganAktif = detailPelangganAktif.pelangganAktif;
+      final pelangganAktif = detailPelangganAktif.pelangganAktif;
 
-  final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
-  final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-  final transaksiOpsqlite = ref.watch(transaksiOpSqliteProvider);
-  final hasil = await Future.wait<Object?>([
-    pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.idPelanggan),
-    pelangganAktif.idPaket.isNotEmpty
-        ? paketOpSqlite.ambilBerdasarkanId(pelangganAktif.idPaket)
-        : Future<PaketModel?>.value(),
-    (pelangganAktif.idTransaksi.isNotEmpty)
-        ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.idTransaksi)
-        : Future<TransaksiModel?>.value(),
-  ]);
+      final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
+      final paketOpSqlite = ref.watch(paketOpSqliteProvider);
+      final transaksiOpsqlite = ref.watch(transaksiOpSqliteProvider);
+      final hasil = await Future.wait<Object?>([
+        pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.idPelanggan),
+        pelangganAktif.idPaket.isNotEmpty
+            ? paketOpSqlite.ambilBerdasarkanId(pelangganAktif.idPaket)
+            : Future<PaketModel?>.value(),
+        (pelangganAktif.idTransaksi.isNotEmpty)
+            ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.idTransaksi)
+            : Future<TransaksiModel?>.value(),
+      ]);
 
-  return (
-    pelanggan: hasil[0] as PelangganModel?,
-    paket: hasil[1] as PaketModel?,
-    transaksi: hasil[2] as TransaksiModel?,
-    pelangganAktif: pelangganAktif,
-  );
-});
+      return (
+        pelanggan: hasil[0] as PelangganModel?,
+        paket: hasil[1] as PaketModel?,
+        transaksi: hasil[2] as TransaksiModel?,
+        pelangganAktif: pelangganAktif,
+      );
+    });
 
 class DetailPelangganAktif extends ConsumerStatefulWidget {
   final PelangganAktifModel pelangganAktif;
@@ -147,7 +149,8 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
       PaketModel? paket,
       TransaksiModel? transaksi,
       PelangganAktifModel pelangganAktif,
-    }) data,
+    })
+    data,
   ) {
     final pelangganAktif = data.pelangganAktif;
     final pelanggan = data.pelanggan;
@@ -202,9 +205,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                           child: Text(
                             pelanggan?.nama ?? pelangganAktif.idPelanggan,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
+                            style: Theme.of(context).textTheme.headlineSmall
                                 ?.copyWith(color: Colors.blue),
                           ),
                         ),
@@ -275,11 +276,11 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                           pelangganAktif.tanggalBerakhir,
                         ),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: PerhitunganUtil.ambilWarnaSisaMasaAktif(
-                                pelangganAktif.tanggalBerakhir,
-                              ),
-                              fontWeight: FontWeight.bold,
-                            ),
+                          color: PerhitunganUtil.ambilWarnaSisaMasaAktif(
+                            pelangganAktif.tanggalBerakhir,
+                          ),
+                          fontWeight: FontWeight.bold,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       gapH24,
@@ -364,10 +365,10 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                   Text(
                     value,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                          decoration: TextDecoration.underline,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                   gapH8,
                   FaIcon(
