@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$NotifikasiModel {
 
- String get id; DateTime get tanggalMulai; DateTime get tanggalBerakhir; DateTime get tanggalTampil; String get judul; String get deskripsi; bool get setatusDibaca; TipeNotifikasiEnum get tipe; DateTime? get diperbaruiPada; String get idTujuan; String get userId; bool get dihapus; DateTime? get diarsipkanPada; AppRole get targetRole;
+ String get id; DateTime get tanggalMulai; DateTime get tanggalBerakhir; DateTime get tanggalTampil; String get judul; String get deskripsi; bool get setatusDibaca; TipeNotifikasiEnum get tipe; DateTime get diperbaruiPada; String get idTujuan; String get userId; bool get dihapus; DateTime? get diarsipkanPada; AppRole get targetRole;
 /// Create a copy of NotifikasiModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -45,7 +45,7 @@ abstract mixin class $NotifikasiModelCopyWith<$Res>  {
   factory $NotifikasiModelCopyWith(NotifikasiModel value, $Res Function(NotifikasiModel) _then) = _$NotifikasiModelCopyWithImpl;
 @useResult
 $Res call({
- String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime? diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada, AppRole targetRole
+ String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada, AppRole targetRole
 });
 
 
@@ -62,7 +62,7 @@ class _$NotifikasiModelCopyWithImpl<$Res>
 
 /// Create a copy of NotifikasiModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = freezed,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,Object? targetRole = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = null,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,Object? targetRole = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,tanggalMulai: null == tanggalMulai ? _self.tanggalMulai : tanggalMulai // ignore: cast_nullable_to_non_nullable
@@ -72,8 +72,8 @@ as DateTime,judul: null == judul ? _self.judul : judul // ignore: cast_nullable_
 as String,deskripsi: null == deskripsi ? _self.deskripsi : deskripsi // ignore: cast_nullable_to_non_nullable
 as String,setatusDibaca: null == setatusDibaca ? _self.setatusDibaca : setatusDibaca // ignore: cast_nullable_to_non_nullable
 as bool,tipe: null == tipe ? _self.tipe : tipe // ignore: cast_nullable_to_non_nullable
-as TipeNotifikasiEnum,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
-as DateTime?,idTujuan: null == idTujuan ? _self.idTujuan : idTujuan // ignore: cast_nullable_to_non_nullable
+as TipeNotifikasiEnum,diperbaruiPada: null == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as DateTime,idTujuan: null == idTujuan ? _self.idTujuan : idTujuan // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
 as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
@@ -163,7 +163,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime? diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotifikasiModel() when $default != null:
 return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada,_that.targetRole);case _:
@@ -184,7 +184,7 @@ return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalT
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime? diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)  $default,) {final _that = this;
 switch (_that) {
 case _NotifikasiModel():
 return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada,_that.targetRole);case _:
@@ -204,7 +204,7 @@ return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalT
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime? diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)?  $default,) {final _that = this;
 switch (_that) {
 case _NotifikasiModel() when $default != null:
 return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada,_that.targetRole);case _:
@@ -219,7 +219,7 @@ return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalT
 
 
 class _NotifikasiModel extends NotifikasiModel {
-  const _NotifikasiModel({required this.id, required this.tanggalMulai, required this.tanggalBerakhir, required this.tanggalTampil, required this.judul, required this.deskripsi, this.setatusDibaca = false, required this.tipe, this.diperbaruiPada, required this.idTujuan, required this.userId, this.dihapus = false, this.diarsipkanPada, required this.targetRole}): super._();
+  const _NotifikasiModel({required this.id, required this.tanggalMulai, required this.tanggalBerakhir, required this.tanggalTampil, required this.judul, required this.deskripsi, this.setatusDibaca = false, required this.tipe, required this.diperbaruiPada, required this.idTujuan, required this.userId, this.dihapus = false, this.diarsipkanPada, required this.targetRole}): super._();
   
 
 @override final  String id;
@@ -230,7 +230,7 @@ class _NotifikasiModel extends NotifikasiModel {
 @override final  String deskripsi;
 @override@JsonKey() final  bool setatusDibaca;
 @override final  TipeNotifikasiEnum tipe;
-@override final  DateTime? diperbaruiPada;
+@override final  DateTime diperbaruiPada;
 @override final  String idTujuan;
 @override final  String userId;
 @override@JsonKey() final  bool dihapus;
@@ -267,7 +267,7 @@ abstract mixin class _$NotifikasiModelCopyWith<$Res> implements $NotifikasiModel
   factory _$NotifikasiModelCopyWith(_NotifikasiModel value, $Res Function(_NotifikasiModel) _then) = __$NotifikasiModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime? diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada, AppRole targetRole
+ String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada, AppRole targetRole
 });
 
 
@@ -284,7 +284,7 @@ class __$NotifikasiModelCopyWithImpl<$Res>
 
 /// Create a copy of NotifikasiModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = freezed,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,Object? targetRole = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = null,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,Object? targetRole = null,}) {
   return _then(_NotifikasiModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,tanggalMulai: null == tanggalMulai ? _self.tanggalMulai : tanggalMulai // ignore: cast_nullable_to_non_nullable
@@ -294,8 +294,8 @@ as DateTime,judul: null == judul ? _self.judul : judul // ignore: cast_nullable_
 as String,deskripsi: null == deskripsi ? _self.deskripsi : deskripsi // ignore: cast_nullable_to_non_nullable
 as String,setatusDibaca: null == setatusDibaca ? _self.setatusDibaca : setatusDibaca // ignore: cast_nullable_to_non_nullable
 as bool,tipe: null == tipe ? _self.tipe : tipe // ignore: cast_nullable_to_non_nullable
-as TipeNotifikasiEnum,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
-as DateTime?,idTujuan: null == idTujuan ? _self.idTujuan : idTujuan // ignore: cast_nullable_to_non_nullable
+as TipeNotifikasiEnum,diperbaruiPada: null == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as DateTime,idTujuan: null == idTujuan ? _self.idTujuan : idTujuan // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
 as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable

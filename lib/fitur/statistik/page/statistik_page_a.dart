@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
+import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_a.dart';
@@ -69,7 +70,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final statistikStateAsync = ref.watch(statistikProvider);
-
+    final pelangganAktif = ref.watch(pelangganAktifProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Dasbor Statistik'), centerTitle: true),
       body: RefreshIndicator(
@@ -115,7 +116,10 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                           ),
                         ),
                         title: 'Langganan Aktif',
-                        value: data.totalPelangganAktif.toString(),
+                        value:
+                            pelangganAktif.value?.jumlahPelangganAktif
+                                .toString() ??
+                            '0',
                         icon: TIcons.wifi,
                         color: Colors.green,
                       ),

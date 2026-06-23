@@ -12,14 +12,12 @@ part 'statistik_provider.g.dart';
 class StatistikState {
   final double totalPendaptanPerbulan;
   final int totalPelanggan;
-  final int totalPelangganAktif;
   final int totalFeedback;
   final List<PaketTerlarisModel> paketTerlaris;
 
   StatistikState({
     this.totalPendaptanPerbulan = 0.0,
     this.totalPelanggan = 0,
-    this.totalPelangganAktif = 0,
     this.totalFeedback = 0,
     this.paketTerlaris = const [],
   });
@@ -27,7 +25,6 @@ class StatistikState {
   StatistikState copyWith({
     double? totalPendaptanPerbulan,
     int? totalPelanggan,
-    int? jumlahLanggananAktif,
     int? jumlahFeedbackBaru,
     List<PaketTerlarisModel>? paketTerlaris,
   }) {
@@ -35,7 +32,6 @@ class StatistikState {
       totalPendaptanPerbulan:
           totalPendaptanPerbulan ?? this.totalPendaptanPerbulan,
       totalPelanggan: totalPelanggan ?? this.totalPelanggan,
-      totalPelangganAktif: jumlahLanggananAktif ?? totalPelangganAktif,
       totalFeedback: jumlahFeedbackBaru ?? totalFeedback,
       paketTerlaris: paketTerlaris ?? this.paketTerlaris,
     );
@@ -61,8 +57,6 @@ class Statistik extends _$Statistik {
       Log.info('[StatistikNotifier] Memulai pemuatan data sekuensial...');
       final pendapatan = await _statistikOpSlite.ambilTotalPendapatan();
       final pelanggan = await _statistikOpSlite.ambilTotalPelanggan();
-      final langgananAktif = await _statistikOpSlite
-          .ambilJumlahLanggananAktif();
       final feedbackBaru = await _statistikOpSlite.ambilTotalFeedback();
       final paketTerlaris = await _statistikOpSlite.ambilPaketTerlaris();
       Log.info('[StatistikNotifier] Semua data sekuensial berhasil dimuat.');
@@ -70,7 +64,6 @@ class Statistik extends _$Statistik {
       return StatistikState(
         totalPendaptanPerbulan: pendapatan,
         totalPelanggan: pelanggan,
-        totalPelangganAktif: langgananAktif,
         totalFeedback: feedbackBaru,
         paketTerlaris: paketTerlaris,
       );

@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PelangganAktifState {
 
- List<DetailPelangganAktifModel> get daftarPelangganAktif;
+ List<DetailPelangganAktifModel> get daftarPelangganAktif; int get jumlahPelangganAktif;
 /// Create a copy of PelangganAktifState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $PelangganAktifStateCopyWith<PelangganAktifState> get copyWith => _$PelangganAkt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PelangganAktifState&&const DeepCollectionEquality().equals(other.daftarPelangganAktif, daftarPelangganAktif));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PelangganAktifState&&const DeepCollectionEquality().equals(other.daftarPelangganAktif, daftarPelangganAktif)&&(identical(other.jumlahPelangganAktif, jumlahPelangganAktif) || other.jumlahPelangganAktif == jumlahPelangganAktif));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(daftarPelangganAktif));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(daftarPelangganAktif),jumlahPelangganAktif);
 
 @override
 String toString() {
-  return 'PelangganAktifState(daftarPelangganAktif: $daftarPelangganAktif)';
+  return 'PelangganAktifState(daftarPelangganAktif: $daftarPelangganAktif, jumlahPelangganAktif: $jumlahPelangganAktif)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $PelangganAktifStateCopyWith<$Res>  {
   factory $PelangganAktifStateCopyWith(PelangganAktifState value, $Res Function(PelangganAktifState) _then) = _$PelangganAktifStateCopyWithImpl;
 @useResult
 $Res call({
- List<DetailPelangganAktifModel> daftarPelangganAktif
+ List<DetailPelangganAktifModel> daftarPelangganAktif, int jumlahPelangganAktif
 });
 
 
@@ -62,10 +62,11 @@ class _$PelangganAktifStateCopyWithImpl<$Res>
 
 /// Create a copy of PelangganAktifState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? daftarPelangganAktif = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? daftarPelangganAktif = null,Object? jumlahPelangganAktif = null,}) {
   return _then(_self.copyWith(
 daftarPelangganAktif: null == daftarPelangganAktif ? _self.daftarPelangganAktif : daftarPelangganAktif // ignore: cast_nullable_to_non_nullable
-as List<DetailPelangganAktifModel>,
+as List<DetailPelangganAktifModel>,jumlahPelangganAktif: null == jumlahPelangganAktif ? _self.jumlahPelangganAktif : jumlahPelangganAktif // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -150,10 +151,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif,  int jumlahPelangganAktif)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PelangganAktifState() when $default != null:
-return $default(_that.daftarPelangganAktif);case _:
+return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
   return orElse();
 
 }
@@ -171,10 +172,10 @@ return $default(_that.daftarPelangganAktif);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif,  int jumlahPelangganAktif)  $default,) {final _that = this;
 switch (_that) {
 case _PelangganAktifState():
-return $default(_that.daftarPelangganAktif);case _:
+return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -191,10 +192,10 @@ return $default(_that.daftarPelangganAktif);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<DetailPelangganAktifModel> daftarPelangganAktif)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<DetailPelangganAktifModel> daftarPelangganAktif,  int jumlahPelangganAktif)?  $default,) {final _that = this;
 switch (_that) {
 case _PelangganAktifState() when $default != null:
-return $default(_that.daftarPelangganAktif);case _:
+return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
   return null;
 
 }
@@ -206,7 +207,7 @@ return $default(_that.daftarPelangganAktif);case _:
 
 
 class _PelangganAktifState implements PelangganAktifState {
-  const _PelangganAktifState({final  List<DetailPelangganAktifModel> daftarPelangganAktif = const []}): _daftarPelangganAktif = daftarPelangganAktif;
+  const _PelangganAktifState({final  List<DetailPelangganAktifModel> daftarPelangganAktif = const [], this.jumlahPelangganAktif = 0}): _daftarPelangganAktif = daftarPelangganAktif;
   
 
  final  List<DetailPelangganAktifModel> _daftarPelangganAktif;
@@ -216,6 +217,7 @@ class _PelangganAktifState implements PelangganAktifState {
   return EqualUnmodifiableListView(_daftarPelangganAktif);
 }
 
+@override@JsonKey() final  int jumlahPelangganAktif;
 
 /// Create a copy of PelangganAktifState
 /// with the given fields replaced by the non-null parameter values.
@@ -227,16 +229,16 @@ _$PelangganAktifStateCopyWith<_PelangganAktifState> get copyWith => __$Pelanggan
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PelangganAktifState&&const DeepCollectionEquality().equals(other._daftarPelangganAktif, _daftarPelangganAktif));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PelangganAktifState&&const DeepCollectionEquality().equals(other._daftarPelangganAktif, _daftarPelangganAktif)&&(identical(other.jumlahPelangganAktif, jumlahPelangganAktif) || other.jumlahPelangganAktif == jumlahPelangganAktif));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_daftarPelangganAktif));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_daftarPelangganAktif),jumlahPelangganAktif);
 
 @override
 String toString() {
-  return 'PelangganAktifState(daftarPelangganAktif: $daftarPelangganAktif)';
+  return 'PelangganAktifState(daftarPelangganAktif: $daftarPelangganAktif, jumlahPelangganAktif: $jumlahPelangganAktif)';
 }
 
 
@@ -247,7 +249,7 @@ abstract mixin class _$PelangganAktifStateCopyWith<$Res> implements $PelangganAk
   factory _$PelangganAktifStateCopyWith(_PelangganAktifState value, $Res Function(_PelangganAktifState) _then) = __$PelangganAktifStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<DetailPelangganAktifModel> daftarPelangganAktif
+ List<DetailPelangganAktifModel> daftarPelangganAktif, int jumlahPelangganAktif
 });
 
 
@@ -264,10 +266,11 @@ class __$PelangganAktifStateCopyWithImpl<$Res>
 
 /// Create a copy of PelangganAktifState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? daftarPelangganAktif = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? daftarPelangganAktif = null,Object? jumlahPelangganAktif = null,}) {
   return _then(_PelangganAktifState(
 daftarPelangganAktif: null == daftarPelangganAktif ? _self._daftarPelangganAktif : daftarPelangganAktif // ignore: cast_nullable_to_non_nullable
-as List<DetailPelangganAktifModel>,
+as List<DetailPelangganAktifModel>,jumlahPelangganAktif: null == jumlahPelangganAktif ? _self.jumlahPelangganAktif : jumlahPelangganAktif // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

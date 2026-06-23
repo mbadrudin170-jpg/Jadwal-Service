@@ -7,7 +7,6 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
-import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
@@ -19,7 +18,6 @@ import 'package:wifi/shared/debug/log.dart';
 final statistikOpSliteProvider = Provider<StatistikOpSqlite>((ref) {
   Log.info('Membuat instance StatistikRepository melalui provider');
   return StatistikOpSqlite(
-    pelangganAktifOpSqlite: ref.watch(pelangganAktifOpSqliteProvider),
     feedbackOpSqlite: ref.watch(feedbackOpSqliteProvider),
     paketOpSqlite: ref.watch(paketOpSqliteProvider),
     transaksiOpSqlite: ref.watch(transaksiOpSqliteProvider),
@@ -28,18 +26,15 @@ final statistikOpSliteProvider = Provider<StatistikOpSqlite>((ref) {
 
 /// Repos
 class StatistikOpSqlite {
-  final PelangganAktifOpSqlite _pelangganAktifOpSqlite;
   final FeedbackOpSqlite _statistikOpSliteProvider;
   final PaketOpSqlite _paketOpsqlite;
   final TransaksiOpSqlite _transaksiOpSqlite;
 
   StatistikOpSqlite({
-    required PelangganAktifOpSqlite pelangganAktifOpSqlite,
     required FeedbackOpSqlite feedbackOpSqlite,
     required PaketOpSqlite paketOpSqlite,
     required TransaksiOpSqlite transaksiOpSqlite,
-  }) : _pelangganAktifOpSqlite = pelangganAktifOpSqlite,
-       _statistikOpSliteProvider = feedbackOpSqlite,
+  }) : _statistikOpSliteProvider = feedbackOpSqlite,
        _paketOpsqlite = paketOpSqlite,
        _transaksiOpSqlite = transaksiOpSqlite;
 
@@ -128,19 +123,6 @@ class StatistikOpSqlite {
       return jumlah;
     } catch (e, st) {
       Log.error('Gagal mengambil total pelanggan dari SQLite.', e: e, s: st);
-      rethrow;
-    }
-  }
-
-  Future<int> ambilJumlahLanggananAktif() async {
-    Log.info('Mulai mengambil jumlah langganan aktif.');
-    try {
-      final pelangganAktif = await _pelangganAktifOpSqlite.ambilSemua();
-      final jumlah = pelangganAktif.length;
-      Log.info('Jumlah langganan aktif yang dihitung: $jumlah');
-      return jumlah;
-    } catch (e, st) {
-      Log.error('Gagal mengambil jumlah langganan aktif.', e: e, s: st);
       rethrow;
     }
   }

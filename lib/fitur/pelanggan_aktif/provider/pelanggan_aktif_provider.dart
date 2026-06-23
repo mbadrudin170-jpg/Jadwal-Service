@@ -16,6 +16,7 @@ part 'pelanggan_aktif_provider.freezed.dart';
 abstract class PelangganAktifState with _$PelangganAktifState {
   const factory PelangganAktifState({
     @Default([]) List<DetailPelangganAktifModel> daftarPelangganAktif,
+    @Default(0) int jumlahPelangganAktif,
   }) = _PelangganAktifState;
 }
 
@@ -33,7 +34,10 @@ class PelangganAktif extends _$PelangganAktif {
   Future<PelangganAktifState> _ambilData() async {
     final operasi = ref.read(pelangganAktifOpSqliteProvider);
     final hasil = await operasi.ambilSemuaPelangganAktifDenganDetail();
-    return PelangganAktifState(daftarPelangganAktif: hasil);
+    return PelangganAktifState(
+      daftarPelangganAktif: hasil,
+      jumlahPelangganAktif: hasil.length,
+    );
   }
 
   Future<void> tambahPelangganAktif(PelangganAktifModel pelangganAktif) async {
@@ -41,7 +45,10 @@ class PelangganAktif extends _$PelangganAktif {
       await pelangganAktifOpSqlite.tambahPelangganAktif(pelangganAktif);
       final hasil = await pelangganAktifOpSqlite
           .ambilSemuaPelangganAktifDenganDetail();
-      return PelangganAktifState(daftarPelangganAktif: hasil);
+      return PelangganAktifState(
+        daftarPelangganAktif: hasil,
+        jumlahPelangganAktif: hasil.length,
+      );
     });
   }
 
@@ -50,7 +57,10 @@ class PelangganAktif extends _$PelangganAktif {
       await pelangganAktifOpSqlite.updatePelangganAktif(pelangganAktif);
       final hasil = await pelangganAktifOpSqlite
           .ambilSemuaPelangganAktifDenganDetail();
-      return PelangganAktifState(daftarPelangganAktif: hasil);
+      return PelangganAktifState(
+        daftarPelangganAktif: hasil,
+        jumlahPelangganAktif: hasil.length,
+      );
     });
   }
 
@@ -59,7 +69,10 @@ class PelangganAktif extends _$PelangganAktif {
     state = await AsyncValue.guard(() async {
       final data = await pelangganAktifOpSqlite
           .ambilSemuaPelangganAktifDenganDetail();
-      return PelangganAktifState(daftarPelangganAktif: data);
+      return PelangganAktifState(
+        daftarPelangganAktif: data,
+        jumlahPelangganAktif: data.length,
+      );
     });
   }
 }

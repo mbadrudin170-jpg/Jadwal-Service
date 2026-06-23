@@ -215,7 +215,7 @@ return $default(_that.id,_that.idPelanggan,_that.idPaket,_that.idTransaksi,_that
 
 
 class _PelangganAktifModel extends PelangganAktifModel {
-  const _PelangganAktifModel({required this.id, required this.idPelanggan, required this.idPaket, required this.idTransaksi, required this.tanggalMulai, required this.tanggalBerakhir, required this.status, this.diperbaruiPada, this.diHapus = false, this.diarsipkanPada}): super._();
+  const _PelangganAktifModel({required this.id, required this.idPelanggan, required this.idPaket, required this.idTransaksi, required this.tanggalMulai, required this.tanggalBerakhir, required this.status, required this.diperbaruiPada, this.diHapus = false, this.diarsipkanPada}): super._();
   
 
 @override final  String id;
