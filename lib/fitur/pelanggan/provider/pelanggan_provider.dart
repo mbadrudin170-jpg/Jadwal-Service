@@ -47,6 +47,7 @@ class Pelanggan extends _$Pelanggan {
 
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
     await pelangganOpSqlite.tambahPelanggan(pelanggan);
+    ref.invalidate(pelangganDetailProvider);
     final daftar = await pelangganOpSqlite.ambilSemua();
     state = AsyncData(PelangganState(daftarPelanggan: daftar));
   }
@@ -54,6 +55,7 @@ class Pelanggan extends _$Pelanggan {
   Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
+      ref.invalidate(pelangganDetailProvider);
       return _ambilData();
     });
   }
@@ -61,6 +63,7 @@ class Pelanggan extends _$Pelanggan {
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.softDelete(id);
+      ref.invalidate(pelangganDetailProvider);
       return _ambilData();
     });
   }
