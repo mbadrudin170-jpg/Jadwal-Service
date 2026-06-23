@@ -27,7 +27,6 @@ void onDidReceiveBackgroundNotificationResponse(
 
 class LayananNotifikasi {
   static LayananNotifikasi? _instance;
-
   factory LayananNotifikasi() {
     if (_instance == null) {
       Log.info('Membuat instance baru untuk NotifikasiServis (Singleton).');
@@ -37,18 +36,16 @@ class LayananNotifikasi {
     }
     return _instance!;
   }
-
   final FlutterLocalNotificationsPlugin plugin;
   final Random _random = Random();
   AndroidNotificationChannel? channelNotifikasiPenting;
   static bool _zonaWaktuTelahDiinisialisasi = false;
   final Set<String> _idNotifikasiTampil = {};
   StreamSubscription<List<NotifikasiModel>>? _langgananNotifikasiFirebase;
-
   LayananNotifikasi._internal() : plugin = FlutterLocalNotificationsPlugin() {
     Log.info('Konstruktor internal NotifikasiServis dipanggil.');
   }
-
+  
   @visibleForTesting
   LayananNotifikasi.testing(this.plugin);
 
@@ -60,22 +57,18 @@ class LayananNotifikasi {
       );
       return;
     }
-
     try {
       Log.info('Memulai inisialisasi data zona waktu...');
       tz.initializeTimeZones();
-
       String zonaWaktuLokal =
           (await FlutterTimezone.getLocalTimezone()).identifier;
       Log.info('Zona waktu terdeteksi dari perangkat: $zonaWaktuLokal');
-
       if (zonaWaktuLokal == 'GMT') {
         Log.warning(
           'Zona waktu "GMT" terdeteksi (kemungkinan dari emulator). Menggunakan "Asia/Jakarta" sebagai fallback.',
         );
         zonaWaktuLokal = 'Asia/Jakarta';
       }
-
       tz.Location lokasi;
       try {
         Log.info('Mencari lokasi untuk zona waktu: $zonaWaktuLokal');
@@ -86,12 +79,10 @@ class LayananNotifikasi {
         );
         lokasi = tz.UTC;
       }
-
       tz.setLocalLocation(lokasi);
       Log.info(
         'Zona waktu lokal berhasil diatur ke: ${lokasi.name}. Inisialisasi selesai.',
       );
-
       _zonaWaktuTelahDiinisialisasi = true;
     } on Exception catch (e, st) {
       Log.error(
@@ -104,15 +95,12 @@ class LayananNotifikasi {
 
   Future<void> inisialisasiNotifikasi({required final String iconName}) async {
     Log.info('Memulai proses inisialisasi NotifikasiServis...');
-
     await _inisialisasiZonaWaktu();
     Log.info('inisialisai');
     await _setupAndroidChannel();
-
     final android = AndroidInitializationSettings(iconName);
     const ios = DarwinInitializationSettings();
     final settings = InitializationSettings(android: android, iOS: ios);
-
     try {
       Log.info('Menginisialisasi plugin flutter_local_notifications.');
       await plugin.initialize(
@@ -148,7 +136,6 @@ class LayananNotifikasi {
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
-
     await androidPlugin?.requestNotificationsPermission();
     await androidPlugin?.requestExactAlarmsPermission();
     if (androidPlugin == null) {
