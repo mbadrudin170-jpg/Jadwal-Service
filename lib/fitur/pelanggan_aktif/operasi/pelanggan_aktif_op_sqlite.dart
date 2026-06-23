@@ -191,12 +191,8 @@ class PelangganAktifOpSqlite {
   }) async {
     try {
       final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
-
       Log.info('Memperbarui active customer ID: ${customerToSave.id}');
-
-      await _baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
         final data = customerToSave.toSqlite();
         await txn.update(
           _namaTabel,
@@ -205,10 +201,8 @@ class PelangganAktifOpSqlite {
           whereArgs: [customerToSave.id],
         );
       }, dariServer: fromServer);
-
       await scheduleNotification(customerToSave);
       Log.info('Active customer ID: ${customerToSave.id} berhasil diperbarui');
-
       return customerToSave;
     } on Exception catch (e, st) {
       Log.error(

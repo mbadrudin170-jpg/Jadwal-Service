@@ -41,6 +41,15 @@ class PelangganAktif extends _$PelangganAktif {
     });
   }
 
+  Future<void> updatePelangganAktif(PelangganAktifModel pelangganAktif) async {
+    state = await AsyncValue.guard(() async {
+      final operasi = ref.read(pelangganAktifOpSqliteProvider);
+      await operasi.updatePelangganAktif(pelangganAktif);
+      final hasil = await operasi.ambilSemuaPelangganAktifDenganDetail();
+      return PelangganAktifState(daftarPelangganAktif: hasil);
+    });
+  }
+
   Future<void> perbaruiData() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
