@@ -45,17 +45,6 @@ class Pelanggan extends _$Pelanggan {
     );
   }
 
-  Future<(PelangganModel?, int)> ambilDetailPelanggan(String id) async {
-    try {
-      final pelanggan = await pelangganOpSqlite.ambilBerdasarkanId(id);
-      final poin = await poinDataSource.ambilTotalPoin(id);
-      return (pelanggan, poin);
-    } catch (e) {
-      print('Error mengambil detail pelanggan: $e');
-      return (null, 0);
-    }
-  }
-
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
     await pelangganOpSqlite.tambahPelanggan(pelanggan);
     final daftar = await pelangganOpSqlite.ambilSemua();
