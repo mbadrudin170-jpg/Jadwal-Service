@@ -109,12 +109,13 @@ class NotifikasiOpFirebase {
     }
   }
 
-  Future<void> deleteNotif(String id) async {
+  Future<void> softDeleteNotifikasi(String id) async {
     try {
-      Log.info('Deleting notification from Firebase via BaseOp: $id');
-      await _baseOp.hapusPermanen(_koleksi, id);
-    } catch (e) {
-      Log.error('Error deleting notification: $e');
+      Log.info('Soft delete notifikasi: $id');
+      await _baseOp.softDelete(_koleksi, id);
+      Log.info('Soft delete notifikasi berhasil: $id');
+    } catch (e, s) {
+      Log.error('gagal fungsi soft delete notifikasi$e$s');
       rethrow;
     }
   }
@@ -128,7 +129,6 @@ class NotifikasiOpFirebase {
           .collection(_koleksi)
           .where(NamaKolom.idTujuan, isEqualTo: idTransaksi)
           .get();
-
       final batch = _firestore.batch();
       for (final doc in querySnapshot.docs) {
         batch.delete(doc.reference);

@@ -17,10 +17,11 @@ class BaseOpFirebase {
   final StatusOpFirebase _statusOp;
 
   /// Konstruktor dengan injeksi dependensi untuk pengujian.
-  BaseOpFirebase(
-      {final FirebaseFirestore? firestore, final StatusOpFirebase? statusOp})
-      : firestore = firestore ?? FirebaseFirestore.instance,
-        _statusOp = statusOp ?? StatusOpFirebase(firestore: firestore) {
+  BaseOpFirebase({
+    final FirebaseFirestore? firestore,
+    final StatusOpFirebase? statusOp,
+  }) : firestore = firestore ?? FirebaseFirestore.instance,
+       _statusOp = statusOp ?? StatusOpFirebase(firestore: firestore) {
     Log.info('BaseOpFirebase diinisialisasi.');
   }
 
@@ -42,8 +43,12 @@ class BaseOpFirebase {
       Log.info('Base add berhasil: ${docRef.path}');
       return docRef;
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan base add',
-          e: e, s: s, data: {'collection': collectionName});
+      Log.error(
+        'Gagal melakukan base add',
+        e: e,
+        s: s,
+        data: {'collection': collectionName},
+      );
       rethrow;
     }
   }
@@ -66,8 +71,12 @@ class BaseOpFirebase {
       unawaited(_statusOp.perbaruiStatusGlobal());
       Log.info('Base insert berhasil: $collectionName/$docId');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan base insert',
-          e: e, s: s, data: {'collection': collectionName, 'docId': docId});
+      Log.error(
+        'Gagal melakukan base insert',
+        e: e,
+        s: s,
+        data: {'collection': collectionName, 'docId': docId},
+      );
       rethrow;
     }
   }
@@ -90,8 +99,12 @@ class BaseOpFirebase {
       unawaited(_statusOp.perbaruiStatusGlobal());
       Log.info('Base update berhasil: $collectionName/$docId');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan base update',
-          e: e, s: s, data: {'collection': collectionName, 'docId': docId});
+      Log.error(
+        'Gagal melakukan base update',
+        e: e,
+        s: s,
+        data: {'collection': collectionName, 'docId': docId},
+      );
       rethrow;
     }
   }
@@ -101,8 +114,7 @@ class BaseOpFirebase {
   /// Ini akan mengatur `isDeleted` menjadi true dan memperbarui `updatedAt`.
   /// [collectionName]: Nama koleksi target.
   /// [docId]: ID dokumen yang akan di-soft-delete.
-  Future<void> hapusSementara(
-      final String collectionName, final String docId) async {
+  Future<void> softDelete(String collectionName, String docId) async {
     Log.info('Base softDelete: $collectionName/$docId');
     try {
       final docRef = firestore.collection(collectionName).doc(docId);
@@ -114,8 +126,12 @@ class BaseOpFirebase {
       unawaited(_statusOp.perbaruiStatusGlobal());
       Log.info('Base softDelete berhasil: $collectionName/$docId');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan base softDelete',
-          e: e, s: s, data: {'collection': collectionName, 'docId': docId});
+      Log.error(
+        'Gagal melakukan base softDelete',
+        e: e,
+        s: s,
+        data: {'collection': collectionName, 'docId': docId},
+      );
       rethrow;
     }
   }
@@ -125,7 +141,9 @@ class BaseOpFirebase {
   /// [collectionName]: Nama koleksi target.
   /// [docId]: ID dokumen yang akan dihapus.
   Future<void> hapusPermanen(
-      final String collectionName, final String docId) async {
+    final String collectionName,
+    final String docId,
+  ) async {
     Log.warning('Base delete (permanen): $collectionName/$docId');
     try {
       final docRef = firestore.collection(collectionName).doc(docId);
@@ -133,8 +151,12 @@ class BaseOpFirebase {
       unawaited(_statusOp.perbaruiStatusGlobal());
       Log.info('Base delete (permanen) berhasil: $collectionName/$docId');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan base delete (permanen)',
-          e: e, s: s, data: {'collection': collectionName, 'docId': docId});
+      Log.error(
+        'Gagal melakukan base delete (permanen)',
+        e: e,
+        s: s,
+        data: {'collection': collectionName, 'docId': docId},
+      );
       rethrow;
     }
   }
@@ -172,11 +194,16 @@ class BaseOpFirebase {
 
       final count = querySnapshot.docs.length;
       Log.info(
-          'Base softDeleteAll berhasil: $count dokumen di $collectionName telah di-soft-delete.');
+        'Base softDeleteAll berhasil: $count dokumen di $collectionName telah di-soft-delete.',
+      );
       return count;
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan base softDeleteAll',
-          e: e, s: s, data: {'collection': collectionName});
+      Log.error(
+        'Gagal melakukan base softDeleteAll',
+        e: e,
+        s: s,
+        data: {'collection': collectionName},
+      );
       rethrow;
     }
   }
@@ -196,7 +223,8 @@ class BaseOpFirebase {
       return;
     }
     Log.info(
-        'Base insertOrUpdateBatch: Memulai untuk ${items.length} item di $collectionName');
+      'Base insertOrUpdateBatch: Memulai untuk ${items.length} item di $collectionName',
+    );
     try {
       final batch = firestore.batch();
       for (final item in items) {
@@ -212,8 +240,12 @@ class BaseOpFirebase {
       unawaited(_statusOp.perbaruiStatusGlobal());
       Log.info('Base insertOrUpdateBatch berhasil.');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan base insertOrUpdateBatch',
-          e: e, s: s, data: {'collection': collectionName});
+      Log.error(
+        'Gagal melakukan base insertOrUpdateBatch',
+        e: e,
+        s: s,
+        data: {'collection': collectionName},
+      );
       rethrow;
     }
   }

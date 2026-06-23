@@ -99,7 +99,7 @@ void main() {
         final Map<String, dynamic> data = {'nama': 'Test'};
         await fakeFirestore.collection(collectionName).doc(docId).set(data);
 
-        await baseOpFirebase.hapusSementara(collectionName, docId);
+        await baseOpFirebase.softDelete(collectionName, docId);
 
         final doc = await fakeFirestore
             .collection(collectionName)

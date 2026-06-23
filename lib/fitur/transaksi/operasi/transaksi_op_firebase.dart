@@ -152,7 +152,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
   Future<void> softDeleteTransaksi(String id) async {
     Log.info('Memulai soft delete transaksi di Firestore: $id');
     try {
-      await hapusSementara(NamaTabel.transaksi, id);
+      await softDelete(NamaTabel.transaksi, id);
       Log.info('Soft delete transaksi berhasil: $id');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal melakukan soft delete transaksi: $id', e: e, s: s);

@@ -45,7 +45,7 @@ class PelangganOpFirebase {
 
   Future<void> softDelete(String id) async {
     Log.info('Mendelegasikan soft delete pelanggan: $id');
-    await _baseOpFirebase.hapusSementara(_namaKoleksi, id);
+    await _baseOpFirebase.softDelete(_namaKoleksi, id);
   }
 
   Future<void> perbaruiTerakhirAktif(String id) async {

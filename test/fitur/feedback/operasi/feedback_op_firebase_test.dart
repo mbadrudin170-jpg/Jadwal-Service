@@ -43,13 +43,18 @@ void main() {
     );
 
     when(mockFirestore.collection(any)).thenReturn(mockCollectionReference);
-    when(mockCollectionReference.where(any, isEqualTo: anyNamed('isEqualTo')))
-        .thenReturn(mockQuery);
-    when(mockQuery.where(any, isEqualTo: anyNamed('isEqualTo')))
-        .thenReturn(mockQuery);
-    when(mockQuery.orderBy(any, descending: anyNamed('descending')))
-        .thenReturn(mockQuery);
-    when(mockQuery.snapshots()).thenAnswer((_) => Stream.value(mockQuerySnapshot));
+    when(
+      mockCollectionReference.where(any, isEqualTo: anyNamed('isEqualTo')),
+    ).thenReturn(mockQuery);
+    when(
+      mockQuery.where(any, isEqualTo: anyNamed('isEqualTo')),
+    ).thenReturn(mockQuery);
+    when(
+      mockQuery.orderBy(any, descending: anyNamed('descending')),
+    ).thenReturn(mockQuery);
+    when(
+      mockQuery.snapshots(),
+    ).thenAnswer((_) => Stream.value(mockQuerySnapshot));
   });
 
   final feedbackModel = FeedbackModel(
@@ -63,8 +68,9 @@ void main() {
     test('01. tambahFeedback harus memanggil _baseOpFirebase.tambah', () async {
       // Arrange
       final mockDocRef = MockDocumentReference<Map<String, dynamic>>();
-      when(mockBaseOpFirebase.tambah(any, any))
-          .thenAnswer((_) async => mockDocRef);
+      when(
+        mockBaseOpFirebase.tambah(any, any),
+      ).thenAnswer((_) async => mockDocRef);
 
       // Act
       await feedbackOpFirebase.tambahFeedback(feedbackModel);
@@ -73,27 +79,32 @@ void main() {
       verify(mockBaseOpFirebase.tambah(any, any)).called(1);
     });
 
-    test('02. perbaruiFeedback harus memanggil _baseOpFirebase.update', () async {
-      // Arrange
-      const docId = 'feedback1';
-      const newContent = 'Updated feedback';
-      when(mockBaseOpFirebase.update(any, any, any))
-          .thenAnswer((_) async => Future.value());
+    test(
+      '02. perbaruiFeedback harus memanggil _baseOpFirebase.update',
+      () async {
+        // Arrange
+        const docId = 'feedback1';
+        const newContent = 'Updated feedback';
+        when(
+          mockBaseOpFirebase.update(any, any, any),
+        ).thenAnswer((_) async => Future.value());
 
-      // Act
-      await feedbackOpFirebase.perbaruiFeedback(docId, newContent);
+        // Act
+        await feedbackOpFirebase.perbaruiFeedback(docId, newContent);
 
-      // Assert
-      verify(mockBaseOpFirebase.update(any, docId, {
-        NamaKolom.pesan: newContent,
-      })).called(1);
-    });
+        // Assert
+        verify(
+          mockBaseOpFirebase.update(any, docId, {NamaKolom.pesan: newContent}),
+        ).called(1);
+      },
+    );
 
     test('03. delete harus memanggil _baseOpFirebase.hapusPermanen', () async {
       // Arrange
       const docId = 'feedback1';
-      when(mockBaseOpFirebase.hapusPermanen(any, any))
-          .thenAnswer((_) async => Future.value());
+      when(
+        mockBaseOpFirebase.hapusPermanen(any, any),
+      ).thenAnswer((_) async => Future.value());
 
       // Act
       await feedbackOpFirebase.delete(docId);
@@ -102,40 +113,49 @@ void main() {
       verify(mockBaseOpFirebase.hapusPermanen(any, docId)).called(1);
     });
 
-    test('04. softDeleteFeedback harus memanggil _baseOpFirebase.hapusSementara',
-        () async {
-      // Arrange
-      const docId = 'feedback1';
-      when(mockBaseOpFirebase.hapusSementara(any, any))
-          .thenAnswer((_) async => Future.value());
+    test(
+      '04. softDeleteFeedback harus memanggil _baseOpFirebase.hapusSementara',
+      () async {
+        // Arrange
+        const docId = 'feedback1';
+        when(
+          mockBaseOpFirebase.softDelete(any, any),
+        ).thenAnswer((_) async => Future.value());
 
-      // Act
-      await feedbackOpFirebase.softDeleteFeedback(docId);
+        // Act
+        await feedbackOpFirebase.softDeleteFeedback(docId);
 
-      // Assert
-      verify(mockBaseOpFirebase.hapusSementara(any, docId)).called(1);
-    });
+        // Assert
+        verify(mockBaseOpFirebase.softDelete(any, docId)).called(1);
+      },
+    );
 
-    test('05. ambilBerdasarkanUser harus mengembalikan stream list feedback', () {
-      // Arrange
-      const userId = 'user123';
-      final mockDocSnapshot = MockQueryDocumentSnapshot<Map<String, dynamic>>();
+    test(
+      '05. ambilBerdasarkanUser harus mengembalikan stream list feedback',
+      () {
+        // Arrange
+        const userId = 'user123';
+        final mockDocSnapshot =
+            MockQueryDocumentSnapshot<Map<String, dynamic>>();
 
-      when(mockQuerySnapshot.docs).thenReturn([mockDocSnapshot]);
-      when(mockDocSnapshot.id).thenReturn('feedback1');
-      when(mockDocSnapshot.data()).thenReturn(feedbackModel.toFirebase());
+        when(mockQuerySnapshot.docs).thenReturn([mockDocSnapshot]);
+        when(mockDocSnapshot.id).thenReturn('feedback1');
+        when(mockDocSnapshot.data()).thenReturn(feedbackModel.toFirebase());
 
-      // Act
-      final stream = feedbackOpFirebase.ambilBerdasarkanUser(userId);
+        // Act
+        final stream = feedbackOpFirebase.ambilBerdasarkanUser(userId);
 
-      // Assert
-      expect(stream, isA<Stream<List<FeedbackModel>>>());
-      stream.listen(expectAsync1((list) {
-        expect(list.length, 1);
-        expect(list.first.id, 'feedback1');
-        expect(list.first.userId, userId);
-      }));
-    });
+        // Assert
+        expect(stream, isA<Stream<List<FeedbackModel>>>());
+        stream.listen(
+          expectAsync1((list) {
+            expect(list.length, 1);
+            expect(list.first.id, 'feedback1');
+            expect(list.first.userId, userId);
+          }),
+        );
+      },
+    );
 
     test('06. ambilBerdasarkanUser harus menangani error', () {
       // Arrange

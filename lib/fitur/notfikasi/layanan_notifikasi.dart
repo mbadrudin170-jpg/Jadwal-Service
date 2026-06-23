@@ -180,6 +180,7 @@ class LayananNotifikasi {
               payload: 'notifikasi_id_${notifikasi.id}',
             );
             _idNotifikasiTampil.add(notifikasi.id);
+            await notifikasiOp.softDeleteNotifikasi(notifikasi.id);
           }
         }
       },

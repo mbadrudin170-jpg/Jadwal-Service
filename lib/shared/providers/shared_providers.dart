@@ -42,9 +42,7 @@ void pengontrolNotifikasi(Ref ref) {
   final role = ref.watch(appRoleProvider);
   final layananNotifikasi = ref.watch(layananNotifikasiProvider);
   final notifikasiOpFirebase = ref.watch(notifikasiOpFirebaseProvider);
-
   Log.info('Menginisialisasi Notifikasi Controller untuk peran: $role');
-
   if (role == AppRole.admin) {
     Log.info('Mode Admin: Memulai pemantauan notifikasi umum.');
     layananNotifikasi.pantauNotifUmum(notifikasiOpFirebase);

@@ -54,7 +54,7 @@ class FeedbackOpFirebase {
   /// Melakukan soft delete pada feedback di Firestore.
   Future<void> softDeleteFeedback(String id) async {
     Log.info('Mendelegasikan soft delete feedback: $id');
-    await _baseOpFirebase.hapusSementara(_namaKoleksi, id);
+    await _baseOpFirebase.softDelete(_namaKoleksi, id);
   }
 
   // =======================================================================

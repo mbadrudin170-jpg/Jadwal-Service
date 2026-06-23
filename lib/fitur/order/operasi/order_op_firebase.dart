@@ -39,7 +39,7 @@ class OrderOpFirebase extends BaseOpFirebase {
   /// 3. Menghapus pesanan (soft delete)
   Future<void> softDeleteOrder(String orderId) async {
     Log.info('Menghapus pesanan: $orderId');
-    await _baseOp.hapusSementara(_namaKoleksi, orderId);
+    await _baseOp.softDelete(_namaKoleksi, orderId);
   }
 
   /// 4. Mendapatkan stream semua pesanan
