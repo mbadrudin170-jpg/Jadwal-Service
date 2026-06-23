@@ -1,4 +1,4 @@
-// path: lib/admin/providers/transaksi_provider.dart
+// path: lib/fitur/transaksi/provider/transaksi_provider.dart
 
 import 'dart:async';
 
@@ -20,7 +20,7 @@ abstract class TransaksiState with _$TransaksiState {
     @Default(0.0) double totalPemasukan,
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
-    @Default(0) int totalPoin,
+    @Default(0) int totalPoinSemuaPelanggan, // ✅ Ganti nama agar jelas
   }) = _TransaksiState;
 }
 
@@ -34,15 +34,13 @@ class Transaksi extends _$Transaksi {
     return _loadData();
   }
 
-  // PERBAIKAN 2: Passing nilai sortBy ke dalam fungsi load data
-  // untuk menghindari pembacaan `state.value` yang tidak menentu saat async loading
   Future<TransaksiState> _loadData() async {
     final hasil = await Future.wait([
       _transaksiOpSqlite.ambilSemua(),
       _transaksiOpSqlite.getTotalIncome(),
       _transaksiOpSqlite.getTotalExpense(),
       _transaksiOpSqlite.getNetTotal(),
-      _transaksiOpSqlite.ambilTotalPoin(idPelanggan)
+      _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan(), // ✅ Method baru
     ]);
 
     final transaksi = hasil[0] as List<TransaksiModel>;
@@ -52,7 +50,32 @@ class Transaksi extends _$Transaksi {
       totalPemasukan: hasil[1] as double,
       totalPengeluaran: hasil[2] as double,
       total: hasil[3] as double,
+      totalPoinSemuaPelanggan: hasil[4] as int, // ✅ Isi total poin
     );
+  }
+
+  // ✅ Method untuk ambil poin per pelanggan
+  Future<int> getTotalPoinPelanggan(String idPelanggan) async {
+    return await _transaksiOpSqlite.ambilTotalPoin(idPelanggan);
+  }
+
+  // ✅ Method untuk ambil poin banyak pelanggan (paralel)
+  Future<Map<String, int>> getTotalPoinBanyakPelanggan(List<String> ids) async {
+    final Map<String, int> hasil = {};
+    for (final id in ids) {
+      hasil[id] = await _transaksiOpSqlite.ambilTotalPoin(id);
+    }
+    return hasil;
+  }
+
+  // ✅ Method untuk ambil poin banyak pelanggan dengan Future.wait (lebih cepat)
+  Future<List<int>> getTotalPoinBanyakPelangganParallel(
+    List<String> ids,
+  ) async {
+    final List<Future<int>> futures = ids
+        .map((id) => _transaksiOpSqlite.ambilTotalPoin(id))
+        .toList();
+    return await Future.wait(futures);
   }
 
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {

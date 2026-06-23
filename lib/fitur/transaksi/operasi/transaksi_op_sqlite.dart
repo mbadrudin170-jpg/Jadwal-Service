@@ -474,6 +474,34 @@ class TransaksiOpSqlite {
     );
     return total;
   }
+  Future<int> ambilTotalPoinSemuaPelanggan() async {
+    try {
+      final db = await sqliteDb.database;
+      Log.info('Menghitung total poin semua pelanggan');
+
+      final result = await db.rawQuery(
+        '''
+      SELECT 
+        SUM(${NamaKolom.poinDidapat}) as total_poin_didapat,
+        SUM(${NamaKolom.poinDigunakan}) as total_poin_digunakan
+      FROM $_tabel 
+      WHERE ${NamaKolom.dihapus} = 0 
+        AND ${NamaKolom.statusPembayaran} = ?
+      ''',
+        [StatusPembayaran.paid.name],
+      );
+
+      final poinDidapat = result.first['total_poin_didapat'] as int? ?? 0;
+      final poinDigunakan = result.first['total_poin_digunakan'] as int? ?? 0;
+      final total = poinDidapat - poinDigunakan;
+
+      Log.info('Total poin semua pelanggan: $total');
+      return total;
+    } on Exception catch (e, st) {
+      Log.error('Error hitung total poin semua pelanggan', e: e, s: st);
+      return 0;
+    }
+  }
 
   /// Memasukkan atau memperbarui beberapa transaksi sekaligus (batch) dan menghitung ulang saldo dompet yang terpengaruh.
   Future<void> sisipkanAtauPerbaruiBatch(

@@ -45,6 +45,20 @@ class PelangganNotifier extends _$PelangganNotifier {
       totalPoin: totalPoin.toInt(),
     );
   }
+
+  Future<void> softDelete(String id) async {
+    state = await AsyncValue.guard(() async {
+      await pelangganOpSqlite.softDelete(id);
+      return _ambilData();
+    });
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      return _ambilData();
+    });
+  }
 }
 
 /// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.

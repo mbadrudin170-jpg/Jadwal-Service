@@ -24,22 +24,44 @@ enum UrutanPelanggan {
   poinTerkecil,
 }
 
-// --- Combined & Filtered Data Provider ---
+/// Provider untuk mendapatkan daftar pelanggan dengan poin
+final pelangganDenganPoinProvider =
+    FutureProvider.autoDispose<List<(PelangganModel, int)>>((ref) async {
+      final pelangganState = await ref.watch(pelangganProvider.future);
+      final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
+
+      final daftarPelanggan = pelangganState.daftarPelanggan;
+
+      // ✅ Ambil poin secara paralel
+      final List<Future<int>> futures = daftarPelanggan
+          .map((p) => transaksiOpSqlite.ambilTotalPoin(p.id))
+          .toList();
+
+      final semuaPoin = await Future.wait(futures);
+
+      final hasil = <(PelangganModel, int)>[];
+      for (int i = 0; i < daftarPelanggan.length; i++) {
+        hasil.add((daftarPelanggan[i], semuaPoin[i]));
+      }
+
+      return hasil;
+    });
 
 /// Provider lokal untuk memfilter dan mengurutkan pelanggan secara reaktif berdasarkan state modern.
 final filteredCustomersProvider =
     Provider.autoDispose<AsyncValue<List<(PelangganModel, int)>>>((ref) {
-      final daftarPelanggan = ref.watch(daftarPelangganProvider);
+      final pelangganWithPoints = ref.watch(pelangganDenganPoinProvider);
       final searchQuery = ref.watch(searchQueryPelangganProvider).toLowerCase();
       final sortOption = ref.watch(urutanPelangganStateProvider);
 
-      return daftarPelanggan.when(
+      return pelangganWithPoints.when(
         data: (customersWithPoints) {
           final filtered = customersWithPoints
               .where(
                 (tuple) => tuple.$1.nama.toLowerCase().contains(searchQuery),
               )
               .toList();
+
           if (filtered.isNotEmpty) {
             switch (sortOption) {
               case UrutanPelanggan.namaAZ:
@@ -126,7 +148,10 @@ class _PelangganState extends ConsumerState<Pelanggan> {
     return Scaffold(
       appBar: _buildAppBar(),
       body: RefreshIndicator(
-        onRefresh: () => ref.refresh(daftarPelangganProvider.future),
+        onRefresh: () async {
+          await ref.refresh(pelangganProvider.notifier).refresh();
+          ref.invalidate(pelangganDenganPoinProvider);
+        },
         child: _buildContent(),
       ),
       floatingActionButton: FloatingActionButton(
