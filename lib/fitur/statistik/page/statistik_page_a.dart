@@ -3,6 +3,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
@@ -47,22 +48,22 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
   ];
 
   List<FlSpot> get _currentSpots => switch (_selectedRange) {
-        ChartRange.harian => _dailySpots,
-        ChartRange.mingguan => _weeklySpots,
-        ChartRange.bulanan => _monthlySpots,
-      };
+    ChartRange.harian => _dailySpots,
+    ChartRange.mingguan => _weeklySpots,
+    ChartRange.bulanan => _monthlySpots,
+  };
 
   double get _maxX => switch (_selectedRange) {
-        ChartRange.harian => 6,
-        ChartRange.mingguan => 3,
-        ChartRange.bulanan => 4,
-      };
+    ChartRange.harian => 6,
+    ChartRange.mingguan => 3,
+    ChartRange.bulanan => 4,
+  };
 
   double get _maxY => switch (_selectedRange) {
-        ChartRange.harian => 2,
-        ChartRange.mingguan => 3,
-        ChartRange.bulanan => 6,
-      };
+    ChartRange.harian => 2,
+    ChartRange.mingguan => 3,
+    ChartRange.bulanan => 6,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +137,12 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                       ),
                       _buildStatCardWrapper(
                         onTap: () {
-                          /* Navigasi ke halaman feedback */
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) => const FeedbackPageA(),
+                            ),
+                          );
                         },
                         title: 'Feedback Baru',
                         value: data.totalFeedback.toString(),

@@ -21,7 +21,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
     required DateTime tanggalMulai,
     required DateTime tanggalBerakhir,
     required StatusPembayaran status,
-    DateTime? diperbaruiPada,
+    required DateTime? diperbaruiPada,
     @Default(false) bool diHapus,
     DateTime? diarsipkanPada,
   }) = _PelangganAktifModel;
@@ -41,7 +41,6 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
       if (tanggalBerakhir == null) {
         throw ArgumentError.notNull('endDate from SQLite');
       }
-
       final model = PelangganAktifModel(
         id: map[NamaKolom.id] as String,
         idPelanggan: map[NamaKolom.idPelanggan] as String? ?? '',
@@ -49,10 +48,12 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
         idTransaksi: map[NamaKolom.idTransaksi] as String? ?? '',
         tanggalMulai: tanggalMulai,
         tanggalBerakhir: tanggalBerakhir,
-        status: StatusPembayaran.values.firstWhere(
-          (final e) => e.name == map[NamaKolom.status],
-          orElse: () => StatusPembayaran.paid,
-        ),
+        status:
+            ParserUtil.safeParseEnum(
+              StatusPembayaran.values,
+              map[NamaKolom.status],
+            ) ??
+            StatusPembayaran.paid,
         diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
         diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
         diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
@@ -108,10 +109,12 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
         idTransaksi: data[NamaKolom.idTransaksi] as String? ?? '',
         tanggalMulai: tanggalMulai,
         tanggalBerakhir: tanggalBerakhir,
-        status: StatusPembayaran.values.firstWhere(
-          (e) => e.name == data[NamaKolom.status],
-          orElse: () => StatusPembayaran.paid,
-        ),
+        status:
+            ParserUtil.safeParseEnum(
+              StatusPembayaran.values,
+              data[NamaKolom.status],
+            ) ??
+            StatusPembayaran.paid,
         diperbaruiPada: ParserUtil.parseDateTime(
           data[NamaKolom.diperbaruiPada],
         ),

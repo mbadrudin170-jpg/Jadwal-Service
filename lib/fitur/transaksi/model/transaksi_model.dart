@@ -43,22 +43,6 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
     @Default(false) bool statusAktivasi,
   }) = _TransaksiModel;
 
-  static T? _safeParseEnum<T extends Enum>(
-    final List<T> values,
-    final dynamic name,
-  ) {
-    if (name == null || name is! String) {
-      return null;
-    }
-    for (final value in values) {
-      if (value.name == name) {
-        return value;
-      }
-    }
-    Log.warning('Gagal mengurai enum untuk tipe $T', name);
-    return null;
-  }
-
   factory TransaksiModel.fromSqlite(final Map<String, dynamic> map) {
     Log.info('Membuat TransaksiModel dari SQLite: ${map[NamaKolom.id]}');
     return TransaksiModel(
@@ -68,7 +52,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       deskripsi: map[NamaKolom.deskripsi] as String? ?? '',
       jumlah: (map[NamaKolom.jumlah] as num? ?? 0).toDouble(),
       tipe:
-          _safeParseEnum(TipeTransaksi.values, map[NamaKolom.tipe]) ??
+          ParserUtil.safeParseEnum(TipeTransaksi.values, map[NamaKolom.tipe]) ??
           TipeTransaksi.expense,
       idDompet: map[NamaKolom.idDompet] as String? ?? '',
       idKategori: map[NamaKolom.idKategori] as String? ?? '',
@@ -77,7 +61,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       idPaket: map[NamaKolom.idPaket] as String?,
       idSubKategori: map[NamaKolom.idSubKategori] as String?,
       statusPembayaran:
-          _safeParseEnum(
+          ParserUtil.safeParseEnum(
             StatusPembayaran.values,
             map[NamaKolom.statusPembayaran],
           ) ??
@@ -88,12 +72,12 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
       diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       durasiPaket: (map[NamaKolom.durasiPaket] as num?)?.toInt(),
-      tipeDurasiPaket: _safeParseEnum(
+      tipeDurasiPaket: ParserUtil.safeParseEnum(
         TipeDurasiPaket.values,
         map[NamaKolom.tipeDurasiPaket],
       ),
       durasiBonus: (map[NamaKolom.durasiBonus] as num? ?? 0).toInt(),
-      tipeDurasiBonus: _safeParseEnum(
+      tipeDurasiBonus: ParserUtil.safeParseEnum(
         TipeDurasiPaket.values,
         map[NamaKolom.tipeDurasiBonus],
       ),
@@ -145,7 +129,10 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       deskripsi: data[NamaKolom.deskripsi] as String? ?? '',
       jumlah: (data[NamaKolom.jumlah] as num? ?? 0).toDouble(),
       tipe:
-          _safeParseEnum(TipeTransaksi.values, data[NamaKolom.tipe]) ??
+          ParserUtil.safeParseEnum(
+            TipeTransaksi.values,
+            data[NamaKolom.tipe],
+          ) ??
           TipeTransaksi.expense,
       idDompet: data[NamaKolom.idDompet] as String? ?? '',
       idKategori: data[NamaKolom.idKategori] as String? ?? '',
@@ -154,7 +141,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       idPaket: data[NamaKolom.idPaket] as String?,
       idSubKategori: data[NamaKolom.idSubKategori] as String?,
       statusPembayaran:
-          _safeParseEnum(
+          ParserUtil.safeParseEnum(
             StatusPembayaran.values,
             data[NamaKolom.statusPembayaran],
           ) ??
@@ -165,12 +152,12 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
       diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       durasiPaket: (data[NamaKolom.durasiPaket] as num?)?.toInt(),
-      tipeDurasiPaket: _safeParseEnum(
+      tipeDurasiPaket: ParserUtil.safeParseEnum(
         TipeDurasiPaket.values,
         data[NamaKolom.tipeDurasiPaket],
       ),
       durasiBonus: (data[NamaKolom.durasiBonus] as num? ?? 0).toInt(),
-      tipeDurasiBonus: _safeParseEnum(
+      tipeDurasiBonus: ParserUtil.safeParseEnum(
         TipeDurasiPaket.values,
         data[NamaKolom.tipeDurasiBonus],
       ),

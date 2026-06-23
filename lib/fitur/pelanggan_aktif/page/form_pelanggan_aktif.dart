@@ -336,6 +336,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         tanggalBerakhir: tanggalBerakhir,
         status: _statusPembayaran,
         idTransaksi: idTransaksi,
+        diperbaruiPada: DateTime.now().toUtc(),
       );
 
       final transaksiData = TransaksiModel(

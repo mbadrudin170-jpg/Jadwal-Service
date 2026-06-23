@@ -32,4 +32,20 @@ class ParserUtil {
     Log.warning('Format bool tidak dikenali: $value, dianggap false.');
     return false;
   }
+
+  static T? safeParseEnum<T extends Enum>(
+    final List<T> values,
+    final dynamic name,
+  ) {
+    if (name == null || name is! String) {
+      return null;
+    }
+    for (final value in values) {
+      if (value.name == name) {
+        return value;
+      }
+    }
+    Log.warning('Gagal mengurai enum untuk tipe $T', name);
+    return null;
+  }
 }

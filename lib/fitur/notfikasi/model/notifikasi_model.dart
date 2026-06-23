@@ -23,7 +23,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
     required String deskripsi,
     @Default(false) bool setatusDibaca,
     required TipeNotifikasiEnum tipe,
-    DateTime? diperbaruiPada,
+    required DateTime diperbaruiPada,
     required String idTujuan,
     required String userId,
     @Default(false) bool dihapus,

@@ -1280,7 +1280,6 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
-import 'package:wifi/fitur/notfikasi/enum/tipe_notifikasi_enum.dart';
 import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
 import 'package:wifi/fitur/paket/core/perhitungan_paket.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
@@ -1296,6 +1295,7 @@ import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -1632,7 +1632,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       Log.info(
         'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$idTransaksi',
       );
-
       PelangganAktifModel pelangganAktifHasil;
       if (_modeEdit) {
         pelangganAktifHasil = await pelangganAktifOpsqlite.updatePelangganAktif(
@@ -1654,7 +1653,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             .tambahTransaksi(transaksiData);
       }
       ref.invalidate(pelangganAktifProvider);
-
       final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
       final durasiSetengahJalan = Duration(
         microseconds: (totalDurasi.inMicroseconds / 2).round(),
@@ -1662,7 +1660,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final tanggalNotifikasiSetengahJalan = tanggalMulai.add(
         durasiSetengahJalan,
       );
-
       final List<NotifikasiModel> daftarNotifikasi = [
         NotifikasiModel(
           id: const Uuid().v4(),
@@ -1674,6 +1671,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           deskripsi:
               'Anda telah menggunakan 50% dari masa aktif paket ${_paketDipilih!.nama}.',
           idTujuan: idTransaksi,
+          targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
           diperbaruiPada: DateTime.now().toUtc(),
         ),
@@ -1687,6 +1685,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           deskripsi:
               'Masa aktif paket ${_paketDipilih!.nama} Anda akan berakhir besok.',
           idTujuan: idTransaksi,
+          targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
           diperbaruiPada: DateTime.now().toUtc(),
         ),
@@ -1700,6 +1699,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           deskripsi:
               'Masa aktif untuk paket ${_paketDipilih!.nama} telah berakhir hari ini.',
           idTujuan: idTransaksi,
+          targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
           diperbaruiPada: DateTime.now().toUtc(),
         ),
@@ -1713,16 +1713,15 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           deskripsi:
               'Masa aktif untuk paket ${_paketDipilih!.nama} telah berakhir kemarin. Silakan perpanjang.',
           idTujuan: idTransaksi,
+          targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
           diperbaruiPada: DateTime.now().toUtc(),
         ),
       ];
       Log.info('data notifikasi untuk masa aktif paket telah dibuat,');
-
       for (final notif in daftarNotifikasi) {
         await notifikasiOpFirebase.addNotifikasi(notif);
       }
-
       final isOnline = await ref
           .read(koneksiInternetServiceProvider)
           .cekKoneksiLokal();
@@ -5420,7 +5419,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         );
         return;
       }
-
       final isOnline = await ref
           .read(koneksiInternetServiceProvider)
           .cekInternet();
@@ -5429,7 +5427,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         ToastUtil.warning(context, 'Cek koneksi internet Anda');
         return;
       }
-
       final bool poinCukup = poinSaatIni >= hadiah.poinPenukaran;
       if (!poinCukup) {
         ToastUtil.warning(
@@ -5455,7 +5452,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           ],
         ),
       );
-
       if (!mounted) return;
       if (dikonfirmasi ?? false) {
         Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
@@ -5463,17 +5459,14 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           final dataPelanggan = await ref
               .read(pelangganOpSqliteProvider)
               .ambilBerdasarkanId(widget.idPelanggan);
-
           final sekarang = DateTime.now();
           final idOrder = const Uuid().v4();
-
           final dataPesanan = OrderModel(
             id: idOrder,
             idPelanggan: widget.idPelanggan,
             idPaket: hadiah.id,
             tanggal: sekarang,
           );
-
           final notifikasiData = NotifikasiModel(
             id: const Uuid().v4(),
             tanggalMulai: sekarang,
@@ -5485,22 +5478,20 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             diperbaruiPada: sekarang,
             idTujuan: idOrder,
             userId: widget.idPelanggan,
+            targetRole: AppRole.admin,
           );
-
           await ref
               .read(notifikasiOpFirebaseProvider)
               .addNotifikasi(notifikasiData);
           Log.info(
             'berhasil membuat order baru untuk id pelanggan: ${widget.idPelanggan}',
           );
-
           await ref.read(orderOpFirebaseProvider).addOrder(dataPesanan);
           Log.info('berhasil membuat notifikasi untuk paket');
           if (!mounted) return;
           ref.invalidate(pointsPageDataProvider);
           ref.invalidate(pointsHistoryProvider);
           ref.invalidate(orderProvider);
-
           ToastUtil.success(
             context,
             'Order sudah terkirim menunggu konfirmasi Admin',
@@ -5548,7 +5539,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   Widget build(BuildContext context) {
     Log.info('Building PointsPage UI, selected menu: $_menuAktif');
     final dataAsync = ref.watch(pointsPageDataProvider(widget.idPelanggan));
-
     return dataAsync.when(
       loading: () => Scaffold(
         appBar: AppBar(title: _judulAppBar),
@@ -31716,10 +31706,8 @@ class NotifikasiOpFirebase {
   Stream<List<NotifikasiModel>> getByUserId(String userId) {
     return _firestore
         .collection(_koleksi)
-        .where(
-          NamaKolom.userId,
-          isEqualTo: userId,
-        ) // Diperbaiki dari idTujuan ke userId
+        .where(NamaKolom.userId, isEqualTo: userId)
+        .where(NamaKolom.targetRole, isEqualTo: AppRole.user)
         .where(NamaKolom.dihapus, isEqualTo: false)
         .where(NamaKolom.setatusDibaca, isEqualTo: false)
         .snapshots()
@@ -31747,6 +31735,7 @@ class NotifikasiOpFirebase {
     final now = DateTime.now();
     return _firestore
         .collection(_koleksi)
+        .where(NamaKolom.targetRole, isEqualTo: AppRole.admin)
         .where(NamaKolom.tipe, isEqualTo: TipeNotifikasiEnum.order.name)
         .where(NamaKolom.setatusDibaca, isEqualTo: false)
         .where(NamaKolom.dihapus, isEqualTo: false)
@@ -31871,7 +31860,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$NotifikasiModel {
 
- String get id; DateTime get tanggalMulai; DateTime get tanggalBerakhir; DateTime get tanggalTampil; String get judul; String get deskripsi; bool get setatusDibaca; TipeNotifikasiEnum get tipe; DateTime? get diperbaruiPada; String get idTujuan; String get userId; bool get dihapus; DateTime? get diarsipkanPada;
+ String get id; DateTime get tanggalMulai; DateTime get tanggalBerakhir; DateTime get tanggalTampil; String get judul; String get deskripsi; bool get setatusDibaca; TipeNotifikasiEnum get tipe; DateTime? get diperbaruiPada; String get idTujuan; String get userId; bool get dihapus; DateTime? get diarsipkanPada; AppRole get targetRole;
 /// Create a copy of NotifikasiModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -31882,16 +31871,16 @@ $NotifikasiModelCopyWith<NotifikasiModel> get copyWith => _$NotifikasiModelCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotifikasiModel&&(identical(other.id, id) || other.id == id)&&(identical(other.tanggalMulai, tanggalMulai) || other.tanggalMulai == tanggalMulai)&&(identical(other.tanggalBerakhir, tanggalBerakhir) || other.tanggalBerakhir == tanggalBerakhir)&&(identical(other.tanggalTampil, tanggalTampil) || other.tanggalTampil == tanggalTampil)&&(identical(other.judul, judul) || other.judul == judul)&&(identical(other.deskripsi, deskripsi) || other.deskripsi == deskripsi)&&(identical(other.setatusDibaca, setatusDibaca) || other.setatusDibaca == setatusDibaca)&&(identical(other.tipe, tipe) || other.tipe == tipe)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.idTujuan, idTujuan) || other.idTujuan == idTujuan)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotifikasiModel&&(identical(other.id, id) || other.id == id)&&(identical(other.tanggalMulai, tanggalMulai) || other.tanggalMulai == tanggalMulai)&&(identical(other.tanggalBerakhir, tanggalBerakhir) || other.tanggalBerakhir == tanggalBerakhir)&&(identical(other.tanggalTampil, tanggalTampil) || other.tanggalTampil == tanggalTampil)&&(identical(other.judul, judul) || other.judul == judul)&&(identical(other.deskripsi, deskripsi) || other.deskripsi == deskripsi)&&(identical(other.setatusDibaca, setatusDibaca) || other.setatusDibaca == setatusDibaca)&&(identical(other.tipe, tipe) || other.tipe == tipe)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.idTujuan, idTujuan) || other.idTujuan == idTujuan)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.targetRole, targetRole) || other.targetRole == targetRole));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,tanggalMulai,tanggalBerakhir,tanggalTampil,judul,deskripsi,setatusDibaca,tipe,diperbaruiPada,idTujuan,userId,dihapus,diarsipkanPada);
+int get hashCode => Object.hash(runtimeType,id,tanggalMulai,tanggalBerakhir,tanggalTampil,judul,deskripsi,setatusDibaca,tipe,diperbaruiPada,idTujuan,userId,dihapus,diarsipkanPada,targetRole);
 
 @override
 String toString() {
-  return 'NotifikasiModel(id: $id, tanggalMulai: $tanggalMulai, tanggalBerakhir: $tanggalBerakhir, tanggalTampil: $tanggalTampil, judul: $judul, deskripsi: $deskripsi, setatusDibaca: $setatusDibaca, tipe: $tipe, diperbaruiPada: $diperbaruiPada, idTujuan: $idTujuan, userId: $userId, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada)';
+  return 'NotifikasiModel(id: $id, tanggalMulai: $tanggalMulai, tanggalBerakhir: $tanggalBerakhir, tanggalTampil: $tanggalTampil, judul: $judul, deskripsi: $deskripsi, setatusDibaca: $setatusDibaca, tipe: $tipe, diperbaruiPada: $diperbaruiPada, idTujuan: $idTujuan, userId: $userId, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada, targetRole: $targetRole)';
 }
 
 
@@ -31902,7 +31891,7 @@ abstract mixin class $NotifikasiModelCopyWith<$Res>  {
   factory $NotifikasiModelCopyWith(NotifikasiModel value, $Res Function(NotifikasiModel) _then) = _$NotifikasiModelCopyWithImpl;
 @useResult
 $Res call({
- String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime? diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada
+ String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime? diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada, AppRole targetRole
 });
 
 
@@ -31919,7 +31908,7 @@ class _$NotifikasiModelCopyWithImpl<$Res>
 
 /// Create a copy of NotifikasiModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = freezed,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = freezed,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,Object? targetRole = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,tanggalMulai: null == tanggalMulai ? _self.tanggalMulai : tanggalMulai // ignore: cast_nullable_to_non_nullable
@@ -31934,7 +31923,8 @@ as DateTime?,idTujuan: null == idTujuan ? _self.idTujuan : idTujuan // ignore: c
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
 as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,targetRole: null == targetRole ? _self.targetRole : targetRole // ignore: cast_nullable_to_non_nullable
+as AppRole,
   ));
 }
 
@@ -32019,10 +32009,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime? diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime? diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotifikasiModel() when $default != null:
-return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada);case _:
+return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada,_that.targetRole);case _:
   return orElse();
 
 }
@@ -32040,10 +32030,10 @@ return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalT
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime? diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime? diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)  $default,) {final _that = this;
 switch (_that) {
 case _NotifikasiModel():
-return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada);case _:
+return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada,_that.targetRole);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -32060,10 +32050,10 @@ return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalT
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime? diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime? diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)?  $default,) {final _that = this;
 switch (_that) {
 case _NotifikasiModel() when $default != null:
-return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada);case _:
+return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada,_that.targetRole);case _:
   return null;
 
 }
@@ -32075,7 +32065,7 @@ return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalT
 
 
 class _NotifikasiModel extends NotifikasiModel {
-  const _NotifikasiModel({required this.id, required this.tanggalMulai, required this.tanggalBerakhir, required this.tanggalTampil, required this.judul, required this.deskripsi, this.setatusDibaca = false, required this.tipe, this.diperbaruiPada, required this.idTujuan, required this.userId, this.dihapus = false, this.diarsipkanPada}): super._();
+  const _NotifikasiModel({required this.id, required this.tanggalMulai, required this.tanggalBerakhir, required this.tanggalTampil, required this.judul, required this.deskripsi, this.setatusDibaca = false, required this.tipe, this.diperbaruiPada, required this.idTujuan, required this.userId, this.dihapus = false, this.diarsipkanPada, required this.targetRole}): super._();
   
 
 @override final  String id;
@@ -32091,6 +32081,7 @@ class _NotifikasiModel extends NotifikasiModel {
 @override final  String userId;
 @override@JsonKey() final  bool dihapus;
 @override final  DateTime? diarsipkanPada;
+@override final  AppRole targetRole;
 
 /// Create a copy of NotifikasiModel
 /// with the given fields replaced by the non-null parameter values.
@@ -32102,16 +32093,16 @@ _$NotifikasiModelCopyWith<_NotifikasiModel> get copyWith => __$NotifikasiModelCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotifikasiModel&&(identical(other.id, id) || other.id == id)&&(identical(other.tanggalMulai, tanggalMulai) || other.tanggalMulai == tanggalMulai)&&(identical(other.tanggalBerakhir, tanggalBerakhir) || other.tanggalBerakhir == tanggalBerakhir)&&(identical(other.tanggalTampil, tanggalTampil) || other.tanggalTampil == tanggalTampil)&&(identical(other.judul, judul) || other.judul == judul)&&(identical(other.deskripsi, deskripsi) || other.deskripsi == deskripsi)&&(identical(other.setatusDibaca, setatusDibaca) || other.setatusDibaca == setatusDibaca)&&(identical(other.tipe, tipe) || other.tipe == tipe)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.idTujuan, idTujuan) || other.idTujuan == idTujuan)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotifikasiModel&&(identical(other.id, id) || other.id == id)&&(identical(other.tanggalMulai, tanggalMulai) || other.tanggalMulai == tanggalMulai)&&(identical(other.tanggalBerakhir, tanggalBerakhir) || other.tanggalBerakhir == tanggalBerakhir)&&(identical(other.tanggalTampil, tanggalTampil) || other.tanggalTampil == tanggalTampil)&&(identical(other.judul, judul) || other.judul == judul)&&(identical(other.deskripsi, deskripsi) || other.deskripsi == deskripsi)&&(identical(other.setatusDibaca, setatusDibaca) || other.setatusDibaca == setatusDibaca)&&(identical(other.tipe, tipe) || other.tipe == tipe)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.idTujuan, idTujuan) || other.idTujuan == idTujuan)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.targetRole, targetRole) || other.targetRole == targetRole));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,tanggalMulai,tanggalBerakhir,tanggalTampil,judul,deskripsi,setatusDibaca,tipe,diperbaruiPada,idTujuan,userId,dihapus,diarsipkanPada);
+int get hashCode => Object.hash(runtimeType,id,tanggalMulai,tanggalBerakhir,tanggalTampil,judul,deskripsi,setatusDibaca,tipe,diperbaruiPada,idTujuan,userId,dihapus,diarsipkanPada,targetRole);
 
 @override
 String toString() {
-  return 'NotifikasiModel(id: $id, tanggalMulai: $tanggalMulai, tanggalBerakhir: $tanggalBerakhir, tanggalTampil: $tanggalTampil, judul: $judul, deskripsi: $deskripsi, setatusDibaca: $setatusDibaca, tipe: $tipe, diperbaruiPada: $diperbaruiPada, idTujuan: $idTujuan, userId: $userId, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada)';
+  return 'NotifikasiModel(id: $id, tanggalMulai: $tanggalMulai, tanggalBerakhir: $tanggalBerakhir, tanggalTampil: $tanggalTampil, judul: $judul, deskripsi: $deskripsi, setatusDibaca: $setatusDibaca, tipe: $tipe, diperbaruiPada: $diperbaruiPada, idTujuan: $idTujuan, userId: $userId, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada, targetRole: $targetRole)';
 }
 
 
@@ -32122,7 +32113,7 @@ abstract mixin class _$NotifikasiModelCopyWith<$Res> implements $NotifikasiModel
   factory _$NotifikasiModelCopyWith(_NotifikasiModel value, $Res Function(_NotifikasiModel) _then) = __$NotifikasiModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime? diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada
+ String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime? diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada, AppRole targetRole
 });
 
 
@@ -32139,7 +32130,7 @@ class __$NotifikasiModelCopyWithImpl<$Res>
 
 /// Create a copy of NotifikasiModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = freezed,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = freezed,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,Object? targetRole = null,}) {
   return _then(_NotifikasiModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,tanggalMulai: null == tanggalMulai ? _self.tanggalMulai : tanggalMulai // ignore: cast_nullable_to_non_nullable
@@ -32154,7 +32145,8 @@ as DateTime?,idTujuan: null == idTujuan ? _self.idTujuan : idTujuan // ignore: c
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
 as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,targetRole: null == targetRole ? _self.targetRole : targetRole // ignore: cast_nullable_to_non_nullable
+as AppRole,
   ));
 }
 
@@ -32195,6 +32187,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
     required String userId,
     @Default(false) bool dihapus,
     DateTime? diarsipkanPada,
+    required AppRole targetRole,
   }) = _NotifikasiModel;
 
   static T? _safeParseEnum<T extends Enum>(
@@ -32233,6 +32226,9 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
           ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]) ??
           DateTime.now(),
       idTujuan: map[NamaKolom.idTujuan] as String? ?? '',
+      targetRole:
+          _safeParseEnum(AppRole.values, map[NamaKolom.targetRole]) ??
+          AppRole.user,
       userId: map[NamaKolom.userId] as String? ?? '',
       dihapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
@@ -32253,6 +32249,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
       NamaKolom.tipe: tipe.name,
       NamaKolom.diperbaruiPada: diperbaruiPada?.millisecondsSinceEpoch,
       NamaKolom.idTujuan: idTujuan,
+      NamaKolom.targetRole: targetRole.name,
       NamaKolom.userId: userId,
       NamaKolom.dihapus: dihapus ? 1 : 0,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
@@ -32286,6 +32283,9 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
           ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]) ??
           DateTime.now(),
       idTujuan: data[NamaKolom.idTujuan] as String? ?? '',
+      targetRole:
+          _safeParseEnum(AppRole.values, data[NamaKolom.targetRole]) ??
+          AppRole.user,
       userId: data[NamaKolom.userId] as String? ?? '',
       dihapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
@@ -32303,6 +32303,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
       NamaKolom.tipe: tipe.name,
       NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada!.toUtc()),
       NamaKolom.idTujuan: idTujuan,
+      NamaKolom.targetRole: targetRole.name,
       NamaKolom.userId: userId,
       NamaKolom.dihapus: dihapus,
       NamaKolom.tanggalTampil: Timestamp.fromDate(tanggalTampil.toUtc()),
@@ -42282,6 +42283,7 @@ abstract final class NamaKolom {
   static const String tanggalTampil = 'tanggal_tampil';
   static const String durasiBonus = 'durasi_bonus';
   static const String tipeDurasiBonus = 'durasi_bonus_type';
+  static const String targetRole = 'target_role';
 }
 
 

@@ -34,7 +34,6 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       alamat: map[NamaKolom.alamat] as String? ?? '',
       kataSandi: map[NamaKolom.kataSandi] as String? ?? '',
       macAddress: map[NamaKolom.macAddress] as String? ?? '',
-      // DIUBAH: Menggunakan ParserUtil
       diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
@@ -42,7 +41,6 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
     );
   }
 
-  /// Converts the [PelangganModel] to a map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
@@ -86,10 +84,8 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.kataSandi: kataSandi,
       NamaKolom.macAddress: macAddress,
       NamaKolom.dihapus: diHapus,
-      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       NamaKolom.diperbaruiPada:
           Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
-      // DIUBAH: Menggunakan .toUtc() jika tidak null
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,
