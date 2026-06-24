@@ -34,7 +34,7 @@ class UiHalamanPoin extends StatelessWidget {
   });
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: appBarTitle, elevation: 1),
       body: Column(
@@ -49,7 +49,7 @@ class UiHalamanPoin extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoPoinHeader(final BuildContext context) {
+  Widget _buildInfoPoinHeader(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24),
@@ -58,7 +58,7 @@ class UiHalamanPoin extends StatelessWidget {
     );
   }
 
-  Widget _buildSegmentedControl(final BuildContext context) {
+  Widget _buildSegmentedControl(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.primaryColor;
 

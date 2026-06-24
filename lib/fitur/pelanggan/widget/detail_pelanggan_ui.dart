@@ -29,7 +29,7 @@ class DetailPelangganUI extends StatefulWidget {
 }
 
 class _DetailPelangganUIState extends State<DetailPelangganUI> {
-  Future<void> _salinInformasi(final String label, final String data) async {
+  Future<void> _salinInformasi(String label, String data) async {
     if (!mounted) return;
 
     if (data.isEmpty) {
@@ -44,7 +44,7 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     Log.info(
       'Membangun CustomerDetailUI untuk pelanggan: ${widget.pelanggan.nama}',
     );
@@ -54,7 +54,7 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
         actions: [
           if (widget.navigasiKeEdit != null)
             IconButton(
-              icon: const Icon(Icons.edit),
+              icon: const Icon(TIcons.edit),
               tooltip: 'Edit Profil',
               onPressed: () {
                 Log.info('Tombol Edit ditekan.');

@@ -2451,7 +2451,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                       const Divider(),
                       gapH16,
                       Text(
-                        PerhitunganUtil.ambilTeksSisaMasaAktif(
+                        PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
                           pelangganAktif.tanggalBerakhir,
                         ),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -2945,7 +2945,6 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
             final displayedCustomers = urutkanPelangganAktif
                 .where((c) => c.namaPelanggan.toLowerCase().contains(query))
                 .toList();
-
             if (displayedCustomers.isEmpty) {
               return Center(
                 child: Text(
@@ -2998,7 +2997,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
                             ),
                           ),
                           Text(
-                            'Status: ${PerhitunganUtil.ambilTeksSisaMasaAktif(c.tanggalBerakhir)}',
+                            'Status: ${PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(c.tanggalBerakhir)}',
                             style: TextStyle(
                               color: PerhitunganUtil.ambilWarnaSisaMasaAktif(
                                 c.tanggalBerakhir,
@@ -5903,7 +5902,7 @@ class UiHalamanPoin extends StatelessWidget {
   });
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: appBarTitle, elevation: 1),
       body: Column(
@@ -5918,7 +5917,7 @@ class UiHalamanPoin extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoPoinHeader(final BuildContext context) {
+  Widget _buildInfoPoinHeader(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24),
@@ -5927,7 +5926,7 @@ class UiHalamanPoin extends StatelessWidget {
     );
   }
 
-  Widget _buildSegmentedControl(final BuildContext context) {
+  Widget _buildSegmentedControl(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.primaryColor;
 
@@ -24639,7 +24638,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                                   )
                                 : Future<PaketModel?>.value();
                             final teksAktif = tx.tanggalBerakhir != null
-                                ? PerhitunganUtil.ambilTeksSisaMasaAktif(
+                                ? PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
                                     tx.tanggalBerakhir!,
                                   )
                                 : '--';
@@ -27835,7 +27834,10 @@ class TransaksiOpFirebase extends BaseOpFirebase {
   ) async {
     try {
       final querySnapshot = await _koleksi
-          .where(NamaKolom.statusPembayaran, isEqualTo: StatusPembayaran.unpaid)
+          .where(
+            NamaKolom.statusPembayaran,
+            isEqualTo: StatusPembayaran.unpaid.name,
+          )
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.tanggal, descending: true)
@@ -27864,7 +27866,6 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       final querySnapshot = await _koleksi
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           .where(NamaKolom.dihapus, isEqualTo: false)
-          .orderBy(NamaKolom.tanggal, descending: true)
           .get();
 
       Log.info('Menemukan ${querySnapshot.docs.length} transaksi.');
@@ -29750,7 +29751,7 @@ class DetailPelangganUI extends StatefulWidget {
 }
 
 class _DetailPelangganUIState extends State<DetailPelangganUI> {
-  Future<void> _salinInformasi(final String label, final String data) async {
+  Future<void> _salinInformasi(String label, String data) async {
     if (!mounted) return;
 
     if (data.isEmpty) {
@@ -29765,7 +29766,7 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     Log.info(
       'Membangun CustomerDetailUI untuk pelanggan: ${widget.pelanggan.nama}',
     );
@@ -29775,7 +29776,7 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
         actions: [
           if (widget.navigasiKeEdit != null)
             IconButton(
-              icon: const Icon(Icons.edit),
+              icon: const Icon(TIcons.edit),
               tooltip: 'Edit Profil',
               onPressed: () {
                 Log.info('Tombol Edit ditekan.');
@@ -29926,7 +29927,7 @@ final class PelangganProvider
   Pelanggan create() => Pelanggan();
 }
 
-String _$pelangganHash() => r'566a4a3b58e0655b5297323b525a27f328fcb839';
+String _$pelangganHash() => r'b7b8a20a640545395fad4c4f9dd5505010daec97';
 
 abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   FutureOr<PelangganState> build();
@@ -30265,6 +30266,7 @@ class Pelanggan extends _$Pelanggan {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.tambahPelanggan(pelanggan);
       ref.invalidate(pelangganDetailProvider);
+      ref.invalidateSelf();
       return _ambilData();
     });
   }
@@ -30273,14 +30275,17 @@ class Pelanggan extends _$Pelanggan {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
       ref.invalidate(pelangganDetailProvider);
+      ref.invalidateSelf();
       return _ambilData();
     });
+    
   }
 
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.softDelete(id);
       ref.invalidate(pelangganDetailProvider);
+      ref.invalidateSelf();
       return _ambilData();
     });
   }
@@ -38878,60 +38883,64 @@ class PerhitunganUtil {
     return '';
   }
 
-  static int sisaHari(DateTime target, {DateTime? sekarang}) {
-    final selisihHari = DateUtils.dateOnly(sekarang ?? DateTime.now());
-    final tanggalBerakhir = DateUtils.dateOnly(target);
-    return tanggalBerakhir.difference(selisihHari).inDays;
-  }
+  // static String ambilTeksSisaMasaAktif(
+  //   final DateTime tanggalBerakhir, {
+  //   final DateTime? sekarang,
+  // }) {
+  //   final nowUtc = (sekarang ?? DateTime.now()).toUtc();
+  //   final endUtc = tanggalBerakhir.toUtc();
+  //   final sisa = endUtc.difference(nowUtc);
 
-  static String ambilTeksSisaMasaAktif(
-    final DateTime tanggalBerakhir, {
-    final DateTime? sekarang,
-  }) {
-    final nowUtc = (sekarang ?? DateTime.now()).toUtc();
-    final endUtc = tanggalBerakhir.toUtc();
-    final sisa = endUtc.difference(nowUtc);
-
-    if (sisa.isNegative) {
-      return 'Berakhir';
-    } else {
-      if (sisa.inDays > 0) {
-        return 'Sisa ${sisa.inDays} hari';
-      } else if (sisa.inHours > 0) {
-        return 'Sisa ${sisa.inHours} jam';
-      } else if (sisa.inMinutes > 0) {
-        return 'Sisa ${sisa.inMinutes} menit';
-      } else {
-        return 'Berakhir dalam beberapa saat';
-      }
-    }
-  }
+  //   if (sisa.isNegative) {
+  //     return 'Berakhir';
+  //   } else {
+  //     if (sisa.inDays > 0) {
+  //       return 'Sisa ${sisa.inDays} hari';
+  //     } else if (sisa.inHours > 0) {
+  //       return 'Sisa ${sisa.inHours} jam';
+  //     } else if (sisa.inMinutes > 0) {
+  //       return 'Sisa ${sisa.inMinutes} menit';
+  //     } else {
+  //       return 'Berakhir dalam beberapa saat';
+  //     }
+  //   }
+  // }
 
   /// Fungsi untuk pengujian menggunakan pustaka timeago.
   static String cobaAmbilTeksSisaMasaAktif(
     final DateTime tanggalBerakhir, {
     final DateTime? sekarang,
   }) {
-    // Inisialisasi locale Bahasa Indonesia untuk timeago.
-    // Idealnya, ini dipanggil sekali di main.dart.
+    if (tanggalBerakhir.isBefore(sekarang ?? DateTime.now())) {
+      return 'Berakhir';
+    }
     timeago.setLocaleMessages('id', timeago.IdMessages());
-
-    return timeago.format(tanggalBerakhir, locale: 'id', clock: sekarang);
+    return timeago.format(
+      tanggalBerakhir,
+      locale: 'id',
+      clock: sekarang,
+      allowFromNow: true,
+    );
   }
 
   static Color ambilWarnaSisaMasaAktif(
     final DateTime tanggalBerakhir, {
     final DateTime? sekarang,
   }) {
-    final sisa = sisaHari(tanggalBerakhir, sekarang: sekarang);
-
-    if (sisa > 7) {
-      return Colors.green;
-    } else if (sisa > 0) {
-      return Colors.orange;
-    } else {
+    final now = sekarang ?? DateTime.now();
+    final selisih = tanggalBerakhir.difference(now);
+    if (selisih.isNegative) {
       return Colors.red;
     }
+    final sisaHari = selisih.inDays;
+    final sisaJam = selisih.inHours;
+    if (sisaHari > 7) {
+      return Colors.green;
+    }
+    if (sisaHari > 0 || sisaJam > 0) {
+      return Colors.orange;
+    }
+    return Colors.red;
   }
 }
 
@@ -41997,7 +42006,7 @@ final class PelangganAktifOpFirebaseProvider
 }
 
 String _$pelangganAktifOpFirebaseHash() =>
-    r'a359e0cfd17fb0db29f261891e1f0c3aca4aedfc';
+    r'86bff10a5b137827d31472c15005cba1c9cb6ca2';
 
 @ProviderFor(paketOpFirebase)
 final paketOpFirebaseProvider = PaketOpFirebaseProvider._();
@@ -54552,6 +54561,27 @@ class MockBaseOpFirebase extends _i1.Mock implements _i8.BaseOpFirebase {
           as _i4.FirebaseFirestore);
 
   @override
+  _i5.Future<T> runComplexOperation<T>(
+    _i5.Future<T> Function(_i4.Transaction)? customAction,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#runComplexOperation, [customAction]),
+            returnValue:
+                _i6.ifNotNull(
+                  _i6.dummyValueOrNull<T>(
+                    this,
+                    Invocation.method(#runComplexOperation, [customAction]),
+                  ),
+                  (T v) => _i5.Future<T>.value(v),
+                ) ??
+                _FakeFuture_8<T>(
+                  this,
+                  Invocation.method(#runComplexOperation, [customAction]),
+                ),
+          )
+          as _i5.Future<T>);
+
+  @override
   _i5.Future<_i4.DocumentReference<Object?>> tambah(
     String? collectionName,
     Map<String, dynamic>? data,
@@ -57771,16 +57801,17 @@ void main() {
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i3;
 
 import 'package:cloud_firestore/cloud_firestore.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i8;
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart' as _i5;
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart' as _i3;
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart' as _i4;
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart' as _i7;
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart' as _i6;
 import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dart'
-    as _i8;
+    as _i9;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -57803,9 +57834,14 @@ class _FakeFirebaseFirestore_0 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakeDocumentReference_1<T extends Object?> extends _i1.SmartFake
+class _FakeFuture_1<T1> extends _i1.SmartFake implements _i3.Future<T1> {
+  _FakeFuture_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeDocumentReference_2<T extends Object?> extends _i1.SmartFake
     implements _i2.DocumentReference<T> {
-  _FakeDocumentReference_1(Object parent, Invocation parentInvocation)
+  _FakeDocumentReference_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -57813,81 +57849,81 @@ class _FakeDocumentReference_1<T extends Object?> extends _i1.SmartFake
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPelangganOpFirebase extends _i1.Mock
-    implements _i3.PelangganOpFirebase {
+    implements _i4.PelangganOpFirebase {
   MockPelangganOpFirebase() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<void> tambahPelanggan(_i5.PelangganModel? pelanggan) =>
+  _i3.Future<void> tambahPelanggan(_i5.PelangganModel? pelanggan) =>
       (super.noSuchMethod(
             Invocation.method(#tambahPelanggan, [pelanggan]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> perbaruiPelanggan(_i5.PelangganModel? pelanggan) =>
+  _i3.Future<void> perbaruiPelanggan(_i5.PelangganModel? pelanggan) =>
       (super.noSuchMethod(
             Invocation.method(#perbaruiPelanggan, [pelanggan]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> softDelete(String? id) =>
+  _i3.Future<void> softDelete(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#softDelete, [id]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> perbaruiTerakhirAktif(String? id) =>
+  _i3.Future<void> perbaruiTerakhirAktif(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#perbaruiTerakhirAktif, [id]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> simpanTokenFCM(String? id, String? token) =>
+  _i3.Future<void> simpanTokenFCM(String? id, String? token) =>
       (super.noSuchMethod(
             Invocation.method(#simpanTokenFCM, [id, token]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<List<_i5.PelangganModel>> ambilSemuaPelanggan() =>
+  _i3.Future<List<_i5.PelangganModel>> ambilSemuaPelanggan() =>
       (super.noSuchMethod(
             Invocation.method(#ambilSemuaPelanggan, []),
-            returnValue: _i4.Future<List<_i5.PelangganModel>>.value(
+            returnValue: _i3.Future<List<_i5.PelangganModel>>.value(
               <_i5.PelangganModel>[],
             ),
           )
-          as _i4.Future<List<_i5.PelangganModel>>);
+          as _i3.Future<List<_i5.PelangganModel>>);
 
   @override
-  _i4.Stream<_i5.PelangganModel?> ambilStreamBerdasarkanId(String? id) =>
+  _i3.Stream<_i5.PelangganModel?> ambilStreamBerdasarkanId(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#ambilStreamBerdasarkanId, [id]),
-            returnValue: _i4.Stream<_i5.PelangganModel?>.empty(),
+            returnValue: _i3.Stream<_i5.PelangganModel?>.empty(),
           )
-          as _i4.Stream<_i5.PelangganModel?>);
+          as _i3.Stream<_i5.PelangganModel?>);
 
   @override
-  _i4.Future<_i5.PelangganModel?> ambilBerdasarkanId(String? id) =>
+  _i3.Future<_i5.PelangganModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBerdasarkanId, [id]),
-            returnValue: _i4.Future<_i5.PelangganModel?>.value(),
+            returnValue: _i3.Future<_i5.PelangganModel?>.value(),
           )
-          as _i4.Future<_i5.PelangganModel?>);
+          as _i3.Future<_i5.PelangganModel?>);
 }
 
 /// A class which mocks [TransaksiOpFirebase].
@@ -57911,151 +57947,172 @@ class MockTransaksiOpFirebase extends _i1.Mock
           as _i2.FirebaseFirestore);
 
   @override
-  _i4.Future<void> tambahTransaksi(_i7.TransaksiModel? transaksi) =>
+  _i3.Future<void> tambahTransaksi(_i7.TransaksiModel? transaksi) =>
       (super.noSuchMethod(
             Invocation.method(#tambahTransaksi, [transaksi]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<_i7.TransaksiModel?>
+  _i3.Future<_i7.TransaksiModel?>
   ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(String? idPelanggan) =>
       (super.noSuchMethod(
             Invocation.method(
               #ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan,
               [idPelanggan],
             ),
-            returnValue: _i4.Future<_i7.TransaksiModel?>.value(),
+            returnValue: _i3.Future<_i7.TransaksiModel?>.value(),
           )
-          as _i4.Future<_i7.TransaksiModel?>);
+          as _i3.Future<_i7.TransaksiModel?>);
 
   @override
-  _i4.Future<List<_i7.TransaksiModel>> ambilBelumLunasBerdasarkanIdPelanggan(
+  _i3.Future<List<_i7.TransaksiModel>> ambilBelumLunasBerdasarkanIdPelanggan(
     String? idPelanggan,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBelumLunasBerdasarkanIdPelanggan, [
               idPelanggan,
             ]),
-            returnValue: _i4.Future<List<_i7.TransaksiModel>>.value(
+            returnValue: _i3.Future<List<_i7.TransaksiModel>>.value(
               <_i7.TransaksiModel>[],
             ),
           )
-          as _i4.Future<List<_i7.TransaksiModel>>);
+          as _i3.Future<List<_i7.TransaksiModel>>);
 
   @override
-  _i4.Future<List<_i7.TransaksiModel>> ambilBerdasarkanIdPelanggan(
+  _i3.Future<List<_i7.TransaksiModel>> ambilBerdasarkanIdPelanggan(
     String? idPelanggan,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBerdasarkanIdPelanggan, [idPelanggan]),
-            returnValue: _i4.Future<List<_i7.TransaksiModel>>.value(
+            returnValue: _i3.Future<List<_i7.TransaksiModel>>.value(
               <_i7.TransaksiModel>[],
             ),
           )
-          as _i4.Future<List<_i7.TransaksiModel>>);
+          as _i3.Future<List<_i7.TransaksiModel>>);
 
   @override
-  _i4.Future<int> ambilTotalPoin(String? idPelanggan) =>
+  _i3.Future<int> ambilTotalPoin(String? idPelanggan) =>
       (super.noSuchMethod(
             Invocation.method(#ambilTotalPoin, [idPelanggan]),
-            returnValue: _i4.Future<int>.value(0),
+            returnValue: _i3.Future<int>.value(0),
           )
-          as _i4.Future<int>);
+          as _i3.Future<int>);
 
   @override
-  _i4.Future<void> softDeleteTransaksi(String? id) =>
+  _i3.Future<void> softDeleteTransaksi(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#softDeleteTransaksi, [id]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<List<_i7.TransaksiModel>> ambilPaketAktifPelanggan(
+  _i3.Future<List<_i7.TransaksiModel>> ambilPaketAktifPelanggan(
     String? idPelanggan,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#ambilPaketAktifPelanggan, [idPelanggan]),
-            returnValue: _i4.Future<List<_i7.TransaksiModel>>.value(
+            returnValue: _i3.Future<List<_i7.TransaksiModel>>.value(
               <_i7.TransaksiModel>[],
             ),
           )
-          as _i4.Future<List<_i7.TransaksiModel>>);
+          as _i3.Future<List<_i7.TransaksiModel>>);
 
   @override
-  _i4.Future<_i2.DocumentReference<Object?>> tambah(
+  _i3.Future<T> runComplexOperation<T>(
+    _i3.Future<T> Function(_i2.Transaction)? customAction,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#runComplexOperation, [customAction]),
+            returnValue:
+                _i8.ifNotNull(
+                  _i8.dummyValueOrNull<T>(
+                    this,
+                    Invocation.method(#runComplexOperation, [customAction]),
+                  ),
+                  (T v) => _i3.Future<T>.value(v),
+                ) ??
+                _FakeFuture_1<T>(
+                  this,
+                  Invocation.method(#runComplexOperation, [customAction]),
+                ),
+          )
+          as _i3.Future<T>);
+
+  @override
+  _i3.Future<_i2.DocumentReference<Object?>> tambah(
     String? collectionName,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#tambah, [collectionName, data]),
-            returnValue: _i4.Future<_i2.DocumentReference<Object?>>.value(
-              _FakeDocumentReference_1<Object?>(
+            returnValue: _i3.Future<_i2.DocumentReference<Object?>>.value(
+              _FakeDocumentReference_2<Object?>(
                 this,
                 Invocation.method(#tambah, [collectionName, data]),
               ),
             ),
           )
-          as _i4.Future<_i2.DocumentReference<Object?>>);
+          as _i3.Future<_i2.DocumentReference<Object?>>);
 
   @override
-  _i4.Future<void> sisipkan(
+  _i3.Future<void> sisipkan(
     String? collectionName,
     String? docId,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#sisipkan, [collectionName, docId, data]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> update(
+  _i3.Future<void> update(
     String? collectionName,
     String? docId,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#update, [collectionName, docId, data]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> softDelete(String? collectionName, String? docId) =>
+  _i3.Future<void> softDelete(String? collectionName, String? docId) =>
       (super.noSuchMethod(
             Invocation.method(#softDelete, [collectionName, docId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> hapusPermanen(String? collectionName, String? docId) =>
+  _i3.Future<void> hapusPermanen(String? collectionName, String? docId) =>
       (super.noSuchMethod(
             Invocation.method(#hapusPermanen, [collectionName, docId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<int> hapusSementaraSemua(String? collectionName) =>
+  _i3.Future<int> hapusSementaraSemua(String? collectionName) =>
       (super.noSuchMethod(
             Invocation.method(#hapusSementaraSemua, [collectionName]),
-            returnValue: _i4.Future<int>.value(0),
+            returnValue: _i3.Future<int>.value(0),
           )
-          as _i4.Future<int>);
+          as _i3.Future<int>);
 
   @override
-  _i4.Future<void> insertOrUpdateBatch(
+  _i3.Future<void> insertOrUpdateBatch(
     String? collectionName,
     List<Map<String, dynamic>>? items,
     String? idKey,
@@ -58066,38 +58123,38 @@ class MockTransaksiOpFirebase extends _i1.Mock
               items,
               idKey,
             ]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 }
 
 /// A class which mocks [LayananIklanInterstisial].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockLayananIklanInterstisial extends _i1.Mock
-    implements _i8.LayananIklanInterstisial {
+    implements _i9.LayananIklanInterstisial {
   MockLayananIklanInterstisial() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<void> preloadAd() =>
+  _i3.Future<void> preloadAd() =>
       (super.noSuchMethod(
             Invocation.method(#preloadAd, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> show() =>
+  _i3.Future<void> show() =>
       (super.noSuchMethod(
             Invocation.method(#show, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
   void dispose() => super.noSuchMethod(
@@ -59148,11 +59205,11 @@ void main() {
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i3;
 import 'dart:typed_data' as _i7;
 
 import 'package:cloud_firestore/cloud_firestore.dart' as _i2;
-import 'package:firebase_core/firebase_core.dart' as _i3;
+import 'package:firebase_core/firebase_core.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i6;
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart'
@@ -59179,53 +59236,53 @@ class _FakeFirebaseFirestore_0 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakeDocumentReference_1<T extends Object?> extends _i1.SmartFake
+class _FakeFuture_1<T1> extends _i1.SmartFake implements _i3.Future<T1> {
+  _FakeFuture_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeDocumentReference_2<T extends Object?> extends _i1.SmartFake
     implements _i2.DocumentReference<T> {
-  _FakeDocumentReference_1(Object parent, Invocation parentInvocation)
+  _FakeDocumentReference_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeFirebaseApp_2 extends _i1.SmartFake implements _i3.FirebaseApp {
-  _FakeFirebaseApp_2(Object parent, Invocation parentInvocation)
+class _FakeFirebaseApp_3 extends _i1.SmartFake implements _i4.FirebaseApp {
+  _FakeFirebaseApp_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSettings_3 extends _i1.SmartFake implements _i2.Settings {
-  _FakeSettings_3(Object parent, Invocation parentInvocation)
+class _FakeSettings_4 extends _i1.SmartFake implements _i2.Settings {
+  _FakeSettings_4(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeCollectionReference_4<T extends Object?> extends _i1.SmartFake
+class _FakeCollectionReference_5<T extends Object?> extends _i1.SmartFake
     implements _i2.CollectionReference<T> {
-  _FakeCollectionReference_4(Object parent, Invocation parentInvocation)
+  _FakeCollectionReference_5(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeWriteBatch_5 extends _i1.SmartFake implements _i2.WriteBatch {
-  _FakeWriteBatch_5(Object parent, Invocation parentInvocation)
+class _FakeWriteBatch_6 extends _i1.SmartFake implements _i2.WriteBatch {
+  _FakeWriteBatch_6(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeLoadBundleTask_6 extends _i1.SmartFake
+class _FakeLoadBundleTask_7 extends _i1.SmartFake
     implements _i2.LoadBundleTask {
-  _FakeLoadBundleTask_6(Object parent, Invocation parentInvocation)
+  _FakeLoadBundleTask_7(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeQuerySnapshot_7<T1 extends Object?> extends _i1.SmartFake
+class _FakeQuerySnapshot_8<T1 extends Object?> extends _i1.SmartFake
     implements _i2.QuerySnapshot<T1> {
-  _FakeQuerySnapshot_7(Object parent, Invocation parentInvocation)
+  _FakeQuerySnapshot_8(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeQuery_8<T extends Object?> extends _i1.SmartFake
+class _FakeQuery_9<T extends Object?> extends _i1.SmartFake
     implements _i2.Query<T> {
-  _FakeQuery_8(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeFuture_9<T1> extends _i1.SmartFake implements _i4.Future<T1> {
-  _FakeFuture_9(Object parent, Invocation parentInvocation)
+  _FakeQuery_9(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -59273,75 +59330,96 @@ class MockBaseOpFirebase extends _i1.Mock implements _i5.BaseOpFirebase {
           as _i2.FirebaseFirestore);
 
   @override
-  _i4.Future<_i2.DocumentReference<Object?>> tambah(
+  _i3.Future<T> runComplexOperation<T>(
+    _i3.Future<T> Function(_i2.Transaction)? customAction,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#runComplexOperation, [customAction]),
+            returnValue:
+                _i6.ifNotNull(
+                  _i6.dummyValueOrNull<T>(
+                    this,
+                    Invocation.method(#runComplexOperation, [customAction]),
+                  ),
+                  (T v) => _i3.Future<T>.value(v),
+                ) ??
+                _FakeFuture_1<T>(
+                  this,
+                  Invocation.method(#runComplexOperation, [customAction]),
+                ),
+          )
+          as _i3.Future<T>);
+
+  @override
+  _i3.Future<_i2.DocumentReference<Object?>> tambah(
     String? collectionName,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#tambah, [collectionName, data]),
-            returnValue: _i4.Future<_i2.DocumentReference<Object?>>.value(
-              _FakeDocumentReference_1<Object?>(
+            returnValue: _i3.Future<_i2.DocumentReference<Object?>>.value(
+              _FakeDocumentReference_2<Object?>(
                 this,
                 Invocation.method(#tambah, [collectionName, data]),
               ),
             ),
           )
-          as _i4.Future<_i2.DocumentReference<Object?>>);
+          as _i3.Future<_i2.DocumentReference<Object?>>);
 
   @override
-  _i4.Future<void> sisipkan(
+  _i3.Future<void> sisipkan(
     String? collectionName,
     String? docId,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#sisipkan, [collectionName, docId, data]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> update(
+  _i3.Future<void> update(
     String? collectionName,
     String? docId,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#update, [collectionName, docId, data]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> softDelete(String? collectionName, String? docId) =>
+  _i3.Future<void> softDelete(String? collectionName, String? docId) =>
       (super.noSuchMethod(
             Invocation.method(#softDelete, [collectionName, docId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> hapusPermanen(String? collectionName, String? docId) =>
+  _i3.Future<void> hapusPermanen(String? collectionName, String? docId) =>
       (super.noSuchMethod(
             Invocation.method(#hapusPermanen, [collectionName, docId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<int> hapusSementaraSemua(String? collectionName) =>
+  _i3.Future<int> hapusSementaraSemua(String? collectionName) =>
       (super.noSuchMethod(
             Invocation.method(#hapusSementaraSemua, [collectionName]),
-            returnValue: _i4.Future<int>.value(0),
+            returnValue: _i3.Future<int>.value(0),
           )
-          as _i4.Future<int>);
+          as _i3.Future<int>);
 
   @override
-  _i4.Future<void> insertOrUpdateBatch(
+  _i3.Future<void> insertOrUpdateBatch(
     String? collectionName,
     List<Map<String, dynamic>>? items,
     String? idKey,
@@ -59352,10 +59430,10 @@ class MockBaseOpFirebase extends _i1.Mock implements _i5.BaseOpFirebase {
               items,
               idKey,
             ]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 }
 
 /// A class which mocks [FirebaseFirestore].
@@ -59367,12 +59445,12 @@ class MockFirebaseFirestore extends _i1.Mock implements _i2.FirebaseFirestore {
   }
 
   @override
-  _i3.FirebaseApp get app =>
+  _i4.FirebaseApp get app =>
       (super.noSuchMethod(
             Invocation.getter(#app),
-            returnValue: _FakeFirebaseApp_2(this, Invocation.getter(#app)),
+            returnValue: _FakeFirebaseApp_3(this, Invocation.getter(#app)),
           )
-          as _i3.FirebaseApp);
+          as _i4.FirebaseApp);
 
   @override
   String get databaseId =>
@@ -59389,12 +59467,12 @@ class MockFirebaseFirestore extends _i1.Mock implements _i2.FirebaseFirestore {
   _i2.Settings get settings =>
       (super.noSuchMethod(
             Invocation.getter(#settings),
-            returnValue: _FakeSettings_3(this, Invocation.getter(#settings)),
+            returnValue: _FakeSettings_4(this, Invocation.getter(#settings)),
           )
           as _i2.Settings);
 
   @override
-  set app(_i3.FirebaseApp? value) => super.noSuchMethod(
+  set app(_i4.FirebaseApp? value) => super.noSuchMethod(
     Invocation.setter(#app, value),
     returnValueForMissingStub: null,
   );
@@ -59425,7 +59503,7 @@ class MockFirebaseFirestore extends _i1.Mock implements _i2.FirebaseFirestore {
   ) =>
       (super.noSuchMethod(
             Invocation.method(#collection, [collectionPath]),
-            returnValue: _FakeCollectionReference_4<Map<String, dynamic>>(
+            returnValue: _FakeCollectionReference_5<Map<String, dynamic>>(
               this,
               Invocation.method(#collection, [collectionPath]),
             ),
@@ -59436,24 +59514,24 @@ class MockFirebaseFirestore extends _i1.Mock implements _i2.FirebaseFirestore {
   _i2.WriteBatch batch() =>
       (super.noSuchMethod(
             Invocation.method(#batch, []),
-            returnValue: _FakeWriteBatch_5(this, Invocation.method(#batch, [])),
+            returnValue: _FakeWriteBatch_6(this, Invocation.method(#batch, [])),
           )
           as _i2.WriteBatch);
 
   @override
-  _i4.Future<void> clearPersistence() =>
+  _i3.Future<void> clearPersistence() =>
       (super.noSuchMethod(
             Invocation.method(#clearPersistence, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
   _i2.LoadBundleTask loadBundle(_i7.Uint8List? bundle) =>
       (super.noSuchMethod(
             Invocation.method(#loadBundle, [bundle]),
-            returnValue: _FakeLoadBundleTask_6(
+            returnValue: _FakeLoadBundleTask_7(
               this,
               Invocation.method(#loadBundle, [bundle]),
             ),
@@ -59476,7 +59554,7 @@ class MockFirebaseFirestore extends _i1.Mock implements _i2.FirebaseFirestore {
   );
 
   @override
-  _i4.Future<_i2.QuerySnapshot<T>> namedQueryWithConverterGet<T>(
+  _i3.Future<_i2.QuerySnapshot<T>> namedQueryWithConverterGet<T>(
     String? name, {
     _i2.GetOptions? options = const _i2.GetOptions(),
     required _i2.FromFirestore<T>? fromFirestore,
@@ -59492,8 +59570,8 @@ class MockFirebaseFirestore extends _i1.Mock implements _i2.FirebaseFirestore {
                 #toFirestore: toFirestore,
               },
             ),
-            returnValue: _i4.Future<_i2.QuerySnapshot<T>>.value(
-              _FakeQuerySnapshot_7<T>(
+            returnValue: _i3.Future<_i2.QuerySnapshot<T>>.value(
+              _FakeQuerySnapshot_8<T>(
                 this,
                 Invocation.method(
                   #namedQueryWithConverterGet,
@@ -59507,18 +59585,18 @@ class MockFirebaseFirestore extends _i1.Mock implements _i2.FirebaseFirestore {
               ),
             ),
           )
-          as _i4.Future<_i2.QuerySnapshot<T>>);
+          as _i3.Future<_i2.QuerySnapshot<T>>);
 
   @override
-  _i4.Future<_i2.QuerySnapshot<Map<String, dynamic>>> namedQueryGet(
+  _i3.Future<_i2.QuerySnapshot<Map<String, dynamic>>> namedQueryGet(
     String? name, {
     _i2.GetOptions? options = const _i2.GetOptions(),
   }) =>
       (super.noSuchMethod(
             Invocation.method(#namedQueryGet, [name], {#options: options}),
             returnValue:
-                _i4.Future<_i2.QuerySnapshot<Map<String, dynamic>>>.value(
-                  _FakeQuerySnapshot_7<Map<String, dynamic>>(
+                _i3.Future<_i2.QuerySnapshot<Map<String, dynamic>>>.value(
+                  _FakeQuerySnapshot_8<Map<String, dynamic>>(
                     this,
                     Invocation.method(
                       #namedQueryGet,
@@ -59528,13 +59606,13 @@ class MockFirebaseFirestore extends _i1.Mock implements _i2.FirebaseFirestore {
                   ),
                 ),
           )
-          as _i4.Future<_i2.QuerySnapshot<Map<String, dynamic>>>);
+          as _i3.Future<_i2.QuerySnapshot<Map<String, dynamic>>>);
 
   @override
   _i2.Query<Map<String, dynamic>> collectionGroup(String? collectionPath) =>
       (super.noSuchMethod(
             Invocation.method(#collectionGroup, [collectionPath]),
-            returnValue: _FakeQuery_8<Map<String, dynamic>>(
+            returnValue: _FakeQuery_9<Map<String, dynamic>>(
               this,
               Invocation.method(#collectionGroup, [collectionPath]),
             ),
@@ -59542,19 +59620,19 @@ class MockFirebaseFirestore extends _i1.Mock implements _i2.FirebaseFirestore {
           as _i2.Query<Map<String, dynamic>>);
 
   @override
-  _i4.Future<void> disableNetwork() =>
+  _i3.Future<void> disableNetwork() =>
       (super.noSuchMethod(
             Invocation.method(#disableNetwork, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
   _i2.DocumentReference<Map<String, dynamic>> doc(String? documentPath) =>
       (super.noSuchMethod(
             Invocation.method(#doc, [documentPath]),
-            returnValue: _FakeDocumentReference_1<Map<String, dynamic>>(
+            returnValue: _FakeDocumentReference_2<Map<String, dynamic>>(
               this,
               Invocation.method(#doc, [documentPath]),
             ),
@@ -59562,24 +59640,24 @@ class MockFirebaseFirestore extends _i1.Mock implements _i2.FirebaseFirestore {
           as _i2.DocumentReference<Map<String, dynamic>>);
 
   @override
-  _i4.Future<void> enableNetwork() =>
+  _i3.Future<void> enableNetwork() =>
       (super.noSuchMethod(
             Invocation.method(#enableNetwork, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Stream<void> snapshotsInSync() =>
+  _i3.Stream<void> snapshotsInSync() =>
       (super.noSuchMethod(
             Invocation.method(#snapshotsInSync, []),
-            returnValue: _i4.Stream<void>.empty(),
+            returnValue: _i3.Stream<void>.empty(),
           )
-          as _i4.Stream<void>);
+          as _i3.Stream<void>);
 
   @override
-  _i4.Future<T> runTransaction<T>(
+  _i3.Future<T> runTransaction<T>(
     _i2.TransactionHandler<T>? transactionHandler, {
     Duration? timeout = const Duration(seconds: 30),
     int? maxAttempts = 5,
@@ -59600,9 +59678,9 @@ class MockFirebaseFirestore extends _i1.Mock implements _i2.FirebaseFirestore {
                       {#timeout: timeout, #maxAttempts: maxAttempts},
                     ),
                   ),
-                  (T v) => _i4.Future<T>.value(v),
+                  (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_9<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(
                     #runTransaction,
@@ -59611,25 +59689,25 @@ class MockFirebaseFirestore extends _i1.Mock implements _i2.FirebaseFirestore {
                   ),
                 ),
           )
-          as _i4.Future<T>);
+          as _i3.Future<T>);
 
   @override
-  _i4.Future<void> terminate() =>
+  _i3.Future<void> terminate() =>
       (super.noSuchMethod(
             Invocation.method(#terminate, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> waitForPendingWrites() =>
+  _i3.Future<void> waitForPendingWrites() =>
       (super.noSuchMethod(
             Invocation.method(#waitForPendingWrites, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
   _i2.PipelineSource pipeline() =>
@@ -59643,13 +59721,13 @@ class MockFirebaseFirestore extends _i1.Mock implements _i2.FirebaseFirestore {
           as _i2.PipelineSource);
 
   @override
-  _i4.Future<void> setIndexConfigurationFromJSON(String? json) =>
+  _i3.Future<void> setIndexConfigurationFromJSON(String? json) =>
       (super.noSuchMethod(
             Invocation.method(#setIndexConfigurationFromJSON, [json]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 }
 
 /// A class which mocks [CollectionReference].
@@ -59698,23 +59776,23 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
           as Map<String, dynamic>);
 
   @override
-  _i4.Future<_i2.DocumentReference<T>> add(T? data) =>
+  _i3.Future<_i2.DocumentReference<T>> add(T? data) =>
       (super.noSuchMethod(
             Invocation.method(#add, [data]),
-            returnValue: _i4.Future<_i2.DocumentReference<T>>.value(
-              _FakeDocumentReference_1<T>(
+            returnValue: _i3.Future<_i2.DocumentReference<T>>.value(
+              _FakeDocumentReference_2<T>(
                 this,
                 Invocation.method(#add, [data]),
               ),
             ),
           )
-          as _i4.Future<_i2.DocumentReference<T>>);
+          as _i3.Future<_i2.DocumentReference<T>>);
 
   @override
   _i2.DocumentReference<T> doc([String? path]) =>
       (super.noSuchMethod(
             Invocation.method(#doc, [path]),
-            returnValue: _FakeDocumentReference_1<T>(
+            returnValue: _FakeDocumentReference_2<T>(
               this,
               Invocation.method(#doc, [path]),
             ),
@@ -59731,7 +59809,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
               #fromFirestore: fromFirestore,
               #toFirestore: toFirestore,
             }),
-            returnValue: _FakeCollectionReference_4<R>(
+            returnValue: _FakeCollectionReference_5<R>(
               this,
               Invocation.method(#withConverter, [], {
                 #fromFirestore: fromFirestore,
@@ -59745,7 +59823,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
   _i2.Query<T> endAtDocument(_i2.DocumentSnapshot<Object?>? documentSnapshot) =>
       (super.noSuchMethod(
             Invocation.method(#endAtDocument, [documentSnapshot]),
-            returnValue: _FakeQuery_8<T>(
+            returnValue: _FakeQuery_9<T>(
               this,
               Invocation.method(#endAtDocument, [documentSnapshot]),
             ),
@@ -59756,7 +59834,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
   _i2.Query<T> endAt(Iterable<Object?>? values) =>
       (super.noSuchMethod(
             Invocation.method(#endAt, [values]),
-            returnValue: _FakeQuery_8<T>(
+            returnValue: _FakeQuery_9<T>(
               this,
               Invocation.method(#endAt, [values]),
             ),
@@ -59769,7 +59847,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
   ) =>
       (super.noSuchMethod(
             Invocation.method(#endBeforeDocument, [documentSnapshot]),
-            returnValue: _FakeQuery_8<T>(
+            returnValue: _FakeQuery_9<T>(
               this,
               Invocation.method(#endBeforeDocument, [documentSnapshot]),
             ),
@@ -59780,7 +59858,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
   _i2.Query<T> endBefore(Iterable<Object?>? values) =>
       (super.noSuchMethod(
             Invocation.method(#endBefore, [values]),
-            returnValue: _FakeQuery_8<T>(
+            returnValue: _FakeQuery_9<T>(
               this,
               Invocation.method(#endBefore, [values]),
             ),
@@ -59788,20 +59866,20 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
           as _i2.Query<T>);
 
   @override
-  _i4.Future<_i2.QuerySnapshot<T>> get([_i2.GetOptions? options]) =>
+  _i3.Future<_i2.QuerySnapshot<T>> get([_i2.GetOptions? options]) =>
       (super.noSuchMethod(
             Invocation.method(#get, [options]),
-            returnValue: _i4.Future<_i2.QuerySnapshot<T>>.value(
-              _FakeQuerySnapshot_7<T>(this, Invocation.method(#get, [options])),
+            returnValue: _i3.Future<_i2.QuerySnapshot<T>>.value(
+              _FakeQuerySnapshot_8<T>(this, Invocation.method(#get, [options])),
             ),
           )
-          as _i4.Future<_i2.QuerySnapshot<T>>);
+          as _i3.Future<_i2.QuerySnapshot<T>>);
 
   @override
   _i2.Query<T> limit(int? limit) =>
       (super.noSuchMethod(
             Invocation.method(#limit, [limit]),
-            returnValue: _FakeQuery_8<T>(
+            returnValue: _FakeQuery_9<T>(
               this,
               Invocation.method(#limit, [limit]),
             ),
@@ -59812,7 +59890,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
   _i2.Query<T> limitToLast(int? limit) =>
       (super.noSuchMethod(
             Invocation.method(#limitToLast, [limit]),
-            returnValue: _FakeQuery_8<T>(
+            returnValue: _FakeQuery_9<T>(
               this,
               Invocation.method(#limitToLast, [limit]),
             ),
@@ -59820,7 +59898,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
           as _i2.Query<T>);
 
   @override
-  _i4.Stream<_i2.QuerySnapshot<T>> snapshots({
+  _i3.Stream<_i2.QuerySnapshot<T>> snapshots({
     bool? includeMetadataChanges = false,
     _i2.ListenSource? source = _i2.ListenSource.defaultSource,
   }) =>
@@ -59829,15 +59907,15 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
               #includeMetadataChanges: includeMetadataChanges,
               #source: source,
             }),
-            returnValue: _i4.Stream<_i2.QuerySnapshot<T>>.empty(),
+            returnValue: _i3.Stream<_i2.QuerySnapshot<T>>.empty(),
           )
-          as _i4.Stream<_i2.QuerySnapshot<T>>);
+          as _i3.Stream<_i2.QuerySnapshot<T>>);
 
   @override
   _i2.Query<T> orderBy(Object? field, {bool? descending = false}) =>
       (super.noSuchMethod(
             Invocation.method(#orderBy, [field], {#descending: descending}),
-            returnValue: _FakeQuery_8<T>(
+            returnValue: _FakeQuery_9<T>(
               this,
               Invocation.method(#orderBy, [field], {#descending: descending}),
             ),
@@ -59850,7 +59928,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
   ) =>
       (super.noSuchMethod(
             Invocation.method(#startAfterDocument, [documentSnapshot]),
-            returnValue: _FakeQuery_8<T>(
+            returnValue: _FakeQuery_9<T>(
               this,
               Invocation.method(#startAfterDocument, [documentSnapshot]),
             ),
@@ -59861,7 +59939,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
   _i2.Query<T> startAfter(Iterable<Object?>? values) =>
       (super.noSuchMethod(
             Invocation.method(#startAfter, [values]),
-            returnValue: _FakeQuery_8<T>(
+            returnValue: _FakeQuery_9<T>(
               this,
               Invocation.method(#startAfter, [values]),
             ),
@@ -59874,7 +59952,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
   ) =>
       (super.noSuchMethod(
             Invocation.method(#startAtDocument, [documentSnapshot]),
-            returnValue: _FakeQuery_8<T>(
+            returnValue: _FakeQuery_9<T>(
               this,
               Invocation.method(#startAtDocument, [documentSnapshot]),
             ),
@@ -59885,7 +59963,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
   _i2.Query<T> startAt(Iterable<Object?>? values) =>
       (super.noSuchMethod(
             Invocation.method(#startAt, [values]),
-            returnValue: _FakeQuery_8<T>(
+            returnValue: _FakeQuery_9<T>(
               this,
               Invocation.method(#startAt, [values]),
             ),
@@ -59925,7 +60003,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
                 #isNull: isNull,
               },
             ),
-            returnValue: _FakeQuery_8<T>(
+            returnValue: _FakeQuery_9<T>(
               this,
               Invocation.method(
                 #where,
@@ -60097,7 +60175,7 @@ class MockDocumentReference<T extends Object?> extends _i1.Mock
   _i2.CollectionReference<T> get parent =>
       (super.noSuchMethod(
             Invocation.getter(#parent),
-            returnValue: _FakeCollectionReference_4<T>(
+            returnValue: _FakeCollectionReference_5<T>(
               this,
               Invocation.getter(#parent),
             ),
@@ -60118,7 +60196,7 @@ class MockDocumentReference<T extends Object?> extends _i1.Mock
   ) =>
       (super.noSuchMethod(
             Invocation.method(#collection, [collectionPath]),
-            returnValue: _FakeCollectionReference_4<Map<String, dynamic>>(
+            returnValue: _FakeCollectionReference_5<Map<String, dynamic>>(
               this,
               Invocation.method(#collection, [collectionPath]),
             ),
@@ -60126,38 +60204,38 @@ class MockDocumentReference<T extends Object?> extends _i1.Mock
           as _i2.CollectionReference<Map<String, dynamic>>);
 
   @override
-  _i4.Future<void> delete() =>
+  _i3.Future<void> delete() =>
       (super.noSuchMethod(
             Invocation.method(#delete, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> update(Map<Object, Object?>? data) =>
+  _i3.Future<void> update(Map<Object, Object?>? data) =>
       (super.noSuchMethod(
             Invocation.method(#update, [data]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<_i2.DocumentSnapshot<T>> get([_i2.GetOptions? options]) =>
+  _i3.Future<_i2.DocumentSnapshot<T>> get([_i2.GetOptions? options]) =>
       (super.noSuchMethod(
             Invocation.method(#get, [options]),
-            returnValue: _i4.Future<_i2.DocumentSnapshot<T>>.value(
+            returnValue: _i3.Future<_i2.DocumentSnapshot<T>>.value(
               _FakeDocumentSnapshot_12<T>(
                 this,
                 Invocation.method(#get, [options]),
               ),
             ),
           )
-          as _i4.Future<_i2.DocumentSnapshot<T>>);
+          as _i3.Future<_i2.DocumentSnapshot<T>>);
 
   @override
-  _i4.Stream<_i2.DocumentSnapshot<T>> snapshots({
+  _i3.Stream<_i2.DocumentSnapshot<T>> snapshots({
     bool? includeMetadataChanges = false,
     _i2.ListenSource? source = _i2.ListenSource.defaultSource,
   }) =>
@@ -60166,18 +60244,18 @@ class MockDocumentReference<T extends Object?> extends _i1.Mock
               #includeMetadataChanges: includeMetadataChanges,
               #source: source,
             }),
-            returnValue: _i4.Stream<_i2.DocumentSnapshot<T>>.empty(),
+            returnValue: _i3.Stream<_i2.DocumentSnapshot<T>>.empty(),
           )
-          as _i4.Stream<_i2.DocumentSnapshot<T>>);
+          as _i3.Stream<_i2.DocumentSnapshot<T>>);
 
   @override
-  _i4.Future<void> set(T? data, [_i2.SetOptions? options]) =>
+  _i3.Future<void> set(T? data, [_i2.SetOptions? options]) =>
       (super.noSuchMethod(
             Invocation.method(#set, [data, options]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
   _i2.DocumentReference<R> withConverter<R>({
@@ -60189,7 +60267,7 @@ class MockDocumentReference<T extends Object?> extends _i1.Mock
               #fromFirestore: fromFirestore,
               #toFirestore: toFirestore,
             }),
-            returnValue: _FakeDocumentReference_1<R>(
+            returnValue: _FakeDocumentReference_2<R>(
               this,
               Invocation.method(#withConverter, [], {
                 #fromFirestore: fromFirestore,
@@ -60221,7 +60299,7 @@ class MockDocumentSnapshot<T extends Object?> extends _i1.Mock
   _i2.DocumentReference<T> get reference =>
       (super.noSuchMethod(
             Invocation.getter(#reference),
-            returnValue: _FakeDocumentReference_1<T>(
+            returnValue: _FakeDocumentReference_2<T>(
               this,
               Invocation.getter(#reference),
             ),
@@ -61133,7 +61211,7 @@ void main() {
           idTujuan: 'tujuan1',
           userId: 'user1',
           diperbaruiPada: DateTime.now(),
-          targetRole: const [AppRole.user],
+          targetRole: AppRole.user,
         );
         when(
           mockNotifikasiOp.getByUserId('user1'),
@@ -61177,7 +61255,7 @@ void main() {
         idTujuan: 'tujuan1',
         userId: 'user1',
         diperbaruiPada: DateTime.now(),
-        targetRole: const [AppRole.user],
+        targetRole: AppRole.user,
       );
       when(
         mockNotifikasiOp.getByUserId('user1'),
@@ -62204,13 +62282,14 @@ void main() {
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i5;
+import 'dart:async' as _i4;
 
 import 'package:cloud_firestore/cloud_firestore.dart' as _i3;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart' as _i4;
+import 'package:mockito/src/dummies.dart' as _i9;
+import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart' as _i5;
 import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart'
     as _i6;
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart' as _i8;
@@ -62245,16 +62324,21 @@ class _FakeFirebaseFirestore_1 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakeDocumentReference_2<T extends Object?> extends _i1.SmartFake
+class _FakeFuture_2<T1> extends _i1.SmartFake implements _i4.Future<T1> {
+  _FakeFuture_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeDocumentReference_3<T extends Object?> extends _i1.SmartFake
     implements _i3.DocumentReference<T> {
-  _FakeDocumentReference_2(Object parent, Invocation parentInvocation)
+  _FakeDocumentReference_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
 /// A class which mocks [LayananNotifikasi].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLayananNotifikasi extends _i1.Mock implements _i4.LayananNotifikasi {
+class MockLayananNotifikasi extends _i1.Mock implements _i5.LayananNotifikasi {
   MockLayananNotifikasi() {
     _i1.throwOnMissingStub(this);
   }
@@ -62278,15 +62362,15 @@ class MockLayananNotifikasi extends _i1.Mock implements _i4.LayananNotifikasi {
       );
 
   @override
-  _i5.Future<void> inisialisasiNotifikasi({required String? iconName}) =>
+  _i4.Future<void> inisialisasiNotifikasi({required String? iconName}) =>
       (super.noSuchMethod(
             Invocation.method(#inisialisasiNotifikasi, [], {
               #iconName: iconName,
             }),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i4.Future<void>);
 
   @override
   void pantauNotifUmum(_i6.NotifikasiOpFirebase? notifikasiOp) =>
@@ -62311,25 +62395,25 @@ class MockLayananNotifikasi extends _i1.Mock implements _i4.LayananNotifikasi {
   );
 
   @override
-  _i5.Future<void> mintaIzin() =>
+  _i4.Future<void> mintaIzin() =>
       (super.noSuchMethod(
             Invocation.method(#mintaIzin, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i5.Future<_i2.NotificationAppLaunchDetails?>
+  _i4.Future<_i2.NotificationAppLaunchDetails?>
   getDetailPeluncuranNotifikasi() =>
       (super.noSuchMethod(
             Invocation.method(#getDetailPeluncuranNotifikasi, []),
-            returnValue: _i5.Future<_i2.NotificationAppLaunchDetails?>.value(),
+            returnValue: _i4.Future<_i2.NotificationAppLaunchDetails?>.value(),
           )
-          as _i5.Future<_i2.NotificationAppLaunchDetails?>);
+          as _i4.Future<_i2.NotificationAppLaunchDetails?>);
 
   @override
-  _i5.Future<void> tampilkanNotifikasiLangsung({
+  _i4.Future<void> tampilkanNotifikasiLangsung({
     required String? title,
     required String? body,
     String? payload,
@@ -62340,13 +62424,13 @@ class MockLayananNotifikasi extends _i1.Mock implements _i4.LayananNotifikasi {
               #body: body,
               #payload: payload,
             }),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i5.Future<void> jadwalNotifikasi({
+  _i4.Future<void> jadwalNotifikasi({
     required int? id,
     required String? judul,
     required String? pesan,
@@ -62361,13 +62445,13 @@ class MockLayananNotifikasi extends _i1.Mock implements _i4.LayananNotifikasi {
               #jadwal: jadwal,
               #payload: payload,
             }),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i5.Future<void> perbaruiJadwalNotifikasi({
+  _i4.Future<void> perbaruiJadwalNotifikasi({
     required int? id,
     required String? title,
     required String? body,
@@ -62382,36 +62466,36 @@ class MockLayananNotifikasi extends _i1.Mock implements _i4.LayananNotifikasi {
               #jadwal: jadwal,
               #payload: payload,
             }),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i5.Future<void> batalNotifikasi(int? id) =>
+  _i4.Future<void> batalNotifikasi(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#batalNotifikasi, [id]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i5.Future<void> batalSemuaNotifikasi() =>
+  _i4.Future<void> batalSemuaNotifikasi() =>
       (super.noSuchMethod(
             Invocation.method(#batalSemuaNotifikasi, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i5.Future<bool> pastikanIzinExactAlarm() =>
+  _i4.Future<bool> pastikanIzinExactAlarm() =>
       (super.noSuchMethod(
             Invocation.method(#pastikanIzinExactAlarm, []),
-            returnValue: _i5.Future<bool>.value(false),
+            returnValue: _i4.Future<bool>.value(false),
           )
-          as _i5.Future<bool>);
+          as _i4.Future<bool>);
 }
 
 /// A class which mocks [TransaksiOpFirebase].
@@ -62435,151 +62519,172 @@ class MockTransaksiOpFirebase extends _i1.Mock
           as _i3.FirebaseFirestore);
 
   @override
-  _i5.Future<void> tambahTransaksi(_i8.TransaksiModel? transaksi) =>
+  _i4.Future<void> tambahTransaksi(_i8.TransaksiModel? transaksi) =>
       (super.noSuchMethod(
             Invocation.method(#tambahTransaksi, [transaksi]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i5.Future<_i8.TransaksiModel?>
+  _i4.Future<_i8.TransaksiModel?>
   ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(String? idPelanggan) =>
       (super.noSuchMethod(
             Invocation.method(
               #ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan,
               [idPelanggan],
             ),
-            returnValue: _i5.Future<_i8.TransaksiModel?>.value(),
+            returnValue: _i4.Future<_i8.TransaksiModel?>.value(),
           )
-          as _i5.Future<_i8.TransaksiModel?>);
+          as _i4.Future<_i8.TransaksiModel?>);
 
   @override
-  _i5.Future<List<_i8.TransaksiModel>> ambilBelumLunasBerdasarkanIdPelanggan(
+  _i4.Future<List<_i8.TransaksiModel>> ambilBelumLunasBerdasarkanIdPelanggan(
     String? idPelanggan,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBelumLunasBerdasarkanIdPelanggan, [
               idPelanggan,
             ]),
-            returnValue: _i5.Future<List<_i8.TransaksiModel>>.value(
+            returnValue: _i4.Future<List<_i8.TransaksiModel>>.value(
               <_i8.TransaksiModel>[],
             ),
           )
-          as _i5.Future<List<_i8.TransaksiModel>>);
+          as _i4.Future<List<_i8.TransaksiModel>>);
 
   @override
-  _i5.Future<List<_i8.TransaksiModel>> ambilBerdasarkanIdPelanggan(
+  _i4.Future<List<_i8.TransaksiModel>> ambilBerdasarkanIdPelanggan(
     String? idPelanggan,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBerdasarkanIdPelanggan, [idPelanggan]),
-            returnValue: _i5.Future<List<_i8.TransaksiModel>>.value(
+            returnValue: _i4.Future<List<_i8.TransaksiModel>>.value(
               <_i8.TransaksiModel>[],
             ),
           )
-          as _i5.Future<List<_i8.TransaksiModel>>);
+          as _i4.Future<List<_i8.TransaksiModel>>);
 
   @override
-  _i5.Future<int> ambilTotalPoin(String? idPelanggan) =>
+  _i4.Future<int> ambilTotalPoin(String? idPelanggan) =>
       (super.noSuchMethod(
             Invocation.method(#ambilTotalPoin, [idPelanggan]),
-            returnValue: _i5.Future<int>.value(0),
+            returnValue: _i4.Future<int>.value(0),
           )
-          as _i5.Future<int>);
+          as _i4.Future<int>);
 
   @override
-  _i5.Future<void> softDeleteTransaksi(String? id) =>
+  _i4.Future<void> softDeleteTransaksi(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#softDeleteTransaksi, [id]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i5.Future<List<_i8.TransaksiModel>> ambilPaketAktifPelanggan(
+  _i4.Future<List<_i8.TransaksiModel>> ambilPaketAktifPelanggan(
     String? idPelanggan,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#ambilPaketAktifPelanggan, [idPelanggan]),
-            returnValue: _i5.Future<List<_i8.TransaksiModel>>.value(
+            returnValue: _i4.Future<List<_i8.TransaksiModel>>.value(
               <_i8.TransaksiModel>[],
             ),
           )
-          as _i5.Future<List<_i8.TransaksiModel>>);
+          as _i4.Future<List<_i8.TransaksiModel>>);
 
   @override
-  _i5.Future<_i3.DocumentReference<Object?>> tambah(
+  _i4.Future<T> runComplexOperation<T>(
+    _i4.Future<T> Function(_i3.Transaction)? customAction,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#runComplexOperation, [customAction]),
+            returnValue:
+                _i9.ifNotNull(
+                  _i9.dummyValueOrNull<T>(
+                    this,
+                    Invocation.method(#runComplexOperation, [customAction]),
+                  ),
+                  (T v) => _i4.Future<T>.value(v),
+                ) ??
+                _FakeFuture_2<T>(
+                  this,
+                  Invocation.method(#runComplexOperation, [customAction]),
+                ),
+          )
+          as _i4.Future<T>);
+
+  @override
+  _i4.Future<_i3.DocumentReference<Object?>> tambah(
     String? collectionName,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#tambah, [collectionName, data]),
-            returnValue: _i5.Future<_i3.DocumentReference<Object?>>.value(
-              _FakeDocumentReference_2<Object?>(
+            returnValue: _i4.Future<_i3.DocumentReference<Object?>>.value(
+              _FakeDocumentReference_3<Object?>(
                 this,
                 Invocation.method(#tambah, [collectionName, data]),
               ),
             ),
           )
-          as _i5.Future<_i3.DocumentReference<Object?>>);
+          as _i4.Future<_i3.DocumentReference<Object?>>);
 
   @override
-  _i5.Future<void> sisipkan(
+  _i4.Future<void> sisipkan(
     String? collectionName,
     String? docId,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#sisipkan, [collectionName, docId, data]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i5.Future<void> update(
+  _i4.Future<void> update(
     String? collectionName,
     String? docId,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#update, [collectionName, docId, data]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i5.Future<void> softDelete(String? collectionName, String? docId) =>
+  _i4.Future<void> softDelete(String? collectionName, String? docId) =>
       (super.noSuchMethod(
             Invocation.method(#softDelete, [collectionName, docId]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i5.Future<void> hapusPermanen(String? collectionName, String? docId) =>
+  _i4.Future<void> hapusPermanen(String? collectionName, String? docId) =>
       (super.noSuchMethod(
             Invocation.method(#hapusPermanen, [collectionName, docId]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i5.Future<int> hapusSementaraSemua(String? collectionName) =>
+  _i4.Future<int> hapusSementaraSemua(String? collectionName) =>
       (super.noSuchMethod(
             Invocation.method(#hapusSementaraSemua, [collectionName]),
-            returnValue: _i5.Future<int>.value(0),
+            returnValue: _i4.Future<int>.value(0),
           )
-          as _i5.Future<int>);
+          as _i4.Future<int>);
 
   @override
-  _i5.Future<void> insertOrUpdateBatch(
+  _i4.Future<void> insertOrUpdateBatch(
     String? collectionName,
     List<Map<String, dynamic>>? items,
     String? idKey,
@@ -62590,10 +62695,10 @@ class MockTransaksiOpFirebase extends _i1.Mock
               items,
               idKey,
             ]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i4.Future<void>);
 }
 
 
@@ -66779,12 +66884,13 @@ void main() {
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i3;
 
 import 'package:cloud_firestore/cloud_firestore.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i5;
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart'
-    as _i3;
+    as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -66807,16 +66913,21 @@ class _FakeFirebaseFirestore_0 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakeDocumentReference_1<T extends Object?> extends _i1.SmartFake
+class _FakeFuture_1<T1> extends _i1.SmartFake implements _i3.Future<T1> {
+  _FakeFuture_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeDocumentReference_2<T extends Object?> extends _i1.SmartFake
     implements _i2.DocumentReference<T> {
-  _FakeDocumentReference_1(Object parent, Invocation parentInvocation)
+  _FakeDocumentReference_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
 /// A class which mocks [BaseOpFirebase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
+class MockBaseOpFirebase extends _i1.Mock implements _i4.BaseOpFirebase {
   MockBaseOpFirebase() {
     _i1.throwOnMissingStub(this);
   }
@@ -66833,75 +66944,96 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
           as _i2.FirebaseFirestore);
 
   @override
-  _i4.Future<_i2.DocumentReference<Object?>> tambah(
+  _i3.Future<T> runComplexOperation<T>(
+    _i3.Future<T> Function(_i2.Transaction)? customAction,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#runComplexOperation, [customAction]),
+            returnValue:
+                _i5.ifNotNull(
+                  _i5.dummyValueOrNull<T>(
+                    this,
+                    Invocation.method(#runComplexOperation, [customAction]),
+                  ),
+                  (T v) => _i3.Future<T>.value(v),
+                ) ??
+                _FakeFuture_1<T>(
+                  this,
+                  Invocation.method(#runComplexOperation, [customAction]),
+                ),
+          )
+          as _i3.Future<T>);
+
+  @override
+  _i3.Future<_i2.DocumentReference<Object?>> tambah(
     String? collectionName,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#tambah, [collectionName, data]),
-            returnValue: _i4.Future<_i2.DocumentReference<Object?>>.value(
-              _FakeDocumentReference_1<Object?>(
+            returnValue: _i3.Future<_i2.DocumentReference<Object?>>.value(
+              _FakeDocumentReference_2<Object?>(
                 this,
                 Invocation.method(#tambah, [collectionName, data]),
               ),
             ),
           )
-          as _i4.Future<_i2.DocumentReference<Object?>>);
+          as _i3.Future<_i2.DocumentReference<Object?>>);
 
   @override
-  _i4.Future<void> sisipkan(
+  _i3.Future<void> sisipkan(
     String? collectionName,
     String? docId,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#sisipkan, [collectionName, docId, data]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> update(
+  _i3.Future<void> update(
     String? collectionName,
     String? docId,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#update, [collectionName, docId, data]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> softDelete(String? collectionName, String? docId) =>
+  _i3.Future<void> softDelete(String? collectionName, String? docId) =>
       (super.noSuchMethod(
             Invocation.method(#softDelete, [collectionName, docId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> hapusPermanen(String? collectionName, String? docId) =>
+  _i3.Future<void> hapusPermanen(String? collectionName, String? docId) =>
       (super.noSuchMethod(
             Invocation.method(#hapusPermanen, [collectionName, docId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<int> hapusSementaraSemua(String? collectionName) =>
+  _i3.Future<int> hapusSementaraSemua(String? collectionName) =>
       (super.noSuchMethod(
             Invocation.method(#hapusSementaraSemua, [collectionName]),
-            returnValue: _i4.Future<int>.value(0),
+            returnValue: _i3.Future<int>.value(0),
           )
-          as _i4.Future<int>);
+          as _i3.Future<int>);
 
   @override
-  _i4.Future<void> insertOrUpdateBatch(
+  _i3.Future<void> insertOrUpdateBatch(
     String? collectionName,
     List<Map<String, dynamic>>? items,
     String? idKey,
@@ -66912,10 +67044,10 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
               items,
               idKey,
             ]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 }
 
 
