@@ -24,7 +24,7 @@ class PoinTransactionService {
   final BaseOpFirebase _baseOpFirebase;
 
   PoinTransactionService({required BaseOpFirebase baseOpFirebase})
-      : _baseOpFirebase = baseOpFirebase {
+    : _baseOpFirebase = baseOpFirebase {
     Log.info('PoinTransactionService diinisialisasi.');
   }
 
@@ -67,9 +67,10 @@ class PoinTransactionService {
         final pelangganDoc = await txn.get(pelangganRef);
 
         if (!pelangganDoc.exists) {
-          Log.error('Pelanggan tidak ditemukan', data: {
-            'customerId': idPelanggan,
-          });
+          Log.error(
+            'Pelanggan tidak ditemukan',
+            data: {'customerId': idPelanggan},
+          );
           throw Exception('Pelanggan tidak ditemukan');
         }
 
@@ -128,15 +129,13 @@ class PoinTransactionService {
           deskripsi: 'Tukar Poin: ${paket.nama}',
           jumlah: 0,
           tipe: TipeTransaksi.expense,
-          idDompet: '', // TODO: Isi dengan dompet poin
-          idKategori: '', // TODO: Isi dengan kategori penukaran
+          idDompet: '',
+          idKategori: '',
           idPaket: paket.id,
           idPelanggan: idPelanggan,
-          poinDidapat: 0,
           poinDigunakan: paket.poinPenukaran,
           tanggalMulai: now,
           tanggalBerakhir: tanggalBerakhir,
-          statusPembayaran: StatusPembayaran.paid,
           statusAktivasi: true,
           diperbaruiPada: now.toUtc(),
         );

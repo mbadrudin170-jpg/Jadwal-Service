@@ -39,7 +39,7 @@ class HalamanPoin extends ConsumerStatefulWidget {
 }
 
 class _HalamanPoinState extends ConsumerState<HalamanPoin> {
-  final _layananIklanInterstisial = LayananIklanInterstisial();
+  late final LayananIklanInterstisial _layananIklanInterstisial;
   OpsiMenuPoin _menuAktif = OpsiMenuPoin.penukaran;
   late final Widget _judulAppBar;
   bool _sedangTukarPoin = false;
@@ -48,10 +48,13 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   @override
   void initState() {
     super.initState();
-    final pakaiFirebase = ref.watch(appRoleProvider) == AppRole.user;
+    _layananIklanInterstisial = LayananIklanInterstisial();
+
+    final role = ref.read(appRoleProvider);
+    final pakaiFirebase = role == AppRole.user;
 
     Log.info(
-      'Initializing PointsPage for customer: ${widget.idPelanggan} with role: ${ref.read(appRoleProvider)}',
+      'Initializing PointsPage for customer: ${widget.idPelanggan} with role: $role',
     );
 
     _judulAppBar = Row(
@@ -68,10 +71,11 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
     if (widget.tampilkanIklan) {
       Log.info('Preloading interstitial ad for PointsPage.');
-      unawaited(_layananIklanInterstisial.preloadAd());
+      _layananIklanInterstisial.preloadAd().catchError((Object e) {
+        Log.warning('Failed to preload interstitial ad: $e');
+      });
     }
   }
-  // lib/fitur/poin/page/halaman_poin.dart
 
   Future<void> _tukarPoin(PaketModel hadiah, int poinSaatIni) async {
     // Cegah double tap
@@ -84,7 +88,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
     try {
       // 1. Validasi Role
-      final role = ref.watch(appRoleProvider);
+      final role = ref.read(appRoleProvider);
       if (role == AppRole.admin) {
         Log.warning('Admin mencoba menukar poin, operasi diblokir.');
         ToastUtil.error(
@@ -139,11 +143,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         Log.info('Penukaran dibatalkan oleh user');
         return;
       }
-
-      // 5. EKSEKUSI TRANSACTION MENGGUNAKAN PoinTransactionService
       Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
-
-      // Tampilkan loading dialog
       if (mounted) {
         await showDialog<void>(
           context: context,
@@ -152,48 +152,38 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
               const Center(child: CircularProgressIndicator()),
         );
       }
-
       try {
-        // Ambil service dari provider
         final transactionService = ref.read(poinTransactionServiceProvider);
-
-        // Jalankan transaksi penukaran poin
         await transactionService.tukarPoin(
           idPelanggan: widget.idPelanggan,
           paket: hadiah,
           poinSaatIni: poinSaatIni,
         );
-
-        // Tutup loading dialog
-        if (mounted) Navigator.pop(context);
-
-        // 6. Refresh Data
         if (mounted) {
           ref.invalidate(pointsPageDataProvider);
           ref.invalidate(pointsHistoryProvider);
           ref.invalidate(orderProvider);
-
           ToastUtil.success(
             context,
             'Order sudah terkirim menunggu konfirmasi Admin',
           );
         }
       } catch (e, st) {
-        // Tutup loading dialog jika error
-        if (mounted) Navigator.pop(context);
-
         Log.error(
           'Gagal menukar poin',
           e: e,
           s: st,
           data: {'customerId': widget.idPelanggan, 'packageId': hadiah.id},
         );
-
         if (mounted) {
           ToastUtil.error(
             context,
             'Terjadi kesalahan saat menukar poin: ${e.toString()}',
           );
+        }
+      } finally {
+        if (mounted) {
+          Navigator.pop(context);
         }
       }
     } finally {
@@ -222,8 +212,9 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         );
       }
     }
+
     if (!mounted) return;
-    final role = ref.watch(appRoleProvider);
+    final role = ref.read(appRoleProvider);
     if (role == AppRole.user) {
       await Navigator.push<void>(
         context,
