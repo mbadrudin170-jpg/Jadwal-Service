@@ -44,7 +44,8 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
       NamaKolom.waktuOtomatisHapusDataArsip: waktuOtomatisHapusDataArsip,
       NamaKolom.modeMaintenance: modeMaintenance ? 1 : 0,
       NamaKolom.infoMaintenance: infoMaintenance,
-      NamaKolom.diperbaruiPada: diperbaruiPada!.millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada:
+          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
     };
   }
 
@@ -69,7 +70,9 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
       NamaKolom.waktuOtomatisHapusDataArsip: waktuOtomatisHapusDataArsip,
       NamaKolom.modeMaintenance: modeMaintenance,
       NamaKolom.infoMaintenance: infoMaintenance,
-      NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada!.toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        diperbaruiPada ?? DateTime.now(),
+      ),
     };
   }
 }

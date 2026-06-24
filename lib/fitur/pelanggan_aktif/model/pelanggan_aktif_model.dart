@@ -72,14 +72,13 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
       NamaKolom.idPelanggan: idPelanggan,
       NamaKolom.idPaket: idPaket,
       NamaKolom.idTransaksi: idTransaksi,
-      NamaKolom.tanggalMulai: tanggalMulai.toUtc().millisecondsSinceEpoch,
-      NamaKolom.tanggalBerakhir: tanggalBerakhir.toUtc().millisecondsSinceEpoch,
+      NamaKolom.tanggalMulai: tanggalMulai.millisecondsSinceEpoch,
+      NamaKolom.tanggalBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
       NamaKolom.status: status.name,
-      NamaKolom.diperbaruiPada: (diperbaruiPada ?? DateTime.now())
-          .toUtc()
-          .millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada:
+          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
       NamaKolom.dihapus: diHapus ? 1 : 0,
-      NamaKolom.diarsipkanPada: diarsipkanPada?.toUtc().millisecondsSinceEpoch,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
     };
   }
 
@@ -138,15 +137,15 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
       NamaKolom.idPelanggan: idPelanggan,
       NamaKolom.idPaket: idPaket,
       NamaKolom.idTransaksi: idTransaksi,
-      NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai.toUtc()),
-      NamaKolom.tanggalBerakhir: Timestamp.fromDate(tanggalBerakhir.toUtc()),
+      NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai),
+      NamaKolom.tanggalBerakhir: Timestamp.fromDate(tanggalBerakhir),
       NamaKolom.status: status.name,
       NamaKolom.dihapus: diHapus,
       NamaKolom.diperbaruiPada: Timestamp.fromDate(
-        (diperbaruiPada ?? DateTime.now()).toUtc(),
+        (diperbaruiPada ?? DateTime.now()),
       ),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
-          ? Timestamp.fromDate(diarsipkanPada!.toUtc())
+          ? Timestamp.fromDate(diarsipkanPada!)
           : null,
     };
   }

@@ -65,8 +65,8 @@ abstract class PaketModel with _$PaketModel implements HasId {
       NamaKolom.statusPublik: statusPublik ? 1 : 0,
       NamaKolom.dihapus: statusHapus ? 1 : 0,
       NamaKolom.diperbaruiPada:
-          (diperbaruiPada ?? DateTime.now()).toUtc().millisecondsSinceEpoch,
-      NamaKolom.diarsipkanPada: diarsipkanPada?.toUtc().millisecondsSinceEpoch,
+          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
     };
   }
 
@@ -98,10 +98,11 @@ abstract class PaketModel with _$PaketModel implements HasId {
       NamaKolom.poinPenukaran: poinPenukaran,
       NamaKolom.statusPublik: statusPublik,
       NamaKolom.dihapus: statusHapus,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()),
+      ),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
-          ? Timestamp.fromDate(diarsipkanPada!.toUtc())
+          ? Timestamp.fromDate(diarsipkanPada!)
           : null,
     };
   }
