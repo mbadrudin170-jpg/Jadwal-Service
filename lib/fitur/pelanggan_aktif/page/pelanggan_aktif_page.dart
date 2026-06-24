@@ -376,7 +376,6 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
             final displayedCustomers = urutkanPelangganAktif
                 .where((c) => c.namaPelanggan.toLowerCase().contains(query))
                 .toList();
-
             if (displayedCustomers.isEmpty) {
               return Center(
                 child: Text(

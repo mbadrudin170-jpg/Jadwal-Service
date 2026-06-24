@@ -3,16 +3,17 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i3;
 
 import 'package:cloud_firestore/cloud_firestore.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i8;
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart' as _i5;
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart' as _i3;
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart' as _i4;
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart' as _i7;
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart' as _i6;
 import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dart'
-    as _i8;
+    as _i9;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -35,9 +36,14 @@ class _FakeFirebaseFirestore_0 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakeDocumentReference_1<T extends Object?> extends _i1.SmartFake
+class _FakeFuture_1<T1> extends _i1.SmartFake implements _i3.Future<T1> {
+  _FakeFuture_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeDocumentReference_2<T extends Object?> extends _i1.SmartFake
     implements _i2.DocumentReference<T> {
-  _FakeDocumentReference_1(Object parent, Invocation parentInvocation)
+  _FakeDocumentReference_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -45,81 +51,81 @@ class _FakeDocumentReference_1<T extends Object?> extends _i1.SmartFake
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPelangganOpFirebase extends _i1.Mock
-    implements _i3.PelangganOpFirebase {
+    implements _i4.PelangganOpFirebase {
   MockPelangganOpFirebase() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<void> tambahPelanggan(_i5.PelangganModel? pelanggan) =>
+  _i3.Future<void> tambahPelanggan(_i5.PelangganModel? pelanggan) =>
       (super.noSuchMethod(
             Invocation.method(#tambahPelanggan, [pelanggan]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> perbaruiPelanggan(_i5.PelangganModel? pelanggan) =>
+  _i3.Future<void> perbaruiPelanggan(_i5.PelangganModel? pelanggan) =>
       (super.noSuchMethod(
             Invocation.method(#perbaruiPelanggan, [pelanggan]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> softDelete(String? id) =>
+  _i3.Future<void> softDelete(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#softDelete, [id]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> perbaruiTerakhirAktif(String? id) =>
+  _i3.Future<void> perbaruiTerakhirAktif(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#perbaruiTerakhirAktif, [id]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> simpanTokenFCM(String? id, String? token) =>
+  _i3.Future<void> simpanTokenFCM(String? id, String? token) =>
       (super.noSuchMethod(
             Invocation.method(#simpanTokenFCM, [id, token]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<List<_i5.PelangganModel>> ambilSemuaPelanggan() =>
+  _i3.Future<List<_i5.PelangganModel>> ambilSemuaPelanggan() =>
       (super.noSuchMethod(
             Invocation.method(#ambilSemuaPelanggan, []),
-            returnValue: _i4.Future<List<_i5.PelangganModel>>.value(
+            returnValue: _i3.Future<List<_i5.PelangganModel>>.value(
               <_i5.PelangganModel>[],
             ),
           )
-          as _i4.Future<List<_i5.PelangganModel>>);
+          as _i3.Future<List<_i5.PelangganModel>>);
 
   @override
-  _i4.Stream<_i5.PelangganModel?> ambilStreamBerdasarkanId(String? id) =>
+  _i3.Stream<_i5.PelangganModel?> ambilStreamBerdasarkanId(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#ambilStreamBerdasarkanId, [id]),
-            returnValue: _i4.Stream<_i5.PelangganModel?>.empty(),
+            returnValue: _i3.Stream<_i5.PelangganModel?>.empty(),
           )
-          as _i4.Stream<_i5.PelangganModel?>);
+          as _i3.Stream<_i5.PelangganModel?>);
 
   @override
-  _i4.Future<_i5.PelangganModel?> ambilBerdasarkanId(String? id) =>
+  _i3.Future<_i5.PelangganModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBerdasarkanId, [id]),
-            returnValue: _i4.Future<_i5.PelangganModel?>.value(),
+            returnValue: _i3.Future<_i5.PelangganModel?>.value(),
           )
-          as _i4.Future<_i5.PelangganModel?>);
+          as _i3.Future<_i5.PelangganModel?>);
 }
 
 /// A class which mocks [TransaksiOpFirebase].
@@ -143,151 +149,172 @@ class MockTransaksiOpFirebase extends _i1.Mock
           as _i2.FirebaseFirestore);
 
   @override
-  _i4.Future<void> tambahTransaksi(_i7.TransaksiModel? transaksi) =>
+  _i3.Future<void> tambahTransaksi(_i7.TransaksiModel? transaksi) =>
       (super.noSuchMethod(
             Invocation.method(#tambahTransaksi, [transaksi]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<_i7.TransaksiModel?>
+  _i3.Future<_i7.TransaksiModel?>
   ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(String? idPelanggan) =>
       (super.noSuchMethod(
             Invocation.method(
               #ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan,
               [idPelanggan],
             ),
-            returnValue: _i4.Future<_i7.TransaksiModel?>.value(),
+            returnValue: _i3.Future<_i7.TransaksiModel?>.value(),
           )
-          as _i4.Future<_i7.TransaksiModel?>);
+          as _i3.Future<_i7.TransaksiModel?>);
 
   @override
-  _i4.Future<List<_i7.TransaksiModel>> ambilBelumLunasBerdasarkanIdPelanggan(
+  _i3.Future<List<_i7.TransaksiModel>> ambilBelumLunasBerdasarkanIdPelanggan(
     String? idPelanggan,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBelumLunasBerdasarkanIdPelanggan, [
               idPelanggan,
             ]),
-            returnValue: _i4.Future<List<_i7.TransaksiModel>>.value(
+            returnValue: _i3.Future<List<_i7.TransaksiModel>>.value(
               <_i7.TransaksiModel>[],
             ),
           )
-          as _i4.Future<List<_i7.TransaksiModel>>);
+          as _i3.Future<List<_i7.TransaksiModel>>);
 
   @override
-  _i4.Future<List<_i7.TransaksiModel>> ambilBerdasarkanIdPelanggan(
+  _i3.Future<List<_i7.TransaksiModel>> ambilBerdasarkanIdPelanggan(
     String? idPelanggan,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBerdasarkanIdPelanggan, [idPelanggan]),
-            returnValue: _i4.Future<List<_i7.TransaksiModel>>.value(
+            returnValue: _i3.Future<List<_i7.TransaksiModel>>.value(
               <_i7.TransaksiModel>[],
             ),
           )
-          as _i4.Future<List<_i7.TransaksiModel>>);
+          as _i3.Future<List<_i7.TransaksiModel>>);
 
   @override
-  _i4.Future<int> ambilTotalPoin(String? idPelanggan) =>
+  _i3.Future<int> ambilTotalPoin(String? idPelanggan) =>
       (super.noSuchMethod(
             Invocation.method(#ambilTotalPoin, [idPelanggan]),
-            returnValue: _i4.Future<int>.value(0),
+            returnValue: _i3.Future<int>.value(0),
           )
-          as _i4.Future<int>);
+          as _i3.Future<int>);
 
   @override
-  _i4.Future<void> softDeleteTransaksi(String? id) =>
+  _i3.Future<void> softDeleteTransaksi(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#softDeleteTransaksi, [id]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<List<_i7.TransaksiModel>> ambilPaketAktifPelanggan(
+  _i3.Future<List<_i7.TransaksiModel>> ambilPaketAktifPelanggan(
     String? idPelanggan,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#ambilPaketAktifPelanggan, [idPelanggan]),
-            returnValue: _i4.Future<List<_i7.TransaksiModel>>.value(
+            returnValue: _i3.Future<List<_i7.TransaksiModel>>.value(
               <_i7.TransaksiModel>[],
             ),
           )
-          as _i4.Future<List<_i7.TransaksiModel>>);
+          as _i3.Future<List<_i7.TransaksiModel>>);
 
   @override
-  _i4.Future<_i2.DocumentReference<Object?>> tambah(
+  _i3.Future<T> runComplexOperation<T>(
+    _i3.Future<T> Function(_i2.Transaction)? customAction,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#runComplexOperation, [customAction]),
+            returnValue:
+                _i8.ifNotNull(
+                  _i8.dummyValueOrNull<T>(
+                    this,
+                    Invocation.method(#runComplexOperation, [customAction]),
+                  ),
+                  (T v) => _i3.Future<T>.value(v),
+                ) ??
+                _FakeFuture_1<T>(
+                  this,
+                  Invocation.method(#runComplexOperation, [customAction]),
+                ),
+          )
+          as _i3.Future<T>);
+
+  @override
+  _i3.Future<_i2.DocumentReference<Object?>> tambah(
     String? collectionName,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#tambah, [collectionName, data]),
-            returnValue: _i4.Future<_i2.DocumentReference<Object?>>.value(
-              _FakeDocumentReference_1<Object?>(
+            returnValue: _i3.Future<_i2.DocumentReference<Object?>>.value(
+              _FakeDocumentReference_2<Object?>(
                 this,
                 Invocation.method(#tambah, [collectionName, data]),
               ),
             ),
           )
-          as _i4.Future<_i2.DocumentReference<Object?>>);
+          as _i3.Future<_i2.DocumentReference<Object?>>);
 
   @override
-  _i4.Future<void> sisipkan(
+  _i3.Future<void> sisipkan(
     String? collectionName,
     String? docId,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#sisipkan, [collectionName, docId, data]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> update(
+  _i3.Future<void> update(
     String? collectionName,
     String? docId,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#update, [collectionName, docId, data]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> softDelete(String? collectionName, String? docId) =>
+  _i3.Future<void> softDelete(String? collectionName, String? docId) =>
       (super.noSuchMethod(
             Invocation.method(#softDelete, [collectionName, docId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> hapusPermanen(String? collectionName, String? docId) =>
+  _i3.Future<void> hapusPermanen(String? collectionName, String? docId) =>
       (super.noSuchMethod(
             Invocation.method(#hapusPermanen, [collectionName, docId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<int> hapusSementaraSemua(String? collectionName) =>
+  _i3.Future<int> hapusSementaraSemua(String? collectionName) =>
       (super.noSuchMethod(
             Invocation.method(#hapusSementaraSemua, [collectionName]),
-            returnValue: _i4.Future<int>.value(0),
+            returnValue: _i3.Future<int>.value(0),
           )
-          as _i4.Future<int>);
+          as _i3.Future<int>);
 
   @override
-  _i4.Future<void> insertOrUpdateBatch(
+  _i3.Future<void> insertOrUpdateBatch(
     String? collectionName,
     List<Map<String, dynamic>>? items,
     String? idKey,
@@ -298,38 +325,38 @@ class MockTransaksiOpFirebase extends _i1.Mock
               items,
               idKey,
             ]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 }
 
 /// A class which mocks [LayananIklanInterstisial].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockLayananIklanInterstisial extends _i1.Mock
-    implements _i8.LayananIklanInterstisial {
+    implements _i9.LayananIklanInterstisial {
   MockLayananIklanInterstisial() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<void> preloadAd() =>
+  _i3.Future<void> preloadAd() =>
       (super.noSuchMethod(
             Invocation.method(#preloadAd, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> show() =>
+  _i3.Future<void> show() =>
       (super.noSuchMethod(
             Invocation.method(#show, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
   void dispose() => super.noSuchMethod(

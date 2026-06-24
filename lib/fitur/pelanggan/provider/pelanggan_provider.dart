@@ -49,6 +49,7 @@ class Pelanggan extends _$Pelanggan {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.tambahPelanggan(pelanggan);
       ref.invalidate(pelangganDetailProvider);
+      ref.invalidateSelf();
       return _ambilData();
     });
   }
@@ -57,6 +58,7 @@ class Pelanggan extends _$Pelanggan {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
       ref.invalidate(pelangganDetailProvider);
+      ref.invalidateSelf();
       return _ambilData();
     });
   }
@@ -65,6 +67,7 @@ class Pelanggan extends _$Pelanggan {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.softDelete(id);
       ref.invalidate(pelangganDetailProvider);
+      ref.invalidateSelf();
       return _ambilData();
     });
   }

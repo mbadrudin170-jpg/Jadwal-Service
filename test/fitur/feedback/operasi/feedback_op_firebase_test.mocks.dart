@@ -424,6 +424,27 @@ class MockBaseOpFirebase extends _i1.Mock implements _i8.BaseOpFirebase {
           as _i4.FirebaseFirestore);
 
   @override
+  _i5.Future<T> runComplexOperation<T>(
+    _i5.Future<T> Function(_i4.Transaction)? customAction,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#runComplexOperation, [customAction]),
+            returnValue:
+                _i6.ifNotNull(
+                  _i6.dummyValueOrNull<T>(
+                    this,
+                    Invocation.method(#runComplexOperation, [customAction]),
+                  ),
+                  (T v) => _i5.Future<T>.value(v),
+                ) ??
+                _FakeFuture_8<T>(
+                  this,
+                  Invocation.method(#runComplexOperation, [customAction]),
+                ),
+          )
+          as _i5.Future<T>);
+
+  @override
   _i5.Future<_i4.DocumentReference<Object?>> tambah(
     String? collectionName,
     Map<String, dynamic>? data,

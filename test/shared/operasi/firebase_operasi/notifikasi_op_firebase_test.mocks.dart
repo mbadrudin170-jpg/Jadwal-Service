@@ -3,12 +3,13 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i3;
 
 import 'package:cloud_firestore/cloud_firestore.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i5;
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart'
-    as _i3;
+    as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -31,16 +32,21 @@ class _FakeFirebaseFirestore_0 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakeDocumentReference_1<T extends Object?> extends _i1.SmartFake
+class _FakeFuture_1<T1> extends _i1.SmartFake implements _i3.Future<T1> {
+  _FakeFuture_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeDocumentReference_2<T extends Object?> extends _i1.SmartFake
     implements _i2.DocumentReference<T> {
-  _FakeDocumentReference_1(Object parent, Invocation parentInvocation)
+  _FakeDocumentReference_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
 /// A class which mocks [BaseOpFirebase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
+class MockBaseOpFirebase extends _i1.Mock implements _i4.BaseOpFirebase {
   MockBaseOpFirebase() {
     _i1.throwOnMissingStub(this);
   }
@@ -57,75 +63,96 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
           as _i2.FirebaseFirestore);
 
   @override
-  _i4.Future<_i2.DocumentReference<Object?>> tambah(
+  _i3.Future<T> runComplexOperation<T>(
+    _i3.Future<T> Function(_i2.Transaction)? customAction,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#runComplexOperation, [customAction]),
+            returnValue:
+                _i5.ifNotNull(
+                  _i5.dummyValueOrNull<T>(
+                    this,
+                    Invocation.method(#runComplexOperation, [customAction]),
+                  ),
+                  (T v) => _i3.Future<T>.value(v),
+                ) ??
+                _FakeFuture_1<T>(
+                  this,
+                  Invocation.method(#runComplexOperation, [customAction]),
+                ),
+          )
+          as _i3.Future<T>);
+
+  @override
+  _i3.Future<_i2.DocumentReference<Object?>> tambah(
     String? collectionName,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#tambah, [collectionName, data]),
-            returnValue: _i4.Future<_i2.DocumentReference<Object?>>.value(
-              _FakeDocumentReference_1<Object?>(
+            returnValue: _i3.Future<_i2.DocumentReference<Object?>>.value(
+              _FakeDocumentReference_2<Object?>(
                 this,
                 Invocation.method(#tambah, [collectionName, data]),
               ),
             ),
           )
-          as _i4.Future<_i2.DocumentReference<Object?>>);
+          as _i3.Future<_i2.DocumentReference<Object?>>);
 
   @override
-  _i4.Future<void> sisipkan(
+  _i3.Future<void> sisipkan(
     String? collectionName,
     String? docId,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#sisipkan, [collectionName, docId, data]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> update(
+  _i3.Future<void> update(
     String? collectionName,
     String? docId,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#update, [collectionName, docId, data]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> softDelete(String? collectionName, String? docId) =>
+  _i3.Future<void> softDelete(String? collectionName, String? docId) =>
       (super.noSuchMethod(
             Invocation.method(#softDelete, [collectionName, docId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<void> hapusPermanen(String? collectionName, String? docId) =>
+  _i3.Future<void> hapusPermanen(String? collectionName, String? docId) =>
       (super.noSuchMethod(
             Invocation.method(#hapusPermanen, [collectionName, docId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i4.Future<int> hapusSementaraSemua(String? collectionName) =>
+  _i3.Future<int> hapusSementaraSemua(String? collectionName) =>
       (super.noSuchMethod(
             Invocation.method(#hapusSementaraSemua, [collectionName]),
-            returnValue: _i4.Future<int>.value(0),
+            returnValue: _i3.Future<int>.value(0),
           )
-          as _i4.Future<int>);
+          as _i3.Future<int>);
 
   @override
-  _i4.Future<void> insertOrUpdateBatch(
+  _i3.Future<void> insertOrUpdateBatch(
     String? collectionName,
     List<Map<String, dynamic>>? items,
     String? idKey,
@@ -136,8 +163,8 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
               items,
               idKey,
             ]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i3.Future<void>);
 }
