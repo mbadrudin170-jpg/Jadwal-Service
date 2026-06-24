@@ -495,30 +495,24 @@ class LayananUnggahData {
         );
         return;
       }
-
       Log.info(
         'Terdapat ${dataUntukDiunggah.length} data yang perlu diunggah dari tabel $namaTabel. '
         'Membuat Firestore batch operation untuk mengunggah data secara atomik.',
       );
-
       final batchFirestore = _firestore.batch();
       Log.info('Firestore batch berhasil dibuat.');
-
       int jumlahSukses = 0;
       final List<Map<String, dynamic>> failedData = [];
-
       for (int i = 0; i < dataUntukDiunggah.length; i++) {
         final map = dataUntukDiunggah[i];
         Log.info(
           'Memproses data ke-${i + 1}/${dataUntukDiunggah.length} dari tabel $namaTabel.',
         );
-
         try {
           Log.info(
             'Mengkonversi data SQLite menjadi model $T menggunakan fungsi fromSqlite.',
           );
           final T data = fromSqlite(map);
-
           if (data.id.isEmpty) {
             Log.warning(
               'Melewati data ke-${i + 1} dari tabel $namaTabel karena ID kosong. Data: $map',
@@ -526,14 +520,11 @@ class LayananUnggahData {
             failedData.add(map);
             continue;
           }
-
           Log.info(
             'Konversi berhasil. ID data: ${data.id}. '
             'Membuat referensi dokumen Firestore pada koleksi $namaKoleksi dengan ID ${data.id}.',
           );
-
           final docRef = _firestore.collection(namaKoleksi).doc(data.id);
-
           Log.info(
             'Mengkonversi model menjadi Map<String, dynamic> menggunakan fungsi toFirebase.',
           );
@@ -542,18 +533,15 @@ class LayananUnggahData {
             'Konversi ke format Firestore berhasil. '
             'Jumlah field yang akan diunggah: ${firebaseData.length}.',
           );
-
           Log.info(
             'Menambahkan operasi set dengan merge:true ke batch Firestore untuk dokumen $namaKoleksi/${data.id}. '
             'Merge:true akan menggabungkan data baru dengan data yang sudah ada tanpa menghapus field lain.',
           );
           batchFirestore.set(docRef, firebaseData, SetOptions(merge: true));
-
           jumlahSukses++;
           Log.info(
             'Data ke-${i + 1} (ID: ${data.id}) berhasil ditambahkan ke batch Firestore.',
           );
-          // ignore: avoid_catches_without_on_clauses, justification: 'diperlukan untuk menangkap semua jenis error termasuk ArgumentError agar data korup tidak menghentikan proses unggah'
         } catch (e, s) {
           failedData.add(map);
           Log.error(

@@ -1595,13 +1595,15 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final transaksiData = TransaksiModel(
         id: idTransaksi,
         tanggal: tanggalMulai,
-        deskripsi: 'Aktivasi Paket: ${_paketDipilih!.nama}',
+        deskripsi: _gunakanPoin
+            ? 'Tukar Poin ${_paketDipilih?.nama ?? ''}'
+            : 'Aktivasi Paket: ${_paketDipilih?.nama ?? ''}',
         jumlah: _gunakanPoin ? 0 : _paketDipilih!.harga.toDouble(),
         tipe: _gunakanPoin ? TipeTransaksi.expense : TipeTransaksi.income,
         idDompet: _dompetDipilih!.id,
         idKategori: _kategoriDipilih!.id,
         idPelanggan: _pelangganDipilih!.id,
-        idPaket: _paketDipilih!.id,
+        idPaket: _paketDipilih?.id,
         statusPembayaran: _statusPembayaran,
         poinDidapat: _gunakanPoin ? 0 : _paketDipilih!.poinHadiah,
         poinDigunakan: _gunakanPoin ? _paketDipilih!.poinPenukaran : 0,
@@ -5369,6 +5371,7 @@ import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/service/poin_transaction_service.dart';
 import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -5397,7 +5400,7 @@ class HalamanPoin extends ConsumerStatefulWidget {
 }
 
 class _HalamanPoinState extends ConsumerState<HalamanPoin> {
-  final _layananIklanInterstisial = LayananIklanInterstisial();
+  late final LayananIklanInterstisial _layananIklanInterstisial;
   OpsiMenuPoin _menuAktif = OpsiMenuPoin.penukaran;
   late final Widget _judulAppBar;
   bool _sedangTukarPoin = false;
@@ -5406,10 +5409,13 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   @override
   void initState() {
     super.initState();
-    final pakaiFirebase = ref.read(appRoleProvider) == AppRole.user;
+    _layananIklanInterstisial = LayananIklanInterstisial();
+
+    final role = ref.read(appRoleProvider);
+    final pakaiFirebase = role == AppRole.user;
 
     Log.info(
-      'Initializing PointsPage for customer: ${widget.idPelanggan} with role: ${ref.read(appRoleProvider)}',
+      'Initializing PointsPage for customer: ${widget.idPelanggan} with role: $role',
     );
 
     _judulAppBar = Row(
@@ -5426,10 +5432,11 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
     if (widget.tampilkanIklan) {
       Log.info('Preloading interstitial ad for PointsPage.');
-      unawaited(_layananIklanInterstisial.preloadAd());
+      _layananIklanInterstisial.preloadAd().catchError((Object e) {
+        Log.warning('Failed to preload interstitial ad: $e');
+      });
     }
   }
-  // lib/fitur/poin/page/halaman_poin.dart
 
   Future<void> _tukarPoin(PaketModel hadiah, int poinSaatIni) async {
     // Cegah double tap
@@ -5441,16 +5448,16 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     });
 
     try {
-      // // 1. Validasi Role
-      // final role = ref.read(appRoleProvider);
-      // if (role == AppRole.admin) {
-      //   Log.warning('Admin mencoba menukar poin, operasi diblokir.');
-      //   ToastUtil.error(
-      //     context,
-      //     'Admin tidak dapat menukar poin dari antarmuka ini.',
-      //   );
-      //   return;
-      // }
+      // 1. Validasi Role
+      final role = ref.read(appRoleProvider);
+      if (role == AppRole.admin) {
+        Log.warning('Admin mencoba menukar poin, operasi diblokir.');
+        ToastUtil.error(
+          context,
+          'Admin tidak dapat menukar poin dari antarmuka ini.',
+        );
+        return;
+      }
 
       // 2. Cek Koneksi Internet
       final isOnline = await ref
@@ -5497,63 +5504,47 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         Log.info('Penukaran dibatalkan oleh user');
         return;
       }
-
-      // 5. EKSEKUSI TRANSACTION MENGGUNAKAN PoinTransactionService
       Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
-
-      // Tampilkan loading dialog
       if (mounted) {
-        unawaited(
-          showDialog<void>(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) =>
-                const Center(child: CircularProgressIndicator()),
-          ),
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) =>
+              const Center(child: CircularProgressIndicator()),
         );
       }
-
       try {
-        // Ambil service dari provider
         final transactionService = ref.read(poinTransactionServiceProvider);
-
-        // Jalankan transaksi penukaran poin
         await transactionService.tukarPoin(
           idPelanggan: widget.idPelanggan,
           paket: hadiah,
           poinSaatIni: poinSaatIni,
         );
-
-        // Tutup loading dialog
-        if (mounted) Navigator.pop(context);
-
-        // 6. Refresh Data
         if (mounted) {
           ref.invalidate(pointsPageDataProvider);
           ref.invalidate(pointsHistoryProvider);
           ref.invalidate(orderProvider);
-
           ToastUtil.success(
             context,
             'Order sudah terkirim menunggu konfirmasi Admin',
           );
         }
       } catch (e, st) {
-        // Tutup loading dialog jika error
-        if (mounted) Navigator.pop(context);
-
         Log.error(
           'Gagal menukar poin',
           e: e,
           s: st,
           data: {'customerId': widget.idPelanggan, 'packageId': hadiah.id},
         );
-
         if (mounted) {
           ToastUtil.error(
             context,
             'Terjadi kesalahan saat menukar poin: ${e.toString()}',
           );
+        }
+      } finally {
+        if (mounted) {
+          Navigator.pop(context);
         }
       }
     } finally {
@@ -5582,14 +5573,25 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         );
       }
     }
+
     if (!mounted) return;
-    await Navigator.push<void>(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            DetailTransaksiU(transaksi: transaksi, paket: paket),
-      ),
-    );
+    final role = ref.read(appRoleProvider);
+    if (role == AppRole.user) {
+      await Navigator.push<void>(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              DetailTransaksiU(transaksi: transaksi, paket: paket),
+        ),
+      );
+    } else {
+      await Navigator.push<void>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DetailTransaksiA(transaksi: transaksi),
+        ),
+      );
+    }
   }
 
   @override
@@ -6854,7 +6856,7 @@ class PoinTransactionService {
   final BaseOpFirebase _baseOpFirebase;
 
   PoinTransactionService({required BaseOpFirebase baseOpFirebase})
-      : _baseOpFirebase = baseOpFirebase {
+    : _baseOpFirebase = baseOpFirebase {
     Log.info('PoinTransactionService diinisialisasi.');
   }
 
@@ -6897,9 +6899,10 @@ class PoinTransactionService {
         final pelangganDoc = await txn.get(pelangganRef);
 
         if (!pelangganDoc.exists) {
-          Log.error('Pelanggan tidak ditemukan', data: {
-            'customerId': idPelanggan,
-          });
+          Log.error(
+            'Pelanggan tidak ditemukan',
+            data: {'customerId': idPelanggan},
+          );
           throw Exception('Pelanggan tidak ditemukan');
         }
 
@@ -6958,15 +6961,13 @@ class PoinTransactionService {
           deskripsi: 'Tukar Poin: ${paket.nama}',
           jumlah: 0,
           tipe: TipeTransaksi.expense,
-          idDompet: '', // TODO: Isi dengan dompet poin
-          idKategori: '', // TODO: Isi dengan kategori penukaran
+          idDompet: '',
+          idKategori: '',
           idPaket: paket.id,
           idPelanggan: idPelanggan,
-          poinDidapat: 0,
           poinDigunakan: paket.poinPenukaran,
           tanggalMulai: now,
           tanggalBerakhir: tanggalBerakhir,
-          statusPembayaran: StatusPembayaran.paid,
           statusAktivasi: true,
           diperbaruiPada: now.toUtc(),
         );
@@ -7072,6 +7073,7 @@ final poinTransactionServiceProvider = Provider<PoinTransactionService>((ref) {
   final baseOpFirebase = ref.watch(baseOpFirebaseProvider);
   return PoinTransactionService(baseOpFirebase: baseOpFirebase);
 });
+
 
 // File: lib/fitur/settings/page/settings_page_a.dart
 // path: lib/fitur/settings/page/settings_page_a.dart
@@ -24713,6 +24715,7 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -24826,10 +24829,71 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
     }
   }
 
+  Future<void> _softDeleteTransaksi() async {
+    final bool? konfirmasi = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Konfirmasi Hapus'),
+        content: const Text('Apakah Anda yakin ingin menghapus transaksi ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+    if (konfirmasi != true) return;
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Menghapus transaksi...'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    try {
+      await ref
+          .read(transaksiProvider.notifier)
+          .softDelete(_currentTransaction.id);
+      if (mounted) {
+        Navigator.pop(context); // Tutup loading dialog
+        ToastUtil.success(context, 'Transaksi berhasil dihapus');
+        Navigator.pop(context, true); // Tutup halaman detail
+      }
+    } catch (e, st) {
+      if (mounted) {
+        Navigator.pop(context); // Tutup loading dialog
+        ToastUtil.error(context, 'Gagal menghapus transaksi');
+        Log.error('Gagal menghapus transaksi', e: e, s: st);
+      }
+    } finally {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final transaksi = _currentTransaction;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail Transaksi'),
@@ -24838,6 +24902,10 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
           onPressed: () => Navigator.pop(context, _diUpdate),
         ),
         actions: [
+          IconButton(
+            onPressed: _softDeleteTransaksi,
+            icon: Icon(TIcons.delete),
+          ),
           IconButton(
             icon: const Icon(TIcons.edit),
             onPressed: _navigasiKeForm,
@@ -26042,6 +26110,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
     return AppBar(
       title: const Text('Transaksi'),
       actions: [
+        IconButton(onPressed: () {}, icon: Icon(TIcons.search)),
         IconButton(
           onPressed: () => _tampilkanDialogUrutan(context, ref, currentSortBy),
           icon: const Icon(TIcons.filter),
@@ -27537,7 +27606,7 @@ class TransaksiOpSqlite {
   }
 
   /// Menghitung total poin yang diperoleh seorang pelanggan.
-  Future<int> ambilPoinDidapat(final String idPelanggan) async {
+  Future<int> ambilPoinDidapat( String idPelanggan) async {
     try {
       final db = await sqliteDb.database;
       Log.info('Menghitung poin yang dihasilkan Customer: $idPelanggan');
@@ -27555,7 +27624,7 @@ class TransaksiOpSqlite {
   }
 
   /// Menghitung total poin yang digunakan seorang pelanggan.
-  Future<int> ambilPoinDigunakan(final String idPelanggan) async {
+  Future<int> ambilPoinDigunakan(String idPelanggan) async {
     try {
       final db = await sqliteDb.database;
       Log.info('Menghitung poin yang digunakan Customer: $idPelanggan');
@@ -27583,6 +27652,7 @@ class TransaksiOpSqlite {
     );
     return total;
   }
+
   Future<int> ambilTotalPoinSemuaPelanggan() async {
     try {
       final db = await sqliteDb.database;
@@ -27823,7 +27893,6 @@ class TransaksiOpFirebase extends BaseOpFirebase {
             isEqualTo: StatusPembayaran.paid.name,
           )
           .get();
-
       int totalPoin = 0;
       for (final doc in querySnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
@@ -33990,30 +34059,24 @@ class LayananUnggahData {
         );
         return;
       }
-
       Log.info(
         'Terdapat ${dataUntukDiunggah.length} data yang perlu diunggah dari tabel $namaTabel. '
         'Membuat Firestore batch operation untuk mengunggah data secara atomik.',
       );
-
       final batchFirestore = _firestore.batch();
       Log.info('Firestore batch berhasil dibuat.');
-
       int jumlahSukses = 0;
       final List<Map<String, dynamic>> failedData = [];
-
       for (int i = 0; i < dataUntukDiunggah.length; i++) {
         final map = dataUntukDiunggah[i];
         Log.info(
           'Memproses data ke-${i + 1}/${dataUntukDiunggah.length} dari tabel $namaTabel.',
         );
-
         try {
           Log.info(
             'Mengkonversi data SQLite menjadi model $T menggunakan fungsi fromSqlite.',
           );
           final T data = fromSqlite(map);
-
           if (data.id.isEmpty) {
             Log.warning(
               'Melewati data ke-${i + 1} dari tabel $namaTabel karena ID kosong. Data: $map',
@@ -34021,14 +34084,11 @@ class LayananUnggahData {
             failedData.add(map);
             continue;
           }
-
           Log.info(
             'Konversi berhasil. ID data: ${data.id}. '
             'Membuat referensi dokumen Firestore pada koleksi $namaKoleksi dengan ID ${data.id}.',
           );
-
           final docRef = _firestore.collection(namaKoleksi).doc(data.id);
-
           Log.info(
             'Mengkonversi model menjadi Map<String, dynamic> menggunakan fungsi toFirebase.',
           );
@@ -34037,18 +34097,15 @@ class LayananUnggahData {
             'Konversi ke format Firestore berhasil. '
             'Jumlah field yang akan diunggah: ${firebaseData.length}.',
           );
-
           Log.info(
             'Menambahkan operasi set dengan merge:true ke batch Firestore untuk dokumen $namaKoleksi/${data.id}. '
             'Merge:true akan menggabungkan data baru dengan data yang sudah ada tanpa menghapus field lain.',
           );
           batchFirestore.set(docRef, firebaseData, SetOptions(merge: true));
-
           jumlahSukses++;
           Log.info(
             'Data ke-${i + 1} (ID: ${data.id}) berhasil ditambahkan ke batch Firestore.',
           );
-          // ignore: avoid_catches_without_on_clauses, justification: 'diperlukan untuk menangkap semua jenis error termasuk ArgumentError agar data korup tidak menghentikan proses unggah'
         } catch (e, s) {
           failedData.add(map);
           Log.error(
@@ -34162,13 +34219,13 @@ class LayananCekSinkronisasi {
     _berjalan = true;
     try {
       final bool sudahUnggahData = await _periksaDanJalankanUnggah();
-      await _periksaDanJalankanUnduh();
       if (sudahUnggahData) {
         Log.info(
           'Pemicu sinkronisasi: Ada data baru yang berhasil diunggah ke server.',
         );
         await _perbaruiStatusGlobal();
       }
+      await _periksaDanJalankanUnduh();
       Log.info('Seluruh siklus runSyncCheck() telah berakhir dengan sukses.');
     } finally {
       _berjalan = false;
@@ -34180,7 +34237,6 @@ class LayananCekSinkronisasi {
     try {
       final bool adaDataUntukUnggah = await _pengecekanDataBaru
           .apakahSqliteAdaDataBaru();
-
       if (adaDataUntukUnggah) {
         await _layananUnggah.unggahSemuaData();
         await _pengelolaSinkronisasi.simpanWaktuTerakhirUnggah(sekarang);
@@ -34222,7 +34278,6 @@ class LayananCekSinkronisasi {
             namaKoleksi: NamaTabel.statusGlobal,
             idDokumen: globalStatusId,
           );
-
       if (adaDataBaruDiServer) {
         await _layananUnduh.unduhSemuaData();
         final DateTime sekarang = DateTime.now();
@@ -46494,12 +46549,10 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
     final sqliteDb = ref.read(sqliteDatabaseProvider);
     try {
       await LayananLatarBelakang.inisialisasi();
-
       await notifikasiServis.inisialisasiNotifikasi(
         iconName: 'ic_notification',
       );
       await notifikasiServis.mintaIzin();
-
       final launchDetails = await notifikasiServis
           .getDetailPeluncuranNotifikasi();
       final prefs = ref.read(sharedPreferencesProvider).requireValue;
@@ -46513,22 +46566,17 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       } else {
         await prefs.remove('initial_notification_payload');
       }
-
       await initializeDateFormatting('id_ID');
-
       await sqliteDb.database;
-
       try {
         final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
         await pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
       } catch (e) {
         Log.error('gagal menghapus data yang status nya diarsipkan');
       }
-
       final isOnline = await koneksiInternetService.cekInternet();
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
-
         final unduhanAwalService = ref.read(providerLayananUnduhanAwal);
         try {
           await unduhanAwalService.jalankanUnduhanAwal().timeout(
@@ -46540,7 +46588,6 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
             'Initial download memakan waktu terlalu lama (timeout). Melanjutkan inisialisasi... $e',
           );
         }
-
         final dataPengaturan = await ref
             .read(settingsOpSqliteProvider)
             .ambilSettings();
@@ -46557,7 +46604,6 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
           'Perangkat offline, melewati proses unduhan data awal dan pembersihan.',
         );
       }
-
       return isOnline;
     } catch (e, s) {
       Log.error('Error kritis selama inisialisasi sekunder.', e: e, s: s);
@@ -46599,7 +46645,6 @@ class AppMaterial extends ConsumerWidget {
     ref.watch(layananNotifikasiProvider);
     ref.watch(pengontrolNotifikasiProvider);
     final temaAsync = ref.watch(temaProvider);
-
     return temaAsync.when(
       data: (themeMode) => ToastificationWrapper(
         child: MaterialApp(

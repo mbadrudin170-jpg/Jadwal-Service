@@ -44,13 +44,13 @@ class LayananCekSinkronisasi {
     _berjalan = true;
     try {
       final bool sudahUnggahData = await _periksaDanJalankanUnggah();
-      await _periksaDanJalankanUnduh();
       if (sudahUnggahData) {
         Log.info(
           'Pemicu sinkronisasi: Ada data baru yang berhasil diunggah ke server.',
         );
         await _perbaruiStatusGlobal();
       }
+      await _periksaDanJalankanUnduh();
       Log.info('Seluruh siklus runSyncCheck() telah berakhir dengan sukses.');
     } finally {
       _berjalan = false;
@@ -62,7 +62,6 @@ class LayananCekSinkronisasi {
     try {
       final bool adaDataUntukUnggah = await _pengecekanDataBaru
           .apakahSqliteAdaDataBaru();
-
       if (adaDataUntukUnggah) {
         await _layananUnggah.unggahSemuaData();
         await _pengelolaSinkronisasi.simpanWaktuTerakhirUnggah(sekarang);
@@ -104,7 +103,6 @@ class LayananCekSinkronisasi {
             namaKoleksi: NamaTabel.statusGlobal,
             idDokumen: globalStatusId,
           );
-
       if (adaDataBaruDiServer) {
         await _layananUnduh.unduhSemuaData();
         final DateTime sekarang = DateTime.now();
