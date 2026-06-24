@@ -159,6 +159,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             idPelanggan: widget.idPelanggan,
             idPaket: hadiah.id,
             tanggal: sekarang,
+            status: StatusOrderEnum.baru,
           );
           final notifikasiData = NotifikasiModel(
             id: const Uuid().v4(),

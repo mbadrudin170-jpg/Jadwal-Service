@@ -18,7 +18,7 @@ abstract class OrderModel with _$OrderModel implements HasId {
     required String idPelanggan,
     required String idPaket,
     required DateTime tanggal,
-    @Default(StatusOrderEnum.baru) StatusOrderEnum status,
+    required StatusOrderEnum status,
     DateTime? diperbaruiPada,
     @Default(false) bool diHapus,
     DateTime? diarsipkanPada,
@@ -77,8 +77,9 @@ abstract class OrderModel with _$OrderModel implements HasId {
       NamaKolom.idPaket: idPaket,
       NamaKolom.tanggal: Timestamp.fromDate(tanggal.toUtc()),
       NamaKolom.status: status.name,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()).toUtc(),
+      ),
       NamaKolom.dihapus: diHapus,
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())

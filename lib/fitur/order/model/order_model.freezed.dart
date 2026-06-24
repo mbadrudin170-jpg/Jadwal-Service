@@ -213,14 +213,14 @@ return $default(_that.id,_that.idPelanggan,_that.idPaket,_that.tanggal,_that.sta
 
 
 class _OrderModel extends OrderModel {
-  const _OrderModel({required this.id, required this.idPelanggan, required this.idPaket, required this.tanggal, this.status = StatusOrderEnum.baru, this.diperbaruiPada, this.diHapus = false, this.diarsipkanPada}): super._();
+  const _OrderModel({required this.id, required this.idPelanggan, required this.idPaket, required this.tanggal, required this.status, this.diperbaruiPada, this.diHapus = false, this.diarsipkanPada}): super._();
   
 
 @override final  String id;
 @override final  String idPelanggan;
 @override final  String idPaket;
 @override final  DateTime tanggal;
-@override@JsonKey() final  StatusOrderEnum status;
+@override final  StatusOrderEnum status;
 @override final  DateTime? diperbaruiPada;
 @override@JsonKey() final  bool diHapus;
 @override final  DateTime? diarsipkanPada;
