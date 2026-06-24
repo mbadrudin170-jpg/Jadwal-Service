@@ -41,7 +41,7 @@ final class UjiKecepatanProvider
   }
 }
 
-String _$ujiKecepatanHash() => r'cb57f096e109003f5e522824994b884bbc64ae0a';
+String _$ujiKecepatanHash() => r'312d14f6a445c9e34906efe81335409be921895f';
 
 abstract class _$UjiKecepatan extends $Notifier<UjiKecepatanState> {
   UjiKecepatanState build();

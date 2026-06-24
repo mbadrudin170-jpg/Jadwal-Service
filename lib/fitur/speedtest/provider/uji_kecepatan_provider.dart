@@ -145,7 +145,7 @@ class UjiKecepatan extends _$UjiKecepatan {
     );
 
     // Perbaikan: Durasi timeout diubah ke 30 detik agar tes tidak mati di tengah jalan
-    _timer = Timer(const Duration(seconds: 30), () {
+    _timer = Timer(const Duration(seconds: 60), () {
       if (_isFinished) return;
       _isFinished = true;
       _alatUji?.cancelTest();
