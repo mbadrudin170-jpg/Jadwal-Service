@@ -24,7 +24,7 @@ void main() {
     );
 
     test('02. tambahDurasi harus menambahkan durasi dengan benar', () {
-      final tanggal = DateTime(2023, 1, 1);
+      final tanggal = DateTime(2023);
 
       // Test penambahan hari
       final hasilHari = DurasiUtil.tambahDurasi(
@@ -40,7 +40,7 @@ void main() {
         TipeDurasiPaket.months,
         2,
       );
-      expect(hasilBulan, DateTime(2023, 3, 1));
+      expect(hasilBulan, DateTime(2023, 3));
     });
 
     test('03. hitungTotalDurasiDalamMenit harus menghitung paket + bonus', () {
