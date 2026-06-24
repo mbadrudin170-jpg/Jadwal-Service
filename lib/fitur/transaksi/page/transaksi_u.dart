@@ -301,7 +301,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                                   )
                                 : Future<PaketModel?>.value();
                             final teksAktif = tx.tanggalBerakhir != null
-                                ? PerhitunganUtil.ambilTeksSisaMasaAktif(
+                                ? PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
                                     tx.tanggalBerakhir!,
                                   )
                                 : '--';

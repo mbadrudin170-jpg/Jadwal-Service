@@ -270,7 +270,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                       const Divider(),
                       gapH16,
                       Text(
-                        PerhitunganUtil.ambilTeksSisaMasaAktif(
+                        PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
                           pelangganAktif.tanggalBerakhir,
                         ),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(

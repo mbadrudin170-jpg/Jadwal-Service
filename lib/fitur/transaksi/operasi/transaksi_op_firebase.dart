@@ -78,7 +78,10 @@ class TransaksiOpFirebase extends BaseOpFirebase {
   ) async {
     try {
       final querySnapshot = await _koleksi
-          .where(NamaKolom.statusPembayaran, isEqualTo: StatusPembayaran.unpaid)
+          .where(
+            NamaKolom.statusPembayaran,
+            isEqualTo: StatusPembayaran.unpaid.name,
+          )
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.tanggal, descending: true)
@@ -107,7 +110,6 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       final querySnapshot = await _koleksi
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           .where(NamaKolom.dihapus, isEqualTo: false)
-          .orderBy(NamaKolom.tanggal, descending: true)
           .get();
 
       Log.info('Menemukan ${querySnapshot.docs.length} transaksi.');

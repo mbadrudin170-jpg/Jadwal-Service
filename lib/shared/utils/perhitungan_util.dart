@@ -43,59 +43,63 @@ class PerhitunganUtil {
     return '';
   }
 
-  static int sisaHari(DateTime target, {DateTime? sekarang}) {
-    final selisihHari = DateUtils.dateOnly(sekarang ?? DateTime.now());
-    final tanggalBerakhir = DateUtils.dateOnly(target);
-    return tanggalBerakhir.difference(selisihHari).inDays;
-  }
+  // static String ambilTeksSisaMasaAktif(
+  //   final DateTime tanggalBerakhir, {
+  //   final DateTime? sekarang,
+  // }) {
+  //   final nowUtc = (sekarang ?? DateTime.now()).toUtc();
+  //   final endUtc = tanggalBerakhir.toUtc();
+  //   final sisa = endUtc.difference(nowUtc);
 
-  static String ambilTeksSisaMasaAktif(
-    final DateTime tanggalBerakhir, {
-    final DateTime? sekarang,
-  }) {
-    final nowUtc = (sekarang ?? DateTime.now()).toUtc();
-    final endUtc = tanggalBerakhir.toUtc();
-    final sisa = endUtc.difference(nowUtc);
-
-    if (sisa.isNegative) {
-      return 'Berakhir';
-    } else {
-      if (sisa.inDays > 0) {
-        return 'Sisa ${sisa.inDays} hari';
-      } else if (sisa.inHours > 0) {
-        return 'Sisa ${sisa.inHours} jam';
-      } else if (sisa.inMinutes > 0) {
-        return 'Sisa ${sisa.inMinutes} menit';
-      } else {
-        return 'Berakhir dalam beberapa saat';
-      }
-    }
-  }
+  //   if (sisa.isNegative) {
+  //     return 'Berakhir';
+  //   } else {
+  //     if (sisa.inDays > 0) {
+  //       return 'Sisa ${sisa.inDays} hari';
+  //     } else if (sisa.inHours > 0) {
+  //       return 'Sisa ${sisa.inHours} jam';
+  //     } else if (sisa.inMinutes > 0) {
+  //       return 'Sisa ${sisa.inMinutes} menit';
+  //     } else {
+  //       return 'Berakhir dalam beberapa saat';
+  //     }
+  //   }
+  // }
 
   /// Fungsi untuk pengujian menggunakan pustaka timeago.
   static String cobaAmbilTeksSisaMasaAktif(
     final DateTime tanggalBerakhir, {
     final DateTime? sekarang,
   }) {
-    // Inisialisasi locale Bahasa Indonesia untuk timeago.
-    // Idealnya, ini dipanggil sekali di main.dart.
+    if (tanggalBerakhir.isBefore(sekarang ?? DateTime.now())) {
+      return 'Berakhir';
+    }
     timeago.setLocaleMessages('id', timeago.IdMessages());
-
-    return timeago.format(tanggalBerakhir, locale: 'id', clock: sekarang);
+    return timeago.format(
+      tanggalBerakhir,
+      locale: 'id',
+      clock: sekarang,
+      allowFromNow: true,
+    );
   }
 
   static Color ambilWarnaSisaMasaAktif(
     final DateTime tanggalBerakhir, {
     final DateTime? sekarang,
   }) {
-    final sisa = sisaHari(tanggalBerakhir, sekarang: sekarang);
-
-    if (sisa > 7) {
-      return Colors.green;
-    } else if (sisa > 0) {
-      return Colors.orange;
-    } else {
+    final now = sekarang ?? DateTime.now();
+    final selisih = tanggalBerakhir.difference(now);
+    if (selisih.isNegative) {
       return Colors.red;
     }
+    final sisaHari = selisih.inDays;
+    final sisaJam = selisih.inHours;
+    if (sisaHari > 7) {
+      return Colors.green;
+    }
+    if (sisaHari > 0 || sisaJam > 0) {
+      return Colors.orange;
+    }
+    return Colors.red;
   }
 }

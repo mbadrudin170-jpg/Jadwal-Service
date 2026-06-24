@@ -428,7 +428,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
                             ),
                           ),
                           Text(
-                            'Status: ${PerhitunganUtil.ambilTeksSisaMasaAktif(c.tanggalBerakhir)}',
+                            'Status: ${PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(c.tanggalBerakhir)}',
                             style: TextStyle(
                               color: PerhitunganUtil.ambilWarnaSisaMasaAktif(
                                 c.tanggalBerakhir,

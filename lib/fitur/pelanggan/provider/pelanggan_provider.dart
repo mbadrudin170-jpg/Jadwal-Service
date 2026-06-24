@@ -61,6 +61,7 @@ class Pelanggan extends _$Pelanggan {
       ref.invalidateSelf();
       return _ambilData();
     });
+    
   }
 
   Future<void> softDelete(String id) async {

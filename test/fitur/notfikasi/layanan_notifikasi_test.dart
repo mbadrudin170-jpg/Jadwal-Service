@@ -363,7 +363,7 @@ void main() {
           idTujuan: 'tujuan1',
           userId: 'user1',
           diperbaruiPada: DateTime.now(),
-          targetRole: const [AppRole.user],
+          targetRole: AppRole.user,
         );
         when(
           mockNotifikasiOp.getByUserId('user1'),
@@ -407,7 +407,7 @@ void main() {
         idTujuan: 'tujuan1',
         userId: 'user1',
         diperbaruiPada: DateTime.now(),
-        targetRole: const [AppRole.user],
+        targetRole: AppRole.user,
       );
       when(
         mockNotifikasiOp.getByUserId('user1'),
