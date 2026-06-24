@@ -83,16 +83,16 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     });
 
     try {
-      // // 1. Validasi Role
-      // final role = ref.read(appRoleProvider);
-      // if (role == AppRole.admin) {
-      //   Log.warning('Admin mencoba menukar poin, operasi diblokir.');
-      //   ToastUtil.error(
-      //     context,
-      //     'Admin tidak dapat menukar poin dari antarmuka ini.',
-      //   );
-      //   return;
-      // }
+      // 1. Validasi Role
+      final role = ref.watch(appRoleProvider);
+      if (role == AppRole.admin) {
+        Log.warning('Admin mencoba menukar poin, operasi diblokir.');
+        ToastUtil.error(
+          context,
+          'Admin tidak dapat menukar poin dari antarmuka ini.',
+        );
+        return;
+      }
 
       // 2. Cek Koneksi Internet
       final isOnline = await ref
@@ -145,13 +145,11 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
       // Tampilkan loading dialog
       if (mounted) {
-        unawaited(
-          showDialog<void>(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) =>
-                const Center(child: CircularProgressIndicator()),
-          ),
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) =>
+              const Center(child: CircularProgressIndicator()),
         );
       }
 
@@ -209,8 +207,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   }
 
   Future<void> _navigasiKeDetailTransaksi(TransaksiModel transaksi) async {
-    final role = ref.watch(appRoleProvider);
-
     if (!mounted) return;
     Log.info('Navigating to transaction detail for ID: ${transaksi.id}');
     PaketModel? paket;
@@ -227,6 +223,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       }
     }
     if (!mounted) return;
+    final role = ref.watch(appRoleProvider);
     if (role == AppRole.user) {
       await Navigator.push<void>(
         context,
