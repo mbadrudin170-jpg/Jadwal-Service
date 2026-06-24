@@ -305,7 +305,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   Widget _bangunRiwayatPoin() {
     Log.info('Building points history.');
     final riwayatAsync = ref.watch(pointsHistoryProvider(widget.idPelanggan));
-
     return riwayatAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Error: $err')),
