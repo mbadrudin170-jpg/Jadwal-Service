@@ -325,13 +325,15 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final transaksiData = TransaksiModel(
         id: idTransaksi,
         tanggal: tanggalMulai,
-        deskripsi: 'Aktivasi Paket: ${_paketDipilih!.nama}',
+        deskripsi: _gunakanPoin
+            ? 'Tukar Poin ${_paketDipilih?.nama ?? ''}'
+            : 'Aktivasi Paket: ${_paketDipilih?.nama ?? ''}',
         jumlah: _gunakanPoin ? 0 : _paketDipilih!.harga.toDouble(),
         tipe: _gunakanPoin ? TipeTransaksi.expense : TipeTransaksi.income,
         idDompet: _dompetDipilih!.id,
         idKategori: _kategoriDipilih!.id,
         idPelanggan: _pelangganDipilih!.id,
-        idPaket: _paketDipilih!.id,
+        idPaket: _paketDipilih?.id,
         statusPembayaran: _statusPembayaran,
         poinDidapat: _gunakanPoin ? 0 : _paketDipilih!.poinHadiah,
         poinDigunakan: _gunakanPoin ? _paketDipilih!.poinPenukaran : 0,
