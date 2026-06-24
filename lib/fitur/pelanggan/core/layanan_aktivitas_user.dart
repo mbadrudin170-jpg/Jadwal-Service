@@ -24,11 +24,9 @@ class LayananAktivitasUser {
       Log.warning('pingActivity: customerId kosong, proses dibatalkan.');
       return;
     }
-
     try {
       final pingTerakhir = _prefs.getInt(kunciPingTerakhirAktif);
       final now = DateTime.now();
-
       if (pingTerakhir != null && !paksa) {
         final waktuPingTerakhir = DateTime.fromMillisecondsSinceEpoch(
           pingTerakhir,
@@ -44,9 +42,7 @@ class LayananAktivitasUser {
       Log.info(
         'pingActivity: Mengirim ping aktivitas untuk user: $id (Force: $paksa)',
       );
-
       unawaited(_pelangganOpFirebase.perbaruiTerakhirAktif(id));
-
       await _prefs.setInt(kunciPingTerakhirAktif, now.millisecondsSinceEpoch);
       Log.info(
         'pingActivity: Timestamp ping terakhir diperbarui secara lokal.',

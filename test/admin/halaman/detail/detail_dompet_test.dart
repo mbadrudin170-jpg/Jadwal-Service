@@ -38,6 +38,10 @@ void main() {
       tanggal: DateTime(2023, 1, 5),
       idDompet: 'd1',
       idKategori: 'k1',
+      idPelanggan: 'pelanggan1',
+      idPaket: 'paket1',
+      tanggalMulai: DateTime(2023, 1, 1),
+      tanggalBerakhir: DateTime(2023, 1, 31),
     ),
     TransaksiModel(
       id: 't2',
@@ -47,6 +51,10 @@ void main() {
       tanggal: DateTime(2023, 1, 6),
       idDompet: 'd1',
       idKategori: 'k2',
+      idPelanggan: null,
+      idPaket: null,
+      tanggalMulai: null,
+      tanggalBerakhir: null,
     ),
   ];
 
@@ -185,7 +193,7 @@ void main() {
         await tester.pumpWidget(createWidget());
         await tester.pumpAndSettle();
 
-        final route = MaterialPageRoute(builder: (_) => const Scaffold());
+        final route = MaterialPageRoute<bool>(builder: (_) => const Scaffold());
         when(
           mockNavigatorObserver.didPush(any, any),
         ).thenAnswer((invocation) => route.didPush().then((_) => true));

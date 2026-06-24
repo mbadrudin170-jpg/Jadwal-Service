@@ -58,6 +58,8 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   final SettingsOpFirebase _settingsOp = SettingsOpFirebase();
   final idUnitIklan = IdInterstitialAds.interstitialAdUnitIds[0];
 
+  bool? _terhubung;
+
   @override
   void initState() {
     super.initState();
@@ -70,16 +72,15 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     try {
       Log.info('Memulai inisialisasi dari Splash Screen...');
       await _inisialisasiLayananOffline();
-      final terhubung = await ref
+      _terhubung = await ref
           .watch(koneksiInternetServiceProvider)
           .cekInternet();
-      if (terhubung) {
+      if (_terhubung == true) {
         await _lanjutkanInisialisasi();
         final eventInfo = await _cekEvent();
         if (eventInfo != null) {
           if (mounted) {
             Log.info('menuju ke halaman event');
-            // Tampilkan halaman event di atas splash screen dan tunggu sampai selesai.
             await Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (context) => EventPageU(event: eventInfo),
@@ -201,12 +202,8 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     if (!mounted) return;
     final pengelolaAkun = await ref.read(pengelolaAkunProvider.future);
     final akunAktif = pengelolaAkun.akunSaatIni;
-
     if (akunAktif != null) {
-      final terhubung = await ref
-          .read(koneksiInternetServiceProvider)
-          .cekInternet();
-      if (terhubung) {
+      if (_terhubung == true) {
         final layananAktivitasUser = await ref.read(
           layananAktivitasUserProvider.future,
         );

@@ -55,6 +55,8 @@ void main() {
       idDompet: 'dompet1',
       idKategori: 'kategori1',
       statusPembayaran: StatusPembayaran.paid,
+      tanggalMulai: DateTime.now(),
+      tanggalBerakhir: DateTime.now().add(const Duration(days: 30)),
     );
 
     final pelanggan = PelangganModel(

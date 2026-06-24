@@ -59,6 +59,7 @@ void main() {
         idPelanggan: 'cust1',
         idPaket: 'pkg1',
         tanggal: now.subtract(const Duration(days: 5)),
+        tanggalMulai: now.subtract(const Duration(days: 5)),
         tanggalBerakhir: now.add(const Duration(days: 25)),
         statusPembayaran: StatusPembayaran.paid,
         diperbaruiPada: now.subtract(const Duration(days: 1)),
@@ -73,6 +74,7 @@ void main() {
         idPelanggan: 'cust2',
         idPaket: 'pkg2',
         tanggal: now.subtract(const Duration(days: 10)),
+        tanggalMulai: now.subtract(const Duration(days: 10)),
         tanggalBerakhir: now.add(const Duration(days: 20)),
         diperbaruiPada: now,
         deskripsi: 'deskripsi',
@@ -86,6 +88,7 @@ void main() {
         idPelanggan: 'cust1',
         idPaket: 'pkg1',
         tanggal: now.subtract(const Duration(days: 2)),
+        tanggalMulai: now.subtract(const Duration(days: 2)),
         tanggalBerakhir: now, // Berakhir hari ini
         statusPembayaran: StatusPembayaran.paid,
         diperbaruiPada: now.subtract(const Duration(days: 2)),
