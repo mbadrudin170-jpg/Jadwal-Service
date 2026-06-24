@@ -312,6 +312,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           (_modeEdit && widget.pelangganAktif?.idTransaksi != null)
           ? widget.pelangganAktif!.idTransaksi
           : const Uuid().v4();
+      final sekarang = DateTime.now();
       final pelangganAktifData = PelangganAktifModel(
         id: _modeEdit ? widget.pelangganAktif!.id : const Uuid().v4(),
         idPelanggan: _pelangganDipilih!.id,
@@ -320,7 +321,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         tanggalBerakhir: tanggalBerakhir,
         status: _statusPembayaran,
         idTransaksi: idTransaksi,
-        diperbaruiPada: DateTime.now().toUtc(),
+        diperbaruiPada: sekarang,
       );
       final transaksiData = TransaksiModel(
         id: idTransaksi,
@@ -370,6 +371,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final tanggalNotifikasiSetengahJalan = tanggalMulai.add(
         durasiSetengahJalan,
       );
+
       final List<NotifikasiModel> daftarNotifikasi = [
         NotifikasiModel(
           id: const Uuid().v4(),
@@ -383,7 +385,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           idTujuan: idTransaksi,
           targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
-          diperbaruiPada: DateTime.now().toUtc(),
+          diperbaruiPada: sekarang,
         ),
         NotifikasiModel(
           id: const Uuid().v4(),
@@ -397,7 +399,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           idTujuan: idTransaksi,
           targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
-          diperbaruiPada: DateTime.now().toUtc(),
+          diperbaruiPada: sekarang,
         ),
         NotifikasiModel(
           id: const Uuid().v4(),
@@ -411,7 +413,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           idTujuan: idTransaksi,
           targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
-          diperbaruiPada: DateTime.now().toUtc(),
+          diperbaruiPada: sekarang,
         ),
         NotifikasiModel(
           id: const Uuid().v4(),
@@ -425,7 +427,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           idTujuan: idTransaksi,
           targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
-          diperbaruiPada: DateTime.now().toUtc(),
+          diperbaruiPada: sekarang,
         ),
       ];
       Log.info('data notifikasi untuk masa aktif paket telah dibuat,');

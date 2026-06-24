@@ -136,20 +136,20 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
-      NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai.toUtc()),
-      NamaKolom.tanggalBerakhir: Timestamp.fromDate(tanggalBerakhir.toUtc()),
+      NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai),
+      NamaKolom.tanggalBerakhir: Timestamp.fromDate(tanggalBerakhir),
       NamaKolom.judul: judul,
       NamaKolom.deskripsi: deskripsi,
       NamaKolom.setatusDibaca: setatusDibaca,
       NamaKolom.tipe: tipe.name,
-      NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada.toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada),
       NamaKolom.idTujuan: idTujuan,
       NamaKolom.targetRole: targetRole.name,
       NamaKolom.userId: userId,
       NamaKolom.dihapus: dihapus,
-      NamaKolom.tanggalTampil: Timestamp.fromDate(tanggalTampil.toUtc()),
+      NamaKolom.tanggalTampil: Timestamp.fromDate(tanggalTampil),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
-          ? Timestamp.fromDate(diarsipkanPada!.toUtc())
+          ? Timestamp.fromDate(diarsipkanPada!)
           : null,
     };
   }
