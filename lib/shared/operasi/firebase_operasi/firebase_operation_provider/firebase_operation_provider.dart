@@ -8,6 +8,7 @@ import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
+import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_firebase.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -67,6 +68,14 @@ PelangganOpFirebase pelangganOpFirebase(Ref ref) {
     firestore: firestoreInstance,
     baseOpFirebase: baseOp,
   );
+}
+
+@Riverpod(keepAlive: true)
+PelangganAktifOpFirebase pelangganAktifOpFirebase(Ref ref) {
+  final firestoreInstance = ref.watch(firestoreProvider);
+  final baseOp = ref.watch(baseOpFirebaseProvider);
+
+  return PelangganAktifOpFirebase(firestore: firestoreInstance, baseOp: baseOp);
 }
 
 @Riverpod(keepAlive: true)

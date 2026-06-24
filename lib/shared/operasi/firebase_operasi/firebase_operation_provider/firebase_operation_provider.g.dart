@@ -330,6 +330,54 @@ final class PelangganOpFirebaseProvider
 String _$pelangganOpFirebaseHash() =>
     r'85c60ee6a0d443fa221156a31754b591a709f822';
 
+@ProviderFor(pelangganAktifOpFirebase)
+final pelangganAktifOpFirebaseProvider = PelangganAktifOpFirebaseProvider._();
+
+final class PelangganAktifOpFirebaseProvider
+    extends
+        $FunctionalProvider<
+          PelangganAktifOpFirebase,
+          PelangganAktifOpFirebase,
+          PelangganAktifOpFirebase
+        >
+    with $Provider<PelangganAktifOpFirebase> {
+  PelangganAktifOpFirebaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pelangganAktifOpFirebaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$pelangganAktifOpFirebaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<PelangganAktifOpFirebase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  PelangganAktifOpFirebase create(Ref ref) {
+    return pelangganAktifOpFirebase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PelangganAktifOpFirebase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PelangganAktifOpFirebase>(value),
+    );
+  }
+}
+
+String _$pelangganAktifOpFirebaseHash() =>
+    r'a359e0cfd17fb0db29f261891e1f0c3aca4aedfc';
+
 @ProviderFor(paketOpFirebase)
 final paketOpFirebaseProvider = PaketOpFirebaseProvider._();
 

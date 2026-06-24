@@ -9,6 +9,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
@@ -47,6 +48,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   OpsiMenuPoin _menuAktif = OpsiMenuPoin.penukaran;
   late final Widget _judulAppBar;
   bool _sedangTukarPoin = false;
+  String? _idRewardYangDiproses;
 
   @override
   void initState() {
@@ -77,7 +79,10 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
   Future<void> _tukarPoin(PaketModel hadiah, int poinSaatIni) async {
     if (_sedangTukarPoin) return;
-    setState(() => _sedangTukarPoin = true);
+    setState(() {
+      _sedangTukarPoin = true;
+      _idRewardYangDiproses = hadiah.id;
+    });
     try {
       final role = ref.read(appRoleProvider);
       if (role == AppRole.admin) {
@@ -135,13 +140,23 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           if (dataPelanggan == null) return;
           final sekarang = DateTime.now();
           final idOrder = const Uuid().v4();
-
+          final idTransaksi = const Uuid().v4();
           final tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
             sekarang,
             paket,
           );
-          final transaksiBaru = TransaksiModel(
+          final pelangganAktifBaru = PelangganAktifModel(
             id: const Uuid().v4(),
+            idPelanggan: dataPelanggan.id,
+            idPaket: hadiah.id,
+            idTransaksi: idTransaksi,
+            tanggalMulai: sekarang,
+            tanggalBerakhir: tanggalBerakhir,
+            status: StatusPembayaran.paid,
+            diperbaruiPada: sekarang,
+          );
+          final transaksiBaru = TransaksiModel(
+            id: idTransaksi,
             tanggal: sekarang,
             deskripsi: 'Tukar Poin',
             jumlah: 0,
@@ -175,7 +190,10 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             targetRole: AppRole.admin,
           );
           await ref
-              .read(transaksiOpSqliteProvider)
+              .read(pelangganAktifOpFirebaseProvider)
+              .tambahPelangganAktif(pelangganAktifBaru);
+          await ref
+              .read(transaksiOpFirebaseProvider)
               .tambahTransaksi(transaksiBaru);
           await ref
               .read(notifikasiOpFirebaseProvider)
@@ -201,7 +219,10 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       }
     } finally {
       if (mounted) {
-        setState(() => _sedangTukarPoin = false);
+        setState(() {
+          _sedangTukarPoin = false;
+          _idRewardYangDiproses = null;
+        });
       }
     }
   }
@@ -282,6 +303,8 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             ? (totalPoin / hadiah.poinPenukaran).clamp(0.0, 1.0)
             : 1.0;
         final selisihPoin = totalPoin - hadiah.poinPenukaran;
+        final bool sedangMemprosesRewardIni =
+            _sedangTukarPoin && _idRewardYangDiproses == hadiah.id;
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: ListTile(
@@ -294,10 +317,10 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
                   children: [
                     Text('${hadiah.poinPenukaran} Poin'),
                     ElevatedButton(
-                      onPressed: _sedangTukarPoin
+                      onPressed: sedangMemprosesRewardIni
                           ? null
                           : () => _tukarPoin(hadiah, totalPoin),
-                      child: _sedangTukarPoin
+                      child: sedangMemprosesRewardIni
                           ? const CircularProgressIndicator()
                           : const Text('Tukar'),
                     ),

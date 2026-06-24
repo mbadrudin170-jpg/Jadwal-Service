@@ -50,6 +50,7 @@ class DataDummy {
       idPelanggan: customerBudiId,
       idPaket: paketHematId,
       tanggal: DateTime.now().subtract(const Duration(hours: 2)),
+      status: StatusOrderEnum.baru,
     ),
     OrderModel(
       id: 'ORD-002',
