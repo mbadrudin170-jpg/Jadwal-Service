@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/page/detail_paket.dart';
 import 'package:wifi/fitur/paket/page/form_paket.dart';
@@ -13,6 +12,7 @@ import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/durasi_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -144,27 +144,18 @@ void _urutkanList(List<PaketModel> daftarPaket, UrutanPaket urutan) {
       break;
     case UrutanPaket.durasiTerpendek:
       daftarPaket.sort(
-        (a, b) => _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)),
+        (a, b) => DurasiUtil.hitungDurasiDalamMenit(
+          a,
+        ).compareTo(DurasiUtil.hitungDurasiDalamMenit(b)),
       );
       break;
     case UrutanPaket.durasiTerlama:
       daftarPaket.sort(
-        (a, b) => _getDurationInMinutes(b).compareTo(_getDurationInMinutes(a)),
+        (a, b) => DurasiUtil.hitungDurasiDalamMenit(
+          b,
+        ).compareTo(DurasiUtil.hitungDurasiDalamMenit(a)),
       );
       break;
-  }
-}
-
-int _getDurationInMinutes(PaketModel paket) {
-  switch (paket.tipe) {
-    case TipeDurasiPaket.minutes:
-      return paket.durasi;
-    case TipeDurasiPaket.hours:
-      return paket.durasi * 60;
-    case TipeDurasiPaket.days:
-      return paket.durasi * 24 * 60;
-    case TipeDurasiPaket.months:
-      return paket.durasi * 30 * 24 * 60;
   }
 }
 

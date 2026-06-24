@@ -1,11 +1,11 @@
 // path: lib/shared/utils/perhitungan_util.dart
 
 import 'package:flutter/material.dart';
-import 'package:jiffy/jiffy.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/utils/durasi_util.dart';
 
 class PerhitunganUtil {
   static DateTime hitungTanggalBerakhir(
@@ -17,37 +17,17 @@ class PerhitunganUtil {
     Log.info('FUNGSI GLOBAL: hitungTanggalBerakhir() dipanggil.');
     Log.info('  - Tanggal Mulai: ${tanggalMulai.toIso8601String()}');
     Log.info('  - Nama Paket: ${paket.nama}');
-
-    DateTime hasil = _tambahDurasiTanggalBerakhir(
+    DateTime hasil = DurasiUtil.tambahDurasi(
       tanggalMulai,
       paket.tipe,
       paket.durasi,
     );
-
     if (durasiBonus != null && durasiBonus > 0 && tipeDurasiBonus != null) {
       Log.info('  - Menambahkan Bonus: $durasiBonus ${tipeDurasiBonus.name}');
-      hasil = _tambahDurasiTanggalBerakhir(hasil, tipeDurasiBonus, durasiBonus);
+      hasil = DurasiUtil.tambahDurasi(hasil, tipeDurasiBonus, durasiBonus);
     }
-
     Log.info('  - Hasil Tanggal Berakhir: ${hasil.toIso8601String()}');
     return hasil;
-  }
-
-  static DateTime _tambahDurasiTanggalBerakhir(
-    final DateTime asal,
-    final TipeDurasiPaket tipe,
-    final int jumlah,
-  ) {
-    switch (tipe) {
-      case TipeDurasiPaket.minutes:
-        return asal.add(Duration(minutes: jumlah));
-      case TipeDurasiPaket.hours:
-        return asal.add(Duration(hours: jumlah));
-      case TipeDurasiPaket.days:
-        return asal.add(Duration(days: jumlah));
-      case TipeDurasiPaket.months:
-        return Jiffy.parseFromDateTime(asal).add(months: jumlah).dateTime;
-    }
   }
 
   static String poinKadaluarsa({

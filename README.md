@@ -1582,6 +1582,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           (_modeEdit && widget.pelangganAktif?.idTransaksi != null)
           ? widget.pelangganAktif!.idTransaksi
           : const Uuid().v4();
+      final sekarang = DateTime.now();
       final pelangganAktifData = PelangganAktifModel(
         id: _modeEdit ? widget.pelangganAktif!.id : const Uuid().v4(),
         idPelanggan: _pelangganDipilih!.id,
@@ -1590,7 +1591,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         tanggalBerakhir: tanggalBerakhir,
         status: _statusPembayaran,
         idTransaksi: idTransaksi,
-        diperbaruiPada: DateTime.now().toUtc(),
+        diperbaruiPada: sekarang,
       );
       final transaksiData = TransaksiModel(
         id: idTransaksi,
@@ -1640,6 +1641,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final tanggalNotifikasiSetengahJalan = tanggalMulai.add(
         durasiSetengahJalan,
       );
+
       final List<NotifikasiModel> daftarNotifikasi = [
         NotifikasiModel(
           id: const Uuid().v4(),
@@ -1653,7 +1655,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           idTujuan: idTransaksi,
           targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
-          diperbaruiPada: DateTime.now().toUtc(),
+          diperbaruiPada: sekarang,
         ),
         NotifikasiModel(
           id: const Uuid().v4(),
@@ -1667,7 +1669,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           idTujuan: idTransaksi,
           targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
-          diperbaruiPada: DateTime.now().toUtc(),
+          diperbaruiPada: sekarang,
         ),
         NotifikasiModel(
           id: const Uuid().v4(),
@@ -1681,7 +1683,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           idTujuan: idTransaksi,
           targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
-          diperbaruiPada: DateTime.now().toUtc(),
+          diperbaruiPada: sekarang,
         ),
         NotifikasiModel(
           id: const Uuid().v4(),
@@ -1695,7 +1697,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           idTujuan: idTransaksi,
           targetRole: AppRole.user,
           tipe: TipeNotifikasiEnum.transaksi,
-          diperbaruiPada: DateTime.now().toUtc(),
+          diperbaruiPada: sekarang,
         ),
       ];
       Log.info('data notifikasi untuk masa aktif paket telah dibuat,');
@@ -4555,14 +4557,13 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
       NamaKolom.idPelanggan: idPelanggan,
       NamaKolom.idPaket: idPaket,
       NamaKolom.idTransaksi: idTransaksi,
-      NamaKolom.tanggalMulai: tanggalMulai.toUtc().millisecondsSinceEpoch,
-      NamaKolom.tanggalBerakhir: tanggalBerakhir.toUtc().millisecondsSinceEpoch,
+      NamaKolom.tanggalMulai: tanggalMulai.millisecondsSinceEpoch,
+      NamaKolom.tanggalBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
       NamaKolom.status: status.name,
-      NamaKolom.diperbaruiPada: (diperbaruiPada ?? DateTime.now())
-          .toUtc()
-          .millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada:
+          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
       NamaKolom.dihapus: diHapus ? 1 : 0,
-      NamaKolom.diarsipkanPada: diarsipkanPada?.toUtc().millisecondsSinceEpoch,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
     };
   }
 
@@ -4621,15 +4622,15 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
       NamaKolom.idPelanggan: idPelanggan,
       NamaKolom.idPaket: idPaket,
       NamaKolom.idTransaksi: idTransaksi,
-      NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai.toUtc()),
-      NamaKolom.tanggalBerakhir: Timestamp.fromDate(tanggalBerakhir.toUtc()),
+      NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai),
+      NamaKolom.tanggalBerakhir: Timestamp.fromDate(tanggalBerakhir),
       NamaKolom.status: status.name,
       NamaKolom.dihapus: diHapus,
       NamaKolom.diperbaruiPada: Timestamp.fromDate(
-        (diperbaruiPada ?? DateTime.now()).toUtc(),
+        (diperbaruiPada ?? DateTime.now()),
       ),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
-          ? Timestamp.fromDate(diarsipkanPada!.toUtc())
+          ? Timestamp.fromDate(diarsipkanPada!)
           : null,
     };
   }
@@ -8208,7 +8209,8 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
       NamaKolom.waktuOtomatisHapusDataArsip: waktuOtomatisHapusDataArsip,
       NamaKolom.modeMaintenance: modeMaintenance ? 1 : 0,
       NamaKolom.infoMaintenance: infoMaintenance,
-      NamaKolom.diperbaruiPada: diperbaruiPada!.millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada:
+          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
     };
   }
 
@@ -8233,7 +8235,9 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
       NamaKolom.waktuOtomatisHapusDataArsip: waktuOtomatisHapusDataArsip,
       NamaKolom.modeMaintenance: modeMaintenance,
       NamaKolom.infoMaintenance: infoMaintenance,
-      NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada!.toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        diperbaruiPada ?? DateTime.now(),
+      ),
     };
   }
 }
@@ -9307,7 +9311,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/page/detail_paket.dart';
 import 'package:wifi/fitur/paket/page/form_paket.dart';
@@ -9315,6 +9318,7 @@ import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/durasi_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -9446,27 +9450,18 @@ void _urutkanList(List<PaketModel> daftarPaket, UrutanPaket urutan) {
       break;
     case UrutanPaket.durasiTerpendek:
       daftarPaket.sort(
-        (a, b) => _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)),
+        (a, b) => DurasiUtil.hitungDurasiDalamMenit(
+          a,
+        ).compareTo(DurasiUtil.hitungDurasiDalamMenit(b)),
       );
       break;
     case UrutanPaket.durasiTerlama:
       daftarPaket.sort(
-        (a, b) => _getDurationInMinutes(b).compareTo(_getDurationInMinutes(a)),
+        (a, b) => DurasiUtil.hitungDurasiDalamMenit(
+          b,
+        ).compareTo(DurasiUtil.hitungDurasiDalamMenit(a)),
       );
       break;
-  }
-}
-
-int _getDurationInMinutes(PaketModel paket) {
-  switch (paket.tipe) {
-    case TipeDurasiPaket.minutes:
-      return paket.durasi;
-    case TipeDurasiPaket.hours:
-      return paket.durasi * 60;
-    case TipeDurasiPaket.days:
-      return paket.durasi * 24 * 60;
-    case TipeDurasiPaket.months:
-      return paket.durasi * 30 * 24 * 60;
   }
 }
 
@@ -10841,8 +10836,8 @@ abstract class PaketModel with _$PaketModel implements HasId {
       NamaKolom.statusPublik: statusPublik ? 1 : 0,
       NamaKolom.dihapus: statusHapus ? 1 : 0,
       NamaKolom.diperbaruiPada:
-          (diperbaruiPada ?? DateTime.now()).toUtc().millisecondsSinceEpoch,
-      NamaKolom.diarsipkanPada: diarsipkanPada?.toUtc().millisecondsSinceEpoch,
+          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
     };
   }
 
@@ -10874,10 +10869,11 @@ abstract class PaketModel with _$PaketModel implements HasId {
       NamaKolom.poinPenukaran: poinPenukaran,
       NamaKolom.statusPublik: statusPublik,
       NamaKolom.dihapus: statusHapus,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()),
+      ),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
-          ? Timestamp.fromDate(diarsipkanPada!.toUtc())
+          ? Timestamp.fromDate(diarsipkanPada!)
           : null,
     };
   }
@@ -12561,14 +12557,14 @@ abstract class OrderModel with _$OrderModel implements HasId {
       NamaKolom.id: id,
       NamaKolom.idPelanggan: idPelanggan,
       NamaKolom.idPaket: idPaket,
-      NamaKolom.tanggal: Timestamp.fromDate(tanggal.toUtc()),
+      NamaKolom.tanggal: Timestamp.fromDate(tanggal),
       NamaKolom.status: status.name,
       NamaKolom.diperbaruiPada: Timestamp.fromDate(
-        (diperbaruiPada ?? DateTime.now()).toUtc(),
+        (diperbaruiPada ?? DateTime.now()),
       ),
       NamaKolom.dihapus: diHapus,
       NamaKolom.diarsipkanPada: diarsipkanPada != null
-          ? Timestamp.fromDate(diarsipkanPada!.toUtc())
+          ? Timestamp.fromDate(diarsipkanPada!)
           : null,
     };
   }
@@ -16997,7 +16993,7 @@ abstract class DompetModel with _$DompetModel implements HasId {
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
       NamaKolom.dihapus: dihapus ? 1 : 0,
-      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
+      NamaKolom.diarsipkanPada: diarsipkanPada!.millisecondsSinceEpoch,
     };
   }
 
@@ -17019,10 +17015,11 @@ abstract class DompetModel with _$DompetModel implements HasId {
       NamaKolom.nama: nama,
       NamaKolom.saldo: saldo,
       NamaKolom.dihapus: dihapus,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()),
+      ),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
-          ? Timestamp.fromDate(diarsipkanPada!.toUtc())
+          ? Timestamp.fromDate(diarsipkanPada!)
           : null,
     };
   }
@@ -33017,20 +33014,20 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
-      NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai.toUtc()),
-      NamaKolom.tanggalBerakhir: Timestamp.fromDate(tanggalBerakhir.toUtc()),
+      NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai),
+      NamaKolom.tanggalBerakhir: Timestamp.fromDate(tanggalBerakhir),
       NamaKolom.judul: judul,
       NamaKolom.deskripsi: deskripsi,
       NamaKolom.setatusDibaca: setatusDibaca,
       NamaKolom.tipe: tipe.name,
-      NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada.toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada),
       NamaKolom.idTujuan: idTujuan,
       NamaKolom.targetRole: targetRole.name,
       NamaKolom.userId: userId,
       NamaKolom.dihapus: dihapus,
-      NamaKolom.tanggalTampil: Timestamp.fromDate(tanggalTampil.toUtc()),
+      NamaKolom.tanggalTampil: Timestamp.fromDate(tanggalTampil),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
-          ? Timestamp.fromDate(diarsipkanPada!.toUtc())
+          ? Timestamp.fromDate(diarsipkanPada!)
           : null,
     };
   }
@@ -38839,11 +38836,11 @@ class ParserUtil {
 // path: lib/shared/utils/perhitungan_util.dart
 
 import 'package:flutter/material.dart';
-import 'package:jiffy/jiffy.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/utils/durasi_util.dart';
 
 class PerhitunganUtil {
   static DateTime hitungTanggalBerakhir(
@@ -38855,37 +38852,17 @@ class PerhitunganUtil {
     Log.info('FUNGSI GLOBAL: hitungTanggalBerakhir() dipanggil.');
     Log.info('  - Tanggal Mulai: ${tanggalMulai.toIso8601String()}');
     Log.info('  - Nama Paket: ${paket.nama}');
-
-    DateTime hasil = _tambahDurasiTanggalBerakhir(
+    DateTime hasil = DurasiUtil.tambahDurasi(
       tanggalMulai,
       paket.tipe,
       paket.durasi,
     );
-
     if (durasiBonus != null && durasiBonus > 0 && tipeDurasiBonus != null) {
       Log.info('  - Menambahkan Bonus: $durasiBonus ${tipeDurasiBonus.name}');
-      hasil = _tambahDurasiTanggalBerakhir(hasil, tipeDurasiBonus, durasiBonus);
+      hasil = DurasiUtil.tambahDurasi(hasil, tipeDurasiBonus, durasiBonus);
     }
-
     Log.info('  - Hasil Tanggal Berakhir: ${hasil.toIso8601String()}');
     return hasil;
-  }
-
-  static DateTime _tambahDurasiTanggalBerakhir(
-    final DateTime asal,
-    final TipeDurasiPaket tipe,
-    final int jumlah,
-  ) {
-    switch (tipe) {
-      case TipeDurasiPaket.minutes:
-        return asal.add(Duration(minutes: jumlah));
-      case TipeDurasiPaket.hours:
-        return asal.add(Duration(hours: jumlah));
-      case TipeDurasiPaket.days:
-        return asal.add(Duration(days: jumlah));
-      case TipeDurasiPaket.months:
-        return Jiffy.parseFromDateTime(asal).add(months: jumlah).dateTime;
-    }
   }
 
   static String poinKadaluarsa({
@@ -38958,6 +38935,90 @@ class PerhitunganUtil {
   }
 }
 
+
+// File: lib/shared/utils/durasi_util.dart
+// path: lib/shared/utils/durasi_util.dart
+
+import 'package:jiffy/jiffy.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+
+/// Kelas utilitas untuk perhitungan durasi yang konsisten di seluruh aplikasi.
+class DurasiUtil {
+  DurasiUtil._();
+
+  /// Menghitung durasi paket dalam satuan menit.
+  /// 
+  /// [paket] Model paket yang akan dihitung durasinya.
+  /// Mengembalikan total durasi dalam menit.
+  static int hitungDurasiDalamMenit(PaketModel paket) {
+    return _konversiKeMenit(paket.tipe, paket.durasi);
+  }
+
+  /// Menghitung durasi total (paket + bonus) dalam menit.
+  /// 
+  /// [paket] Model paket.
+  /// [durasiBonus] Durasi bonus (opsional).
+  /// [tipeBonus] Tipe durasi bonus (opsional).
+  /// Mengembalikan total durasi dalam menit.
+  static int hitungTotalDurasiDalamMenit(
+    PaketModel paket, {
+    int? durasiBonus,
+    TipeDurasiPaket? tipeBonus,
+  }) {
+    int totalMenit = _konversiKeMenit(paket.tipe, paket.durasi);
+    
+    if (durasiBonus != null && durasiBonus > 0 && tipeBonus != null) {
+      totalMenit += _konversiKeMenit(tipeBonus, durasiBonus);
+    }
+    
+    return totalMenit;
+  }
+
+  /// Menambahkan durasi ke DateTime tertentu.
+  /// 
+  /// [tanggal] Tanggal awal.
+  /// [tipe] Tipe durasi (menit, jam, hari, bulan).
+  /// [jumlah] Jumlah durasi.
+  /// Mengembalikan DateTime baru setelah penambahan durasi.
+  static DateTime tambahDurasi(
+    DateTime tanggal,
+    TipeDurasiPaket tipe,
+    int jumlah,
+  ) {
+    switch (tipe) {
+      case TipeDurasiPaket.minutes:
+        return tanggal.add(Duration(minutes: jumlah));
+      case TipeDurasiPaket.hours:
+        return tanggal.add(Duration(hours: jumlah));
+      case TipeDurasiPaket.days:
+        return tanggal.add(Duration(days: jumlah));
+      case TipeDurasiPaket.months:
+        // Menggunakan Jiffy untuk perhitungan bulan yang akurat
+        return Jiffy.parseFromDateTime(tanggal).add(months: jumlah).dateTime;
+    }
+  }
+
+  /// Konversi tipe durasi ke jumlah menit.
+  /// 
+  /// [tipe] Tipe durasi.
+  /// [jumlah] Jumlah durasi.
+  /// Mengembalikan total durasi dalam menit.
+  static int _konversiKeMenit(TipeDurasiPaket tipe, int jumlah) {
+    switch (tipe) {
+      case TipeDurasiPaket.minutes:
+        return jumlah;
+      case TipeDurasiPaket.hours:
+        return jumlah * 60;
+      case TipeDurasiPaket.days:
+        return jumlah * 24 * 60;
+      case TipeDurasiPaket.months:
+        // Asumsi 1 bulan = 30 hari untuk konversi ke menit
+        // Ini hanya untuk keperluan sorting/perbandingan, bukan perhitungan tanggal aktual
+        return jumlah * 30 * 24 * 60;
+    }
+  }
+}
 
 // File: lib/shared/utils/format_util.dart
 import 'package:intl/intl.dart';
@@ -66664,6 +66725,74 @@ void main() {
           );
         },
       );
+    });
+  });
+}
+
+
+// File: test/shared/utils/durasi_util_test.dart
+// path: test/shared/utils/durasi_util_test.dart
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/shared/utils/durasi_util.dart';
+
+void main() {
+  group('DurasiUtil', () {
+    test(
+      '01. hitungDurasiDalamMenit harus mengembalikan durasi dalam menit',
+      () {
+        final paket = PaketModel(
+          id: '1',
+          nama: 'Paket Test',
+          harga: 10000,
+          durasi: 2,
+          tipe: TipeDurasiPaket.days,
+        );
+
+        final hasil = DurasiUtil.hitungDurasiDalamMenit(paket);
+        expect(hasil, 2 * 24 * 60); // 2 hari = 2880 menit
+      },
+    );
+
+    test('02. tambahDurasi harus menambahkan durasi dengan benar', () {
+      final tanggal = DateTime(2023, 1, 1);
+
+      // Test penambahan hari
+      final hasilHari = DurasiUtil.tambahDurasi(
+        tanggal,
+        TipeDurasiPaket.days,
+        5,
+      );
+      expect(hasilHari, DateTime(2023, 1, 6));
+
+      // Test penambahan bulan dengan Jiffy
+      final hasilBulan = DurasiUtil.tambahDurasi(
+        tanggal,
+        TipeDurasiPaket.months,
+        2,
+      );
+      expect(hasilBulan, DateTime(2023, 3, 1));
+    });
+
+    test('03. hitungTotalDurasiDalamMenit harus menghitung paket + bonus', () {
+      final paket = PaketModel(
+        id: '1',
+        nama: 'Paket Test',
+        harga: 10000,
+        durasi: 1,
+        tipe: TipeDurasiPaket.days,
+      );
+
+      final hasil = DurasiUtil.hitungTotalDurasiDalamMenit(
+        paket,
+        durasiBonus: 3,
+        tipeBonus: TipeDurasiPaket.hours,
+      );
+
+      // 1 hari = 1440 menit + 3 jam = 180 menit = 1620 menit
+      expect(hasil, 1440 + 180);
     });
   });
 }

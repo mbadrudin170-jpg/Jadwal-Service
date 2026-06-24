@@ -75,14 +75,14 @@ abstract class OrderModel with _$OrderModel implements HasId {
       NamaKolom.id: id,
       NamaKolom.idPelanggan: idPelanggan,
       NamaKolom.idPaket: idPaket,
-      NamaKolom.tanggal: Timestamp.fromDate(tanggal.toUtc()),
+      NamaKolom.tanggal: Timestamp.fromDate(tanggal),
       NamaKolom.status: status.name,
       NamaKolom.diperbaruiPada: Timestamp.fromDate(
-        (diperbaruiPada ?? DateTime.now()).toUtc(),
+        (diperbaruiPada ?? DateTime.now()),
       ),
       NamaKolom.dihapus: diHapus,
       NamaKolom.diarsipkanPada: diarsipkanPada != null
-          ? Timestamp.fromDate(diarsipkanPada!.toUtc())
+          ? Timestamp.fromDate(diarsipkanPada!)
           : null,
     };
   }
