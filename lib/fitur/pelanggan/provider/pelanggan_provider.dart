@@ -46,10 +46,11 @@ class Pelanggan extends _$Pelanggan {
   }
 
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
-    await pelangganOpSqlite.tambahPelanggan(pelanggan);
-    ref.invalidate(pelangganDetailProvider);
-    final daftar = await pelangganOpSqlite.ambilSemua();
-    state = AsyncData(PelangganState(daftarPelanggan: daftar));
+    state = await AsyncValue.guard(() async {
+      await pelangganOpSqlite.tambahPelanggan(pelanggan);
+      ref.invalidate(pelangganDetailProvider);
+      return _ambilData();
+    });
   }
 
   Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
