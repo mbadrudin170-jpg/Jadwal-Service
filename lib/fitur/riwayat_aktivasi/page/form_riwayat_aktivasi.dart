@@ -91,7 +91,7 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
     }
   }
 
-  Future<void> _saveChanges() async {
+  Future<void> _simpanPerubahan() async {
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Form tidak valid, penyimpanan dibatalkan.');
       return;
@@ -239,7 +239,7 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
               gapH32,
               ElevatedButton.icon(
                 label: const Text('Simpan Perubahan'),
-                onPressed: _saveChanges,
+                onPressed: _simpanPerubahan,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                 ),

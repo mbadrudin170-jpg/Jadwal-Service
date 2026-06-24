@@ -21,7 +21,7 @@ enum OpsiUrutan {
   tanggalBerakhir,
   namaAZ,
   namaZA,
-  beralhirHariIni,
+  berakhirHariIni,
   diperbaruiPadaAZ,
   diperbaruiPadaZA,
   lunas,
@@ -33,7 +33,7 @@ class RiwayatAktivasiPaketState {
   final OpsiUrutan sortBy;
   RiwayatAktivasiPaketState({
     this.items = const [],
-    this.sortBy = OpsiUrutan.beralhirHariIni,
+    this.sortBy = OpsiUrutan.berakhirHariIni,
   });
 
   RiwayatAktivasiPaketState copyWith({
@@ -53,7 +53,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
   FutureOr<RiwayatAktivasiPaketState> build() {
     ref.watch(transaksiOpSqliteProvider);
     ref.watch(pelangganOpSqliteProvider);
-    return _loadData(OpsiUrutan.tanggalBerakhir);
+    return _loadData(OpsiUrutan.berakhirHariIni);
   }
 
   Future<RiwayatAktivasiPaketState> _loadData(OpsiUrutan targetSort) async {
@@ -141,7 +141,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
           return a.transaksi.id.compareTo(b.transaksi.id);
         });
         break;
-      case OpsiUrutan.beralhirHariIni:
+      case OpsiUrutan.berakhirHariIni:
         final now = DateTime.now();
         list.sort((a, b) {
           final isTodayA =

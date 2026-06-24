@@ -28,10 +28,17 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
   late final FocusNode _cariFocusNode;
   int _jumlahTampil = 20;
   String _queryCari = '';
+  bool _sedangMemuatLebih = false;
+  bool _sedangMencari = false; // Perbaikan 1: State khusus untuk mode pencarian
 
   @override
   void initState() {
     super.initState();
+    ref.listenManual(riwayatAktivasiPaketProvider, (prev, next) {
+      if (next.hasValue && mounted) {
+        setState(() => _jumlahTampil = 20);
+      }
+    });
     _pengendaliScroll.addListener(_deteksiScroll);
     _cariFocusNode = FocusNode();
   }
@@ -46,40 +53,36 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
   }
 
   void _deteksiScroll() {
-    // Menambah data jika scroll mencapai batas bawah
+    if (_sedangMemuatLebih) return;
     if (_pengendaliScroll.position.pixels >=
         _pengendaliScroll.position.maxScrollExtent - 200) {
       final state = ref.read(riwayatAktivasiPaketProvider).value;
-      if (state != null && _jumlahTampil < state.items.length) {
+      if (state == null) return;
+
+      final itemsFiltered = _filterData(state.items, _queryCari);
+      if (_jumlahTampil < itemsFiltered.length) {
         setState(() {
+          _sedangMemuatLebih = true;
           _jumlahTampil += 20;
+        });
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) setState(() => _sedangMemuatLebih = false);
         });
       }
     }
   }
 
-  /// Filter data berdasarkan kata kunci cari
   List<TransaksiDenganPelanggan> _filterData(
     List<TransaksiDenganPelanggan> items,
     String katakunci,
   ) {
-    if (katakunci.isEmpty) return items;
+    if (katakunci.trim().isEmpty) return items;
 
-    final katakunciLower = katakunci.toLowerCase();
+    final katakunciLower = katakunci.toLowerCase().trim();
     return items.where((item) {
-      // Cari di nama pelanggan
-      if (item.namaPelanggan.toLowerCase().contains(katakunciLower)) {
-        return true;
-      }
-      // Cari di deskripsi/keterangan
-      if (item.transaksi.deskripsi.toLowerCase().contains(katakunciLower)) {
-        return true;
-      }
-      // Cari di ID transaksi
-      if (item.transaksi.id.toLowerCase().contains(katakunciLower)) {
-        return true;
-      }
-      return false;
+      return item.namaPelanggan.toLowerCase().contains(katakunciLower) ||
+          item.transaksi.deskripsi.toLowerCase().contains(katakunciLower) ||
+          item.transaksi.id.toLowerCase().contains(katakunciLower);
     }).toList();
   }
 
@@ -104,7 +107,6 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
     );
 
     if (aksiDipilih != null) {
-      // Lakukan sesuatu berdasarkan aksi yang dipilih
       Log.info('Aksi dipilih: $aksiDipilih');
 
       if (aksiDipilih == 'edit') {
@@ -116,7 +118,6 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
           ),
         );
       } else if (aksiDipilih == 'hapus') {
-        // Panggil fungsi hapus
         await _dialogKonfirmasiSoftDelete(transaksi);
       }
     }
@@ -149,30 +150,32 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
   Widget build(BuildContext context) {
     final historyAsync = ref.watch(riwayatAktivasiPaketProvider);
     final paketOpSqlite = ref.watch(paketOpSqliteProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: _queryCari.isEmpty
+        // Perbaikan Utama pada Logika Tampilan AppBar
+        title: !_sedangMencari
             ? const TeksJudulBesar('Riwayat Langganan', warna: Colors.white)
             : TextField(
                 controller: _cariController,
                 focusNode: _cariFocusNode,
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
-                  hintText: 'Cari data',
-                  hintStyle: const TextStyle(color: Colors.white),
+                  hintText: 'Cari data...',
+                  hintStyle: const TextStyle(color: Colors.white70),
                   border: InputBorder.none,
-                  suffixIcon: _queryCari.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(TIcons.close, color: Colors.white),
-                          onPressed: () {
-                            _cariController.clear();
-                            setState(() {
-                              _queryCari = '';
-                              _jumlahTampil = 20;
-                            });
-                          },
-                        )
-                      : null,
+                  prefixIcon: const Icon(TIcons.search, color: Colors.white),
+                  suffixIcon: IconButton(
+                    icon: const Icon(TIcons.close, color: Colors.white),
+                    onPressed: () {
+                      _cariController.clear();
+                      setState(() {
+                        _queryCari = '';
+                        _jumlahTampil = 20;
+                        _sedangMencari = false; // Keluar dari mode pencarian
+                      });
+                    },
+                  ),
                 ),
                 style: const TextStyle(color: Colors.white),
                 onChanged: (value) {
@@ -183,17 +186,16 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
                 },
               ),
         actions: [
-          if (_queryCari.isEmpty)
+          if (!_sedangMencari) ...[
             IconButton(
               onPressed: () {
                 setState(() {
-                  _queryCari = ' ';
+                  _sedangMencari = true;
                 });
                 Future.microtask(() => _cariFocusNode.requestFocus());
               },
               icon: const Icon(TIcons.search),
             ),
-          if (_queryCari.isEmpty)
             IconButton(
               icon: const Icon(TIcons.filter),
               onPressed: () {
@@ -208,6 +210,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
               },
               tooltip: 'Urutkan',
             ),
+          ],
         ],
       ),
       body: historyAsync.when(
@@ -224,7 +227,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
           return ListView.builder(
             controller: _pengendaliScroll,
             itemCount:
-                itemsFiltered.length +
+                itemsTampil.length +
                 (_jumlahTampil < itemsFiltered.length ? 1 : 0),
             itemBuilder: (context, index) {
               if (index == itemsTampil.length) {
@@ -322,7 +325,8 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
         return SimpleDialog(
           title: const Text('Urutkan Berdasarkan'),
           children: <Widget>[
-            buildOption('Berakhir Hari Ini', OpsiUrutan.beralhirHariIni),
+            // Perbaikan: Pastikan enum beralhirHariIni sudah dibetulkan typo-nya jika diperlukan
+            buildOption('Berakhir Hari Ini', OpsiUrutan.berakhirHariIni),
             buildOption('Tanggal Berakhir', OpsiUrutan.tanggalBerakhir),
             buildOption('Nama A-Z', OpsiUrutan.namaAZ),
             buildOption('Nama Z-A', OpsiUrutan.namaZA),
