@@ -165,6 +165,7 @@ class DataDummy {
       tanggal: DateTime.now(),
       idPelanggan: customerBudiId,
       idPaket: paketHematId,
+      tanggalMulai: null,
     ),
     TransaksiModel(
       id: transactionSitiId,
@@ -176,6 +177,7 @@ class DataDummy {
       tanggal: DateTime.now().subtract(const Duration(days: 1)),
       idPelanggan: customerSitiId,
       idPaket: paketPremiumId,
+      tanggalMulai: null,
     ),
   ];
 
@@ -189,8 +191,7 @@ class DataDummy {
       tanggalBerakhir: DateTime.now().add(const Duration(days: 20)),
       status: StatusPembayaran.paid,
       idTransaksi: transactionBudiId,
-              diperbaruiPada: DateTime.now().toUtc(),
-
+      diperbaruiPada: DateTime.now().toUtc(),
     ),
     PelangganAktifModel(
       id: activeCustomerSitiId,
@@ -200,8 +201,7 @@ class DataDummy {
       tanggalBerakhir: DateTime.now().add(const Duration(days: 25)),
       status: StatusPembayaran.paid,
       idTransaksi: transactionSitiId,
-              diperbaruiPada: DateTime.now().toUtc(),
-
+      diperbaruiPada: DateTime.now().toUtc(),
     ),
   ];
 

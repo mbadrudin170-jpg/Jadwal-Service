@@ -38,7 +38,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
     TipeDurasiPaket? tipeDurasiPaket,
     @Default(0) int durasiBonus,
     TipeDurasiPaket? tipeDurasiBonus,
-    DateTime? tanggalMulai,
+    required DateTime? tanggalMulai,
     DateTime? tanggalBerakhir,
     @Default(false) bool statusAktivasi,
   }) = _TransaksiModel;
@@ -82,7 +82,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
         map[NamaKolom.tipeDurasiBonus],
       ),
       tanggalMulai: ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]),
-      tanggalBerakhir: ParserUtil.parseDateTime(map[NamaKolom.tangglBerakhir]),
+      tanggalBerakhir: ParserUtil.parseDateTime(map[NamaKolom.tanggalBerakhir]),
       statusAktivasi: ParserUtil.parseBool(map[NamaKolom.statusAktivasi]),
     );
   }
@@ -112,7 +112,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       NamaKolom.durasiBonus: durasiBonus,
       NamaKolom.tipeDurasiBonus: tipeDurasiBonus?.name,
       NamaKolom.tanggalMulai: tanggalMulai?.millisecondsSinceEpoch,
-      NamaKolom.tangglBerakhir: tanggalBerakhir?.millisecondsSinceEpoch,
+      NamaKolom.tanggalBerakhir: tanggalBerakhir?.millisecondsSinceEpoch,
       NamaKolom.statusAktivasi: statusAktivasi ? 1 : 0,
     };
   }
@@ -162,7 +162,9 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
         data[NamaKolom.tipeDurasiBonus],
       ),
       tanggalMulai: ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]),
-      tanggalBerakhir: ParserUtil.parseDateTime(data[NamaKolom.tangglBerakhir]),
+      tanggalBerakhir: ParserUtil.parseDateTime(
+        data[NamaKolom.tanggalBerakhir],
+      ),
       statusAktivasi: ParserUtil.parseBool(data[NamaKolom.statusAktivasi]),
     );
   }
@@ -197,7 +199,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       NamaKolom.tanggalMulai: tanggalMulai != null
           ? Timestamp.fromDate(tanggalMulai!.toUtc())
           : null,
-      NamaKolom.tangglBerakhir: tanggalBerakhir != null
+      NamaKolom.tanggalBerakhir: tanggalBerakhir != null
           ? Timestamp.fromDate(tanggalBerakhir!.toUtc())
           : null,
       NamaKolom.statusAktivasi: statusAktivasi,

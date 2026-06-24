@@ -609,7 +609,7 @@ class SqliteDatabase {
       ${NamaKolom.durasiBonus} INTEGER,
       ${NamaKolom.tipeDurasiBonus} TEXT,
       ${NamaKolom.tanggalMulai} INTEGER,
-      ${NamaKolom.tangglBerakhir} INTEGER,
+      ${NamaKolom.tanggalBerakhir} INTEGER,
       ${NamaKolom.statusAktivasi} INTEGER DEFAULT 0
     )
   ''';
@@ -730,7 +730,7 @@ class SqliteDatabase {
       ${NamaKolom.idPaket} TEXT NOT NULL,
       ${NamaKolom.idTransaksi} TEXT,
       ${NamaKolom.tanggalMulai} INTEGER,
-      ${NamaKolom.tangglBerakhir} INTEGER,
+      ${NamaKolom.tanggalBerakhir} INTEGER,
       ${NamaKolom.status} TEXT NOT NULL,
       ${NamaKolom.diperbaruiPada} INTEGER,
       ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,

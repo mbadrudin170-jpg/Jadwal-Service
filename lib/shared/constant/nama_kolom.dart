@@ -24,7 +24,7 @@ abstract final class NamaKolom {
   static const String durasiPaket = 'package_duration';
   static const String tipeDurasiPaket = 'duration_type';
   static const String tanggalMulai = 'start_date';
-  static const String tangglBerakhir = 'end_date';
+  static const String tanggalBerakhir = 'end_date';
   static const String statusAktivasi = 'is_activated';
   static const String harga = 'price';
   static const String durasi = 'duration';

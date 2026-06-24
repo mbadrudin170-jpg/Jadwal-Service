@@ -249,6 +249,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
             ? _dompetTujuanDipilih?.id
             : null,
         idKategori: _kategoriDipilih?.id ?? '',
+        tanggalMulai: null,
         idSubKategori: _subKategoriDipilih?.id,
       );
 

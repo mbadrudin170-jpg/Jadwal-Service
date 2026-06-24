@@ -46,7 +46,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
             isEqualTo: StatusPembayaran.paid.name,
           )
           .where(NamaKolom.dihapus, isEqualTo: false)
-          .orderBy(NamaKolom.tangglBerakhir, descending: true)
+          .orderBy(NamaKolom.tanggalBerakhir, descending: true)
           .limit(1)
           .get();
 
@@ -176,7 +176,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
           // 2. Pastikan transaksi tidak dihapus
           .where(NamaKolom.dihapus, isEqualTo: false)
           // 3. Filter utama: endDate harus lebih besar dari waktu sekarang
-          .where(NamaKolom.tangglBerakhir, isGreaterThan: now)
+          .where(NamaKolom.tanggalBerakhir, isGreaterThan: now)
           .get();
 
       // Jika tidak ada dokumen yang cocok, kembalikan list kosong

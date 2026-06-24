@@ -35,7 +35,7 @@ abstract class EventModel with _$EventModel implements HasId {
           ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]) ??
           DateTime.now(),
       tanggalBerakhir:
-          ParserUtil.parseDateTime(map[NamaKolom.tangglBerakhir]) ??
+          ParserUtil.parseDateTime(map[NamaKolom.tanggalBerakhir]) ??
           DateTime.now(),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
     );
@@ -49,7 +49,7 @@ abstract class EventModel with _$EventModel implements HasId {
       NamaKolom.statusAktif: statusAktif ? 1 : 0,
       NamaKolom.tanggalDibuat: tanggalDibuat.millisecondsSinceEpoch,
       NamaKolom.tanggalMulai: tanggalMulai.millisecondsSinceEpoch,
-      NamaKolom.tangglBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
+      NamaKolom.tanggalBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
     };
@@ -72,7 +72,7 @@ abstract class EventModel with _$EventModel implements HasId {
           ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]) ??
           DateTime.now(),
       tanggalBerakhir:
-          ParserUtil.parseDateTime(data[NamaKolom.tangglBerakhir]) ??
+          ParserUtil.parseDateTime(data[NamaKolom.tanggalBerakhir]) ??
           DateTime.now(),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
     );
@@ -85,7 +85,7 @@ abstract class EventModel with _$EventModel implements HasId {
       NamaKolom.linkGambar: linkGambar,
       NamaKolom.statusAktif: statusAktif,
       NamaKolom.tanggalMulai: tanggalMulai.toIso8601String(),
-      NamaKolom.tangglBerakhir: tanggalBerakhir.toIso8601String(),
+      NamaKolom.tanggalBerakhir: tanggalBerakhir.toIso8601String(),
       NamaKolom.tanggalDibuat: tanggalDibuat.toIso8601String(),
       NamaKolom.diperbaruiPada: (diperbaruiPada ?? DateTime.now())
           .toIso8601String(),

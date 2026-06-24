@@ -12,6 +12,7 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -21,6 +22,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
@@ -123,11 +125,34 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       if (dikonfirmasi ?? false) {
         Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
         try {
+          final paket = await ref
+              .read(paketOpSqliteProvider)
+              .ambilBerdasarkanId(hadiah.id);
+          if (paket == null) return;
           final dataPelanggan = await ref
               .read(pelangganOpSqliteProvider)
               .ambilBerdasarkanId(widget.idPelanggan);
+          if (dataPelanggan == null) return;
           final sekarang = DateTime.now();
           final idOrder = const Uuid().v4();
+
+          final tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
+            sekarang,
+            paket,
+          );
+          final transaksiBaru = TransaksiModel(
+            id: const Uuid().v4(),
+            tanggal: sekarang,
+            deskripsi: 'Tukar Poin',
+            jumlah: 0,
+            tipe: TipeTransaksi.expense,
+            idDompet: '',
+            idKategori: '',
+            idPaket: hadiah.id,
+            poinDigunakan: hadiah.poinPenukaran,
+            tanggalMulai: sekarang,
+            tanggalBerakhir: tanggalBerakhir,
+          );
           final dataPesanan = OrderModel(
             id: idOrder,
             idPelanggan: widget.idPelanggan,
@@ -140,13 +165,16 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             tanggalBerakhir: sekarang,
             tanggalTampil: sekarang,
             judul: 'Order Paket',
-            deskripsi: 'pelanggan ${dataPelanggan?.nama} melakukan order',
+            deskripsi: 'pelanggan ${dataPelanggan.nama} melakukan order',
             tipe: TipeNotifikasiEnum.order,
             diperbaruiPada: sekarang,
             idTujuan: idOrder,
             userId: widget.idPelanggan,
             targetRole: AppRole.admin,
           );
+          await ref
+              .read(transaksiOpSqliteProvider)
+              .tambahTransaksi(transaksiBaru);
           await ref
               .read(notifikasiOpFirebaseProvider)
               .addNotifikasi(notifikasiData);

@@ -82,7 +82,7 @@ class PelangganAktifOpSqlite {
       LEFT JOIN $_namaTabelCustomer c ON ac.${NamaKolom.idPelanggan} = c.${NamaKolom.id}
       LEFT JOIN $_namaTabelPaket p ON ac.${NamaKolom.idPaket} = p.${NamaKolom.id}
       WHERE ac.${NamaKolom.dihapus} = 0
-        AND ac.${NamaKolom.tangglBerakhir} >= ?
+        AND ac.${NamaKolom.tanggalBerakhir} >= ?
     ''';
 
     try {
@@ -452,7 +452,7 @@ class PelangganAktifOpSqlite {
 
       final List<Map<String, dynamic>> expiredCustomers = await db.query(
         _namaTabel,
-        where: '${NamaKolom.tangglBerakhir} < ? AND ${NamaKolom.dihapus} = 0',
+        where: '${NamaKolom.tanggalBerakhir} < ? AND ${NamaKolom.dihapus} = 0',
         whereArgs: [_nowUtc.millisecondsSinceEpoch],
       );
 
