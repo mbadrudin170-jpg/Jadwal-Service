@@ -164,8 +164,6 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
         ),
       ),
     );
-
-    // 3. Eksekusi hapus (dialog loading akan tertutup otomatis saat Navigator.pop)
     try {
       await ref
           .read(transaksiProvider.notifier)

@@ -58,12 +58,10 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
     final sqliteDb = ref.read(sqliteDatabaseProvider);
     try {
       await LayananLatarBelakang.inisialisasi();
-
       await notifikasiServis.inisialisasiNotifikasi(
         iconName: 'ic_notification',
       );
       await notifikasiServis.mintaIzin();
-
       final launchDetails = await notifikasiServis
           .getDetailPeluncuranNotifikasi();
       final prefs = ref.read(sharedPreferencesProvider).requireValue;
@@ -77,22 +75,17 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       } else {
         await prefs.remove('initial_notification_payload');
       }
-
       await initializeDateFormatting('id_ID');
-
       await sqliteDb.database;
-
       try {
         final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
         await pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
       } catch (e) {
         Log.error('gagal menghapus data yang status nya diarsipkan');
       }
-
       final isOnline = await koneksiInternetService.cekInternet();
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
-
         final unduhanAwalService = ref.read(providerLayananUnduhanAwal);
         try {
           await unduhanAwalService.jalankanUnduhanAwal().timeout(
@@ -104,7 +97,6 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
             'Initial download memakan waktu terlalu lama (timeout). Melanjutkan inisialisasi... $e',
           );
         }
-
         final dataPengaturan = await ref
             .read(settingsOpSqliteProvider)
             .ambilSettings();
@@ -121,7 +113,6 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
           'Perangkat offline, melewati proses unduhan data awal dan pembersihan.',
         );
       }
-
       return isOnline;
     } catch (e, s) {
       Log.error('Error kritis selama inisialisasi sekunder.', e: e, s: s);
