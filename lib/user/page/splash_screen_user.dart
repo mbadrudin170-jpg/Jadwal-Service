@@ -70,14 +70,11 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     try {
       Log.info('Memulai inisialisasi dari Splash Screen...');
       await _inisialisasiLayananOffline();
-
       final terhubung = await ref
           .watch(koneksiInternetServiceProvider)
-          .cekKoneksiLokal();
-
+          .cekInternet();
       if (terhubung) {
         await _lanjutkanInisialisasi();
-
         final eventInfo = await _cekEvent();
         if (eventInfo != null) {
           if (mounted) {
@@ -90,8 +87,6 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
             );
           }
         }
-
-        // Setelah halaman event selesai, lanjutkan alur inisialisasi.
         await _continueInitialization();
       } else {
         if (mounted) {
@@ -125,7 +120,6 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       );
       return;
     }
-
     final infoPembaruan = await _periksaPembaruanAplikasi();
     if (infoPembaruan != null) {
       if (!mounted) return;
@@ -211,8 +205,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     if (akunAktif != null) {
       final terhubung = await ref
           .read(koneksiInternetServiceProvider)
-          .cekKoneksiLokal();
-
+          .cekInternet();
       if (terhubung) {
         final layananAktivitasUser = await ref.read(
           layananAktivitasUserProvider.future,

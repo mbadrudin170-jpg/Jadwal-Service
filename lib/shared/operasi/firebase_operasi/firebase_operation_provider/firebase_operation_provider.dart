@@ -72,10 +72,9 @@ PelangganOpFirebase pelangganOpFirebase(Ref ref) {
 
 @Riverpod(keepAlive: true)
 PelangganAktifOpFirebase pelangganAktifOpFirebase(Ref ref) {
-  final firestoreInstance = ref.watch(firestoreProvider);
   final baseOp = ref.watch(baseOpFirebaseProvider);
 
-  return PelangganAktifOpFirebase(firestore: firestoreInstance, baseOp: baseOp);
+  return PelangganAktifOpFirebase( baseOp: baseOp);
 }
 
 @Riverpod(keepAlive: true)

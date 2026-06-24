@@ -1288,7 +1288,6 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
-import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -1365,6 +1364,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     });
   }
 
+  @override
+  void dispose() {
+    _durasiBonusController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadAllData() async {
     setState(() => _isLoading = true);
     Log.info('Memulai memuat semua data untuk FormPelangganAktif');
@@ -1378,7 +1383,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final transaksiTerkaitFuture = pa?.idTransaksi != null
           ? transaksiOperasi.ambilBerdasarkanId(pa!.idTransaksi)
           : Future<TransaksiModel?>.value();
-
       final hasil = await Future.wait<Object?>([
         pelangganOpSqlite.ambilSemua(),
         paketOpsqlite.ambilSemua(),
@@ -1386,21 +1390,17 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         kategoriOpSqlite.ambilSemua(),
         transaksiTerkaitFuture,
       ]);
-
       if (!mounted) {
         return;
       }
-
       final daftarPelanggan = (hasil[0] as List<PelangganModel>)
         ..sort((a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
-
       final daftarPaket = (hasil[1] as List<PaketModel>)
         ..sort(
           (a, b) => PerhitunganPaket()
               .hitungDurasiPaket(a)
               .compareTo(PerhitunganPaket().hitungDurasiPaket(b)),
         );
-
       final daftarDompet = (hasil[2] as List<DompetModel>)
           .where((d) => !d.dihapus)
           .toList();
@@ -1412,7 +1412,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final daftarKategoriPengeluaran = semuaKategori
           .where((k) => k.tipe == TipeKategori.expense && !k.diHapus)
           .toList();
-
       final transaksiTerkait = hasil.length > 4 && hasil[4] is TransaksiModel
           ? hasil[4] as TransaksiModel?
           : null;
@@ -1422,21 +1421,18 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         _dompetList = daftarDompet;
         _kategoriPemasukanList = kategoriPemasukanList;
         _kategoriPengeluaranList = daftarKategoriPengeluaran;
-        Log.info('Semua data berhasil dimuat.');
       });
-
+      Log.info('Semua data berhasil dimuat.');
       if (_modeEdit) {
         await _mapEditData(transaksiTerkait);
       } else {
         _mapNewData();
       }
-
       if (!mounted) return;
-
       setState(() {
         _isLoading = false;
-        Log.info('Semua data berhasil dimuat.');
       });
+      Log.info('Semua data berhasil dimuat.');
     } catch (e, s) {
       Log.error('Gagal memuat data referensi', e: e, s: s);
       if (mounted) {
@@ -1450,12 +1446,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
     final pa = widget.pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
-
     _pelangganDipilih = _daftarPelanggan.firstWhereOrNull(
       (p) => p.id == pa.idPelanggan,
     );
     _paketDipilih = _daftarPaket.firstWhereOrNull((p) => p.id == pa.idPaket);
-
     if (transaksi != null) {
       Log.info(
         'Transaksi terkait (ID: ${transaksi.id}) ditemukan. Memetakan dompet dan kategori.',
@@ -1469,7 +1463,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       _kategoriDipilih = kategoriSumber.firstWhereOrNull(
         (k) => k.id == transaksi.idKategori,
       );
-
       if (transaksi.durasiBonus > 0) {
         _bonus = true;
         _durasiBonusController.text = transaksi.durasiBonus.toString();
@@ -1486,19 +1479,15 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         );
       }
     }
-
     _pilihTanggal = pa.tanggalMulai;
     _pilihJam = TimeOfDay.fromDateTime(pa.tanggalMulai);
     _statusPembayaran = pa.status;
-
     if (_pelangganDipilih != null) {
-      await transaksiOperasi.ambilTotalPoin(_pelangganDipilih!.id).then((poin) {
-        if (mounted) {
-          setState(() => _saldoPoinPelanggan = poin);
-        }
-      });
+      final poin = await transaksiOperasi.ambilTotalPoin(_pelangganDipilih!.id);
+      if (mounted) {
+        setState(() => _saldoPoinPelanggan = poin);
+      }
     }
-
     Log.info('Pemetaan data edit selesai.');
   }
 
@@ -1550,18 +1539,17 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     }
   }
 
-  Future<PelangganAktifModel?> _simpanData() async {
+  Future<bool> _simpanData() async {
     Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
     final notifikasiOpFirebase = ref.read(notifikasiOpFirebaseProvider);
-    final pelangganAktifOpsqlite = ref.read(pelangganAktifOpSqliteProvider);
+    final pelangganAktif = ref.read(pelangganAktifProvider.notifier);
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Validasi form gagal');
       if (mounted) {
         ToastUtil.error(context, 'Data belum lengkap');
       }
-      return null;
+      return false;
     }
-
     if (_pelangganDipilih == null ||
         _paketDipilih == null ||
         _pilihTanggal == null ||
@@ -1572,9 +1560,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       if (mounted) {
         ToastUtil.error(context, 'Harap lengkapi semua data');
       }
-      return null;
+      return false;
     }
-
     try {
       final tanggalMulai = DateTime(
         _pilihTanggal!.year,
@@ -1592,12 +1579,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         durasiBonus: durasiBonus,
         tipeDurasiBonus: _bonus ? _tipeBonusDurasi : null,
       );
-
       final idTransaksi =
           (_modeEdit && widget.pelangganAktif?.idTransaksi != null)
           ? widget.pelangganAktif!.idTransaksi
           : const Uuid().v4();
-
       final pelangganAktifData = PelangganAktifModel(
         id: _modeEdit ? widget.pelangganAktif!.id : const Uuid().v4(),
         idPelanggan: _pelangganDipilih!.id,
@@ -1606,8 +1591,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         tanggalBerakhir: tanggalBerakhir,
         status: _statusPembayaran,
         idTransaksi: idTransaksi,
+        diperbaruiPada: DateTime.now().toUtc(),
       );
-
       final transaksiData = TransaksiModel(
         id: idTransaksi,
         tanggal: tanggalMulai,
@@ -1632,11 +1617,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       Log.info(
         'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$idTransaksi',
       );
-      PelangganAktifModel pelangganAktifHasil;
       if (_modeEdit) {
-        pelangganAktifHasil = await pelangganAktifOpsqlite.updatePelangganAktif(
-          pelangganAktifData,
-        );
+        await pelangganAktif.updatePelangganAktif(pelangganAktifData);
         await ref
             .read(transaksiProvider.notifier)
             .updateTransaksi(transaksiData);
@@ -1645,14 +1627,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
         );
       } else {
-        pelangganAktifHasil = await pelangganAktifOpsqlite.tambahPelangganAktif(
-          pelangganAktifData,
-        );
+        await pelangganAktif.tambahPelangganAktif(pelangganAktifData);
         await ref
             .read(transaksiProvider.notifier)
             .tambahTransaksi(transaksiData);
       }
-      ref.invalidate(pelangganAktifProvider);
       final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
       final durasiSetengahJalan = Duration(
         microseconds: (totalDurasi.inMicroseconds / 2).round(),
@@ -1733,25 +1712,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       } else {
         Log.warning('Koneksi offline, sinkronisasi akan dijalankan nanti.');
       }
-      Log.info('Berhasil menyimpan, id hasil=${pelangganAktifHasil.id}');
-      return pelangganAktifHasil;
+      return true;
     } catch (e, s) {
       Log.error('Gagal menyimpan data pelanggan aktif.', e: e, s: s);
       if (mounted) {
         ToastUtil.error(context, 'Gagal menyimpan: $e');
       }
-      return null;
     }
-  }
-
-  void _invalidateSemuaProvider() {
-    ref
-      ..invalidate(pelangganAktifOpSqliteProvider)
-      ..invalidate(transaksiOpSqliteProvider)
-      ..invalidate(transaksiOpFirebaseProvider)
-      ..invalidate(dompetOpSqliteProvider)
-      ..invalidate(statistikProvider)
-      ..invalidate(pelangganAktifProvider);
+    return false;
   }
 
   @override
@@ -2167,27 +2135,25 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         onPressed: _menyimpan
             ? null
             : () async {
-                setState(() => _menyimpan = true);
+                setState(() {
+                  _menyimpan = true;
+                });
                 Log.info('Tombol Simpan ditekan');
-                final hasil = await _simpanData();
-
+                final bool berhasil = await _simpanData();
                 if (!mounted) {
-                  setState(() => _menyimpan = false);
+                  setState(() {
+                    _menyimpan = false;
+                  });
                   return;
                 }
-                if (hasil != null) {
-                  ToastUtil.success(
-                    context,
-                    'Data berhasil disimpan',
-                  ); // ✅ Pesan jelas
-                  _invalidateSemuaProvider();
+                setState(() {
+                  _menyimpan = false;
+                });
+                if (berhasil) {
+                  ToastUtil.success(context, 'Data berhasil disimpan');
                   Navigator.pop(context);
-                  Log.info(
-                    'Form berhasil disimpan, memicu refresh dompet, statistik, dan menutup halaman.',
-                  );
                 } else {
-                  ToastUtil.error(context, ' Data tidak terimpan');
-                  Log.warning('Form gagal disimpan, pesan: $hasil');
+                  ToastUtil.error(context, 'Data tidak terimpan');
                 }
               },
         style: ElevatedButton.styleFrom(
@@ -2236,49 +2202,49 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-final detailPleangganAktifProvider = FutureProvider.family<
-    ({
-      PelangganModel? pelanggan,
-      PaketModel? paket,
-      TransaksiModel? transaksi,
-      PelangganAktifModel pelangganAktif,
-    }),
-    String>((ref, id) async {
-  final pelangganAktifState = await ref.watch(
-    pelangganAktifProvider.future,
-  );
-  final daftarPelangganAktif = pelangganAktifState.daftarPelangganAktif;
+final detailPleangganAktifProvider =
+    FutureProvider.family<
+      ({
+        PelangganModel? pelanggan,
+        PaketModel? paket,
+        TransaksiModel? transaksi,
+        PelangganAktifModel pelangganAktif,
+      }),
+      String
+    >((ref, id) async {
+      final pelangganAktifState = await ref.watch(
+        pelangganAktifProvider.future,
+      );
+      final daftarPelangganAktif = pelangganAktifState.daftarPelangganAktif;
 
-  final detailPelangganAktif = daftarPelangganAktif.firstWhereOrNull(
-    (detail) => detail.pelangganAktif.id == id,
-  );
+      final detailPelangganAktif = daftarPelangganAktif.firstWhereOrNull(
+        (detail) => detail.pelangganAktif.id == id,
+      );
 
-  if (detailPelangganAktif == null) {
-    throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
-  }
+      if (detailPelangganAktif == null) {
+        throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
+      }
+      final pelangganAktif = detailPelangganAktif.pelangganAktif;
+      final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
+      final paketOpSqlite = ref.watch(paketOpSqliteProvider);
+      final transaksiOpsqlite = ref.watch(transaksiOpSqliteProvider);
+      final hasil = await Future.wait<Object?>([
+        pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.idPelanggan),
+        pelangganAktif.idPaket.isNotEmpty
+            ? paketOpSqlite.ambilBerdasarkanId(pelangganAktif.idPaket)
+            : Future<PaketModel?>.value(),
+        (pelangganAktif.idTransaksi.isNotEmpty)
+            ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.idTransaksi)
+            : Future<TransaksiModel?>.value(),
+      ]);
 
-  final pelangganAktif = detailPelangganAktif.pelangganAktif;
-
-  final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
-  final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-  final transaksiOpsqlite = ref.watch(transaksiOpSqliteProvider);
-  final hasil = await Future.wait<Object?>([
-    pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.idPelanggan),
-    pelangganAktif.idPaket.isNotEmpty
-        ? paketOpSqlite.ambilBerdasarkanId(pelangganAktif.idPaket)
-        : Future<PaketModel?>.value(),
-    (pelangganAktif.idTransaksi.isNotEmpty)
-        ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.idTransaksi)
-        : Future<TransaksiModel?>.value(),
-  ]);
-
-  return (
-    pelanggan: hasil[0] as PelangganModel?,
-    paket: hasil[1] as PaketModel?,
-    transaksi: hasil[2] as TransaksiModel?,
-    pelangganAktif: pelangganAktif,
-  );
-});
+      return (
+        pelanggan: hasil[0] as PelangganModel?,
+        paket: hasil[1] as PaketModel?,
+        transaksi: hasil[2] as TransaksiModel?,
+        pelangganAktif: pelangganAktif,
+      );
+    });
 
 class DetailPelangganAktif extends ConsumerStatefulWidget {
   final PelangganAktifModel pelangganAktif;
@@ -2289,6 +2255,13 @@ class DetailPelangganAktif extends ConsumerStatefulWidget {
 }
 
 class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
+  @override
+  void initState() {
+    super.initState();
+    Log.info('Membuka halaman Detail Pelanggan Aktif');
+    Log.info('  - ID Pelanggan Aktif: ${widget.pelangganAktif.id}');
+  }
+
   Future<void> _bukaWhatsApp(String phone) async {
     String formatNomor = phone.replaceAll(RegExp(r'[^0-9]'), '');
 
@@ -2297,9 +2270,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
     } else if (!formatNomor.startsWith('62')) {
       formatNomor = '62$formatNomor';
     }
-
     final Uri whatsappUri = Uri.parse('https://wa.me/$formatNomor');
-
     try {
       Log.info('Mencoba membuka WhatsApp: $formatNomor');
       if (await canLaunchUrl(whatsappUri)) {
@@ -2318,22 +2289,17 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
     }
   }
 
-  Future<void> _bukaFormEdit(PelangganAktifModel pelangganaktif) async {
+  void _bukaFormEdit(PelangganAktifModel pelangganaktif) {
     Log.info('Navigasi ke form edit pelanggan aktif ID: ${pelangganaktif.id}');
-    await Navigator.push<void>(
-      context,
-      MaterialPageRoute<void>(
-        builder: (context) =>
-            FormPelangganAktif(pelangganAktif: pelangganaktif),
+    unawaited(
+      Navigator.push<void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (context) =>
+              FormPelangganAktif(pelangganAktif: pelangganaktif),
+        ),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    Log.info('Membuka halaman Detail Pelanggan Aktif');
-    Log.info('  - ID Pelanggan Aktif: ${widget.pelangganAktif.id}');
   }
 
   @override
@@ -2359,7 +2325,8 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
       PaketModel? paket,
       TransaksiModel? transaksi,
       PelangganAktifModel pelangganAktif,
-    }) data,
+    })
+    data,
   ) {
     final pelangganAktif = data.pelangganAktif;
     final pelanggan = data.pelanggan;
@@ -2414,9 +2381,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                           child: Text(
                             pelanggan?.nama ?? pelangganAktif.idPelanggan,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
+                            style: Theme.of(context).textTheme.headlineSmall
                                 ?.copyWith(color: Colors.blue),
                           ),
                         ),
@@ -2487,11 +2452,11 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                           pelangganAktif.tanggalBerakhir,
                         ),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: PerhitunganUtil.ambilWarnaSisaMasaAktif(
-                                pelangganAktif.tanggalBerakhir,
-                              ),
-                              fontWeight: FontWeight.bold,
-                            ),
+                          color: PerhitunganUtil.ambilWarnaSisaMasaAktif(
+                            pelangganAktif.tanggalBerakhir,
+                          ),
+                          fontWeight: FontWeight.bold,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       gapH24,
@@ -2576,10 +2541,10 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                   Text(
                     value,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                          decoration: TextDecoration.underline,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                   gapH8,
                   FaIcon(
@@ -3228,7 +3193,7 @@ final class PelangganAktifProvider
   PelangganAktif create() => PelangganAktif();
 }
 
-String _$pelangganAktifHash() => r'1e6b361f16a5afc9f36f0cc3a4366aa942ae5759';
+String _$pelangganAktifHash() => r'470d4f278efa561fb4fd2a31c9ca4a866b10ea18';
 
 abstract class _$PelangganAktif extends $AsyncNotifier<PelangganAktifState> {
   FutureOr<PelangganAktifState> build();
@@ -3267,7 +3232,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PelangganAktifState {
 
- List<DetailPelangganAktifModel> get daftarPelangganAktif;
+ List<DetailPelangganAktifModel> get daftarPelangganAktif; int get jumlahPelangganAktif;
 /// Create a copy of PelangganAktifState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3278,16 +3243,16 @@ $PelangganAktifStateCopyWith<PelangganAktifState> get copyWith => _$PelangganAkt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PelangganAktifState&&const DeepCollectionEquality().equals(other.daftarPelangganAktif, daftarPelangganAktif));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PelangganAktifState&&const DeepCollectionEquality().equals(other.daftarPelangganAktif, daftarPelangganAktif)&&(identical(other.jumlahPelangganAktif, jumlahPelangganAktif) || other.jumlahPelangganAktif == jumlahPelangganAktif));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(daftarPelangganAktif));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(daftarPelangganAktif),jumlahPelangganAktif);
 
 @override
 String toString() {
-  return 'PelangganAktifState(daftarPelangganAktif: $daftarPelangganAktif)';
+  return 'PelangganAktifState(daftarPelangganAktif: $daftarPelangganAktif, jumlahPelangganAktif: $jumlahPelangganAktif)';
 }
 
 
@@ -3298,7 +3263,7 @@ abstract mixin class $PelangganAktifStateCopyWith<$Res>  {
   factory $PelangganAktifStateCopyWith(PelangganAktifState value, $Res Function(PelangganAktifState) _then) = _$PelangganAktifStateCopyWithImpl;
 @useResult
 $Res call({
- List<DetailPelangganAktifModel> daftarPelangganAktif
+ List<DetailPelangganAktifModel> daftarPelangganAktif, int jumlahPelangganAktif
 });
 
 
@@ -3315,10 +3280,11 @@ class _$PelangganAktifStateCopyWithImpl<$Res>
 
 /// Create a copy of PelangganAktifState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? daftarPelangganAktif = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? daftarPelangganAktif = null,Object? jumlahPelangganAktif = null,}) {
   return _then(_self.copyWith(
 daftarPelangganAktif: null == daftarPelangganAktif ? _self.daftarPelangganAktif : daftarPelangganAktif // ignore: cast_nullable_to_non_nullable
-as List<DetailPelangganAktifModel>,
+as List<DetailPelangganAktifModel>,jumlahPelangganAktif: null == jumlahPelangganAktif ? _self.jumlahPelangganAktif : jumlahPelangganAktif // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -3403,10 +3369,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif,  int jumlahPelangganAktif)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PelangganAktifState() when $default != null:
-return $default(_that.daftarPelangganAktif);case _:
+return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
   return orElse();
 
 }
@@ -3424,10 +3390,10 @@ return $default(_that.daftarPelangganAktif);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif,  int jumlahPelangganAktif)  $default,) {final _that = this;
 switch (_that) {
 case _PelangganAktifState():
-return $default(_that.daftarPelangganAktif);case _:
+return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -3444,10 +3410,10 @@ return $default(_that.daftarPelangganAktif);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<DetailPelangganAktifModel> daftarPelangganAktif)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<DetailPelangganAktifModel> daftarPelangganAktif,  int jumlahPelangganAktif)?  $default,) {final _that = this;
 switch (_that) {
 case _PelangganAktifState() when $default != null:
-return $default(_that.daftarPelangganAktif);case _:
+return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
   return null;
 
 }
@@ -3459,7 +3425,7 @@ return $default(_that.daftarPelangganAktif);case _:
 
 
 class _PelangganAktifState implements PelangganAktifState {
-  const _PelangganAktifState({final  List<DetailPelangganAktifModel> daftarPelangganAktif = const []}): _daftarPelangganAktif = daftarPelangganAktif;
+  const _PelangganAktifState({final  List<DetailPelangganAktifModel> daftarPelangganAktif = const [], this.jumlahPelangganAktif = 0}): _daftarPelangganAktif = daftarPelangganAktif;
   
 
  final  List<DetailPelangganAktifModel> _daftarPelangganAktif;
@@ -3469,6 +3435,7 @@ class _PelangganAktifState implements PelangganAktifState {
   return EqualUnmodifiableListView(_daftarPelangganAktif);
 }
 
+@override@JsonKey() final  int jumlahPelangganAktif;
 
 /// Create a copy of PelangganAktifState
 /// with the given fields replaced by the non-null parameter values.
@@ -3480,16 +3447,16 @@ _$PelangganAktifStateCopyWith<_PelangganAktifState> get copyWith => __$Pelanggan
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PelangganAktifState&&const DeepCollectionEquality().equals(other._daftarPelangganAktif, _daftarPelangganAktif));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PelangganAktifState&&const DeepCollectionEquality().equals(other._daftarPelangganAktif, _daftarPelangganAktif)&&(identical(other.jumlahPelangganAktif, jumlahPelangganAktif) || other.jumlahPelangganAktif == jumlahPelangganAktif));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_daftarPelangganAktif));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_daftarPelangganAktif),jumlahPelangganAktif);
 
 @override
 String toString() {
-  return 'PelangganAktifState(daftarPelangganAktif: $daftarPelangganAktif)';
+  return 'PelangganAktifState(daftarPelangganAktif: $daftarPelangganAktif, jumlahPelangganAktif: $jumlahPelangganAktif)';
 }
 
 
@@ -3500,7 +3467,7 @@ abstract mixin class _$PelangganAktifStateCopyWith<$Res> implements $PelangganAk
   factory _$PelangganAktifStateCopyWith(_PelangganAktifState value, $Res Function(_PelangganAktifState) _then) = __$PelangganAktifStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<DetailPelangganAktifModel> daftarPelangganAktif
+ List<DetailPelangganAktifModel> daftarPelangganAktif, int jumlahPelangganAktif
 });
 
 
@@ -3517,10 +3484,11 @@ class __$PelangganAktifStateCopyWithImpl<$Res>
 
 /// Create a copy of PelangganAktifState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? daftarPelangganAktif = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? daftarPelangganAktif = null,Object? jumlahPelangganAktif = null,}) {
   return _then(_PelangganAktifState(
 daftarPelangganAktif: null == daftarPelangganAktif ? _self._daftarPelangganAktif : daftarPelangganAktif // ignore: cast_nullable_to_non_nullable
-as List<DetailPelangganAktifModel>,
+as List<DetailPelangganAktifModel>,jumlahPelangganAktif: null == jumlahPelangganAktif ? _self.jumlahPelangganAktif : jumlahPelangganAktif // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -3535,11 +3503,13 @@ as List<DetailPelangganAktifModel>,
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
+
 part 'pelanggan_aktif_provider.g.dart';
 part 'pelanggan_aktif_provider.freezed.dart';
 
@@ -3547,12 +3517,15 @@ part 'pelanggan_aktif_provider.freezed.dart';
 abstract class PelangganAktifState with _$PelangganAktifState {
   const factory PelangganAktifState({
     @Default([]) List<DetailPelangganAktifModel> daftarPelangganAktif,
+    @Default(0) int jumlahPelangganAktif,
   }) = _PelangganAktifState;
 }
 
 @Riverpod(keepAlive: true)
 class PelangganAktif extends _$PelangganAktif {
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  PelangganAktifOpSqlite get pelangganAktifOpSqlite =>
+      ref.watch(pelangganAktifOpSqliteProvider);
+
   @override
   FutureOr<PelangganAktifState> build() {
     return _ambilData();
@@ -3561,18 +3534,81 @@ class PelangganAktif extends _$PelangganAktif {
   Future<PelangganAktifState> _ambilData() async {
     final operasi = ref.read(pelangganAktifOpSqliteProvider);
     final hasil = await operasi.ambilSemuaPelangganAktifDenganDetail();
+    return PelangganAktifState(
+      daftarPelangganAktif: hasil,
+      jumlahPelangganAktif: hasil.length,
+    );
+  }
 
-    return PelangganAktifState(daftarPelangganAktif: hasil);
+  Future<void> tambahPelangganAktif(PelangganAktifModel pelangganAktif) async {
+    state = await AsyncValue.guard(() async {
+      await pelangganAktifOpSqlite.tambahPelangganAktif(pelangganAktif);
+      final hasil = await pelangganAktifOpSqlite
+          .ambilSemuaPelangganAktifDenganDetail();
+      return PelangganAktifState(
+        daftarPelangganAktif: hasil,
+        jumlahPelangganAktif: hasil.length,
+      );
+    });
+  }
+
+  Future<void> updatePelangganAktif(PelangganAktifModel pelangganAktif) async {
+    state = await AsyncValue.guard(() async {
+      await pelangganAktifOpSqlite.updatePelangganAktif(pelangganAktif);
+      final hasil = await pelangganAktifOpSqlite
+          .ambilSemuaPelangganAktifDenganDetail();
+      return PelangganAktifState(
+        daftarPelangganAktif: hasil,
+        jumlahPelangganAktif: hasil.length,
+      );
+    });
   }
 
   Future<void> perbaruiData() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final data = await ref
-          .read(pelangganAktifOpSqliteProvider)
+      final data = await pelangganAktifOpSqlite
           .ambilSemuaPelangganAktifDenganDetail();
-      return PelangganAktifState(daftarPelangganAktif: data);
+      return PelangganAktifState(
+        daftarPelangganAktif: data,
+        jumlahPelangganAktif: data.length,
+      );
     });
+  }
+}
+
+
+// File: lib/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_firebase.dart
+// path lib/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_firebase.dart
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
+
+class PelangganAktifOpFirebase extends BaseOpFirebase {
+  final BaseOpFirebase _baseOp;
+  final FirebaseFirestore _firestore;
+  final String _namaKoleksi = NamaTabel.pelangganAktif;
+
+  PelangganAktifOpFirebase({
+    required FirebaseFirestore firestore,
+    required BaseOpFirebase baseOp,
+  }) : _firestore = firestore,
+       _baseOp = baseOp,
+       super(firestore: firestore) {
+    Log.info('OrderOpFirebase diinisialisasi.');
+  }
+
+  /// 1. Menambahkan pesanan baru
+  Future<void> tambahPelangganAktif(PelangganAktifModel pelangganAktif) async {
+    Log.info('Menambahkan pesanan baru: ${pelangganAktif.id}');
+    await _baseOp.sisipkan(
+      _namaKoleksi,
+      pelangganAktif.id,
+      pelangganAktif.toFirebase(),
+    );
   }
 }
 
@@ -3662,7 +3698,7 @@ class PelangganAktifOpSqlite {
       LEFT JOIN $_namaTabelCustomer c ON ac.${NamaKolom.idPelanggan} = c.${NamaKolom.id}
       LEFT JOIN $_namaTabelPaket p ON ac.${NamaKolom.idPaket} = p.${NamaKolom.id}
       WHERE ac.${NamaKolom.dihapus} = 0
-        AND ac.${NamaKolom.tangglBerakhir} >= ?
+        AND ac.${NamaKolom.tanggalBerakhir} >= ?
     ''';
 
     try {
@@ -3771,12 +3807,8 @@ class PelangganAktifOpSqlite {
   }) async {
     try {
       final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
-
       Log.info('Memperbarui active customer ID: ${customerToSave.id}');
-
-      await _baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
         final data = customerToSave.toSqlite();
         await txn.update(
           _namaTabel,
@@ -3785,10 +3817,8 @@ class PelangganAktifOpSqlite {
           whereArgs: [customerToSave.id],
         );
       }, dariServer: fromServer);
-
       await scheduleNotification(customerToSave);
       Log.info('Active customer ID: ${customerToSave.id} berhasil diperbarui');
-
       return customerToSave;
     } on Exception catch (e, st) {
       Log.error(
@@ -4038,7 +4068,7 @@ class PelangganAktifOpSqlite {
 
       final List<Map<String, dynamic>> expiredCustomers = await db.query(
         _namaTabel,
-        where: '${NamaKolom.tangglBerakhir} < ? AND ${NamaKolom.dihapus} = 0',
+        where: '${NamaKolom.tanggalBerakhir} < ? AND ${NamaKolom.dihapus} = 0',
         whereArgs: [_nowUtc.millisecondsSinceEpoch],
       );
 
@@ -4372,7 +4402,7 @@ return $default(_that.id,_that.idPelanggan,_that.idPaket,_that.idTransaksi,_that
 
 
 class _PelangganAktifModel extends PelangganAktifModel {
-  const _PelangganAktifModel({required this.id, required this.idPelanggan, required this.idPaket, required this.idTransaksi, required this.tanggalMulai, required this.tanggalBerakhir, required this.status, this.diperbaruiPada, this.diHapus = false, this.diarsipkanPada}): super._();
+  const _PelangganAktifModel({required this.id, required this.idPelanggan, required this.idPaket, required this.idTransaksi, required this.tanggalMulai, required this.tanggalBerakhir, required this.status, required this.diperbaruiPada, this.diHapus = false, this.diarsipkanPada}): super._();
   
 
 @override final  String id;
@@ -4479,7 +4509,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
     required DateTime tanggalMulai,
     required DateTime tanggalBerakhir,
     required StatusPembayaran status,
-    DateTime? diperbaruiPada,
+    required DateTime? diperbaruiPada,
     @Default(false) bool diHapus,
     DateTime? diarsipkanPada,
   }) = _PelangganAktifModel;
@@ -4490,7 +4520,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
         map[NamaKolom.tanggalMulai],
       );
       final tanggalBerakhir = ParserUtil.parseDateTime(
-        map[NamaKolom.tangglBerakhir],
+        map[NamaKolom.tanggalBerakhir],
       );
 
       if (tanggalMulai == null) {
@@ -4499,7 +4529,6 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
       if (tanggalBerakhir == null) {
         throw ArgumentError.notNull('endDate from SQLite');
       }
-
       final model = PelangganAktifModel(
         id: map[NamaKolom.id] as String,
         idPelanggan: map[NamaKolom.idPelanggan] as String? ?? '',
@@ -4507,10 +4536,12 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
         idTransaksi: map[NamaKolom.idTransaksi] as String? ?? '',
         tanggalMulai: tanggalMulai,
         tanggalBerakhir: tanggalBerakhir,
-        status: StatusPembayaran.values.firstWhere(
-          (final e) => e.name == map[NamaKolom.status],
-          orElse: () => StatusPembayaran.paid,
-        ),
+        status:
+            ParserUtil.safeParseEnum(
+              StatusPembayaran.values,
+              map[NamaKolom.status],
+            ) ??
+            StatusPembayaran.paid,
         diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
         diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
         diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
@@ -4530,7 +4561,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
       NamaKolom.idPaket: idPaket,
       NamaKolom.idTransaksi: idTransaksi,
       NamaKolom.tanggalMulai: tanggalMulai.toUtc().millisecondsSinceEpoch,
-      NamaKolom.tangglBerakhir: tanggalBerakhir.toUtc().millisecondsSinceEpoch,
+      NamaKolom.tanggalBerakhir: tanggalBerakhir.toUtc().millisecondsSinceEpoch,
       NamaKolom.status: status.name,
       NamaKolom.diperbaruiPada: (diperbaruiPada ?? DateTime.now())
           .toUtc()
@@ -4549,7 +4580,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
         data[NamaKolom.tanggalMulai],
       );
       final tanggalBerakhir = ParserUtil.parseDateTime(
-        data[NamaKolom.tangglBerakhir],
+        data[NamaKolom.tanggalBerakhir],
       );
 
       if (tanggalMulai == null) {
@@ -4566,10 +4597,12 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
         idTransaksi: data[NamaKolom.idTransaksi] as String? ?? '',
         tanggalMulai: tanggalMulai,
         tanggalBerakhir: tanggalBerakhir,
-        status: StatusPembayaran.values.firstWhere(
-          (e) => e.name == data[NamaKolom.status],
-          orElse: () => StatusPembayaran.paid,
-        ),
+        status:
+            ParserUtil.safeParseEnum(
+              StatusPembayaran.values,
+              data[NamaKolom.status],
+            ) ??
+            StatusPembayaran.paid,
         diperbaruiPada: ParserUtil.parseDateTime(
           data[NamaKolom.diperbaruiPada],
         ),
@@ -4594,7 +4627,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
       NamaKolom.idPaket: idPaket,
       NamaKolom.idTransaksi: idTransaksi,
       NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai.toUtc()),
-      NamaKolom.tangglBerakhir: Timestamp.fromDate(tanggalBerakhir.toUtc()),
+      NamaKolom.tanggalBerakhir: Timestamp.fromDate(tanggalBerakhir.toUtc()),
       NamaKolom.status: status.name,
       NamaKolom.dihapus: diHapus,
       NamaKolom.diperbaruiPada: Timestamp.fromDate(
@@ -5342,9 +5375,11 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -5354,6 +5389,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
@@ -5378,6 +5414,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   OpsiMenuPoin _menuAktif = OpsiMenuPoin.penukaran;
   late final Widget _judulAppBar;
   bool _sedangTukarPoin = false;
+  String? _idRewardYangDiproses;
 
   @override
   void initState() {
@@ -5408,7 +5445,10 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
   Future<void> _tukarPoin(PaketModel hadiah, int poinSaatIni) async {
     if (_sedangTukarPoin) return;
-    setState(() => _sedangTukarPoin = true);
+    setState(() {
+      _sedangTukarPoin = true;
+      _idRewardYangDiproses = hadiah.id;
+    });
     try {
       final role = ref.read(appRoleProvider);
       if (role == AppRole.admin) {
@@ -5456,16 +5496,51 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       if (dikonfirmasi ?? false) {
         Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
         try {
+          final paket = await ref
+              .read(paketOpSqliteProvider)
+              .ambilBerdasarkanId(hadiah.id);
+          if (paket == null) return;
           final dataPelanggan = await ref
               .read(pelangganOpSqliteProvider)
               .ambilBerdasarkanId(widget.idPelanggan);
+          if (dataPelanggan == null) return;
           final sekarang = DateTime.now();
           final idOrder = const Uuid().v4();
+          final idTransaksi = const Uuid().v4();
+          final tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
+            sekarang,
+            paket,
+          );
+          final pelangganAktifBaru = PelangganAktifModel(
+            id: const Uuid().v4(),
+            idPelanggan: dataPelanggan.id,
+            idPaket: hadiah.id,
+            idTransaksi: idTransaksi,
+            tanggalMulai: sekarang,
+            tanggalBerakhir: tanggalBerakhir,
+            status: StatusPembayaran.paid,
+            diperbaruiPada: sekarang,
+          );
+          final transaksiBaru = TransaksiModel(
+            id: idTransaksi,
+            tanggal: sekarang,
+            deskripsi: 'Tukar Poin',
+            jumlah: 0,
+            tipe: TipeTransaksi.expense,
+            idDompet: '',
+            idKategori: '',
+            idPaket: hadiah.id,
+            poinDigunakan: hadiah.poinPenukaran,
+            tanggalMulai: sekarang,
+            tanggalBerakhir: tanggalBerakhir,
+            idPelanggan: dataPelanggan.id,
+          );
           final dataPesanan = OrderModel(
             id: idOrder,
             idPelanggan: widget.idPelanggan,
             idPaket: hadiah.id,
             tanggal: sekarang,
+            status: StatusOrderEnum.baru,
           );
           final notifikasiData = NotifikasiModel(
             id: const Uuid().v4(),
@@ -5473,13 +5548,19 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             tanggalBerakhir: sekarang,
             tanggalTampil: sekarang,
             judul: 'Order Paket',
-            deskripsi: 'pelanggan ${dataPelanggan?.nama} melakukan order',
+            deskripsi: 'pelanggan ${dataPelanggan.nama} melakukan order',
             tipe: TipeNotifikasiEnum.order,
             diperbaruiPada: sekarang,
             idTujuan: idOrder,
             userId: widget.idPelanggan,
             targetRole: AppRole.admin,
           );
+          await ref
+              .read(pelangganAktifOpFirebaseProvider)
+              .tambahPelangganAktif(pelangganAktifBaru);
+          await ref
+              .read(transaksiOpFirebaseProvider)
+              .tambahTransaksi(transaksiBaru);
           await ref
               .read(notifikasiOpFirebaseProvider)
               .addNotifikasi(notifikasiData);
@@ -5504,7 +5585,10 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       }
     } finally {
       if (mounted) {
-        setState(() => _sedangTukarPoin = false);
+        setState(() {
+          _sedangTukarPoin = false;
+          _idRewardYangDiproses = null;
+        });
       }
     }
   }
@@ -5585,6 +5669,8 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             ? (totalPoin / hadiah.poinPenukaran).clamp(0.0, 1.0)
             : 1.0;
         final selisihPoin = totalPoin - hadiah.poinPenukaran;
+        final bool sedangMemprosesRewardIni =
+            _sedangTukarPoin && _idRewardYangDiproses == hadiah.id;
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: ListTile(
@@ -5597,10 +5683,10 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
                   children: [
                     Text('${hadiah.poinPenukaran} Poin'),
                     ElevatedButton(
-                      onPressed: _sedangTukarPoin
+                      onPressed: sedangMemprosesRewardIni
                           ? null
                           : () => _tukarPoin(hadiah, totalPoin),
-                      child: _sedangTukarPoin
+                      child: sedangMemprosesRewardIni
                           ? const CircularProgressIndicator()
                           : const Text('Tukar'),
                     ),
@@ -5638,7 +5724,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   Widget _bangunRiwayatPoin() {
     Log.info('Building points history.');
     final riwayatAsync = ref.watch(pointsHistoryProvider(widget.idPelanggan));
-
     return riwayatAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Error: $err')),
@@ -6344,12 +6429,10 @@ typedef PointsPageData = ({int totalPoin, List<PaketModel> hadiah});
 @riverpod
 Future<PointsPageData> pointsPageData(Ref ref, String idPelanggan) async {
   final dataSource = ref.watch(pointsDataSourceProvider);
-
   final [totalPoin, hadiah] = await Future.wait([
     dataSource.ambilTotalPoin(idPelanggan),
     dataSource.getPublicPackages(),
   ]);
-
   return (totalPoin: totalPoin as int, hadiah: hadiah as List<PaketModel>);
 }
 
@@ -8222,7 +8305,7 @@ class UjiKecepatan extends _$UjiKecepatan {
     );
 
     // Perbaikan: Durasi timeout diubah ke 30 detik agar tes tidak mati di tengah jalan
-    _timer = Timer(const Duration(seconds: 30), () {
+    _timer = Timer(const Duration(seconds: 60), () {
       if (_isFinished) return;
       _isFinished = true;
       _alatUji?.cancelTest();
@@ -8289,7 +8372,7 @@ final class UjiKecepatanProvider
   }
 }
 
-String _$ujiKecepatanHash() => r'cb57f096e109003f5e522824994b884bbc64ae0a';
+String _$ujiKecepatanHash() => r'312d14f6a445c9e34906efe81335409be921895f';
 
 abstract class _$UjiKecepatan extends $Notifier<UjiKecepatanState> {
   UjiKecepatanState build();
@@ -12200,7 +12283,7 @@ abstract class OrderModel with _$OrderModel implements HasId {
     required String idPelanggan,
     required String idPaket,
     required DateTime tanggal,
-    @Default(StatusOrderEnum.baru) StatusOrderEnum status,
+    required StatusOrderEnum status,
     DateTime? diperbaruiPada,
     @Default(false) bool diHapus,
     DateTime? diarsipkanPada,
@@ -12259,8 +12342,9 @@ abstract class OrderModel with _$OrderModel implements HasId {
       NamaKolom.idPaket: idPaket,
       NamaKolom.tanggal: Timestamp.fromDate(tanggal.toUtc()),
       NamaKolom.status: status.name,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()).toUtc(),
+      ),
       NamaKolom.dihapus: diHapus,
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
@@ -12495,14 +12579,14 @@ return $default(_that.id,_that.idPelanggan,_that.idPaket,_that.tanggal,_that.sta
 
 
 class _OrderModel extends OrderModel {
-  const _OrderModel({required this.id, required this.idPelanggan, required this.idPaket, required this.tanggal, this.status = StatusOrderEnum.baru, this.diperbaruiPada, this.diHapus = false, this.diarsipkanPada}): super._();
+  const _OrderModel({required this.id, required this.idPelanggan, required this.idPaket, required this.tanggal, required this.status, this.diperbaruiPada, this.diHapus = false, this.diarsipkanPada}): super._();
   
 
 @override final  String id;
 @override final  String idPelanggan;
 @override final  String idPaket;
 @override final  DateTime tanggal;
-@override@JsonKey() final  StatusOrderEnum status;
+@override final  StatusOrderEnum status;
 @override final  DateTime? diperbaruiPada;
 @override@JsonKey() final  bool diHapus;
 @override final  DateTime? diarsipkanPada;
@@ -17844,7 +17928,7 @@ abstract class EventModel with _$EventModel implements HasId {
           ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]) ??
           DateTime.now(),
       tanggalBerakhir:
-          ParserUtil.parseDateTime(map[NamaKolom.tangglBerakhir]) ??
+          ParserUtil.parseDateTime(map[NamaKolom.tanggalBerakhir]) ??
           DateTime.now(),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
     );
@@ -17858,7 +17942,7 @@ abstract class EventModel with _$EventModel implements HasId {
       NamaKolom.statusAktif: statusAktif ? 1 : 0,
       NamaKolom.tanggalDibuat: tanggalDibuat.millisecondsSinceEpoch,
       NamaKolom.tanggalMulai: tanggalMulai.millisecondsSinceEpoch,
-      NamaKolom.tangglBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
+      NamaKolom.tanggalBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
     };
@@ -17881,7 +17965,7 @@ abstract class EventModel with _$EventModel implements HasId {
           ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]) ??
           DateTime.now(),
       tanggalBerakhir:
-          ParserUtil.parseDateTime(data[NamaKolom.tangglBerakhir]) ??
+          ParserUtil.parseDateTime(data[NamaKolom.tanggalBerakhir]) ??
           DateTime.now(),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
     );
@@ -17894,7 +17978,7 @@ abstract class EventModel with _$EventModel implements HasId {
       NamaKolom.linkGambar: linkGambar,
       NamaKolom.statusAktif: statusAktif,
       NamaKolom.tanggalMulai: tanggalMulai.toIso8601String(),
-      NamaKolom.tangglBerakhir: tanggalBerakhir.toIso8601String(),
+      NamaKolom.tanggalBerakhir: tanggalBerakhir.toIso8601String(),
       NamaKolom.tanggalDibuat: tanggalDibuat.toIso8601String(),
       NamaKolom.diperbaruiPada: (diperbaruiPada ?? DateTime.now())
           .toIso8601String(),
@@ -25364,11 +25448,15 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         jumlah: jumlah,
         tanggal: combinedDateTime,
         tipe: _tipe,
-        idDompet: _dompetDipilih!.id,
+        idDompet: _dompetDipilih?.id ?? '',
         idDompetTujuan: _tipe == TipeTransaksi.transfer
             ? _dompetTujuanDipilih?.id
             : null,
         idKategori: _kategoriDipilih?.id ?? '',
+        tanggalMulai: null,
+        tanggalBerakhir: null,
+        idPelanggan: null,
+        idPaket: null,
         idSubKategori: _subKategoriDipilih?.id,
       );
 
@@ -26342,7 +26430,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TransaksiState {
 
- List<TransaksiModel> get transaksi; double get totalPemasukan; double get totalPengeluaran; double get total;
+ List<TransaksiModel> get transaksi; double get totalPemasukan; double get totalPengeluaran; double get total; int get totalPoinSemuaPelanggan;
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -26353,16 +26441,16 @@ $TransaksiStateCopyWith<TransaksiState> get copyWith => _$TransaksiStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransaksiState&&const DeepCollectionEquality().equals(other.transaksi, transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransaksiState&&const DeepCollectionEquality().equals(other.transaksi, transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total)&&(identical(other.totalPoinSemuaPelanggan, totalPoinSemuaPelanggan) || other.totalPoinSemuaPelanggan == totalPoinSemuaPelanggan));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(transaksi),totalPemasukan,totalPengeluaran,total);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(transaksi),totalPemasukan,totalPengeluaran,total,totalPoinSemuaPelanggan);
 
 @override
 String toString() {
-  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total)';
+  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total, totalPoinSemuaPelanggan: $totalPoinSemuaPelanggan)';
 }
 
 
@@ -26373,7 +26461,7 @@ abstract mixin class $TransaksiStateCopyWith<$Res>  {
   factory $TransaksiStateCopyWith(TransaksiState value, $Res Function(TransaksiState) _then) = _$TransaksiStateCopyWithImpl;
 @useResult
 $Res call({
- List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total
+ List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total, int totalPoinSemuaPelanggan
 });
 
 
@@ -26390,13 +26478,14 @@ class _$TransaksiStateCopyWithImpl<$Res>
 
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,Object? totalPoinSemuaPelanggan = null,}) {
   return _then(_self.copyWith(
 transaksi: null == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
 as List<TransaksiModel>,totalPemasukan: null == totalPemasukan ? _self.totalPemasukan : totalPemasukan // ignore: cast_nullable_to_non_nullable
 as double,totalPengeluaran: null == totalPengeluaran ? _self.totalPengeluaran : totalPengeluaran // ignore: cast_nullable_to_non_nullable
 as double,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
-as double,
+as double,totalPoinSemuaPelanggan: null == totalPoinSemuaPelanggan ? _self.totalPoinSemuaPelanggan : totalPoinSemuaPelanggan // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -26481,10 +26570,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TransaksiState() when $default != null:
-return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total);case _:
+return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan);case _:
   return orElse();
 
 }
@@ -26502,10 +26591,10 @@ return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan)  $default,) {final _that = this;
 switch (_that) {
 case _TransaksiState():
-return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total);case _:
+return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -26522,10 +26611,10 @@ return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan)?  $default,) {final _that = this;
 switch (_that) {
 case _TransaksiState() when $default != null:
-return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total);case _:
+return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan);case _:
   return null;
 
 }
@@ -26537,7 +26626,7 @@ return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_tha
 
 
 class _TransaksiState implements TransaksiState {
-  const _TransaksiState({final  List<TransaksiModel> transaksi = const [], this.totalPemasukan = 0.0, this.totalPengeluaran = 0.0, this.total = 0.0}): _transaksi = transaksi;
+  const _TransaksiState({final  List<TransaksiModel> transaksi = const [], this.totalPemasukan = 0.0, this.totalPengeluaran = 0.0, this.total = 0.0, this.totalPoinSemuaPelanggan = 0}): _transaksi = transaksi;
   
 
  final  List<TransaksiModel> _transaksi;
@@ -26550,6 +26639,7 @@ class _TransaksiState implements TransaksiState {
 @override@JsonKey() final  double totalPemasukan;
 @override@JsonKey() final  double totalPengeluaran;
 @override@JsonKey() final  double total;
+@override@JsonKey() final  int totalPoinSemuaPelanggan;
 
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
@@ -26561,16 +26651,16 @@ _$TransaksiStateCopyWith<_TransaksiState> get copyWith => __$TransaksiStateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransaksiState&&const DeepCollectionEquality().equals(other._transaksi, _transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransaksiState&&const DeepCollectionEquality().equals(other._transaksi, _transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total)&&(identical(other.totalPoinSemuaPelanggan, totalPoinSemuaPelanggan) || other.totalPoinSemuaPelanggan == totalPoinSemuaPelanggan));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_transaksi),totalPemasukan,totalPengeluaran,total);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_transaksi),totalPemasukan,totalPengeluaran,total,totalPoinSemuaPelanggan);
 
 @override
 String toString() {
-  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total)';
+  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total, totalPoinSemuaPelanggan: $totalPoinSemuaPelanggan)';
 }
 
 
@@ -26581,7 +26671,7 @@ abstract mixin class _$TransaksiStateCopyWith<$Res> implements $TransaksiStateCo
   factory _$TransaksiStateCopyWith(_TransaksiState value, $Res Function(_TransaksiState) _then) = __$TransaksiStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total
+ List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total, int totalPoinSemuaPelanggan
 });
 
 
@@ -26598,13 +26688,14 @@ class __$TransaksiStateCopyWithImpl<$Res>
 
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,Object? totalPoinSemuaPelanggan = null,}) {
   return _then(_TransaksiState(
 transaksi: null == transaksi ? _self._transaksi : transaksi // ignore: cast_nullable_to_non_nullable
 as List<TransaksiModel>,totalPemasukan: null == totalPemasukan ? _self.totalPemasukan : totalPemasukan // ignore: cast_nullable_to_non_nullable
 as double,totalPengeluaran: null == totalPengeluaran ? _self.totalPengeluaran : totalPengeluaran // ignore: cast_nullable_to_non_nullable
 as double,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
-as double,
+as double,totalPoinSemuaPelanggan: null == totalPoinSemuaPelanggan ? _self.totalPoinSemuaPelanggan : totalPoinSemuaPelanggan // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -26615,7 +26706,7 @@ as double,
 
 
 // File: lib/fitur/transaksi/provider/transaksi_provider.dart
-// path: lib/admin/providers/transaksi_provider.dart
+// path: lib/fitur/transaksi/provider/transaksi_provider.dart
 
 import 'dart:async';
 
@@ -26637,12 +26728,12 @@ abstract class TransaksiState with _$TransaksiState {
     @Default(0.0) double totalPemasukan,
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
+    @Default(0) int totalPoinSemuaPelanggan, // ✅ Ganti nama agar jelas
   }) = _TransaksiState;
 }
 
 @riverpod
 class Transaksi extends _$Transaksi {
-  // PERBAIKAN 1: Gunakan ref.watch agar reaktif dan aman sesuai standar resmi
   TransaksiOpSqlite get _transaksiOpSqlite =>
       ref.watch(transaksiOpSqliteProvider);
 
@@ -26651,14 +26742,13 @@ class Transaksi extends _$Transaksi {
     return _loadData();
   }
 
-  // PERBAIKAN 2: Passing nilai sortBy ke dalam fungsi load data
-  // untuk menghindari pembacaan `state.value` yang tidak menentu saat async loading
   Future<TransaksiState> _loadData() async {
     final hasil = await Future.wait([
       _transaksiOpSqlite.ambilSemua(),
       _transaksiOpSqlite.getTotalIncome(),
       _transaksiOpSqlite.getTotalExpense(),
       _transaksiOpSqlite.getNetTotal(),
+      _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan(), // ✅ Method baru
     ]);
 
     final transaksi = hasil[0] as List<TransaksiModel>;
@@ -26668,11 +26758,35 @@ class Transaksi extends _$Transaksi {
       totalPemasukan: hasil[1] as double,
       totalPengeluaran: hasil[2] as double,
       total: hasil[3] as double,
+      totalPoinSemuaPelanggan: hasil[4] as int, // ✅ Isi total poin
     );
   }
 
+  // ✅ Method untuk ambil poin per pelanggan
+  Future<int> getTotalPoinPelanggan(String idPelanggan) async {
+    return await _transaksiOpSqlite.ambilTotalPoin(idPelanggan);
+  }
+
+  // ✅ Method untuk ambil poin banyak pelanggan (paralel)
+  Future<Map<String, int>> getTotalPoinBanyakPelanggan(List<String> ids) async {
+    final Map<String, int> hasil = {};
+    for (final id in ids) {
+      hasil[id] = await _transaksiOpSqlite.ambilTotalPoin(id);
+    }
+    return hasil;
+  }
+
+  // ✅ Method untuk ambil poin banyak pelanggan dengan Future.wait (lebih cepat)
+  Future<List<int>> getTotalPoinBanyakPelangganParallel(
+    List<String> ids,
+  ) async {
+    final List<Future<int>> futures = ids
+        .map((id) => _transaksiOpSqlite.ambilTotalPoin(id))
+        .toList();
+    return await Future.wait(futures);
+  }
+
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
-    // Ambil sorting saat ini sebelum masuk state loading
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.tambahTransaksi(transaksi);
@@ -26752,7 +26866,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'15fedb78a0e77476dc9809675cff24f52cd0219c';
+String _$transaksiHash() => r'ea3649546128f1e93e342692a06c836f4b1e80e2';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -27250,6 +27364,34 @@ class TransaksiOpSqlite {
     );
     return total;
   }
+  Future<int> ambilTotalPoinSemuaPelanggan() async {
+    try {
+      final db = await sqliteDb.database;
+      Log.info('Menghitung total poin semua pelanggan');
+
+      final result = await db.rawQuery(
+        '''
+      SELECT 
+        SUM(${NamaKolom.poinDidapat}) as total_poin_didapat,
+        SUM(${NamaKolom.poinDigunakan}) as total_poin_digunakan
+      FROM $_tabel 
+      WHERE ${NamaKolom.dihapus} = 0 
+        AND ${NamaKolom.statusPembayaran} = ?
+      ''',
+        [StatusPembayaran.paid.name],
+      );
+
+      final poinDidapat = result.first['total_poin_didapat'] as int? ?? 0;
+      final poinDigunakan = result.first['total_poin_digunakan'] as int? ?? 0;
+      final total = poinDidapat - poinDigunakan;
+
+      Log.info('Total poin semua pelanggan: $total');
+      return total;
+    } on Exception catch (e, st) {
+      Log.error('Error hitung total poin semua pelanggan', e: e, s: st);
+      return 0;
+    }
+  }
 
   /// Memasukkan atau memperbarui beberapa transaksi sekaligus (batch) dan menghitung ulang saldo dompet yang terpengaruh.
   Future<void> sisipkanAtauPerbaruiBatch(
@@ -27375,7 +27517,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
             isEqualTo: StatusPembayaran.paid.name,
           )
           .where(NamaKolom.dihapus, isEqualTo: false)
-          .orderBy(NamaKolom.tangglBerakhir, descending: true)
+          .orderBy(NamaKolom.tanggalBerakhir, descending: true)
           .limit(1)
           .get();
 
@@ -27505,7 +27647,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
           // 2. Pastikan transaksi tidak dihapus
           .where(NamaKolom.dihapus, isEqualTo: false)
           // 3. Filter utama: endDate harus lebih besar dari waktu sekarang
-          .where(NamaKolom.tangglBerakhir, isGreaterThan: now)
+          .where(NamaKolom.tanggalBerakhir, isGreaterThan: now)
           .get();
 
       // Jika tidak ada dokumen yang cocok, kembalikan list kosong
@@ -27619,8 +27761,8 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
     required String idDompet,
     required String idKategori,
     String? idDompetTujuan,
-    String? idPelanggan,
-    String? idPaket,
+    required String? idPelanggan,
+    required String? idPaket,
     String? idSubKategori,
     @Default(StatusPembayaran.paid) StatusPembayaran statusPembayaran,
     @Default(0) int poinDidapat,
@@ -27632,26 +27774,10 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
     TipeDurasiPaket? tipeDurasiPaket,
     @Default(0) int durasiBonus,
     TipeDurasiPaket? tipeDurasiBonus,
-    DateTime? tanggalMulai,
-    DateTime? tanggalBerakhir,
+    required DateTime? tanggalMulai,
+    required DateTime? tanggalBerakhir,
     @Default(false) bool statusAktivasi,
   }) = _TransaksiModel;
-
-  static T? _safeParseEnum<T extends Enum>(
-    final List<T> values,
-    final dynamic name,
-  ) {
-    if (name == null || name is! String) {
-      return null;
-    }
-    for (final value in values) {
-      if (value.name == name) {
-        return value;
-      }
-    }
-    Log.warning('Gagal mengurai enum untuk tipe $T', name);
-    return null;
-  }
 
   factory TransaksiModel.fromSqlite(final Map<String, dynamic> map) {
     Log.info('Membuat TransaksiModel dari SQLite: ${map[NamaKolom.id]}');
@@ -27662,7 +27788,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       deskripsi: map[NamaKolom.deskripsi] as String? ?? '',
       jumlah: (map[NamaKolom.jumlah] as num? ?? 0).toDouble(),
       tipe:
-          _safeParseEnum(TipeTransaksi.values, map[NamaKolom.tipe]) ??
+          ParserUtil.safeParseEnum(TipeTransaksi.values, map[NamaKolom.tipe]) ??
           TipeTransaksi.expense,
       idDompet: map[NamaKolom.idDompet] as String? ?? '',
       idKategori: map[NamaKolom.idKategori] as String? ?? '',
@@ -27671,7 +27797,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       idPaket: map[NamaKolom.idPaket] as String?,
       idSubKategori: map[NamaKolom.idSubKategori] as String?,
       statusPembayaran:
-          _safeParseEnum(
+          ParserUtil.safeParseEnum(
             StatusPembayaran.values,
             map[NamaKolom.statusPembayaran],
           ) ??
@@ -27682,17 +27808,17 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
       diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       durasiPaket: (map[NamaKolom.durasiPaket] as num?)?.toInt(),
-      tipeDurasiPaket: _safeParseEnum(
+      tipeDurasiPaket: ParserUtil.safeParseEnum(
         TipeDurasiPaket.values,
         map[NamaKolom.tipeDurasiPaket],
       ),
       durasiBonus: (map[NamaKolom.durasiBonus] as num? ?? 0).toInt(),
-      tipeDurasiBonus: _safeParseEnum(
+      tipeDurasiBonus: ParserUtil.safeParseEnum(
         TipeDurasiPaket.values,
         map[NamaKolom.tipeDurasiBonus],
       ),
       tanggalMulai: ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]),
-      tanggalBerakhir: ParserUtil.parseDateTime(map[NamaKolom.tangglBerakhir]),
+      tanggalBerakhir: ParserUtil.parseDateTime(map[NamaKolom.tanggalBerakhir]),
       statusAktivasi: ParserUtil.parseBool(map[NamaKolom.statusAktivasi]),
     );
   }
@@ -27722,7 +27848,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       NamaKolom.durasiBonus: durasiBonus,
       NamaKolom.tipeDurasiBonus: tipeDurasiBonus?.name,
       NamaKolom.tanggalMulai: tanggalMulai?.millisecondsSinceEpoch,
-      NamaKolom.tangglBerakhir: tanggalBerakhir?.millisecondsSinceEpoch,
+      NamaKolom.tanggalBerakhir: tanggalBerakhir?.millisecondsSinceEpoch,
       NamaKolom.statusAktivasi: statusAktivasi ? 1 : 0,
     };
   }
@@ -27739,7 +27865,10 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       deskripsi: data[NamaKolom.deskripsi] as String? ?? '',
       jumlah: (data[NamaKolom.jumlah] as num? ?? 0).toDouble(),
       tipe:
-          _safeParseEnum(TipeTransaksi.values, data[NamaKolom.tipe]) ??
+          ParserUtil.safeParseEnum(
+            TipeTransaksi.values,
+            data[NamaKolom.tipe],
+          ) ??
           TipeTransaksi.expense,
       idDompet: data[NamaKolom.idDompet] as String? ?? '',
       idKategori: data[NamaKolom.idKategori] as String? ?? '',
@@ -27748,7 +27877,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       idPaket: data[NamaKolom.idPaket] as String?,
       idSubKategori: data[NamaKolom.idSubKategori] as String?,
       statusPembayaran:
-          _safeParseEnum(
+          ParserUtil.safeParseEnum(
             StatusPembayaran.values,
             data[NamaKolom.statusPembayaran],
           ) ??
@@ -27759,17 +27888,19 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
       diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       durasiPaket: (data[NamaKolom.durasiPaket] as num?)?.toInt(),
-      tipeDurasiPaket: _safeParseEnum(
+      tipeDurasiPaket: ParserUtil.safeParseEnum(
         TipeDurasiPaket.values,
         data[NamaKolom.tipeDurasiPaket],
       ),
       durasiBonus: (data[NamaKolom.durasiBonus] as num? ?? 0).toInt(),
-      tipeDurasiBonus: _safeParseEnum(
+      tipeDurasiBonus: ParserUtil.safeParseEnum(
         TipeDurasiPaket.values,
         data[NamaKolom.tipeDurasiBonus],
       ),
       tanggalMulai: ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]),
-      tanggalBerakhir: ParserUtil.parseDateTime(data[NamaKolom.tangglBerakhir]),
+      tanggalBerakhir: ParserUtil.parseDateTime(
+        data[NamaKolom.tanggalBerakhir],
+      ),
       statusAktivasi: ParserUtil.parseBool(data[NamaKolom.statusAktivasi]),
     );
   }
@@ -27804,7 +27935,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
       NamaKolom.tanggalMulai: tanggalMulai != null
           ? Timestamp.fromDate(tanggalMulai!.toUtc())
           : null,
-      NamaKolom.tangglBerakhir: tanggalBerakhir != null
+      NamaKolom.tanggalBerakhir: tanggalBerakhir != null
           ? Timestamp.fromDate(tanggalBerakhir!.toUtc())
           : null,
       NamaKolom.statusAktivasi: statusAktivasi,
@@ -28045,7 +28176,7 @@ return $default(_that.id,_that.tanggal,_that.deskripsi,_that.jumlah,_that.tipe,_
 
 
 class _TransaksiModel extends TransaksiModel {
-  const _TransaksiModel({required this.id, required this.tanggal, required this.deskripsi, required this.jumlah, required this.tipe, required this.idDompet, required this.idKategori, this.idDompetTujuan, this.idPelanggan, this.idPaket, this.idSubKategori, this.statusPembayaran = StatusPembayaran.paid, this.poinDidapat = 0, this.poinDigunakan = 0, this.diperbaruiPada, this.diarsipkanPada, this.diHapus = false, this.durasiPaket, this.tipeDurasiPaket, this.durasiBonus = 0, this.tipeDurasiBonus, this.tanggalMulai, this.tanggalBerakhir, this.statusAktivasi = false}): super._();
+  const _TransaksiModel({required this.id, required this.tanggal, required this.deskripsi, required this.jumlah, required this.tipe, required this.idDompet, required this.idKategori, this.idDompetTujuan, required this.idPelanggan, required this.idPaket, this.idSubKategori, this.statusPembayaran = StatusPembayaran.paid, this.poinDidapat = 0, this.poinDigunakan = 0, this.diperbaruiPada, this.diarsipkanPada, this.diHapus = false, this.durasiPaket, this.tipeDurasiPaket, this.durasiBonus = 0, this.tipeDurasiBonus, required this.tanggalMulai, required this.tanggalBerakhir, this.statusAktivasi = false}): super._();
   
 
 @override final  String id;
@@ -28537,6 +28668,7 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -28551,23 +28683,44 @@ enum UrutanPelanggan {
   poinTerbanyak,
   poinTerkecil,
 }
+// path: lib/fitur/pelanggan/page/admin/pelanggan.dart
 
-// --- Combined & Filtered Data Provider ---
+/// Provider untuk mendapatkan daftar pelanggan dengan poin
+final pelangganDenganPoinProvider =
+    FutureProvider.autoDispose<List<(PelangganModel, int)>>((ref) async {
+      final pelangganState = await ref.watch(pelangganProvider.future);
+      final transaksiNotifier = ref.watch(
+        transaksiProvider.notifier,
+      ); // ✅ Gunakan notifier
+      final daftarPelanggan = pelangganState.daftarPelanggan;
 
-/// Provider lokal untuk memfilter dan mengurutkan pelanggan secara reaktif berdasarkan state modern.
+      // ✅ Ambil poin melalui method di transaksiProvider
+      final List<int> semuaPoin = await transaksiNotifier
+          .getTotalPoinBanyakPelangganParallel(
+            daftarPelanggan.map((p) => p.id).toList(),
+          );
+
+      final hasil = <(PelangganModel, int)>[];
+      for (int i = 0; i < daftarPelanggan.length; i++) {
+        hasil.add((daftarPelanggan[i], semuaPoin[i]));
+      }
+
+      return hasil;
+    });
 final filteredCustomersProvider =
     Provider.autoDispose<AsyncValue<List<(PelangganModel, int)>>>((ref) {
-      final daftarPelanggan = ref.watch(daftarPelangganProvider);
+      final pelangganWithPoints = ref.watch(pelangganDenganPoinProvider);
       final searchQuery = ref.watch(searchQueryPelangganProvider).toLowerCase();
       final sortOption = ref.watch(urutanPelangganStateProvider);
 
-      return daftarPelanggan.when(
+      return pelangganWithPoints.when(
         data: (customersWithPoints) {
           final filtered = customersWithPoints
               .where(
                 (tuple) => tuple.$1.nama.toLowerCase().contains(searchQuery),
               )
               .toList();
+
           if (filtered.isNotEmpty) {
             switch (sortOption) {
               case UrutanPelanggan.namaAZ:
@@ -28654,7 +28807,10 @@ class _PelangganState extends ConsumerState<Pelanggan> {
     return Scaffold(
       appBar: _buildAppBar(),
       body: RefreshIndicator(
-        onRefresh: () => ref.refresh(daftarPelangganProvider.future),
+        onRefresh: () async {
+          await ref.refresh(pelangganProvider.notifier).refresh();
+          ref.invalidate(pelangganDenganPoinProvider);
+        },
         child: _buildContent(),
       ),
       floatingActionButton: FloatingActionButton(
@@ -28712,7 +28868,6 @@ class _PelangganState extends ConsumerState<Pelanggan> {
   Widget _buildContent() {
     final pelangganAsync = ref.watch(filteredCustomersProvider);
     final sedangMencari = ref.watch(searchQueryPelangganProvider).isNotEmpty;
-
     return pelangganAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, s) {
@@ -28835,7 +28990,6 @@ class _PelangganState extends ConsumerState<Pelanggan> {
         builder: (context) => DetailPelanggan(idPelanggan: idPelanggan),
       ),
     );
-    ref.invalidate(daftarPelangganProvider);
   }
 
   Future<void> _dialogOpsi(PelangganModel pelanggan) async {
@@ -28858,8 +29012,6 @@ class _PelangganState extends ConsumerState<Pelanggan> {
                   ),
                 );
                 if (result ?? false) {
-                  ref.invalidate(daftarPelangganProvider);
-
                   if (!mounted) return;
                   ToastUtil.success(context, 'Pelanggan berhasil diperbarui.');
                 }
@@ -28907,9 +29059,7 @@ class _PelangganState extends ConsumerState<Pelanggan> {
   Future<void> _softDeleteCustomer(String id) async {
     try {
       await ref.read(pelangganOpSqliteProvider).softDelete(id);
-      ref.invalidate(daftarPelangganProvider);
       if (!mounted) return;
-
       ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
     } on Exception catch (e, s) {
       Log.error('Gagal mengarsipkan pelanggan', e: e, s: s);
@@ -28929,7 +29079,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
@@ -29005,12 +29154,12 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
   }
 
   Future<void> _simpanPelanggan() async {
-    final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
+    if (_menyimpan) return;
+    final pelangganNotifier = ref.read(pelangganProvider.notifier);
     Log.info('Tombol "Simpan" ditekan.');
     if (_formKey.currentState!.validate()) {
       Log.info('Form valid. Memulai proses penyimpanan.');
       setState(() => _menyimpan = true);
-
       final pelangganBaru = PelangganModel(
         id: _modeEdit ? widget.pelanggan!.id : const Uuid().v4(),
         nama: _namaController.text.trim(),
@@ -29019,7 +29168,6 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         kataSandi: _passwordController.text, // No trim for password
         macAddress: _macAddressController.text.trim().toUpperCase(),
       );
-
       Log.info(
         'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}',
       );
@@ -29029,23 +29177,25 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           Log.info(
             'Menjalankan operasi UPDATE untuk pelanggan ID: ${pelangganBaru.id}',
           );
-          await pelangganOpSqlite.perbaruiPelanggan(pelangganBaru);
+          await pelangganNotifier.perbaruiPelanggan(pelangganBaru);
         } else {
           Log.info(
             'Menjalankan operasi CREATE untuk pelanggan baru: ${pelangganBaru.nama}',
           );
-          await pelangganOpSqlite.tambahPelanggan(pelangganBaru);
+          await pelangganNotifier.tambahPelanggan(pelangganBaru);
         }
-
         if (!mounted) return;
-
         try {
           final cekKoneksi = await ref
               .read(koneksiInternetServiceProvider)
               .cekKoneksiLokal();
           if (cekKoneksi) {
             Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
-            unawaited(ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi());
+            unawaited(
+              ref
+                  .read(layananCekSinkronisasiProvider)
+                  .jalankanCekSinkronisasi(),
+            );
             if (mounted) {
               ToastUtil.success(
                 context,
@@ -29064,9 +29214,6 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         } catch (e) {
           Log.info('Sinkronisasi gagal $e');
         }
-
-        ref.invalidate(daftarPelangganProvider);
-
         if (mounted) {
           Navigator.pop(context);
         }
@@ -29469,51 +29616,50 @@ part of 'pelanggan_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
 
-@ProviderFor(daftarPelanggan)
-final daftarPelangganProvider = DaftarPelangganProvider._();
+@ProviderFor(Pelanggan)
+final pelangganProvider = PelangganProvider._();
 
-/// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
-
-final class DaftarPelangganProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<(PelangganModel, int)>>,
-          List<(PelangganModel, int)>,
-          FutureOr<List<(PelangganModel, int)>>
-        >
-    with
-        $FutureModifier<List<(PelangganModel, int)>>,
-        $FutureProvider<List<(PelangganModel, int)>> {
-  /// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
-  DaftarPelangganProvider._()
+final class PelangganProvider
+    extends $AsyncNotifierProvider<Pelanggan, PelangganState> {
+  PelangganProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'daftarPelangganProvider',
-        isAutoDispose: true,
+        name: r'pelangganProvider',
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$daftarPelangganHash();
+  String debugGetCreateSourceHash() => _$pelangganHash();
 
   @$internal
   @override
-  $FutureProviderElement<List<(PelangganModel, int)>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<List<(PelangganModel, int)>> create(Ref ref) {
-    return daftarPelanggan(ref);
-  }
+  Pelanggan create() => Pelanggan();
 }
 
-String _$daftarPelangganHash() => r'f24525e3d25136931b13e885f84dba257d39dd00';
+String _$pelangganHash() => r'566a4a3b58e0655b5297323b525a27f328fcb839';
+
+abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
+  FutureOr<PelangganState> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<PelangganState>, PelangganState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<PelangganState>, PelangganState>,
+              AsyncValue<PelangganState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
 
 /// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
 
@@ -29704,12 +29850,8 @@ abstract class _$SearchQueryPelanggan extends $Notifier<String> {
   }
 }
 
-/// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
-
 @ProviderFor(pelangganDetail)
 final pelangganDetailProvider = PelangganDetailFamily._();
-
-/// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 
 final class PelangganDetailProvider
     extends
@@ -29721,7 +29863,6 @@ final class PelangganDetailProvider
     with
         $FutureModifier<(PelangganModel?, int)>,
         $FutureProvider<(PelangganModel?, int)> {
-  /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
   PelangganDetailProvider._({
     required PelangganDetailFamily super.from,
     required String super.argument,
@@ -29768,8 +29909,6 @@ final class PelangganDetailProvider
 
 String _$pelangganDetailHash() => r'f035ec5051457c1093e90687ba33b06fe986510c';
 
-/// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
-
 final class PelangganDetailFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<(PelangganModel?, int)>, String> {
   PelangganDetailFamily._()
@@ -29780,8 +29919,6 @@ final class PelangganDetailFamily extends $Family
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
-
-  /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 
   PelangganDetailProvider call(String id) =>
       PelangganDetailProvider._(argument: id, from: this);
@@ -29794,35 +29931,81 @@ final class PelangganDetailFamily extends $Family
 // File: lib/fitur/pelanggan/provider/pelanggan_provider.dart
 // path lib/fitur/pelanggan/provider/pelanggan_provider.dart
 
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan.dart';
 import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
-import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/operation.dart';
 
 part 'pelanggan_provider.g.dart';
+part 'pelanggan_provider.freezed.dart';
 
-/// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
-@riverpod
-Future<List<(PelangganModel, int)>> daftarPelanggan(Ref ref) async {
-  Log.info(
-    'Mendapatkan daftar pelanggan aktif beserta poin dari SQLite via pelangganProvider...',
-  );
+@freezed
+abstract class PelangganState with _$PelangganState {
+  const factory PelangganState({
+    @Default([]) List<PelangganModel> daftarPelanggan,
+    @Default(0) int jumlahPelanggan,
+    @Default(0) int totalPoin,
+  }) = _PelangganState;
+}
 
-  final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
-  final poinOpSqlite = ref.watch(sqlitePointsDataSourceProvider);
-  final listPelanggan = await pelangganOpSqlite.ambilSemua();
-  final List<Future<int>> pointsFutures = listPelanggan
-      .map((PelangganModel c) => poinOpSqlite.ambilTotalPoin(c.id))
-      .toList();
-  final poin = await Future.wait(pointsFutures);
-  final List<(PelangganModel, int)> hasil = [];
-  for (int i = 0; i < listPelanggan.length; i++) {
-    hasil.add((listPelanggan[i], poin[i]));
+@Riverpod(keepAlive: true)
+class Pelanggan extends _$Pelanggan {
+  PelangganOpSqlite get pelangganOpSqlite =>
+      ref.watch(pelangganOpSqliteProvider);
+  SQLitePointsDataSource get poinDataSource =>
+      ref.watch(sqlitePointsDataSourceProvider);
+
+  @override
+  FutureOr<PelangganState> build() {
+    return _ambilData();
   }
 
-  return hasil;
+  Future<PelangganState> _ambilData() async {
+    final hasil = await pelangganOpSqlite.ambilSemua();
+    double totalPoin = 0;
+    for (final pelanggan in hasil) {
+      totalPoin += await poinDataSource.ambilTotalPoin(pelanggan.id);
+    }
+    return PelangganState(
+      daftarPelanggan: hasil,
+      jumlahPelanggan: hasil.length,
+      totalPoin: totalPoin.toInt(),
+    );
+  }
+
+  Future<void> tambahPelanggan(PelangganModel pelanggan) async {
+    state = await AsyncValue.guard(() async {
+      await pelangganOpSqlite.tambahPelanggan(pelanggan);
+      ref.invalidate(pelangganDetailProvider);
+      return _ambilData();
+    });
+  }
+
+  Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
+    state = await AsyncValue.guard(() async {
+      await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
+      ref.invalidate(pelangganDetailProvider);
+      return _ambilData();
+    });
+  }
+
+  Future<void> softDelete(String id) async {
+    state = await AsyncValue.guard(() async {
+      await pelangganOpSqlite.softDelete(id);
+      ref.invalidate(pelangganDetailProvider);
+      return _ambilData();
+    });
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      return _ambilData();
+    });
+  }
 }
 
 /// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
@@ -29862,16 +30045,300 @@ class SearchQueryPelanggan extends _$SearchQueryPelanggan {
   void clear() => state = '';
 }
 
-/// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 @riverpod
 Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
   final pelangganOpSqlte = ref.watch(pelangganOpSqliteProvider);
   final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
   final pelanggan = await pelangganOpSqlte.ambilBerdasarkanId(id);
   final poin = await transaksiOpSqlite.ambilTotalPoin(id);
-
   return (pelanggan, poin);
 }
+
+
+// File: lib/fitur/pelanggan/provider/pelanggan_provider.freezed.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'pelanggan_provider.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$PelangganState {
+
+ List<PelangganModel> get daftarPelanggan; int get jumlahPelanggan; int get totalPoin;
+/// Create a copy of PelangganState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PelangganStateCopyWith<PelangganState> get copyWith => _$PelangganStateCopyWithImpl<PelangganState>(this as PelangganState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PelangganState&&const DeepCollectionEquality().equals(other.daftarPelanggan, daftarPelanggan)&&(identical(other.jumlahPelanggan, jumlahPelanggan) || other.jumlahPelanggan == jumlahPelanggan)&&(identical(other.totalPoin, totalPoin) || other.totalPoin == totalPoin));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(daftarPelanggan),jumlahPelanggan,totalPoin);
+
+@override
+String toString() {
+  return 'PelangganState(daftarPelanggan: $daftarPelanggan, jumlahPelanggan: $jumlahPelanggan, totalPoin: $totalPoin)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PelangganStateCopyWith<$Res>  {
+  factory $PelangganStateCopyWith(PelangganState value, $Res Function(PelangganState) _then) = _$PelangganStateCopyWithImpl;
+@useResult
+$Res call({
+ List<PelangganModel> daftarPelanggan, int jumlahPelanggan, int totalPoin
+});
+
+
+
+
+}
+/// @nodoc
+class _$PelangganStateCopyWithImpl<$Res>
+    implements $PelangganStateCopyWith<$Res> {
+  _$PelangganStateCopyWithImpl(this._self, this._then);
+
+  final PelangganState _self;
+  final $Res Function(PelangganState) _then;
+
+/// Create a copy of PelangganState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? daftarPelanggan = null,Object? jumlahPelanggan = null,Object? totalPoin = null,}) {
+  return _then(_self.copyWith(
+daftarPelanggan: null == daftarPelanggan ? _self.daftarPelanggan : daftarPelanggan // ignore: cast_nullable_to_non_nullable
+as List<PelangganModel>,jumlahPelanggan: null == jumlahPelanggan ? _self.jumlahPelanggan : jumlahPelanggan // ignore: cast_nullable_to_non_nullable
+as int,totalPoin: null == totalPoin ? _self.totalPoin : totalPoin // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [PelangganState].
+extension PelangganStatePatterns on PelangganState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _PelangganState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _PelangganState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _PelangganState value)  $default,){
+final _that = this;
+switch (_that) {
+case _PelangganState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _PelangganState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _PelangganState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<PelangganModel> daftarPelanggan,  int jumlahPelanggan,  int totalPoin)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _PelangganState() when $default != null:
+return $default(_that.daftarPelanggan,_that.jumlahPelanggan,_that.totalPoin);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<PelangganModel> daftarPelanggan,  int jumlahPelanggan,  int totalPoin)  $default,) {final _that = this;
+switch (_that) {
+case _PelangganState():
+return $default(_that.daftarPelanggan,_that.jumlahPelanggan,_that.totalPoin);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<PelangganModel> daftarPelanggan,  int jumlahPelanggan,  int totalPoin)?  $default,) {final _that = this;
+switch (_that) {
+case _PelangganState() when $default != null:
+return $default(_that.daftarPelanggan,_that.jumlahPelanggan,_that.totalPoin);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _PelangganState implements PelangganState {
+  const _PelangganState({final  List<PelangganModel> daftarPelanggan = const [], this.jumlahPelanggan = 0, this.totalPoin = 0}): _daftarPelanggan = daftarPelanggan;
+  
+
+ final  List<PelangganModel> _daftarPelanggan;
+@override@JsonKey() List<PelangganModel> get daftarPelanggan {
+  if (_daftarPelanggan is EqualUnmodifiableListView) return _daftarPelanggan;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_daftarPelanggan);
+}
+
+@override@JsonKey() final  int jumlahPelanggan;
+@override@JsonKey() final  int totalPoin;
+
+/// Create a copy of PelangganState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PelangganStateCopyWith<_PelangganState> get copyWith => __$PelangganStateCopyWithImpl<_PelangganState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PelangganState&&const DeepCollectionEquality().equals(other._daftarPelanggan, _daftarPelanggan)&&(identical(other.jumlahPelanggan, jumlahPelanggan) || other.jumlahPelanggan == jumlahPelanggan)&&(identical(other.totalPoin, totalPoin) || other.totalPoin == totalPoin));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_daftarPelanggan),jumlahPelanggan,totalPoin);
+
+@override
+String toString() {
+  return 'PelangganState(daftarPelanggan: $daftarPelanggan, jumlahPelanggan: $jumlahPelanggan, totalPoin: $totalPoin)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PelangganStateCopyWith<$Res> implements $PelangganStateCopyWith<$Res> {
+  factory _$PelangganStateCopyWith(_PelangganState value, $Res Function(_PelangganState) _then) = __$PelangganStateCopyWithImpl;
+@override @useResult
+$Res call({
+ List<PelangganModel> daftarPelanggan, int jumlahPelanggan, int totalPoin
+});
+
+
+
+
+}
+/// @nodoc
+class __$PelangganStateCopyWithImpl<$Res>
+    implements _$PelangganStateCopyWith<$Res> {
+  __$PelangganStateCopyWithImpl(this._self, this._then);
+
+  final _PelangganState _self;
+  final $Res Function(_PelangganState) _then;
+
+/// Create a copy of PelangganState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? daftarPelanggan = null,Object? jumlahPelanggan = null,Object? totalPoin = null,}) {
+  return _then(_PelangganState(
+daftarPelanggan: null == daftarPelanggan ? _self._daftarPelanggan : daftarPelanggan // ignore: cast_nullable_to_non_nullable
+as List<PelangganModel>,jumlahPelanggan: null == jumlahPelanggan ? _self.jumlahPelanggan : jumlahPelanggan // ignore: cast_nullable_to_non_nullable
+as int,totalPoin: null == totalPoin ? _self.totalPoin : totalPoin // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+// dart format on
 
 
 // File: lib/fitur/pelanggan/core/layanan_aktivitas_user.dart
@@ -30631,7 +31098,6 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       alamat: map[NamaKolom.alamat] as String? ?? '',
       kataSandi: map[NamaKolom.kataSandi] as String? ?? '',
       macAddress: map[NamaKolom.macAddress] as String? ?? '',
-      // DIUBAH: Menggunakan ParserUtil
       diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
@@ -30639,7 +31105,6 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
     );
   }
 
-  /// Converts the [PelangganModel] to a map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
@@ -30683,10 +31148,8 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.kataSandi: kataSandi,
       NamaKolom.macAddress: macAddress,
       NamaKolom.dihapus: diHapus,
-      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       NamaKolom.diperbaruiPada:
           Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
-      // DIUBAH: Menggunakan .toUtc() jika tidak null
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,
@@ -31026,7 +31489,6 @@ void onDidReceiveBackgroundNotificationResponse(
 
 class LayananNotifikasi {
   static LayananNotifikasi? _instance;
-
   factory LayananNotifikasi() {
     if (_instance == null) {
       Log.info('Membuat instance baru untuk NotifikasiServis (Singleton).');
@@ -31036,18 +31498,16 @@ class LayananNotifikasi {
     }
     return _instance!;
   }
-
   final FlutterLocalNotificationsPlugin plugin;
   final Random _random = Random();
   AndroidNotificationChannel? channelNotifikasiPenting;
   static bool _zonaWaktuTelahDiinisialisasi = false;
   final Set<String> _idNotifikasiTampil = {};
   StreamSubscription<List<NotifikasiModel>>? _langgananNotifikasiFirebase;
-
   LayananNotifikasi._internal() : plugin = FlutterLocalNotificationsPlugin() {
     Log.info('Konstruktor internal NotifikasiServis dipanggil.');
   }
-
+  
   @visibleForTesting
   LayananNotifikasi.testing(this.plugin);
 
@@ -31059,22 +31519,18 @@ class LayananNotifikasi {
       );
       return;
     }
-
     try {
       Log.info('Memulai inisialisasi data zona waktu...');
       tz.initializeTimeZones();
-
       String zonaWaktuLokal =
           (await FlutterTimezone.getLocalTimezone()).identifier;
       Log.info('Zona waktu terdeteksi dari perangkat: $zonaWaktuLokal');
-
       if (zonaWaktuLokal == 'GMT') {
         Log.warning(
           'Zona waktu "GMT" terdeteksi (kemungkinan dari emulator). Menggunakan "Asia/Jakarta" sebagai fallback.',
         );
         zonaWaktuLokal = 'Asia/Jakarta';
       }
-
       tz.Location lokasi;
       try {
         Log.info('Mencari lokasi untuk zona waktu: $zonaWaktuLokal');
@@ -31085,12 +31541,10 @@ class LayananNotifikasi {
         );
         lokasi = tz.UTC;
       }
-
       tz.setLocalLocation(lokasi);
       Log.info(
         'Zona waktu lokal berhasil diatur ke: ${lokasi.name}. Inisialisasi selesai.',
       );
-
       _zonaWaktuTelahDiinisialisasi = true;
     } on Exception catch (e, st) {
       Log.error(
@@ -31103,15 +31557,12 @@ class LayananNotifikasi {
 
   Future<void> inisialisasiNotifikasi({required final String iconName}) async {
     Log.info('Memulai proses inisialisasi NotifikasiServis...');
-
     await _inisialisasiZonaWaktu();
     Log.info('inisialisai');
     await _setupAndroidChannel();
-
     final android = AndroidInitializationSettings(iconName);
     const ios = DarwinInitializationSettings();
     final settings = InitializationSettings(android: android, iOS: ios);
-
     try {
       Log.info('Menginisialisasi plugin flutter_local_notifications.');
       await plugin.initialize(
@@ -31147,7 +31598,6 @@ class LayananNotifikasi {
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
-
     await androidPlugin?.requestNotificationsPermission();
     await androidPlugin?.requestExactAlarmsPermission();
     if (androidPlugin == null) {
@@ -31191,9 +31641,7 @@ class LayananNotifikasi {
 
   void pantauNotifUser(NotifikasiOpFirebase notifikasiOp, String userId) {
     Log.info('Memulai pemantauan notifikasi dari Firebase...');
-
     unawaited(_langgananNotifikasiFirebase?.cancel());
-
     _langgananNotifikasiFirebase = notifikasiOp
         .getByUserId(userId)
         .listen(
@@ -31212,6 +31660,7 @@ class LayananNotifikasi {
                   payload: 'notifikasi_id_${notifikasi.id}',
                 );
                 _idNotifikasiTampil.add(notifikasi.id);
+                await notifikasiOp.softDeleteNotifikasi(notifikasi.id);
               }
             }
           },
@@ -31237,7 +31686,6 @@ class LayananNotifikasi {
         Log.warning('Permintaan izin tidak berlaku untuk platform web.');
         return;
       }
-
       final AndroidFlutterLocalNotificationsPlugin? androidPlugin = plugin
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
@@ -31269,7 +31717,6 @@ class LayananNotifikasi {
     } else {
       Log.info('Aplikasi diluncurkan secara normal (bukan dari notifikasi).');
     }
-
     return details;
   }
 
@@ -31289,7 +31736,6 @@ class LayananNotifikasi {
 
     final int id = payload?.hashCode ?? _random.nextInt(pow(2, 31).toInt());
     Log.info('Mengirim notifikasi langsung (ID: $id, Judul: $title)');
-
     final androidDetails = AndroidNotificationDetails(
       channelNotifikasiPenting!.id,
       channelNotifikasiPenting!.name,
@@ -31298,7 +31744,6 @@ class LayananNotifikasi {
       priority: Priority.high,
     );
     final notificationDetails = NotificationDetails(android: androidDetails);
-
     try {
       await plugin.show(
         id: id,
@@ -31339,9 +31784,7 @@ class LayananNotifikasi {
       );
       return;
     }
-
     Log.info('Merencanakan notifikasi terjadwal (ID: $id) pada waktu: $jadwal');
-
     final androidDetails = AndroidNotificationDetails(
       channelNotifikasiPenting!.id,
       channelNotifikasiPenting!.name,
@@ -31350,7 +31793,6 @@ class LayananNotifikasi {
       priority: Priority.high,
     );
     final notificationDetails = NotificationDetails(android: androidDetails);
-
     try {
       final tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(
         jadwal,
@@ -31359,7 +31801,6 @@ class LayananNotifikasi {
       Log.info(
         'Waktu notifikasi dikonversi ke zona waktu lokal (${tz.local.name}): $scheduledTZDate',
       );
-
       await plugin.zonedSchedule(
         id: id,
         title: judul,
@@ -31392,7 +31833,6 @@ class LayananNotifikasi {
       jadwal: jadwal,
       payload: payload,
     );
-
     Log.info('Pembaruan jadwal selesai dilakukan untuk ID: $id.');
   }
 
@@ -31424,11 +31864,9 @@ class LayananNotifikasi {
 
   Future<bool> pastikanIzinExactAlarm() async {
     if (!Platform.isAndroid) return true;
-
     Log.info('Memeriksa izin SCHEDULE_EXACT_ALARM.');
     final status = await Permission.scheduleExactAlarm.status;
     Log.info('Status izin SCHEDULE_EXACT_ALARM saat ini: $status');
-
     if (status.isGranted) {
       Log.info('Izin SCHEDULE_EXACT_ALARM sudah diberikan.');
       return true;
@@ -31707,7 +32145,7 @@ class NotifikasiOpFirebase {
     return _firestore
         .collection(_koleksi)
         .where(NamaKolom.userId, isEqualTo: userId)
-        .where(NamaKolom.targetRole, isEqualTo: AppRole.user)
+        .where(NamaKolom.targetRole, isEqualTo: AppRole.user.name)
         .where(NamaKolom.dihapus, isEqualTo: false)
         .where(NamaKolom.setatusDibaca, isEqualTo: false)
         .snapshots()
@@ -31735,7 +32173,7 @@ class NotifikasiOpFirebase {
     final now = DateTime.now();
     return _firestore
         .collection(_koleksi)
-        .where(NamaKolom.targetRole, isEqualTo: AppRole.admin)
+        .where(NamaKolom.targetRole, isEqualTo: AppRole.admin.name)
         .where(NamaKolom.tipe, isEqualTo: TipeNotifikasiEnum.order.name)
         .where(NamaKolom.setatusDibaca, isEqualTo: false)
         .where(NamaKolom.dihapus, isEqualTo: false)
@@ -31860,7 +32298,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$NotifikasiModel {
 
- String get id; DateTime get tanggalMulai; DateTime get tanggalBerakhir; DateTime get tanggalTampil; String get judul; String get deskripsi; bool get setatusDibaca; TipeNotifikasiEnum get tipe; DateTime? get diperbaruiPada; String get idTujuan; String get userId; bool get dihapus; DateTime? get diarsipkanPada; AppRole get targetRole;
+ String get id; DateTime get tanggalMulai; DateTime get tanggalBerakhir; DateTime get tanggalTampil; String get judul; String get deskripsi; bool get setatusDibaca; TipeNotifikasiEnum get tipe; DateTime get diperbaruiPada; String get idTujuan; String get userId; bool get dihapus; DateTime? get diarsipkanPada; AppRole get targetRole;
 /// Create a copy of NotifikasiModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -31891,7 +32329,7 @@ abstract mixin class $NotifikasiModelCopyWith<$Res>  {
   factory $NotifikasiModelCopyWith(NotifikasiModel value, $Res Function(NotifikasiModel) _then) = _$NotifikasiModelCopyWithImpl;
 @useResult
 $Res call({
- String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime? diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada, AppRole targetRole
+ String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada, AppRole targetRole
 });
 
 
@@ -31908,7 +32346,7 @@ class _$NotifikasiModelCopyWithImpl<$Res>
 
 /// Create a copy of NotifikasiModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = freezed,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,Object? targetRole = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = null,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,Object? targetRole = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,tanggalMulai: null == tanggalMulai ? _self.tanggalMulai : tanggalMulai // ignore: cast_nullable_to_non_nullable
@@ -31918,8 +32356,8 @@ as DateTime,judul: null == judul ? _self.judul : judul // ignore: cast_nullable_
 as String,deskripsi: null == deskripsi ? _self.deskripsi : deskripsi // ignore: cast_nullable_to_non_nullable
 as String,setatusDibaca: null == setatusDibaca ? _self.setatusDibaca : setatusDibaca // ignore: cast_nullable_to_non_nullable
 as bool,tipe: null == tipe ? _self.tipe : tipe // ignore: cast_nullable_to_non_nullable
-as TipeNotifikasiEnum,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
-as DateTime?,idTujuan: null == idTujuan ? _self.idTujuan : idTujuan // ignore: cast_nullable_to_non_nullable
+as TipeNotifikasiEnum,diperbaruiPada: null == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as DateTime,idTujuan: null == idTujuan ? _self.idTujuan : idTujuan // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
 as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
@@ -32009,7 +32447,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime? diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotifikasiModel() when $default != null:
 return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada,_that.targetRole);case _:
@@ -32030,7 +32468,7 @@ return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalT
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime? diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)  $default,) {final _that = this;
 switch (_that) {
 case _NotifikasiModel():
 return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada,_that.targetRole);case _:
@@ -32050,7 +32488,7 @@ return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalT
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime? diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)?  $default,) {final _that = this;
 switch (_that) {
 case _NotifikasiModel() when $default != null:
 return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada,_that.targetRole);case _:
@@ -32065,7 +32503,7 @@ return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalT
 
 
 class _NotifikasiModel extends NotifikasiModel {
-  const _NotifikasiModel({required this.id, required this.tanggalMulai, required this.tanggalBerakhir, required this.tanggalTampil, required this.judul, required this.deskripsi, this.setatusDibaca = false, required this.tipe, this.diperbaruiPada, required this.idTujuan, required this.userId, this.dihapus = false, this.diarsipkanPada, required this.targetRole}): super._();
+  const _NotifikasiModel({required this.id, required this.tanggalMulai, required this.tanggalBerakhir, required this.tanggalTampil, required this.judul, required this.deskripsi, this.setatusDibaca = false, required this.tipe, required this.diperbaruiPada, required this.idTujuan, required this.userId, this.dihapus = false, this.diarsipkanPada, required this.targetRole}): super._();
   
 
 @override final  String id;
@@ -32076,7 +32514,7 @@ class _NotifikasiModel extends NotifikasiModel {
 @override final  String deskripsi;
 @override@JsonKey() final  bool setatusDibaca;
 @override final  TipeNotifikasiEnum tipe;
-@override final  DateTime? diperbaruiPada;
+@override final  DateTime diperbaruiPada;
 @override final  String idTujuan;
 @override final  String userId;
 @override@JsonKey() final  bool dihapus;
@@ -32113,7 +32551,7 @@ abstract mixin class _$NotifikasiModelCopyWith<$Res> implements $NotifikasiModel
   factory _$NotifikasiModelCopyWith(_NotifikasiModel value, $Res Function(_NotifikasiModel) _then) = __$NotifikasiModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime? diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada, AppRole targetRole
+ String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada, AppRole targetRole
 });
 
 
@@ -32130,7 +32568,7 @@ class __$NotifikasiModelCopyWithImpl<$Res>
 
 /// Create a copy of NotifikasiModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = freezed,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,Object? targetRole = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = null,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,Object? targetRole = null,}) {
   return _then(_NotifikasiModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,tanggalMulai: null == tanggalMulai ? _self.tanggalMulai : tanggalMulai // ignore: cast_nullable_to_non_nullable
@@ -32140,8 +32578,8 @@ as DateTime,judul: null == judul ? _self.judul : judul // ignore: cast_nullable_
 as String,deskripsi: null == deskripsi ? _self.deskripsi : deskripsi // ignore: cast_nullable_to_non_nullable
 as String,setatusDibaca: null == setatusDibaca ? _self.setatusDibaca : setatusDibaca // ignore: cast_nullable_to_non_nullable
 as bool,tipe: null == tipe ? _self.tipe : tipe // ignore: cast_nullable_to_non_nullable
-as TipeNotifikasiEnum,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
-as DateTime?,idTujuan: null == idTujuan ? _self.idTujuan : idTujuan // ignore: cast_nullable_to_non_nullable
+as TipeNotifikasiEnum,diperbaruiPada: null == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as DateTime,idTujuan: null == idTujuan ? _self.idTujuan : idTujuan // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
 as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
@@ -32182,7 +32620,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
     required String deskripsi,
     @Default(false) bool setatusDibaca,
     required TipeNotifikasiEnum tipe,
-    DateTime? diperbaruiPada,
+    required DateTime diperbaruiPada,
     required String idTujuan,
     required String userId,
     @Default(false) bool dihapus,
@@ -32214,7 +32652,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
           ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]) ??
           DateTime.now(),
       tanggalBerakhir:
-          ParserUtil.parseDateTime(map[NamaKolom.tangglBerakhir]) ??
+          ParserUtil.parseDateTime(map[NamaKolom.tanggalBerakhir]) ??
           DateTime.now(),
       judul: map[NamaKolom.judul] as String? ?? '',
       deskripsi: map[NamaKolom.deskripsi] as String? ?? '',
@@ -32242,12 +32680,12 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
     return {
       NamaKolom.id: id,
       NamaKolom.tanggalMulai: tanggalMulai.millisecondsSinceEpoch,
-      NamaKolom.tangglBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
+      NamaKolom.tanggalBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
       NamaKolom.judul: judul,
       NamaKolom.deskripsi: deskripsi,
       NamaKolom.setatusDibaca: setatusDibaca ? 1 : 0,
       NamaKolom.tipe: tipe.name,
-      NamaKolom.diperbaruiPada: diperbaruiPada?.millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada: diperbaruiPada.millisecondsSinceEpoch,
       NamaKolom.idTujuan: idTujuan,
       NamaKolom.targetRole: targetRole.name,
       NamaKolom.userId: userId,
@@ -32268,7 +32706,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
           ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]) ??
           DateTime.now(),
       tanggalBerakhir:
-          ParserUtil.parseDateTime(data[NamaKolom.tangglBerakhir]) ??
+          ParserUtil.parseDateTime(data[NamaKolom.tanggalBerakhir]) ??
           DateTime.now(),
       tanggalTampil:
           ParserUtil.parseDateTime(data[NamaKolom.tanggalTampil]) ??
@@ -32296,12 +32734,12 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
     return {
       NamaKolom.id: id,
       NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai.toUtc()),
-      NamaKolom.tangglBerakhir: Timestamp.fromDate(tanggalBerakhir.toUtc()),
+      NamaKolom.tanggalBerakhir: Timestamp.fromDate(tanggalBerakhir.toUtc()),
       NamaKolom.judul: judul,
       NamaKolom.deskripsi: deskripsi,
       NamaKolom.setatusDibaca: setatusDibaca,
       NamaKolom.tipe: tipe.name,
-      NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada!.toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada.toUtc()),
       NamaKolom.idTujuan: idTujuan,
       NamaKolom.targetRole: targetRole.name,
       NamaKolom.userId: userId,
@@ -33606,8 +34044,10 @@ final layananCekSinkronisasiProvider = Provider<LayananCekSinkronisasi>((ref) {
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
+import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_a.dart';
@@ -33650,28 +34090,28 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
   ];
 
   List<FlSpot> get _currentSpots => switch (_selectedRange) {
-        ChartRange.harian => _dailySpots,
-        ChartRange.mingguan => _weeklySpots,
-        ChartRange.bulanan => _monthlySpots,
-      };
+    ChartRange.harian => _dailySpots,
+    ChartRange.mingguan => _weeklySpots,
+    ChartRange.bulanan => _monthlySpots,
+  };
 
   double get _maxX => switch (_selectedRange) {
-        ChartRange.harian => 6,
-        ChartRange.mingguan => 3,
-        ChartRange.bulanan => 4,
-      };
+    ChartRange.harian => 6,
+    ChartRange.mingguan => 3,
+    ChartRange.bulanan => 4,
+  };
 
   double get _maxY => switch (_selectedRange) {
-        ChartRange.harian => 2,
-        ChartRange.mingguan => 3,
-        ChartRange.bulanan => 6,
-      };
+    ChartRange.harian => 2,
+    ChartRange.mingguan => 3,
+    ChartRange.bulanan => 6,
+  };
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final statistikStateAsync = ref.watch(statistikProvider);
-
+    final pelangganAktif = ref.watch(pelangganAktifProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Dasbor Statistik'), centerTitle: true),
       body: RefreshIndicator(
@@ -33717,7 +34157,10 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                           ),
                         ),
                         title: 'Langganan Aktif',
-                        value: data.totalPelangganAktif.toString(),
+                        value:
+                            pelangganAktif.value?.jumlahPelangganAktif
+                                .toString() ??
+                            '0',
                         icon: TIcons.wifi,
                         color: Colors.green,
                       ),
@@ -33739,7 +34182,12 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                       ),
                       _buildStatCardWrapper(
                         onTap: () {
-                          /* Navigasi ke halaman feedback */
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) => const FeedbackPageA(),
+                            ),
+                          );
                         },
                         title: 'Feedback Baru',
                         value: data.totalFeedback.toString(),
@@ -34090,7 +34538,7 @@ final class StatistikProvider
   Statistik create() => Statistik();
 }
 
-String _$statistikHash() => r'a44c162f2ccfb02046d78fe88200e970689989e3';
+String _$statistikHash() => r'854e783d24242495b2270db228149f12052a6285';
 
 abstract class _$Statistik extends $AsyncNotifier<StatistikState> {
   FutureOr<StatistikState> build();
@@ -34126,14 +34574,12 @@ part 'statistik_provider.g.dart';
 class StatistikState {
   final double totalPendaptanPerbulan;
   final int totalPelanggan;
-  final int totalPelangganAktif;
   final int totalFeedback;
   final List<PaketTerlarisModel> paketTerlaris;
 
   StatistikState({
     this.totalPendaptanPerbulan = 0.0,
     this.totalPelanggan = 0,
-    this.totalPelangganAktif = 0,
     this.totalFeedback = 0,
     this.paketTerlaris = const [],
   });
@@ -34141,7 +34587,6 @@ class StatistikState {
   StatistikState copyWith({
     double? totalPendaptanPerbulan,
     int? totalPelanggan,
-    int? jumlahLanggananAktif,
     int? jumlahFeedbackBaru,
     List<PaketTerlarisModel>? paketTerlaris,
   }) {
@@ -34149,7 +34594,6 @@ class StatistikState {
       totalPendaptanPerbulan:
           totalPendaptanPerbulan ?? this.totalPendaptanPerbulan,
       totalPelanggan: totalPelanggan ?? this.totalPelanggan,
-      totalPelangganAktif: jumlahLanggananAktif ?? totalPelangganAktif,
       totalFeedback: jumlahFeedbackBaru ?? totalFeedback,
       paketTerlaris: paketTerlaris ?? this.paketTerlaris,
     );
@@ -34175,16 +34619,12 @@ class Statistik extends _$Statistik {
       Log.info('[StatistikNotifier] Memulai pemuatan data sekuensial...');
       final pendapatan = await _statistikOpSlite.ambilTotalPendapatan();
       final pelanggan = await _statistikOpSlite.ambilTotalPelanggan();
-      final langgananAktif = await _statistikOpSlite
-          .ambilJumlahLanggananAktif();
       final feedbackBaru = await _statistikOpSlite.ambilTotalFeedback();
       final paketTerlaris = await _statistikOpSlite.ambilPaketTerlaris();
       Log.info('[StatistikNotifier] Semua data sekuensial berhasil dimuat.');
-
       return StatistikState(
         totalPendaptanPerbulan: pendapatan,
         totalPelanggan: pelanggan,
-        totalPelangganAktif: langgananAktif,
         totalFeedback: feedbackBaru,
         paketTerlaris: paketTerlaris,
       );
@@ -34219,7 +34659,6 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
-import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
@@ -34231,7 +34670,6 @@ import 'package:wifi/shared/debug/log.dart';
 final statistikOpSliteProvider = Provider<StatistikOpSqlite>((ref) {
   Log.info('Membuat instance StatistikRepository melalui provider');
   return StatistikOpSqlite(
-    pelangganAktifOpSqlite: ref.watch(pelangganAktifOpSqliteProvider),
     feedbackOpSqlite: ref.watch(feedbackOpSqliteProvider),
     paketOpSqlite: ref.watch(paketOpSqliteProvider),
     transaksiOpSqlite: ref.watch(transaksiOpSqliteProvider),
@@ -34240,18 +34678,15 @@ final statistikOpSliteProvider = Provider<StatistikOpSqlite>((ref) {
 
 /// Repos
 class StatistikOpSqlite {
-  final PelangganAktifOpSqlite _pelangganAktifOpSqlite;
   final FeedbackOpSqlite _statistikOpSliteProvider;
   final PaketOpSqlite _paketOpsqlite;
   final TransaksiOpSqlite _transaksiOpSqlite;
 
   StatistikOpSqlite({
-    required PelangganAktifOpSqlite pelangganAktifOpSqlite,
     required FeedbackOpSqlite feedbackOpSqlite,
     required PaketOpSqlite paketOpSqlite,
     required TransaksiOpSqlite transaksiOpSqlite,
-  }) : _pelangganAktifOpSqlite = pelangganAktifOpSqlite,
-       _statistikOpSliteProvider = feedbackOpSqlite,
+  }) : _statistikOpSliteProvider = feedbackOpSqlite,
        _paketOpsqlite = paketOpSqlite,
        _transaksiOpSqlite = transaksiOpSqlite;
 
@@ -34340,19 +34775,6 @@ class StatistikOpSqlite {
       return jumlah;
     } catch (e, st) {
       Log.error('Gagal mengambil total pelanggan dari SQLite.', e: e, s: st);
-      rethrow;
-    }
-  }
-
-  Future<int> ambilJumlahLanggananAktif() async {
-    Log.info('Mulai mengambil jumlah langganan aktif.');
-    try {
-      final pelangganAktif = await _pelangganAktifOpSqlite.ambilSemua();
-      final jumlah = pelangganAktif.length;
-      Log.info('Jumlah langganan aktif yang dihitung: $jumlah');
-      return jumlah;
-    } catch (e, st) {
-      Log.error('Gagal mengambil jumlah langganan aktif.', e: e, s: st);
       rethrow;
     }
   }
@@ -38134,6 +38556,22 @@ class ParserUtil {
     Log.warning('Format bool tidak dikenali: $value, dianggap false.');
     return false;
   }
+
+  static T? safeParseEnum<T extends Enum>(
+    final List<T> values,
+    final dynamic name,
+  ) {
+    if (name == null || name is! String) {
+      return null;
+    }
+    for (final value in values) {
+      if (value.name == name) {
+        return value;
+      }
+    }
+    Log.warning('Gagal mengurai enum untuk tipe $T', name);
+    return null;
+  }
 }
 
 
@@ -41157,6 +41595,54 @@ final class PelangganOpFirebaseProvider
 String _$pelangganOpFirebaseHash() =>
     r'85c60ee6a0d443fa221156a31754b591a709f822';
 
+@ProviderFor(pelangganAktifOpFirebase)
+final pelangganAktifOpFirebaseProvider = PelangganAktifOpFirebaseProvider._();
+
+final class PelangganAktifOpFirebaseProvider
+    extends
+        $FunctionalProvider<
+          PelangganAktifOpFirebase,
+          PelangganAktifOpFirebase,
+          PelangganAktifOpFirebase
+        >
+    with $Provider<PelangganAktifOpFirebase> {
+  PelangganAktifOpFirebaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pelangganAktifOpFirebaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$pelangganAktifOpFirebaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<PelangganAktifOpFirebase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  PelangganAktifOpFirebase create(Ref ref) {
+    return pelangganAktifOpFirebase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PelangganAktifOpFirebase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PelangganAktifOpFirebase>(value),
+    );
+  }
+}
+
+String _$pelangganAktifOpFirebaseHash() =>
+    r'a359e0cfd17fb0db29f261891e1f0c3aca4aedfc';
+
 @ProviderFor(paketOpFirebase)
 final paketOpFirebaseProvider = PaketOpFirebaseProvider._();
 
@@ -41391,6 +41877,7 @@ import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
+import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_firebase.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -41450,6 +41937,14 @@ PelangganOpFirebase pelangganOpFirebase(Ref ref) {
     firestore: firestoreInstance,
     baseOpFirebase: baseOp,
   );
+}
+
+@Riverpod(keepAlive: true)
+PelangganAktifOpFirebase pelangganAktifOpFirebase(Ref ref) {
+  final firestoreInstance = ref.watch(firestoreProvider);
+  final baseOp = ref.watch(baseOpFirebaseProvider);
+
+  return PelangganAktifOpFirebase(firestore: firestoreInstance, baseOp: baseOp);
 }
 
 @Riverpod(keepAlive: true)
@@ -42246,7 +42741,7 @@ abstract final class NamaKolom {
   static const String durasiPaket = 'package_duration';
   static const String tipeDurasiPaket = 'duration_type';
   static const String tanggalMulai = 'start_date';
-  static const String tangglBerakhir = 'end_date';
+  static const String tanggalBerakhir = 'end_date';
   static const String statusAktivasi = 'is_activated';
   static const String harga = 'price';
   static const String durasi = 'duration';
@@ -43085,9 +43580,9 @@ class FirebaseMigrationService {
       'tanggalMulai': NamaKolom.tanggalMulai,
       'TanggalMulai': NamaKolom.tanggalMulai,
       'tanggal_mulai': NamaKolom.tanggalMulai,
-      'tanggalBerakhir': NamaKolom.tangglBerakhir,
-      'TanggalBerakhir': NamaKolom.tangglBerakhir,
-      'tanggal_berakhir': NamaKolom.tangglBerakhir,
+      'tanggalBerakhir': NamaKolom.tanggalBerakhir,
+      'TanggalBerakhir': NamaKolom.tanggalBerakhir,
+      'tanggal_berakhir': NamaKolom.tanggalBerakhir,
       'status': NamaKolom.status,
       'diperbarui': NamaKolom.diperbaruiPada,
       'diarsipkan': NamaKolom.diarsipkanPada,
@@ -43112,10 +43607,10 @@ class FirebaseMigrationService {
       'durasi_paket': NamaKolom.durasiPaket,
       'tipe_durasi_paket': NamaKolom.tipeDurasiPaket,
       'TanggalMulai': NamaKolom.tanggalMulai,
-      'tanggal_berakhir': NamaKolom.tangglBerakhir,
+      'tanggal_berakhir': NamaKolom.tanggalBerakhir,
       'aktivasi_paket': NamaKolom.statusAktivasi,
       'tanggalMulai': NamaKolom.tanggalMulai,
-      'tanggalBerakhir': NamaKolom.tangglBerakhir,
+      'tanggalBerakhir': NamaKolom.tanggalBerakhir,
       'tipeDuraisiPaket': NamaKolom.tipeDurasiPaket,
       'tipeDurasiPaket': NamaKolom.tipeDurasiPaket,
       'aktivasiPaket': NamaKolom.statusAktivasi,
@@ -43716,6 +44211,7 @@ class DataDummy {
       idPelanggan: customerBudiId,
       idPaket: paketHematId,
       tanggal: DateTime.now().subtract(const Duration(hours: 2)),
+      status: StatusOrderEnum.baru,
     ),
     OrderModel(
       id: 'ORD-002',
@@ -43831,6 +44327,8 @@ class DataDummy {
       tanggal: DateTime.now(),
       idPelanggan: customerBudiId,
       idPaket: paketHematId,
+      tanggalMulai: null,
+      tanggalBerakhir: null,
     ),
     TransaksiModel(
       id: transactionSitiId,
@@ -43842,6 +44340,8 @@ class DataDummy {
       tanggal: DateTime.now().subtract(const Duration(days: 1)),
       idPelanggan: customerSitiId,
       idPaket: paketPremiumId,
+      tanggalMulai: null,
+      tanggalBerakhir: null,
     ),
   ];
 
@@ -43855,6 +44355,7 @@ class DataDummy {
       tanggalBerakhir: DateTime.now().add(const Duration(days: 20)),
       status: StatusPembayaran.paid,
       idTransaksi: transactionBudiId,
+      diperbaruiPada: DateTime.now().toUtc(),
     ),
     PelangganAktifModel(
       id: activeCustomerSitiId,
@@ -43864,6 +44365,7 @@ class DataDummy {
       tanggalBerakhir: DateTime.now().add(const Duration(days: 25)),
       status: StatusPembayaran.paid,
       idTransaksi: transactionSitiId,
+      diperbaruiPada: DateTime.now().toUtc(),
     ),
   ];
 
@@ -45193,7 +45695,7 @@ class SqliteDatabase {
       ${NamaKolom.durasiBonus} INTEGER,
       ${NamaKolom.tipeDurasiBonus} TEXT,
       ${NamaKolom.tanggalMulai} INTEGER,
-      ${NamaKolom.tangglBerakhir} INTEGER,
+      ${NamaKolom.tanggalBerakhir} INTEGER,
       ${NamaKolom.statusAktivasi} INTEGER DEFAULT 0
     )
   ''';
@@ -45314,7 +45816,7 @@ class SqliteDatabase {
       ${NamaKolom.idPaket} TEXT NOT NULL,
       ${NamaKolom.idTransaksi} TEXT,
       ${NamaKolom.tanggalMulai} INTEGER,
-      ${NamaKolom.tangglBerakhir} INTEGER,
+      ${NamaKolom.tanggalBerakhir} INTEGER,
       ${NamaKolom.status} TEXT NOT NULL,
       ${NamaKolom.diperbaruiPada} INTEGER,
       ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
