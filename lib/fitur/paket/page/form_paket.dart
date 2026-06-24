@@ -15,6 +15,7 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_angka.dart';
+import 'package:wifi/shared/widget/input/input_teks.dart';
 import 'package:wifi/shared/widget/thousands_input_formatter.dart';
 
 /// Halaman form untuk menambah atau mengedit paket.
@@ -37,8 +38,8 @@ class _PackageFormState extends ConsumerState<FormPaket> {
   final _durasiController = TextEditingController();
   final _poinHadiahcontroller = TextEditingController();
   final _poinPenukaranController = TextEditingController();
-  final _nameFocusNode = FocusNode();
-  final _priceFocusNode = FocusNode();
+  final _namsFocusNode = FocusNode();
+  final _hargaFocusNode = FocusNode();
   final _durasiFocusNode = FocusNode();
   final _poinHadiahFocusNode = FocusNode();
   final _poinPenukaranFocusNode = FocusNode();
@@ -147,45 +148,19 @@ class _PackageFormState extends ConsumerState<FormPaket> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                TextFormField(
+                InputTeks(
                   controller: _namaController,
-                  focusNode: _nameFocusNode,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(labelText: 'Nama Paket'),
-                  validator: (v) {
-                    if (v == null || v.isEmpty) {
-                      return 'Nama paket tidak boleh kosong';
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (_) {
-                    FocusScope.of(context).requestFocus(_priceFocusNode);
-                  },
+                  focusNode: _namsFocusNode,
+                  nextFocusNode: _hargaFocusNode,
+                  label: 'Nama Paket',
                 ),
+
                 gapH12,
-                TextFormField(
+                InputAngka(
                   controller: _hargaController,
-                  focusNode: _priceFocusNode,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(labelText: 'Harga'),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    ThousandsAndNegativeInputFormatter(),
-                  ],
-                  validator: (final value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Harga tidak boleh kosong';
-                    }
-                    if (int.tryParse(value.replaceAll(RegExp(r'[^0-9]'), '')) ==
-                        null) {
-                      return 'Harga harus berupa angka';
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (final _) {
-                    FocusScope.of(context).requestFocus(_durasiFocusNode);
-                  },
+                  focusNode: _hargaFocusNode,
+                  label: 'Harga',
+                  nextFocusNode: _durasiFocusNode,
                 ),
                 gapH12,
                 InputAngka(
@@ -208,28 +183,9 @@ class _PackageFormState extends ConsumerState<FormPaket> {
                   focusNode: _poinPenukaranFocusNode,
                   nextFocusNode: _poinPenukaranFocusNode,
                   label: 'Poin Hadiah',
-                ),
-                TextFormField(
-                  controller: _poinPenukaranController,
-                  focusNode: _poinPenukaranFocusNode,
                   textInputAction: TextInputAction.done,
-                  decoration: const InputDecoration(
-                    labelText: 'Poin Penukaran',
-                  ),
-                  keyboardType: TextInputType.number,
-                  validator: (final value) {
-                    if (value == null || value.isEmpty) {
-                      return null;
-                    }
-                    if (int.tryParse(value) == null) {
-                      return 'Poin penukaran harus angka';
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (_) {
-                    FocusScope.of(context).unfocus();
-                  },
                 ),
+
                 gapH16,
                 DropdownButtonFormField<TipeDurasiPaket>(
                   initialValue: _selectedType,
@@ -291,8 +247,8 @@ class _PackageFormState extends ConsumerState<FormPaket> {
     _durasiController.dispose();
     _poinHadiahcontroller.dispose();
     _poinPenukaranController.dispose();
-    _nameFocusNode.dispose();
-    _priceFocusNode.dispose();
+    _namsFocusNode.dispose();
+    _hargaFocusNode.dispose();
     _durasiFocusNode.dispose();
     _poinHadiahFocusNode.dispose();
     _poinPenukaranFocusNode.dispose();

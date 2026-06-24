@@ -8,7 +8,6 @@ class InputAngka extends StatelessWidget {
   final String label;
   final bool wajib;
   final IconData? prefixIcon;
-  final bool? validasi;
   final TextInputAction textInputAction;
   final bool enabled;
   final TextInputType keyboardType;
@@ -23,7 +22,6 @@ class InputAngka extends StatelessWidget {
     this.label = 'Jumlah',
     this.wajib = true,
     this.prefixIcon,
-    this.validasi = false,
     this.textInputAction = TextInputAction.next,
     this.enabled = true,
     this.keyboardType = TextInputType.number,
