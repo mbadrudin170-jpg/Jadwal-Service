@@ -25,12 +25,14 @@ import 'package:wifi/user/providers/user_provider.dart';
 class _DaataProfil {
   final PelangganModel pelanggan;
   final int totalPoin;
+  final double totalTagihanBelumLunas;
   final TransaksiModel? transaksi;
   final PaketModel? paket;
 
   _DaataProfil({
     required this.pelanggan,
     required this.totalPoin,
+    required this.totalTagihanBelumLunas,
     this.transaksi,
     this.paket,
   });
@@ -87,6 +89,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       Log.info(
         'Total poin diambil: $totalPoin. Langganan aktif ditemukan: ${daftarPaketAktif.length}.',
       );
+      final totalTagihanBelumLunas = daftarPaketAktif
+          .where((trx) => trx.statusPembayaran == StatusPembayaran.unpaid)
+          .fold<double>(0.0, (sum, trx) => sum + trx.jumlah);
+
       final sekarang = DateTime.now();
       final daftarMasihAktif = daftarPaketAktif
           .where(
@@ -118,6 +124,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         pelanggan: pelanggan,
         totalPoin: totalPoin,
         transaksi: paketAktif,
+        totalTagihanBelumLunas: totalTagihanBelumLunas,
         paket: paket,
       );
     } on Exception catch (e, st) {
@@ -193,6 +200,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       trailingIcon: TIcons.chevronRight,
                       onTap: () => _navigasiKePoin(pelanggan.id),
                     ),
+                    if (profileData.totalTagihanBelumLunas > 0)
+                      _InfoItem(
+                        icon: TIcons.money,
+                        label: 'Tagihan Belum Lunas',
+                        value: FormatUang.formatMataUang(
+                          profileData.totalTagihanBelumLunas,
+                        ),
+                        valueColor: Colors.red,
+                      ),
                   ],
                 ),
                 gapH16,

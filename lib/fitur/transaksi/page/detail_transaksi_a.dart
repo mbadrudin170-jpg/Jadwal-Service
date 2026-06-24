@@ -1,5 +1,7 @@
 // path lib/fitur/transaksi/page/detail_transaksi_a.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
@@ -43,7 +45,6 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
   );
 
   late TransaksiModel _currentTransaction;
-  bool _diUpdate = false;
 
   @override
   void initState() {
@@ -86,7 +87,6 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
         builder: (context) => FormTransaksi(transaksi: _currentTransaction),
       ),
     );
-
     if (isSaved ?? false) {
       Log.info(
         'Form edit melaporkan keberhasilan penyimpanan. Memuat ulang data transaksi dari database.',
@@ -96,18 +96,16 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
         final transaksi = await transaksiOpSqlite.ambilBerdasarkanId(
           _currentTransaction.id,
         );
-
         if (transaksi != null) {
           Log.info('Berhasil memuat data transaksi terbaru. Memperbarui UI.');
           setState(() {
             _currentTransaction = transaksi;
-            _diUpdate = true;
           });
         } else {
           Log.warning(
             'Gagal memuat ulang transaksi: data tidak ditemukan setelah update.',
           );
-          if (mounted) Navigator.pop(context, true);
+          if (mounted) Navigator.pop(context);
         }
       } catch (e, s) {
         Log.error(
@@ -145,20 +143,22 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
     );
     if (konfirmasi != true) return;
     if (!mounted) return;
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: Card(
-          child: Padding(
-            padding: EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Menghapus transaksi...'),
-              ],
+    unawaited(
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Menghapus transaksi...'),
+                ],
+              ),
             ),
           ),
         ),
@@ -171,17 +171,13 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
       if (mounted) {
         Navigator.pop(context); // Tutup loading dialog
         ToastUtil.success(context, 'Transaksi berhasil dihapus');
-        Navigator.pop(context, true); // Tutup halaman detail
+        Navigator.pop(context); // Tutup halaman detail
       }
     } catch (e, st) {
       if (mounted) {
         Navigator.pop(context); // Tutup loading dialog
         ToastUtil.error(context, 'Gagal menghapus transaksi');
         Log.error('Gagal menghapus transaksi', e: e, s: st);
-      }
-    } finally {
-      if (mounted) {
-        Navigator.pop(context);
       }
     }
   }
@@ -192,10 +188,6 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail Transaksi'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context, _diUpdate),
-        ),
         actions: [
           IconButton(
             onPressed: _softDeleteTransaksi,
