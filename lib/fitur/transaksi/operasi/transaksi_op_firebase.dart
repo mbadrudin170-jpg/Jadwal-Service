@@ -133,7 +133,6 @@ class TransaksiOpFirebase extends BaseOpFirebase {
             isEqualTo: StatusPembayaran.paid.name,
           )
           .get();
-
       int totalPoin = 0;
       for (final doc in querySnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
