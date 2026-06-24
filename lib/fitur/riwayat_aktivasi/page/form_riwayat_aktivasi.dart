@@ -4,11 +4,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -16,17 +16,17 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-class FromRiwayatAktivasi extends ConsumerStatefulWidget {
+class FormRiwayatAktivasi extends ConsumerStatefulWidget {
   final TransaksiModel transaksi;
 
-  const FromRiwayatAktivasi({super.key, required this.transaksi});
+  const FormRiwayatAktivasi({super.key, required this.transaksi});
 
   @override
-  ConsumerState<FromRiwayatAktivasi> createState() =>
-      _SubscriptionHistoryFormState();
+  ConsumerState<FormRiwayatAktivasi> createState() =>
+      _FormRiwayatAktivasiState();
 }
 
-class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
+class _FormRiwayatAktivasiState extends ConsumerState<FormRiwayatAktivasi> {
   final _formKey = GlobalKey<FormState>();
 
   late DateTime _tanggalMulai;
@@ -96,12 +96,17 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
       Log.warning('Form tidak valid, penyimpanan dibatalkan.');
       return;
     }
+    if (_tanggalBerakhir.isBefore(_tanggalMulai)) {
+      Log.warning('Tanggal berakhir mendahului tanggal mulai.');
+      ToastUtil.error(
+        context,
+        'Tanggal berakhir tidak boleh sebelum tanggal mulai!',
+      );
+      return;
+    }
     if (!mounted) return;
-
     Log.info('Menyimpan perubahan untuk transaksi ID: ${widget.transaksi.id}');
-
-    // Mengakses dependency melalui Riverpod's ref
-    final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
+    final transaksiOpSqlite = ref.read(transaksiProvider.notifier);
     final layananNotifikasi = ref.read(layananNotifikasiProvider);
 
     try {
@@ -111,13 +116,8 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
         statusPembayaran: _statusPembayaran,
         diperbaruiPada: DateTime.now(),
       );
-
-      await transaksiOpSqlite.perbaruiTransaksi(
-        widget.transaksi.id,
-        updateTransaksi,
-      );
+      await transaksiOpSqlite.updateTransaksi(updateTransaksi);
       Log.info('Transaksi berhasil diperbarui di database.');
-      ref.invalidate(transaksiOpSqliteProvider);
       await _handleExpiryNotification(
         layananNotifikasi: layananNotifikasi,
         statusSebelumnya: widget.transaksi.statusPembayaran,

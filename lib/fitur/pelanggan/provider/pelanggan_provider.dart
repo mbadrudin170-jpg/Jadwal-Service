@@ -23,9 +23,9 @@ abstract class PelangganState with _$PelangganState {
 @Riverpod(keepAlive: true)
 class Pelanggan extends _$Pelanggan {
   PelangganOpSqlite get pelangganOpSqlite =>
-      ref.watch(pelangganOpSqliteProvider);
+      ref.read(pelangganOpSqliteProvider);
   SQLitePointsDataSource get poinDataSource =>
-      ref.watch(sqlitePointsDataSourceProvider);
+      ref.read(sqlitePointsDataSourceProvider);
 
   @override
   FutureOr<PelangganState> build() {
@@ -34,22 +34,23 @@ class Pelanggan extends _$Pelanggan {
 
   Future<PelangganState> _ambilData() async {
     final hasil = await pelangganOpSqlite.ambilSemua();
-    double totalPoin = 0;
+    int totalPoinSistem = 0;
     for (final pelanggan in hasil) {
-      totalPoin += await poinDataSource.ambilTotalPoin(pelanggan.id);
+      final poin = await poinDataSource.ambilTotalPoin(pelanggan.id);
+      totalPoinSistem += poin;
     }
     return PelangganState(
       daftarPelanggan: hasil,
       jumlahPelanggan: hasil.length,
-      totalPoin: totalPoin.toInt(),
+      totalPoin: totalPoinSistem, 
     );
   }
 
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
+    state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.tambahPelanggan(pelanggan);
-      ref.invalidate(pelangganDetailProvider);
-      ref.invalidateSelf();
+      // Tidak perlu meng-invalidate detail karena ini pelanggan baru
       return _ambilData();
     });
   }
@@ -57,20 +58,23 @@ class Pelanggan extends _$Pelanggan {
   Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
-      ref.invalidate(pelangganDetailProvider);
-      ref.invalidateSelf();
+      _invalidateDetailPelanggan(
+        pelanggan.id,
+      ); // PERBAIKAN 2: Kirimkan ID yang spesifik
       return _ambilData();
     });
-    
   }
 
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.softDelete(id);
-      ref.invalidate(pelangganDetailProvider);
-      ref.invalidateSelf();
+      _invalidateDetailPelanggan(id); // PERBAIKAN 2: Kirimkan ID yang spesifik
       return _ambilData();
     });
+  }
+
+  void _invalidateDetailPelanggan(String id) {
+    ref.invalidate(pelangganDetailProvider(id));
   }
 
   Future<void> refresh() async {
@@ -94,10 +98,6 @@ class UrutanPelangganState extends _$UrutanPelangganState {
   }
 }
 
-/// =========================================================================
-/// TULIS DI SINI (Bagian paling bawah file pelanggan_provider.dart)
-/// =========================================================================
-
 /// Provider generator modern untuk status mode pencarian aktif/tidak
 @riverpod
 class IsSearchingPelanggan extends _$IsSearchingPelanggan {
@@ -119,10 +119,12 @@ class SearchQueryPelanggan extends _$SearchQueryPelanggan {
 }
 
 @riverpod
+// PERBAIKAN 4: Mengubah tipe Ref menjadi PelangganDetailRef (Wajib bagi riverpod generator)
 Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
   final pelangganOpSqlte = ref.watch(pelangganOpSqliteProvider);
   final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
   final pelanggan = await pelangganOpSqlte.ambilBerdasarkanId(id);
   final poin = await transaksiOpSqlite.ambilTotalPoin(id);
+
   return (pelanggan, poin);
 }

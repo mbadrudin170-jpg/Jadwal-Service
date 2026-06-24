@@ -2,23 +2,27 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
-/// Widget yang menampilkan nama pelanggan berdasarkan ID dari dua sumber data.
-///
-/// Secara default, mengambil data dari SQLite. Jika [pakaiFirebase] diatur ke true,
-/// maka akan mengambil data dari Firebase secara real-time.
+part 'nama_pelanggan_widget.g.dart';
+
+@riverpod
+Future<PelangganModel?> namaPelangganSqlite(Ref ref, String id) {
+  return ref.watch(pelangganOpSqliteProvider).ambilBerdasarkanId(id);
+}
+
+@riverpod
+Stream<PelangganModel?> namaPelangganFirebase(Ref ref, String id) {
+  return ref.watch(pelangganOpFirebaseProvider).ambilStreamBerdasarkanId(id);
+}
+
 class NamaPelangganWidget extends ConsumerWidget {
-  /// ID pelanggan yang akan dicari namanya.
   final String idPelanggan;
-
-  /// Gaya teks opsional untuk nama yang ditampilkan.
   final TextStyle? style;
-
-  /// Tentukan `true` untuk menggunakan Firebase, `false` (default) untuk SQLite.
   final bool pakaiFirebase;
 
   const NamaPelangganWidget({
@@ -30,82 +34,35 @@ class NamaPelangganWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (pakaiFirebase) {
-      return _buildFromFirebase(ref);
-    }
-    return _buildFromSqlite(ref);
-  }
-
-  /// Membangun widget menggunakan data dari Firebase (Stream).
-  Widget _buildFromFirebase(WidgetRef ref) {
-    final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
-    return StreamBuilder<PelangganModel?>(
-      stream: customerOpFirebase.ambilStreamBerdasarkanId(idPelanggan),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text('...', style: style);
-        }
-        if (snapshot.hasError) {
-          Log.error(
-            'Error di CustomerNameWidget (Firebase) untuk ID: $idPelanggan',
-            e: snapshot.error,
-            s: snapshot.stackTrace,
-          );
-          return Text(
-            'Error',
-            style:
-                style ??
-                const TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
-          );
-        }
-        if (snapshot.hasData && snapshot.data != null) {
-          return Text(
-            snapshot.data!.nama,
-            style: style,
-            overflow: TextOverflow.ellipsis,
-          );
-        }
+    final asyncPelanggan = pakaiFirebase
+        ? ref.watch(namaPelangganFirebaseProvider(idPelanggan))
+        : ref.watch(namaPelangganSqliteProvider(idPelanggan));
+    return asyncPelanggan.when(
+      loading: () => Text('...', style: style),
+      error: (error, stack) {
+        Log.error(
+          'Error di NamaPelangganWidget (${pakaiFirebase ? "Firebase" : "SQLite"}) untuk ID: $idPelanggan',
+          e: error,
+          s: stack,
+        );
         return Text(
-          'N/A',
+          'Error',
           style:
               style ??
-              const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+              const TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
         );
       },
-    );
-  }
-
-  /// Membangun widget menggunakan data dari SQLite (Future).
-  Widget _buildFromSqlite(WidgetRef ref) {
-    final customerOperation = ref.read(pelangganOpSqliteProvider);
-    return FutureBuilder<PelangganModel?>(
-      future: customerOperation.ambilBerdasarkanId(idPelanggan),
-      builder: (final context, final snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text('...', style: style);
-        }
-        if (snapshot.hasError) {
-          Log.error(
-            'Error di CustomerNameWidget (SQLite) untuk ID: $idPelanggan',
-            e: snapshot.error,
-            s: snapshot.stackTrace,
-          );
+      data: (pelanggan) {
+        if (pelanggan != null) {
           return Text(
-            'Error',
-            style:
-                style ??
-                const TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
-          );
-        }
-        if (snapshot.hasData && snapshot.data != null) {
-          return Text(
-            snapshot.data!.nama,
+            pelanggan.nama,
             style: style,
             overflow: TextOverflow.ellipsis,
           );
         }
+
         return Text(
-          'Pelanggan tidak ditemukan',
+          pakaiFirebase ? 'N/A' : 'Pelanggan tidak ditemukan',
           style:
               style ??
               const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),

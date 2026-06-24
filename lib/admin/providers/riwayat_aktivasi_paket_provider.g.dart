@@ -38,7 +38,7 @@ final class RiwayatAktivasiPaketProvider
 }
 
 String _$riwayatAktivasiPaketHash() =>
-    r'848c55cea1eabe76cf3717e2e16d428f5a31f4f7';
+    r'600ba939b7c921dbdd7139b3e9f600148d5d3c6b';
 
 abstract class _$RiwayatAktivasiPaket
     extends $AsyncNotifier<RiwayatAktivasiPaketState> {

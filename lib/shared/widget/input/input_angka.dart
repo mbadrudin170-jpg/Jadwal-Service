@@ -20,7 +20,7 @@ class InputAngka extends StatelessWidget {
   const InputAngka({
     super.key,
     required this.controller,
-    this.label = 'Nomor Telepon',
+    this.label = 'Jumlah',
     this.wajib = true,
     this.prefixIcon,
     this.validasi = false,
@@ -42,14 +42,15 @@ class InputAngka extends StatelessWidget {
       textInputAction: textInputAction,
       enabled: enabled,
       focusNode: focusNode,
-      
       onTapOutside: (event) => FocusScope.of(context).unfocus(),
       onFieldSubmitted: (v) {
         if (onSubmitted != null) {
           onSubmitted!(v);
         }
-        if (nextFocusNode != null) {
+        if (textInputAction == TextInputAction.done && nextFocusNode != null) {
           FocusScope.of(context).requestFocus(nextFocusNode);
+        } else if (textInputAction == TextInputAction.done) {
+          FocusScope.of(context).unfocus();
         }
       },
       inputFormatters: [
@@ -65,10 +66,14 @@ class InputAngka extends StatelessWidget {
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
       ),
       validator: (value) {
-        if (wajib && validasi! && (value == null || value.trim().isEmpty)) {
-          return '$label wajib diisi';
+        final cleanValue = (value ?? '').replaceAll('.', '').trim();
+        if (cleanValue.isEmpty) {
+          if (wajib) {
+            return '$label wajib diisi';
+          }
+          return null;
         }
-        final angka = int.tryParse(value ?? '');
+        final angka = int.tryParse(cleanValue);
         if (angka == null) {
           return '$label harus berupa angka';
         }

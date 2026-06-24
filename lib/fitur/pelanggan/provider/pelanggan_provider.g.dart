@@ -33,7 +33,7 @@ final class PelangganProvider
   Pelanggan create() => Pelanggan();
 }
 
-String _$pelangganHash() => r'b7b8a20a640545395fad4c4f9dd5505010daec97';
+String _$pelangganHash() => r'2e607690faf7c42f121d7cf13834deb5496c67c9';
 
 abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   FutureOr<PelangganState> build();
@@ -112,23 +112,14 @@ abstract class _$UrutanPelangganState extends $Notifier<UrutanPelanggan> {
   }
 }
 
-/// =========================================================================
-/// TULIS DI SINI (Bagian paling bawah file pelanggan_provider.dart)
-/// =========================================================================
 /// Provider generator modern untuk status mode pencarian aktif/tidak
 
 @ProviderFor(IsSearchingPelanggan)
 final isSearchingPelangganProvider = IsSearchingPelangganProvider._();
 
-/// =========================================================================
-/// TULIS DI SINI (Bagian paling bawah file pelanggan_provider.dart)
-/// =========================================================================
 /// Provider generator modern untuk status mode pencarian aktif/tidak
 final class IsSearchingPelangganProvider
     extends $NotifierProvider<IsSearchingPelanggan, bool> {
-  /// =========================================================================
-  /// TULIS DI SINI (Bagian paling bawah file pelanggan_provider.dart)
-  /// =========================================================================
   /// Provider generator modern untuk status mode pencarian aktif/tidak
   IsSearchingPelangganProvider._()
     : super(
@@ -160,9 +151,6 @@ final class IsSearchingPelangganProvider
 String _$isSearchingPelangganHash() =>
     r'38724895cc23955136de503eb511810c7092933f';
 
-/// =========================================================================
-/// TULIS DI SINI (Bagian paling bawah file pelanggan_provider.dart)
-/// =========================================================================
 /// Provider generator modern untuk status mode pencarian aktif/tidak
 
 abstract class _$IsSearchingPelanggan extends $Notifier<bool> {

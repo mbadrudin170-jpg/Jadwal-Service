@@ -36,8 +36,8 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
         final paket = data.paket;
         final warnaStatusPembayaran =
             transaksi?.statusPembayaran == StatusPembayaran.paid
-                ? Colors.green
-                : Colors.red;
+            ? Colors.green
+            : Colors.red;
 
         return Scaffold(
           appBar: AppBar(
@@ -50,7 +50,7 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          FromRiwayatAktivasi(transaksi: transaksi!),
+                          FormRiwayatAktivasi(transaksi: transaksi!),
                     ),
                   );
                 },
@@ -69,12 +69,12 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                   onTap: pelanggan == null
                       ? null
                       : () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (context) =>
-                                  DetailPelanggan(idPelanggan: pelanggan.id),
-                            ),
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (context) =>
+                                DetailPelanggan(idPelanggan: pelanggan.id),
                           ),
+                        ),
                   children: [
                     _buildRow(
                       'Nama Pelanggan',
@@ -90,11 +90,11 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                   onTap: paket == null
                       ? null
                       : () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (context) => DetailPaketPage(paket: paket),
-                            ),
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (context) => DetailPaketPage(paket: paket),
                           ),
+                        ),
                   children: [
                     _buildRow('Nama Paket', paket?.nama ?? 'Tidak Diketahui'),
                     _buildRow(

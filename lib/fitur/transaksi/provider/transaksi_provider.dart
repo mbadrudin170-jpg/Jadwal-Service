@@ -20,14 +20,14 @@ abstract class TransaksiState with _$TransaksiState {
     @Default(0.0) double totalPemasukan,
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
-    @Default(0) int totalPoinSemuaPelanggan, // ✅ Ganti nama agar jelas
+    @Default(0) int totalPoinSemuaPelanggan,
   }) = _TransaksiState;
 }
 
 @riverpod
 class Transaksi extends _$Transaksi {
   TransaksiOpSqlite get _transaksiOpSqlite =>
-      ref.watch(transaksiOpSqliteProvider);
+      ref.read(transaksiOpSqliteProvider);
 
   @override
   FutureOr<TransaksiState> build() {
@@ -68,7 +68,6 @@ class Transaksi extends _$Transaksi {
     return hasil;
   }
 
-  // ✅ Method untuk ambil poin banyak pelanggan dengan Future.wait (lebih cepat)
   Future<List<int>> getTotalPoinBanyakPelangganParallel(
     List<String> ids,
   ) async {
@@ -79,11 +78,9 @@ class Transaksi extends _$Transaksi {
   }
 
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
-    state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.tambahTransaksi(transaksi);
-      ref.invalidate(dompetProvider);
-      ref.invalidate(statistikProvider);
+      _invalidateSistemTerkait();
       return _loadData();
     });
   }
@@ -91,8 +88,7 @@ class Transaksi extends _$Transaksi {
   Future<void> updateTransaksi(TransaksiModel transaksi) async {
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.perbaruiTransaksi(transaksi.id, transaksi);
-      ref.invalidate(dompetProvider);
-      ref.invalidate(statistikProvider);
+      _invalidateSistemTerkait();
       return _loadData();
     });
   }
@@ -100,8 +96,7 @@ class Transaksi extends _$Transaksi {
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.softDelete(id);
-      ref.invalidate(dompetProvider);
-      ref.invalidate(statistikProvider);
+      _invalidateSistemTerkait();
       return _loadData();
     });
   }
@@ -109,8 +104,7 @@ class Transaksi extends _$Transaksi {
   Future<void> softDeleteAll() async {
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.softDeleteAll();
-      ref.invalidate(dompetProvider);
-      ref.invalidate(statistikProvider);
+      _invalidateSistemTerkait();
       return _loadData();
     });
   }
@@ -118,5 +112,10 @@ class Transaksi extends _$Transaksi {
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(_loadData);
+  }
+
+  void _invalidateSistemTerkait() {
+    ref.invalidate(dompetProvider);
+    ref.invalidate(statistikProvider);
   }
 }
