@@ -152,6 +152,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             poinDigunakan: hadiah.poinPenukaran,
             tanggalMulai: sekarang,
             tanggalBerakhir: tanggalBerakhir,
+            idPelanggan: dataPelanggan.id,
           );
           final dataPesanan = OrderModel(
             id: idOrder,

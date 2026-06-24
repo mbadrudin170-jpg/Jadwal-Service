@@ -244,12 +244,15 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         jumlah: jumlah,
         tanggal: combinedDateTime,
         tipe: _tipe,
-        idDompet: _dompetDipilih!.id,
+        idDompet: _dompetDipilih?.id ?? '',
         idDompetTujuan: _tipe == TipeTransaksi.transfer
             ? _dompetTujuanDipilih?.id
             : null,
         idKategori: _kategoriDipilih?.id ?? '',
         tanggalMulai: null,
+        tanggalBerakhir: null,
+        idPelanggan: null,
+        idPaket: null,
         idSubKategori: _subKategoriDipilih?.id,
       );
 

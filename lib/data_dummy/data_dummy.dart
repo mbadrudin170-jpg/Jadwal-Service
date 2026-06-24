@@ -166,6 +166,7 @@ class DataDummy {
       idPelanggan: customerBudiId,
       idPaket: paketHematId,
       tanggalMulai: null,
+      tanggalBerakhir: null,
     ),
     TransaksiModel(
       id: transactionSitiId,
@@ -178,6 +179,7 @@ class DataDummy {
       idPelanggan: customerSitiId,
       idPaket: paketPremiumId,
       tanggalMulai: null,
+      tanggalBerakhir: null,
     ),
   ];
 

@@ -25,8 +25,8 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
     required String idDompet,
     required String idKategori,
     String? idDompetTujuan,
-    String? idPelanggan,
-    String? idPaket,
+    required String? idPelanggan,
+    required String? idPaket,
     String? idSubKategori,
     @Default(StatusPembayaran.paid) StatusPembayaran statusPembayaran,
     @Default(0) int poinDidapat,
@@ -39,7 +39,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
     @Default(0) int durasiBonus,
     TipeDurasiPaket? tipeDurasiBonus,
     required DateTime? tanggalMulai,
-    DateTime? tanggalBerakhir,
+    required DateTime? tanggalBerakhir,
     @Default(false) bool statusAktivasi,
   }) = _TransaksiModel;
 
