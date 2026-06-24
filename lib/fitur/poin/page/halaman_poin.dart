@@ -48,7 +48,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   @override
   void initState() {
     super.initState();
-    final pakaiFirebase = ref.read(appRoleProvider) == AppRole.user;
+    final pakaiFirebase = ref.watch(appRoleProvider) == AppRole.user;
 
     Log.info(
       'Initializing PointsPage for customer: ${widget.idPelanggan} with role: ${ref.read(appRoleProvider)}',
