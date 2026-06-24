@@ -10,6 +10,7 @@ import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/service/poin_transaction_service.dart';
 import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -208,6 +209,8 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   }
 
   Future<void> _navigasiKeDetailTransaksi(TransaksiModel transaksi) async {
+    final role = ref.watch(appRoleProvider);
+
     if (!mounted) return;
     Log.info('Navigating to transaction detail for ID: ${transaksi.id}');
     PaketModel? paket;
@@ -224,13 +227,22 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       }
     }
     if (!mounted) return;
-    await Navigator.push<void>(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            DetailTransaksiU(transaksi: transaksi, paket: paket),
-      ),
-    );
+    if (role == AppRole.user) {
+      await Navigator.push<void>(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              DetailTransaksiU(transaksi: transaksi, paket: paket),
+        ),
+      );
+    } else {
+      await Navigator.push<void>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DetailTransaksiA(transaksi: transaksi),
+        ),
+      );
+    }
   }
 
   @override

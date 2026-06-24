@@ -10,6 +10,7 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -123,10 +124,73 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
     }
   }
 
+  Future<void> _softDeleteTransaksi() async {
+    final bool? konfirmasi = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Konfirmasi Hapus'),
+        content: const Text('Apakah Anda yakin ingin menghapus transaksi ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+    if (konfirmasi != true) return;
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Menghapus transaksi...'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // 3. Eksekusi hapus (dialog loading akan tertutup otomatis saat Navigator.pop)
+    try {
+      await ref
+          .read(transaksiProvider.notifier)
+          .softDelete(_currentTransaction.id);
+      if (mounted) {
+        Navigator.pop(context); // Tutup loading dialog
+        ToastUtil.success(context, 'Transaksi berhasil dihapus');
+        Navigator.pop(context, true); // Tutup halaman detail
+      }
+    } catch (e, st) {
+      if (mounted) {
+        Navigator.pop(context); // Tutup loading dialog
+        ToastUtil.error(context, 'Gagal menghapus transaksi');
+        Log.error('Gagal menghapus transaksi', e: e, s: st);
+      }
+    } finally {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final transaksi = _currentTransaction;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail Transaksi'),
@@ -135,6 +199,10 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
           onPressed: () => Navigator.pop(context, _diUpdate),
         ),
         actions: [
+          IconButton(
+            onPressed: _softDeleteTransaksi,
+            icon: Icon(TIcons.delete),
+          ),
           IconButton(
             icon: const Icon(TIcons.edit),
             onPressed: _navigasiKeForm,
