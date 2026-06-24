@@ -25,6 +25,66 @@ class BaseOpFirebase {
     Log.info('BaseOpFirebase diinisialisasi.');
   }
 
+  Future<T> _runInTransaction<T>(
+    Future<T> Function(Transaction transaction) action,
+  ) async {
+    Log.info('[FIRESTORE TRANSAKSI DIMULAI] Memulai proses transaksi.');
+
+    try {
+      // Firestore transaction dengan retry otomatis
+      final result = await firestore.runTransaction((transaction) async {
+        Log.info(
+          '[FIRESTORE TRANSAKSI AKTIF] Blok transaksi dimulai. '
+          'Firestore akan otomatis retry jika ada konflik.',
+        );
+
+        try {
+          // Eksekusi aksi yang diberikan
+          final actionResult = await action(transaction);
+
+          Log.info(
+            '[FIRESTORE TRANSAKSI AKTIF] Aksi utama berhasil dieksekusi. '
+            'Hasil: ${actionResult.runtimeType}',
+          );
+
+          // Update status global setelah transaksi berhasil
+          // Ini mirip dengan update `needUpload` di SQLite
+          Log.info('[FIRESTORE TRANSAKSI AKTIF] Memperbarui status global...');
+          await _statusOp.perbaruiStatusGlobal();
+          Log.info(
+            '[FIRESTORE TRANSAKSI AKTIF] Status global berhasil diperbarui.',
+          );
+
+          return actionResult;
+        } catch (e, st) {
+          Log.error(
+            '[FIRESTORE TRANSAKSI GAGAL DI DALAM] Error di dalam blok transaksi.',
+            e: e,
+            s: st,
+          );
+          // Firestore akan otomatis membatalkan transaksi jika terjadi error
+          rethrow;
+        }
+      });
+
+      Log.info('[FIRESTORE TRANSAKSI COMMIT] Transaksi berhasil di-commit.');
+      return result;
+    } catch (e, st) {
+      Log.error(
+        '[FIRESTORE TRANSAKSI GAGAL DI LUAR] Gagal memulai atau menyelesaikan transaksi.',
+        e: e,
+        s: st,
+      );
+      rethrow;
+    }
+  }
+
+  Future<T> runComplexOperation<T>(
+    Future<T> Function(Transaction txn) customAction,
+  ) async {
+    Log.info('[FIRESTORE] Mendelegasikan eksekusi transaksi kompleks.');
+    return await _runInTransaction(customAction);
+  }
   /// Menyisipkan dokumen baru dengan ID yang dibuat otomatis oleh Firestore.
   ///
   /// [collectionName]: Nama koleksi target.

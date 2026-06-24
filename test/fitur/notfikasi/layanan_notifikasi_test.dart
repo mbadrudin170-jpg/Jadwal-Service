@@ -13,6 +13,7 @@ import 'package:wifi/fitur/notfikasi/enum/tipe_notifikasi_enum.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
 import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart';
+import 'package:wifi/shared/enum/app_role_enum.dart';
 
 import 'layanan_notifikasi_test.mocks.dart';
 
@@ -361,6 +362,8 @@ void main() {
           tipe: TipeNotifikasiEnum.info,
           idTujuan: 'tujuan1',
           userId: 'user1',
+          diperbaruiPada: DateTime.now(),
+          targetRole: const [AppRole.user],
         );
         when(
           mockNotifikasiOp.getByUserId('user1'),
@@ -403,6 +406,8 @@ void main() {
         tipe: TipeNotifikasiEnum.info,
         idTujuan: 'tujuan1',
         userId: 'user1',
+        diperbaruiPada: DateTime.now(),
+        targetRole: const [AppRole.user],
       );
       when(
         mockNotifikasiOp.getByUserId('user1'),

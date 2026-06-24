@@ -33,8 +33,8 @@ class BaseOpSqlite {
   BaseOpSqlite({
     required final SqliteDatabase sqliteDb,
     required final StatusUploadOpSqlite statusUnggahOpSqlite,
-  })  : _sqliteDb = sqliteDb,
-        _statusUnggahOpsqlite = statusUnggahOpSqlite {
+  }) : _sqliteDb = sqliteDb,
+       _statusUnggahOpsqlite = statusUnggahOpSqlite {
     Log.info('BaseOperation instance dibuat.');
   }
 
@@ -52,7 +52,7 @@ class BaseOpSqlite {
 
     try {
       final db = await _sqliteDb.database;
-      return await db.transaction((final txn) async {
+      return await db.transaction((txn) async {
         Log.info(
           '[TRANSAKSI AKTIF] Blok transaksi telah dimulai. Instance: ${txn.runtimeType}',
         );
@@ -62,8 +62,10 @@ class BaseOpSqlite {
             Log.info(
               '[TRANSAKSI AKTIF] Menandai status `needUpload` menjadi TRUE (operasi lokal).',
             );
-            await _statusUnggahOpsqlite.tandaiButuhUpload(true,
-                transaction: txn);
+            await _statusUnggahOpsqlite.tandaiButuhUpload(
+              true,
+              transaction: txn,
+            );
             Log.info(
               '[TRANSAKSI AKTIF] Status `needUpload` berhasil ditandai.',
             );
@@ -72,15 +74,12 @@ class BaseOpSqlite {
               '[TRANSAKSI AKTIF] Melewati penandaan `needUpload` (operasi dari server).',
             );
           }
-
           final result = await action(txn);
           Log.info(
             '[TRANSAKSI AKTIF] Aksi utama berhasil dieksekusi. Hasil: ${result.runtimeType}',
           );
 
-          Log.info(
-            '[TRANSAKSI COMMIT] Transaksi akan di-commit.',
-          );
+          Log.info('[TRANSAKSI COMMIT] Transaksi akan di-commit.');
           return result;
         } catch (e, st) {
           Log.error(
@@ -118,18 +117,15 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai penyisipan data ke tabel: $table');
     try {
-      await _runInTransaction(
-        (final txn) async {
-          final result = await txn.insert(
-            table,
-            data,
-            conflictAlgorithm: ConflictAlgorithm.replace,
-          );
-          Log.info('INSERT berhasil', {'rowId': result, 'tabel': table});
-          return result;
-        },
-        dariServer: dariServer,
-      );
+      await _runInTransaction((txn) async {
+        final result = await txn.insert(
+          table,
+          data,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+        Log.info('INSERT berhasil', {'rowId': result, 'tabel': table});
+        return result;
+      }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
         'Gagal menyisipkan data ke tabel: $table',
@@ -153,29 +149,23 @@ class BaseOpSqlite {
       'data': data,
     });
     try {
-      await _runInTransaction(
-        (final txn) async {
-          final rowsAffected = await txn.update(
-            table,
-            data,
-            where: 'id = ?',
-            whereArgs: [id],
+      await _runInTransaction((final txn) async {
+        final rowsAffected = await txn.update(
+          table,
+          data,
+          where: 'id = ?',
+          whereArgs: [id],
+        );
+        if (rowsAffected == 0) {
+          Log.warning(
+            'Update selesai tapi tidak ada baris yang berubah (ID tidak ditemukan)',
+            {'id': id, 'tabel': table},
           );
-          if (rowsAffected == 0) {
-            Log.warning(
-              'Update selesai tapi tidak ada baris yang berubah (ID tidak ditemukan)',
-              {'id': id, 'tabel': table},
-            );
-          } else {
-            Log.info(
-              'UPDATE berhasil',
-              {'rowsAffected': rowsAffected, 'id': id},
-            );
-          }
-          return rowsAffected;
-        },
-        dariServer: dariServer,
-      );
+        } else {
+          Log.info('UPDATE berhasil', {'rowsAffected': rowsAffected, 'id': id});
+        }
+        return rowsAffected;
+      }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
         'Gagal memperbarui data di tabel: $table',
@@ -195,25 +185,22 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai penghapusan data', {'tabel': table, 'id': id});
     try {
-      await _runInTransaction(
-        (final txn) async {
-          final rowsDeleted = await txn.delete(
-            table,
-            where: 'id = ?',
-            whereArgs: [id],
-          );
-          if (rowsDeleted == 0) {
-            Log.warning('Delete selesai tapi tidak ada data yang terhapus', {
-              'id': id,
-              'tabel': table,
-            });
-          } else {
-            Log.info('DELETE berhasil', {'rowsDeleted': rowsDeleted, 'id': id});
-          }
-          return rowsDeleted;
-        },
-        dariServer: dariServer,
-      );
+      await _runInTransaction((final txn) async {
+        final rowsDeleted = await txn.delete(
+          table,
+          where: 'id = ?',
+          whereArgs: [id],
+        );
+        if (rowsDeleted == 0) {
+          Log.warning('Delete selesai tapi tidak ada data yang terhapus', {
+            'id': id,
+            'tabel': table,
+          });
+        } else {
+          Log.info('DELETE berhasil', {'rowsDeleted': rowsDeleted, 'id': id});
+        }
+        return rowsDeleted;
+      }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
         'Gagal menghapus data di tabel: $table',
@@ -233,34 +220,31 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai soft delete', {'tabel': table, 'id': id});
     try {
-      await _runInTransaction(
-        (final txn) async {
-          final rowsAffected = await txn.update(
-            table,
-            {
-              NamaKolom.dihapus: 1,
-              NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
-              NamaKolom.diperbaruiPada: now.millisecondsSinceEpoch,
-            },
-            where: '${NamaKolom.id} = ?',
-            whereArgs: [id],
-          );
+      await _runInTransaction((final txn) async {
+        final rowsAffected = await txn.update(
+          table,
+          {
+            NamaKolom.dihapus: 1,
+            NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
+            NamaKolom.diperbaruiPada: now.millisecondsSinceEpoch,
+          },
+          where: '${NamaKolom.id} = ?',
+          whereArgs: [id],
+        );
 
-          if (rowsAffected == 0) {
-            Log.warning(
-              'Soft delete selesai tapi tidak ada baris yang berubah (ID tidak ditemukan)',
-              {'id': id, 'tabel': table},
-            );
-          } else {
-            Log.info(
-              'Soft delete berhasil',
-              {'rowsAffected': rowsAffected, 'id': id},
-            );
-          }
-          return rowsAffected;
-        },
-        dariServer: dariServer,
-      );
+        if (rowsAffected == 0) {
+          Log.warning(
+            'Soft delete selesai tapi tidak ada baris yang berubah (ID tidak ditemukan)',
+            {'id': id, 'tabel': table},
+          );
+        } else {
+          Log.info('Soft delete berhasil', {
+            'rowsAffected': rowsAffected,
+            'id': id,
+          });
+        }
+        return rowsAffected;
+      }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
         'Gagal melakukan soft delete di tabel: $table',
@@ -279,26 +263,19 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai soft delete semua data di tabel: $table');
     try {
-      final count = await _runInTransaction<int>(
-        (final txn) async {
-          final rowsAffected = await txn.update(
-            table,
-            {
-              NamaKolom.dihapus: 1,
-              NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
-              NamaKolom.diperbaruiPada: now.millisecondsSinceEpoch,
-            },
-            where: '${NamaKolom.dihapus} = 0',
-          );
+      final count = await _runInTransaction<int>((final txn) async {
+        final rowsAffected = await txn.update(table, {
+          NamaKolom.dihapus: 1,
+          NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
+          NamaKolom.diperbaruiPada: now.millisecondsSinceEpoch,
+        }, where: '${NamaKolom.dihapus} = 0');
 
-          Log.info(
-            'Soft delete semua data berhasil',
-            {'rowsAffected': rowsAffected, 'tabel': table},
-          );
-          return rowsAffected;
-        },
-        dariServer: dariServer,
-      );
+        Log.info('Soft delete semua data berhasil', {
+          'rowsAffected': rowsAffected,
+          'tabel': table,
+        });
+        return rowsAffected;
+      }, dariServer: dariServer);
       return count;
     } catch (e, s) {
       Log.error(
@@ -328,28 +305,25 @@ class BaseOpSqlite {
       'fromServer': dariServer,
     });
     try {
-      await _runInTransaction(
-        (final txn) async {
-          final batch = txn.batch();
-          int validCount = 0;
+      await _runInTransaction((final txn) async {
+        final batch = txn.batch();
+        int validCount = 0;
 
-          for (int i = 0; i < dataList.length; i++) {
-            final data = dataList[i];
-            if (data.isNotEmpty) {
-              batch.insert(
-                table,
-                data,
-                conflictAlgorithm: ConflictAlgorithm.replace,
-              );
-              validCount++;
-            }
+        for (int i = 0; i < dataList.length; i++) {
+          final data = dataList[i];
+          if (data.isNotEmpty) {
+            batch.insert(
+              table,
+              data,
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+            validCount++;
           }
-          Log.info('Melakukan commit batch...', {'validCount': validCount});
-          await batch.commit(noResult: true);
-          Log.info('Batch operation sukses');
-        },
-        dariServer: dariServer,
-      );
+        }
+        Log.info('Melakukan commit batch...', {'validCount': validCount});
+        await batch.commit(noResult: true);
+        Log.info('Batch operation sukses');
+      }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
         'Gagal melakukan batch operation di tabel: $table',

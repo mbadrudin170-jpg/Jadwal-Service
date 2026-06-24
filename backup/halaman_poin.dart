@@ -4,20 +4,26 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/poin/provider/poin_provider.dart';
-import 'package:wifi/fitur/poin/service/poin_transaction_service.dart';
 import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
@@ -70,41 +76,31 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       unawaited(_layananIklanInterstisial.preloadAd());
     }
   }
-  // lib/fitur/poin/page/halaman_poin.dart
 
   Future<void> _tukarPoin(PaketModel hadiah, int poinSaatIni) async {
-    // Cegah double tap
     if (_sedangTukarPoin) return;
-
     setState(() {
       _sedangTukarPoin = true;
       _idRewardYangDiproses = hadiah.id;
     });
-
     try {
-      // // 1. Validasi Role
-      // final role = ref.read(appRoleProvider);
-      // if (role == AppRole.admin) {
-      //   Log.warning('Admin mencoba menukar poin, operasi diblokir.');
-      //   ToastUtil.error(
-      //     context,
-      //     'Admin tidak dapat menukar poin dari antarmuka ini.',
-      //   );
-      //   return;
-      // }
-
-      // 2. Cek Koneksi Internet
+      final role = ref.read(appRoleProvider);
+      if (role == AppRole.admin) {
+        Log.warning('Admin mencoba menukar poin, operasi diblokir.');
+        ToastUtil.error(
+          context,
+          'Admin tidak dapat menukar poin dari antarmuka ini.',
+        );
+        return;
+      }
       final isOnline = await ref
           .read(koneksiInternetServiceProvider)
           .cekInternet();
       if (!mounted) return;
-
       if (!isOnline) {
         ToastUtil.warning(context, 'Cek koneksi internet Anda');
         return;
       }
-
-      // 3. Validasi Poin
       final bool poinCukup = poinSaatIni >= hadiah.poinPenukaran;
       if (!poinCukup) {
         ToastUtil.warning(
@@ -113,8 +109,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         );
         return;
       }
-
-      // 4. Konfirmasi User
       final bool? dikonfirmasi = await showDialog<bool>(
         context: context,
         builder: (dialogContext) => AlertDialog(
@@ -132,69 +126,95 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           ],
         ),
       );
-
       if (!mounted) return;
-      if (!(dikonfirmasi ?? false)) {
-        Log.info('Penukaran dibatalkan oleh user');
-        return;
-      }
-
-      // 5. EKSEKUSI TRANSACTION MENGGUNAKAN PoinTransactionService
-      Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
-
-      // Tampilkan loading dialog
-      if (mounted) {
-        unawaited(
-          showDialog<void>(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) =>
-                const Center(child: CircularProgressIndicator()),
-          ),
-        );
-      }
-
-      try {
-        // Ambil service dari provider
-        final transactionService = ref.read(poinTransactionServiceProvider);
-
-        // Jalankan transaksi penukaran poin
-        await transactionService.tukarPoin(
-          idPelanggan: widget.idPelanggan,
-          paket: hadiah,
-          poinSaatIni: poinSaatIni,
-        );
-
-        // Tutup loading dialog
-        if (mounted) Navigator.pop(context);
-
-        // 6. Refresh Data
-        if (mounted) {
+      if (dikonfirmasi ?? false) {
+        Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
+        try {
+          final paket = await ref
+              .read(paketOpSqliteProvider)
+              .ambilBerdasarkanId(hadiah.id);
+          if (paket == null) return;
+          final dataPelanggan = await ref
+              .read(pelangganOpSqliteProvider)
+              .ambilBerdasarkanId(widget.idPelanggan);
+          if (dataPelanggan == null) return;
+          final sekarang = DateTime.now();
+          final idOrder = const Uuid().v4();
+          final idTransaksi = const Uuid().v4();
+          final tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
+            sekarang,
+            paket,
+          );
+          final pelangganAktifBaru = PelangganAktifModel(
+            id: const Uuid().v4(),
+            idPelanggan: dataPelanggan.id,
+            idPaket: hadiah.id,
+            idTransaksi: idTransaksi,
+            tanggalMulai: sekarang,
+            tanggalBerakhir: tanggalBerakhir,
+            status: StatusPembayaran.paid,
+            diperbaruiPada: sekarang,
+          );
+          final transaksiBaru = TransaksiModel(
+            id: idTransaksi,
+            tanggal: sekarang,
+            deskripsi: 'Tukar Poin',
+            jumlah: 0,
+            tipe: TipeTransaksi.expense,
+            idDompet: '',
+            idKategori: '',
+            idPaket: hadiah.id,
+            poinDigunakan: hadiah.poinPenukaran,
+            tanggalMulai: sekarang,
+            tanggalBerakhir: tanggalBerakhir,
+            idPelanggan: dataPelanggan.id,
+          );
+          final dataPesanan = OrderModel(
+            id: idOrder,
+            idPelanggan: widget.idPelanggan,
+            idPaket: hadiah.id,
+            tanggal: sekarang,
+            status: StatusOrderEnum.baru,
+          );
+          final notifikasiData = NotifikasiModel(
+            id: const Uuid().v4(),
+            tanggalMulai: sekarang,
+            tanggalBerakhir: sekarang,
+            tanggalTampil: sekarang,
+            judul: 'Order Paket',
+            deskripsi: 'pelanggan ${dataPelanggan.nama} melakukan order',
+            tipe: TipeNotifikasiEnum.order,
+            diperbaruiPada: sekarang,
+            idTujuan: idOrder,
+            userId: widget.idPelanggan,
+            targetRole: AppRole.admin,
+          );
+          await ref
+              .read(pelangganAktifOpFirebaseProvider)
+              .tambahPelangganAktif(pelangganAktifBaru);
+          await ref
+              .read(transaksiOpFirebaseProvider)
+              .tambahTransaksi(transaksiBaru);
+          await ref
+              .read(notifikasiOpFirebaseProvider)
+              .addNotifikasi(notifikasiData);
+          Log.info(
+            'berhasil membuat order baru untuk id pelanggan: ${widget.idPelanggan}',
+          );
+          await ref.read(orderOpFirebaseProvider).addOrder(dataPesanan);
+          Log.info('berhasil membuat notifikasi untuk paket');
+          if (!mounted) return;
           ref.invalidate(pointsPageDataProvider);
           ref.invalidate(pointsHistoryProvider);
           ref.invalidate(orderProvider);
-
           ToastUtil.success(
             context,
             'Order sudah terkirim menunggu konfirmasi Admin',
           );
-        }
-      } catch (e, st) {
-        // Tutup loading dialog jika error
-        if (mounted) Navigator.pop(context);
-
-        Log.error(
-          'Gagal menukar poin',
-          e: e,
-          s: st,
-          data: {'customerId': widget.idPelanggan, 'packageId': hadiah.id},
-        );
-
-        if (mounted) {
-          ToastUtil.error(
-            context,
-            'Terjadi kesalahan saat menukar poin: ${e.toString()}',
-          );
+        } on Exception catch (e, st) {
+          Log.error('Gagal menukar poin: $e', e: e, s: st);
+          if (!mounted) return;
+          ToastUtil.error(context, 'Terjadi kesalahan saat menukar poin.');
         }
       }
     } finally {

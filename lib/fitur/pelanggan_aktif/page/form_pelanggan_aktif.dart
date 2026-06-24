@@ -134,7 +134,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final daftarDompet = (hasil[2] as List<DompetModel>)
           .where((d) => !d.dihapus)
           .toList();
-
       final semuaKategori = hasil[3] as List<KategoriModel>;
       final kategoriPemasukanList = semuaKategori
           .where((k) => k.tipe == TipeKategori.income && !k.diHapus)

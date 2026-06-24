@@ -3581,7 +3581,6 @@ class PelangganAktif extends _$PelangganAktif {
 // File: lib/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_firebase.dart
 // path lib/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_firebase.dart
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -3589,15 +3588,10 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
 class PelangganAktifOpFirebase extends BaseOpFirebase {
   final BaseOpFirebase _baseOp;
-  final FirebaseFirestore _firestore;
   final String _namaKoleksi = NamaTabel.pelangganAktif;
 
-  PelangganAktifOpFirebase({
-    required FirebaseFirestore firestore,
-    required BaseOpFirebase baseOp,
-  }) : _firestore = firestore,
-       _baseOp = baseOp,
-       super(firestore: firestore) {
+  PelangganAktifOpFirebase({required BaseOpFirebase baseOp})
+    : _baseOp = baseOp {
     Log.info('OrderOpFirebase diinisialisasi.');
   }
 
@@ -30368,11 +30362,9 @@ class LayananAktivitasUser {
       Log.warning('pingActivity: customerId kosong, proses dibatalkan.');
       return;
     }
-
     try {
       final pingTerakhir = _prefs.getInt(kunciPingTerakhirAktif);
       final now = DateTime.now();
-
       if (pingTerakhir != null && !paksa) {
         final waktuPingTerakhir = DateTime.fromMillisecondsSinceEpoch(
           pingTerakhir,
@@ -30388,9 +30380,7 @@ class LayananAktivitasUser {
       Log.info(
         'pingActivity: Mengirim ping aktivitas untuk user: $id (Force: $paksa)',
       );
-
       unawaited(_pelangganOpFirebase.perbaruiTerakhirAktif(id));
-
       await _prefs.setInt(kunciPingTerakhirAktif, now.millisecondsSinceEpoch);
       Log.info(
         'pingActivity: Timestamp ping terakhir diperbarui secara lokal.',
@@ -35400,6 +35390,8 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   final SettingsOpFirebase _settingsOp = SettingsOpFirebase();
   final idUnitIklan = IdInterstitialAds.interstitialAdUnitIds[0];
 
+  bool? _terhubung;
+
   @override
   void initState() {
     super.initState();
@@ -35412,19 +35404,15 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     try {
       Log.info('Memulai inisialisasi dari Splash Screen...');
       await _inisialisasiLayananOffline();
-
-      final terhubung = await ref
+      _terhubung = await ref
           .watch(koneksiInternetServiceProvider)
-          .cekKoneksiLokal();
-
-      if (terhubung) {
+          .cekInternet();
+      if (_terhubung == true) {
         await _lanjutkanInisialisasi();
-
         final eventInfo = await _cekEvent();
         if (eventInfo != null) {
           if (mounted) {
             Log.info('menuju ke halaman event');
-            // Tampilkan halaman event di atas splash screen dan tunggu sampai selesai.
             await Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (context) => EventPageU(event: eventInfo),
@@ -35432,8 +35420,6 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
             );
           }
         }
-
-        // Setelah halaman event selesai, lanjutkan alur inisialisasi.
         await _continueInitialization();
       } else {
         if (mounted) {
@@ -35467,7 +35453,6 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       );
       return;
     }
-
     final infoPembaruan = await _periksaPembaruanAplikasi();
     if (infoPembaruan != null) {
       if (!mounted) return;
@@ -35549,13 +35534,8 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     if (!mounted) return;
     final pengelolaAkun = await ref.read(pengelolaAkunProvider.future);
     final akunAktif = pengelolaAkun.akunSaatIni;
-
     if (akunAktif != null) {
-      final terhubung = await ref
-          .read(koneksiInternetServiceProvider)
-          .cekKoneksiLokal();
-
-      if (terhubung) {
+      if (_terhubung == true) {
         final layananAktivitasUser = await ref.read(
           layananAktivitasUserProvider.future,
         );
@@ -41941,10 +41921,9 @@ PelangganOpFirebase pelangganOpFirebase(Ref ref) {
 
 @Riverpod(keepAlive: true)
 PelangganAktifOpFirebase pelangganAktifOpFirebase(Ref ref) {
-  final firestoreInstance = ref.watch(firestoreProvider);
   final baseOp = ref.watch(baseOpFirebaseProvider);
 
-  return PelangganAktifOpFirebase(firestore: firestoreInstance, baseOp: baseOp);
+  return PelangganAktifOpFirebase( baseOp: baseOp);
 }
 
 @Riverpod(keepAlive: true)
