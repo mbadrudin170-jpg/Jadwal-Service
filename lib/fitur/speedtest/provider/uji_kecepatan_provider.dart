@@ -56,7 +56,6 @@ class UjiKecepatan extends _$UjiKecepatan {
     // Get Ping
     try {
       state = state.copyWith(statusPesan: 'Mengukur ping...');
-      // Perbaikan: httpPingProvider langsung mengembalikan int milidetik
       final pingTime = await ref.read(httpPingProvider.future);
       state = state.copyWith(ping: pingTime);
     } catch (e) {
@@ -64,7 +63,6 @@ class UjiKecepatan extends _$UjiKecepatan {
       state = state.copyWith(ping: -1);
     }
 
-    // Mulai pengujian (tanpa await)
     unawaited(
       _alatUji!.startTesting(
         onStarted: () {

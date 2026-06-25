@@ -8229,7 +8229,6 @@ abstract class SettingsModel with _$SettingsModel implements HasId {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/speedtest/provider/ping_provider.dart';
 import 'package:wifi/fitur/speedtest/provider/uji_kecepatan_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -8266,7 +8265,7 @@ class _HalamanUjiKecepatanState extends ConsumerState<HalamanUjiKecepatan> {
         padding: const EdgeInsets.all(TSizes.p16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+          children: <Widget>[
             _KartuHasilUji(
               label: 'Kecepatan Unduh',
               nilai: statusUji.kecepatanUnduh.toStringAsFixed(1),
@@ -8297,17 +8296,25 @@ class _HalamanUjiKecepatanState extends ConsumerState<HalamanUjiKecepatan> {
             ),
             gapH24,
             if (statusUji.sedangMenguji)
-              const Center(child: CircularProgressIndicator())
+              ElevatedButton.icon(
+                onPressed: () {
+                  ref.read(ujiKecepatanProvider.notifier).batalkanPengujian();
+                },
+                icon: const Icon(Icons.stop),
+                label: const Text('Stop'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                ),
+              )
             else
               ElevatedButton.icon(
                 onPressed: () {
-                  ref.invalidate(httpPingProvider);
                   ref
                       .read(ujiKecepatanProvider.notifier)
                       .mulaiPengujian(context);
                 },
                 icon: const Icon(TIcons.play),
-                label: const Text('Mulai Uji Kecepatan'),
+                label: const Text('Mulai'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                 ),
