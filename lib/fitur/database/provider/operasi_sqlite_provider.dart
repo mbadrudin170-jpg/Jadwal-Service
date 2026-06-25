@@ -6,6 +6,7 @@ import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 import 'package:wifi/fitur/kategori/operasi/sub_kategori_op_sqlite.dart';
+import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_sqlite.dart';
 import 'package:wifi/fitur/order/operasi/order_op_sqlite.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
@@ -59,7 +60,7 @@ PelangganAktifOpSqlite pelangganAktifOpSqlite(Ref ref) {
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
   final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
   final layananNotifikasi = ref.watch(layananNotifikasiProvider);
-final transaksiOpSqlite=ref.watch(transaksiOpSqliteProvider);
+  final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
   return PelangganAktifOpSqlite(
     sqliteDb: sqliteDb,
     baseOpSqlite: baseOpSqlite,
@@ -142,4 +143,13 @@ DompetOpSqlite dompetOpSqlite(Ref ref) {
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
   return DompetOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
+}
+
+/// Provider untuk menyediakan instance dari [NotifikasiOpSqlite].
+@Riverpod(keepAlive: true)
+NotifikasiOpSqlite notifikasiOpSqlite(Ref ref) {
+  Log.info('Membuat instance NotifikasiOpSqlite via @riverpod...');
+  final sqliteDb = ref.watch(sqliteDatabaseProvider);
+  final baseOpSqlite = ref.watch(baseOpSqliteProvider);
+  return NotifikasiOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
 }

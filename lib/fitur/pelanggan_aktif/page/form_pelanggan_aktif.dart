@@ -25,7 +25,6 @@ import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -270,7 +269,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
   Future<bool> _simpanData() async {
     Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
-    final notifikasiOpFirebase = ref.read(notifikasiOpFirebaseProvider);
+    final notifikasiOpSqlite = ref.read(notifikasiOpSqliteProvider);
     final pelangganAktif = ref.read(pelangganAktifProvider.notifier);
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Validasi form gagal');
@@ -363,7 +362,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         await ref
             .read(transaksiProvider.notifier)
             .updateTransaksi(transaksiData);
-        await notifikasiOpFirebase.hapusBerdasarkanIdTransaksi(idTransaksi);
+        await notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi);
         Log.info(
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
         );
@@ -380,7 +379,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final tanggalNotifikasiSetengahJalan = tanggalMulai.add(
         durasiSetengahJalan,
       );
-
       final List<NotifikasiModel> daftarNotifikasi = [
         NotifikasiModel(
           id: const Uuid().v4(),
@@ -439,14 +437,15 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           diperbaruiPada: sekarang,
         ),
       ];
+      await Future.wait(
+        daftarNotifikasi.map(notifikasiOpSqlite.tambahNotifikasi),
+      );
       final isOnline = await ref
           .read(koneksiInternetServiceProvider)
-          .cekKoneksiLokal();
+          .cekInternet();
       if (isOnline) {
         Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
-        await Future.wait(
-          daftarNotifikasi.map(notifikasiOpFirebase.addNotifikasi),
-        );
+
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
         );

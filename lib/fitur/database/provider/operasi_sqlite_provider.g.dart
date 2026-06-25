@@ -607,3 +607,56 @@ final class DompetOpSqliteProvider
 }
 
 String _$dompetOpSqliteHash() => r'934eed2b1b930b0551825d1f18b2d291057f8753';
+
+/// Provider untuk menyediakan instance dari [NotifikasiOpSqlite].
+
+@ProviderFor(notifikasiOpSqlite)
+final notifikasiOpSqliteProvider = NotifikasiOpSqliteProvider._();
+
+/// Provider untuk menyediakan instance dari [NotifikasiOpSqlite].
+
+final class NotifikasiOpSqliteProvider
+    extends
+        $FunctionalProvider<
+          NotifikasiOpSqlite,
+          NotifikasiOpSqlite,
+          NotifikasiOpSqlite
+        >
+    with $Provider<NotifikasiOpSqlite> {
+  /// Provider untuk menyediakan instance dari [NotifikasiOpSqlite].
+  NotifikasiOpSqliteProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'notifikasiOpSqliteProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$notifikasiOpSqliteHash();
+
+  @$internal
+  @override
+  $ProviderElement<NotifikasiOpSqlite> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  NotifikasiOpSqlite create(Ref ref) {
+    return notifikasiOpSqlite(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(NotifikasiOpSqlite value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<NotifikasiOpSqlite>(value),
+    );
+  }
+}
+
+String _$notifikasiOpSqliteHash() =>
+    r'0dc2d9bb36915f7dbe460268edb9c04828dad88f';
