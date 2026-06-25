@@ -29,23 +29,6 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
     Log.info('Data paket berhasil dimuat: ${_paket.nama}, ID: ${_paket.id}.');
   }
 
-  Future<void> _bukaFormEdit() async {
-    Log.info('Navigasi ke form edit paket: ${_paket.nama}.');
-    final result = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute<bool>(
-        builder: (final context) => FormPaket(paket: _paket),
-      ),
-    );
-
-    if (result ?? false) {
-      Log.info('Perubahan data paket terdeteksi.');
-      if (mounted) {
-        Navigator.pop(context, true);
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,7 +36,14 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
         title: Text(_paket.nama),
         actions: [
           IconButton(
-            onPressed: _bukaFormEdit,
+            onPressed: () {
+              Navigator.push<bool>(
+                context,
+                MaterialPageRoute<bool>(
+                  builder: (context) => FormPaket(paket: _paket),
+                ),
+              );
+            },
             icon: const Icon(TIcons.edit),
             tooltip: 'Edit Paket',
           ),

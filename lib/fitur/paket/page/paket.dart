@@ -81,7 +81,7 @@ class PackagePage extends ConsumerWidget {
                   );
                 },
                 onLongPress: () =>
-                    _tamplkanDialogHapusEdit(context, ref, paket),
+                    _tampilkanDialogHapusEdit(context, ref, paket),
                 child: Card(
                   margin: const EdgeInsets.symmetric(
                     horizontal: 10,
@@ -117,7 +117,6 @@ class PackagePage extends ConsumerWidget {
   }
 }
 
-// --- FUNGSI UTAS / HELPER DI LUAR WIDGET CLASS ---
 
 void _urutkanList(List<PaketModel> daftarPaket, UrutanPaket urutan) {
   switch (urutan) {
@@ -208,7 +207,7 @@ Future<void> _tampilkanDialogUrutkan(
   }
 }
 
-Future<void> _tamplkanDialogHapusEdit(
+Future<void> _tampilkanDialogHapusEdit(
   BuildContext context,
   WidgetRef ref,
   PaketModel paket,
