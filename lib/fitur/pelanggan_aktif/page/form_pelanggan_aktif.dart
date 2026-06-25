@@ -300,7 +300,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         _pilihJam!.minute,
       );
       final int durasiBonus = _bonus
-          ? (int.tryParse(_durasiBonusController.text) ?? 0)
+          ? (int.tryParse(_durasiBonusController.text.replaceAll('.', '')) ?? 0)
           : 0;
       final DateTime tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
         tanggalMulai,
@@ -430,15 +430,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           diperbaruiPada: sekarang,
         ),
       ];
-      Log.info('data notifikasi untuk masa aktif paket telah dibuat,');
-      for (final notif in daftarNotifikasi) {
-        await notifikasiOpFirebase.addNotifikasi(notif);
-      }
       final isOnline = await ref
           .read(koneksiInternetServiceProvider)
           .cekKoneksiLokal();
       if (isOnline) {
         Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
+        await Future.wait(
+          daftarNotifikasi.map(notifikasiOpFirebase.addNotifikasi),
+        );
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
         );
@@ -828,8 +827,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
               flex: 2,
               child: InputAngka(
                 controller: _durasiBonusController,
-                label: 'Durasi Bonus ',
-                validasi: _bonus,
+                label: 'Durasi Bonus',
+                enabled: _bonus,
                 prefixIcon: TIcons.timer,
               ),
             ),

@@ -1,7 +1,6 @@
 // path: lib/fitur/paket/page/form_paket.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:uuid/uuid.dart';
@@ -16,7 +15,6 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_angka.dart';
 import 'package:wifi/shared/widget/input/input_teks.dart';
-import 'package:wifi/shared/widget/thousands_input_formatter.dart';
 
 /// Halaman form untuk menambah atau mengedit paket.
 class FormPaket extends ConsumerStatefulWidget {

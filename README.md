@@ -2099,7 +2099,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
               child: InputAngka(
                 controller: _durasiBonusController,
                 label: 'Durasi Bonus ',
-                validasi: _bonus,
+                enabled: _bonus,
                 prefixIcon: TIcons.timer,
               ),
             ),
@@ -8990,7 +8990,6 @@ String _$httpPingHash() => r'd40359925cf1b6fb94c217e43ce8a68657a76a73';
 // path: lib/fitur/paket/page/form_paket.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:uuid/uuid.dart';
@@ -9003,7 +9002,8 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/thousands_input_formatter.dart';
+import 'package:wifi/shared/widget/input/input_angka.dart';
+import 'package:wifi/shared/widget/input/input_teks.dart';
 
 /// Halaman form untuk menambah atau mengedit paket.
 class FormPaket extends ConsumerStatefulWidget {
@@ -9023,13 +9023,13 @@ class _PackageFormState extends ConsumerState<FormPaket> {
   final _namaController = TextEditingController();
   final _hargaController = TextEditingController();
   final _durasiController = TextEditingController();
-  final _poinHadiagcontroller = TextEditingController();
+  final _poinHadiahcontroller = TextEditingController();
   final _poinPenukaranController = TextEditingController();
-  final _nameFocusNode = FocusNode();
-  final _priceFocusNode = FocusNode();
-  final _durationFocusNode = FocusNode();
-  final _rewardPointsFocusNode = FocusNode();
-  final _redemptionPointsFocusNode = FocusNode();
+  final _namsFocusNode = FocusNode();
+  final _hargaFocusNode = FocusNode();
+  final _durasiFocusNode = FocusNode();
+  final _poinHadiahFocusNode = FocusNode();
+  final _poinPenukaranFocusNode = FocusNode();
 
   TipeDurasiPaket _selectedType = TipeDurasiPaket.days;
 
@@ -9044,7 +9044,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
       _namaController.text = widget.paket!.nama;
       _hargaController.text = widget.paket!.harga.toString();
       _durasiController.text = widget.paket!.durasi.toString();
-      _poinHadiagcontroller.text = widget.paket!.poinHadiah.toString();
+      _poinHadiahcontroller.text = widget.paket!.poinHadiah.toString();
       _poinPenukaranController.text = widget.paket!.poinPenukaran.toString();
       _selectedType = widget.paket!.tipe;
       _publik = widget.paket!.statusPublik;
@@ -9054,17 +9054,20 @@ class _PackageFormState extends ConsumerState<FormPaket> {
   Future<void> _simpanForm() async {
     if (_formKey.currentState!.validate()) {
       final paketBaru = PaketModel(
-          id: _modeEdit ? widget.paket!.id : const Uuid().v4(),
-          nama: _namaController.text,
-          harga: int.tryParse(
-                  _hargaController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
-              0,
-          durasi: int.tryParse(_durasiController.text) ?? 0,
-          tipe: _selectedType,
-          poinHadiah: int.tryParse(_poinHadiagcontroller.text) ?? 0,
-          poinPenukaran: int.tryParse(_poinPenukaranController.text) ?? 0,
-          statusPublik: _publik,
-          diperbaruiPada: DateTime.now().toUtc());
+        id: _modeEdit ? widget.paket!.id : const Uuid().v4(),
+        nama: _namaController.text,
+        harga:
+            int.tryParse(
+              _hargaController.text.replaceAll(RegExp(r'[^0-9]'), ''),
+            ) ??
+            0,
+        durasi: int.tryParse(_durasiController.text) ?? 0,
+        tipe: _selectedType,
+        poinHadiah: int.tryParse(_poinHadiahcontroller.text) ?? 0,
+        poinPenukaran: int.tryParse(_poinPenukaranController.text) ?? 0,
+        statusPublik: _publik,
+        diperbaruiPada: DateTime.now().toUtc(),
+      );
 
       try {
         if (_modeEdit) {
@@ -9088,9 +9091,10 @@ class _PackageFormState extends ConsumerState<FormPaket> {
           pesanError = 'Nama paket sudah ada. Harap gunakan nama lain.';
         } else {
           Log.error(
-              'DatabaseException tidak dikenal saat menyimpan paket. Kemungkinan penyebab: constraint violation lain, database corrupt, atau kesalahan struktur tabel.',
-              e: e,
-              s: s);
+            'DatabaseException tidak dikenal saat menyimpan paket. Kemungkinan penyebab: constraint violation lain, database corrupt, atau kesalahan struktur tabel.',
+            e: e,
+            s: s,
+          );
         }
 
         if (!mounted) {
@@ -9099,9 +9103,10 @@ class _PackageFormState extends ConsumerState<FormPaket> {
         ToastUtil.error(context, pesanError);
       } on Exception catch (e, s) {
         Log.error(
-            'Gagal menyimpan paket karena error tidak dikenal (Unknown Error). Terjadi kesalahan yang tidak terduga saat operasi ${_modeEdit ? "update" : "create"} paket.',
-            e: e,
-            s: s);
+          'Gagal menyimpan paket karena error tidak dikenal (Unknown Error). Terjadi kesalahan yang tidak terduga saat operasi ${_modeEdit ? "update" : "create"} paket.',
+          e: e,
+          s: s,
+        );
 
         if (!mounted) {
           return;
@@ -9130,114 +9135,51 @@ class _PackageFormState extends ConsumerState<FormPaket> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                TextFormField(
+                InputTeks(
                   controller: _namaController,
-                  focusNode: _nameFocusNode,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(labelText: 'Nama Paket'),
-                  validator: (v) {
-                    if (v == null || v.isEmpty) {
-                      return 'Nama paket tidak boleh kosong';
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (_) {
-                    FocusScope.of(context).requestFocus(_priceFocusNode);
-                  },
+                  focusNode: _namsFocusNode,
+                  nextFocusNode: _hargaFocusNode,
+                  label: 'Nama Paket',
                 ),
+
                 gapH12,
-                TextFormField(
+                InputAngka(
                   controller: _hargaController,
-                  focusNode: _priceFocusNode,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(labelText: 'Harga'),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    ThousandsAndNegativeInputFormatter(),
-                  ],
-                  validator: (final value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Harga tidak boleh kosong';
-                    }
-                    if (int.tryParse(value.replaceAll(RegExp(r'[^0-9]'), '')) ==
-                        null) {
-                      return 'Harga harus berupa angka';
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (final _) {
-                    FocusScope.of(context).requestFocus(_durationFocusNode);
-                  },
+                  focusNode: _hargaFocusNode,
+                  label: 'Harga',
+                  nextFocusNode: _durasiFocusNode,
                 ),
                 gapH12,
-                TextFormField(
+                InputAngka(
                   controller: _durasiController,
-                  focusNode: _durationFocusNode,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(labelText: 'Durasi'),
-                  keyboardType: TextInputType.number,
-                  validator: (final value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Durasi tidak boleh kosong';
-                    }
-                    if (int.tryParse(value) == null) {
-                      return 'Durasi harus berupa angka';
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (final _) {
-                    FocusScope.of(context).requestFocus(_rewardPointsFocusNode);
-                  },
+                  focusNode: _durasiFocusNode,
+                  label: 'Durasi',
+                  nextFocusNode: _poinHadiahFocusNode,
                 ),
                 gapH12,
-                TextFormField(
-                  controller: _poinHadiagcontroller,
-                  focusNode: _rewardPointsFocusNode,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(labelText: 'Poin Hadiah'),
-                  keyboardType: TextInputType.number,
-                  validator: (final value) {
-                    if (value == null || value.isEmpty) {
-                      return null;
-                    }
-                    if (int.tryParse(value) == null) {
-                      return 'Poin hadiah harus angka';
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (final _) {
-                    FocusScope.of(context)
-                        .requestFocus(_redemptionPointsFocusNode);
-                  },
+                InputAngka(
+                  controller: _poinHadiahcontroller,
+                  focusNode: _poinHadiahFocusNode,
+                  nextFocusNode: _poinPenukaranFocusNode,
+                  label: 'Poin Hadiah',
                 ),
+
                 gapH12,
-                TextFormField(
+                InputAngka(
                   controller: _poinPenukaranController,
-                  focusNode: _redemptionPointsFocusNode,
+                  focusNode: _poinPenukaranFocusNode,
+                  nextFocusNode: _poinPenukaranFocusNode,
+                  label: 'Poin Hadiah',
                   textInputAction: TextInputAction.done,
-                  decoration:
-                      const InputDecoration(labelText: 'Poin Penukaran'),
-                  keyboardType: TextInputType.number,
-                  validator: (final value) {
-                    if (value == null || value.isEmpty) {
-                      return null;
-                    }
-                    if (int.tryParse(value) == null) {
-                      return 'Poin penukaran harus angka';
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (_) {
-                    FocusScope.of(context).unfocus();
-                  },
                 ),
+
                 gapH16,
                 DropdownButtonFormField<TipeDurasiPaket>(
                   initialValue: _selectedType,
                   decoration: const InputDecoration(labelText: 'Tipe Durasi'),
-                  items:
-                      TipeDurasiPaket.values.map((final TipeDurasiPaket type) {
+                  items: TipeDurasiPaket.values.map((
+                    final TipeDurasiPaket type,
+                  ) {
                     return DropdownMenuItem<TipeDurasiPaket>(
                       value: type,
                       child: Text(type.displayName),
@@ -9290,13 +9232,13 @@ class _PackageFormState extends ConsumerState<FormPaket> {
     _namaController.dispose();
     _hargaController.dispose();
     _durasiController.dispose();
-    _poinHadiagcontroller.dispose();
+    _poinHadiahcontroller.dispose();
     _poinPenukaranController.dispose();
-    _nameFocusNode.dispose();
-    _priceFocusNode.dispose();
-    _durationFocusNode.dispose();
-    _rewardPointsFocusNode.dispose();
-    _redemptionPointsFocusNode.dispose();
+    _namsFocusNode.dispose();
+    _hargaFocusNode.dispose();
+    _durasiFocusNode.dispose();
+    _poinHadiahFocusNode.dispose();
+    _poinPenukaranFocusNode.dispose();
     super.dispose();
   }
 }
@@ -23072,11 +23014,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -23084,17 +23026,17 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-class FromRiwayatAktivasi extends ConsumerStatefulWidget {
+class FormRiwayatAktivasi extends ConsumerStatefulWidget {
   final TransaksiModel transaksi;
 
-  const FromRiwayatAktivasi({super.key, required this.transaksi});
+  const FormRiwayatAktivasi({super.key, required this.transaksi});
 
   @override
-  ConsumerState<FromRiwayatAktivasi> createState() =>
-      _SubscriptionHistoryFormState();
+  ConsumerState<FormRiwayatAktivasi> createState() =>
+      _FormRiwayatAktivasiState();
 }
 
-class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
+class _FormRiwayatAktivasiState extends ConsumerState<FormRiwayatAktivasi> {
   final _formKey = GlobalKey<FormState>();
 
   late DateTime _tanggalMulai;
@@ -23164,12 +23106,17 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
       Log.warning('Form tidak valid, penyimpanan dibatalkan.');
       return;
     }
+    if (_tanggalBerakhir.isBefore(_tanggalMulai)) {
+      Log.warning('Tanggal berakhir mendahului tanggal mulai.');
+      ToastUtil.error(
+        context,
+        'Tanggal berakhir tidak boleh sebelum tanggal mulai!',
+      );
+      return;
+    }
     if (!mounted) return;
-
     Log.info('Menyimpan perubahan untuk transaksi ID: ${widget.transaksi.id}');
-
-    // Mengakses dependency melalui Riverpod's ref
-    final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
+    final transaksiOpSqlite = ref.read(transaksiProvider.notifier);
     final layananNotifikasi = ref.read(layananNotifikasiProvider);
 
     try {
@@ -23179,13 +23126,8 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
         statusPembayaran: _statusPembayaran,
         diperbaruiPada: DateTime.now(),
       );
-
-      await transaksiOpSqlite.perbaruiTransaksi(
-        widget.transaksi.id,
-        updateTransaksi,
-      );
+      await transaksiOpSqlite.updateTransaksi(updateTransaksi);
       Log.info('Transaksi berhasil diperbarui di database.');
-      ref.invalidate(transaksiOpSqliteProvider);
       await _handleExpiryNotification(
         layananNotifikasi: layananNotifikasi,
         statusSebelumnya: widget.transaksi.statusPembayaran,
@@ -23381,8 +23323,8 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
         final paket = data.paket;
         final warnaStatusPembayaran =
             transaksi?.statusPembayaran == StatusPembayaran.paid
-                ? Colors.green
-                : Colors.red;
+            ? Colors.green
+            : Colors.red;
 
         return Scaffold(
           appBar: AppBar(
@@ -23395,7 +23337,7 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          FromRiwayatAktivasi(transaksi: transaksi!),
+                          FormRiwayatAktivasi(transaksi: transaksi!),
                     ),
                   );
                 },
@@ -23414,12 +23356,12 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                   onTap: pelanggan == null
                       ? null
                       : () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (context) =>
-                                  DetailPelanggan(idPelanggan: pelanggan.id),
-                            ),
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (context) =>
+                                DetailPelanggan(idPelanggan: pelanggan.id),
                           ),
+                        ),
                   children: [
                     _buildRow(
                       'Nama Pelanggan',
@@ -23435,11 +23377,11 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                   onTap: paket == null
                       ? null
                       : () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (context) => DetailPaketPage(paket: paket),
-                            ),
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (context) => DetailPaketPage(paket: paket),
                           ),
+                        ),
                   children: [
                     _buildRow('Nama Paket', paket?.nama ?? 'Tidak Diketahui'),
                     _buildRow(
@@ -25361,7 +25303,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
           return ListView.builder(
             controller: _pengendaliScroll,
             itemCount:
-                itemsFiltered.length +
+                itemsTampil.length +
                 (_jumlahTampil < itemsFiltered.length ? 1 : 0),
             itemBuilder: (context, index) {
               if (index == itemsTampil.length) {
@@ -27008,14 +26950,14 @@ abstract class TransaksiState with _$TransaksiState {
     @Default(0.0) double totalPemasukan,
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
-    @Default(0) int totalPoinSemuaPelanggan, // ✅ Ganti nama agar jelas
+    @Default(0) int totalPoinSemuaPelanggan,
   }) = _TransaksiState;
 }
 
 @riverpod
 class Transaksi extends _$Transaksi {
   TransaksiOpSqlite get _transaksiOpSqlite =>
-      ref.watch(transaksiOpSqliteProvider);
+      ref.read(transaksiOpSqliteProvider);
 
   @override
   FutureOr<TransaksiState> build() {
@@ -27056,7 +26998,6 @@ class Transaksi extends _$Transaksi {
     return hasil;
   }
 
-  // ✅ Method untuk ambil poin banyak pelanggan dengan Future.wait (lebih cepat)
   Future<List<int>> getTotalPoinBanyakPelangganParallel(
     List<String> ids,
   ) async {
@@ -27067,11 +27008,9 @@ class Transaksi extends _$Transaksi {
   }
 
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
-    state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.tambahTransaksi(transaksi);
-      ref.invalidate(dompetProvider);
-      ref.invalidate(statistikProvider);
+      _invalidateSistemTerkait();
       return _loadData();
     });
   }
@@ -27079,8 +27018,7 @@ class Transaksi extends _$Transaksi {
   Future<void> updateTransaksi(TransaksiModel transaksi) async {
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.perbaruiTransaksi(transaksi.id, transaksi);
-      ref.invalidate(dompetProvider);
-      ref.invalidate(statistikProvider);
+      _invalidateSistemTerkait();
       return _loadData();
     });
   }
@@ -27088,8 +27026,7 @@ class Transaksi extends _$Transaksi {
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.softDelete(id);
-      ref.invalidate(dompetProvider);
-      ref.invalidate(statistikProvider);
+      _invalidateSistemTerkait();
       return _loadData();
     });
   }
@@ -27097,8 +27034,7 @@ class Transaksi extends _$Transaksi {
   Future<void> softDeleteAll() async {
     state = await AsyncValue.guard(() async {
       await _transaksiOpSqlite.softDeleteAll();
-      ref.invalidate(dompetProvider);
-      ref.invalidate(statistikProvider);
+      _invalidateSistemTerkait();
       return _loadData();
     });
   }
@@ -27106,6 +27042,11 @@ class Transaksi extends _$Transaksi {
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(_loadData);
+  }
+
+  void _invalidateSistemTerkait() {
+    ref.invalidate(dompetProvider);
+    ref.invalidate(statistikProvider);
   }
 }
 
@@ -27146,7 +27087,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'ea3649546128f1e93e342692a06c836f4b1e80e2';
+String _$transaksiHash() => r'bd9b1ae9af00c2034acf2c903501ebc33e81c7c1';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -29923,7 +29864,7 @@ final class PelangganProvider
   Pelanggan create() => Pelanggan();
 }
 
-String _$pelangganHash() => r'b7b8a20a640545395fad4c4f9dd5505010daec97';
+String _$pelangganHash() => r'2e607690faf7c42f121d7cf13834deb5496c67c9';
 
 abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   FutureOr<PelangganState> build();
@@ -30002,23 +29943,14 @@ abstract class _$UrutanPelangganState extends $Notifier<UrutanPelanggan> {
   }
 }
 
-/// =========================================================================
-/// TULIS DI SINI (Bagian paling bawah file pelanggan_provider.dart)
-/// =========================================================================
 /// Provider generator modern untuk status mode pencarian aktif/tidak
 
 @ProviderFor(IsSearchingPelanggan)
 final isSearchingPelangganProvider = IsSearchingPelangganProvider._();
 
-/// =========================================================================
-/// TULIS DI SINI (Bagian paling bawah file pelanggan_provider.dart)
-/// =========================================================================
 /// Provider generator modern untuk status mode pencarian aktif/tidak
 final class IsSearchingPelangganProvider
     extends $NotifierProvider<IsSearchingPelanggan, bool> {
-  /// =========================================================================
-  /// TULIS DI SINI (Bagian paling bawah file pelanggan_provider.dart)
-  /// =========================================================================
   /// Provider generator modern untuk status mode pencarian aktif/tidak
   IsSearchingPelangganProvider._()
     : super(
@@ -30050,9 +29982,6 @@ final class IsSearchingPelangganProvider
 String _$isSearchingPelangganHash() =>
     r'38724895cc23955136de503eb511810c7092933f';
 
-/// =========================================================================
-/// TULIS DI SINI (Bagian paling bawah file pelanggan_provider.dart)
-/// =========================================================================
 /// Provider generator modern untuk status mode pencarian aktif/tidak
 
 abstract class _$IsSearchingPelanggan extends $Notifier<bool> {
@@ -30236,9 +30165,9 @@ abstract class PelangganState with _$PelangganState {
 @Riverpod(keepAlive: true)
 class Pelanggan extends _$Pelanggan {
   PelangganOpSqlite get pelangganOpSqlite =>
-      ref.watch(pelangganOpSqliteProvider);
+      ref.read(pelangganOpSqliteProvider);
   SQLitePointsDataSource get poinDataSource =>
-      ref.watch(sqlitePointsDataSourceProvider);
+      ref.read(sqlitePointsDataSourceProvider);
 
   @override
   FutureOr<PelangganState> build() {
@@ -30247,22 +30176,23 @@ class Pelanggan extends _$Pelanggan {
 
   Future<PelangganState> _ambilData() async {
     final hasil = await pelangganOpSqlite.ambilSemua();
-    double totalPoin = 0;
+    int totalPoinSistem = 0;
     for (final pelanggan in hasil) {
-      totalPoin += await poinDataSource.ambilTotalPoin(pelanggan.id);
+      final poin = await poinDataSource.ambilTotalPoin(pelanggan.id);
+      totalPoinSistem += poin;
     }
     return PelangganState(
       daftarPelanggan: hasil,
       jumlahPelanggan: hasil.length,
-      totalPoin: totalPoin.toInt(),
+      totalPoin: totalPoinSistem, 
     );
   }
 
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
+    state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.tambahPelanggan(pelanggan);
-      ref.invalidate(pelangganDetailProvider);
-      ref.invalidateSelf();
+      // Tidak perlu meng-invalidate detail karena ini pelanggan baru
       return _ambilData();
     });
   }
@@ -30270,20 +30200,23 @@ class Pelanggan extends _$Pelanggan {
   Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
-      ref.invalidate(pelangganDetailProvider);
-      ref.invalidateSelf();
+      _invalidateDetailPelanggan(
+        pelanggan.id,
+      ); // PERBAIKAN 2: Kirimkan ID yang spesifik
       return _ambilData();
     });
-    
   }
 
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.softDelete(id);
-      ref.invalidate(pelangganDetailProvider);
-      ref.invalidateSelf();
+      _invalidateDetailPelanggan(id); // PERBAIKAN 2: Kirimkan ID yang spesifik
       return _ambilData();
     });
+  }
+
+  void _invalidateDetailPelanggan(String id) {
+    ref.invalidate(pelangganDetailProvider(id));
   }
 
   Future<void> refresh() async {
@@ -30307,10 +30240,6 @@ class UrutanPelangganState extends _$UrutanPelangganState {
   }
 }
 
-/// =========================================================================
-/// TULIS DI SINI (Bagian paling bawah file pelanggan_provider.dart)
-/// =========================================================================
-
 /// Provider generator modern untuk status mode pencarian aktif/tidak
 @riverpod
 class IsSearchingPelanggan extends _$IsSearchingPelanggan {
@@ -30332,11 +30261,13 @@ class SearchQueryPelanggan extends _$SearchQueryPelanggan {
 }
 
 @riverpod
+// PERBAIKAN 4: Mengubah tipe Ref menjadi PelangganDetailRef (Wajib bagi riverpod generator)
 Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
   final pelangganOpSqlte = ref.watch(pelangganOpSqliteProvider);
   final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
   final pelanggan = await pelangganOpSqlte.ambilBerdasarkanId(id);
   final poin = await transaksiOpSqlite.ambilTotalPoin(id);
+
   return (pelanggan, poin);
 }
 
@@ -39154,8 +39085,8 @@ import 'package:intl/intl.dart';
 class ThousandsAndNegativeInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-    final TextEditingValue oldValue,
-    final TextEditingValue newValue,
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
   ) {
     // dihapus: Logika lama yang tidak efisien dalam menangani string kosong.
     // if (newValue.text.isEmpty) {
@@ -39221,23 +39152,27 @@ class ThousandsAndNegativeInputFormatter extends TextInputFormatter {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
-/// Widget yang menampilkan nama pelanggan berdasarkan ID dari dua sumber data.
-///
-/// Secara default, mengambil data dari SQLite. Jika [pakaiFirebase] diatur ke true,
-/// maka akan mengambil data dari Firebase secara real-time.
+part 'nama_pelanggan_widget.g.dart';
+
+@riverpod
+Future<PelangganModel?> namaPelangganSqlite(Ref ref, String id) {
+  return ref.watch(pelangganOpSqliteProvider).ambilBerdasarkanId(id);
+}
+
+@riverpod
+Stream<PelangganModel?> namaPelangganFirebase(Ref ref, String id) {
+  return ref.watch(pelangganOpFirebaseProvider).ambilStreamBerdasarkanId(id);
+}
+
 class NamaPelangganWidget extends ConsumerWidget {
-  /// ID pelanggan yang akan dicari namanya.
   final String idPelanggan;
-
-  /// Gaya teks opsional untuk nama yang ditampilkan.
   final TextStyle? style;
-
-  /// Tentukan `true` untuk menggunakan Firebase, `false` (default) untuk SQLite.
   final bool pakaiFirebase;
 
   const NamaPelangganWidget({
@@ -39249,82 +39184,35 @@ class NamaPelangganWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (pakaiFirebase) {
-      return _buildFromFirebase(ref);
-    }
-    return _buildFromSqlite(ref);
-  }
-
-  /// Membangun widget menggunakan data dari Firebase (Stream).
-  Widget _buildFromFirebase(WidgetRef ref) {
-    final customerOpFirebase = ref.read(pelangganOpFirebaseProvider);
-    return StreamBuilder<PelangganModel?>(
-      stream: customerOpFirebase.ambilStreamBerdasarkanId(idPelanggan),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text('...', style: style);
-        }
-        if (snapshot.hasError) {
-          Log.error(
-            'Error di CustomerNameWidget (Firebase) untuk ID: $idPelanggan',
-            e: snapshot.error,
-            s: snapshot.stackTrace,
-          );
-          return Text(
-            'Error',
-            style:
-                style ??
-                const TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
-          );
-        }
-        if (snapshot.hasData && snapshot.data != null) {
-          return Text(
-            snapshot.data!.nama,
-            style: style,
-            overflow: TextOverflow.ellipsis,
-          );
-        }
+    final asyncPelanggan = pakaiFirebase
+        ? ref.watch(namaPelangganFirebaseProvider(idPelanggan))
+        : ref.watch(namaPelangganSqliteProvider(idPelanggan));
+    return asyncPelanggan.when(
+      loading: () => Text('...', style: style),
+      error: (error, stack) {
+        Log.error(
+          'Error di NamaPelangganWidget (${pakaiFirebase ? "Firebase" : "SQLite"}) untuk ID: $idPelanggan',
+          e: error,
+          s: stack,
+        );
         return Text(
-          'N/A',
+          'Error',
           style:
               style ??
-              const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+              const TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
         );
       },
-    );
-  }
-
-  /// Membangun widget menggunakan data dari SQLite (Future).
-  Widget _buildFromSqlite(WidgetRef ref) {
-    final customerOperation = ref.read(pelangganOpSqliteProvider);
-    return FutureBuilder<PelangganModel?>(
-      future: customerOperation.ambilBerdasarkanId(idPelanggan),
-      builder: (final context, final snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text('...', style: style);
-        }
-        if (snapshot.hasError) {
-          Log.error(
-            'Error di CustomerNameWidget (SQLite) untuk ID: $idPelanggan',
-            e: snapshot.error,
-            s: snapshot.stackTrace,
-          );
+      data: (pelanggan) {
+        if (pelanggan != null) {
           return Text(
-            'Error',
-            style:
-                style ??
-                const TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
-          );
-        }
-        if (snapshot.hasData && snapshot.data != null) {
-          return Text(
-            snapshot.data!.nama,
+            pelanggan.nama,
             style: style,
             overflow: TextOverflow.ellipsis,
           );
         }
+
         return Text(
-          'Pelanggan tidak ditemukan',
+          pakaiFirebase ? 'N/A' : 'Pelanggan tidak ditemukan',
           style:
               style ??
               const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
@@ -39508,7 +39396,6 @@ class InputAngka extends StatelessWidget {
   final String label;
   final bool wajib;
   final IconData? prefixIcon;
-  final bool? validasi;
   final TextInputAction textInputAction;
   final bool enabled;
   final TextInputType keyboardType;
@@ -39520,10 +39407,9 @@ class InputAngka extends StatelessWidget {
   const InputAngka({
     super.key,
     required this.controller,
-    this.label = 'Nomor Telepon',
+    this.label = 'Jumlah',
     this.wajib = true,
     this.prefixIcon,
-    this.validasi = false,
     this.textInputAction = TextInputAction.next,
     this.enabled = true,
     this.keyboardType = TextInputType.number,
@@ -39542,14 +39428,15 @@ class InputAngka extends StatelessWidget {
       textInputAction: textInputAction,
       enabled: enabled,
       focusNode: focusNode,
-      
       onTapOutside: (event) => FocusScope.of(context).unfocus(),
       onFieldSubmitted: (v) {
         if (onSubmitted != null) {
           onSubmitted!(v);
         }
-        if (nextFocusNode != null) {
+        if (textInputAction == TextInputAction.done && nextFocusNode != null) {
           FocusScope.of(context).requestFocus(nextFocusNode);
+        } else if (textInputAction == TextInputAction.done) {
+          FocusScope.of(context).unfocus();
         }
       },
       inputFormatters: [
@@ -39565,10 +39452,14 @@ class InputAngka extends StatelessWidget {
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
       ),
       validator: (value) {
-        if (wajib && validasi! && (value == null || value.trim().isEmpty)) {
-          return '$label wajib diisi';
+        final cleanValue = (value ?? '').replaceAll('.', '').trim();
+        if (cleanValue.isEmpty) {
+          if (wajib) {
+            return '$label wajib diisi';
+          }
+          return null;
         }
-        final angka = int.tryParse(value ?? '');
+        final angka = int.tryParse(cleanValue);
         if (angka == null) {
           return '$label harus berupa angka';
         }
@@ -39684,7 +39575,7 @@ class InputTeks extends StatelessWidget {
     this.wajib = true,
     this.validator,
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
-    this.textInputAction = TextInputAction.next,
+    this.textInputAction = TextInputAction.next, // Default tombol Next
     this.prefixIcon,
     this.focusNode,
     this.nextFocusNode,
@@ -39697,6 +39588,8 @@ class InputTeks extends StatelessWidget {
     return TextFormField(
       controller: controller,
       autovalidateMode: autovalidateMode,
+      textInputAction:
+          textInputAction, // 🛠️ PERBAIKAN 1: Sekarang parameternya sudah dipasang
       enabled: enabled,
       focusNode: focusNode,
       onTapOutside: (event) => FocusScope.of(context).unfocus(),
@@ -39705,12 +39598,19 @@ class InputTeks extends StatelessWidget {
         border: const OutlineInputBorder(),
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
       ),
+
+      // 🛠️ PERBAIKAN 2: Logika disamakan dengan aturan independen & berantai
       onFieldSubmitted: (v) {
-        if (nextFocusNode != null) {
-          FocusScope.of(context).requestFocus(nextFocusNode);
-        }
+        // 1. Urusan data/callback jalan duluan jika ada
         if (onSubmitted != null) {
           onSubmitted!(v);
+        }
+
+        // 2. Urusan navigasi keyboard memakai if - else if
+        if (textInputAction == TextInputAction.next && nextFocusNode != null) {
+          FocusScope.of(context).requestFocus(nextFocusNode);
+        } else if (textInputAction == TextInputAction.done) {
+          FocusScope.of(context).unfocus();
         }
       },
       validator:
@@ -39829,6 +39729,171 @@ class PackageNameWidget extends StatelessWidget {
       },
     );
   }
+}
+
+
+// File: lib/shared/widget/nama_pelanggan_widget.g.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'nama_pelanggan_widget.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(namaPelangganSqlite)
+final namaPelangganSqliteProvider = NamaPelangganSqliteFamily._();
+
+final class NamaPelangganSqliteProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<PelangganModel?>,
+          PelangganModel?,
+          FutureOr<PelangganModel?>
+        >
+    with $FutureModifier<PelangganModel?>, $FutureProvider<PelangganModel?> {
+  NamaPelangganSqliteProvider._({
+    required NamaPelangganSqliteFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'namaPelangganSqliteProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$namaPelangganSqliteHash();
+
+  @override
+  String toString() {
+    return r'namaPelangganSqliteProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<PelangganModel?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<PelangganModel?> create(Ref ref) {
+    final argument = this.argument as String;
+    return namaPelangganSqlite(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is NamaPelangganSqliteProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$namaPelangganSqliteHash() =>
+    r'2f76f0007790a3a9698adc8976cc9092d0070607';
+
+final class NamaPelangganSqliteFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<PelangganModel?>, String> {
+  NamaPelangganSqliteFamily._()
+    : super(
+        retry: null,
+        name: r'namaPelangganSqliteProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  NamaPelangganSqliteProvider call(String id) =>
+      NamaPelangganSqliteProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'namaPelangganSqliteProvider';
+}
+
+@ProviderFor(namaPelangganFirebase)
+final namaPelangganFirebaseProvider = NamaPelangganFirebaseFamily._();
+
+final class NamaPelangganFirebaseProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<PelangganModel?>,
+          PelangganModel?,
+          Stream<PelangganModel?>
+        >
+    with $FutureModifier<PelangganModel?>, $StreamProvider<PelangganModel?> {
+  NamaPelangganFirebaseProvider._({
+    required NamaPelangganFirebaseFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'namaPelangganFirebaseProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$namaPelangganFirebaseHash();
+
+  @override
+  String toString() {
+    return r'namaPelangganFirebaseProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<PelangganModel?> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<PelangganModel?> create(Ref ref) {
+    final argument = this.argument as String;
+    return namaPelangganFirebase(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is NamaPelangganFirebaseProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$namaPelangganFirebaseHash() =>
+    r'736e7005a1ebfb7f8bdb051a1fc8d574cbb928d4';
+
+final class NamaPelangganFirebaseFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<PelangganModel?>, String> {
+  NamaPelangganFirebaseFamily._()
+    : super(
+        retry: null,
+        name: r'namaPelangganFirebaseProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  NamaPelangganFirebaseProvider call(String id) =>
+      NamaPelangganFirebaseProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'namaPelangganFirebaseProvider';
 }
 
 
@@ -48352,7 +48417,7 @@ final class RiwayatAktivasiPaketProvider
 }
 
 String _$riwayatAktivasiPaketHash() =>
-    r'848c55cea1eabe76cf3717e2e16d428f5a31f4f7';
+    r'600ba939b7c921dbdd7139b3e9f600148d5d3c6b';
 
 abstract class _$RiwayatAktivasiPaket
     extends $AsyncNotifier<RiwayatAktivasiPaketState> {

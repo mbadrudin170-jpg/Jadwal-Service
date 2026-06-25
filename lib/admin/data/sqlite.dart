@@ -26,7 +26,7 @@ class SqliteDatabase {
   static Database? _database;
 
   // diubah: Versi dinaikkan ke 53 untuk menambah kolom durasi bonus di transaksi.
-  static const int _databaseVersion = 53;
+  static const int _databaseVersion = 54;
 
   SqliteDatabase._internal() {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
@@ -148,7 +148,10 @@ class SqliteDatabase {
       );
       await _migrateToV53(db);
     }
-
+    if (oldVersion < 54) {
+      Log.info('[MIGRASI v54] Menyesuaikan tabel notifikasi dengan model.');
+      await _migrateToV54(db);
+    }
     Log.info('========================================');
     Log.info('PROSES UPGRADE DATABASE SELESAI');
     Log.info(
@@ -198,6 +201,57 @@ class SqliteDatabase {
       );
     }
     Log.info('[MIGRASI v53] Penambahan kolom selesai.');
+  }
+
+  Future<void> _migrateToV54(final Database db) async {
+    const String tableName = NamaTabel.notifikasi;
+    final results = await db.rawQuery('PRAGMA table_info("$tableName")');
+    final existingColumns = results
+        .map((row) => row['name'] as String)
+        .toList();
+
+    final columnsToAdd = {
+      NamaKolom.tanggalMulai: 'INTEGER NOT NULL',
+      NamaKolom.tanggalBerakhir: 'INTEGER NOT NULL',
+      NamaKolom.tanggalTampil: 'INTEGER NOT NULL',
+      NamaKolom.judul: 'TEXT NOT NULL',
+      NamaKolom.deskripsi: 'TEXT NOT NULL',
+      NamaKolom.setatusDibaca: 'INTEGER NOT NULL DEFAULT 0',
+      NamaKolom.tipe: 'TEXT NOT NULL',
+      NamaKolom.diperbaruiPada: 'INTEGER NOT NULL',
+      NamaKolom.idTujuan: 'TEXT NOT NULL',
+      NamaKolom.userId: 'TEXT NOT NULL',
+      NamaKolom.targetRole: 'TEXT NOT NULL',
+    };
+
+    for (final entry in columnsToAdd.entries) {
+      if (!existingColumns.contains(entry.key)) {
+        await db.execute(
+          'ALTER TABLE "$tableName" ADD COLUMN ${entry.key} ${entry.value}',
+        );
+        Log.info('[MIGRASI v54] Kolom ${entry.key} ditambahkan ke $tableName.');
+      }
+    }
+
+    // Hapus kolom 'pesan' dan 'status' jika masih ada (dari definisi lama)
+    if (existingColumns.contains('pesan')) {
+      // SQLite tidak mendukung DROP COLUMN langsung, jadi kita perlu membuat ulang tabel.
+      // Namun, karena tabel notifikasi masih baru dan kemungkinan tidak ada data penting,
+      // lebih aman untuk menghapus dan membuat ulang tabel.
+      Log.warning(
+        '[MIGRASI v54] Menghapus dan membuat ulang tabel notifikasi untuk membersihkan kolom usang.',
+      );
+      await db.execute('DROP TABLE IF EXISTS "$tableName"');
+      await db.execute(_tabelNotification);
+      Log.info(
+        '[MIGRASI v54] Tabel notifikasi dibuat ulang dengan struktur terbaru.',
+      );
+    } else {
+      // Jika tidak ada kolom usang, kita hanya menambahkan yang hilang.
+      Log.info(
+        '[MIGRASI v54] Tabel notifikasi sudah sesuai, hanya menambahkan kolom yang hilang.',
+      );
+    }
   }
 
   Future<void> _migrateToV45(final Database db) async {
@@ -770,20 +824,25 @@ class SqliteDatabase {
       FOREIGN KEY (${NamaKolom.idPaket}) REFERENCES ${NamaTabel.paket} (${NamaKolom.id}) ON DELETE CASCADE
     )
   ''';
-
-  // 1. Definisi tabel notifikasi
   static const String _tabelNotification =
       '''
-    CREATE TABLE ${NamaTabel.notifikasi}(
-      ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.pesan} TEXT NOT NULL,
-      ${NamaKolom.tanggal} INTEGER NOT NULL,
-      ${NamaKolom.status} TEXT NOT NULL,
-      ${NamaKolom.diperbaruiPada} INTEGER,
-      ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.diarsipkanPada} INTEGER
-    )
-  ''';
+  CREATE TABLE ${NamaTabel.notifikasi}(
+    ${NamaKolom.id} TEXT PRIMARY KEY,
+    ${NamaKolom.tanggalMulai} INTEGER NOT NULL,
+    ${NamaKolom.tanggalBerakhir} INTEGER NOT NULL,
+    ${NamaKolom.tanggalTampil} INTEGER NOT NULL,
+    ${NamaKolom.judul} TEXT NOT NULL,
+    ${NamaKolom.deskripsi} TEXT NOT NULL,
+    ${NamaKolom.setatusDibaca} INTEGER NOT NULL DEFAULT 0,
+    ${NamaKolom.tipe} TEXT NOT NULL,
+    ${NamaKolom.diperbaruiPada} INTEGER NOT NULL,
+    ${NamaKolom.idTujuan} TEXT NOT NULL,
+    ${NamaKolom.userId} TEXT NOT NULL,
+    ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
+    ${NamaKolom.diarsipkanPada} INTEGER,
+    ${NamaKolom.targetRole} TEXT NOT NULL
+  )
+''';
   // ============================================================
   // DEFINISI TABEL LAMA (Tetap Konstan untuk Jalur Migrasi Sinkron)
   // ============================================================
