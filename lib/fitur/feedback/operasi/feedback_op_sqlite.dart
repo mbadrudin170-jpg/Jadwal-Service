@@ -36,14 +36,18 @@ class FeedbackOpSqlite {
   }
 
   /// Mengambil semua kritik dan saran dari database, diurutkan berdasarkan tanggal terbaru.
-  Future<List<FeedbackModel>> ambilSemua() async {
+  Future<List<FeedbackModel>> ambilSemua({
+    bool tampilkanYangDiarsip = false,
+  }) async {
     Log.info(
       'Memulai getAllFeedback (mengambil semua, diurutkan berdasarkan tanggal terbaru).',
     );
     try {
       final db = await sqliteDb.database;
+      final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = 0';
       final List<Map<String, dynamic>> maps = await db.query(
         _namaTabel,
+        where: query,
         orderBy: '${NamaKolom.tanggal} DESC',
       );
       final daftarFeedback = List.generate(
@@ -60,28 +64,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Mengambil semua kritik dan saran yang aktif (tidak di-soft-delete).
-  Future<List<FeedbackModel>> ambilSemuaFeedbackAktif() async {
-    Log.info('Mengambil semua feedback aktif (dihapus = 0).');
-    try {
-      final db = await sqliteDb.database;
-      final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
-        where: '${NamaKolom.dihapus} = 0',
-        orderBy: '${NamaKolom.tanggal} DESC',
-      );
-      final daftarFeedback = List.generate(
-        maps.length,
-        (i) => FeedbackModel.fromSqlite(maps[i]),
-      );
-      Log.info('Berhasil mengambil ${daftarFeedback.length} feedback aktif.');
-      return daftarFeedback;
-    } catch (e, st) {
-      Log.error('Gagal mengambil feedback aktif', e: e, s: st);
-      rethrow;
-    }
-  }
-
   Future<FeedbackModel> ambilBerdasarkanId(final String id) async {
     Log.info('Memulai getFeedbackById untuk ID: $id');
     try {
@@ -91,7 +73,6 @@ class FeedbackOpSqlite {
         where: 'id = ?',
         whereArgs: [id],
       );
-
       if (maps.isNotEmpty) {
         final data = FeedbackModel.fromSqlite(maps.first);
         Log.info(
@@ -104,6 +85,19 @@ class FeedbackOpSqlite {
       }
     } catch (e, st) {
       Log.error('Gagal saat getFeedbackById untuk ID: $id', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  Future<int> ambilTotalFeedback() async {
+    Log.info('Mulai mengambil jumlah feedback baru.');
+    try {
+      final daftarFeedback = await ambilSemua();
+      final jumlah = daftarFeedback.length;
+      Log.info('Jumlah feedback baru yang dihitung: $jumlah');
+      return jumlah;
+    } catch (e, st) {
+      Log.error('Gagal mengambil jumlah feedback baru.', e: e, s: st);
       rethrow;
     }
   }

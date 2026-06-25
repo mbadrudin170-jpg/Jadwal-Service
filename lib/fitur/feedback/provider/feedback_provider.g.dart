@@ -9,6 +9,50 @@ part of 'feedback_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(Feedback)
+final feedbackProvider = FeedbackProvider._();
+
+final class FeedbackProvider
+    extends $AsyncNotifierProvider<Feedback, FeedbackState> {
+  FeedbackProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'feedbackProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$feedbackHash();
+
+  @$internal
+  @override
+  Feedback create() => Feedback();
+}
+
+String _$feedbackHash() => r'9eadefcb224084c22312fa6325107b16e49cad51';
+
+abstract class _$Feedback extends $AsyncNotifier<FeedbackState> {
+  FutureOr<FeedbackState> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<FeedbackState>, FeedbackState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<FeedbackState>, FeedbackState>,
+              AsyncValue<FeedbackState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(daftarFeedbackAktif)
 final daftarFeedbackAktifProvider = DaftarFeedbackAktifProvider._();
 
@@ -49,7 +93,7 @@ final class DaftarFeedbackAktifProvider
 }
 
 String _$daftarFeedbackAktifHash() =>
-    r'22ac9e9b00e3b76e8febc021b4d1b9b0cf94731b';
+    r'b340f89f938d3f177a7984b45150e25b69115649';
 
 @ProviderFor(detailFeedback)
 final detailFeedbackProvider = DetailFeedbackFamily._();

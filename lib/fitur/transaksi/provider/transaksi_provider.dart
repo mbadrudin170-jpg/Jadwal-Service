@@ -7,7 +7,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
-import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
@@ -132,6 +131,5 @@ class Transaksi extends _$Transaksi {
 
   void _invalidateSistemTerkait() {
     ref.invalidate(dompetProvider);
-    ref.invalidate(statistikProvider);
   }
 }

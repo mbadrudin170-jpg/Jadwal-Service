@@ -1,4 +1,4 @@
-// path: lib/fitur/pelanggan/page/admin/pelanggan.dart
+// path lib/fitur/pelanggan/page/admin/pelanggan_page.dart
 
 import 'dart:async';
 
@@ -108,14 +108,14 @@ final filteredCustomersProvider =
     });
 
 /// Halaman untuk menampilkan dan mengelola daftar semua customer.
-class Pelanggan extends ConsumerStatefulWidget {
-  const Pelanggan({super.key});
+class PelangganPage extends ConsumerStatefulWidget {
+  const PelangganPage({super.key});
 
   @override
-  ConsumerState<Pelanggan> createState() => _PelangganState();
+  ConsumerState<PelangganPage> createState() => _PelangganState();
 }
 
-class _PelangganState extends ConsumerState<Pelanggan> {
+class _PelangganState extends ConsumerState<PelangganPage> {
   late final TextEditingController _searchController;
 
   Timer? _debounce;

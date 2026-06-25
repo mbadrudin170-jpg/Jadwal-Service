@@ -4,7 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/pelanggan.dart';
+import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
 import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
 import 'package:wifi/shared/export/operation.dart';
 
@@ -26,7 +26,6 @@ class Pelanggan extends _$Pelanggan {
       ref.read(pelangganOpSqliteProvider);
   SQLitePointsDataSource get poinDataSource =>
       ref.read(sqlitePointsDataSourceProvider);
-
   @override
   FutureOr<PelangganState> build() {
     return _ambilData();
@@ -55,10 +54,8 @@ class Pelanggan extends _$Pelanggan {
 
   Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
     state = await AsyncValue.guard(() async {
-    await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
-      _invalidateDetailPelanggan(
-        pelanggan.id,
-      );  
+      await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
+      _invalidateDetailPelanggan(pelanggan.id);
       return _ambilData();
     });
   }
@@ -66,7 +63,7 @@ class Pelanggan extends _$Pelanggan {
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.softDelete(id);
-      _invalidateDetailPelanggan(id); 
+      _invalidateDetailPelanggan(id);
       return _ambilData();
     });
   }
