@@ -25,8 +25,8 @@ Future<SharedPreferences> sharedPreferences(Ref ref) {
 
 @Riverpod(keepAlive: true)
 Future<LayananPenyimpananLokal> layananPenyimpananLokal(Ref ref) async {
-  final prefs = await ref.watch(sharedPreferencesProvider.future);
-  return LayananPenyimpananLokal(prefs: prefs);
+  final preferensi = await ref.watch(sharedPreferencesProvider.future);
+  return LayananPenyimpananLokal(prefs: preferensi);
 }
 
 /// Provider sederhana yang hanya membuat instance NotifikasiServis.
@@ -35,8 +35,6 @@ LayananNotifikasi layananNotifikasi(Ref ref) {
   return LayananNotifikasi();
 }
 
-/// Controller utama untuk notifikasi.
-/// Tonton provider ini dari UI untuk menginisialisasi listener.
 @Riverpod(keepAlive: true)
 void pengontrolNotifikasi(Ref ref) {
   final role = ref.watch(appRoleProvider);

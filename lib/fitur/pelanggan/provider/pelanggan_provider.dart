@@ -42,25 +42,23 @@ class Pelanggan extends _$Pelanggan {
     return PelangganState(
       daftarPelanggan: hasil,
       jumlahPelanggan: hasil.length,
-      totalPoin: totalPoinSistem, 
+      totalPoin: totalPoinSistem,
     );
   }
 
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
-    state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.tambahPelanggan(pelanggan);
-      // Tidak perlu meng-invalidate detail karena ini pelanggan baru
       return _ambilData();
     });
   }
 
   Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
     state = await AsyncValue.guard(() async {
-      await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
+    await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
       _invalidateDetailPelanggan(
         pelanggan.id,
-      ); // PERBAIKAN 2: Kirimkan ID yang spesifik
+      );  
       return _ambilData();
     });
   }
@@ -68,7 +66,7 @@ class Pelanggan extends _$Pelanggan {
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.softDelete(id);
-      _invalidateDetailPelanggan(id); // PERBAIKAN 2: Kirimkan ID yang spesifik
+      _invalidateDetailPelanggan(id); 
       return _ambilData();
     });
   }
@@ -85,7 +83,6 @@ class Pelanggan extends _$Pelanggan {
   }
 }
 
-/// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
 @riverpod
 class UrutanPelangganState extends _$UrutanPelangganState {
   @override
@@ -113,18 +110,15 @@ class IsSearchingPelanggan extends _$IsSearchingPelanggan {
 class SearchQueryPelanggan extends _$SearchQueryPelanggan {
   @override
   String build() => '';
-
   void updateQuery(String query) => state = query;
   void clear() => state = '';
 }
 
 @riverpod
-// PERBAIKAN 4: Mengubah tipe Ref menjadi PelangganDetailRef (Wajib bagi riverpod generator)
 Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
   final pelangganOpSqlte = ref.watch(pelangganOpSqliteProvider);
   final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
   final pelanggan = await pelangganOpSqlte.ambilBerdasarkanId(id);
   final poin = await transaksiOpSqlite.ambilTotalPoin(id);
-
   return (pelanggan, poin);
 }

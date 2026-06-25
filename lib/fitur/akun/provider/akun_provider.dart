@@ -19,11 +19,7 @@ abstract class AkunState with _$AkunState {
 @Riverpod(keepAlive: true)
 class PengelolaAkun extends _$PengelolaAkun {
   @override
-  Future<AkunState> build() {
-    return _initAwal(ref);
-  }
-
-  Future<AkunState> _initAwal(Ref ref) async {
+  Future<AkunState> build() async {
     final penyimpananLokal = await ref.watch(
       layananPenyimpananLokalProvider.future,
     );
@@ -32,12 +28,10 @@ class PengelolaAkun extends _$PengelolaAkun {
     return AkunState(akunSaatIni: akunSaatIni, daftarAkunTersimpan: daftarAkun);
   }
 
-  // 1. Login / simpan akun
   Future<void> login(PelangganModel akun) async {
     final penyimpananLokal = await ref.read(
       layananPenyimpananLokalProvider.future,
     );
-
     await penyimpananLokal.simpanAkunSaatIni(akun);
     final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
     state = AsyncData(
@@ -59,12 +53,10 @@ class PengelolaAkun extends _$PengelolaAkun {
     );
   }
 
-  // 3. Hapus akun tertentu dari daftar
   Future<void> hapusAkun(String id) async {
     final penyimpananLokal = await ref.read(
       layananPenyimpananLokalProvider.future,
     );
-
     await penyimpananLokal.hapusAkun(id);
     final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
     final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
@@ -78,7 +70,6 @@ class PengelolaAkun extends _$PengelolaAkun {
       layananPenyimpananLokalProvider.future,
     );
     await penyimpananLokal.hapusTokenLogin();
-
     final keadaanSaatIni = state.value;
     final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
     final daftarAkun =
@@ -89,7 +80,6 @@ class PengelolaAkun extends _$PengelolaAkun {
     );
   }
 
-  // 4. Segarkan manual (jika diperlukan)
   Future<void> refresh() async {
     final penyimpananLokal = await ref.read(
       layananPenyimpananLokalProvider.future,
