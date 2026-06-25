@@ -75,7 +75,7 @@ void main() {
         '01. harus mengembalikan selisih hari positif untuk tanggal di masa depan',
         () {
           final target = DateTime(2023, 10, 25);
-          expect(PerhitunganUtil.sisaHari(target, sekarang: sekarang), 5);
+          expect(target.difference(sekarang).inDays, 5);
         },
       );
 
@@ -83,23 +83,23 @@ void main() {
         '02. harus mengembalikan selisih hari negatif untuk tanggal di masa lalu',
         () {
           final target = DateTime(2023, 10, 15);
-          expect(PerhitunganUtil.sisaHari(target, sekarang: sekarang), -5);
+          expect(target.difference(sekarang).inDays, -5);
         },
       );
 
       test('03. harus mengembalikan 0 jika tanggalnya sama', () {
         final target = DateTime(2023, 10, 20, 23, 59); // Waktu diabaikan
-        expect(PerhitunganUtil.sisaHari(target, sekarang: sekarang), 0);
+        expect(target.difference(sekarang).inDays, 0);
       });
     });
 
-    group('ambilTeksSisaMasaAktif', () {
+    group('cobaAmbilTeksSisaMasaAktif', () {
       final sekarang = DateTime(2023, 10, 20, 10, 0);
 
       test("01. harus mengembalikan 'Berakhir' jika tanggal sudah lewat", () {
         final tanggalBerakhir = sekarang.subtract(const Duration(seconds: 1));
         expect(
-          PerhitunganUtil.ambilTeksSisaMasaAktif(
+          PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
             tanggalBerakhir,
             sekarang: sekarang,
           ),
@@ -110,11 +110,11 @@ void main() {
       test('02. harus mengembalikan sisa hari', () {
         final tanggalBerakhir = sekarang.add(const Duration(days: 3, hours: 5));
         expect(
-          PerhitunganUtil.ambilTeksSisaMasaAktif(
+          PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
             tanggalBerakhir,
             sekarang: sekarang,
           ),
-          'Sisa 3 hari',
+          '3 hari lagi',
         );
       });
 
@@ -123,33 +123,33 @@ void main() {
           const Duration(hours: 5, minutes: 30),
         );
         expect(
-          PerhitunganUtil.ambilTeksSisaMasaAktif(
+          PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
             tanggalBerakhirFix,
             sekarang: sekarang,
           ),
-          'Sisa 5 jam',
+          '5 jam lagi',
         );
       });
 
       test('04. harus mengembalikan sisa menit', () {
         final tanggalBerakhirFix = sekarang.add(const Duration(minutes: 45));
         expect(
-          PerhitunganUtil.ambilTeksSisaMasaAktif(
+          PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
             tanggalBerakhirFix,
             sekarang: sekarang,
           ),
-          'Sisa 45 menit',
+          '45 menit lagi',
         );
       });
 
-      test("05. harus mengembalikan 'Berakhir dalam beberapa saat'", () {
+      test("05. harus mengembalikan 'beberapa saat lagi'", () {
         final tanggalBerakhirFix = sekarang.add(const Duration(seconds: 30));
         expect(
-          PerhitunganUtil.ambilTeksSisaMasaAktif(
+          PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
             tanggalBerakhirFix,
             sekarang: sekarang,
           ),
-          'Berakhir dalam beberapa saat',
+          'beberapa saat lagi',
         );
       });
     });
