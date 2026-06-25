@@ -53,7 +53,6 @@ class UjiKecepatan extends _$UjiKecepatan {
       ping: 0,
     );
 
-    // Get Ping
     try {
       state = state.copyWith(statusPesan: 'Mengukur ping...');
       final pingTime = await ref.read(httpPingProvider.future);
@@ -96,20 +95,16 @@ class UjiKecepatan extends _$UjiKecepatan {
           _timer?.cancel(); // Batalkan timer
           if (_isFinished) return;
           _isFinished = true;
-
           double hasilUnduhDalamMbps = unduh.transferRate;
           if (unduh.unit == SpeedUnit.kbps) hasilUnduhDalamMbps /= 1000;
-
           double hasilUnggahDalamMbps = unggah.transferRate;
           if (unggah.unit == SpeedUnit.kbps) hasilUnggahDalamMbps /= 1000;
-
           state = state.copyWith(
             kecepatanUnduh: hasilUnduhDalamMbps,
             kecepatanUnggah: hasilUnggahDalamMbps,
             sedangMenguji: false,
             statusPesan: 'Pengujian selesai',
           );
-
           if (context.mounted) {
             ToastUtil.success(context, 'Uji kecepatan berhasil diselesaikan');
           }
