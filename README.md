@@ -876,11 +876,7 @@ abstract class AkunState with _$AkunState {
 @Riverpod(keepAlive: true)
 class PengelolaAkun extends _$PengelolaAkun {
   @override
-  Future<AkunState> build() {
-    return _initAwal(ref);
-  }
-
-  Future<AkunState> _initAwal(Ref ref) async {
+  Future<AkunState> build() async {
     final penyimpananLokal = await ref.watch(
       layananPenyimpananLokalProvider.future,
     );
@@ -889,12 +885,10 @@ class PengelolaAkun extends _$PengelolaAkun {
     return AkunState(akunSaatIni: akunSaatIni, daftarAkunTersimpan: daftarAkun);
   }
 
-  // 1. Login / simpan akun
   Future<void> login(PelangganModel akun) async {
     final penyimpananLokal = await ref.read(
       layananPenyimpananLokalProvider.future,
     );
-
     await penyimpananLokal.simpanAkunSaatIni(akun);
     final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
     state = AsyncData(
@@ -916,12 +910,10 @@ class PengelolaAkun extends _$PengelolaAkun {
     );
   }
 
-  // 3. Hapus akun tertentu dari daftar
   Future<void> hapusAkun(String id) async {
     final penyimpananLokal = await ref.read(
       layananPenyimpananLokalProvider.future,
     );
-
     await penyimpananLokal.hapusAkun(id);
     final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
     final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
@@ -935,7 +927,6 @@ class PengelolaAkun extends _$PengelolaAkun {
       layananPenyimpananLokalProvider.future,
     );
     await penyimpananLokal.hapusTokenLogin();
-
     final keadaanSaatIni = state.value;
     final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
     final daftarAkun =
@@ -946,7 +937,6 @@ class PengelolaAkun extends _$PengelolaAkun {
     );
   }
 
-  // 4. Segarkan manual (jika diperlukan)
   Future<void> refresh() async {
     final penyimpananLokal = await ref.read(
       layananPenyimpananLokalProvider.future,
@@ -8981,6 +8971,8 @@ String _$httpPingHash() => r'd40359925cf1b6fb94c217e43ce8a68657a76a73';
 // File: lib/fitur/paket/page/form_paket.dart
 // path: lib/fitur/paket/page/form_paket.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqlite_api.dart';
@@ -8990,6 +8982,7 @@ import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -9058,7 +9051,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
         poinHadiah: int.tryParse(_poinHadiahcontroller.text) ?? 0,
         poinPenukaran: int.tryParse(_poinPenukaranController.text) ?? 0,
         statusPublik: _publik,
-        diperbaruiPada: DateTime.now().toUtc(),
+        diperbaruiPada: DateTime.now(),
       );
 
       try {
@@ -9068,6 +9061,9 @@ class _PackageFormState extends ConsumerState<FormPaket> {
           await _paketOpSqlite.tambahPaket(paketBaru);
         }
         ref.invalidate(daftarPaketProvider);
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
         if (!mounted) {
           return;
         }
@@ -9075,7 +9071,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
           context,
           'Data paket berhasil ${_modeEdit ? 'diperbarui' : 'disimpan'}!',
         );
-        Navigator.pop(context, true);
+        Navigator.pop(context);
       } on DatabaseException catch (e, s) {
         String pesanError =
             'Gagal menyimpan paket. Terjadi kesalahan database.';
@@ -9248,6 +9244,7 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/page/detail_paket.dart';
 import 'package:wifi/fitur/paket/page/form_paket.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -9319,7 +9316,7 @@ class PackagePage extends ConsumerWidget {
                   );
                 },
                 onLongPress: () =>
-                    _tamplkanDialogHapusEdit(context, ref, paket),
+                    _tampilkanDialogHapusEdit(context, ref, paket),
                 child: Card(
                   margin: const EdgeInsets.symmetric(
                     horizontal: 10,
@@ -9355,7 +9352,6 @@ class PackagePage extends ConsumerWidget {
   }
 }
 
-// --- FUNGSI UTAS / HELPER DI LUAR WIDGET CLASS ---
 
 void _urutkanList(List<PaketModel> daftarPaket, UrutanPaket urutan) {
   switch (urutan) {
@@ -9446,7 +9442,7 @@ Future<void> _tampilkanDialogUrutkan(
   }
 }
 
-Future<void> _tamplkanDialogHapusEdit(
+Future<void> _tampilkanDialogHapusEdit(
   BuildContext context,
   WidgetRef ref,
   PaketModel paket,
@@ -9473,7 +9469,7 @@ Future<void> _tamplkanDialogHapusEdit(
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
-              unawaited(_tampilkanDialogKonfirmasiHapus(context, ref, paket));
+              _tampilkanDialogKonfirmasiHapus(context, ref, paket);
             },
             child: const Text('Hapus'),
           ),
@@ -9499,20 +9495,21 @@ Future<void> _tampilkanDialogKonfirmasiHapus(
         actions: <Widget>[
           TextButton(
             child: const Text('Batal'),
-            onPressed: () => Navigator.of(dialogContext).pop(),
+            onPressed: () => Navigator.pop(dialogContext),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Hapus'),
             onPressed: () async {
-              // Tutup dialog terlebih dahulu menggunakan dialogContext
-              Navigator.of(dialogContext).pop();
-
+              Navigator.pop(dialogContext);
               try {
                 await paketOpSqlite.hapusSementara(paket.id);
-
                 ref.invalidate(daftarPaketProvider);
-
+                unawaited(
+                  ref
+                      .read(layananCekSinkronisasiProvider)
+                      .jalankanCekSinkronisasi(),
+                );
                 if (context.mounted) {
                   ToastUtil.success(context, 'Paket berhasil dihapus.');
                 }
@@ -9533,7 +9530,6 @@ Future<void> _tampilkanDialogKonfirmasiHapus(
 Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
   Log.info('User menekan tombol hapus semua paket');
   final paketOpSqlite = ref.read(paketOpSqliteProvider);
-
   await showDialog<void>(
     context: context,
     builder: (BuildContext dialogContext) {
@@ -9553,6 +9549,11 @@ Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
               try {
                 Log.info('Menjalankan soft delete semua paket');
                 await paketOpSqlite.hapusSementaraSemua();
+                unawaited(
+                  ref
+                      .read(layananCekSinkronisasiProvider)
+                      .jalankanCekSinkronisasi(),
+                );
                 ref.invalidate(daftarPaketProvider);
                 if (context.mounted) {
                   ToastUtil.success(context, 'Semua paket dihapus.');
@@ -9604,23 +9605,6 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
     Log.info('Data paket berhasil dimuat: ${_paket.nama}, ID: ${_paket.id}.');
   }
 
-  Future<void> _bukaFormEdit() async {
-    Log.info('Navigasi ke form edit paket: ${_paket.nama}.');
-    final result = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute<bool>(
-        builder: (final context) => FormPaket(paket: _paket),
-      ),
-    );
-
-    if (result ?? false) {
-      Log.info('Perubahan data paket terdeteksi.');
-      if (mounted) {
-        Navigator.pop(context, true);
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -9628,7 +9612,14 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
         title: Text(_paket.nama),
         actions: [
           IconButton(
-            onPressed: _bukaFormEdit,
+            onPressed: () {
+              Navigator.push<bool>(
+                context,
+                MaterialPageRoute<bool>(
+                  builder: (context) => FormPaket(paket: _paket),
+                ),
+              );
+            },
             icon: const Icon(TIcons.edit),
             tooltip: 'Edit Paket',
           ),
@@ -19633,7 +19624,6 @@ import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/fitur/versi_apk/operasi/versi_apk_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
@@ -25074,11 +25064,14 @@ class DetailTransaksiU extends StatelessWidget {
 // File: lib/fitur/transaksi/page/riwayat_aktivasi_paket.dart
 // path lib/fitur/transaksi/page/riwayat_aktivasi_paket.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
@@ -25209,8 +25202,16 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
             child: const Text('Batal'),
           ),
           TextButton(
-            onPressed: () {
-              ref.read(transaksiProvider.notifier).softDelete(transaksi.id);
+            onPressed: () async {
+              await ref
+                  .read(transaksiProvider.notifier)
+                  .softDelete(transaksi.id);
+              unawaited(
+                ref
+                    .read(layananCekSinkronisasiProvider)
+                    .jalankanCekSinkronisasi(),
+              );
+              if (!context.mounted) return;
               Navigator.pop(context);
             },
             child: const Text('Iya', style: TextStyle(color: Colors.red)),
@@ -25442,7 +25443,6 @@ import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_rupiah.dart';
@@ -30150,25 +30150,23 @@ class Pelanggan extends _$Pelanggan {
     return PelangganState(
       daftarPelanggan: hasil,
       jumlahPelanggan: hasil.length,
-      totalPoin: totalPoinSistem, 
+      totalPoin: totalPoinSistem,
     );
   }
 
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
-    state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.tambahPelanggan(pelanggan);
-      // Tidak perlu meng-invalidate detail karena ini pelanggan baru
       return _ambilData();
     });
   }
 
   Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
     state = await AsyncValue.guard(() async {
-      await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
+    await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
       _invalidateDetailPelanggan(
         pelanggan.id,
-      ); // PERBAIKAN 2: Kirimkan ID yang spesifik
+      );  
       return _ambilData();
     });
   }
@@ -30176,7 +30174,7 @@ class Pelanggan extends _$Pelanggan {
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.softDelete(id);
-      _invalidateDetailPelanggan(id); // PERBAIKAN 2: Kirimkan ID yang spesifik
+      _invalidateDetailPelanggan(id); 
       return _ambilData();
     });
   }
@@ -30193,7 +30191,6 @@ class Pelanggan extends _$Pelanggan {
   }
 }
 
-/// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
 @riverpod
 class UrutanPelangganState extends _$UrutanPelangganState {
   @override
@@ -30221,19 +30218,16 @@ class IsSearchingPelanggan extends _$IsSearchingPelanggan {
 class SearchQueryPelanggan extends _$SearchQueryPelanggan {
   @override
   String build() => '';
-
   void updateQuery(String query) => state = query;
   void clear() => state = '';
 }
 
 @riverpod
-// PERBAIKAN 4: Mengubah tipe Ref menjadi PelangganDetailRef (Wajib bagi riverpod generator)
 Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
   final pelangganOpSqlte = ref.watch(pelangganOpSqliteProvider);
   final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
   final pelanggan = await pelangganOpSqlte.ambilBerdasarkanId(id);
   final poin = await transaksiOpSqlite.ambilTotalPoin(id);
-
   return (pelanggan, poin);
 }
 
@@ -41590,8 +41584,8 @@ Future<SharedPreferences> sharedPreferences(Ref ref) {
 
 @Riverpod(keepAlive: true)
 Future<LayananPenyimpananLokal> layananPenyimpananLokal(Ref ref) async {
-  final prefs = await ref.watch(sharedPreferencesProvider.future);
-  return LayananPenyimpananLokal(prefs: prefs);
+  final preferensi = await ref.watch(sharedPreferencesProvider.future);
+  return LayananPenyimpananLokal(prefs: preferensi);
 }
 
 /// Provider sederhana yang hanya membuat instance NotifikasiServis.
@@ -41600,8 +41594,6 @@ LayananNotifikasi layananNotifikasi(Ref ref) {
   return LayananNotifikasi();
 }
 
-/// Controller utama untuk notifikasi.
-/// Tonton provider ini dari UI untuk menginisialisasi listener.
 @Riverpod(keepAlive: true)
 void pengontrolNotifikasi(Ref ref) {
   final role = ref.watch(appRoleProvider);

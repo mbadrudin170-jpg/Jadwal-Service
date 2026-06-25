@@ -59,7 +59,6 @@ class PaketOpSqlite {
         WHERE $query
         ORDER BY urutan ASC
       ''');
-
       Log.info('Berhasil mengambil ${maps.length} data paket aktif');
       return List.generate(maps.length, (i) {
         return PaketModel.fromSqlite(maps[i]);
@@ -88,7 +87,7 @@ class PaketOpSqlite {
         ORDER BY urutan ASC
       ''');
 
-     final daftarPaket = List.generate(
+      final daftarPaket = List.generate(
         maps.length,
         (i) => PaketModel.fromSqlite(maps[i]),
       );
@@ -163,18 +162,6 @@ class PaketOpSqlite {
       return count;
     } catch (e, s) {
       Log.error('Gagal soft-delete semua paket', e: e, s: s);
-      rethrow;
-    }
-  }
-
-  /// Menghapus [PaketModel] dari database secara permanen.
-  Future<void> hapus(String id, {bool dariServer = false}) async {
-    Log.info('Memulai deletePaket untuk id: $id');
-    try {
-      await basOpSqlite.delete(_tabel, id, dariServer: dariServer);
-      Log.info('Berhasil deletePaket untuk id: $id');
-    } catch (e, s) {
-      Log.error('Gagal deletePaket untuk id: $id', e: e, s: s);
       rethrow;
     }
   }

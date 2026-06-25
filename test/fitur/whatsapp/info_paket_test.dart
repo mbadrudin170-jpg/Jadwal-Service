@@ -45,18 +45,17 @@ void main() {
     // Mencegat semua panggilan sistem dari url_launcher ke sistem operasi native
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-          if (methodCall.method == 'canLaunch') {
-            return canLaunchReturnValue;
-          }
-          if (methodCall.method == 'launch') {
-            // url_launcher menyimpan data URL di dalam argumen dengan key 'url'
-            launchedUrl =
-                (methodCall.arguments as Map<String, dynamic>)['url']
-                    as String?;
-            return true;
-          }
-          return null;
-        });
+      if (methodCall.method == 'canLaunch') {
+        return canLaunchReturnValue;
+      }
+      if (methodCall.method == 'launch') {
+        // url_launcher menyimpan data URL di dalam argumen dengan key 'url'
+        launchedUrl =
+            (methodCall.arguments as Map<String, dynamic>)['url'] as String?;
+        return true;
+      }
+      return null;
+    });
   });
 
   tearDown(() {
@@ -75,13 +74,14 @@ void main() {
     status: StatusPembayaran.paid,
   );
 
-  const pelanggan = PelangganModel(
+  final pelanggan = PelangganModel(
     id: 'c1',
     nama: 'John Doe',
     telepon: '081234567890',
     alamat: 'Jl. Contoh',
     kataSandi: 'password123',
     macAddress: 'AA:BB:CC:DD:EE:FF',
+    diperbaruiPada: DateTime(2023),
   );
 
   const paket = PaketModel(

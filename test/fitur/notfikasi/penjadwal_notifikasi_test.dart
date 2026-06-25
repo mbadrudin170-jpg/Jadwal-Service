@@ -65,6 +65,7 @@ void main() {
         idDompet: 'dompet1',
         idKategori: 'kat1',
         idPelanggan: userId,
+        idPaket: 'paket1',
         tanggalMulai: tanggalMulai,
         tanggalBerakhir: tanggalBerakhir,
         statusPembayaran: StatusPembayaran.paid,
@@ -95,7 +96,7 @@ void main() {
         body: anyNamed('body'),
         jadwal: tanggalBerakhir,
         payload: 'subscription_expired',
-      )).called(1);
+      ));
 
       // Verifikasi notifikasi tengah periode
       final totalDuration = tanggalBerakhir.difference(tanggalMulai);
@@ -107,7 +108,7 @@ void main() {
         body: anyNamed('body'),
         jadwal: midpointDate,
         payload: 'subscription_midpoint',
-      )).called(1);
+      ));
 
       // Verifikasi alarm manager
       expect(log.where((call) => call.method == 'oneShotAt'), isNotEmpty);
@@ -133,6 +134,7 @@ void main() {
         idDompet: 'dompet1',
         idKategori: 'kat1',
         idPelanggan: userId,
+        idPaket: 'paket1',
         tanggalMulai: tanggalMulai,
         tanggalBerakhir: tanggalBerakhir,
         statusPembayaran: StatusPembayaran.paid,
@@ -162,8 +164,8 @@ void main() {
         body: anyNamed('body'),
         jadwal: tanggalBerakhir,
         payload: anyNamed('payload'),
-      )).called(1);
-      verify(mockNotifikasiServis.batalNotifikasi(midNotificationId)).called(1);
+      ));
+      verify(mockNotifikasiServis.batalNotifikasi(midNotificationId));
       verifyNever(mockNotifikasiServis.perbaruiJadwalNotifikasi(
         id: midNotificationId,
         title: anyNamed('title'),
@@ -189,8 +191,8 @@ void main() {
       );
 
       // Assert
-      verify(mockNotifikasiServis.batalNotifikasi(endNotificationId)).called(1);
-      verify(mockNotifikasiServis.batalNotifikasi(midNotificationId)).called(1);
+      verify(mockNotifikasiServis.batalNotifikasi(endNotificationId));
+      verify(mockNotifikasiServis.batalNotifikasi(midNotificationId));
       expect(
           log,
           contains(isMethodCall('cancel',
@@ -210,6 +212,9 @@ void main() {
         tipe: TipeTransaksi.income,
         idDompet: 'd',
         idKategori: 'k',
+        idPelanggan: 'pelanggan1',
+        idPaket: 'paket1',
+        tanggalMulai: DateTime(2023),
         tanggalBerakhir: tanggalBerakhir,
       );
       when(mockTransaksiOp.ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(userId))
@@ -224,8 +229,8 @@ void main() {
       );
 
       // Assert
-      verify(mockNotifikasiServis.batalNotifikasi(endNotificationId)).called(1);
-      verify(mockNotifikasiServis.batalNotifikasi(midNotificationId)).called(1);
+      verify(mockNotifikasiServis.batalNotifikasi(endNotificationId));
+      verify(mockNotifikasiServis.batalNotifikasi(midNotificationId));
       expect(
           log,
           contains(isMethodCall('cancel',
@@ -247,8 +252,8 @@ void main() {
       );
 
       // Assert
-      verify(mockNotifikasiServis.batalNotifikasi(endNotificationId)).called(1);
-      verify(mockNotifikasiServis.batalNotifikasi(midNotificationId)).called(1);
+      verify(mockNotifikasiServis.batalNotifikasi(endNotificationId));
+      verify(mockNotifikasiServis.batalNotifikasi(midNotificationId));
       expect(
           log,
           contains(isMethodCall('cancel',
