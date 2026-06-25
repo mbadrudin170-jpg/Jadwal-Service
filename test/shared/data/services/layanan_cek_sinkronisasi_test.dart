@@ -22,7 +22,7 @@ import 'layanan_cek_sinkronisasi_test.mocks.dart';
   FirebaseFirestore,
   CollectionReference,
   DocumentReference,
-  Ref,
+  AsyncNotifierProviderRef,
   KoneksiInternetService,
 ])
 void main() {
@@ -34,7 +34,7 @@ void main() {
   late MockFirebaseFirestore mockFirestore;
   late MockCollectionReference<Map<String, dynamic>> mockCollectionReference;
   late MockDocumentReference<Map<String, dynamic>> mockDocumentReference;
-  late MockRef mockRef;
+  late MockAsyncNotifierProviderRef mockRef;
   late MockKoneksiInternetService mockKoneksiInternetService;
 
   setUp(() {
@@ -45,7 +45,7 @@ void main() {
     mockFirestore = MockFirebaseFirestore();
     mockCollectionReference = MockCollectionReference<Map<String, dynamic>>();
     mockDocumentReference = MockDocumentReference<Map<String, dynamic>>();
-    mockRef = MockRef();
+    mockRef = MockAsyncNotifierProviderRef();
     mockKoneksiInternetService = MockKoneksiInternetService();
 
     when(mockRef.read(koneksiInternetServiceProvider))

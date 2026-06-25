@@ -41,14 +41,15 @@ class Transaksi extends _$Transaksi {
 
   Future<TransaksiState> _loadData() async {
     final hasil = await Future.wait([
-      _transaksiOpSqlite.ambilSemua(),
-      _transaksiOpSqlite.getTotalIncome(),
-      _transaksiOpSqlite.getTotalExpense(),
-      _transaksiOpSqlite.getNetTotal(),
-      _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan(),
-      _transaksiOpSqlite.ambilPendapatanHarian(),
-      _transaksiOpSqlite.ambilPendapatanMingguan(),
-      _transaksiOpSqlite.ambilPendapatanBulanan(),
+      _transaksiOpSqlite.ambilSemua(), // [0]
+      _transaksiOpSqlite.getTotalIncome(), // [1]
+      _transaksiOpSqlite.getTotalExpense(), // [2]
+      _transaksiOpSqlite.getNetTotal(), // [3]
+      _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan(), // [4]
+      _transaksiOpSqlite.ambilPaketTerlaris(), // [5] ✅ TAMBAHKAN
+      _transaksiOpSqlite.ambilPendapatanHarian(), // [6]
+      _transaksiOpSqlite.ambilPendapatanMingguan(), // [7]
+      _transaksiOpSqlite.ambilPendapatanBulanan(), // [8]
     ]);
 
     final transaksi = hasil[0] as List<TransaksiModel>;
@@ -59,10 +60,10 @@ class Transaksi extends _$Transaksi {
       totalPengeluaran: hasil[2] as double,
       total: hasil[3] as double,
       totalPoinSemuaPelanggan: hasil[4] as int,
-      paketTerlaris: hasil[0] as List<PaketTerlarisModel>,
-      pendapatanHarian: hasil[4] as List<double>,
-      pendapatanMingguan: hasil[5] as List<double>,
-      pendapatanBulanan: hasil[6] as List<double>,
+      paketTerlaris: hasil[5] as List<PaketTerlarisModel>,
+      pendapatanHarian: hasil[6] as List<double>,
+      pendapatanMingguan: hasil[7] as List<double>,
+      pendapatanBulanan: hasil[8] as List<double>,
     );
   }
 
