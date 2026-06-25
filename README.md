@@ -16871,7 +16871,7 @@ abstract class DompetModel with _$DompetModel implements HasId {
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
       NamaKolom.dihapus: dihapus ? 1 : 0,
-      NamaKolom.diarsipkanPada: diarsipkanPada!.millisecondsSinceEpoch,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
     };
   }
 
@@ -22032,6 +22032,50 @@ part of 'feedback_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(Feedback)
+final feedbackProvider = FeedbackProvider._();
+
+final class FeedbackProvider
+    extends $AsyncNotifierProvider<Feedback, FeedbackState> {
+  FeedbackProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'feedbackProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$feedbackHash();
+
+  @$internal
+  @override
+  Feedback create() => Feedback();
+}
+
+String _$feedbackHash() => r'9eadefcb224084c22312fa6325107b16e49cad51';
+
+abstract class _$Feedback extends $AsyncNotifier<FeedbackState> {
+  FutureOr<FeedbackState> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<FeedbackState>, FeedbackState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<FeedbackState>, FeedbackState>,
+              AsyncValue<FeedbackState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(daftarFeedbackAktif)
 final daftarFeedbackAktifProvider = DaftarFeedbackAktifProvider._();
 
@@ -22072,7 +22116,7 @@ final class DaftarFeedbackAktifProvider
 }
 
 String _$daftarFeedbackAktifHash() =>
-    r'22ac9e9b00e3b76e8febc021b4d1b9b0cf94731b';
+    r'b340f89f938d3f177a7984b45150e25b69115649';
 
 @ProviderFor(detailFeedback)
 final detailFeedbackProvider = DetailFeedbackFamily._();
@@ -22150,19 +22194,339 @@ final class DetailFeedbackFamily extends $Family
 }
 
 
+// File: lib/fitur/feedback/provider/feedback_provider.freezed.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'feedback_provider.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$FeedbackState {
+
+ List<FeedbackModel> get daftarFeedback; int get jumlahFeedback;
+/// Create a copy of FeedbackState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FeedbackStateCopyWith<FeedbackState> get copyWith => _$FeedbackStateCopyWithImpl<FeedbackState>(this as FeedbackState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeedbackState&&const DeepCollectionEquality().equals(other.daftarFeedback, daftarFeedback)&&(identical(other.jumlahFeedback, jumlahFeedback) || other.jumlahFeedback == jumlahFeedback));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(daftarFeedback),jumlahFeedback);
+
+@override
+String toString() {
+  return 'FeedbackState(daftarFeedback: $daftarFeedback, jumlahFeedback: $jumlahFeedback)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FeedbackStateCopyWith<$Res>  {
+  factory $FeedbackStateCopyWith(FeedbackState value, $Res Function(FeedbackState) _then) = _$FeedbackStateCopyWithImpl;
+@useResult
+$Res call({
+ List<FeedbackModel> daftarFeedback, int jumlahFeedback
+});
+
+
+
+
+}
+/// @nodoc
+class _$FeedbackStateCopyWithImpl<$Res>
+    implements $FeedbackStateCopyWith<$Res> {
+  _$FeedbackStateCopyWithImpl(this._self, this._then);
+
+  final FeedbackState _self;
+  final $Res Function(FeedbackState) _then;
+
+/// Create a copy of FeedbackState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? daftarFeedback = null,Object? jumlahFeedback = null,}) {
+  return _then(_self.copyWith(
+daftarFeedback: null == daftarFeedback ? _self.daftarFeedback : daftarFeedback // ignore: cast_nullable_to_non_nullable
+as List<FeedbackModel>,jumlahFeedback: null == jumlahFeedback ? _self.jumlahFeedback : jumlahFeedback // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FeedbackState].
+extension FeedbackStatePatterns on FeedbackState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FeedbackState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FeedbackState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FeedbackState value)  $default,){
+final _that = this;
+switch (_that) {
+case _FeedbackState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FeedbackState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FeedbackState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<FeedbackModel> daftarFeedback,  int jumlahFeedback)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FeedbackState() when $default != null:
+return $default(_that.daftarFeedback,_that.jumlahFeedback);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<FeedbackModel> daftarFeedback,  int jumlahFeedback)  $default,) {final _that = this;
+switch (_that) {
+case _FeedbackState():
+return $default(_that.daftarFeedback,_that.jumlahFeedback);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<FeedbackModel> daftarFeedback,  int jumlahFeedback)?  $default,) {final _that = this;
+switch (_that) {
+case _FeedbackState() when $default != null:
+return $default(_that.daftarFeedback,_that.jumlahFeedback);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FeedbackState implements FeedbackState {
+  const _FeedbackState({final  List<FeedbackModel> daftarFeedback = const [], this.jumlahFeedback = 0}): _daftarFeedback = daftarFeedback;
+  
+
+ final  List<FeedbackModel> _daftarFeedback;
+@override@JsonKey() List<FeedbackModel> get daftarFeedback {
+  if (_daftarFeedback is EqualUnmodifiableListView) return _daftarFeedback;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_daftarFeedback);
+}
+
+@override@JsonKey() final  int jumlahFeedback;
+
+/// Create a copy of FeedbackState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FeedbackStateCopyWith<_FeedbackState> get copyWith => __$FeedbackStateCopyWithImpl<_FeedbackState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeedbackState&&const DeepCollectionEquality().equals(other._daftarFeedback, _daftarFeedback)&&(identical(other.jumlahFeedback, jumlahFeedback) || other.jumlahFeedback == jumlahFeedback));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_daftarFeedback),jumlahFeedback);
+
+@override
+String toString() {
+  return 'FeedbackState(daftarFeedback: $daftarFeedback, jumlahFeedback: $jumlahFeedback)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FeedbackStateCopyWith<$Res> implements $FeedbackStateCopyWith<$Res> {
+  factory _$FeedbackStateCopyWith(_FeedbackState value, $Res Function(_FeedbackState) _then) = __$FeedbackStateCopyWithImpl;
+@override @useResult
+$Res call({
+ List<FeedbackModel> daftarFeedback, int jumlahFeedback
+});
+
+
+
+
+}
+/// @nodoc
+class __$FeedbackStateCopyWithImpl<$Res>
+    implements _$FeedbackStateCopyWith<$Res> {
+  __$FeedbackStateCopyWithImpl(this._self, this._then);
+
+  final _FeedbackState _self;
+  final $Res Function(_FeedbackState) _then;
+
+/// Create a copy of FeedbackState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? daftarFeedback = null,Object? jumlahFeedback = null,}) {
+  return _then(_FeedbackState(
+daftarFeedback: null == daftarFeedback ? _self._daftarFeedback : daftarFeedback // ignore: cast_nullable_to_non_nullable
+as List<FeedbackModel>,jumlahFeedback: null == jumlahFeedback ? _self.jumlahFeedback : jumlahFeedback // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+// dart format on
+
+
 // File: lib/fitur/feedback/provider/feedback_provider.dart
 // path: lib/fitur/feedback/provider/feedback_provider.dart
 
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 part 'feedback_provider.g.dart';
+part 'feedback_provider.freezed.dart';
+
+@freezed
+abstract class FeedbackState with _$FeedbackState {
+  const factory FeedbackState({
+    @Default([]) List<FeedbackModel> daftarFeedback,
+    @Default(0) int jumlahFeedback,
+  }) = _FeedbackState;
+}
+
+@Riverpod(keepAlive: true)
+class Feedback extends _$Feedback {
+  FeedbackOpSqlite get _feedbackOpSqlite => ref.read(feedbackOpSqliteProvider);
+  @override
+  FutureOr<FeedbackState> build() {
+    return _loadData();
+  }
+
+  Future<FeedbackState> _loadData() async {
+    final daftarFeedback = await _feedbackOpSqlite.ambilSemua();
+    final jumlahFeedback = await _feedbackOpSqlite.ambilTotalFeedback();
+    return FeedbackState(
+      jumlahFeedback: jumlahFeedback,
+      daftarFeedback: daftarFeedback,
+    );
+  }
+
+  Future<void> refresh() async {
+    Log.info('[StatistikNotifier] Refresh dipicu oleh UI.');
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(_loadData);
+    Log.info('[StatistikNotifier] Refresh selesai.');
+  }
+}
 
 @riverpod
 Future<List<FeedbackModel>> daftarFeedbackAktif(Ref ref) async {
   final feedbackOpSqlite = ref.watch(feedbackOpSqliteProvider);
-  return await feedbackOpSqlite.ambilSemuaFeedbackAktif();
+  return await feedbackOpSqlite.ambilSemua();
 }
 
 @riverpod
@@ -22211,14 +22575,18 @@ class FeedbackOpSqlite {
   }
 
   /// Mengambil semua kritik dan saran dari database, diurutkan berdasarkan tanggal terbaru.
-  Future<List<FeedbackModel>> ambilSemua() async {
+  Future<List<FeedbackModel>> ambilSemua({
+    bool tampilkanYangDiarsip = false,
+  }) async {
     Log.info(
       'Memulai getAllFeedback (mengambil semua, diurutkan berdasarkan tanggal terbaru).',
     );
     try {
       final db = await sqliteDb.database;
+      final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = 0';
       final List<Map<String, dynamic>> maps = await db.query(
         _namaTabel,
+        where: query,
         orderBy: '${NamaKolom.tanggal} DESC',
       );
       final daftarFeedback = List.generate(
@@ -22235,28 +22603,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Mengambil semua kritik dan saran yang aktif (tidak di-soft-delete).
-  Future<List<FeedbackModel>> ambilSemuaFeedbackAktif() async {
-    Log.info('Mengambil semua feedback aktif (dihapus = 0).');
-    try {
-      final db = await sqliteDb.database;
-      final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
-        where: '${NamaKolom.dihapus} = 0',
-        orderBy: '${NamaKolom.tanggal} DESC',
-      );
-      final daftarFeedback = List.generate(
-        maps.length,
-        (i) => FeedbackModel.fromSqlite(maps[i]),
-      );
-      Log.info('Berhasil mengambil ${daftarFeedback.length} feedback aktif.');
-      return daftarFeedback;
-    } catch (e, st) {
-      Log.error('Gagal mengambil feedback aktif', e: e, s: st);
-      rethrow;
-    }
-  }
-
   Future<FeedbackModel> ambilBerdasarkanId(final String id) async {
     Log.info('Memulai getFeedbackById untuk ID: $id');
     try {
@@ -22266,7 +22612,6 @@ class FeedbackOpSqlite {
         where: 'id = ?',
         whereArgs: [id],
       );
-
       if (maps.isNotEmpty) {
         final data = FeedbackModel.fromSqlite(maps.first);
         Log.info(
@@ -22279,6 +22624,19 @@ class FeedbackOpSqlite {
       }
     } catch (e, st) {
       Log.error('Gagal saat getFeedbackById untuk ID: $id', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  Future<int> ambilTotalFeedback() async {
+    Log.info('Mulai mengambil jumlah feedback baru.');
+    try {
+      final daftarFeedback = await ambilSemua();
+      final jumlah = daftarFeedback.length;
+      Log.info('Jumlah feedback baru yang dihitung: $jumlah');
+      return jumlah;
+    } catch (e, st) {
+      Log.error('Gagal mengambil jumlah feedback baru.', e: e, s: st);
       rethrow;
     }
   }
@@ -26344,7 +26702,10 @@ Map<DateTime, List<TransaksiModel>> kelompokkanTransaksiPerTanggal(
   final Map<DateTime, List<TransaksiModel>> kelompok = {};
   for (final transaksi in transaksi) {
     final tanggal = DateTime(
-        transaksi.tanggal.year, transaksi.tanggal.month, transaksi.tanggal.day);
+      transaksi.tanggal.year,
+      transaksi.tanggal.month,
+      transaksi.tanggal.day,
+    );
     kelompok[tanggal] ??= [];
     kelompok[tanggal]!.add(transaksi);
   }
@@ -26353,28 +26714,32 @@ Map<DateTime, List<TransaksiModel>> kelompokkanTransaksiPerTanggal(
 
 /// Membangun widget header untuk sebuah seksi transaksi berdasarkan tanggal.
 Widget bangunHeaderBagian(DateTime tanggal, double total) {
-  return Builder(builder: (context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            FormatTanggal.formatSingkat(tanggal),
-            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          Text(
-            FormatUang.formatMataUang(total),
-            style: textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: total >= 0 ? Colors.green : Colors.red,
+  return Builder(
+    builder: (context) {
+      final textTheme = Theme.of(context).textTheme;
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              FormatTanggal.formatSingkat(tanggal),
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  });
+            Text(
+              FormatUang.formatMataUang(total),
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: total >= 0 ? Colors.green : Colors.red,
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }
 
 /// Widget tile untuk menampilkan satu transaksi dalam daftar.
@@ -26415,6 +26780,9 @@ class _StateTileTransaksi extends ConsumerState<TileTransaksi> {
   }
 
   Future<String> ambilNamaKategori() async {
+    if (widget.transaksi.idKategori.isEmpty) {
+      return 'Tanpa Kategori';
+    }
     try {
       final kategori = await _kategoriOpSqlite.ambilKategoriBerdasarkanId(
         widget.transaksi.idKategori,
@@ -26431,6 +26799,9 @@ class _StateTileTransaksi extends ConsumerState<TileTransaksi> {
   }
 
   Future<String> _ambilNamaDompet() async {
+    if (widget.transaksi.idDompet.isEmpty) {
+      return 'Tanpa Dompet';
+    }
     try {
       final dompet = await _dompetOpSqlite.ambilBerdasarkanId(
         widget.transaksi.idDompet,
@@ -26514,8 +26885,10 @@ class _StateTileTransaksi extends ConsumerState<TileTransaksi> {
                 e: snapshot.error,
                 s: snapshot.stackTrace,
               );
-              return Text('Error memuat data',
-                  style: textTheme.bodyMedium?.copyWith(color: Colors.red));
+              return Text(
+                'Error memuat data',
+                style: textTheme.bodyMedium?.copyWith(color: Colors.red),
+              );
             }
             final namaKategori = snapshot.data?[0] ?? '-';
             final namaDompet = snapshot.data?[1] ?? '-';
@@ -26953,7 +27326,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
-import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
@@ -27078,7 +27450,6 @@ class Transaksi extends _$Transaksi {
 
   void _invalidateSistemTerkait() {
     ref.invalidate(dompetProvider);
-    ref.invalidate(statistikProvider);
   }
 }
 
@@ -27119,7 +27490,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'69d0afee23acc3d9cc58fd015b3c79f93d0f0794';
+String _$transaksiHash() => r'8fc46b85e42f6f70a5ad923071e5f4439159037f';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -29123,8 +29494,8 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
 }
 
 
-// File: lib/fitur/pelanggan/page/admin/pelanggan.dart
-// path: lib/fitur/pelanggan/page/admin/pelanggan.dart
+// File: lib/fitur/pelanggan/page/admin/pelanggan_page.dart
+// path lib/fitur/pelanggan/page/admin/pelanggan_page.dart
 
 import 'dart:async';
 
@@ -29234,14 +29605,14 @@ final filteredCustomersProvider =
     });
 
 /// Halaman untuk menampilkan dan mengelola daftar semua customer.
-class Pelanggan extends ConsumerStatefulWidget {
-  const Pelanggan({super.key});
+class PelangganPage extends ConsumerStatefulWidget {
+  const PelangganPage({super.key});
 
   @override
-  ConsumerState<Pelanggan> createState() => _PelangganState();
+  ConsumerState<PelangganPage> createState() => _PelangganState();
 }
 
-class _PelangganState extends ConsumerState<Pelanggan> {
+class _PelangganState extends ConsumerState<PelangganPage> {
   late final TextEditingController _searchController;
 
   Timer? _debounce;
@@ -30364,7 +30735,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/pelanggan.dart';
+import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
 import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
 import 'package:wifi/shared/export/operation.dart';
 
@@ -30386,7 +30757,6 @@ class Pelanggan extends _$Pelanggan {
       ref.read(pelangganOpSqliteProvider);
   SQLitePointsDataSource get poinDataSource =>
       ref.read(sqlitePointsDataSourceProvider);
-
   @override
   FutureOr<PelangganState> build() {
     return _ambilData();
@@ -30415,10 +30785,8 @@ class Pelanggan extends _$Pelanggan {
 
   Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
     state = await AsyncValue.guard(() async {
-    await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
-      _invalidateDetailPelanggan(
-        pelanggan.id,
-      );  
+      await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
+      _invalidateDetailPelanggan(pelanggan.id);
       return _ambilData();
     });
   }
@@ -30426,7 +30794,7 @@ class Pelanggan extends _$Pelanggan {
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.softDelete(id);
-      _invalidateDetailPelanggan(id); 
+      _invalidateDetailPelanggan(id);
       return _ambilData();
     });
   }
@@ -34827,12 +35195,14 @@ final layananCekSinkronisasiProvider = Provider<LayananCekSinkronisasi>((ref) {
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/pelanggan.dart';
+import 'package:wifi/fitur/feedback/provider/feedback_provider.dart';
+import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
-import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -34849,6 +35219,7 @@ class StatistikPageA extends ConsumerStatefulWidget {
 
 class _StatistikPageAState extends ConsumerState<StatistikPageA> {
   ChartRange _selectedRange = ChartRange.bulanan;
+
   List<FlSpot> _buatSpots(List<double> data) {
     return data.asMap().entries.map((entry) {
       return FlSpot(entry.key.toDouble(), entry.value);
@@ -34884,25 +35255,37 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     return (maxValue * 1.2).clamp(1.0, double.infinity);
   }
 
+  double _getMinY(TransaksiState data) {
+    final spots = _getCurrentSpots(data);
+    if (spots.isEmpty) return 0.0;
+    final minValue = spots.map((s) => s.y).reduce((a, b) => a < b ? a : b);
+    return minValue < 0 ? minValue * 1.2 : 0.0;
+  }
+
+  Future<void> _invalidateProvider() {
+    ref
+      ..invalidate(pelangganProvider)
+      ..invalidate(transaksiProvider)
+      ..invalidate(pelangganAktifProvider)
+      ..invalidate(feedbackProvider);
+    return Future.value();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final statistikStateAsync = ref.watch(statistikProvider);
-    final transaksiAsync = ref.watch(transaksiProvider);
+    final feedback = ref.watch(feedbackProvider);
+    final transaksi = ref.watch(transaksiProvider);
     final pelangganAktif = ref.watch(pelangganAktifProvider);
+    final pelanggan = ref.watch(pelangganProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Dasbor Statistik'), centerTitle: true),
+      appBar: AppBar(title: const Text('Dasbor Statistik')),
       body: RefreshIndicator(
-        onRefresh: () async {
-          await ref.read(statistikProvider.notifier).refresh();
-          await ref.read(transaksiProvider.notifier).refresh();
-        },
-        child: transaksiAsync.when(
+        onRefresh: _invalidateProvider,
+        child: transaksi.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, s) => Center(child: Text('Error: ${e.toString()}')),
           data: (data) {
-            final statData = statistikStateAsync.value;
-
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               physics: const AlwaysScrollableScrollPhysics(),
@@ -34916,68 +35299,84 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                     ),
                   ),
                   gapH12,
-                  Wrap(
-                    spacing: 12.0,
-                    runSpacing: 12.0,
-                    children: [
-                      _buildStatCardWrapper(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (_) => const Pelanggan(),
-                          ),
-                        ),
-                        title: 'Total Pelanggan',
-                        value: statData?.totalPelanggan.toString() ?? '',
-                        icon: TIcons.customers,
-                        color: Colors.blue,
-                      ),
-                      _buildStatCardWrapper(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (_) => const PelangganAktifPage(),
-                          ),
-                        ),
-                        title: 'Langganan Aktif',
-                        value:
-                            pelangganAktif.value?.jumlahPelangganAktif
-                                .toString() ??
-                            '0',
-                        icon: TIcons.wifi,
-                        color: Colors.green,
-                      ),
-                      _buildStatCardWrapper(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (_) => const TransaksiA(),
-                          ),
-                        ),
-                        title: 'Pendapatan Bulan Ini',
-                        value: FormatUang.formatMataUang(
-                          data.totalPendapatanPerbulan,
-                        ),
-                        icon: TIcons.money,
-                        color: data.totalPendapatanPerbulan < 0
-                            ? Colors.red
-                            : Colors.orange,
-                      ),
-                      _buildStatCardWrapper(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (_) => const FeedbackPageA(),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final cardWidth = (constraints.maxWidth - 12.0) / 2;
+                      return Wrap(
+                        spacing: 12.0,
+                        runSpacing: 12.0,
+                        children: [
+                          _buildStatCardWrapper(
+                            width: cardWidth,
+
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder: (_) => const PelangganPage(),
+                              ),
                             ),
-                          );
-                        },
-                        title: 'Feedback Baru',
-                        value: statData?.totalFeedback.toString() ?? '0',
-                        icon: TIcons.feedback,
-                        color: Colors.purple,
-                      ),
-                    ],
+                            title: 'Total Pelanggan',
+                            value:
+                                pelanggan.value?.jumlahPelanggan.toString() ??
+                                '0',
+                            icon: TIcons.customers,
+                            color: Colors.blue,
+                          ),
+                          _buildStatCardWrapper(
+                            width: cardWidth,
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder: (_) => const PelangganAktifPage(),
+                              ),
+                            ),
+                            title: 'Pelanggan Aktif',
+                            value:
+                                pelangganAktif.value?.jumlahPelangganAktif
+                                    .toString() ??
+                                '0',
+                            icon: TIcons.wifi,
+                            color: Colors.green,
+                          ),
+                          _buildStatCardWrapper(
+                            width: cardWidth,
+
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder: (_) => const TransaksiA(),
+                              ),
+                            ),
+                            title: 'Pendapatan Bulan Ini',
+                            value: FormatUang.formatMataUang(
+                              data.totalPendapatanPerbulan,
+                            ),
+                            icon: TIcons.money,
+                            color: data.totalPendapatanPerbulan < 0
+                                ? Colors.red
+                                : Colors.orange,
+                          ),
+                          _buildStatCardWrapper(
+                            width: cardWidth,
+
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (_) => const FeedbackPageA(),
+                                ),
+                              );
+                            },
+                            title: 'Total Feedback',
+                            value:
+                                feedback.value?.jumlahFeedback.toString() ??
+                                '0',
+                            icon: TIcons.feedback,
+                            color: Colors.purple,
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   gapH24,
                   Text(
@@ -34998,7 +35397,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                     ),
                   ),
                   gapH12,
-                  _buildBestSellingPackages(theme, data.paketTerlaris),
+                  _buildPaketTerlaris(theme, data.paketTerlaris),
                 ],
               ),
             );
@@ -35014,72 +35413,55 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     required String value,
     required IconData icon,
     required Color color,
+    required double width, // 1. Tambahkan parameter width di sini
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: _buildStatCard(
-        title: title,
-        value: value,
-        icon: icon,
-        color: color,
-      ),
-    );
-  }
-
-  Widget _buildStatCard({
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color color,
-  }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final theme = Theme.of(context);
-        final cardWidth = (constraints.maxWidth > 400)
-            ? (constraints.maxWidth / 2 - 12)
-            : double.infinity;
-        return SizedBox(
-          width: cardWidth,
-          child: Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: color.withAlpha(25),
-                    radius: 20,
-                    child: Icon(icon, color: color, size: 24),
+    return SizedBox(
+      width: width, // 2. Gunakan width hasil kalkulasi dinamis
+      child: GestureDetector(
+        onTap: onTap,
+        child: Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: color.withAlpha(25),
+                  radius: 16,
+                  child: Icon(icon, color: color, size: 20),
+                ),
+                gapH8,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(fontSize: 11),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        value,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                      ),
+                    ],
                   ),
-                  gapH12,
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          title,
-                          style: theme.textTheme.bodySmall,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          value,
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -35114,13 +35496,13 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
       child: Container(
         height: 250,
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
         child: LineChart(_mainLineChartData(data)),
       ),
     );
   }
 
-  Widget _buildBestSellingPackages(
+  Widget _buildPaketTerlaris(
     ThemeData theme,
     List<PaketTerlarisModel> packages,
   ) {
@@ -35151,11 +35533,11 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     );
   }
 
-  // ✅ BENAR
   LineChartData _mainLineChartData(TransaksiState data) {
     final spots = _getCurrentSpots(data);
     final maxX = _getMaxX(data);
     final maxY = _getMaxY(data);
+    final minY = _getMinY(data);
 
     if (spots.isEmpty) {
       return LineChartData(
@@ -35164,7 +35546,15 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
           rightTitles: const AxisTitles(),
           topTitles: const AxisTitles(),
           bottomTitles: const AxisTitles(),
-          leftTitles: const AxisTitles(),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              interval: (maxY - minY) / 4,
+              getTitlesWidget: ((value, meta) =>
+                  _leftTitleWidgets(value, meta, maxY)),
+              reservedSize: 45,
+            ),
+          ),
         ),
         borderData: FlBorderData(show: false),
         minX: 0,
@@ -35174,10 +35564,10 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
         lineBarsData: [],
       );
     }
-
     return LineChartData(
+      clipData: const FlClipData.all(),
       gridData: FlGridData(
-        horizontalInterval: maxY / 4,
+        horizontalInterval: (maxY - minY) / 4,
         verticalInterval: 1,
         getDrawingHorizontalLine: (value) =>
             FlLine(color: Colors.grey.withAlpha(50), strokeWidth: 1),
@@ -35190,7 +35580,6 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 30,
             interval: 1,
             getTitlesWidget: (value, meta) =>
                 _bottomTitleWidgets(value, meta, data),
@@ -35199,10 +35588,10 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval: maxY / 4,
+            interval: (maxY - minY) / 4,
             getTitlesWidget: (value, meta) =>
                 _leftTitleWidgets(value, meta, maxY),
-            reservedSize: 42,
+            reservedSize: 45,
           ),
         ),
       ),
@@ -35212,19 +35601,19 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
       ),
       minX: 0,
       maxX: maxX,
-      minY: 0,
+      minY: minY,
       maxY: maxY,
       lineBarsData: [
         LineChartBarData(
           spots: spots,
           isCurved: true,
+          preventCurveOverShooting: true,
           gradient: LinearGradient(
             colors: [
               Theme.of(context).colorScheme.primary.withAlpha(80),
               Theme.of(context).colorScheme.primary,
             ],
           ),
-          barWidth: 5,
           isStrokeCapRound: true,
           dotData: const FlDotData(show: false),
           belowBarData: BarAreaData(
@@ -35247,247 +35636,101 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     TransaksiState data,
   ) {
     const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 12);
-    Widget text = const Text('', style: style);
+    final index = value.toInt();
+
+    // Validasi indeks
+    if (index < 0) return const SizedBox.shrink();
+
+    String label = '';
+
     switch (_selectedRange) {
       case ChartRange.harian:
-        final hari = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
-        final index = value.toInt();
-        if (index >= 0 &&
-            index < hari.length &&
-            index < data.pendapatanHarian.length) {
-          text = Text(hari[index], style: style);
+        if (index < data.pendapatanHarian.length) {
+          final now = DateTime.now();
+          final daysAgo = data.pendapatanHarian.length - 1 - index;
+          final date = now.subtract(Duration(days: daysAgo));
+          label = DateFormat('E', 'id_ID').format(date); // Sen, Sel, Rab, ...
         }
         break;
+
       case ChartRange.mingguan:
-        final index = value.toInt();
-        if (index >= 0 && index < 4 && index < data.pendapatanMingguan.length) {
-          text = Text('M${index + 1}', style: style);
+        if (index < data.pendapatanMingguan.length) {
+          final weeksAgo = data.pendapatanMingguan.length - 1 - index;
+          label = 'M-${weeksAgo + 1}';
         }
         break;
+
       case ChartRange.bulanan:
-        final bulan = ['JAN', 'FEB', 'MAR', 'APR', 'MEI'];
-        final index = value.toInt();
-        if (index >= 0 &&
-            index < bulan.length &&
-            index < data.pendapatanBulanan.length) {
-          text = Text(bulan[index], style: style);
+        if (index < data.pendapatanBulanan.length) {
+          final monthsAgo = data.pendapatanBulanan.length - 1 - index;
+          final now = DateTime.now();
+          final date = DateTime(now.year, now.month - monthsAgo);
+          // Pastikan bulan dalam rentang 1-12
+          final monthIndex = ((date.month - 1) % 12).toInt();
+          final bulan = [
+            'JAN',
+            'FEB',
+            'MAR',
+            'APR',
+            'MEI',
+            'JUN',
+            'JUL',
+            'AGT',
+            'SEP',
+            'OKT',
+            'NOV',
+            'DES',
+          ];
+          label = bulan[monthIndex];
         }
         break;
     }
-    return SideTitleWidget(meta: meta, child: text);
+
+    // Jika label kosong, kembalikan SizedBox.shrink() agar tidak tampil placeholder
+    if (label.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return SideTitleWidget(
+      meta: meta,
+      child: Text(label, style: style),
+    );
   }
 
   Widget _leftTitleWidgets(double value, TitleMeta meta, double maxY) {
-    const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 14);
+    const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 12);
     String text;
     if (maxY >= 100) {
-      text = '${(value / 1000).toStringAsFixed(0)}M';
+      text = '${(value / 1000).toStringAsFixed(1)}M';
     } else if (maxY >= 1) {
-      text = '${value.toStringAsFixed(1)}JT';
+      text = '${value.toStringAsFixed(1)}Jt';
     } else {
-      text = '${(value * 1000).toStringAsFixed(0)}RB';
+      text = '${(value * 1000).toStringAsFixed(1)}K';
     }
     return SideTitleWidget(
       meta: meta,
-      child: Text(text, style: style, textAlign: TextAlign.left),
+      space: 0,
+      fitInside: const SideTitleFitInsideData(
+        enabled: true,
+        axisPosition: 0,
+        parentAxisSize: 0,
+        distanceFromEdge: 0,
+      ),
+      child: SizedBox(
+        width: 45,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            text,
+            style: style,
+            maxLines: 1,
+            softWrap: false,
+            textAlign: TextAlign.right,
+            overflow: TextOverflow.clip,
+          ),
+        ),
+      ),
     );
-  }
-}
-
-
-// File: lib/fitur/statistik/provider/statistik_provider.g.dart
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
-part of 'statistik_provider.dart';
-
-// **************************************************************************
-// RiverpodGenerator
-// **************************************************************************
-
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
-
-@ProviderFor(Statistik)
-final statistikProvider = StatistikProvider._();
-
-final class StatistikProvider
-    extends $AsyncNotifierProvider<Statistik, StatistikState> {
-  StatistikProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'statistikProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$statistikHash();
-
-  @$internal
-  @override
-  Statistik create() => Statistik();
-}
-
-String _$statistikHash() => r'9011de1aa1f9be4faa6c98a12c6e14c970982b65';
-
-abstract class _$Statistik extends $AsyncNotifier<StatistikState> {
-  FutureOr<StatistikState> build();
-  @$mustCallSuper
-  @override
-  WhenComplete runBuild() {
-    final ref = this.ref as $Ref<AsyncValue<StatistikState>, StatistikState>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<AsyncValue<StatistikState>, StatistikState>,
-              AsyncValue<StatistikState>,
-              Object?,
-              Object?
-            >;
-    return element.handleCreate(ref, build);
-  }
-}
-
-
-// File: lib/fitur/statistik/provider/statistik_provider.dart
-// path: lib/fitur/statistik/provider/statistik_provider.dart
-
-import 'dart:async';
-
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/statistik/operasi/statistik_op_sqlite.dart';
-import 'package:wifi/shared/debug/log.dart';
-
-part 'statistik_provider.g.dart';
-
-class StatistikState {
-  final int totalPelanggan;
-  final int totalFeedback;
-
-  StatistikState({
-    this.totalPelanggan = 0,
-    this.totalFeedback = 0,
-  });
-
-  StatistikState copyWith({
-    int? totalPelanggan,
-    int? jumlahFeedbackBaru,
-  }) {
-    return StatistikState(
-      totalPelanggan: totalPelanggan ?? this.totalPelanggan,
-      totalFeedback: jumlahFeedbackBaru ?? totalFeedback,
-    );
-  }
-}
-
-@Riverpod(keepAlive: true)
-class Statistik extends _$Statistik {
-  StatistikOpSqlite get _statistikOpSlite =>
-      ref.watch(statistikOpSliteProvider);
-
-  @override
-  Future<StatistikState> build() {
-    Log.info('[StatistikNotifier] Build dipanggil, memuat data awal.');
-    return _muatData();
-  }
-
-  // Mengubah _muatData dari Future.wait menjadi await sekuensial
-  // Ini memastikan provider gagal-cepat (fail-fast) jika salah satu future gagal,
-  // yang akan menyelesaikan masalah timeout pada pengujian.
-  Future<StatistikState> _muatData() async {
-    try {
-      Log.info('[StatistikNotifier] Memulai pemuatan data sekuensial...');
-      final pelanggan = await _statistikOpSlite.ambilTotalPelanggan();
-      final feedbackBaru = await _statistikOpSlite.ambilTotalFeedback();
-      Log.info('[StatistikNotifier] Semua data sekuensial berhasil dimuat.');
-      return StatistikState(
-        totalPelanggan: pelanggan,
-        totalFeedback: feedbackBaru,
-      );
-    } catch (e, st) {
-      Log.error(
-        '[StatistikNotifier] Gagal memuat data statistik.',
-        e: e,
-        s: st,
-      );
-      // Melempar kembali error agar ditangkap oleh AsyncValue.guard atau state provider.
-      rethrow;
-    }
-  }
-
-  Future<void> refresh() async {
-    Log.info('[StatistikNotifier] Refresh dipicu oleh UI.');
-    state = const AsyncLoading();
-    // Menggunakan AsyncValue.guard untuk menangani error secara otomatis.
-    state = await AsyncValue.guard(_muatData);
-    Log.info('[StatistikNotifier] Refresh selesai.');
-  }
-}
-
-
-// File: lib/fitur/statistik/operasi/statistik_op_sqlite.dart
-// path: lib/fitur/statistik/operasi/statistik_op_sqlite.dart
-
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
-import 'package:wifi/shared/constant/nama_kolom.dart';
-import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/debug/log.dart';
-
-final statistikOpSliteProvider = Provider<StatistikOpSqlite>((ref) {
-  Log.info('Membuat instance StatistikRepository melalui provider');
-  return StatistikOpSqlite(
-    feedbackOpSqlite: ref.watch(feedbackOpSqliteProvider),
-  );
-});
-
-/// Repos
-class StatistikOpSqlite {
-  final FeedbackOpSqlite _statistikOpSliteProvider;
-
-  StatistikOpSqlite({
-    required FeedbackOpSqlite feedbackOpSqlite,
-  }) : _statistikOpSliteProvider = feedbackOpSqlite;
-
-
-  Future<int> ambilTotalPelanggan() async {
-    Log.info('Mulai mengambil total jumlah pelanggan dari SQLite.');
-    try {
-      final db = await SqliteDatabase.instance.database;
-      const String namaTabel = '"${NamaTabel.pelanggan}"';
-      final hasil = await db.rawQuery('''
-        SELECT COUNT(*) 
-        FROM $namaTabel 
-        WHERE ${NamaKolom.dihapus} = 0
-        ''');
-      Log.info('Query total pelanggan selesai. Hasil mentah: $hasil');
-      final jumlah = Sqflite.firstIntValue(hasil) ?? 0;
-      Log.info('Total pelanggan yang dihitung: $jumlah');
-      return jumlah;
-    } catch (e, st) {
-      Log.error('Gagal mengambil total pelanggan dari SQLite.', e: e, s: st);
-      rethrow;
-    }
-  }
-
-  Future<int> ambilTotalFeedback() async {
-    Log.info('Mulai mengambil jumlah feedback baru.');
-    try {
-      final daftarFeedbackAktif = await _statistikOpSliteProvider
-          .ambilSemuaFeedbackAktif();
-      final jumlah = daftarFeedbackAktif.length;
-      Log.info('Jumlah feedback baru yang dihitung: $jumlah');
-      return jumlah;
-    } catch (e, st) {
-      Log.error('Gagal mengambil jumlah feedback baru.', e: e, s: st);
-      rethrow;
-    }
   }
 }
 
@@ -47868,7 +48111,7 @@ import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
 import 'package:wifi/fitur/info_perangkat/page/tentang_aplikasi.dart';
 import 'package:wifi/fitur/kategori/page/kategori.dart';
 import 'package:wifi/fitur/paket/page/paket.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/pelanggan.dart';
+import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
 import 'package:wifi/fitur/settings/page/settings_page_a.dart';
 import 'package:wifi/fitur/transaksi/page/riwayat_aktivasi_paket.dart';
 import 'package:wifi/fitur/versi_apk/page/versi_apk_page.dart';
@@ -47948,7 +48191,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
             context: context,
             icon: TIcons.customers,
             title: 'Data Pelanggan',
-            onTap: () => _navigateTo(const Pelanggan(), 'Data Pelanggan'),
+            onTap: () => _navigateTo(const PelangganPage(), 'Data Pelanggan'),
           ),
           _buildMenuItem(
             context: context,
