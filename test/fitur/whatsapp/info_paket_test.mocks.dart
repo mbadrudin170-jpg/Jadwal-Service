@@ -278,15 +278,6 @@ class MockPaketOpSqlite extends _i1.Mock implements _i7.PaketOpSqlite {
           as _i5.Future<int>);
 
   @override
-  _i5.Future<void> hapus(String? id, {bool? dariServer = false}) =>
-      (super.noSuchMethod(
-            Invocation.method(#hapus, [id], {#dariServer: dariServer}),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
-
-  @override
   _i5.Future<void> hapusSemua({bool? dariServer = false}) =>
       (super.noSuchMethod(
             Invocation.method(#hapusSemua, [], {#dariServer: dariServer}),

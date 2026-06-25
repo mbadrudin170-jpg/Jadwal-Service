@@ -138,7 +138,7 @@ final class LayananPenyimpananLokalProvider
 }
 
 String _$layananPenyimpananLokalHash() =>
-    r'78e01700eacbbcec664a53a5444151524abee274';
+    r'a6896842e5554ff630479075eedbb2f81542ae5a';
 
 /// Provider sederhana yang hanya membuat instance NotifikasiServis.
 
@@ -192,20 +192,12 @@ final class LayananNotifikasiProvider
 
 String _$layananNotifikasiHash() => r'b1db6972d06b5d7f0ae64ffd3ab6b5dea2cdb459';
 
-/// Controller utama untuk notifikasi.
-/// Tonton provider ini dari UI untuk menginisialisasi listener.
-
 @ProviderFor(pengontrolNotifikasi)
 final pengontrolNotifikasiProvider = PengontrolNotifikasiProvider._();
-
-/// Controller utama untuk notifikasi.
-/// Tonton provider ini dari UI untuk menginisialisasi listener.
 
 final class PengontrolNotifikasiProvider
     extends $FunctionalProvider<void, void, void>
     with $Provider<void> {
-  /// Controller utama untuk notifikasi.
-  /// Tonton provider ini dari UI untuk menginisialisasi listener.
   PengontrolNotifikasiProvider._()
     : super(
         from: null,

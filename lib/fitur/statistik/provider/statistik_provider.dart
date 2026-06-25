@@ -58,13 +58,11 @@ class Statistik extends _$Statistik {
       final pendapatan = await _statistikOpSlite.ambilTotalPendapatan();
       final pelanggan = await _statistikOpSlite.ambilTotalPelanggan();
       final feedbackBaru = await _statistikOpSlite.ambilTotalFeedback();
-      final paketTerlaris = await _statistikOpSlite.ambilPaketTerlaris();
       Log.info('[StatistikNotifier] Semua data sekuensial berhasil dimuat.');
       return StatistikState(
         totalPendaptanPerbulan: pendapatan,
         totalPelanggan: pelanggan,
         totalFeedback: feedbackBaru,
-        paketTerlaris: paketTerlaris,
       );
     } catch (e, st) {
       Log.error(

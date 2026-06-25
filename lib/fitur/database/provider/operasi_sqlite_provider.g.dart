@@ -104,7 +104,7 @@ final class TransaksiOpSqliteProvider
   }
 }
 
-String _$transaksiOpSqliteHash() => r'4a9adb21deafa54dbb024b433f3aa3793c7b88c3';
+String _$transaksiOpSqliteHash() => r'f07ed085704013747a0af9029ae98bd2437df55a';
 
 /// Provider untuk menyediakan instance dari [PelangganOpSqlite].
 

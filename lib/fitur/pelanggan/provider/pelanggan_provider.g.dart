@@ -33,7 +33,7 @@ final class PelangganProvider
   Pelanggan create() => Pelanggan();
 }
 
-String _$pelangganHash() => r'2e607690faf7c42f121d7cf13834deb5496c67c9';
+String _$pelangganHash() => r'e54d48854a761050166127aee7820bf1d9463da0';
 
 abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   FutureOr<PelangganState> build();
@@ -53,15 +53,11 @@ abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   }
 }
 
-/// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
-
 @ProviderFor(UrutanPelangganState)
 final urutanPelangganStateProvider = UrutanPelangganStateProvider._();
 
-/// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
 final class UrutanPelangganStateProvider
     extends $NotifierProvider<UrutanPelangganState, UrutanPelanggan> {
-  /// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
   UrutanPelangganStateProvider._()
     : super(
         from: null,
@@ -91,8 +87,6 @@ final class UrutanPelangganStateProvider
 
 String _$urutanPelangganStateHash() =>
     r'4d10172b1c7b6624a3ba78ae04fb5e40835a3fd8';
-
-/// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
 
 abstract class _$UrutanPelangganState extends $Notifier<UrutanPelanggan> {
   UrutanPelanggan build();

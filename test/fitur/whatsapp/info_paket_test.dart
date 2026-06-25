@@ -15,16 +15,15 @@ import 'package:wifi/fitur/whatsapp/info_paket.dart';
 
 import 'info_paket_test.mocks.dart';
 
+// Mocks for dependencies
 @GenerateMocks([PelangganOpSqlite, PaketOpSqlite])
 void main() {
-  // Pastikan binding Flutter Test diinisialisasi
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late PesanInfoPaket pesanInfoPaket;
   late MockPelangganOpSqlite mockPelangganOpSqlite;
   late MockPaketOpSqlite mockPaketOpSqlite;
 
-  // Menggunakan MethodChannel resmi milik package url_launcher
   const MethodChannel channel = MethodChannel(
     'plugins.flutter.io/url_launcher',
   );
@@ -42,14 +41,12 @@ void main() {
       paketOpSqlite: mockPaketOpSqlite,
     );
 
-    // Mencegat semua panggilan sistem dari url_launcher ke sistem operasi native
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
       if (methodCall.method == 'canLaunch') {
         return canLaunchReturnValue;
       }
       if (methodCall.method == 'launch') {
-        // url_launcher menyimpan data URL di dalam argumen dengan key 'url'
         launchedUrl =
             (methodCall.arguments as Map<String, dynamic>)['url'] as String?;
         return true;
@@ -59,7 +56,6 @@ void main() {
   });
 
   tearDown(() {
-    // Bersihkan handler setelah pengujian selesai
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
   });
@@ -72,6 +68,7 @@ void main() {
     tanggalMulai: DateTime(2023),
     tanggalBerakhir: DateTime(2023, 1, 31),
     status: StatusPembayaran.paid,
+    diperbaruiPada: DateTime(2023),
   );
 
   final pelanggan = PelangganModel(
@@ -84,12 +81,13 @@ void main() {
     diperbaruiPada: DateTime(2023),
   );
 
-  const paket = PaketModel(
+  final paket = PaketModel(
     id: 'p1',
     nama: 'Paket Kencang',
     harga: 100000,
     durasi: 30,
     tipe: TipeDurasiPaket.days,
+    diperbaruiPada: DateTime(2023),
   );
 
   group('kirimRincianPaket', () {
@@ -108,7 +106,6 @@ void main() {
         verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
         verify(mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
 
-        // Di-intercept langsung di level sistem operasi biner, pasti tidak null
         expect(launchedUrl, isNotNull);
         expect(launchedUrl, startsWith('https://wa.me/6281234567890'));
       },
@@ -127,7 +124,7 @@ void main() {
         await pesanInfoPaket.kirimRincianPaket(pelangganAktif);
 
         verify(mockPelangganOpSqlite.ambilBerdasarkanId('c1')).called(1);
-        verify(mockPaketOpSqlite.ambilBerdasarkanId('p1')).called(1);
+        verifyNever(mockPaketOpSqlite.ambilBerdasarkanId('p1'));
 
         expect(launchedUrl, isNull);
       },

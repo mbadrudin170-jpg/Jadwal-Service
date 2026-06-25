@@ -1,5 +1,6 @@
 // path: test/shared/data/services/layanan_cek_sinkronisasi_test.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -8,6 +9,7 @@ import 'package:wifi/fitur/sinkronisasi/layanan_unduh_data.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_unggah_data.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
 import 'layanan_cek_sinkronisasi_test.mocks.dart';
@@ -20,6 +22,8 @@ import 'layanan_cek_sinkronisasi_test.mocks.dart';
   FirebaseFirestore,
   CollectionReference,
   DocumentReference,
+  Ref,
+  KoneksiInternetService,
 ])
 void main() {
   late LayananCekSinkronisasi layananCekSinkronisasi;
@@ -30,6 +34,8 @@ void main() {
   late MockFirebaseFirestore mockFirestore;
   late MockCollectionReference<Map<String, dynamic>> mockCollectionReference;
   late MockDocumentReference<Map<String, dynamic>> mockDocumentReference;
+  late MockRef mockRef;
+  late MockKoneksiInternetService mockKoneksiInternetService;
 
   setUp(() {
     mockPengelolaSinkronisasi = MockPengelolaSinkronisasi();
@@ -39,6 +45,13 @@ void main() {
     mockFirestore = MockFirebaseFirestore();
     mockCollectionReference = MockCollectionReference<Map<String, dynamic>>();
     mockDocumentReference = MockDocumentReference<Map<String, dynamic>>();
+    mockRef = MockRef();
+    mockKoneksiInternetService = MockKoneksiInternetService();
+
+    when(mockRef.read(koneksiInternetServiceProvider))
+        .thenReturn(mockKoneksiInternetService);
+    when(mockKoneksiInternetService.cekInternet())
+        .thenAnswer((_) async => true);
 
     layananCekSinkronisasi = LayananCekSinkronisasi(
       pengelolaSinkronisasi: mockPengelolaSinkronisasi,
@@ -46,6 +59,7 @@ void main() {
       layananUnduh: mockLayananUnduh,
       pengecekanDataBaru: mockPengecekanDataBaru,
       firestore: mockFirestore,
+      ref: mockRef,
     );
 
     // Stubbing untuk Firestore
@@ -63,6 +77,8 @@ void main() {
     reset(mockFirestore);
     reset(mockCollectionReference);
     reset(mockDocumentReference);
+    reset(mockRef);
+    reset(mockKoneksiInternetService);
   });
 
   void aturPengecekanData({

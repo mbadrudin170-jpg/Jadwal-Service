@@ -1,16 +1,12 @@
 // path: lib/fitur/statistik/operasi/statistik_op_sqlite.dart
 
-import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
-import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -19,61 +15,17 @@ final statistikOpSliteProvider = Provider<StatistikOpSqlite>((ref) {
   Log.info('Membuat instance StatistikRepository melalui provider');
   return StatistikOpSqlite(
     feedbackOpSqlite: ref.watch(feedbackOpSqliteProvider),
-    paketOpSqlite: ref.watch(paketOpSqliteProvider),
-    transaksiOpSqlite: ref.watch(transaksiOpSqliteProvider),
   );
 });
 
 /// Repos
 class StatistikOpSqlite {
   final FeedbackOpSqlite _statistikOpSliteProvider;
-  final PaketOpSqlite _paketOpsqlite;
-  final TransaksiOpSqlite _transaksiOpSqlite;
 
   StatistikOpSqlite({
     required FeedbackOpSqlite feedbackOpSqlite,
-    required PaketOpSqlite paketOpSqlite,
-    required TransaksiOpSqlite transaksiOpSqlite,
-  }) : _statistikOpSliteProvider = feedbackOpSqlite,
-       _paketOpsqlite = paketOpSqlite,
-       _transaksiOpSqlite = transaksiOpSqlite;
+  }) : _statistikOpSliteProvider = feedbackOpSqlite;
 
-  Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
-    Log.info('Mulai menghitung paket terlaris.');
-    try {
-      final daftarPaket = await _paketOpsqlite.ambilSemua();
-      final daftartransaksi = await _transaksiOpSqlite.ambilSemua();
-
-      if (daftartransaksi.isEmpty) {
-        Log.warning('Tidak ada transaksi, mengembalikan list paket kosong.');
-        return [];
-      }
-
-      final jumlahPenjualan = daftartransaksi
-          .where((t) => t.idPaket != null)
-          .groupListsBy((t) => t.idPaket!)
-          .map((key, value) => MapEntry(key, value.length));
-
-      final paketTerlaris = daftarPaket.map((paket) {
-        return PaketTerlarisModel(
-          paket: paket,
-          totalTerjual: jumlahPenjualan[paket.id] ?? 0,
-        );
-      }).toList();
-
-      paketTerlaris.sort((a, b) => b.totalTerjual.compareTo(a.totalTerjual));
-
-      final hasil = paketTerlaris.take(limit).toList();
-      Log.info(
-        'Berhasil menghitung ${hasil.length} paket terlaris: ${hasil.map((p) => '${p.paket.nama} (${p.totalTerjual})').toList()}',
-      );
-
-      return hasil;
-    } catch (e, st) {
-      Log.error('Gagal menghitung paket terlaris.', e: e, s: st);
-      rethrow;
-    }
-  }
 
   Future<double> ambilTotalPendapatan() async {
     try {

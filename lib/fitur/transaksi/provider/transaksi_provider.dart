@@ -6,6 +6,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
+import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
@@ -21,6 +22,10 @@ abstract class TransaksiState with _$TransaksiState {
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
     @Default(0) int totalPoinSemuaPelanggan,
+    required List<PaketTerlarisModel> paketTerlaris,
+    required List<double> pendapatanHarian,
+    required List<double> pendapatanMingguan,
+    required List<double> pendapatanBulanan,
   }) = _TransaksiState;
 }
 
@@ -40,7 +45,10 @@ class Transaksi extends _$Transaksi {
       _transaksiOpSqlite.getTotalIncome(),
       _transaksiOpSqlite.getTotalExpense(),
       _transaksiOpSqlite.getNetTotal(),
-      _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan(), // ✅ Method baru
+      _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan(),
+      _transaksiOpSqlite.ambilPendapatanHarian(),
+      _transaksiOpSqlite.ambilPendapatanMingguan(),
+      _transaksiOpSqlite.ambilPendapatanBulanan(),
     ]);
 
     final transaksi = hasil[0] as List<TransaksiModel>;
@@ -50,7 +58,11 @@ class Transaksi extends _$Transaksi {
       totalPemasukan: hasil[1] as double,
       totalPengeluaran: hasil[2] as double,
       total: hasil[3] as double,
-      totalPoinSemuaPelanggan: hasil[4] as int, // ✅ Isi total poin
+      totalPoinSemuaPelanggan: hasil[4] as int,
+      paketTerlaris: hasil[0] as List<PaketTerlarisModel>,
+      pendapatanHarian: hasil[4] as List<double>,
+      pendapatanMingguan: hasil[5] as List<double>,
+      pendapatanBulanan: hasil[6] as List<double>,
     );
   }
 

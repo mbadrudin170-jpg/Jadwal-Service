@@ -833,7 +833,7 @@ final class PengelolaAkunProvider
   PengelolaAkun create() => PengelolaAkun();
 }
 
-String _$pengelolaAkunHash() => r'ba76bd1084517e5309c25756509fef9e9bd68a69';
+String _$pengelolaAkunHash() => r'5af58521b83a2865f01b9f1bee90c0b7b9376357';
 
 abstract class _$PengelolaAkun extends $AsyncNotifier<AkunState> {
   FutureOr<AkunState> build();
@@ -10154,7 +10154,6 @@ class PaketOpSqlite {
         WHERE $query
         ORDER BY urutan ASC
       ''');
-
       Log.info('Berhasil mengambil ${maps.length} data paket aktif');
       return List.generate(maps.length, (i) {
         return PaketModel.fromSqlite(maps[i]);
@@ -10183,7 +10182,7 @@ class PaketOpSqlite {
         ORDER BY urutan ASC
       ''');
 
-     final daftarPaket = List.generate(
+      final daftarPaket = List.generate(
         maps.length,
         (i) => PaketModel.fromSqlite(maps[i]),
       );
@@ -10258,18 +10257,6 @@ class PaketOpSqlite {
       return count;
     } catch (e, s) {
       Log.error('Gagal soft-delete semua paket', e: e, s: s);
-      rethrow;
-    }
-  }
-
-  /// Menghapus [PaketModel] dari database secara permanen.
-  Future<void> hapus(String id, {bool dariServer = false}) async {
-    Log.info('Memulai deletePaket untuk id: $id');
-    try {
-      await basOpSqlite.delete(_tabel, id, dariServer: dariServer);
-      Log.info('Berhasil deletePaket untuk id: $id');
-    } catch (e, s) {
-      Log.error('Gagal deletePaket untuk id: $id', e: e, s: s);
       rethrow;
     }
   }
@@ -23478,8 +23465,12 @@ TransaksiOpSqlite transaksiOpSqlite(Ref ref) {
   Log.info('Membuat instance TransactionOperation via @riverpod...');
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
-
-  return TransaksiOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
+  final paketOpSqlite = ref.watch(paketOpSqliteProvider);
+  return TransaksiOpSqlite(
+    sqliteDb: sqliteDb,
+    baseOpSqlite: baseOpSqlite,
+    paketOpsqlite: paketOpSqlite,
+  );
 }
 
 /// Provider untuk menyediakan instance dari [PelangganOpSqlite].
@@ -23702,7 +23693,7 @@ final class TransaksiOpSqliteProvider
   }
 }
 
-String _$transaksiOpSqliteHash() => r'4a9adb21deafa54dbb024b433f3aa3793c7b88c3';
+String _$transaksiOpSqliteHash() => r'f07ed085704013747a0af9029ae98bd2437df55a';
 
 /// Provider untuk menyediakan instance dari [PelangganOpSqlite].
 
@@ -26638,7 +26629,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TransaksiState {
 
- List<TransaksiModel> get transaksi; double get totalPemasukan; double get totalPengeluaran; double get total; int get totalPoinSemuaPelanggan;
+ List<TransaksiModel> get transaksi; double get totalPemasukan; double get totalPengeluaran; double get total; int get totalPoinSemuaPelanggan; List<PaketTerlarisModel> get paketTerlaris; List<double> get pendapatanHarian; List<double> get pendapatanMingguan; List<double> get pendapatanBulanan;
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -26649,16 +26640,16 @@ $TransaksiStateCopyWith<TransaksiState> get copyWith => _$TransaksiStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransaksiState&&const DeepCollectionEquality().equals(other.transaksi, transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total)&&(identical(other.totalPoinSemuaPelanggan, totalPoinSemuaPelanggan) || other.totalPoinSemuaPelanggan == totalPoinSemuaPelanggan));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransaksiState&&const DeepCollectionEquality().equals(other.transaksi, transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total)&&(identical(other.totalPoinSemuaPelanggan, totalPoinSemuaPelanggan) || other.totalPoinSemuaPelanggan == totalPoinSemuaPelanggan)&&const DeepCollectionEquality().equals(other.paketTerlaris, paketTerlaris)&&const DeepCollectionEquality().equals(other.pendapatanHarian, pendapatanHarian)&&const DeepCollectionEquality().equals(other.pendapatanMingguan, pendapatanMingguan)&&const DeepCollectionEquality().equals(other.pendapatanBulanan, pendapatanBulanan));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(transaksi),totalPemasukan,totalPengeluaran,total,totalPoinSemuaPelanggan);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(transaksi),totalPemasukan,totalPengeluaran,total,totalPoinSemuaPelanggan,const DeepCollectionEquality().hash(paketTerlaris),const DeepCollectionEquality().hash(pendapatanHarian),const DeepCollectionEquality().hash(pendapatanMingguan),const DeepCollectionEquality().hash(pendapatanBulanan));
 
 @override
 String toString() {
-  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total, totalPoinSemuaPelanggan: $totalPoinSemuaPelanggan)';
+  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total, totalPoinSemuaPelanggan: $totalPoinSemuaPelanggan, paketTerlaris: $paketTerlaris, pendapatanHarian: $pendapatanHarian, pendapatanMingguan: $pendapatanMingguan, pendapatanBulanan: $pendapatanBulanan)';
 }
 
 
@@ -26669,7 +26660,7 @@ abstract mixin class $TransaksiStateCopyWith<$Res>  {
   factory $TransaksiStateCopyWith(TransaksiState value, $Res Function(TransaksiState) _then) = _$TransaksiStateCopyWithImpl;
 @useResult
 $Res call({
- List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total, int totalPoinSemuaPelanggan
+ List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total, int totalPoinSemuaPelanggan, List<PaketTerlarisModel> paketTerlaris, List<double> pendapatanHarian, List<double> pendapatanMingguan, List<double> pendapatanBulanan
 });
 
 
@@ -26686,14 +26677,18 @@ class _$TransaksiStateCopyWithImpl<$Res>
 
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,Object? totalPoinSemuaPelanggan = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,Object? totalPoinSemuaPelanggan = null,Object? paketTerlaris = null,Object? pendapatanHarian = null,Object? pendapatanMingguan = null,Object? pendapatanBulanan = null,}) {
   return _then(_self.copyWith(
 transaksi: null == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
 as List<TransaksiModel>,totalPemasukan: null == totalPemasukan ? _self.totalPemasukan : totalPemasukan // ignore: cast_nullable_to_non_nullable
 as double,totalPengeluaran: null == totalPengeluaran ? _self.totalPengeluaran : totalPengeluaran // ignore: cast_nullable_to_non_nullable
 as double,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
 as double,totalPoinSemuaPelanggan: null == totalPoinSemuaPelanggan ? _self.totalPoinSemuaPelanggan : totalPoinSemuaPelanggan // ignore: cast_nullable_to_non_nullable
-as int,
+as int,paketTerlaris: null == paketTerlaris ? _self.paketTerlaris : paketTerlaris // ignore: cast_nullable_to_non_nullable
+as List<PaketTerlarisModel>,pendapatanHarian: null == pendapatanHarian ? _self.pendapatanHarian : pendapatanHarian // ignore: cast_nullable_to_non_nullable
+as List<double>,pendapatanMingguan: null == pendapatanMingguan ? _self.pendapatanMingguan : pendapatanMingguan // ignore: cast_nullable_to_non_nullable
+as List<double>,pendapatanBulanan: null == pendapatanBulanan ? _self.pendapatanBulanan : pendapatanBulanan // ignore: cast_nullable_to_non_nullable
+as List<double>,
   ));
 }
 
@@ -26778,10 +26773,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan,  List<PaketTerlarisModel> paketTerlaris,  List<double> pendapatanHarian,  List<double> pendapatanMingguan,  List<double> pendapatanBulanan)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TransaksiState() when $default != null:
-return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan);case _:
+return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan,_that.paketTerlaris,_that.pendapatanHarian,_that.pendapatanMingguan,_that.pendapatanBulanan);case _:
   return orElse();
 
 }
@@ -26799,10 +26794,10 @@ return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan,  List<PaketTerlarisModel> paketTerlaris,  List<double> pendapatanHarian,  List<double> pendapatanMingguan,  List<double> pendapatanBulanan)  $default,) {final _that = this;
 switch (_that) {
 case _TransaksiState():
-return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan);case _:
+return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan,_that.paketTerlaris,_that.pendapatanHarian,_that.pendapatanMingguan,_that.pendapatanBulanan);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -26819,10 +26814,10 @@ return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan,  List<PaketTerlarisModel> paketTerlaris,  List<double> pendapatanHarian,  List<double> pendapatanMingguan,  List<double> pendapatanBulanan)?  $default,) {final _that = this;
 switch (_that) {
 case _TransaksiState() when $default != null:
-return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan);case _:
+return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan,_that.paketTerlaris,_that.pendapatanHarian,_that.pendapatanMingguan,_that.pendapatanBulanan);case _:
   return null;
 
 }
@@ -26834,7 +26829,7 @@ return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_tha
 
 
 class _TransaksiState implements TransaksiState {
-  const _TransaksiState({final  List<TransaksiModel> transaksi = const [], this.totalPemasukan = 0.0, this.totalPengeluaran = 0.0, this.total = 0.0, this.totalPoinSemuaPelanggan = 0}): _transaksi = transaksi;
+  const _TransaksiState({final  List<TransaksiModel> transaksi = const [], this.totalPemasukan = 0.0, this.totalPengeluaran = 0.0, this.total = 0.0, this.totalPoinSemuaPelanggan = 0, required final  List<PaketTerlarisModel> paketTerlaris, required final  List<double> pendapatanHarian, required final  List<double> pendapatanMingguan, required final  List<double> pendapatanBulanan}): _transaksi = transaksi,_paketTerlaris = paketTerlaris,_pendapatanHarian = pendapatanHarian,_pendapatanMingguan = pendapatanMingguan,_pendapatanBulanan = pendapatanBulanan;
   
 
  final  List<TransaksiModel> _transaksi;
@@ -26848,6 +26843,34 @@ class _TransaksiState implements TransaksiState {
 @override@JsonKey() final  double totalPengeluaran;
 @override@JsonKey() final  double total;
 @override@JsonKey() final  int totalPoinSemuaPelanggan;
+ final  List<PaketTerlarisModel> _paketTerlaris;
+@override List<PaketTerlarisModel> get paketTerlaris {
+  if (_paketTerlaris is EqualUnmodifiableListView) return _paketTerlaris;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_paketTerlaris);
+}
+
+ final  List<double> _pendapatanHarian;
+@override List<double> get pendapatanHarian {
+  if (_pendapatanHarian is EqualUnmodifiableListView) return _pendapatanHarian;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_pendapatanHarian);
+}
+
+ final  List<double> _pendapatanMingguan;
+@override List<double> get pendapatanMingguan {
+  if (_pendapatanMingguan is EqualUnmodifiableListView) return _pendapatanMingguan;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_pendapatanMingguan);
+}
+
+ final  List<double> _pendapatanBulanan;
+@override List<double> get pendapatanBulanan {
+  if (_pendapatanBulanan is EqualUnmodifiableListView) return _pendapatanBulanan;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_pendapatanBulanan);
+}
+
 
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
@@ -26859,16 +26882,16 @@ _$TransaksiStateCopyWith<_TransaksiState> get copyWith => __$TransaksiStateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransaksiState&&const DeepCollectionEquality().equals(other._transaksi, _transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total)&&(identical(other.totalPoinSemuaPelanggan, totalPoinSemuaPelanggan) || other.totalPoinSemuaPelanggan == totalPoinSemuaPelanggan));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransaksiState&&const DeepCollectionEquality().equals(other._transaksi, _transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total)&&(identical(other.totalPoinSemuaPelanggan, totalPoinSemuaPelanggan) || other.totalPoinSemuaPelanggan == totalPoinSemuaPelanggan)&&const DeepCollectionEquality().equals(other._paketTerlaris, _paketTerlaris)&&const DeepCollectionEquality().equals(other._pendapatanHarian, _pendapatanHarian)&&const DeepCollectionEquality().equals(other._pendapatanMingguan, _pendapatanMingguan)&&const DeepCollectionEquality().equals(other._pendapatanBulanan, _pendapatanBulanan));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_transaksi),totalPemasukan,totalPengeluaran,total,totalPoinSemuaPelanggan);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_transaksi),totalPemasukan,totalPengeluaran,total,totalPoinSemuaPelanggan,const DeepCollectionEquality().hash(_paketTerlaris),const DeepCollectionEquality().hash(_pendapatanHarian),const DeepCollectionEquality().hash(_pendapatanMingguan),const DeepCollectionEquality().hash(_pendapatanBulanan));
 
 @override
 String toString() {
-  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total, totalPoinSemuaPelanggan: $totalPoinSemuaPelanggan)';
+  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total, totalPoinSemuaPelanggan: $totalPoinSemuaPelanggan, paketTerlaris: $paketTerlaris, pendapatanHarian: $pendapatanHarian, pendapatanMingguan: $pendapatanMingguan, pendapatanBulanan: $pendapatanBulanan)';
 }
 
 
@@ -26879,7 +26902,7 @@ abstract mixin class _$TransaksiStateCopyWith<$Res> implements $TransaksiStateCo
   factory _$TransaksiStateCopyWith(_TransaksiState value, $Res Function(_TransaksiState) _then) = __$TransaksiStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total, int totalPoinSemuaPelanggan
+ List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total, int totalPoinSemuaPelanggan, List<PaketTerlarisModel> paketTerlaris, List<double> pendapatanHarian, List<double> pendapatanMingguan, List<double> pendapatanBulanan
 });
 
 
@@ -26896,14 +26919,18 @@ class __$TransaksiStateCopyWithImpl<$Res>
 
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,Object? totalPoinSemuaPelanggan = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,Object? totalPoinSemuaPelanggan = null,Object? paketTerlaris = null,Object? pendapatanHarian = null,Object? pendapatanMingguan = null,Object? pendapatanBulanan = null,}) {
   return _then(_TransaksiState(
 transaksi: null == transaksi ? _self._transaksi : transaksi // ignore: cast_nullable_to_non_nullable
 as List<TransaksiModel>,totalPemasukan: null == totalPemasukan ? _self.totalPemasukan : totalPemasukan // ignore: cast_nullable_to_non_nullable
 as double,totalPengeluaran: null == totalPengeluaran ? _self.totalPengeluaran : totalPengeluaran // ignore: cast_nullable_to_non_nullable
 as double,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
 as double,totalPoinSemuaPelanggan: null == totalPoinSemuaPelanggan ? _self.totalPoinSemuaPelanggan : totalPoinSemuaPelanggan // ignore: cast_nullable_to_non_nullable
-as int,
+as int,paketTerlaris: null == paketTerlaris ? _self._paketTerlaris : paketTerlaris // ignore: cast_nullable_to_non_nullable
+as List<PaketTerlarisModel>,pendapatanHarian: null == pendapatanHarian ? _self._pendapatanHarian : pendapatanHarian // ignore: cast_nullable_to_non_nullable
+as List<double>,pendapatanMingguan: null == pendapatanMingguan ? _self._pendapatanMingguan : pendapatanMingguan // ignore: cast_nullable_to_non_nullable
+as List<double>,pendapatanBulanan: null == pendapatanBulanan ? _self._pendapatanBulanan : pendapatanBulanan // ignore: cast_nullable_to_non_nullable
+as List<double>,
   ));
 }
 
@@ -26922,6 +26949,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
+import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
@@ -26937,6 +26965,10 @@ abstract class TransaksiState with _$TransaksiState {
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
     @Default(0) int totalPoinSemuaPelanggan,
+    required List<PaketTerlarisModel> paketTerlaris,
+    required List<double> pendapatanHarian,
+    required List<double> pendapatanMingguan,
+    required List<double> pendapatanBulanan,
   }) = _TransaksiState;
 }
 
@@ -26956,7 +26988,10 @@ class Transaksi extends _$Transaksi {
       _transaksiOpSqlite.getTotalIncome(),
       _transaksiOpSqlite.getTotalExpense(),
       _transaksiOpSqlite.getNetTotal(),
-      _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan(), // ✅ Method baru
+      _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan(),
+      _transaksiOpSqlite.ambilPendapatanHarian(),
+      _transaksiOpSqlite.ambilPendapatanMingguan(),
+      _transaksiOpSqlite.ambilPendapatanBulanan(),
     ]);
 
     final transaksi = hasil[0] as List<TransaksiModel>;
@@ -26966,7 +27001,11 @@ class Transaksi extends _$Transaksi {
       totalPemasukan: hasil[1] as double,
       totalPengeluaran: hasil[2] as double,
       total: hasil[3] as double,
-      totalPoinSemuaPelanggan: hasil[4] as int, // ✅ Isi total poin
+      totalPoinSemuaPelanggan: hasil[4] as int,
+      paketTerlaris: hasil[0] as List<PaketTerlarisModel>,
+      pendapatanHarian: hasil[4] as List<double>,
+      pendapatanMingguan: hasil[5] as List<double>,
+      pendapatanBulanan: hasil[6] as List<double>,
     );
   }
 
@@ -27073,7 +27112,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'bd9b1ae9af00c2034acf2c903501ebc33e81c7c1';
+String _$transaksiHash() => r'cb12eaf7511268357269c2a0ea11277cb92aabd0';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -27097,8 +27136,11 @@ abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
 // File: lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart
 // path: lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart
 
+import 'package:collection/collection.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
+import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -27111,11 +27153,17 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 class TransaksiOpSqlite {
   final SqliteDatabase sqliteDb;
   final BaseOpSqlite baseOpSqlite;
+  final PaketOpSqlite paketOpsqlite;
+
   final String _tabel = NamaTabel.transaksi;
   final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
   final _nowUtc = DateTime.now().toUtc();
 
-  TransaksiOpSqlite({required this.sqliteDb, required this.baseOpSqlite});
+  TransaksiOpSqlite({
+    required this.sqliteDb,
+    required this.baseOpSqlite,
+    required this.paketOpsqlite,
+  });
 
   Future<Database> get _sqliteDb async => await sqliteDb.database;
 
@@ -27524,8 +27572,179 @@ class TransaksiOpSqlite {
     return net;
   }
 
+  Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
+    Log.info('Mulai menghitung paket terlaris.');
+    try {
+      final daftarPaket = await paketOpsqlite.ambilSemua();
+      final daftartransaksi = await ambilSemua();
+      if (daftartransaksi.isEmpty) {
+        Log.warning('Tidak ada transaksi, mengembalikan list paket kosong.');
+        return [];
+      }
+      final jumlahPenjualan = groupBy(
+        daftartransaksi.where((t) => t.idPaket != null).toList(),
+        (t) => t.idPaket!,
+      ).map((key, value) => MapEntry(key, value.length));
+      final paketTerlaris = daftarPaket.map((paket) {
+        return PaketTerlarisModel(
+          paket: paket,
+          totalTerjual: jumlahPenjualan[paket.id] ?? 0,
+        );
+      }).toList();
+      paketTerlaris.sort((a, b) => b.totalTerjual.compareTo(a.totalTerjual));
+
+      final hasil = paketTerlaris.take(limit).toList();
+      Log.info(
+        'Berhasil menghitung ${hasil.length} paket terlaris: ${hasil.map((p) => '${p.paket.nama} (${p.totalTerjual})').toList()}',
+      );
+
+      return hasil;
+    } catch (e, st) {
+      Log.error('Gagal menghitung paket terlaris.', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  /// Mengambil data pendapatan harian dalam 7 hari terakhir
+  Future<List<double>> ambilPendapatanHarian() async {
+    try {
+      final db = await SqliteDatabase.instance.database;
+      final now = DateTime.now();
+      final results = <double>[];
+
+      for (int i = 6; i >= 0; i--) {
+        final date = now.subtract(Duration(days: i));
+        final startOfDay = DateTime(date.year, date.month, date.day);
+        final endOfDay = startOfDay.add(const Duration(days: 1));
+
+        final result = await db.rawQuery(
+          '''
+        SELECT COALESCE(SUM(
+          CASE
+            WHEN ${NamaKolom.tipe} = 'income' THEN ${NamaKolom.jumlah}
+            WHEN ${NamaKolom.tipe} = 'expense' THEN -${NamaKolom.jumlah}
+            ELSE 0
+          END
+        ), 0) as total
+        FROM ${NamaTabel.transaksi}
+        WHERE ${NamaKolom.tanggal} >= ? 
+          AND ${NamaKolom.tanggal} < ?
+          AND ${NamaKolom.dihapus} = 0
+          AND ${NamaKolom.statusPembayaran} = 'paid'
+        ''',
+          [startOfDay.millisecondsSinceEpoch, endOfDay.millisecondsSinceEpoch],
+        );
+
+        final total = (result.first['total'] as num?)?.toDouble() ?? 0.0;
+        results.add(total / 1000000); // Konversi ke Jutaan
+      }
+
+      return results;
+    } catch (e, st) {
+      Log.error('Gagal mengambil pendapatan harian', e: e, s: st);
+      return List.filled(7, 0.0);
+    }
+  }
+
+  /// Mengambil data pendapatan mingguan dalam 4 minggu terakhir
+  Future<List<double>> ambilPendapatanMingguan() async {
+    try {
+      final db = await SqliteDatabase.instance.database;
+      final now = DateTime.now();
+      final results = <double>[];
+
+      for (int i = 3; i >= 0; i--) {
+        final startOfWeek = now.subtract(
+          Duration(days: i * 7 + now.weekday - 1),
+        );
+        final start = DateTime(
+          startOfWeek.year,
+          startOfWeek.month,
+          startOfWeek.day,
+        );
+        final end = start.add(const Duration(days: 7));
+
+        final result = await db.rawQuery(
+          '''
+        SELECT COALESCE(SUM(
+          CASE
+            WHEN ${NamaKolom.tipe} = 'income' THEN ${NamaKolom.jumlah}
+            WHEN ${NamaKolom.tipe} = 'expense' THEN -${NamaKolom.jumlah}
+            ELSE 0
+          END
+        ), 0) as total
+        FROM ${NamaTabel.transaksi}
+        WHERE ${NamaKolom.tanggal} >= ? 
+          AND ${NamaKolom.tanggal} < ?
+          AND ${NamaKolom.dihapus} = 0
+          AND ${NamaKolom.statusPembayaran} = 'paid'
+        ''',
+          [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+        );
+
+        final total = (result.first['total'] as num?)?.toDouble() ?? 0.0;
+        results.add(total / 1000000); // Konversi ke Jutaan
+      }
+
+      return results;
+    } catch (e, st) {
+      Log.error('Gagal mengambil pendapatan mingguan', e: e, s: st);
+      return List.filled(4, 0.0);
+    }
+  }
+
+  /// Mengambil data pendapatan bulanan dalam 5 bulan terakhir
+  Future<List<double>> ambilPendapatanBulanan() async {
+    try {
+      final db = await SqliteDatabase.instance.database;
+      final now = DateTime.now();
+      final results = <double>[];
+
+      for (int i = 4; i >= 0; i--) {
+        final month = now.month - i;
+        final year = now.year - (month <= 0 ? 1 : 0);
+        final actualMonth = month <= 0 ? month + 12 : month;
+
+        final startOfMonth = DateTime(year, actualMonth);
+        final endOfMonth = DateTime(
+          actualMonth == 12 ? year + 1 : year,
+          actualMonth == 12 ? 1 : actualMonth + 1,
+        );
+
+        final result = await db.rawQuery(
+          '''
+        SELECT COALESCE(SUM(
+          CASE
+            WHEN ${NamaKolom.tipe} = 'income' THEN ${NamaKolom.jumlah}
+            WHEN ${NamaKolom.tipe} = 'expense' THEN -${NamaKolom.jumlah}
+            ELSE 0
+          END
+        ), 0) as total
+        FROM ${NamaTabel.transaksi}
+        WHERE ${NamaKolom.tanggal} >= ? 
+          AND ${NamaKolom.tanggal} < ?
+          AND ${NamaKolom.dihapus} = 0
+          AND ${NamaKolom.statusPembayaran} = 'paid'
+        ''',
+          [
+            startOfMonth.millisecondsSinceEpoch,
+            endOfMonth.millisecondsSinceEpoch,
+          ],
+        );
+
+        final total = (result.first['total'] as num?)?.toDouble() ?? 0.0;
+        results.add(total / 1000000); // Konversi ke Jutaan
+      }
+
+      return results;
+    } catch (e, st) {
+      Log.error('Gagal mengambil pendapatan bulanan', e: e, s: st);
+      return List.filled(5, 0.0);
+    }
+  }
+
   /// Menghitung total poin yang diperoleh seorang pelanggan.
-  Future<int> ambilPoinDidapat( String idPelanggan) async {
+  Future<int> ambilPoinDidapat(String idPelanggan) async {
     try {
       final db = await sqliteDb.database;
       Log.info('Menghitung poin yang dihasilkan Customer: $idPelanggan');
@@ -29830,7 +30049,7 @@ final class PelangganProvider
   Pelanggan create() => Pelanggan();
 }
 
-String _$pelangganHash() => r'2e607690faf7c42f121d7cf13834deb5496c67c9';
+String _$pelangganHash() => r'e54d48854a761050166127aee7820bf1d9463da0';
 
 abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   FutureOr<PelangganState> build();
@@ -29850,15 +30069,11 @@ abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   }
 }
 
-/// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
-
 @ProviderFor(UrutanPelangganState)
 final urutanPelangganStateProvider = UrutanPelangganStateProvider._();
 
-/// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
 final class UrutanPelangganStateProvider
     extends $NotifierProvider<UrutanPelangganState, UrutanPelanggan> {
-  /// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
   UrutanPelangganStateProvider._()
     : super(
         from: null,
@@ -29888,8 +30103,6 @@ final class UrutanPelangganStateProvider
 
 String _$urutanPelangganStateHash() =>
     r'4d10172b1c7b6624a3ba78ae04fb5e40835a3fd8';
-
-/// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
 
 abstract class _$UrutanPelangganState extends $Notifier<UrutanPelanggan> {
   UrutanPelanggan build();
@@ -35069,7 +35282,7 @@ final class StatistikProvider
   Statistik create() => Statistik();
 }
 
-String _$statistikHash() => r'854e783d24242495b2270db228149f12052a6285';
+String _$statistikHash() => r'75f2cadab825fdc66f21c033fb19f590c98205c8';
 
 abstract class _$Statistik extends $AsyncNotifier<StatistikState> {
   FutureOr<StatistikState> build();
@@ -35151,13 +35364,11 @@ class Statistik extends _$Statistik {
       final pendapatan = await _statistikOpSlite.ambilTotalPendapatan();
       final pelanggan = await _statistikOpSlite.ambilTotalPelanggan();
       final feedbackBaru = await _statistikOpSlite.ambilTotalFeedback();
-      final paketTerlaris = await _statistikOpSlite.ambilPaketTerlaris();
       Log.info('[StatistikNotifier] Semua data sekuensial berhasil dimuat.');
       return StatistikState(
         totalPendaptanPerbulan: pendapatan,
         totalPelanggan: pelanggan,
         totalFeedback: feedbackBaru,
-        paketTerlaris: paketTerlaris,
       );
     } catch (e, st) {
       Log.error(
@@ -35183,17 +35394,13 @@ class Statistik extends _$Statistik {
 // File: lib/fitur/statistik/operasi/statistik_op_sqlite.dart
 // path: lib/fitur/statistik/operasi/statistik_op_sqlite.dart
 
-import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
-import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -35202,61 +35409,17 @@ final statistikOpSliteProvider = Provider<StatistikOpSqlite>((ref) {
   Log.info('Membuat instance StatistikRepository melalui provider');
   return StatistikOpSqlite(
     feedbackOpSqlite: ref.watch(feedbackOpSqliteProvider),
-    paketOpSqlite: ref.watch(paketOpSqliteProvider),
-    transaksiOpSqlite: ref.watch(transaksiOpSqliteProvider),
   );
 });
 
 /// Repos
 class StatistikOpSqlite {
   final FeedbackOpSqlite _statistikOpSliteProvider;
-  final PaketOpSqlite _paketOpsqlite;
-  final TransaksiOpSqlite _transaksiOpSqlite;
 
   StatistikOpSqlite({
     required FeedbackOpSqlite feedbackOpSqlite,
-    required PaketOpSqlite paketOpSqlite,
-    required TransaksiOpSqlite transaksiOpSqlite,
-  }) : _statistikOpSliteProvider = feedbackOpSqlite,
-       _paketOpsqlite = paketOpSqlite,
-       _transaksiOpSqlite = transaksiOpSqlite;
+  }) : _statistikOpSliteProvider = feedbackOpSqlite;
 
-  Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
-    Log.info('Mulai menghitung paket terlaris.');
-    try {
-      final daftarPaket = await _paketOpsqlite.ambilSemua();
-      final daftartransaksi = await _transaksiOpSqlite.ambilSemua();
-
-      if (daftartransaksi.isEmpty) {
-        Log.warning('Tidak ada transaksi, mengembalikan list paket kosong.');
-        return [];
-      }
-
-      final jumlahPenjualan = daftartransaksi
-          .where((t) => t.idPaket != null)
-          .groupListsBy((t) => t.idPaket!)
-          .map((key, value) => MapEntry(key, value.length));
-
-      final paketTerlaris = daftarPaket.map((paket) {
-        return PaketTerlarisModel(
-          paket: paket,
-          totalTerjual: jumlahPenjualan[paket.id] ?? 0,
-        );
-      }).toList();
-
-      paketTerlaris.sort((a, b) => b.totalTerjual.compareTo(a.totalTerjual));
-
-      final hasil = paketTerlaris.take(limit).toList();
-      Log.info(
-        'Berhasil menghitung ${hasil.length} paket terlaris: ${hasil.map((p) => '${p.paket.nama} (${p.totalTerjual})').toList()}',
-      );
-
-      return hasil;
-    } catch (e, st) {
-      Log.error('Gagal menghitung paket terlaris.', e: e, s: st);
-      rethrow;
-    }
-  }
 
   Future<double> ambilTotalPendapatan() async {
     try {
@@ -41451,7 +41614,7 @@ final class LayananPenyimpananLokalProvider
 }
 
 String _$layananPenyimpananLokalHash() =>
-    r'78e01700eacbbcec664a53a5444151524abee274';
+    r'a6896842e5554ff630479075eedbb2f81542ae5a';
 
 /// Provider sederhana yang hanya membuat instance NotifikasiServis.
 
@@ -41505,20 +41668,12 @@ final class LayananNotifikasiProvider
 
 String _$layananNotifikasiHash() => r'b1db6972d06b5d7f0ae64ffd3ab6b5dea2cdb459';
 
-/// Controller utama untuk notifikasi.
-/// Tonton provider ini dari UI untuk menginisialisasi listener.
-
 @ProviderFor(pengontrolNotifikasi)
 final pengontrolNotifikasiProvider = PengontrolNotifikasiProvider._();
-
-/// Controller utama untuk notifikasi.
-/// Tonton provider ini dari UI untuk menginisialisasi listener.
 
 final class PengontrolNotifikasiProvider
     extends $FunctionalProvider<void, void, void>
     with $Provider<void> {
-  /// Controller utama untuk notifikasi.
-  /// Tonton provider ini dari UI untuk menginisialisasi listener.
   PengontrolNotifikasiProvider._()
     : super(
         from: null,
@@ -42855,11 +43010,8 @@ import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart'
 
 final baseOpSqliteProvider = Provider<BaseOpSqlite>((ref) {
   Log.info('Membuat instance BaseOperation...');
-
   final sqliteDb = ref.read(sqliteDatabaseProvider);
-
   final statusUnggahOpSqlite = ref.read(statusUploadOpSlite);
-
   return BaseOpSqlite(
     sqliteDb: sqliteDb,
     statusUnggahOpSqlite: statusUnggahOpSqlite,
@@ -42964,13 +43116,13 @@ class BaseOpSqlite {
     Log.info('Memulai penyisipan data ke tabel: $table');
     try {
       await _runInTransaction((txn) async {
-        final result = await txn.insert(
+        final hasil = await txn.insert(
           table,
           data,
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
-        Log.info('INSERT berhasil', {'rowId': result, 'tabel': table});
-        return result;
+        Log.info('INSERT berhasil', {'rowId': hasil, 'tabel': table});
+        return hasil;
       }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
@@ -42995,7 +43147,7 @@ class BaseOpSqlite {
       'data': data,
     });
     try {
-      await _runInTransaction((final txn) async {
+      await _runInTransaction((txn) async {
         final rowsAffected = await txn.update(
           table,
           data,
@@ -43025,13 +43177,13 @@ class BaseOpSqlite {
 
   /// Menghapus data dari [table] berdasarkan [id].
   Future<void> delete(
-    final String table,
-    final String id, {
-    final bool dariServer = false,
+    String table,
+    String id, {
+    bool dariServer = false,
   }) async {
     Log.info('Memulai penghapusan data', {'tabel': table, 'id': id});
     try {
-      await _runInTransaction((final txn) async {
+      await _runInTransaction((txn) async {
         final rowsDeleted = await txn.delete(
           table,
           where: 'id = ?',

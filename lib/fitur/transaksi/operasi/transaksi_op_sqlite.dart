@@ -1,7 +1,10 @@
 // path: lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart
 
+import 'package:collection/collection.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
+import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -14,11 +17,17 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 class TransaksiOpSqlite {
   final SqliteDatabase sqliteDb;
   final BaseOpSqlite baseOpSqlite;
+  final PaketOpSqlite paketOpsqlite;
+
   final String _tabel = NamaTabel.transaksi;
   final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
   final _nowUtc = DateTime.now().toUtc();
 
-  TransaksiOpSqlite({required this.sqliteDb, required this.baseOpSqlite});
+  TransaksiOpSqlite({
+    required this.sqliteDb,
+    required this.baseOpSqlite,
+    required this.paketOpsqlite,
+  });
 
   Future<Database> get _sqliteDb async => await sqliteDb.database;
 
@@ -427,8 +436,179 @@ class TransaksiOpSqlite {
     return net;
   }
 
+  Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
+    Log.info('Mulai menghitung paket terlaris.');
+    try {
+      final daftarPaket = await paketOpsqlite.ambilSemua();
+      final daftartransaksi = await ambilSemua();
+      if (daftartransaksi.isEmpty) {
+        Log.warning('Tidak ada transaksi, mengembalikan list paket kosong.');
+        return [];
+      }
+      final jumlahPenjualan = groupBy(
+        daftartransaksi.where((t) => t.idPaket != null).toList(),
+        (t) => t.idPaket!,
+      ).map((key, value) => MapEntry(key, value.length));
+      final paketTerlaris = daftarPaket.map((paket) {
+        return PaketTerlarisModel(
+          paket: paket,
+          totalTerjual: jumlahPenjualan[paket.id] ?? 0,
+        );
+      }).toList();
+      paketTerlaris.sort((a, b) => b.totalTerjual.compareTo(a.totalTerjual));
+
+      final hasil = paketTerlaris.take(limit).toList();
+      Log.info(
+        'Berhasil menghitung ${hasil.length} paket terlaris: ${hasil.map((p) => '${p.paket.nama} (${p.totalTerjual})').toList()}',
+      );
+
+      return hasil;
+    } catch (e, st) {
+      Log.error('Gagal menghitung paket terlaris.', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  /// Mengambil data pendapatan harian dalam 7 hari terakhir
+  Future<List<double>> ambilPendapatanHarian() async {
+    try {
+      final db = await SqliteDatabase.instance.database;
+      final now = DateTime.now();
+      final results = <double>[];
+
+      for (int i = 6; i >= 0; i--) {
+        final date = now.subtract(Duration(days: i));
+        final startOfDay = DateTime(date.year, date.month, date.day);
+        final endOfDay = startOfDay.add(const Duration(days: 1));
+
+        final result = await db.rawQuery(
+          '''
+        SELECT COALESCE(SUM(
+          CASE
+            WHEN ${NamaKolom.tipe} = 'income' THEN ${NamaKolom.jumlah}
+            WHEN ${NamaKolom.tipe} = 'expense' THEN -${NamaKolom.jumlah}
+            ELSE 0
+          END
+        ), 0) as total
+        FROM ${NamaTabel.transaksi}
+        WHERE ${NamaKolom.tanggal} >= ? 
+          AND ${NamaKolom.tanggal} < ?
+          AND ${NamaKolom.dihapus} = 0
+          AND ${NamaKolom.statusPembayaran} = 'paid'
+        ''',
+          [startOfDay.millisecondsSinceEpoch, endOfDay.millisecondsSinceEpoch],
+        );
+
+        final total = (result.first['total'] as num?)?.toDouble() ?? 0.0;
+        results.add(total / 1000000); // Konversi ke Jutaan
+      }
+
+      return results;
+    } catch (e, st) {
+      Log.error('Gagal mengambil pendapatan harian', e: e, s: st);
+      return List.filled(7, 0.0);
+    }
+  }
+
+  /// Mengambil data pendapatan mingguan dalam 4 minggu terakhir
+  Future<List<double>> ambilPendapatanMingguan() async {
+    try {
+      final db = await SqliteDatabase.instance.database;
+      final now = DateTime.now();
+      final results = <double>[];
+
+      for (int i = 3; i >= 0; i--) {
+        final startOfWeek = now.subtract(
+          Duration(days: i * 7 + now.weekday - 1),
+        );
+        final start = DateTime(
+          startOfWeek.year,
+          startOfWeek.month,
+          startOfWeek.day,
+        );
+        final end = start.add(const Duration(days: 7));
+
+        final result = await db.rawQuery(
+          '''
+        SELECT COALESCE(SUM(
+          CASE
+            WHEN ${NamaKolom.tipe} = 'income' THEN ${NamaKolom.jumlah}
+            WHEN ${NamaKolom.tipe} = 'expense' THEN -${NamaKolom.jumlah}
+            ELSE 0
+          END
+        ), 0) as total
+        FROM ${NamaTabel.transaksi}
+        WHERE ${NamaKolom.tanggal} >= ? 
+          AND ${NamaKolom.tanggal} < ?
+          AND ${NamaKolom.dihapus} = 0
+          AND ${NamaKolom.statusPembayaran} = 'paid'
+        ''',
+          [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+        );
+
+        final total = (result.first['total'] as num?)?.toDouble() ?? 0.0;
+        results.add(total / 1000000); // Konversi ke Jutaan
+      }
+
+      return results;
+    } catch (e, st) {
+      Log.error('Gagal mengambil pendapatan mingguan', e: e, s: st);
+      return List.filled(4, 0.0);
+    }
+  }
+
+  /// Mengambil data pendapatan bulanan dalam 5 bulan terakhir
+  Future<List<double>> ambilPendapatanBulanan() async {
+    try {
+      final db = await SqliteDatabase.instance.database;
+      final now = DateTime.now();
+      final results = <double>[];
+
+      for (int i = 4; i >= 0; i--) {
+        final month = now.month - i;
+        final year = now.year - (month <= 0 ? 1 : 0);
+        final actualMonth = month <= 0 ? month + 12 : month;
+
+        final startOfMonth = DateTime(year, actualMonth);
+        final endOfMonth = DateTime(
+          actualMonth == 12 ? year + 1 : year,
+          actualMonth == 12 ? 1 : actualMonth + 1,
+        );
+
+        final result = await db.rawQuery(
+          '''
+        SELECT COALESCE(SUM(
+          CASE
+            WHEN ${NamaKolom.tipe} = 'income' THEN ${NamaKolom.jumlah}
+            WHEN ${NamaKolom.tipe} = 'expense' THEN -${NamaKolom.jumlah}
+            ELSE 0
+          END
+        ), 0) as total
+        FROM ${NamaTabel.transaksi}
+        WHERE ${NamaKolom.tanggal} >= ? 
+          AND ${NamaKolom.tanggal} < ?
+          AND ${NamaKolom.dihapus} = 0
+          AND ${NamaKolom.statusPembayaran} = 'paid'
+        ''',
+          [
+            startOfMonth.millisecondsSinceEpoch,
+            endOfMonth.millisecondsSinceEpoch,
+          ],
+        );
+
+        final total = (result.first['total'] as num?)?.toDouble() ?? 0.0;
+        results.add(total / 1000000); // Konversi ke Jutaan
+      }
+
+      return results;
+    } catch (e, st) {
+      Log.error('Gagal mengambil pendapatan bulanan', e: e, s: st);
+      return List.filled(5, 0.0);
+    }
+  }
+
   /// Menghitung total poin yang diperoleh seorang pelanggan.
-  Future<int> ambilPoinDidapat( String idPelanggan) async {
+  Future<int> ambilPoinDidapat(String idPelanggan) async {
     try {
       final db = await sqliteDb.database;
       Log.info('Menghitung poin yang dihasilkan Customer: $idPelanggan');
