@@ -115,7 +115,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                             builder: (_) => const PelangganAktifPage(),
                           ),
                         ),
-                        title: 'Langganan Aktif',
+                        title: 'Pelanggan Aktif',
                         value:
                             pelangganAktif.value?.jumlahPelangganAktif
                                 .toString() ??
@@ -148,7 +148,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                             ),
                           );
                         },
-                        title: 'Feedback Baru',
+                        title: 'Total Feedback',
                         value: statData?.totalFeedback.toString() ?? '0',
                         icon: TIcons.feedback,
                         color: Colors.purple,

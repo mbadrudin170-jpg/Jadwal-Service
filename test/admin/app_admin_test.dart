@@ -404,7 +404,7 @@ void main() {
         await tester.pumpWidget(
           UncontrolledProviderScope(
             container: container,
-            child: const AppMaterial(),
+            child: const AppMaterial(isOffline: false),
           ),
         );
 
