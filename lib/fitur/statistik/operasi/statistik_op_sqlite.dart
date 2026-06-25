@@ -5,8 +5,6 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
-import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -26,38 +24,6 @@ class StatistikOpSqlite {
     required FeedbackOpSqlite feedbackOpSqlite,
   }) : _statistikOpSliteProvider = feedbackOpSqlite;
 
-
-  Future<double> ambilTotalPendapatan() async {
-    try {
-      final db = await SqliteDatabase.instance.database;
-      final List<Map<String, dynamic>> hasil = await db.rawQuery(
-        '''
-      SELECT SUM(
-        CASE
-          WHEN ${NamaKolom.tipe} = ? THEN ${NamaKolom.jumlah}
-          WHEN ${NamaKolom.tipe} = ? THEN -${NamaKolom.jumlah}
-          ELSE 0
-        END
-      ) as total
-      FROM ${NamaTabel.transaksi}
-      WHERE ${NamaKolom.dihapus} = 0
-        AND ${NamaKolom.statusPembayaran} = ?
-      ''',
-        [
-          TipeTransaksi.income.name,
-          TipeTransaksi.expense.name,
-          StatusPembayaran.paid.name,
-        ],
-      );
-
-      final total = (hasil.first['total'] as num?)?.toDouble() ?? 0.0;
-      Log.info('Total pendapatan bersih: $total');
-      return total;
-    } catch (e, st) {
-      Log.error('Gagal mengambil pendapatan bersih.', e: e, s: st);
-      rethrow;
-    }
-  }
 
   Future<int> ambilTotalPelanggan() async {
     Log.info('Mulai mengambil total jumlah pelanggan dari SQLite.');

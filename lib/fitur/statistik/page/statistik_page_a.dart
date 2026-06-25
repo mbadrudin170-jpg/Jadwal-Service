@@ -132,10 +132,10 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                         ),
                         title: 'Pendapatan Bulan Ini',
                         value: FormatUang.formatMataUang(
-                          statData?.totalPendaptanPerbulan ?? 0,
+                          data.totalPendapatanPerbulan,
                         ),
                         icon: TIcons.money,
-                        color: statData!.totalPendaptanPerbulan < 0
+                        color: data.totalPendapatanPerbulan < 0
                             ? Colors.red
                             : Colors.orange,
                       ),
@@ -149,7 +149,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                           );
                         },
                         title: 'Feedback Baru',
-                        value: statData.totalFeedback.toString(),
+                        value: statData?.totalFeedback.toString() ?? '0',
                         icon: TIcons.feedback,
                         color: Colors.purple,
                       ),

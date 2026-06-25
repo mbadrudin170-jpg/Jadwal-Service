@@ -26,6 +26,7 @@ abstract class TransaksiState with _$TransaksiState {
     required List<double> pendapatanHarian,
     required List<double> pendapatanMingguan,
     required List<double> pendapatanBulanan,
+    required double totalPendapatanPerbulan,
   }) = _TransaksiState;
 }
 
@@ -50,6 +51,7 @@ class Transaksi extends _$Transaksi {
       _transaksiOpSqlite.ambilPendapatanHarian(), // [6]
       _transaksiOpSqlite.ambilPendapatanMingguan(), // [7]
       _transaksiOpSqlite.ambilPendapatanBulanan(), // [8]
+      _transaksiOpSqlite.ambilTotalPendapatanPerbulan(), //[9]
     ]);
 
     final transaksi = hasil[0] as List<TransaksiModel>;
@@ -64,6 +66,7 @@ class Transaksi extends _$Transaksi {
       pendapatanHarian: hasil[6] as List<double>,
       pendapatanMingguan: hasil[7] as List<double>,
       pendapatanBulanan: hasil[8] as List<double>,
+      totalPendapatanPerbulan: hasil[9] as double,
     );
   }
 

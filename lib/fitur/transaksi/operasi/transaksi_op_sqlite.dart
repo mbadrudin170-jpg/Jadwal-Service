@@ -730,6 +730,38 @@ class TransaksiOpSqlite {
     }
   }
 
+  Future<double> ambilTotalPendapatanPerbulan() async {
+    try {
+      final db = await SqliteDatabase.instance.database;
+      final List<Map<String, dynamic>> hasil = await db.rawQuery(
+        '''
+      SELECT SUM(
+        CASE
+          WHEN ${NamaKolom.tipe} = ? THEN ${NamaKolom.jumlah}
+          WHEN ${NamaKolom.tipe} = ? THEN -${NamaKolom.jumlah}
+          ELSE 0
+        END
+      ) as total
+      FROM ${NamaTabel.transaksi}
+      WHERE ${NamaKolom.dihapus} = 0
+        AND ${NamaKolom.statusPembayaran} = ?
+      ''',
+        [
+          TipeTransaksi.income.name,
+          TipeTransaksi.expense.name,
+          StatusPembayaran.paid.name,
+        ],
+      );
+
+      final total = (hasil.first['total'] as num?)?.toDouble() ?? 0.0;
+      Log.info('Total pendapatan bersih: $total');
+      return total;
+    } catch (e, st) {
+      Log.error('Gagal mengambil pendapatan bersih.', e: e, s: st);
+      rethrow;
+    }
+  }
+
   /// Mengambil beberapa transaksi berdasarkan daftar ID.
   Future<List<TransaksiModel>> ambilBerdasarkanIds(
     final List<String> ids,

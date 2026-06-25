@@ -302,6 +302,14 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i5.TransaksiOpSqlite {
           as _i6.Future<void>);
 
   @override
+  _i6.Future<double> ambilTotalPendapatanPerbulan() =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilTotalPendapatanPerbulan, []),
+            returnValue: _i6.Future<double>.value(0.0),
+          )
+          as _i6.Future<double>);
+
+  @override
   _i6.Future<List<_i7.TransaksiModel>> ambilBerdasarkanIds(List<String>? ids) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBerdasarkanIds, [ids]),
