@@ -52,7 +52,7 @@ void main() {
         layananUnduhDataProvider.overrideWithValue(mockLayananUnduh),
         pengecekanDataBaruServiceProvider
             .overrideWithValue(mockPengecekanDataBaru),
-        firebaseFirestoreProvider.overrideWithValue(mockFirestore),
+        firestoreProvider.overrideWithValue(mockFirestore),
         koneksiInternetServiceProvider
             .overrideWithValue(mockKoneksiInternetService),
       ],

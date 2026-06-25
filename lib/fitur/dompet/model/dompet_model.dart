@@ -43,7 +43,7 @@ abstract class DompetModel with _$DompetModel implements HasId {
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
       NamaKolom.dihapus: dihapus ? 1 : 0,
-      NamaKolom.diarsipkanPada: diarsipkanPada!.millisecondsSinceEpoch,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
     };
   }
 

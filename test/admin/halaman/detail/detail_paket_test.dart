@@ -15,7 +15,7 @@ import 'detail_paket_test.mocks.dart';
 void main() {
   late MockNavigatorObserver mockNavigatorObserver;
 
-  final paket = const PaketModel(
+  const paket = PaketModel(
     id: '1',
     nama: 'Paket Harian',
     harga: 10000,

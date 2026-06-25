@@ -3,6 +3,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
@@ -60,6 +61,15 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     return (maxValue * 1.2).clamp(1.0, double.infinity);
   }
 
+  double _getMinY(TransaksiState data) {
+    final spots = _getCurrentSpots(data);
+    if (spots.isEmpty) return 0.0;
+    final minValue = spots.map((s) => s.y).reduce((a, b) => a < b ? a : b);
+    // Jika ada nilai negatif, beri batas aman di bawahnya (dikali 1.2)
+    // Jika tidak ada nilai negatif, tetapkan di angka 0.0
+    return minValue < 0 ? minValue * 1.2 : 0.0;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -92,68 +102,80 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                     ),
                   ),
                   gapH12,
-                  Wrap(
-                    spacing: 12.0,
-                    runSpacing: 12.0,
-                    children: [
-                      _buildStatCardWrapper(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (_) => const Pelanggan(),
-                          ),
-                        ),
-                        title: 'Total Pelanggan',
-                        value: statData?.totalPelanggan.toString() ?? '',
-                        icon: TIcons.customers,
-                        color: Colors.blue,
-                      ),
-                      _buildStatCardWrapper(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (_) => const PelangganAktifPage(),
-                          ),
-                        ),
-                        title: 'Pelanggan Aktif',
-                        value:
-                            pelangganAktif.value?.jumlahPelangganAktif
-                                .toString() ??
-                            '0',
-                        icon: TIcons.wifi,
-                        color: Colors.green,
-                      ),
-                      _buildStatCardWrapper(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (_) => const TransaksiA(),
-                          ),
-                        ),
-                        title: 'Pendapatan Bulan Ini',
-                        value: FormatUang.formatMataUang(
-                          data.totalPendapatanPerbulan,
-                        ),
-                        icon: TIcons.money,
-                        color: data.totalPendapatanPerbulan < 0
-                            ? Colors.red
-                            : Colors.orange,
-                      ),
-                      _buildStatCardWrapper(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (_) => const FeedbackPageA(),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final cardWidth = (constraints.maxWidth - 12.0) / 2;
+                      return Wrap(
+                        spacing: 12.0,
+                        runSpacing: 12.0,
+                        children: [
+                          _buildStatCardWrapper(
+                            width: cardWidth,
+
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder: (_) => const Pelanggan(),
+                              ),
                             ),
-                          );
-                        },
-                        title: 'Total Feedback',
-                        value: statData?.totalFeedback.toString() ?? '0',
-                        icon: TIcons.feedback,
-                        color: Colors.purple,
-                      ),
-                    ],
+                            title: 'Total Pelanggan',
+                            value: statData?.totalPelanggan.toString() ?? '',
+                            icon: TIcons.customers,
+                            color: Colors.blue,
+                          ),
+                          _buildStatCardWrapper(
+                            width: cardWidth,
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder: (_) => const PelangganAktifPage(),
+                              ),
+                            ),
+                            title: 'Pelanggan Aktif',
+                            value:
+                                pelangganAktif.value?.jumlahPelangganAktif
+                                    .toString() ??
+                                '0',
+                            icon: TIcons.wifi,
+                            color: Colors.green,
+                          ),
+                          _buildStatCardWrapper(
+                            width: cardWidth,
+
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder: (_) => const TransaksiA(),
+                              ),
+                            ),
+                            title: 'Pendapatan Bulan Ini',
+                            value: FormatUang.formatMataUang(
+                              data.totalPendapatanPerbulan,
+                            ),
+                            icon: TIcons.money,
+                            color: data.totalPendapatanPerbulan < 0
+                                ? Colors.red
+                                : Colors.orange,
+                          ),
+                          _buildStatCardWrapper(
+                            width: cardWidth,
+
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (_) => const FeedbackPageA(),
+                                ),
+                              );
+                            },
+                            title: 'Total Feedback',
+                            value: statData?.totalFeedback.toString() ?? '0',
+                            icon: TIcons.feedback,
+                            color: Colors.purple,
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   gapH24,
                   Text(
@@ -190,14 +212,54 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     required String value,
     required IconData icon,
     required Color color,
+    required double width, // 1. Tambahkan parameter width di sini
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: _buildStatCard(
-        title: title,
-        value: value,
-        icon: icon,
-        color: color,
+    return SizedBox(
+      width: width, // 2. Gunakan width hasil kalkulasi dinamis
+      child: GestureDetector(
+        onTap: onTap,
+        child: Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: color.withAlpha(25),
+                  radius: 16,
+                  child: Icon(icon, color: color, size: 20),
+                ),
+                gapH8,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(fontSize: 11),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        value,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -327,11 +389,11 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     );
   }
 
-  // ✅ BENAR
   LineChartData _mainLineChartData(TransaksiState data) {
     final spots = _getCurrentSpots(data);
     final maxX = _getMaxX(data);
     final maxY = _getMaxY(data);
+    final minY = _getMinY(data);
 
     if (spots.isEmpty) {
       return LineChartData(
@@ -340,7 +402,15 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
           rightTitles: const AxisTitles(),
           topTitles: const AxisTitles(),
           bottomTitles: const AxisTitles(),
-          leftTitles: const AxisTitles(),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              interval: (maxY - minY) / 4,
+              getTitlesWidget: ((value, meta) =>
+                  _leftTitleWidgets(value, meta, maxY)),
+              reservedSize: 55,
+            ),
+          ),
         ),
         borderData: FlBorderData(show: false),
         minX: 0,
@@ -352,8 +422,9 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     }
 
     return LineChartData(
+      clipData: const FlClipData.all(),
       gridData: FlGridData(
-        horizontalInterval: maxY / 4,
+        horizontalInterval: (maxY - minY) / 4,
         verticalInterval: 1,
         getDrawingHorizontalLine: (value) =>
             FlLine(color: Colors.grey.withAlpha(50), strokeWidth: 1),
@@ -375,7 +446,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval: maxY / 4,
+            interval: (maxY - minY) / 4,
             getTitlesWidget: (value, meta) =>
                 _leftTitleWidgets(value, meta, maxY),
             reservedSize: 42,
@@ -388,12 +459,14 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
       ),
       minX: 0,
       maxX: maxX,
-      minY: 0,
+      minY: minY,
       maxY: maxY,
       lineBarsData: [
         LineChartBarData(
           spots: spots,
           isCurved: true,
+          // ✨ SOLUSI 2: Cegah lengkungan melesat terlalu jauh akibat penurunan nilai yang drastis
+          preventCurveOverShooting: true,
           gradient: LinearGradient(
             colors: [
               Theme.of(context).colorScheme.primary.withAlpha(80),
@@ -423,49 +496,96 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     TransaksiState data,
   ) {
     const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 12);
-    Widget text = const Text('', style: style);
+    final index = value.toInt();
+
+    // Validasi indeks
+    if (index < 0) return const SizedBox.shrink();
+
+    String label = '';
+
     switch (_selectedRange) {
       case ChartRange.harian:
-        final hari = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
-        final index = value.toInt();
-        if (index >= 0 &&
-            index < hari.length &&
-            index < data.pendapatanHarian.length) {
-          text = Text(hari[index], style: style);
+        if (index < data.pendapatanHarian.length) {
+          final now = DateTime.now();
+          final daysAgo = data.pendapatanHarian.length - 1 - index;
+          final date = now.subtract(Duration(days: daysAgo));
+          label = DateFormat('E', 'id_ID').format(date); // Sen, Sel, Rab, ...
         }
         break;
+
       case ChartRange.mingguan:
-        final index = value.toInt();
-        if (index >= 0 && index < 4 && index < data.pendapatanMingguan.length) {
-          text = Text('M${index + 1}', style: style);
+        if (index < data.pendapatanMingguan.length) {
+          final weeksAgo = data.pendapatanMingguan.length - 1 - index;
+          label = 'M-${weeksAgo + 1}';
         }
         break;
+
       case ChartRange.bulanan:
-        final bulan = ['JAN', 'FEB', 'MAR', 'APR', 'MEI'];
-        final index = value.toInt();
-        if (index >= 0 &&
-            index < bulan.length &&
-            index < data.pendapatanBulanan.length) {
-          text = Text(bulan[index], style: style);
+        if (index < data.pendapatanBulanan.length) {
+          final monthsAgo = data.pendapatanBulanan.length - 1 - index;
+          final now = DateTime.now();
+          final date = DateTime(now.year, now.month - monthsAgo);
+          // Pastikan bulan dalam rentang 1-12
+          final monthIndex = ((date.month - 1) % 12).toInt();
+          final bulan = [
+            'JAN',
+            'FEB',
+            'MAR',
+            'APR',
+            'MEI',
+            'JUN',
+            'JUL',
+            'AGT',
+            'SEP',
+            'OKT',
+            'NOV',
+            'DES',
+          ];
+          label = bulan[monthIndex];
         }
         break;
     }
-    return SideTitleWidget(meta: meta, child: text);
+
+    // Jika label kosong, kembalikan SizedBox.shrink() agar tidak tampil placeholder
+    if (label.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return SideTitleWidget(
+      meta: meta,
+      child: Text(label, style: style),
+    );
   }
 
   Widget _leftTitleWidgets(double value, TitleMeta meta, double maxY) {
     const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 14);
     String text;
     if (maxY >= 100) {
-      text = '${(value / 1000).toStringAsFixed(0)}M';
+      // Lebih dari 100 Juta
+      text = '${(value / 1000).toStringAsFixed(1)}M';
     } else if (maxY >= 1) {
-      text = '${value.toStringAsFixed(1)}JT';
+      // Lebih dari 1 Juta
+      text = '${value.toStringAsFixed(1)}Jt';
     } else {
-      text = '${(value * 1000).toStringAsFixed(0)}RB';
+      // Kurang dari 1 Juta
+      text = '${(value * 1000).toStringAsFixed(0)}Rb';
     }
     return SideTitleWidget(
       meta: meta,
-      child: Text(text, style: style, textAlign: TextAlign.left),
+      space: 0,
+      child: SizedBox(
+        width: 55,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            text,
+            style: style,
+            maxLines: 1,
+            softWrap: false,
+            textAlign: TextAlign.left,
+          ),
+        ),
+      ),
     );
   }
 }

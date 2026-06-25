@@ -140,7 +140,7 @@ void main() {
 
      testWidgets('06. should show CircularProgressIndicator while saving', (WidgetTester tester) async {
       when(mockPelangganOpSqlite.tambahPelanggan(any)).thenAnswer((_) async {
-        await Future.delayed(const Duration(seconds: 1));
+        await Future<void>.delayed(const Duration(seconds: 1));
       });
       when(mockKoneksiInternetService.cekKoneksiLokal()).thenAnswer((_) async => false);
       

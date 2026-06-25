@@ -20,7 +20,10 @@ Map<DateTime, List<TransaksiModel>> kelompokkanTransaksiPerTanggal(
   final Map<DateTime, List<TransaksiModel>> kelompok = {};
   for (final transaksi in transaksi) {
     final tanggal = DateTime(
-        transaksi.tanggal.year, transaksi.tanggal.month, transaksi.tanggal.day);
+      transaksi.tanggal.year,
+      transaksi.tanggal.month,
+      transaksi.tanggal.day,
+    );
     kelompok[tanggal] ??= [];
     kelompok[tanggal]!.add(transaksi);
   }
@@ -29,28 +32,32 @@ Map<DateTime, List<TransaksiModel>> kelompokkanTransaksiPerTanggal(
 
 /// Membangun widget header untuk sebuah seksi transaksi berdasarkan tanggal.
 Widget bangunHeaderBagian(DateTime tanggal, double total) {
-  return Builder(builder: (context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            FormatTanggal.formatSingkat(tanggal),
-            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          Text(
-            FormatUang.formatMataUang(total),
-            style: textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: total >= 0 ? Colors.green : Colors.red,
+  return Builder(
+    builder: (context) {
+      final textTheme = Theme.of(context).textTheme;
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              FormatTanggal.formatSingkat(tanggal),
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  });
+            Text(
+              FormatUang.formatMataUang(total),
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: total >= 0 ? Colors.green : Colors.red,
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }
 
 /// Widget tile untuk menampilkan satu transaksi dalam daftar.
@@ -91,6 +98,9 @@ class _StateTileTransaksi extends ConsumerState<TileTransaksi> {
   }
 
   Future<String> ambilNamaKategori() async {
+    if (widget.transaksi.idKategori.isEmpty) {
+      return 'Tanpa Kategori';
+    }
     try {
       final kategori = await _kategoriOpSqlite.ambilKategoriBerdasarkanId(
         widget.transaksi.idKategori,
@@ -107,6 +117,9 @@ class _StateTileTransaksi extends ConsumerState<TileTransaksi> {
   }
 
   Future<String> _ambilNamaDompet() async {
+    if (widget.transaksi.idDompet.isEmpty) {
+      return 'Tanpa Dompet';
+    }
     try {
       final dompet = await _dompetOpSqlite.ambilBerdasarkanId(
         widget.transaksi.idDompet,
@@ -190,8 +203,10 @@ class _StateTileTransaksi extends ConsumerState<TileTransaksi> {
                 e: snapshot.error,
                 s: snapshot.stackTrace,
               );
-              return Text('Error memuat data',
-                  style: textTheme.bodyMedium?.copyWith(color: Colors.red));
+              return Text(
+                'Error memuat data',
+                style: textTheme.bodyMedium?.copyWith(color: Colors.red),
+              );
             }
             final namaKategori = snapshot.data?[0] ?? '-';
             final namaDompet = snapshot.data?[1] ?? '-';
