@@ -1569,9 +1569,18 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         _pilihJam!.hour,
         _pilihJam!.minute,
       );
-      final int durasiBonus = _bonus
-          ? (int.tryParse(_durasiBonusController.text) ?? 0)
-          : 0;
+      int durasiBonus = 0;
+      if (_bonus) {
+        durasiBonus =
+            int.tryParse(_durasiBonusController.text.replaceAll('.', '')) ?? 0;
+        if (durasiBonus <= 0) {
+          ToastUtil.error(
+            context,
+            'Durasi bonus harus diisi dan lebih dari 0.',
+          );
+          return false;
+        }
+      }
       final DateTime tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
         tanggalMulai,
         _paketDipilih!,
@@ -1700,15 +1709,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           diperbaruiPada: sekarang,
         ),
       ];
-      Log.info('data notifikasi untuk masa aktif paket telah dibuat,');
-      for (final notif in daftarNotifikasi) {
-        await notifikasiOpFirebase.addNotifikasi(notif);
-      }
       final isOnline = await ref
           .read(koneksiInternetServiceProvider)
           .cekKoneksiLokal();
       if (isOnline) {
         Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
+        await Future.wait(
+          daftarNotifikasi.map(notifikasiOpFirebase.addNotifikasi),
+        );
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
         );
@@ -2098,7 +2106,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
               flex: 2,
               child: InputAngka(
                 controller: _durasiBonusController,
-                label: 'Durasi Bonus ',
+                label: 'Durasi Bonus',
                 enabled: _bonus,
                 prefixIcon: TIcons.timer,
               ),
@@ -32313,6 +32321,10 @@ Future<void> _callbackAlarm() async {
 }
 
 
+// File: lib/fitur/notfikasi/operasi/notifikasi_op_sqlite.dart
+// path lib/fitur/notfikasi/operasi/notifikasi_op_sqlite.dart
+
+
 // File: lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
 // path: lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
 
@@ -39075,78 +39087,6 @@ class PengelolaSinkronisasi {
 }
 
 
-// File: lib/shared/widget/thousands_input_formatter.dart
-// path: lib/shared/widget/thousands_input_formatter.dart
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
-
-/// Formatter untuk TextField agar dapat menampilkan format angka ribuan secara otomatis.
-// diubah: Nama kelas diperbarui untuk mencerminkan dukungan angka negatif.
-class ThousandsAndNegativeInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    // dihapus: Logika lama yang tidak efisien dalam menangani string kosong.
-    // if (newValue.text.isEmpty) {
-    //   return newValue.copyWith(text: '');
-    // }
-
-    // ditambah: Jika teks baru kosong setelah di-trim, kembalikan nilai kosong. Lebih andal.
-    if (newValue.text.trim().isEmpty) {
-      return newValue.copyWith(text: '');
-    }
-
-    // ditambah: Jika pengguna baru saja mengetik '-', izinkan dan tunggu input selanjutnya.
-    if (newValue.text == '-') {
-      return newValue;
-    }
-
-    // diubah: Logika dimodifikasi sepenuhnya untuk mendukung angka negatif.
-    // Simpan status negatif.
-    final bool isNegative = newValue.text.startsWith('-');
-
-    // Ambil hanya digit dari string.
-    final String digitsOnly = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
-
-    // ditambah: Jika tidak ada digit (misalnya, setelah menghapus '-'),
-    // pertahankan tanda '-' agar pengguna bisa lanjut mengetik angka.
-    if (digitsOnly.isEmpty) {
-      // ditambah: hanya kembalikan tanda '-' jika memang dimulai dengan itu.
-      if (isNegative) {
-        return const TextEditingValue(
-          text: '-',
-          selection: TextSelection.collapsed(offset: 1),
-        );
-      }
-      // ditambah: jika tidak, itu adalah input yang tidak valid (bukan angka), jadi kembalikan nilai lama.
-      return oldValue;
-    }
-
-    // Konversi string digit menjadi angka.
-    final number = int.tryParse(digitsOnly);
-    // diubah: Menggunakan nilai lama (oldValue) sebagai fallback yang lebih aman jika parsing gagal.
-    if (number == null) {
-      return oldValue;
-    }
-
-    // Format angka menggunakan NumberFormat dari package 'intl'.
-    final formatter = NumberFormat('#,###', 'id_ID');
-    final String formattedNumber = formatter.format(number);
-
-    // Gabungkan kembali tanda negatif jika ada.
-    final String newText = isNegative ? '-$formattedNumber' : formattedNumber;
-
-    // Kembalikan nilai yang sudah diformat dengan posisi kursor di akhir.
-    return newValue.copyWith(
-      text: newText,
-      selection: TextSelection.collapsed(offset: newText.length),
-    );
-  }
-}
-
-
 // File: lib/shared/widget/nama_pelanggan_widget.dart
 // path: lib/shared/widget/nama_pelanggan_widget.dart
 
@@ -45527,7 +45467,7 @@ class SqliteDatabase {
   static Database? _database;
 
   // diubah: Versi dinaikkan ke 53 untuk menambah kolom durasi bonus di transaksi.
-  static const int _databaseVersion = 53;
+  static const int _databaseVersion = 54;
 
   SqliteDatabase._internal() {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
@@ -45649,7 +45589,10 @@ class SqliteDatabase {
       );
       await _migrateToV53(db);
     }
-
+    if (oldVersion < 54) {
+      Log.info('[MIGRASI v54] Menyesuaikan tabel notifikasi dengan model.');
+      await _migrateToV54(db);
+    }
     Log.info('========================================');
     Log.info('PROSES UPGRADE DATABASE SELESAI');
     Log.info(
@@ -45699,6 +45642,57 @@ class SqliteDatabase {
       );
     }
     Log.info('[MIGRASI v53] Penambahan kolom selesai.');
+  }
+
+  Future<void> _migrateToV54(final Database db) async {
+    const String tableName = NamaTabel.notifikasi;
+    final results = await db.rawQuery('PRAGMA table_info("$tableName")');
+    final existingColumns = results
+        .map((row) => row['name'] as String)
+        .toList();
+
+    final columnsToAdd = {
+      NamaKolom.tanggalMulai: 'INTEGER NOT NULL',
+      NamaKolom.tanggalBerakhir: 'INTEGER NOT NULL',
+      NamaKolom.tanggalTampil: 'INTEGER NOT NULL',
+      NamaKolom.judul: 'TEXT NOT NULL',
+      NamaKolom.deskripsi: 'TEXT NOT NULL',
+      NamaKolom.setatusDibaca: 'INTEGER NOT NULL DEFAULT 0',
+      NamaKolom.tipe: 'TEXT NOT NULL',
+      NamaKolom.diperbaruiPada: 'INTEGER NOT NULL',
+      NamaKolom.idTujuan: 'TEXT NOT NULL',
+      NamaKolom.userId: 'TEXT NOT NULL',
+      NamaKolom.targetRole: 'TEXT NOT NULL',
+    };
+
+    for (final entry in columnsToAdd.entries) {
+      if (!existingColumns.contains(entry.key)) {
+        await db.execute(
+          'ALTER TABLE "$tableName" ADD COLUMN ${entry.key} ${entry.value}',
+        );
+        Log.info('[MIGRASI v54] Kolom ${entry.key} ditambahkan ke $tableName.');
+      }
+    }
+
+    // Hapus kolom 'pesan' dan 'status' jika masih ada (dari definisi lama)
+    if (existingColumns.contains('pesan')) {
+      // SQLite tidak mendukung DROP COLUMN langsung, jadi kita perlu membuat ulang tabel.
+      // Namun, karena tabel notifikasi masih baru dan kemungkinan tidak ada data penting,
+      // lebih aman untuk menghapus dan membuat ulang tabel.
+      Log.warning(
+        '[MIGRASI v54] Menghapus dan membuat ulang tabel notifikasi untuk membersihkan kolom usang.',
+      );
+      await db.execute('DROP TABLE IF EXISTS "$tableName"');
+      await db.execute(_tabelNotification);
+      Log.info(
+        '[MIGRASI v54] Tabel notifikasi dibuat ulang dengan struktur terbaru.',
+      );
+    } else {
+      // Jika tidak ada kolom usang, kita hanya menambahkan yang hilang.
+      Log.info(
+        '[MIGRASI v54] Tabel notifikasi sudah sesuai, hanya menambahkan kolom yang hilang.',
+      );
+    }
   }
 
   Future<void> _migrateToV45(final Database db) async {
@@ -46271,20 +46265,25 @@ class SqliteDatabase {
       FOREIGN KEY (${NamaKolom.idPaket}) REFERENCES ${NamaTabel.paket} (${NamaKolom.id}) ON DELETE CASCADE
     )
   ''';
-
-  // 1. Definisi tabel notifikasi
   static const String _tabelNotification =
       '''
-    CREATE TABLE ${NamaTabel.notifikasi}(
-      ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.pesan} TEXT NOT NULL,
-      ${NamaKolom.tanggal} INTEGER NOT NULL,
-      ${NamaKolom.status} TEXT NOT NULL,
-      ${NamaKolom.diperbaruiPada} INTEGER,
-      ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.diarsipkanPada} INTEGER
-    )
-  ''';
+  CREATE TABLE ${NamaTabel.notifikasi}(
+    ${NamaKolom.id} TEXT PRIMARY KEY,
+    ${NamaKolom.tanggalMulai} INTEGER NOT NULL,
+    ${NamaKolom.tanggalBerakhir} INTEGER NOT NULL,
+    ${NamaKolom.tanggalTampil} INTEGER NOT NULL,
+    ${NamaKolom.judul} TEXT NOT NULL,
+    ${NamaKolom.deskripsi} TEXT NOT NULL,
+    ${NamaKolom.setatusDibaca} INTEGER NOT NULL DEFAULT 0,
+    ${NamaKolom.tipe} TEXT NOT NULL,
+    ${NamaKolom.diperbaruiPada} INTEGER NOT NULL,
+    ${NamaKolom.idTujuan} TEXT NOT NULL,
+    ${NamaKolom.userId} TEXT NOT NULL,
+    ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
+    ${NamaKolom.diarsipkanPada} INTEGER,
+    ${NamaKolom.targetRole} TEXT NOT NULL
+  )
+''';
   // ============================================================
   // DEFINISI TABEL LAMA (Tetap Konstan untuk Jalur Migrasi Sinkron)
   // ============================================================

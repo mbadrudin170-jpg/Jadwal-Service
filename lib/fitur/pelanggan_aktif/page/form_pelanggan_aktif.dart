@@ -299,9 +299,18 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         _pilihJam!.hour,
         _pilihJam!.minute,
       );
-      final int durasiBonus = _bonus
-          ? (int.tryParse(_durasiBonusController.text.replaceAll('.', '')) ?? 0)
-          : 0;
+      int durasiBonus = 0;
+      if (_bonus) {
+        durasiBonus =
+            int.tryParse(_durasiBonusController.text.replaceAll('.', '')) ?? 0;
+        if (durasiBonus <= 0) {
+          ToastUtil.error(
+            context,
+            'Durasi bonus harus diisi dan lebih dari 0.',
+          );
+          return false;
+        }
+      }
       final DateTime tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
         tanggalMulai,
         _paketDipilih!,
