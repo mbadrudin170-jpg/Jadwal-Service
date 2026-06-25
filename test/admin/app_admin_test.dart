@@ -135,9 +135,9 @@ void main() {
       overrides: [
         sharedPreferencesProvider.overrideWith(
           (ref) => sharedPrefsValue.when(
-            data: (prefs) => Future.value(prefs),
+            data: Future.value,
             loading: () => Future.value(mockSharedPreferences),
-            error: (e, s) => Future.error(e, s),
+            error: Future.error,
           ),
         ),
         layananNotifikasiProvider.overrideWithValue(mockLayananNotifikasi),
@@ -173,9 +173,7 @@ void main() {
     testWidgets(
       '01. harus menampilkan CircularProgressIndicator saat SharedPreferences loading',
       (tester) async {
-        final container = makeProviderContainer(
-          sharedPrefsValue: const AsyncValue.loading(),
-        );
+        final container = makeProviderContainer();
         await tester.pumpWidget(createWidget(container));
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
       },
@@ -370,9 +368,7 @@ void main() {
     testWidgets(
       '01. harus menampilkan CircularProgressIndicator saat tema loading',
       (tester) async {
-        final container = makeProviderContainer(
-          themeValue: const AsyncValue.loading(),
-        );
+        final container = makeProviderContainer();
         await tester.pumpWidget(
           UncontrolledProviderScope(
             container: container,
@@ -408,7 +404,7 @@ void main() {
         await tester.pumpWidget(
           UncontrolledProviderScope(
             container: container,
-            child: const AppMaterial(isOffline: false),
+            child: const AppMaterial(),
           ),
         );
 
