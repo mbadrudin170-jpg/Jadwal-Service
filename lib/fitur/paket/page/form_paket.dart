@@ -1,5 +1,7 @@
 // path: lib/fitur/paket/page/form_paket.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqlite_api.dart';
@@ -9,6 +11,7 @@ import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -77,7 +80,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
         poinHadiah: int.tryParse(_poinHadiahcontroller.text) ?? 0,
         poinPenukaran: int.tryParse(_poinPenukaranController.text) ?? 0,
         statusPublik: _publik,
-        diperbaruiPada: DateTime.now().toUtc(),
+        diperbaruiPada: DateTime.now(),
       );
 
       try {
@@ -87,6 +90,9 @@ class _PackageFormState extends ConsumerState<FormPaket> {
           await _paketOpSqlite.tambahPaket(paketBaru);
         }
         ref.invalidate(daftarPaketProvider);
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
         if (!mounted) {
           return;
         }
@@ -94,7 +100,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
           context,
           'Data paket berhasil ${_modeEdit ? 'diperbarui' : 'disimpan'}!',
         );
-        Navigator.pop(context, true);
+        Navigator.pop(context);
       } on DatabaseException catch (e, s) {
         String pesanError =
             'Gagal menyimpan paket. Terjadi kesalahan database.';
