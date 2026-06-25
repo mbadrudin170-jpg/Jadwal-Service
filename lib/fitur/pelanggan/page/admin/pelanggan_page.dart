@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
@@ -389,7 +388,7 @@ class _PelangganState extends ConsumerState<PelangganPage> {
             child: const Text('Arsipkan', style: TextStyle(color: Colors.red)),
             onPressed: () async {
               Navigator.of(context).pop();
-              await _softDeleteCustomer(customer.id);
+              await _softdelete(customer.id);
             },
           ),
         ],
@@ -397,9 +396,9 @@ class _PelangganState extends ConsumerState<PelangganPage> {
     );
   }
 
-  Future<void> _softDeleteCustomer(String id) async {
+  Future<void> _softdelete(String id) async {
     try {
-      await ref.read(pelangganOpSqliteProvider).softDelete(id);
+      await ref.read(pelangganProvider.notifier).softDelete(id);
       if (!mounted) return;
       ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
     } on Exception catch (e, s) {

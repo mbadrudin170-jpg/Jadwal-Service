@@ -74,9 +74,7 @@ class Pelanggan extends _$Pelanggan {
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.softDelete(id);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _invalidateDetailPelanggan(id);
-      });
+      _invalidateDetailPelanggan(id);
       return _ambilData();
     });
   }

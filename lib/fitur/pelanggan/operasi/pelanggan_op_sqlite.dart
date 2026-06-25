@@ -20,8 +20,6 @@ class PelangganOpSqlite {
     Log.info('CustomerOperation diinisialisasi');
   }
 
-  // path: lib/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart
-
   Future<bool> _ambilBerdasarkanTeleponDanKataSandi(
     String telepon,
     String kataSandi, [
@@ -37,20 +35,32 @@ class PelangganOpSqlite {
         'excludeId': excludeId,
       });
 
-      String sql =
-          '''
-      SELECT COUNT(*) as count
-      FROM ${NamaTabel.pelanggan}
-      WHERE ${NamaKolom.telepon} = ? 
-        AND ${NamaKolom.kataSandi} = ? 
-        AND ${NamaKolom.dihapus} = 0
-    ''';
-      final args = <dynamic>[telepon, kataSandi];
+      // Gunakan db.query() sebagai ganti rawQuery
+      final List<Map<String, dynamic>> result = await db.query(
+        _tabel,
+        columns: ['COUNT(*) as count'],
+        where:
+            '${NamaKolom.telepon} = ? AND ${NamaKolom.kataSandi} = ? AND ${NamaKolom.dihapus} = 0',
+        whereArgs: [telepon, kataSandi],
+      );
+
+      // Jika ada excludeId, tambahkan filter tambahan
       if (excludeId != null && excludeId.isNotEmpty) {
-        sql += ' AND ${NamaKolom.id} != ?';
-        args.add(excludeId);
+        final List<Map<String, dynamic>> resultWithExclude = await db.query(
+          _tabel,
+          columns: ['COUNT(*) as count'],
+          where:
+              '${NamaKolom.telepon} = ? AND ${NamaKolom.kataSandi} = ? AND ${NamaKolom.dihapus} = 0 AND ${NamaKolom.id} != ?',
+          whereArgs: [telepon, kataSandi, excludeId],
+        );
+        final count = Sqflite.firstIntValue(resultWithExclude) ?? 0;
+        Log.info('Hasil pengecekan duplikasi', {
+          'count': count,
+          'isDuplicate': count > 0,
+        });
+        return count > 0;
       }
-      final result = await db.rawQuery(sql, args);
+
       final count = Sqflite.firstIntValue(result) ?? 0;
       Log.info('Hasil pengecekan duplikasi', {
         'count': count,
@@ -72,7 +82,6 @@ class PelangganOpSqlite {
       pelanggan.telepon,
       pelanggan.kataSandi,
     );
-
     if (isDuplicate) {
       Log.warning('Data pelanggan duplikat ditemukan.', {
         'telepon': pelanggan.telepon,
