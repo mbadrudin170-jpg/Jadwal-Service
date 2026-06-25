@@ -9,6 +9,7 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
 /// Layanan untuk mengorkestrasi proses sinkronisasi data.
@@ -18,8 +19,9 @@ class LayananCekSinkronisasi {
   final LayananUnduhData _layananUnduh;
   final LayananPengecekanDataBaru _pengecekanDataBaru;
   final FirebaseFirestore _firestore;
-
+  final Ref _ref;
   bool _berjalan = false;
+
   /// Konstruktor dengan injeksi dependensi (wajib).
   LayananCekSinkronisasi({
     required PengelolaSinkronisasi pengelolaSinkronisasi,
@@ -32,7 +34,8 @@ class LayananCekSinkronisasi {
        _layananUnggah = layananUnggah,
        _layananUnduh = layananUnduh,
        _pengecekanDataBaru = pengecekanDataBaru,
-       _firestore = firestore,_ref=ref, {
+       _firestore = firestore,
+       _ref = ref {
     Log.info('SyncCheckService diinisialisasi dengan dependency injection.');
   }
 
@@ -42,9 +45,13 @@ class LayananCekSinkronisasi {
     if (_berjalan) {
       return;
     }
-    
+    final isOnline = await _ref
+        .read(koneksiInternetServiceProvider)
+        .cekInternet();
+    if (!isOnline) {
+      return;
+    }
     _berjalan = true;
-    final isOnline=await _ref.read
     try {
       final bool sudahUnggahData = await _periksaDanJalankanUnggah();
       if (sudahUnggahData) {
@@ -132,5 +139,6 @@ final layananCekSinkronisasiProvider = Provider<LayananCekSinkronisasi>((ref) {
       pengecekanDataBaruServiceProvider,
     ), // harus sudah ada
     firestore: FirebaseFirestore.instance,
+    ref: ref,
   );
 });

@@ -170,23 +170,12 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
       await ref
           .read(transaksiProvider.notifier)
           .softDelete(_currentTransaction.id);
-      unawaited(
-        ref
-            .read(koneksiInternetServiceProvider)
-            .cekInternet()
-            .then((isOnline) {
-              if (isOnline) {
-                unawaited(
+          unawaited(
                   ref
                       .read(layananCekSinkronisasiProvider)
                       .jalankanCekSinkronisasi(),
                 );
-              }
-            })
-            .catchError((Object e, StackTrace s) {
-              Log.error('Gagal cek koneksi internet', e: e, s: s);
-            }),
-      );
+      
       if (mounted) {
         Navigator.pop(context); // Tutup loading dialog
         ToastUtil.success(context, 'Transaksi berhasil dihapus');

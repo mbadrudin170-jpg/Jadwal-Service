@@ -118,10 +118,8 @@ class _WalletFormState extends ConsumerState<FormDompet> {
 
         if (!mounted) return;
 
-        final cekKoneksiLokal = await ref
-            .read(koneksiInternetServiceProvider)
-            .cekKoneksiLokal();
-        if (cekKoneksiLokal) {
+        
+        if ({
           unawaited(
             ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
           );
@@ -132,7 +130,7 @@ class _WalletFormState extends ConsumerState<FormDompet> {
               'Dompet berhasil disimpan dan disinkronkan.',
             );
           }
-        } else {
+       } )} else {
           if (mounted) {
             ToastUtil.info(
               context,
