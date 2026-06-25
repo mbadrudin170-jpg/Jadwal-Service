@@ -48,18 +48,13 @@ class KoneksiInternetService {
   // 3. Hapus parameter 'WidgetRef ref' karena sekarang menggunakan '_ref' internal
   Future<bool> cekInternet() async {
     Log.info('[Internet] Memulai pemeriksaan status koneksi perangkat...');
-
     final lokal = await cekKoneksiLokal();
     if (!lokal) {
       Log.warning('[Internet] Gagal: Tidak ada koneksi lokal.');
       return false;
     }
-
     try {
-      // 4. Panggil httpPingProvider.future di sini
-      // Karena menggunakan riverpod_annotation, nama provider otomatis menjadi 'httpPingProvider'
       final durasiMs = await _ref.read(httpPingProvider.future);
-
       Log.info('[Internet] HTTP Ping berhasil! Waktu respons: ${durasiMs}ms');
       return true;
     } on TimeoutException catch (e, st) {

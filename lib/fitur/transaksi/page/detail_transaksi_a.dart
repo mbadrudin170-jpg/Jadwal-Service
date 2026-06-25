@@ -10,12 +10,14 @@ import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -168,6 +170,23 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
       await ref
           .read(transaksiProvider.notifier)
           .softDelete(_currentTransaction.id);
+      unawaited(
+        ref
+            .read(koneksiInternetServiceProvider)
+            .cekInternet()
+            .then((isOnline) {
+              if (isOnline) {
+                unawaited(
+                  ref
+                      .read(layananCekSinkronisasiProvider)
+                      .jalankanCekSinkronisasi(),
+                );
+              }
+            })
+            .catchError((Object e, StackTrace s) {
+              Log.error('Gagal cek koneksi internet', e: e, s: s);
+            }),
+      );
       if (mounted) {
         Navigator.pop(context); // Tutup loading dialog
         ToastUtil.success(context, 'Transaksi berhasil dihapus');

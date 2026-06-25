@@ -18,8 +18,8 @@ class LayananCekSinkronisasi {
   final LayananUnduhData _layananUnduh;
   final LayananPengecekanDataBaru _pengecekanDataBaru;
   final FirebaseFirestore _firestore;
-  bool _berjalan = false;
 
+  bool _berjalan = false;
   /// Konstruktor dengan injeksi dependensi (wajib).
   LayananCekSinkronisasi({
     required PengelolaSinkronisasi pengelolaSinkronisasi,
@@ -27,11 +27,12 @@ class LayananCekSinkronisasi {
     required LayananUnduhData layananUnduh,
     required LayananPengecekanDataBaru pengecekanDataBaru,
     required FirebaseFirestore firestore,
+    required Ref ref,
   }) : _pengelolaSinkronisasi = pengelolaSinkronisasi,
        _layananUnggah = layananUnggah,
        _layananUnduh = layananUnduh,
        _pengecekanDataBaru = pengecekanDataBaru,
-       _firestore = firestore {
+       _firestore = firestore,_ref=ref, {
     Log.info('SyncCheckService diinisialisasi dengan dependency injection.');
   }
 
@@ -41,7 +42,9 @@ class LayananCekSinkronisasi {
     if (_berjalan) {
       return;
     }
+    
     _berjalan = true;
+    final isOnline=await _ref.read
     try {
       final bool sudahUnggahData = await _periksaDanJalankanUnggah();
       if (sudahUnggahData) {
