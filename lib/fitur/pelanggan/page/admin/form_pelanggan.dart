@@ -9,7 +9,6 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -91,7 +90,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         nama: _namaController.text.trim(),
         telepon: _teleponController.text.trim(),
         alamat: _alamatController.text.trim(),
-        kataSandi: _passwordController.text, // No trim for password
+        kataSandi: _passwordController.text,
         macAddress: _macAddressController.text.trim().toUpperCase(),
       );
       Log.info(
@@ -110,36 +109,17 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           );
           await pelangganNotifier.tambahPelanggan(pelangganBaru);
         }
+
         if (!mounted) return;
-        try {
-          final cekKoneksi = await ref
-              .read(koneksiInternetServiceProvider)
-              .cekKoneksiLokal();
-          if (cekKoneksi) {
-            Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
-            unawaited(
-              ref
-                  .read(layananCekSinkronisasiProvider)
-                  .jalankanCekSinkronisasi(),
-            );
-            if (mounted) {
-              ToastUtil.success(
-                context,
-                'Data pelanggan berhasil disimpan & disinkronkan.',
-              );
-            }
-          } else {
-            Log.info('Tidak ada koneksi internet, sinkronisasi dilewati.');
-            if (mounted) {
-              ToastUtil.info(
-                context,
-                'Koneksi offline. Data disimpan lokal, akan sinkron saat online.',
-              );
-            }
-          }
-        } catch (e) {
-          Log.info('Sinkronisasi gagal $e');
-        }
+
+        // ✅ Jalankan sinkronisasi di latar belakang (service sudah handle cek internet)
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
+
+        // ✅ Tampilkan toast sukses tanpa menunggu sinkronisasi
+        ToastUtil.success(context, 'Data pelanggan berhasil disimpan.');
+
         if (mounted) {
           Navigator.pop(context);
         }

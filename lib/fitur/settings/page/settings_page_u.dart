@@ -53,7 +53,7 @@ class SettingsPageU extends ConsumerWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (final context) => const FeedbackPageU(),
+                  builder: ( context) => const FeedbackPageU(),
                 ),
               );
             },
@@ -66,7 +66,7 @@ class SettingsPageU extends ConsumerWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (final context) => const InfoApkPageUser(),
+                  builder: ( context) => const InfoApkPageUser(),
                 ),
               );
             },
@@ -81,7 +81,7 @@ class SettingsPageU extends ConsumerWidget {
                 await Navigator.push(
                   context,
                   MaterialPageRoute<void>(
-                    builder: (final context) => const HalamanTes(),
+                    builder: ( context) => const HalamanTes(),
                   ),
                 );
               },

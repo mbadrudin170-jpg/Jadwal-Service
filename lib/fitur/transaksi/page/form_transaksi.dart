@@ -277,26 +277,14 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
           'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
         );
 
-        final isOnline = await ref
-            .read(koneksiInternetServiceProvider)
-            .cekKoneksiLokal();
-        if (isOnline) {
-          final layananekSikronisasi = ref.read(layananCekSinkronisasiProvider);
-          unawaited(layananekSikronisasi.jalankanCekSinkronisasi());
+        unawaited(ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi());
           if (mounted) {
             ToastUtil.success(
               context,
               'Transaksi berhasil disimpan dan disinkronkan.',
             );
           }
-        } else {
-          if (mounted) {
-            ToastUtil.info(
-              context,
-              'Transaksi disimpan lokal. Sinkronisasi akan dilakukan saat online.',
-            );
-          }
-        }
+       
         if (mounted) {
           Navigator.pop(context, true);
         }

@@ -11,7 +11,6 @@ import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -124,32 +123,18 @@ class _FormRiwayatAktivasiState extends ConsumerState<FormRiwayatAktivasi> {
         statusSekarang: _statusPembayaran,
         tanggalBerakhir: _tanggalBerakhir,
       );
-
       if (!mounted) return;
-
-      final isOnline = await ref
-          .read(koneksiInternetServiceProvider)
-          .cekKoneksiLokal();
-      if (isOnline) {
-        final syncCheckService = ref.read(layananCekSinkronisasiProvider);
-        unawaited(syncCheckService.jalankanCekSinkronisasi());
-        if (mounted) {
-          ToastUtil.success(
-            context,
-            'Riwayat langganan berhasil diperbarui dan disinkronkan.',
-          );
-        }
-      } else {
-        if (mounted) {
-          ToastUtil.info(
-            context,
-            'Koneksi offline. Data disimpan lokal dan akan disinkronkan saat online.',
-          );
-        }
-      }
-
+      unawaited(
+        ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+      );
       if (mounted) {
-        Navigator.of(context).pop(true); // Return true to indicate success
+        ToastUtil.success(
+          context,
+          'Riwayat langganan berhasil diperbarui dan disinkronkan.',
+        );
+      }
+      if (mounted) {
+        Navigator.pop(context);
       }
     } on Exception catch (e) {
       Log.error('Gagal memperbarui riwayat langganan', e: e);

@@ -25,7 +25,6 @@ import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -440,18 +439,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       await Future.wait(
         daftarNotifikasi.map(notifikasiOpSqlite.tambahNotifikasi),
       );
-      final isOnline = await ref
-          .read(koneksiInternetServiceProvider)
-          .cekInternet();
-      if (isOnline) {
-        Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
+      unawaited(
+        ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+      );
 
-        unawaited(
-          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
-        );
-      } else {
-        Log.warning('Koneksi offline, sinkronisasi akan dijalankan nanti.');
-      }
       return true;
     } catch (e, s) {
       Log.error('Gagal menyimpan data pelanggan aktif.', e: e, s: s);

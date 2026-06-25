@@ -11,7 +11,6 @@ import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit dompet.
@@ -115,29 +114,11 @@ class _WalletFormState extends ConsumerState<FormDompet> {
           await _dompetOpSqlite.tambahDompet(dataBaru);
           Log.info('Dompet baru berhasil disimpan. ID: $id');
         }
-
         if (!mounted) return;
-
-        
-        if ({
-          unawaited(
-            ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
-          );
-
-          if (mounted) {
-            ToastUtil.success(
-              context,
-              'Dompet berhasil disimpan dan disinkronkan.',
-            );
-          }
-       } )} else {
-          if (mounted) {
-            ToastUtil.info(
-              context,
-              'Dompet disimpan lokal. Sinkronisasi akan dilakukan saat online.',
-            );
-          }
-        }
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
+        ToastUtil.success(context, 'Dompet berhasil disimpan.');
         if (mounted) {
           Navigator.pop(context, true);
         }

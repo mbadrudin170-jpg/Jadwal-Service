@@ -1,10 +1,13 @@
 // path lib/fitur/transaksi/page/riwayat_aktivasi_paket.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
@@ -135,8 +138,16 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
             child: const Text('Batal'),
           ),
           TextButton(
-            onPressed: () {
-              ref.read(transaksiProvider.notifier).softDelete(transaksi.id);
+            onPressed: () async {
+              await ref
+                  .read(transaksiProvider.notifier)
+                  .softDelete(transaksi.id);
+              unawaited(
+                ref
+                    .read(layananCekSinkronisasiProvider)
+                    .jalankanCekSinkronisasi(),
+              );
+              if (!context.mounted) return;
               Navigator.pop(context);
             },
             child: const Text('Iya', style: TextStyle(color: Colors.red)),

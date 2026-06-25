@@ -12,7 +12,6 @@ import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -221,9 +220,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
   Future<void> _saveForm() async {
     final kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
     Log.info('Mode: ${_modeEdit ? "EDIT" : "TAMBAH BARU"}');
-    Log.info(
-      'Jenis: ${_modeSubKategori ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',
-    );
+    Log.info('Jenis: ${_modeSubKategori ? "SUB-KATEGORI" : "KATEGORI UTAMA"}');
     Log.info('Nama yang akan disimpan: "${_namaController.text}"');
     if (!_modeSubKategori || !_modeEdit) {
       Log.info('Tipe kategori: $_tipe');
@@ -411,23 +408,14 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           return;
         }
 
-        final hasConnection = await  ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
-        if (hasConnection) {
-          final syncCheckService = ref.read(layananCekSinkronisasiProvider);
-          unawaited(syncCheckService.jalankanCekSinkronisasi());
-          if (mounted) {
-            ToastUtil.success(
-              context,
-              'Kategori berhasil disimpan dan disinkronkan.',
-            );
-          }
-        } else {
-          if (mounted) {
-            ToastUtil.info(
-              context,
-              'Koneksi offline. Data disimpan lokal dan akan disinkronkan saat online.',
-            );
-          }
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
+        if (mounted) {
+          ToastUtil.success(
+            context,
+            'Kategori berhasil disimpan dan disinkronkan.',
+          );
         }
         if (mounted) {
           Navigator.pop(context, true);
@@ -479,9 +467,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
     Log.info('LIFECYCLE: build() - Membangun UI CategoryForm');
     Log.info('Judul halaman: "$judul"');
     Log.info('Mode: ${_modeEdit ? "EDIT" : "TAMBAH BARU"}');
-    Log.info(
-      'Jenis: ${_modeSubKategori ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',
-    );
+    Log.info('Jenis: ${_modeSubKategori ? "SUB-KATEGORI" : "KATEGORI UTAMA"}');
     Log.info('Nama di controller: "${_namaController.text}"');
     // Log.info('Tipe terpilih: $_tipe');
     Log.info('Jumlah field sub-kategori: ${_subKategoriControllers.length}');
@@ -517,7 +503,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
                     border: const OutlineInputBorder(),
                   ),
                   textInputAction: TextInputAction.done,
-                  onFieldSubmitted: ( _) {
+                  onFieldSubmitted: (_) {
                     Log.info(
                       'INPUT: Field nama disubmit melalui keyboard (TextInputAction.done).',
                     );

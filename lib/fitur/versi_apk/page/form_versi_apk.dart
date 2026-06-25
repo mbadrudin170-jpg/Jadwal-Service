@@ -238,22 +238,9 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
           Log.info('Menjalankan perintah tambah data baru...');
           await apkVersionOperasi.tambahVersiApk(dataToSave);
         }
-        final internetService = ref.read(koneksiInternetServiceProvider);
-        final isonline = await internetService.cekKoneksiLokal();
-        if (isonline) {
           unawaited(
             ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
           );
-        } else {
-          Log.info('Tidak ada koneksi internet, melewati proses sinkronisasi.');
-          if (mounted) {
-            ToastUtil.info(
-              context,
-              'Data lokal disimpan. Sinkronisasi akan dilakukan saat online.',
-            );
-          }
-        }
-
         Log.info('Proses penyimpanan berhasil diselesaikan');
         if (!mounted) return;
         Navigator.of(context).pop(true);

@@ -10,7 +10,6 @@ import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 class FormSettings extends ConsumerStatefulWidget {
@@ -46,8 +45,9 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
     _hapusArsipController = TextEditingController(
       text: '${widget.settings.waktuOtomatisHapusDataArsip}',
     );
-    _infoPemeliharaanController =
-        TextEditingController(text: widget.settings.infoMaintenance);
+    _infoPemeliharaanController = TextEditingController(
+      text: widget.settings.infoMaintenance,
+    );
     _modePemeliharaan = widget.settings.modeMaintenance;
   }
 
@@ -76,23 +76,15 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
 
         await _settingsOpSqlite.saveOrUpdateSettings(newSettings);
         Log.info('Pengaturan berhasil diperbarui di database.');
-        final internetConnectionService =
-            ref.read(koneksiInternetServiceProvider);
-        final hasConnection = await internetConnectionService.cekKoneksiLokal();
-        if (hasConnection) {
-          final syncCheckService = ref.read(layananCekSinkronisasiProvider);
-          unawaited(syncCheckService.jalankanCekSinkronisasi());
-          if (mounted) {
-            ToastUtil.success(
-                context, 'Pengaturan berhasil disimpan dan disinkronkan.');
-          }
-        } else {
-          if (mounted) {
-            ToastUtil.info(context,
-                'Pengaturan disimpan lokal. Sinkronisasi akan dilakukan saat online.');
-          }
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
+        if (mounted) {
+          ToastUtil.success(
+            context,
+            'Pengaturan berhasil disimpan dan disinkronkan.',
+          );
         }
-
         if (mounted) {
           Navigator.pop(context, true);
         }
@@ -106,11 +98,9 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Pengaturan'),
-      ),
+      appBar: AppBar(title: const Text('Edit Pengaturan')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -186,7 +176,7 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
     return SwitchListTile(
       title: const Text('Mode Pemeliharaan'),
       value: _modePemeliharaan,
-      onChanged: (final bool value) {
+      onChanged: (bool value) {
         setState(() {
           _modePemeliharaan = value;
           Log.info('Mode pemeliharaan diubah menjadi: $value');

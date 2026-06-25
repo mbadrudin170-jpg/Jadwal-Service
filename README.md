@@ -1295,8 +1295,6 @@ import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -1650,7 +1648,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final tanggalNotifikasiSetengahJalan = tanggalMulai.add(
         durasiSetengahJalan,
       );
-
       final List<NotifikasiModel> daftarNotifikasi = [
         NotifikasiModel(
           id: const Uuid().v4(),
@@ -1712,18 +1709,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       await Future.wait(
         daftarNotifikasi.map(notifikasiOpSqlite.tambahNotifikasi),
       );
-      final isOnline = await ref
-          .read(koneksiInternetServiceProvider)
-          .cekInternet();
-      if (isOnline) {
-        Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
+      unawaited(
+        ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+      );
 
-        unawaited(
-          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
-        );
-      } else {
-        Log.warning('Koneksi offline, sinkronisasi akan dijalankan nanti.');
-      }
       return true;
     } catch (e, s) {
       Log.error('Gagal menyimpan data pelanggan aktif.', e: e, s: s);
@@ -7087,11 +7076,14 @@ final poinTransactionServiceProvider = Provider<PoinTransactionService>((ref) {
 // File: lib/fitur/settings/page/settings_page_a.dart
 // path: lib/fitur/settings/page/settings_page_a.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/page/form_settings.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
@@ -7151,6 +7143,7 @@ class SettingsAdminPage extends ConsumerWidget {
     if ((konfirmasi ?? false) && context.mounted) {
       try {
         await ref.read(pengelolaSinkronisasiProvider).resetWaktuSinkronisasi();
+        unawaited(ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi());
         if (context.mounted) {
           ToastUtil.success(context, 'Waktu sinkronisasi berhasil di-reset.');
         }
@@ -7383,7 +7376,7 @@ class SettingsPageU extends ConsumerWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (final context) => const FeedbackPageU(),
+                  builder: ( context) => const FeedbackPageU(),
                 ),
               );
             },
@@ -7396,7 +7389,7 @@ class SettingsPageU extends ConsumerWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (final context) => const InfoApkPageUser(),
+                  builder: ( context) => const InfoApkPageUser(),
                 ),
               );
             },
@@ -7411,7 +7404,7 @@ class SettingsPageU extends ConsumerWidget {
                 await Navigator.push(
                   context,
                   MaterialPageRoute<void>(
-                    builder: (final context) => const HalamanTes(),
+                    builder: ( context) => const HalamanTes(),
                   ),
                 );
               },
@@ -7492,7 +7485,6 @@ import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 class FormSettings extends ConsumerStatefulWidget {
@@ -7528,8 +7520,9 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
     _hapusArsipController = TextEditingController(
       text: '${widget.settings.waktuOtomatisHapusDataArsip}',
     );
-    _infoPemeliharaanController =
-        TextEditingController(text: widget.settings.infoMaintenance);
+    _infoPemeliharaanController = TextEditingController(
+      text: widget.settings.infoMaintenance,
+    );
     _modePemeliharaan = widget.settings.modeMaintenance;
   }
 
@@ -7558,23 +7551,15 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
 
         await _settingsOpSqlite.saveOrUpdateSettings(newSettings);
         Log.info('Pengaturan berhasil diperbarui di database.');
-        final internetConnectionService =
-            ref.read(koneksiInternetServiceProvider);
-        final hasConnection = await internetConnectionService.cekKoneksiLokal();
-        if (hasConnection) {
-          final syncCheckService = ref.read(layananCekSinkronisasiProvider);
-          unawaited(syncCheckService.jalankanCekSinkronisasi());
-          if (mounted) {
-            ToastUtil.success(
-                context, 'Pengaturan berhasil disimpan dan disinkronkan.');
-          }
-        } else {
-          if (mounted) {
-            ToastUtil.info(context,
-                'Pengaturan disimpan lokal. Sinkronisasi akan dilakukan saat online.');
-          }
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
+        if (mounted) {
+          ToastUtil.success(
+            context,
+            'Pengaturan berhasil disimpan dan disinkronkan.',
+          );
         }
-
         if (mounted) {
           Navigator.pop(context, true);
         }
@@ -7588,11 +7573,9 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Pengaturan'),
-      ),
+      appBar: AppBar(title: const Text('Edit Pengaturan')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -7668,7 +7651,7 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
     return SwitchListTile(
       title: const Text('Mode Pemeliharaan'),
       value: _modePemeliharaan,
-      onChanged: (final bool value) {
+      onChanged: (bool value) {
         setState(() {
           _modePemeliharaan = value;
           Log.info('Mode pemeliharaan diubah menjadi: $value');
@@ -12840,7 +12823,6 @@ import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -13049,9 +13031,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
   Future<void> _saveForm() async {
     final kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
     Log.info('Mode: ${_modeEdit ? "EDIT" : "TAMBAH BARU"}');
-    Log.info(
-      'Jenis: ${_modeSubKategori ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',
-    );
+    Log.info('Jenis: ${_modeSubKategori ? "SUB-KATEGORI" : "KATEGORI UTAMA"}');
     Log.info('Nama yang akan disimpan: "${_namaController.text}"');
     if (!_modeSubKategori || !_modeEdit) {
       Log.info('Tipe kategori: $_tipe');
@@ -13239,23 +13219,14 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           return;
         }
 
-        final hasConnection = await  ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
-        if (hasConnection) {
-          final syncCheckService = ref.read(layananCekSinkronisasiProvider);
-          unawaited(syncCheckService.jalankanCekSinkronisasi());
-          if (mounted) {
-            ToastUtil.success(
-              context,
-              'Kategori berhasil disimpan dan disinkronkan.',
-            );
-          }
-        } else {
-          if (mounted) {
-            ToastUtil.info(
-              context,
-              'Koneksi offline. Data disimpan lokal dan akan disinkronkan saat online.',
-            );
-          }
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
+        if (mounted) {
+          ToastUtil.success(
+            context,
+            'Kategori berhasil disimpan dan disinkronkan.',
+          );
         }
         if (mounted) {
           Navigator.pop(context, true);
@@ -13307,9 +13278,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
     Log.info('LIFECYCLE: build() - Membangun UI CategoryForm');
     Log.info('Judul halaman: "$judul"');
     Log.info('Mode: ${_modeEdit ? "EDIT" : "TAMBAH BARU"}');
-    Log.info(
-      'Jenis: ${_modeSubKategori ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',
-    );
+    Log.info('Jenis: ${_modeSubKategori ? "SUB-KATEGORI" : "KATEGORI UTAMA"}');
     Log.info('Nama di controller: "${_namaController.text}"');
     // Log.info('Tipe terpilih: $_tipe');
     Log.info('Jumlah field sub-kategori: ${_subKategoriControllers.length}');
@@ -13345,7 +13314,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
                     border: const OutlineInputBorder(),
                   ),
                   textInputAction: TextInputAction.done,
-                  onFieldSubmitted: ( _) {
+                  onFieldSubmitted: (_) {
                     Log.info(
                       'INPUT: Field nama disubmit melalui keyboard (TextInputAction.done).',
                     );
@@ -15447,6 +15416,7 @@ import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/dompet/page/detail_dompet.dart';
 import 'package:wifi/fitur/dompet/page/form_dompet.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -15564,14 +15534,12 @@ class DompetPage extends ConsumerWidget {
 
   Future<void> _showDeleteAllDialog(BuildContext context, WidgetRef ref) async {
     Log.info('Menampilkan dialog konfirmasi hapus semua dompet.');
-    final wallets = ref.read(dompetProvider).value?.daftarDompet ?? [];
-
-    if (wallets.isEmpty) {
+    final daftarDompet = ref.read(dompetProvider).value?.daftarDompet ?? [];
+    if (daftarDompet.isEmpty) {
       Log.warning('Tidak ada dompet untuk dihapus.');
       ToastUtil.info(context, 'Tidak ada dompet untuk dihapus.');
       return;
     }
-
     await showDialog<void>(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -15611,6 +15579,9 @@ class DompetPage extends ConsumerWidget {
                         }
                       }),
                 );
+                ref
+                    .read(layananCekSinkronisasiProvider)
+                    .jalankanCekSinkronisasi();
               },
             ),
           ],
@@ -15728,7 +15699,6 @@ import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit dompet.
@@ -15832,31 +15802,11 @@ class _WalletFormState extends ConsumerState<FormDompet> {
           await _dompetOpSqlite.tambahDompet(dataBaru);
           Log.info('Dompet baru berhasil disimpan. ID: $id');
         }
-
         if (!mounted) return;
-
-        final cekKoneksiLokal = await ref
-            .read(koneksiInternetServiceProvider)
-            .cekKoneksiLokal();
-        if (cekKoneksiLokal) {
-          unawaited(
-            ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
-          );
-
-          if (mounted) {
-            ToastUtil.success(
-              context,
-              'Dompet berhasil disimpan dan disinkronkan.',
-            );
-          }
-        } else {
-          if (mounted) {
-            ToastUtil.info(
-              context,
-              'Dompet disimpan lokal. Sinkronisasi akan dilakukan saat online.',
-            );
-          }
-        }
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
+        ToastUtil.success(context, 'Dompet berhasil disimpan.');
         if (mounted) {
           Navigator.pop(context, true);
         }
@@ -19910,22 +19860,9 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
           Log.info('Menjalankan perintah tambah data baru...');
           await apkVersionOperasi.tambahVersiApk(dataToSave);
         }
-        final internetService = ref.read(koneksiInternetServiceProvider);
-        final isonline = await internetService.cekKoneksiLokal();
-        if (isonline) {
           unawaited(
             ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
           );
-        } else {
-          Log.info('Tidak ada koneksi internet, melewati proses sinkronisasi.');
-          if (mounted) {
-            ToastUtil.info(
-              context,
-              'Data lokal disimpan. Sinkronisasi akan dilakukan saat online.',
-            );
-          }
-        }
-
         Log.info('Proses penyimpanan berhasil diselesaikan');
         if (!mounted) return;
         Navigator.of(context).pop(true);
@@ -23030,7 +22967,6 @@ import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -23143,32 +23079,18 @@ class _FormRiwayatAktivasiState extends ConsumerState<FormRiwayatAktivasi> {
         statusSekarang: _statusPembayaran,
         tanggalBerakhir: _tanggalBerakhir,
       );
-
       if (!mounted) return;
-
-      final isOnline = await ref
-          .read(koneksiInternetServiceProvider)
-          .cekKoneksiLokal();
-      if (isOnline) {
-        final syncCheckService = ref.read(layananCekSinkronisasiProvider);
-        unawaited(syncCheckService.jalankanCekSinkronisasi());
-        if (mounted) {
-          ToastUtil.success(
-            context,
-            'Riwayat langganan berhasil diperbarui dan disinkronkan.',
-          );
-        }
-      } else {
-        if (mounted) {
-          ToastUtil.info(
-            context,
-            'Koneksi offline. Data disimpan lokal dan akan disinkronkan saat online.',
-          );
-        }
-      }
-
+      unawaited(
+        ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+      );
       if (mounted) {
-        Navigator.of(context).pop(true); // Return true to indicate success
+        ToastUtil.success(
+          context,
+          'Riwayat langganan berhasil diperbarui dan disinkronkan.',
+        );
+      }
+      if (mounted) {
+        Navigator.pop(context);
       }
     } on Exception catch (e) {
       Log.error('Gagal memperbarui riwayat langganan', e: e);
@@ -24725,6 +24647,7 @@ import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
@@ -24883,6 +24806,9 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
       await ref
           .read(transaksiProvider.notifier)
           .softDelete(_currentTransaction.id);
+      unawaited(
+        ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+      );
       if (mounted) {
         Navigator.pop(context); // Tutup loading dialog
         ToastUtil.success(context, 'Transaksi berhasil dihapus');
@@ -25774,26 +25700,14 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
           'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
         );
 
-        final isOnline = await ref
-            .read(koneksiInternetServiceProvider)
-            .cekKoneksiLokal();
-        if (isOnline) {
-          final layananekSikronisasi = ref.read(layananCekSinkronisasiProvider);
-          unawaited(layananekSikronisasi.jalankanCekSinkronisasi());
+        unawaited(ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi());
           if (mounted) {
             ToastUtil.success(
               context,
               'Transaksi berhasil disimpan dan disinkronkan.',
             );
           }
-        } else {
-          if (mounted) {
-            ToastUtil.info(
-              context,
-              'Transaksi disimpan lokal. Sinkronisasi akan dilakukan saat online.',
-            );
-          }
-        }
+       
         if (mounted) {
           Navigator.pop(context, true);
         }
@@ -29378,7 +29292,6 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -29460,7 +29373,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         nama: _namaController.text.trim(),
         telepon: _teleponController.text.trim(),
         alamat: _alamatController.text.trim(),
-        kataSandi: _passwordController.text, // No trim for password
+        kataSandi: _passwordController.text,
         macAddress: _macAddressController.text.trim().toUpperCase(),
       );
       Log.info(
@@ -29479,36 +29392,17 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           );
           await pelangganNotifier.tambahPelanggan(pelangganBaru);
         }
+
         if (!mounted) return;
-        try {
-          final cekKoneksi = await ref
-              .read(koneksiInternetServiceProvider)
-              .cekKoneksiLokal();
-          if (cekKoneksi) {
-            Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
-            unawaited(
-              ref
-                  .read(layananCekSinkronisasiProvider)
-                  .jalankanCekSinkronisasi(),
-            );
-            if (mounted) {
-              ToastUtil.success(
-                context,
-                'Data pelanggan berhasil disimpan & disinkronkan.',
-              );
-            }
-          } else {
-            Log.info('Tidak ada koneksi internet, sinkronisasi dilewati.');
-            if (mounted) {
-              ToastUtil.info(
-                context,
-                'Koneksi offline. Data disimpan lokal, akan sinkron saat online.',
-              );
-            }
-          }
-        } catch (e) {
-          Log.info('Sinkronisasi gagal $e');
-        }
+
+        // ✅ Jalankan sinkronisasi di latar belakang (service sudah handle cek internet)
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
+
+        // ✅ Tampilkan toast sukses tanpa menunggu sinkronisasi
+        ToastUtil.success(context, 'Data pelanggan berhasil disimpan.');
+
         if (mounted) {
           Navigator.pop(context);
         }
@@ -34546,6 +34440,7 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
 /// Layanan untuk mengorkestrasi proses sinkronisasi data.
@@ -34555,6 +34450,7 @@ class LayananCekSinkronisasi {
   final LayananUnduhData _layananUnduh;
   final LayananPengecekanDataBaru _pengecekanDataBaru;
   final FirebaseFirestore _firestore;
+  final Ref _ref;
   bool _berjalan = false;
 
   /// Konstruktor dengan injeksi dependensi (wajib).
@@ -34564,11 +34460,13 @@ class LayananCekSinkronisasi {
     required LayananUnduhData layananUnduh,
     required LayananPengecekanDataBaru pengecekanDataBaru,
     required FirebaseFirestore firestore,
+    required Ref ref,
   }) : _pengelolaSinkronisasi = pengelolaSinkronisasi,
        _layananUnggah = layananUnggah,
        _layananUnduh = layananUnduh,
        _pengecekanDataBaru = pengecekanDataBaru,
-       _firestore = firestore {
+       _firestore = firestore,
+       _ref = ref {
     Log.info('SyncCheckService diinisialisasi dengan dependency injection.');
   }
 
@@ -34576,6 +34474,12 @@ class LayananCekSinkronisasi {
   Future<void> jalankanCekSinkronisasi() async {
     Log.info('Memulai siklus orkestrasi sinkronisasi global.');
     if (_berjalan) {
+      return;
+    }
+    final isOnline = await _ref
+        .read(koneksiInternetServiceProvider)
+        .cekInternet();
+    if (!isOnline) {
       return;
     }
     _berjalan = true;
@@ -34666,6 +34570,7 @@ final layananCekSinkronisasiProvider = Provider<LayananCekSinkronisasi>((ref) {
       pengecekanDataBaruServiceProvider,
     ), // harus sudah ada
     firestore: FirebaseFirestore.instance,
+    ref: ref,
   );
 });
 
@@ -41391,18 +41296,13 @@ class KoneksiInternetService {
   // 3. Hapus parameter 'WidgetRef ref' karena sekarang menggunakan '_ref' internal
   Future<bool> cekInternet() async {
     Log.info('[Internet] Memulai pemeriksaan status koneksi perangkat...');
-
     final lokal = await cekKoneksiLokal();
     if (!lokal) {
       Log.warning('[Internet] Gagal: Tidak ada koneksi lokal.');
       return false;
     }
-
     try {
-      // 4. Panggil httpPingProvider.future di sini
-      // Karena menggunakan riverpod_annotation, nama provider otomatis menjadi 'httpPingProvider'
       final durasiMs = await _ref.read(httpPingProvider.future);
-
       Log.info('[Internet] HTTP Ping berhasil! Waktu respons: ${durasiMs}ms');
       return true;
     } on TimeoutException catch (e, st) {

@@ -9,6 +9,7 @@ import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/dompet/page/detail_dompet.dart';
 import 'package:wifi/fitur/dompet/page/form_dompet.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -126,14 +127,12 @@ class DompetPage extends ConsumerWidget {
 
   Future<void> _showDeleteAllDialog(BuildContext context, WidgetRef ref) async {
     Log.info('Menampilkan dialog konfirmasi hapus semua dompet.');
-    final wallets = ref.read(dompetProvider).value?.daftarDompet ?? [];
-
-    if (wallets.isEmpty) {
+    final daftarDompet = ref.read(dompetProvider).value?.daftarDompet ?? [];
+    if (daftarDompet.isEmpty) {
       Log.warning('Tidak ada dompet untuk dihapus.');
       ToastUtil.info(context, 'Tidak ada dompet untuk dihapus.');
       return;
     }
-
     await showDialog<void>(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -173,6 +172,9 @@ class DompetPage extends ConsumerWidget {
                         }
                       }),
                 );
+                ref
+                    .read(layananCekSinkronisasiProvider)
+                    .jalankanCekSinkronisasi();
               },
             ),
           ],

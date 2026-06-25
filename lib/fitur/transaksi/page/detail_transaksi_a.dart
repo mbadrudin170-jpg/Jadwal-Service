@@ -17,7 +17,6 @@ import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -170,12 +169,9 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
       await ref
           .read(transaksiProvider.notifier)
           .softDelete(_currentTransaction.id);
-          unawaited(
-                  ref
-                      .read(layananCekSinkronisasiProvider)
-                      .jalankanCekSinkronisasi(),
-                );
-      
+      unawaited(
+        ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+      );
       if (mounted) {
         Navigator.pop(context); // Tutup loading dialog
         ToastUtil.success(context, 'Transaksi berhasil dihapus');

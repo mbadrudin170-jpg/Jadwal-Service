@@ -9,6 +9,7 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/page/detail_paket.dart';
 import 'package:wifi/fitur/paket/page/form_paket.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -234,7 +235,7 @@ Future<void> _tamplkanDialogHapusEdit(
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
-              unawaited(_tampilkanDialogKonfirmasiHapus(context, ref, paket));
+              _tampilkanDialogKonfirmasiHapus(context, ref, paket);
             },
             child: const Text('Hapus'),
           ),
@@ -260,20 +261,21 @@ Future<void> _tampilkanDialogKonfirmasiHapus(
         actions: <Widget>[
           TextButton(
             child: const Text('Batal'),
-            onPressed: () => Navigator.of(dialogContext).pop(),
+            onPressed: () => Navigator.pop(dialogContext),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Hapus'),
             onPressed: () async {
-              // Tutup dialog terlebih dahulu menggunakan dialogContext
-              Navigator.of(dialogContext).pop();
-
+              Navigator.pop(dialogContext);
               try {
                 await paketOpSqlite.hapusSementara(paket.id);
-
                 ref.invalidate(daftarPaketProvider);
-
+                unawaited(
+                  ref
+                      .read(layananCekSinkronisasiProvider)
+                      .jalankanCekSinkronisasi(),
+                );
                 if (context.mounted) {
                   ToastUtil.success(context, 'Paket berhasil dihapus.');
                 }
@@ -294,7 +296,6 @@ Future<void> _tampilkanDialogKonfirmasiHapus(
 Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
   Log.info('User menekan tombol hapus semua paket');
   final paketOpSqlite = ref.read(paketOpSqliteProvider);
-
   await showDialog<void>(
     context: context,
     builder: (BuildContext dialogContext) {
@@ -314,6 +315,11 @@ Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
               try {
                 Log.info('Menjalankan soft delete semua paket');
                 await paketOpSqlite.hapusSementaraSemua();
+                unawaited(
+                  ref
+                      .read(layananCekSinkronisasiProvider)
+                      .jalankanCekSinkronisasi(),
+                );
                 ref.invalidate(daftarPaketProvider);
                 if (context.mounted) {
                   ToastUtil.success(context, 'Semua paket dihapus.');
