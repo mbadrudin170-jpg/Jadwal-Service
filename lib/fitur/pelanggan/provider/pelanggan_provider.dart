@@ -1,5 +1,6 @@
 // path lib/fitur/pelanggan/provider/pelanggan_provider.dart
 
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
@@ -46,24 +47,36 @@ class Pelanggan extends _$Pelanggan {
   }
 
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
-    state = await AsyncValue.guard(() async {
+    try {
       await pelangganOpSqlite.tambahPelanggan(pelanggan);
-      return _ambilData();
-    });
+      final dataBaru = await _ambilData();
+      state = AsyncValue.data(dataBaru);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+      rethrow; // 🌟 PENTING: Supaya try-catch di FormPelanggan bisa menangkap error ini
+    }
   }
 
   Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
-    state = await AsyncValue.guard(() async {
+    try {
       await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
-      _invalidateDetailPelanggan(pelanggan.id);
-      return _ambilData();
-    });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _invalidateDetailPelanggan(pelanggan.id);
+      });
+      final dataBaru = await _ambilData();
+      state = AsyncValue.data(dataBaru);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+      rethrow; // 🌟 PENTING
+    }
   }
 
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.softDelete(id);
-      _invalidateDetailPelanggan(id);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _invalidateDetailPelanggan(id);
+      });
       return _ambilData();
     });
   }

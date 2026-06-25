@@ -209,7 +209,6 @@ class SqliteDatabase {
     final existingColumns = results
         .map((row) => row['name'] as String)
         .toList();
-
     final columnsToAdd = {
       NamaKolom.tanggalMulai: 'INTEGER NOT NULL',
       NamaKolom.tanggalBerakhir: 'INTEGER NOT NULL',

@@ -30008,7 +30008,6 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       Log.info(
         'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}',
       );
-
       try {
         if (_modeEdit) {
           Log.info(
@@ -30021,25 +30020,22 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           );
           await pelangganNotifier.tambahPelanggan(pelangganBaru);
         }
-
         if (!mounted) return;
-
-        // ✅ Jalankan sinkronisasi di latar belakang (service sudah handle cek internet)
-        unawaited(
-          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
-        );
-
-        // ✅ Tampilkan toast sukses tanpa menunggu sinkronisasi
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
+        });
         ToastUtil.success(context, 'Data pelanggan berhasil disimpan.');
-
         if (mounted) {
           Navigator.pop(context);
         }
       } catch (e, s) {
         Log.error('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
-        if (mounted) {
-          ToastUtil.error(context, 'Gagal menyimpan data: $e');
+        String userMessage = 'Gagal menyimpan data: $e';
+        if (e.toString().contains('sudah ada')) {
+          userMessage = 'Nomor telepon dan password sudah digunakan.';
         }
+        ToastUtil.error(context, userMessage);
+        return;
       } finally {
         if (mounted) {
           setState(() => _menyimpan = false);
@@ -30731,6 +30727,7 @@ final class PelangganDetailFamily extends $Family
 // File: lib/fitur/pelanggan/provider/pelanggan_provider.dart
 // path lib/fitur/pelanggan/provider/pelanggan_provider.dart
 
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
@@ -30777,24 +30774,36 @@ class Pelanggan extends _$Pelanggan {
   }
 
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
-    state = await AsyncValue.guard(() async {
+    try {
       await pelangganOpSqlite.tambahPelanggan(pelanggan);
-      return _ambilData();
-    });
+      final dataBaru = await _ambilData();
+      state = AsyncValue.data(dataBaru);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+      rethrow; // 🌟 PENTING: Supaya try-catch di FormPelanggan bisa menangkap error ini
+    }
   }
 
   Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
-    state = await AsyncValue.guard(() async {
+    try {
       await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
-      _invalidateDetailPelanggan(pelanggan.id);
-      return _ambilData();
-    });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _invalidateDetailPelanggan(pelanggan.id);
+      });
+      final dataBaru = await _ambilData();
+      state = AsyncValue.data(dataBaru);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+      rethrow; // 🌟 PENTING
+    }
   }
 
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.softDelete(id);
-      _invalidateDetailPelanggan(id);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _invalidateDetailPelanggan(id);
+      });
       return _ambilData();
     });
   }
@@ -31335,6 +31344,7 @@ class PelangganOpFirebase {
 // File: lib/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart
 // path: lib/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart
 
+import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -31354,10 +31364,52 @@ class PelangganOpSqlite {
     Log.info('CustomerOperation diinisialisasi');
   }
 
+  Future<bool> _cekDuplikasi(
+    String telepon,
+    String kataSandi, [
+    String? excludeId,
+  ]) async {
+    try {
+      final db = await sqliteDb.database;
+      String sql =
+          '''
+        SELECT COUNT(*) as count
+        FROM ${NamaTabel.pelanggan}
+        WHERE ${NamaKolom.telepon} = ? AND ${NamaKolom.kataSandi} = ? AND ${NamaKolom.dihapus} = 0
+      ''';
+      final args = <dynamic>[telepon, kataSandi];
+
+      if (excludeId != null) {
+        sql += ' AND ${NamaKolom.id} != ?';
+        args.add(excludeId);
+      }
+      final result = await db.rawQuery(sql, args);
+      final count = Sqflite.firstIntValue(result) ?? 0;
+      return count > 0;
+    } catch (e, st) {
+      Log.error('Gagal mengecek duplikasi pelanggan', e: e, s: st);
+      rethrow;
+    }
+  }
+
   Future<void> tambahPelanggan(
     PelangganModel pelanggan, {
     bool dariServer = false,
   }) async {
+    final bool isDuplicate = await _cekDuplikasi(
+      pelanggan.telepon,
+      pelanggan.kataSandi,
+    );
+
+    if (isDuplicate) {
+      Log.warning('Data pelanggan duplikat ditemukan.', {
+        'telepon': pelanggan.telepon,
+        'nama': pelanggan.nama,
+      });
+      throw Exception(
+        'Pelanggan dengan nomor telepon dan password ini sudah ada.',
+      );
+    }
     Log.info('Memulai pembuatan customer dengan ID: ${pelanggan.id}');
     try {
       final pelangganBaru = pelanggan.copyWith(
@@ -31425,6 +31477,22 @@ class PelangganOpSqlite {
     PelangganModel pelanggan, {
     bool dariServer = false,
   }) async {
+    final bool isDuplicate = await _cekDuplikasi(
+      pelanggan.telepon,
+      pelanggan.kataSandi,
+      pelanggan.id,
+    );
+
+    if (isDuplicate) {
+      Log.warning('Data pelanggan duplikat ditemukan saat update.', {
+        'telepon': pelanggan.telepon,
+        'nama': pelanggan.nama,
+        'id': pelanggan.id,
+      });
+      throw Exception(
+        'Pelanggan dengan nomor telepon dan password ini sudah ada.',
+      );
+    }
     Log.info('Memulai pembaruan untuk customer ID: ${pelanggan.id}');
     try {
       final data = pelanggan
@@ -46361,7 +46429,6 @@ class SqliteDatabase {
     final existingColumns = results
         .map((row) => row['name'] as String)
         .toList();
-
     final columnsToAdd = {
       NamaKolom.tanggalMulai: 'INTEGER NOT NULL',
       NamaKolom.tanggalBerakhir: 'INTEGER NOT NULL',

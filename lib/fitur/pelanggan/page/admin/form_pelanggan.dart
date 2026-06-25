@@ -96,7 +96,6 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       Log.info(
         'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}',
       );
-
       try {
         if (_modeEdit) {
           Log.info(
@@ -109,25 +108,23 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           );
           await pelangganNotifier.tambahPelanggan(pelangganBaru);
         }
-
         if (!mounted) return;
-
-        // ✅ Jalankan sinkronisasi di latar belakang (service sudah handle cek internet)
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
         );
-
-        // ✅ Tampilkan toast sukses tanpa menunggu sinkronisasi
+        Log.info('jalankan sinkroniasi');
         ToastUtil.success(context, 'Data pelanggan berhasil disimpan.');
-
         if (mounted) {
           Navigator.pop(context);
         }
       } catch (e, s) {
         Log.error('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
-        if (mounted) {
-          ToastUtil.error(context, 'Gagal menyimpan data: $e');
+        String userMessage = 'Gagal menyimpan data: $e';
+        if (e.toString().contains('sudah ada')) {
+          userMessage = 'Nomor telepon dan password sudah digunakan.';
         }
+        ToastUtil.error(context, userMessage);
+        return;
       } finally {
         if (mounted) {
           setState(() => _menyimpan = false);

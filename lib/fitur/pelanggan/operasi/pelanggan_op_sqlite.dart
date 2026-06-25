@@ -1,5 +1,6 @@
 // path: lib/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart
 
+import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -19,10 +20,68 @@ class PelangganOpSqlite {
     Log.info('CustomerOperation diinisialisasi');
   }
 
+  // path: lib/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart
+
+  Future<bool> _ambilBerdasarkanTeleponDanKataSandi(
+    String telepon,
+    String kataSandi, [
+    String? excludeId,
+  ]) async {
+    try {
+      final db = await sqliteDb.database;
+
+      // Log untuk debugging
+      Log.info('Mengecek kombinasi telepon dan password', {
+        'telepon': telepon,
+        'kataSandi': kataSandi,
+        'excludeId': excludeId,
+      });
+
+      String sql =
+          '''
+      SELECT COUNT(*) as count
+      FROM ${NamaTabel.pelanggan}
+      WHERE ${NamaKolom.telepon} = ? 
+        AND ${NamaKolom.kataSandi} = ? 
+        AND ${NamaKolom.dihapus} = 0
+    ''';
+      final args = <dynamic>[telepon, kataSandi];
+      if (excludeId != null && excludeId.isNotEmpty) {
+        sql += ' AND ${NamaKolom.id} != ?';
+        args.add(excludeId);
+      }
+      final result = await db.rawQuery(sql, args);
+      final count = Sqflite.firstIntValue(result) ?? 0;
+      Log.info('Hasil pengecekan duplikasi', {
+        'count': count,
+        'isDuplicate': count > 0,
+      });
+
+      return count > 0;
+    } catch (e, st) {
+      Log.error('Gagal mengecek duplikasi pelanggan', e: e, s: st);
+      rethrow;
+    }
+  }
+
   Future<void> tambahPelanggan(
     PelangganModel pelanggan, {
     bool dariServer = false,
   }) async {
+    final bool isDuplicate = await _ambilBerdasarkanTeleponDanKataSandi(
+      pelanggan.telepon,
+      pelanggan.kataSandi,
+    );
+
+    if (isDuplicate) {
+      Log.warning('Data pelanggan duplikat ditemukan.', {
+        'telepon': pelanggan.telepon,
+        'nama': pelanggan.nama,
+      });
+      throw Exception(
+        'Pelanggan dengan nomor telepon dan password ini sudah ada.',
+      );
+    }
     Log.info('Memulai pembuatan customer dengan ID: ${pelanggan.id}');
     try {
       final pelangganBaru = pelanggan.copyWith(
@@ -90,6 +149,21 @@ class PelangganOpSqlite {
     PelangganModel pelanggan, {
     bool dariServer = false,
   }) async {
+    final bool isDuplicate = await _ambilBerdasarkanTeleponDanKataSandi(
+      pelanggan.telepon,
+      pelanggan.id,
+    );
+
+    if (isDuplicate) {
+      Log.warning('Data pelanggan duplikat ditemukan saat update.', {
+        'telepon': pelanggan.telepon,
+        'nama': pelanggan.nama,
+        'id': pelanggan.id,
+      });
+      throw Exception(
+        'Pelanggan dengan nomor telepon dan password ini sudah ada.',
+      );
+    }
     Log.info('Memulai pembaruan untuk customer ID: ${pelanggan.id}');
     try {
       final data = pelanggan
