@@ -29,30 +29,30 @@ void main() {
 
   final now = DateTime.now();
   final NotifikasiModel notif1 = NotifikasiModel(
-    id: '1',
-    tipe: TipeNotifikasiEnum.info,
-    judul: 'Judul 1',
-    deskripsi: 'Pesan 1',
-    tanggalMulai: now,
-    tanggalBerakhir: now.add(const Duration(days: 1)),
-    tanggalTampil: now.subtract(const Duration(hours: 1)),
-    diperbaruiPada: now,
-    idTujuan: 'tujuan1',
-    userId: 'user1',
-  );
+      id: '1',
+      tipe: TipeNotifikasiEnum.info,
+      judul: 'Judul 1',
+      deskripsi: 'Pesan 1',
+      tanggalMulai: now,
+      tanggalBerakhir: now.add(const Duration(days: 1)),
+      tanggalTampil: now.subtract(const Duration(hours: 1)),
+      diperbaruiPada: now,
+      idTujuan: 'tujuan1',
+      userId: 'user1',
+      targetRole: AppRole.user);
 
   final NotifikasiModel notif2 = NotifikasiModel(
-    id: '2',
-    userId: 'user123',
-    tipe: TipeNotifikasiEnum.order,
-    judul: 'Judul 2',
-    deskripsi: 'Pesan 2',
-    tanggalMulai: now,
-    tanggalBerakhir: now.add(const Duration(days: 1)),
-    tanggalTampil: now.subtract(const Duration(hours: 1)),
-    diperbaruiPada: now,
-    idTujuan: 'tujuan2',
-  );
+      id: '2',
+      userId: 'user123',
+      tipe: TipeNotifikasiEnum.order,
+      judul: 'Judul 2',
+      deskripsi: 'Pesan 2',
+      tanggalMulai: now,
+      tanggalBerakhir: now.add(const Duration(days: 1)),
+      tanggalTampil: now.subtract(const Duration(hours: 1)),
+      diperbaruiPada: now,
+      idTujuan: 'tujuan2',
+      targetRole: AppRole.user);
 
   final notifDihapus = notif1.copyWith(id: '3', dihapus: true);
   final notifDibaca = notif1.copyWith(id: '4', setatusDibaca: true);
@@ -265,14 +265,16 @@ void main() {
     );
   });
 
-  group('getKhususAdmin', () {
+  group('ambilKhususAdmin', () {
     final notifOrder = notif2.copyWith(
       id: 'order1',
       tipe: TipeNotifikasiEnum.order,
+      targetRole: AppRole.admin,
     );
     final notifTransaksi = notif1.copyWith(
       id: 'transaksi1',
       tipe: TipeNotifikasiEnum.transaksi,
+      targetRole: AppRole.admin,
     );
     final notifInfo = notif1.copyWith(
       id: 'info1',
@@ -295,11 +297,11 @@ void main() {
           stream,
           emits(
             isA<List<NotifikasiModel>>()
-                .having((list) => list.length, 'panjang list', 2)
+                .having((list) => list.length, 'panjang list', 1)
                 .having(
                   (list) => list.map((e) => e.id),
                   'id notifikasi',
-                  containsAll([notifOrder.id, notifTransaksi.id]),
+                  containsAll([notifOrder.id]),
                 ),
           ),
         );
@@ -432,36 +434,37 @@ void main() {
     );
   });
 
-  group('deleteNotif', () {
+  group('softDeleteNotifikasi', () {
     test(
-      '23. harus memanggil _baseOp.hapusPermanen dengan parameter yang benar',
+      '23. harus memanggil _baseOp.softDelete dengan parameter yang benar',
       () async {
         when(
-          mockBaseOp.hapusPermanen(NamaTabel.notifikasi, 'notif-id'),
+          mockBaseOp.softDelete(NamaTabel.notifikasi, 'notif-id'),
         ).thenAnswer((_) async {});
 
-        await notifikasiOp.deleteNotif('notif-id');
+        await notifikasiOp.softDeleteNotifikasi('notif-id');
 
         verify(
-          mockBaseOp.hapusPermanen(NamaTabel.notifikasi, 'notif-id'),
+          mockBaseOp.softDelete(NamaTabel.notifikasi, 'notif-id'),
         ).called(1);
       },
     );
 
     test(
-      '24. harus melempar kembali (rethrow) exception jika _baseOp.hapusPermanen gagal',
+      '24. harus melempar kembali (rethrow) exception jika _baseOp.softDelete gagal',
       () async {
         final exception = Exception('Gagal hapus');
         when(
-          mockBaseOp.hapusPermanen(NamaTabel.notifikasi, 'notif-id'),
+          mockBaseOp.softDelete(NamaTabel.notifikasi, 'notif-id'),
         ).thenThrow(exception);
 
-        expect(() => notifikasiOp.deleteNotif('notif-id'), throwsA(exception));
+        expect(() => notifikasiOp.softDeleteNotifikasi('notif-id'),
+            throwsA(exception));
       },
     );
   });
 
-  group('deleteByTransactionId', () {
+  group('hapusBerdasarkanIdTransaksi', () {
     test(
       '25. harus menghapus notifikasi yang cocok dengan transactionId',
       () async {

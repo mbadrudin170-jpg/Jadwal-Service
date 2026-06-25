@@ -9,11 +9,8 @@ import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart'
 
 final baseOpSqliteProvider = Provider<BaseOpSqlite>((ref) {
   Log.info('Membuat instance BaseOperation...');
-
   final sqliteDb = ref.read(sqliteDatabaseProvider);
-
   final statusUnggahOpSqlite = ref.read(statusUploadOpSlite);
-
   return BaseOpSqlite(
     sqliteDb: sqliteDb,
     statusUnggahOpSqlite: statusUnggahOpSqlite,
@@ -118,13 +115,13 @@ class BaseOpSqlite {
     Log.info('Memulai penyisipan data ke tabel: $table');
     try {
       await _runInTransaction((txn) async {
-        final result = await txn.insert(
+        final hasil = await txn.insert(
           table,
           data,
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
-        Log.info('INSERT berhasil', {'rowId': result, 'tabel': table});
-        return result;
+        Log.info('INSERT berhasil', {'rowId': hasil, 'tabel': table});
+        return hasil;
       }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
@@ -149,7 +146,7 @@ class BaseOpSqlite {
       'data': data,
     });
     try {
-      await _runInTransaction((final txn) async {
+      await _runInTransaction((txn) async {
         final rowsAffected = await txn.update(
           table,
           data,
@@ -179,13 +176,13 @@ class BaseOpSqlite {
 
   /// Menghapus data dari [table] berdasarkan [id].
   Future<void> delete(
-    final String table,
-    final String id, {
-    final bool dariServer = false,
+    String table,
+    String id, {
+    bool dariServer = false,
   }) async {
     Log.info('Memulai penghapusan data', {'tabel': table, 'id': id});
     try {
-      await _runInTransaction((final txn) async {
+      await _runInTransaction((txn) async {
         final rowsDeleted = await txn.delete(
           table,
           where: 'id = ?',
