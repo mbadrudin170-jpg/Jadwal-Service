@@ -100,7 +100,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
               children: UrutanTransaksi.values
                   .map(
                     (sortBy) => RadioListTile<UrutanTransaksi>(
-                      title: Text(sortBy.displayName),
+                      title: Text(sortBy.teks),
                       value: sortBy,
                     ),
                   )

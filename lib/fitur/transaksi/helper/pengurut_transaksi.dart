@@ -12,8 +12,8 @@ enum UrutanTransaksi {
   jumlahTerbesar('Jumlah Terbesar'),
   jumlahTerkecil('Jumlah Terkecil');
 
-  const UrutanTransaksi(this.displayName);
-  final String displayName;
+  const UrutanTransaksi(this.teks);
+  final String teks;
 }
 
 @riverpod
