@@ -114,12 +114,8 @@ final class PelangganDenganPoinProvider
 String _$pelangganDenganPoinHash() =>
     r'3fdca9f2d12494cb61825a89cee606d4c4935602';
 
-/// Memfilter nama berdasarkan query pencarian dan mengurutkannya berdasarkan opsi aktif
-
 @ProviderFor(filteredCustomers)
 final filteredCustomersProvider = FilteredCustomersProvider._();
-
-/// Memfilter nama berdasarkan query pencarian dan mengurutkannya berdasarkan opsi aktif
 
 final class FilteredCustomersProvider
     extends
@@ -131,7 +127,6 @@ final class FilteredCustomersProvider
     with
         $FutureModifier<List<(PelangganModel, int)>>,
         $FutureProvider<List<(PelangganModel, int)>> {
-  /// Memfilter nama berdasarkan query pencarian dan mengurutkannya berdasarkan opsi aktif
   FilteredCustomersProvider._()
     : super(
         from: null,

@@ -84,22 +84,22 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
   Future<void> _tampilkanDialogUrutan(
     BuildContext context,
     WidgetRef ref,
-    SortBy currentSortBy,
+    UrutanTransaksi currentSortBy,
   ) async {
     Log.info('Membuka dialog pengurutan transaksi.');
 
-    final newSort = await showDialog<SortBy>(
+    final newSort = await showDialog<UrutanTransaksi>(
       context: context,
       builder: (context) => SimpleDialog(
         title: const Text('Urutkan Berdasarkan'),
         children: [
-          RadioGroup<SortBy>(
+          RadioGroup<UrutanTransaksi>(
             groupValue: currentSortBy,
             onChanged: (value) => Navigator.pop(context, value),
             child: Column(
-              children: SortBy.values
+              children: UrutanTransaksi.values
                   .map(
-                    (sortBy) => RadioListTile<SortBy>(
+                    (sortBy) => RadioListTile<UrutanTransaksi>(
                       title: Text(PengurutTransaksi.ambilTeksUrutan(sortBy)),
                       value: sortBy,
                     ),

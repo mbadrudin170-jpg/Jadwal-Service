@@ -3,44 +3,44 @@
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 
-enum SortBy { terbaru, terlama, jumlahTerbesar, jumlahTerkecil }
+enum UrutanTransaksi { terbaru, terlama, jumlahTerbesar, jumlahTerkecil }
 
-final pengurutTransaksiProvider = StateProvider<SortBy>(
-  (ref) => SortBy.terbaru,
+final pengurutTransaksiProvider = StateProvider<UrutanTransaksi>(
+  (ref) => UrutanTransaksi.terbaru,
 );
 
 class PengurutTransaksi {
   static List<TransaksiModel> urutkan(
     List<TransaksiModel> data,
-    SortBy sortBy,
+    UrutanTransaksi sortBy,
   ) {
     final sorted = List<TransaksiModel>.from(data);
     switch (sortBy) {
-      case SortBy.terbaru:
+      case UrutanTransaksi.terbaru:
         sorted.sort((a, b) => b.tanggal.compareTo(a.tanggal));
         break;
-      case SortBy.terlama:
+      case UrutanTransaksi.terlama:
         sorted.sort((a, b) => a.tanggal.compareTo(b.tanggal));
         break;
-      case SortBy.jumlahTerbesar:
+      case UrutanTransaksi.jumlahTerbesar:
         sorted.sort((a, b) => b.jumlah.compareTo(a.jumlah));
         break;
-      case SortBy.jumlahTerkecil:
+      case UrutanTransaksi.jumlahTerkecil:
         sorted.sort((a, b) => a.jumlah.compareTo(b.jumlah));
         break;
     }
     return sorted;
   }
 
-  static String ambilTeksUrutan(SortBy option) {
+  static String ambilTeksUrutan(UrutanTransaksi option) {
     switch (option) {
-      case SortBy.terbaru:
+      case UrutanTransaksi.terbaru:
         return 'Terbaru';
-      case SortBy.terlama:
+      case UrutanTransaksi.terlama:
         return 'Terlama';
-      case SortBy.jumlahTerbesar:
+      case UrutanTransaksi.jumlahTerbesar:
         return 'Jumlah Terbesar';
-      case SortBy.jumlahTerkecil:
+      case UrutanTransaksi.jumlahTerkecil:
         return 'Jumlah Terkecil';
     }
   }

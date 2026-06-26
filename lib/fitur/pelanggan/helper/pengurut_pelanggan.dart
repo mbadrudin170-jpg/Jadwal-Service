@@ -40,7 +40,6 @@ Future<List<(PelangganModel, int)>> pelangganDenganPoin(Ref ref) async {
   );
 }
 
-/// Memfilter nama berdasarkan query pencarian dan mengurutkannya berdasarkan opsi aktif
 @riverpod
 Future<List<(PelangganModel, int)>> filteredCustomers(Ref ref) async {
   final pelangganWithPoints = await ref.watch(
