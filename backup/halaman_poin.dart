@@ -259,7 +259,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     final transaksiAsync = ref.watch(transaksiProvider);
     Log.info('Building PointsPage UI, selected menu: $_menuAktif');
     final dataAsync = ref.watch(pointsPageDataProvider(widget.idPelanggan));
-    return dataAsync.when(
+    return transaksiAsync.when(
       loading: () => Scaffold(
         appBar: AppBar(title: _judulAppBar),
         body: const Center(child: CircularProgressIndicator()),
@@ -271,7 +271,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       data: (dataHalaman) {
         return UiHalamanPoin(
           appBarTitle: _judulAppBar,
-          totalPoin: dataHalaman.totalPoin,
+          totalPoin: dataHalaman.totalPoinUser,
           menuPilihan: _menuAktif,
           onSelectionChanged: (newSelection) async {
             final selection = newSelection.first;
@@ -283,7 +283,10 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             }
           },
           contentView: _menuAktif == OpsiMenuPoin.penukaran
-              ? _bangunDaftarHadiah(dataHalaman.hadiah, dataHalaman.totalPoin)
+              ? _bangunDaftarHadiah(
+                  dataHalaman.hadiah,
+                  dataHalaman.totalPoinUser,
+                )
               : _bangunRiwayatPoin(),
           bottomWidget: widget.tampilkanIklan ? const BannerAdsWidget() : null,
         );

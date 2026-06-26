@@ -38,11 +38,11 @@
 10. **Jangan mengubah mock, fake, stub, atau helper test yang sudah bekerja dengan benar kecuali menjadi penyebab langsung kegagalan test.**
 11. **Perubahan harus dibatasi pada area yang menyebabkan error.**
 12. **Jika hanya satu test yang gagal, jangan mengubah test lain yang lulus.**
-13. **Jika hanya satu blok kode yang bermasalah, jangan mengubah file test secara menyeluruh.**
+13. **Jika hanya satu blok kode yang bermasalah, jangan mengubah kode test secara menyeluruh.**
 14. **Pertahankan perilaku, cakupan, dan tujuan test yang sudah ada.**
 15. **Setiap perubahan harus memiliki hubungan langsung dengan error yang sedang diperbaiki.**
 16. **Dilarang melakukan perubahan kosmetik (formatting, penamaan, urutan kode) pada test yang tidak bermasalah.**
-17. **Jangan menulis ulang seluruh file test jika cukup memperbaiki beberapa baris saja.**
+17. **Jangan menulis ulang seluruh kode test jika cukup memperbaiki beberapa baris saja.**
 18. **Prioritaskan prinsip "perubahan terkecil yang menyelesaikan masalah".**
 19. **Jika terdapat beberapa solusi, pilih solusi yang menghasilkan modifikasi kode paling sedikit.**
 20. **Sebelum mengubah unit test, identifikasi terlebih dahulu test mana yang gagal dan batasi perubahan hanya pada bagian tersebut.**
@@ -51,31 +51,31 @@
 
 * ❌ Jangan sentuh test yang sudah lulus.
 * ❌ Jangan refactor test yang tidak bermasalah.
-* ❌ Jangan menulis ulang file test secara keseluruhan.
+* ❌ Jangan menulis ulang kode test secara keseluruhan.
 * ✅ Perbaiki hanya test yang gagal.
 * ✅ Ubah hanya baris yang menyebabkan error.
 * ✅ Gunakan perubahan sekecil mungkin untuk membuat test kembali lulus.
 
-# Aturan Analisis File Sebelum Mengubah Kode
+# Aturan Analisis Kode Sebelum Mengubah Kode
 
-1. **Wajib membaca seluruh isi file yang akan diubah sebelum melakukan perubahan apa pun.**
-2. **Dilarang langsung menulis atau mengubah kode tanpa memahami isi file terlebih dahulu.**
-3. **Pahami tujuan, tanggung jawab, dan alur kerja file sebelum melakukan modifikasi.**
-4. **Identifikasi seluruh fungsi, class, provider, model, state, dan konstanta yang ada di dalam file.**
-5. **Periksa seluruh import yang digunakan oleh file tersebut.**
-6. **Baca file-file yang menjadi dependency langsung dari file yang sedang dikerjakan.**
-7. **Pahami hubungan antara file yang sedang diubah dengan file lain yang terkait.**
-8. **Jangan membuat asumsi terhadap isi file yang belum dibaca.**
-9. **Jika terdapat dependency yang belum diberikan, minta file tersebut terlebih dahulu.**
-10. **Pastikan memahami alur data masuk dan keluar dari file sebelum mengubah logika.**
+1. **Wajib membaca seluruh kode yang akan diubah sebelum melakukan perubahan apa pun.**
+2. **Dilarang langsung menulis atau mengubah kode tanpa memahami isi kode terlebih dahulu.**
+3. **Pahami tujuan, tanggung jawab, dan alur kerja kode sebelum melakukan modifikasi.**
+4. **Identifikasi seluruh fungsi, class, provider, model, state, dan konstanta yang ada di dalam kode.**
+5. **Periksa seluruh import yang digunakan oleh kode tersebut.**
+6. **Baca setiap kode yang menjadi dependency langsung dari kode yang sedang dikerjakan.**
+7. **Pahami hubungan antara kode yang sedang diubah dengan kode lain yang terkait.**
+8. **Jangan membuat asumsi terhadap isi kode yang belum dibaca.**
+9. **Jika terdapat dependency yang belum diberikan, minta kode tersebut terlebih dahulu.**
+10. **Pastikan memahami alur data masuk dan keluar dari kode sebelum mengubah logika.**
 
 # Aturan Membaca Dependency
 
-11. **Wajib membaca file yang dipanggil langsung oleh file yang sedang dikerjakan jika memengaruhi logika perubahan.**
-12. **Wajib membaca model yang digunakan oleh file tersebut.**
+11. **Wajib membaca kode yang dipanggil langsung oleh kode yang sedang dikerjakan jika memengaruhi logika perubahan.**
+12. **Wajib membaca model yang digunakan oleh kode tersebut.**
 13. **Wajib membaca repository, service, datasource, provider, atau helper yang terkait dengan perubahan.**
 14. **Wajib membaca interface atau abstract class yang digunakan.**
-15. **Jika suatu fungsi berasal dari file lain, pahami implementasinya sebelum mengubah kode yang bergantung padanya.**
+15. **Jika suatu fungsi berasal dari kode lain, pahami implementasinya sebelum mengubah kode yang bergantung padanya.**
 16. **Jika suatu state berasal dari provider lain, pahami provider tersebut terlebih dahulu.**
 17. **Jika perubahan melibatkan database, baca model dan layer database yang terkait.**
 18. **Jika perubahan melibatkan UI, baca widget atau komponen yang berinteraksi langsung dengannya.**
@@ -85,43 +85,43 @@
 # Aturan Sebelum Menulis Solusi
 
 21. **Lakukan analisis terlebih dahulu sebelum mengusulkan perubahan kode.**
-22. **Jelaskan file mana saja yang sudah dibaca dan dipahami.**
-23. **Identifikasi file tambahan yang masih diperlukan sebelum implementasi dimulai.**
+22. **Jelaskan kode mana saja yang sudah dibaca dan dipahami.**
+23. **Identifikasi kode tambahan yang masih diperlukan sebelum implementasi dimulai.**
 24. **Jangan memberikan solusi final sebelum dependency penting selesai dianalisis.**
 25. **Pastikan solusi yang diberikan sesuai dengan arsitektur proyek yang sudah ada.**
 26. **Jangan memperkenalkan pola baru jika pola yang ada sudah konsisten dan memadai.**
 27. **Utamakan konsistensi dengan struktur proyek yang sudah berjalan.**
-28. **Periksa dampak perubahan terhadap file lain yang terhubung.**
+28. **Periksa dampak perubahan terhadap kode lain yang terhubung.**
 29. **Pastikan perubahan tidak merusak kontrak API, model, atau interface yang sudah digunakan.**
 30. **Pastikan perubahan tetap kompatibel dengan kode yang sudah ada.**
 
 # Aturan Jika Informasi Belum Lengkap
 
-31. **Jika file yang diperlukan belum tersedia, hentikan implementasi dan minta file tersebut.**
-32. **Jangan menebak isi file yang belum diberikan.**
+31. **Jika kode yang diperlukan belum tersedia, hentikan implementasi dan minta kode tersebut.**
+32. **Jangan menebak isi kode yang belum diberikan.**
 33. **Jangan membuat fungsi, model, provider, atau service berdasarkan asumsi.**
 34. **Jangan mengubah arsitektur karena keterbatasan informasi.**
-35. **Tentukan secara jelas file apa saja yang masih perlu dikirim.**
-36. **Sebutkan alasan mengapa file tersebut diperlukan.**
-37. **Tunggu hingga file yang diperlukan tersedia sebelum melakukan perubahan.**
+35. **Tentukan secara jelas kode apa saja yang masih perlu dikirim.**
+36. **Sebutkan alasan mengapa kode tersebut diperlukan.**
+37. **Tunggu hingga kode yang diperlukan tersedia sebelum melakukan perubahan.**
 
 # Checklist Sebelum Mengubah Kode
 
-* ✅ Sudah membaca seluruh file yang akan diubah.
+* ✅ Sudah membaca seluruh kode yang akan diubah.
 * ✅ Sudah membaca dependency yang relevan.
 * ✅ Sudah memahami alur data.
 * ✅ Sudah memahami model yang digunakan.
 * ✅ Sudah memahami provider/repository/service terkait.
-* ✅ Sudah mengecek dampak perubahan ke file lain.
-* ✅ Tidak ada asumsi terhadap file yang belum dibaca.
-* ✅ Semua file penting sudah tersedia.
+* ✅ Sudah mengecek dampak perubahan ke kode lain.
+* ✅ Tidak ada asumsi terhadap kode yang belum dibaca.
+* ✅ Semua kode penting sudah tersedia.
 
 # Ringkasan Singkat
 
-* Baca file yang akan diubah terlebih dahulu.
-* Baca dependency yang digunakan file tersebut.
-* Jangan membuat asumsi terhadap file yang belum dibaca.
-* Jika ada dependency yang belum tersedia, minta file tersebut.
+* Baca kode yang akan diubah terlebih dahulu.
+* Baca dependency yang digunakan kode tersebut.
+* Jangan membuat asumsi terhadap kode yang belum dibaca.
+* Jika ada dependency yang belum tersedia, minta kode tersebut.
 * Analisis dulu, implementasi kemudian.
 * Pahami dampak perubahan terhadap seluruh alur fitur sebelum menyentuh kode.
 # Aturan Penomoran Unit Test
@@ -187,7 +187,7 @@ test('07. harus menghapus token login saat logout', () async {});
 
 Alasan: nomor tidak berurutan.
 
-# Aturan Tambahan untuk File Test Baru
+# Aturan Tambahan untuk Kode Test Baru
 
 11. **Sebelum membuat test, identifikasi seluruh skenario yang akan diuji.**
 12. **Susun urutan test berdasarkan alur logika fitur, bukan secara acak.**

@@ -6,7 +6,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
-import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
@@ -21,6 +20,7 @@ part 'transaksi_provider.g.dart';
 abstract class TransaksiState with _$TransaksiState {
   const factory TransaksiState({
     @Default([]) List<TransaksiModel> transaksi,
+    required List<TransaksiModel> transaksiUser,
     @Default(0.0) double totalPemasukan,
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
@@ -30,7 +30,6 @@ abstract class TransaksiState with _$TransaksiState {
     required List<double> pendapatanMingguan,
     required List<double> pendapatanBulanan,
     required double totalPendapatanPerbulan,
-    @Default([]) List<PaketModel> hadiah,
     @Default(0) int totalPoinUser,
   }) = _TransaksiState;
 }
@@ -59,14 +58,15 @@ class Transaksi extends _$Transaksi {
       _transaksiOpSqlite.ambilPendapatanMingguan(), // [7]
       _transaksiOpSqlite.ambilPendapatanBulanan(), // [8]
       _transaksiOpSqlite.ambilTotalPendapatanPerbulan(), //[9]
-      _pointsDataSource.getPublicPackages(), // [10]
       userId != null
-          ? _pointsDataSource.ambilTotalPoin(userId) // [11]
+          ? _pointsDataSource.ambilTotalPoin(userId) // [10]
           : Future<int>.value(0),
+      userId != null
+          ? _transaksiOpSqlite.ambilBerdasarkanIdPelanggan(userId) // [11]
+          : Future<List<TransaksiModel>>.value([]),
     ]);
 
     final transaksi = hasil[0] as List<TransaksiModel>;
-
     return TransaksiState(
       transaksi: transaksi,
       totalPemasukan: hasil[1] as double,
@@ -78,8 +78,8 @@ class Transaksi extends _$Transaksi {
       pendapatanMingguan: hasil[7] as List<double>,
       pendapatanBulanan: hasil[8] as List<double>,
       totalPendapatanPerbulan: hasil[9] as double,
-      hadiah: hasil[10] as List<PaketModel>,
-      totalPoinUser: hasil[11] as int,
+      totalPoinUser: hasil[10] as int,
+      transaksiUser: hasil[11] as List<TransaksiModel>,
     );
   }
 
@@ -147,14 +147,11 @@ class Transaksi extends _$Transaksi {
     final userId = await ref.watch(userIdProvider.future);
     if (userId == null) return;
 
-    final hadiah = await _pointsDataSource.getPublicPackages();
     final totalPoin = await _pointsDataSource.ambilTotalPoin(userId);
 
     if (state.hasValue) {
       final currentState = state.value!;
-      state = AsyncValue.data(
-        currentState.copyWith(hadiah: hadiah, totalPoinUser: totalPoin),
-      );
+      state = AsyncValue.data(currentState.copyWith(totalPoinUser: totalPoin));
     }
   }
 
