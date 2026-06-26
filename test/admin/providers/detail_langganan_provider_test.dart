@@ -85,7 +85,8 @@ void main() {
       when(mockPaketOpSqlite.ambilBerdasarkanId('pkg1'))
           .thenAnswer((_) async => paket);
 
-      final result = await container.read(ambilDetailLanggananProvider(idTransaksi).future);
+      final result =
+          await container.read(ambilDetailLanggananProvider(idTransaksi).future);
 
       expect(result, isA<DetailLanggananState>());
       expect(result!.transaksi, transaksi);
@@ -97,20 +98,24 @@ void main() {
       when(mockTransaksiOpSqlite.ambilBerdasarkanId(idTransaksi))
           .thenAnswer((_) async => null);
 
-      final result = await container.read(ambilDetailLanggananProvider(idTransaksi).future);
+      final result =
+          await container.read(ambilDetailLanggananProvider(idTransaksi).future);
       expect(result, isNull);
 
       verifyNever(mockPelangganOpSqlite.ambilBerdasarkanId(any));
       verifyNever(mockPaketOpSqlite.ambilBerdasarkanId(any));
     });
 
-    test('03. harus mengembalikan state dengan pelanggan dan paket null ketika id-nya null',
+    test(
+        '03. harus mengembalikan state dengan pelanggan dan paket null ketika id-nya null',
         () async {
-      final transaksiTanpaRelasi = transaksi.copyWith(idPelanggan: null, idPaket: null);
+      final transaksiTanpaRelasi =
+          transaksi.copyWith(idPelanggan: null, idPaket: null);
       when(mockTransaksiOpSqlite.ambilBerdasarkanId(idTransaksi))
           .thenAnswer((_) async => transaksiTanpaRelasi);
 
-      final result = await container.read(ambilDetailLanggananProvider(idTransaksi).future);
+      final result =
+          await container.read(ambilDetailLanggananProvider(idTransaksi).future);
 
       expect(result, isA<DetailLanggananState>());
       expect(result!.transaksi, transaksiTanpaRelasi);

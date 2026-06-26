@@ -32,11 +32,11 @@ void main() {
     when(mockSqliteDb.database).thenAnswer((_) async => mockDb);
     // Atur default stub untuk runComplexOperation
     when(
-      mockBaseOpSqlite.runComplexOperation(
+      mockBaseOpSqlite.runComplexOperation<void>(
         any,
         dariServer: anyNamed('dariServer'),
       ),
-    ).thenAnswer((_) async => null);
+    ).thenAnswer((_) async {});
   });
 
   const namaTabel = NamaTabel.feedback;
@@ -50,8 +50,8 @@ void main() {
   group('Operasi Tulis (Delegasi ke BaseOpSqlite)', () {
     test('01. add harus memanggil baseOpSqlite.sisipkan', () async {
       when(
-        mockBaseOpSqlite.sisipkan(namaTabel, any, dariServer: false),
-      ).thenAnswer((_) async => null);
+        mockBaseOpSqlite.sisipkan(namaTabel, any),
+      ).thenAnswer((_) async => 1);
 
       await feedbackOpSqlite.tambahFeedback(feedback);
 
@@ -59,32 +59,31 @@ void main() {
         mockBaseOpSqlite.sisipkan(
           namaTabel,
           argThat(isA<Map<String, dynamic>>()),
-          dariServer: false,
         ),
       ).called(1);
     });
 
     test('02. delete harus memanggil baseOpSqlite.delete', () async {
       when(
-        mockBaseOpSqlite.delete(namaTabel, 'fb1', dariServer: false),
-      ).thenAnswer((_) async => null);
+        mockBaseOpSqlite.delete(namaTabel, 'fb1'),
+      ).thenAnswer((_) async => 1);
 
       await feedbackOpSqlite.delete('fb1');
 
       verify(
-        mockBaseOpSqlite.delete(namaTabel, 'fb1', dariServer: false),
+        mockBaseOpSqlite.delete(namaTabel, 'fb1'),
       ).called(1);
     });
 
     test('03. softDelete harus memanggil baseOpSqlite.softDelete', () async {
       when(
-        mockBaseOpSqlite.softDelete(namaTabel, 'fb1', dariServer: false),
-      ).thenAnswer((_) async => null);
+        mockBaseOpSqlite.softDelete(namaTabel, 'fb1'),
+      ).thenAnswer((_) async => 1);
 
       await feedbackOpSqlite.softDelete('fb1');
 
       verify(
-        mockBaseOpSqlite.softDelete(namaTabel, 'fb1', dariServer: false),
+        mockBaseOpSqlite.softDelete(namaTabel, 'fb1'),
       ).called(1);
     });
 
@@ -95,9 +94,8 @@ void main() {
           mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
             namaTabel,
             any,
-            dariServer: false,
           ),
-        ).thenAnswer((_) async => null);
+        ).thenAnswer((_) async => []);
 
         await feedbackOpSqlite.sisipkanAtauPerbaruiBatch([feedback]);
 
@@ -105,7 +103,6 @@ void main() {
           mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
             namaTabel,
             argThat(isA<List<Map<String, dynamic>>>()),
-            dariServer: false,
           ),
         ).called(1);
       },
@@ -120,7 +117,6 @@ void main() {
           mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
             any,
             any,
-            dariServer: anyNamed('dariServer'),
           ),
         );
       },
@@ -132,14 +128,12 @@ void main() {
         final mockTxn = MockTransaction();
         // Konfigurasi ulang mock untuk mengembalikan hasil dari action
         when(
-          mockBaseOpSqlite.runComplexOperation(
+          mockBaseOpSqlite.runComplexOperation<int>(
             any,
-            dariServer: anyNamed('dariServer'),
           ),
         ).thenAnswer((invocation) async {
           final action =
-              invocation.positionalArguments[0]
-                  as Future<int> Function(Transaction);
+              invocation.positionalArguments[0] as Future<int> Function(Transaction);
           return action(mockTxn);
         });
 
@@ -149,7 +143,7 @@ void main() {
 
         // Verifikasi bahwa runComplexOperation dipanggil
         verify(
-          mockBaseOpSqlite.runComplexOperation(any, dariServer: false),
+          mockBaseOpSqlite.runComplexOperation<int>(any),
         ).called(1);
       },
     );
@@ -181,7 +175,7 @@ void main() {
           ),
         ).thenAnswer((_) async => [feedbackMap]);
 
-        await feedbackOpSqlite.ambilSemuaFeedbackAktif();
+        await feedbackOpSqlite.ambilSemuaFeedback();
 
         verify(
           mockDb.query(
@@ -288,14 +282,14 @@ void main() {
       '14. softDeleteAll harus memanggil baseOpSqlite.softDeleteAll',
       () async {
         when(
-          mockBaseOpSqlite.softDeleteAll(namaTabel, dariServer: false),
+          mockBaseOpSqlite.softDeleteAll(namaTabel),
         ).thenAnswer((_) async => 5);
 
         final count = await feedbackOpSqlite.softDeleteAll();
 
         expect(count, 5);
         verify(
-          mockBaseOpSqlite.softDeleteAll(namaTabel, dariServer: false),
+          mockBaseOpSqlite.softDeleteAll(namaTabel),
         ).called(1);
       },
     );

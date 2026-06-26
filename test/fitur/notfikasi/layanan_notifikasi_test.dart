@@ -164,9 +164,9 @@ void main() {
 
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(
-              timezoneChannel,
-              (MethodCall methodCall) async => 'America/Detroit',
-            );
+          timezoneChannel,
+          (MethodCall methodCall) async => 'America/Detroit',
+        );
         tz.setLocalLocation(tz.getLocation('America/Detroit'));
       },
     );
@@ -381,7 +381,7 @@ void main() {
         layananNotifikasi.pantauNotifUser(mockNotifikasiOp, 'user1');
 
         streamController.add([notif1]);
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
 
         verify(
           mockPlugin.show(
@@ -425,7 +425,7 @@ void main() {
       layananNotifikasi.pantauNotifUser(mockNotifikasiOp, 'user1');
 
       streamController.add([notif1]);
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
 
       verify(
         mockPlugin.show(
@@ -438,7 +438,7 @@ void main() {
       ).called(1);
 
       streamController.add([notif1]);
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
 
       verifyNoMoreInteractions(mockPlugin);
     });

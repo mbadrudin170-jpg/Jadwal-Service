@@ -48,12 +48,11 @@ NotificationResponse _fallbackNotificationResponse() =>
     ),
   ],
 )
-// Subclass TemaNotifier untuk keperluan test agar bisa menerima initial theme
-class _TestTemaNotifier extends TemaNotifier {
+// Subclass Tema untuk keperluan test agar bisa menerima initial theme
+class _TestTemaNotifier extends Tema {
   final ThemeMode initialTheme;
   _TestTemaNotifier(this.initialTheme);
 
-  @override
   Future<ThemeMode> build() async => initialTheme;
 }
 
@@ -137,7 +136,7 @@ void main() {
           (ref) => sharedPrefsValue.when(
             data: Future.value,
             loading: () => Future.value(mockSharedPreferences),
-            error: Future.error,
+            error: (e, st) => Future.error(e, st),
           ),
         ),
         layananNotifikasiProvider.overrideWithValue(mockLayananNotifikasi),
@@ -372,7 +371,7 @@ void main() {
         await tester.pumpWidget(
           UncontrolledProviderScope(
             container: container,
-            child: const AppMaterial(isOffline: false),
+            child: const AppMaterial(),
           ),
         );
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -388,7 +387,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const AppMaterial(isOffline: false),
+          child: const AppMaterial(),
         ),
       );
       await tester.pump();
@@ -404,7 +403,7 @@ void main() {
         await tester.pumpWidget(
           UncontrolledProviderScope(
             container: container,
-            child: const AppMaterial(isOffline: false),
+            child: const AppMaterial(),
           ),
         );
 

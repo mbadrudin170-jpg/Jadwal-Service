@@ -28,7 +28,6 @@ abstract class PaketModel with _$PaketModel implements HasId {
     DateTime? diarsipkanPada,
   }) = _PaketModel;
 
-  // 👇 Method custom (tidak berubah dari kode asli Anda)
   static TipeDurasiPaket _parseType(dynamic value) {
     return TipeDurasiPaket.values.firstWhere(
       (e) => e.name == value,
