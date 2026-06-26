@@ -60,7 +60,6 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
       Log.info('Memvalidasi dan menyimpan perubahan pengaturan.');
       try {
         final newSettings = SettingsModel(
-          id: widget.settings!.id,
           waktuOtomatisSinkronisasi:
               int.tryParse(_intervalController.text) ?? 24,
           waktuOtomatisHapusDataArsip:
