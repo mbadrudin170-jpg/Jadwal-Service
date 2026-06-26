@@ -2,7 +2,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_unduh_data.dart';
@@ -12,18 +11,24 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
-import 'layanan_cek_sinkronisasi_test.mocks.dart';
+// Manual Mocks
+class MockPengelolaSinkronisasi extends Mock implements PengelolaSinkronisasi {}
 
-@GenerateMocks([
-  PengelolaSinkronisasi,
-  LayananUnggahData,
-  LayananUnduhData,
-  LayananPengecekanDataBaru,
-  FirebaseFirestore,
-  CollectionReference,
-  DocumentReference,
-  KoneksiInternetService,
-])
+class MockLayananUnggahData extends Mock implements LayananUnggahData {}
+
+class MockLayananUnduhData extends Mock implements LayananUnduhData {}
+
+class MockLayananPengecekanDataBaru extends Mock
+    implements LayananPengecekanDataBaru {}
+
+class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
+
+class MockCollectionReference<T> extends Mock implements CollectionReference<T> {}
+
+class MockDocumentReference<T> extends Mock implements DocumentReference<T> {}
+
+class MockKoneksiInternetService extends Mock implements KoneksiInternetService {}
+
 void main() {
   late MockPengelolaSinkronisasi mockPengelolaSinkronisasi;
   late MockLayananUnggahData mockLayananUnggah;
@@ -47,7 +52,8 @@ void main() {
 
     container = ProviderContainer(
       overrides: [
-        pengelolaSinkronisasiProvider.overrideWithValue(mockPengelolaSinkronisasi),
+        pengelolaSinkronisasiProvider
+            .overrideWithValue(mockPengelolaSinkronisasi),
         layananUnggahDataProvider.overrideWithValue(mockLayananUnggah),
         layananUnduhDataProvider.overrideWithValue(mockLayananUnduh),
         layananPengecekanDataBaruProvider
@@ -163,7 +169,8 @@ void main() {
       verifyNever(mockDocumentReference.set(any));
     });
 
-    test('05. harus menangani error saat unggah dan tidak melanjutkan', () async {
+    test('05. harus menangani error saat unggah dan tidak melanjutkan',
+        () async {
       // Arrange
       aturPengecekanData(adaDataLokal: true, adaDataServer: true);
       final exception = Exception('Gagal unggah');
