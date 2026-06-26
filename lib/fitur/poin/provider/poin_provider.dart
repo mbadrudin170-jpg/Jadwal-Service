@@ -2,13 +2,12 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/poin/operasi/firebase_points_data_source.dart';
 import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
 import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
-import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/shared/providers/shared_providers.dart';
 
 part 'poin_provider.g.dart';
 part 'poin_provider.freezed.dart';
@@ -41,8 +40,7 @@ class Poin extends _$Poin {
 
 @riverpod
 PointsPageDataSource pointsDataSource(Ref ref) {
-  final role = ref.watch(appRoleProvider);
-  if (role == AppRole.admin) {
+  if (RoleUtil.isAdmin(ref)) {
     return ref.watch(sqlitePointsDataSourceProvider);
   } else {
     return ref.watch(firebasePointsDataSourceProvider);

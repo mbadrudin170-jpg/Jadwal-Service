@@ -11,54 +11,11 @@ part of 'shared_providers.dart';
 /// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
 /// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
 
-@ProviderFor(appRole)
-final appRoleProvider = AppRoleProvider._();
+@ProviderFor(sharedPreferences)
+final sharedPreferencesProvider = SharedPreferencesProvider._();
 
 /// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
 /// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
-
-final class AppRoleProvider
-    extends $FunctionalProvider<AppRole, AppRole, AppRole>
-    with $Provider<AppRole> {
-  /// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
-  /// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
-  AppRoleProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'appRoleProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$appRoleHash();
-
-  @$internal
-  @override
-  $ProviderElement<AppRole> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  AppRole create(Ref ref) {
-    return appRole(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(AppRole value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<AppRole>(value),
-    );
-  }
-}
-
-String _$appRoleHash() => r'cb30ce59264980d6e8d623c1c86512db1c3caf35';
-
-@ProviderFor(sharedPreferences)
-final sharedPreferencesProvider = SharedPreferencesProvider._();
 
 final class SharedPreferencesProvider
     extends
@@ -70,6 +27,8 @@ final class SharedPreferencesProvider
     with
         $FutureModifier<SharedPreferences>,
         $FutureProvider<SharedPreferences> {
+  /// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
+  /// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
   SharedPreferencesProvider._()
     : super(
         from: null,

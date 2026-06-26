@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/poin/provider/poin_provider.dart';
@@ -16,7 +17,6 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -49,12 +49,9 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   void initState() {
     super.initState();
     _layananIklanInterstisial = LayananIklanInterstisial();
-
-    final role = ref.read(appRoleProvider);
-    final pakaiFirebase = role == AppRole.user;
-
+    final pakaiFirebase = ref.isUser;
     Log.info(
-      'Initializing PointsPage for customer: ${widget.idPelanggan} with role: $role',
+      'Initializing PointsPage for customer: ${widget.idPelanggan} with role: $pakaiFirebase',
     );
 
     _judulAppBar = Row(

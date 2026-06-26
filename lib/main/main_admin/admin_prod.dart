@@ -8,12 +8,12 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_prod.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
 import 'package:wifi/fitur/background/layanan_peluncuran.dart';
 import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
-import 'package:wifi/shared/providers/shared_providers.dart';
 
 /// Fungsi utama untuk menjalankan aplikasi admin dalam mode produksi (prod).
 void main() async {

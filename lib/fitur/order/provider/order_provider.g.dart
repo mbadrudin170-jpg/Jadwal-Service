@@ -89,4 +89,4 @@ final class DaftarPesananProvider
   }
 }
 
-String _$daftarPesananHash() => r'985b77ac229b046bcd94359a99868638c8397648';
+String _$daftarPesananHash() => r'96c3c307bac18f01c28a0290916446f32f53c473';

@@ -143,7 +143,7 @@ final class PointsDataSourceProvider
   }
 }
 
-String _$pointsDataSourceHash() => r'9feb7a5adaf71fc41220f2264cb5907c2ed38059';
+String _$pointsDataSourceHash() => r'5fed4c856d5a4960ef292facb1c590d69c9280d5';
 
 @ProviderFor(pointsPageData)
 final pointsPageDataProvider = PointsPageDataFamily._();

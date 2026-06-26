@@ -1,6 +1,7 @@
 // path: lib/shared/providers/shared_providers.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
@@ -11,13 +12,6 @@ part 'shared_providers.g.dart';
 
 /// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
 /// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
-@Riverpod(keepAlive: true)
-AppRole appRole(Ref ref) {
-  throw UnimplementedError(
-    'appRoleProvider harus di-override di dalam ProviderScope',
-  );
-}
-
 @Riverpod(keepAlive: true)
 Future<SharedPreferences> sharedPreferences(Ref ref) {
   return SharedPreferences.getInstance();

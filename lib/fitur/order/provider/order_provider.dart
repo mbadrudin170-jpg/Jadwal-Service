@@ -3,11 +3,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
-import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
 part 'order_provider.g.dart';
@@ -47,8 +46,7 @@ class Order extends _$Order {
 
 @riverpod
 Future<List<OrderModel>> daftarPesanan(Ref ref) async {
-  final appRole = ref.watch(appRoleProvider);
-  if (appRole == AppRole.admin) {
+  if (RoleUtil.isAdmin(ref)) {
     final orderOpSqlite = ref.watch(orderOpSqliteProvider);
     return await orderOpSqlite.ambilSemua();
   } else {

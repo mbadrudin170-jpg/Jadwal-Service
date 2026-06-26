@@ -5,12 +5,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -141,8 +140,6 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
 
   @override
   Widget build(BuildContext context) {
-    final role = ref.watch(appRoleProvider);
-
     Log.info('Membangun UI CustomerForm. isSaving: $_menyimpan');
     return Scaffold(
       appBar: AppBar(
@@ -190,7 +187,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                   nextFocusNode: _macAddressFocusNode,
                 ),
                 gapH16,
-                if (role == AppRole.admin)
+                if (ref.isAdmin)
                   InputMacAddress(
                     controller: _macAddressController,
                     focusNode: _macAddressFocusNode,

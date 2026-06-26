@@ -30,7 +30,6 @@ class DetailPelangganU extends ConsumerStatefulWidget {
 
 class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
   Future<_DataDetailPelanggan>? _dataFuture;
-  bool _hasMadeChanges = false;
 
   @override
   void initState() {
@@ -66,38 +65,23 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
     }
   }
 
-  void _reloadData() {
-    Log.info('Memuat ulang data dari Firestore...');
-    setState(() {
-      _dataFuture = _loadData();
-    });
-  }
-
   /// Navigasi ke halaman edit profil, lalu menampilkan iklan saat kembali.
   Future<void> _bukaFormEdit(PelangganModel pelanggan) async {
     await ref.read(interstitialAdServiceProvider).show();
     if (!mounted) return;
-    final bool? hasil = await Navigator.push<bool>(
+    await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
         builder: (context) => EditProfilePage(pelanggan: pelanggan),
       ),
     );
     await ref.read(interstitialAdServiceProvider).show();
-    if (hasil ?? false) {
-      Log.info('Kembali dari edit, memuat ulang data.');
-      setState(() {
-        _hasMadeChanges = true;
-      });
-      _reloadData();
-    }
   }
 
   Future<void> _navigasiKePoin(String idPelanggan) async {
     await ref.read(interstitialAdServiceProvider).show();
     if (!mounted) return;
-
-    final bool? hasil = await Navigator.push<bool>(
+    await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
         builder: (context) => HalamanPoin(
@@ -108,15 +92,6 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
       ),
     );
     await ref.read(interstitialAdServiceProvider).show();
-    if (hasil ?? false) {
-      Log.info(
-        'Kembali dari halaman poin dengan perubahan, memuat ulang data.',
-      );
-      setState(() {
-        _hasMadeChanges = true;
-      });
-      _reloadData();
-    }
   }
 
   @override
@@ -127,7 +102,7 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
         if (didPop) {
           return;
         }
-        Navigator.pop(context, _hasMadeChanges);
+        Navigator.pop(context);
       },
       child: FutureBuilder<_DataDetailPelanggan>(
         future: _dataFuture,

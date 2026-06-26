@@ -8,12 +8,12 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_dev.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
 import 'package:wifi/fitur/background/layanan_peluncuran.dart';
 import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
-import 'package:wifi/shared/providers/shared_providers.dart';
 
 /// Fungsi utama untuk menjalankan aplikasi admin dalam mode pengembangan (dev).
 void main() async {
@@ -27,9 +27,7 @@ void main() async {
   Log.info('Variabel lingkungan berhasil dimuat.');
 
   Log.info('Menginisialisasi Firebase...');
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   Log.info('Inisialisasi Firebase selesai.');
 
   Log.info('Menginisialisasi Supabase...');
@@ -37,7 +35,9 @@ void main() async {
   final supabasePublishableKey =
       dotenv.env[AppConstants.supabasePublishableKey] ?? '';
   await Supabase.initialize(
-      url: supabaseUrl, publishableKey: supabasePublishableKey);
+    url: supabaseUrl,
+    publishableKey: supabasePublishableKey,
+  );
   Log.info('Inisialisasi Supabase selesai.');
   Log.info('DEBUG URL: $supabaseUrl');
   Log.info('DEBUG PUBLISHABLE KEY LENGTH: ${supabasePublishableKey.length}');
@@ -71,9 +71,7 @@ void main() async {
 
   runApp(
     ProviderScope(
-      overrides: [
-        appRoleProvider.overrideWithValue(AppRole.admin),
-      ],
+      overrides: [appRoleProvider.overrideWithValue(AppRole.admin)],
       child: const AppAdmin(),
     ),
   );
