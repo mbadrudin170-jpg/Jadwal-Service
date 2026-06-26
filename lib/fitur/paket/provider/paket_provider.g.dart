@@ -32,7 +32,7 @@ final class PaketProvider extends $AsyncNotifierProvider<Paket, PaketState> {
   Paket create() => Paket();
 }
 
-String _$paketHash() => r'f6c414734d9ce23983e18e3e83686d5595a32169';
+String _$paketHash() => r'd5f0ddf9f3304ef966cc44b27ff6d21738a95225';
 
 abstract class _$Paket extends $AsyncNotifier<PaketState> {
   FutureOr<PaketState> build();

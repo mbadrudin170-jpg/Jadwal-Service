@@ -99,7 +99,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
         ToastUtil.success(context, 'Profil berhasil diperbarui.');
         Log.info('Toast sukses ditampilkan, menutup halaman edit.');
-
         navigator.pop(context);
       } catch (e, st) {
         Log.error('Gagal menyimpan perubahan profil', e: e, s: st);
