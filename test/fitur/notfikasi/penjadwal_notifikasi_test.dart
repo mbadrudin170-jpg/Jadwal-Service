@@ -52,12 +52,17 @@ void main() {
 
   final namaPelanggan = 'John Doe';
 
+  int generateId(String transaksiId, String tipeNotifikasi) {
+    return (transaksiId + tipeNotifikasi).hashCode;
+  }
+
   group('jadwalkanNotifikasiJatuhTempo', () {
     test(
       '01. harus menjadwalkan notifikasi jika tanggal berakhir tidak null',
       () async {
         final jadwal = transaksi.tanggalBerakhir!;
-        const expectedId = 12345; // Ganti dengan ID yang benar
+        final expectedId =
+            generateId(transaksi.id, PenjadwalNotifikasi.tipeJatuhTempo);
 
         await penjadwalNotifikasi.jadwalkanNotifikasiJatuhTempo(
           transaksi: transaksi,
@@ -103,7 +108,8 @@ void main() {
     test(
       '03. harus membatalkan notifikasi jatuh tempo dengan ID yang benar',
       () async {
-        const expectedId = 12345; // Ganti dengan ID yang benar
+        final expectedId =
+            generateId(transaksi.id, PenjadwalNotifikasi.tipeJatuhTempo);
 
         await penjadwalNotifikasi.batalNotifikasiJatuhTempo(transaksi.id);
 
@@ -117,7 +123,8 @@ void main() {
       '04. harus menjadwalkan notifikasi jika tanggal mulai tidak null',
       () async {
         final jadwal = transaksi.tanggalMulai!;
-        const expectedId = 54321; // Ganti dengan ID yang benar
+        final expectedId =
+            generateId(transaksi.id, PenjadwalNotifikasi.tipeAktivasi);
 
         await penjadwalNotifikasi.jadwalkanNotifikasiPembayaran(
           transaksi: transaksi,
@@ -162,7 +169,8 @@ void main() {
     test(
       '06. harus membatalkan notifikasi pembayaran dengan ID yang benar',
       () async {
-        const expectedId = 54321; // Ganti dengan ID yang benar
+        final expectedId =
+            generateId(transaksi.id, PenjadwalNotifikasi.tipeAktivasi);
 
         await penjadwalNotifikasi.batalNotifikasiPembayaran(transaksi.id);
 

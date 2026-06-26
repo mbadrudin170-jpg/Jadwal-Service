@@ -1,6 +1,7 @@
 '''// path: test/fitur/settings/settings_model_test.dart
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 
@@ -102,7 +103,7 @@ void main() {
       'waktu_otomatis_hapus_data_arsip': 90,
       'mode_maintenance': true,
       'info_maintenance': 'Info',
-      'diperbarui_pada': now.toIso8601String(),
+      'diperbarui_pada': Timestamp.fromDate(now),
     };
 
     test('01. fromFirebaseMap harus membuat instance yang benar', () {
@@ -129,6 +130,7 @@ void main() {
       expect(resultMap['waktu_otomatis_sinkronisasi'], 60);
       expect(resultMap['mode_maintenance'], true);
       expect(resultMap['info_maintenance'], 'Info');
+      expect(resultMap['diperbarui_pada'], isA<Timestamp>());
     });
   });
 }

@@ -87,19 +87,19 @@ void main() {
     });
 
     test(
-      '04. sisipkanAtauPerbaruiBatch harus memanggil baseOpSqlite.sisipkanAtauPerbaruiBatch',
+      '04. sisipkanAtauPerbaruiBanyak harus memanggil baseOpSqlite.sisipkanAtauPerbaruiBanyak',
       () async {
         when(
-          mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+          mockBaseOpSqlite.sisipkanAtauPerbaruiBanyak(
             namaTabel,
             any,
           ),
         ).thenAnswer((_) async => []);
 
-        await feedbackOpSqlite.sisipkanAtauPerbaruiBatch([feedback]);
+        await feedbackOpSqlite.sisipkanAtauPerbaruiBanyak([feedback]);
 
         verify(
-          mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+          mockBaseOpSqlite.sisipkanAtauPerbaruiBanyak(
             namaTabel,
             argThat(isA<List<Map<String, dynamic>>>()),
           ),
@@ -108,12 +108,12 @@ void main() {
     );
 
     test(
-      '05. sisipkanAtauPerbaruiBatch tidak melakukan apa-apa jika list kosong',
+      '05. sisipkanAtauPerbaruiBanyak tidak melakukan apa-apa jika list kosong',
       () async {
-        await feedbackOpSqlite.sisipkanAtauPerbaruiBatch([]);
+        await feedbackOpSqlite.sisipkanAtauPerbaruiBanyak([]);
 
         verifyNever(
-          mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+          mockBaseOpSqlite.sisipkanAtauPerbaruiBanyak(
             any,
             any,
           ),
@@ -199,14 +199,14 @@ void main() {
 
         final result = await feedbackOpSqlite.ambilBerdasarkanId('fb1');
 
-        expect(result.id, 'fb1');
+        expect(result?.id, 'fb1');
         verify(
           mockDb.query(namaTabel, where: 'id = ?', whereArgs: ['fb1']),
         ).called(1);
       },
     );
 
-    test('10. getById harus melempar Exception jika tidak ditemukan', () async {
+    test('10. getById harus mengembalikan null jika tidak ditemukan', () async {
       when(
         mockDb.query(
           any,
@@ -215,10 +215,9 @@ void main() {
         ),
       ).thenAnswer((_) async => []); // List kosong
 
-      expect(
-        () => feedbackOpSqlite.ambilBerdasarkanId('tidak-ada'),
-        throwsA(isA<Exception>()),
-      );
+      final result = await feedbackOpSqlite.ambilBerdasarkanId('tidak-ada');
+
+      expect(result, isNull);
     });
 
     test(
