@@ -48,7 +48,8 @@ class LayananPenyimpananLokal {
 
   Future<void> simpanAkun(PelangganModel pelanggan) async {
     Log.info(
-        '[Simpan Akun] Menyimpan atau memperbarui akun: ${pelanggan.nama}.');
+      '[Simpan Akun] Menyimpan atau memperbarui akun: ${pelanggan.nama}.',
+    );
     final daftarAkunJson = prefs.getString(_kunciDaftarAkun);
     final List<dynamic> daftarAkun = daftarAkunJson != null
         ? jsonDecode(daftarAkunJson) as List<dynamic>
@@ -71,7 +72,8 @@ class LayananPenyimpananLokal {
 
   Future<void> simpanAkunSaatIni(PelangganModel pelanggan) async {
     Log.info(
-        '[Simpan Akun Aktif] Mengatur ${pelanggan.nama} sebagai akun aktif.');
+      '[Simpan Akun Aktif] Mengatur ${pelanggan.nama} sebagai akun aktif.',
+    );
     await hapusTokenLogin();
     await prefs.setString(_kunciIdPengguna, pelanggan.id);
     await simpanAkun(pelanggan);
@@ -82,7 +84,8 @@ class LayananPenyimpananLokal {
 
   Future<List<PelangganModel>> ambilDaftarAkun() async {
     Log.info(
-        '[Ambil Daftar Akun] Mengambil semua akun dari penyimpanan lokal.');
+      '[Ambil Daftar Akun] Mengambil semua akun dari penyimpanan lokal.',
+    );
     final daftarAkunJson = prefs.getString(_kunciDaftarAkun);
     if (daftarAkunJson == null) {
       Log.warning('[Ambil Daftar Akun] Tidak ada daftar akun ditemukan.');
@@ -111,8 +114,9 @@ class LayananPenyimpananLokal {
     final List<dynamic> daftarAkun =
         jsonDecode(daftarAkunJson) as List<dynamic>;
     final int hitungSebelum = daftarAkun.length;
-    daftarAkun
-        .removeWhere((p) => (p as Map<String, dynamic>)['id'] == idPengguna);
+    daftarAkun.removeWhere(
+      (p) => (p as Map<String, dynamic>)['id'] == idPengguna,
+    );
     final int hitungSesudah = daftarAkun.length;
     if (hitungSebelum > hitungSesudah) {
       await prefs.setString(_kunciDaftarAkun, jsonEncode(daftarAkun));
@@ -159,11 +163,9 @@ class LayananPenyimpananLokal {
     final List<dynamic> daftarAkun =
         jsonDecode(daftarAkunJson) as List<dynamic>;
     try {
-      final Map<String, dynamic> akunJson =
-          daftarAkun.cast<Map<String, dynamic>>().firstWhere(
-                (p) => p['id'] == idPengguna,
-                orElse: () => {},
-              );
+      final Map<String, dynamic> akunJson = daftarAkun
+          .cast<Map<String, dynamic>>()
+          .firstWhere((p) => p['id'] == idPengguna, orElse: () => {});
       if (akunJson.isEmpty) {
         Log.warning(
           '[Ambil Akun Saat Ini] Akun dengan ID $idPengguna tidak ada di daftar riwayat lokal.',
