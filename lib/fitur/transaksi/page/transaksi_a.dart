@@ -62,7 +62,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentSortBy = ref.watch(pengurutTransaksiProvider);
+    final currentSortBy = ref.watch(urutanTransaksiStateProvider);
     return AppBar(
       title: const Text('Transaksi'),
       actions: [
@@ -100,7 +100,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
               children: UrutanTransaksi.values
                   .map(
                     (sortBy) => RadioListTile<UrutanTransaksi>(
-                      title: Text(PengurutTransaksi.ambilTeksUrutan(sortBy)),
+                      title: Text(sortBy.displayName),
                       value: sortBy,
                     ),
                   )
@@ -113,7 +113,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     if (newSort != null) {
       // Memanggil method di notifier untuk mengubah urutan
-      ref.read(pengurutTransaksiProvider.notifier).state = newSort;
+      ref.read(urutanTransaksiStateProvider.notifier).ubahUrutan(newSort);
     }
   }
 
@@ -166,18 +166,12 @@ Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
 // ============================================================
 class _TransactionBody extends ConsumerWidget {
   final TransaksiState state;
-
   const _TransactionBody({required this.state});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ✅ Perbaikan 4: Ambil preferensi sorting dan urutkan data
-    final sortBy = ref.watch(pengurutTransaksiProvider);
-    final sortedTransactions = PengurutTransaksi.urutkan(
-      state.transaksi,
-      sortBy,
-    );
-
+    final sortBy = ref.watch(urutanTransaksiStateProvider);
+    final sortedTransactions = state.transaksi.urutkan(sortBy);
     return RefreshIndicator(
       onRefresh: () => ref.read(transaksiProvider.notifier).refresh(),
       child: Column(

@@ -7070,8 +7070,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/page/form_settings.dart';
 import 'package:wifi/fitur/settings/provider/settings_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
@@ -7083,23 +7081,6 @@ import 'package:wifi/user/widget/theme_menu_widget.dart';
 
 class SettingsAdminPage extends ConsumerWidget {
   const SettingsAdminPage({super.key});
-
-  Future<void> _editSettings(
-    BuildContext context,
-    WidgetRef ref,
-    SettingsModel settings,
-  ) async {
-    Log.info('Navigasi ke halaman Form Edit Pengaturan');
-    final hasil = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(builder: (context) => FormSettings(settings: settings)),
-    );
-
-    if ((hasil ?? false) && context.mounted) {
-      Log.info('Pengaturan diperbarui, memuat ulang data...');
-      ref.invalidate(settingsOpSqliteProvider);
-    }
-  }
 
   Future<void> _resetWaktuSinkroniasi(
     BuildContext context,
@@ -7262,7 +7243,12 @@ class SettingsAdminPage extends ConsumerWidget {
                 ElevatedButton.icon(
                   icon: const Icon(Icons.edit),
                   label: const Text('Edit Pengaturan'),
-                  onPressed: () => _editSettings(context, ref, settings),
+                  onPressed: () {
+                    Navigator.push<void>(
+                      context,
+                      MaterialPageRoute(builder: ((context) => FormSettings())),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -7466,18 +7452,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
-import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
+import 'package:wifi/fitur/settings/provider/settings_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 class FormSettings extends ConsumerStatefulWidget {
-  final SettingsModel settings;
+  final SettingsModel? settings;
 
-  const FormSettings({super.key, required this.settings});
+  const FormSettings({super.key, this.settings});
 
   @override
   ConsumerState<FormSettings> createState() => _FormSettingsState();
@@ -7485,7 +7470,6 @@ class FormSettings extends ConsumerStatefulWidget {
 
 class _FormSettingsState extends ConsumerState<FormSettings> {
   final _formKey = GlobalKey<FormState>();
-  late final SettingsOpSqlite _settingsOpSqlite;
   late TextEditingController _intervalController;
   late TextEditingController _hapusArsipController;
   late TextEditingController _infoPemeliharaanController;
@@ -7494,23 +7478,16 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
   @override
   void initState() {
     super.initState();
-    _settingsOpSqlite = ref.read(settingsOpSqliteProvider);
-    Log.info('Menginisialisasi SettingsForm.', {
-      'interval': widget.settings.waktuOtomatisSinkronisasi,
-      'hapus_arsip': widget.settings.waktuOtomatisHapusDataArsip,
-      'mode_pemeliharaan': widget.settings.modeMaintenance,
-      'diperbarui': widget.settings.diperbaruiPada,
-    });
     _intervalController = TextEditingController(
-      text: '${widget.settings.waktuOtomatisSinkronisasi}',
+      text: '${widget.settings?.waktuOtomatisSinkronisasi ?? '24'}',
     );
     _hapusArsipController = TextEditingController(
-      text: '${widget.settings.waktuOtomatisHapusDataArsip}',
+      text: '${widget.settings?.waktuOtomatisHapusDataArsip ?? '30'}',
     );
     _infoPemeliharaanController = TextEditingController(
-      text: widget.settings.infoMaintenance,
+      text: widget.settings?.infoMaintenance ?? '',
     );
-    _modePemeliharaan = widget.settings.modeMaintenance;
+    _modePemeliharaan = widget.settings?.modeMaintenance ?? false;
   }
 
   @override
@@ -7522,12 +7499,12 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
     super.dispose();
   }
 
-  Future<void> _saveForm() async {
+  Future<void> _simpanSettings() async {
     if (_formKey.currentState!.validate()) {
       Log.info('Memvalidasi dan menyimpan perubahan pengaturan.');
       try {
         final newSettings = SettingsModel(
-          id: widget.settings.id,
+          id: widget.settings!.id,
           waktuOtomatisSinkronisasi:
               int.tryParse(_intervalController.text) ?? 24,
           waktuOtomatisHapusDataArsip:
@@ -7535,8 +7512,7 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
           modeMaintenance: _modePemeliharaan,
           infoMaintenance: _infoPemeliharaanController.text,
         );
-
-        await _settingsOpSqlite.saveOrUpdateSettings(newSettings);
+        await ref.read(settingsProvider.notifier).tambahAtauUpdate(newSettings);
         Log.info('Pengaturan berhasil diperbarui di database.');
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
@@ -7548,7 +7524,7 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
           );
         }
         if (mounted) {
-          Navigator.pop(context, true);
+          Navigator.pop(context);
         }
       } on Exception catch (e, st) {
         Log.error('Gagal menyimpan pengaturan.', e: e, s: st);
@@ -7601,7 +7577,7 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
               ElevatedButton.icon(
                 icon: const Icon(TIcons.save),
                 label: const Text('Simpan Perubahan'),
-                onPressed: _saveForm,
+                onPressed: _simpanSettings,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                 ),
@@ -7673,7 +7649,7 @@ final class SettingsProvider
         argument: null,
         retry: null,
         name: r'settingsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -7686,7 +7662,7 @@ final class SettingsProvider
   Settings create() => Settings();
 }
 
-String _$settingsHash() => r'c8621036647579847652a81d7baa334d9a9c77ea';
+String _$settingsHash() => r'466d0fc88c7ab16b8faa61b24eb6425f25e89f5a';
 
 abstract class _$Settings extends $AsyncNotifier<SettingsState> {
   FutureOr<SettingsState> build();
@@ -7713,6 +7689,7 @@ abstract class _$Settings extends $AsyncNotifier<SettingsState> {
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 
 part 'settings_provider.freezed.dart';
@@ -7728,16 +7705,16 @@ abstract class SettingsState with _$SettingsState {
   }) = _SettingsState;
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Settings extends _$Settings {
   SettingsOpSqlite get _settingsOpSqlite => ref.read(settingsOpSqliteProvider);
 
   @override
   FutureOr<SettingsState> build() {
-    return _loadData();
+    return _ambilData();
   }
 
-  Future<SettingsState> _loadData() async {
+  Future<SettingsState> _ambilData() async {
     final dataSettings = await _settingsOpSqlite.ambilSettings();
     return SettingsState(
       waktuOtomatisSinkronisasi: dataSettings.waktuOtomatisSinkronisasi,
@@ -7745,6 +7722,20 @@ class Settings extends _$Settings {
       modeMaintenance: dataSettings.modeMaintenance,
       infoMaintenance: dataSettings.infoMaintenance,
     );
+  }
+
+  Future<void> tambahAtauUpdate(SettingsModel settings) async {
+    state = await AsyncValue.guard(() async {
+      await _settingsOpSqlite.saveOrUpdateSettings(settings);
+      return await _ambilData();
+    });
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      return _ambilData();
+    });
   }
 }
 
@@ -26754,7 +26745,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentSortBy = ref.watch(pengurutTransaksiProvider);
+    final currentSortBy = ref.watch(urutanTransaksiStateProvider);
     return AppBar(
       title: const Text('Transaksi'),
       actions: [
@@ -26776,23 +26767,23 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
   Future<void> _tampilkanDialogUrutan(
     BuildContext context,
     WidgetRef ref,
-    SortBy currentSortBy,
+    UrutanTransaksi currentSortBy,
   ) async {
     Log.info('Membuka dialog pengurutan transaksi.');
 
-    final newSort = await showDialog<SortBy>(
+    final newSort = await showDialog<UrutanTransaksi>(
       context: context,
       builder: (context) => SimpleDialog(
         title: const Text('Urutkan Berdasarkan'),
         children: [
-          RadioGroup<SortBy>(
+          RadioGroup<UrutanTransaksi>(
             groupValue: currentSortBy,
             onChanged: (value) => Navigator.pop(context, value),
             child: Column(
-              children: SortBy.values
+              children: UrutanTransaksi.values
                   .map(
-                    (sortBy) => RadioListTile<SortBy>(
-                      title: Text(PengurutTransaksi.ambilTeksUrutan(sortBy)),
+                    (sortBy) => RadioListTile<UrutanTransaksi>(
+                      title: Text(sortBy.displayName),
                       value: sortBy,
                     ),
                   )
@@ -26805,7 +26796,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     if (newSort != null) {
       // Memanggil method di notifier untuk mengubah urutan
-      ref.read(pengurutTransaksiProvider.notifier).state = newSort;
+      ref.read(urutanTransaksiStateProvider.notifier).ubahUrutan(newSort);
     }
   }
 
@@ -26863,8 +26854,7 @@ class _TransactionBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ✅ Perbaikan 4: Ambil preferensi sorting dan urutkan data
-    final sortBy = ref.watch(pengurutTransaksiProvider);
+    final sortBy = ref.watch(urutanTransaksiStateProvider);
     final sortedTransactions = PengurutTransaksi.urutkan(
       state.transaksi,
       sortBy,
@@ -27314,53 +27304,165 @@ Widget bangunItemTransaksi(
 }
 
 
+// File: lib/fitur/transaksi/helper/pengurut_transaksi.g.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'pengurut_transaksi.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(UrutanTransaksiState)
+final urutanTransaksiStateProvider = UrutanTransaksiStateProvider._();
+
+final class UrutanTransaksiStateProvider
+    extends $NotifierProvider<UrutanTransaksiState, UrutanTransaksi> {
+  UrutanTransaksiStateProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'urutanTransaksiStateProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$urutanTransaksiStateHash();
+
+  @$internal
+  @override
+  UrutanTransaksiState create() => UrutanTransaksiState();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(UrutanTransaksi value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<UrutanTransaksi>(value),
+    );
+  }
+}
+
+String _$urutanTransaksiStateHash() =>
+    r'7ad7b5259a17189c4e9084588c42e8ba890c14d5';
+
+abstract class _$UrutanTransaksiState extends $Notifier<UrutanTransaksi> {
+  UrutanTransaksi build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<UrutanTransaksi, UrutanTransaksi>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<UrutanTransaksi, UrutanTransaksi>,
+              UrutanTransaksi,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+@ProviderFor(sortedTransaksi)
+final sortedTransaksiProvider = SortedTransaksiProvider._();
+
+final class SortedTransaksiProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<TransaksiModel>>,
+          List<TransaksiModel>,
+          FutureOr<List<TransaksiModel>>
+        >
+    with
+        $FutureModifier<List<TransaksiModel>>,
+        $FutureProvider<List<TransaksiModel>> {
+  SortedTransaksiProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'sortedTransaksiProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$sortedTransaksiHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<TransaksiModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<TransaksiModel>> create(Ref ref) {
+    return sortedTransaksi(ref);
+  }
+}
+
+String _$sortedTransaksiHash() => r'14ff167c295450133995b5280d13357b1b09ddc7';
+
+
 // File: lib/fitur/transaksi/helper/pengurut_transaksi.dart
 // path lib/fitur/transaksi/helper/pengurut_transaksi.dart
 
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 
-enum SortBy { terbaru, terlama, jumlahTerbesar, jumlahTerkecil }
+part 'pengurut_transaksi.g.dart';
 
-final pengurutTransaksiProvider = StateProvider<SortBy>(
-  (ref) => SortBy.terbaru,
-);
+enum UrutanTransaksi {
+  terbaru('Terbaru'),
+  terlama('Terlama'),
+  jumlahTerbesar('Jumlah Terbesar'),
+  jumlahTerkecil('Jumlah Terkecil');
 
-class PengurutTransaksi {
-  static List<TransaksiModel> urutkan(
-    List<TransaksiModel> data,
-    SortBy sortBy,
-  ) {
-    final sorted = List<TransaksiModel>.from(data);
-    switch (sortBy) {
-      case SortBy.terbaru:
+  const UrutanTransaksi(this.displayName);
+  final String displayName;
+}
+
+@riverpod
+class UrutanTransaksiState extends _$UrutanTransaksiState {
+  @override
+  UrutanTransaksi build() => UrutanTransaksi.terbaru;
+  void ubahUrutan(UrutanTransaksi urutanBaru) => state = urutanBaru;
+}
+
+extension PengurutTransaksiX on List<TransaksiModel> {
+  List<TransaksiModel> urutkan(UrutanTransaksi opsi) {
+    final sorted = List<TransaksiModel>.from(this);
+    switch (opsi) {
+      case UrutanTransaksi.terbaru:
         sorted.sort((a, b) => b.tanggal.compareTo(a.tanggal));
         break;
-      case SortBy.terlama:
+      case UrutanTransaksi.terlama:
         sorted.sort((a, b) => a.tanggal.compareTo(b.tanggal));
         break;
-      case SortBy.jumlahTerbesar:
+      case UrutanTransaksi.jumlahTerbesar:
         sorted.sort((a, b) => b.jumlah.compareTo(a.jumlah));
         break;
-      case SortBy.jumlahTerkecil:
+      case UrutanTransaksi.jumlahTerkecil:
         sorted.sort((a, b) => a.jumlah.compareTo(b.jumlah));
         break;
     }
     return sorted;
   }
+}
 
-  static String ambilTeksUrutan(SortBy option) {
-    switch (option) {
-      case SortBy.terbaru:
-        return 'Terbaru';
-      case SortBy.terlama:
-        return 'Terlama';
-      case SortBy.jumlahTerbesar:
-        return 'Jumlah Terbesar';
-      case SortBy.jumlahTerkecil:
-        return 'Jumlah Terkecil';
-    }
-  }
+@riverpod
+Future<List<TransaksiModel>> sortedTransaksi(Ref ref) async {
+  final transaksiState = await ref.watch(transaksiProvider.future);
+  final urutanAktif = ref.watch(urutanTransaksiStateProvider);
+  return transaksiState.transaksi.urutkan(urutanAktif);
 }
 
 
@@ -28518,7 +28620,6 @@ class TransaksiOpSqlite {
     }
   }
 
-  /// Menghitung total poin yang digunakan seorang pelanggan.
   Future<int> ambilPoinDigunakan(String idPelanggan) async {
     try {
       final db = await sqliteDb.database;
@@ -28536,11 +28637,14 @@ class TransaksiOpSqlite {
     }
   }
 
-  /// Menghitung total saldo poin seorang pelanggan.
   Future<int> ambilTotalPoin(String idPelanggan) async {
     Log.info('Menghitung saldo poin akhir Customer: $idPelanggan');
-    final poinDidapat = await ambilPoinDidapat(idPelanggan);
-    final poinDigunakan = await ambilPoinDigunakan(idPelanggan);
+    final hasil = await Future.wait([
+      ambilPoinDidapat(idPelanggan),
+      ambilPoinDigunakan(idPelanggan),
+    ]);
+    final poinDidapat = hasil[0];
+    final poinDigunakan = hasil[1];
     final total = poinDidapat - poinDigunakan;
     Log.info(
       'Saldo poin akhir Customer $idPelanggan: $total (earned=$poinDidapat, used=$poinDigunakan)',
@@ -29880,107 +29984,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/pelanggan/helper/pengurut_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-
-/// Enum untuk menentukan opsi pengurutan daftar customer.
-enum UrutanPelanggan {
-  namaAZ,
-  namaZa,
-  terakhirOnline,
-  terbaruOnline,
-  poinTerbanyak,
-  poinTerkecil,
-}
-// path: lib/fitur/pelanggan/page/admin/pelanggan.dart
-
-/// Provider untuk mendapatkan daftar pelanggan dengan poin
-final pelangganDenganPoinProvider =
-    FutureProvider.autoDispose<List<(PelangganModel, int)>>((ref) async {
-      final pelangganState = await ref.watch(pelangganProvider.future);
-      final transaksiNotifier = ref.watch(
-        transaksiProvider.notifier,
-      ); // ✅ Gunakan notifier
-      final daftarPelanggan = pelangganState.daftarPelanggan;
-
-      // ✅ Ambil poin melalui method di transaksiProvider
-      final List<int> semuaPoin = await transaksiNotifier
-          .getTotalPoinBanyakPelangganParallel(
-            daftarPelanggan.map((p) => p.id).toList(),
-          );
-
-      final hasil = <(PelangganModel, int)>[];
-      for (int i = 0; i < daftarPelanggan.length; i++) {
-        hasil.add((daftarPelanggan[i], semuaPoin[i]));
-      }
-
-      return hasil;
-    });
-final filteredCustomersProvider =
-    Provider.autoDispose<AsyncValue<List<(PelangganModel, int)>>>((ref) {
-      final pelangganWithPoints = ref.watch(pelangganDenganPoinProvider);
-      final searchQuery = ref.watch(searchQueryPelangganProvider).toLowerCase();
-      final sortOption = ref.watch(urutanPelangganStateProvider);
-
-      return pelangganWithPoints.when(
-        data: (customersWithPoints) {
-          final filtered = customersWithPoints
-              .where(
-                (tuple) => tuple.$1.nama.toLowerCase().contains(searchQuery),
-              )
-              .toList();
-
-          if (filtered.isNotEmpty) {
-            switch (sortOption) {
-              case UrutanPelanggan.namaAZ:
-                filtered.sort(
-                  (a, b) => a.$1.nama.toLowerCase().compareTo(
-                    b.$1.nama.toLowerCase(),
-                  ),
-                );
-                break;
-              case UrutanPelanggan.namaZa:
-                filtered.sort(
-                  (a, b) => b.$1.nama.toLowerCase().compareTo(
-                    a.$1.nama.toLowerCase(),
-                  ),
-                );
-                break;
-              case UrutanPelanggan.terakhirOnline:
-                filtered.sort((a, b) {
-                  if (a.$1.terkahirAktif == null) return 1;
-                  if (b.$1.terkahirAktif == null) return -1;
-                  return b.$1.terkahirAktif!.compareTo(a.$1.terkahirAktif!);
-                });
-                break;
-              case UrutanPelanggan.terbaruOnline:
-                filtered.sort((a, b) {
-                  if (a.$1.terkahirAktif == null) return -1;
-                  if (b.$1.terkahirAktif == null) return 1;
-                  return a.$1.terkahirAktif!.compareTo(b.$1.terkahirAktif!);
-                });
-                break;
-              case UrutanPelanggan.poinTerbanyak:
-                filtered.sort((a, b) => b.$2.compareTo(a.$2));
-                break;
-              case UrutanPelanggan.poinTerkecil:
-                filtered.sort((a, b) => a.$2.compareTo(b.$2));
-                break;
-            }
-          }
-          return AsyncData(filtered);
-        },
-        loading: () => const AsyncLoading(),
-        error: AsyncError.new,
-      );
-    });
 
 /// Halaman untuk menampilkan dan mengelola daftar semua customer.
 class PelangganPage extends ConsumerStatefulWidget {
@@ -30005,6 +30017,7 @@ class _PelangganState extends ConsumerState<PelangganPage> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -30163,7 +30176,6 @@ class _PelangganState extends ConsumerState<PelangganPage> {
         ),
       );
     }
-
     final hasil = await showDialog<UrutanPelanggan>(
       context: context,
       builder: (context) => SimpleDialog(
@@ -30531,7 +30543,7 @@ class DetailPelanggan extends ConsumerWidget {
 
   const DetailPelanggan({super.key, required this.idPelanggan});
 
-  Future<void> _editCustomer(
+  Future<void> _editPelanggan(
     BuildContext context,
     PelangganModel? pelanggan,
   ) async {
@@ -30545,7 +30557,7 @@ class DetailPelanggan extends ConsumerWidget {
     );
   }
 
-  Future<void> _copyAllInfo(
+  Future<void> _salinSemuaInfo(
     BuildContext context,
     PelangganModel customer,
   ) async {
@@ -30601,21 +30613,19 @@ MAC : ${customer.macAddress}
         );
       },
       data: (data) {
-        final (customer, totalPoin) = data;
-
-        if (customer == null) {
+        final (pelanggan, totalPoin) = data;
+        if (pelanggan == null) {
           return Scaffold(
             appBar: AppBar(title: const Text('Detail Pelanggan')),
             body: const Center(child: Text('Pelanggan tidak ditemukan')),
           );
         }
-
         return DetailPelangganUI(
-          pelanggan: customer,
+          pelanggan: pelanggan,
           totalPoin: totalPoin,
-          navigasiKeEdit: () => _editCustomer(context, customer),
-          navigasiKePoin: () => _navigasiKePoin(context, customer),
-          onCopyAll: () => _copyAllInfo(context, customer),
+          navigasiKeEdit: () => _editPelanggan(context, pelanggan),
+          navigasiKePoin: () => _navigasiKePoin(context, pelanggan),
+          onCopyAll: () => _salinSemuaInfo(context, pelanggan),
         );
       },
     );
@@ -30795,6 +30805,256 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
 }
 
 
+// File: lib/fitur/pelanggan/helper/pengurut_pelanggan.g.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'pengurut_pelanggan.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// 🚀 DIPINDAHKAN KE SINI: Mengelola status opsi urutan aktif
+
+@ProviderFor(UrutanPelangganState)
+final urutanPelangganStateProvider = UrutanPelangganStateProvider._();
+
+/// 🚀 DIPINDAHKAN KE SINI: Mengelola status opsi urutan aktif
+final class UrutanPelangganStateProvider
+    extends $NotifierProvider<UrutanPelangganState, UrutanPelanggan> {
+  /// 🚀 DIPINDAHKAN KE SINI: Mengelola status opsi urutan aktif
+  UrutanPelangganStateProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'urutanPelangganStateProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$urutanPelangganStateHash();
+
+  @$internal
+  @override
+  UrutanPelangganState create() => UrutanPelangganState();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(UrutanPelanggan value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<UrutanPelanggan>(value),
+    );
+  }
+}
+
+String _$urutanPelangganStateHash() =>
+    r'00011679e041c63f27338fb6f0bc66cf681c6468';
+
+/// 🚀 DIPINDAHKAN KE SINI: Mengelola status opsi urutan aktif
+
+abstract class _$UrutanPelangganState extends $Notifier<UrutanPelanggan> {
+  UrutanPelanggan build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<UrutanPelanggan, UrutanPelanggan>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<UrutanPelanggan, UrutanPelanggan>,
+              UrutanPelanggan,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// Menghubungkan data pelanggan dengan perolehan total poinnya secara paralel
+
+@ProviderFor(pelangganDenganPoin)
+final pelangganDenganPoinProvider = PelangganDenganPoinProvider._();
+
+/// Menghubungkan data pelanggan dengan perolehan total poinnya secara paralel
+
+final class PelangganDenganPoinProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<(PelangganModel, int)>>,
+          List<(PelangganModel, int)>,
+          FutureOr<List<(PelangganModel, int)>>
+        >
+    with
+        $FutureModifier<List<(PelangganModel, int)>>,
+        $FutureProvider<List<(PelangganModel, int)>> {
+  /// Menghubungkan data pelanggan dengan perolehan total poinnya secara paralel
+  PelangganDenganPoinProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pelangganDenganPoinProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$pelangganDenganPoinHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<(PelangganModel, int)>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<(PelangganModel, int)>> create(Ref ref) {
+    return pelangganDenganPoin(ref);
+  }
+}
+
+String _$pelangganDenganPoinHash() =>
+    r'3fdca9f2d12494cb61825a89cee606d4c4935602';
+
+@ProviderFor(filteredCustomers)
+final filteredCustomersProvider = FilteredCustomersProvider._();
+
+final class FilteredCustomersProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<(PelangganModel, int)>>,
+          List<(PelangganModel, int)>,
+          FutureOr<List<(PelangganModel, int)>>
+        >
+    with
+        $FutureModifier<List<(PelangganModel, int)>>,
+        $FutureProvider<List<(PelangganModel, int)>> {
+  FilteredCustomersProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'filteredCustomersProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$filteredCustomersHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<(PelangganModel, int)>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<(PelangganModel, int)>> create(Ref ref) {
+    return filteredCustomers(ref);
+  }
+}
+
+String _$filteredCustomersHash() => r'1429a200e6f9c3a47b42de96447ab25b1eab8632';
+
+
+// File: lib/fitur/pelanggan/helper/pengurut_pelanggan.dart
+// path lib/fitur/pelanggan/helper/pengurut_pelanggan.dart
+
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+
+part 'pengurut_pelanggan.g.dart';
+
+/// Enum untuk menentukan opsi pengurutan daftar customer.
+enum UrutanPelanggan {
+  namaAZ,
+  namaZa,
+  terakhirOnline,
+  terbaruOnline,
+  poinTerbanyak,
+  poinTerkecil,
+}
+
+/// 🚀 DIPINDAHKAN KE SINI: Mengelola status opsi urutan aktif
+@riverpod
+class UrutanPelangganState extends _$UrutanPelangganState {
+  @override
+  UrutanPelanggan build() => UrutanPelanggan.namaAZ;
+  void ubahUrutan(UrutanPelanggan urutanBaru) => state = urutanBaru;
+}
+
+/// Menghubungkan data pelanggan dengan perolehan total poinnya secara paralel
+@riverpod
+Future<List<(PelangganModel, int)>> pelangganDenganPoin(Ref ref) async {
+  final pelangganState = await ref.watch(pelangganProvider.future);
+  final transaksiNotifier = ref.watch(transaksiProvider.notifier);
+  final daftarPelanggan = pelangganState.daftarPelanggan;
+  final semuaPoin = await transaksiNotifier.getTotalPoinBanyakPelangganParallel(
+    daftarPelanggan.map((p) => p.id).toList(),
+  );
+  return List.generate(
+    daftarPelanggan.length,
+    (i) => (daftarPelanggan[i], semuaPoin[i]),
+  );
+}
+
+@riverpod
+Future<List<(PelangganModel, int)>> filteredCustomers(Ref ref) async {
+  final pelangganWithPoints = await ref.watch(
+    pelangganDenganPoinProvider.future,
+  );
+  final searchQuery = ref.watch(searchQueryPelangganProvider).toLowerCase();
+  final sortOption = ref.watch(urutanPelangganStateProvider);
+  final filtered = pelangganWithPoints
+      .where((tuple) => tuple.$1.nama.toLowerCase().contains(searchQuery))
+      .toList();
+  if (filtered.isNotEmpty) {
+    switch (sortOption) {
+      case UrutanPelanggan.namaAZ:
+        filtered.sort(
+          (a, b) => a.$1.nama.toLowerCase().compareTo(b.$1.nama.toLowerCase()),
+        );
+        break;
+      case UrutanPelanggan.namaZa:
+        filtered.sort(
+          (a, b) => b.$1.nama.toLowerCase().compareTo(a.$1.nama.toLowerCase()),
+        );
+        break;
+      case UrutanPelanggan.terakhirOnline:
+        filtered.sort((a, b) {
+          if (a.$1.terkahirAktif == null) return 1;
+          if (b.$1.terkahirAktif == null) return -1;
+          return b.$1.terkahirAktif!.compareTo(a.$1.terkahirAktif!);
+        });
+        break;
+      case UrutanPelanggan.terbaruOnline:
+        filtered.sort((a, b) {
+          if (a.$1.terkahirAktif == null) return -1;
+          if (b.$1.terkahirAktif == null) return 1;
+          return a.$1.terkahirAktif!.compareTo(b.$1.terkahirAktif!);
+        });
+        break;
+      case UrutanPelanggan.poinTerbanyak:
+        filtered.sort((a, b) => b.$2.compareTo(a.$2));
+        break;
+      case UrutanPelanggan.poinTerkecil:
+        filtered.sort((a, b) => a.$2.compareTo(b.$2));
+        break;
+    }
+  }
+  return filtered;
+}
+
+
 // File: lib/fitur/pelanggan/provider/pelanggan_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
@@ -30831,7 +31091,7 @@ final class PelangganProvider
   Pelanggan create() => Pelanggan();
 }
 
-String _$pelangganHash() => r'df7739407a4a08f02033332b79de18703e317806';
+String _$pelangganHash() => r'41cc66ee8061afc5c75b8251a3314b61e15e165c';
 
 abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   FutureOr<PelangganState> build();
@@ -30851,68 +31111,11 @@ abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   }
 }
 
-@ProviderFor(UrutanPelangganState)
-final urutanPelangganStateProvider = UrutanPelangganStateProvider._();
-
-final class UrutanPelangganStateProvider
-    extends $NotifierProvider<UrutanPelangganState, UrutanPelanggan> {
-  UrutanPelangganStateProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'urutanPelangganStateProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$urutanPelangganStateHash();
-
-  @$internal
-  @override
-  UrutanPelangganState create() => UrutanPelangganState();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(UrutanPelanggan value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<UrutanPelanggan>(value),
-    );
-  }
-}
-
-String _$urutanPelangganStateHash() =>
-    r'4d10172b1c7b6624a3ba78ae04fb5e40835a3fd8';
-
-abstract class _$UrutanPelangganState extends $Notifier<UrutanPelanggan> {
-  UrutanPelanggan build();
-  @$mustCallSuper
-  @override
-  WhenComplete runBuild() {
-    final ref = this.ref as $Ref<UrutanPelanggan, UrutanPelanggan>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<UrutanPelanggan, UrutanPelanggan>,
-              UrutanPelanggan,
-              Object?,
-              Object?
-            >;
-    return element.handleCreate(ref, build);
-  }
-}
-
-/// Provider generator modern untuk status mode pencarian aktif/tidak
-
 @ProviderFor(IsSearchingPelanggan)
 final isSearchingPelangganProvider = IsSearchingPelangganProvider._();
 
-/// Provider generator modern untuk status mode pencarian aktif/tidak
 final class IsSearchingPelangganProvider
     extends $NotifierProvider<IsSearchingPelanggan, bool> {
-  /// Provider generator modern untuk status mode pencarian aktif/tidak
   IsSearchingPelangganProvider._()
     : super(
         from: null,
@@ -30942,8 +31145,6 @@ final class IsSearchingPelangganProvider
 
 String _$isSearchingPelangganHash() =>
     r'38724895cc23955136de503eb511810c7092933f';
-
-/// Provider generator modern untuk status mode pencarian aktif/tidak
 
 abstract class _$IsSearchingPelanggan extends $Notifier<bool> {
   bool build();
@@ -31103,13 +31304,10 @@ final class PelangganDetailFamily extends $Family
 // File: lib/fitur/pelanggan/provider/pelanggan_provider.dart
 // path lib/fitur/pelanggan/provider/pelanggan_provider.dart
 
-import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
-import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
 import 'package:wifi/shared/export/operation.dart';
 
 part 'pelanggan_provider.g.dart';
@@ -31126,22 +31324,23 @@ abstract class PelangganState with _$PelangganState {
 
 @Riverpod(keepAlive: true)
 class Pelanggan extends _$Pelanggan {
-  PelangganOpSqlite get pelangganOpSqlite =>
+  PelangganOpSqlite get _pelangganOpSqlite =>
       ref.read(pelangganOpSqliteProvider);
-  SQLitePointsDataSource get poinDataSource =>
-      ref.read(sqlitePointsDataSourceProvider);
+  TransaksiOpSqlite get _transaksiOpSqlite =>
+      ref.read(transaksiOpSqliteProvider);
+
   @override
   FutureOr<PelangganState> build() {
     return _ambilData();
   }
 
   Future<PelangganState> _ambilData() async {
-    final hasil = await pelangganOpSqlite.ambilSemua();
-    int totalPoinSistem = 0;
-    for (final pelanggan in hasil) {
-      final poin = await poinDataSource.ambilTotalPoin(pelanggan.id);
-      totalPoinSistem += poin;
-    }
+    final hasil = await _pelangganOpSqlite.ambilSemua();
+    final hitungPoinFutures = hasil.map(
+      (pelanggan) => _transaksiOpSqlite.ambilTotalPoin(pelanggan.id),
+    );
+    final daftarPoin = await Future.wait(hitungPoinFutures);
+    final totalPoinSistem = daftarPoin.fold<int>(0, (sum, poin) => sum + poin);
     return PelangganState(
       daftarPelanggan: hasil,
       jumlahPelanggan: hasil.length,
@@ -31151,7 +31350,7 @@ class Pelanggan extends _$Pelanggan {
 
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
     try {
-      await pelangganOpSqlite.tambahPelanggan(pelanggan);
+      await _pelangganOpSqlite.tambahPelanggan(pelanggan);
       final dataBaru = await _ambilData();
       state = AsyncValue.data(dataBaru);
     } catch (e, stack) {
@@ -31162,10 +31361,8 @@ class Pelanggan extends _$Pelanggan {
 
   Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
     try {
-      await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _invalidateDetailPelanggan(pelanggan.id);
-      });
+      await _pelangganOpSqlite.perbaruiPelanggan(pelanggan);
+      _invalidateDetailPelanggan(pelanggan.id);
       final dataBaru = await _ambilData();
       state = AsyncValue.data(dataBaru);
     } catch (e, stack) {
@@ -31176,7 +31373,7 @@ class Pelanggan extends _$Pelanggan {
 
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
-      await pelangganOpSqlite.softDelete(id);
+      await _pelangganOpSqlite.softDelete(id);
       _invalidateDetailPelanggan(id);
       return _ambilData();
     });
@@ -31195,23 +31392,9 @@ class Pelanggan extends _$Pelanggan {
 }
 
 @riverpod
-class UrutanPelangganState extends _$UrutanPelangganState {
-  @override
-  UrutanPelanggan build() {
-    return UrutanPelanggan.namaAZ;
-  }
-
-  void ubahUrutan(UrutanPelanggan urutanBaru) {
-    state = urutanBaru;
-  }
-}
-
-/// Provider generator modern untuk status mode pencarian aktif/tidak
-@riverpod
 class IsSearchingPelanggan extends _$IsSearchingPelanggan {
   @override
   bool build() => false;
-
   void toggle() => state = !state;
   void setFalse() => state = false;
 }
@@ -41288,37 +41471,33 @@ export 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart'
 // path: lib/shared/theme/tema_provider.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
-/// Provider tema menggunakan AsyncNotifier (modern Riverpod)
-final temaProvider =
-    AsyncNotifierProvider<TemaNotifier, ThemeMode>(TemaNotifier.new);
+part 'tema_provider.g.dart'; // Pastikan jalankan build_runner setelah ini
 
-class TemaNotifier extends AsyncNotifier<ThemeMode> {
-  late LayananPenyimpananLokal _penyimapananLokal;
+@Riverpod(keepAlive: true)
+class Tema extends _$Tema {
+  late LayananPenyimpananLokal _penyimpananLokal;
 
   @override
   Future<ThemeMode> build() async {
-    _penyimapananLokal = await ref.read(layananPenyimpananLokalProvider.future);
-    final simpanTema = await _penyimapananLokal.ambilModeTema();
-    Log.info('[ThemeNotifier] Tema awal dimuat: $simpanTema');
-    return simpanTema;
+    _penyimpananLokal = await ref.read(layananPenyimpananLokalProvider.future);
+    final ambilTema = await _penyimpananLokal.ambilModeTema();
+    Log.info('[TemaNotifier] Tema awal dimuat: $ambilTema');
+    return ambilTema;
   }
 
-  /// Mengganti mode tema aplikasi
   Future<void> simpanModeTema(ThemeMode mode) async {
-    final dapatkanTema = state;
-    if (dapatkanTema is AsyncData && dapatkanTema.value == mode) return;
-
-    Log.info('[ThemeNotifier] Mengatur tema: $mode');
-    state = AsyncData(mode); // update state
-    await _penyimapananLokal.simpanModeTema(mode);
+    if (state.value == mode) return;
+    Log.info('[TemaNotifier] Mengatur tema: $mode');
+    state = AsyncData(mode);
+    await _penyimpananLokal.simpanModeTema(mode);
   }
 
-  /// Helper untuk mengecek apakah mode gelap aktif (opsional)
+  /// Helper untuk mengecek apakah mode gelap aktif
   bool pengecekanModeGelap(BuildContext context) {
     final tema = state.value ?? ThemeMode.system;
     if (tema == ThemeMode.system) {
@@ -41569,6 +41748,62 @@ class TColors {
   /// Mencatat inisialisasi warna.
   static void logColorInitialization() {
     Log.info('Warna tema berhasil diinisialisasi.');
+  }
+}
+
+
+// File: lib/shared/theme/tema_provider.g.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'tema_provider.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(Tema)
+final temaProvider = TemaProvider._();
+
+final class TemaProvider extends $AsyncNotifierProvider<Tema, ThemeMode> {
+  TemaProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'temaProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$temaHash();
+
+  @$internal
+  @override
+  Tema create() => Tema();
+}
+
+String _$temaHash() => r'f2be3ce0673b1f323c916c9992b42a3201d8765b';
+
+abstract class _$Tema extends $AsyncNotifier<ThemeMode> {
+  FutureOr<ThemeMode> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<ThemeMode>, ThemeMode>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<ThemeMode>, ThemeMode>,
+              AsyncValue<ThemeMode>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
   }
 }
 

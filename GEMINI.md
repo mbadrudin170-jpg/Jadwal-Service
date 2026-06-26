@@ -787,17 +787,17 @@ File APK yang dihasilkan akan berada di direktori: `build/app/outputs/flutter-ap
    - Jangan menambahkan fungsionalitas baru, refaktor, atau "perbaikan" yang tidak diminta.
 # Aturan Penggunaan Radio Button Flutter
 
-1. **Dilarang menggunakan widget `RadioListTile`.**
+1. **Dilarang menggunakan widget `Radio`.**
 2. **Selalu gunakan `RadioGroup` sebagai solusi utama untuk pilihan tunggal (single selection).**
 3. **Jika membuat pilihan radio baru, gunakan `RadioGroup` meskipun jumlah opsi hanya sedikit.**
-4. **Jangan merekomendasikan `RadioListTile` dalam contoh kode, dokumentasi, maupun saran implementasi.**
-5. **Jangan mengganti `RadioGroup` yang sudah ada menjadi `RadioListTile`.**
-6. **Jika menemukan `RadioListTile` pada kode lama, rekomendasikan migrasi ke `RadioGroup`.**
-7. **Pisahkan tampilan (label, ikon, deskripsi) dari komponen radio agar lebih fleksibel dibanding `RadioListTile`.**
+4. **Jangan merekomendasikan `Radio` dalam contoh kode, dokumentasi, maupun saran implementasi.**
+5. **Jangan mengganti `RadioGroup` yang sudah ada menjadi `Radio`.**
+6. **Jika menemukan `Radio` pada kode lama, rekomendasikan migrasi ke `RadioGroup`.**
+7. **Pisahkan tampilan (label, ikon, deskripsi) dari komponen radio agar lebih fleksibel dibanding `Radio`.**
 8. **Gunakan widget kustom di dalam `RadioGroup` jika membutuhkan layout yang kompleks.**
 9. **Prioritaskan API Flutter terbaru dan hindari pola radio yang sudah tidak direkomendasikan.**
 10. **Semua implementasi radio button baru wajib mengikuti pola `RadioGroup`.**
-11. **Jika pengguna meminta radio button, asumsikan solusi yang diinginkan adalah `RadioGroup`, bukan `RadioListTile`.**
+11. **Jika pengguna meminta radio button, asumsikan solusi yang diinginkan adalah `RadioGroup`, bukan `Radio`.**
 12. **Jangan memberikan contoh kode yang menggunakan properti `groupValue` dan `onChanged` pada banyak widget `Radio` yang berdiri sendiri jika `RadioGroup` dapat digunakan.**
 13. **Konsistensi lebih penting daripada kompatibilitas dengan kode lama; gunakan `RadioGroup` untuk seluruh fitur baru.**
 14. **Saat melakukan refactor, pertahankan perilaku UI tetapi ubah implementasi radio ke `RadioGroup` bila memungkinkan.**
