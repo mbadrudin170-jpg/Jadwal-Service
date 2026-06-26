@@ -367,7 +367,7 @@ class _InfoItem extends StatelessWidget {
     this.trailingIcon,
     this.onTap,
   });
-
+  
   @override
   Widget build(BuildContext context) {
     final Widget content = Padding(

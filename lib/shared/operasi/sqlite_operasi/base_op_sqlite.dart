@@ -106,7 +106,6 @@ class BaseOpSqlite {
     return await _runInTransaction(customAction, dariServer: dariServer);
   }
 
-  /// Menyisipkan data baru ke dalam [table].
   Future<void> sisipkan(
     final String table,
     final Map<String, dynamic> data, {
@@ -134,7 +133,6 @@ class BaseOpSqlite {
     }
   }
 
-  /// Memperbarui data di [table] berdasarkan [id].
   Future<void> update(
     final String table,
     final Map<String, dynamic> data,
@@ -174,7 +172,6 @@ class BaseOpSqlite {
     }
   }
 
-  /// Menghapus data dari [table] berdasarkan [id].
   Future<void> delete(
     String table,
     String id, {
