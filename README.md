@@ -7073,17 +7073,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/page/form_settings.dart';
+import 'package:wifi/fitur/settings/provider/settings_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
-
-final settingsProvider = FutureProvider<SettingsModel>((ref) async {
-  final settingsOp = ref.read(settingsOpSqliteProvider);
-  return await settingsOp.ambilSettings();
-});
 
 class SettingsAdminPage extends ConsumerWidget {
   const SettingsAdminPage({super.key});
@@ -7133,7 +7129,9 @@ class SettingsAdminPage extends ConsumerWidget {
     if ((konfirmasi ?? false) && context.mounted) {
       try {
         await ref.read(pengelolaSinkronisasiProvider).resetWaktuSinkronisasi();
-        unawaited(ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi());
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
         if (context.mounted) {
           ToastUtil.success(context, 'Waktu sinkronisasi berhasil di-reset.');
         }
@@ -7148,12 +7146,11 @@ class SettingsAdminPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Log.info('Membangun UI halaman Pengaturan Aplikasi');
-    final settingsAsyncValue = ref.watch(settingsProvider);
+    final settingsAsync = ref.watch(settingsProvider);
     final tema = ref.watch(temaProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Pengaturan Aplikasi')),
-      body: settingsAsyncValue.when(
+      body: settingsAsync.when(
         data: (settings) {
           Log.info('Data pengaturan tersedia, menampilkan detail.');
           return Padding(
@@ -7651,6 +7648,388 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
     );
   }
 }
+
+
+// File: lib/fitur/settings/provider/settings_provider.g.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'settings_provider.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(Settings)
+final settingsProvider = SettingsProvider._();
+
+final class SettingsProvider
+    extends $AsyncNotifierProvider<Settings, SettingsState> {
+  SettingsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'settingsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$settingsHash();
+
+  @$internal
+  @override
+  Settings create() => Settings();
+}
+
+String _$settingsHash() => r'c8621036647579847652a81d7baa334d9a9c77ea';
+
+abstract class _$Settings extends $AsyncNotifier<SettingsState> {
+  FutureOr<SettingsState> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<SettingsState>, SettingsState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<SettingsState>, SettingsState>,
+              AsyncValue<SettingsState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+
+// File: lib/fitur/settings/provider/settings_provider.dart
+// path lib/fitur/settings/provider/setting_provider.dart
+
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
+
+part 'settings_provider.freezed.dart';
+part 'settings_provider.g.dart';
+
+@freezed
+abstract class SettingsState with _$SettingsState {
+  const factory SettingsState({
+    required int waktuOtomatisSinkronisasi,
+    required int waktuOtomatisHapusDataArsip,
+    required bool modeMaintenance,
+    required String infoMaintenance,
+  }) = _SettingsState;
+}
+
+@riverpod
+class Settings extends _$Settings {
+  SettingsOpSqlite get _settingsOpSqlite => ref.read(settingsOpSqliteProvider);
+
+  @override
+  FutureOr<SettingsState> build() {
+    return _loadData();
+  }
+
+  Future<SettingsState> _loadData() async {
+    final dataSettings = await _settingsOpSqlite.ambilSettings();
+    return SettingsState(
+      waktuOtomatisSinkronisasi: dataSettings.waktuOtomatisSinkronisasi,
+      waktuOtomatisHapusDataArsip: dataSettings.waktuOtomatisHapusDataArsip,
+      modeMaintenance: dataSettings.modeMaintenance,
+      infoMaintenance: dataSettings.infoMaintenance,
+    );
+  }
+}
+
+
+// File: lib/fitur/settings/provider/settings_provider.freezed.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'settings_provider.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$SettingsState {
+
+ int get waktuOtomatisSinkronisasi; int get waktuOtomatisHapusDataArsip; bool get modeMaintenance; String get infoMaintenance;
+/// Create a copy of SettingsState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SettingsStateCopyWith<SettingsState> get copyWith => _$SettingsStateCopyWithImpl<SettingsState>(this as SettingsState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SettingsState&&(identical(other.waktuOtomatisSinkronisasi, waktuOtomatisSinkronisasi) || other.waktuOtomatisSinkronisasi == waktuOtomatisSinkronisasi)&&(identical(other.waktuOtomatisHapusDataArsip, waktuOtomatisHapusDataArsip) || other.waktuOtomatisHapusDataArsip == waktuOtomatisHapusDataArsip)&&(identical(other.modeMaintenance, modeMaintenance) || other.modeMaintenance == modeMaintenance)&&(identical(other.infoMaintenance, infoMaintenance) || other.infoMaintenance == infoMaintenance));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,waktuOtomatisSinkronisasi,waktuOtomatisHapusDataArsip,modeMaintenance,infoMaintenance);
+
+@override
+String toString() {
+  return 'SettingsState(waktuOtomatisSinkronisasi: $waktuOtomatisSinkronisasi, waktuOtomatisHapusDataArsip: $waktuOtomatisHapusDataArsip, modeMaintenance: $modeMaintenance, infoMaintenance: $infoMaintenance)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SettingsStateCopyWith<$Res>  {
+  factory $SettingsStateCopyWith(SettingsState value, $Res Function(SettingsState) _then) = _$SettingsStateCopyWithImpl;
+@useResult
+$Res call({
+ int waktuOtomatisSinkronisasi, int waktuOtomatisHapusDataArsip, bool modeMaintenance, String infoMaintenance
+});
+
+
+
+
+}
+/// @nodoc
+class _$SettingsStateCopyWithImpl<$Res>
+    implements $SettingsStateCopyWith<$Res> {
+  _$SettingsStateCopyWithImpl(this._self, this._then);
+
+  final SettingsState _self;
+  final $Res Function(SettingsState) _then;
+
+/// Create a copy of SettingsState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? waktuOtomatisSinkronisasi = null,Object? waktuOtomatisHapusDataArsip = null,Object? modeMaintenance = null,Object? infoMaintenance = null,}) {
+  return _then(_self.copyWith(
+waktuOtomatisSinkronisasi: null == waktuOtomatisSinkronisasi ? _self.waktuOtomatisSinkronisasi : waktuOtomatisSinkronisasi // ignore: cast_nullable_to_non_nullable
+as int,waktuOtomatisHapusDataArsip: null == waktuOtomatisHapusDataArsip ? _self.waktuOtomatisHapusDataArsip : waktuOtomatisHapusDataArsip // ignore: cast_nullable_to_non_nullable
+as int,modeMaintenance: null == modeMaintenance ? _self.modeMaintenance : modeMaintenance // ignore: cast_nullable_to_non_nullable
+as bool,infoMaintenance: null == infoMaintenance ? _self.infoMaintenance : infoMaintenance // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [SettingsState].
+extension SettingsStatePatterns on SettingsState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _SettingsState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _SettingsState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _SettingsState value)  $default,){
+final _that = this;
+switch (_that) {
+case _SettingsState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _SettingsState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _SettingsState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int waktuOtomatisSinkronisasi,  int waktuOtomatisHapusDataArsip,  bool modeMaintenance,  String infoMaintenance)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _SettingsState() when $default != null:
+return $default(_that.waktuOtomatisSinkronisasi,_that.waktuOtomatisHapusDataArsip,_that.modeMaintenance,_that.infoMaintenance);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int waktuOtomatisSinkronisasi,  int waktuOtomatisHapusDataArsip,  bool modeMaintenance,  String infoMaintenance)  $default,) {final _that = this;
+switch (_that) {
+case _SettingsState():
+return $default(_that.waktuOtomatisSinkronisasi,_that.waktuOtomatisHapusDataArsip,_that.modeMaintenance,_that.infoMaintenance);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int waktuOtomatisSinkronisasi,  int waktuOtomatisHapusDataArsip,  bool modeMaintenance,  String infoMaintenance)?  $default,) {final _that = this;
+switch (_that) {
+case _SettingsState() when $default != null:
+return $default(_that.waktuOtomatisSinkronisasi,_that.waktuOtomatisHapusDataArsip,_that.modeMaintenance,_that.infoMaintenance);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _SettingsState implements SettingsState {
+  const _SettingsState({required this.waktuOtomatisSinkronisasi, required this.waktuOtomatisHapusDataArsip, required this.modeMaintenance, required this.infoMaintenance});
+  
+
+@override final  int waktuOtomatisSinkronisasi;
+@override final  int waktuOtomatisHapusDataArsip;
+@override final  bool modeMaintenance;
+@override final  String infoMaintenance;
+
+/// Create a copy of SettingsState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SettingsStateCopyWith<_SettingsState> get copyWith => __$SettingsStateCopyWithImpl<_SettingsState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SettingsState&&(identical(other.waktuOtomatisSinkronisasi, waktuOtomatisSinkronisasi) || other.waktuOtomatisSinkronisasi == waktuOtomatisSinkronisasi)&&(identical(other.waktuOtomatisHapusDataArsip, waktuOtomatisHapusDataArsip) || other.waktuOtomatisHapusDataArsip == waktuOtomatisHapusDataArsip)&&(identical(other.modeMaintenance, modeMaintenance) || other.modeMaintenance == modeMaintenance)&&(identical(other.infoMaintenance, infoMaintenance) || other.infoMaintenance == infoMaintenance));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,waktuOtomatisSinkronisasi,waktuOtomatisHapusDataArsip,modeMaintenance,infoMaintenance);
+
+@override
+String toString() {
+  return 'SettingsState(waktuOtomatisSinkronisasi: $waktuOtomatisSinkronisasi, waktuOtomatisHapusDataArsip: $waktuOtomatisHapusDataArsip, modeMaintenance: $modeMaintenance, infoMaintenance: $infoMaintenance)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SettingsStateCopyWith<$Res> implements $SettingsStateCopyWith<$Res> {
+  factory _$SettingsStateCopyWith(_SettingsState value, $Res Function(_SettingsState) _then) = __$SettingsStateCopyWithImpl;
+@override @useResult
+$Res call({
+ int waktuOtomatisSinkronisasi, int waktuOtomatisHapusDataArsip, bool modeMaintenance, String infoMaintenance
+});
+
+
+
+
+}
+/// @nodoc
+class __$SettingsStateCopyWithImpl<$Res>
+    implements _$SettingsStateCopyWith<$Res> {
+  __$SettingsStateCopyWithImpl(this._self, this._then);
+
+  final _SettingsState _self;
+  final $Res Function(_SettingsState) _then;
+
+/// Create a copy of SettingsState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? waktuOtomatisSinkronisasi = null,Object? waktuOtomatisHapusDataArsip = null,Object? modeMaintenance = null,Object? infoMaintenance = null,}) {
+  return _then(_SettingsState(
+waktuOtomatisSinkronisasi: null == waktuOtomatisSinkronisasi ? _self.waktuOtomatisSinkronisasi : waktuOtomatisSinkronisasi // ignore: cast_nullable_to_non_nullable
+as int,waktuOtomatisHapusDataArsip: null == waktuOtomatisHapusDataArsip ? _self.waktuOtomatisHapusDataArsip : waktuOtomatisHapusDataArsip // ignore: cast_nullable_to_non_nullable
+as int,modeMaintenance: null == modeMaintenance ? _self.modeMaintenance : modeMaintenance // ignore: cast_nullable_to_non_nullable
+as bool,infoMaintenance: null == infoMaintenance ? _self.infoMaintenance : infoMaintenance // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+// dart format on
 
 
 // File: lib/fitur/settings/operasi/settings_op_sqlite.dart
@@ -30452,7 +30831,7 @@ final class PelangganProvider
   Pelanggan create() => Pelanggan();
 }
 
-String _$pelangganHash() => r'e54d48854a761050166127aee7820bf1d9463da0';
+String _$pelangganHash() => r'df7739407a4a08f02033332b79de18703e317806';
 
 abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   FutureOr<PelangganState> build();
@@ -36313,7 +36692,7 @@ class _InfoItem extends StatelessWidget {
     this.trailingIcon,
     this.onTap,
   });
-
+  
   @override
   Widget build(BuildContext context) {
     final Widget content = Padding(
@@ -43415,7 +43794,6 @@ class BaseOpSqlite {
     return await _runInTransaction(customAction, dariServer: dariServer);
   }
 
-  /// Menyisipkan data baru ke dalam [table].
   Future<void> sisipkan(
     final String table,
     final Map<String, dynamic> data, {
@@ -43443,7 +43821,6 @@ class BaseOpSqlite {
     }
   }
 
-  /// Memperbarui data di [table] berdasarkan [id].
   Future<void> update(
     final String table,
     final Map<String, dynamic> data,
@@ -43483,7 +43860,6 @@ class BaseOpSqlite {
     }
   }
 
-  /// Menghapus data dari [table] berdasarkan [id].
   Future<void> delete(
     String table,
     String id, {

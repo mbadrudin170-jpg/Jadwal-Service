@@ -1,37 +1,33 @@
 // path: lib/shared/theme/tema_provider.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
-/// Provider tema menggunakan AsyncNotifier (modern Riverpod)
-final temaProvider =
-    AsyncNotifierProvider<TemaNotifier, ThemeMode>(TemaNotifier.new);
+part 'tema_provider.g.dart'; // Pastikan jalankan build_runner setelah ini
 
-class TemaNotifier extends AsyncNotifier<ThemeMode> {
-  late LayananPenyimpananLokal _penyimapananLokal;
+@Riverpod(keepAlive: true)
+class Tema extends _$Tema {
+  late LayananPenyimpananLokal _penyimpananLokal;
 
   @override
   Future<ThemeMode> build() async {
-    _penyimapananLokal = await ref.read(layananPenyimpananLokalProvider.future);
-    final simpanTema = await _penyimapananLokal.ambilModeTema();
-    Log.info('[ThemeNotifier] Tema awal dimuat: $simpanTema');
+    _penyimpananLokal = await ref.read(layananPenyimpananLokalProvider.future);
+    final simpanTema = await _penyimpananLokal.ambilModeTema();
+    Log.info('[TemaNotifier] Tema awal dimuat: $simpanTema');
     return simpanTema;
   }
 
-  /// Mengganti mode tema aplikasi
   Future<void> simpanModeTema(ThemeMode mode) async {
-    final dapatkanTema = state;
-    if (dapatkanTema is AsyncData && dapatkanTema.value == mode) return;
-
-    Log.info('[ThemeNotifier] Mengatur tema: $mode');
-    state = AsyncData(mode); // update state
-    await _penyimapananLokal.simpanModeTema(mode);
+    if (state.value == mode) return;
+    Log.info('[TemaNotifier] Mengatur tema: $mode');
+    state = AsyncData(mode);
+    await _penyimpananLokal.simpanModeTema(mode);
   }
 
-  /// Helper untuk mengecek apakah mode gelap aktif (opsional)
+  /// Helper untuk mengecek apakah mode gelap aktif
   bool pengecekanModeGelap(BuildContext context) {
     final tema = state.value ?? ThemeMode.system;
     if (tema == ThemeMode.system) {

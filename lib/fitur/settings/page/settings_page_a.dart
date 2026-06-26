@@ -4,9 +4,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/page/form_settings.dart';
+import 'package:wifi/fitur/settings/provider/settings_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -14,30 +13,8 @@ import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
-final settingsProvider = FutureProvider<SettingsModel>((ref) async {
-  final settingsOp = ref.read(settingsOpSqliteProvider);
-  return await settingsOp.ambilSettings();
-});
-
 class SettingsAdminPage extends ConsumerWidget {
   const SettingsAdminPage({super.key});
-
-  Future<void> _editSettings(
-    BuildContext context,
-    WidgetRef ref,
-    SettingsModel settings,
-  ) async {
-    Log.info('Navigasi ke halaman Form Edit Pengaturan');
-    final hasil = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(builder: (context) => FormSettings(settings: settings)),
-    );
-
-    if ((hasil ?? false) && context.mounted) {
-      Log.info('Pengaturan diperbarui, memuat ulang data...');
-      ref.invalidate(settingsOpSqliteProvider);
-    }
-  }
 
   Future<void> _resetWaktuSinkroniasi(
     BuildContext context,
@@ -67,7 +44,9 @@ class SettingsAdminPage extends ConsumerWidget {
     if ((konfirmasi ?? false) && context.mounted) {
       try {
         await ref.read(pengelolaSinkronisasiProvider).resetWaktuSinkronisasi();
-        unawaited(ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi());
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
         if (context.mounted) {
           ToastUtil.success(context, 'Waktu sinkronisasi berhasil di-reset.');
         }
@@ -82,12 +61,11 @@ class SettingsAdminPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Log.info('Membangun UI halaman Pengaturan Aplikasi');
-    final settingsAsyncValue = ref.watch(settingsProvider);
+    final settingsAsync = ref.watch(settingsProvider);
     final tema = ref.watch(temaProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Pengaturan Aplikasi')),
-      body: settingsAsyncValue.when(
+      body: settingsAsync.when(
         data: (settings) {
           Log.info('Data pengaturan tersedia, menampilkan detail.');
           return Padding(
@@ -199,7 +177,12 @@ class SettingsAdminPage extends ConsumerWidget {
                 ElevatedButton.icon(
                   icon: const Icon(Icons.edit),
                   label: const Text('Edit Pengaturan'),
-                  onPressed: () => _editSettings(context, ref, settings),
+                  onPressed: () {
+                    Navigator.push<void>(
+                      context,
+                      MaterialPageRoute(builder: ((context) => FormSettings())),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),
                     padding: const EdgeInsets.symmetric(vertical: 12),

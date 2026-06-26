@@ -4,18 +4,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
-import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
+import 'package:wifi/fitur/settings/provider/settings_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 class FormSettings extends ConsumerStatefulWidget {
-  final SettingsModel settings;
+  final SettingsModel? settings;
 
-  const FormSettings({super.key, required this.settings});
+  const FormSettings({super.key, this.settings});
 
   @override
   ConsumerState<FormSettings> createState() => _FormSettingsState();
@@ -23,7 +22,6 @@ class FormSettings extends ConsumerStatefulWidget {
 
 class _FormSettingsState extends ConsumerState<FormSettings> {
   final _formKey = GlobalKey<FormState>();
-  late final SettingsOpSqlite _settingsOpSqlite;
   late TextEditingController _intervalController;
   late TextEditingController _hapusArsipController;
   late TextEditingController _infoPemeliharaanController;
@@ -32,23 +30,16 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
   @override
   void initState() {
     super.initState();
-    _settingsOpSqlite = ref.read(settingsOpSqliteProvider);
-    Log.info('Menginisialisasi SettingsForm.', {
-      'interval': widget.settings.waktuOtomatisSinkronisasi,
-      'hapus_arsip': widget.settings.waktuOtomatisHapusDataArsip,
-      'mode_pemeliharaan': widget.settings.modeMaintenance,
-      'diperbarui': widget.settings.diperbaruiPada,
-    });
     _intervalController = TextEditingController(
-      text: '${widget.settings.waktuOtomatisSinkronisasi}',
+      text: '${widget.settings?.waktuOtomatisSinkronisasi ?? '24'}',
     );
     _hapusArsipController = TextEditingController(
-      text: '${widget.settings.waktuOtomatisHapusDataArsip}',
+      text: '${widget.settings?.waktuOtomatisHapusDataArsip ?? '30'}',
     );
     _infoPemeliharaanController = TextEditingController(
-      text: widget.settings.infoMaintenance,
+      text: widget.settings?.infoMaintenance ?? '',
     );
-    _modePemeliharaan = widget.settings.modeMaintenance;
+    _modePemeliharaan = widget.settings?.modeMaintenance ?? false;
   }
 
   @override
@@ -60,12 +51,12 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
     super.dispose();
   }
 
-  Future<void> _saveForm() async {
+  Future<void> _simpanSettings() async {
     if (_formKey.currentState!.validate()) {
       Log.info('Memvalidasi dan menyimpan perubahan pengaturan.');
       try {
         final newSettings = SettingsModel(
-          id: widget.settings.id,
+          id: widget.settings!.id,
           waktuOtomatisSinkronisasi:
               int.tryParse(_intervalController.text) ?? 24,
           waktuOtomatisHapusDataArsip:
@@ -73,8 +64,7 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
           modeMaintenance: _modePemeliharaan,
           infoMaintenance: _infoPemeliharaanController.text,
         );
-
-        await _settingsOpSqlite.saveOrUpdateSettings(newSettings);
+        await ref.read(settingsProvider.notifier).tambahAtauUpdate(newSettings);
         Log.info('Pengaturan berhasil diperbarui di database.');
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
@@ -86,7 +76,7 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
           );
         }
         if (mounted) {
-          Navigator.pop(context, true);
+          Navigator.pop(context);
         }
       } on Exception catch (e, st) {
         Log.error('Gagal menyimpan pengaturan.', e: e, s: st);
@@ -139,7 +129,7 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
               ElevatedButton.icon(
                 icon: const Icon(TIcons.save),
                 label: const Text('Simpan Perubahan'),
-                onPressed: _saveForm,
+                onPressed: _simpanSettings,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                 ),

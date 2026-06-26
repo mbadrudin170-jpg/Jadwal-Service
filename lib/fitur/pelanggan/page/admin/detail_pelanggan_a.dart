@@ -18,7 +18,7 @@ class DetailPelanggan extends ConsumerWidget {
 
   const DetailPelanggan({super.key, required this.idPelanggan});
 
-  Future<void> _editCustomer(
+  Future<void> _editPelanggan(
     BuildContext context,
     PelangganModel? pelanggan,
   ) async {
@@ -32,7 +32,7 @@ class DetailPelanggan extends ConsumerWidget {
     );
   }
 
-  Future<void> _copyAllInfo(
+  Future<void> _salinSemuaInfo(
     BuildContext context,
     PelangganModel customer,
   ) async {
@@ -88,21 +88,19 @@ MAC : ${customer.macAddress}
         );
       },
       data: (data) {
-        final (customer, totalPoin) = data;
-
-        if (customer == null) {
+        final (pelanggan, totalPoin) = data;
+        if (pelanggan == null) {
           return Scaffold(
             appBar: AppBar(title: const Text('Detail Pelanggan')),
             body: const Center(child: Text('Pelanggan tidak ditemukan')),
           );
         }
-
         return DetailPelangganUI(
-          pelanggan: customer,
+          pelanggan: pelanggan,
           totalPoin: totalPoin,
-          navigasiKeEdit: () => _editCustomer(context, customer),
-          navigasiKePoin: () => _navigasiKePoin(context, customer),
-          onCopyAll: () => _copyAllInfo(context, customer),
+          navigasiKeEdit: () => _editPelanggan(context, pelanggan),
+          navigasiKePoin: () => _navigasiKePoin(context, pelanggan),
+          onCopyAll: () => _salinSemuaInfo(context, pelanggan),
         );
       },
     );
