@@ -29501,7 +29501,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
@@ -29661,7 +29660,6 @@ class _PelangganState extends ConsumerState<PelangganPage> {
 
   AppBar _buildAppBar() {
     final isSearching = ref.watch(isSearchingPelangganProvider);
-
     return AppBar(
       title: isSearching
           ? TextField(
@@ -29766,7 +29764,6 @@ class _PelangganState extends ConsumerState<PelangganPage> {
 
   Future<void> _dialogSort() async {
     final urutanAktif = ref.read(urutanPelangganStateProvider);
-
     Widget buildOption(String text, UrutanPelanggan value) {
       final sedangDipilih = urutanAktif == value;
       return SimpleDialogOption(
@@ -29808,7 +29805,6 @@ class _PelangganState extends ConsumerState<PelangganPage> {
         ],
       ),
     );
-
     if (hasil != null) {
       ref.read(urutanPelangganStateProvider.notifier).ubahUrutan(hasil);
     }
@@ -29886,7 +29882,7 @@ class _PelangganState extends ConsumerState<PelangganPage> {
             child: const Text('Arsipkan', style: TextStyle(color: Colors.red)),
             onPressed: () async {
               Navigator.of(context).pop();
-              await _softDeleteCustomer(customer.id);
+              await _softdelete(customer.id);
             },
           ),
         ],
@@ -29894,9 +29890,9 @@ class _PelangganState extends ConsumerState<PelangganPage> {
     );
   }
 
-  Future<void> _softDeleteCustomer(String id) async {
+  Future<void> _softdelete(String id) async {
     try {
-      await ref.read(pelangganOpSqliteProvider).softDelete(id);
+      await ref.read(pelangganProvider.notifier).softDelete(id);
       if (!mounted) return;
       ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
     } on Exception catch (e, s) {
@@ -30021,9 +30017,10 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           await pelangganNotifier.tambahPelanggan(pelangganBaru);
         }
         if (!mounted) return;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
-        });
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
+        Log.info('jalankan sinkroniasi');
         ToastUtil.success(context, 'Data pelanggan berhasil disimpan.');
         if (mounted) {
           Navigator.pop(context);
@@ -30801,9 +30798,7 @@ class Pelanggan extends _$Pelanggan {
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       await pelangganOpSqlite.softDelete(id);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _invalidateDetailPelanggan(id);
-      });
+      _invalidateDetailPelanggan(id);
       return _ambilData();
     });
   }
@@ -31364,27 +31359,43 @@ class PelangganOpSqlite {
     Log.info('CustomerOperation diinisialisasi');
   }
 
-  Future<bool> _cekDuplikasi(
+  // path: lib/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart
+
+  Future<bool> _ambilBerdasarkanTeleponDanKataSandi(
     String telepon,
-    String kataSandi, [
+    String kataSandi, {
     String? excludeId,
-  ]) async {
+  }) async {
     try {
       final db = await sqliteDb.database;
+
+      // Log untuk debugging
+      Log.info('Mengecek kombinasi telepon dan password', {
+        'telepon': telepon,
+        'kataSandi': kataSandi,
+        'excludeId': excludeId,
+      });
+
       String sql =
           '''
-        SELECT COUNT(*) as count
-        FROM ${NamaTabel.pelanggan}
-        WHERE ${NamaKolom.telepon} = ? AND ${NamaKolom.kataSandi} = ? AND ${NamaKolom.dihapus} = 0
-      ''';
+      SELECT COUNT(*) as count
+      FROM ${NamaTabel.pelanggan}
+      WHERE ${NamaKolom.telepon} = ? 
+        AND ${NamaKolom.kataSandi} = ? 
+        AND ${NamaKolom.dihapus} = 0
+    ''';
       final args = <dynamic>[telepon, kataSandi];
-
-      if (excludeId != null) {
+      if (excludeId != null && excludeId.isNotEmpty) {
         sql += ' AND ${NamaKolom.id} != ?';
         args.add(excludeId);
       }
       final result = await db.rawQuery(sql, args);
       final count = Sqflite.firstIntValue(result) ?? 0;
+      Log.info('Hasil pengecekan duplikasi', {
+        'count': count,
+        'isDuplicate': count > 0,
+      });
+
       return count > 0;
     } catch (e, st) {
       Log.error('Gagal mengecek duplikasi pelanggan', e: e, s: st);
@@ -31396,11 +31407,10 @@ class PelangganOpSqlite {
     PelangganModel pelanggan, {
     bool dariServer = false,
   }) async {
-    final bool isDuplicate = await _cekDuplikasi(
+    final bool isDuplicate = await _ambilBerdasarkanTeleponDanKataSandi(
       pelanggan.telepon,
       pelanggan.kataSandi,
     );
-
     if (isDuplicate) {
       Log.warning('Data pelanggan duplikat ditemukan.', {
         'telepon': pelanggan.telepon,
@@ -31420,8 +31430,11 @@ class PelangganOpSqlite {
       Log.info(
         'Customer (ID: ${pelangganBaru.id}) berhasil dibuat di database lokal.',
       );
-    } catch (e, s) {
+    } on DatabaseException catch (e, s) {
       Log.error('Gagal membuat customer.', e: e, s: s);
+      if (e.toString().contains('UNIQUE constraint failed')) {
+        throw Exception('Nomor telepon sudah terdaftar.');
+      }
       rethrow;
     }
   }
@@ -31477,10 +31490,10 @@ class PelangganOpSqlite {
     PelangganModel pelanggan, {
     bool dariServer = false,
   }) async {
-    final bool isDuplicate = await _cekDuplikasi(
+    final bool isDuplicate = await _ambilBerdasarkanTeleponDanKataSandi(
       pelanggan.telepon,
       pelanggan.kataSandi,
-      pelanggan.id,
+      excludeId: pelanggan.id,
     );
 
     if (isDuplicate) {
@@ -35971,7 +35984,6 @@ class _DaataProfil {
   });
 }
 
-/// Halaman profil pengguna yang menampilkan informasi pribadi dan paket aktif.
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
 
@@ -35983,10 +35995,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   late final PelangganOpFirebase _pelangganOpFirebase;
   late final TransaksiOpFirebase _transaksiOpFirebase;
   late final PaketOpFirebase _paketOpFirebase;
-
-  // DIUBAH: Hanya satu Future yang mengelola semua data untuk halaman ini.
   Future<_DaataProfil>? _futureProfileData;
-
   @override
   void initState() {
     super.initState();
@@ -35997,8 +36006,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     _futureProfileData = _loadProfileData();
   }
 
-  // PENJELASAN: Ini adalah inti dari perbaikan. Method ini bertanggung jawab untuk
-  // mengambil semua data yang diperlukan secara efisien.
   Future<_DaataProfil> _loadProfileData() async {
     final userId = await ref.watch(userIdProvider.future);
     if (userId == null) {
@@ -36016,7 +36023,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         _transaksiOpFirebase.ambilTotalPoin(pelanggan.id),
         _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(pelanggan.id),
       ]);
-
       final totalPoin = hasil[0] as int;
       final daftarPaketAktif = hasil[1] as List<TransaksiModel>;
       Log.info(
@@ -36036,7 +36042,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           .toList();
       TransaksiModel? paketAktif;
       PaketModel? paket;
-
       if (daftarMasihAktif.isNotEmpty) {
         paketAktif = daftarPaketAktif.reduce(
           (a, b) => a.tanggalBerakhir!.isAfter(b.tanggalBerakhir!) ? a : b,
@@ -36044,7 +36049,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         Log.info(
           'Langganan terakhir berakhir pada: ${paketAktif.tanggalBerakhir}.',
         );
-
         if (paketAktif.idPaket != null) {
           paket = await _paketOpFirebase.ambilBerdasarkanId(
             paketAktif.idPaket!,
@@ -36052,7 +36056,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           Log.info('Detail paket "${paket?.nama}" berhasil diambil.');
         }
       }
-
       return _DaataProfil(
         pelanggan: pelanggan,
         totalPoin: totalPoin,
@@ -36069,7 +36072,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
   }
 
-  // Method _reloadData diubah untuk memanggil _initializeData lagi.
   Future<void> _reloadData() async {
     setState(() {
       _futureProfileData = _loadProfileData();
@@ -36082,7 +36084,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    Log.info('Membangun UI untuk ProfilePage.');
     return Scaffold(
       appBar: AppBar(title: const Text('Profil Pelanggan')),
       body: FutureBuilder<_DaataProfil>(
@@ -36091,7 +36092,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-
           if (snapshot.hasError) {
             Log.error(
               'FutureBuilder<_ProfileData> error: ${snapshot.error}.',
@@ -36100,7 +36100,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             );
             return Center(child: Text('Terjadi Error: ${snapshot.error}'));
           }
-
           if (!snapshot.hasData) {
             final userId = ref.watch(userIdProvider);
             return Center(child: Text('Profil ID: $userId tidak ditemukan.'));

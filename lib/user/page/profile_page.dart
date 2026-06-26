@@ -38,7 +38,6 @@ class _DaataProfil {
   });
 }
 
-/// Halaman profil pengguna yang menampilkan informasi pribadi dan paket aktif.
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
 
@@ -50,10 +49,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   late final PelangganOpFirebase _pelangganOpFirebase;
   late final TransaksiOpFirebase _transaksiOpFirebase;
   late final PaketOpFirebase _paketOpFirebase;
-
-  // DIUBAH: Hanya satu Future yang mengelola semua data untuk halaman ini.
   Future<_DaataProfil>? _futureProfileData;
-
   @override
   void initState() {
     super.initState();
@@ -64,8 +60,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     _futureProfileData = _loadProfileData();
   }
 
-  // PENJELASAN: Ini adalah inti dari perbaikan. Method ini bertanggung jawab untuk
-  // mengambil semua data yang diperlukan secara efisien.
   Future<_DaataProfil> _loadProfileData() async {
     final userId = await ref.watch(userIdProvider.future);
     if (userId == null) {
@@ -83,7 +77,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         _transaksiOpFirebase.ambilTotalPoin(pelanggan.id),
         _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(pelanggan.id),
       ]);
-
       final totalPoin = hasil[0] as int;
       final daftarPaketAktif = hasil[1] as List<TransaksiModel>;
       Log.info(
@@ -103,7 +96,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           .toList();
       TransaksiModel? paketAktif;
       PaketModel? paket;
-
       if (daftarMasihAktif.isNotEmpty) {
         paketAktif = daftarPaketAktif.reduce(
           (a, b) => a.tanggalBerakhir!.isAfter(b.tanggalBerakhir!) ? a : b,
@@ -111,7 +103,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         Log.info(
           'Langganan terakhir berakhir pada: ${paketAktif.tanggalBerakhir}.',
         );
-
         if (paketAktif.idPaket != null) {
           paket = await _paketOpFirebase.ambilBerdasarkanId(
             paketAktif.idPaket!,
@@ -119,7 +110,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           Log.info('Detail paket "${paket?.nama}" berhasil diambil.');
         }
       }
-
       return _DaataProfil(
         pelanggan: pelanggan,
         totalPoin: totalPoin,
@@ -136,7 +126,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
   }
 
-  // Method _reloadData diubah untuk memanggil _initializeData lagi.
   Future<void> _reloadData() async {
     setState(() {
       _futureProfileData = _loadProfileData();
@@ -149,7 +138,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    Log.info('Membangun UI untuk ProfilePage.');
     return Scaffold(
       appBar: AppBar(title: const Text('Profil Pelanggan')),
       body: FutureBuilder<_DaataProfil>(
@@ -158,7 +146,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-
           if (snapshot.hasError) {
             Log.error(
               'FutureBuilder<_ProfileData> error: ${snapshot.error}.',
@@ -167,15 +154,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             );
             return Center(child: Text('Terjadi Error: ${snapshot.error}'));
           }
-
           if (!snapshot.hasData) {
             final userId = ref.watch(userIdProvider);
             return Center(child: Text('Profil ID: $userId tidak ditemukan.'));
           }
-
           final profileData = snapshot.data!;
           final pelanggan = profileData.pelanggan;
-
           return RefreshIndicator(
             onRefresh: _reloadData,
             child: ListView(
@@ -244,7 +228,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         value: 'Tidak ada paket aktif.',
       );
     }
-
     final String teksMasaAktif = PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
       transaksi.tanggalBerakhir!,
     );
@@ -255,7 +238,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         transaksi.statusPembayaran == StatusPembayaran.paid
         ? Colors.green
         : Colors.red;
-
     return Column(
       children: [
         _InfoItem(

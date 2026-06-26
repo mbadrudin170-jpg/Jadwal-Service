@@ -91,8 +91,11 @@ class PelangganOpSqlite {
       Log.info(
         'Customer (ID: ${pelangganBaru.id}) berhasil dibuat di database lokal.',
       );
-    } catch (e, s) {
+    } on DatabaseException catch (e, s) {
       Log.error('Gagal membuat customer.', e: e, s: s);
+      if (e.toString().contains('UNIQUE constraint failed')) {
+        throw Exception('Nomor telepon sudah terdaftar.');
+      }
       rethrow;
     }
   }
