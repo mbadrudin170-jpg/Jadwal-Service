@@ -41,7 +41,6 @@ class Transaksi extends _$Transaksi {
       ref.read(transaksiOpSqliteProvider);
   PointsPageDataSource get _pointsDataSource =>
       ref.read(pointsDataSourceProvider);
-
   @override
   FutureOr<TransaksiState> build() {
     return _loadData();
