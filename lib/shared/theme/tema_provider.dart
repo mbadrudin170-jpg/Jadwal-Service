@@ -15,9 +15,9 @@ class Tema extends _$Tema {
   @override
   Future<ThemeMode> build() async {
     _penyimpananLokal = await ref.read(layananPenyimpananLokalProvider.future);
-    final simpanTema = await _penyimpananLokal.ambilModeTema();
-    Log.info('[TemaNotifier] Tema awal dimuat: $simpanTema');
-    return simpanTema;
+    final ambilTema = await _penyimpananLokal.ambilModeTema();
+    Log.info('[TemaNotifier] Tema awal dimuat: $ambilTema');
+    return ambilTema;
   }
 
   Future<void> simpanModeTema(ThemeMode mode) async {

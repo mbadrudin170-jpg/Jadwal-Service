@@ -19,7 +19,7 @@ abstract class SettingsState with _$SettingsState {
   }) = _SettingsState;
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Settings extends _$Settings {
   SettingsOpSqlite get _settingsOpSqlite => ref.read(settingsOpSqliteProvider);
 
