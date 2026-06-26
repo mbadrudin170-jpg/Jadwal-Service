@@ -5,7 +5,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
-import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
 import 'package:wifi/shared/export/operation.dart';
 
 part 'pelanggan_provider.g.dart';
@@ -22,22 +21,23 @@ abstract class PelangganState with _$PelangganState {
 
 @Riverpod(keepAlive: true)
 class Pelanggan extends _$Pelanggan {
-  PelangganOpSqlite get pelangganOpSqlite =>
+  PelangganOpSqlite get _pelangganOpSqlite =>
       ref.read(pelangganOpSqliteProvider);
-  SQLitePointsDataSource get poinDataSource =>
-      ref.read(sqlitePointsDataSourceProvider);
+  TransaksiOpSqlite get _transaksiOpSqlite =>
+      ref.read(transaksiOpSqliteProvider);
+
   @override
   FutureOr<PelangganState> build() {
     return _ambilData();
   }
 
   Future<PelangganState> _ambilData() async {
-    final hasil = await pelangganOpSqlite.ambilSemua();
-    int totalPoinSistem = 0;
-    for (final pelanggan in hasil) {
-      final poin = await poinDataSource.ambilTotalPoin(pelanggan.id);
-      totalPoinSistem += poin;
-    }
+    final hasil = await _pelangganOpSqlite.ambilSemua();
+    final hitungPoinFutures = hasil.map(
+      (pelanggan) => _transaksiOpSqlite.ambilTotalPoin(pelanggan.id),
+    );
+    final daftarPoin = await Future.wait(hitungPoinFutures);
+    final totalPoinSistem = daftarPoin.fold<int>(0, (sum, poin) => sum + poin);
     return PelangganState(
       daftarPelanggan: hasil,
       jumlahPelanggan: hasil.length,
@@ -47,7 +47,7 @@ class Pelanggan extends _$Pelanggan {
 
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
     try {
-      await pelangganOpSqlite.tambahPelanggan(pelanggan);
+      await _pelangganOpSqlite.tambahPelanggan(pelanggan);
       final dataBaru = await _ambilData();
       state = AsyncValue.data(dataBaru);
     } catch (e, stack) {
@@ -58,8 +58,8 @@ class Pelanggan extends _$Pelanggan {
 
   Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
     try {
-      await pelangganOpSqlite.perbaruiPelanggan(pelanggan);
-        _invalidateDetailPelanggan(pelanggan.id);
+      await _pelangganOpSqlite.perbaruiPelanggan(pelanggan);
+      _invalidateDetailPelanggan(pelanggan.id);
       final dataBaru = await _ambilData();
       state = AsyncValue.data(dataBaru);
     } catch (e, stack) {
@@ -70,7 +70,7 @@ class Pelanggan extends _$Pelanggan {
 
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
-      await pelangganOpSqlite.softDelete(id);
+      await _pelangganOpSqlite.softDelete(id);
       _invalidateDetailPelanggan(id);
       return _ambilData();
     });

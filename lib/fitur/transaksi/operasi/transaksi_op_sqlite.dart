@@ -625,7 +625,6 @@ class TransaksiOpSqlite {
     }
   }
 
-  /// Menghitung total poin yang digunakan seorang pelanggan.
   Future<int> ambilPoinDigunakan(String idPelanggan) async {
     try {
       final db = await sqliteDb.database;
@@ -643,11 +642,14 @@ class TransaksiOpSqlite {
     }
   }
 
-  /// Menghitung total saldo poin seorang pelanggan.
   Future<int> ambilTotalPoin(String idPelanggan) async {
     Log.info('Menghitung saldo poin akhir Customer: $idPelanggan');
-    final poinDidapat = await ambilPoinDidapat(idPelanggan);
-    final poinDigunakan = await ambilPoinDigunakan(idPelanggan);
+    final hasil = await Future.wait([
+      ambilPoinDidapat(idPelanggan),
+      ambilPoinDigunakan(idPelanggan),
+    ]);
+    final poinDidapat = hasil[0];
+    final poinDigunakan = hasil[1];
     final total = poinDidapat - poinDigunakan;
     Log.info(
       'Saldo poin akhir Customer $idPelanggan: $total (earned=$poinDidapat, used=$poinDigunakan)',

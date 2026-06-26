@@ -39,14 +39,10 @@ class Settings extends _$Settings {
   }
 
   Future<void> tambahAtauUpdate(SettingsModel settings) async {
-    await _settingsOpSqlite.saveOrUpdateSettings(settings);
-    final data = await _ambilData();
-    try {
-      state = AsyncValue.data(data);
-    } catch (e, s) {
-      state = AsyncValue.error(e, s);
-      rethrow;
-    }
+    state = await AsyncValue.guard(() async {
+      await _settingsOpSqlite.saveOrUpdateSettings(settings);
+      return await _ambilData();
+    });
   }
 
   Future<void> refresh() async {
