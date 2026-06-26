@@ -159,3 +159,12 @@ class Transaksi extends _$Transaksi {
     ref.invalidate(dompetProvider);
   }
 }
+
+@Riverpod(keepAlive: true)
+Future<List<TransaksiModel>> transaksiPerPelanggan(
+  Ref ref,
+  String idPelanggan,
+) {
+  final transaksiOp = ref.read(transaksiOpSqliteProvider);
+  return transaksiOp.ambilBerdasarkanIdPelanggan(idPelanggan);
+}

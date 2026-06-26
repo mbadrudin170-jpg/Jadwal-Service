@@ -309,7 +309,6 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
   Widget build(BuildContext context) {
     super.build(context);
     final pelangganAktifAsync = ref.watch(pelangganAktifProvider);
-
     return Scaffold(
       appBar: AppBar(
         title: _mencari

@@ -9,6 +9,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
@@ -258,7 +259,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   Widget build(BuildContext context) {
     final transaksiAsync = ref.watch(transaksiProvider);
     Log.info('Building PointsPage UI, selected menu: $_menuAktif');
-    final dataAsync = ref.watch(pointsPageDataProvider(widget.idPelanggan));
+    final paketAsync = ref.watch(paketProvider).value;
     return transaksiAsync.when(
       loading: () => Scaffold(
         appBar: AppBar(title: _judulAppBar),
@@ -284,7 +285,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           },
           contentView: _menuAktif == OpsiMenuPoin.penukaran
               ? _bangunDaftarHadiah(
-                  dataHalaman.hadiah,
+                  paketAsync?.daftarPaketPublik ?? [],
                   dataHalaman.totalPoinUser,
                 )
               : _bangunRiwayatPoin(),

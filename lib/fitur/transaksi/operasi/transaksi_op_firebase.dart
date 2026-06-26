@@ -8,17 +8,12 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
-/// Kelas untuk mengelola operasi terkait data transaksi di Firestore.
 class TransaksiOpFirebase extends BaseOpFirebase {
-  /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
   TransaksiOpFirebase({super.firestore}) {
     Log.info('TransactionOpFirebase diinisialisasi.');
   }
-
-  /// Mendapatkan referensi ke koleksi transaction.
   CollectionReference get _koleksi => firestore.collection(NamaTabel.transaksi);
 
-  /// Menambahkan transaksi baru ke Firestore.
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     Log.info('Menambahkan transaksi baru: ${transaksi.id}');
     try {
@@ -30,8 +25,6 @@ class TransaksiOpFirebase extends BaseOpFirebase {
     }
   }
 
-  /// Mengambil transaksi lunas terbaru dari seorang pengguna berdasarkan tanggal akhir.
-  /// Digunakan untuk menentukan status langganan aktif di sisi user.
   Future<TransaksiModel?> ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(
     String idPelanggan,
   ) async {
@@ -110,8 +103,8 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       final querySnapshot = await _koleksi
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.tanggal, descending: true)
           .get();
-
       Log.info('Menemukan ${querySnapshot.docs.length} transaksi.');
       return querySnapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;

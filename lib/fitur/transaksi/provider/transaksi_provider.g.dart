@@ -52,3 +52,81 @@ abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
     return element.handleCreate(ref, build);
   }
 }
+
+@ProviderFor(transaksiPerPelanggan)
+final transaksiPerPelangganProvider = TransaksiPerPelangganFamily._();
+
+final class TransaksiPerPelangganProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<TransaksiModel>>,
+          List<TransaksiModel>,
+          FutureOr<List<TransaksiModel>>
+        >
+    with
+        $FutureModifier<List<TransaksiModel>>,
+        $FutureProvider<List<TransaksiModel>> {
+  TransaksiPerPelangganProvider._({
+    required TransaksiPerPelangganFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'transaksiPerPelangganProvider',
+         isAutoDispose: false,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$transaksiPerPelangganHash();
+
+  @override
+  String toString() {
+    return r'transaksiPerPelangganProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<TransaksiModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<TransaksiModel>> create(Ref ref) {
+    final argument = this.argument as String;
+    return transaksiPerPelanggan(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TransaksiPerPelangganProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$transaksiPerPelangganHash() =>
+    r'db98e6e613787fca5e8b775dac5933abffbc4679';
+
+final class TransaksiPerPelangganFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<TransaksiModel>>, String> {
+  TransaksiPerPelangganFamily._()
+    : super(
+        retry: null,
+        name: r'transaksiPerPelangganProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: false,
+      );
+
+  TransaksiPerPelangganProvider call(String idPelanggan) =>
+      TransaksiPerPelangganProvider._(argument: idPelanggan, from: this);
+
+  @override
+  String toString() => r'transaksiPerPelangganProvider';
+}
