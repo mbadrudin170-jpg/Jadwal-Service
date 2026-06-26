@@ -26,7 +26,6 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
   late bool _modePemeliharaan;
   bool _menyimpan = false;
 
-  // Di dalam FormSettings
   @override
   void initState() {
     super.initState();
@@ -126,12 +125,13 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
               gapH16,
               _buildSwitchTile(),
               gapH16,
-              _buildTextFormField(
-                controller: _infoPemeliharaanController,
-                label: 'Info Mode Pemeliharaan',
-                icon: Icons.info_outline,
-                maxLines: 3,
-              ),
+              if (_modePemeliharaan)
+                _buildTextFormField(
+                  controller: _infoPemeliharaanController,
+                  label: 'Info Mode Pemeliharaan',
+                  icon: Icons.info_outline,
+                  maxLines: 3,
+                ),
               gapH32,
               ElevatedButton(
                 onPressed: _menyimpan ? null : _simpanSettings,
@@ -140,7 +140,7 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
                 ),
                 child: _menyimpan
                     ? const CircularProgressIndicator()
-                    : const Text('Simpan Perubahan'),
+                    : const Text('Simpan'),
               ),
             ],
           ),

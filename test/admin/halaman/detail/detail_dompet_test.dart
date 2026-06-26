@@ -1,4 +1,4 @@
-// path: test/admin/halaman/detail/detail_dompet_test.dart
+'''// path: test/admin/halaman/detail/detail_dompet_test.dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -51,6 +51,10 @@ void main() {
       tanggal: DateTime(2023, 1, 6),
       idDompet: 'd1',
       idKategori: 'k2',
+      idPelanggan: null,
+      idPaket: null,
+      tanggalMulai: null,
+      tanggalBerakhir: null,
     ),
   ];
 
@@ -264,3 +268,4 @@ void main() {
 }
 
 class MockBuildContext extends Mock implements BuildContext {}
+''
