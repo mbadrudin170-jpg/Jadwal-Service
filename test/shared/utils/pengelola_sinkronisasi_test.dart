@@ -1,120 +1,108 @@
 // path: test/shared/utils/pengelola_sinkronisasi_test.dart
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
+import 'pengelola_sinkronisasi_test.mocks.dart';
+
+@GenerateMocks([SharedPreferences])
 void main() {
   late PengelolaSinkronisasi pengelolaSinkronisasi;
-
-  // Mendefinisikan kunci yang digunakan di LayananPreferensi
-  const String kunciTerakhirUnduh = 'terakhir_unduh';
-  const String kunciTerakhirUnggah = 'terakhir_unggah';
+  late MockSharedPreferences mockSharedPreferences;
 
   setUp(() {
-    pengelolaSinkronisasi = PengelolaSinkronisasi();
-    // Atur nilai awal mock untuk setiap tes, agar tes independen
-    SharedPreferences.setMockInitialValues({});
+    mockSharedPreferences = MockSharedPreferences();
+    pengelolaSinkronisasi = PengelolaSinkronisasi(prefs: mockSharedPreferences);
   });
 
-  group('PengelolaSinkronisasi - Waktu Unduh', () {
-    test(
-      '01. harus mengembalikan epoch jika tidak ada waktu unduh yang tersimpan',
-      () async {
-        final waktu = await pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
-        expect(waktu, DateTime.fromMillisecondsSinceEpoch(0, isUtc: true));
-      },
-    );
+  group('PengelolaSinkronisasi', () {
+    final fitur = Fitur.pelanggan;
+    final now = DateTime.now();
 
-    test('02. harus menyimpan dan mengambil waktu terakhir unduh dengan benar',
-        () async {
-      final waktuSimpan = DateTime(2023, 10, 27, 10, 0).toUtc();
+    test('01. setLastSync should save the timestamp', () async {
+      when(mockSharedPreferences.setInt(any, any)).thenAnswer((_) async => true);
 
-      await pengelolaSinkronisasi.simpanWaktuTerakhirUnduh(waktuSimpan);
-      final waktuAmbil = await pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
+      await pengelolaSinkronisasi.aturSinkronisasiTerakhir(fitur, now);
 
-      // Membandingkan dalam millisecondsSinceEpoch untuk presisi
-      expect(
-        waktuAmbil.millisecondsSinceEpoch,
-        waktuSimpan.millisecondsSinceEpoch,
-      );
-
-      // Verifikasi langsung di SharedPreferences mock
-      final prefs = await SharedPreferences.getInstance();
-      final storedTimestamp = prefs.getInt(kunciTerakhirUnduh);
-      expect(storedTimestamp, waktuSimpan.millisecondsSinceEpoch);
+      verify(mockSharedPreferences.setInt(
+        fitur.syncKey,
+        now.millisecondsSinceEpoch,
+      )).called(1);
     });
-  });
 
-  group('PengelolaSinkronisasi - Waktu Unggah', () {
-    test(
-      '01. harus mengembalikan epoch jika tidak ada waktu unggah yang tersimpan',
-      () async {
-        final waktu = await pengelolaSinkronisasi.ambilWaktuTerakhirUnggah();
-        expect(waktu, DateTime.fromMillisecondsSinceEpoch(0, isUtc: true));
-      },
-    );
+    test('02. getLastSync should retrieve the saved timestamp', () {
+      when(mockSharedPreferences.getInt(fitur.syncKey))
+          .thenReturn(now.millisecondsSinceEpoch);
 
-    test('02. harus menyimpan dan mengambil waktu terakhir unggah dengan benar',
-        () async {
-      final waktuSimpan = DateTime(2023, 10, 27, 11, 0).toUtc();
+      final result = pengelolaSinkronisasi.ambilSinkronisasiTerakhir(fitur);
 
-      await pengelolaSinkronisasi.simpanWaktuTerakhirUnggah(waktuSimpan);
-      final waktuAmbil = await pengelolaSinkronisasi.ambilWaktuTerakhirUnggah();
-
-      expect(
-        waktuAmbil.millisecondsSinceEpoch,
-        waktuSimpan.millisecondsSinceEpoch,
-      );
-
-      final prefs = await SharedPreferences.getInstance();
-      final storedTimestamp = prefs.getInt(kunciTerakhirUnggah);
-      expect(storedTimestamp, waktuSimpan.millisecondsSinceEpoch);
+      expect(result, equals(now));
     });
-  });
 
-  group('PengelolaSinkronisasi - Reset', () {
-    test('01. harus mereset waktu unduh dan unggah', () async {
-      final waktuUnduh = DateTime(2023, 10, 27, 10, 0).toUtc();
-      final waktuUnggah = DateTime(2023, 10, 27, 11, 0).toUtc();
+    test('03. getLastSync should return null if no timestamp is saved', () {
+      when(mockSharedPreferences.getInt(fitur.syncKey)).thenReturn(null);
 
-      // Atur nilai awal untuk mock SharedPreferences
-      SharedPreferences.setMockInitialValues({
-        kunciTerakhirUnduh: waktuUnduh.millisecondsSinceEpoch,
-        kunciTerakhirUnggah: waktuUnggah.millisecondsSinceEpoch,
-      });
-      
-      // Buat instance baru agar mengambil nilai dari mock
-      pengelolaSinkronisasi = PengelolaSinkronisasi();
+      final result = pengelolaSinkronisasi.ambilSinkronisasiTerakhir(fitur);
 
-      // Pastikan nilai awal bisa diambil
-      final waktuUnduhSebelum =
-          await pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
-      final waktuUnggahSebelum =
-          await pengelolaSinkronisasi.ambilWaktuTerakhirUnggah();
-      expect(waktuUnduhSebelum.millisecondsSinceEpoch,
-          waktuUnduh.millisecondsSinceEpoch);
-      expect(waktuUnggahSebelum.millisecondsSinceEpoch,
-          waktuUnggah.millisecondsSinceEpoch);
+      expect(result, isNull);
+    });
 
-      // Lakukan reset
-      await pengelolaSinkronisasi.resetWaktuSinkronisasi();
+    test('04. shouldSync should return true if last sync is null', () {
+      when(mockSharedPreferences.getInt(fitur.syncKey)).thenReturn(null);
 
-      // Ambil nilai setelah di-reset
-      final waktuUnduhSetelah =
-          await pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
-      final waktuUnggahSetelah =
-          await pengelolaSinkronisasi.ambilWaktuTerakhirUnggah();
+      final result = pengelolaSinkronisasi.perluSinkronisasi(fitur);
 
-      // Harusnya kembali ke nilai default (epoch)
+      expect(result, isTrue);
+    });
+
+    test('05. shouldSync should return true if sync interval has passed', () {
+      final lastSync = now.subtract(const Duration(minutes: 31));
+      when(mockSharedPreferences.getInt(fitur.syncKey))
+          .thenReturn(lastSync.millisecondsSinceEpoch);
+
+      final result = pengelolaSinkronisasi.perluSinkronisasi(fitur);
+
+      expect(result, isTrue);
+    });
+
+    test('06. shouldSync should return false if sync interval has not passed', () {
+      final lastSync = now.subtract(const Duration(minutes: 15));
+      when(mockSharedPreferences.getInt(fitur.syncKey))
+          .thenReturn(lastSync.millisecondsSinceEpoch);
+
+      final result = pengelolaSinkronisasi.perluSinkronisasi(fitur);
+
+      expect(result, isFalse);
+    });
+
+    test('07. shouldSync should respect custom sync interval', () {
+      final lastSync = now.subtract(const Duration(hours: 2));
+      when(mockSharedPreferences.getInt(fitur.syncKey))
+          .thenReturn(lastSync.millisecondsSinceEpoch);
+
+      // Interval default (30 menit) -> harus sinkronisasi
+      expect(pengelolaSinkronisasi.perluSinkronisasi(fitur), isTrue);
+
+      // Interval custom (3 jam) -> tidak perlu sinkronisasi
       expect(
-          waktuUnduhSetelah, DateTime.fromMillisecondsSinceEpoch(0, isUtc: true));
-      expect(
-          waktuUnggahSetelah, DateTime.fromMillisecondsSinceEpoch(0, isUtc: true));
+        pengelolaSinkronisasi.perluSinkronisasi(
+          fitur,
+          interval: const Duration(hours: 3),
+        ),
+        isFalse,
+      );
+    });
 
-      // Verifikasi juga di SharedPreferences mock bahwa kuncinya sudah tidak ada
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.containsKey(kunciTerakhirUnduh), isFalse);
-      expect(prefs.containsKey(kunciTerakhirUnggah), isFalse);
+    test('08. resetAllSyncTimestamps should remove all sync keys', () async {
+      when(mockSharedPreferences.remove(any)).thenAnswer((_) async => true);
+
+      await pengelolaSinkronisasi.resetSemuaPenandaWaktuSinkronisasi();
+
+      for (final f in Fitur.values) {
+        verify(mockSharedPreferences.remove(f.syncKey)).called(1);
+      }
     });
   });
 }

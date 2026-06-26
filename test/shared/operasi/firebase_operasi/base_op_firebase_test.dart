@@ -1,192 +1,171 @@
 // path: test/shared/operasi/firebase_operasi/base_op_firebase_test.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 
-class MockStatusOpFirebase extends Mock implements StatusOpFirebase {
+// Dummy model for testing
+class DummyModel with HasId {
   @override
-  Future<void> perbaruiStatusGlobal() {
-    return Future.value();
+  final String id;
+  final String name;
+  final int value;
+  bool? isDeleted;
+  DateTime? updatedAt;
+
+  DummyModel({
+    required this.id,
+    required this.name,
+    required this.value,
+    this.isDeleted,
+    this.updatedAt,
+  });
+
+  factory DummyModel.fromMap(Map<String, dynamic> map) {
+    return DummyModel(
+      id: map['id'] as String,
+      name: map['name'] as String,
+      value: map['value'] as int,
+      isDeleted: map['isDeleted'] as bool?,
+      updatedAt: (map['updatedAt'] as Timestamp?)?.toDate(),
+    );
   }
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'name': name,
+        'value': value,
+        'isDeleted': isDeleted,
+        'updatedAt': updatedAt,
+      };
+}
+
+// Concrete implementation for testing
+class DummyOpFirebase extends BaseOpFirebase<DummyModel> {
+  DummyOpFirebase(FirebaseFirestore firestore) : super(
+          firestore: firestore,
+          collectionName: 'dummies',
+          fromMap: (map) => DummyModel.fromMap(map),
+          toMap: (model) => model.toMap(),
+        );
 }
 
 void main() {
-  group('BaseOpFirebase', () {
-    late FakeFirebaseFirestore fakeFirestore;
-    late MockStatusOpFirebase mockStatusOp;
-    late BaseOpFirebase baseOpFirebase;
+  late FakeFirebaseFirestore fakeFirestore;
+  late DummyOpFirebase dummyOp;
+  late CollectionReference<Map<String, dynamic>> collection;
 
-    const collectionName = 'test_collection';
-    const docId = 'test_doc';
+  setUp(() {
+    fakeFirestore = FakeFirebaseFirestore();
+    dummyOp = DummyOpFirebase(fakeFirestore);
+    collection = fakeFirestore.collection('dummies');
+  });
 
-    setUp(() {
-      fakeFirestore = FakeFirebaseFirestore();
-      mockStatusOp = MockStatusOpFirebase();
-      baseOpFirebase = BaseOpFirebase(
-        firestore: fakeFirestore,
-        statusOp: mockStatusOp,
-      );
-
-      when(mockStatusOp.perbaruiStatusGlobal()).thenAnswer((_) async {});
+  group('BaseOpFirebase Tests', () {
+    test('01. add should create a document in Firestore', () async {
+      final model = DummyModel(id: '1', name: 'test1', value: 100);
+      await dummyOp.add(model);
+      final doc = await collection.doc('1').get();
+      expect(doc.exists, isTrue);
+      expect(doc.data()?['name'], 'test1');
     });
 
-    test(
-      '01. tambah - harus menambahkan dokumen dan memperbarui status',
-      () async {
-        // Eksplisit mendefinisikan Map<String, dynamic> agar menerima FieldValue
-        final Map<String, dynamic> data = {'nama': 'Test'};
-        final docRef = await baseOpFirebase.tambah(collectionName, data);
+    test('02. delete should remove a document from Firestore', () async {
+      await collection.doc('2').set({'id': '2', 'name': 'test2', 'value': 200});
+      await dummyOp.delete('2');
+      final doc = await collection.doc('2').get();
+      expect(doc.exists, isFalse);
+    });
 
-        final doc = await docRef.get();
-        final docData = doc.data() as Map<String, dynamic>?;
+    test('03. softDelete should mark a document as deleted', () async {
+      await collection.doc('3').set({'id': '3', 'name': 'test3', 'value': 300});
+      await dummyOp.softDelete('3');
+      final doc = await collection.doc('3').get();
+      expect(doc.exists, isTrue);
+      expect(doc.data()?['isDeleted'], isTrue);
+      expect(doc.data()?['updatedAt'], isNotNull);
+    });
 
-        expect(doc.exists, isTrue);
-        expect(docData?['nama'], 'Test');
-        expect(docData?[NamaKolom.diperbaruiPada], isNotNull);
+    test('04. getById should retrieve a single document', () async {
+      await collection.doc('4').set({'id': '4', 'name': 'test4', 'value': 400});
+      final model = await dummyOp.getById('4');
+      expect(model, isNotNull);
+      expect(model!.name, 'test4');
+    });
 
-        verify(mockStatusOp.perbaruiStatusGlobal()).called(1);
-      },
-    );
+    test('05. getById should return null if document does not exist', () async {
+      final model = await dummyOp.getById('non-existent');
+      expect(model, isNull);
+    });
 
-    test(
-      '02. sisipkan - harus menyisipkan dokumen dan memperbarui status',
-      () async {
-        final Map<String, dynamic> data = {'nama': 'Test'};
-        await baseOpFirebase.sisipkan(collectionName, docId, data);
+    test('06. getAll should retrieve all non-deleted documents', () async {
+      await collection.doc('5').set({'id': '5', 'name': 'test5', 'value': 500});
+      await collection
+          .doc('6')
+          .set({'id': '6', 'name': 'test6', 'value': 600, 'isDeleted': true});
+      final models = await dummyOp.getAll();
+      expect(models.length, 1);
+      expect(models.first.name, 'test5');
+    });
 
-        final doc = await fakeFirestore
-            .collection(collectionName)
-            .doc(docId)
-            .get();
-        final docData = doc.data() as Map<String, dynamic>?;
+    test('07. getStream should return a stream of non-deleted documents', () async {
+      final stream = dummyOp.getStream();
+      expect(
+        stream,
+        emits(
+          (List<DummyModel> list) => list.isEmpty,
+        ),
+      );
 
-        expect(doc.exists, isTrue);
-        expect(docData?['nama'], 'Test');
-        expect(docData?[NamaKolom.diperbaruiPada], isNotNull);
+      await collection.doc('7').set({'id': '7', 'name': 'test7', 'value': 700});
+      expect(
+        stream,
+        emits(
+          (List<DummyModel> list) =>
+              list.length == 1 && list.first.name == 'test7',
+        ),
+      );
+    });
 
-        verify(mockStatusOp.perbaruiStatusGlobal()).called(1);
-      },
-    );
+    test('08. update should modify a document', () async {
+      final model = DummyModel(id: '8', name: 'test8', value: 800);
+      await dummyOp.add(model);
+      await dummyOp.update(model.copyWith(name: 'updated8'));
+      final doc = await collection.doc('8').get();
+      expect(doc.data()?['name'], 'updated8');
+    });
 
-    test(
-      '03. update - harus memperbarui dokumen dan memperbarui status',
-      () async {
-        final Map<String, dynamic> data = {'nama': 'Test'};
-        await fakeFirestore.collection(collectionName).doc(docId).set(data);
-        final Map<String, dynamic> updatedData = {'nama': 'Updated Test'};
+    test('09. addOrUpdateBatch should create and update documents', () async {
+      final modelsToAdd = [
+        DummyModel(id: '9', name: 'test9', value: 900),
+        DummyModel(id: '10', name: 'test10', value: 1000),
+      ];
+      final modelsToUpdate = [
+        DummyModel(id: '9', name: 'updated9', value: 901),
+      ];
 
-        await baseOpFirebase.update(collectionName, docId, updatedData);
+      await dummyOp.addOrUpdateBatch(modelsToAdd);
+      var doc9 = await collection.doc('9').get();
+      var doc10 = await collection.doc('10').get();
+      expect(doc9.data()?['name'], 'test9');
+      expect(doc10.exists, isTrue);
 
-        final doc = await fakeFirestore
-            .collection(collectionName)
-            .doc(docId)
-            .get();
-        final docData = doc.data() as Map<String, dynamic>?;
+      await dummyOp.addOrUpdateBatch(modelsToUpdate);
+      doc9 = await collection.doc('9').get();
+      expect(doc9.data()?['name'], 'updated9');
+    });
 
-        expect(docData?['nama'], 'Updated Test');
-        expect(docData?[NamaKolom.diperbaruiPada], isNotNull);
+    test('10. hasNewData should detect new or updated documents', () async {
+      final lastCheck = DateTime.now().subtract(const Duration(minutes: 5));
+      final newUpdate = DateTime.now();
 
-        verify(mockStatusOp.perbaruiStatusGlobal()).called(1);
-      },
-    );
+      expect(await dummyOp.hasNewData(lastCheck), isFalse);
 
-    test(
-      '04. hapusSementara - harus melakukan soft delete dan memperbarui status',
-      () async {
-        final Map<String, dynamic> data = {'nama': 'Test'};
-        await fakeFirestore.collection(collectionName).doc(docId).set(data);
-
-        await baseOpFirebase.softDelete(collectionName, docId);
-
-        final doc = await fakeFirestore
-            .collection(collectionName)
-            .doc(docId)
-            .get();
-        final docData = doc.data() as Map<String, dynamic>?;
-
-        expect(docData?[NamaKolom.dihapus], isTrue);
-        expect(docData?[NamaKolom.diperbaruiPada], isNotNull);
-        expect(docData?[NamaKolom.diarsipkanPada], isNotNull);
-
-        verify(mockStatusOp.perbaruiStatusGlobal()).called(1);
-      },
-    );
-
-    test(
-      '05. hapusPermanen - harus menghapus dokumen dan memperbarui status',
-      () async {
-        final Map<String, dynamic> data = {'nama': 'Test'};
-        await fakeFirestore.collection(collectionName).doc(docId).set(data);
-
-        await baseOpFirebase.hapusPermanen(collectionName, docId);
-
-        final doc = await fakeFirestore
-            .collection(collectionName)
-            .doc(docId)
-            .get();
-        expect(doc.exists, isFalse);
-
-        verify(mockStatusOp.perbaruiStatusGlobal()).called(1);
-      },
-    );
-
-    test(
-      '06. hapusSementaraSemua - harus melakukan soft delete pada semua dokumen',
-      () async {
-        await fakeFirestore.collection(collectionName).doc('doc1').set({
-          'nama': 'doc1',
-          NamaKolom.dihapus: false,
-        });
-        await fakeFirestore.collection(collectionName).doc('doc2').set({
-          'nama': 'doc2',
-          NamaKolom.dihapus: false,
-        });
-
-        final count = await baseOpFirebase.hapusSementaraSemua(collectionName);
-
-        expect(count, 2);
-        final snapshot = await fakeFirestore.collection(collectionName).get();
-        for (final doc in snapshot.docs) {
-          final docData = doc.data();
-          expect(docData[NamaKolom.dihapus], isTrue);
-        }
-
-        verify(mockStatusOp.perbaruiStatusGlobal()).called(1);
-      },
-    );
-
-    test(
-      '07. insertOrUpdateBatch - harus menyisipkan atau memperbarui batch',
-      () async {
-        // Deklarasi tipe List<Map<String, dynamic>> secara eksplisit
-        final List<Map<String, dynamic>> items = [
-          {'id': 'doc1', 'nama': 'Doc 1'},
-          {'id': 'doc2', 'nama': 'Doc 2'},
-          {'id': 'doc1', 'nama': 'Updated Doc 1'},
-        ];
-
-        await baseOpFirebase.insertOrUpdateBatch(collectionName, items, 'id');
-
-        final doc1 = await fakeFirestore
-            .collection(collectionName)
-            .doc('doc1')
-            .get();
-        final doc2 = await fakeFirestore
-            .collection(collectionName)
-            .doc('doc2')
-            .get();
-
-        final docData1 = doc1.data() as Map<String, dynamic>?;
-        final docData2 = doc2.data() as Map<String, dynamic>?;
-
-        expect(docData1?['nama'], 'Updated Doc 1');
-        expect(docData2?['nama'], 'Doc 2');
-
-        verify(mockStatusOp.perbaruiStatusGlobal()).called(1);
-      },
-    );
+      await collection
+          .doc('11')
+          .set({'id': '11', 'name': 'test11', 'updatedAt': Timestamp.now()});
+      expect(await dummyOp.hasNewData(lastCheck), isTrue);
+    });
   });
 }

@@ -1,263 +1,171 @@
 // path: test/fitur/notfikasi/penjadwal_notifikasi_test.dart
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
-import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 
 import 'penjadwal_notifikasi_test.mocks.dart';
 
-@GenerateMocks([LayananNotifikasi, TransaksiOpFirebase])
+@GenerateMocks([LayananNotifikasi])
 void main() {
-  late MockLayananNotifikasi mockNotifikasiServis;
-  late MockTransaksiOpFirebase mockTransaksiOp;
-
-  // Mocking untuk AndroidAlarmManager yang menggunakan static method calls
-  const MethodChannel channel =
-      MethodChannel('plugins.flutter.io/android_alarm_manager');
-  final List<MethodCall> log = <MethodCall>[];
+  late MockLayananNotifikasi mockLayananNotifikasi;
+  late PenjadwalNotifikasi penjadwalNotifikasi;
 
   setUp(() {
-    mockNotifikasiServis = MockLayananNotifikasi();
-    mockTransaksiOp = MockTransaksiOpFirebase();
+    mockLayananNotifikasi = MockLayananNotifikasi();
+    penjadwalNotifikasi = PenjadwalNotifikasi(
+      layananNotifikasi: mockLayananNotifikasi,
+    );
 
-    TestWidgetsFlutterBinding.ensureInitialized();
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-      log.add(methodCall);
-      if (methodCall.method == 'oneShotAt' || methodCall.method == 'cancel') {
-        return true;
-      }
-      return null;
-    });
-    log.clear();
-  });
-
-  tearDown(() {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, null);
-  });
-
-  const userId = 'user123';
-  final endNotificationId = userId.hashCode;
-  final midNotificationId = '${userId}_midpoint'.hashCode;
-  final alarmId = userId.hashCode;
-  final now = DateTime.now();
-
-  group('PenjadwalNotifikasi', () {
-    test(
-        '01. harus menjadwalkan notifikasi akhir & tengah periode untuk langganan aktif',
-        () async {
-      // Arrange
-      final tanggalMulai = now.subtract(const Duration(days: 5));
-      final tanggalBerakhir = now.add(const Duration(days: 25));
-      final transaksi = TransaksiModel(
-        id: 'trans1',
-        tanggal: tanggalMulai,
-        deskripsi: 'Langganan 30 hari',
-        jumlah: 50000,
-        tipe: TipeTransaksi.income,
-        idDompet: 'dompet1',
-        idKategori: 'kat1',
-        idPelanggan: userId,
-        idPaket: 'paket1',
-        tanggalMulai: tanggalMulai,
-        tanggalBerakhir: tanggalBerakhir,
-        statusPembayaran: StatusPembayaran.paid,
-      );
-
-      when(mockTransaksiOp.ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(userId))
-          .thenAnswer((_) async => transaksi);
-      when(mockNotifikasiServis.perbaruiJadwalNotifikasi(
+    // Stubbing default behavior
+    when(
+      mockLayananNotifikasi.jadwalNotifikasi(
         id: anyNamed('id'),
-        title: anyNamed('title'),
-        body: anyNamed('body'),
+        judul: anyNamed('judul'),
+        pesan: anyNamed('pesan'),
         jadwal: anyNamed('jadwal'),
-        payload: anyNamed('payload'),
-      )).thenAnswer((_) async {});
+      ),
+    ).thenAnswer((_) async => Future.value());
 
-      // Act
-      await PenjadwalNotifikasi.aturNotifikasiLangganan(
-        mockNotifikasiServis,
-        userId,
-        transaksiOp: mockTransaksiOp,
-      );
+    when(mockLayananNotifikasi.batalNotifikasi(any))
+        .thenAnswer((_) async => Future.value());
+  });
 
-      // Assert
-      // Verifikasi notifikasi akhir periode
-      verify(mockNotifikasiServis.perbaruiJadwalNotifikasi(
-        id: endNotificationId,
-        title: 'Langganan Telah Berakhir',
-        body: anyNamed('body'),
-        jadwal: tanggalBerakhir,
-        payload: 'subscription_expired',
-      ));
+  final transaksi = TransaksiModel(
+    id: 'trx1',
+    idPelanggan: 'cust1',
+    idPaket: 'pkg1',
+    tanggal: DateTime.now(),
+    deskripsi: 'Deskripsi Transaksi',
+    jumlah: 50000,
+    tipe: TipeTransaksi.income,
+    idDompet: 'dompet1',
+    idKategori: 'kategori1',
+    statusPembayaran: StatusPembayaran.paid,
+    tanggalMulai: DateTime.now(),
+    tanggalBerakhir: DateTime.now().add(const Duration(days: 30)),
+  );
 
-      // Verifikasi notifikasi tengah periode
-      final totalDuration = tanggalBerakhir.difference(tanggalMulai);
-      final midpointDate =
-          tanggalMulai.add(Duration(seconds: totalDuration.inSeconds ~/ 2));
-      verify(mockNotifikasiServis.perbaruiJadwalNotifikasi(
-        id: midNotificationId,
-        title: 'Status Langganan Anda',
-        body: anyNamed('body'),
-        jadwal: midpointDate,
-        payload: 'subscription_midpoint',
-      ));
+  final namaPelanggan = 'John Doe';
 
-      // Verifikasi alarm manager
-      expect(log.where((call) => call.method == 'oneShotAt'), isNotEmpty);
-      final oneShotCall = log.firstWhere((call) => call.method == 'oneShotAt');
-      final arguments = oneShotCall.arguments as Map<String, dynamic>;
-      expect(arguments['alarmId'], alarmId);
-      expect(arguments['wakeup'], true);
-      expect(arguments['exact'], true);
-    });
-
+  group('jadwalkanNotifikasiJatuhTempo', () {
     test(
-        '02. harus membatalkan notif tengah periode jika tanggalnya sudah lewat',
-        () async {
-      // Arrange
-      final tanggalMulai = now.subtract(const Duration(days: 20));
-      final tanggalBerakhir = now.add(const Duration(days: 10));
-      final transaksi = TransaksiModel(
-        id: 'trans1',
-        tanggal: tanggalMulai,
-        deskripsi: 'Langganan 30 hari',
-        jumlah: 50000,
-        tipe: TipeTransaksi.income,
-        idDompet: 'dompet1',
-        idKategori: 'kat1',
-        idPelanggan: userId,
-        idPaket: 'paket1',
-        tanggalMulai: tanggalMulai,
-        tanggalBerakhir: tanggalBerakhir,
-        statusPembayaran: StatusPembayaran.paid,
+      '01. harus menjadwalkan notifikasi jika tanggal berakhir tidak null',
+      () async {
+        final jadwal = transaksi.tanggalBerakhir!;
+        final expectedId = '${transaksi.id.hashCode}-jatuh-tempo'.hashCode;
+
+        await penjadwalNotifikasi.jadwalkanNotifikasiJatuhTempo(
+          transaksi: transaksi,
+          namaPelanggan: namaPelanggan,
+        );
+
+        final captured = verify(
+          mockLayananNotifikasi.jadwalNotifikasi(
+            id: captureAnyNamed('id'),
+            judul: captureAnyNamed('judul'),
+            pesan: captureAnyNamed('pesan'),
+            jadwal: captureAnyNamed('jadwal'),
+          ),
+        ).captured;
+
+        expect(captured[0], expectedId);
+        expect(captured[1], 'Peringatan Jatuh Tempo');
+        expect(captured[2], 'Langganan atas nama John Doe akan berakhir besok.');
+        expect(captured[3], jadwal.subtract(const Duration(days: 1)));
+      },
+    );
+
+    test('02. tidak melakukan apa-apa jika tanggal berakhir null', () async {
+      final transaksiTanpaTanggal = transaksi.copyWith(tanggalBerakhir: null);
+
+      await penjadwalNotifikasi.jadwalkanNotifikasiJatuhTempo(
+        transaksi: transaksiTanpaTanggal,
+        namaPelanggan: namaPelanggan,
       );
 
-      when(mockTransaksiOp.ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(userId))
-          .thenAnswer((_) async => transaksi);
-      when(mockNotifikasiServis.batalNotifikasi(any)).thenAnswer((_) async {});
-      when(mockNotifikasiServis.perbaruiJadwalNotifikasi(
-              id: anyNamed('id'),
-              title: anyNamed('title'),
-              body: anyNamed('body'),
-              jadwal: anyNamed('jadwal'),
-              payload: anyNamed('payload'))).thenAnswer((_) async {});
-
-      // Act
-      await PenjadwalNotifikasi.aturNotifikasiLangganan(
-        mockNotifikasiServis,
-        userId,
-        transaksiOp: mockTransaksiOp,
+      verifyNever(
+        mockLayananNotifikasi.jadwalNotifikasi(
+          id: anyNamed('id'),
+          judul: anyNamed('judul'),
+          pesan: anyNamed('pesan'),
+          jadwal: anyNamed('jadwal'),
+        ),
       );
-
-      // Assert
-      verify(mockNotifikasiServis.perbaruiJadwalNotifikasi(
-        id: endNotificationId,
-        title: anyNamed('title'),
-        body: anyNamed('body'),
-        jadwal: tanggalBerakhir,
-        payload: anyNamed('payload'),
-      ));
-      verify(mockNotifikasiServis.batalNotifikasi(midNotificationId));
-      verifyNever(mockNotifikasiServis.perbaruiJadwalNotifikasi(
-        id: midNotificationId,
-        title: anyNamed('title'),
-        body: anyNamed('body'),
-        jadwal: anyNamed('jadwal'),
-        payload: anyNamed('payload'),
-      ));
     });
+  });
 
+  group('batalNotifikasiJatuhTempo', () {
     test(
-        '03. harus membatalkan semua notifikasi dan alarm jika tidak ada langganan',
-        () async {
-      // Arrange
-      when(mockTransaksiOp.ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(userId))
-          .thenAnswer((_) async => null);
-      when(mockNotifikasiServis.batalNotifikasi(any)).thenAnswer((_) async {});
+      '03. harus membatalkan notifikasi jatuh tempo dengan ID yang benar',
+      () async {
+        final expectedId = '${transaksi.id.hashCode}-jatuh-tempo'.hashCode;
 
-      // Act
-      await PenjadwalNotifikasi.aturNotifikasiLangganan(
-        mockNotifikasiServis,
-        userId,
-        transaksiOp: mockTransaksiOp,
-      );
+        await penjadwalNotifikasi.batalNotifikasiJatuhTempo(transaksi.id);
 
-      // Assert
-      verify(mockNotifikasiServis.batalNotifikasi(endNotificationId));
-      verify(mockNotifikasiServis.batalNotifikasi(midNotificationId));
-      expect(
-          log,
-          contains(isMethodCall('cancel',
-              arguments: <String, dynamic>{'alarmId': alarmId})));
-    });
+        verify(mockLayananNotifikasi.batalNotifikasi(expectedId)).called(1);
+      },
+    );
+  });
 
+  group('jadwalkanNotifikasiPembayaran', () {
     test(
-        '04. harus membatalkan semua notifikasi dan alarm jika langganan sudah kedaluwarsa',
-        () async {
-      // Arrange
-      final tanggalBerakhir = now.subtract(const Duration(minutes: 1));
-      final transaksi = TransaksiModel(
-        id: 'trans1',
-        tanggal: DateTime(2023),
-        deskripsi: 'expired',
-        jumlah: 1,
-        tipe: TipeTransaksi.income,
-        idDompet: 'd',
-        idKategori: 'k',
-        idPelanggan: 'pelanggan1',
-        idPaket: 'paket1',
-        tanggalMulai: DateTime(2023),
-        tanggalBerakhir: tanggalBerakhir,
-      );
-      when(mockTransaksiOp.ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(userId))
-          .thenAnswer((_) async => transaksi);
-      when(mockNotifikasiServis.batalNotifikasi(any)).thenAnswer((_) async {});
+      '04. harus menjadwalkan notifikasi jika tanggal mulai tidak null',
+      () async {
+        final jadwal = transaksi.tanggalMulai!;
+        final expectedId = '${transaksi.id.hashCode}-pembayaran'.hashCode;
 
-      // Act
-      await PenjadwalNotifikasi.aturNotifikasiLangganan(
-        mockNotifikasiServis,
-        userId,
-        transaksiOp: mockTransaksiOp,
+        await penjadwalNotifikasi.jadwalkanNotifikasiPembayaran(
+          transaksi: transaksi,
+          namaPelanggan: namaPelanggan,
+        );
+
+        final captured = verify(
+          mockLayananNotifikasi.jadwalNotifikasi(
+            id: captureAnyNamed('id'),
+            judul: captureAnyNamed('judul'),
+            pesan: anyNamed('pesan'),
+            jadwal: captureAnyNamed('jadwal'),
+          ),
+        ).captured;
+
+        expect(captured[0], expectedId);
+        expect(captured[1], 'Aktivasi Paket Berhasil');
+        expect(captured[3], jadwal);
+      },
+    );
+
+    test('05. tidak melakukan apa-apa jika tanggal mulai null', () async {
+      final transaksiTanpaTanggal = transaksi.copyWith(tanggalMulai: null);
+
+      await penjadwalNotifikasi.jadwalkanNotifikasiPembayaran(
+        transaksi: transaksiTanpaTanggal,
+        namaPelanggan: namaPelanggan,
       );
 
-      // Assert
-      verify(mockNotifikasiServis.batalNotifikasi(endNotificationId));
-      verify(mockNotifikasiServis.batalNotifikasi(midNotificationId));
-      expect(
-          log,
-          contains(isMethodCall('cancel',
-              arguments: <String, dynamic>{'alarmId': alarmId})));
+      verifyNever(
+        mockLayananNotifikasi.jadwalNotifikasi(
+          id: anyNamed('id'),
+          judul: anyNamed('judul'),
+          pesan: anyNamed('pesan'),
+          jadwal: anyNamed('jadwal'),
+        ),
+      );
     });
+  });
 
-    test('05. harus membatalkan semua notifikasi dan alarm jika terjadi error',
-        () async {
-      // Arrange
-      when(mockTransaksiOp.ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(userId))
-          .thenThrow(Exception('Firebase error'));
-      when(mockNotifikasiServis.batalNotifikasi(any)).thenAnswer((_) async {});
+  group('batalNotifikasiPembayaran', () {
+    test(
+      '06. harus membatalkan notifikasi pembayaran dengan ID yang benar',
+      () async {
+        final expectedId = '${transaksi.id.hashCode}-pembayaran'.hashCode;
 
-      // Act
-      await PenjadwalNotifikasi.aturNotifikasiLangganan(
-        mockNotifikasiServis,
-        userId,
-        transaksiOp: mockTransaksiOp,
-      );
+        await penjadwalNotifikasi.batalNotifikasiPembayaran(transaksi.id);
 
-      // Assert
-      verify(mockNotifikasiServis.batalNotifikasi(endNotificationId));
-      verify(mockNotifikasiServis.batalNotifikasi(midNotificationId));
-      expect(
-          log,
-          contains(isMethodCall('cancel',
-              arguments: <String, dynamic>{'alarmId': alarmId})));
-    });
+        verify(mockLayananNotifikasi.batalNotifikasi(expectedId)).called(1);
+      },
+    );
   });
 }

@@ -5,325 +5,261 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 
 import 'base_op_sqlite_test.mocks.dart';
 
-@GenerateMocks([
-  SqliteDatabase,
-  Database,
-  Transaction,
-  Batch,
-  StatusUploadOpSqlite,
-])
-void main() {
-  late BaseOpSqlite baseOpSqlite;
-  late MockSqliteDatabase mockSqliteDatabase;
-  late MockDatabase mockDatabase;
-  late MockStatusUploadOpSqlite mockStatusUnggahOpSqlite;
-  const String namaTabel = 'test_tabel';
+// Dummy model for testing
+class DummyModel with HasId {
+  @override
+  final String id;
+  final String name;
+  final DateTime? diperbaruiPada;
+  final bool? dihapus;
 
-  setUp(() {
-    mockSqliteDatabase = MockSqliteDatabase();
-    mockDatabase = MockDatabase();
-    mockStatusUnggahOpSqlite = MockStatusUploadOpSqlite();
-    baseOpSqlite = BaseOpSqlite(
-      sqliteDb: mockSqliteDatabase,
-      statusUnggahOpSqlite: mockStatusUnggahOpSqlite,
-    );
-
-    // Stubbing default
-    when(mockSqliteDatabase.database).thenAnswer((_) async => mockDatabase);
-    when(
-      mockStatusUnggahOpSqlite.tandaiButuhUpload(
-        true,
-        transaction: anyNamed('transaction'),
-      ),
-    ).thenAnswer((_) async {});
+  DummyModel({
+    required this.id,
+    required this.name,
+    this.diperbaruiPada,
+    this.dihapus,
   });
 
-  group('BaseOpSqlite', () {
-    final data = {'id': '1', 'name': 'Test'};
-    final exception = Exception('Database error');
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'name': name,
+        'diperbarui_pada': diperbaruiPada?.millisecondsSinceEpoch,
+        'dihapus': dihapus == true ? 1 : 0,
+      };
+}
 
-    group('sisipkan', () {
-      test(
-        '01. harus memanggil db.insert dengan data dan conflictAlgorithm yang benar',
-        () async {
-          final mockTxn = MockTransaction();
-          when(mockDatabase.transaction<int>(any)).thenAnswer((
-            invocation,
-          ) async {
-            final action =
-                invocation.positionalArguments[0]
-                    as Future<int> Function(Transaction);
-            return await action(mockTxn);
-          });
-          when(
-            mockTxn.insert(
-              any,
-              any,
-              conflictAlgorithm: anyNamed('conflictAlgorithm'),
-            ),
-          ).thenAnswer((_) async => 1);
+@GenerateMocks([SqliteDatabase, Database, Transaction])
+void main() {
+  late BaseOpSqlite baseOpSqlite;
+  late MockSqliteDatabase mockSqliteDb;
+  late MockDatabase mockDb;
 
-          await baseOpSqlite.sisipkan(namaTabel, data);
+  setUp(() {
+    mockSqliteDb = MockSqliteDatabase();
+    mockDb = MockDatabase();
+    baseOpSqlite = BaseOpSqlite(mockSqliteDb);
 
-          verify(
-            mockTxn.insert(
-              namaTabel,
-              data,
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            ),
-          ).called(1);
-          verify(
-            mockStatusUnggahOpSqlite.tandaiButuhUpload(
-              true,
-              transaction: mockTxn,
-            ),
-          ).called(1);
-        },
-      );
+    when(mockSqliteDb.database).thenAnswer((_) async => mockDb);
+  });
 
-      test('02. harus melempar kembali exception jika transaksi gagal', () {
-        when(mockDatabase.transaction<int>(any)).thenThrow(exception);
+  const tableName = 'dummies';
+  final model = DummyModel(id: '1', name: 'test');
+  final modelMap = model.toMap();
 
-        expect(
-          baseOpSqlite.sisipkan(namaTabel, data),
-          throwsA(isA<Exception>()),
-        );
-      });
+  group('Operasi Dasar', () {
+    test('01. sisipkan harus memanggil db.insert dengan benar', () async {
+      when(mockDb.insert(any, any)).thenAnswer((_) async => 1);
+      await baseOpSqlite.sisipkan(tableName, modelMap);
+      verify(
+        mockDb.insert(
+          tableName,
+          argThat(isA<Map<String, dynamic>>()),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        ),
+      ).called(1);
     });
 
-    group('update', () {
-      test(
-        '03. harus memanggil db.update dengan data dan klausa where yang benar',
-        () async {
-          final mockTxn = MockTransaction();
-          when(mockDatabase.transaction<int>(any)).thenAnswer((
-            invocation,
-          ) async {
-            final action =
-                invocation.positionalArguments[0]
-                    as Future<int> Function(Transaction);
-            return await action(mockTxn);
-          });
-          when(
-            mockTxn.update(
-              any,
-              any,
-              where: anyNamed('where'),
-              whereArgs: anyNamed('whereArgs'),
-            ),
-          ).thenAnswer((_) async => 1);
+    test('02. perbarui harus memanggil db.update dengan benar', () async {
+      when(
+        mockDb.update(any, any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')),
+      ).thenAnswer((_) async => 1);
 
-          await baseOpSqlite.update(namaTabel, data, '1');
+      final updatedModel = {'name': 'updated'};
+      await baseOpSqlite.perbarui(tableName, '1', updatedModel);
 
-          verify(
-            mockTxn.update(namaTabel, data, where: 'id = ?', whereArgs: ['1']),
-          ).called(1);
-        },
-      );
-
-      test('04. harus melempar kembali exception jika transaksi gagal', () {
-        when(mockDatabase.transaction<int>(any)).thenThrow(exception);
-
-        expect(
-          baseOpSqlite.update(namaTabel, data, '1'),
-          throwsA(isA<Exception>()),
-        );
-      });
+      verify(
+        mockDb.update(
+          tableName,
+          argThat(isA<Map<String, dynamic>>()),
+          where: 'id = ?',
+          whereArgs: ['1'],
+        ),
+      ).called(1);
     });
 
-    group('delete', () {
-      test(
-        '05. harus memanggil db.delete dengan klausa where yang benar',
-        () async {
-          final mockTxn = MockTransaction();
-          when(mockDatabase.transaction<int>(any)).thenAnswer((
-            invocation,
-          ) async {
-            final action =
-                invocation.positionalArguments[0]
-                    as Future<int> Function(Transaction);
-            return await action(mockTxn);
-          });
-          when(
-            mockTxn.delete(
-              any,
-              where: anyNamed('where'),
-              whereArgs: anyNamed('whereArgs'),
-            ),
-          ).thenAnswer((_) async => 1);
+    test('03. delete harus memanggil db.delete dengan benar', () async {
+      when(
+        mockDb.delete(any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')),
+      ).thenAnswer((_) async => 1);
 
-          await baseOpSqlite.delete(namaTabel, '1');
+      await baseOpSqlite.delete(tableName, '1');
 
-          verify(
-            mockTxn.delete(namaTabel, where: 'id = ?', whereArgs: ['1']),
-          ).called(1);
-        },
-      );
+      verify(
+        mockDb.delete(tableName, where: 'id = ?', whereArgs: ['1']),
+      ).called(1);
+    });
+  });
 
-      test('06. harus melempar kembali exception jika transaksi gagal', () {
-        when(mockDatabase.transaction<int>(any)).thenThrow(exception);
+  group('Operasi Soft Delete', () {
+    test('04. softDelete harus memperbarui kolom dihapus dan diperbaruiPada', () async {
+      when(
+        mockDb.update(any, any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')),
+      ).thenAnswer((_) async => 1);
 
-        expect(baseOpSqlite.delete(namaTabel, '1'), throwsA(isA<Exception>()));
-      });
+      await baseOpSqlite.softDelete(tableName, '1');
+
+      final captured = verify(
+        mockDb.update(
+          any,
+          captureAny,
+          where: anyNamed('where'),
+          whereArgs: anyNamed('whereArgs'),
+        ),
+      ).captured;
+
+      final data = captured.first as Map<String, dynamic>;
+      expect(data[NamaKolom.dihapus], 1);
+      expect(data[NamaKolom.diperbaruiPada], isA<int>());
     });
 
-    group('softDelete', () {
-      test(
-        '07. harus memanggil db.update untuk soft delete dengan data yang benar',
-        () async {
-          final mockTxn = MockTransaction();
-          when(mockDatabase.transaction<int>(any)).thenAnswer((
-            invocation,
-          ) async {
-            final action =
-                invocation.positionalArguments[0]
-                    as Future<int> Function(Transaction);
-            return await action(mockTxn);
-          });
-          when(
-            mockTxn.update(
-              any,
-              any,
-              where: anyNamed('where'),
-              whereArgs: anyNamed('whereArgs'),
-            ),
-          ).thenAnswer((_) async => 1);
+    test('05. softDeleteAll harus memperbarui semua record', () async {
+      when(mockDb.update(any, any)).thenAnswer((_) async => 5);
 
-          await baseOpSqlite.softDelete(namaTabel, '1');
+      final count = await baseOpSqlite.softDeleteAll(tableName);
 
-          verify(
-            mockTxn.update(
-              namaTabel,
-              argThat(
-                isA<Map<String, dynamic>>().having(
-                  (map) => map[NamaKolom.dihapus],
-                  'dihapus',
-                  1,
-                ),
-              ),
-              where: '${NamaKolom.id} = ?',
-              whereArgs: ['1'],
-            ),
-          ).called(1);
-        },
-      );
+      expect(count, 5);
+      final captured = verify(
+        mockDb.update(tableName, captureAny),
+      ).captured;
 
-      test('08. harus melempar kembali exception jika transaksi gagal', () {
-        when(mockDatabase.transaction<int>(any)).thenThrow(exception);
+      final data = captured.first as Map<String, dynamic>;
+      expect(data[NamaKolom.dihapus], 1);
+      expect(data[NamaKolom.diperbaruiPada], isA<int>());
+    });
+  });
 
-        expect(
-          baseOpSqlite.softDelete(namaTabel, '1'),
-          throwsA(isA<Exception>()),
-        );
-      });
+  group('Operasi Batch', () {
+    final batch = MockBatch();
+    final listMap = [modelMap, modelMap];
+
+    setUp(() {
+      when(mockDb.batch()).thenReturn(batch);
+      when(batch.commit(noResult: anyNamed('noResult'))).thenAnswer((_) async => []);
     });
 
-    group('sisipkanAtauPerbaruiBatch', () {
-      final dataList = [
-        {'id': '1', 'name': 'Data 1'},
-        {'id': '2', 'name': 'Data 2'},
-      ];
+    test('06. sisipkanBatch harus mengeksekusi batch insert', () async {
+      await baseOpSqlite.sisipkanBatch(tableName, listMap);
+      verify(batch.insert(tableName, any, conflictAlgorithm: ConflictAlgorithm.ignore))
+          .called(listMap.length);
+      verify(batch.commit(noResult: true)).called(1);
+    });
 
-      test(
-        '09. harus menjalankan operasi batch insert di dalam transaksi',
-        () async {
-          final mockTransaction = MockTransaction();
-          final mockBatch = MockBatch();
+    test('07. sisipkanAtauPerbaruiBatch harus mengeksekusi batch insert replace', () async {
+      await baseOpSqlite.sisipkanAtauPerbaruiBatch(tableName, listMap);
+      verify(batch.insert(tableName, any, conflictAlgorithm: ConflictAlgorithm.replace))
+          .called(listMap.length);
+      verify(batch.commit(noResult: true)).called(1);
+    });
 
-          when(mockDatabase.transaction<void>(any)).thenAnswer((invocation) {
-            final action =
-                invocation.positionalArguments[0]
-                    as Future<void> Function(Transaction);
-            return action(mockTransaction);
-          });
+    test('08. perbaruiBatch harus mengeksekusi batch update', () async {
+      await baseOpSqlite.perbaruiBatch(tableName, listMap);
+      verify(
+        batch.update(
+          tableName,
+          any,
+          where: 'id = ?',
+          whereArgs: anyNamed('whereArgs'),
+        ),
+      ).called(listMap.length);
+      verify(batch.commit(noResult: true)).called(1);
+    });
+  });
 
-          when(mockTransaction.batch()).thenReturn(mockBatch);
-          when(
-            mockBatch.insert(
-              any,
-              any,
-              conflictAlgorithm: anyNamed('conflictAlgorithm'),
-            ),
-          ).thenAnswer((_) {});
-          when(mockBatch.commit(noResult: true)).thenAnswer((_) async => []);
+  group('Sinkronisasi dari Server', () {
+    test('09. sisipkan harus menyertakan kolom dariServer saat benar', () async {
+      when(mockDb.insert(any, any)).thenAnswer((_) async => 1);
+      await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: true);
 
-          await baseOpSqlite.sisipkanAtauPerbaruiBatch(namaTabel, dataList);
+      final captured = verify(mockDb.insert(any, captureAny)).captured.first;
+      final data = captured as Map<String, dynamic>;
 
-          verify(mockDatabase.transaction<void>(any)).called(1);
-          verify(mockTransaction.batch()).called(1);
-          verify(
-            mockBatch.insert(
-              namaTabel,
-              dataList[0],
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            ),
-          ).called(1);
-          verify(mockBatch.commit(noResult: true)).called(1);
-        },
-      );
+      expect(data['name'], model.name);
+      expect(data[NamaKolom.dariServer], 1);
+      expect(data[NamaKolom.diperbaruiPada], isNotNull);
+    });
 
-      test('10. tidak melakukan apa-apa jika list data kosong', () async {
-        await baseOpSqlite.sisipkanAtauPerbaruiBatch(namaTabel, []);
-        verifyNever(mockDatabase.transaction(any));
+    test('10. sisipkan harus tidak menyertakan kolom dariServer saat salah', () async {
+      when(mockDb.insert(any, any)).thenAnswer((_) async => 1);
+      await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: false);
+
+      final captured = verify(mockDb.insert(any, captureAny)).captured.first;
+      final data = captured as Map<String, dynamic>;
+
+      expect(data['name'], model.name);
+      expect(data[NamaKolom.dariServer], isNull); // atau tidak ada sama sekali
+      expect(data[NamaKolom.diperbaruiPada], isNotNull);
+    });
+
+    test('11. perbarui harus menyertakan kolom dariServer saat benar', () async {
+      when(
+        mockDb.update(any, any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')),
+      ).thenAnswer((_) async => 1);
+      await baseOpSqlite.perbarui(tableName, '1', modelMap, dariServer: true);
+
+      final captured = verify(mockDb.update(any, captureAny, where: anyNamed('where'))).captured.first;
+      final data = captured as Map<String, dynamic>;
+
+      expect(data[NamaKolom.dariServer], 1);
+      expect(data[NamaKolom.diperbaruiPada], isNotNull);
+    });
+
+     test('12. perbaruiBatch harus menyertakan kolom dariServer saat benar', () async {
+      final batch = MockBatch();
+      when(mockDb.batch()).thenReturn(batch);
+      when(batch.commit(noResult: anyNamed('noResult'))).thenAnswer((_) async => []);
+
+      await baseOpSqlite.perbaruiBatch(tableName, [modelMap], dariServer: true);
+
+      final captured = verify(batch.update(any, captureAny, where: anyNamed('where'))).captured.first;
+      final data = captured as Map<String, dynamic>;
+
+      expect(data[NamaKolom.dariServer], 1);
+      expect(data[NamaKolom.diperbaruiPada], isNotNull);
+     });
+  });
+
+  group('runComplexOperation', () {
+    test('13. harus menjalankan action di dalam db.transaction', () async {
+      // Siapkan mock untuk db.transaction
+      // Ini sedikit rumit karena signature transaction adalah (Future<T> Function(Transaction) action)
+      // Kita perlu memastikan bahwa action yang kita berikan ke runComplexOperation
+      // pada akhirnya dipanggil oleh mock db.transaction.
+      when(mockDb.transaction<String>(any)).thenAnswer((invocation) async {
+        final action = invocation.positionalArguments.first as Future<String> Function(Transaction);
+        final mockTxn = MockTransaction(); // Buat mock transaction
+        when(mockTxn.rawQuery(any)).thenAnswer((_) async => []);
+        return action(mockTxn);
       });
 
-      test(
-        '11. harus melempar kembali exception jika transaksi batch gagal',
-        () {
-          when(mockDatabase.transaction<void>(any)).thenThrow(exception);
+      // Action dummy untuk dijalankan
+      Future<String> dummyAction(Transaction txn) async {
+        await txn.rawQuery('SELECT * FROM test');
+        return 'done';
+      }
 
-          expect(
-            baseOpSqlite.sisipkanAtauPerbaruiBatch(namaTabel, dataList),
-            throwsA(isA<Exception>()),
-          );
-        },
-      );
+      final result = await baseOpSqlite.runComplexOperation(dummyAction);
+
+      // Verifikasi bahwa db.transaction dipanggil
+      verify(mockDb.transaction<String>(any)).called(1);
+      expect(result, 'done');
     });
 
-    group('runComplexOperation', () {
-      test(
-        '12. harus menjalankan action yang diberikan di dalam transaksi dan mengembalikan hasilnya',
-        () async {
-          final mockTransaction = MockTransaction();
-          const expectedResult = 42;
+     test('14. harus menyertakan diperbaruiPada dan dariServer saat dariServer true', () async {
+        when(mockDb.insert(any, any)).thenAnswer((_) async => 1);
 
-          when(mockDatabase.transaction<int>(any)).thenAnswer((
-            invocation,
-          ) async {
-            final action =
-                invocation.positionalArguments[0]
-                    as Future<int> Function(Transaction);
-            return await action(mockTransaction);
-          });
+        await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: true);
 
-          final result = await baseOpSqlite.runComplexOperation<int>((
-            txn,
-          ) async {
-            expect(txn, same(mockTransaction));
-            return Future.value(expectedResult);
-          });
+        final captured = verify(mockDb.insert(tableName, captureAny)).captured.first;
+        final data = captured as Map<String, dynamic>;
 
-          expect(result, expectedResult);
-          verify(mockDatabase.transaction<int>(any)).called(1);
-        },
-      );
+        expect(data[NamaKolom.diperbaruiPada], isNotNull);
+        expect(data[NamaKolom.dariServer], 1);
+     });
 
-      test(
-        '13. harus melempar kembali exception jika action di dalam transaksi gagal',
-        () {
-          when(mockDatabase.transaction<void>(any)).thenThrow(exception);
-
-          expect(
-            baseOpSqlite.runComplexOperation<void>((txn) async {}),
-            throwsA(isA<Exception>()),
-          );
-        },
-      );
-    });
   });
 }

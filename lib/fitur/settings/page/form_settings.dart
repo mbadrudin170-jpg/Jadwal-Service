@@ -26,6 +26,7 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
   late TextEditingController _hapusArsipController;
   late TextEditingController _infoPemeliharaanController;
   late bool _modePemeliharaan;
+  bool _menyimpan = false;
 
   @override
   void initState() {
@@ -52,6 +53,9 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
   }
 
   Future<void> _simpanSettings() async {
+    setState(() {
+      _menyimpan = true;
+    });
     if (_formKey.currentState!.validate()) {
       Log.info('Memvalidasi dan menyimpan perubahan pengaturan.');
       try {
@@ -83,6 +87,10 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
         if (mounted) {
           ToastUtil.error(context, 'Gagal menyimpan pengaturan: $e');
         }
+      } finally {
+        setState(() {
+          _menyimpan = false;
+        });
       }
     }
   }
@@ -126,13 +134,14 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
                 maxLines: 3,
               ),
               gapH32,
-              ElevatedButton.icon(
-                icon: const Icon(TIcons.save),
-                label: const Text('Simpan Perubahan'),
-                onPressed: _simpanSettings,
+              ElevatedButton(
+                onPressed: _menyimpan ? null : _simpanSettings,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                 ),
+                child: _menyimpan
+                    ? const CircularProgressIndicator()
+                    : const Text('Simpan Perubahan'),
               ),
             ],
           ),

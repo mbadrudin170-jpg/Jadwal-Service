@@ -51,6 +51,10 @@ void main() {
       tanggal: DateTime(2023, 1, 6),
       idDompet: 'd1',
       idKategori: 'k2',
+      idPelanggan: null,
+      idPaket: null,
+      tanggalMulai: null,
+      tanggalBerakhir: null,
     ),
   ];
 

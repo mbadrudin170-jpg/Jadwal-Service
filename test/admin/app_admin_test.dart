@@ -53,6 +53,7 @@ class _TestTemaNotifier extends Tema {
   final ThemeMode initialTheme;
   _TestTemaNotifier(this.initialTheme);
 
+  @override
   Future<ThemeMode> build() async => initialTheme;
 }
 
@@ -136,7 +137,7 @@ void main() {
           (ref) => sharedPrefsValue.when(
             data: Future.value,
             loading: () => Future.value(mockSharedPreferences),
-            error: (e, st) => Future.error(e, st),
+            error: Future.error,
           ),
         ),
         layananNotifikasiProvider.overrideWithValue(mockLayananNotifikasi),
@@ -371,7 +372,7 @@ void main() {
         await tester.pumpWidget(
           UncontrolledProviderScope(
             container: container,
-            child: const AppMaterial(),
+            child: const AppMaterial(isOffline: false),
           ),
         );
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -387,7 +388,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const AppMaterial(),
+          child: const AppMaterial(isOffline: false),
         ),
       );
       await tester.pump();
@@ -403,7 +404,7 @@ void main() {
         await tester.pumpWidget(
           UncontrolledProviderScope(
             container: container,
-            child: const AppMaterial(),
+            child: const AppMaterial(isOffline: false),
           ),
         );
 

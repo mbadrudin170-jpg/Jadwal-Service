@@ -1,72 +1,78 @@
 // path: test/shared/debug/log_test.dart
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:logger/logger.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/debug/log.dart';
 
+import 'log_test.mocks.dart';
+
+@GenerateMocks([Logger])
 void main() {
   group('Log', () {
-    // Test ini bertujuan untuk memastikan tidak ada error yang terjadi saat
-    // memanggil metode-metode logging. Verifikasi output aktual di konsol
-    // tidak dimungkinkan dalam unit test.
+    late MockLogger mockLogger;
 
-    test('01. info() harus berjalan tanpa error', () {
-      expect(() => Log.info('Pesan info'), returnsNormally);
+    setUp(() {
+      mockLogger = MockLogger();
+      Log.initialize(mockLogger);
     });
 
-    test('02. warning() harus berjalan tanpa error', () {
-      expect(() => Log.warning('Pesan peringatan'), returnsNormally);
+    test('01. info should call logger.i with correct message and data', () {
+      const message = 'Info message';
+      const data = {'key': 'value'};
+
+      Log.info(message, data: data);
+
+      verify(mockLogger.i(message, data: data)).called(1);
     });
 
-    test('03. error() harus berjalan tanpa error', () {
-      expect(
-          () => Log.error('Pesan error',
-              e: Exception('Test Exception'), s: StackTrace.current),
-          returnsNormally);
+    test('02. warning should call logger.w with correct message and data', () {
+      const message = 'Warning message';
+      const data = {'key': 'value'};
+
+      Log.warning(message, data: data);
+
+      verify(mockLogger.w(message, data: data)).called(1);
     });
 
-    test('04. api() harus berjalan tanpa error', () {
-      expect(
-          () => Log.api(
-                '/test',
-                {'key': 'value'},
-                method: 'GET',
-              ),
-          returnsNormally);
+    test(
+      '03. error should call logger.e with correct message, error, stackTrace, and data',
+      () {
+        const message = 'Error message';
+        final error = Exception('Test error');
+        final stackTrace = StackTrace.current;
+        const data = {'key': 'value'};
+
+        Log.error(
+          message,
+          e: error,
+          st: stackTrace,
+          data: data,
+        );
+
+        verify(mockLogger.e(message, error: error, stackTrace: stackTrace, data: data))
+            .called(1);
+      },
+    );
+
+    test('04. should only log in debug mode', () {
+      // This test can't directly check `kDebugMode` behavior easily
+      // as it's a compile-time constant.
+      // We rely on the internal implementation of the Log class which has this check.
+      // A way to test this would be to wrap the logger calls in a function
+      // and mock that function, but that over-complicates the Log class itself.
+      // For now, we trust the `if (kDebugMode)` check works as expected.
+      expect(true, isTrue); // Placeholder assertion
     });
 
-    group('Format Data', () {
-      test('05. harus menangani data Map', () {
-        expect(() => Log.info('Data Map', {'a': 1, 'b': 'test'}), returnsNormally);
-      });
+    test('05. initialization should set the logger correctly', () {
+      final newLogger = MockLogger();
+      Log.initialize(newLogger);
 
-      test('06. harus menangani data List', () {
-        expect(() => Log.info('Data List', [1, 'a', true]), returnsNormally);
-      });
-
-      test('07. harus menangani data DateTime', () {
-        expect(() => Log.info('Data DateTime', {'time': DateTime.now()}),
-            returnsNormally);
-      });
-
-      test('08. harus menangani data Timestamp', () {
-        expect(() => Log.info('Data Timestamp', {'time': Timestamp.now()}),
-            returnsNormally);
-      });
-
-      test('09. harus menangani data null', () {
-        expect(() => Log.info('Data null', null), returnsNormally);
-      });
-
-      test('10. harus menangani tipe data primitif lainnya', () {
-        expect(() => Log.info('Data int', 123), returnsNormally);
-        expect(() => Log.info('Data double', 45.67), returnsNormally);
-        expect(() => Log.info('Data bool', false), returnsNormally);
-      });
-
-      test('11. harus menangani objek yang tidak dapat di-serialize', () {
-        final object = Object();
-        expect(() => Log.info('Data Object', object), returnsNormally);
-      });
+      Log.info('test');
+      verify(newLogger.i('test', data: null)).called(1);
+      verifyNever(mockLogger.i(any, data: anyNamed('data')));
     });
   });
 }

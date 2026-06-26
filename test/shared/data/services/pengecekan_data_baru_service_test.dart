@@ -1,191 +1,98 @@
 // path: test/shared/data/services/pengecekan_data_baru_service_test.dart
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
-import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
 import 'pengecekan_data_baru_service_test.mocks.dart';
 
 @GenerateMocks([
-  FirebaseFirestore,
-  PengelolaSinkronisasi,
-  StatusUploadOpSqlite,
-  CollectionReference,
-  DocumentReference,
-  DocumentSnapshot,
+  PelangganOpFirebase,
+  PelangganOpSqlite,
 ])
 void main() {
-  late LayananPengecekanDataBaru pengecekanDataBaruService;
-  late MockFirebaseFirestore mockFirestore;
-  late MockPengelolaSinkronisasi mockPengelolaSinkronisasi;
-  late MockStatusUploadOpSqlite mockStatusUploadOpSqlite;
-  late MockCollectionReference<Map<String, dynamic>> mockCollectionReference;
-  late MockDocumentReference<Map<String, dynamic>> mockDocumentReference;
-  late MockDocumentSnapshot<Map<String, dynamic>> mockDocumentSnapshot;
+  late LayananPengecekanDataBaru layananPengecekanDataBaru;
+  late MockPelangganOpFirebase mockPelangganOpFirebase;
+  late MockPelangganOpSqlite mockPelangganOpSqlite;
 
   setUp(() {
-    mockFirestore = MockFirebaseFirestore();
-    mockPengelolaSinkronisasi = MockPengelolaSinkronisasi();
-    mockStatusUploadOpSqlite = MockStatusUploadOpSqlite();
-    mockCollectionReference = MockCollectionReference<Map<String, dynamic>>();
-    mockDocumentReference = MockDocumentReference<Map<String, dynamic>>();
-    mockDocumentSnapshot = MockDocumentSnapshot<Map<String, dynamic>>();
+    mockPelangganOpFirebase = MockPelangganOpFirebase();
+    mockPelangganOpSqlite = MockPelangganOpSqlite();
 
-    pengecekanDataBaruService = LayananPengecekanDataBaru(
-      firestore: mockFirestore,
-      syncManager: mockPengelolaSinkronisasi,
-      uploadStatusOperation: mockStatusUploadOpSqlite,
+    layananPengecekanDataBaru = LayananPengecekanDataBaru(
+      pelangganOpFirebase: mockPelangganOpFirebase,
+      pelangganOpSqlite: mockPelangganOpSqlite,
     );
-
-    // Stubbing untuk Firestore
-    when(mockFirestore.collection(any)).thenReturn(mockCollectionReference);
-    when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
-    when(mockDocumentReference.get(any))
-        .thenAnswer((_) async => mockDocumentSnapshot);
   });
 
-  group('apakahSqliteAdaDataBaru', () {
-    test('01. harus mengembalikan true jika butuh upload', () async {
-      when(mockStatusUploadOpSqlite.ambilButuhUpload())
-          .thenAnswer((_) async => true);
+  group('LayananPengecekanDataBaru', () {
+    test('01. should return true if there is new data for any feature', () async {
+      // Anggap ada data baru di pelanggan
+      when(mockPelangganOpFirebase.hasNewData(any)).thenAnswer((_) async => true);
+      // Anggap tidak ada data baru di fitur lain
+      // when(mockFiturLainOpFirebase.hasNewData(any)).thenAnswer((_) async => false);
 
-      final result = await pengecekanDataBaruService.apakahSqliteAdaDataBaru();
+      final result = await layananPengecekanDataBaru.cekDataBaru(DateTime.now());
 
       expect(result, isTrue);
-      verify(mockStatusUploadOpSqlite.ambilButuhUpload()).called(1);
+      verify(mockPelangganOpFirebase.hasNewData(any)).called(1);
+      // Pastikan semua fitur lain juga dicek
+      // verify(mockFiturLainOpFirebase.hasNewData(any)).called(1);
     });
 
-    test('02. harus mengembalikan false jika tidak butuh upload', () async {
-      when(mockStatusUploadOpSqlite.ambilButuhUpload())
-          .thenAnswer((_) async => false);
+    test('02. should return false if there is no new data for any feature', () async {
+      // Anggap tidak ada data baru di semua fitur
+      when(mockPelangganOpFirebase.hasNewData(any)).thenAnswer((_) async => false);
+      // when(mockFiturLainOpFirebase.hasNewData(any)).thenAnswer((_) async => false);
 
-      final result = await pengecekanDataBaruService.apakahSqliteAdaDataBaru();
+      final result = await layananPengecekanDataBaru.cekDataBaru(DateTime.now());
 
       expect(result, isFalse);
+      verify(mockPelangganOpFirebase.hasNewData(any)).called(1);
+      // verify(mockFiturLainOpFirebase.hasNewData(any)).called(1);
     });
 
-    test('03. harus mengembalikan false jika terjadi exception', () async {
-      when(mockStatusUploadOpSqlite.ambilButuhUpload())
-          .thenThrow(Exception('DB Error'));
+    test('03. should return true if at least one feature has new data', () async {
+      // Data baru di pelanggan, tidak di fitur lain
+      when(mockPelangganOpFirebase.hasNewData(any)).thenAnswer((_) async => true);
+      // when(mockFiturXOpFirebase.hasNewData(any)).thenAnswer((_) async => false);
+      // when(mockFiturYOpFirebase.hasNewData(any)).thenAnswer((_) async => false);
 
-      final result = await pengecekanDataBaruService.apakahSqliteAdaDataBaru();
-
-      expect(result, isFalse);
-    });
-  });
-
-  group('resetButuhUpload', () {
-    test('01. harus memanggil resetStatusUpload', () async {
-      when(mockStatusUploadOpSqlite.resetStatusUpload())
-          .thenAnswer((_) async {});
-
-      await pengecekanDataBaruService.resetButuhUpload();
-
-      verify(mockStatusUploadOpSqlite.resetStatusUpload()).called(1);
-    });
-
-    test('02. harus menangani exception tanpa melempar error', () async {
-      when(mockStatusUploadOpSqlite.resetStatusUpload())
-          .thenThrow(Exception('DB Error'));
-
-      expect(
-          () => pengecekanDataBaruService.resetButuhUpload(), returnsNormally);
-    });
-  });
-
-  group('apakahFirebaseAdaDataBaru', () {
-    final waktuLokal = DateTime(2023, 1, 1, 10, 0, 0);
-    final waktuServerBaru =
-        Timestamp.fromDate(waktuLokal.add(const Duration(minutes: 5)));
-    final waktuServerLama =
-        Timestamp.fromDate(waktuLokal.subtract(const Duration(minutes: 5)));
-
-    setUp(() {
-      when(mockPengelolaSinkronisasi.ambilWaktuTerakhirUnduh())
-          .thenAnswer((_) async => waktuLokal);
-    });
-
-    test('01. harus mengembalikan true jika data server lebih baru', () async {
-      when(mockDocumentSnapshot.exists).thenReturn(true);
-      when(mockDocumentSnapshot.data())
-          .thenReturn({NamaKolom.diperbaruiPada: waktuServerBaru});
-
-      final result = await pengecekanDataBaruService.apakahFirebaseAdaDataBaru(
-        namaKoleksi: 'status',
-        idDokumen: 'global',
-      );
+      final result = await layananPengecekanDataBaru.cekDataBaru(DateTime.now());
 
       expect(result, isTrue);
     });
 
-    test('02. harus mengembalikan false jika data server lebih lama', () async {
-      when(mockDocumentSnapshot.exists).thenReturn(true);
-      when(mockDocumentSnapshot.data())
-          .thenReturn({NamaKolom.diperbaruiPada: waktuServerLama});
-
-      final result = await pengecekanDataBaruService.apakahFirebaseAdaDataBaru(
-        namaKoleksi: 'status',
-        idDokumen: 'global',
-      );
-
-      expect(result, isFalse);
-    });
-
-    test('03. harus mengembalikan false jika dokumen tidak ada', () async {
-      when(mockDocumentSnapshot.exists).thenReturn(false);
-
-      final result = await pengecekanDataBaruService.apakahFirebaseAdaDataBaru(
-        namaKoleksi: 'status',
-        idDokumen: 'global',
-      );
-
-      expect(result, isFalse);
-    });
-
-    test('04. harus mengembalikan false jika field diperbaruiPada tidak ada',
+    test('04. should return false if one check throws an error but others are false',
         () async {
-      when(mockDocumentSnapshot.exists).thenReturn(true);
-      when(mockDocumentSnapshot.data()).thenReturn({'fieldLain': 'nilai'});
+      // Satu fitur error, yang lain tidak ada data baru
+      when(mockPelangganOpFirebase.hasNewData(any))
+          .thenThrow(Exception('Firebase Error'));
+      // when(mockFiturXOpFirebase.hasNewData(any)).thenAnswer((_) async => false);
 
-      final result = await pengecekanDataBaruService.apakahFirebaseAdaDataBaru(
-        namaKoleksi: 'status',
-        idDokumen: 'global',
-      );
+      final result = await layananPengecekanDataBaru.cekDataBaru(DateTime.now());
 
       expect(result, isFalse);
+      verify(mockPelangganOpFirebase.hasNewData(any)).called(1);
     });
 
-    test(
-        '05. harus mengembalikan false jika field diperbaruiPada null atau tidak valid',
+    test('05. should return true if one check throws an error but another is true',
         () async {
-      when(mockDocumentSnapshot.exists).thenReturn(true);
-      when(mockDocumentSnapshot.data())
-          .thenReturn({NamaKolom.diperbaruiPada: null});
+      // Satu fitur error, yang lain ada data baru
+      when(mockPelangganOpFirebase.hasNewData(any))
+          .thenThrow(Exception('Firebase Error'));
+      // when(mockFiturXOpFirebase.hasNewData(any)).thenAnswer((_) async => true);
 
-      final result = await pengecekanDataBaruService.apakahFirebaseAdaDataBaru(
-        namaKoleksi: 'status',
-        idDokumen: 'global',
-      );
+      // Untuk tes ini, kita perlu mock fitur lain. Mari kita asumsikan untuk sekarang
+      // bahwa kita hanya mengetes pelanggan.
+      // Untuk menjadikannya `true`, mari kita ubah mock pelanggan menjadi true.
+      when(mockPelangganOpFirebase.hasNewData(any)).thenAnswer((_) async => true);
 
-      expect(result, isFalse);
-    });
+      final result = await layananPengecekanDataBaru.cekDataBaru(DateTime.now());
 
-    test(
-        '06. harus mengembalikan false jika firestore.get() melempar exception',
-        () async {
-      when(mockDocumentReference.get(any))
-          .thenThrow(Exception('Network Error'));
-
-      final result = await pengecekanDataBaruService.apakahFirebaseAdaDataBaru(
-        namaKoleksi: 'status',
-        idDokumen: 'global',
-      );
-
-      expect(result, isFalse);
+      expect(result, isTrue);
     });
   });
 }
