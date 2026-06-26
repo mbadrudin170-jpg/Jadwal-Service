@@ -9,9 +9,6 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i5;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' as _i2;
 import 'package:wifi/admin/data/sqlite.dart' as _i4;
-import 'package:wifi/shared/model/status_unggah_model.dart' as _i7;
-import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart'
-    as _i6;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -838,55 +835,4 @@ class MockBatch extends _i1.Mock implements _i2.Batch {
     Invocation.method(#rawQuery, [sql, arguments]),
     returnValueForMissingStub: null,
   );
-}
-
-/// A class which mocks [StatusUploadOpSqlite].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockStatusUploadOpSqlite extends _i1.Mock
-    implements _i6.StatusUploadOpSqlite {
-  MockStatusUploadOpSqlite() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i3.Future<void> tandaiButuhUpload(
-    bool? needUpload, {
-    _i2.Transaction? transaction,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #tandaiButuhUpload,
-              [needUpload],
-              {#transaction: transaction},
-            ),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
-          )
-          as _i3.Future<void>);
-
-  @override
-  _i3.Future<bool> ambilButuhUpload() =>
-      (super.noSuchMethod(
-            Invocation.method(#ambilButuhUpload, []),
-            returnValue: _i3.Future<bool>.value(false),
-          )
-          as _i3.Future<bool>);
-
-  @override
-  _i3.Future<void> resetStatusUpload() =>
-      (super.noSuchMethod(
-            Invocation.method(#resetStatusUpload, []),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
-          )
-          as _i3.Future<void>);
-
-  @override
-  _i3.Future<_i7.StatusUnggahModel?> ambilStatusUpload() =>
-      (super.noSuchMethod(
-            Invocation.method(#ambilStatusUpload, []),
-            returnValue: _i3.Future<_i7.StatusUnggahModel?>.value(),
-          )
-          as _i3.Future<_i7.StatusUnggahModel?>);
 }

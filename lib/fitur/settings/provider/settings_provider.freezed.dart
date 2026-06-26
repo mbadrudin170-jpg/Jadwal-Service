@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SettingsState {
 
- int get waktuOtomatisSinkronisasi; int get waktuOtomatisHapusDataArsip; bool get modeMaintenance; String get infoMaintenance;
+ String get idSettings; int get waktuOtomatisSinkronisasi; int get waktuOtomatisHapusDataArsip; bool get modeMaintenance; String get infoMaintenance;
 /// Create a copy of SettingsState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $SettingsStateCopyWith<SettingsState> get copyWith => _$SettingsStateCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SettingsState&&(identical(other.waktuOtomatisSinkronisasi, waktuOtomatisSinkronisasi) || other.waktuOtomatisSinkronisasi == waktuOtomatisSinkronisasi)&&(identical(other.waktuOtomatisHapusDataArsip, waktuOtomatisHapusDataArsip) || other.waktuOtomatisHapusDataArsip == waktuOtomatisHapusDataArsip)&&(identical(other.modeMaintenance, modeMaintenance) || other.modeMaintenance == modeMaintenance)&&(identical(other.infoMaintenance, infoMaintenance) || other.infoMaintenance == infoMaintenance));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SettingsState&&(identical(other.idSettings, idSettings) || other.idSettings == idSettings)&&(identical(other.waktuOtomatisSinkronisasi, waktuOtomatisSinkronisasi) || other.waktuOtomatisSinkronisasi == waktuOtomatisSinkronisasi)&&(identical(other.waktuOtomatisHapusDataArsip, waktuOtomatisHapusDataArsip) || other.waktuOtomatisHapusDataArsip == waktuOtomatisHapusDataArsip)&&(identical(other.modeMaintenance, modeMaintenance) || other.modeMaintenance == modeMaintenance)&&(identical(other.infoMaintenance, infoMaintenance) || other.infoMaintenance == infoMaintenance));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,waktuOtomatisSinkronisasi,waktuOtomatisHapusDataArsip,modeMaintenance,infoMaintenance);
+int get hashCode => Object.hash(runtimeType,idSettings,waktuOtomatisSinkronisasi,waktuOtomatisHapusDataArsip,modeMaintenance,infoMaintenance);
 
 @override
 String toString() {
-  return 'SettingsState(waktuOtomatisSinkronisasi: $waktuOtomatisSinkronisasi, waktuOtomatisHapusDataArsip: $waktuOtomatisHapusDataArsip, modeMaintenance: $modeMaintenance, infoMaintenance: $infoMaintenance)';
+  return 'SettingsState(idSettings: $idSettings, waktuOtomatisSinkronisasi: $waktuOtomatisSinkronisasi, waktuOtomatisHapusDataArsip: $waktuOtomatisHapusDataArsip, modeMaintenance: $modeMaintenance, infoMaintenance: $infoMaintenance)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $SettingsStateCopyWith<$Res>  {
   factory $SettingsStateCopyWith(SettingsState value, $Res Function(SettingsState) _then) = _$SettingsStateCopyWithImpl;
 @useResult
 $Res call({
- int waktuOtomatisSinkronisasi, int waktuOtomatisHapusDataArsip, bool modeMaintenance, String infoMaintenance
+ String idSettings, int waktuOtomatisSinkronisasi, int waktuOtomatisHapusDataArsip, bool modeMaintenance, String infoMaintenance
 });
 
 
@@ -62,9 +62,10 @@ class _$SettingsStateCopyWithImpl<$Res>
 
 /// Create a copy of SettingsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? waktuOtomatisSinkronisasi = null,Object? waktuOtomatisHapusDataArsip = null,Object? modeMaintenance = null,Object? infoMaintenance = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? idSettings = null,Object? waktuOtomatisSinkronisasi = null,Object? waktuOtomatisHapusDataArsip = null,Object? modeMaintenance = null,Object? infoMaintenance = null,}) {
   return _then(_self.copyWith(
-waktuOtomatisSinkronisasi: null == waktuOtomatisSinkronisasi ? _self.waktuOtomatisSinkronisasi : waktuOtomatisSinkronisasi // ignore: cast_nullable_to_non_nullable
+idSettings: null == idSettings ? _self.idSettings : idSettings // ignore: cast_nullable_to_non_nullable
+as String,waktuOtomatisSinkronisasi: null == waktuOtomatisSinkronisasi ? _self.waktuOtomatisSinkronisasi : waktuOtomatisSinkronisasi // ignore: cast_nullable_to_non_nullable
 as int,waktuOtomatisHapusDataArsip: null == waktuOtomatisHapusDataArsip ? _self.waktuOtomatisHapusDataArsip : waktuOtomatisHapusDataArsip // ignore: cast_nullable_to_non_nullable
 as int,modeMaintenance: null == modeMaintenance ? _self.modeMaintenance : modeMaintenance // ignore: cast_nullable_to_non_nullable
 as bool,infoMaintenance: null == infoMaintenance ? _self.infoMaintenance : infoMaintenance // ignore: cast_nullable_to_non_nullable
@@ -153,10 +154,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int waktuOtomatisSinkronisasi,  int waktuOtomatisHapusDataArsip,  bool modeMaintenance,  String infoMaintenance)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String idSettings,  int waktuOtomatisSinkronisasi,  int waktuOtomatisHapusDataArsip,  bool modeMaintenance,  String infoMaintenance)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SettingsState() when $default != null:
-return $default(_that.waktuOtomatisSinkronisasi,_that.waktuOtomatisHapusDataArsip,_that.modeMaintenance,_that.infoMaintenance);case _:
+return $default(_that.idSettings,_that.waktuOtomatisSinkronisasi,_that.waktuOtomatisHapusDataArsip,_that.modeMaintenance,_that.infoMaintenance);case _:
   return orElse();
 
 }
@@ -174,10 +175,10 @@ return $default(_that.waktuOtomatisSinkronisasi,_that.waktuOtomatisHapusDataArsi
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int waktuOtomatisSinkronisasi,  int waktuOtomatisHapusDataArsip,  bool modeMaintenance,  String infoMaintenance)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String idSettings,  int waktuOtomatisSinkronisasi,  int waktuOtomatisHapusDataArsip,  bool modeMaintenance,  String infoMaintenance)  $default,) {final _that = this;
 switch (_that) {
 case _SettingsState():
-return $default(_that.waktuOtomatisSinkronisasi,_that.waktuOtomatisHapusDataArsip,_that.modeMaintenance,_that.infoMaintenance);case _:
+return $default(_that.idSettings,_that.waktuOtomatisSinkronisasi,_that.waktuOtomatisHapusDataArsip,_that.modeMaintenance,_that.infoMaintenance);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -194,10 +195,10 @@ return $default(_that.waktuOtomatisSinkronisasi,_that.waktuOtomatisHapusDataArsi
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int waktuOtomatisSinkronisasi,  int waktuOtomatisHapusDataArsip,  bool modeMaintenance,  String infoMaintenance)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String idSettings,  int waktuOtomatisSinkronisasi,  int waktuOtomatisHapusDataArsip,  bool modeMaintenance,  String infoMaintenance)?  $default,) {final _that = this;
 switch (_that) {
 case _SettingsState() when $default != null:
-return $default(_that.waktuOtomatisSinkronisasi,_that.waktuOtomatisHapusDataArsip,_that.modeMaintenance,_that.infoMaintenance);case _:
+return $default(_that.idSettings,_that.waktuOtomatisSinkronisasi,_that.waktuOtomatisHapusDataArsip,_that.modeMaintenance,_that.infoMaintenance);case _:
   return null;
 
 }
@@ -209,9 +210,10 @@ return $default(_that.waktuOtomatisSinkronisasi,_that.waktuOtomatisHapusDataArsi
 
 
 class _SettingsState implements SettingsState {
-  const _SettingsState({required this.waktuOtomatisSinkronisasi, required this.waktuOtomatisHapusDataArsip, required this.modeMaintenance, required this.infoMaintenance});
+  const _SettingsState({required this.idSettings, required this.waktuOtomatisSinkronisasi, required this.waktuOtomatisHapusDataArsip, required this.modeMaintenance, required this.infoMaintenance});
   
 
+@override final  String idSettings;
 @override final  int waktuOtomatisSinkronisasi;
 @override final  int waktuOtomatisHapusDataArsip;
 @override final  bool modeMaintenance;
@@ -227,16 +229,16 @@ _$SettingsStateCopyWith<_SettingsState> get copyWith => __$SettingsStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SettingsState&&(identical(other.waktuOtomatisSinkronisasi, waktuOtomatisSinkronisasi) || other.waktuOtomatisSinkronisasi == waktuOtomatisSinkronisasi)&&(identical(other.waktuOtomatisHapusDataArsip, waktuOtomatisHapusDataArsip) || other.waktuOtomatisHapusDataArsip == waktuOtomatisHapusDataArsip)&&(identical(other.modeMaintenance, modeMaintenance) || other.modeMaintenance == modeMaintenance)&&(identical(other.infoMaintenance, infoMaintenance) || other.infoMaintenance == infoMaintenance));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SettingsState&&(identical(other.idSettings, idSettings) || other.idSettings == idSettings)&&(identical(other.waktuOtomatisSinkronisasi, waktuOtomatisSinkronisasi) || other.waktuOtomatisSinkronisasi == waktuOtomatisSinkronisasi)&&(identical(other.waktuOtomatisHapusDataArsip, waktuOtomatisHapusDataArsip) || other.waktuOtomatisHapusDataArsip == waktuOtomatisHapusDataArsip)&&(identical(other.modeMaintenance, modeMaintenance) || other.modeMaintenance == modeMaintenance)&&(identical(other.infoMaintenance, infoMaintenance) || other.infoMaintenance == infoMaintenance));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,waktuOtomatisSinkronisasi,waktuOtomatisHapusDataArsip,modeMaintenance,infoMaintenance);
+int get hashCode => Object.hash(runtimeType,idSettings,waktuOtomatisSinkronisasi,waktuOtomatisHapusDataArsip,modeMaintenance,infoMaintenance);
 
 @override
 String toString() {
-  return 'SettingsState(waktuOtomatisSinkronisasi: $waktuOtomatisSinkronisasi, waktuOtomatisHapusDataArsip: $waktuOtomatisHapusDataArsip, modeMaintenance: $modeMaintenance, infoMaintenance: $infoMaintenance)';
+  return 'SettingsState(idSettings: $idSettings, waktuOtomatisSinkronisasi: $waktuOtomatisSinkronisasi, waktuOtomatisHapusDataArsip: $waktuOtomatisHapusDataArsip, modeMaintenance: $modeMaintenance, infoMaintenance: $infoMaintenance)';
 }
 
 
@@ -247,7 +249,7 @@ abstract mixin class _$SettingsStateCopyWith<$Res> implements $SettingsStateCopy
   factory _$SettingsStateCopyWith(_SettingsState value, $Res Function(_SettingsState) _then) = __$SettingsStateCopyWithImpl;
 @override @useResult
 $Res call({
- int waktuOtomatisSinkronisasi, int waktuOtomatisHapusDataArsip, bool modeMaintenance, String infoMaintenance
+ String idSettings, int waktuOtomatisSinkronisasi, int waktuOtomatisHapusDataArsip, bool modeMaintenance, String infoMaintenance
 });
 
 
@@ -264,9 +266,10 @@ class __$SettingsStateCopyWithImpl<$Res>
 
 /// Create a copy of SettingsState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? waktuOtomatisSinkronisasi = null,Object? waktuOtomatisHapusDataArsip = null,Object? modeMaintenance = null,Object? infoMaintenance = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? idSettings = null,Object? waktuOtomatisSinkronisasi = null,Object? waktuOtomatisHapusDataArsip = null,Object? modeMaintenance = null,Object? infoMaintenance = null,}) {
   return _then(_SettingsState(
-waktuOtomatisSinkronisasi: null == waktuOtomatisSinkronisasi ? _self.waktuOtomatisSinkronisasi : waktuOtomatisSinkronisasi // ignore: cast_nullable_to_non_nullable
+idSettings: null == idSettings ? _self.idSettings : idSettings // ignore: cast_nullable_to_non_nullable
+as String,waktuOtomatisSinkronisasi: null == waktuOtomatisSinkronisasi ? _self.waktuOtomatisSinkronisasi : waktuOtomatisSinkronisasi // ignore: cast_nullable_to_non_nullable
 as int,waktuOtomatisHapusDataArsip: null == waktuOtomatisHapusDataArsip ? _self.waktuOtomatisHapusDataArsip : waktuOtomatisHapusDataArsip // ignore: cast_nullable_to_non_nullable
 as int,modeMaintenance: null == modeMaintenance ? _self.modeMaintenance : modeMaintenance // ignore: cast_nullable_to_non_nullable
 as bool,infoMaintenance: null == infoMaintenance ? _self.infoMaintenance : infoMaintenance // ignore: cast_nullable_to_non_nullable

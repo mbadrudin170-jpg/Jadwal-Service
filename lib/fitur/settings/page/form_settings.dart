@@ -31,6 +31,7 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
   @override
   void initState() {
     super.initState();
+    final settings = ref.read(settingsProvider);
     _intervalController = TextEditingController(
       text: '${widget.settings.waktuOtomatisSinkronisasi}',
     );

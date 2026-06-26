@@ -194,7 +194,7 @@ class SettingsAdminPage extends ConsumerWidget {
                   icon: const Icon(Icons.edit),
                   label: const Text('Edit Pengaturan'),
                   onPressed: () {
-                    _navigasiKeFormSettings(context, settings);
+                    _navigasiKeFormSettings(context, _settingsModel);
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),
