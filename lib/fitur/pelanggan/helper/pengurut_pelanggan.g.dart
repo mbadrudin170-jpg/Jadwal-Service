@@ -8,15 +8,12 @@ part of 'pengurut_pelanggan.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// 🚀 DIPINDAHKAN KE SINI: Mengelola status opsi urutan aktif
 
 @ProviderFor(UrutanPelangganState)
 final urutanPelangganStateProvider = UrutanPelangganStateProvider._();
 
-/// 🚀 DIPINDAHKAN KE SINI: Mengelola status opsi urutan aktif
 final class UrutanPelangganStateProvider
     extends $NotifierProvider<UrutanPelangganState, UrutanPelanggan> {
-  /// 🚀 DIPINDAHKAN KE SINI: Mengelola status opsi urutan aktif
   UrutanPelangganStateProvider._()
     : super(
         from: null,
@@ -46,8 +43,6 @@ final class UrutanPelangganStateProvider
 
 String _$urutanPelangganStateHash() =>
     r'00011679e041c63f27338fb6f0bc66cf681c6468';
-
-/// 🚀 DIPINDAHKAN KE SINI: Mengelola status opsi urutan aktif
 
 abstract class _$UrutanPelangganState extends $Notifier<UrutanPelanggan> {
   UrutanPelanggan build();

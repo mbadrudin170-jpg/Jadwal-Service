@@ -112,7 +112,6 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
     );
 
     if (newSort != null) {
-      // Memanggil method di notifier untuk mengubah urutan
       ref.read(urutanTransaksiStateProvider.notifier).ubahUrutan(newSort);
     }
   }

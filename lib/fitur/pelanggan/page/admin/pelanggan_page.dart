@@ -176,44 +176,32 @@ class _PelangganState extends ConsumerState<PelangganPage> {
 
   Future<void> _dialogSort() async {
     final urutanAktif = ref.read(urutanPelangganStateProvider);
-    Widget buildOption(String text, UrutanPelanggan value) {
-      final sedangDipilih = urutanAktif == value;
-      return SimpleDialogOption(
-        onPressed: () => Navigator.pop(context, value),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-          decoration: BoxDecoration(
-            color: sedangDipilih ? TColors.pointBackground : null,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: sedangDipilih ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ),
-      );
-    }
     final hasil = await showDialog<UrutanPelanggan>(
       context: context,
       builder: (context) => SimpleDialog(
         title: const Text('Urutkan Berdasarkan'),
-        children: <Widget>[
-          buildOption('Nama (A-Z)', UrutanPelanggan.namaAZ),
-          buildOption('Nama (Z-A)', UrutanPelanggan.namaZa),
-          buildOption(
-            'Aktivitas Terakhir (Terbaru)',
-            UrutanPelanggan.terakhirOnline,
-          ),
-          buildOption(
-            'Aktivitas Terakhir (Terlama)',
-            UrutanPelanggan.terbaruOnline,
-          ),
-          buildOption('Poin (Tertinggi)', UrutanPelanggan.poinTerbanyak),
-          buildOption('Poin (Terendah)', UrutanPelanggan.poinTerkecil),
-        ],
+        children: UrutanPelanggan.values.map((value) {
+          final sedangDipilih = urutanAktif == value;
+          return SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, value),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              decoration: BoxDecoration(
+                color: sedangDipilih ? TColors.pointBackground : null,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                value.teks,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: sedangDipilih
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
     if (hasil != null) {

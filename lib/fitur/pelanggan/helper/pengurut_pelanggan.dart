@@ -7,17 +7,18 @@ import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 
 part 'pengurut_pelanggan.g.dart';
 
-/// Enum untuk menentukan opsi pengurutan daftar customer.
 enum UrutanPelanggan {
-  namaAZ,
-  namaZa,
-  terakhirOnline,
-  terbaruOnline,
-  poinTerbanyak,
-  poinTerkecil,
+  namaAZ('Nama A-Z'),
+  namaZa('Nama Z-A'),
+  terakhirOnline('Aktivitas Terakhir (Terbaru)'),
+  terbaruOnline('Aktivitas Terakhir (Terlama)'),
+  poinTerbanyak('Poin (Tertinggi)'),
+  poinTerkecil('Poin (Terendah)');
+
+  const UrutanPelanggan(this.teks);
+  final String teks;
 }
 
-/// 🚀 DIPINDAHKAN KE SINI: Mengelola status opsi urutan aktif
 @riverpod
 class UrutanPelangganState extends _$UrutanPelangganState {
   @override
