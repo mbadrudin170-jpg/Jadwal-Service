@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
+import 'package:wifi/fitur/sinkronisasi/pengelola_sinkronisasi.dart';
 
 import 'pengelola_sinkronisasi_test.mocks.dart';
 

@@ -16,7 +16,7 @@ import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart'
     as _i9;
 import 'package:wifi/shared/model/has_id.dart' as _i7;
 import 'package:wifi/shared/services/koneksi_internet_service.dart' as _i12;
-import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart' as _i5;
+import 'package:wifi/fitur/sinkronisasi/pengelola_sinkronisasi.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values

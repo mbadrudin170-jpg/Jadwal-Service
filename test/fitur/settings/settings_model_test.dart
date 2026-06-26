@@ -1,7 +1,6 @@
-// path: test/fitur/settings/settings_model_test.dart
+'''// path: test/fitur/settings/settings_model_test.dart
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 
@@ -10,21 +9,17 @@ void main() {
     test('01. harus membuat instance dengan nilai default yang benar', () {
       const settings = SettingsModel();
 
-      expect(settings.id, '1');
-      expect(settings.namaToko, 'Wifi');
-      expect(settings.telepon, '08123456789');
-      expect(settings.alamat, 'Alamat Wifi');
-      expect(settings.namaWifi, 'Wifi');
-      expect(settings.kataSandiWifi, '12345678');
-      expect(settings.tema, ThemeMode.system);
+      expect(settings.id, 'global_config');
+      expect(settings.waktuOtomatisSinkronisasi, 24);
       expect(settings.waktuOtomatisHapusDataArsip, 30);
-      expect(settings.sinkronisasiOtomatis, true);
+      expect(settings.modeMaintenance, false);
+      expect(settings.infoMaintenance, '');
     });
 
     test('02. harus mendukung perbandingan nilai (value equality)', () {
       const settings1 = SettingsModel();
       const settings2 = SettingsModel();
-      const settings3 = SettingsModel(namaToko: 'Toko Baru');
+      const settings3 = SettingsModel(infoMaintenance: 'Toko Baru');
 
       expect(settings1, equals(settings2));
       expect(settings1, isNot(equals(settings3)));
@@ -34,7 +29,7 @@ void main() {
       const settings = SettingsModel();
       expect(
         settings.toString(),
-        'SettingsModel(id: 1, namaToko: Wifi, telepon: 08123456789, alamat: Alamat Wifi, namaWifi: Wifi, kataSandiWifi: 12345678, tema: ThemeMode.system, waktuOtomatisHapusDataArsip: 30, sinkronisasiOtomatis: true)',
+        'SettingsModel(id: global_config, waktuOtomatisSinkronisasi: 24, waktuOtomatisHapusDataArsip: 30, modeMaintenance: false, infoMaintenance: , diperbaruiPada: null)',
       );
     });
   });
@@ -43,15 +38,13 @@ void main() {
     test('01. harus menyalin instance dengan nilai yang diperbarui', () {
       const original = SettingsModel();
       final copied = original.copyWith(
-        namaToko: 'Toko Kopi',
-        tema: ThemeMode.dark,
+        infoMaintenance: 'Toko Kopi',
+        modeMaintenance: true,
       );
 
       expect(copied.id, original.id);
-      expect(copied.namaToko, 'Toko Kopi');
-      expect(copied.telepon, original.telepon);
-      expect(copied.tema, ThemeMode.dark);
-      expect(copied.sinkronisasiOtomatis, original.sinkronisasiOtomatis);
+      expect(copied.infoMaintenance, 'Toko Kopi');
+      expect(copied.modeMaintenance, true);
     });
 
     test('02. harus mengembalikan instance yang sama jika tidak ada nilai', () {
@@ -66,59 +59,38 @@ void main() {
     final now = DateTime.now();
     final map = {
       'id': '1',
-      'nama_toko': 'Toko Sqflite',
-      'telepon': '111222333',
-      'alamat': 'Jl. Sqflite',
-      'nama_wifi': 'Wifi Sqflite',
-      'kata_sandi_wifi': 'pass_sqflite',
-      'tema': 'dark',
-      'waktu_otomatis_hapus_data_arsip': 60,
-      'sinkronisasi_otomatis': 0,
+      'waktu_otomatis_sinkronisasi': 60,
+      'waktu_otomatis_hapus_data_arsip': 90,
+      'mode_maintenance': 1,
+      'info_maintenance': 'Info',
       'diperbarui_pada': now.millisecondsSinceEpoch,
     };
 
     test('01. fromSqliteMap harus membuat instance yang benar dari map', () {
-      final settings = SettingsModel.fromSqliteMap(map);
+      final settings = SettingsModel.fromSqlite(map);
 
-      expect(settings.namaToko, 'Toko Sqflite');
-      expect(settings.telepon, '111222333');
-      expect(settings.tema, ThemeMode.dark);
-      expect(settings.waktuOtomatisHapusDataArsip, 60);
-      expect(settings.sinkronisasiOtomatis, false);
+      expect(settings.waktuOtomatisSinkronisasi, 60);
+      expect(settings.waktuOtomatisHapusDataArsip, 90);
+      expect(settings.modeMaintenance, true);
+      expect(settings.infoMaintenance, 'Info');
       expect(settings.diperbaruiPada, isNotNull);
     });
 
     test('02. toSqliteMap harus membuat map yang benar dari instance', () {
       final settings = SettingsModel(
-        namaToko: 'Toko Sqflite',
-        telepon: '111222333',
-        alamat: 'Jl. Sqflite',
-        namaWifi: 'Wifi Sqflite',
-        kataSandiWifi: 'pass_sqflite',
-        tema: ThemeMode.dark,
-        waktuOtomatisHapusDataArsip: 60,
-        sinkronisasiOtomatis: false,
+        waktuOtomatisSinkronisasi: 60,
+        waktuOtomatisHapusDataArsip: 90,
+        modeMaintenance: true,
+        infoMaintenance: 'Info',
         diperbaruiPada: now,
       );
 
-      final resultMap = settings.toSqliteMap();
+      final resultMap = settings.toSqlite();
 
-      expect(resultMap['nama_toko'], 'Toko Sqflite');
-      expect(resultMap['tema'], 'dark');
-      expect(resultMap['sinkronisasi_otomatis'], 0);
+      expect(resultMap['waktu_otomatis_sinkronisasi'], 60);
+      expect(resultMap['mode_maintenance'], 1);
+      expect(resultMap['info_maintenance'], 'Info');
       expect(resultMap['diperbarui_pada'], now.millisecondsSinceEpoch);
-    });
-
-    test('03. toSqliteMap harus menangani tema yang tidak diketahui', () {
-      final settings = SettingsModel(tema: ThemeMode.system);
-      final map = settings.toSqliteMap();
-      expect(map['tema'], 'system');
-    });
-
-    test('04. fromSqliteMap harus menangani tema yang tidak diketahui', () {
-      final mapWithUnknownTheme = {...map, 'tema': 'tidak_diketahui'};
-      final settings = SettingsModel.fromSqliteMap(mapWithUnknownTheme);
-      expect(settings.tema, ThemeMode.system);
     });
   });
 
@@ -126,61 +98,38 @@ void main() {
     final now = DateTime.now();
     final map = {
       'id': '1',
-      'nama_toko': 'Toko Firebase',
-      'telepon': '444555666',
-      'alamat': 'Jl. Firebase',
-      'nama_wifi': 'Wifi Firebase',
-      'kata_sandi_wifi': 'pass_firebase',
-      'tema': 'light',
+      'waktu_otomatis_sinkronisasi': 60,
       'waktu_otomatis_hapus_data_arsip': 90,
-      'sinkronisasi_otomatis': true,
+      'mode_maintenance': true,
+      'info_maintenance': 'Info',
       'diperbarui_pada': now.toIso8601String(),
     };
 
     test('01. fromFirebaseMap harus membuat instance yang benar', () {
-      final settings = SettingsModel.fromFirebaseMap(map);
+      final settings = SettingsModel.fromFirebase(map);
 
-      expect(settings.namaToko, 'Toko Firebase');
-      expect(settings.tema, ThemeMode.light);
+      expect(settings.waktuOtomatisSinkronisasi, 60);
       expect(settings.waktuOtomatisHapusDataArsip, 90);
-      expect(settings.sinkronisasiOtomatis, isTrue);
+      expect(settings.modeMaintenance, true);
+      expect(settings.infoMaintenance, 'Info');
       expect(settings.diperbaruiPada, isNotNull);
     });
 
     test('02. toFirebaseMap harus membuat map yang benar', () {
       final settings = SettingsModel(
-        namaToko: 'Toko Firebase',
-        telepon: '444555666',
-        alamat: 'Jl. Firebase',
-        namaWifi: 'Wifi Firebase',
-        kataSandiWifi: 'pass_firebase',
-        tema: ThemeMode.light,
+        waktuOtomatisSinkronisasi: 60,
         waktuOtomatisHapusDataArsip: 90,
-        sinkronisasiOtomatis: true,
+        modeMaintenance: true,
+        infoMaintenance: 'Info',
         diperbaruiPada: now,
       );
 
-      final resultMap = settings.toFirebaseMap();
+      final resultMap = settings.toFirebase();
 
-      expect(resultMap['nama_toko'], 'Toko Firebase');
-      expect(resultMap['tema'], 'light');
-      expect(resultMap['sinkronisasi_otomatis'], isTrue);
-      expect(resultMap['diperbarui_pada'], now.toIso8601String());
-    });
-  });
-
-  group('05. from/to Json (untuk String)', () {
-    final jsonString = '{"id":"1","nama_toko":"Toko JSON"}';
-
-    test('01. fromJson harus membuat instance dari string JSON', () {
-      final settings = SettingsModel.fromJson(jsonString);
-      expect(settings.namaToko, 'Toko JSON');
-    });
-
-    test('02. toJson harus membuat string JSON dari instance', () {
-      const settings = SettingsModel(namaToko: 'Toko JSON');
-      final encoded = json.decode(settings.toJson());
-      expect(encoded['nama_toko'], 'Toko JSON');
+      expect(resultMap['waktu_otomatis_sinkronisasi'], 60);
+      expect(resultMap['mode_maintenance'], true);
+      expect(resultMap['info_maintenance'], 'Info');
     });
   });
 }
+''

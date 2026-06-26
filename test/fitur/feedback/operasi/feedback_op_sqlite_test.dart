@@ -1,4 +1,4 @@
-// path: test/fitur/feedback/operasi/feedback_op_sqlite_test.dart
+'''// path: test/fitur/feedback/operasi/feedback_op_sqlite_test.dart
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -174,7 +174,7 @@ void main() {
           ),
         ).thenAnswer((_) async => [feedbackMap]);
 
-        await feedbackOpSqlite.ambilSemuaFeedbackAktif();
+        await feedbackOpSqlite.ambilSemuaFeedback();
 
         verify(
           mockDb.query(
@@ -294,3 +294,4 @@ void main() {
     );
   });
 }
+''
