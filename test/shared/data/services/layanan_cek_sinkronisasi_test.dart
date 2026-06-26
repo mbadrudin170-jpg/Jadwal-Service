@@ -1,4 +1,4 @@
-'''// path: test/shared/data/services/layanan_cek_sinkronisasi_test.dart
+// path: test/shared/data/services/layanan_cek_sinkronisasi_test.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -209,4 +209,3 @@ void main() {
     });
   });
 }
-''
