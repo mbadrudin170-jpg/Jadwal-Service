@@ -62,8 +62,6 @@ class PackagePage extends ConsumerWidget {
           if (paketList.isEmpty) {
             return const Center(child: Text('Tidak ada paket yang tersedia.'));
           }
-
-          // Kinerja optimal: Salin & urutkan list di sini aman karena ditangani asinkron reaktif
           final sortedList = List<PaketModel>.from(paketList);
           _urutkanList(sortedList, urutanSaatIni);
 

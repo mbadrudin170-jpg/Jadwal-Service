@@ -20,7 +20,7 @@ class DetailPaketPage extends ConsumerStatefulWidget {
 
 class _DetailPaketState extends ConsumerState<DetailPaketPage> {
   late PaketModel _paket;
-
+  
   @override
   void initState() {
     super.initState();
