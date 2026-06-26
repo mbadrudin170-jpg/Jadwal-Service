@@ -10,7 +10,7 @@ import 'package:wifi/fitur/sinkronisasi/layanan_unggah_data.dart';
 import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
-import 'package:wifi/fitur/sinkronisasi/pengelola_sinkronisasi.dart';
+import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
 import 'layanan_cek_sinkronisasi_test.mocks.dart';
 
@@ -62,7 +62,7 @@ void main() {
         .thenAnswer((_) async => true);
     when(mockFirestore.collection(any)).thenReturn(mockCollectionReference);
     when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
-    when(mockDocumentReference.set(any, any))
+    when(mockDocumentReference.set(any))
         .thenAnswer((_) async => Future.value());
   });
 
@@ -110,7 +110,6 @@ void main() {
       verify(mockPengecekanDataBaru.resetButuhUpload()).called(1);
       verify(mockDocumentReference.set(
         any,
-        any,
       )).called(1);
       verify(mockLayananUnduh.unduhSemuaData()).called(1);
       verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any))
@@ -130,7 +129,6 @@ void main() {
       verify(mockPengecekanDataBaru.resetButuhUpload()).called(1);
       verify(mockDocumentReference.set(
         any,
-        any,
       )).called(1);
 
       verifyNever(mockLayananUnduh.unduhSemuaData());
@@ -147,7 +145,7 @@ void main() {
       verifyNever(mockLayananUnggah.unggahSemuaData());
       verifyNever(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any));
       verifyNever(mockPengecekanDataBaru.resetButuhUpload());
-      verifyNever(mockDocumentReference.set(any, any));
+      verifyNever(mockDocumentReference.set(any));
 
       verify(mockLayananUnduh.unduhSemuaData()).called(1);
       verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any))
@@ -162,18 +160,14 @@ void main() {
 
       verifyNever(mockLayananUnggah.unggahSemuaData());
       verifyNever(mockLayananUnduh.unduhSemuaData());
-      verifyNever(mockDocumentReference.set(any, any));
+      verifyNever(mockDocumentReference.set(any));
     });
 
-    test('05. harus menangani error saat unggah dan tetap melanjutkan unduh',
-        () async {
+    test('05. harus menangani error saat unggah dan tidak melanjutkan', () async {
       // Arrange
       aturPengecekanData(adaDataLokal: true, adaDataServer: true);
       final exception = Exception('Gagal unggah');
       when(mockLayananUnggah.unggahSemuaData()).thenThrow(exception);
-      when(mockLayananUnduh.unduhSemuaData()).thenAnswer((_) async {});
-      when(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any))
-          .thenAnswer((_) async {});
 
       // Act
       final layanan = container.read(layananCekSinkronisasiProvider);
@@ -183,11 +177,9 @@ void main() {
       verify(mockLayananUnggah.unggahSemuaData()).called(1);
       verifyNever(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any));
       verifyNever(mockPengecekanDataBaru.resetButuhUpload());
-      verifyNever(mockDocumentReference.set(any, any));
-
-      verify(mockLayananUnduh.unduhSemuaData()).called(1);
-      verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any))
-          .called(1);
+      verifyNever(mockDocumentReference.set(any));
+      verifyNever(mockLayananUnduh.unduhSemuaData());
+      verifyNever(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any));
     });
 
     test('06. harus menangani error saat unduh', () async {
@@ -207,13 +199,13 @@ void main() {
       aturPengecekanData(adaDataLokal: true, adaDataServer: false);
       aturAksiSinkronisasiBerhasil();
       final exception = Exception('Gagal update Firestore');
-      when(mockDocumentReference.set(any, any)).thenThrow(exception);
+      when(mockDocumentReference.set(any)).thenThrow(exception);
 
       final layanan = container.read(layananCekSinkronisasiProvider);
       await layanan.jalankanCekSinkronisasi();
 
       verify(mockLayananUnggah.unggahSemuaData()).called(1);
-      verify(mockDocumentReference.set(any, any)).called(1);
+      verify(mockDocumentReference.set(any)).called(1);
     });
   });
 }

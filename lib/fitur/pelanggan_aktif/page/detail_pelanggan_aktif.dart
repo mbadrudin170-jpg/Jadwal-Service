@@ -242,11 +242,18 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                         pelangganAktif.status.displayName,
                       ),
                       if (paket != null)
-                        _buildInfoRow(
-                          context,
-                          'Poin Diperoleh',
-                          '${paket.poinHadiah} Poin',
-                        ),
+                        if (paket.poinHadiah > 0)
+                          _buildInfoRow(
+                            context,
+                            'Poin Hadiah',
+                            '${paket.poinHadiah} Poin',
+                          )
+                        else if (paket.poinPenukaran > 0)
+                          _buildInfoRow(
+                            context,
+                            'Poin Penukaran',
+                            '${paket.poinPenukaran} Poin',
+                          ),
                       if (transaksi != null && (transaksi.durasiBonus) > 0)
                         _buildInfoRow(
                           context,
