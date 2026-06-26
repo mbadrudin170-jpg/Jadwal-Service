@@ -22,7 +22,6 @@ enum UrutanPelanggan {
 class UrutanPelangganState extends _$UrutanPelangganState {
   @override
   UrutanPelanggan build() => UrutanPelanggan.namaAZ;
-
   void ubahUrutan(UrutanPelanggan urutanBaru) => state = urutanBaru;
 }
 
@@ -32,11 +31,9 @@ Future<List<(PelangganModel, int)>> pelangganDenganPoin(Ref ref) async {
   final pelangganState = await ref.watch(pelangganProvider.future);
   final transaksiNotifier = ref.watch(transaksiProvider.notifier);
   final daftarPelanggan = pelangganState.daftarPelanggan;
-
   final semuaPoin = await transaksiNotifier.getTotalPoinBanyakPelangganParallel(
     daftarPelanggan.map((p) => p.id).toList(),
   );
-
   return List.generate(
     daftarPelanggan.length,
     (i) => (daftarPelanggan[i], semuaPoin[i]),
@@ -51,11 +48,9 @@ Future<List<(PelangganModel, int)>> filteredCustomers(Ref ref) async {
   );
   final searchQuery = ref.watch(searchQueryPelangganProvider).toLowerCase();
   final sortOption = ref.watch(urutanPelangganStateProvider);
-
   final filtered = pelangganWithPoints
       .where((tuple) => tuple.$1.nama.toLowerCase().contains(searchQuery))
       .toList();
-
   if (filtered.isNotEmpty) {
     switch (sortOption) {
       case UrutanPelanggan.namaAZ:

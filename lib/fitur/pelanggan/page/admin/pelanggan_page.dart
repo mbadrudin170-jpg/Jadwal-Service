@@ -196,7 +196,6 @@ class _PelangganState extends ConsumerState<PelangganPage> {
         ),
       );
     }
-
     final hasil = await showDialog<UrutanPelanggan>(
       context: context,
       builder: (context) => SimpleDialog(
