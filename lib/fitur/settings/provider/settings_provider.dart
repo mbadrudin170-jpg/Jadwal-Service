@@ -12,7 +12,6 @@ part 'settings_provider.g.dart';
 @freezed
 abstract class SettingsState with _$SettingsState {
   const factory SettingsState({
-    required String idSettings,
     required int waktuOtomatisSinkronisasi,
     required int waktuOtomatisHapusDataArsip,
     required bool modeMaintenance,
@@ -32,7 +31,6 @@ class Settings extends _$Settings {
   Future<SettingsState> _ambilData() async {
     final dataSettings = await _settingsOpSqlite.ambilSettings();
     return SettingsState(
-      idSettings: dataSettings.id,
       waktuOtomatisSinkronisasi: dataSettings.waktuOtomatisSinkronisasi,
       waktuOtomatisHapusDataArsip: dataSettings.waktuOtomatisHapusDataArsip,
       modeMaintenance: dataSettings.modeMaintenance,
