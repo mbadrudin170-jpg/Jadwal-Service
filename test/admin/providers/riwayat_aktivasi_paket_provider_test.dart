@@ -1,4 +1,4 @@
-'''// path: test/admin/providers/riwayat_aktivasi_paket_provider_test.dart
+// path: test/admin/providers/riwayat_aktivasi_paket_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -122,4 +122,3 @@ void main() {
     });
   });
 }
-''
