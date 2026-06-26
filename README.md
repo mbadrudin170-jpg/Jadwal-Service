@@ -36104,10 +36104,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             final userId = ref.watch(userIdProvider);
             return Center(child: Text('Profil ID: $userId tidak ditemukan.'));
           }
-
           final profileData = snapshot.data!;
           final pelanggan = profileData.pelanggan;
-
           return RefreshIndicator(
             onRefresh: _reloadData,
             child: ListView(
@@ -36176,7 +36174,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         value: 'Tidak ada paket aktif.',
       );
     }
-
     final String teksMasaAktif = PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
       transaksi.tanggalBerakhir!,
     );
@@ -36187,7 +36184,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         transaksi.statusPembayaran == StatusPembayaran.paid
         ? Colors.green
         : Colors.red;
-
     return Column(
       children: [
         _InfoItem(
@@ -36252,7 +36248,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     await ref.read(interstitialAdServiceProvider).show();
     try {
       if (!mounted) return;
-
       await Navigator.push<void>(
         context,
         MaterialPageRoute<bool>(

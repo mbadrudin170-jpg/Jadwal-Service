@@ -302,7 +302,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     await ref.read(interstitialAdServiceProvider).show();
     try {
       if (!mounted) return;
-
       await Navigator.push<void>(
         context,
         MaterialPageRoute<bool>(
