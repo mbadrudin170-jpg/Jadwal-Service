@@ -13,12 +13,10 @@ lib/admin/firebase_option:
 firebase_option_admin_dev.dart  firebase_option_admin_prod.dart
 
 lib/admin/halaman:
-lainnya  pembantu  tab  tes  widget
+lainnya  tab  tes  widget
 
 lib/admin/halaman/lainnya:
 halaman_migrasi.dart
-
-lib/admin/halaman/pembantu:
 
 lib/admin/halaman/tab:
 lainnya.dart
@@ -91,7 +89,8 @@ lib/fitur/event/operasi:
 event_op_supabase.dart
 
 lib/fitur/event/page:
-detail_event_a.dart  event_page_a.dart  event_page_u.dart  manage_announcement_page.dart
+detail_event_a.dart  event_page_u.dart
+event_page_a.dart    manage_announcement_page.dart
 
 lib/fitur/feedback:
 model  operasi  page  provider
@@ -103,10 +102,11 @@ lib/fitur/feedback/operasi:
 feedback_op_firebase.dart  feedback_op_sqlite.dart
 
 lib/fitur/feedback/page:
-feedback_detail_a.dart  feedback_page_a.dart  feedback_page_u.dart  form_feedback_u.dart
+feedback_detail_a.dart  feedback_page_u.dart
+feedback_page_a.dart    form_feedback_u.dart
 
 lib/fitur/feedback/provider:
-feedback_provider.dart  feedback_provider.g.dart
+feedback_provider.dart  feedback_provider.freezed.dart  feedback_provider.g.dart
 
 lib/fitur/info_perangkat:
 enum  model  page  service
@@ -140,13 +140,17 @@ lib/fitur/kategori/page:
 form_kategori.dart  kategori.dart
 
 lib/fitur/notfikasi:
-enum  layanan_notifikasi.dart  model  penjadwal_notifikasi.dart
+enum                     model    pengingat_paket_belum_lunas.dart
+layanan_notifikasi.dart  operasi  penjadwal_notifikasi.dart
 
 lib/fitur/notfikasi/enum:
 tipe_notifikasi_enum.dart
 
 lib/fitur/notfikasi/model:
 notifikasi_model.dart  notifikasi_model.freezed.dart
+
+lib/fitur/notfikasi/operasi:
+notifikasi_op_firebase.dart  notifikasi_op_sqlite.dart
 
 lib/fitur/order:
 enum  model  operasi  page  provider
@@ -188,10 +192,13 @@ lib/fitur/paket/provider:
 paket_provider.dart  paket_provider.g.dart
 
 lib/fitur/pelanggan:
-core  model  operasi  page  widget
+core  helper  model  operasi  page  provider  widget
 
 lib/fitur/pelanggan/core:
 layanan_aktivitas_user.dart
+
+lib/fitur/pelanggan/helper:
+pengurut_pelanggan.dart  pengurut_pelanggan.g.dart
 
 lib/fitur/pelanggan/model:
 pelanggan_model.dart  pelanggan_model.freezed.dart
@@ -203,23 +210,30 @@ lib/fitur/pelanggan/page:
 admin  user
 
 lib/fitur/pelanggan/page/admin:
-detail_pelanggan_a.dart  form_pelanggan.dart  pelanggan.dart
+detail_pelanggan_a.dart  form_pelanggan.dart  pelanggan_page.dart
 
 lib/fitur/pelanggan/page/user:
 detail_pelanggan_u.dart  edit_profile_page.dart
+
+lib/fitur/pelanggan/provider:
+pelanggan_provider.dart          pelanggan_provider.g.dart
+pelanggan_provider.freezed.dart
 
 lib/fitur/pelanggan/widget:
 detail_pelanggan_ui.dart
 
 lib/fitur/pelanggan_aktif:
-model  operasi  page  provider
+helper  model  operasi  page  provider
+
+lib/fitur/pelanggan_aktif/helper:
+pengurut_pelanggan_aktif.dart  pengurut_pelanggan_aktif.g.dart
 
 lib/fitur/pelanggan_aktif/model:
 detail_pelanggan_aktif_model.dart  pelanggan_aktif_model.freezed.dart
 pelanggan_aktif_model.dart
 
 lib/fitur/pelanggan_aktif/operasi:
-pelanggan_aktif_op_sqlite.dart
+pelanggan_aktif_op_firebase.dart  pelanggan_aktif_op_sqlite.dart
 
 lib/fitur/pelanggan_aktif/page:
 detail_pelanggan_aktif.dart  form_pelanggan_aktif.dart  pelanggan_aktif_page.dart
@@ -229,7 +243,7 @@ pelanggan_aktif_provider.dart          pelanggan_aktif_provider.g.dart
 pelanggan_aktif_provider.freezed.dart
 
 lib/fitur/poin:
-operasi  page  provider  widget
+operasi  page  provider  service  widget
 
 lib/fitur/poin/operasi:
 firebase_points_data_source.dart  sqlite_points_data_source.dart
@@ -241,8 +255,11 @@ lib/fitur/poin/provider:
 poin_provider.dart          poin_provider.g.dart
 poin_provider.freezed.dart  points_page_data_source.dart
 
+lib/fitur/poin/service:
+poin_transaction_service.dart
+
 lib/fitur/poin/widget:
-poin_page_ui.dart
+kartu_total_poin.dart  ui_halaman_poin.dart
 
 lib/fitur/riwayat_aktivasi:
 page
@@ -251,7 +268,7 @@ lib/fitur/riwayat_aktivasi/page:
 detail_riwayat_aktivasi.dart  form_riwayat_aktivasi.dart
 
 lib/fitur/settings:
-model  operasi  page
+model  operasi  page  provider
 
 lib/fitur/settings/model:
 settings_model.dart  settings_model.freezed.dart
@@ -262,9 +279,13 @@ settings_op_firebase.dart  settings_op_sqlite.dart
 lib/fitur/settings/page:
 form_settings.dart  settings_page_a.dart  settings_page_u.dart
 
+lib/fitur/settings/provider:
+settings_provider.dart  settings_provider.freezed.dart  settings_provider.g.dart
+
 lib/fitur/sinkronisasi:
-layanan_cek_sinkronisasi.dart  layanan_unduh_data.dart
-layanan_unduhan_awal.dart      layanan_unggah_data.dart
+layanan_cek_sinkronisasi.dart  layanan_unggah_data.dart
+layanan_unduhan_awal.dart      pengelola_sinkronisasi.dart
+layanan_unduh_data.dart
 
 lib/fitur/speedtest:
 page  provider
@@ -273,29 +294,27 @@ lib/fitur/speedtest/page:
 uji_kecepatan_page.dart
 
 lib/fitur/speedtest/provider:
-ping_provider.dart    uji_kecepatan_provider.dart          uji_kecepatan_provider.g.dart
-ping_provider.g.dart  uji_kecepatan_provider.freezed.dart
+ping_provider.dart           uji_kecepatan_provider.freezed.dart
+ping_provider.g.dart         uji_kecepatan_provider.g.dart
+uji_kecepatan_provider.dart
 
 lib/fitur/statistik:
-model  operasi  page  provider
+model  page
 
 lib/fitur/statistik/model:
 paket_terlaris_model.dart
 
-lib/fitur/statistik/operasi:
-statistik_op_sqlite.dart
-
 lib/fitur/statistik/page:
 statistik_page_a.dart
 
-lib/fitur/statistik/provider:
-statistik_provider.dart  statistik_provider.g.dart
-
 lib/fitur/transaksi:
-enum  model  operasi  page  provider
+enum  helper  model  operasi  page  provider  widget
 
 lib/fitur/transaksi/enum:
 status_pembayaran.dart  tipe_transaksi.dart
+
+lib/fitur/transaksi/helper:
+pengurut_transaksi.dart  pengurut_transaksi.g.dart
 
 lib/fitur/transaksi/model:
 transaksi_model.dart  transaksi_model.freezed.dart
@@ -308,10 +327,14 @@ detail_transaksi_a.dart  form_transaksi.dart          transaksi_a.dart
 detail_transaksi_u.dart  riwayat_aktivasi_paket.dart  transaksi_u.dart
 
 lib/fitur/transaksi/provider:
-transaksi_provider.dart  transaksi_provider.freezed.dart  transaksi_provider.g.dart
+transaksi_provider.dart          transaksi_provider.g.dart
+transaksi_provider.freezed.dart
+
+lib/fitur/transaksi/widget:
+daftar_transaksi_widget.dart
 
 lib/fitur/versi_apk:
-model  operasi  page  provider  service
+model  operasi  page  service
 
 lib/fitur/versi_apk/model:
 versi_apk_model.dart  versi_apk_model.freezed.dart
@@ -320,9 +343,8 @@ lib/fitur/versi_apk/operasi:
 versi_apk_op_firebase.dart  versi_apk_op_sqlite.dart
 
 lib/fitur/versi_apk/page:
-detail_versi_apk.dart  form_versi_apk.dart  update_apk_page_u.dart  versi_apk_page.dart
-
-lib/fitur/versi_apk/provider:
+detail_versi_apk.dart  update_apk_page_u.dart
+form_versi_apk.dart    versi_apk_page.dart
 
 lib/fitur/versi_apk/service:
 layanan_cek_update_apk.dart  update_service.dart
@@ -378,18 +400,13 @@ lib/shared/operasi:
 firebase_operasi  sqlite_operasi
 
 lib/shared/operasi/firebase_operasi:
-base_op_firebase.dart        notifikasi_op_firebase.dart
-firebase_operation_provider  status_op_firebase.dart
+base_op_firebase.dart  firebase_operation_provider  status_op_firebase.dart
 
 lib/shared/operasi/firebase_operasi/firebase_operation_provider:
 firebase_operation_provider.dart  firebase_operation_provider.g.dart
 
 lib/shared/operasi/sqlite_operasi:
-base_op_sqlite.dart      pembersihan_data_operasi.dart
-operasi_sqlite_provider  status_upload_op_sqlite.dart
-
-lib/shared/operasi/sqlite_operasi/operasi_sqlite_provider:
-pelanggan_provider.dart  pelanggan_provider.g.dart
+base_op_sqlite.dart  pembersihan_data_operasi.dart  status_upload_op_sqlite.dart
 
 lib/shared/providers:
 shared_providers.dart  shared_providers.g.dart
@@ -399,33 +416,32 @@ arsipkan_langganan_kadaluarsa_service.dart  layanan_penyimpanan_gambar.dart
 koneksi_internet_service.dart
 
 lib/shared/theme:
-app_colors.dart  app_icons.dart  app_sizes.dart  app_theme.dart  tema_provider.dart
+app_colors.dart  app_sizes.dart  tema_provider.dart
+app_icons.dart   app_theme.dart  tema_provider.g.dart
 
 lib/shared/utils:
-active_customer_sorter.dart  parser_util.dart             perhitungan_util.dart
-format_util.dart             pengelola_sinkronisasi.dart  toast_util.dart
+durasi_util.dart  parser_util.dart       toast_util.dart
+format_util.dart  perhitungan_util.dart
 
 lib/shared/widget:
-card                          page
-daftar_transaksi_widget.dart  pemilih_tanggal_waktu_widget.dart
-input                         summary_info_widget.dart
-nama_pelanggan_widget.dart    thousands_input_formatter.dart
-package_name.dart             widget_ringkasan_keuangan.dart
-
-lib/shared/widget/card:
-point_card.dart
+input                         pemilih_tanggal_waktu_widget.dart
+nama_pelanggan_widget.dart    summary_info_widget.dart
+nama_pelanggan_widget.g.dart  widget_ringkasan_keuangan.dart
+package_name.dart
 
 lib/shared/widget/input:
-input_angka.dart     input_rupiah.dart  input_telepon.dart
-input_password.dart  input_teks.dart
+formatter         input_mac_address.dart  input_rupiah.dart  input_telepon.dart
+input_angka.dart  input_password.dart     input_teks.dart
 
-lib/shared/widget/page:
+lib/shared/widget/input/formatter:
+mac_address_formatter.dart
 
 lib/tes_fitur:
 tes_iklan.dart  tes_notifikasi.dart
 
 lib/user:
-app_user.dart  firebase_option  maintenance_page.dart  page  providers  services  widget
+app_user.dart    maintenance_page.dart  providers  widget
+firebase_option  page                   services
 
 lib/user/firebase_option:
 firebase_option_user_dev.dart  firebase_option_user_prod.dart

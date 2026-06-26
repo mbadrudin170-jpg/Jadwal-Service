@@ -2,51 +2,79 @@
 
 import 'package:flutter/services.dart';
 
-/// TextInputFormatter untuk memformat MAC Address secara otomatis
-/// Contoh: 001B44113AB7 → 00:1B:44:11:3A:B7
 class MacAddressFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
+    TextEditingValue nilaiLama, // oldValue diubah
+    TextEditingValue nilaiBaru, // newValue diubah
   ) {
-    // Hanya izinkan karakter hex (0-9, A-F, a-f)
-    final regex = RegExp(r'[^0-9a-fA-F]');
-    String cleaned = newValue.text.replaceAll(regex, '');
-    
-    // Batasi maksimal 12 karakter (6 pasang)
-    if (cleaned.length > 12) {
-      cleaned = cleaned.substring(0, 12);
+    if (nilaiBaru.text.isEmpty) {
+      return nilaiBaru;
     }
-    
-    // Format dengan : setiap 2 karakter
-    String formatted = '';
-    for (int i = 0; i < cleaned.length; i += 2) {
-      if (i > 0) {
-        formatted += ':';
+
+    final bool sedangMenghapus =
+        nilaiBaru.text.length < nilaiLama.text.length; // isDeleting diubah
+
+    // 1. Bersihkan teks, sisakan karakter heksadesimal saja
+    String teksBersih = nilaiBaru.text.toUpperCase().replaceAll(
+      // cleaned diubah
+      RegExp(r'[^0-9A-F]'),
+      '',
+    );
+
+    // 2. Hitung ada berapa karakter sebelum posisi kursor
+    int karakterBersihSebelumKursor = nilaiBaru
+        .text // cleanCharsBeforeCursor diubah
+        .substring(0, nilaiBaru.selection.baseOffset)
+        .replaceAll(RegExp(r'[^0-9A-Fa-f]'), '')
+        .length;
+
+    // 3. PENANGANAN BACKSPACE
+    if (sedangMenghapus &&
+        nilaiLama.text.endsWith(':') &&
+        nilaiBaru.text.length == nilaiLama.text.length - 1) {
+      if (teksBersih.isNotEmpty) {
+        teksBersih = teksBersih.substring(0, teksBersih.length - 1);
+        karakterBersihSebelumKursor--;
       }
-      formatted += cleaned.substring(i, i + 2 > cleaned.length ? cleaned.length : i + 2);
     }
-    
-    // Hitung posisi kursor
-    int cursorPosition = formatted.length;
-    if (newValue.selection.baseOffset < oldValue.text.length) {
-      cursorPosition = newValue.selection.baseOffset;
-      // Sesuaikan posisi kursor dengan format
-      int charCount = 0;
-      int colonCount = 0;
-      for (int i = 0; i < cursorPosition && i < cleaned.length; i++) {
-        charCount++;
-        if (charCount % 2 == 0 && charCount < cleaned.length) {
-          colonCount++;
-        }
+
+    // 4. Batasi input maksimal 12 karakter
+    if (teksBersih.length > 12) {
+      teksBersih = teksBersih.substring(0, 12);
+    }
+
+    // 5. Rangkai ulang teksnya dan tambahkan ':'
+    final penampung = StringBuffer(); // buffer diubah
+    for (int i = 0; i < teksBersih.length; i++) {
+      penampung.write(teksBersih[i]);
+      if ((i + 1) % 2 == 0 && (i + 1) < 12) {
+        penampung.write(':');
       }
-      cursorPosition = charCount + colonCount;
     }
-    
+    final String teksTerformat = penampung.toString(); // formatted diubah
+
+    // 6. Sesuaikan posisi kursor
+    int posisiKursor = 0; // cursorIndex diubah
+    int jumlahBersih = 0; // cleanCount diubah
+    for (int i = 0; i < teksTerformat.length; i++) {
+      if (jumlahBersih == karakterBersihSebelumKursor) {
+        break;
+      }
+      if (teksTerformat[i] != ':') {
+        jumlahBersih++;
+      }
+      posisiKursor++;
+    }
+
+    if (posisiKursor < teksTerformat.length &&
+        teksTerformat[posisiKursor] == ':') {
+      posisiKursor++;
+    }
+
     return TextEditingValue(
-      text: formatted.toUpperCase(),
-      selection: TextSelection.collapsed(offset: cursorPosition),
+      text: teksTerformat,
+      selection: TextSelection.collapsed(offset: posisiKursor),
     );
   }
 }

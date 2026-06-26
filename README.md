@@ -2410,12 +2410,20 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                         'Status',
                         pelangganAktif.status.displayName,
                       ),
-                      if (paket != null)
-                        _buildInfoRow(
-                          context,
-                          'Poin Diperoleh',
-                          '${paket.poinHadiah} Poin',
-                        ),
+                      if (paket != null) ...[
+                        if (paket.poinHadiah > 0)
+                          _buildInfoRow(
+                            context,
+                            'Poin Hadiah',
+                            '${paket.poinHadiah} Poin',
+                          ),
+                        if (paket.poinPenukaran > 0)
+                          _buildInfoRow(
+                            context,
+                            'Poin Penukaran',
+                            '${paket.poinPenukaran} Poin',
+                          ),
+                      ],
                       if (transaksi != null && (transaksi.durasiBonus) > 0)
                         _buildInfoRow(
                           context,
@@ -7128,9 +7136,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/settings/page/form_settings.dart';
 import 'package:wifi/fitur/settings/provider/settings_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
+import 'package:wifi/fitur/sinkronisasi/pengelola_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
@@ -30350,9 +30358,12 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/input/input_mac_address.dart';
 import 'package:wifi/shared/widget/input/input_password.dart';
 import 'package:wifi/shared/widget/input/input_teks.dart';
 import 'package:wifi/shared/widget/input/input_telepon.dart';
@@ -30479,6 +30490,8 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
 
   @override
   Widget build(BuildContext context) {
+    final role = ref.watch(appRoleProvider);
+
     Log.info('Membangun UI CustomerForm. isSaving: $_menyimpan');
     return Scaffold(
       appBar: AppBar(
@@ -30526,14 +30539,13 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                   nextFocusNode: _macAddressFocusNode,
                 ),
                 gapH16,
-                InputTeks(
-                  controller: _macAddressController,
-                  focusNode: _macAddressFocusNode,
-                  onSubmitted: (_) => _simpanPelanggan(),
-                  label: 'MAC Address',
-                  prefixIcon: TIcons.router,
-                  textInputAction: TextInputAction.done,
-                ),
+                if (role == AppRole.admin)
+                  InputMacAddress(
+                    controller: _macAddressController,
+                    focusNode: _macAddressFocusNode,
+                    onSubmitted: (_) => _simpanPelanggan(),
+                    textInputAction: TextInputAction.done,
+                  ),
                 gapH32,
                 ElevatedButton(
                   onPressed: _menyimpan ? null : _simpanPelanggan,
@@ -34749,7 +34761,7 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
-import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
+import 'package:wifi/fitur/sinkronisasi/pengelola_sinkronisasi.dart';
 
 class LayananUnduhData {
   final FirebaseFirestore _firestore;
@@ -35134,7 +35146,7 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/model/has_id.dart';
-import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
+import 'package:wifi/fitur/sinkronisasi/pengelola_sinkronisasi.dart';
 
 class LayananUnggahData {
   final SqliteDatabase _sqliteDb;
@@ -35736,7 +35748,7 @@ import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
-import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
+import 'package:wifi/fitur/sinkronisasi/pengelola_sinkronisasi.dart';
 
 /// Layanan untuk mengorkestrasi proses sinkronisasi data.
 class LayananCekSinkronisasi {
@@ -35868,6 +35880,57 @@ final layananCekSinkronisasiProvider = Provider<LayananCekSinkronisasi>((ref) {
     ref: ref,
   );
 });
+
+
+// File: lib/fitur/sinkronisasi/pengelola_sinkronisasi.dart
+// path lib/fitur/sinkronisasi/pengelola_sinkronisasi.dart
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/shared/data/services/layanan_preferensi.dart';
+import 'package:wifi/shared/debug/log.dart';
+
+final pengelolaSinkronisasiProvider = Provider<PengelolaSinkronisasi>((ref) {
+  Log.info('Membuat instance SyncManager melalui Riverpod provider');
+  return PengelolaSinkronisasi();
+});
+
+class PengelolaSinkronisasi {
+  Future<DateTime> ambilWaktuTerakhirUnduh() async {
+    Log.info('Meminta timestamp terakhir unduh dari PreferenceService');
+    final hasil = await LayananPreferensi.ambilWaktuTerakhirUnduh();
+    final waktuTerakhir =
+        hasil ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+    Log.info('Timestamp terakhir unduh yang digunakan: $waktuTerakhir');
+    return waktuTerakhir;
+  }
+
+  Future<void> simpanWaktuTerakhirUnduh(DateTime waktu) async {
+    Log.info('Menyimpan timestamp terakhir unduh: $waktu');
+    await LayananPreferensi.simpanWaktuTerakhirUnduh(waktu);
+    Log.info('Timestamp terakhir unduh berhasil disimpan');
+  }
+
+  Future<DateTime> ambilWaktuTerakhirUnggah() async {
+    Log.info('Meminta timestamp terakhir unggah dari PreferenceService');
+    final hasil = await LayananPreferensi.ambilWaktuTerakhirUnggah();
+    final waktuTerakhir =
+        hasil ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+    Log.info('Timestamp terakhir unggah yang digunakan: $waktuTerakhir');
+    return waktuTerakhir;
+  }
+
+  Future<void> simpanWaktuTerakhirUnggah(DateTime waktu) async {
+    Log.info('Menyimpan timestamp terakhir unggah: $waktu');
+    await LayananPreferensi.simpanWaktuTerakhirUnggah(waktu);
+    Log.info('Timestamp terakhir unggah berhasil disimpan');
+  }
+
+  Future<void> resetWaktuSinkronisasi() async {
+    Log.warning('MERESET WAKTU SINKRONISASI (UNDUH & UNGGAH)');
+    await LayananPreferensi.resetWaktuSinkronisasi();
+    Log.info('Waktu sinkronisasi (unduh dan unggah) berhasil di-reset.');
+  }
+}
 
 
 // File: lib/fitur/statistik/page/statistik_page_a.dart
@@ -38584,14 +38647,13 @@ class LayananPenyimpananLokal {
     try {
       Log.info('[Ambil Tema] Mengambil mode tema global dari penyimpanan.');
       final modeString = prefs.getString(_kunciAwalanModeTema);
-
       final themeMode = ThemeMode.values.firstWhere(
         (e) => e.toString() == modeString,
         orElse: () {
           Log.warning(
             '[Ambil Tema] Tema global tidak ada atau tidak valid. Fallback ke tema sistem.',
           );
-          return ThemeMode.system;
+          return ThemeMode.light;
         },
       );
 
@@ -38605,7 +38667,8 @@ class LayananPenyimpananLokal {
 
   Future<void> simpanAkun(PelangganModel pelanggan) async {
     Log.info(
-        '[Simpan Akun] Menyimpan atau memperbarui akun: ${pelanggan.nama}.');
+      '[Simpan Akun] Menyimpan atau memperbarui akun: ${pelanggan.nama}.',
+    );
     final daftarAkunJson = prefs.getString(_kunciDaftarAkun);
     final List<dynamic> daftarAkun = daftarAkunJson != null
         ? jsonDecode(daftarAkunJson) as List<dynamic>
@@ -38628,7 +38691,8 @@ class LayananPenyimpananLokal {
 
   Future<void> simpanAkunSaatIni(PelangganModel pelanggan) async {
     Log.info(
-        '[Simpan Akun Aktif] Mengatur ${pelanggan.nama} sebagai akun aktif.');
+      '[Simpan Akun Aktif] Mengatur ${pelanggan.nama} sebagai akun aktif.',
+    );
     await hapusTokenLogin();
     await prefs.setString(_kunciIdPengguna, pelanggan.id);
     await simpanAkun(pelanggan);
@@ -38639,7 +38703,8 @@ class LayananPenyimpananLokal {
 
   Future<List<PelangganModel>> ambilDaftarAkun() async {
     Log.info(
-        '[Ambil Daftar Akun] Mengambil semua akun dari penyimpanan lokal.');
+      '[Ambil Daftar Akun] Mengambil semua akun dari penyimpanan lokal.',
+    );
     final daftarAkunJson = prefs.getString(_kunciDaftarAkun);
     if (daftarAkunJson == null) {
       Log.warning('[Ambil Daftar Akun] Tidak ada daftar akun ditemukan.');
@@ -38668,8 +38733,9 @@ class LayananPenyimpananLokal {
     final List<dynamic> daftarAkun =
         jsonDecode(daftarAkunJson) as List<dynamic>;
     final int hitungSebelum = daftarAkun.length;
-    daftarAkun
-        .removeWhere((p) => (p as Map<String, dynamic>)['id'] == idPengguna);
+    daftarAkun.removeWhere(
+      (p) => (p as Map<String, dynamic>)['id'] == idPengguna,
+    );
     final int hitungSesudah = daftarAkun.length;
     if (hitungSebelum > hitungSesudah) {
       await prefs.setString(_kunciDaftarAkun, jsonEncode(daftarAkun));
@@ -38716,11 +38782,9 @@ class LayananPenyimpananLokal {
     final List<dynamic> daftarAkun =
         jsonDecode(daftarAkunJson) as List<dynamic>;
     try {
-      final Map<String, dynamic> akunJson =
-          daftarAkun.cast<Map<String, dynamic>>().firstWhere(
-                (p) => p['id'] == idPengguna,
-                orElse: () => {},
-              );
+      final Map<String, dynamic> akunJson = daftarAkun
+          .cast<Map<String, dynamic>>()
+          .firstWhere((p) => p['id'] == idPengguna, orElse: () => {});
       if (akunJson.isEmpty) {
         Log.warning(
           '[Ambil Akun Saat Ini] Akun dengan ID $idPengguna tidak ada di daftar riwayat lokal.',
@@ -39314,11 +39378,11 @@ class _ErrorApp extends StatelessWidget {
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/sinkronisasi/pengelola_sinkronisasi.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 import 'package:wifi/shared/utils/parser_util.dart';
-import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
 class LayananPengecekanDataBaru {
   final FirebaseFirestore _firestore;
@@ -40427,57 +40491,6 @@ class FormatNomor {
 }
 
 
-// File: lib/shared/utils/pengelola_sinkronisasi.dart
-// path: lib/shared/utils/sync_manager.dart
-
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/shared/data/services/layanan_preferensi.dart';
-import 'package:wifi/shared/debug/log.dart';
-
-final pengelolaSinkronisasiProvider = Provider<PengelolaSinkronisasi>((ref) {
-  Log.info('Membuat instance SyncManager melalui Riverpod provider');
-  return PengelolaSinkronisasi();
-});
-
-class PengelolaSinkronisasi {
-  Future<DateTime> ambilWaktuTerakhirUnduh() async {
-    Log.info('Meminta timestamp terakhir unduh dari PreferenceService');
-    final hasil = await LayananPreferensi.ambilWaktuTerakhirUnduh();
-    final waktuTerakhir =
-        hasil ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
-    Log.info('Timestamp terakhir unduh yang digunakan: $waktuTerakhir');
-    return waktuTerakhir;
-  }
-
-  Future<void> simpanWaktuTerakhirUnduh(DateTime waktu) async {
-    Log.info('Menyimpan timestamp terakhir unduh: $waktu');
-    await LayananPreferensi.simpanWaktuTerakhirUnduh(waktu);
-    Log.info('Timestamp terakhir unduh berhasil disimpan');
-  }
-
-  Future<DateTime> ambilWaktuTerakhirUnggah() async {
-    Log.info('Meminta timestamp terakhir unggah dari PreferenceService');
-    final hasil = await LayananPreferensi.ambilWaktuTerakhirUnggah();
-    final waktuTerakhir =
-        hasil ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
-    Log.info('Timestamp terakhir unggah yang digunakan: $waktuTerakhir');
-    return waktuTerakhir;
-  }
-
-  Future<void> simpanWaktuTerakhirUnggah(DateTime waktu) async {
-    Log.info('Menyimpan timestamp terakhir unggah: $waktu');
-    await LayananPreferensi.simpanWaktuTerakhirUnggah(waktu);
-    Log.info('Timestamp terakhir unggah berhasil disimpan');
-  }
-
-  Future<void> resetWaktuSinkronisasi() async {
-    Log.warning('MERESET WAKTU SINKRONISASI (UNDUH & UNGGAH)');
-    await LayananPreferensi.resetWaktuSinkronisasi();
-    Log.info('Waktu sinkronisasi (unduh dan unggah) berhasil di-reset.');
-  }
-}
-
-
 // File: lib/shared/widget/nama_pelanggan_widget.dart
 // path: lib/shared/widget/nama_pelanggan_widget.dart
 
@@ -40952,6 +40965,206 @@ class InputTeks extends StatelessWidget {
             }
             return null;
           },
+    );
+  }
+}
+
+
+// File: lib/shared/widget/input/input_mac_address.dart
+// path: lib/shared/widget/input/input_mac_address.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/widget/input/formatter/mac_address_formatter.dart';
+
+/// Widget input khusus untuk MAC Address dengan format otomatis
+/// Contoh: 00:1B:44:11:3A:B7
+class InputMacAddress extends StatelessWidget {
+  /// Controller untuk input MAC Address
+  final TextEditingController controller;
+
+  /// Label yang ditampilkan
+  final String label;
+
+  /// Apakah field wajib diisi
+  final bool wajib;
+
+  /// Validator tambahan (opsional)
+  final String? Function(String?)? validator;
+
+  /// Mode autovalidate
+  final AutovalidateMode autovalidateMode;
+
+  /// Action keyboard
+  final TextInputAction textInputAction;
+
+  /// Apakah input enabled
+  final bool enabled;
+
+  /// FocusNode
+  final FocusNode? focusNode;
+
+  /// FocusNode berikutnya
+  final FocusNode? nextFocusNode;
+
+  /// Callback saat submit
+  final void Function(String)? onSubmitted;
+  final IconData prefixIcon;
+
+  const InputMacAddress({
+    super.key,
+    required this.controller,
+    this.label = 'MAC Address',
+    this.wajib = true,
+    this.validator,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
+    this.textInputAction = TextInputAction.next,
+    this.enabled = true,
+    this.focusNode,
+    this.nextFocusNode,
+    this.onSubmitted,
+    this.prefixIcon = TIcons.router,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      focusNode: focusNode,
+      enabled: enabled,
+      autovalidateMode: autovalidateMode,
+      textInputAction: textInputAction,
+      keyboardType: TextInputType.text,
+      textCapitalization: TextCapitalization.characters,
+      inputFormatters: [
+        MacAddressFormatter(), // ✅ Format otomatis
+        FilteringTextInputFormatter.allow(
+          RegExp(r'[0-9a-fA-F:]'),
+        ), // Hanya hex dan colon
+      ],
+      onTapOutside: (event) => FocusScope.of(context).unfocus(),
+      onFieldSubmitted: (value) {
+        if (onSubmitted != null) {
+          onSubmitted!(value);
+        }
+        if (nextFocusNode != null) {
+          FocusScope.of(context).requestFocus(nextFocusNode!);
+        }
+      },
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        prefixIcon: Icon(prefixIcon),
+        hintText: '00:1B:44:11:3A:B7',
+        helperText: 'Format: XX:XX:XX:XX:XX:XX',
+        helperStyle: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+      ),
+      validator: validator ?? _defaultValidator,
+    );
+  }
+
+  /// Validator default untuk MAC Address
+  String? _defaultValidator(String? value) {
+    if (wajib && (value == null || value.trim().isEmpty)) {
+      return 'MAC Address wajib diisi';
+    }
+
+    if (value != null && value.trim().isNotEmpty) {
+      final trimmed = value.trim();
+      // Format harus 17 karakter (6 pasang + 5 titik dua)
+      if (trimmed.length != 17) {
+        return 'MAC Address harus 6 pasang (contoh: 00:1B:44:11:3A:B7)';
+      }
+      // Validasi format regex
+      final regex = RegExp(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$');
+      if (!regex.hasMatch(trimmed)) {
+        return 'Format MAC Address tidak valid (contoh: 00:1B:44:11:3A:B7)';
+      }
+    }
+    return null;
+  }
+}
+
+
+// File: lib/shared/widget/input/formatter/mac_address_formatter.dart
+// path: lib/shared/widget/input/formatter/mac_address_formatter.dart
+
+import 'package:flutter/services.dart';
+
+class MacAddressFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue nilaiLama, // oldValue diubah
+    TextEditingValue nilaiBaru, // newValue diubah
+  ) {
+    if (nilaiBaru.text.isEmpty) {
+      return nilaiBaru;
+    }
+
+    final bool sedangMenghapus =
+        nilaiBaru.text.length < nilaiLama.text.length; // isDeleting diubah
+
+    // 1. Bersihkan teks, sisakan karakter heksadesimal saja
+    String teksBersih = nilaiBaru.text.toUpperCase().replaceAll(
+      // cleaned diubah
+      RegExp(r'[^0-9A-F]'),
+      '',
+    );
+
+    // 2. Hitung ada berapa karakter sebelum posisi kursor
+    int karakterBersihSebelumKursor = nilaiBaru
+        .text // cleanCharsBeforeCursor diubah
+        .substring(0, nilaiBaru.selection.baseOffset)
+        .replaceAll(RegExp(r'[^0-9A-Fa-f]'), '')
+        .length;
+
+    // 3. PENANGANAN BACKSPACE
+    if (sedangMenghapus &&
+        nilaiLama.text.endsWith(':') &&
+        nilaiBaru.text.length == nilaiLama.text.length - 1) {
+      if (teksBersih.isNotEmpty) {
+        teksBersih = teksBersih.substring(0, teksBersih.length - 1);
+        karakterBersihSebelumKursor--;
+      }
+    }
+
+    // 4. Batasi input maksimal 12 karakter
+    if (teksBersih.length > 12) {
+      teksBersih = teksBersih.substring(0, 12);
+    }
+
+    // 5. Rangkai ulang teksnya dan tambahkan ':'
+    final penampung = StringBuffer(); // buffer diubah
+    for (int i = 0; i < teksBersih.length; i++) {
+      penampung.write(teksBersih[i]);
+      if ((i + 1) % 2 == 0 && (i + 1) < 12) {
+        penampung.write(':');
+      }
+    }
+    final String teksTerformat = penampung.toString(); // formatted diubah
+
+    // 6. Sesuaikan posisi kursor
+    int posisiKursor = 0; // cursorIndex diubah
+    int jumlahBersih = 0; // cleanCount diubah
+    for (int i = 0; i < teksTerformat.length; i++) {
+      if (jumlahBersih == karakterBersihSebelumKursor) {
+        break;
+      }
+      if (teksTerformat[i] != ':') {
+        jumlahBersih++;
+      }
+      posisiKursor++;
+    }
+
+    if (posisiKursor < teksTerformat.length &&
+        teksTerformat[posisiKursor] == ':') {
+      posisiKursor++;
+    }
+
+    return TextEditingValue(
+      text: teksTerformat,
+      selection: TextSelection.collapsed(offset: posisiKursor),
     );
   }
 }
@@ -51086,6 +51299,79 @@ Alasan: nomor tidak berurutan.
 * ❌ Jangan menggunakan format `1.`, `2.`, `3.`.
 * ❌ Jangan membuat nomor yang loncat-loncat.
 
+
+// File: prompt/style.md
+# Panduan Gaya Flutter
+
+Panduan gaya ini menguraikan konvensi penulisan kode untuk kontribusi di repositori flutter/flutter. Panduan ini didasarkan pada [panduan gaya resmi untuk repositori Flutter](https://github.com/flutter/flutter/blob/main/docs/contributing/Style-guide-for-Flutter-repo.md) yang lebih komprehensif.
+
+## Praktik Terbaik
+
+- Kode harus mengikuti panduan dan prinsip yang dijelaskan dalam [panduan kontribusi Flutter](https://github.com/flutter/flutter/blob/main/CONTRIBUTING.md).
+- Kode harus diuji dan mengikuti panduan yang dijelaskan dalam [panduan menulis tes yang efektif](https://github.com/flutter/flutter/blob/main/docs/contributing/testing/Writing-Effective-Tests.md) dan [panduan menjalankan dan menulis tes](https://github.com/flutter/flutter/blob/main/docs/contributing/testing/Running-and-writing-tests.md).
+- Perubahan pada [direktori engine/](https://github.com/flutter/flutter/tree/main/engine) juga harus memiliki tes yang sesuai seperti yang dijelaskan dalam [panduan pengujian engine](https://github.com/flutter/flutter/blob/main/docs/engine/testing/Testing-the-engine.md).
+- Deskripsi PR harus mencakup Daftar Pra-peluncuran dari [template PR](https://github.com/flutter/flutter/blob/main/.github/PULL_REQUEST_TEMPLATE.md), dengan semua langkah telah diselesaikan.
+- Panduan yang paling relevan harus diutamakan daripada panduan yang kurang relevan. Untuk kode Flutter, [panduan gaya Flutter](https://github.com/flutter/flutter/blob/main/docs/contributing/Style-guide-for-Flutter-repo.md) harus diikuti sebagai prioritas utama, dan [Effective Dart: Style](https://dart.dev/effective-dart/style) hanya boleh diikuti jika tidak bertentangan dengan yang pertama.
+
+## Pedoman Agen Peninjau
+
+- Hanya tinjau perubahan pada cabang `master`. Perubahan lain sudah ditinjau (dan sedang di-cherrypick).
+
+## Filosofi Umum
+
+- **Optimalkan untuk keterbacaan**: Kode lebih sering dibaca daripada ditulis.
+- **Hindari menggandakan state**: Pertahankan hanya satu sumber kebenaran.
+- Tulis apa yang Anda butuhkan dan tidak lebih, tetapi saat Anda menulisnya, lakukan dengan benar.
+- **Pesan error harus berguna**: Setiap pesan error adalah kesempatan untuk membuat orang mencintai produk kita.
+
+## Pemformatan Dart
+
+- Semua kode Dart diformat menggunakan `dart format`. Ini diterapkan oleh CI.
+- Konstruktor ditempatkan pertama dalam definisi kelas, dengan konstruktor default mendahului konstruktor bernama.
+- Anggota kelas lainnya harus diurutkan secara logis (misalnya, berdasarkan siklus hidup, atau mengelompokkan field dan metode yang terkait).
+
+## Bahasa Lainnya
+
+- Kode Python diformat menggunakan `yapf`, di-lint dengan `pylint`, dan harus mengikuti [Panduan Gaya Python Google](https://google.github.io/styleguide/pyguide.html).
+- Kode C++ diformat menggunakan `clang-format`, di-lint dengan `clang-tidy`, dan harus mengikuti [Panduan Gaya C++ Google](https://google.github.io/styleguide/cppguide.html).
+- Shader diformat menggunakan `clang-format`.
+- Kode Kotlin diformat menggunakan `ktformat`, di-lint dengan `ktlint`, dan harus mengikuti [Panduan Gaya Kotlin Android](https://developer.android.com/kotlin/style-guide).
+- Kode Java diformat menggunakan `google-java-format` dan harus mengikuti [Panduan Gaya Java Google](https://google.github.io/styleguide/javaguide.html).
+- Objective-C diformat menggunakan `clang-format`, di-lint dengan `clang-tidy`, dan harus mengikuti [Panduan Gaya Objective-C Google](https://google.github.io/styleguide/objcguide.html).
+- Swift diformat dan di-lint menggunakan `swift-format` dan harus mengikuti [Panduan Gaya Swift Google](https://google.github.io/swift).
+- Kode GN diformat menggunakan `gn format` dan harus mengikuti [Panduan Gaya GN](https://gn.googlesource.com/gn/+/main/docs/style_guide.md).
+
+## Dokumentasi
+
+- Semua anggota publik harus memiliki dokumentasi.
+- **Jawab pertanyaan Anda sendiri**: Jika Anda memiliki pertanyaan, temukan jawabannya, lalu dokumentasikan di tempat Anda pertama kali mencari.
+- **Dokumentasi harus berguna**: Jelaskan *mengapa* dan *bagaimana*.
+- **Perkenalkan istilah**: Asumsikan pembaca tidak mengetahui segalanya. Tautkan ke definisi.
+- **Berikan kode contoh**: Gunakan `{@tool dartpad}` untuk contoh yang dapat dijalankan.
+  - Contoh kode inline terdapat di dalam `{@tool dartpad}` dan `{@end-tool}`, dan menggunakan format contoh berikut untuk menyisipkan contoh kode:
+    - `/// ** Lihat kode di examples/api/lib/widgets/sliver/sliver_list.0.dart **`
+    - Jangan bingung format ini dengan bagian `/// Lihat juga:` dari dokumentasi, yang memberikan petunjuk bermanfaat bagi pengembang.
+- **Berikan ilustrasi atau tangkapan layar** untuk widget.
+- Gunakan `///` untuk dokumentasi berkualitas publik, bahkan pada anggota privat.
+
+## Pedoman Agen Peninjau
+
+Saat memberikan ringkasan, agen peninjau harus mematuhi prinsip-prinsip berikut:
+- **Bersikap Objektif:** Fokus pada ringkasan deskriptif yang netral tentang perubahan. Hindari penilaian subjektif seperti "bagus," "buruk," "positif," atau "negatif." Tujuannya adalah melaporkan apa yang dilakukan kode, bukan untuk mengevaluasinya.
+- **Gunakan Kode sebagai Sumber Kebenaran:** Dasar semua ringkasan pada diff kode. Jangan percaya atau mengulang ulang deskripsi PR, yang mungkin sudah usang atau tidak akurat. Ringkasan harus mencerminkan perubahan aktual dalam kode.
+- **Bersikap Ringkas:** Hasilkan ringkasan yang singkat dan langsung ke intinya. Fokus pada perubahan yang paling signifikan, dan hindari detail yang tidak perlu atau penjelasan yang bertele-tele. Ini memastikan umpan balik mudah dipindai dan dipahami.
+
+## Bacaan Lebih Lanjut
+
+Untuk panduan yang lebih detail, lihat dokumen-dokumen berikut:
+
+- [Panduan gaya untuk repositori Flutter](https://github.com/flutter/flutter/blob/main/docs/contributing/Style-guide-for-Flutter-repo.md)
+- [Effective Dart: Style](https://dart.dev/effective-dart/style)
+- [Kebersihan Pohon (Tree Hygiene)](https://github.com/flutter/flutter/blob/main/docs/contributing/Tree-hygiene.md)
+- [Panduan kontribusi Flutter](https://github.com/flutter/flutter/blob/main/CONTRIBUTING.md)
+- [Panduan menulis tes yang efektif](https://github.com/flutter/flutter/blob/main/docs/contributing/testing/Writing-Effective-Tests.md)
+- [Panduan menjalankan dan menulis tes](https://github.com/flutter/flutter/blob/main/docs/contributing/testing/Running-and-writing-tests.md)
+- [Panduan pengujian engine](https://github.com/flutter/flutter/blob/main/docs/engine/testing/Testing-the-engine.md)
 
 // File: prompt/flutter.md
 

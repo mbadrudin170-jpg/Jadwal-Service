@@ -14,6 +14,7 @@ import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/input/input_mac_address.dart';
 import 'package:wifi/shared/widget/input/input_password.dart';
 import 'package:wifi/shared/widget/input/input_teks.dart';
 import 'package:wifi/shared/widget/input/input_telepon.dart';
@@ -190,12 +191,10 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                 ),
                 gapH16,
                 if (role == AppRole.admin)
-                  InputTeks(
+                  InputMacAddress(
                     controller: _macAddressController,
                     focusNode: _macAddressFocusNode,
                     onSubmitted: (_) => _simpanPelanggan(),
-                    label: 'MAC Address',
-                    prefixIcon: TIcons.router,
                     textInputAction: TextInputAction.done,
                   ),
                 gapH32,

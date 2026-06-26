@@ -37,6 +37,7 @@ class InputMacAddress extends StatelessWidget {
 
   /// Callback saat submit
   final void Function(String)? onSubmitted;
+  final IconData prefixIcon;
 
   const InputMacAddress({
     super.key,
@@ -50,6 +51,7 @@ class InputMacAddress extends StatelessWidget {
     this.focusNode,
     this.nextFocusNode,
     this.onSubmitted,
+    this.prefixIcon = TIcons.router,
   });
 
   @override
@@ -80,7 +82,7 @@ class InputMacAddress extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
-        prefixIcon: const Icon(TIcons.router),
+        prefixIcon: Icon(prefixIcon),
         hintText: '00:1B:44:11:3A:B7',
         helperText: 'Format: XX:XX:XX:XX:XX:XX',
         helperStyle: TextStyle(fontSize: 12, color: Colors.grey.shade600),
