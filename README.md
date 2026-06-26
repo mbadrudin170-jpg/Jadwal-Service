@@ -26783,7 +26783,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
               children: UrutanTransaksi.values
                   .map(
                     (sortBy) => RadioListTile<UrutanTransaksi>(
-                      title: Text(sortBy.displayName),
+                      title: Text(sortBy.teks),
                       value: sortBy,
                     ),
                   )
@@ -27421,8 +27421,8 @@ enum UrutanTransaksi {
   jumlahTerbesar('Jumlah Terbesar'),
   jumlahTerkecil('Jumlah Terkecil');
 
-  const UrutanTransaksi(this.displayName);
-  final String displayName;
+  const UrutanTransaksi(this.teks);
+  final String teks;
 }
 
 @riverpod
