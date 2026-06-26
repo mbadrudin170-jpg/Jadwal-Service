@@ -129,6 +129,7 @@ class _PelangganState extends ConsumerState<PelangganPage> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
