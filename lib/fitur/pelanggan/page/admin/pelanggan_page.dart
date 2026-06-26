@@ -9,103 +9,10 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-
-/// Enum untuk menentukan opsi pengurutan daftar customer.
-enum UrutanPelanggan {
-  namaAZ,
-  namaZa,
-  terakhirOnline,
-  terbaruOnline,
-  poinTerbanyak,
-  poinTerkecil,
-}
-// path: lib/fitur/pelanggan/page/admin/pelanggan.dart
-
-/// Provider untuk mendapatkan daftar pelanggan dengan poin
-final pelangganDenganPoinProvider =
-    FutureProvider.autoDispose<List<(PelangganModel, int)>>((ref) async {
-      final pelangganState = await ref.watch(pelangganProvider.future);
-      final transaksiNotifier = ref.watch(
-        transaksiProvider.notifier,
-      ); // ✅ Gunakan notifier
-      final daftarPelanggan = pelangganState.daftarPelanggan;
-
-      // ✅ Ambil poin melalui method di transaksiProvider
-      final List<int> semuaPoin = await transaksiNotifier
-          .getTotalPoinBanyakPelangganParallel(
-            daftarPelanggan.map((p) => p.id).toList(),
-          );
-
-      final hasil = <(PelangganModel, int)>[];
-      for (int i = 0; i < daftarPelanggan.length; i++) {
-        hasil.add((daftarPelanggan[i], semuaPoin[i]));
-      }
-
-      return hasil;
-    });
-final filteredCustomersProvider =
-    Provider.autoDispose<AsyncValue<List<(PelangganModel, int)>>>((ref) {
-      final pelangganWithPoints = ref.watch(pelangganDenganPoinProvider);
-      final searchQuery = ref.watch(searchQueryPelangganProvider).toLowerCase();
-      final sortOption = ref.watch(urutanPelangganStateProvider);
-
-      return pelangganWithPoints.when(
-        data: (customersWithPoints) {
-          final filtered = customersWithPoints
-              .where(
-                (tuple) => tuple.$1.nama.toLowerCase().contains(searchQuery),
-              )
-              .toList();
-
-          if (filtered.isNotEmpty) {
-            switch (sortOption) {
-              case UrutanPelanggan.namaAZ:
-                filtered.sort(
-                  (a, b) => a.$1.nama.toLowerCase().compareTo(
-                    b.$1.nama.toLowerCase(),
-                  ),
-                );
-                break;
-              case UrutanPelanggan.namaZa:
-                filtered.sort(
-                  (a, b) => b.$1.nama.toLowerCase().compareTo(
-                    a.$1.nama.toLowerCase(),
-                  ),
-                );
-                break;
-              case UrutanPelanggan.terakhirOnline:
-                filtered.sort((a, b) {
-                  if (a.$1.terkahirAktif == null) return 1;
-                  if (b.$1.terkahirAktif == null) return -1;
-                  return b.$1.terkahirAktif!.compareTo(a.$1.terkahirAktif!);
-                });
-                break;
-              case UrutanPelanggan.terbaruOnline:
-                filtered.sort((a, b) {
-                  if (a.$1.terkahirAktif == null) return -1;
-                  if (b.$1.terkahirAktif == null) return 1;
-                  return a.$1.terkahirAktif!.compareTo(b.$1.terkahirAktif!);
-                });
-                break;
-              case UrutanPelanggan.poinTerbanyak:
-                filtered.sort((a, b) => b.$2.compareTo(a.$2));
-                break;
-              case UrutanPelanggan.poinTerkecil:
-                filtered.sort((a, b) => a.$2.compareTo(b.$2));
-                break;
-            }
-          }
-          return AsyncData(filtered);
-        },
-        loading: () => const AsyncLoading(),
-        error: AsyncError.new,
-      );
-    });
 
 /// Halaman untuk menampilkan dan mengelola daftar semua customer.
 class PelangganPage extends ConsumerStatefulWidget {
