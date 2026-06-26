@@ -4,6 +4,8 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 
 import 'penjadwal_notifikasi_test.mocks.dart';
@@ -16,7 +18,7 @@ void main() {
   setUp(() {
     mockLayananNotifikasi = MockLayananNotifikasi();
     penjadwalNotifikasi = PenjadwalNotifikasi(
-      layananNotifikasi: mockLayananNotifikasi,
+      mockLayananNotifikasi,
     );
 
     // Stubbing default behavior
@@ -50,14 +52,14 @@ void main() {
 
   final namaPelanggan = 'John Doe';
 
-  group('jadwalkanNotifikasiJatuhTempo', () {
+  group('scheduleJatuhTempoNotification', () {
     test(
       '01. harus menjadwalkan notifikasi jika tanggal berakhir tidak null',
       () async {
         final jadwal = transaksi.tanggalBerakhir!;
         final expectedId = '${transaksi.id.hashCode}-jatuh-tempo'.hashCode;
 
-        await penjadwalNotifikasi.jadwalkanNotifikasiJatuhTempo(
+        await penjadwalNotifikasi.scheduleJatuhTempoNotification(
           transaksi: transaksi,
           namaPelanggan: namaPelanggan,
         );
@@ -81,7 +83,7 @@ void main() {
     test('02. tidak melakukan apa-apa jika tanggal berakhir null', () async {
       final transaksiTanpaTanggal = transaksi.copyWith(tanggalBerakhir: null);
 
-      await penjadwalNotifikasi.jadwalkanNotifikasiJatuhTempo(
+      await penjadwalNotifikasi.scheduleJatuhTempoNotification(
         transaksi: transaksiTanpaTanggal,
         namaPelanggan: namaPelanggan,
       );
@@ -97,27 +99,27 @@ void main() {
     });
   });
 
-  group('batalNotifikasiJatuhTempo', () {
+  group('cancelJatuhTempoNotification', () {
     test(
       '03. harus membatalkan notifikasi jatuh tempo dengan ID yang benar',
       () async {
         final expectedId = '${transaksi.id.hashCode}-jatuh-tempo'.hashCode;
 
-        await penjadwalNotifikasi.batalNotifikasiJatuhTempo(transaksi.id);
+        await penjadwalNotifikasi.cancelJatuhTempoNotification(transaksi.id);
 
         verify(mockLayananNotifikasi.batalNotifikasi(expectedId)).called(1);
       },
     );
   });
 
-  group('jadwalkanNotifikasiPembayaran', () {
+  group('schedulePembayaranNotification', () {
     test(
       '04. harus menjadwalkan notifikasi jika tanggal mulai tidak null',
       () async {
         final jadwal = transaksi.tanggalMulai!;
         final expectedId = '${transaksi.id.hashCode}-pembayaran'.hashCode;
 
-        await penjadwalNotifikasi.jadwalkanNotifikasiPembayaran(
+        await penjadwalNotifikasi.schedulePembayaranNotification(
           transaksi: transaksi,
           namaPelanggan: namaPelanggan,
         );
@@ -140,7 +142,7 @@ void main() {
     test('05. tidak melakukan apa-apa jika tanggal mulai null', () async {
       final transaksiTanpaTanggal = transaksi.copyWith(tanggalMulai: null);
 
-      await penjadwalNotifikasi.jadwalkanNotifikasiPembayaran(
+      await penjadwalNotifikasi.schedulePembayaranNotification(
         transaksi: transaksiTanpaTanggal,
         namaPelanggan: namaPelanggan,
       );
@@ -156,13 +158,13 @@ void main() {
     });
   });
 
-  group('batalNotifikasiPembayaran', () {
+  group('cancelPembayaranNotification', () {
     test(
       '06. harus membatalkan notifikasi pembayaran dengan ID yang benar',
       () async {
         final expectedId = '${transaksi.id.hashCode}-pembayaran'.hashCode;
 
-        await penjadwalNotifikasi.batalNotifikasiPembayaran(transaksi.id);
+        await penjadwalNotifikasi.cancelPembayaranNotification(transaksi.id);
 
         verify(mockLayananNotifikasi.batalNotifikasi(expectedId)).called(1);
       },

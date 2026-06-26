@@ -33,7 +33,7 @@ class DummyModel with HasId {
       };
 }
 
-@GenerateMocks([SqliteDatabase, Database, Transaction])
+@GenerateMocks([SqliteDatabase, Database, Transaction, Batch])
 void main() {
   late BaseOpSqlite baseOpSqlite;
   late MockSqliteDatabase mockSqliteDb;
@@ -53,12 +53,13 @@ void main() {
 
   group('Operasi Dasar', () {
     test('01. sisipkan harus memanggil db.insert dengan benar', () async {
-      when(mockDb.insert(any, any)).thenAnswer((_) async => 1);
+      when(mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace))
+          .thenAnswer((_) async => 1);
       await baseOpSqlite.sisipkan(tableName, modelMap);
       verify(
         mockDb.insert(
           tableName,
-          argThat(isA<Map<String, dynamic>>()),
+          modelMap,
           conflictAlgorithm: ConflictAlgorithm.replace,
         ),
       ).called(1);
@@ -75,7 +76,7 @@ void main() {
       verify(
         mockDb.update(
           tableName,
-          argThat(isA<Map<String, dynamic>>()),
+          updatedModel,
           where: 'id = ?',
           whereArgs: ['1'],
         ),
@@ -134,48 +135,51 @@ void main() {
   });
 
   group('Operasi Batch', () {
-    final batch = MockBatch();
+    final mockBatch = MockBatch();
     final listMap = [modelMap, modelMap];
 
     setUp(() {
-      when(mockDb.batch()).thenReturn(batch);
-      when(batch.commit(noResult: anyNamed('noResult'))).thenAnswer((_) async => []);
+      when(mockDb.batch()).thenReturn(mockBatch);
+      when(mockBatch.commit(noResult: anyNamed('noResult'))).thenAnswer((_) async => []);
     });
 
     test('06. sisipkanBatch harus mengeksekusi batch insert', () async {
       await baseOpSqlite.sisipkanBatch(tableName, listMap);
-      verify(batch.insert(tableName, any, conflictAlgorithm: ConflictAlgorithm.ignore))
+      verify(mockBatch.insert(tableName, any, conflictAlgorithm: ConflictAlgorithm.ignore))
           .called(listMap.length);
-      verify(batch.commit(noResult: true)).called(1);
+      verify(mockBatch.commit(noResult: true)).called(1);
     });
 
     test('07. sisipkanAtauPerbaruiBatch harus mengeksekusi batch insert replace', () async {
       await baseOpSqlite.sisipkanAtauPerbaruiBatch(tableName, listMap);
-      verify(batch.insert(tableName, any, conflictAlgorithm: ConflictAlgorithm.replace))
+      verify(mockBatch.insert(tableName, any, conflictAlgorithm: ConflictAlgorithm.replace))
           .called(listMap.length);
-      verify(batch.commit(noResult: true)).called(1);
+      verify(mockBatch.commit(noResult: true)).called(1);
     });
 
     test('08. perbaruiBatch harus mengeksekusi batch update', () async {
       await baseOpSqlite.perbaruiBatch(tableName, listMap);
       verify(
-        batch.update(
+        mockBatch.update(
           tableName,
           any,
           where: 'id = ?',
           whereArgs: anyNamed('whereArgs'),
         ),
       ).called(listMap.length);
-      verify(batch.commit(noResult: true)).called(1);
+      verify(mockBatch.commit(noResult: true)).called(1);
     });
   });
 
   group('Sinkronisasi dari Server', () {
     test('09. sisipkan harus menyertakan kolom dariServer saat benar', () async {
-      when(mockDb.insert(any, any)).thenAnswer((_) async => 1);
+      when(mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace))
+          .thenAnswer((_) async => 1);
       await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: true);
 
-      final captured = verify(mockDb.insert(any, captureAny)).captured.first;
+      final captured = verify(mockDb.insert(any, captureAny, conflictAlgorithm: ConflictAlgorithm.replace))
+          .captured
+          .first;
       final data = captured as Map<String, dynamic>;
 
       expect(data['name'], model.name);
@@ -184,14 +188,17 @@ void main() {
     });
 
     test('10. sisipkan harus tidak menyertakan kolom dariServer saat salah', () async {
-      when(mockDb.insert(any, any)).thenAnswer((_) async => 1);
+      when(mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace))
+          .thenAnswer((_) async => 1);
       await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: false);
 
-      final captured = verify(mockDb.insert(any, captureAny)).captured.first;
+      final captured = verify(mockDb.insert(any, captureAny, conflictAlgorithm: ConflictAlgorithm.replace))
+          .captured
+          .first;
       final data = captured as Map<String, dynamic>;
 
       expect(data['name'], model.name);
-      expect(data[NamaKolom.dariServer], isNull); // atau tidak ada sama sekali
+      expect(data[NamaKolom.dariServer], null); // atau tidak ada sama sekali
       expect(data[NamaKolom.diperbaruiPada], isNotNull);
     });
 
@@ -201,42 +208,41 @@ void main() {
       ).thenAnswer((_) async => 1);
       await baseOpSqlite.perbarui(tableName, '1', modelMap, dariServer: true);
 
-      final captured = verify(mockDb.update(any, captureAny, where: anyNamed('where'))).captured.first;
+      final captured = verify(mockDb.update(any, captureAny, where: anyNamed('where')))
+          .captured
+          .first;
       final data = captured as Map<String, dynamic>;
 
       expect(data[NamaKolom.dariServer], 1);
       expect(data[NamaKolom.diperbaruiPada], isNotNull);
     });
 
-     test('12. perbaruiBatch harus menyertakan kolom dariServer saat benar', () async {
-      final batch = MockBatch();
-      when(mockDb.batch()).thenReturn(batch);
-      when(batch.commit(noResult: anyNamed('noResult'))).thenAnswer((_) async => []);
+    test('12. perbaruiBatch harus menyertakan kolom dariServer saat benar', () async {
+      final mockBatch = MockBatch();
+      when(mockDb.batch()).thenReturn(mockBatch);
+      when(mockBatch.commit(noResult: anyNamed('noResult'))).thenAnswer((_) async => []);
 
       await baseOpSqlite.perbaruiBatch(tableName, [modelMap], dariServer: true);
 
-      final captured = verify(batch.update(any, captureAny, where: anyNamed('where'))).captured.first;
+      final captured = verify(mockBatch.update(any, captureAny, where: anyNamed('where')))
+          .captured
+          .first;
       final data = captured as Map<String, dynamic>;
 
       expect(data[NamaKolom.dariServer], 1);
       expect(data[NamaKolom.diperbaruiPada], isNotNull);
-     });
+    });
   });
 
   group('runComplexOperation', () {
     test('13. harus menjalankan action di dalam db.transaction', () async {
-      // Siapkan mock untuk db.transaction
-      // Ini sedikit rumit karena signature transaction adalah (Future<T> Function(Transaction) action)
-      // Kita perlu memastikan bahwa action yang kita berikan ke runComplexOperation
-      // pada akhirnya dipanggil oleh mock db.transaction.
       when(mockDb.transaction<String>(any)).thenAnswer((invocation) async {
         final action = invocation.positionalArguments.first as Future<String> Function(Transaction);
-        final mockTxn = MockTransaction(); // Buat mock transaction
+        final mockTxn = MockTransaction();
         when(mockTxn.rawQuery(any)).thenAnswer((_) async => []);
         return action(mockTxn);
       });
 
-      // Action dummy untuk dijalankan
       Future<String> dummyAction(Transaction txn) async {
         await txn.rawQuery('SELECT * FROM test');
         return 'done';
@@ -244,22 +250,23 @@ void main() {
 
       final result = await baseOpSqlite.runComplexOperation(dummyAction);
 
-      // Verifikasi bahwa db.transaction dipanggil
       verify(mockDb.transaction<String>(any)).called(1);
       expect(result, 'done');
     });
 
-     test('14. harus menyertakan diperbaruiPada dan dariServer saat dariServer true', () async {
-        when(mockDb.insert(any, any)).thenAnswer((_) async => 1);
+    test('14. harus menyertakan diperbaruiPada dan dariServer saat dariServer true', () async {
+      when(mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace))
+          .thenAnswer((_) async => 1);
 
-        await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: true);
+      await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: true);
 
-        final captured = verify(mockDb.insert(tableName, captureAny)).captured.first;
-        final data = captured as Map<String, dynamic>;
+      final captured = verify(mockDb.insert(tableName, captureAny, conflictAlgorithm: ConflictAlgorithm.replace))
+          .captured
+          .first;
+      final data = captured as Map<String, dynamic>;
 
-        expect(data[NamaKolom.diperbaruiPada], isNotNull);
-        expect(data[NamaKolom.dariServer], 1);
-     });
-
+      expect(data[NamaKolom.diperbaruiPada], isNotNull);
+      expect(data[NamaKolom.dariServer], 1);
+    });
   });
 }

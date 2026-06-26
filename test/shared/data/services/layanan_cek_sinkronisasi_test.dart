@@ -8,7 +8,7 @@ import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_unduh_data.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_unggah_data.dart';
 import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 

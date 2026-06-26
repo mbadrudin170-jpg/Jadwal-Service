@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/page/form_settings.dart';
 import 'package:wifi/fitur/settings/provider/settings_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
@@ -56,6 +57,21 @@ class SettingsAdminPage extends ConsumerWidget {
           ToastUtil.error(context, 'Gagal mereset waktu sinkronisasi: $e');
         }
       }
+    }
+  }
+
+  // TAMBAHKAN method ini setelah _resetWaktuSinkroniasi
+  Future<void> _navigasiKeFormSettings(
+    BuildContext context,
+    SettingsModel settings,
+  ) async {
+    Log.info('Navigasi ke FormSettings dengan data: ${settings.toSqlite()}');
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (context) => FormSettings(settings: settings)),
+    );
+    if (result == true) {
+      Log.info('Settings berhasil diupdate, refresh data.');
     }
   }
 
@@ -178,10 +194,7 @@ class SettingsAdminPage extends ConsumerWidget {
                   icon: const Icon(Icons.edit),
                   label: const Text('Edit Pengaturan'),
                   onPressed: () {
-                    Navigator.push<void>(
-                      context,
-                      MaterialPageRoute(builder: ((context) => FormSettings())),
-                    );
+                    _navigasiKeFormSettings(context, settings);
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),

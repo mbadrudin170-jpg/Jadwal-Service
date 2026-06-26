@@ -12,9 +12,9 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 class FormSettings extends ConsumerStatefulWidget {
-  final SettingsModel? settings;
+  final SettingsModel settings;
 
-  const FormSettings({super.key, this.settings});
+  const FormSettings({super.key, required this.settings});
 
   @override
   ConsumerState<FormSettings> createState() => _FormSettingsState();
@@ -32,15 +32,15 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
   void initState() {
     super.initState();
     _intervalController = TextEditingController(
-      text: '${widget.settings?.waktuOtomatisSinkronisasi ?? '24'}',
+      text: '${widget.settings.waktuOtomatisSinkronisasi}',
     );
     _hapusArsipController = TextEditingController(
-      text: '${widget.settings?.waktuOtomatisHapusDataArsip ?? '30'}',
+      text: '${widget.settings.waktuOtomatisHapusDataArsip}',
     );
     _infoPemeliharaanController = TextEditingController(
-      text: widget.settings?.infoMaintenance ?? '',
+      text: widget.settings.infoMaintenance,
     );
-    _modePemeliharaan = widget.settings?.modeMaintenance ?? false;
+    _modePemeliharaan = widget.settings.modeMaintenance;
   }
 
   @override
