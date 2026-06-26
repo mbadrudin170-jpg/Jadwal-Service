@@ -1,17 +1,35 @@
 // path lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart
 
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/shared/export/model.dart';
 
-enum OpsiUrutkan {
-  berakhirHariIni,
-  terbaru,
-  terlama,
-  tanggalMulai,
-  tanggalBerakhir,
-  lunas,
-  belumLunas,
-  namaAZ,
-  namaZA,
+part 'pengurut_pelanggan_aktif.g.dart';
+
+enum UrutanPelangganAktif {
+  berakhirHariIni('Berakhir Hari Ini'),
+  terbaru('Terbaru'),
+  terlama('Terlama'),
+  tanggalMulai('Tanggal Mulai'),
+  tanggalBerakhir('Tanggal Berakhir'),
+  lunas('Lunas'),
+  belumLunas('Belum Lunas'),
+  namaAZ('Nama A-Z'),
+  namaZA('Nama Z-A');
+
+  const UrutanPelangganAktif(this.teks);
+  final String teks;
+}
+
+@riverpod
+class UrutanPelangganAktifState extends _$UrutanPelangganAktifState {
+  @override
+  UrutanPelangganAktif build() {
+    return UrutanPelangganAktif.berakhirHariIni;
+  }
+
+  void ubahUrutan(UrutanPelangganAktif urutanBaru) {
+    state = urutanBaru;
+  }
 }
 
 class PengurutPelangganAktif {
@@ -28,14 +46,14 @@ class PengurutPelangganAktif {
 
   static List<DetailPelangganAktifModel> urutkan(
     List<DetailPelangganAktifModel> data,
-    OpsiUrutkan sortBy,
+    UrutanPelangganAktif sortBy,
   ) {
     final sorted = List<DetailPelangganAktifModel>.from(data);
     final sekarang = DateTime.now();
 
     sorted.sort((a, b) {
       switch (sortBy) {
-        case OpsiUrutkan.berakhirHariIni:
+        case UrutanPelangganAktif.berakhirHariIni:
           final sisaHariA = a.pelangganAktif.tanggalBerakhir
               .difference(sekarang)
               .inMilliseconds;
@@ -53,45 +71,45 @@ class PengurutPelangganAktif {
           }
           return sisaHariB.compareTo(sisaHariA);
 
-        case OpsiUrutkan.terbaru:
+        case UrutanPelangganAktif.terbaru:
           return _compareNullableDates(
             a.pelangganAktif.diperbaruiPada,
             b.pelangganAktif.diperbaruiPada,
             ascending: false,
           );
 
-        case OpsiUrutkan.terlama:
+        case UrutanPelangganAktif.terlama:
           return _compareNullableDates(
             a.pelangganAktif.diperbaruiPada,
             b.pelangganAktif.diperbaruiPada,
           );
 
-        case OpsiUrutkan.tanggalMulai:
+        case UrutanPelangganAktif.tanggalMulai:
           return a.pelangganAktif.tanggalMulai.compareTo(
             b.pelangganAktif.tanggalMulai,
           );
 
-        case OpsiUrutkan.tanggalBerakhir:
+        case UrutanPelangganAktif.tanggalBerakhir:
           return b.pelangganAktif.tanggalBerakhir.compareTo(
             a.pelangganAktif.tanggalBerakhir,
           );
 
-        case OpsiUrutkan.lunas:
+        case UrutanPelangganAktif.lunas:
           return a.pelangganAktif.status.index.compareTo(
             b.pelangganAktif.status.index,
           );
 
-        case OpsiUrutkan.belumLunas:
+        case UrutanPelangganAktif.belumLunas:
           return b.pelangganAktif.status.index.compareTo(
             a.pelangganAktif.status.index,
           );
 
-        case OpsiUrutkan.namaAZ:
+        case UrutanPelangganAktif.namaAZ:
           return a.namaPelanggan.toLowerCase().compareTo(
             b.namaPelanggan.toLowerCase(),
           );
 
-        case OpsiUrutkan.namaZA:
+        case UrutanPelangganAktif.namaZA:
           return b.namaPelanggan.toLowerCase().compareTo(
             a.namaPelanggan.toLowerCase(),
           );
@@ -100,26 +118,5 @@ class PengurutPelangganAktif {
     return sorted;
   }
 
-  static String ambilTeksUrutan(OpsiUrutkan option) {
-    switch (option) {
-      case OpsiUrutkan.berakhirHariIni:
-        return 'Berakhir Hari Ini';
-      case OpsiUrutkan.tanggalBerakhir:
-        return 'Tanggal Berakhir';
-      case OpsiUrutkan.tanggalMulai:
-        return 'Tanggal Mulai';
-      case OpsiUrutkan.lunas:
-        return 'Lunas';
-      case OpsiUrutkan.belumLunas:
-        return 'Belum Lunas';
-      case OpsiUrutkan.namaAZ:
-        return 'Nama A-Z';
-      case OpsiUrutkan.namaZA:
-        return 'Nama Z-A';
-      case OpsiUrutkan.terbaru:
-        return 'Terbaru';
-      case OpsiUrutkan.terlama:
-        return 'Terlama';
-    }
-  }
+  static String ambilTeksUrutan(UrutanPelangganAktif option) => option.teks;
 }

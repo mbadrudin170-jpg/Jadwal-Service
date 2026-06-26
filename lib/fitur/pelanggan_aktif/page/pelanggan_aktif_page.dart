@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
@@ -20,11 +19,7 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-enum OpsiLanjutan { softDeleteAll, arsipkanKadaluarsa, cancel }
-
-final urutanPelangganAktifProvider = StateProvider<OpsiUrutkan>(
-  (ref) => OpsiUrutkan.berakhirHariIni,
-);
+enum OpsiLanjutan { softDeleteAll, arsipkanKadaluarsa, batal }
 
 class PelangganAktifPage extends ConsumerStatefulWidget {
   const PelangganAktifPage({super.key});
@@ -46,8 +41,6 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
     super.initState();
     Log.info('ActiveCustomerPage initState');
     _searchController.addListener(_onSearchChanged);
-
-    // Menjalankan operasi asinkron setelah frame pertama selesai dibangun.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         unawaited(_inisialisasiAwal());
@@ -55,8 +48,6 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
     });
   }
 
-  /// Melakukan inisialisasi data awal, seperti mengarsipkan pelanggan
-  /// kadaluarsa dan mengambil daftar pelanggan aktif.
   Future<void> _inisialisasiAwal() async {
     try {
       await _pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
@@ -150,9 +141,8 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
   }
 
   Future<void> _tampilkanDialogUrutan() async {
-    final currentSort = ref.read(urutanPelangganAktifProvider);
-
-    await showDialog<OpsiUrutkan>(
+    final currentSort = ref.read(urutanPelangganAktifStateProvider);
+    await showDialog<UrutanPelangganAktif>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Urutkan Berdasarkan'),
@@ -167,7 +157,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: OpsiUrutkan.values.map((o) {
+                  children: UrutanPelangganAktif.values.map((o) {
                     final diPilih = currentSort == o;
                     return ListTile(
                       dense: true,
@@ -195,8 +185,9 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
                             )
                           : null,
                       onTap: () {
-                        ref.read(urutanPelangganAktifProvider.notifier).state =
-                            o;
+                        ref
+                            .read(urutanPelangganAktifStateProvider.notifier)
+                            .ubahUrutan(o);
                         Navigator.pop(ctx);
                       },
                     );
@@ -236,7 +227,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
             ),
           ),
           SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, OpsiLanjutan.cancel),
+            onPressed: () => Navigator.pop(ctx, OpsiLanjutan.batal),
             child: const Text('Batal'),
           ),
         ],
@@ -367,7 +358,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
             return Center(child: Text('Terjadi kesalahan: $error'));
           },
           data: (state) {
-            final sortBy = ref.watch(urutanPelangganAktifProvider);
+            final sortBy = ref.watch(urutanPelangganAktifStateProvider);
             final urutkanPelangganAktif = PengurutPelangganAktif.urutkan(
               state.daftarPelangganAktif,
               sortBy,

@@ -2561,7 +2561,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
@@ -2577,11 +2576,7 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-enum OpsiLanjutan { softDeleteAll, arsipkanKadaluarsa, cancel }
-
-final urutanPelangganAktifProvider = StateProvider<OpsiUrutkan>(
-  (ref) => OpsiUrutkan.berakhirHariIni,
-);
+enum OpsiLanjutan { softDeleteAll, arsipkanKadaluarsa, batal }
 
 class PelangganAktifPage extends ConsumerStatefulWidget {
   const PelangganAktifPage({super.key});
@@ -2603,8 +2598,6 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
     super.initState();
     Log.info('ActiveCustomerPage initState');
     _searchController.addListener(_onSearchChanged);
-
-    // Menjalankan operasi asinkron setelah frame pertama selesai dibangun.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         unawaited(_inisialisasiAwal());
@@ -2612,8 +2605,6 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
     });
   }
 
-  /// Melakukan inisialisasi data awal, seperti mengarsipkan pelanggan
-  /// kadaluarsa dan mengambil daftar pelanggan aktif.
   Future<void> _inisialisasiAwal() async {
     try {
       await _pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
@@ -2707,9 +2698,8 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
   }
 
   Future<void> _tampilkanDialogUrutan() async {
-    final currentSort = ref.read(urutanPelangganAktifProvider);
-
-    await showDialog<OpsiUrutkan>(
+    final currentSort = ref.read(urutanPelangganAktifStateProvider);
+    await showDialog<UrutanPelangganAktif>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Urutkan Berdasarkan'),
@@ -2724,7 +2714,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: OpsiUrutkan.values.map((o) {
+                  children: UrutanPelangganAktif.values.map((o) {
                     final diPilih = currentSort == o;
                     return ListTile(
                       dense: true,
@@ -2752,8 +2742,9 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
                             )
                           : null,
                       onTap: () {
-                        ref.read(urutanPelangganAktifProvider.notifier).state =
-                            o;
+                        ref
+                            .read(urutanPelangganAktifStateProvider.notifier)
+                            .ubahUrutan(o);
                         Navigator.pop(ctx);
                       },
                     );
@@ -2793,7 +2784,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
             ),
           ),
           SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, OpsiLanjutan.cancel),
+            onPressed: () => Navigator.pop(ctx, OpsiLanjutan.batal),
             child: const Text('Batal'),
           ),
         ],
@@ -2924,7 +2915,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
             return Center(child: Text('Terjadi kesalahan: $error'));
           },
           data: (state) {
-            final sortBy = ref.watch(urutanPelangganAktifProvider);
+            final sortBy = ref.watch(urutanPelangganAktifStateProvider);
             final urutkanPelangganAktif = PengurutPelangganAktif.urutkan(
               state.daftarPelangganAktif,
               sortBy,
@@ -3019,21 +3010,106 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
 }
 
 
+// File: lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.g.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'pengurut_pelanggan_aktif.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(UrutanPelangganAktifState)
+final urutanPelangganAktifStateProvider = UrutanPelangganAktifStateProvider._();
+
+final class UrutanPelangganAktifStateProvider
+    extends $NotifierProvider<UrutanPelangganAktifState, UrutanPelangganAktif> {
+  UrutanPelangganAktifStateProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'urutanPelangganAktifStateProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$urutanPelangganAktifStateHash();
+
+  @$internal
+  @override
+  UrutanPelangganAktifState create() => UrutanPelangganAktifState();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(UrutanPelangganAktif value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<UrutanPelangganAktif>(value),
+    );
+  }
+}
+
+String _$urutanPelangganAktifStateHash() =>
+    r'ff5d87fe62843686f05dbda5cfd2c0690460b4e1';
+
+abstract class _$UrutanPelangganAktifState
+    extends $Notifier<UrutanPelangganAktif> {
+  UrutanPelangganAktif build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<UrutanPelangganAktif, UrutanPelangganAktif>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<UrutanPelangganAktif, UrutanPelangganAktif>,
+              UrutanPelangganAktif,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+
 // File: lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart
 // path lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart
 
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/shared/export/model.dart';
 
-enum OpsiUrutkan {
-  berakhirHariIni,
-  terbaru,
-  terlama,
-  tanggalMulai,
-  tanggalBerakhir,
-  lunas,
-  belumLunas,
-  namaAZ,
-  namaZA,
+part 'pengurut_pelanggan_aktif.g.dart';
+
+enum UrutanPelangganAktif {
+  berakhirHariIni('Berakhir Hari Ini'),
+  terbaru('Terbaru'),
+  terlama('Terlama'),
+  tanggalMulai('Tanggal Mulai'),
+  tanggalBerakhir('Tanggal Berakhir'),
+  lunas('Lunas'),
+  belumLunas('Belum Lunas'),
+  namaAZ('Nama A-Z'),
+  namaZA('Nama Z-A');
+
+  const UrutanPelangganAktif(this.teks);
+  final String teks;
+}
+
+@riverpod
+class UrutanPelangganAktifState extends _$UrutanPelangganAktifState {
+  @override
+  UrutanPelangganAktif build() {
+    return UrutanPelangganAktif.berakhirHariIni;
+  }
+
+  void ubahUrutan(UrutanPelangganAktif urutanBaru) {
+    state = urutanBaru;
+  }
 }
 
 class PengurutPelangganAktif {
@@ -3050,14 +3126,14 @@ class PengurutPelangganAktif {
 
   static List<DetailPelangganAktifModel> urutkan(
     List<DetailPelangganAktifModel> data,
-    OpsiUrutkan sortBy,
+    UrutanPelangganAktif sortBy,
   ) {
     final sorted = List<DetailPelangganAktifModel>.from(data);
     final sekarang = DateTime.now();
 
     sorted.sort((a, b) {
       switch (sortBy) {
-        case OpsiUrutkan.berakhirHariIni:
+        case UrutanPelangganAktif.berakhirHariIni:
           final sisaHariA = a.pelangganAktif.tanggalBerakhir
               .difference(sekarang)
               .inMilliseconds;
@@ -3075,45 +3151,45 @@ class PengurutPelangganAktif {
           }
           return sisaHariB.compareTo(sisaHariA);
 
-        case OpsiUrutkan.terbaru:
+        case UrutanPelangganAktif.terbaru:
           return _compareNullableDates(
             a.pelangganAktif.diperbaruiPada,
             b.pelangganAktif.diperbaruiPada,
             ascending: false,
           );
 
-        case OpsiUrutkan.terlama:
+        case UrutanPelangganAktif.terlama:
           return _compareNullableDates(
             a.pelangganAktif.diperbaruiPada,
             b.pelangganAktif.diperbaruiPada,
           );
 
-        case OpsiUrutkan.tanggalMulai:
+        case UrutanPelangganAktif.tanggalMulai:
           return a.pelangganAktif.tanggalMulai.compareTo(
             b.pelangganAktif.tanggalMulai,
           );
 
-        case OpsiUrutkan.tanggalBerakhir:
+        case UrutanPelangganAktif.tanggalBerakhir:
           return b.pelangganAktif.tanggalBerakhir.compareTo(
             a.pelangganAktif.tanggalBerakhir,
           );
 
-        case OpsiUrutkan.lunas:
+        case UrutanPelangganAktif.lunas:
           return a.pelangganAktif.status.index.compareTo(
             b.pelangganAktif.status.index,
           );
 
-        case OpsiUrutkan.belumLunas:
+        case UrutanPelangganAktif.belumLunas:
           return b.pelangganAktif.status.index.compareTo(
             a.pelangganAktif.status.index,
           );
 
-        case OpsiUrutkan.namaAZ:
+        case UrutanPelangganAktif.namaAZ:
           return a.namaPelanggan.toLowerCase().compareTo(
             b.namaPelanggan.toLowerCase(),
           );
 
-        case OpsiUrutkan.namaZA:
+        case UrutanPelangganAktif.namaZA:
           return b.namaPelanggan.toLowerCase().compareTo(
             a.namaPelanggan.toLowerCase(),
           );
@@ -3122,28 +3198,7 @@ class PengurutPelangganAktif {
     return sorted;
   }
 
-  static String ambilTeksUrutan(OpsiUrutkan option) {
-    switch (option) {
-      case OpsiUrutkan.berakhirHariIni:
-        return 'Berakhir Hari Ini';
-      case OpsiUrutkan.tanggalBerakhir:
-        return 'Tanggal Berakhir';
-      case OpsiUrutkan.tanggalMulai:
-        return 'Tanggal Mulai';
-      case OpsiUrutkan.lunas:
-        return 'Lunas';
-      case OpsiUrutkan.belumLunas:
-        return 'Belum Lunas';
-      case OpsiUrutkan.namaAZ:
-        return 'Nama A-Z';
-      case OpsiUrutkan.namaZA:
-        return 'Nama Z-A';
-      case OpsiUrutkan.terbaru:
-        return 'Terbaru';
-      case OpsiUrutkan.terlama:
-        return 'Terlama';
-    }
-  }
+  static String ambilTeksUrutan(UrutanPelangganAktif option) => option.teks;
 }
 
 
@@ -26795,7 +26850,6 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
     );
 
     if (newSort != null) {
-      // Memanggil method di notifier untuk mengubah urutan
       ref.read(urutanTransaksiStateProvider.notifier).ubahUrutan(newSort);
     }
   }
@@ -30151,44 +30205,32 @@ class _PelangganState extends ConsumerState<PelangganPage> {
 
   Future<void> _dialogSort() async {
     final urutanAktif = ref.read(urutanPelangganStateProvider);
-    Widget buildOption(String text, UrutanPelanggan value) {
-      final sedangDipilih = urutanAktif == value;
-      return SimpleDialogOption(
-        onPressed: () => Navigator.pop(context, value),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-          decoration: BoxDecoration(
-            color: sedangDipilih ? TColors.pointBackground : null,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: sedangDipilih ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ),
-      );
-    }
     final hasil = await showDialog<UrutanPelanggan>(
       context: context,
       builder: (context) => SimpleDialog(
         title: const Text('Urutkan Berdasarkan'),
-        children: <Widget>[
-          buildOption('Nama (A-Z)', UrutanPelanggan.namaAZ),
-          buildOption('Nama (Z-A)', UrutanPelanggan.namaZa),
-          buildOption(
-            'Aktivitas Terakhir (Terbaru)',
-            UrutanPelanggan.terakhirOnline,
-          ),
-          buildOption(
-            'Aktivitas Terakhir (Terlama)',
-            UrutanPelanggan.terbaruOnline,
-          ),
-          buildOption('Poin (Tertinggi)', UrutanPelanggan.poinTerbanyak),
-          buildOption('Poin (Terendah)', UrutanPelanggan.poinTerkecil),
-        ],
+        children: UrutanPelanggan.values.map((value) {
+          final sedangDipilih = urutanAktif == value;
+          return SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, value),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              decoration: BoxDecoration(
+                color: sedangDipilih ? TColors.pointBackground : null,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                value.teks,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: sedangDipilih
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
     if (hasil != null) {
@@ -30811,15 +30853,12 @@ part of 'pengurut_pelanggan.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// 🚀 DIPINDAHKAN KE SINI: Mengelola status opsi urutan aktif
 
 @ProviderFor(UrutanPelangganState)
 final urutanPelangganStateProvider = UrutanPelangganStateProvider._();
 
-/// 🚀 DIPINDAHKAN KE SINI: Mengelola status opsi urutan aktif
 final class UrutanPelangganStateProvider
     extends $NotifierProvider<UrutanPelangganState, UrutanPelanggan> {
-  /// 🚀 DIPINDAHKAN KE SINI: Mengelola status opsi urutan aktif
   UrutanPelangganStateProvider._()
     : super(
         from: null,
@@ -30849,8 +30888,6 @@ final class UrutanPelangganStateProvider
 
 String _$urutanPelangganStateHash() =>
     r'00011679e041c63f27338fb6f0bc66cf681c6468';
-
-/// 🚀 DIPINDAHKAN KE SINI: Mengelola status opsi urutan aktif
 
 abstract class _$UrutanPelangganState extends $Notifier<UrutanPelanggan> {
   UrutanPelanggan build();
@@ -30969,17 +31006,18 @@ import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 
 part 'pengurut_pelanggan.g.dart';
 
-/// Enum untuk menentukan opsi pengurutan daftar customer.
 enum UrutanPelanggan {
-  namaAZ,
-  namaZa,
-  terakhirOnline,
-  terbaruOnline,
-  poinTerbanyak,
-  poinTerkecil,
+  namaAZ('Nama A-Z'),
+  namaZa('Nama Z-A'),
+  terakhirOnline('Aktivitas Terakhir (Terbaru)'),
+  terbaruOnline('Aktivitas Terakhir (Terlama)'),
+  poinTerbanyak('Poin (Tertinggi)'),
+  poinTerkecil('Poin (Terendah)');
+
+  const UrutanPelanggan(this.teks);
+  final String teks;
 }
 
-/// 🚀 DIPINDAHKAN KE SINI: Mengelola status opsi urutan aktif
 @riverpod
 class UrutanPelangganState extends _$UrutanPelangganState {
   @override
