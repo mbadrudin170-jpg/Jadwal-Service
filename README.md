@@ -7515,9 +7515,7 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 class FormSettings extends ConsumerStatefulWidget {
-  final SettingsModel? settings;
-
-  const FormSettings({super.key, this.settings});
+  const FormSettings({super.key});
 
   @override
   ConsumerState<FormSettings> createState() => _FormSettingsState();
@@ -7529,20 +7527,22 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
   late TextEditingController _hapusArsipController;
   late TextEditingController _infoPemeliharaanController;
   late bool _modePemeliharaan;
+  bool _menyimpan = false;
 
   @override
   void initState() {
     super.initState();
+    final settings = ref.read(settingsProvider).value;
     _intervalController = TextEditingController(
-      text: '${widget.settings?.waktuOtomatisSinkronisasi ?? '24'}',
+      text: '${settings?.waktuOtomatisSinkronisasi ?? 24}',
     );
     _hapusArsipController = TextEditingController(
-      text: '${widget.settings?.waktuOtomatisHapusDataArsip ?? '30'}',
+      text: '${settings?.waktuOtomatisHapusDataArsip ?? 30}',
     );
     _infoPemeliharaanController = TextEditingController(
-      text: widget.settings?.infoMaintenance ?? '',
+      text: settings?.infoMaintenance ?? '',
     );
-    _modePemeliharaan = widget.settings?.modeMaintenance ?? false;
+    _modePemeliharaan = settings?.modeMaintenance ?? false;
   }
 
   @override
@@ -7555,11 +7555,13 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
   }
 
   Future<void> _simpanSettings() async {
+    setState(() {
+      _menyimpan = true;
+    });
     if (_formKey.currentState!.validate()) {
       Log.info('Memvalidasi dan menyimpan perubahan pengaturan.');
       try {
         final newSettings = SettingsModel(
-          id: widget.settings!.id,
           waktuOtomatisSinkronisasi:
               int.tryParse(_intervalController.text) ?? 24,
           waktuOtomatisHapusDataArsip:
@@ -7586,6 +7588,10 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
         if (mounted) {
           ToastUtil.error(context, 'Gagal menyimpan pengaturan: $e');
         }
+      } finally {
+        setState(() {
+          _menyimpan = false;
+        });
       }
     }
   }
@@ -7622,20 +7628,22 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
               gapH16,
               _buildSwitchTile(),
               gapH16,
-              _buildTextFormField(
-                controller: _infoPemeliharaanController,
-                label: 'Info Mode Pemeliharaan',
-                icon: Icons.info_outline,
-                maxLines: 3,
-              ),
+              if (_modePemeliharaan)
+                _buildTextFormField(
+                  controller: _infoPemeliharaanController,
+                  label: 'Info Mode Pemeliharaan',
+                  icon: Icons.info_outline,
+                  maxLines: 3,
+                ),
               gapH32,
-              ElevatedButton.icon(
-                icon: const Icon(TIcons.save),
-                label: const Text('Simpan Perubahan'),
-                onPressed: _simpanSettings,
+              ElevatedButton(
+                onPressed: _menyimpan ? null : _simpanSettings,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                 ),
+                child: _menyimpan
+                    ? const CircularProgressIndicator()
+                    : const Text('Simpan'),
               ),
             ],
           ),
@@ -9722,8 +9730,6 @@ class PackagePage extends ConsumerWidget {
           if (paketList.isEmpty) {
             return const Center(child: Text('Tidak ada paket yang tersedia.'));
           }
-
-          // Kinerja optimal: Salin & urutkan list di sini aman karena ditangani asinkron reaktif
           final sortedList = List<PaketModel>.from(paketList);
           _urutkanList(sortedList, urutanSaatIni);
 
@@ -10021,7 +10027,7 @@ class DetailPaketPage extends ConsumerStatefulWidget {
 
 class _DetailPaketState extends ConsumerState<DetailPaketPage> {
   late PaketModel _paket;
-
+  
   @override
   void initState() {
     super.initState();
@@ -11135,7 +11141,6 @@ abstract class PaketModel with _$PaketModel implements HasId {
     DateTime? diarsipkanPada,
   }) = _PaketModel;
 
-  // 👇 Method custom (tidak berubah dari kode asli Anda)
   static TipeDurasiPaket _parseType(dynamic value) {
     return TipeDurasiPaket.values.firstWhere(
       (e) => e.name == value,

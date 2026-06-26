@@ -1,9 +1,12 @@
-// path: test/admin/providers/riwayat_aktivasi_paket_provider_test.dart
+'''// path: test/admin/providers/riwayat_aktivasi_paket_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
@@ -26,32 +29,45 @@ void main() {
   final now = DateTime.now();
   final listTransaksi = [
     TransaksiModel(
-      id: '1',
-      idPelanggan: 'p1',
-      idPaket: 'pkt1',
-      tanggal: now,
-      statusPembayaran: StatusPembayaran.paid,
-    ),
+        id: '1',
+        idPelanggan: 'p1',
+        idPaket: 'pkt1',
+        tanggal: now,
+        statusPembayaran: StatusPembayaran.paid,
+        deskripsi: 'test',
+        idDompet: 'd1',
+        idKategori: 'k1',
+        jumlah: 100,
+        tanggalBerakhir: now,
+        tanggalMulai: now,
+        tipe: TipeTransaksi.expense),
     TransaksiModel(
-      id: '2',
-      idPelanggan: 'p2',
-      idPaket: 'pkt2',
-      tanggal: now.subtract(const Duration(days: 1)),
-      statusPembayaran: StatusPembayaran.pending,
-    ),
+        id: '2',
+        idPelanggan: 'p2',
+        idPaket: 'pkt2',
+        tanggal: now.subtract(const Duration(days: 1)),
+        statusPembayaran: StatusPembayaran.pending,
+        deskripsi: 'test2',
+        idDompet: 'd2',
+        idKategori: 'k2',
+        jumlah: 200,
+        tanggalBerakhir: now,
+        tanggalMulai: now,
+        tipe: TipeTransaksi.expense),
   ];
 
   group('listRiwayatAktivasiPaketProvider', () {
     test(
       '01. harus mengembalikan daftar transaksi yang sudah dibayar (paid)',
       () async {
-        when(mockTransaksiOp.ambilSemuaTransaksi()).thenAnswer((_) async => listTransaksi);
+        when(mockTransaksiOp.ambilSemuaTransaksi())
+            .thenAnswer((_) async => listTransaksi);
 
         final result = await container.read(
           listRiwayatAktivasiPaketProvider.future,
         );
 
-        expect(result.length, 1);
+        expect(result!.length, 1);
         expect(result.first.id, '1');
       },
     );
@@ -106,3 +122,4 @@ void main() {
     });
   });
 }
+''
