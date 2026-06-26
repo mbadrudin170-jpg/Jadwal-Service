@@ -1,4 +1,4 @@
-'''// path: test/admin/halaman/detail/detail_dompet_test.dart
+// path: test/admin/halaman/detail/detail_dompet_test.dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -264,4 +264,3 @@ void main() {
 }
 
 class MockBuildContext extends Mock implements BuildContext {}
-''
