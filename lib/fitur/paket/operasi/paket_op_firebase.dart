@@ -22,9 +22,11 @@ class PaketOpFirebase {
           .where(NamaKolom.statusPublik, isEqualTo: true)
           .where(NamaKolom.poinPenukaran, isGreaterThan: 0)
           .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.poinPenukaran)
           .get();
       Log.info(
-          'Menemukan ${querySnapshot.docs.length} paket publik yang tidak dihapus.');
+        'Menemukan ${querySnapshot.docs.length} paket publik yang tidak dihapus.',
+      );
       return querySnapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         return PaketModel.fromFirebase(doc.id, data);
@@ -56,18 +58,22 @@ class PaketOpFirebase {
   /// Mengambil data paket secara real-time berdasarkan ID.
   Stream<PaketModel?> ambilStreamBerdasarkanId(String id) {
     Log.info('Memulai stream untuk paket ID: $id');
-    return _collection.doc(id).snapshots().map((snapshot) {
-      if (snapshot.exists) {
-        final data = snapshot.data()! as Map<String, dynamic>;
-        Log.info('Data paket diperbarui dari stream: $id');
-        return PaketModel.fromFirebase(snapshot.id, data);
-      }
-      Log.warning('Paket ID $id tidak ditemukan di stream.');
-      return null;
-    }).handleError((Object e, StackTrace s) {
-      Log.error('Error pada stream paket ID: $id', e: e, s: s);
-      return null;
-    });
+    return _collection
+        .doc(id)
+        .snapshots()
+        .map((snapshot) {
+          if (snapshot.exists) {
+            final data = snapshot.data()! as Map<String, dynamic>;
+            Log.info('Data paket diperbarui dari stream: $id');
+            return PaketModel.fromFirebase(snapshot.id, data);
+          }
+          Log.warning('Paket ID $id tidak ditemukan di stream.');
+          return null;
+        })
+        .handleError((Object e, StackTrace s) {
+          Log.error('Error pada stream paket ID: $id', e: e, s: s);
+          return null;
+        });
   }
 
   Future<void> delete(String id) async {

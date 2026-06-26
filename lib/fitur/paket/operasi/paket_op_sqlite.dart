@@ -86,7 +86,6 @@ class PaketOpSqlite {
         WHERE ${NamaKolom.dihapus} = 0 AND ${NamaKolom.statusPublik} = 1
         ORDER BY urutan ASC
       ''');
-
       final daftarPaket = List.generate(
         maps.length,
         (i) => PaketModel.fromSqlite(maps[i]),
