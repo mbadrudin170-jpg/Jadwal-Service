@@ -163,7 +163,6 @@ class _PelangganState extends ConsumerState<PelangganPage> {
 
   AppBar _buildAppBar() {
     final isSearching = ref.watch(isSearchingPelangganProvider);
-
     return AppBar(
       title: isSearching
           ? TextField(
@@ -268,7 +267,6 @@ class _PelangganState extends ConsumerState<PelangganPage> {
 
   Future<void> _dialogSort() async {
     final urutanAktif = ref.read(urutanPelangganStateProvider);
-
     Widget buildOption(String text, UrutanPelanggan value) {
       final sedangDipilih = urutanAktif == value;
       return SimpleDialogOption(
@@ -310,7 +308,6 @@ class _PelangganState extends ConsumerState<PelangganPage> {
         ],
       ),
     );
-
     if (hasil != null) {
       ref.read(urutanPelangganStateProvider.notifier).ubahUrutan(hasil);
     }

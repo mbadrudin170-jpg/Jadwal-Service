@@ -20,11 +20,13 @@ class PelangganOpSqlite {
     Log.info('CustomerOperation diinisialisasi');
   }
 
+  // path: lib/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart
+
   Future<bool> _ambilBerdasarkanTeleponDanKataSandi(
     String telepon,
-    String kataSandi, [
+    String kataSandi, {
     String? excludeId,
-  ]) async {
+  }) async {
     try {
       final db = await sqliteDb.database;
 
@@ -35,32 +37,20 @@ class PelangganOpSqlite {
         'excludeId': excludeId,
       });
 
-      // Gunakan db.query() sebagai ganti rawQuery
-      final List<Map<String, dynamic>> result = await db.query(
-        _tabel,
-        columns: ['COUNT(*) as count'],
-        where:
-            '${NamaKolom.telepon} = ? AND ${NamaKolom.kataSandi} = ? AND ${NamaKolom.dihapus} = 0',
-        whereArgs: [telepon, kataSandi],
-      );
-
-      // Jika ada excludeId, tambahkan filter tambahan
+      String sql =
+          '''
+      SELECT COUNT(*) as count
+      FROM ${NamaTabel.pelanggan}
+      WHERE ${NamaKolom.telepon} = ? 
+        AND ${NamaKolom.kataSandi} = ? 
+        AND ${NamaKolom.dihapus} = 0
+    ''';
+      final args = <dynamic>[telepon, kataSandi];
       if (excludeId != null && excludeId.isNotEmpty) {
-        final List<Map<String, dynamic>> resultWithExclude = await db.query(
-          _tabel,
-          columns: ['COUNT(*) as count'],
-          where:
-              '${NamaKolom.telepon} = ? AND ${NamaKolom.kataSandi} = ? AND ${NamaKolom.dihapus} = 0 AND ${NamaKolom.id} != ?',
-          whereArgs: [telepon, kataSandi, excludeId],
-        );
-        final count = Sqflite.firstIntValue(resultWithExclude) ?? 0;
-        Log.info('Hasil pengecekan duplikasi', {
-          'count': count,
-          'isDuplicate': count > 0,
-        });
-        return count > 0;
+        sql += ' AND ${NamaKolom.id} != ?';
+        args.add(excludeId);
       }
-
+      final result = await db.rawQuery(sql, args);
       final count = Sqflite.firstIntValue(result) ?? 0;
       Log.info('Hasil pengecekan duplikasi', {
         'count': count,
@@ -160,7 +150,8 @@ class PelangganOpSqlite {
   }) async {
     final bool isDuplicate = await _ambilBerdasarkanTeleponDanKataSandi(
       pelanggan.telepon,
-      pelanggan.id,
+      pelanggan.kataSandi,
+      excludeId: pelanggan.id,
     );
 
     if (isDuplicate) {
