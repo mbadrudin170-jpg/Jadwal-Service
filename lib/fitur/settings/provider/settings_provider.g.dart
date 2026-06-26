@@ -20,7 +20,7 @@ final class SettingsProvider
         argument: null,
         retry: null,
         name: r'settingsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -33,7 +33,7 @@ final class SettingsProvider
   Settings create() => Settings();
 }
 
-String _$settingsHash() => r'cf5d833ebdf0b473982b9ac17934c6d6bd9833f6';
+String _$settingsHash() => r'466d0fc88c7ab16b8faa61b24eb6425f25e89f5a';
 
 abstract class _$Settings extends $AsyncNotifier<SettingsState> {
   FutureOr<SettingsState> build();

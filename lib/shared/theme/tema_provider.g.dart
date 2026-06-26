@@ -32,7 +32,7 @@ final class TemaProvider extends $AsyncNotifierProvider<Tema, ThemeMode> {
   Tema create() => Tema();
 }
 
-String _$temaHash() => r'9343a6134e542731d766b6abffea607e191ad3c7';
+String _$temaHash() => r'f2be3ce0673b1f323c916c9992b42a3201d8765b';
 
 abstract class _$Tema extends $AsyncNotifier<ThemeMode> {
   FutureOr<ThemeMode> build();

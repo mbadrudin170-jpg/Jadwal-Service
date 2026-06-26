@@ -33,7 +33,7 @@ final class PelangganProvider
   Pelanggan create() => Pelanggan();
 }
 
-String _$pelangganHash() => r'6652eec5f9100b66c5897280e5841a6c42fe2296';
+String _$pelangganHash() => r'41cc66ee8061afc5c75b8251a3314b61e15e165c';
 
 abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   FutureOr<PelangganState> build();
@@ -53,68 +53,11 @@ abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   }
 }
 
-@ProviderFor(UrutanPelangganState)
-final urutanPelangganStateProvider = UrutanPelangganStateProvider._();
-
-final class UrutanPelangganStateProvider
-    extends $NotifierProvider<UrutanPelangganState, UrutanPelanggan> {
-  UrutanPelangganStateProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'urutanPelangganStateProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$urutanPelangganStateHash();
-
-  @$internal
-  @override
-  UrutanPelangganState create() => UrutanPelangganState();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(UrutanPelanggan value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<UrutanPelanggan>(value),
-    );
-  }
-}
-
-String _$urutanPelangganStateHash() =>
-    r'4d10172b1c7b6624a3ba78ae04fb5e40835a3fd8';
-
-abstract class _$UrutanPelangganState extends $Notifier<UrutanPelanggan> {
-  UrutanPelanggan build();
-  @$mustCallSuper
-  @override
-  WhenComplete runBuild() {
-    final ref = this.ref as $Ref<UrutanPelanggan, UrutanPelanggan>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<UrutanPelanggan, UrutanPelanggan>,
-              UrutanPelanggan,
-              Object?,
-              Object?
-            >;
-    return element.handleCreate(ref, build);
-  }
-}
-
-/// Provider generator modern untuk status mode pencarian aktif/tidak
-
 @ProviderFor(IsSearchingPelanggan)
 final isSearchingPelangganProvider = IsSearchingPelangganProvider._();
 
-/// Provider generator modern untuk status mode pencarian aktif/tidak
 final class IsSearchingPelangganProvider
     extends $NotifierProvider<IsSearchingPelanggan, bool> {
-  /// Provider generator modern untuk status mode pencarian aktif/tidak
   IsSearchingPelangganProvider._()
     : super(
         from: null,
@@ -144,8 +87,6 @@ final class IsSearchingPelangganProvider
 
 String _$isSearchingPelangganHash() =>
     r'38724895cc23955136de503eb511810c7092933f';
-
-/// Provider generator modern untuk status mode pencarian aktif/tidak
 
 abstract class _$IsSearchingPelanggan extends $Notifier<bool> {
   bool build();

@@ -89,23 +89,9 @@ class Pelanggan extends _$Pelanggan {
 }
 
 @riverpod
-class UrutanPelangganState extends _$UrutanPelangganState {
-  @override
-  UrutanPelanggan build() {
-    return UrutanPelanggan.namaAZ;
-  }
-
-  void ubahUrutan(UrutanPelanggan urutanBaru) {
-    state = urutanBaru;
-  }
-}
-
-/// Provider generator modern untuk status mode pencarian aktif/tidak
-@riverpod
 class IsSearchingPelanggan extends _$IsSearchingPelanggan {
   @override
   bool build() => false;
-
   void toggle() => state = !state;
   void setFalse() => state = false;
 }
