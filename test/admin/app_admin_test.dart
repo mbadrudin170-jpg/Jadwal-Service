@@ -119,9 +119,7 @@ void main() {
     );
     when(
       mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-        waktuPenjadwalanHapusDataArsip: anyNamed(
-          'waktuPenjadwalanHapusDataArsip',
-        ),
+        waktuPenjadwalanHapusDataArsip: any,
       ),
     ).thenAnswer((_) async => 1);
   });
@@ -283,9 +281,7 @@ void main() {
       verifyNever(mockUnduhanAwalService.jalankanUnduhanAwal());
       verifyNever(
         mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
-          waktuPenjadwalanHapusDataArsip: anyNamed(
-            'waktuPenjadwalanHapusDataArsip',
-          ),
+          waktuPenjadwalanHapusDataArsip: any,
         ),
       );
     });
