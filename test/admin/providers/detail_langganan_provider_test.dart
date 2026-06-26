@@ -63,7 +63,7 @@ void main() {
           hapusLanggananProvider(transaksi).future,
         );
 
-        expect(result, 1);
+        expect(result, true);
 
         verify(mockTransaksiOp.softDelete(transaksi.id))
             .called(1);

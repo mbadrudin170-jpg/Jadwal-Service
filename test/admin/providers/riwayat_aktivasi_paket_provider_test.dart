@@ -60,20 +60,20 @@ void main() {
     test(
       '01. harus mengembalikan daftar transaksi yang sudah dibayar (paid)',
       () async {
-        when(mockTransaksiOp.ambilSemuaTransaksi())
+        when(mockTransaksiOp.ambilSemuaTransaksiAktif())
             .thenAnswer((_) async => listTransaksi);
 
         final result = await container.read(
           listRiwayatAktivasiPaketProvider.future,
         );
 
-        expect(result!.length, 1);
+        expect(result.length, 1);
         expect(result.first.id, '1');
       },
     );
 
     test('02. harus mengembalikan list kosong jika tidak ada transaksi paid', () async {
-      when(mockTransaksiOp.ambilSemuaTransaksi()).thenAnswer(
+      when(mockTransaksiOp.ambilSemuaTransaksiAktif()).thenAnswer(
         (_) async => [listTransaksi[1]],
       );
 

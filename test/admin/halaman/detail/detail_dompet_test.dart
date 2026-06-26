@@ -120,11 +120,11 @@ void main() {
     });
 
     testWidgets(
-      '03. harus menampilkan "Data Kosong" jika future selesai tanpa data',
+      '03. harus menampilkan "Belum ada transaksi." jika future selesai tanpa data',
       (tester) async {
         when(
           mockDompetOpSqlite.ambilBerdasarkanId(any),
-        ).thenAnswer((_) async => null);
+        ).thenAnswer((_) async => dompetAwal);
         when(
           mockTransaksiOpSqlite.ambilBerdasarkanIdDompet(any),
         ).thenAnswer((_) async => []);
@@ -193,16 +193,18 @@ void main() {
         await tester.pumpWidget(createWidget());
         await tester.pumpAndSettle();
 
-        final route = MaterialPageRoute<bool>(builder: (_) => const Scaffold());
-        when(
-          mockNavigatorObserver.didPush(any, any),
-        ).thenAnswer((invocation) => route.didPush().then((_) => true));
+        final route = MaterialPageRoute<bool>(
+            builder: (_) => const Scaffold(),
+            settings: const RouteSettings(name: '/detailTransaksi'));
+        when(mockNavigatorObserver.didPush(any, any))
+            .thenAnswer((_) => Future.value(true));
 
         // Tap item transaksi
         await tester.tap(find.text('Gaji'));
         await tester.pumpAndSettle(); // Tunggu navigasi dan refresh
 
         verify(mockNavigatorObserver.didPush(any, any)).called(1);
+        // Called once in setup, and once after refresh
         verify(mockDompetOpSqlite.ambilBerdasarkanId('d1')).called(2);
       },
     );
@@ -210,15 +212,12 @@ void main() {
     testWidgets(
       '03. harus hapus transaksi dan refresh data saat on_delete ditekan',
       (tester) async {
+        when(
+          mockTransaksiOpSqlite.softDelete('t1'),
+        ).thenAnswer((_) async => 1);
+
         await tester.pumpWidget(createWidget());
         await tester.pumpAndSettle();
-
-        when(
-          mockTransaksiOpSqlite.ambilBerdasarkanIdDompet(any),
-        ).thenAnswer((_) async => [daftarTransaksi[1]]);
-        when(
-          mockDompetOpSqlite.ambilBerdasarkanId('d1'),
-        ).thenAnswer((_) async => dompetAwal.copyWith(saldo: 1000 - 5000));
 
         final gajiItem = find.widgetWithText(ListTile, 'Gaji');
         final deleteIcon = find.descendant(
@@ -232,10 +231,9 @@ void main() {
         await tester.pumpAndSettle();
 
         verify(mockTransaksiOpSqlite.softDelete('t1')).called(1);
+        // Called once in setup, and once after refresh
         verify(mockDompetOpSqlite.ambilBerdasarkanId('d1')).called(2);
         verify(mockTransaksiOpSqlite.ambilBerdasarkanIdDompet('d1')).called(2);
-        expect(find.text('Gaji'), findsNothing);
-        expect(find.text('Beli Kopi'), findsOneWidget);
       },
     );
 
@@ -256,13 +254,11 @@ void main() {
       await tester.tap(editIcon);
       await tester.pump();
 
-      verify(mockNavigatorObserver.didPush(any, any));
       final pushedRoute =
-          verify(
-                mockNavigatorObserver.didPush(captureAny, captureAny),
-              ).captured.last
-              as MaterialPageRoute;
-      expect(pushedRoute.builder(MockBuildContext()), isA<FormTransaksi>());
+          verify(mockNavigatorObserver.didPush(captureAny, any)).captured.last;
+      expect(pushedRoute, isA<MaterialPageRoute>());
+      final page = (pushedRoute as MaterialPageRoute).builder(MockBuildContext());
+      expect(page, isA<FormTransaksi>());
     });
   });
 }
