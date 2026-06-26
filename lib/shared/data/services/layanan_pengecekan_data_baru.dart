@@ -2,11 +2,11 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/sinkronisasi/pengelola_sinkronisasi.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 import 'package:wifi/shared/utils/parser_util.dart';
-import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
 
 class LayananPengecekanDataBaru {
   final FirebaseFirestore _firestore;

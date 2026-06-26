@@ -19,7 +19,7 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/model/has_id.dart';
-import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
+import 'package:wifi/fitur/sinkronisasi/pengelola_sinkronisasi.dart';
 
 class LayananUnggahData {
   final SqliteDatabase _sqliteDb;

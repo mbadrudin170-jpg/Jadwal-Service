@@ -28,14 +28,13 @@ class LayananPenyimpananLokal {
     try {
       Log.info('[Ambil Tema] Mengambil mode tema global dari penyimpanan.');
       final modeString = prefs.getString(_kunciAwalanModeTema);
-
       final themeMode = ThemeMode.values.firstWhere(
         (e) => e.toString() == modeString,
         orElse: () {
           Log.warning(
             '[Ambil Tema] Tema global tidak ada atau tidak valid. Fallback ke tema sistem.',
           );
-          return ThemeMode.system;
+          return ThemeMode.light;
         },
       );
 

@@ -1,4 +1,4 @@
-// path: lib/shared/utils/sync_manager.dart
+// path lib/fitur/sinkronisasi/pengelola_sinkronisasi.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/data/services/layanan_preferensi.dart';

@@ -10,7 +10,7 @@ import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
-import 'package:wifi/shared/utils/pengelola_sinkronisasi.dart';
+import 'package:wifi/fitur/sinkronisasi/pengelola_sinkronisasi.dart';
 
 /// Layanan untuk mengorkestrasi proses sinkronisasi data.
 class LayananCekSinkronisasi {
