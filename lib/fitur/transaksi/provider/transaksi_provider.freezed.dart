@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TransaksiState {
 
- List<TransaksiModel> get transaksi; double get totalPemasukan; double get totalPengeluaran; double get total; int get totalPoinSemuaPelanggan; List<PaketTerlarisModel> get paketTerlaris; List<double> get pendapatanHarian; List<double> get pendapatanMingguan; List<double> get pendapatanBulanan; double get totalPendapatanPerbulan;
+ List<TransaksiModel> get transaksi; double get totalPemasukan; double get totalPengeluaran; double get total; int get totalPoinSemuaPelanggan; List<PaketTerlarisModel> get paketTerlaris; List<double> get pendapatanHarian; List<double> get pendapatanMingguan; List<double> get pendapatanBulanan; double get totalPendapatanPerbulan; List<PaketModel> get hadiah; int get totalPoinUser;
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $TransaksiStateCopyWith<TransaksiState> get copyWith => _$TransaksiStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransaksiState&&const DeepCollectionEquality().equals(other.transaksi, transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total)&&(identical(other.totalPoinSemuaPelanggan, totalPoinSemuaPelanggan) || other.totalPoinSemuaPelanggan == totalPoinSemuaPelanggan)&&const DeepCollectionEquality().equals(other.paketTerlaris, paketTerlaris)&&const DeepCollectionEquality().equals(other.pendapatanHarian, pendapatanHarian)&&const DeepCollectionEquality().equals(other.pendapatanMingguan, pendapatanMingguan)&&const DeepCollectionEquality().equals(other.pendapatanBulanan, pendapatanBulanan)&&(identical(other.totalPendapatanPerbulan, totalPendapatanPerbulan) || other.totalPendapatanPerbulan == totalPendapatanPerbulan));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransaksiState&&const DeepCollectionEquality().equals(other.transaksi, transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total)&&(identical(other.totalPoinSemuaPelanggan, totalPoinSemuaPelanggan) || other.totalPoinSemuaPelanggan == totalPoinSemuaPelanggan)&&const DeepCollectionEquality().equals(other.paketTerlaris, paketTerlaris)&&const DeepCollectionEquality().equals(other.pendapatanHarian, pendapatanHarian)&&const DeepCollectionEquality().equals(other.pendapatanMingguan, pendapatanMingguan)&&const DeepCollectionEquality().equals(other.pendapatanBulanan, pendapatanBulanan)&&(identical(other.totalPendapatanPerbulan, totalPendapatanPerbulan) || other.totalPendapatanPerbulan == totalPendapatanPerbulan)&&const DeepCollectionEquality().equals(other.hadiah, hadiah)&&(identical(other.totalPoinUser, totalPoinUser) || other.totalPoinUser == totalPoinUser));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(transaksi),totalPemasukan,totalPengeluaran,total,totalPoinSemuaPelanggan,const DeepCollectionEquality().hash(paketTerlaris),const DeepCollectionEquality().hash(pendapatanHarian),const DeepCollectionEquality().hash(pendapatanMingguan),const DeepCollectionEquality().hash(pendapatanBulanan),totalPendapatanPerbulan);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(transaksi),totalPemasukan,totalPengeluaran,total,totalPoinSemuaPelanggan,const DeepCollectionEquality().hash(paketTerlaris),const DeepCollectionEquality().hash(pendapatanHarian),const DeepCollectionEquality().hash(pendapatanMingguan),const DeepCollectionEquality().hash(pendapatanBulanan),totalPendapatanPerbulan,const DeepCollectionEquality().hash(hadiah),totalPoinUser);
 
 @override
 String toString() {
-  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total, totalPoinSemuaPelanggan: $totalPoinSemuaPelanggan, paketTerlaris: $paketTerlaris, pendapatanHarian: $pendapatanHarian, pendapatanMingguan: $pendapatanMingguan, pendapatanBulanan: $pendapatanBulanan, totalPendapatanPerbulan: $totalPendapatanPerbulan)';
+  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total, totalPoinSemuaPelanggan: $totalPoinSemuaPelanggan, paketTerlaris: $paketTerlaris, pendapatanHarian: $pendapatanHarian, pendapatanMingguan: $pendapatanMingguan, pendapatanBulanan: $pendapatanBulanan, totalPendapatanPerbulan: $totalPendapatanPerbulan, hadiah: $hadiah, totalPoinUser: $totalPoinUser)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $TransaksiStateCopyWith<$Res>  {
   factory $TransaksiStateCopyWith(TransaksiState value, $Res Function(TransaksiState) _then) = _$TransaksiStateCopyWithImpl;
 @useResult
 $Res call({
- List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total, int totalPoinSemuaPelanggan, List<PaketTerlarisModel> paketTerlaris, List<double> pendapatanHarian, List<double> pendapatanMingguan, List<double> pendapatanBulanan, double totalPendapatanPerbulan
+ List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total, int totalPoinSemuaPelanggan, List<PaketTerlarisModel> paketTerlaris, List<double> pendapatanHarian, List<double> pendapatanMingguan, List<double> pendapatanBulanan, double totalPendapatanPerbulan, List<PaketModel> hadiah, int totalPoinUser
 });
 
 
@@ -62,7 +62,7 @@ class _$TransaksiStateCopyWithImpl<$Res>
 
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,Object? totalPoinSemuaPelanggan = null,Object? paketTerlaris = null,Object? pendapatanHarian = null,Object? pendapatanMingguan = null,Object? pendapatanBulanan = null,Object? totalPendapatanPerbulan = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,Object? totalPoinSemuaPelanggan = null,Object? paketTerlaris = null,Object? pendapatanHarian = null,Object? pendapatanMingguan = null,Object? pendapatanBulanan = null,Object? totalPendapatanPerbulan = null,Object? hadiah = null,Object? totalPoinUser = null,}) {
   return _then(_self.copyWith(
 transaksi: null == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
 as List<TransaksiModel>,totalPemasukan: null == totalPemasukan ? _self.totalPemasukan : totalPemasukan // ignore: cast_nullable_to_non_nullable
@@ -74,7 +74,9 @@ as List<PaketTerlarisModel>,pendapatanHarian: null == pendapatanHarian ? _self.p
 as List<double>,pendapatanMingguan: null == pendapatanMingguan ? _self.pendapatanMingguan : pendapatanMingguan // ignore: cast_nullable_to_non_nullable
 as List<double>,pendapatanBulanan: null == pendapatanBulanan ? _self.pendapatanBulanan : pendapatanBulanan // ignore: cast_nullable_to_non_nullable
 as List<double>,totalPendapatanPerbulan: null == totalPendapatanPerbulan ? _self.totalPendapatanPerbulan : totalPendapatanPerbulan // ignore: cast_nullable_to_non_nullable
-as double,
+as double,hadiah: null == hadiah ? _self.hadiah : hadiah // ignore: cast_nullable_to_non_nullable
+as List<PaketModel>,totalPoinUser: null == totalPoinUser ? _self.totalPoinUser : totalPoinUser // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -159,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan,  List<PaketTerlarisModel> paketTerlaris,  List<double> pendapatanHarian,  List<double> pendapatanMingguan,  List<double> pendapatanBulanan,  double totalPendapatanPerbulan)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan,  List<PaketTerlarisModel> paketTerlaris,  List<double> pendapatanHarian,  List<double> pendapatanMingguan,  List<double> pendapatanBulanan,  double totalPendapatanPerbulan,  List<PaketModel> hadiah,  int totalPoinUser)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TransaksiState() when $default != null:
-return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan,_that.paketTerlaris,_that.pendapatanHarian,_that.pendapatanMingguan,_that.pendapatanBulanan,_that.totalPendapatanPerbulan);case _:
+return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan,_that.paketTerlaris,_that.pendapatanHarian,_that.pendapatanMingguan,_that.pendapatanBulanan,_that.totalPendapatanPerbulan,_that.hadiah,_that.totalPoinUser);case _:
   return orElse();
 
 }
@@ -180,10 +182,10 @@ return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan,  List<PaketTerlarisModel> paketTerlaris,  List<double> pendapatanHarian,  List<double> pendapatanMingguan,  List<double> pendapatanBulanan,  double totalPendapatanPerbulan)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan,  List<PaketTerlarisModel> paketTerlaris,  List<double> pendapatanHarian,  List<double> pendapatanMingguan,  List<double> pendapatanBulanan,  double totalPendapatanPerbulan,  List<PaketModel> hadiah,  int totalPoinUser)  $default,) {final _that = this;
 switch (_that) {
 case _TransaksiState():
-return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan,_that.paketTerlaris,_that.pendapatanHarian,_that.pendapatanMingguan,_that.pendapatanBulanan,_that.totalPendapatanPerbulan);case _:
+return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan,_that.paketTerlaris,_that.pendapatanHarian,_that.pendapatanMingguan,_that.pendapatanBulanan,_that.totalPendapatanPerbulan,_that.hadiah,_that.totalPoinUser);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +202,10 @@ return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan,  List<PaketTerlarisModel> paketTerlaris,  List<double> pendapatanHarian,  List<double> pendapatanMingguan,  List<double> pendapatanBulanan,  double totalPendapatanPerbulan)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan,  List<PaketTerlarisModel> paketTerlaris,  List<double> pendapatanHarian,  List<double> pendapatanMingguan,  List<double> pendapatanBulanan,  double totalPendapatanPerbulan,  List<PaketModel> hadiah,  int totalPoinUser)?  $default,) {final _that = this;
 switch (_that) {
 case _TransaksiState() when $default != null:
-return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan,_that.paketTerlaris,_that.pendapatanHarian,_that.pendapatanMingguan,_that.pendapatanBulanan,_that.totalPendapatanPerbulan);case _:
+return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan,_that.paketTerlaris,_that.pendapatanHarian,_that.pendapatanMingguan,_that.pendapatanBulanan,_that.totalPendapatanPerbulan,_that.hadiah,_that.totalPoinUser);case _:
   return null;
 
 }
@@ -215,7 +217,7 @@ return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_tha
 
 
 class _TransaksiState implements TransaksiState {
-  const _TransaksiState({final  List<TransaksiModel> transaksi = const [], this.totalPemasukan = 0.0, this.totalPengeluaran = 0.0, this.total = 0.0, this.totalPoinSemuaPelanggan = 0, required final  List<PaketTerlarisModel> paketTerlaris, required final  List<double> pendapatanHarian, required final  List<double> pendapatanMingguan, required final  List<double> pendapatanBulanan, required this.totalPendapatanPerbulan}): _transaksi = transaksi,_paketTerlaris = paketTerlaris,_pendapatanHarian = pendapatanHarian,_pendapatanMingguan = pendapatanMingguan,_pendapatanBulanan = pendapatanBulanan;
+  const _TransaksiState({final  List<TransaksiModel> transaksi = const [], this.totalPemasukan = 0.0, this.totalPengeluaran = 0.0, this.total = 0.0, this.totalPoinSemuaPelanggan = 0, required final  List<PaketTerlarisModel> paketTerlaris, required final  List<double> pendapatanHarian, required final  List<double> pendapatanMingguan, required final  List<double> pendapatanBulanan, required this.totalPendapatanPerbulan, final  List<PaketModel> hadiah = const [], this.totalPoinUser = 0}): _transaksi = transaksi,_paketTerlaris = paketTerlaris,_pendapatanHarian = pendapatanHarian,_pendapatanMingguan = pendapatanMingguan,_pendapatanBulanan = pendapatanBulanan,_hadiah = hadiah;
   
 
  final  List<TransaksiModel> _transaksi;
@@ -258,6 +260,14 @@ class _TransaksiState implements TransaksiState {
 }
 
 @override final  double totalPendapatanPerbulan;
+ final  List<PaketModel> _hadiah;
+@override@JsonKey() List<PaketModel> get hadiah {
+  if (_hadiah is EqualUnmodifiableListView) return _hadiah;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_hadiah);
+}
+
+@override@JsonKey() final  int totalPoinUser;
 
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
@@ -269,16 +279,16 @@ _$TransaksiStateCopyWith<_TransaksiState> get copyWith => __$TransaksiStateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransaksiState&&const DeepCollectionEquality().equals(other._transaksi, _transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total)&&(identical(other.totalPoinSemuaPelanggan, totalPoinSemuaPelanggan) || other.totalPoinSemuaPelanggan == totalPoinSemuaPelanggan)&&const DeepCollectionEquality().equals(other._paketTerlaris, _paketTerlaris)&&const DeepCollectionEquality().equals(other._pendapatanHarian, _pendapatanHarian)&&const DeepCollectionEquality().equals(other._pendapatanMingguan, _pendapatanMingguan)&&const DeepCollectionEquality().equals(other._pendapatanBulanan, _pendapatanBulanan)&&(identical(other.totalPendapatanPerbulan, totalPendapatanPerbulan) || other.totalPendapatanPerbulan == totalPendapatanPerbulan));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransaksiState&&const DeepCollectionEquality().equals(other._transaksi, _transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total)&&(identical(other.totalPoinSemuaPelanggan, totalPoinSemuaPelanggan) || other.totalPoinSemuaPelanggan == totalPoinSemuaPelanggan)&&const DeepCollectionEquality().equals(other._paketTerlaris, _paketTerlaris)&&const DeepCollectionEquality().equals(other._pendapatanHarian, _pendapatanHarian)&&const DeepCollectionEquality().equals(other._pendapatanMingguan, _pendapatanMingguan)&&const DeepCollectionEquality().equals(other._pendapatanBulanan, _pendapatanBulanan)&&(identical(other.totalPendapatanPerbulan, totalPendapatanPerbulan) || other.totalPendapatanPerbulan == totalPendapatanPerbulan)&&const DeepCollectionEquality().equals(other._hadiah, _hadiah)&&(identical(other.totalPoinUser, totalPoinUser) || other.totalPoinUser == totalPoinUser));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_transaksi),totalPemasukan,totalPengeluaran,total,totalPoinSemuaPelanggan,const DeepCollectionEquality().hash(_paketTerlaris),const DeepCollectionEquality().hash(_pendapatanHarian),const DeepCollectionEquality().hash(_pendapatanMingguan),const DeepCollectionEquality().hash(_pendapatanBulanan),totalPendapatanPerbulan);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_transaksi),totalPemasukan,totalPengeluaran,total,totalPoinSemuaPelanggan,const DeepCollectionEquality().hash(_paketTerlaris),const DeepCollectionEquality().hash(_pendapatanHarian),const DeepCollectionEquality().hash(_pendapatanMingguan),const DeepCollectionEquality().hash(_pendapatanBulanan),totalPendapatanPerbulan,const DeepCollectionEquality().hash(_hadiah),totalPoinUser);
 
 @override
 String toString() {
-  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total, totalPoinSemuaPelanggan: $totalPoinSemuaPelanggan, paketTerlaris: $paketTerlaris, pendapatanHarian: $pendapatanHarian, pendapatanMingguan: $pendapatanMingguan, pendapatanBulanan: $pendapatanBulanan, totalPendapatanPerbulan: $totalPendapatanPerbulan)';
+  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total, totalPoinSemuaPelanggan: $totalPoinSemuaPelanggan, paketTerlaris: $paketTerlaris, pendapatanHarian: $pendapatanHarian, pendapatanMingguan: $pendapatanMingguan, pendapatanBulanan: $pendapatanBulanan, totalPendapatanPerbulan: $totalPendapatanPerbulan, hadiah: $hadiah, totalPoinUser: $totalPoinUser)';
 }
 
 
@@ -289,7 +299,7 @@ abstract mixin class _$TransaksiStateCopyWith<$Res> implements $TransaksiStateCo
   factory _$TransaksiStateCopyWith(_TransaksiState value, $Res Function(_TransaksiState) _then) = __$TransaksiStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total, int totalPoinSemuaPelanggan, List<PaketTerlarisModel> paketTerlaris, List<double> pendapatanHarian, List<double> pendapatanMingguan, List<double> pendapatanBulanan, double totalPendapatanPerbulan
+ List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total, int totalPoinSemuaPelanggan, List<PaketTerlarisModel> paketTerlaris, List<double> pendapatanHarian, List<double> pendapatanMingguan, List<double> pendapatanBulanan, double totalPendapatanPerbulan, List<PaketModel> hadiah, int totalPoinUser
 });
 
 
@@ -306,7 +316,7 @@ class __$TransaksiStateCopyWithImpl<$Res>
 
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,Object? totalPoinSemuaPelanggan = null,Object? paketTerlaris = null,Object? pendapatanHarian = null,Object? pendapatanMingguan = null,Object? pendapatanBulanan = null,Object? totalPendapatanPerbulan = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,Object? totalPoinSemuaPelanggan = null,Object? paketTerlaris = null,Object? pendapatanHarian = null,Object? pendapatanMingguan = null,Object? pendapatanBulanan = null,Object? totalPendapatanPerbulan = null,Object? hadiah = null,Object? totalPoinUser = null,}) {
   return _then(_TransaksiState(
 transaksi: null == transaksi ? _self._transaksi : transaksi // ignore: cast_nullable_to_non_nullable
 as List<TransaksiModel>,totalPemasukan: null == totalPemasukan ? _self.totalPemasukan : totalPemasukan // ignore: cast_nullable_to_non_nullable
@@ -318,7 +328,9 @@ as List<PaketTerlarisModel>,pendapatanHarian: null == pendapatanHarian ? _self._
 as List<double>,pendapatanMingguan: null == pendapatanMingguan ? _self._pendapatanMingguan : pendapatanMingguan // ignore: cast_nullable_to_non_nullable
 as List<double>,pendapatanBulanan: null == pendapatanBulanan ? _self._pendapatanBulanan : pendapatanBulanan // ignore: cast_nullable_to_non_nullable
 as List<double>,totalPendapatanPerbulan: null == totalPendapatanPerbulan ? _self.totalPendapatanPerbulan : totalPendapatanPerbulan // ignore: cast_nullable_to_non_nullable
-as double,
+as double,hadiah: null == hadiah ? _self._hadiah : hadiah // ignore: cast_nullable_to_non_nullable
+as List<PaketModel>,totalPoinUser: null == totalPoinUser ? _self.totalPoinUser : totalPoinUser // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

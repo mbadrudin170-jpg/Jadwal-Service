@@ -15,6 +15,7 @@ import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -255,6 +256,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
   @override
   Widget build(BuildContext context) {
+    final transaksiAsync = ref.watch(transaksiProvider);
     Log.info('Building PointsPage UI, selected menu: $_menuAktif');
     final dataAsync = ref.watch(pointsPageDataProvider(widget.idPelanggan));
     return dataAsync.when(
@@ -374,7 +376,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
                 ? transaksi.poinDidapat
                 : transaksi.poinDigunakan;
             final teksPoin = apakahPenambahan ? '+$nilaiPoin' : '-$nilaiPoin';
-
             final bool apakahBelumBayar =
                 transaksi.statusPembayaran == StatusPembayaran.unpaid;
             final Color warnaPoin = apakahBelumBayar

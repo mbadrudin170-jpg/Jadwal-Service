@@ -1,19 +1,43 @@
 // path: lib/fitur/paket/provider/paket_provider.dart
 
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/paket/page/paket.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 part 'paket_provider.g.dart';
+part 'paket_provider.freezed.dart';
 
-@riverpod
-Future<List<PaketModel>> daftarPaket(Ref ref) async {
-  Log.info('Mendapatkan daftar paket aktif dari SQLite via paketProvider...');
+@freezed
+abstract class PaketState with _$PaketState {
+  const factory PaketState({
+    @Default([]) List<PaketModel> daftarPaket,
+    @Default([]) List<PaketModel> daftarPaketPublik,
+    @Default(0) int jumlahPaket,
+  }) = _PaketState;
+}
 
-  final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-  return await paketOpSqlite.ambilSemua();
+@Riverpod(keepAlive: true)
+class Paket extends _$Paket {
+  PaketOpSqlite get _paketOpSqlite => ref.read(paketOpSqliteProvider);
+
+  @override
+  FutureOr<PaketState> build() async {
+    return _ambilData();
+  }
+
+  Future<PaketState> _ambilData() async {
+    final daftarpaket = await _paketOpSqlite.ambilSemua();
+    final daftarPaketPublik = await _paketOpSqlite.ambilPaketPublik();
+    return PaketState(
+      daftarPaket: daftarpaket,
+      jumlahPaket: daftarpaket.length,
+      daftarPaketPublik: daftarPaketPublik,
+    );
+  }
 }
 
 @riverpod

@@ -9,44 +9,48 @@ part of 'paket_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(daftarPaket)
-final daftarPaketProvider = DaftarPaketProvider._();
+@ProviderFor(Paket)
+final paketProvider = PaketProvider._();
 
-final class DaftarPaketProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<PaketModel>>,
-          List<PaketModel>,
-          FutureOr<List<PaketModel>>
-        >
-    with $FutureModifier<List<PaketModel>>, $FutureProvider<List<PaketModel>> {
-  DaftarPaketProvider._()
+final class PaketProvider extends $AsyncNotifierProvider<Paket, PaketState> {
+  PaketProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'daftarPaketProvider',
-        isAutoDispose: true,
+        name: r'paketProvider',
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$daftarPaketHash();
+  String debugGetCreateSourceHash() => _$paketHash();
 
   @$internal
   @override
-  $FutureProviderElement<List<PaketModel>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<List<PaketModel>> create(Ref ref) {
-    return daftarPaket(ref);
-  }
+  Paket create() => Paket();
 }
 
-String _$daftarPaketHash() => r'a915d3dab92ee528a024e0d132063f7de96196de';
+String _$paketHash() => r'f6c414734d9ce23983e18e3e83686d5595a32169';
+
+abstract class _$Paket extends $AsyncNotifier<PaketState> {
+  FutureOr<PaketState> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<PaketState>, PaketState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<PaketState>, PaketState>,
+              AsyncValue<PaketState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
 
 @ProviderFor(UrutanPaketState)
 final urutanPaketStateProvider = UrutanPaketStateProvider._();

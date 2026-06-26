@@ -89,7 +89,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
         } else {
           await _paketOpSqlite.tambahPaket(paketBaru);
         }
-        ref.invalidate(daftarPaketProvider);
+        ref.invalidate(paketProvider);
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
         );

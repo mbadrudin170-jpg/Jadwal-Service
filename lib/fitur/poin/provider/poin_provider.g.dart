@@ -239,7 +239,7 @@ final class PointsHistoryProvider
   }) : super(
          retry: null,
          name: r'pointsHistoryProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -277,7 +277,7 @@ final class PointsHistoryProvider
   }
 }
 
-String _$pointsHistoryHash() => r'61d9e7e5c1a7b88f4eab1423a5ed17acb4313dae';
+String _$pointsHistoryHash() => r'4849e8f01da7196e1723fa0f4dd66b4753fbff63';
 
 final class PointsHistoryFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<TransaksiModel>>, String> {
@@ -287,7 +287,7 @@ final class PointsHistoryFamily extends $Family
         name: r'pointsHistoryProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   PointsHistoryProvider call(String idPelanggan) =>

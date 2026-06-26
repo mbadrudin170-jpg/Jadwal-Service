@@ -33,9 +33,8 @@ class PackagePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final paketAsync = ref.watch(daftarPaketProvider);
+    final paketAsync = ref.watch(paketProvider);
     final urutanSaatIni = ref.watch(urutanPaketStateProvider);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Daftar Paket'),
@@ -59,10 +58,10 @@ class PackagePage extends ConsumerWidget {
           return Center(child: Text('Error: $err'));
         },
         data: (paketList) {
-          if (paketList.isEmpty) {
+          if (paketList.daftarPaket.isEmpty) {
             return const Center(child: Text('Tidak ada paket yang tersedia.'));
           }
-          final sortedList = List<PaketModel>.from(paketList);
+          final sortedList = List<PaketModel>.from(paketList.daftarPaket);
           _urutkanList(sortedList, urutanSaatIni);
 
           return ListView.builder(
@@ -114,7 +113,6 @@ class PackagePage extends ConsumerWidget {
     );
   }
 }
-
 
 void _urutkanList(List<PaketModel> daftarPaket, UrutanPaket urutan) {
   switch (urutan) {
@@ -267,7 +265,7 @@ Future<void> _tampilkanDialogKonfirmasiHapus(
               Navigator.pop(dialogContext);
               try {
                 await paketOpSqlite.hapusSementara(paket.id);
-                ref.invalidate(daftarPaketProvider);
+                ref.invalidate(paketProvider);
                 unawaited(
                   ref
                       .read(layananCekSinkronisasiProvider)
@@ -317,7 +315,7 @@ Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
                       .read(layananCekSinkronisasiProvider)
                       .jalankanCekSinkronisasi(),
                 );
-                ref.invalidate(daftarPaketProvider);
+                ref.invalidate(paketProvider);
                 if (context.mounted) {
                   ToastUtil.success(context, 'Semua paket dihapus.');
                 }

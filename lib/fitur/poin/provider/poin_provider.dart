@@ -61,7 +61,7 @@ Future<PointsPageData> pointsPageData(Ref ref, String idPelanggan) async {
   return (totalPoin: totalPoin as int, hadiah: hadiah as List<PaketModel>);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<List<TransaksiModel>> pointsHistory(Ref ref, String idPelanggan) {
   final dataSource = ref.watch(pointsDataSourceProvider);
   return dataSource.getPointsTransactions(idPelanggan);
