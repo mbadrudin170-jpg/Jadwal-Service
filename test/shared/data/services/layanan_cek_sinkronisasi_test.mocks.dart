@@ -240,7 +240,7 @@ class MockLayananUnggahData extends _i1.Mock implements _i6.LayananUnggahData {
   @override
   _i4.Future<void> uploadDataTransaksi() =>
       (super.noSuchMethod(
-            Invocation.method(#uploadTransactionData, []),
+            Invocation.method(#uploadDataTransaksi, []),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )

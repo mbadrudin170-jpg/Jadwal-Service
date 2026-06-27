@@ -39,14 +39,10 @@ class Feedback extends _$Feedback {
   Future<void> refresh() async {
     Log.info('[StatistikNotifier] Refresh dipicu oleh UI.');
     state = const AsyncLoading();
-    state = await AsyncValue.guard(_loadData);
+    state = await AsyncValue.guard(() async {
+      return await _loadData(); // ✅ Kembalikan hasil _loadData()
+    });
     Log.info('[StatistikNotifier] Refresh selesai.');
-  }
-
-  void _invalidateTabelFeedback(){
-    ref.invalidateSelf();
-    ref.invalidate(detailFeedbackProvider);
-    ref.invalidate(daftarFeedbackAktifProvider);
   }
 }
 
@@ -57,7 +53,7 @@ Future<List<FeedbackModel>> daftarFeedbackAktif(Ref ref) async {
 }
 
 @riverpod
-Future<FeedbackModel> detailFeedback(Ref ref, String id) async {
+Future<FeedbackModel?> detailFeedback(Ref ref, String id) async {
   final feedbackOpSqlite = ref.watch(feedbackOpGlobalProvider);
   return await feedbackOpSqlite.ambilBerdasarkanId(id);
 }

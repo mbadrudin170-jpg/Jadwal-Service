@@ -32,7 +32,7 @@ final class PaketProvider extends $AsyncNotifierProvider<Paket, PaketState> {
   Paket create() => Paket();
 }
 
-String _$paketHash() => r'9f43517b676d2932f986efc25396b3799db94372';
+String _$paketHash() => r'fb6d283ab6332454ac2c6483dd179aaa10e25030';
 
 abstract class _$Paket extends $AsyncNotifier<PaketState> {
   FutureOr<PaketState> build();
@@ -158,7 +158,7 @@ final class DetailPaketProvider
   }
 }
 
-String _$detailPaketHash() => r'e85da754aee33b5837d869b7cc36ea2865dca91a';
+String _$detailPaketHash() => r'50b17c83ded1f696610458751fee28c61eac43a2';
 
 final class DetailPaketFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<PaketModel>, String> {

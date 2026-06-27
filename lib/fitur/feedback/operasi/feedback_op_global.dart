@@ -6,6 +6,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
+import 'package:wifi/fitur/feedback/provider/feedback_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
@@ -28,9 +29,10 @@ class FeedbackOpGlobal {
       } else {
         await _feedbackOpFirebase.tambah(feedback);
       }
+      _invalidateTabelFeedback();
     } on Exception catch (e, s) {
       Log.error('Error ditambah: $e', e: e, s: s);
-      rethrow; // Error handling opsional
+      rethrow;
     }
   }
 
@@ -41,9 +43,10 @@ class FeedbackOpGlobal {
       } else {
         await _feedbackOpFirebase.perbarui(feedback);
       }
+      _invalidateTabelFeedback();
     } on Exception catch (e, s) {
-      Log.error('Error ditambah: $e', e: e, s: s);
-      rethrow; // Error handling opsional
+      Log.error('Error diperbarui: $e', e: e, s: s);
+      rethrow;
     }
   }
 
@@ -54,9 +57,42 @@ class FeedbackOpGlobal {
       } else {
         await _feedbackOpFirebase.softDelete(id);
       }
+      _invalidateTabelFeedback();
     } on Exception catch (e, s) {
       Log.error('Error di softDelete: $e', e: e, s: s);
       rethrow;
     }
+  }
+
+  Future<FeedbackModel?> ambilBerdasarkanId(String id) async {
+    try {
+      if (RoleUtil.isAdmin(ref)) {
+        return await _feedbackOpSqlite.ambilBerdasarkanId(id);
+      } else {
+        return await _feedbackOpFirebase.ambilBerdasarkanId(id);
+      }
+    } on Exception catch (e, s) {
+      Log.error('Error di ambilBerdasarkanId: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<List<FeedbackModel>> ambilSemua() async {
+    try {
+      if (RoleUtil.isAdmin(ref)) {
+        return await _feedbackOpSqlite.ambilSemua();
+      } else {
+        return await _feedbackOpFirebase.ambilSemua();
+      }
+    } on Exception catch (e, s) {
+      Log.error('Error di ambilSemua: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  void _invalidateTabelFeedback() {
+    ref.invalidate(feedbackProvider);
+    ref.invalidate(detailFeedbackProvider);
+    ref.invalidate(daftarFeedbackAktifProvider);
   }
 }

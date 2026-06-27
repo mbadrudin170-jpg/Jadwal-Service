@@ -211,6 +211,22 @@ class MockPaketOpSqlite extends _i1.Mock implements _i7.PaketOpSqlite {
           as _i5.Future<void>);
 
   @override
+  _i5.Future<void> perbaruiPaket(
+    _i8.PaketModel? paket, {
+    bool? dariServer = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #perbaruiPaket,
+              [paket],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
   _i5.Future<List<_i8.PaketModel>> ambilSemua({
     bool? tampilkanYangDiarsip = false,
   }) =>
@@ -241,22 +257,6 @@ class MockPaketOpSqlite extends _i1.Mock implements _i7.PaketOpSqlite {
             returnValue: _i5.Future<_i8.PaketModel?>.value(),
           )
           as _i5.Future<_i8.PaketModel?>);
-
-  @override
-  _i5.Future<void> perbaruiPaket(
-    _i8.PaketModel? paket, {
-    bool? dariServer = false,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #perbaruiPaket,
-              [paket],
-              {#dariServer: dariServer},
-            ),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
 
   @override
   _i5.Future<void> hapusSementara(String? id, {bool? dariServer = false}) =>

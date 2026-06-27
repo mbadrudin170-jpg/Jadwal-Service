@@ -242,6 +242,23 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i8.TransaksiOpSqlite {
           as _i6.Future<List<_i9.TransaksiModel>>);
 
   @override
+  _i6.Future<void> perbaruiTransaksi(
+    String? id,
+    _i9.TransaksiModel? transaksi, {
+    bool? dariServer = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #perbaruiTransaksi,
+              [id, transaksi],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
   _i6.Future<_i9.TransaksiModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBerdasarkanId, [id]),
@@ -282,23 +299,6 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i8.TransaksiOpSqlite {
             ),
           )
           as _i6.Future<List<_i9.TransaksiModel>>);
-
-  @override
-  _i6.Future<void> perbaruiTransaksi(
-    String? id,
-    _i9.TransaksiModel? transaksi, {
-    bool? dariServer = false,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #perbaruiTransaksi,
-              [id, transaksi],
-              {#dariServer: dariServer},
-            ),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
 
   @override
   _i6.Future<void> softDelete(String? id, {bool? dariServer = false}) =>

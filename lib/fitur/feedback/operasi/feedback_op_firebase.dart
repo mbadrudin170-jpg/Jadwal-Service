@@ -63,6 +63,53 @@ class FeedbackOpFirebase {
   // =======================================================================
   // OPERASI BACA (Tidak didelegasikan karena spesifik untuk model)
   // =======================================================================
+  Future<List<FeedbackModel>> ambilSemua() async {
+    try {
+      Log.info('Mengambil semua feedback aktif dari Firestore');
+      final querySnapshot = await _koleksi
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.tanggal, descending: true)
+          .get();
+
+      Log.info('Berhasil mengambil ${querySnapshot.docs.length} feedback');
+      return querySnapshot.docs.map((doc) {
+        return FeedbackModel.fromFirebase(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }).toList();
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal mengambil semua feedback dari Firestore', e: e, s: s);
+      rethrow;
+    } on Exception catch (e, s) {
+      Log.error('Error umum saat mengambil semua feedback', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<FeedbackModel?> ambilBerdasarkanId(String id) async {
+    try {
+      Log.info('Mengambil feedback berdasarkan ID: $id');
+      final doc = await _koleksi.doc(id).get();
+      if (doc.exists) {
+        return FeedbackModel.fromFirebase(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }
+      return null;
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal mengambil feedback berdasarkan ID: $id', e: e, s: s);
+      rethrow;
+    } on Exception catch (e, s) {
+      Log.error(
+        'Error umum saat mengambil feedback berdasarkan ID: $id',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
 
   /// Membaca semua feedback oleh pengguna tertentu.
   Stream<List<FeedbackModel>> ambilBerdasarkanUser(String userId) {

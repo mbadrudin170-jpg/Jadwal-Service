@@ -33,7 +33,7 @@ final class FeedbackProvider
   Feedback create() => Feedback();
 }
 
-String _$feedbackHash() => r'9eadefcb224084c22312fa6325107b16e49cad51';
+String _$feedbackHash() => r'dc2f71b068d16202fb77515c41af72635e845494';
 
 abstract class _$Feedback extends $AsyncNotifier<FeedbackState> {
   FutureOr<FeedbackState> build();
@@ -93,7 +93,7 @@ final class DaftarFeedbackAktifProvider
 }
 
 String _$daftarFeedbackAktifHash() =>
-    r'b340f89f938d3f177a7984b45150e25b69115649';
+    r'58cbd840ace4249dbd8a4ebeb5a2f386f8eb79b5';
 
 @ProviderFor(detailFeedback)
 final detailFeedbackProvider = DetailFeedbackFamily._();
@@ -101,11 +101,11 @@ final detailFeedbackProvider = DetailFeedbackFamily._();
 final class DetailFeedbackProvider
     extends
         $FunctionalProvider<
-          AsyncValue<FeedbackModel>,
-          FeedbackModel,
-          FutureOr<FeedbackModel>
+          AsyncValue<FeedbackModel?>,
+          FeedbackModel?,
+          FutureOr<FeedbackModel?>
         >
-    with $FutureModifier<FeedbackModel>, $FutureProvider<FeedbackModel> {
+    with $FutureModifier<FeedbackModel?>, $FutureProvider<FeedbackModel?> {
   DetailFeedbackProvider._({
     required DetailFeedbackFamily super.from,
     required String super.argument,
@@ -129,12 +129,12 @@ final class DetailFeedbackProvider
 
   @$internal
   @override
-  $FutureProviderElement<FeedbackModel> $createElement(
+  $FutureProviderElement<FeedbackModel?> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<FeedbackModel> create(Ref ref) {
+  FutureOr<FeedbackModel?> create(Ref ref) {
     final argument = this.argument as String;
     return detailFeedback(ref, argument);
   }
@@ -150,10 +150,10 @@ final class DetailFeedbackProvider
   }
 }
 
-String _$detailFeedbackHash() => r'7a2426b79ddfa428b35a52c199ce26ece0af068b';
+String _$detailFeedbackHash() => r'9fb746244ed3ac8f12d4eb63760ca334b9804d74';
 
 final class DetailFeedbackFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<FeedbackModel>, String> {
+    with $FunctionalFamilyOverride<FutureOr<FeedbackModel?>, String> {
   DetailFeedbackFamily._()
     : super(
         retry: null,
