@@ -87,9 +87,13 @@ class MockPelangganOpFirebase extends _i1.Mock
           as _i4.Future<void>);
 
   @override
-  _i4.Future<List<_i5.PelangganModel>> ambilSemua() =>
+  _i4.Future<List<_i5.PelangganModel>> ambilSemua({
+    bool? tampilkanYangDiarsip = true,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#ambilSemuaPelanggan, []),
+            Invocation.method(#ambilSemua, [], {
+              #tampilkanYangDiarsip: tampilkanYangDiarsip,
+            }),
             returnValue: _i4.Future<List<_i5.PelangganModel>>.value(
               <_i5.PelangganModel>[],
             ),

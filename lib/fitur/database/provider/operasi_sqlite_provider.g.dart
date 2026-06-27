@@ -54,12 +54,8 @@ final class PaketOpSqliteProvider
 
 String _$paketOpSqliteHash() => r'98ae460628fbf307b0a963ff22d65798162b0399';
 
-/// Provider untuk menyediakan instance dari [TransaksiOpSqlite].
-
 @ProviderFor(transaksiOpSqlite)
 final transaksiOpSqliteProvider = TransaksiOpSqliteProvider._();
-
-/// Provider untuk menyediakan instance dari [TransaksiOpSqlite].
 
 final class TransaksiOpSqliteProvider
     extends
@@ -69,7 +65,6 @@ final class TransaksiOpSqliteProvider
           TransaksiOpSqlite
         >
     with $Provider<TransaksiOpSqlite> {
-  /// Provider untuk menyediakan instance dari [TransaksiOpSqlite].
   TransaksiOpSqliteProvider._()
     : super(
         from: null,

@@ -102,9 +102,13 @@ class MockPelangganOpFirebase extends _i1.Mock
           as _i3.Future<void>);
 
   @override
-  _i3.Future<List<_i5.PelangganModel>> ambilSemua() =>
+  _i3.Future<List<_i5.PelangganModel>> ambilSemua({
+    bool? tampilkanYangDiarsip = true,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#ambilSemuaPelanggan, []),
+            Invocation.method(#ambilSemua, [], {
+              #tampilkanYangDiarsip: tampilkanYangDiarsip,
+            }),
             returnValue: _i3.Future<List<_i5.PelangganModel>>.value(
               <_i5.PelangganModel>[],
             ),
@@ -158,6 +162,24 @@ class MockTransaksiOpFirebase extends _i1.Mock
           as _i3.Future<void>);
 
   @override
+  _i3.Future<_i7.TransaksiModel?> ambilBerdasarkanId(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilBerdasarkanId, [id]),
+            returnValue: _i3.Future<_i7.TransaksiModel?>.value(),
+          )
+          as _i3.Future<_i7.TransaksiModel?>);
+
+  @override
+  _i3.Future<List<_i7.TransaksiModel>> ambilBerdasarkanStatusAktivasi() =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilBerdasarkanStatusAktivasi, []),
+            returnValue: _i3.Future<List<_i7.TransaksiModel>>.value(
+              <_i7.TransaksiModel>[],
+            ),
+          )
+          as _i3.Future<List<_i7.TransaksiModel>>);
+
+  @override
   _i3.Future<_i7.TransaksiModel?>
   ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(String? idPelanggan) =>
       (super.noSuchMethod(
@@ -196,6 +218,18 @@ class MockTransaksiOpFirebase extends _i1.Mock
           as _i3.Future<List<_i7.TransaksiModel>>);
 
   @override
+  _i3.Future<List<_i7.TransaksiModel>> ambilBerdasarkanIdDompet(
+    String? idDompet,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilBerdasarkanIdDompet, [idDompet]),
+            returnValue: _i3.Future<List<_i7.TransaksiModel>>.value(
+              <_i7.TransaksiModel>[],
+            ),
+          )
+          as _i3.Future<List<_i7.TransaksiModel>>);
+
+  @override
   _i3.Future<int> ambilTotalPoin(String? idPelanggan) =>
       (super.noSuchMethod(
             Invocation.method(#ambilTotalPoin, [idPelanggan]),
@@ -223,6 +257,15 @@ class MockTransaksiOpFirebase extends _i1.Mock
             ),
           )
           as _i3.Future<List<_i7.TransaksiModel>>);
+
+  @override
+  _i3.Future<void> sisipkanAtauPerbaruiBatch(List<_i7.TransaksiModel>? items) =>
+      (super.noSuchMethod(
+            Invocation.method(#sisipkanAtauPerbaruiBatch, [items]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 
   @override
   _i3.Future<T> runComplexOperation<T>(

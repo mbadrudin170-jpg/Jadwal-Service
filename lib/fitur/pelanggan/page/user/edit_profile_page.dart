@@ -14,9 +14,7 @@ import 'package:wifi/shared/widget/input/input_telepon.dart';
 
 class EditProfilePage extends ConsumerStatefulWidget {
   final PelangganModel pelanggan;
-
   const EditProfilePage({super.key, required this.pelanggan});
-
   @override
   ConsumerState<EditProfilePage> createState() => _EditProfilePageState();
 }
@@ -82,16 +80,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         final pelangganOp = ref.read(pelangganOpGlobalProvider);
         await pelangganOp.updatePelanggan(dataPelanggan);
         Log.info('perbaruiPelanggan selesai untuk id=${dataPelanggan.id}.');
-
         if (!mounted) {
           Log.info(
             'Widget tidak lagi mounted setelah update; tidak menampilkan toast atau menutup halaman.',
-          );
+          );                      
           return;
         }
-
         ToastUtil.success(context, 'Profil berhasil diperbarui.');
-        Log.info('Toast sukses ditampilkan, menutup halaman edit.');
+        Log.info('Toast sukses ditampilkan, mmenutup halaman edit.');
         navigator.pop(context);
       } catch (e, st) {
         Log.error('Gagal menyimpan perubahan profil', e: e, s: st);
