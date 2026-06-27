@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
@@ -53,7 +54,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
   @override
   FutureOr<RiwayatAktivasiPaketState> build() {
     ref.watch(transaksiOpGlobalProvider);
-    ref.watch(pelangganOpSqliteProvider);
+    ref.watch(pelangganOpGlobalProvider);
     return _loadData(OpsiUrutan.berakhirHariIni);
   }
 
