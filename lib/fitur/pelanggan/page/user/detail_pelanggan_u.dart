@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
-import 'package:wifi/fitur/pelanggan/page/user/edit_profile_page.dart';
+import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
 import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -12,7 +12,6 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 
-/// Kelas untuk menggabungkan data yang dibutuhkan oleh UI.
 class _DataDetailPelanggan {
   final PelangganModel pelanggan;
   final int totalPoin;
@@ -71,7 +70,7 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
     await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) => EditProfilePage(pelanggan: pelanggan),
+        builder: (context) => FormPelanggan(pelanggan: pelanggan),
       ),
     );
     await ref.read(interstitialAdServiceProvider).show();

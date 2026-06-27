@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/shared/export/operation.dart';
 
 part 'pelanggan_provider.g.dart';
@@ -22,6 +23,8 @@ abstract class PelangganState with _$PelangganState {
 class Pelanggan extends _$Pelanggan {
   PelangganOpSqlite get _pelangganOpSqlite =>
       ref.read(pelangganOpSqliteProvider);
+  PelangganOpGlobal get _pelangganOp => ref.read(pelangganOpGlobalProvider);
+
   TransaksiOpSqlite get _transaksiOpSqlite =>
       ref.read(transaksiOpSqliteProvider);
 
@@ -50,13 +53,13 @@ class Pelanggan extends _$Pelanggan {
       ref.invalidateSelf();
     } catch (e, s) {
       state = AsyncValue.error(e, s);
-      rethrow; // 🌟 PENTING
+      rethrow;
     }
   }
 
-  Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
+  Future<void> updatePelanggan(PelangganModel pelanggan) async {
     try {
-      await _pelangganOpSqlite.perbaruiPelanggan(pelanggan);
+      await _pelangganOp.updatePelanggan(pelanggan);
       _invalidateDetailPelanggan(pelanggan.id);
       ref.invalidateSelf();
     } catch (e, s) {

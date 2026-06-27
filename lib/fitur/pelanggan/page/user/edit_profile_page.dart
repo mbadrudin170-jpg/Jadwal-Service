@@ -48,8 +48,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     Log.info('SimpanForm dipanggil - validasi form dimulai.');
     if (_formKey.currentState?.validate() ?? false) {
       Log.info('Form valid - memproses penyimpanan perubahan profil.');
-      final navigator = Navigator.of(context);
-
       try {
         Log.info('Memeriksa koneksi internet sebelum menyimpan perubahan.');
         final isOnline = await ref
@@ -83,12 +81,16 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         if (!mounted) {
           Log.info(
             'Widget tidak lagi mounted setelah update; tidak menampilkan toast atau menutup halaman.',
-          );                      
+          );
           return;
         }
         ToastUtil.success(context, 'Profil berhasil diperbarui.');
         Log.info('Toast sukses ditampilkan, mmenutup halaman edit.');
-        navigator.pop(context);
+        // Hapus deklarasi navigator di awal, atau gunakan langsung
+        // Ganti navigator.pop(context); dengan:
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
       } catch (e, st) {
         Log.error('Gagal menyimpan perubahan profil', e: e, s: st);
         if (!mounted) {

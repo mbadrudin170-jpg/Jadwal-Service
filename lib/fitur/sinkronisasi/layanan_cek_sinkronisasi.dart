@@ -49,6 +49,7 @@ class LayananCekSinkronisasi {
         .read(koneksiInternetServiceProvider)
         .cekInternet();
     if (!isOnline) {
+      Log.warning('Tidak terhubung ke internet');
       return;
     }
     _berjalan = true;
@@ -62,6 +63,8 @@ class LayananCekSinkronisasi {
       }
       await _periksaDanJalankanUnduh();
       Log.info('Seluruh siklus runSyncCheck() telah berakhir dengan sukses.');
+    } on Exception catch (e, s) {
+      Log.error('Gagal menjalankan siklus runSyncCheck().', e: e, s: s);
     } finally {
       _berjalan = false;
     }

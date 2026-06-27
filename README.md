@@ -1413,6 +1413,7 @@ import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -1495,7 +1496,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     Log.info('Memulai memuat semua data untuk FormPelangganAktif');
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
     final paketOpsqlite = ref.read(paketOpSqliteProvider);
-    final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
+    final transaksiOperasi = ref.read(transaksiOpGlobalProvider);
     final dompetOpSqlite = ref.read(dompetOpSqliteProvider);
     final kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
     try {
@@ -1562,7 +1563,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Future<void> _mapEditData(TransaksiModel? transaksi) async {
-    final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
+    final transaksiOperasi = ref.read(transaksiOpGlobalProvider);
     final pa = widget.pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
     _pelangganDipilih = _daftarPelanggan.firstWhereOrNull(
@@ -1956,7 +1957,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Widget _buildPelangganDropdown() {
-    final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
+    final transaksiOperasi = ref.read(transaksiOpGlobalProvider);
     return DropdownButtonFormField<PelangganModel>(
       key: const Key('pelanggan_dropdown'),
       decoration: const InputDecoration(
@@ -2317,6 +2318,7 @@ import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/whatsapp/info_paket.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -2350,7 +2352,7 @@ final detailPleangganAktifProvider =
       final pelangganAktif = detailPelangganAktif.pelangganAktif;
       final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
       final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-      final transaksiOpsqlite = ref.watch(transaksiOpSqliteProvider);
+      final transaksiOpsqlite = ref.watch(transaksiOpGlobalProvider);
       final hasil = await Future.wait<Object?>([
         pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.idPelanggan),
         pelangganAktif.idPaket.isNotEmpty
@@ -5564,6 +5566,7 @@ import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dart';
 
@@ -5587,38 +5590,30 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   late final Widget _judulAppBar;
   bool _sedangTukarPoin = false;
   String? _idRewardYangDiproses;
-
   @override
   void initState() {
     super.initState();
     _layananIklanInterstisial = LayananIklanInterstisial();
-    final pakaiFirebase = ref.isUser;
-    Log.info(
-      'Initializing PointsPage for customer: ${widget.idPelanggan} with role: $pakaiFirebase',
-    );
-
     _judulAppBar = Row(
       children: [
         const Text('Poin: '),
-        Expanded(
-          child: NamaPelangganWidget(
-            idPelanggan: widget.idPelanggan,
-            pakaiFirebase: pakaiFirebase,
-          ),
-        ),
+        Expanded(child: NamaPelangganWidget(idPelanggan: widget.idPelanggan)),
       ],
     );
-
-    if (widget.tampilkanIklan) {
-      Log.info('Preloading interstitial ad for PointsPage.');
-      _layananIklanInterstisial.preloadAd().catchError((Object e) {
-        Log.warning('Failed to preload interstitial ad: $e');
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final userId = await ref.read(userIdProvider.future);
+      if (userId != null && userId.isNotEmpty) {
+        Log.info('Preloading interstitial ad for PointsPage.');
+        unawaited(
+          _layananIklanInterstisial.preloadAd().catchError((Object e) {
+            Log.warning('Failed to preload interstitial ad: $e');
+          }),
+        );
+      }
+    });
   }
 
   Future<void> _tukarPoin(PaketModel hadiah, int poinSaatIni) async {
-    // Cegah double tap
     if (_sedangTukarPoin) return;
 
     setState(() {
@@ -5627,7 +5622,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     });
 
     try {
-      // 1. Validasi Role
       final role = ref.read(appRoleProvider);
       if (role == AppRole.admin) {
         Log.warning('Admin mencoba menukar poin, operasi diblokir.');
@@ -5638,12 +5632,10 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         return;
       }
 
-      // 2. Cek Koneksi Internet
       final isOnline = await ref
           .read(koneksiInternetServiceProvider)
           .cekInternet();
       if (!mounted) return;
-
       if (!isOnline) {
         ToastUtil.warning(context, 'Cek koneksi internet Anda');
         return;
@@ -24896,12 +24888,8 @@ final class PaketOpSqliteProvider
 
 String _$paketOpSqliteHash() => r'98ae460628fbf307b0a963ff22d65798162b0399';
 
-/// Provider untuk menyediakan instance dari [TransaksiOpSqlite].
-
 @ProviderFor(transaksiOpSqlite)
 final transaksiOpSqliteProvider = TransaksiOpSqliteProvider._();
-
-/// Provider untuk menyediakan instance dari [TransaksiOpSqlite].
 
 final class TransaksiOpSqliteProvider
     extends
@@ -24911,7 +24899,6 @@ final class TransaksiOpSqliteProvider
           TransaksiOpSqlite
         >
     with $Provider<TransaksiOpSqlite> {
-  /// Provider untuk menyediakan instance dari [TransaksiOpSqlite].
   TransaksiOpSqliteProvider._()
     : super(
         from: null,
@@ -25753,13 +25740,12 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
           ),
         ],
       ),
-      body: StreamBuilder<PelangganModel?>(
-        stream: userId.when(
-          data: (id) => id != null
-              ? pelangganOp.ambilBerdasarkanId(id)
-              : const Stream.empty(),
-          loading: () => const Stream.empty(),
-          error: (_, _) => const Stream.empty(),
+      body: FutureBuilder<PelangganModel?>(
+        future: userId.when(
+          data: (id) =>
+              id != null ? pelangganOp.ambilBerdasarkanId(id) : Future.value(),
+          error: (_, _) => Future.value(),
+          loading: Future.value,
         ),
         builder: (context, customerSnapshot) {
           if (customerSnapshot.connectionState == ConnectionState.waiting) {
@@ -25884,6 +25870,7 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -25965,7 +25952,7 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
         'Form edit melaporkan keberhasilan penyimpanan. Memuat ulang data transaksi dari database.',
       );
       try {
-        final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
+        final transaksiOpSqlite = ref.read(transaksiOpGlobalProvider);
         final transaksi = await transaksiOpSqlite.ambilBerdasarkanId(
           _currentTransaction.id,
         );
@@ -26685,7 +26672,7 @@ import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -26720,8 +26707,6 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
 
   late final DompetOpSqlite _dompetOpSlite;
   late final KategoriOpSqlite _kategoriOpSqlite;
-  late final TransaksiOpSqlite _transaksiOpSqlite;
-
   List<KategoriModel> _daftarKategori = [];
   List<DompetModel> _daftarDompet = [];
   List<KategoriModel> _kategoriDifilter = [];
@@ -26738,7 +26723,6 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     );
     _dompetOpSlite = ref.read(dompetOpSqliteProvider);
     _kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
-    _transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
     unawaited(_loadData());
   }
 
@@ -26925,34 +26909,32 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
       );
 
       Log.info('Model Transaksi yang akan disimpan: ${transaksi.toSqlite()}');
-
+      final transaksiNotifier = ref.read(transaksiProvider.notifier);
       try {
         if (_modeEdit) {
           Log.info(
             'Menjalankan operasi UPDATE untuk transaksi ID: ${transaksi.id}',
           );
-          await _transaksiOpSqlite.perbaruiTransaksi(
-            widget.transaksi!.id,
-            transaksi,
-          );
+          await transaksiNotifier.updateTransaksi(transaksi);
         } else {
           Log.info('Menjalankan operasi CREATE untuk transaksi baru.');
-          await _transaksiOpSqlite.tambahTransaksi(transaksi);
+          await transaksiNotifier.tambahTransaksi(transaksi);
         }
-        ref.invalidate(transaksiOpSqliteProvider);
         if (!mounted) return;
         Log.info(
           'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
         );
 
-        unawaited(ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi());
-          if (mounted) {
-            ToastUtil.success(
-              context,
-              'Transaksi berhasil disimpan dan disinkronkan.',
-            );
-          }
-       
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
+        if (mounted) {
+          ToastUtil.success(
+            context,
+            'Transaksi berhasil disimpan dan disinkronkan.',
+          );
+        }
+
         if (mounted) {
           Navigator.pop(context, true);
         }
@@ -28342,6 +28324,7 @@ import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
@@ -28370,6 +28353,7 @@ abstract class TransaksiState with _$TransaksiState {
 class Transaksi extends _$Transaksi {
   TransaksiOpSqlite get _transaksiOpSqlite =>
       ref.read(transaksiOpSqliteProvider);
+  TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
   PointsPageDataSource get _pointsDataSource =>
       ref.read(pointsDataSourceProvider);
   @override
@@ -28380,21 +28364,21 @@ class Transaksi extends _$Transaksi {
   Future<TransaksiState> _loadData() async {
     final userId = await ref.watch(userIdProvider.future);
     final hasil = await Future.wait([
-      _transaksiOpSqlite.ambilSemua(), // [0]
-      _transaksiOpSqlite.getTotalIncome(), // [1]
-      _transaksiOpSqlite.getTotalExpense(), // [2]
-      _transaksiOpSqlite.getNetTotal(), // [3]
-      _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan(), // [4]
-      _transaksiOpSqlite.ambilPaketTerlaris(), // [5] ✅ TAMBAHKAN
-      _transaksiOpSqlite.ambilPendapatanHarian(), // [6]
-      _transaksiOpSqlite.ambilPendapatanMingguan(), // [7]
-      _transaksiOpSqlite.ambilPendapatanBulanan(), // [8]
-      _transaksiOpSqlite.ambilTotalPendapatanPerbulan(), //[9]
+      _transaksiOp.ambilSemua(), // [0]
+      _transaksiOp.getTotalIncome(), // [1]
+      _transaksiOp.getTotalExpense(), // [2]
+      _transaksiOp.getNetTotal(), // [3]
+      _transaksiOp.ambilTotalPoinSemuaPelanggan(), // [4]
+      _transaksiOp.ambilPaketTerlaris(), // [5] ✅ TAMBAHKAN
+      _transaksiOp.ambilPendapatanHarian(), // [6]
+      _transaksiOp.ambilPendapatanMingguan(), // [7]
+      _transaksiOp.ambilPendapatanBulanan(), // [8]
+      _transaksiOp.ambilTotalPendapatanPerbulan(), //[9]
       userId != null
           ? _pointsDataSource.ambilTotalPoin(userId) // [10]
           : Future<int>.value(0),
       userId != null
-          ? _transaksiOpSqlite.ambilBerdasarkanIdPelanggan(userId) // [11]
+          ? _transaksiOp.ambilBerdasarkanIdPelanggan(userId) // [11]
           : Future<List<TransaksiModel>>.value([]),
     ]);
 
@@ -28538,7 +28522,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'db12b4817c699c0e432a4e08ec91a22197ba2097';
+String _$transaksiHash() => r'4d1edc54eb0473e7e20c4a109e20f43b5c3e8a56';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -28643,28 +28627,26 @@ final class TransaksiPerPelangganFamily extends $Family
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
-/// Kelas operasi transaksi global yang menangani logika berdasarkan role pengguna.
 class TransaksiOpGlobal {
   final Ref ref;
 
   TransaksiOpGlobal({required this.ref});
 
-  /// Mengakses provider operasi transaksi SQLite.
   TransaksiOpSqlite get _transaksiOpSqlite =>
       ref.read(transaksiOpSqliteProvider);
-
-  /// Mengakses provider operasi transaksi Firebase.
   TransaksiOpFirebase get _transaksiOpFirebase =>
       ref.read(transaksiOpFirebaseProvider);
 
-  /// Menambahkan transaksi baru dengan logika berdasarkan role.
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
+    Log.info('Menambahkan transaksi baru: ${transaksi.id}');
     if (RoleUtil.isAdmin(ref)) {
       await _transaksiOpSqlite.tambahTransaksi(transaksi);
     } else {
@@ -28672,19 +28654,24 @@ class TransaksiOpGlobal {
     }
   }
 
-  /// Mengambil semua transaksi berdasarkan role.
-  Future<List<TransaksiModel>> ambilSemuaTransaksi() async {
+  Future<List<TransaksiModel>> ambilSemua() async {
+    Log.info('Mengambil semua transaksi berdasarkan role');
     if (RoleUtil.isAdmin(ref)) {
+      Log.info('Mode Admin: Mengambil transaksi dari SQLite');
       return await _transaksiOpSqlite.ambilSemua();
     } else {
-      return await _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(
-        await ref.read(userIdProvider.future) ?? '',
-      );
+      Log.info('Mode User: Mengambil transaksi dari Firebase');
+      final userId = await ref.read(userIdProvider.future);
+      if (userId == null || userId.isEmpty) {
+        Log.warning('User ID tidak ditemukan, mengembalikan list kosong');
+        return [];
+      }
+      return await _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(userId);
     }
   }
 
-  /// Mengambil transaksi berdasarkan ID.
   Future<TransaksiModel?> ambilBerdasarkanId(String id) async {
+    Log.info('Mengambil transaksi berdasarkan ID: $id');
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.ambilBerdasarkanId(id);
     } else {
@@ -28692,18 +28679,10 @@ class TransaksiOpGlobal {
     }
   }
 
-  Future<List<TransaksiModel>> ambilBerdasarkanIdDompet(String idDompet) async {
-    if (RoleUtil.isAdmin(ref)) {
-      return await _transaksiOpSqlite.ambilBerdasarkanIdDompet(idDompet);
-    } else {
-      return await _transaksiOpFirebase.ambilBerdasarkanIdDompet(idDompet);
-    }
-  }
-
-  /// Mengambil transaksi berdasarkan ID pelanggan.
-  Future<List<TransaksiModel>> ambilTransaksiBerdasarkanPelanggan(
+  Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
     String idPelanggan,
   ) async {
+    Log.info('Mengambil transaksi berdasarkan ID pelanggan: $idPelanggan');
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.ambilBerdasarkanIdPelanggan(idPelanggan);
     } else {
@@ -28713,37 +28692,48 @@ class TransaksiOpGlobal {
     }
   }
 
-  /// Mengupdate transaksi dengan logika berdasarkan role.
-  Future<void> updateTransaksi(String id, TransaksiModel transaksi) async {
+  Future<List<TransaksiModel>> ambilBerdasarkanIdDompet(String idDompet) async {
+    Log.info('Mengambil transaksi berdasarkan ID dompet: $idDompet');
     if (RoleUtil.isAdmin(ref)) {
-      await _transaksiOpSqlite.perbaruiTransaksi(id, transaksi);
+      return await _transaksiOpSqlite.ambilBerdasarkanIdDompet(idDompet);
     } else {
-      await _transaksiOpFirebase.softDeleteTransaksi(id);
+      return await _transaksiOpFirebase.ambilBerdasarkanIdDompet(idDompet);
     }
   }
 
-  /// Menghapus transaksi (soft delete) dengan logika berdasarkan role.
-  Future<void> hapusTransaksi(String id) async {
+  Future<List<TransaksiModel>> ambilBerdasarkanStatusAktivasi() async {
+    Log.info('Mengambil transaksi dengan status aktivasi = true');
     if (RoleUtil.isAdmin(ref)) {
-      await _transaksiOpSqlite.softDelete(id);
+      return await _transaksiOpSqlite.ambilBerdasarkanStatusAktivasi();
     } else {
-      await _transaksiOpFirebase.softDeleteTransaksi(id);
+      return await _transaksiOpFirebase.ambilBerdasarkanStatusAktivasi();
     }
   }
 
-  /// Mengambil total poin pelanggan dengan logika berdasarkan role.
-  Future<int> ambilTotalPoin(String idPelanggan) async {
+  Future<List<TransaksiModel>> ambilBerdasarkanIds(List<String> ids) async {
+    Log.info('Mengambil transaksi berdasarkan ${ids.length} ID');
+    if (ids.isEmpty) {
+      Log.warning('Daftar ID kosong, mengembalikan list kosong');
+      return [];
+    }
     if (RoleUtil.isAdmin(ref)) {
-      return await _transaksiOpSqlite.ambilTotalPoin(idPelanggan);
+      return await _transaksiOpSqlite.ambilBerdasarkanIds(ids);
     } else {
-      return await _transaksiOpFirebase.ambilTotalPoin(idPelanggan);
+      final List<TransaksiModel> hasil = [];
+      for (final id in ids) {
+        final transaksi = await _transaksiOpFirebase.ambilBerdasarkanId(id);
+        if (transaksi != null) {
+          hasil.add(transaksi);
+        }
+      }
+      return hasil;
     }
   }
 
-  /// Mengambil paket aktif pelanggan berdasarkan role.
   Future<List<TransaksiModel>> ambilPaketAktifPelanggan(
     String idPelanggan,
   ) async {
+    Log.info('Mengambil paket aktif untuk pelanggan: $idPelanggan');
     if (RoleUtil.isAdmin(ref)) {
       final semuaTransaksi = await _transaksiOpSqlite
           .ambilBerdasarkanIdPelanggan(idPelanggan);
@@ -28760,13 +28750,171 @@ class TransaksiOpGlobal {
       return await _transaksiOpFirebase.ambilPaketAktifPelanggan(idPelanggan);
     }
   }
+
+  Future<int> ambilTotalPoin(String idPelanggan) async {
+    Log.info('Mengambil total poin untuk pelanggan: $idPelanggan');
+    if (RoleUtil.isAdmin(ref)) {
+      return await _transaksiOpSqlite.ambilTotalPoin(idPelanggan);
+    } else {
+      return await _transaksiOpFirebase.ambilTotalPoin(idPelanggan);
+    }
+  }
+
+  Future<double> getTotalIncome() async {
+    Log.info('Menghitung total pemasukan');
+    if (RoleUtil.isAdmin(ref)) {
+      return await _transaksiOpSqlite.getTotalIncome();
+    } else {
+      return 0;
+    }
+  }
+
+  Future<double> getTotalExpense() async {
+    Log.info('Menghitung total pengeluaran');
+    if (RoleUtil.isAdmin(ref)) {
+      return await _transaksiOpSqlite.getTotalExpense();
+    } else {
+      return 0;
+    }
+  }
+
+  Future<double> getNetTotal() async {
+    Log.info('Menghitung total bersih');
+    if (RoleUtil.isAdmin(ref)) {
+      return await _transaksiOpSqlite.getNetTotal();
+    } else {
+      final income = await getTotalIncome();
+      final expense = await getTotalExpense();
+      return income - expense;
+    }
+  }
+
+  Future<double> ambilTotalPendapatanPerbulan() async {
+    Log.info('Mengambil total pendapatan bersih per bulan');
+    if (RoleUtil.isAdmin(ref)) {
+      return await _transaksiOpSqlite.ambilTotalPendapatanPerbulan();
+    } else {
+      return 0;
+    }
+  }
+
+  Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
+    Log.info('Mengambil paket terlaris, limit: $limit');
+    if (RoleUtil.isAdmin(ref)) {
+      return await _transaksiOpSqlite.ambilPaketTerlaris(limit: limit);
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<double>> ambilPendapatanHarian() async {
+    Log.info('Mengambil pendapatan harian 7 hari terakhir');
+    if (RoleUtil.isAdmin(ref)) {
+      return await _transaksiOpSqlite.ambilPendapatanHarian();
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<double>> ambilPendapatanMingguan() async {
+    Log.info('Mengambil pendapatan mingguan 4 minggu terakhir');
+    if (RoleUtil.isAdmin(ref)) {
+      return await _transaksiOpSqlite.ambilPendapatanMingguan();
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<double>> ambilPendapatanBulanan() async {
+    Log.info('Mengambil pendapatan bulanan 5 bulan terakhir');
+    if (RoleUtil.isAdmin(ref)) {
+      return await _transaksiOpSqlite.ambilPendapatanBulanan();
+    } else {
+      return [];
+    }
+  }
+
+  Future<void> perbaruiTransaksi(
+    String id,
+    TransaksiModel transaksi, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Memperbarui transaksi ID: $id');
+    if (RoleUtil.isAdmin(ref)) {
+      await _transaksiOpSqlite.perbaruiTransaksi(
+        id,
+        transaksi,
+        dariServer: dariServer,
+      );
+    } else {
+      await _transaksiOpFirebase.softDeleteTransaksi(id);
+    }
+  }
+
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
+    Log.info('Menghapus transaksi ID: $id');
+    if (RoleUtil.isAdmin(ref)) {
+      await _transaksiOpSqlite.softDelete(id, dariServer: dariServer);
+    } else {
+      await _transaksiOpFirebase.softDeleteTransaksi(id);
+    }
+  }
+
+  Future<int> softDeleteAll({bool dariServer = false}) async {
+    Log.info('Menghapus semua transaksi');
+    if (RoleUtil.isAdmin(ref)) {
+      return await _transaksiOpSqlite.softDeleteAll(dariServer: dariServer);
+    } else {
+      final userId = await ref.read(userIdProvider.future);
+      if (userId == null || userId.isEmpty) {
+        Log.warning('User ID tidak ditemukan, tidak ada yang dihapus');
+        return 0;
+      }
+      final transaksi = await _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(
+        userId,
+      );
+      for (final t in transaksi) {
+        await _transaksiOpFirebase.softDeleteTransaksi(t.id);
+      }
+      return transaksi.length;
+    }
+  }
+
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<TransaksiModel> items, {
+    bool dariServer = false,
+  }) async {
+    if (items.isEmpty) {
+      Log.info('Batch transaksi: daftar kosong, operasi dibatalkan.');
+      return;
+    }
+
+    Log.info('Memulai batch insert/update untuk ${items.length} transaksi');
+
+    if (RoleUtil.isAdmin(ref)) {
+      await _transaksiOpSqlite.sisipkanAtauPerbaruiBatch(
+        items,
+        dariServer: dariServer,
+      );
+    } else {
+      await _transaksiOpFirebase.sisipkanAtauPerbaruiBatch(items);
+    }
+  }
+
+  Future<int> ambilTotalPoinSemuaPelanggan() async {
+    Log.info('Menghitung total poin semua pelanggan');
+
+    if (RoleUtil.isAdmin(ref)) {
+      return await _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan();
+    } else {
+      return 0;
+    }
+  }
 }
 
-/// Provider untuk TransaksiOpGlobal.
 final transaksiOpGlobalProvider = Provider<TransaksiOpGlobal>((ref) {
   return TransaksiOpGlobal(ref: ref);
 });
-
 
 // File: lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart
 // path: lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart
@@ -29580,7 +29728,6 @@ class TransaksiOpFirebase extends BaseOpFirebase {
     Log.info('TransactionOpFirebase diinisialisasi.');
   }
   CollectionReference get _koleksi => firestore.collection(NamaTabel.transaksi);
-
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     Log.info('Menambahkan transaksi baru: ${transaksi.id}');
     try {
@@ -29612,6 +29759,41 @@ class TransaksiOpFirebase extends BaseOpFirebase {
         data: {'transactionId': id},
       );
       return null;
+    }
+  }
+
+  /// Mengambil semua transaksi yang merupakan aktivasi paket dari Firebase.
+  Future<List<TransaksiModel>> ambilBerdasarkanStatusAktivasi() async {
+    try {
+      Log.info(
+        'Mengambil transaksi dengan status aktivasi = true dari Firebase',
+      );
+      final querySnapshot = await _koleksi
+          .where(NamaKolom.statusAktivasi, isEqualTo: true)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.tanggal, descending: true)
+          .get();
+      Log.info(
+        'Berhasil mengambil ${querySnapshot.docs.length} transaksi aktivasi paket dari Firebase',
+      );
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return TransaksiModel.fromFirebase(doc.id, data);
+      }).toList();
+    } on FirebaseException catch (e, st) {
+      Log.error(
+        'Error saat mengambil transaksi aktivasi paket dari Firebase',
+        e: e,
+        s: st,
+      );
+      return [];
+    } on Exception catch (e, st) {
+      Log.error(
+        'Error umum saat mengambil transaksi aktivasi paket dari Firebase',
+        e: e,
+        s: st,
+      );
+      return [];
     }
   }
 
@@ -29826,6 +30008,56 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       );
       // Kembalikan list kosong jika terjadi error agar aplikasi tidak crash
       return [];
+    }
+  }
+
+  /// Menyisipkan atau memperbarui beberapa transaksi sekaligus (batch) di Firestore.
+  ///
+  /// [items] adalah daftar [TransaksiModel] yang akan disisipkan atau diperbarui.
+  /// Fungsi ini menggunakan batch write untuk efisiensi dan atomisitas.
+  Future<void> sisipkanAtauPerbaruiBatch(List<TransaksiModel> items) async {
+    if (items.isEmpty) {
+      Log.info('Batch transaksi: daftar kosong, operasi dibatalkan.');
+      return;
+    }
+
+    Log.info(
+      'Memulai batch insert/update untuk ${items.length} transaksi di Firestore',
+    );
+
+    try {
+      final batch = firestore.batch();
+
+      for (final transaksi in items) {
+        final docRef = _koleksi.doc(transaksi.id);
+        final data = transaksi.toFirebase();
+
+        // Tambahkan timestamp server untuk updated_at
+        data[NamaKolom.diperbaruiPada] = FieldValue.serverTimestamp();
+
+        batch.set(docRef, data, SetOptions(merge: true));
+      }
+
+      await batch.commit();
+      Log.info(
+        'Batch ${items.length} transaksi berhasil diproses di Firestore',
+      );
+    } on FirebaseException catch (e, st) {
+      Log.error(
+        'Gagal memproses batch transaksi di Firestore',
+        e: e,
+        s: st,
+        data: {'jumlahItem': items.length},
+      );
+      rethrow;
+    } on Exception catch (e, st) {
+      Log.error(
+        'Error umum saat memproses batch transaksi di Firestore',
+        e: e,
+        s: st,
+        data: {'jumlahItem': items.length},
+      );
+      rethrow;
     }
   }
 }
@@ -30454,9 +30686,7 @@ import 'package:wifi/shared/widget/input/input_telepon.dart';
 
 class EditProfilePage extends ConsumerStatefulWidget {
   final PelangganModel pelanggan;
-
   const EditProfilePage({super.key, required this.pelanggan});
-
   @override
   ConsumerState<EditProfilePage> createState() => _EditProfilePageState();
 }
@@ -30522,19 +30752,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         final pelangganOp = ref.read(pelangganOpGlobalProvider);
         await pelangganOp.updatePelanggan(dataPelanggan);
         Log.info('perbaruiPelanggan selesai untuk id=${dataPelanggan.id}.');
-        Log.info(
-          'Provider pelangganOpFirebase di-invalidate agar data terbaru diambil.',
-        );
-
         if (!mounted) {
           Log.info(
             'Widget tidak lagi mounted setelah update; tidak menampilkan toast atau menutup halaman.',
-          );
+          );                      
           return;
         }
-
         ToastUtil.success(context, 'Profil berhasil diperbarui.');
-        Log.info('Toast sukses ditampilkan, menutup halaman edit.');
+        Log.info('Toast sukses ditampilkan, mmenutup halaman edit.');
         navigator.pop(context);
       } catch (e, st) {
         Log.error('Gagal menyimpan perubahan profil', e: e, s: st);
@@ -31874,7 +32099,7 @@ final class PelangganProvider
   Pelanggan create() => Pelanggan();
 }
 
-String _$pelangganHash() => r'461439475eac4b4d5a6fc69656bc18ec4ab6913b';
+String _$pelangganHash() => r'f9284f33e81e921b5ce5259ad91ce46f09b9bd88';
 
 abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   FutureOr<PelangganState> build();
@@ -35579,6 +35804,7 @@ import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 import 'package:wifi/fitur/sinkronisasi/pengelola_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
@@ -35593,7 +35819,7 @@ class LayananUnduhData {
   final PaketOpSqlite _operasiPaket;
   final PelangganOpSqlite _operasiPelanggan;
   final PelangganAktifOpSqlite _operasiPelangganAktif;
-  final TransaksiOpSqlite _operasiTransaksi;
+  final TransaksiOpGlobal _operasiTransaksi;
   final FeedbackOpSqlite _operasiUmpanBalik;
   final OrderOpsqlite _operasiPesanan;
   final SubKategoriOpSqlite _operasiSubKategori;
@@ -35609,7 +35835,7 @@ class LayananUnduhData {
     required PaketOpSqlite operasiPaket,
     required PelangganOpSqlite operasiPelanggan,
     required PelangganAktifOpSqlite operasiPelangganAktif,
-    required TransaksiOpSqlite operasiTransaksi,
+    required TransaksiOpGlobal operasiTransaksi,
     required FeedbackOpSqlite operasiUmpanBalik,
     required OrderOpsqlite operasiPesanan,
     required SubKategoriOpSqlite operasiSubKategori,
@@ -35640,7 +35866,7 @@ class LayananUnduhData {
     required final PaketOpSqlite operasiPaket,
     required final PelangganOpSqlite operasiPelanggan,
     required final PelangganAktifOpSqlite operasiPelangganAktif,
-    required final TransaksiOpSqlite operasiTransaksi,
+    required final TransaksiOpGlobal operasiTransaksi,
     required final FeedbackOpSqlite operasiUmpanBalik,
     required final OrderOpsqlite operasiPesanan,
     required final SubKategoriOpSqlite operasiSubKategori,
@@ -35935,7 +36161,7 @@ final layananUnduhDataProvider = Provider<LayananUnduhData>((ref) {
     operasiPaket: ref.read(paketOpSqliteProvider),
     operasiPelanggan: ref.read(pelangganOpSqliteProvider),
     operasiPelangganAktif: ref.read(pelangganAktifOpSqliteProvider),
-    operasiTransaksi: ref.read(transaksiOpSqliteProvider),
+    operasiTransaksi: ref.read(transaksiOpGlobalProvider),
     operasiUmpanBalik: ref.read(feedbackOpSqliteProvider),
     operasiPesanan: ref.read(orderOpSqliteProvider),
     operasiSubKategori: ref.read(subKategoriOpSqliteProvider),
@@ -37438,11 +37664,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan_u.dart';
 import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -37477,16 +37703,12 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
-  late final PelangganOpFirebase _pelangganOpFirebase;
-  late final TransaksiOpFirebase _transaksiOpFirebase;
   late final PaketOpFirebase _paketOpFirebase;
   Future<_DaataProfil>? _futureProfileData;
   @override
   void initState() {
     super.initState();
     unawaited(ref.read(interstitialAdServiceProvider).preloadAd());
-    _pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
-    _transaksiOpFirebase = ref.read(transaksiOpFirebaseProvider);
     _paketOpFirebase = ref.read(paketOpFirebaseProvider);
     _futureProfileData = _loadProfileData();
   }
@@ -37497,16 +37719,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       throw Exception('ID Pengguna tidak ditemukan, mohon login kembali.');
     }
     Log.info('Memulai pengambilan data profil lengkap untuk userId: $userId.');
+    final pelangganOp = ref.read(pelangganOpGlobalProvider);
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
     try {
-      final pelanggan = await _pelangganOpFirebase.ambilBerdasarkanId(userId);
+      final pelanggan = await pelangganOp.ambilBerdasarkanId(userId);
       if (pelanggan == null) {
         throw Exception('Pelanggan dengan ID  tidak ditemukan.');
       }
       Log.info('Data pelanggan berhasil diambil: ${pelanggan.nama}.');
 
       final hasil = await Future.wait([
-        _transaksiOpFirebase.ambilTotalPoin(pelanggan.id),
-        _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(pelanggan.id),
+        transaksiOp.ambilTotalPoin(pelanggan.id),
+        transaksiOp.ambilBerdasarkanIdPelanggan(pelanggan.id),
       ]);
       final totalPoin = hasil[0] as int;
       final daftarPaketAktif = hasil[1] as List<TransaksiModel>;
@@ -37798,7 +38022,7 @@ class _InfoItem extends StatelessWidget {
     this.trailingIcon,
     this.onTap,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     final Widget content = Padding(
@@ -41314,74 +41538,57 @@ class FormatNomor {
 
 
 // File: lib/shared/widget/nama_pelanggan_widget.dart
-// path: lib/shared/widget/nama_pelanggan_widget.dart
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-
-part 'nama_pelanggan_widget.g.dart';
-
-@riverpod
-Future<PelangganModel?> namaPelangganSqlite(Ref ref, String id) {
-  return ref.watch(pelangganOpSqliteProvider).ambilBerdasarkanId(id);
-}
-
-@riverpod
-Stream<PelangganModel?> namaPelangganFirebase(Ref ref, String id) {
-  return ref.watch(pelangganOpFirebaseProvider).ambilStreamBerdasarkanId(id);
-}
 
 class NamaPelangganWidget extends ConsumerWidget {
   final String idPelanggan;
   final TextStyle? style;
-  final bool pakaiFirebase;
 
-  const NamaPelangganWidget({
-    super.key,
-    required this.idPelanggan,
-    this.style,
-    this.pakaiFirebase = false,
-  });
+  const NamaPelangganWidget({super.key, required this.idPelanggan, this.style});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncPelanggan = pakaiFirebase
-        ? ref.watch(namaPelangganFirebaseProvider(idPelanggan))
-        : ref.watch(namaPelangganSqliteProvider(idPelanggan));
-    return asyncPelanggan.when(
-      loading: () => Text('...', style: style),
-      error: (error, stack) {
-        Log.error(
-          'Error di NamaPelangganWidget (${pakaiFirebase ? "Firebase" : "SQLite"}) untuk ID: $idPelanggan',
-          e: error,
-          s: stack,
-        );
-        return Text(
-          'Error',
-          style:
-              style ??
-              const TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
-        );
-      },
-      data: (pelanggan) {
-        if (pelanggan != null) {
+    final pelangganOp = ref.read(pelangganOpGlobalProvider);
+
+    return FutureBuilder<PelangganModel?>(
+      future: pelangganOp.ambilBerdasarkanId(idPelanggan),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text('Memuat...', style: TextStyle(color: Colors.grey));
+        }
+        if (snapshot.hasError) {
+          Log.error(
+            'Gagal memuat pelanggan ID: $idPelanggan',
+            e: snapshot.error,
+          );
           return Text(
-            pelanggan.nama,
-            style: style,
-            overflow: TextOverflow.ellipsis,
+            'Error memuat data',
+            style:
+                style ??
+                const TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
           );
         }
-
+        if (!snapshot.hasData || snapshot.data == null) {
+          return Text(
+            'Pelanggan tidak ditemukan',
+            style:
+                style ??
+                const TextStyle(
+                  color: Colors.grey,
+                  fontStyle: FontStyle.italic,
+                ),
+          );
+        }
         return Text(
-          pakaiFirebase ? 'N/A' : 'Pelanggan tidak ditemukan',
-          style:
-              style ??
-              const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+          snapshot.data!.nama,
+          style: style,
+          overflow: TextOverflow.ellipsis,
         );
       },
     );
@@ -42095,171 +42302,6 @@ class PackageNameWidget extends StatelessWidget {
       },
     );
   }
-}
-
-
-// File: lib/shared/widget/nama_pelanggan_widget.g.dart
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
-part of 'nama_pelanggan_widget.dart';
-
-// **************************************************************************
-// RiverpodGenerator
-// **************************************************************************
-
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
-
-@ProviderFor(namaPelangganSqlite)
-final namaPelangganSqliteProvider = NamaPelangganSqliteFamily._();
-
-final class NamaPelangganSqliteProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<PelangganModel?>,
-          PelangganModel?,
-          FutureOr<PelangganModel?>
-        >
-    with $FutureModifier<PelangganModel?>, $FutureProvider<PelangganModel?> {
-  NamaPelangganSqliteProvider._({
-    required NamaPelangganSqliteFamily super.from,
-    required String super.argument,
-  }) : super(
-         retry: null,
-         name: r'namaPelangganSqliteProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$namaPelangganSqliteHash();
-
-  @override
-  String toString() {
-    return r'namaPelangganSqliteProvider'
-        ''
-        '($argument)';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<PelangganModel?> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<PelangganModel?> create(Ref ref) {
-    final argument = this.argument as String;
-    return namaPelangganSqlite(ref, argument);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is NamaPelangganSqliteProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$namaPelangganSqliteHash() =>
-    r'2f76f0007790a3a9698adc8976cc9092d0070607';
-
-final class NamaPelangganSqliteFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<PelangganModel?>, String> {
-  NamaPelangganSqliteFamily._()
-    : super(
-        retry: null,
-        name: r'namaPelangganSqliteProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  NamaPelangganSqliteProvider call(String id) =>
-      NamaPelangganSqliteProvider._(argument: id, from: this);
-
-  @override
-  String toString() => r'namaPelangganSqliteProvider';
-}
-
-@ProviderFor(namaPelangganFirebase)
-final namaPelangganFirebaseProvider = NamaPelangganFirebaseFamily._();
-
-final class NamaPelangganFirebaseProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<PelangganModel?>,
-          PelangganModel?,
-          Stream<PelangganModel?>
-        >
-    with $FutureModifier<PelangganModel?>, $StreamProvider<PelangganModel?> {
-  NamaPelangganFirebaseProvider._({
-    required NamaPelangganFirebaseFamily super.from,
-    required String super.argument,
-  }) : super(
-         retry: null,
-         name: r'namaPelangganFirebaseProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$namaPelangganFirebaseHash();
-
-  @override
-  String toString() {
-    return r'namaPelangganFirebaseProvider'
-        ''
-        '($argument)';
-  }
-
-  @$internal
-  @override
-  $StreamProviderElement<PelangganModel?> $createElement(
-    $ProviderPointer pointer,
-  ) => $StreamProviderElement(pointer);
-
-  @override
-  Stream<PelangganModel?> create(Ref ref) {
-    final argument = this.argument as String;
-    return namaPelangganFirebase(ref, argument);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is NamaPelangganFirebaseProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$namaPelangganFirebaseHash() =>
-    r'736e7005a1ebfb7f8bdb051a1fc8d574cbb928d4';
-
-final class NamaPelangganFirebaseFamily extends $Family
-    with $FunctionalFamilyOverride<Stream<PelangganModel?>, String> {
-  NamaPelangganFirebaseFamily._()
-    : super(
-        retry: null,
-        name: r'namaPelangganFirebaseProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  NamaPelangganFirebaseProvider call(String id) =>
-      NamaPelangganFirebaseProvider._(argument: id, from: this);
-
-  @override
-  String toString() => r'namaPelangganFirebaseProvider';
 }
 
 
@@ -47179,6 +47221,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/data_dummy/data_dummy.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -47305,8 +47348,8 @@ class HalamanDataDummy extends ConsumerWidget {
                 'Transaksi',
                 DataDummy.transactions,
                 (data, {dariServer = false}) => ref
-                    .read(transaksiOpSqliteProvider)
-                    .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer),
+                    .read(transaksiOpGlobalProvider)
+                    .sisipkanAtauPerbaruiBatch(data),
               );
               ref.invalidate(transaksiOpSqliteProvider);
             },
@@ -50062,7 +50105,7 @@ final class CustomerNotifierProvider
   CustomerNotifier create() => CustomerNotifier();
 }
 
-String _$customerNotifierHash() => r'6b33de3f6bdcfb270db1501a328b8b0851d5993d';
+String _$customerNotifierHash() => r'3bf96388f2ea6a63703ef1e24ec354c3d0e075b2';
 
 abstract class _$CustomerNotifier extends $AsyncNotifier<List<PelangganModel>> {
   FutureOr<List<PelangganModel>> build();
@@ -50158,7 +50201,7 @@ final class AmbilDetailLanggananProvider
 }
 
 String _$ambilDetailLanggananHash() =>
-    r'7c1d1defec177331b7af55f5bdff6cd2cc40205e';
+    r'cb1a8692e90a7e2730006d6bb274c80720436c79';
 
 final class AmbilDetailLanggananFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<DetailLanggananState?>, String> {
@@ -50189,6 +50232,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 
 part 'riwayat_aktivasi_paket_provider.g.dart';
 
@@ -50233,15 +50277,15 @@ class RiwayatAktivasiPaketState {
 class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
   @override
   FutureOr<RiwayatAktivasiPaketState> build() {
-    ref.watch(transaksiOpSqliteProvider);
+    ref.watch(transaksiOpGlobalProvider);
     ref.watch(pelangganOpSqliteProvider);
     return _loadData(OpsiUrutan.berakhirHariIni);
   }
 
   Future<RiwayatAktivasiPaketState> _loadData(OpsiUrutan targetSort) async {
-    final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
-    final transaksi = await transaksiOpSqlite.ambilBerdasarkanStatusAktivasi();
+    final transaksi = await transaksiOp.ambilBerdasarkanStatusAktivasi();
     final pealnggan = await pelangganOpSqlite.ambilSemua();
     final customerMap = {for (var c in pealnggan) c.id: c};
     final combinedList = transaksi.map((trans) {
@@ -50826,7 +50870,7 @@ final class RiwayatAktivasiPaketProvider
 }
 
 String _$riwayatAktivasiPaketHash() =>
-    r'600ba939b7c921dbdd7139b3e9f600148d5d3c6b';
+    r'170e5e33b4bf3c206e533f6c5571db1beecfbbc1';
 
 abstract class _$RiwayatAktivasiPaket
     extends $AsyncNotifier<RiwayatAktivasiPaketState> {

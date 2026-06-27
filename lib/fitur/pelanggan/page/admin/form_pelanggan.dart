@@ -10,6 +10,7 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -48,7 +49,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
   void initState() {
     super.initState();
     Log.info(
-      'Membuka CustomerForm dalam mode: ${_modeEdit ? "Edit" : "Tambah"}.',
+      'Membuka form_pelanggan dalam mode: ${_modeEdit ? "Edit" : "Tambah"}.',
     );
     if (_modeEdit) {
       Log.info(
@@ -82,9 +83,23 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
 
   Future<void> _simpanPelanggan() async {
     if (_menyimpan) return;
+    if (ref.isUser) {
+      final isOnline = await ref
+          .read(koneksiInternetServiceProvider)
+          .cekInternet();
+      if (!isOnline) {
+        if (!mounted) return;
+        ToastUtil.error(context, 'Cek koneksi internet Anda');
+        return;
+      }
+    }
     final pelangganOp = ref.read(pelangganProvider.notifier);
     Log.info('Tombol "Simpan" ditekan.');
-    if (_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate()) {
+      Log.warning('Form tidak valid. Proses penyimpanan dibatalkan.');
+      return;
+    }
+    try {
       Log.info('Form valid. Memulai proses penyimpanan.');
       setState(() => _menyimpan = true);
       final pelangganBaru = PelangganModel(
@@ -98,43 +113,45 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       Log.info(
         'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}',
       );
-      try {
-        if (_modeEdit) {
-          Log.info(
-            'Menjalankan operasi UPDATE untuk pelanggan ID: ${pelangganBaru.id}',
-          );
-          await pelangganOp.tambahPelanggan(pelangganBaru);
-        } else {
-          Log.info(
-            'Menjalankan operasi CREATE untuk pelanggan baru: ${pelangganBaru.nama}',
-          );
-          await pelangganOp.tambahPelanggan(pelangganBaru);
-        }
-        if (!mounted) return;
+
+      if (_modeEdit) {
+        Log.info(
+          'Menjalankan operasi UPDATE untuk pelanggan ID: ${pelangganBaru.id}',
+        );
+        await pelangganOp.updatePelanggan(pelangganBaru);
+      } else {
+        Log.info(
+          'Menjalankan operasi CREATE untuk pelanggan baru: ${pelangganBaru.nama}',
+        );
+        await pelangganOp.tambahPelanggan(pelangganBaru);
+      }
+      Log.info('jalankan sinkroniasi');
+      if (mounted) {
+        ToastUtil.success(context, 'Data pelanggan berhasil disimpan.');
+      }
+      if (mounted) {
+        Navigator.pop(context);
+      }
+      if (ref.isAdmin) {
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
         );
-        Log.info('jalankan sinkroniasi');
-        ToastUtil.success(context, 'Data pelanggan berhasil disimpan.');
-        if (mounted) {
-          Navigator.pop(context);
-        }
-      } catch (e, s) {
-        Log.error('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
-        String userMessage = 'Gagal menyimpan data: $e';
-        if (e.toString().contains('sudah ada')) {
-          userMessage = 'Nomor telepon dan password sudah digunakan.';
-        }
-        ToastUtil.error(context, userMessage);
-        return;
-      } finally {
-        if (mounted) {
-          setState(() => _menyimpan = false);
-          Log.info('Proses penyimpanan selesai. isSaving diatur ke false.');
-        }
       }
-    } else {
-      Log.warning('Form tidak valid. Proses penyimpanan dibatalkan.');
+    } catch (e, s) {
+      Log.error('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
+      String userMessage = 'Gagal menyimpan data: $e';
+      if (e.toString().contains('sudah ada')) {
+        userMessage = 'Nomor telepon dan password sudah digunakan.';
+      }
+      if (mounted) {
+        ToastUtil.error(context, userMessage);
+      }
+      return;
+    } finally {
+      if (mounted) {
+        setState(() => _menyimpan = false);
+        Log.info('Proses penyimpanan selesai. isSaving diatur ke false.');
+      }
     }
   }
 
