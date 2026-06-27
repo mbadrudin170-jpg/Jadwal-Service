@@ -246,13 +246,12 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
           ),
         ],
       ),
-      body: StreamBuilder<PelangganModel?>(
-        stream: userId.when(
-          data: (id) => id != null
-              ? pelangganOp.ambilBerdasarkanId(id)
-              : const Stream.empty(),
-          loading: () => const Stream.empty(),
-          error: (_, _) => const Stream.empty(),
+      body: FutureBuilder<PelangganModel?>(
+        future: userId.when(
+          data: (id) =>
+              id != null ? pelangganOp.ambilBerdasarkanId(id) : Future.value(),
+          error: (_, _) => Future.value(),
+          loading: Future.value,
         ),
         builder: (context, customerSnapshot) {
           if (customerSnapshot.connectionState == ConnectionState.waiting) {

@@ -16081,7 +16081,6 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
         dompetOpSqlite.ambilBerdasarkanId(widget.dompet.id),
         transaksiOp.ambilBerdasarkanIdDompet(widget.dompet.id),
       ]);
-
       final dompet = hasil[0] as DompetModel?;
       final daftarTransaksi = hasil[1] as List<TransaksiModel>;
 
@@ -25512,6 +25511,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/shared/common/teks.dart';
@@ -25588,8 +25588,8 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
         return;
       }
 
-      final pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
-      final pelanggan = await pelangganOpFirebase.ambilBerdasarkanId(userId);
+      final pelangganOp = ref.read(pelangganOpGlobalProvider);
+      final pelanggan = await pelangganOp.ambilBerdasarkanId(userId);
       if (pelanggan == null) {
         setState(() {
           _semuaTransaksi = [];
@@ -25717,7 +25717,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
   @override
   Widget build(BuildContext context) {
     final paketOpFirebase = ref.read(paketOpFirebaseProvider);
-    final pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
+    final pelangganOp = ref.read(pelangganOpGlobalProvider);
     final userId = ref.watch(userIdProvider);
 
     return Scaffold(
@@ -25756,7 +25756,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
       body: StreamBuilder<PelangganModel?>(
         stream: userId.when(
           data: (id) => id != null
-              ? pelangganOpFirebase.ambilStreamBerdasarkanId(id)
+              ? pelangganOp.ambilBerdasarkanId(id)
               : const Stream.empty(),
           loading: () => const Stream.empty(),
           error: (_, _) => const Stream.empty(),
@@ -28696,7 +28696,7 @@ class TransaksiOpGlobal {
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.ambilBerdasarkanIdDompet(idDompet);
     } else {
-      return await _transaksiOpFirebase.ambilBerdasarkanId(idDompet);
+      return await _transaksiOpFirebase.ambilBerdasarkanIdDompet(idDompet);
     }
   }
 
@@ -29706,7 +29706,44 @@ class TransaksiOpFirebase extends BaseOpFirebase {
     }
   }
 
-  /// Menghitung total poin yang dimiliki oleh pelanggan.
+  /// Mengambil semua transaksi yang terkait dengan sebuah dompet (baik sebagai sumber maupun tujuan).
+  Future<List<TransaksiModel>> ambilBerdasarkanIdDompet(String idDompet) async {
+    try {
+      Log.info('Mengambil transaksi terkait Wallet ID: $idDompet');
+      final querySnapshot = await _koleksi
+          .where(NamaKolom.idDompet, isEqualTo: idDompet)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.tanggal, descending: true)
+          .get();
+      final querySnapshotTujuan = await _koleksi
+          .where(NamaKolom.idDompetTujuan, isEqualTo: idDompet)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.tanggal, descending: true)
+          .get();
+      final List<TransaksiModel> hasil = [];
+      for (final doc in querySnapshot.docs) {
+        final data = doc.data() as Map<String, dynamic>;
+        hasil.add(TransaksiModel.fromFirebase(doc.id, data));
+      }
+      for (final doc in querySnapshotTujuan.docs) {
+        final data = doc.data() as Map<String, dynamic>;
+        hasil.add(TransaksiModel.fromFirebase(doc.id, data));
+      }
+      hasil.sort((a, b) => b.tanggal.compareTo(a.tanggal));
+      Log.info(
+        'Berhasil mengambil ${hasil.length} transaksi untuk Wallet ID: $idDompet',
+      );
+      return hasil;
+    } on Exception catch (e, s) {
+      Log.error(
+        'Error mengambil transaksi berdasarkan ID dompet: $idDompet',
+        e: e,
+        s: s,
+      );
+      return [];
+    }
+  }
+
   Future<int> ambilTotalPoin(String idPelanggan) async {
     try {
       Log.info('Menghitung total poin untuk: $idPelanggan');
@@ -30409,7 +30446,6 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_password.dart';
@@ -30486,7 +30522,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         final pelangganOp = ref.read(pelangganOpGlobalProvider);
         await pelangganOp.updatePelanggan(dataPelanggan);
         Log.info('perbaruiPelanggan selesai untuk id=${dataPelanggan.id}.');
-        ref.invalidate(pelangganOpFirebaseProvider);
         Log.info(
           'Provider pelangganOpFirebase di-invalidate agar data terbaru diambil.',
         );
@@ -30597,6 +30632,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/pelanggan/page/user/edit_profile_page.dart';
 import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
 import 'package:wifi/fitur/poin/page/halaman_poin.dart';
@@ -30637,11 +30673,9 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
   Future<_DataDetailPelanggan> _loadData() async {
     try {
       Log.info('Mengambil data pelanggan dari Firestore...');
-      final pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
+      final pelangganOp = ref.read(pelangganOpGlobalProvider);
       final transaksiOpFirebase = ref.read(transaksiOpFirebaseProvider);
-      final pelanggan = await pelangganOpFirebase.ambilBerdasarkanId(
-        widget.userId,
-      );
+      final pelanggan = await pelangganOp.ambilBerdasarkanId(widget.userId);
       if (pelanggan == null) {
         throw Exception(
           'Pelanggan dengan ID ${widget.userId} tidak ditemukan.',
