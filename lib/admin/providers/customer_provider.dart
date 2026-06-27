@@ -12,11 +12,11 @@ part 'customer_provider.g.dart';
 class CustomerNotifier extends _$CustomerNotifier {
   late PelangganOpFirebase _pelangganOpFirebase;
   List<PelangganModel> _semuaPelanggan = [];
-  
+
   @override
   Future<List<PelangganModel>> build() async {
     _pelangganOpFirebase = ref.watch(pelangganOpFirebaseProvider);
-    final pelanggan = await _pelangganOpFirebase.ambilSemuaPelanggan();
+    final pelanggan = await _pelangganOpFirebase.ambilSemua();
     _semuaPelanggan = pelanggan;
     return pelanggan;
   }
@@ -28,8 +28,10 @@ class CustomerNotifier extends _$CustomerNotifier {
         return _semuaPelanggan;
       }
       return _semuaPelanggan
-          .where((pelanggan) =>
-              pelanggan.nama.toLowerCase().contains(query.toLowerCase()))
+          .where(
+            (pelanggan) =>
+                pelanggan.nama.toLowerCase().contains(query.toLowerCase()),
+          )
           .toList();
     });
   }

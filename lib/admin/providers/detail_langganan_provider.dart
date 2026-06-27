@@ -5,7 +5,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 
 part 'detail_langganan_provider.freezed.dart';
 part 'detail_langganan_provider.g.dart';
@@ -24,13 +26,12 @@ Future<DetailLanggananState?> ambilDetailLangganan(
   Ref ref,
   String idTransaksi,
 ) async {
-  // Ambil semua operation repo
-  final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
-  final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
+  final transaksiOp = ref.watch(transaksiOpGlobalProvider);
+  final pelangganOpSqlite = ref.watch(pelangganOpGlobalProvider);
   final paketOpSqlite = ref.watch(paketOpSqliteProvider);
 
   // 1. Ambil data transaksi utama
-  final transaksi = await transaksiOpSqlite.ambilBerdasarkanId(idTransaksi);
+  final transaksi = await transaksiOp.ambilBerdasarkanId(idTransaksi);
   if (transaksi == null) return null;
 
   // 2. Ambil data relasi secara paralel untuk menghemat waktu pemuatan

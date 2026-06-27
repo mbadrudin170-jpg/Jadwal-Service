@@ -33,12 +33,12 @@ class PelangganOpGlobal {
     if (RoleUtil.isAdmin(ref)) {
       return await _pelangganOpSqlite.ambilSemua();
     } else {
-      return await _pelangganOpFirebase.ambilSemuaPelanggan();
+      return await _pelangganOpFirebase.ambilSemua();
     }
   }
 
   /// Mengambil pelanggan berdasarkan ID
-  Future<PelangganModel?> ambilPelanggan(String id) async {
+  Future<PelangganModel?> ambilBerdasarkanId(String id) async {
     if (RoleUtil.isAdmin(ref)) {
       return await _pelangganOpSqlite.ambilBerdasarkanId(id);
     } else {

@@ -25,6 +25,29 @@ class TransaksiOpFirebase extends BaseOpFirebase {
     }
   }
 
+  Future<TransaksiModel?> ambilBerdasarkanId(String id) async {
+    Log.info('Mendapatkan transaksi by ID: $id');
+    try {
+      final doc = await _koleksi.doc(id).get();
+      if (doc.exists) {
+        final data = doc.data() as Map<String, dynamic>?;
+        if (data != null) {
+          return TransaksiModel.fromFirebase(doc.id, data);
+        }
+        return null;
+      }
+      return null;
+    } catch (e, st) {
+      Log.error(
+        'Error mendapatkan transaksi by ID',
+        e: e,
+        s: st,
+        data: {'transactionId': id},
+      );
+      return null;
+    }
+  }
+
   Future<TransaksiModel?> ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(
     String idPelanggan,
   ) async {

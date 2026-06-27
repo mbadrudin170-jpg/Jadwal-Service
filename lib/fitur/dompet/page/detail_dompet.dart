@@ -9,9 +9,11 @@ import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/fitur/transaksi/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/widget/summary_info_widget.dart';
@@ -60,12 +62,11 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
   Future<DataDetailDompet> _muatData() async {
     Log.info('Memuat data detail dompet ID: ${widget.dompet.id}');
     final dompetOpSqlite = ref.read(dompetOpSqliteProvider);
-    final transaksiOpsqlite = ref.read(transaksiOpSqliteProvider);
-
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
     try {
       final hasil = await Future.wait([
         dompetOpSqlite.ambilBerdasarkanId(widget.dompet.id),
-        transaksiOpsqlite.ambilBerdasarkanIdDompet(widget.dompet.id),
+        transaksiOp.ambilBerdasarkanIdDompet(widget.dompet.id),
       ]);
 
       final dompet = hasil[0] as DompetModel?;
@@ -222,7 +223,7 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
 
   Widget _bangunDaftarTransaksi(List<TransaksiModel> daftarTransaksi) {
     final transaksiPerTanggal = kelompokkanTransaksiPerTanggal(daftarTransaksi);
-    final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
+    final transaksi = ref.read(transaksiProvider.notifier);
     return ListView.builder(
       itemCount: transaksiPerTanggal.length,
       itemBuilder: (context, index) {
@@ -252,7 +253,7 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
                 },
                 onDelete: () async {
                   Log.info('Hapus transaksi: ${transaction.id}');
-                  await transaksiOpSqlite.softDelete(transaction.id);
+                  await transaksi.softDelete(transaction.id);
                   _muatUlangData();
                 },
               ),

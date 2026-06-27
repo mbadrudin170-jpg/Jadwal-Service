@@ -64,25 +64,38 @@ class PelangganOpFirebase {
     await _baseOpFirebase.update(_namaKoleksi, id, {'fcmToken': token});
   }
 
-  Future<List<PelangganModel>> ambilSemuaPelanggan() async {
-    Log.info('Mengambil semua pelanggan aktif...');
+  Future<List<PelangganModel>> ambilSemua({
+    bool tampilkanYangDiarsip = true,
+  }) async {
+    Log.info(
+      'Mengambil semua pelanggan. Tampilkan yang diarsip: $tampilkanYangDiarsip',
+    );
     try {
-      final querySnapshot = await _koleksiPelanggan
-          .where(NamaKolom.dihapus, isEqualTo: false)
-          .get();
+      Query query = _koleksiPelanggan;
 
+      if (tampilkanYangDiarsip) {
+        query = query.where(NamaKolom.dihapus, isEqualTo: false);
+      } else {
+        query = query.where(NamaKolom.dihapus, isEqualTo: false);
+      }
+      final querySnapshot = await query.get();
       if (querySnapshot.docs.isEmpty) {
-        Log.warning('Tidak ada pelanggan aktif yang ditemukan.');
+        Log.warning('Tidak ada pelanggan yang ditemukan.');
         return [];
       }
-
-      final pelanggan = querySnapshot.docs.map((doc) {
-        return PelangganModel.fromFirebase(
-          doc.id,
-          doc.data()! as Map<String, dynamic>,
-        );
-      }).toList();
-
+      final pelanggan = querySnapshot.docs
+          .map((doc) {
+            final data = doc.data() as Map<String, dynamic>?;
+            if (data == null) {
+              Log.warning(
+                'Data pelanggan dengan ID ${doc.id} bernilai null, dilewati.',
+              );
+              return null;
+            }
+            return PelangganModel.fromFirebase(doc.id, data);
+          })
+          .whereType<PelangganModel>()
+          .toList();
       Log.info('Berhasil mengambil ${pelanggan.length} pelanggan.');
       return pelanggan;
     } on Exception catch (e, s) {

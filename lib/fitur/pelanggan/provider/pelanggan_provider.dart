@@ -4,7 +4,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
 
 part 'pelanggan_provider.g.dart';
@@ -48,10 +47,10 @@ class Pelanggan extends _$Pelanggan {
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
     try {
       await _pelangganOpSqlite.tambahPelanggan(pelanggan);
-      await _ambilData();
       ref.invalidateSelf();
     } catch (e, s) {
-      Log.error('gagal $e $s');
+      state = AsyncValue.error(e, s);
+      rethrow; // 🌟 PENTING
     }
   }
 
@@ -59,20 +58,22 @@ class Pelanggan extends _$Pelanggan {
     try {
       await _pelangganOpSqlite.perbaruiPelanggan(pelanggan);
       _invalidateDetailPelanggan(pelanggan.id);
-      final dataBaru = await _ambilData();
-      state = AsyncValue.data(dataBaru);
-    } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
-      rethrow; // 🌟 PENTING
+      ref.invalidateSelf();
+    } catch (e, s) {
+      state = AsyncValue.error(e, s);
+      rethrow;
     }
   }
 
   Future<void> softDelete(String id) async {
-    state = await AsyncValue.guard(() async {
+    try {
       await _pelangganOpSqlite.softDelete(id);
+      ref.invalidateSelf();
       _invalidateDetailPelanggan(id);
-      return _ambilData();
-    });
+    } catch (e, s) {
+      state = AsyncValue.error(e, s);
+      rethrow;
+    }
   }
 
   void _invalidateDetailPelanggan(String id) {

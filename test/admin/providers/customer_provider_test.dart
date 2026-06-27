@@ -1,4 +1,3 @@
-
 // path: test/admin/providers/customer_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,8 +21,9 @@ void main() {
       mockPelangganOpFirebase = MockPelangganOpFirebase();
       container = ProviderContainer(
         overrides: [
-          pelangganOpFirebaseProvider
-              .overrideWithValue(mockPelangganOpFirebase),
+          pelangganOpFirebaseProvider.overrideWithValue(
+            mockPelangganOpFirebase,
+          ),
         ],
       );
       notifier = container.read(customerProvider.notifier);
@@ -32,15 +32,17 @@ void main() {
     test('01. initial state is loading and then returns data', () async {
       final customers = [
         const PelangganModel(
-            id: '1',
-            nama: 'Customer 1',
-            alamat: '',
-            telepon: '',
-            macAddress: '',
-            kataSandi: ''),
+          id: '1',
+          nama: 'Customer 1',
+          alamat: '',
+          telepon: '',
+          macAddress: '',
+          kataSandi: '',
+        ),
       ];
-      when(mockPelangganOpFirebase.ambilSemuaPelanggan())
-          .thenAnswer((_) async => customers);
+      when(
+        mockPelangganOpFirebase.ambilSemua(),
+      ).thenAnswer((_) async => customers);
 
       // Initially, the state should be loading
       expect(
@@ -52,31 +54,31 @@ void main() {
       await container.read(customerProvider.future);
 
       // After build, the state should be data
-      expect(
-        container.read(customerProvider).value,
-        customers,
-      );
+      expect(container.read(customerProvider).value, customers);
     });
 
     test('02. search filters customers', () async {
       final allCustomers = [
         const PelangganModel(
-            id: '1',
-            nama: 'Alice',
-            alamat: '',
-            telepon: '',
-            macAddress: '',
-            kataSandi: ''),
+          id: '1',
+          nama: 'Alice',
+          alamat: '',
+          telepon: '',
+          macAddress: '',
+          kataSandi: '',
+        ),
         const PelangganModel(
-            id: '2',
-            nama: 'Bob',
-            alamat: '',
-            telepon: '',
-            macAddress: '',
-            kataSandi: ''),
+          id: '2',
+          nama: 'Bob',
+          alamat: '',
+          telepon: '',
+          macAddress: '',
+          kataSandi: '',
+        ),
       ];
-      when(mockPelangganOpFirebase.ambilSemuaPelanggan())
-          .thenAnswer((_) async => allCustomers);
+      when(
+        mockPelangganOpFirebase.ambilSemua(),
+      ).thenAnswer((_) async => allCustomers);
 
       await container.read(customerProvider.future);
 
@@ -89,22 +91,25 @@ void main() {
     test('03. search with empty query returns all customers', () async {
       final allCustomers = [
         const PelangganModel(
-            id: '1',
-            nama: 'Alice',
-            alamat: '',
-            telepon: '',
-            macAddress: '',
-            kataSandi: ''),
+          id: '1',
+          nama: 'Alice',
+          alamat: '',
+          telepon: '',
+          macAddress: '',
+          kataSandi: '',
+        ),
         const PelangganModel(
-            id: '2',
-            nama: 'Bob',
-            alamat: '',
-            telepon: '',
-            macAddress: '',
-            kataSandi: ''),
+          id: '2',
+          nama: 'Bob',
+          alamat: '',
+          telepon: '',
+          macAddress: '',
+          kataSandi: '',
+        ),
       ];
-      when(mockPelangganOpFirebase.ambilSemuaPelanggan())
-          .thenAnswer((_) async => allCustomers);
+      when(
+        mockPelangganOpFirebase.ambilSemua(),
+      ).thenAnswer((_) async => allCustomers);
 
       await container.read(customerProvider.future);
 
