@@ -1,12 +1,12 @@
-// path lib/fitur/transaksi/page/riwayat_aktivasi_paket.dart
+// path lib/fitur/riwayat_aktivasi/page/riwayat_aktivasi_paket.dart
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -147,6 +147,8 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
                     .read(layananCekSinkronisasiProvider)
                     .jalankanCekSinkronisasi(),
               );
+              ref.invalidate(riwayatAktivasiPaketProvider);
+
               if (!context.mounted) return;
               Navigator.pop(context);
             },

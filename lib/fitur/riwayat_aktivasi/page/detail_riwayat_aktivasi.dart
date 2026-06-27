@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/providers/detail_langganan_provider.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/provider/detail_langganan_provider.dart';
 import 'package:wifi/fitur/paket/page/detail_paket.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/form_riwayat_aktivasi.dart';
@@ -17,7 +17,6 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watch data gabungan langsung dari provider
     final detailAsync = ref.watch(ambilDetailLanggananProvider(idTransaksi));
 
     return detailAsync.when(

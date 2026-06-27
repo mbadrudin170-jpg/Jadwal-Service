@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/admin/providers/detail_langganan_provider.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/provider/detail_langganan_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 // PERBAIKAN: Tambahkan import yang hilang
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';

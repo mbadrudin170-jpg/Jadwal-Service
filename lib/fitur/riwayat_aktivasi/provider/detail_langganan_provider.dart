@@ -1,4 +1,4 @@
-// path: lib/admin/providers/detail_langganan_provider.dart
+// path lib/fitur/riwayat_aktivasi/provider/detail_langganan_provider.dart
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -9,8 +9,8 @@ import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 
-part 'detail_langganan_provider.freezed.dart';
 part 'detail_langganan_provider.g.dart';
+part 'detail_langganan_provider.freezed.dart';
 
 @freezed
 abstract class DetailLanggananState with _$DetailLanggananState {

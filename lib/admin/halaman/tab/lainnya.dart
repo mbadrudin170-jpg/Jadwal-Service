@@ -14,7 +14,7 @@ import 'package:wifi/fitur/kategori/page/kategori.dart';
 import 'package:wifi/fitur/paket/page/paket.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
 import 'package:wifi/fitur/settings/page/settings_page_a.dart';
-import 'package:wifi/fitur/transaksi/page/riwayat_aktivasi_paket.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/page/riwayat_aktivasi_paket.dart';
 import 'package:wifi/fitur/versi_apk/page/versi_apk_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
