@@ -15881,21 +15881,12 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
     Log.info(
       'Membuka FormTransaksiPage untuk mengedit transaksi ID: ${transaksi?.id} dari WalletDetail.',
     );
-    final hasil = await Navigator.push<bool>(
+    await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (context) => FormTransaksi(transaksi: transaksi),
       ),
     );
-
-    if (hasil ?? false) {
-      Log.info(
-        'Kembali dari form edit dengan sinyal reload. Memuat ulang data dompet.',
-      );
-      _muatUlangData();
-    } else {
-      Log.info('Kembali dari form edit tanpa perubahan.');
-    }
   }
 
   @override
@@ -26812,16 +26803,12 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
     Log.info(
       'Membuka FormTransaksiPage dari halaman detail untuk mengedit transaksi: ${_currentTransaction.id}',
     );
-    final isSaved = await Navigator.push<bool?>(
+    await Navigator.push<bool?>(
       context,
       MaterialPageRoute(
         builder: (context) => FormTransaksi(transaksi: _currentTransaction),
       ),
     );
-    if (isSaved ?? false) {
-      Log.info(
-        'Form edit melaporkan keberhasilan penyimpanan. Memuat ulang data transaksi dari database.',
-      );
       try {
         final transaksiOpSqlite = ref.read(transaksiOpGlobalProvider);
         final transaksi = await transaksiOpSqlite.ambilBerdasarkanId(
@@ -26848,9 +26835,6 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
           ToastUtil.error(context, 'Gagal memuat data terbaru.');
         }
       }
-    } else {
-      Log.info('Kembali dari form edit tanpa pembaruan atau gagal disimpan.');
-    }
   }
 
   Future<void> _softDeleteTransaksi() async {
@@ -27447,7 +27431,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         }
 
         if (mounted) {
-          Navigator.pop(context, true);
+          Navigator.pop(context);
         }
       } on Exception catch (e, s) {
         Log.error('Gagal menyimpan transaksi ke database.', e: e, s: s);
@@ -27568,7 +27552,6 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                       focusNode: _jumlahFocusNode,
                       textInputAction: TextInputAction.done,
                     ),
-
                     gapH24,
                     PemilihTanggalWaktuWidget(
                       tanggalTerpilih: _tanggalDipilih,
