@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
@@ -79,11 +80,8 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           'Menyiapkan update pelanggan: id=${dataPelanggan.id}, nama=${dataPelanggan.nama}, telepon=${dataPelanggan.telepon}.',
         );
 
-        final pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
-        Log.info(
-          'Memanggil pelangganOpFirebase.perbaruiPelanggan untuk id=${dataPelanggan.id}.',
-        );
-        await pelangganOpFirebase.perbaruiPelanggan(dataPelanggan);
+        final pelangganOp = ref.read(pelangganOpGlobalProvider);
+        await pelangganOp.updatePelanggan(dataPelanggan);
         Log.info('perbaruiPelanggan selesai untuk id=${dataPelanggan.id}.');
         ref.invalidate(pelangganOpFirebaseProvider);
         Log.info(
