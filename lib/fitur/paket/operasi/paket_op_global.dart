@@ -42,13 +42,13 @@ class PaketOpGlobal {
   ///
   /// - Admin: Ambil dari SQLite
   /// - User: Ambil dari Firebase
-  Future<List<PaketModel>> ambilPaketPublik() async {
+  Future<List<PaketModel>> ambilSemua() async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin mengambil paket dari SQLite');
-      return await _paketOpSqlite.ambilPaketPublik();
+      return await _paketOpSqlite.ambilSemua();
     } else {
       Log.info('[PaketOpGlobal] User mengambil paket dari Firebase');
-      return await _paketOpFirebase.ambilPaketPublik();
+      return await _paketOpFirebase.ambilSemua();
     }
   }
 

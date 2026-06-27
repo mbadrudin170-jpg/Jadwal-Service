@@ -13,6 +13,7 @@ import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -324,7 +325,9 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
   Widget _bangunRiwayatPoin() {
     Log.info('Building points history.');
-    final riwayatAsync = ref.watch(pointsHistoryProvider(widget.idPelanggan));
+    final riwayatAsync = ref.watch(
+      riwayatPoinPelangganProvider(widget.idPelanggan),
+    );
     return riwayatAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Error: $err')),

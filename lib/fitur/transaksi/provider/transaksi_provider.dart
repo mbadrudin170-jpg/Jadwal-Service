@@ -4,14 +4,13 @@ import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
 part 'transaksi_provider.freezed.dart';
@@ -37,8 +36,6 @@ abstract class TransaksiState with _$TransaksiState {
 
 @riverpod
 class Transaksi extends _$Transaksi {
-  TransaksiOpSqlite get _transaksiOpSqlite =>
-      ref.read(transaksiOpSqliteProvider);
   TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
   PointsPageDataSource get _pointsDataSource =>
       ref.read(pointsDataSourceProvider);
@@ -87,14 +84,14 @@ class Transaksi extends _$Transaksi {
 
   // ✅ Method untuk ambil poin per pelanggan
   Future<int> getTotalPoinPelanggan(String idPelanggan) async {
-    return await _transaksiOpSqlite.ambilTotalPoin(idPelanggan);
+    return await _transaksiOp.ambilTotalPoin(idPelanggan);
   }
 
   // ✅ Method untuk ambil poin banyak pelanggan (paralel)
   Future<Map<String, int>> getTotalPoinBanyakPelanggan(List<String> ids) async {
     final Map<String, int> hasil = {};
     for (final id in ids) {
-      hasil[id] = await _transaksiOpSqlite.ambilTotalPoin(id);
+      hasil[id] = await _transaksiOp.ambilTotalPoin(id);
     }
     return hasil;
   }
@@ -103,14 +100,14 @@ class Transaksi extends _$Transaksi {
     List<String> ids,
   ) async {
     final List<Future<int>> futures = ids
-        .map((id) => _transaksiOpSqlite.ambilTotalPoin(id))
+        .map((id) => _transaksiOp.ambilTotalPoin(id))
         .toList();
     return await Future.wait(futures);
   }
 
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     state = await AsyncValue.guard(() async {
-      await _transaksiOpSqlite.tambahTransaksi(transaksi);
+      await _transaksiOp.tambahTransaksi(transaksi);
       _invalidateSistemTerkait();
       return _loadData();
     });
@@ -118,7 +115,7 @@ class Transaksi extends _$Transaksi {
 
   Future<void> updateTransaksi(TransaksiModel transaksi) async {
     state = await AsyncValue.guard(() async {
-      await _transaksiOpSqlite.perbaruiTransaksi(transaksi.id, transaksi);
+      await _transaksiOp.perbaruiTransaksi(transaksi.id, transaksi);
       _invalidateSistemTerkait();
       return _loadData();
     });
@@ -126,7 +123,7 @@ class Transaksi extends _$Transaksi {
 
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
-      await _transaksiOpSqlite.softDelete(id);
+      await _transaksiOp.softDelete(id);
       _invalidateSistemTerkait();
       return _loadData();
     });
@@ -134,7 +131,7 @@ class Transaksi extends _$Transaksi {
 
   Future<void> softDeleteAll() async {
     state = await AsyncValue.guard(() async {
-      await _transaksiOpSqlite.softDeleteAll();
+      await _transaksiOp.softDeleteAll();
       _invalidateSistemTerkait();
       return _loadData();
     });
@@ -161,12 +158,36 @@ class Transaksi extends _$Transaksi {
     ref.invalidate(dompetProvider);
   }
 }
+// path: lib/fitur/transaksi/provider/transaksi_provider.dart
 
 @Riverpod(keepAlive: true)
-Future<List<TransaksiModel>> transaksiPerPelanggan(
+Future<List<TransaksiModel>> riwayatPoinPelanggan(
   Ref ref,
   String idPelanggan,
-) {
-  final transaksiOp = ref.read(transaksiOpSqliteProvider);
-  return transaksiOp.ambilBerdasarkanIdPelanggan(idPelanggan);
+) async {
+  Log.info(
+    '[RiwayatPoin] Mengambil riwayat poin untuk pelanggan: $idPelanggan',
+  );
+  final transaksiOp = ref.read(transaksiOpGlobalProvider);
+  // ✅ Ambil semua transaksi pelanggan (otomatis menangani role)
+  final semuaTransaksi = await transaksiOp.ambilBerdasarkanIdPelanggan(
+    idPelanggan,
+  );
+
+  Log.info('[RiwayatPoin] Total transaksi: ${semuaTransaksi.length}');
+
+  final riwayatPoin = semuaTransaksi
+      .where((t) => t.poinDidapat > 0 || t.poinDigunakan > 0)
+      .toList();
+
+  Log.info('[RiwayatPoin] Transaksi dengan poin: ${riwayatPoin.length}');
+
+  for (int i = 0; i < riwayatPoin.length; i++) {
+    final t = riwayatPoin[i];
+    Log.info(
+      '[RiwayatPoin] [$i] ${t.id}: ${t.deskripsi}, poinDidapat=${t.poinDidapat}, poinDigunakan=${t.poinDigunakan}',
+    );
+  }
+
+  return riwayatPoin;
 }

@@ -2,15 +2,11 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/paket/page/paket.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
 part 'paket_provider.g.dart';
 part 'paket_provider.freezed.dart';
@@ -26,9 +22,7 @@ abstract class PaketState with _$PaketState {
 
 @Riverpod(keepAlive: true)
 class Paket extends _$Paket {
-  PaketOpSqlite get _paketOpSqlite => ref.read(paketOpSqliteProvider);
-  PaketOpFirebase get _paketOpfirebase => ref.read(paketOpFirebaseProvider);
-
+  PaketOpGlobal get _paketOp => ref.read(paketOpGlobalProvider);
   @override
   FutureOr<PaketState> build() async {
     return _ambilData();
@@ -36,13 +30,9 @@ class Paket extends _$Paket {
 
   Future<PaketState> _ambilData() async {
     List<PaketModel> daftarPaketPublik;
-    final daftarpaket = await _paketOpSqlite.ambilSemua();
-    final role = ref.watch(appRoleProvider);
-    if (role == AppRole.admin) {
-      daftarPaketPublik = await _paketOpSqlite.ambilPaketPublik();
-    } else {
-      daftarPaketPublik = await _paketOpfirebase.ambilPaketPublik();
-    }
+    final daftarpaket = await _paketOp.ambilSemua();
+    daftarPaketPublik = await _paketOp.ambilPaketPublik();
+
     return PaketState(
       daftarPaket: daftarpaket,
       jumlahPaket: daftarpaket.length,

@@ -74,14 +74,15 @@ PelangganOpFirebase pelangganOpFirebase(Ref ref) {
 PelangganAktifOpFirebase pelangganAktifOpFirebase(Ref ref) {
   final baseOp = ref.watch(baseOpFirebaseProvider);
 
-  return PelangganAktifOpFirebase( baseOp: baseOp);
+  return PelangganAktifOpFirebase(baseOp: baseOp);
 }
 
 @Riverpod(keepAlive: true)
 PaketOpFirebase paketOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
+  final baseOp = ref.watch(baseOpFirebaseProvider);
 
-  return PaketOpFirebase(firestore: firestoreInstance);
+  return PaketOpFirebase(firestore: firestoreInstance, baseOp: baseOp);
 }
 
 @Riverpod(keepAlive: true)

@@ -10488,15 +10488,11 @@ final class DetailPaketFamily extends $Family
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/paket/page/paket.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
 part 'paket_provider.g.dart';
 part 'paket_provider.freezed.dart';
@@ -10512,9 +10508,7 @@ abstract class PaketState with _$PaketState {
 
 @Riverpod(keepAlive: true)
 class Paket extends _$Paket {
-  PaketOpSqlite get _paketOpSqlite => ref.read(paketOpSqliteProvider);
-  PaketOpFirebase get _paketOpfirebase => ref.read(paketOpFirebaseProvider);
-
+  PaketOpGlobal get _paketOp => ref.read(paketOpGlobalProvider);
   @override
   FutureOr<PaketState> build() async {
     return _ambilData();
@@ -10522,13 +10516,9 @@ class Paket extends _$Paket {
 
   Future<PaketState> _ambilData() async {
     List<PaketModel> daftarPaketPublik;
-    final daftarpaket = await _paketOpSqlite.ambilSemua();
-    final role = ref.watch(appRoleProvider);
-    if (role == AppRole.admin) {
-      daftarPaketPublik = await _paketOpSqlite.ambilPaketPublik();
-    } else {
-      daftarPaketPublik = await _paketOpfirebase.ambilPaketPublik();
-    }
+    final daftarpaket = await _paketOp.ambilSemua();
+    daftarPaketPublik = await _paketOp.ambilPaketPublik();
+
     return PaketState(
       daftarPaket: daftarpaket,
       jumlahPaket: daftarpaket.length,
@@ -10885,57 +10875,165 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
 class PaketOpFirebase {
   final FirebaseFirestore db;
+  final BaseOpFirebase _baseOp;
+  final String _namaKoleksi = NamaTabel.paket;
 
-  PaketOpFirebase({required FirebaseFirestore firestore}) : db = firestore {
+  PaketOpFirebase({
+    required FirebaseFirestore firestore,
+    required BaseOpFirebase baseOp,
+  }) : db = firestore,
+       _baseOp = baseOp {
     Log.info('PackageOpFirebase diinisialisasi.');
   }
 
-  CollectionReference get _collection => db.collection(NamaTabel.paket);
+  CollectionReference get _collection => db.collection(_namaKoleksi);
 
+  // ============================================================
+  // ✅ OPERASI TULIS (WRITE) - Menggunakan BaseOpFirebase
+  // ============================================================
+
+  /// Menambahkan paket baru ke Firebase
+  Future<void> tambahPaket(PaketModel paket) async {
+    Log.info('Menambahkan paket ke Firebase: ${paket.id}');
+    await _baseOp.sisipkan(_namaKoleksi, paket.id, paket.toFirebase());
+  }
+
+  /// Memperbarui paket yang sudah ada di Firebase
+  Future<void> perbaruiPaket(PaketModel paket) async {
+    Log.info('Memperbarui paket di Firebase: ${paket.id}');
+    await _baseOp.update(_namaKoleksi, paket.id, paket.toFirebase());
+  }
+
+  /// Menghapus paket secara permanen dari Firebase
+  Future<void> hapusPermanen(String id) async {
+    Log.warning('Menghapus paket secara permanen: $id');
+    await _baseOp.hapusPermanen(_namaKoleksi, id);
+  }
+
+  /// Soft delete paket di Firebase
+  Future<void> softDelete(String id) async {
+    Log.info('Memulai soft delete paket di Firestore: $id');
+    await _baseOp.softDelete(_namaKoleksi, id);
+  }
+
+  /// Menyisipkan atau memperbarui banyak paket sekaligus (batch)
+  Future<void> sisipkanAtauPerbaruiBatch(List<PaketModel> items) async {
+    if (items.isEmpty) {
+      Log.info('Batch paket: daftar kosong, operasi dibatalkan.');
+      return;
+    }
+
+    Log.info(
+      'Memulai batch insert/update untuk ${items.length} paket di Firestore',
+    );
+
+    final dataList = items.map((item) => item.toFirebase()).toList();
+    await _baseOp.insertOrUpdateBatch(_namaKoleksi, dataList, NamaKolom.id);
+  }
+
+  // ============================================================
+  // ✅ OPERASI BACA (READ) - Query Langsung
+  // ============================================================
+
+  /// Mengambil semua paket publik (statusPublik = true)
   Future<List<PaketModel>> ambilPaketPublik() async {
     try {
-      Log.info('Mengambil paket publik untuk penukaran poin.');
+      Log.info('Mengambil paket publik dari firebase untuk penukaran poin.');
       final querySnapshot = await _collection
           .where(NamaKolom.statusPublik, isEqualTo: true)
           .where(NamaKolom.poinPenukaran, isGreaterThan: 0)
           .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.poinPenukaran)
           .get();
+
       Log.info(
-        'Menemukan ${querySnapshot.docs.length} paket publik yang tidak dihapus.',
+        'Menemukan ${querySnapshot.docs.length} paket publik dari firebase.',
       );
       return querySnapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         return PaketModel.fromFirebase(doc.id, data);
       }).toList();
     } on Exception catch (e, s) {
-      Log.error('Error mengambil paket publik: $e', e: e, s: s);
+      Log.error('Error mengambil paket publik firebase: $e', e: e, s: s);
       return [];
     }
   }
 
+  /// Mengambil paket berdasarkan ID
   Future<PaketModel?> ambilBerdasarkanId(String id) async {
     try {
-      Log.info('Mengambil model paket untuk ID: $id');
+      Log.info('Mengambil paket untuk ID: $id');
       final doc = await _collection.doc(id).get();
+
       if (doc.exists) {
         final data = doc.data()! as Map<String, dynamic>;
         final package = PaketModel.fromFirebase(doc.id, data);
-        Log.info('Model paket ditemukan');
+        Log.info('Paket ditemukan: ${package.nama}');
         return package;
       }
+
       Log.warning('Paket dengan ID $id tidak ditemukan.');
       return null;
     } on Exception catch (e, s) {
-      Log.error('Error mengambil model paket: $e', e: e, s: s);
+      Log.error('Error mengambil paket: $e', e: e, s: s);
       return null;
     }
   }
 
-  /// Mengambil data paket secara real-time berdasarkan ID.
+  /// Mengambil semua paket (termasuk yang tidak publik)
+  Future<List<PaketModel>> ambilSemua() async {
+    try {
+      Log.info('Mengambil semua paket dari Firebase');
+      final querySnapshot = await _collection
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .get();
+
+      Log.info('Menemukan ${querySnapshot.docs.length} paket.');
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return PaketModel.fromFirebase(doc.id, data);
+      }).toList();
+    } on Exception catch (e, s) {
+      Log.error('Error mengambil semua paket: $e', e: e, s: s);
+      return [];
+    }
+  }
+
+  /// Mengambil beberapa paket berdasarkan daftar ID
+  Future<List<PaketModel>> ambilBerdasarkanIds(List<String> ids) async {
+    if (ids.isEmpty) {
+      Log.warning('Daftar ID kosong, mengembalikan list kosong');
+      return [];
+    }
+
+    try {
+      Log.info('Mengambil ${ids.length} paket berdasarkan ID');
+      final List<PaketModel> hasil = [];
+
+      for (final id in ids) {
+        final paket = await ambilBerdasarkanId(id);
+        if (paket != null) {
+          hasil.add(paket);
+        }
+      }
+
+      Log.info('Berhasil mengambil ${hasil.length} dari ${ids.length} paket');
+      return hasil;
+    } on Exception catch (e, s) {
+      Log.error('Error mengambil paket berdasarkan IDs: $e', e: e, s: s);
+      return [];
+    }
+  }
+
+  // ============================================================
+  // ✅ STREAM (REALTIME)
+  // ============================================================
+
+  /// Stream paket berdasarkan ID (real-time)
   Stream<PaketModel?> ambilStreamBerdasarkanId(String id) {
     Log.info('Memulai stream untuk paket ID: $id');
     return _collection
@@ -10956,30 +11054,24 @@ class PaketOpFirebase {
         });
   }
 
-  Future<void> delete(String id) async {
-    Log.warning('Memulai penghapusan permanen paket di Firestore: $id');
-    try {
-      await _collection.doc(id).delete();
-      Log.info('Penghapusan permanen paket berhasil: $id');
-    } on FirebaseException catch (e, s) {
-      Log.error('Gagal menghapus paket secara permanen: $id', e: e, s: s);
-      rethrow;
-    }
-  }
-
-  Future<void> softDelete(String id) async {
-    Log.info('Memulai soft delete paket di Firestore: $id');
-    try {
-      await _collection.doc(id).update({
-        NamaKolom.dihapus: true,
-        NamaKolom.diarsipkanPada: FieldValue.serverTimestamp(),
-        NamaKolom.diperbaruiPada: FieldValue.serverTimestamp(),
-      });
-      Log.info('Soft delete paket berhasil: $id');
-    } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan soft delete paket: $id', e: e, s: s);
-      rethrow;
-    }
+  /// Stream semua paket publik (real-time)
+  Stream<List<PaketModel>> ambilStreamPaketPublik() {
+    Log.info('Memulai stream paket publik');
+    return _collection
+        .where(NamaKolom.statusPublik, isEqualTo: true)
+        .where(NamaKolom.dihapus, isEqualTo: false)
+        .orderBy(NamaKolom.poinPenukaran)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            return PaketModel.fromFirebase(doc.id, data);
+          }).toList();
+        })
+        .handleError((Object e, StackTrace s) {
+          Log.error('Error pada stream paket publik', e: e, s: s);
+          return <PaketModel>[];
+        });
   }
 }
 
@@ -11237,6 +11329,182 @@ class PaketOpSqlite {
     }
   }
 }
+
+
+// File: lib/fitur/paket/operasi/paket_op_global.dart
+// path: lib/fitur/paket/operasi/paket_op_global.dart
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+
+/// Kelas untuk mengelola operasi paket secara global
+/// dengan logika berdasarkan role (admin/user).
+class PaketOpGlobal {
+  final Ref ref;
+
+  PaketOpGlobal({required this.ref});
+
+  // ✅ Accessor untuk SQLite (digunakan oleh admin)
+  PaketOpSqlite get _paketOpSqlite => ref.read(paketOpSqliteProvider);
+
+  // ✅ Accessor untuk Firebase (digunakan oleh user)
+  PaketOpFirebase get _paketOpFirebase => ref.read(paketOpFirebaseProvider);
+
+  /// Menambahkan paket baru dengan logika berdasarkan role
+  ///
+  /// - Admin: Simpan ke SQLite (akan disinkronisasi ke Firebase)
+  /// - User: Simpan langsung ke Firebase
+  Future<void> tambahPaket(PaketModel paket) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[PaketOpGlobal] Admin menambah paket ke SQLite: ${paket.nama}');
+      await _paketOpSqlite.tambahPaket(paket);
+    } else {
+      Log.info(
+        '[PaketOpGlobal] User menambah paket ke Firebase: ${paket.nama}',
+      );
+      await _paketOpFirebase.tambahPaket(paket);
+    }
+  }
+
+  /// Mengambil semua paket berdasarkan role
+  ///
+  /// - Admin: Ambil dari SQLite
+  /// - User: Ambil dari Firebase
+  Future<List<PaketModel>> ambilSemua() async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[PaketOpGlobal] Admin mengambil paket dari SQLite');
+      return await _paketOpSqlite.ambilSemua();
+    } else {
+      Log.info('[PaketOpGlobal] User mengambil paket dari Firebase');
+      return await _paketOpFirebase.ambilSemua();
+    }
+  }
+
+  /// Mengambil paket berdasarkan ID
+  ///
+  /// - Admin: Ambil dari SQLite
+  /// - User: Ambil dari Firebase
+  Future<PaketModel?> ambilPaketBerdasarkanId(String id) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[PaketOpGlobal] Admin mengambil paket ID: $id dari SQLite');
+      return await _paketOpSqlite.ambilBerdasarkanId(id);
+    } else {
+      Log.info('[PaketOpGlobal] User mengambil paket ID: $id dari Firebase');
+      return await _paketOpFirebase.ambilBerdasarkanId(id);
+    }
+  }
+
+  /// Mengambil paket publik (hanya yang statusPublik = true)
+  ///
+  /// - Admin: Ambil dari SQLite
+  /// - User: Ambil dari Firebase
+  Future<List<PaketModel>> ambilPaketPublik() async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[PaketOpGlobal] Admin mengambil paket publik dari SQLite');
+      return await _paketOpSqlite.ambilPaketPublik();
+    } else {
+      Log.info('[PaketOpGlobal] User mengambil paket publik dari Firebase');
+      return await _paketOpFirebase.ambilPaketPublik();
+    }
+  }
+
+  /// Memperbarui paket yang ada
+  ///
+  /// - Admin: Update di SQLite (akan disinkronisasi ke Firebase)
+  /// - User: Update langsung di Firebase
+  Future<void> updatePaket(PaketModel paket) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[PaketOpGlobal] Admin update paket di SQLite: ${paket.nama}');
+      await _paketOpSqlite.perbaruiPaket(paket);
+    } else {
+      Log.info('[PaketOpGlobal] User update paket di Firebase: ${paket.nama}');
+      await _paketOpFirebase.tambahPaket(
+        paket,
+      ); // Firebase menggunakan tambahPaket untuk upsert
+    }
+  }
+
+  /// Menghapus paket (soft delete)
+  ///
+  /// - Admin: Soft delete di SQLite (akan disinkronisasi ke Firebase)
+  /// - User: Soft delete langsung di Firebase
+  Future<void> hapusPaket(String id) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[PaketOpGlobal] Admin hapus paket ID: $id di SQLite');
+      await _paketOpSqlite.hapusSementara(id);
+    } else {
+      Log.info('[PaketOpGlobal] User hapus paket ID: $id di Firebase');
+      await _paketOpFirebase.softDelete(id);
+    }
+  }
+
+  /// Mengambil beberapa paket berdasarkan daftar ID
+  ///
+  /// - Admin: Ambil dari SQLite
+  /// - User: Ambil dari Firebase (satu per satu)
+  Future<List<PaketModel>> ambilPaketBerdasarkanIds(List<String> ids) async {
+    if (ids.isEmpty) {
+      Log.warning(
+        '[PaketOpGlobal] Daftar ID kosong, mengembalikan list kosong',
+      );
+      return [];
+    }
+
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info(
+        '[PaketOpGlobal] Admin mengambil ${ids.length} paket dari SQLite',
+      );
+      return await _paketOpSqlite.ambilBerdasarkanBeberapaId(ids);
+    } else {
+      Log.info(
+        '[PaketOpGlobal] User mengambil ${ids.length} paket dari Firebase',
+      );
+      final List<PaketModel> hasil = [];
+      for (final id in ids) {
+        final paket = await _paketOpFirebase.ambilBerdasarkanId(id);
+        if (paket != null) {
+          hasil.add(paket);
+        }
+      }
+      return hasil;
+    }
+  }
+
+  /// Mengecek apakah ada paket dengan nama yang sama (untuk validasi)
+  ///
+  /// - Admin: Cek di SQLite
+  /// - User: Cek di Firebase
+  Future<bool> cekNamaPaketSudahAda(String nama, {String? excludeId}) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[PaketOpGlobal] Admin cek nama paket di SQLite: $nama');
+      final semuaPaket = await _paketOpSqlite.ambilSemua();
+      return semuaPaket.any(
+        (p) =>
+            p.nama.toLowerCase() == nama.toLowerCase() &&
+            (excludeId == null || p.id != excludeId),
+      );
+    } else {
+      Log.info('[PaketOpGlobal] User cek nama paket di Firebase: $nama');
+      final semuaPaket = await _paketOpFirebase.ambilPaketPublik();
+      return semuaPaket.any(
+        (p) =>
+            p.nama.toLowerCase() == nama.toLowerCase() &&
+            (excludeId == null || p.id != excludeId),
+      );
+    }
+  }
+}
+
+/// Provider untuk PaketOpGlobal
+final paketOpGlobalProvider = Provider<PaketOpGlobal>((ref) {
+  return PaketOpGlobal(ref: ref);
+});
 
 
 // File: lib/fitur/paket/enum/tipe_durasi_paket.dart
@@ -30720,8 +30988,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     Log.info('SimpanForm dipanggil - validasi form dimulai.');
     if (_formKey.currentState?.validate() ?? false) {
       Log.info('Form valid - memproses penyimpanan perubahan profil.');
-      final navigator = Navigator.of(context);
-
       try {
         Log.info('Memeriksa koneksi internet sebelum menyimpan perubahan.');
         final isOnline = await ref
@@ -30755,12 +31021,16 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         if (!mounted) {
           Log.info(
             'Widget tidak lagi mounted setelah update; tidak menampilkan toast atau menutup halaman.',
-          );                      
+          );
           return;
         }
         ToastUtil.success(context, 'Profil berhasil diperbarui.');
         Log.info('Toast sukses ditampilkan, mmenutup halaman edit.');
-        navigator.pop(context);
+        // Hapus deklarasi navigator di awal, atau gunakan langsung
+        // Ganti navigator.pop(context); dengan:
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
       } catch (e, st) {
         Log.error('Gagal menyimpan perubahan profil', e: e, s: st);
         if (!mounted) {
@@ -30858,7 +31128,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
-import 'package:wifi/fitur/pelanggan/page/user/edit_profile_page.dart';
+import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
 import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -30866,7 +31136,6 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 
-/// Kelas untuk menggabungkan data yang dibutuhkan oleh UI.
 class _DataDetailPelanggan {
   final PelangganModel pelanggan;
   final int totalPoin;
@@ -30925,7 +31194,7 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
     await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) => EditProfilePage(pelanggan: pelanggan),
+        builder: (context) => FormPelanggan(pelanggan: pelanggan),
       ),
     );
     await ref.read(interstitialAdServiceProvider).show();
@@ -31320,6 +31589,7 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -31358,7 +31628,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
   void initState() {
     super.initState();
     Log.info(
-      'Membuka CustomerForm dalam mode: ${_modeEdit ? "Edit" : "Tambah"}.',
+      'Membuka form_pelanggan dalam mode: ${_modeEdit ? "Edit" : "Tambah"}.',
     );
     if (_modeEdit) {
       Log.info(
@@ -31392,9 +31662,23 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
 
   Future<void> _simpanPelanggan() async {
     if (_menyimpan) return;
+    if (ref.isUser) {
+      final isOnline = await ref
+          .read(koneksiInternetServiceProvider)
+          .cekInternet();
+      if (!isOnline) {
+        if (!mounted) return;
+        ToastUtil.error(context, 'Cek koneksi internet Anda');
+        return;
+      }
+    }
     final pelangganOp = ref.read(pelangganProvider.notifier);
     Log.info('Tombol "Simpan" ditekan.');
-    if (_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate()) {
+      Log.warning('Form tidak valid. Proses penyimpanan dibatalkan.');
+      return;
+    }
+    try {
       Log.info('Form valid. Memulai proses penyimpanan.');
       setState(() => _menyimpan = true);
       final pelangganBaru = PelangganModel(
@@ -31408,43 +31692,41 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       Log.info(
         'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}',
       );
-      try {
-        if (_modeEdit) {
-          Log.info(
-            'Menjalankan operasi UPDATE untuk pelanggan ID: ${pelangganBaru.id}',
-          );
-          await pelangganOp.tambahPelanggan(pelangganBaru);
-        } else {
-          Log.info(
-            'Menjalankan operasi CREATE untuk pelanggan baru: ${pelangganBaru.nama}',
-          );
-          await pelangganOp.tambahPelanggan(pelangganBaru);
-        }
-        if (!mounted) return;
+
+      if (_modeEdit) {
+        Log.info(
+          'Menjalankan operasi UPDATE untuk pelanggan ID: ${pelangganBaru.id}',
+        );
+        await pelangganOp.updatePelanggan(pelangganBaru);
+      } else {
+        Log.info(
+          'Menjalankan operasi CREATE untuk pelanggan baru: ${pelangganBaru.nama}',
+        );
+        await pelangganOp.tambahPelanggan(pelangganBaru);
+      }
+      if (mounted) {
+        ToastUtil.success(context, 'Data pelanggan berhasil disimpan.');
+      }
+      if (mounted) {
+        Navigator.pop(context);
+      }
+      if (ref.isAdmin) {
+        Log.info('jalankan sinkroniasi');
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
         );
-        Log.info('jalankan sinkroniasi');
-        ToastUtil.success(context, 'Data pelanggan berhasil disimpan.');
-        if (mounted) {
-          Navigator.pop(context);
-        }
-      } catch (e, s) {
-        Log.error('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
-        String userMessage = 'Gagal menyimpan data: $e';
-        if (e.toString().contains('sudah ada')) {
-          userMessage = 'Nomor telepon dan password sudah digunakan.';
-        }
-        ToastUtil.error(context, userMessage);
-        return;
-      } finally {
-        if (mounted) {
-          setState(() => _menyimpan = false);
-          Log.info('Proses penyimpanan selesai. isSaving diatur ke false.');
-        }
       }
-    } else {
-      Log.warning('Form tidak valid. Proses penyimpanan dibatalkan.');
+    } catch (e, s) {
+      Log.error('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
+      if (mounted) {
+        ToastUtil.error(context, 'Nomor telepon dan password sudah digunakan.');
+      }
+      return;
+    } finally {
+      if (mounted) {
+        setState(() => _menyimpan = false);
+        Log.info('Proses penyimpanan selesai. isSaving diatur ke false.');
+      }
     }
   }
 
@@ -32316,6 +32598,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/shared/export/operation.dart';
 
 part 'pelanggan_provider.g.dart';
@@ -32334,6 +32617,8 @@ abstract class PelangganState with _$PelangganState {
 class Pelanggan extends _$Pelanggan {
   PelangganOpSqlite get _pelangganOpSqlite =>
       ref.read(pelangganOpSqliteProvider);
+  PelangganOpGlobal get _pelangganOp => ref.read(pelangganOpGlobalProvider);
+
   TransaksiOpSqlite get _transaksiOpSqlite =>
       ref.read(transaksiOpSqliteProvider);
 
@@ -32362,13 +32647,13 @@ class Pelanggan extends _$Pelanggan {
       ref.invalidateSelf();
     } catch (e, s) {
       state = AsyncValue.error(e, s);
-      rethrow; // 🌟 PENTING
+      rethrow;
     }
   }
 
-  Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
+  Future<void> updatePelanggan(PelangganModel pelanggan) async {
     try {
-      await _pelangganOpSqlite.perbaruiPelanggan(pelanggan);
+      await _pelangganOp.updatePelanggan(pelanggan);
       _invalidateDetailPelanggan(pelanggan.id);
       ref.invalidateSelf();
     } catch (e, s) {
@@ -32877,8 +33162,40 @@ class PelangganOpFirebase {
   CollectionReference get _koleksiPelanggan =>
       _firestore.collection(_namaKoleksi);
 
+  Future<bool> cekDuplikasiTeleponDanPassword(
+    String telepon,
+    String kataSandi, {
+    String? excludeId,
+  }) async {
+    try {
+      Query query = _koleksiPelanggan
+          .where(NamaKolom.telepon, isEqualTo: telepon)
+          .where(NamaKolom.kataSandi, isEqualTo: kataSandi)
+          .where(NamaKolom.dihapus, isEqualTo: false);
+
+      // Jika excludeId diberikan, exclude pelanggan dengan ID tersebut
+      if (excludeId != null && excludeId.isNotEmpty) {
+        query = query.where(NamaKolom.id, isNotEqualTo: excludeId);
+      }
+
+      final snapshot = await query.limit(1).get();
+      return snapshot.docs.isNotEmpty;
+    } catch (e, s) {
+      Log.error('Gagal mengecek duplikasi pelanggan di Firebase', e: e, s: s);
+      rethrow;
+    }
+  }
+
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
     Log.info('Mendelegasikan pembuatan pelanggan: ${pelanggan.id}');
+    final isDuplicate = await cekDuplikasiTeleponDanPassword(
+      pelanggan.telepon,
+      pelanggan.kataSandi,
+    );
+
+    if (isDuplicate) {
+      throw Exception('Nomor telepon dan password sudah digunakan.');
+    }
     await _baseOpFirebase.sisipkan(
       _namaKoleksi,
       pelanggan.id,
@@ -32888,6 +33205,15 @@ class PelangganOpFirebase {
 
   Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
     Log.info('Mendelegasikan pembaruan pelanggan: ${pelanggan.id}');
+    final isDuplicate = await cekDuplikasiTeleponDanPassword(
+      pelanggan.telepon,
+      pelanggan.kataSandi,
+      excludeId: pelanggan.id,
+    );
+
+    if (isDuplicate) {
+      throw Exception('Nomor telepon dan password sudah digunakan.');
+    }
     await _baseOpFirebase.update(
       _namaKoleksi,
       pelanggan.id,
@@ -36835,6 +37161,7 @@ class LayananCekSinkronisasi {
         .read(koneksiInternetServiceProvider)
         .cekInternet();
     if (!isOnline) {
+      Log.warning('Tidak terhubung ke internet');
       return;
     }
     _berjalan = true;
@@ -36848,6 +37175,8 @@ class LayananCekSinkronisasi {
       }
       await _periksaDanJalankanUnduh();
       Log.info('Seluruh siklus runSyncCheck() telah berakhir dengan sukses.');
+    } on Exception catch (e, s) {
+      Log.error('Gagal menjalankan siklus runSyncCheck().', e: e, s: s);
     } finally {
       _berjalan = false;
     }
@@ -36886,7 +37215,7 @@ class LayananCekSinkronisasi {
     } catch (e, s) {
       Log.error(
         'Gagal memperbarui dokumen ${NamaTabel.statusGlobal}/global.',
-        e: e,
+        e: e,   
         s: s,
       );
     }
@@ -39345,6 +39674,7 @@ class AppLifecycleReactor {
 // File: lib/user/widget/ads/interstitial/layanan_iklan_interstisial.dart
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
@@ -39356,6 +39686,10 @@ class LayananIklanInterstisial {
   final _idIklan = IdInterstitialAds.interstitialAdUnitIdMediasi;
 
   Future<void> preloadAd() async {
+    if (kDebugMode) {
+      Log.info('[InterstitialAd] Debug mode: Melewati preload iklan.');
+      return;
+    }
     if (_isAdLoaded || _isPreloading) {
       Log.info(
         '[InterstitialAd] Pemuatan dibatalkan (iklan sudah siap atau sedang dimuat).',
@@ -39391,6 +39725,10 @@ class LayananIklanInterstisial {
   }
 
   Future<void> show() async {
+    if (kDebugMode) {
+      Log.info('[InterstitialAd] Debug mode: Melewati menampilkan iklan.');
+      return;
+    }
     if (_interstitialAd != null && _isAdLoaded) {
       Log.info('[InterstitialAd] Iklan sudah siap, mencoba menampilkan...');
 
@@ -44783,14 +45121,15 @@ PelangganOpFirebase pelangganOpFirebase(Ref ref) {
 PelangganAktifOpFirebase pelangganAktifOpFirebase(Ref ref) {
   final baseOp = ref.watch(baseOpFirebaseProvider);
 
-  return PelangganAktifOpFirebase( baseOp: baseOp);
+  return PelangganAktifOpFirebase(baseOp: baseOp);
 }
 
 @Riverpod(keepAlive: true)
 PaketOpFirebase paketOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
+  final baseOp = ref.watch(baseOpFirebaseProvider);
 
-  return PaketOpFirebase(firestore: firestoreInstance);
+  return PaketOpFirebase(firestore: firestoreInstance, baseOp: baseOp);
 }
 
 @Riverpod(keepAlive: true)

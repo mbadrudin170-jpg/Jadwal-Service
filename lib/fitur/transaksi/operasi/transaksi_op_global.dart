@@ -55,13 +55,17 @@ class TransaksiOpGlobal {
     }
   }
 
+  // path: lib/fitur/transaksi/operasi/transaksi_op_global.dart
+
   Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
     String idPelanggan,
   ) async {
-    Log.info('Mengambil transaksi berdasarkan ID pelanggan: $idPelanggan');
+    Log.info('[TransaksiOpGlobal] ambilBerdasarkanIdPelanggan: $idPelanggan');
     if (RoleUtil.isAdmin(ref)) {
+      Log.info('[TransaksiOpGlobal] Admin → SQLite');
       return await _transaksiOpSqlite.ambilBerdasarkanIdPelanggan(idPelanggan);
     } else {
+      Log.info('[TransaksiOpGlobal] User → Firebase');
       return await _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(
         idPelanggan,
       );

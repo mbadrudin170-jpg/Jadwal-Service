@@ -57,6 +57,22 @@ class MockPelangganOpFirebase extends _i1.Mock
   }
 
   @override
+  _i3.Future<bool> cekDuplikasiTeleponDanPassword(
+    String? telepon,
+    String? kataSandi, {
+    String? excludeId,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #cekDuplikasiTeleponDanPassword,
+              [telepon, kataSandi],
+              {#excludeId: excludeId},
+            ),
+            returnValue: _i3.Future<bool>.value(false),
+          )
+          as _i3.Future<bool>);
+
+  @override
   _i3.Future<void> tambahPelanggan(_i5.PelangganModel? pelanggan) =>
       (super.noSuchMethod(
             Invocation.method(#tambahPelanggan, [pelanggan]),
