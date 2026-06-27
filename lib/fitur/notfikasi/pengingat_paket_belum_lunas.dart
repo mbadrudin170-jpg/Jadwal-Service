@@ -66,8 +66,6 @@ class PengingatService {
         e: e,
         s: st,
       );
-      // Tidak perlu menampilkan toast ke user karena ini proses background,
-      // cukup log saja.
     }
   }
 }

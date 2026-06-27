@@ -45,7 +45,7 @@ class LayananNotifikasi {
   LayananNotifikasi._internal() : plugin = FlutterLocalNotificationsPlugin() {
     Log.info('Konstruktor internal NotifikasiServis dipanggil.');
   }
-  
+
   @visibleForTesting
   LayananNotifikasi.testing(this.plugin);
 
@@ -93,7 +93,7 @@ class LayananNotifikasi {
     }
   }
 
-  Future<void> inisialisasiNotifikasi({required final String iconName}) async {
+  Future<void> inisialisasiNotifikasi({required String iconName}) async {
     Log.info('Memulai proses inisialisasi NotifikasiServis...');
     await _inisialisasiZonaWaktu();
     Log.info('inisialisai');
@@ -105,7 +105,7 @@ class LayananNotifikasi {
       Log.info('Menginisialisasi plugin flutter_local_notifications.');
       await plugin.initialize(
         settings: settings,
-        onDidReceiveNotificationResponse: (final response) {
+        onDidReceiveNotificationResponse: (response) {
           Log.info(
             'Notifikasi foreground di-tap. Payload: ${response.payload}',
           );
