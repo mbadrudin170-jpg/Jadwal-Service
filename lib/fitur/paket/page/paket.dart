@@ -52,6 +52,7 @@ class PackagePage extends ConsumerWidget {
         ],
       ),
       body: paketAsync.when(
+        skipLoadingOnReload: true,
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) {
           Log.error('Terjadi error saat memuat data paket', e: err, s: stack);
