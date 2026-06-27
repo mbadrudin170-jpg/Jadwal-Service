@@ -44,6 +44,12 @@ class Feedback extends _$Feedback {
     });
     Log.info('[StatistikNotifier] Refresh selesai.');
   }
+
+  void invalidateTabelFeedback() {
+    ref.invalidateSelf();
+    ref.invalidate(detailFeedbackProvider);
+    ref.invalidate(daftarFeedbackAktifProvider);
+  }
 }
 
 @riverpod

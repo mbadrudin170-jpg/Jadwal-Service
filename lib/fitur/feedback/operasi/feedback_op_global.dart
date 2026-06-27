@@ -91,8 +91,6 @@ class FeedbackOpGlobal {
   }
 
   void _invalidateTabelFeedback() {
-    ref.invalidate(feedbackProvider);
-    ref.invalidate(detailFeedbackProvider);
-    ref.invalidate(daftarFeedbackAktifProvider);
+    ref.read(feedbackProvider.notifier).invalidateTabelFeedback();
   }
 }
