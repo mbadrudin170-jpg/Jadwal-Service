@@ -53,10 +53,10 @@ abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   }
 }
 
-@ProviderFor(riwayatPoinPelanggan)
-final riwayatPoinPelangganProvider = RiwayatPoinPelangganFamily._();
+@ProviderFor(riwayatTransaksiPelanggan)
+final riwayatTransaksiPelangganProvider = RiwayatTransaksiPelangganFamily._();
 
-final class RiwayatPoinPelangganProvider
+final class RiwayatTransaksiPelangganProvider
     extends
         $FunctionalProvider<
           AsyncValue<List<TransaksiModel>>,
@@ -66,23 +66,23 @@ final class RiwayatPoinPelangganProvider
     with
         $FutureModifier<List<TransaksiModel>>,
         $FutureProvider<List<TransaksiModel>> {
-  RiwayatPoinPelangganProvider._({
-    required RiwayatPoinPelangganFamily super.from,
+  RiwayatTransaksiPelangganProvider._({
+    required RiwayatTransaksiPelangganFamily super.from,
     required String super.argument,
   }) : super(
          retry: null,
-         name: r'riwayatPoinPelangganProvider',
+         name: r'riwayatTransaksiPelangganProvider',
          isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
 
   @override
-  String debugGetCreateSourceHash() => _$riwayatPoinPelangganHash();
+  String debugGetCreateSourceHash() => _$riwayatTransaksiPelangganHash();
 
   @override
   String toString() {
-    return r'riwayatPoinPelangganProvider'
+    return r'riwayatTransaksiPelangganProvider'
         ''
         '($argument)';
   }
@@ -96,12 +96,13 @@ final class RiwayatPoinPelangganProvider
   @override
   FutureOr<List<TransaksiModel>> create(Ref ref) {
     final argument = this.argument as String;
-    return riwayatPoinPelanggan(ref, argument);
+    return riwayatTransaksiPelanggan(ref, argument);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is RiwayatPoinPelangganProvider && other.argument == argument;
+    return other is RiwayatTransaksiPelangganProvider &&
+        other.argument == argument;
   }
 
   @override
@@ -110,23 +111,23 @@ final class RiwayatPoinPelangganProvider
   }
 }
 
-String _$riwayatPoinPelangganHash() =>
-    r'4901bac4405aa3499c5d2d67e23c36f840d64b9d';
+String _$riwayatTransaksiPelangganHash() =>
+    r'a53ad7f74305ba62f2f46915e6e58a8724804dc6';
 
-final class RiwayatPoinPelangganFamily extends $Family
+final class RiwayatTransaksiPelangganFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<TransaksiModel>>, String> {
-  RiwayatPoinPelangganFamily._()
+  RiwayatTransaksiPelangganFamily._()
     : super(
         retry: null,
-        name: r'riwayatPoinPelangganProvider',
+        name: r'riwayatTransaksiPelangganProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
         isAutoDispose: false,
       );
 
-  RiwayatPoinPelangganProvider call(String idPelanggan) =>
-      RiwayatPoinPelangganProvider._(argument: idPelanggan, from: this);
+  RiwayatTransaksiPelangganProvider call(String idPelanggan) =>
+      RiwayatTransaksiPelangganProvider._(argument: idPelanggan, from: this);
 
   @override
-  String toString() => r'riwayatPoinPelangganProvider';
+  String toString() => r'riwayatTransaksiPelangganProvider';
 }

@@ -5558,6 +5558,7 @@ import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -5869,7 +5870,9 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
   Widget _bangunRiwayatPoin() {
     Log.info('Building points history.');
-    final riwayatAsync = ref.watch(pointsHistoryProvider(widget.idPelanggan));
+    final riwayatAsync = ref.watch(
+      riwayatPoinPelangganProvider(widget.idPelanggan),
+    );
     return riwayatAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Error: $err')),
@@ -10336,7 +10339,7 @@ final class PaketProvider extends $AsyncNotifierProvider<Paket, PaketState> {
   Paket create() => Paket();
 }
 
-String _$paketHash() => r'd5f0ddf9f3304ef966cc44b27ff6d21738a95225';
+String _$paketHash() => r'9f43517b676d2932f986efc25396b3799db94372';
 
 abstract class _$Paket extends $AsyncNotifier<PaketState> {
   FutureOr<PaketState> build();
@@ -28586,14 +28589,13 @@ import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
 part 'transaksi_provider.freezed.dart';
@@ -28619,8 +28621,6 @@ abstract class TransaksiState with _$TransaksiState {
 
 @riverpod
 class Transaksi extends _$Transaksi {
-  TransaksiOpSqlite get _transaksiOpSqlite =>
-      ref.read(transaksiOpSqliteProvider);
   TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
   PointsPageDataSource get _pointsDataSource =>
       ref.read(pointsDataSourceProvider);
@@ -28669,14 +28669,14 @@ class Transaksi extends _$Transaksi {
 
   // ✅ Method untuk ambil poin per pelanggan
   Future<int> getTotalPoinPelanggan(String idPelanggan) async {
-    return await _transaksiOpSqlite.ambilTotalPoin(idPelanggan);
+    return await _transaksiOp.ambilTotalPoin(idPelanggan);
   }
 
   // ✅ Method untuk ambil poin banyak pelanggan (paralel)
   Future<Map<String, int>> getTotalPoinBanyakPelanggan(List<String> ids) async {
     final Map<String, int> hasil = {};
     for (final id in ids) {
-      hasil[id] = await _transaksiOpSqlite.ambilTotalPoin(id);
+      hasil[id] = await _transaksiOp.ambilTotalPoin(id);
     }
     return hasil;
   }
@@ -28685,14 +28685,14 @@ class Transaksi extends _$Transaksi {
     List<String> ids,
   ) async {
     final List<Future<int>> futures = ids
-        .map((id) => _transaksiOpSqlite.ambilTotalPoin(id))
+        .map((id) => _transaksiOp.ambilTotalPoin(id))
         .toList();
     return await Future.wait(futures);
   }
 
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     state = await AsyncValue.guard(() async {
-      await _transaksiOpSqlite.tambahTransaksi(transaksi);
+      await _transaksiOp.tambahTransaksi(transaksi);
       _invalidateSistemTerkait();
       return _loadData();
     });
@@ -28700,7 +28700,7 @@ class Transaksi extends _$Transaksi {
 
   Future<void> updateTransaksi(TransaksiModel transaksi) async {
     state = await AsyncValue.guard(() async {
-      await _transaksiOpSqlite.perbaruiTransaksi(transaksi.id, transaksi);
+      await _transaksiOp.perbaruiTransaksi(transaksi.id, transaksi);
       _invalidateSistemTerkait();
       return _loadData();
     });
@@ -28708,7 +28708,7 @@ class Transaksi extends _$Transaksi {
 
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
-      await _transaksiOpSqlite.softDelete(id);
+      await _transaksiOp.softDelete(id);
       _invalidateSistemTerkait();
       return _loadData();
     });
@@ -28716,7 +28716,7 @@ class Transaksi extends _$Transaksi {
 
   Future<void> softDeleteAll() async {
     state = await AsyncValue.guard(() async {
-      await _transaksiOpSqlite.softDeleteAll();
+      await _transaksiOp.softDeleteAll();
       _invalidateSistemTerkait();
       return _loadData();
     });
@@ -28743,14 +28743,38 @@ class Transaksi extends _$Transaksi {
     ref.invalidate(dompetProvider);
   }
 }
+// path: lib/fitur/transaksi/provider/transaksi_provider.dart
 
 @Riverpod(keepAlive: true)
-Future<List<TransaksiModel>> transaksiPerPelanggan(
+Future<List<TransaksiModel>> riwayatPoinPelanggan(
   Ref ref,
   String idPelanggan,
-) {
-  final transaksiOp = ref.read(transaksiOpSqliteProvider);
-  return transaksiOp.ambilBerdasarkanIdPelanggan(idPelanggan);
+) async {
+  Log.info(
+    '[RiwayatPoin] Mengambil riwayat poin untuk pelanggan: $idPelanggan',
+  );
+  final transaksiOp = ref.read(transaksiOpGlobalProvider);
+  // ✅ Ambil semua transaksi pelanggan (otomatis menangani role)
+  final semuaTransaksi = await transaksiOp.ambilBerdasarkanIdPelanggan(
+    idPelanggan,
+  );
+
+  Log.info('[RiwayatPoin] Total transaksi: ${semuaTransaksi.length}');
+
+  final riwayatPoin = semuaTransaksi
+      .where((t) => t.poinDidapat > 0 || t.poinDigunakan > 0)
+      .toList();
+
+  Log.info('[RiwayatPoin] Transaksi dengan poin: ${riwayatPoin.length}');
+
+  for (int i = 0; i < riwayatPoin.length; i++) {
+    final t = riwayatPoin[i];
+    Log.info(
+      '[RiwayatPoin] [$i] ${t.id}: ${t.deskripsi}, poinDidapat=${t.poinDidapat}, poinDigunakan=${t.poinDigunakan}',
+    );
+  }
+
+  return riwayatPoin;
 }
 
 
@@ -28790,7 +28814,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'4d1edc54eb0473e7e20c4a109e20f43b5c3e8a56';
+String _$transaksiHash() => r'fccbed48b61631b2e3c9acc88b76a73af683c152';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -28810,10 +28834,10 @@ abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   }
 }
 
-@ProviderFor(transaksiPerPelanggan)
-final transaksiPerPelangganProvider = TransaksiPerPelangganFamily._();
+@ProviderFor(riwayatPoinPelanggan)
+final riwayatPoinPelangganProvider = RiwayatPoinPelangganFamily._();
 
-final class TransaksiPerPelangganProvider
+final class RiwayatPoinPelangganProvider
     extends
         $FunctionalProvider<
           AsyncValue<List<TransaksiModel>>,
@@ -28823,23 +28847,23 @@ final class TransaksiPerPelangganProvider
     with
         $FutureModifier<List<TransaksiModel>>,
         $FutureProvider<List<TransaksiModel>> {
-  TransaksiPerPelangganProvider._({
-    required TransaksiPerPelangganFamily super.from,
+  RiwayatPoinPelangganProvider._({
+    required RiwayatPoinPelangganFamily super.from,
     required String super.argument,
   }) : super(
          retry: null,
-         name: r'transaksiPerPelangganProvider',
+         name: r'riwayatPoinPelangganProvider',
          isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
 
   @override
-  String debugGetCreateSourceHash() => _$transaksiPerPelangganHash();
+  String debugGetCreateSourceHash() => _$riwayatPoinPelangganHash();
 
   @override
   String toString() {
-    return r'transaksiPerPelangganProvider'
+    return r'riwayatPoinPelangganProvider'
         ''
         '($argument)';
   }
@@ -28853,12 +28877,12 @@ final class TransaksiPerPelangganProvider
   @override
   FutureOr<List<TransaksiModel>> create(Ref ref) {
     final argument = this.argument as String;
-    return transaksiPerPelanggan(ref, argument);
+    return riwayatPoinPelanggan(ref, argument);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is TransaksiPerPelangganProvider && other.argument == argument;
+    return other is RiwayatPoinPelangganProvider && other.argument == argument;
   }
 
   @override
@@ -28867,25 +28891,25 @@ final class TransaksiPerPelangganProvider
   }
 }
 
-String _$transaksiPerPelangganHash() =>
-    r'db98e6e613787fca5e8b775dac5933abffbc4679';
+String _$riwayatPoinPelangganHash() =>
+    r'4901bac4405aa3499c5d2d67e23c36f840d64b9d';
 
-final class TransaksiPerPelangganFamily extends $Family
+final class RiwayatPoinPelangganFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<TransaksiModel>>, String> {
-  TransaksiPerPelangganFamily._()
+  RiwayatPoinPelangganFamily._()
     : super(
         retry: null,
-        name: r'transaksiPerPelangganProvider',
+        name: r'riwayatPoinPelangganProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
         isAutoDispose: false,
       );
 
-  TransaksiPerPelangganProvider call(String idPelanggan) =>
-      TransaksiPerPelangganProvider._(argument: idPelanggan, from: this);
+  RiwayatPoinPelangganProvider call(String idPelanggan) =>
+      RiwayatPoinPelangganProvider._(argument: idPelanggan, from: this);
 
   @override
-  String toString() => r'transaksiPerPelangganProvider';
+  String toString() => r'riwayatPoinPelangganProvider';
 }
 
 
@@ -28947,13 +28971,17 @@ class TransaksiOpGlobal {
     }
   }
 
+  // path: lib/fitur/transaksi/operasi/transaksi_op_global.dart
+
   Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
     String idPelanggan,
   ) async {
-    Log.info('Mengambil transaksi berdasarkan ID pelanggan: $idPelanggan');
+    Log.info('[TransaksiOpGlobal] ambilBerdasarkanIdPelanggan: $idPelanggan');
     if (RoleUtil.isAdmin(ref)) {
+      Log.info('[TransaksiOpGlobal] Admin → SQLite');
       return await _transaksiOpSqlite.ambilBerdasarkanIdPelanggan(idPelanggan);
     } else {
+      Log.info('[TransaksiOpGlobal] User → Firebase');
       return await _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(
         idPelanggan,
       );
@@ -29183,6 +29211,7 @@ class TransaksiOpGlobal {
 final transaksiOpGlobalProvider = Provider<TransaksiOpGlobal>((ref) {
   return TransaksiOpGlobal(ref: ref);
 });
+
 
 // File: lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart
 // path: lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart
@@ -32381,7 +32410,7 @@ final class PelangganProvider
   Pelanggan create() => Pelanggan();
 }
 
-String _$pelangganHash() => r'f9284f33e81e921b5ce5259ad91ce46f09b9bd88';
+String _$pelangganHash() => r'c7988f66552b51ac7f3a57c654c1ae815e171adc';
 
 abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   FutureOr<PelangganState> build();
@@ -44861,7 +44890,7 @@ final class PaketOpFirebaseProvider
   }
 }
 
-String _$paketOpFirebaseHash() => r'9b5525426ad36fd4aeadb5cabf7d8ecae7ba79ec';
+String _$paketOpFirebaseHash() => r'ebbef3959a7f0f75425fd42d38cdeee64b7e91c8';
 
 @ProviderFor(transaksiOpFirebase)
 final transaksiOpFirebaseProvider = TransaksiOpFirebaseProvider._();

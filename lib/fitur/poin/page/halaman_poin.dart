@@ -326,19 +326,22 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   Widget _bangunRiwayatPoin() {
     Log.info('Building points history.');
     final riwayatAsync = ref.watch(
-      riwayatPoinPelangganProvider(widget.idPelanggan),
+      riwayatTransaksiPelangganProvider(widget.idPelanggan),
     );
     return riwayatAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Error: $err')),
-      data: (history) {
-        if (history.isEmpty) {
+      data: (semuaTransaksi) {
+        final riwayatPoin = semuaTransaksi
+            .where((t) => t.poinDidapat > 0 || t.poinDigunakan > 0)
+            .toList();
+        if (riwayatPoin.isEmpty) {
           return const Center(child: Text('Belum ada riwayat poin'));
         }
         return ListView.builder(
-          itemCount: history.length,
+          itemCount: riwayatPoin.length,
           itemBuilder: (context, index) {
-            final transaksi = history[index];
+            final transaksi = riwayatPoin[index];
             final apakahPenambahan = transaksi.poinDidapat > 0;
             final nilaiPoin = apakahPenambahan
                 ? transaksi.poinDidapat

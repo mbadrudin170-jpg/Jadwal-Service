@@ -161,33 +161,22 @@ class Transaksi extends _$Transaksi {
 // path: lib/fitur/transaksi/provider/transaksi_provider.dart
 
 @Riverpod(keepAlive: true)
-Future<List<TransaksiModel>> riwayatPoinPelanggan(
+Future<List<TransaksiModel>> riwayatTransaksiPelanggan(
   Ref ref,
   String idPelanggan,
 ) async {
   Log.info(
-    '[RiwayatPoin] Mengambil riwayat poin untuk pelanggan: $idPelanggan',
+    '[RiwayatPoin] 🔍 Mengambil riwayat poin untuk pelanggan: $idPelanggan',
   );
-  final transaksiOp = ref.read(transaksiOpGlobalProvider);
-  // ✅ Ambil semua transaksi pelanggan (otomatis menangani role)
-  final semuaTransaksi = await transaksiOp.ambilBerdasarkanIdPelanggan(
-    idPelanggan,
-  );
-
-  Log.info('[RiwayatPoin] Total transaksi: ${semuaTransaksi.length}');
-
-  final riwayatPoin = semuaTransaksi
-      .where((t) => t.poinDidapat > 0 || t.poinDigunakan > 0)
-      .toList();
-
-  Log.info('[RiwayatPoin] Transaksi dengan poin: ${riwayatPoin.length}');
-
-  for (int i = 0; i < riwayatPoin.length; i++) {
-    final t = riwayatPoin[i];
-    Log.info(
-      '[RiwayatPoin] [$i] ${t.id}: ${t.deskripsi}, poinDidapat=${t.poinDidapat}, poinDigunakan=${t.poinDigunakan}',
+  try {
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
+    final semuaTransaksi = await transaksiOp.ambilBerdasarkanIdPelanggan(
+      idPelanggan,
     );
+    Log.info('[RiwayatPoin] 📊 Total transaksi: ${semuaTransaksi.length}');
+    return semuaTransaksi;
+  } catch (e, s) {
+    Log.error('[RiwayatPoin] ❌ ERROR: $e', e: e, s: s);
+    rethrow;
   }
-
-  return riwayatPoin;
 }
