@@ -33,7 +33,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'fccbed48b61631b2e3c9acc88b76a73af683c152';
+String _$transaksiHash() => r'f04681cd4dacab319cd022ec23f42b115d5b019d';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -59,13 +59,13 @@ final riwayatTransaksiPelangganProvider = RiwayatTransaksiPelangganFamily._();
 final class RiwayatTransaksiPelangganProvider
     extends
         $FunctionalProvider<
-          AsyncValue<List<TransaksiModel>>,
-          List<TransaksiModel>,
-          FutureOr<List<TransaksiModel>>
+          AsyncValue<({int totalPoin, List<TransaksiModel> transaksi})>,
+          ({int totalPoin, List<TransaksiModel> transaksi}),
+          FutureOr<({int totalPoin, List<TransaksiModel> transaksi})>
         >
     with
-        $FutureModifier<List<TransaksiModel>>,
-        $FutureProvider<List<TransaksiModel>> {
+        $FutureModifier<({int totalPoin, List<TransaksiModel> transaksi})>,
+        $FutureProvider<({int totalPoin, List<TransaksiModel> transaksi})> {
   RiwayatTransaksiPelangganProvider._({
     required RiwayatTransaksiPelangganFamily super.from,
     required String super.argument,
@@ -89,12 +89,11 @@ final class RiwayatTransaksiPelangganProvider
 
   @$internal
   @override
-  $FutureProviderElement<List<TransaksiModel>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
+  $FutureProviderElement<({int totalPoin, List<TransaksiModel> transaksi})>
+  $createElement($ProviderPointer pointer) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<List<TransaksiModel>> create(Ref ref) {
+  FutureOr<({int totalPoin, List<TransaksiModel> transaksi})> create(Ref ref) {
     final argument = this.argument as String;
     return riwayatTransaksiPelanggan(ref, argument);
   }
@@ -112,10 +111,14 @@ final class RiwayatTransaksiPelangganProvider
 }
 
 String _$riwayatTransaksiPelangganHash() =>
-    r'a53ad7f74305ba62f2f46915e6e58a8724804dc6';
+    r'354b7749528ce46b936fd12b1123ecaaf6bda1ae';
 
 final class RiwayatTransaksiPelangganFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<List<TransaksiModel>>, String> {
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<({int totalPoin, List<TransaksiModel> transaksi})>,
+          String
+        > {
   RiwayatTransaksiPelangganFamily._()
     : super(
         retry: null,

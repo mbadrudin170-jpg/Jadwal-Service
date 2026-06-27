@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/service/poin_transaction_service.dart';
 import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
@@ -125,7 +126,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           ],
         ),
       );
-
       if (!mounted) return;
       if (!(dikonfirmasi ?? false)) {
         Log.info('Penukaran dibatalkan oleh user');
@@ -148,7 +148,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           poinSaatIni: poinSaatIni,
         );
         if (mounted) {
-          ref.invalidate(pointsPageDataProvider);
           ref.invalidate(pointsHistoryProvider);
           ref.invalidate(orderProvider);
           ToastUtil.success(
@@ -224,15 +223,18 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   @override
   Widget build(BuildContext context) {
     Log.info('Building PointsPage UI, selected menu: $_menuAktif');
-    final dataAsync = ref.watch(pointsPageDataProvider(widget.idPelanggan));
+    final dataAsync = ref.watch(
+      riwayatTransaksiPelangganProvider(widget.idPelanggan),
+    );
+    final daftarHadiah = ref.watch(paketProvider);
     return dataAsync.when(
       loading: () => Scaffold(
         appBar: AppBar(title: _judulAppBar),
         body: const Center(child: CircularProgressIndicator()),
       ),
-      error: (err, stack) => Scaffold(
+      error: (e, s) => Scaffold(
         appBar: AppBar(title: _judulAppBar),
-        body: Center(child: Text('Error: $err')),
+        body: Center(child: Text('Error: $e')),
       ),
       data: (dataHalaman) {
         return UiHalamanPoin(
@@ -249,7 +251,15 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             }
           },
           contentView: _menuAktif == OpsiMenuPoin.penukaran
-              ? _bangunDaftarHadiah(dataHalaman.hadiah, dataHalaman.totalPoin)
+              ? daftarHadiah.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (err, stack) => Center(child: Text('Error: $err')),
+                  data: (state) => _bangunDaftarHadiah(
+                    state.daftarPaketPublik,
+                    dataHalaman.totalPoin,
+                  ),
+                )
               : _bangunRiwayatPoin(),
           bottomWidget: widget.tampilkanIklan ? const BannerAdsWidget() : null,
         );
@@ -331,7 +341,8 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     return riwayatAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Error: $err')),
-      data: (semuaTransaksi) {
+      data: (data) {
+        final semuaTransaksi = data.transaksi;
         final riwayatPoin = semuaTransaksi
             .where((t) => t.poinDidapat > 0 || t.poinDigunakan > 0)
             .toList();

@@ -49,16 +49,6 @@ PointsPageDataSource pointsDataSource(Ref ref) {
 
 typedef PointsPageData = ({int totalPoin, List<PaketModel> hadiah});
 
-@riverpod
-Future<PointsPageData> pointsPageData(Ref ref, String idPelanggan) async {
-  final dataSource = ref.watch(pointsDataSourceProvider);
-  final [totalPoin, hadiah] = await Future.wait([
-    dataSource.ambilTotalPoin(idPelanggan),
-    dataSource.getPublicPackages(),
-  ]);
-  return (totalPoin: totalPoin as int, hadiah: hadiah as List<PaketModel>);
-}
-
 @Riverpod(keepAlive: true)
 Future<List<TransaksiModel>> pointsHistory(Ref ref, String idPelanggan) {
   final dataSource = ref.watch(pointsDataSourceProvider);

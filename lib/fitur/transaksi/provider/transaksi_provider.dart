@@ -154,29 +154,50 @@ class Transaksi extends _$Transaksi {
     }
   }
 
+  Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
+    Ref ref,
+    String idPelanggan,
+  ) async {
+    Log.info(
+      '[RiwayatPoin] 🔍 Mengambil riwayat poin untuk pelanggan: $idPelanggan',
+    );
+    try {
+      final transaksiOp = ref.read(transaksiOpGlobalProvider);
+      final semuaTransaksi = await transaksiOp.ambilBerdasarkanIdPelanggan(
+        idPelanggan,
+      );
+      Log.info('[RiwayatPoin] 📊 Total transaksi: ${semuaTransaksi.length}');
+      return semuaTransaksi;
+    } catch (e, s) {
+      Log.error('[RiwayatPoin] ❌ ERROR: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
   void _invalidateSistemTerkait() {
     ref.invalidate(dompetProvider);
   }
 }
-// path: lib/fitur/transaksi/provider/transaksi_provider.dart
 
 @Riverpod(keepAlive: true)
-Future<List<TransaksiModel>> riwayatTransaksiPelanggan(
-  Ref ref,
-  String idPelanggan,
-) async {
+Future<({List<TransaksiModel> transaksi, int totalPoin})>
+riwayatTransaksiPelanggan(Ref ref, String idPelanggan) async {
   Log.info(
-    '[RiwayatPoin] 🔍 Mengambil riwayat poin untuk pelanggan: $idPelanggan',
+    '[RiwayatTransaksi] 🔍 Mengambil riwayat transaksi untuk pelanggan: $idPelanggan',
   );
   try {
     final transaksiOp = ref.read(transaksiOpGlobalProvider);
-    final semuaTransaksi = await transaksiOp.ambilBerdasarkanIdPelanggan(
-      idPelanggan,
-    );
-    Log.info('[RiwayatPoin] 📊 Total transaksi: ${semuaTransaksi.length}');
-    return semuaTransaksi;
+    final results = await Future.wait([
+      transaksiOp.ambilBerdasarkanIdPelanggan(idPelanggan),
+      transaksiOp.ambilTotalPoin(idPelanggan),
+    ]);
+    final semuaTransaksi = results[0] as List<TransaksiModel>;
+    final totalPoinUser = results[1] as int;
+    Log.info('[RiwayatTransaksi] 📊 Total transaksi: ${semuaTransaksi.length}');
+    Log.info('[RiwayatTransaksi] 🎯 Total poin: $totalPoinUser');
+    return (transaksi: semuaTransaksi, totalPoin: totalPoinUser);
   } catch (e, s) {
-    Log.error('[RiwayatPoin] ❌ ERROR: $e', e: e, s: s);
+    Log.error('[RiwayatTransaksi] ❌ ERROR: $e', e: e, s: s);
     rethrow;
   }
 }
