@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
@@ -11,6 +12,10 @@ class LayananIklanInterstisial {
   final _idIklan = IdInterstitialAds.interstitialAdUnitIdMediasi;
 
   Future<void> preloadAd() async {
+    if (kDebugMode) {
+      Log.info('[InterstitialAd] Debug mode: Melewati preload iklan.');
+      return;
+    }
     if (_isAdLoaded || _isPreloading) {
       Log.info(
         '[InterstitialAd] Pemuatan dibatalkan (iklan sudah siap atau sedang dimuat).',

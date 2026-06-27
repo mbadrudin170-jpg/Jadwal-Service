@@ -25,8 +25,40 @@ class PelangganOpFirebase {
   CollectionReference get _koleksiPelanggan =>
       _firestore.collection(_namaKoleksi);
 
+  Future<bool> cekDuplikasiTeleponDanPassword(
+    String telepon,
+    String kataSandi, {
+    String? excludeId,
+  }) async {
+    try {
+      Query query = _koleksiPelanggan
+          .where(NamaKolom.telepon, isEqualTo: telepon)
+          .where(NamaKolom.kataSandi, isEqualTo: kataSandi)
+          .where(NamaKolom.dihapus, isEqualTo: false);
+
+      // Jika excludeId diberikan, exclude pelanggan dengan ID tersebut
+      if (excludeId != null && excludeId.isNotEmpty) {
+        query = query.where(NamaKolom.id, isNotEqualTo: excludeId);
+      }
+
+      final snapshot = await query.limit(1).get();
+      return snapshot.docs.isNotEmpty;
+    } catch (e, s) {
+      Log.error('Gagal mengecek duplikasi pelanggan di Firebase', e: e, s: s);
+      rethrow;
+    }
+  }
+
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
     Log.info('Mendelegasikan pembuatan pelanggan: ${pelanggan.id}');
+    final isDuplicate = await cekDuplikasiTeleponDanPassword(
+      pelanggan.telepon,
+      pelanggan.kataSandi,
+    );
+
+    if (isDuplicate) {
+      throw Exception('Nomor telepon dan password sudah digunakan.');
+    }
     await _baseOpFirebase.sisipkan(
       _namaKoleksi,
       pelanggan.id,
@@ -36,6 +68,15 @@ class PelangganOpFirebase {
 
   Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
     Log.info('Mendelegasikan pembaruan pelanggan: ${pelanggan.id}');
+    final isDuplicate = await cekDuplikasiTeleponDanPassword(
+      pelanggan.telepon,
+      pelanggan.kataSandi,
+      excludeId: pelanggan.id,
+    );
+
+    if (isDuplicate) {
+      throw Exception('Nomor telepon dan password sudah digunakan.');
+    }
     await _baseOpFirebase.update(
       _namaKoleksi,
       pelanggan.id,

@@ -139,12 +139,8 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       }
     } catch (e, s) {
       Log.error('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
-      String userMessage = 'Gagal menyimpan data: $e';
-      if (e.toString().contains('sudah ada')) {
-        userMessage = 'Nomor telepon dan password sudah digunakan.';
-      }
       if (mounted) {
-        ToastUtil.error(context, userMessage);
+        ToastUtil.error(context, 'Nomor telepon dan password sudah digunakan.');
       }
       return;
     } finally {
