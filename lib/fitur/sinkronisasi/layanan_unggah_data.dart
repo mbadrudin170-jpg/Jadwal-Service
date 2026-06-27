@@ -58,7 +58,7 @@ class LayananUnggahData {
       unggahDataPelangganAktif(),
       uploadCustomerData(),
       uploadOrderData(),
-      uploadTransactionData(),
+      uploadDataTransaksi(),
       uploadSubCategoryData(),
       uploadApkVersionData(),
       uploadSettingsData(),
@@ -311,7 +311,7 @@ class LayananUnggahData {
   }
 
   /// Mengunggah data transaksi ke Firestore.
-  Future<void> uploadTransactionData() async {
+  Future<void> uploadDataTransaksi() async {
     Log.info(
       'Memulai proses unggah data transaksi. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
@@ -325,7 +325,7 @@ class LayananUnggahData {
         NamaTabel.transaksi,
         NamaTabel.transaksi,
         TransaksiModel.fromSqlite,
-        (final m) => m.toFirebase(),
+        (m) => m.toFirebase(),
         waktu,
       );
       Log.info('Proses unggah data transaksi selesai dengan sukses.');

@@ -3,6 +3,7 @@
 import 'package:collection/collection.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
@@ -20,8 +21,7 @@ class TransaksiOpSqlite {
   final PaketOpSqlite paketOpsqlite;
 
   final String _tabel = NamaTabel.transaksi;
-  final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
-  final _nowUtc = DateTime.now().toUtc();
+  DateTime get _nowUtc => DateTime.now().toUtc();
 
   TransaksiOpSqlite({
     required this.sqliteDb,
@@ -71,10 +71,24 @@ class TransaksiOpSqlite {
       );
 
       final saldoTotal = (hasilTotal.first['total'] as num?)?.toDouble() ?? 0.0;
+      final dompetMaps = await txn.query(
+        NamaTabel.dompet,
+        where: '${NamaKolom.id} = ?',
+        whereArgs: [idDompet],
+      );
 
+      if (dompetMaps.isEmpty) {
+        Log.warning('Dompet ID: $idDompet tidak ditemukan');
+        return;
+      }
+      final dompetLama = DompetModel.fromSqlite(dompetMaps.first);
+      final dompetBaru = dompetLama.copyWith(
+        saldo: saldoTotal,
+        diperbaruiPada: _nowUtc, // ← Gunakan DateTime
+      );
       await txn.update(
         NamaTabel.dompet,
-        {NamaKolom.saldo: saldoTotal, NamaKolom.diperbaruiPada: _nowEpoch},
+        dompetBaru.toSqlite(),
         where: '${NamaKolom.id} = ?',
         whereArgs: [idDompet],
       );
@@ -319,17 +333,17 @@ class TransaksiOpSqlite {
         }
 
         final transaksiLama = TransaksiModel.fromSqlite(maps.first);
+        final transaksiDiarsip = transaksiLama.copyWith(
+          diHapus: true,
+          diperbaruiPada: _nowUtc,
+          diarsipkanPada: _nowUtc,
+        );
         await txn.update(
           _tabel,
-          {
-            NamaKolom.dihapus: 1,
-            NamaKolom.diperbaruiPada: _nowEpoch,
-            NamaKolom.diarsipkanPada: _nowEpoch,
-          },
+          transaksiDiarsip.toSqlite(),
           where: '${NamaKolom.id} = ?',
           whereArgs: [id],
         );
-
         Log.info('Flag isDeleted diatur ke 1 untuk ID: $id');
 
         await _hitungUlangDanPerbaruiSaldoDompet(transaksiLama.idDompet, txn);
@@ -355,12 +369,13 @@ class TransaksiOpSqlite {
         final Transaction txn,
       ) async {
         Log.warning('Memulai soft delete semua transaksi secara atomik');
+
         final rowsAffected = await txn.update(
           _tabel,
           {
             NamaKolom.dihapus: 1,
-            NamaKolom.diperbaruiPada: _nowEpoch,
-            NamaKolom.diarsipkanPada: _nowEpoch,
+            NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
+            NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
           },
           where: '${NamaKolom.dihapus} = ?',
           whereArgs: [0],
@@ -369,7 +384,7 @@ class TransaksiOpSqlite {
 
         await txn.update(NamaTabel.dompet, {
           NamaKolom.saldo: 0,
-          NamaKolom.diperbaruiPada: _nowEpoch,
+          NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
         });
         Log.info('Semua saldo dompet direset ke 0 setelah penghapusan massal');
 

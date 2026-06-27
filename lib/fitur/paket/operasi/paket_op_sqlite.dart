@@ -18,7 +18,7 @@ class PaketOpSqlite {
   /// Instance dari [BaseOpSqlite] untuk operasi CRUD dasar.
   final BaseOpSqlite basOpSqlite;
   final String _tabel = NamaTabel.paket;
-  final _nowUtc = DateTime.now().toUtc();
+  DateTime get _nowUtc => DateTime.now().toUtc();
 
   PaketOpSqlite({required this.sqliteDb, required this.basOpSqlite}) {
     Log.info('PackageOperation instance dibuat.');
@@ -216,7 +216,7 @@ class PaketOpSqlite {
         daftarPaket,
         dariServer: dariServer,
       );
-      Log.info('Berhasil insertOrUpdateBatch untuk ${items.length} item');
+      Log.info('Berhasil insertOrUpd,ateBatch untuk ${items.length} item');
     } catch (e, s) {
       Log.error('Gagal insertOrUpdateBatch', e: e, s: s);
       rethrow;

@@ -21,7 +21,7 @@ final baseOpSqliteProvider = Provider<BaseOpSqlite>((ref) {
 class BaseOpSqlite {
   final SqliteDatabase _sqliteDb;
   final StatusUploadOpSqlite _statusUnggahOpsqlite;
-  final _sekarang = DateTime.now().toUtc();
+  DateTime get _sekarang => DateTime.now().toUtc();
 
   /// Konstruktor untuk `BaseOperation`.
   ///

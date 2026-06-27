@@ -84,7 +84,7 @@ class PelangganOpSqlite {
     Log.info('Memulai pembuatan customer dengan ID: ${pelanggan.id}');
     try {
       final pelangganBaru = pelanggan.copyWith(
-        diperbaruiPada: DateTime.now().toUtc(),
+        diperbaruiPada: DateTime.now(),
       );
       final data = pelangganBaru.toSqlite();
       await _baseOpSqlite.sisipkan(_tabel, data, dariServer: dariServer);
