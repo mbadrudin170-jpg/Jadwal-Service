@@ -1,15 +1,16 @@
+// File: lib/shared/utils/format_util.dart
 import 'package:intl/intl.dart';
 
 class FormatWaktuLengkap {
   FormatWaktuLengkap._();
 
   static String formatLengkap(DateTime date) {
-    final format = DateFormat('d MMM yyyy, HH:mm', 'id_ID');
+    final format = DateFormat('d MMM yyyy, HH:mm');
     return format.format(date);
   }
 
   static String formatSingkat(DateTime date) {
-    final format = DateFormat('E, d MMM yy, HH:mm', 'id_ID');
+    final format = DateFormat('E, d MMM yy, HH:mm');
     return format.format(date);
   }
 }
@@ -18,15 +19,15 @@ class FormatTanggal {
   FormatTanggal._();
 
   static String formatDasar(DateTime date) {
-    return DateFormat('d MMM yyyy', 'id_ID').format(date);
+    return DateFormat('d MMM yyyy').format(date);
   }
 
   static String formatSingkat(DateTime date) {
-    return DateFormat('E, d MMM yy', 'id_ID').format(date);
+    return DateFormat('E, d MMM yy').format(date);
   }
 
   static String formatBulanTahun(DateTime date) {
-    return DateFormat('MMMM yyyy', 'id_ID').format(date);
+    return DateFormat('MMMM yyyy').format(date);
   }
 }
 
@@ -55,11 +56,7 @@ class FormatUang {
   FormatUang._();
 
   static String formatMataUang(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
+    final formatter = NumberFormat.currency(symbol: 'Rp ', decimalDigits: 0);
     return formatter.format(amount.abs());
   }
 }
@@ -68,7 +65,7 @@ class FormatNomor {
   FormatNomor._();
 
   static String formatRibuan(int value) {
-    final formatter = NumberFormat('#,###', 'id_ID');
+    final formatter = NumberFormat('#,###');
     return formatter.format(value);
   }
 }
