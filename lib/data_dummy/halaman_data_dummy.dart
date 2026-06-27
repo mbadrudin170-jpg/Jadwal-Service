@@ -2,11 +2,27 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/data_dummy/data_dummy.dart';
+import 'package:wifi/data_dummy/dummy_dompet.dart';
+import 'package:wifi/data_dummy/dummy_kategori.dart';
+import 'package:wifi/data_dummy/dummy_paket.dart';
+import 'package:wifi/data_dummy/dummy_pelanggan.dart';
+import 'package:wifi/data_dummy/dummy_sub_kategori.dart';
+import 'package:wifi/data_dummy/dummy_transaksi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
+import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
+import 'package:wifi/fitur/settings/model/settings_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 class HalamanDataDummy extends ConsumerWidget {
@@ -30,162 +46,144 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData(
-                context,
-                ref,
-                'Pesanan',
-                DataDummy.orders,
-                ref.read(orderOpSqliteProvider).sisipkanAtauPerbaruiBatch,
-              );
-              ref.invalidate(orderOpSqliteProvider);
-            },
-            label: 'Tambah Pesanan Dummy',
-            icon: Icons.add_shopping_cart,
-          ),
-          _tombolFitur(
-            context: context,
-            onPressed: () async {
-              await _tambahData(
+              await _tambahData<PelangganModel>(
                 context,
                 ref,
                 'Pelanggan',
-                DataDummy.customers,
+                DummyPelanggan.daftarPelanggan,
                 ref.read(pelangganOpSqliteProvider).sisipkanAtauPerbaruiBatch,
               );
               ref.invalidate(pelangganOpSqliteProvider);
             },
-            label: 'Tambah Pelanggan Dummy',
-            icon: Icons.person_add,
+            label:
+                'Tambah Pelanggan Dummy (${DummyPelanggan.daftarPelanggan.length})',
+            icon: TIcons.customers,
           ),
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData(
+              await _tambahData<DompetModel>(
+                context,
+                ref,
+                'Dompet',
+                DummyDompet.daftarDompet,
+                ref.read(dompetOpSqliteProvider).sisipkanAtauPerbaruiBatch,
+              );
+              ref.invalidate(dompetOpSqliteProvider);
+            },
+            label: 'Tambah Dompet Dummy (${DummyDompet.daftarDompet.length})',
+            icon: TIcons.wallet,
+          ),
+          _tombolFitur(
+            context: context,
+            onPressed: () async {
+              await _tambahData<KategoriModel>(
+                context,
+                ref,
+                'Kategori',
+                DummyKategori.daftarKategori,
+                ref.read(kategoriOpSqliteProvider).sisipkanAtauPerbaruiBatch,
+              );
+              ref.invalidate(kategoriOpSqliteProvider);
+            },
+            label:
+                'Tambah Kategori Dummy (${DummyKategori.daftarKategori.length})',
+            icon: TIcons.filter,
+          ),
+          _tombolFitur(
+            context: context,
+            onPressed: () async {
+              await _tambahData<SubKategoriModel>(
+                context,
+                ref,
+                'Sub Kategori',
+                DummySubKategori.daftarSubKategori,
+                ref.read(subKategoriOpSqliteProvider).sisipkanAtauPerbaruiBatch,
+              );
+              ref.invalidate(subKategoriOpSqliteProvider);
+            },
+            label:
+                'Tambah Sub Kategori Dummy (${DummySubKategori.daftarSubKategori.length})',
+            icon: TIcons.listAlt,
+          ),
+          _tombolFitur(
+            context: context,
+            onPressed: () async {
+              await _tambahData<PaketModel>(
                 context,
                 ref,
                 'Paket',
-                DataDummy.paket,
+                DummyPaket.daftarPaket,
                 ref.read(paketOpSqliteProvider).sisipkanAtauPerbaruiBatch,
               );
               ref.invalidate(paketOpSqliteProvider);
             },
-            label: 'Tambah Paket Dummy',
-            icon: Icons.inventory_2,
+            label: 'Tambah Paket Dummy (${DummyPaket.daftarPaket.length})',
+            icon: TIcons.packages,
           ),
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData(
-                context,
-                ref,
-                'Kategori',
-                DataDummy.categories,
-                (data, {dariServer = false}) => ref
-                    .read(kategoriOpSqliteProvider)
-                    .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer),
-              );
-              ref.invalidate(kategoriOpSqliteProvider);
-            },
-            label: 'Tambah Kategori Dummy',
-            icon: Icons.category,
-          ),
-          _tombolFitur(
-            context: context,
-            onPressed: () async {
-              await _tambahData(
-                context,
-                ref,
-                'Sub Kategori',
-                DataDummy.subCategories,
-                (data, {dariServer = false}) => ref
-                    .read(subKategoriOpSqliteProvider)
-                    .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer),
-              );
-              ref.invalidate(subKategoriOpSqliteProvider);
-            },
-            label: 'Tambah Sub Kategori Dummy',
-            icon: Icons.list_alt,
-          ),
-          _tombolFitur(
-            context: context,
-            onPressed: () async {
-              await _tambahData(
-                context,
-                ref,
-                'Dompet',
-                DataDummy.wallets,
-                (data, {dariServer = false}) => ref
-                    .read(dompetOpSqliteProvider)
-                    .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer),
-              );
-              ref.invalidate(dompetOpSqliteProvider);
-            },
-            label: 'Tambah Dompet Dummy',
-            icon: Icons.account_balance_wallet,
-          ),
-          _tombolFitur(
-            context: context,
-            onPressed: () async {
-              await _tambahData(
+              await _tambahData<TransaksiModel>(
                 context,
                 ref,
                 'Transaksi',
-                DataDummy.transactions,
-                (data, {dariServer = false}) => ref
-                    .read(transaksiOpGlobalProvider)
-                    .sisipkanAtauPerbaruiBatch(data),
+                DummyTransaksi.daftarTransaksi,
+                ref.read(transaksiOpGlobalProvider).sisipkanAtauPerbaruiBatch,
               );
               ref.invalidate(transaksiOpSqliteProvider);
             },
-            label: 'Tambah Transaksi Dummy',
-            icon: Icons.receipt_long,
+            label:
+                'Tambah Transaksi Dummy (${DummyTransaksi.daftarTransaksi.length})',
+            icon: TIcons.receiptLong,
           ),
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData(
-                context,
-                ref,
-                'Pelanggan Aktif',
-                DataDummy.activeCustomers,
-                (data, {dariServer = false}) => ref
-                    .read(pelangganAktifOpSqliteProvider)
-                    .sisipkanAtauPerbaruiBatch(data, dariServer: dariServer),
-              );
-              ref.invalidate(pelangganAktifProvider);
+              // Hapus atau komentari dulu karena belum ada implementasi konversi yang valid
+              //   await _tambahData<dynamic>(
+              //     context,
+              //     ref,
+              //     'Pelanggan Aktif',
+              //     [], // Kosongkan dulu
+              //     ref
+              //         .read(pelangganAktifOpSqliteProvider)
+              //         .sisipkanAtauPerbaruiBatch,
+              //   );
+              //   ref.invalidate(pelangganAktifProvider);
             },
             label: 'Tambah Pelanggan Aktif Dummy',
-            icon: Icons.wifi,
+            icon: TIcons.pelangganAktif,
           ),
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData(
+              await _tambahData<FeedbackModel>(
                 context,
                 ref,
                 'Feedback',
-                DataDummy.feedbacks,
+                [], // Kosongkan
                 ref.read(feedbackOpSqliteProvider).sisipkanAtauPerbaruiBatch,
               );
               ref.invalidate(feedbackOpSqliteProvider);
             },
             label: 'Tambah Feedback Dummy',
-            icon: Icons.feedback,
+            icon: TIcons.feedback,
           ),
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData(
+              await _tambahData<VersiApkModel>(
                 context,
                 ref,
                 'Versi APK',
-                DataDummy.apkVersions,
+                [], // Kosongkan
                 ref.read(versiApkOpSqliteProvider).sisipkanAtauPerbaruiBatch,
               );
               ref.invalidate(versiApkOpSqliteProvider);
             },
             label: 'Tambah Versi APK Dummy',
-            icon: Icons.system_update,
+            icon: TIcons.systemUpdate,
           ),
           _tombolFitur(
             context: context,
@@ -194,7 +192,7 @@ class HalamanDataDummy extends ConsumerWidget {
               ref.invalidate(settingsOpSqliteProvider);
             },
             label: 'Tambah Pengaturan Dummy',
-            icon: Icons.settings,
+            icon: TIcons.settings,
           ),
         ],
       ),
@@ -225,7 +223,7 @@ class HalamanDataDummy extends ConsumerWidget {
     );
   }
 
-  /// 1. Menambahkan data dummy secara generik.
+  /// Menambahkan data dummy secara generik.
   Future<void> _tambahData<T>(
     BuildContext context,
     WidgetRef ref,
@@ -233,6 +231,16 @@ class HalamanDataDummy extends ConsumerWidget {
     List<T> dataList,
     Future<void> Function(List<T> data, {bool dariServer}) batchFunction,
   ) async {
+    if (dataList.isEmpty) {
+      if (context.mounted) {
+        ToastUtil.info(
+          context,
+          'Tidak ada data $modelName dummy yang tersedia.',
+        );
+      }
+      return;
+    }
+
     try {
       Log.info('Memulai proses penambahan data $modelName dummy');
       await batchFunction(dataList, dariServer: false);
@@ -240,7 +248,7 @@ class HalamanDataDummy extends ConsumerWidget {
       if (context.mounted) {
         ToastUtil.success(
           context,
-          'Berhasil menambahkan/memperbarui ${dataList.length} data $modelName dummy.',
+          'Berhasil menambahkan ${dataList.length} data $modelName dummy.',
         );
       }
     } catch (e, s) {
@@ -254,17 +262,18 @@ class HalamanDataDummy extends ConsumerWidget {
     }
   }
 
-  /// 2. Menambahkan data pengaturan dummy.
+  /// Menambahkan data pengaturan dummy.
   Future<void> _tambahPengaturan(BuildContext context, WidgetRef ref) async {
     try {
       Log.info('Memulai proses penambahan data Pengaturan dummy');
       final settingsOperation = ref.read(settingsOpSqliteProvider);
-      await settingsOperation.saveOrUpdateSettings(DataDummy.settings);
+      // Settings default
+      await settingsOperation.saveOrUpdateSettings(const SettingsModel());
 
       if (context.mounted) {
         ToastUtil.success(
           context,
-          'Berhasil menambahkan/memperbarui data Pengaturan dummy.',
+          'Berhasil menambahkan data Pengaturan dummy.',
         );
       }
     } catch (e, s) {
@@ -278,52 +287,61 @@ class HalamanDataDummy extends ConsumerWidget {
     }
   }
 
-  /// 3. Menambahkan semua data dummy sekaligus.
+  /// Menambahkan semua data dummy sekaligus.
   Future<void> _tambahSemuaData(BuildContext context, WidgetRef ref) async {
     try {
       Log.info('Memulai proses penambahan SEMUA data dummy');
 
-      // List of operations to run
+      // 1. Tambahkan Pelanggan
       await ref
           .read(pelangganOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DataDummy.customers);
-      await ref
-          .read(paketOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DataDummy.paket);
-      await ref
-          .read(kategoriOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DataDummy.categories);
-      await ref
-          .read(subKategoriOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DataDummy.subCategories);
+          .sisipkanAtauPerbaruiBatch(DummyPelanggan.daftarPelanggan);
+      Log.info('✅ Pelanggan: ${DummyPelanggan.daftarPelanggan.length} data');
+
+      // 2. Tambahkan Dompet
       await ref
           .read(dompetOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DataDummy.wallets);
+          .sisipkanAtauPerbaruiBatch(DummyDompet.daftarDompet);
+      Log.info('✅ Dompet: ${DummyDompet.daftarDompet.length} data');
+
+      // 3. Tambahkan Kategori
       await ref
-          .read(transaksiOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DataDummy.transactions);
+          .read(kategoriOpSqliteProvider)
+          .sisipkanAtauPerbaruiBatch(DummyKategori.daftarKategori);
+      Log.info('✅ Kategori: ${DummyKategori.daftarKategori.length} data');
+
+      // 4. Tambahkan Sub Kategori
       await ref
-          .read(pelangganAktifOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DataDummy.activeCustomers);
+          .read(subKategoriOpSqliteProvider)
+          .sisipkanAtauPerbaruiBatch(DummySubKategori.daftarSubKategori);
+      Log.info(
+        '✅ Sub Kategori: ${DummySubKategori.daftarSubKategori.length} data',
+      );
+
+      // 5. Tambahkan Paket
       await ref
-          .read(orderOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DataDummy.orders);
+          .read(paketOpSqliteProvider)
+          .sisipkanAtauPerbaruiBatch(DummyPaket.daftarPaket);
+      Log.info('✅ Paket: ${DummyPaket.daftarPaket.length} data');
+
+      // 6. Tambahkan Transaksi
       await ref
-          .read(feedbackOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DataDummy.feedbacks);
-      await ref
-          .read(versiApkOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DataDummy.apkVersions);
+          .read(transaksiOpGlobalProvider)
+          .sisipkanAtauPerbaruiBatch(DummyTransaksi.daftarTransaksi);
+      Log.info('✅ Transaksi: ${DummyTransaksi.daftarTransaksi.length} data');
+
+      // 7. Tambahkan Pengaturan
       await ref
           .read(settingsOpSqliteProvider)
-          .saveOrUpdateSettings(DataDummy.settings);
+          .saveOrUpdateSettings(const SettingsModel());
+      Log.info('✅ Pengaturan: 1 data');
 
-      // Invalidate all related providers
+      // Invalidate semua provider
       ref.invalidate(pelangganOpSqliteProvider);
-      ref.invalidate(paketOpSqliteProvider);
+      ref.invalidate(dompetOpSqliteProvider);
       ref.invalidate(kategoriOpSqliteProvider);
       ref.invalidate(subKategoriOpSqliteProvider);
-      ref.invalidate(dompetOpSqliteProvider);
+      ref.invalidate(paketOpSqliteProvider);
       ref.invalidate(transaksiOpSqliteProvider);
       ref.invalidate(pelangganAktifProvider);
       ref.invalidate(orderOpSqliteProvider);
@@ -335,9 +353,23 @@ class HalamanDataDummy extends ConsumerWidget {
         await showDialog<void>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('Berhasil'),
-            content: const Text(
-              'Semua data dummy telah berhasil ditambahkan ke database lokal.',
+            title: const Text('✅ Berhasil'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Semua data dummy berhasil ditambahkan:'),
+                gapH8,
+                Text('• ${DummyPelanggan.daftarPelanggan.length} Pelanggan'),
+                Text('• ${DummyDompet.daftarDompet.length} Dompet'),
+                Text('• ${DummyKategori.daftarKategori.length} Kategori'),
+                Text(
+                  '• ${DummySubKategori.daftarSubKategori.length} Sub Kategori',
+                ),
+                Text('• ${DummyPaket.daftarPaket.length} Paket'),
+                Text('• ${DummyTransaksi.daftarTransaksi.length} Transaksi'),
+                const Text('• 1 Pengaturan'),
+              ],
             ),
             actions: [
               TextButton(
