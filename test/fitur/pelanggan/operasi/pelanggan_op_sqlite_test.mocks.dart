@@ -50,7 +50,7 @@ class MockBaseOpSqlite extends _i1.Mock implements _i4.BaseOpSqlite {
   }
 
   @override
-  DateTime get now =>
+  DateTime get _sekarang =>
       (super.noSuchMethod(
             Invocation.getter(#now),
             returnValue: _FakeDateTime_0(this, Invocation.getter(#now)),
@@ -58,7 +58,7 @@ class MockBaseOpSqlite extends _i1.Mock implements _i4.BaseOpSqlite {
           as DateTime);
 
   @override
-  _i2.Future<T> runComplexOperation<T>(
+  _i2.Future<T> operasiKompleks<T>(
     _i2.Future<T> Function(_i3.Transaction)? customAction, {
     bool? dariServer = false,
   }) =>

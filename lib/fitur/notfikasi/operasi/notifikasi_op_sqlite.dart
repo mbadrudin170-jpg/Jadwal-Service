@@ -35,9 +35,7 @@ class NotifikasiOpSqlite {
   }) async {
     Log.info('Menambahkan notifikasi baru - ID: ${notifikasi.id}');
     try {
-      final data = notifikasi
-          .copyWith(diperbaruiPada: _nowUtc)
-          .toSqlite();
+      final data = notifikasi.copyWith(diperbaruiPada: _nowUtc).toSqlite();
       await _baseOpSqlite.sisipkan(_namaTabel, data, dariServer: dariServer);
       Log.info('Notifikasi berhasil ditambahkan - ID: ${notifikasi.id}');
     } catch (e, st) {
@@ -57,9 +55,7 @@ class NotifikasiOpSqlite {
   }) async {
     Log.info('Memperbarui notifikasi - ID: ${notifikasi.id}');
     try {
-      final data = notifikasi
-          .copyWith(diperbaruiPada: _nowUtc)
-          .toSqlite();
+      final data = notifikasi.copyWith(diperbaruiPada: _nowUtc).toSqlite();
       await _baseOpSqlite.update(
         _namaTabel,
         data,
@@ -78,10 +74,7 @@ class NotifikasiOpSqlite {
   }
 
   /// Menandai notifikasi sebagai sudah dibaca.
-  Future<void> tandaiSudahDibaca(
-    String id, {
-    bool dariServer = false,
-  }) async {
+  Future<void> tandaiSudahDibaca(String id, {bool dariServer = false}) async {
     Log.info('Menandai notifikasi sudah dibaca - ID: $id');
     try {
       final data = {
@@ -101,28 +94,19 @@ class NotifikasiOpSqlite {
   }
 
   /// Melakukan soft delete pada notifikasi berdasarkan ID.
-  Future<void> softDelete(
-    String id, {
-    bool dariServer = false,
-  }) async {
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
     Log.info('Memulai soft delete notifikasi - ID: $id');
     try {
       await _baseOpSqlite.softDelete(_namaTabel, id, dariServer: dariServer);
       Log.info('Soft delete notifikasi berhasil - ID: $id');
     } catch (e, st) {
-      Log.error(
-        'Gagal soft delete notifikasi - ID: $id',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal soft delete notifikasi - ID: $id', e: e, s: st);
       rethrow;
     }
   }
 
   /// Melakukan soft delete pada semua notifikasi.
-  Future<int> softDeleteAll({
-    bool dariServer = false,
-  }) async {
+  Future<int> softDeleteAll({bool dariServer = false}) async {
     Log.info('Memulai soft delete semua notifikasi');
     try {
       final count = await _baseOpSqlite.softDeleteAll(
@@ -138,20 +122,13 @@ class NotifikasiOpSqlite {
   }
 
   /// Menghapus notifikasi secara permanen dari database.
-  Future<void> hapusPermanen(
-    String id, {
-    bool dariServer = false,
-  }) async {
+  Future<void> hapusPermanen(String id, {bool dariServer = false}) async {
     Log.warning('Menghapus notifikasi secara permanen - ID: $id');
     try {
       await _baseOpSqlite.delete(_namaTabel, id, dariServer: dariServer);
       Log.info('Notifikasi berhasil dihapus permanen - ID: $id');
     } catch (e, st) {
-      Log.error(
-        'Gagal menghapus permanen notifikasi - ID: $id',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal menghapus permanen notifikasi - ID: $id', e: e, s: st);
       rethrow;
     }
   }
@@ -180,11 +157,7 @@ class NotifikasiOpSqlite {
       );
       Log.info('Batch ${daftarNotifikasi.length} notifikasi berhasil diproses');
     } catch (e, st) {
-      Log.error(
-        'Gagal memproses batch notifikasi',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal memproses batch notifikasi', e: e, s: st);
       rethrow;
     }
   }
@@ -200,9 +173,7 @@ class NotifikasiOpSqlite {
     Log.info('Mengambil semua notifikasi dari tabel $_namaTabel');
     try {
       final db = await sqliteDb.database;
-      final query = tampilkanYangDiarsip
-          ? null
-          : '${NamaKolom.dihapus} = 0';
+      final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = 0';
       final List<Map<String, dynamic>> maps = await db.query(
         _namaTabel,
         where: query,
@@ -266,10 +237,16 @@ class NotifikasiOpSqlite {
         maps.length,
         (i) => NotifikasiModel.fromSqlite(maps[i]),
       );
-      Log.info('Berhasil mengambil ${hasil.length} notifikasi untuk User $userId');
+      Log.info(
+        'Berhasil mengambil ${hasil.length} notifikasi untuk User $userId',
+      );
       return hasil;
     } catch (e, st) {
-      Log.error('Gagal mengambil notifikasi untuk User ID: $userId', e: e, s: st);
+      Log.error(
+        'Gagal mengambil notifikasi untuk User ID: $userId',
+        e: e,
+        s: st,
+      );
       rethrow;
     }
   }
@@ -318,7 +295,9 @@ class NotifikasiOpSqlite {
         maps.length,
         (i) => NotifikasiModel.fromSqlite(maps[i]),
       );
-      Log.info('Berhasil mengambil ${hasil.length} notifikasi untuk ID Tujuan $idTujuan');
+      Log.info(
+        'Berhasil mengambil ${hasil.length} notifikasi untuk ID Tujuan $idTujuan',
+      );
       return hasil;
     } catch (e, st) {
       Log.error(
@@ -337,9 +316,7 @@ class NotifikasiOpSqlite {
   }) async {
     Log.info('Menghapus notifikasi berdasarkan ID Tujuan: $idTujuan');
     try {
-      await _baseOpSqlite.runComplexOperation<void>((
-        Transaction txn,
-      ) async {
+      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         await txn.delete(
           _namaTabel,
           where: '${NamaKolom.idTujuan} = ?',

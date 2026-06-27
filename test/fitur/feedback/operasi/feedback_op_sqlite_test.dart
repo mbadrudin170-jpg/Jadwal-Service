@@ -30,9 +30,7 @@ void main() {
 
     when(mockSqliteDb.database).thenAnswer((_) async => mockDb);
     // Atur default stub untuk runComplexOperation
-    when(
-      mockBaseOpSqlite.runComplexOperation<void>(any),
-    ).thenAnswer((_) async {});
+    when(mockBaseOpSqlite.operasiKompleks<void>(any)).thenAnswer((_) async {});
   });
 
   const namaTabel = NamaTabel.feedback;
@@ -110,7 +108,7 @@ void main() {
       '06. deleteAll harus menjalankan delete dalam runComplexOperation',
       () async {
         final mockTxn = MockTransaction();
-        when(mockBaseOpSqlite.runComplexOperation<int>(any)).thenAnswer((
+        when(mockBaseOpSqlite.operasiKompleks<int>(any)).thenAnswer((
           invocation,
         ) async {
           final action =
@@ -123,7 +121,7 @@ void main() {
 
         await feedbackOpSqlite.deleteAll();
 
-        verify(mockBaseOpSqlite.runComplexOperation<int>(any)).called(1);
+        verify(mockBaseOpSqlite.operasiKompleks<int>(any)).called(1);
       },
     );
   });

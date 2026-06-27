@@ -169,7 +169,7 @@ class PaketOpSqlite {
   Future<void> hapusSemua({bool dariServer = false}) async {
     Log.info('Memulai proses penghapusan semua data paket');
     try {
-      await basOpSqlite.runComplexOperation<void>((Transaction txn) async {
+      await basOpSqlite.operasiKompleks<void>((Transaction txn) async {
         final int count = await txn.delete(_tabel);
         Log.info('Berhasil menghapus semua data paket. Total terhapus: $count');
       }, dariServer: dariServer);

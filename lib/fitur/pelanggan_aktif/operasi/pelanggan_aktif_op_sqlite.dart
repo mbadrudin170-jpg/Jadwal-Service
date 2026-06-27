@@ -118,9 +118,7 @@ class PelangganAktifOpSqlite {
     try {
       final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
 
-      await _baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         final data = customerToSave.toSqlite();
         await txn.insert(
           _namaTabel,
@@ -192,7 +190,7 @@ class PelangganAktifOpSqlite {
     try {
       final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
       Log.info('Memperbarui active customer ID: ${customerToSave.id}');
-      await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         final data = customerToSave.toSqlite();
         await txn.update(
           _namaTabel,
@@ -326,7 +324,7 @@ class PelangganAktifOpSqlite {
         return;
       }
 
-      await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         final archivedCustomer = pelangganAktif.copyWith(
           diperbaruiPada: _nowUtc,
           diHapus: true,
@@ -371,7 +369,7 @@ class PelangganAktifOpSqlite {
         Log.info('Transaksi dengan ID $idTransaksi tidak ditemukan');
       }
     }
-    await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+    await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
       final archivedCustomer = pelangganAktif.copyWith(
         diperbaruiPada: _nowUtc,
         diHapus: true,
@@ -405,7 +403,7 @@ class PelangganAktifOpSqlite {
     final bool dariServer = false,
   }) async {
     try {
-      await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         final deadline = _nowUtc.subtract(const Duration(days: 30));
 
         final List<Map<String, dynamic>> expiredCustomers = await txn.query(
@@ -465,9 +463,7 @@ class PelangganAktifOpSqlite {
           .map((final p) => p[NamaKolom.id] as String)
           .toList();
 
-      await _baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         await txn.update(
           _namaTabel,
           {
@@ -509,9 +505,7 @@ class PelangganAktifOpSqlite {
 
       final dataUntukDiarsip = pelangganAktif.map((p) => p.id).toList();
 
-      await _baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         await txn.update(
           _namaTabel,
           {

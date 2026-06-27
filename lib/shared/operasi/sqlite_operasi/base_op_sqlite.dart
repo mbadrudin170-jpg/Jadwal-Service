@@ -21,7 +21,7 @@ final baseOpSqliteProvider = Provider<BaseOpSqlite>((ref) {
 class BaseOpSqlite {
   final SqliteDatabase _sqliteDb;
   final StatusUploadOpSqlite _statusUnggahOpsqlite;
-  final now = DateTime.now().toUtc();
+  final _sekarang = DateTime.now().toUtc();
 
   /// Konstruktor untuk `BaseOperation`.
   ///
@@ -39,8 +39,8 @@ class BaseOpSqlite {
   ///
   /// Jika [dariServer] bernilai `false`, maka akan menandai status `needUpload`
   /// menjadi `true` untuk sinkronisasi data ke server.
-  Future<T> _runInTransaction<T>(
-    final Future<T> Function(Transaction) action, {
+  Future<T> _transaksi<T>(
+    final Future<T> Function(Transaction) aksi, {
     final bool dariServer = false,
   }) async {
     Log.info(
@@ -71,13 +71,13 @@ class BaseOpSqlite {
               '[TRANSAKSI AKTIF] Melewati penandaan `needUpload` (operasi dari server).',
             );
           }
-          final result = await action(txn);
+          final hasil = await aksi(txn);
           Log.info(
-            '[TRANSAKSI AKTIF] Aksi utama berhasil dieksekusi. Hasil: ${result.runtimeType}',
+            '[TRANSAKSI AKTIF] Aksi utama berhasil dieksekusi. Hasil: ${hasil.runtimeType}',
           );
 
           Log.info('[TRANSAKSI COMMIT] Transaksi akan di-commit.');
-          return result;
+          return hasil;
         } catch (e, st) {
           Log.error(
             '[TRANSAKSI GAGAL DI DALAM] Error di dalam blok transaksi.',
@@ -98,12 +98,12 @@ class BaseOpSqlite {
   }
 
   /// Menjalankan operasi database yang kompleks di dalam sebuah transaksi.
-  Future<T> runComplexOperation<T>(
+  Future<T> operasiKompleks<T>(
     final Future<T> Function(Transaction txn) customAction, {
     final bool dariServer = false,
   }) async {
     Log.info('Mendelegasikan eksekusi transaksi kompleks');
-    return await _runInTransaction(customAction, dariServer: dariServer);
+    return await _transaksi(customAction, dariServer: dariServer);
   }
 
   Future<void> sisipkan(
@@ -113,7 +113,7 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai penyisipan data ke tabel: $table');
     try {
-      await _runInTransaction((txn) async {
+      await _transaksi((txn) async {
         final hasil = await txn.insert(
           table,
           data,
@@ -144,22 +144,22 @@ class BaseOpSqlite {
       'data': data,
     });
     try {
-      await _runInTransaction((txn) async {
-        final rowsAffected = await txn.update(
+      await _transaksi((txn) async {
+        final jumlahDiperbarui = await txn.update(
           table,
           data,
           where: 'id = ?',
           whereArgs: [id],
         );
-        if (rowsAffected == 0) {
+        if (jumlahDiperbarui == 0) {
           Log.warning(
             'Update selesai tapi tidak ada baris yang berubah (ID tidak ditemukan)',
             {'id': id, 'tabel': table},
           );
         } else {
-          Log.info('UPDATE berhasil', {'rowsAffected': rowsAffected, 'id': id});
+          Log.info('UPDATE berhasil', {'jumlah': jumlahDiperbarui, 'id': id});
         }
-        return rowsAffected;
+        return jumlahDiperbarui;
       }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
@@ -179,7 +179,7 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai penghapusan data', {'tabel': table, 'id': id});
     try {
-      await _runInTransaction((txn) async {
+      await _transaksi((txn) async {
         final rowsDeleted = await txn.delete(
           table,
           where: 'id = ?',
@@ -214,30 +214,27 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai soft delete', {'tabel': table, 'id': id});
     try {
-      await _runInTransaction((final txn) async {
-        final rowsAffected = await txn.update(
+      await _transaksi((final txn) async {
+        final jumlah = await txn.update(
           table,
           {
             NamaKolom.dihapus: 1,
-            NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
-            NamaKolom.diperbaruiPada: now.millisecondsSinceEpoch,
+            NamaKolom.diarsipkanPada: _sekarang.millisecondsSinceEpoch,
+            NamaKolom.diperbaruiPada: _sekarang.millisecondsSinceEpoch,
           },
           where: '${NamaKolom.id} = ?',
           whereArgs: [id],
         );
 
-        if (rowsAffected == 0) {
+        if (jumlah == 0) {
           Log.warning(
             'Soft delete selesai tapi tidak ada baris yang berubah (ID tidak ditemukan)',
             {'id': id, 'tabel': table},
           );
         } else {
-          Log.info('Soft delete berhasil', {
-            'rowsAffected': rowsAffected,
-            'id': id,
-          });
+          Log.info('Soft delete berhasil', {'jumlah': jumlah, 'id': id});
         }
-        return rowsAffected;
+        return jumlah;
       }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
@@ -257,18 +254,18 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai soft delete semua data di tabel: $table');
     try {
-      final count = await _runInTransaction<int>((final txn) async {
-        final rowsAffected = await txn.update(table, {
+      final count = await _transaksi<int>((final txn) async {
+        final jumlah = await txn.update(table, {
           NamaKolom.dihapus: 1,
-          NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
-          NamaKolom.diperbaruiPada: now.millisecondsSinceEpoch,
+          NamaKolom.diarsipkanPada: _sekarang.millisecondsSinceEpoch,
+          NamaKolom.diperbaruiPada: _sekarang.millisecondsSinceEpoch,
         }, where: '${NamaKolom.dihapus} = 0');
 
         Log.info('Soft delete semua data berhasil', {
-          'rowsAffected': rowsAffected,
+          'jumlah': jumlah,
           'tabel': table,
         });
-        return rowsAffected;
+        return jumlah;
       }, dariServer: dariServer);
       return count;
     } catch (e, s) {
@@ -299,9 +296,9 @@ class BaseOpSqlite {
       'fromServer': dariServer,
     });
     try {
-      await _runInTransaction((final txn) async {
+      await _transaksi((final txn) async {
         final batch = txn.batch();
-        int validCount = 0;
+        int valid = 0;
 
         for (int i = 0; i < dataList.length; i++) {
           final data = dataList[i];
@@ -311,10 +308,10 @@ class BaseOpSqlite {
               data,
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
-            validCount++;
+            valid++;
           }
         }
-        Log.info('Melakukan commit batch...', {'validCount': validCount});
+        Log.info('Melakukan commit batch...', {'validCount': valid});
         await batch.commit(noResult: true);
         Log.info('Batch operation sukses');
       }, dariServer: dariServer);

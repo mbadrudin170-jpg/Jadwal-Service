@@ -94,7 +94,7 @@ class TransaksiOpSqlite {
     final bool fromServer = false,
   }) async {
     try {
-      final id = await baseOpSqlite.runComplexOperation<int>((
+      final id = await baseOpSqlite.operasiKompleks<int>((
         final Transaction txn,
       ) async {
         Log.info('Memulai transaksi database untuk addTransaction');
@@ -253,9 +253,7 @@ class TransaksiOpSqlite {
     final bool dariServer = false,
   }) async {
     try {
-      await baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         Log.info('Memulai update transaksi database ID: $id');
         final maps = await txn.query(
           _tabel,
@@ -307,9 +305,7 @@ class TransaksiOpSqlite {
     final bool dariServer = false,
   }) async {
     try {
-      await baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         Log.info('Memulai soft delete atomik untuk ID: $id');
         final maps = await txn.query(
           _tabel,
@@ -355,7 +351,7 @@ class TransaksiOpSqlite {
   /// Menandai semua transaksi sebagai dihapus dan mereset saldo semua dompet menjadi 0.
   Future<int> softDeleteAll({bool dariServer = false}) async {
     try {
-      final count = await baseOpSqlite.runComplexOperation<int>((
+      final count = await baseOpSqlite.operasiKompleks<int>((
         final Transaction txn,
       ) async {
         Log.warning('Memulai soft delete semua transaksi secara atomik');
@@ -698,9 +694,7 @@ class TransaksiOpSqlite {
     final Set<String> dompetTerpengaruh = {};
 
     try {
-      await baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         Log.info(
           'Memulai proses Batch insert/update untuk ${transaksi.length} item',
         );
