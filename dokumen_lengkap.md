@@ -115,6 +115,81 @@ flutter:
           weight: 800
 
 
+// File: analysis_options.yaml
+
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    # GAYA KODE
+    use_super_parameters: true
+
+    # FLUTTER SPECIFIC
+    use_build_context_synchronously: true
+
+    # PENCEGAHAN BUG
+    unawaited_futures: true
+    hash_and_equals: true
+    avoid_dynamic_calls: true
+    only_throw_errors: true
+    throw_in_finally: true
+    cancel_subscriptions: true
+    close_sinks: true
+    avoid_void_async: true
+
+    # KEBERSIHAN & PERFORMA
+    always_use_package_imports: true
+    directives_ordering: true
+    prefer_final_fields: true
+    prefer_final_locals: true
+
+    avoid_redundant_argument_values: true
+    unnecessary_lambdas: true
+    unnecessary_overrides: true
+
+    sort_child_properties_last: true
+    use_key_in_widget_constructors: true
+    prefer_if_null_operators: true
+    prefer_is_empty: true
+    prefer_is_not_empty: true
+
+    prefer_const_literals_to_create_immutables: true
+    prefer_const_declarations: true
+
+    depend_on_referenced_packages: true
+    secure_pubspec_urls: true
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+  
+  errors:
+    # Kritis (Blocking build)
+    use_build_context_synchronously: error
+    unawaited_futures: error
+    hash_and_equals: error
+    avoid_dynamic_calls: error
+    only_throw_errors: error
+    throw_in_finally: error
+    cancel_subscriptions: error
+    close_sinks: error
+    avoid_void_async: error
+
+    prefer_const_constructors: error
+    prefer_const_constructors_in_immutables: error
+    use_super_parameters: error
+    always_use_package_imports: error
+    prefer_final_locals: error
+    prefer_final_fields: error
+    # directives_ordering: error
+
+
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
 // File: lib/tes_fitur/tes_iklan.dart
 // path: lib/tes_fitur/tes_iklan.dart
 
@@ -2300,7 +2375,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
 
 // File: lib/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart
-// path: lib/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart
+// path lib/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart
 
 import 'dart:async';
 
@@ -4821,7 +4896,7 @@ abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
 
 
 // File: lib/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart
-// path: lib/shared/model/active_customer_detail_model.dart
+// path lib/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart
 
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 
@@ -6872,7 +6947,7 @@ class SettingsAdminPage extends ConsumerWidget {
 
 
 // File: lib/fitur/settings/page/settings_page_u.dart
-// path: lib/user/page/settings_page_user.dart
+// path lib/fitur/settings/page/settings_page_u.dart
 
 import 'dart:async';
 
@@ -9189,7 +9264,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
 
 
 // File: lib/fitur/paket/page/paket.dart
-// path: lib/admin/halaman/lainnya/paket.dart
+// path lib/fitur/paket/page/paket.dart
 
 import 'dart:async';
 
@@ -9526,7 +9601,7 @@ Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
 
 
 // File: lib/fitur/paket/page/detail_paket.dart
-// path: lib/admin/halaman/detail/detail_paket.dart
+// path lib/fitur/paket/page/detail_paket.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25157,7 +25232,7 @@ String _$notifikasiOpSqliteHash() =>
 
 
 // File: lib/fitur/transaksi/page/transaksi_u.dart
-// path: lib/user/page/subscription_history_user.dart
+// path lib/fitur/transaksi/page/transaksi_u.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26854,7 +26929,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
 
 
 // File: lib/fitur/transaksi/page/transaksi_a.dart
-// path: lib/fitur/transaksi/page/transaksi_a.dart
+// path lib/fitur/transaksi/page/transaksi_a.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31214,7 +31289,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
 
 
 // File: lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
-// path: lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
+// path lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
 
 import 'dart:async';
 
@@ -50666,7 +50741,7 @@ final class AmbilDetailLanggananFamily extends $Family
 
 
 // File: lib/admin/providers/riwayat_aktivasi_paket_provider.dart
-// path: lib/admin/providers/riwayat_aktivasi_paket_provider.dart
+// path lib/admin/providers/riwayat_aktivasi_paket_provider.dart
 
 import 'dart:async';
 
