@@ -78,14 +78,12 @@ class DummyKategori {
       id: idKategoriTransfer,
       nama: 'Transfer',
       tipe: TipeKategori.transfer,
-      idSubKategori: const [],
     ),
     // Kategori Lainnya
     KategoriModel(
       id: idKategoriLainnya,
       nama: 'Lainnya',
       tipe: TipeKategori.expense,
-      idSubKategori: const [],
     ),
   ];
 

@@ -1,5 +1,4 @@
-import 'dart:ui';
-
+// path: lib/shared/widget/nama_pelanggan_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';

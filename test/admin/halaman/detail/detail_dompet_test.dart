@@ -39,7 +39,7 @@ void main() {
       idKategori: 'k1',
       idPelanggan: 'pelanggan1',
       idPaket: 'paket1',
-      tanggalMulai: DateTime(2023, 1, 1),
+      tanggalMulai: DateTime(2023, 1, 3),
       tanggalBerakhir: DateTime(2023, 1, 31),
     ),
     TransaksiModel(
@@ -186,8 +186,9 @@ void main() {
         await tester.pumpWidget(createWidget());
         await tester.pumpAndSettle();
 
-        when(mockNavigatorObserver.didPush(any, any))
-            .thenAnswer((_) => Future.value(true));
+        when(
+          mockNavigatorObserver.didPush(any, any),
+        ).thenAnswer((_) => Future.value(true));
 
         await tester.tap(find.text('Gaji'));
         await tester.pumpAndSettle();
@@ -200,9 +201,7 @@ void main() {
     testWidgets(
       '03. harus hapus transaksi dan refresh data saat on_delete ditekan',
       (tester) async {
-        when(
-          mockTransaksiOpSqlite.softDelete('t1'),
-        ).thenAnswer((_) async => 1);
+        when(mockTransaksiOpSqlite.softDelete('t1')).thenAnswer((_) async => 1);
 
         await tester.pumpWidget(createWidget());
         await tester.pumpAndSettle();
@@ -241,8 +240,9 @@ void main() {
       await tester.tap(editIcon);
       await tester.pump();
 
-      final pushedRoute = verify(mockNavigatorObserver.didPush(captureAny, any))
-          .captured.last as Route<dynamic>;
+      final pushedRoute =
+          verify(mockNavigatorObserver.didPush(captureAny, any)).captured.last
+              as Route<dynamic>;
       expect(pushedRoute, isA<MaterialPageRoute>());
     });
   });

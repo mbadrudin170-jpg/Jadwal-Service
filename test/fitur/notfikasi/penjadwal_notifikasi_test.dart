@@ -4,9 +4,6 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
-import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 
 import 'penjadwal_notifikasi_test.mocks.dart';
 
@@ -27,26 +24,11 @@ void main() {
       ),
     ).thenAnswer((_) async => Future.value());
 
-    when(mockLayananNotifikasi.batalNotifikasi(any))
-        .thenAnswer((_) async => Future.value());
+    when(
+      mockLayananNotifikasi.batalNotifikasi(any),
+    ).thenAnswer((_) async => Future.value());
   });
 
-  final transaksi = TransaksiModel(
-    id: 'trx1',
-    idPelanggan: 'cust1',
-    idPaket: 'pkg1',
-    tanggal: DateTime.now(),
-    deskripsi: 'Deskripsi Transaksi',
-    jumlah: 50000,
-    tipe: TipeTransaksi.income,
-    idDompet: 'dompet1',
-    idKategori: 'kategori1',
-    statusPembayaran: StatusPembayaran.paid,
-    tanggalMulai: DateTime.now(),
-    tanggalBerakhir: DateTime.now().add(const Duration(days: 30)),
-  );
-
-  final namaPelanggan = 'John Doe';
 
   group('PenjadwalNotifikasi', () {
     test(

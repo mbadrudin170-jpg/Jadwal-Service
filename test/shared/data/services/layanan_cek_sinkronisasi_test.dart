@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_unduh_data.dart';
@@ -11,21 +12,16 @@ import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 
-// Mocks manual
-class MockPengelolaSinkronisasi extends Mock implements PengelolaSinkronisasi {}
+import 'layanan_cek_sinkronisasi_test.mocks.dart';
 
-class MockLayananUnggahData extends Mock implements LayananUnggahData {}
-
-class MockLayananUnduhData extends Mock implements LayananUnduhData {}
-
-class MockLayananPengecekanDataBaru extends Mock
-    implements LayananPengecekanDataBaru {}
-
-class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
-
-class MockKoneksiInternetService extends Mock
-    implements KoneksiInternetService {}
-
+@GenerateMocks([
+  PengelolaSinkronisasi,
+  LayananUnggahData,
+  LayananUnduhData,
+  LayananPengecekanDataBaru,
+  FirebaseFirestore,
+  KoneksiInternetService,
+])
 void main() {
   late MockPengelolaSinkronisasi mockPengelolaSinkronisasi;
   late MockLayananUnggahData mockLayananUnggah;

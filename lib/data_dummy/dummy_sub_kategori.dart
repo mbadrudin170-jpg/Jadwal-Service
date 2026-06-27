@@ -1,7 +1,7 @@
 // path: lib/data_dummy/dummy_sub_kategori.dart
 
-import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 import 'package:wifi/data_dummy/dummy_kategori.dart';
+import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 
 /// Data dummy untuk sub-kategori
 class DummySubKategori {

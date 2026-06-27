@@ -5,7 +5,6 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
-import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 
@@ -150,7 +149,6 @@ void main() {
     });
 
     test('06. sisipkanBatch harus mengeksekusi batch insert', () async {
-      // PERBAIKAN: Method sisipkanBatch tidak ada, gunakan sisipkanAtauPerbaruiBatch
       await baseOpSqlite.sisipkanAtauPerbaruiBatch(tableName, listMap);
       verify(mockBatch.insert(tableName, any, conflictAlgorithm: ConflictAlgorithm.replace))
           .called(listMap.length);
@@ -165,7 +163,6 @@ void main() {
     });
 
     test('08. updateBatch harus mengeksekusi batch update', () async {
-      // PERBAIKAN: Method updateBatch tidak ada, gunakan sisipkanAtauPerbaruiBatch
       await baseOpSqlite.sisipkanAtauPerbaruiBatch(tableName, listMap);
       verify(mockBatch.insert(tableName, any, conflictAlgorithm: ConflictAlgorithm.replace))
           .called(listMap.length);

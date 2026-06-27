@@ -156,7 +156,7 @@ void main() {
 
         final result = await feedbackOpSqlite.ambilBerdasarkanId('fb1');
 
-        expect(result?.id, 'fb1');
+        expect(result.id, 'fb1');
         verify(
           mockDb.query(namaTabel, where: 'id = ?', whereArgs: ['fb1']),
         ).called(1);
