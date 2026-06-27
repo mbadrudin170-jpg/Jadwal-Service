@@ -68,7 +68,6 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
         dompetOpSqlite.ambilBerdasarkanId(widget.dompet.id),
         transaksiOp.ambilBerdasarkanIdDompet(widget.dompet.id),
       ]);
-
       final dompet = hasil[0] as DompetModel?;
       final daftarTransaksi = hasil[1] as List<TransaksiModel>;
 

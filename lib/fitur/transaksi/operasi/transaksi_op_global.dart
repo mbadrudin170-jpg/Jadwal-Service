@@ -56,7 +56,7 @@ class TransaksiOpGlobal {
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.ambilBerdasarkanIdDompet(idDompet);
     } else {
-      return await _transaksiOpFirebase.ambilBerdasarkanId(idDompet);
+      return await _transaksiOpFirebase.ambilBerdasarkanIdDompet(idDompet);
     }
   }
 

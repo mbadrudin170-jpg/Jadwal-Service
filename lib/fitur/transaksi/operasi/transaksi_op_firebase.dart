@@ -139,7 +139,44 @@ class TransaksiOpFirebase extends BaseOpFirebase {
     }
   }
 
-  /// Menghitung total poin yang dimiliki oleh pelanggan.
+  /// Mengambil semua transaksi yang terkait dengan sebuah dompet (baik sebagai sumber maupun tujuan).
+  Future<List<TransaksiModel>> ambilBerdasarkanIdDompet(String idDompet) async {
+    try {
+      Log.info('Mengambil transaksi terkait Wallet ID: $idDompet');
+      final querySnapshot = await _koleksi
+          .where(NamaKolom.idDompet, isEqualTo: idDompet)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.tanggal, descending: true)
+          .get();
+      final querySnapshotTujuan = await _koleksi
+          .where(NamaKolom.idDompetTujuan, isEqualTo: idDompet)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.tanggal, descending: true)
+          .get();
+      final List<TransaksiModel> hasil = [];
+      for (final doc in querySnapshot.docs) {
+        final data = doc.data() as Map<String, dynamic>;
+        hasil.add(TransaksiModel.fromFirebase(doc.id, data));
+      }
+      for (final doc in querySnapshotTujuan.docs) {
+        final data = doc.data() as Map<String, dynamic>;
+        hasil.add(TransaksiModel.fromFirebase(doc.id, data));
+      }
+      hasil.sort((a, b) => b.tanggal.compareTo(a.tanggal));
+      Log.info(
+        'Berhasil mengambil ${hasil.length} transaksi untuk Wallet ID: $idDompet',
+      );
+      return hasil;
+    } on Exception catch (e, s) {
+      Log.error(
+        'Error mengambil transaksi berdasarkan ID dompet: $idDompet',
+        e: e,
+        s: s,
+      );
+      return [];
+    }
+  }
+
   Future<int> ambilTotalPoin(String idPelanggan) async {
     try {
       Log.info('Menghitung total poin untuk: $idPelanggan');
