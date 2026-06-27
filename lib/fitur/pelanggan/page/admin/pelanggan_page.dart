@@ -117,6 +117,7 @@ class _PelangganState extends ConsumerState<PelangganPage> {
     final pelangganAsync = ref.watch(filteredCustomersProvider);
     final sedangMencari = ref.watch(searchQueryPelangganProvider).isNotEmpty;
     return pelangganAsync.when(
+      skipLoadingOnReload: true,
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, s) {
         Log.error('Gagal memuat daftar customer', e: e, s: s);
