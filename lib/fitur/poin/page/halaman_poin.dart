@@ -347,7 +347,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
                 ? transaksi.poinDidapat
                 : transaksi.poinDigunakan;
             final teksPoin = apakahPenambahan ? '+$nilaiPoin' : '-$nilaiPoin';
-
             final bool apakahBelumBayar =
                 transaksi.statusPembayaran == StatusPembayaran.unpaid;
             final Color warnaPoin = apakahBelumBayar
