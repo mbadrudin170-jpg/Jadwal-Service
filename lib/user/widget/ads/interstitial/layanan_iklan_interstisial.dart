@@ -51,6 +51,10 @@ class LayananIklanInterstisial {
   }
 
   Future<void> show() async {
+    if (kDebugMode) {
+      Log.info('[InterstitialAd] Debug mode: Melewati menampilkan iklan.');
+      return;
+    }
     if (_interstitialAd != null && _isAdLoaded) {
       Log.info('[InterstitialAd] Iklan sudah siap, mencoba menampilkan...');
 
