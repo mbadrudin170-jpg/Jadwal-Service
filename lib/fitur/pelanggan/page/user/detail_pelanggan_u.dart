@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/pelanggan/page/user/edit_profile_page.dart';
 import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
 import 'package:wifi/fitur/poin/page/halaman_poin.dart';
@@ -43,11 +44,9 @@ class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
   Future<_DataDetailPelanggan> _loadData() async {
     try {
       Log.info('Mengambil data pelanggan dari Firestore...');
-      final pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
+      final pelangganOp = ref.read(pelangganOpGlobalProvider);
       final transaksiOpFirebase = ref.read(transaksiOpFirebaseProvider);
-      final pelanggan = await pelangganOpFirebase.ambilBerdasarkanId(
-        widget.userId,
-      );
+      final pelanggan = await pelangganOp.ambilBerdasarkanId(widget.userId);
       if (pelanggan == null) {
         throw Exception(
           'Pelanggan dengan ID ${widget.userId} tidak ditemukan.',

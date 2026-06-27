@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/shared/common/teks.dart';
@@ -80,8 +81,8 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
         return;
       }
 
-      final pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
-      final pelanggan = await pelangganOpFirebase.ambilBerdasarkanId(userId);
+      final pelangganOp = ref.read(pelangganOpGlobalProvider);
+      final pelanggan = await pelangganOp.ambilBerdasarkanId(userId);
       if (pelanggan == null) {
         setState(() {
           _semuaTransaksi = [];
@@ -209,7 +210,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
   @override
   Widget build(BuildContext context) {
     final paketOpFirebase = ref.read(paketOpFirebaseProvider);
-    final pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
+    final pelangganOp = ref.read(pelangganOpGlobalProvider);
     final userId = ref.watch(userIdProvider);
 
     return Scaffold(
@@ -248,7 +249,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
       body: StreamBuilder<PelangganModel?>(
         stream: userId.when(
           data: (id) => id != null
-              ? pelangganOpFirebase.ambilStreamBerdasarkanId(id)
+              ? pelangganOp.ambilBerdasarkanId(id)
               : const Stream.empty(),
           loading: () => const Stream.empty(),
           error: (_, _) => const Stream.empty(),

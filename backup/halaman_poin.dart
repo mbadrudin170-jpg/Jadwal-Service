@@ -60,7 +60,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     Log.info(
       'Initializing PointsPage for customer: ${widget.idPelanggan} with role: ${ref.read(appRoleProvider)}',
     );
-
     _judulAppBar = Row(
       children: [
         const Text('Poin: '),

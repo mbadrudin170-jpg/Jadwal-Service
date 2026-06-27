@@ -6,7 +6,6 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_password.dart';
@@ -83,7 +82,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         final pelangganOp = ref.read(pelangganOpGlobalProvider);
         await pelangganOp.updatePelanggan(dataPelanggan);
         Log.info('perbaruiPelanggan selesai untuk id=${dataPelanggan.id}.');
-        ref.invalidate(pelangganOpFirebaseProvider);
         Log.info(
           'Provider pelangganOpFirebase di-invalidate agar data terbaru diambil.',
         );
