@@ -8,6 +8,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
 import 'package:wifi/fitur/feedback/page/feedback_detail_a.dart';
+import 'package:wifi/fitur/feedback/page/form_feedback_u.dart';
 import 'package:wifi/fitur/feedback/provider/feedback_provider.dart'; // Import provider baru Anda
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -203,6 +204,14 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
             );
           },
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.push<void>(
+          context,
+          MaterialPageRoute(builder: (context) => const FormFeedBackU()),
+        ),
+        label: const Text('Beri Masukan'),
+        icon: const Icon(TIcons.add),
       ),
     );
   }

@@ -7,7 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
+import 'package:wifi/fitur/feedback/provider/feedback_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -25,14 +28,11 @@ class FeedbackDetailA extends ConsumerStatefulWidget {
 }
 
 class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
-  late final FeedbackOpSqlite _feedbackOpSqlite;
-
-  late Future<FeedbackModel> _feedbackFuture;
+  FeedbackOpGlobal get _feedbackOpGlobal => ref.read(feedbackOpGlobalProvider);
 
   @override
   void initState() {
     super.initState();
-    _feedbackOpSqlite = ref.watch(feedbackOpSqliteProvider);
     Log.info(
       'Membuka halaman detail kritik dan saran dengan ID: ${widget.id}.',
     );
@@ -42,7 +42,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
   void _loadData() {
     Log.info('Memulai proses pengambilan data kritik dan saran dari database.');
 
-    _feedbackFuture = _feedbackOpSqlite
+    _feedbackOpGlobal
         .ambilBerdasarkanId(widget.id)
         .then((value) {
           Log.info('Data kritik dan saran berhasil dimuat dari database.');
@@ -117,7 +117,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
           ),
         );
         Log.info('Memanggil operasi hapus kritik dan saran ke database.');
-        await _feedbackOpSqlite.softDelete(widget.id);
+        await _feedbackOpGlobal.softDelete(widget.id);
         Log.info('Data kritik dan saran berhasil dihapus dari database.');
         if (mounted) {
           Log.info('Menutup loading dialog.');
@@ -156,6 +156,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
   @override
   Widget build(BuildContext context) {
     Log.info('Membangun UI halaman detail kritik dan saran.');
+    final detailFeedback = ref.watch(detailFeedbackProvider(widget.id)).value;
 
     return Scaffold(
       appBar: AppBar(
@@ -174,104 +175,62 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
             ),
         ],
       ),
-      body: FutureBuilder<FeedbackModel>(
-        future: _feedbackFuture,
-        builder: (context, snapshot) {
-          Log.info(
-            'FutureBuilder dijalankan dengan connection state: ${snapshot.connectionState}.',
-          );
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            Log.info('Data masih dalam proses loading.');
-
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            Log.error(
-              'FutureBuilder menerima error saat memuat data.',
-              e: snapshot.error,
-              s: snapshot.stackTrace,
-            );
-
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            Log.info('FutureBuilder berhasil menerima data kritik dan saran.');
-
-            final kritikSaran = snapshot.data!;
-
-            Log.info(
-              'Menampilkan detail kritik dan saran dengan ID: ${kritikSaran.id}.',
-            );
-
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.person_pin,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: TSizes.p12,
+                    ),
+                    gapH12,
+                    Expanded(
+                      child: NamaPelangganWidget(
+                        idPelanggan: detailFeedback?.userId ?? '',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.person_pin,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: TSizes.p12,
-                          ),
-                          gapH12,
-                          Expanded(
-                            child: NamaPelangganWidget(
-                              idPelanggan: kritikSaran.userId,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      gapH12,
-                      const Text(
-                        'Pesan:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      gapH8,
-                      Text(
-                        kritikSaran.pesan,
-                        style: const TextStyle(fontSize: 16, height: 1.5),
-                      ),
-                      const Divider(height: 40),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          kritikSaran.tanggal != null
-                              ? FormatWaktuLengkap.formatSingkat(
-                                  kritikSaran.tanggal!,
-                                )
-                              : 'Tanggal tidak tersedia',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ),
-                    ],
+                gapH12,
+                const Text(
+                  'Pesan:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey,
                   ),
                 ),
-              ),
-            );
-          } else {
-            Log.warning('FutureBuilder tidak menerima data kritik dan saran.');
-
-            return const Center(child: Text('Data tidak ditemukan'));
-          }
-        },
+                gapH8,
+                Text(
+                  detailFeedback?.pesan ?? '',
+                  style: const TextStyle(fontSize: 16, height: 1.5),
+                ),
+                const Divider(height: 40),
+                Align(
+                  alignment: Alignment.centerRight,
+                  Text(
+                    FormatWaktuLengkap.formatSingkat(detailFeedback.tanggal!),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
