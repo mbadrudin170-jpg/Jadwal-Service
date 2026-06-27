@@ -1,61 +1,60 @@
 {
 	"ElevatedButton Nav Ad": {
-	  "scope": "dart",
-	  "prefix": "/btn-nav-ad",
-	  "body": [
-		"ElevatedButton(",
-		"  onPressed: () {",
-		"    InterstitialAdService().showAdIfReady(onAdDismissed: () {",
-		"      if (!mounted) return;",
-		"      Navigator.push(",
-		"        context,",
-		"        MaterialPageRoute(builder: (context) => ${1:DestinationPage()}),",
-		"      );",
-		"    });",
-		"  },",
-		"  child: const Text('${2:Teks Tombol}'),",
-		")"
-	  ],
-	  "description": "ElevatedButton dengan Interstitial Ad dan Navigation"
+		"scope": "dart",
+		"prefix": "/btn-nav-ad",
+		"body": [
+			"ElevatedButton(",
+			"  onPressed: () {",
+			"    InterstitialAdService().showAdIfReady(onAdDismissed: () {",
+			"      if (!mounted) return;",
+			"      Navigator.push(",
+			"        context,",
+			"        MaterialPageRoute(builder: (context) => ${1:DestinationPage()}),",
+			"      );",
+			"    });",
+			"  },",
+			"  child: const Text('${2:Teks Tombol}'),",
+			")"
+		],
+		"description": "ElevatedButton dengan Interstitial Ad dan Navigation"
 	},
 	"Flutter FutureBuilder": {
-	  "scope": "dart",
-	  "prefix": "/builder",
-	  "body": [
-		"FutureBuilder<${1:TipeData}>(",
-		"  future: ${2:futureVariable},",
-		"  builder: (context, snapshot) {",
-		"    if (snapshot.connectionState == ConnectionState.waiting) {",
-		"      return const Center(child: CircularProgressIndicator());",
-		"    }",
-		"    if (snapshot.hasError) {",
-		"      return Center(child: Text('Error: \\${snapshot.error}'));",
-		"    }",
-		"    if (!snapshot.hasData) {",
-		"      return const Center(child: Text('Tidak ada data'));",
-		"    }",
-		"    final data = snapshot.data!;",
-		"    return ${3:widget};",
-		"  },",
-		")"
-	  ],
-	  "description": "Snippet FutureBuilder universal"
+		"scope": "dart",
+		"prefix": "/builder",
+		"body": [
+			"FutureBuilder<${1:TipeData}>(",
+			"  future: ${2:futureVariable},",
+			"  builder: (context, snapshot) {",
+			"    if (snapshot.connectionState == ConnectionState.waiting) {",
+			"      return const Center(child: CircularProgressIndicator());",
+			"    }",
+			"    if (snapshot.hasError) {",
+			"      return Center(child: Text('Error: \\${snapshot.error}'));",
+			"    }",
+			"    if (!snapshot.hasData) {",
+			"      return const Center(child: Text('Tidak ada data'));",
+			"    }",
+			"    final data = snapshot.data!;",
+			"    return ${3:widget};",
+			"  },",
+			")"
+		],
+		"description": "Snippet FutureBuilder universal"
 	},
 	"Flutter Future Async Method": {
-	  "scope": "dart",
-	  "prefix": "/future",
-	  "body": [
-		"Future<void> _${1:methodName}() async {",
-		"  try {",
-		"    ${2:// Logika asinkron}",
-		"  } on Exception catch (e, st) {",
-		"    Log.error('Error di ${1:methodName}: \\$e', e: e, st: st);",
-		"    if (!mounted) return;",
-		"    ${3:// Error handling opsional}",
-		"  }",
-		"}"
-	  ],
-	  "description": "Snippet method Future universal dengan try-catch"
+		"scope": "dart",
+		"prefix": "/future",
+		"body": [
+			"Future<void> _${1:methodName}() async {",
+			"  try {",
+			"    ${2:// Logika asinkron}",
+			"  } on Exception catch (e, s) {",
+			"    Log.error('Error di ${1:methodName}: \\$e', e: e, s: s);",
+			"    if (!mounted) return;",
+			"    ${3:// Error handling opsional}",
+			"  }",
+			"}"
+		],
+		"description": "Snippet method Future universal dengan try-catch"
 	}
-	
-  }
+}

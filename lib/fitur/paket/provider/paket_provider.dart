@@ -1,8 +1,9 @@
 // path: lib/fitur/paket/provider/paket_provider.dart
 
+import 'dart:async';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/paket/page/paket.dart';
@@ -39,6 +40,52 @@ class Paket extends _$Paket {
       daftarPaketPublik: daftarPaketPublik,
     );
   }
+
+  Future<void> tambah(PaketModel paket) async {
+    try {
+      await _paketOp.tambahPaket(paket);
+      unawaited(_invalidateProviderPaket());
+      // Logika asinkron
+    } on Exception catch (e, s) {
+      Log.error('Error di tambah: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> perbarui(PaketModel paket) async {
+    try {
+      await _paketOp.perbaruiPaket(paket);
+      unawaited(_invalidateProviderPaket());
+    } on Exception catch (e, s) {
+      Log.error('Error diupdate: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> softDelete(String id) async {
+    try {
+      await _paketOp.hapusSementara(id);
+      unawaited(_invalidateProviderPaket());
+    } on Exception catch (e, s) {
+      Log.error('Error disoftDelete: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> refresh() async {
+    Log.info('PaketProvider: Menyegarkan data paket');
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      return _ambilData();
+    });
+    Log.info('PaketProvider: Penyegaran data paket selesai');
+  }
+
+  Future<void> _invalidateProviderPaket() async {
+    ref.invalidateSelf();
+    ref.invalidate(detailPaketProvider);
+    ref.invalidate(urutanPaketStateProvider);
+  }
 }
 
 @riverpod
@@ -56,8 +103,8 @@ class UrutanPaketState extends _$UrutanPaketState {
 @riverpod
 Future<PaketModel> detailPaket(Ref ref, String id) async {
   Log.info('Mendapatkan detail paket dari SQLite via paketProvider...');
-  final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-  final paket = await paketOpSqlite.ambilBerdasarkanId(id);
+  final paketOp = ref.watch(paketOpGlobalProvider);
+  final paket = await paketOp.ambilBerdasarkanId(id);
   if (paket == null) {
     throw Exception('Paket dengan id $id tidak ditemukan');
   }

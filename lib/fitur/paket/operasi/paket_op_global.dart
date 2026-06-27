@@ -70,7 +70,7 @@ class PaketOpGlobal {
     }
   }
 
-  Future<void> hapusPaket(String id) async {
+  Future<void> hapusSementara(String id) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin hapus paket ID: $id di SQLite');
       await _paketOpSqlite.hapusSementara(id);

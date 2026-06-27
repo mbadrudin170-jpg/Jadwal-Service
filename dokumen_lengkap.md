@@ -164,25 +164,25 @@ analyzer:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
   
-  errors:
-    # Kritis (Blocking build)
-    use_build_context_synchronously: error
-    unawaited_futures: error
-    hash_and_equals: error
-    avoid_dynamic_calls: error
-    only_throw_errors: error
-    throw_in_finally: error
-    cancel_subscriptions: error
-    close_sinks: error
-    avoid_void_async: error
+  # errors:
+  #   # Kritis (Blocking build)
+  #   use_build_context_synchronously: error
+  #   unawaited_futures: error
+  #   hash_and_equals: error
+  #   avoid_dynamic_calls: error
+  #   only_throw_errors: error
+  #   throw_in_finally: error
+  #   cancel_subscriptions: error
+  #   close_sinks: error
+  #   avoid_void_async: error
 
-    prefer_const_constructors: error
-    prefer_const_constructors_in_immutables: error
-    use_super_parameters: error
-    always_use_package_imports: error
-    prefer_final_locals: error
-    prefer_final_fields: error
-    # directives_ordering: error
+  #   prefer_const_constructors: error
+  #   prefer_const_constructors_in_immutables: error
+  #   use_super_parameters: error
+  #   always_use_package_imports: error
+  #   prefer_final_locals: error
+  #   prefer_final_fields: error
+  #   # directives_ordering: error
 
 
   language:
@@ -1738,6 +1738,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
     final notifikasiOpSqlite = ref.read(notifikasiOpSqliteProvider);
     final pelangganAktif = ref.read(pelangganAktifProvider.notifier);
+    final transaksiOp = ref.read(transaksiProvider.notifier);
+
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Validasi form gagal');
       if (mounted) {
@@ -1826,18 +1828,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       );
       if (_modeEdit) {
         await pelangganAktif.updatePelangganAktif(pelangganAktifData);
-        await ref
-            .read(transaksiProvider.notifier)
-            .updateTransaksi(transaksiData);
+        await transaksiOp.updateTransaksi(transaksiData);
         await notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi);
         Log.info(
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
         );
       } else {
         await pelangganAktif.tambahPelangganAktif(pelangganAktifData);
-        await ref
-            .read(transaksiProvider.notifier)
-            .tambahTransaksi(transaksiData);
+        await transaksiOp.tambahTransaksi(transaksiData);
       }
       final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
       final durasiSetengahJalan = Duration(
@@ -3989,9 +3987,7 @@ class PelangganAktifOpSqlite {
     try {
       final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
 
-      await _baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         final data = customerToSave.toSqlite();
         await txn.insert(
           _namaTabel,
@@ -4063,7 +4059,7 @@ class PelangganAktifOpSqlite {
     try {
       final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
       Log.info('Memperbarui active customer ID: ${customerToSave.id}');
-      await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         final data = customerToSave.toSqlite();
         await txn.update(
           _namaTabel,
@@ -4197,7 +4193,7 @@ class PelangganAktifOpSqlite {
         return;
       }
 
-      await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         final archivedCustomer = pelangganAktif.copyWith(
           diperbaruiPada: _nowUtc,
           diHapus: true,
@@ -4242,7 +4238,7 @@ class PelangganAktifOpSqlite {
         Log.info('Transaksi dengan ID $idTransaksi tidak ditemukan');
       }
     }
-    await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+    await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
       final archivedCustomer = pelangganAktif.copyWith(
         diperbaruiPada: _nowUtc,
         diHapus: true,
@@ -4276,7 +4272,7 @@ class PelangganAktifOpSqlite {
     final bool dariServer = false,
   }) async {
     try {
-      await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         final deadline = _nowUtc.subtract(const Duration(days: 30));
 
         final List<Map<String, dynamic>> expiredCustomers = await txn.query(
@@ -4336,9 +4332,7 @@ class PelangganAktifOpSqlite {
           .map((final p) => p[NamaKolom.id] as String)
           .toList();
 
-      await _baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         await txn.update(
           _namaTabel,
           {
@@ -4380,9 +4374,7 @@ class PelangganAktifOpSqlite {
 
       final dataUntukDiarsip = pelangganAktif.map((p) => p.id).toList();
 
-      await _baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         await txn.update(
           _namaTabel,
           {
@@ -5809,7 +5801,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     if (transaksi.idPaket != null && transaksi.idPaket!.isNotEmpty) {
       try {
         final paketOp = ref.read(paketOpGlobalProvider);
-        paket = await paketOp.ambilPaketBerdasarkanId(transaksi.idPaket!);
+        paket = await paketOp.ambilBerdasarkanId(transaksi.idPaket!);
       } on Exception catch (e, st) {
         Log.error(
           'Failed to get package ${transaksi.idPaket}: $e',
@@ -7323,7 +7315,7 @@ final class SettingsProvider
   Settings create() => Settings();
 }
 
-String _$settingsHash() => r'466d0fc88c7ab16b8faa61b24eb6425f25e89f5a';
+String _$settingsHash() => r'f831d7a597ed690753449b65018194faadc0d87a';
 
 abstract class _$Settings extends $AsyncNotifier<SettingsState> {
   FutureOr<SettingsState> build();
@@ -7387,7 +7379,7 @@ class Settings extends _$Settings {
 
   Future<void> tambahAtauUpdate(SettingsModel settings) async {
     state = await AsyncValue.guard(() async {
-      await _settingsOpSqlite.saveOrUpdateSettings(settings);
+      await _settingsOpSqlite.simpanAtauPerbaruiSettings(settings);
       return await _ambilData();
     });
   }
@@ -7718,48 +7710,40 @@ class SettingsOpSqlite {
       );
       final db = await sqliteDb.database;
 
-      final result = await db.query(
+      final hasil = await db.query(
         _namaTabel,
         where: 'id = ?',
         whereArgs: [idGlobalSetting],
       );
 
-      if (result.isNotEmpty) {
+      if (hasil.isNotEmpty) {
         Log.info('Data pengaturan berhasil ditemukan di database.');
-        return SettingsModel.fromSqlite(result.first);
+        return SettingsModel.fromSqlite(hasil.first);
       } else {
         Log.warning(
           'Tidak ditemukan data pengaturan, membuat pengaturan default.',
         );
-        final defaultSettings = SettingsModel(
-          diperbaruiPada: DateTime.now().toUtc(),
-        );
-        await saveOrUpdateSettings(
-          defaultSettings,
-        );
+        final defaultSettings = SettingsModel(diperbaruiPada: DateTime.now());
+        await simpanAtauPerbaruiSettings(defaultSettings);
         Log.info('Pengaturan default berhasil dibuat dan disimpan.');
         return defaultSettings;
       }
     } on Exception catch (e, st) {
-      Log.error(
-        'Gagal mengambil data pengaturan: $e',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal mengambil data pengaturan: $e', e: e, s: st);
       Log.warning('Mengembalikan SettingsModel default sebagai fallback.');
       return const SettingsModel();
     }
   }
 
   /// Menyimpan atau memperbarui [SettingsModel] di database.
-  Future<void> saveOrUpdateSettings(
+  Future<void> simpanAtauPerbaruiSettings(
     final SettingsModel settings, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     try {
       final settingsToSave = settings.copyWith(
         id: idGlobalSetting,
-        diperbaruiPada: DateTime.now().toUtc(),
+        diperbaruiPada: DateTime.now(),
       );
 
       Log.info(
@@ -7768,7 +7752,7 @@ class SettingsOpSqlite {
       await _baseOpSqlite.sisipkan(
         _namaTabel,
         settingsToSave.toSqlite(),
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info(
         'Pengaturan berhasil disimpan atau diperbarui dengan metode UPSERT.',
@@ -7786,7 +7770,7 @@ class SettingsOpSqlite {
   /// Memperbarui sebagian field dari [SettingsModel] di database.
   ///
   /// [data] adalah Map yang berisi field yang akan diperbarui.
-  Future<void> updateSettings(
+  Future<void> perbaruiSettings(
     final Map<String, dynamic> data, {
     final bool dariServer = false,
   }) async {
@@ -7817,22 +7801,18 @@ class SettingsOpSqlite {
   }
 
   /// Menyimpan atau memperbarui [SettingsModel] di database menggunakan batch.
-  Future<void> saveOrUpdateSettingsWithBatch(
+  Future<void> simpanAtauPerbaruiSettingsDenganBatch(
     final SettingsModel settings, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     try {
       Log.info('Memulai penyimpanan pengaturan dengan batch operation.');
-      final dataToSave = settings.copyWith(
-        id: idGlobalSetting,
-        diperbaruiPada: DateTime.now().toUtc(),
-      );
-      final data = dataToSave.toSqlite();
-      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
-        _namaTabel,
-        [data],
-        dariServer: fromServer,
-      );
+      final data = settings
+          .copyWith(id: idGlobalSetting, diperbaruiPada: DateTime.now().toUtc())
+          .toSqlite();
+      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(_namaTabel, [
+        data,
+      ], dariServer: dariServer);
       Log.info('Batch operation untuk pengaturan berhasil.');
     } catch (e, st) {
       Log.error('Gagal menyimpan pengaturan dengan batch: $e', e: e, s: st);
@@ -9958,6 +9938,8 @@ final class DetailPaketFamily extends $Family
 // File: lib/fitur/paket/provider/paket_provider.dart
 // path: lib/fitur/paket/provider/paket_provider.dart
 
+import 'dart:async';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
@@ -9996,6 +9978,33 @@ class Paket extends _$Paket {
       jumlahPaket: daftarpaket.length,
       daftarPaketPublik: daftarPaketPublik,
     );
+  }
+
+  Future<void> tambah(PaketModel paket) async {
+    try {
+      await _paketOp.tambahPaket(paket);
+      unawaited(_invalidateProviderPaket());
+      // Logika asinkron
+    } on Exception catch (e, s) {
+      Log.error('Error di tambah: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> perbarui(PaketModel paket) async {
+    try {
+      await _paketOp.perbaruiPaket(paket);
+      unawaited(_invalidateProviderPaket());
+    } on Exception catch (e, s) {
+      Log.error('Error diupdate: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> _invalidateProviderPaket() async {
+    ref.invalidateSelf();
+    ref.invalidate(detailPaketProvider);
+    ref.invalidate(urutanPaketStateProvider);
   }
 }
 
@@ -10569,7 +10578,7 @@ class PaketOpSqlite {
   /// Instance dari [BaseOpSqlite] untuk operasi CRUD dasar.
   final BaseOpSqlite basOpSqlite;
   final String _tabel = NamaTabel.paket;
-  final _nowUtc = DateTime.now().toUtc();
+  DateTime get _nowUtc => DateTime.now().toUtc();
 
   PaketOpSqlite({required this.sqliteDb, required this.basOpSqlite}) {
     Log.info('PackageOperation instance dibuat.');
@@ -10720,7 +10729,7 @@ class PaketOpSqlite {
   Future<void> hapusSemua({bool dariServer = false}) async {
     Log.info('Memulai proses penghapusan semua data paket');
     try {
-      await basOpSqlite.runComplexOperation<void>((Transaction txn) async {
+      await basOpSqlite.operasiKompleks<void>((Transaction txn) async {
         final int count = await txn.delete(_tabel);
         Log.info('Berhasil menghapus semua data paket. Total terhapus: $count');
       }, dariServer: dariServer);
@@ -10730,17 +10739,16 @@ class PaketOpSqlite {
     }
   }
 
-  /// Mengambil semua paket yang telah diubah sejak [since].
-  Future<List<PaketModel>> ambilPerubahanSejak(DateTime since) async {
+  Future<List<PaketModel>> ambilPerubahanSejak(DateTime sejak) async {
     Log.info(
-      'Memulai pengambilan perubahan paket sejak ${since.toIso8601String()}',
+      'Memulai pengambilan perubahan paket sejak ${sejak.toIso8601String()}',
     );
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
         where: '${NamaKolom.diperbaruiPada} > ?',
-        whereArgs: [since.toUtc().millisecondsSinceEpoch],
+        whereArgs: [sejak.toUtc().millisecondsSinceEpoch],
       );
       Log.info('Ditemukan ${maps.length} perubahan paket');
       return List.generate(maps.length, (i) => PaketModel.fromSqlite(maps[i]));
@@ -10750,7 +10758,6 @@ class PaketOpSqlite {
     }
   }
 
-  /// Menyisipkan atau memperbarui sekumpulan [PaketModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
     List<PaketModel> items, {
     bool dariServer = false,
@@ -10761,15 +10768,15 @@ class PaketOpSqlite {
       return;
     }
     try {
-      final dataList = items
+      final daftarPaket = items
           .map((item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite())
           .toList();
       await basOpSqlite.sisipkanAtauPerbaruiBatch(
         _tabel,
-        dataList,
+        daftarPaket,
         dariServer: dariServer,
       );
-      Log.info('Berhasil insertOrUpdateBatch untuk ${items.length} item');
+      Log.info('Berhasil insertOrUpd,ateBatch untuk ${items.length} item');
     } catch (e, s) {
       Log.error('Gagal insertOrUpdateBatch', e: e, s: s);
       rethrow;
@@ -10815,23 +10822,15 @@ import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
-/// Kelas untuk mengelola operasi paket secara global
-/// dengan logika berdasarkan role (admin/user).
 class PaketOpGlobal {
   final Ref ref;
 
   PaketOpGlobal({required this.ref});
 
-  // ✅ Accessor untuk SQLite (digunakan oleh admin)
   PaketOpSqlite get _paketOpSqlite => ref.read(paketOpSqliteProvider);
 
-  // ✅ Accessor untuk Firebase (digunakan oleh user)
   PaketOpFirebase get _paketOpFirebase => ref.read(paketOpFirebaseProvider);
 
-  /// Menambahkan paket baru dengan logika berdasarkan role
-  ///
-  /// - Admin: Simpan ke SQLite (akan disinkronisasi ke Firebase)
-  /// - User: Simpan langsung ke Firebase
   Future<void> tambahPaket(PaketModel paket) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin menambah paket ke SQLite: ${paket.nama}');
@@ -10844,10 +10843,6 @@ class PaketOpGlobal {
     }
   }
 
-  /// Mengambil semua paket berdasarkan role
-  ///
-  /// - Admin: Ambil dari SQLite
-  /// - User: Ambil dari Firebase
   Future<List<PaketModel>> ambilSemua() async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin mengambil paket dari SQLite');
@@ -10858,11 +10853,7 @@ class PaketOpGlobal {
     }
   }
 
-  /// Mengambil paket berdasarkan ID
-  ///
-  /// - Admin: Ambil dari SQLite
-  /// - User: Ambil dari Firebase
-  Future<PaketModel?> ambilPaketBerdasarkanId(String id) async {
+  Future<PaketModel?> ambilBerdasarkanId(String id) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin mengambil paket ID: $id dari SQLite');
       return await _paketOpSqlite.ambilBerdasarkanId(id);
@@ -10872,10 +10863,6 @@ class PaketOpGlobal {
     }
   }
 
-  /// Mengambil paket publik (hanya yang statusPublik = true)
-  ///
-  /// - Admin: Ambil dari SQLite
-  /// - User: Ambil dari Firebase
   Future<List<PaketModel>> ambilPaketPublik() async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin mengambil paket publik dari SQLite');
@@ -10886,26 +10873,16 @@ class PaketOpGlobal {
     }
   }
 
-  /// Memperbarui paket yang ada
-  ///
-  /// - Admin: Update di SQLite (akan disinkronisasi ke Firebase)
-  /// - User: Update langsung di Firebase
-  Future<void> updatePaket(PaketModel paket) async {
+  Future<void> perbaruiPaket(PaketModel paket) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin update paket di SQLite: ${paket.nama}');
       await _paketOpSqlite.perbaruiPaket(paket);
     } else {
       Log.info('[PaketOpGlobal] User update paket di Firebase: ${paket.nama}');
-      await _paketOpFirebase.tambahPaket(
-        paket,
-      ); // Firebase menggunakan tambahPaket untuk upsert
+      await _paketOpFirebase.perbaruiPaket(paket);
     }
   }
 
-  /// Menghapus paket (soft delete)
-  ///
-  /// - Admin: Soft delete di SQLite (akan disinkronisasi ke Firebase)
-  /// - User: Soft delete langsung di Firebase
   Future<void> hapusPaket(String id) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin hapus paket ID: $id di SQLite');
@@ -10916,10 +10893,6 @@ class PaketOpGlobal {
     }
   }
 
-  /// Mengambil beberapa paket berdasarkan daftar ID
-  ///
-  /// - Admin: Ambil dari SQLite
-  /// - User: Ambil dari Firebase (satu per satu)
   Future<List<PaketModel>> ambilPaketBerdasarkanIds(List<String> ids) async {
     if (ids.isEmpty) {
       Log.warning(
@@ -10948,18 +10921,14 @@ class PaketOpGlobal {
     }
   }
 
-  /// Mengecek apakah ada paket dengan nama yang sama (untuk validasi)
-  ///
-  /// - Admin: Cek di SQLite
-  /// - User: Cek di Firebase
-  Future<bool> cekNamaPaketSudahAda(String nama, {String? excludeId}) async {
+  Future<bool> cekNamaPaketSudahAda(String nama, {String? idKecuali}) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin cek nama paket di SQLite: $nama');
       final semuaPaket = await _paketOpSqlite.ambilSemua();
       return semuaPaket.any(
         (p) =>
             p.nama.toLowerCase() == nama.toLowerCase() &&
-            (excludeId == null || p.id != excludeId),
+            (idKecuali == null || p.id != idKecuali),
       );
     } else {
       Log.info('[PaketOpGlobal] User cek nama paket di Firebase: $nama');
@@ -10967,13 +10936,12 @@ class PaketOpGlobal {
       return semuaPaket.any(
         (p) =>
             p.nama.toLowerCase() == nama.toLowerCase() &&
-            (excludeId == null || p.id != excludeId),
+            (idKecuali == null || p.id != idKecuali),
       );
     }
   }
 }
 
-/// Provider untuk PaketOpGlobal
 final paketOpGlobalProvider = Provider<PaketOpGlobal>((ref) {
   return PaketOpGlobal(ref: ref);
 });
@@ -12043,7 +12011,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           try {
             await ref
                 .read(orderOpSqliteProvider)
-                .updateStatusOrder(order.id, status);
+                .perbaruiStatusOrder(order.id, status);
             Log.info(
               '_tombolOpsiUbahStatus: status berhasil diubah untuk orderId: ${order.id}',
             );
@@ -12550,14 +12518,14 @@ class OrderOpsqlite {
 
   OrderOpsqlite({required this.sqliteDb, required this.baseOpSqlite});
 
-  String get _tableName => NamaTabel.pesananPelanggan;
+  String get _namaTabel => NamaTabel.pesananPelanggan;
 
   Future<int> ambilTotalDataPerStatus(StatusOrderEnum status) async {
     Log.info('Menghitung pesanan dengan status: ${status.name}');
     try {
       final db = await sqliteDb.database;
       final result = await db.rawQuery(
-        'SELECT COUNT(*) FROM $_tableName WHERE ${NamaKolom.status} = ? AND ${NamaKolom.dihapus} = 0',
+        'SELECT COUNT(*) FROM $_namaTabel WHERE ${NamaKolom.status} = ? AND ${NamaKolom.dihapus} = 0',
         [status.name],
       );
       final count = result.first.values.first as int? ?? 0;
@@ -12581,7 +12549,7 @@ class OrderOpsqlite {
         diperbaruiPada: DateTime.now().toUtc(),
       );
       await baseOpSqlite.sisipkan(
-        _tableName,
+        _namaTabel,
         dataOrderBaru.toSqlite(),
         dariServer: dariServer,
       );
@@ -12600,7 +12568,7 @@ class OrderOpsqlite {
       final db = await sqliteDb.database;
       final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = 0';
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: query,
         orderBy: '${NamaKolom.tanggal} DESC',
       );
@@ -12613,12 +12581,12 @@ class OrderOpsqlite {
     }
   }
 
-  Stream<List<OrderModel>> getAllActiveOrdersStream() async* {
+  Stream<List<OrderModel>> ambilStreamSemuaOrderAktif() async* {
     Log.info('Mengambil semua pesanan aktif dari database (stream sekali).');
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.dihapus} = 0',
         orderBy: '${NamaKolom.tanggal} DESC',
       );
@@ -12637,7 +12605,7 @@ class OrderOpsqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.status} = ? AND ${NamaKolom.dihapus} = 0',
         whereArgs: [status.name],
         orderBy: '${NamaKolom.tanggal} DESC',
@@ -12652,7 +12620,7 @@ class OrderOpsqlite {
     }
   }
 
-  Future<void> updateStatusOrder(
+  Future<void> perbaruiStatusOrder(
     final String id,
     final StatusOrderEnum status, {
     final bool dariServer = false,
@@ -12661,7 +12629,7 @@ class OrderOpsqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.id} = ?',
         whereArgs: [id],
       );
@@ -12673,7 +12641,7 @@ class OrderOpsqlite {
           diperbaruiPada: DateTime.now().toUtc(),
         );
         await baseOpSqlite.update(
-          _tableName,
+          _namaTabel,
           orderBaru.toSqlite(),
           id,
           dariServer: dariServer,
@@ -12692,19 +12660,6 @@ class OrderOpsqlite {
     }
   }
 
-  Future<void> deleteOrder(
-    final String id, {
-    final bool fromServer = false,
-  }) async {
-    Log.warning('Menghapus pesanan ID: $id (hard delete)');
-    try {
-      await baseOpSqlite.delete(_tableName, id, dariServer: fromServer);
-      Log.info('Berhasil menghapus pesanan dengan ID: $id.');
-    } on Exception catch (e, s) {
-      Log.error('Gagal menghapus pesanan.', e: e, s: s);
-      rethrow;
-    }
-  }
 
   Future<void> softDeleteorder(
     final String id, {
@@ -12712,7 +12667,7 @@ class OrderOpsqlite {
   }) async {
     Log.info('Memulai soft delete untuk pesanan ID: $id');
     try {
-      await baseOpSqlite.softDelete(_tableName, id, dariServer: dariServer);
+      await baseOpSqlite.softDelete(_namaTabel, id, dariServer: dariServer);
       Log.info('Berhasil soft delete pesanan ID: $id.');
     } on Exception catch (e, st) {
       Log.error('Gagal saat soft delete pesanan ID: $id', e: e, s: st);
@@ -12724,7 +12679,7 @@ class OrderOpsqlite {
     Log.info('Memulai soft delete untuk semua pesanan');
     try {
       final count = await baseOpSqlite.softDeleteAll(
-        _tableName,
+        _namaTabel,
         dariServer: fromServer,
       );
       Log.info('Berhasil soft delete semua pesanan. Total: $count item.');
@@ -12753,7 +12708,7 @@ class OrderOpsqlite {
           )
           .toList();
       await baseOpSqlite.sisipkanAtauPerbaruiBatch(
-        _tableName,
+        _namaTabel,
         data,
         dariServer: dariServer,
       );
@@ -12764,7 +12719,7 @@ class OrderOpsqlite {
     }
   }
 
-  Future<List<OrderModel>> getOrdersByIds(final List<String> ids) async {
+  Future<List<OrderModel>> ambilOrderBerdasarkanIds(final List<String> ids) async {
     Log.info('Mengambil pesanan untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning('List ID kosong, mengembalikan list kosong.');
@@ -12773,7 +12728,7 @@ class OrderOpsqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where:
             '${NamaKolom.id} IN (${List.filled(ids.length, '?').join(',')}) AND ${NamaKolom.dihapus} = 0',
         whereArgs: ids,
@@ -14841,7 +14796,7 @@ class KategoriOpSqlite {
     }
   }
 
-  Future<List<KategoriModel>> getCategoriesByIds(final List<String> ids) async {
+  Future<List<KategoriModel>> ambilKategoriBerdasarkanIds(final List<String> ids) async {
     Log.info('Memulai getCategoriesByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning(
@@ -15881,21 +15836,12 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
     Log.info(
       'Membuka FormTransaksiPage untuk mengedit transaksi ID: ${transaksi?.id} dari WalletDetail.',
     );
-    final hasil = await Navigator.push<bool>(
+    await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (context) => FormTransaksi(transaksi: transaksi),
       ),
     );
-
-    if (hasil ?? false) {
-      Log.info(
-        'Kembali dari form edit dengan sinyal reload. Memuat ulang data dompet.',
-      );
-      _muatUlangData();
-    } else {
-      Log.info('Kembali dari form edit tanpa perubahan.');
-    }
   }
 
   @override
@@ -17037,13 +16983,10 @@ class DompetOpSqlite {
     }
   }
 
-  Future<void> softDelete(
-    final String id, {
-    final bool fromServer = false,
-  }) async {
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
     Log.info('Memulai soft delete untuk wallet ID: $id');
     try {
-      await _baseOpSqlite.softDelete(_tabelDompet, id, dariServer: fromServer);
+      await _baseOpSqlite.softDelete(_tabelDompet, id, dariServer: dariServer);
       Log.info('Berhasil soft delete wallet ID: $id.');
     } catch (e, st) {
       Log.error('Gagal saat soft delete wallet ID: $id', e: e, s: st);
@@ -17051,12 +16994,12 @@ class DompetOpSqlite {
     }
   }
 
-  Future<int> softDeleteAll({final bool fromServer = false}) async {
+  Future<int> softDeleteAll({bool dariServer = false}) async {
     Log.info('Memulai soft delete untuk semua dompet');
     try {
       final count = await _baseOpSqlite.softDeleteAll(
         _tabelDompet,
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil soft delete semua dompet. Total: $count item.');
       return count;
@@ -23388,9 +23331,7 @@ class FeedbackOpSqlite {
       'PERINGATAN: Memulai deleteAllFeedback. Ini adalah operasi destruktif.',
     );
     try {
-      await baseOpSqlite.runComplexOperation<int>((
-        final Transaction txn,
-      ) async {
+      await baseOpSqlite.operasiKompleks<int>((final Transaction txn) async {
         final int count = await txn.delete(_namaTabel);
         Log.info(
           'Berhasil deleteAllFeedback. Total baris yang dihapus: $count',
@@ -24178,12 +24119,373 @@ class _FormRiwayatAktivasiState extends ConsumerState<FormRiwayatAktivasi> {
 }
 
 
+// File: lib/fitur/riwayat_aktivasi/page/riwayat_aktivasi_paket.dart
+// path lib/fitur/riwayat_aktivasi/page/riwayat_aktivasi_paket.dart
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_provider.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/shared/common/teks.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/widget/package_name.dart';
+
+class RiwayatAktivasiPaket extends ConsumerStatefulWidget {
+  const RiwayatAktivasiPaket({super.key});
+  @override
+  ConsumerState<RiwayatAktivasiPaket> createState() =>
+      _RiwayatAktivasiPaketState();
+}
+
+class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
+  final ScrollController _pengendaliScroll = ScrollController();
+  final TextEditingController _cariController = TextEditingController();
+  late final FocusNode _cariFocusNode;
+  int _jumlahTampil = 20;
+  String _queryCari = '';
+  bool _sedangMemuatLebih = false;
+  bool _sedangMencari = false; // Perbaikan 1: State khusus untuk mode pencarian
+
+  @override
+  void initState() {
+    super.initState();
+    ref.listenManual(riwayatAktivasiPaketProvider, (prev, next) {
+      if (next.hasValue && mounted) {
+        setState(() => _jumlahTampil = 20);
+      }
+    });
+    _pengendaliScroll.addListener(_deteksiScroll);
+    _cariFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _pengendaliScroll.removeListener(_deteksiScroll);
+    _pengendaliScroll.dispose();
+    _cariController.dispose();
+    _cariFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _deteksiScroll() {
+    if (_sedangMemuatLebih) return;
+    if (_pengendaliScroll.position.pixels >=
+        _pengendaliScroll.position.maxScrollExtent - 200) {
+      final state = ref.read(riwayatAktivasiPaketProvider).value;
+      if (state == null) return;
+
+      final itemsFiltered = _filterData(state.items, _queryCari);
+      if (_jumlahTampil < itemsFiltered.length) {
+        setState(() {
+          _sedangMemuatLebih = true;
+          _jumlahTampil += 20;
+        });
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) setState(() => _sedangMemuatLebih = false);
+        });
+      }
+    }
+  }
+
+  List<TransaksiDenganPelanggan> _filterData(
+    List<TransaksiDenganPelanggan> items,
+    String katakunci,
+  ) {
+    if (katakunci.trim().isEmpty) return items;
+
+    final katakunciLower = katakunci.toLowerCase().trim();
+    return items.where((item) {
+      return item.namaPelanggan.toLowerCase().contains(katakunciLower) ||
+          item.transaksi.deskripsi.toLowerCase().contains(katakunciLower) ||
+          item.transaksi.id.toLowerCase().contains(katakunciLower);
+    }).toList();
+  }
+
+  Future<void> _dialogOpsi(TransaksiModel transaksi) async {
+    final aksiDipilih = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Pilih Aksi'),
+          children: <Widget>[
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, 'edit'),
+              child: const Text('Edit'),
+            ),
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, 'hapus'),
+              child: const Text('Hapus'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (aksiDipilih != null) {
+      Log.info('Aksi dipilih: $aksiDipilih');
+
+      if (aksiDipilih == 'edit') {
+        if (!mounted) return;
+        await Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (context) => FormTransaksi(transaksi: transaksi),
+          ),
+        );
+      } else if (aksiDipilih == 'hapus') {
+        await _dialogKonfirmasiSoftDelete(transaksi);
+      }
+    }
+  }
+
+  Future<void> _dialogKonfirmasiSoftDelete(TransaksiModel transaksi) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi'),
+        content: const Text('Apakah Anda yakin ingin menghapus transaksi ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await ref
+                  .read(transaksiProvider.notifier)
+                  .softDelete(transaksi.id);
+              unawaited(
+                ref
+                    .read(layananCekSinkronisasiProvider)
+                    .jalankanCekSinkronisasi(),
+              );
+              ref.invalidate(riwayatAktivasiPaketProvider);
+              if (!context.mounted) return;
+              Navigator.pop(context);
+            },
+            child: const Text('Iya', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final historyAsync = ref.watch(riwayatAktivasiPaketProvider);
+    final paketOpSqlite = ref.watch(paketOpGlobalProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        // Perbaikan Utama pada Logika Tampilan AppBar
+        title: !_sedangMencari
+            ? const TeksJudulBesar('Riwayat Langganan', warna: Colors.white)
+            : TextField(
+                controller: _cariController,
+                focusNode: _cariFocusNode,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: 'Cari data...',
+                  hintStyle: const TextStyle(color: Colors.white70),
+                  border: InputBorder.none,
+                  prefixIcon: const Icon(TIcons.search, color: Colors.white),
+                  suffixIcon: IconButton(
+                    icon: const Icon(TIcons.close, color: Colors.white),
+                    onPressed: () {
+                      _cariController.clear();
+                      setState(() {
+                        _queryCari = '';
+                        _jumlahTampil = 20;
+                        _sedangMencari = false; // Keluar dari mode pencarian
+                      });
+                    },
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
+                onChanged: (value) {
+                  setState(() {
+                    _queryCari = value;
+                    _jumlahTampil = 20;
+                  });
+                },
+              ),
+        actions: [
+          if (!_sedangMencari) ...[
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _sedangMencari = true;
+                });
+                Future.microtask(() => _cariFocusNode.requestFocus());
+              },
+              icon: const Icon(TIcons.search),
+            ),
+            IconButton(
+              icon: const Icon(TIcons.filter),
+              onPressed: () {
+                if (historyAsync.hasValue) {
+                  Log.info('Membuka dialog pengurutan riwayat langganan.');
+                  _tampilkanDialogUrutan(
+                    context,
+                    ref,
+                    historyAsync.value!.sortBy,
+                  );
+                }
+              },
+              tooltip: 'Urutkan',
+            ),
+          ],
+        ],
+      ),
+      body: historyAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text('Error: $error')),
+        data: (state) {
+          final itemsFiltered = _filterData(state.items, _queryCari);
+          if (itemsFiltered.isEmpty) {
+            return const Center(
+              child: Text('Tidak ada riwayat langganan ditemukan.'),
+            );
+          }
+          final itemsTampil = itemsFiltered.take(_jumlahTampil).toList();
+          return ListView.builder(
+            controller: _pengendaliScroll,
+            itemCount:
+                itemsTampil.length +
+                (_jumlahTampil < itemsFiltered.length ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == itemsTampil.length) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              final item = itemsTampil[index];
+              final transaksi = item.transaksi;
+              final warnaStatusPembayaran =
+                  transaksi.statusPembayaran == StatusPembayaran.paid
+                  ? Colors.green
+                  : Colors.red;
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                child: ListTile(
+                  onTap: () async {
+                    Log.info('Melihat detail riwayat langganan.', {
+                      'transactionId': transaksi.id,
+                    });
+                    await Navigator.push<bool>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailRiwayatAktivasiPage(
+                          idTransaksi: transaksi.id,
+                        ),
+                      ),
+                    );
+                  },
+                  onLongPress: () => _dialogOpsi(transaksi),
+                  title: Text(
+                    item.namaPelanggan,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      PackageNameWidget(
+                        paketFuture: paketOpSqlite.ambilBerdasarkanId(
+                          transaksi.idPaket ?? '',
+                        ),
+                        style: TextStyle(color: warnaStatusPembayaran),
+                      ),
+                      gapH4,
+                      Text(
+                        'Status: ${transaksi.statusPembayaran.displayName}',
+                        style: TextStyle(
+                          color: warnaStatusPembayaran,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      gapH4,
+                      if (transaksi.tanggalMulai != null &&
+                          transaksi.tanggalBerakhir != null)
+                        Text(
+                          'Aktif: ${FormatTanggal.formatDasar(transaksi.tanggalMulai!)} - ${FormatTanggal.formatDasar(transaksi.tanggalBerakhir!)}',
+                        ),
+                    ],
+                  ),
+                  trailing: const Icon(TIcons.chevronRight),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _tampilkanDialogUrutan(
+    BuildContext context,
+    WidgetRef ref,
+    OpsiUrutan currentSort,
+  ) async {
+    final OpsiUrutan? selected = await showDialog<OpsiUrutan>(
+      context: context,
+      builder: (BuildContext context) {
+        Widget buildOption(String text, OpsiUrutan value) {
+          return SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, value),
+            child: Text(
+              text,
+              style: TextStyle(
+                fontWeight: currentSort == value
+                    ? FontWeight.bold
+                    : FontWeight.normal,
+              ),
+            ),
+          );
+        }
+
+        return SimpleDialog(
+          title: const Text('Urutkan Berdasarkan'),
+          children: <Widget>[
+            // Perbaikan: Pastikan enum beralhirHariIni sudah dibetulkan typo-nya jika diperlukan
+            buildOption('Berakhir Hari Ini', OpsiUrutan.berakhirHariIni),
+            buildOption('Tanggal Berakhir', OpsiUrutan.tanggalBerakhir),
+            buildOption('Nama A-Z', OpsiUrutan.namaAZ),
+            buildOption('Nama Z-A', OpsiUrutan.namaZA),
+            buildOption('Lunas', OpsiUrutan.lunas),
+            buildOption('Belum Lunas', OpsiUrutan.belumLunas),
+            buildOption('Update Terbaru', OpsiUrutan.diperbaruiPadaAZ),
+            buildOption('Update Terlama', OpsiUrutan.diperbaruiPadaZA),
+          ],
+        );
+      },
+    );
+
+    if (selected != null) {
+      ref.read(riwayatAktivasiPaketProvider.notifier).changeSort(selected);
+    }
+  }
+}
+
+
 // File: lib/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart
 // path: lib/admin/halaman/detail/subscription_history_detail.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/providers/detail_langganan_provider.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/provider/detail_langganan_provider.dart';
 import 'package:wifi/fitur/paket/page/detail_paket.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/form_riwayat_aktivasi.dart';
@@ -24198,7 +24500,6 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watch data gabungan langsung dari provider
     final detailAsync = ref.watch(ambilDetailLanggananProvider(idTransaksi));
 
     return detailAsync.when(
@@ -24402,6 +24703,776 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+
+// File: lib/fitur/riwayat_aktivasi/provider/detail_langganan_provider.g.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'detail_langganan_provider.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(ambilDetailLangganan)
+final ambilDetailLanggananProvider = AmbilDetailLanggananFamily._();
+
+final class AmbilDetailLanggananProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<DetailLanggananState?>,
+          DetailLanggananState?,
+          FutureOr<DetailLanggananState?>
+        >
+    with
+        $FutureModifier<DetailLanggananState?>,
+        $FutureProvider<DetailLanggananState?> {
+  AmbilDetailLanggananProvider._({
+    required AmbilDetailLanggananFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'ambilDetailLanggananProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$ambilDetailLanggananHash();
+
+  @override
+  String toString() {
+    return r'ambilDetailLanggananProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<DetailLanggananState?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<DetailLanggananState?> create(Ref ref) {
+    final argument = this.argument as String;
+    return ambilDetailLangganan(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is AmbilDetailLanggananProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$ambilDetailLanggananHash() =>
+    r'cb1a8692e90a7e2730006d6bb274c80720436c79';
+
+final class AmbilDetailLanggananFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<DetailLanggananState?>, String> {
+  AmbilDetailLanggananFamily._()
+    : super(
+        retry: null,
+        name: r'ambilDetailLanggananProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  AmbilDetailLanggananProvider call(String idTransaksi) =>
+      AmbilDetailLanggananProvider._(argument: idTransaksi, from: this);
+
+  @override
+  String toString() => r'ambilDetailLanggananProvider';
+}
+
+
+// File: lib/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_provider.dart
+// path lib/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_provider.dart
+
+import 'dart:async';
+
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+
+part 'riwayat_aktivasi_paket_provider.g.dart';
+
+class TransaksiDenganPelanggan {
+  final TransaksiModel transaksi;
+  final PelangganModel? pelanggan;
+  TransaksiDenganPelanggan({required this.transaksi, this.pelanggan});
+  String get namaPelanggan => pelanggan?.nama ?? 'Tidak diketahui';
+}
+
+enum OpsiUrutan {
+  tanggalBerakhir,
+  namaAZ,
+  namaZA,
+  berakhirHariIni,
+  diperbaruiPadaAZ,
+  diperbaruiPadaZA,
+  lunas,
+  belumLunas,
+}
+
+class RiwayatAktivasiPaketState {
+  final List<TransaksiDenganPelanggan> items;
+  final OpsiUrutan sortBy;
+  RiwayatAktivasiPaketState({
+    this.items = const [],
+    this.sortBy = OpsiUrutan.berakhirHariIni,
+  });
+
+  RiwayatAktivasiPaketState copyWith({
+    List<TransaksiDenganPelanggan>? items,
+    OpsiUrutan? sortBy,
+  }) {
+    return RiwayatAktivasiPaketState(
+      items: items ?? this.items,
+      sortBy: sortBy ?? this.sortBy,
+    );
+  }
+}
+
+@riverpod
+class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
+  @override
+  FutureOr<RiwayatAktivasiPaketState> build() {
+    ref.watch(transaksiOpGlobalProvider);
+    ref.watch(pelangganOpGlobalProvider);
+    return _loadData(OpsiUrutan.berakhirHariIni);
+  }
+
+  Future<RiwayatAktivasiPaketState> _loadData(OpsiUrutan targetSort) async {
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
+    final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
+    final transaksi = await transaksiOp.ambilBerdasarkanStatusAktivasi();
+    final pealnggan = await pelangganOpSqlite.ambilSemua();
+    final customerMap = {for (var c in pealnggan) c.id: c};
+    final combinedList = transaksi.map((trans) {
+      return TransaksiDenganPelanggan(
+        transaksi: trans,
+        pelanggan: customerMap[trans.idPelanggan],
+      );
+    }).toList();
+    _performSort(combinedList, targetSort);
+    return RiwayatAktivasiPaketState(items: combinedList, sortBy: targetSort);
+  }
+
+  void changeSort(OpsiUrutan newSort) {
+    if (!state.hasValue) return;
+    final currentState = state.value!;
+    if (currentState.sortBy == newSort) return;
+    final List<TransaksiDenganPelanggan> sortedList = List.from(
+      currentState.items,
+    );
+    _performSort(sortedList, newSort);
+    state = AsyncValue.data(
+      currentState.copyWith(items: sortedList, sortBy: newSort),
+    );
+  }
+
+  void _performSort(List<TransaksiDenganPelanggan> list, OpsiUrutan option) {
+    switch (option) {
+      case OpsiUrutan.tanggalBerakhir:
+        list.sort((a, b) {
+          if (a.transaksi.tanggalBerakhir == null &&
+              b.transaksi.tanggalBerakhir == null) {
+            return 0;
+          }
+          if (a.transaksi.tanggalBerakhir == null) return 1;
+          if (b.transaksi.tanggalBerakhir == null) return -1;
+          final dateCompare = a.transaksi.tanggalBerakhir!.compareTo(
+            b.transaksi.tanggalBerakhir!,
+          );
+          if (dateCompare != 0) return dateCompare;
+          return a.transaksi.id.compareTo(b.transaksi.id);
+        });
+        break;
+      case OpsiUrutan.diperbaruiPadaAZ:
+        list.sort((a, b) {
+          final updateAtA = a.transaksi.diperbaruiPada;
+          final updateAtB = b.transaksi.diperbaruiPada;
+          if (updateAtA == null && updateAtB == null) return 0;
+          if (updateAtA == null) return 1;
+          if (updateAtB == null) return -1;
+          return updateAtB.compareTo(updateAtA);
+        });
+        break;
+      case OpsiUrutan.diperbaruiPadaZA:
+        list.sort((a, b) {
+          final updateAtA = a.transaksi.diperbaruiPada;
+          final updateAtB = b.transaksi.diperbaruiPada;
+          if (updateAtA == null && updateAtB == null) return 0;
+          if (updateAtA == null) return -1;
+          if (updateAtB == null) return 1;
+          return updateAtA.compareTo(updateAtB);
+        });
+        break;
+      case OpsiUrutan.namaAZ:
+        list.sort((a, b) {
+          final nameCompare = a.namaPelanggan.toLowerCase().compareTo(
+            b.namaPelanggan.toLowerCase(),
+          );
+          if (nameCompare != 0) return nameCompare;
+          // Jika nama sama, urutkan berdasarkan ID transaksi (trx1 < trx3)
+          return a.transaksi.id.compareTo(b.transaksi.id);
+        });
+        break;
+      case OpsiUrutan.namaZA:
+        list.sort((a, b) {
+          final nameCompare = b.namaPelanggan.toLowerCase().compareTo(
+            a.namaPelanggan.toLowerCase(),
+          );
+          if (nameCompare != 0) return nameCompare;
+          return a.transaksi.id.compareTo(b.transaksi.id);
+        });
+        break;
+      case OpsiUrutan.berakhirHariIni:
+        final now = DateTime.now();
+        list.sort((a, b) {
+          final isTodayA =
+              a.transaksi.tanggalBerakhir != null &&
+              a.transaksi.tanggalBerakhir!.year == now.year &&
+              a.transaksi.tanggalBerakhir!.month == now.month &&
+              a.transaksi.tanggalBerakhir!.day == now.day;
+          final isTodayB =
+              b.transaksi.tanggalBerakhir != null &&
+              b.transaksi.tanggalBerakhir!.year == now.year &&
+              b.transaksi.tanggalBerakhir!.month == now.month &&
+              b.transaksi.tanggalBerakhir!.day == now.day;
+          if (isTodayA && !isTodayB) return -1;
+          if (!isTodayA && isTodayB) return 1;
+          if (a.transaksi.tanggalBerakhir == null &&
+              b.transaksi.tanggalBerakhir == null) {
+            return 0;
+          }
+          if (a.transaksi.tanggalBerakhir == null) return 1;
+          if (b.transaksi.tanggalBerakhir == null) return -1;
+          return a.transaksi.tanggalBerakhir!.compareTo(
+            b.transaksi.tanggalBerakhir!,
+          );
+        });
+        break;
+      case OpsiUrutan.lunas:
+        list.sort((a, b) {
+          final isPaidA = a.transaksi.statusPembayaran == StatusPembayaran.paid;
+          final isPaidB = b.transaksi.statusPembayaran == StatusPembayaran.paid;
+          if (isPaidA && !isPaidB) return -1;
+          if (!isPaidA && isPaidB) return 1;
+          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal).compareTo(
+            a.transaksi.diperbaruiPada ?? a.transaksi.tanggal,
+          );
+        });
+        break;
+      case OpsiUrutan.belumLunas:
+        list.sort((a, b) {
+          final isUnpaidA =
+              a.transaksi.statusPembayaran == StatusPembayaran.unpaid;
+          final isUnpaidB =
+              b.transaksi.statusPembayaran == StatusPembayaran.unpaid;
+          if (isUnpaidA && !isUnpaidB) return -1;
+          if (!isUnpaidA && isUnpaidB) return 1;
+          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal).compareTo(
+            a.transaksi.diperbaruiPada ?? a.transaksi.tanggal,
+          );
+        });
+        break;
+    }
+  }
+}
+
+
+// File: lib/fitur/riwayat_aktivasi/provider/detail_langganan_provider.freezed.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'detail_langganan_provider.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$DetailLanggananState {
+
+ TransaksiModel? get transaksi; PelangganModel? get pelanggan; PaketModel? get paket;
+/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$DetailLanggananStateCopyWith<DetailLanggananState> get copyWith => _$DetailLanggananStateCopyWithImpl<DetailLanggananState>(this as DetailLanggananState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DetailLanggananState&&(identical(other.transaksi, transaksi) || other.transaksi == transaksi)&&(identical(other.pelanggan, pelanggan) || other.pelanggan == pelanggan)&&(identical(other.paket, paket) || other.paket == paket));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,transaksi,pelanggan,paket);
+
+@override
+String toString() {
+  return 'DetailLanggananState(transaksi: $transaksi, pelanggan: $pelanggan, paket: $paket)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $DetailLanggananStateCopyWith<$Res>  {
+  factory $DetailLanggananStateCopyWith(DetailLanggananState value, $Res Function(DetailLanggananState) _then) = _$DetailLanggananStateCopyWithImpl;
+@useResult
+$Res call({
+ TransaksiModel? transaksi, PelangganModel? pelanggan, PaketModel? paket
+});
+
+
+$TransaksiModelCopyWith<$Res>? get transaksi;$PelangganModelCopyWith<$Res>? get pelanggan;$PaketModelCopyWith<$Res>? get paket;
+
+}
+/// @nodoc
+class _$DetailLanggananStateCopyWithImpl<$Res>
+    implements $DetailLanggananStateCopyWith<$Res> {
+  _$DetailLanggananStateCopyWithImpl(this._self, this._then);
+
+  final DetailLanggananState _self;
+  final $Res Function(DetailLanggananState) _then;
+
+/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? transaksi = freezed,Object? pelanggan = freezed,Object? paket = freezed,}) {
+  return _then(_self.copyWith(
+transaksi: freezed == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
+as TransaksiModel?,pelanggan: freezed == pelanggan ? _self.pelanggan : pelanggan // ignore: cast_nullable_to_non_nullable
+as PelangganModel?,paket: freezed == paket ? _self.paket : paket // ignore: cast_nullable_to_non_nullable
+as PaketModel?,
+  ));
+}
+/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$TransaksiModelCopyWith<$Res>? get transaksi {
+    if (_self.transaksi == null) {
+    return null;
+  }
+
+  return $TransaksiModelCopyWith<$Res>(_self.transaksi!, (value) {
+    return _then(_self.copyWith(transaksi: value));
+  });
+}/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PelangganModelCopyWith<$Res>? get pelanggan {
+    if (_self.pelanggan == null) {
+    return null;
+  }
+
+  return $PelangganModelCopyWith<$Res>(_self.pelanggan!, (value) {
+    return _then(_self.copyWith(pelanggan: value));
+  });
+}/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PaketModelCopyWith<$Res>? get paket {
+    if (_self.paket == null) {
+    return null;
+  }
+
+  return $PaketModelCopyWith<$Res>(_self.paket!, (value) {
+    return _then(_self.copyWith(paket: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [DetailLanggananState].
+extension DetailLanggananStatePatterns on DetailLanggananState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _DetailLanggananState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _DetailLanggananState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _DetailLanggananState value)  $default,){
+final _that = this;
+switch (_that) {
+case _DetailLanggananState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _DetailLanggananState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _DetailLanggananState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( TransaksiModel? transaksi,  PelangganModel? pelanggan,  PaketModel? paket)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _DetailLanggananState() when $default != null:
+return $default(_that.transaksi,_that.pelanggan,_that.paket);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( TransaksiModel? transaksi,  PelangganModel? pelanggan,  PaketModel? paket)  $default,) {final _that = this;
+switch (_that) {
+case _DetailLanggananState():
+return $default(_that.transaksi,_that.pelanggan,_that.paket);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( TransaksiModel? transaksi,  PelangganModel? pelanggan,  PaketModel? paket)?  $default,) {final _that = this;
+switch (_that) {
+case _DetailLanggananState() when $default != null:
+return $default(_that.transaksi,_that.pelanggan,_that.paket);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _DetailLanggananState implements DetailLanggananState {
+  const _DetailLanggananState({this.transaksi, this.pelanggan, this.paket});
+  
+
+@override final  TransaksiModel? transaksi;
+@override final  PelangganModel? pelanggan;
+@override final  PaketModel? paket;
+
+/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$DetailLanggananStateCopyWith<_DetailLanggananState> get copyWith => __$DetailLanggananStateCopyWithImpl<_DetailLanggananState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DetailLanggananState&&(identical(other.transaksi, transaksi) || other.transaksi == transaksi)&&(identical(other.pelanggan, pelanggan) || other.pelanggan == pelanggan)&&(identical(other.paket, paket) || other.paket == paket));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,transaksi,pelanggan,paket);
+
+@override
+String toString() {
+  return 'DetailLanggananState(transaksi: $transaksi, pelanggan: $pelanggan, paket: $paket)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$DetailLanggananStateCopyWith<$Res> implements $DetailLanggananStateCopyWith<$Res> {
+  factory _$DetailLanggananStateCopyWith(_DetailLanggananState value, $Res Function(_DetailLanggananState) _then) = __$DetailLanggananStateCopyWithImpl;
+@override @useResult
+$Res call({
+ TransaksiModel? transaksi, PelangganModel? pelanggan, PaketModel? paket
+});
+
+
+@override $TransaksiModelCopyWith<$Res>? get transaksi;@override $PelangganModelCopyWith<$Res>? get pelanggan;@override $PaketModelCopyWith<$Res>? get paket;
+
+}
+/// @nodoc
+class __$DetailLanggananStateCopyWithImpl<$Res>
+    implements _$DetailLanggananStateCopyWith<$Res> {
+  __$DetailLanggananStateCopyWithImpl(this._self, this._then);
+
+  final _DetailLanggananState _self;
+  final $Res Function(_DetailLanggananState) _then;
+
+/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? transaksi = freezed,Object? pelanggan = freezed,Object? paket = freezed,}) {
+  return _then(_DetailLanggananState(
+transaksi: freezed == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
+as TransaksiModel?,pelanggan: freezed == pelanggan ? _self.pelanggan : pelanggan // ignore: cast_nullable_to_non_nullable
+as PelangganModel?,paket: freezed == paket ? _self.paket : paket // ignore: cast_nullable_to_non_nullable
+as PaketModel?,
+  ));
+}
+
+/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$TransaksiModelCopyWith<$Res>? get transaksi {
+    if (_self.transaksi == null) {
+    return null;
+  }
+
+  return $TransaksiModelCopyWith<$Res>(_self.transaksi!, (value) {
+    return _then(_self.copyWith(transaksi: value));
+  });
+}/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PelangganModelCopyWith<$Res>? get pelanggan {
+    if (_self.pelanggan == null) {
+    return null;
+  }
+
+  return $PelangganModelCopyWith<$Res>(_self.pelanggan!, (value) {
+    return _then(_self.copyWith(pelanggan: value));
+  });
+}/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PaketModelCopyWith<$Res>? get paket {
+    if (_self.paket == null) {
+    return null;
+  }
+
+  return $PaketModelCopyWith<$Res>(_self.paket!, (value) {
+    return _then(_self.copyWith(paket: value));
+  });
+}
+}
+
+// dart format on
+
+
+// File: lib/fitur/riwayat_aktivasi/provider/detail_langganan_provider.dart
+// path lib/fitur/riwayat_aktivasi/provider/detail_langganan_provider.dart
+
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+
+part 'detail_langganan_provider.g.dart';
+part 'detail_langganan_provider.freezed.dart';
+
+@freezed
+abstract class DetailLanggananState with _$DetailLanggananState {
+  const factory DetailLanggananState({
+    TransaksiModel? transaksi,
+    PelangganModel? pelanggan,
+    PaketModel? paket,
+  }) = _DetailLanggananState;
+}
+
+@riverpod
+Future<DetailLanggananState?> ambilDetailLangganan(
+  Ref ref,
+  String idTransaksi,
+) async {
+  final transaksiOp = ref.watch(transaksiOpGlobalProvider);
+  final pelangganOpSqlite = ref.watch(pelangganOpGlobalProvider);
+  final paketOpSqlite = ref.watch(paketOpSqliteProvider);
+
+  // 1. Ambil data transaksi utama
+  final transaksi = await transaksiOp.ambilBerdasarkanId(idTransaksi);
+  if (transaksi == null) return null;
+
+  // 2. Ambil data relasi secara paralel untuk menghemat waktu pemuatan
+  final hasil = await Future.wait<Object?>([
+    transaksi.idPelanggan != null
+        ? pelangganOpSqlite.ambilBerdasarkanId(transaksi.idPelanggan!)
+        : Future<PelangganModel?>.value(),
+    transaksi.idPaket != null
+        ? paketOpSqlite.ambilBerdasarkanId(transaksi.idPaket!)
+        : Future<PaketModel?>.value(),
+  ]);
+
+  return DetailLanggananState(
+    transaksi: transaksi,
+    pelanggan: hasil[0] as PelangganModel?,
+    paket: hasil[1] as PaketModel?,
+  );
+}
+
+
+// File: lib/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_provider.g.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'riwayat_aktivasi_paket_provider.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(RiwayatAktivasiPaket)
+final riwayatAktivasiPaketProvider = RiwayatAktivasiPaketProvider._();
+
+final class RiwayatAktivasiPaketProvider
+    extends
+        $AsyncNotifierProvider<
+          RiwayatAktivasiPaket,
+          RiwayatAktivasiPaketState
+        > {
+  RiwayatAktivasiPaketProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'riwayatAktivasiPaketProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$riwayatAktivasiPaketHash();
+
+  @$internal
+  @override
+  RiwayatAktivasiPaket create() => RiwayatAktivasiPaket();
+}
+
+String _$riwayatAktivasiPaketHash() =>
+    r'843e477154979997a18f9c110615d08bc475d890';
+
+abstract class _$RiwayatAktivasiPaket
+    extends $AsyncNotifier<RiwayatAktivasiPaketState> {
+  FutureOr<RiwayatAktivasiPaketState> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref
+            as $Ref<
+              AsyncValue<RiwayatAktivasiPaketState>,
+              RiwayatAktivasiPaketState
+            >;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                AsyncValue<RiwayatAktivasiPaketState>,
+                RiwayatAktivasiPaketState
+              >,
+              AsyncValue<RiwayatAktivasiPaketState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
   }
 }
 
@@ -25681,16 +26752,12 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
     Log.info(
       'Membuka FormTransaksiPage dari halaman detail untuk mengedit transaksi: ${_currentTransaction.id}',
     );
-    final isSaved = await Navigator.push<bool?>(
+    await Navigator.push<bool?>(
       context,
       MaterialPageRoute(
         builder: (context) => FormTransaksi(transaksi: _currentTransaction),
       ),
     );
-    if (isSaved ?? false) {
-      Log.info(
-        'Form edit melaporkan keberhasilan penyimpanan. Memuat ulang data transaksi dari database.',
-      );
       try {
         final transaksiOpSqlite = ref.read(transaksiOpGlobalProvider);
         final transaksi = await transaksiOpSqlite.ambilBerdasarkanId(
@@ -25717,9 +26784,6 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
           ToastUtil.error(context, 'Gagal memuat data terbaru.');
         }
       }
-    } else {
-      Log.info('Kembali dari form edit tanpa pembaruan atau gagal disimpan.');
-    }
   }
 
   Future<void> _softDeleteTransaksi() async {
@@ -26033,366 +27097,6 @@ class DetailTransaksiU extends StatelessWidget {
 }
 
 
-// File: lib/fitur/transaksi/page/riwayat_aktivasi_paket.dart
-// path lib/fitur/transaksi/page/riwayat_aktivasi_paket.dart
-
-import 'dart:async';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
-import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
-import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
-import 'package:wifi/shared/common/teks.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/widget/package_name.dart';
-
-class RiwayatAktivasiPaket extends ConsumerStatefulWidget {
-  const RiwayatAktivasiPaket({super.key});
-  @override
-  ConsumerState<RiwayatAktivasiPaket> createState() =>
-      _RiwayatAktivasiPaketState();
-}
-
-class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
-  final ScrollController _pengendaliScroll = ScrollController();
-  final TextEditingController _cariController = TextEditingController();
-  late final FocusNode _cariFocusNode;
-  int _jumlahTampil = 20;
-  String _queryCari = '';
-  bool _sedangMemuatLebih = false;
-  bool _sedangMencari = false; // Perbaikan 1: State khusus untuk mode pencarian
-
-  @override
-  void initState() {
-    super.initState();
-    ref.listenManual(riwayatAktivasiPaketProvider, (prev, next) {
-      if (next.hasValue && mounted) {
-        setState(() => _jumlahTampil = 20);
-      }
-    });
-    _pengendaliScroll.addListener(_deteksiScroll);
-    _cariFocusNode = FocusNode();
-  }
-
-  @override
-  void dispose() {
-    _pengendaliScroll.removeListener(_deteksiScroll);
-    _pengendaliScroll.dispose();
-    _cariController.dispose();
-    _cariFocusNode.dispose();
-    super.dispose();
-  }
-
-  void _deteksiScroll() {
-    if (_sedangMemuatLebih) return;
-    if (_pengendaliScroll.position.pixels >=
-        _pengendaliScroll.position.maxScrollExtent - 200) {
-      final state = ref.read(riwayatAktivasiPaketProvider).value;
-      if (state == null) return;
-
-      final itemsFiltered = _filterData(state.items, _queryCari);
-      if (_jumlahTampil < itemsFiltered.length) {
-        setState(() {
-          _sedangMemuatLebih = true;
-          _jumlahTampil += 20;
-        });
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (mounted) setState(() => _sedangMemuatLebih = false);
-        });
-      }
-    }
-  }
-
-  List<TransaksiDenganPelanggan> _filterData(
-    List<TransaksiDenganPelanggan> items,
-    String katakunci,
-  ) {
-    if (katakunci.trim().isEmpty) return items;
-
-    final katakunciLower = katakunci.toLowerCase().trim();
-    return items.where((item) {
-      return item.namaPelanggan.toLowerCase().contains(katakunciLower) ||
-          item.transaksi.deskripsi.toLowerCase().contains(katakunciLower) ||
-          item.transaksi.id.toLowerCase().contains(katakunciLower);
-    }).toList();
-  }
-
-  Future<void> _dialogOpsi(TransaksiModel transaksi) async {
-    final aksiDipilih = await showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: const Text('Pilih Aksi'),
-          children: <Widget>[
-            SimpleDialogOption(
-              onPressed: () => Navigator.pop(context, 'edit'),
-              child: const Text('Edit'),
-            ),
-            SimpleDialogOption(
-              onPressed: () => Navigator.pop(context, 'hapus'),
-              child: const Text('Hapus'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (aksiDipilih != null) {
-      Log.info('Aksi dipilih: $aksiDipilih');
-
-      if (aksiDipilih == 'edit') {
-        if (!mounted) return;
-        await Navigator.push(
-          context,
-          MaterialPageRoute<void>(
-            builder: (context) => FormTransaksi(transaksi: transaksi),
-          ),
-        );
-      } else if (aksiDipilih == 'hapus') {
-        await _dialogKonfirmasiSoftDelete(transaksi);
-      }
-    }
-  }
-
-  Future<void> _dialogKonfirmasiSoftDelete(TransaksiModel transaksi) async {
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Konfirmasi'),
-        content: const Text('Apakah Anda yakin ingin menghapus transaksi ini?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () async {
-              await ref
-                  .read(transaksiProvider.notifier)
-                  .softDelete(transaksi.id);
-              unawaited(
-                ref
-                    .read(layananCekSinkronisasiProvider)
-                    .jalankanCekSinkronisasi(),
-              );
-              if (!context.mounted) return;
-              Navigator.pop(context);
-            },
-            child: const Text('Iya', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final historyAsync = ref.watch(riwayatAktivasiPaketProvider);
-    final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-
-    return Scaffold(
-      appBar: AppBar(
-        // Perbaikan Utama pada Logika Tampilan AppBar
-        title: !_sedangMencari
-            ? const TeksJudulBesar('Riwayat Langganan', warna: Colors.white)
-            : TextField(
-                controller: _cariController,
-                focusNode: _cariFocusNode,
-                textInputAction: TextInputAction.search,
-                decoration: InputDecoration(
-                  hintText: 'Cari data...',
-                  hintStyle: const TextStyle(color: Colors.white70),
-                  border: InputBorder.none,
-                  prefixIcon: const Icon(TIcons.search, color: Colors.white),
-                  suffixIcon: IconButton(
-                    icon: const Icon(TIcons.close, color: Colors.white),
-                    onPressed: () {
-                      _cariController.clear();
-                      setState(() {
-                        _queryCari = '';
-                        _jumlahTampil = 20;
-                        _sedangMencari = false; // Keluar dari mode pencarian
-                      });
-                    },
-                  ),
-                ),
-                style: const TextStyle(color: Colors.white),
-                onChanged: (value) {
-                  setState(() {
-                    _queryCari = value;
-                    _jumlahTampil = 20;
-                  });
-                },
-              ),
-        actions: [
-          if (!_sedangMencari) ...[
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  _sedangMencari = true;
-                });
-                Future.microtask(() => _cariFocusNode.requestFocus());
-              },
-              icon: const Icon(TIcons.search),
-            ),
-            IconButton(
-              icon: const Icon(TIcons.filter),
-              onPressed: () {
-                if (historyAsync.hasValue) {
-                  Log.info('Membuka dialog pengurutan riwayat langganan.');
-                  _tampilkanDialogUrutan(
-                    context,
-                    ref,
-                    historyAsync.value!.sortBy,
-                  );
-                }
-              },
-              tooltip: 'Urutkan',
-            ),
-          ],
-        ],
-      ),
-      body: historyAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
-        data: (state) {
-          final itemsFiltered = _filterData(state.items, _queryCari);
-          if (itemsFiltered.isEmpty) {
-            return const Center(
-              child: Text('Tidak ada riwayat langganan ditemukan.'),
-            );
-          }
-          final itemsTampil = itemsFiltered.take(_jumlahTampil).toList();
-          return ListView.builder(
-            controller: _pengendaliScroll,
-            itemCount:
-                itemsTampil.length +
-                (_jumlahTampil < itemsFiltered.length ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index == itemsTampil.length) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              }
-              final item = itemsTampil[index];
-              final transaksi = item.transaksi;
-              final warnaStatusPembayaran =
-                  transaksi.statusPembayaran == StatusPembayaran.paid
-                  ? Colors.green
-                  : Colors.red;
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                child: ListTile(
-                  onTap: () async {
-                    Log.info('Melihat detail riwayat langganan.', {
-                      'transactionId': transaksi.id,
-                    });
-                    await Navigator.push<bool>(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailRiwayatAktivasiPage(
-                          idTransaksi: transaksi.id,
-                        ),
-                      ),
-                    );
-                  },
-                  onLongPress: () => _dialogOpsi(transaksi),
-                  title: Text(
-                    item.namaPelanggan,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      PackageNameWidget(
-                        paketFuture: paketOpSqlite.ambilBerdasarkanId(
-                          transaksi.idPaket ?? '',
-                        ),
-                        style: TextStyle(color: warnaStatusPembayaran),
-                      ),
-                      gapH4,
-                      Text(
-                        'Status: ${transaksi.statusPembayaran.displayName}',
-                        style: TextStyle(
-                          color: warnaStatusPembayaran,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      gapH4,
-                      if (transaksi.tanggalMulai != null &&
-                          transaksi.tanggalBerakhir != null)
-                        Text(
-                          'Aktif: ${FormatTanggal.formatDasar(transaksi.tanggalMulai!)} - ${FormatTanggal.formatDasar(transaksi.tanggalBerakhir!)}',
-                        ),
-                    ],
-                  ),
-                  trailing: const Icon(TIcons.chevronRight),
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Future<void> _tampilkanDialogUrutan(
-    BuildContext context,
-    WidgetRef ref,
-    OpsiUrutan currentSort,
-  ) async {
-    final OpsiUrutan? selected = await showDialog<OpsiUrutan>(
-      context: context,
-      builder: (BuildContext context) {
-        Widget buildOption(String text, OpsiUrutan value) {
-          return SimpleDialogOption(
-            onPressed: () => Navigator.pop(context, value),
-            child: Text(
-              text,
-              style: TextStyle(
-                fontWeight: currentSort == value
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-              ),
-            ),
-          );
-        }
-
-        return SimpleDialog(
-          title: const Text('Urutkan Berdasarkan'),
-          children: <Widget>[
-            // Perbaikan: Pastikan enum beralhirHariIni sudah dibetulkan typo-nya jika diperlukan
-            buildOption('Berakhir Hari Ini', OpsiUrutan.berakhirHariIni),
-            buildOption('Tanggal Berakhir', OpsiUrutan.tanggalBerakhir),
-            buildOption('Nama A-Z', OpsiUrutan.namaAZ),
-            buildOption('Nama Z-A', OpsiUrutan.namaZA),
-            buildOption('Lunas', OpsiUrutan.lunas),
-            buildOption('Belum Lunas', OpsiUrutan.belumLunas),
-            buildOption('Update Terbaru', OpsiUrutan.diperbaruiPadaAZ),
-            buildOption('Update Terlama', OpsiUrutan.diperbaruiPadaZA),
-          ],
-        );
-      },
-    );
-
-    if (selected != null) {
-      ref.read(riwayatAktivasiPaketProvider.notifier).changeSort(selected);
-    }
-  }
-}
-
-
 // File: lib/fitur/transaksi/page/form_transaksi.dart
 // path: lib/fitur/transaksi/page/form_transaksi.dart
 
@@ -26664,7 +27368,6 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         Log.info(
           'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
         );
-
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
         );
@@ -26676,7 +27379,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         }
 
         if (mounted) {
-          Navigator.pop(context, true);
+          Navigator.pop(context);
         }
       } on Exception catch (e, s) {
         Log.error('Gagal menyimpan transaksi ke database.', e: e, s: s);
@@ -26791,13 +27494,12 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                       focusNode: _keteranganFocusNode,
                       nextFocusNode: _jumlahFocusNode,
                     ),
-
+                    gapH8,
                     InputRupiah(
                       controller: _jumlahController,
                       focusNode: _jumlahFocusNode,
                       textInputAction: TextInputAction.done,
                     ),
-
                     gapH24,
                     PemilihTanggalWaktuWidget(
                       tanggalTerpilih: _tanggalDipilih,
@@ -28082,8 +28784,8 @@ class Transaksi extends _$Transaksi {
   Future<TransaksiState> _loadData() async {
     final hasil = await Future.wait([
       _transaksiOp.ambilSemua(), // [0]
-      _transaksiOp.getTotalIncome(), // [1]
-      _transaksiOp.getTotalExpense(), // [2]
+      _transaksiOp.ambilTotalPemasukan(), // [1]
+      _transaksiOp.ambilTotalPengeluaran(), // [2]
       _transaksiOp.getNetTotal(), // [3]
       _transaksiOp.ambilTotalPoinSemuaPelanggan(), // [4]
       _transaksiOp.ambilPaketTerlaris(), // [5] ✅ TAMBAHKAN
@@ -28253,7 +28955,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'2cc0fbb5ca32e2cdd647291f674c2ed51cdc50a2';
+String _$transaksiHash() => r'bf950c78b9d6a9be15724d75b96a1a00806f1348';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -28499,19 +29201,19 @@ class TransaksiOpGlobal {
     }
   }
 
-  Future<double> getTotalIncome() async {
+  Future<double> ambilTotalPemasukan() async {
     Log.info('Menghitung total pemasukan');
     if (RoleUtil.isAdmin(ref)) {
-      return await _transaksiOpSqlite.getTotalIncome();
+      return await _transaksiOpSqlite.ambilTotalPemasukan();
     } else {
       return 0;
     }
   }
 
-  Future<double> getTotalExpense() async {
+  Future<double> ambilTotalPengeluaran() async {
     Log.info('Menghitung total pengeluaran');
     if (RoleUtil.isAdmin(ref)) {
-      return await _transaksiOpSqlite.getTotalExpense();
+      return await _transaksiOpSqlite.ambilTotalPengeluaran();
     } else {
       return 0;
     }
@@ -28522,8 +29224,8 @@ class TransaksiOpGlobal {
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.getNetTotal();
     } else {
-      final income = await getTotalIncome();
-      final expense = await getTotalExpense();
+      final income = await ambilTotalPemasukan();
+      final expense = await ambilTotalPengeluaran();
       return income - expense;
     }
   }
@@ -28662,6 +29364,7 @@ final transaksiOpGlobalProvider = Provider<TransaksiOpGlobal>((ref) {
 import 'package:collection/collection.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
@@ -28679,8 +29382,7 @@ class TransaksiOpSqlite {
   final PaketOpSqlite paketOpsqlite;
 
   final String _tabel = NamaTabel.transaksi;
-  final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
-  final _nowUtc = DateTime.now().toUtc();
+  DateTime get _nowUtc => DateTime.now().toUtc();
 
   TransaksiOpSqlite({
     required this.sqliteDb,
@@ -28730,10 +29432,24 @@ class TransaksiOpSqlite {
       );
 
       final saldoTotal = (hasilTotal.first['total'] as num?)?.toDouble() ?? 0.0;
+      final dompetMaps = await txn.query(
+        NamaTabel.dompet,
+        where: '${NamaKolom.id} = ?',
+        whereArgs: [idDompet],
+      );
 
+      if (dompetMaps.isEmpty) {
+        Log.warning('Dompet ID: $idDompet tidak ditemukan');
+        return;
+      }
+      final dompetLama = DompetModel.fromSqlite(dompetMaps.first);
+      final dompetBaru = dompetLama.copyWith(
+        saldo: saldoTotal,
+        diperbaruiPada: _nowUtc, // ← Gunakan DateTime
+      );
       await txn.update(
         NamaTabel.dompet,
-        {NamaKolom.saldo: saldoTotal, NamaKolom.diperbaruiPada: _nowEpoch},
+        dompetBaru.toSqlite(),
         where: '${NamaKolom.id} = ?',
         whereArgs: [idDompet],
       );
@@ -28753,7 +29469,7 @@ class TransaksiOpSqlite {
     final bool fromServer = false,
   }) async {
     try {
-      final id = await baseOpSqlite.runComplexOperation<int>((
+      final id = await baseOpSqlite.operasiKompleks<int>((
         final Transaction txn,
       ) async {
         Log.info('Memulai transaksi database untuk addTransaction');
@@ -28810,6 +29526,58 @@ class TransaksiOpSqlite {
     }
   }
 
+  /// Memperbarui data transaksi yang ada dan menghitung ulang saldo dompet yang terpengaruh.
+  Future<void> perbaruiTransaksi(
+    String id,
+    TransaksiModel transaksi, {
+    bool dariServer = false,
+  }) async {
+    try {
+      await baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
+        Log.info('Memulai update transaksi database ID: $id');
+        final maps = await txn.query(
+          _tabel,
+          where: '${NamaKolom.id} = ?',
+          whereArgs: [id],
+        );
+
+        if (maps.isNotEmpty) {
+          final transaksiLama = TransaksiModel.fromSqlite(maps.first);
+          final updateData = transaksi.copyWith(diperbaruiPada: _nowUtc);
+          await txn.update(
+            _tabel,
+            updateData.toSqlite(),
+            where: '${NamaKolom.id} = ?',
+            whereArgs: [id],
+          );
+          Log.info('Data transaksi $transaksiLama ke  $updateData diperbarui');
+          final dompetTerpengaruh = <String>{};
+          dompetTerpengaruh.add(transaksiLama.idDompet);
+          dompetTerpengaruh.add(updateData.idDompet);
+          if (transaksiLama.idDompetTujuan != null) {
+            dompetTerpengaruh.add(transaksiLama.idDompetTujuan!);
+          }
+          if (updateData.idDompetTujuan != null) {
+            dompetTerpengaruh.add(updateData.idDompetTujuan!);
+          }
+
+          Log.info(
+            'Mengupdate saldo untuk wallet yang terpengaruh: $dompetTerpengaruh',
+          );
+          for (final idDompet in dompetTerpengaruh) {
+            await _hitungUlangDanPerbaruiSaldoDompet(idDompet, txn);
+          }
+        } else {
+          Log.warning('Update gagal: Transaksi ID $id tidak ditemukan');
+        }
+      }, dariServer: dariServer);
+      Log.info('Proses updateTransaction ID: $id selesai');
+    } on Exception catch (e, st) {
+      Log.error('Gagal update transaksi ID: $id', e: e, s: st);
+      rethrow;
+    }
+  }
+
   /// Mengambil satu transaksi berdasarkan ID-nya.
   Future<TransaksiModel?> ambilBerdasarkanId(String id) async {
     try {
@@ -28826,7 +29594,6 @@ class TransaksiOpSqlite {
         Log.warning('Transaksi dengan ID: $id tidak ditemukan');
         return null;
       }
-
       Log.info('Transaksi ID: $id ditemukan');
       return TransaksiModel.fromSqlite(maps.first);
     } catch (e, st) {
@@ -28905,70 +29672,10 @@ class TransaksiOpSqlite {
     }
   }
 
-  /// Memperbarui data transaksi yang ada dan menghitung ulang saldo dompet yang terpengaruh.
-  Future<void> perbaruiTransaksi(
-    final String id,
-    final TransaksiModel transaksi, {
-    final bool dariServer = false,
-  }) async {
-    try {
-      await baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
-        Log.info('Memulai update transaksi database ID: $id');
-        final maps = await txn.query(
-          _tabel,
-          where: '${NamaKolom.id} = ?',
-          whereArgs: [id],
-        );
-
-        if (maps.isNotEmpty) {
-          final oldTransaction = TransaksiModel.fromSqlite(maps.first);
-          final updateData = transaksi.copyWith(diperbaruiPada: _nowUtc);
-          await txn.update(
-            _tabel,
-            updateData.toSqlite(),
-            where: '${NamaKolom.id} = ?',
-            whereArgs: [id],
-          );
-          Log.info('Data transaksi ID: $id diperbarui');
-
-          final dompetTerpengaruh = <String>{};
-          dompetTerpengaruh.add(oldTransaction.idDompet);
-          dompetTerpengaruh.add(updateData.idDompet);
-          if (oldTransaction.idDompetTujuan != null) {
-            dompetTerpengaruh.add(oldTransaction.idDompetTujuan!);
-          }
-          if (updateData.idDompetTujuan != null) {
-            dompetTerpengaruh.add(updateData.idDompetTujuan!);
-          }
-
-          Log.info(
-            'Mengupdate saldo untuk wallet yang terpengaruh: $dompetTerpengaruh',
-          );
-          for (final idDompet in dompetTerpengaruh) {
-            await _hitungUlangDanPerbaruiSaldoDompet(idDompet, txn);
-          }
-        } else {
-          Log.warning('Update gagal: Transaksi ID $id tidak ditemukan');
-        }
-      }, dariServer: dariServer);
-      Log.info('Proses updateTransaction ID: $id selesai');
-    } on Exception catch (e, st) {
-      Log.error('Gagal update transaksi ID: $id', e: e, s: st);
-      rethrow;
-    }
-  }
-
   /// Menandai transaksi sebagai dihapus (soft delete) dan menghitung ulang saldo dompet.
-  Future<void> softDelete(
-    final String id, {
-    final bool dariServer = false,
-  }) async {
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
     try {
-      await baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         Log.info('Memulai soft delete atomik untuk ID: $id');
         final maps = await txn.query(
           _tabel,
@@ -28982,17 +29689,17 @@ class TransaksiOpSqlite {
         }
 
         final transaksiLama = TransaksiModel.fromSqlite(maps.first);
+        final transaksiDiarsip = transaksiLama.copyWith(
+          diHapus: true,
+          diperbaruiPada: _nowUtc,
+          diarsipkanPada: _nowUtc,
+        );
         await txn.update(
           _tabel,
-          {
-            NamaKolom.dihapus: 1,
-            NamaKolom.diperbaruiPada: _nowEpoch,
-            NamaKolom.diarsipkanPada: _nowEpoch,
-          },
+          transaksiDiarsip.toSqlite(),
           where: '${NamaKolom.id} = ?',
           whereArgs: [id],
         );
-
         Log.info('Flag isDeleted diatur ke 1 untuk ID: $id');
 
         await _hitungUlangDanPerbaruiSaldoDompet(transaksiLama.idDompet, txn);
@@ -29014,16 +29721,17 @@ class TransaksiOpSqlite {
   /// Menandai semua transaksi sebagai dihapus dan mereset saldo semua dompet menjadi 0.
   Future<int> softDeleteAll({bool dariServer = false}) async {
     try {
-      final count = await baseOpSqlite.runComplexOperation<int>((
+      final count = await baseOpSqlite.operasiKompleks<int>((
         final Transaction txn,
       ) async {
         Log.warning('Memulai soft delete semua transaksi secara atomik');
+
         final rowsAffected = await txn.update(
           _tabel,
           {
             NamaKolom.dihapus: 1,
-            NamaKolom.diperbaruiPada: _nowEpoch,
-            NamaKolom.diarsipkanPada: _nowEpoch,
+            NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
+            NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
           },
           where: '${NamaKolom.dihapus} = ?',
           whereArgs: [0],
@@ -29032,7 +29740,7 @@ class TransaksiOpSqlite {
 
         await txn.update(NamaTabel.dompet, {
           NamaKolom.saldo: 0,
-          NamaKolom.diperbaruiPada: _nowEpoch,
+          NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
         });
         Log.info('Semua saldo dompet direset ke 0 setelah penghapusan massal');
 
@@ -29046,7 +29754,7 @@ class TransaksiOpSqlite {
   }
 
   /// Menghitung total pemasukan (income) dari semua transaksi.
-  Future<double> getTotalIncome() async {
+  Future<double> ambilTotalPemasukan() async {
     try {
       final db = await _sqliteDb;
       Log.info('Menghitung total seluruh pemasukan');
@@ -29066,7 +29774,7 @@ class TransaksiOpSqlite {
   }
 
   /// Menghitung total pengeluaran (expense) dari semua transaksi.
-  Future<double> getTotalExpense() async {
+  Future<double> ambilTotalPengeluaran() async {
     try {
       final db = await _sqliteDb;
       Log.info('Menghitung total seluruh pengeluaran');
@@ -29088,8 +29796,8 @@ class TransaksiOpSqlite {
   /// Menghitung total bersih (pemasukan - pengeluaran).
   Future<double> getNetTotal() async {
     Log.info('Menghitung Net Total (Pemasukan - Pengeluaran)');
-    final income = await getTotalIncome();
-    final expense = await getTotalExpense();
+    final income = await ambilTotalPemasukan();
+    final expense = await ambilTotalPengeluaran();
     final net = income - expense;
     Log.info('Hasil Net Total: $net');
     return net;
@@ -29357,9 +30065,7 @@ class TransaksiOpSqlite {
     final Set<String> dompetTerpengaruh = {};
 
     try {
-      await baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         Log.info(
           'Memulai proses Batch insert/update untuk ${transaksi.length} item',
         );
@@ -32879,7 +33585,7 @@ class PelangganOpSqlite {
     Log.info('Memulai pembuatan customer dengan ID: ${pelanggan.id}');
     try {
       final pelangganBaru = pelanggan.copyWith(
-        diperbaruiPada: DateTime.now().toUtc(),
+        diperbaruiPada: DateTime.now(),
       );
       final data = pelangganBaru.toSqlite();
       await _baseOpSqlite.sisipkan(_tabel, data, dariServer: dariServer);
@@ -33837,7 +34543,7 @@ class LayananNotifikasi {
   LayananNotifikasi._internal() : plugin = FlutterLocalNotificationsPlugin() {
     Log.info('Konstruktor internal NotifikasiServis dipanggil.');
   }
-  
+
   @visibleForTesting
   LayananNotifikasi.testing(this.plugin);
 
@@ -33885,7 +34591,7 @@ class LayananNotifikasi {
     }
   }
 
-  Future<void> inisialisasiNotifikasi({required final String iconName}) async {
+  Future<void> inisialisasiNotifikasi({required String iconName}) async {
     Log.info('Memulai proses inisialisasi NotifikasiServis...');
     await _inisialisasiZonaWaktu();
     Log.info('inisialisai');
@@ -33897,7 +34603,7 @@ class LayananNotifikasi {
       Log.info('Menginisialisasi plugin flutter_local_notifications.');
       await plugin.initialize(
         settings: settings,
-        onDidReceiveNotificationResponse: (final response) {
+        onDidReceiveNotificationResponse: (response) {
           Log.info(
             'Notifikasi foreground di-tap. Payload: ${response.payload}',
           );
@@ -34285,8 +34991,6 @@ class PengingatService {
         e: e,
         s: st,
       );
-      // Tidak perlu menampilkan toast ke user karena ini proses background,
-      // cukup log saja.
     }
   }
 }
@@ -34318,11 +35022,11 @@ class PenjadwalNotifikasi {
     Log.info(
       'Memulai pengecekan untuk penjadwalan notifikasi untuk pengguna: $userId',
     );
-    final endNotificationId = userId.hashCode;
-    final midNotificationId = '${userId}_midpoint'.hashCode;
+    final idNotifikasiAkhir = userId.hashCode;
+    final idNotifikasiTengah = '${userId}_midpoint'.hashCode;
 
     // ID untuk AlarmManager harus unik per alarm.
-    final int alarmId = endNotificationId;
+    final int idAlarm = idNotifikasiAkhir;
 
     try {
       final transaksiOpFirebase = transaksiOp ?? TransaksiOpFirebase();
@@ -34337,75 +35041,77 @@ class PenjadwalNotifikasi {
           transaksi.tanggalBerakhir != null &&
           transaksi.tanggalBerakhir!.isAfter(DateTime.now())) {
         // -- Penjadwalan Notifikasi & Alarm Akhir Periode --
-        final scheduledTime = transaksi.tanggalBerakhir!;
+        final waktuJadwal = transaksi.tanggalBerakhir!;
         Log.info(
-          'Langganan aktif ditemukan (ID: ${transaksi.id}). Menjadwalkan notifikasi & alarm akhir pada $scheduledTime',
+          'Langganan aktif ditemukan (ID: ${transaksi.id}). Menjadwalkan notifikasi & alarm akhir pada $waktuJadwal',
         );
 
         // 1. Jadwalkan Notifikasi Visual
         await layananNotifikasi.perbaruiJadwalNotifikasi(
-          id: endNotificationId,
+          id: idNotifikasiAkhir,
           title: 'Langganan Telah Berakhir',
           body:
               'Masa aktif paket Anda telah berakhir. Perpanjang sekarang untuk terhubung lagi.',
-          jadwal: scheduledTime,
+          jadwal: waktuJadwal,
           payload: 'subscription_expired',
         );
 
         // 2. Jadwalkan Alarm untuk Eksekusi Background
         await AndroidAlarmManager.oneShotAt(
-          scheduledTime,
-          alarmId,
+          waktuJadwal,
+          idAlarm,
           _callbackAlarm, // Fungsi top-level
           exact: true, // Memastikan eksekusi tepat waktu
           wakeup: true, // Membangunkan perangkat jika dalam mode sleep
         );
         Log.info(
-          'Alarm untuk ID $alarmId berhasil dijadwalkan pada $scheduledTime',
+          'Alarm untuk ID $idAlarm berhasil dijadwalkan pada $waktuJadwal',
         );
 
         // -- Logika untuk Notifikasi Tengah Periode (tidak berubah) --
-        final totalDuration = transaksi.tanggalBerakhir!.difference(
+        final totalDurasi = transaksi.tanggalBerakhir!.difference(
           transaksi.tanggalMulai!,
         );
-        final midpointDuration = totalDuration.inSeconds ~/ 2;
-        final midpointDate = transaksi.tanggalMulai!.add(
-          Duration(seconds: midpointDuration),
+        final durasiTengah = totalDurasi.inSeconds ~/ 2;
+        final tanggalTengah = transaksi.tanggalMulai!.add(
+          Duration(seconds: durasiTengah),
         );
 
-        if (midpointDate.isAfter(DateTime.now())) {
-          Log.info('Menjadwalkan notifikasi tengah periode pada $midpointDate');
+        if (tanggalTengah.isAfter(DateTime.now())) {
+          Log.info(
+            'Menjadwalkan notifikasi tengah periode pada $tanggalTengah',
+          );
           await layananNotifikasi.perbaruiJadwalNotifikasi(
-            id: midNotificationId,
+            id: idNotifikasiTengah,
             title: 'Status Langganan Anda',
             body:
                 'Masa aktif paket Anda sudah berjalan 50%. Terima kasih telah menggunakan layanan kami.',
-            jadwal: midpointDate,
+            jadwal: tanggalTengah,
             payload: 'subscription_midpoint',
           );
         } else {
           Log.info(
             'Tanggal tengah periode sudah lewat. Membatalkan notifikasi jika ada.',
           );
-          await layananNotifikasi.batalNotifikasi(midNotificationId);
+          await layananNotifikasi.batalNotifikasi(idNotifikasiTengah);
         }
       } else {
         // Jika tidak ada langganan aktif, batalkan semua notifikasi DAN alarm.
         Log.info(
           'Tidak ada langganan aktif. Membatalkan semua notifikasi dan alarm untuk pengguna ini.',
         );
-        await layananNotifikasi.batalNotifikasi(endNotificationId);
-        await layananNotifikasi.batalNotifikasi(midNotificationId);
-        await AndroidAlarmManager.cancel(alarmId);
-        Log.info('Alarm dengan ID $alarmId juga dibatalkan.');
+        await layananNotifikasi.batalNotifikasi(idNotifikasiAkhir);
+        await layananNotifikasi.batalNotifikasi(idNotifikasiTengah);
+        await AndroidAlarmManager.cancel(idAlarm);
+        Log.info('Alarm dengan ID $idAlarm juga dibatalkan.');
       }
     } on Exception catch (e, st) {
       Log.error('Gagal mengatur notifikasi dari Firebase', e: e, s: st);
       // Jika terjadi error, coba batalkan semua notifikasi dan alarm untuk kebersihan.
-      await layananNotifikasi.batalNotifikasi(endNotificationId);
-      await layananNotifikasi.batalNotifikasi(midNotificationId);
-      await AndroidAlarmManager.cancel(alarmId);
-      Log.info('Alarm dengan ID $alarmId juga dibatalkan karena error.');
+      await layananNotifikasi.batalNotifikasi(idNotifikasiAkhir);
+      await layananNotifikasi.batalNotifikasi(idNotifikasiTengah);
+      await AndroidAlarmManager.cancel(idAlarm);
+      Log.info('Alarm dengan ID $idAlarm juga dibatalkan karena error.');
     }
   }
 }
@@ -34469,9 +35175,7 @@ class NotifikasiOpSqlite {
   }) async {
     Log.info('Menambahkan notifikasi baru - ID: ${notifikasi.id}');
     try {
-      final data = notifikasi
-          .copyWith(diperbaruiPada: _nowUtc)
-          .toSqlite();
+      final data = notifikasi.copyWith(diperbaruiPada: _nowUtc).toSqlite();
       await _baseOpSqlite.sisipkan(_namaTabel, data, dariServer: dariServer);
       Log.info('Notifikasi berhasil ditambahkan - ID: ${notifikasi.id}');
     } catch (e, st) {
@@ -34491,9 +35195,7 @@ class NotifikasiOpSqlite {
   }) async {
     Log.info('Memperbarui notifikasi - ID: ${notifikasi.id}');
     try {
-      final data = notifikasi
-          .copyWith(diperbaruiPada: _nowUtc)
-          .toSqlite();
+      final data = notifikasi.copyWith(diperbaruiPada: _nowUtc).toSqlite();
       await _baseOpSqlite.update(
         _namaTabel,
         data,
@@ -34512,10 +35214,7 @@ class NotifikasiOpSqlite {
   }
 
   /// Menandai notifikasi sebagai sudah dibaca.
-  Future<void> tandaiSudahDibaca(
-    String id, {
-    bool dariServer = false,
-  }) async {
+  Future<void> tandaiSudahDibaca(String id, {bool dariServer = false}) async {
     Log.info('Menandai notifikasi sudah dibaca - ID: $id');
     try {
       final data = {
@@ -34535,28 +35234,19 @@ class NotifikasiOpSqlite {
   }
 
   /// Melakukan soft delete pada notifikasi berdasarkan ID.
-  Future<void> softDelete(
-    String id, {
-    bool dariServer = false,
-  }) async {
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
     Log.info('Memulai soft delete notifikasi - ID: $id');
     try {
       await _baseOpSqlite.softDelete(_namaTabel, id, dariServer: dariServer);
       Log.info('Soft delete notifikasi berhasil - ID: $id');
     } catch (e, st) {
-      Log.error(
-        'Gagal soft delete notifikasi - ID: $id',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal soft delete notifikasi - ID: $id', e: e, s: st);
       rethrow;
     }
   }
 
   /// Melakukan soft delete pada semua notifikasi.
-  Future<int> softDeleteAll({
-    bool dariServer = false,
-  }) async {
+  Future<int> softDeleteAll({bool dariServer = false}) async {
     Log.info('Memulai soft delete semua notifikasi');
     try {
       final count = await _baseOpSqlite.softDeleteAll(
@@ -34572,20 +35262,13 @@ class NotifikasiOpSqlite {
   }
 
   /// Menghapus notifikasi secara permanen dari database.
-  Future<void> hapusPermanen(
-    String id, {
-    bool dariServer = false,
-  }) async {
+  Future<void> hapusPermanen(String id, {bool dariServer = false}) async {
     Log.warning('Menghapus notifikasi secara permanen - ID: $id');
     try {
       await _baseOpSqlite.delete(_namaTabel, id, dariServer: dariServer);
       Log.info('Notifikasi berhasil dihapus permanen - ID: $id');
     } catch (e, st) {
-      Log.error(
-        'Gagal menghapus permanen notifikasi - ID: $id',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal menghapus permanen notifikasi - ID: $id', e: e, s: st);
       rethrow;
     }
   }
@@ -34614,11 +35297,7 @@ class NotifikasiOpSqlite {
       );
       Log.info('Batch ${daftarNotifikasi.length} notifikasi berhasil diproses');
     } catch (e, st) {
-      Log.error(
-        'Gagal memproses batch notifikasi',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal memproses batch notifikasi', e: e, s: st);
       rethrow;
     }
   }
@@ -34634,9 +35313,7 @@ class NotifikasiOpSqlite {
     Log.info('Mengambil semua notifikasi dari tabel $_namaTabel');
     try {
       final db = await sqliteDb.database;
-      final query = tampilkanYangDiarsip
-          ? null
-          : '${NamaKolom.dihapus} = 0';
+      final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = 0';
       final List<Map<String, dynamic>> maps = await db.query(
         _namaTabel,
         where: query,
@@ -34700,10 +35377,16 @@ class NotifikasiOpSqlite {
         maps.length,
         (i) => NotifikasiModel.fromSqlite(maps[i]),
       );
-      Log.info('Berhasil mengambil ${hasil.length} notifikasi untuk User $userId');
+      Log.info(
+        'Berhasil mengambil ${hasil.length} notifikasi untuk User $userId',
+      );
       return hasil;
     } catch (e, st) {
-      Log.error('Gagal mengambil notifikasi untuk User ID: $userId', e: e, s: st);
+      Log.error(
+        'Gagal mengambil notifikasi untuk User ID: $userId',
+        e: e,
+        s: st,
+      );
       rethrow;
     }
   }
@@ -34752,7 +35435,9 @@ class NotifikasiOpSqlite {
         maps.length,
         (i) => NotifikasiModel.fromSqlite(maps[i]),
       );
-      Log.info('Berhasil mengambil ${hasil.length} notifikasi untuk ID Tujuan $idTujuan');
+      Log.info(
+        'Berhasil mengambil ${hasil.length} notifikasi untuk ID Tujuan $idTujuan',
+      );
       return hasil;
     } catch (e, st) {
       Log.error(
@@ -34771,9 +35456,7 @@ class NotifikasiOpSqlite {
   }) async {
     Log.info('Menghapus notifikasi berdasarkan ID Tujuan: $idTujuan');
     try {
-      await _baseOpSqlite.runComplexOperation<void>((
-        Transaction txn,
-      ) async {
+      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         await txn.delete(
           _namaTabel,
           where: '${NamaKolom.idTujuan} = ?',
@@ -34791,6 +35474,7 @@ class NotifikasiOpSqlite {
     }
   }
 }
+
 
 // File: lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
 // path: lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
@@ -35743,9 +36427,9 @@ class LayananUnduhData {
           if (waktuPembaruanServer.isAfter(lastDownloadTime)) {
             Log.info('Data pengaturan server lebih baru, memperbarui lokal.');
             final settings = SettingsModel.fromFirebase(data);
-            await _operasiPengaturan.saveOrUpdateSettings(
+            await _operasiPengaturan.simpanAtauPerbaruiSettings(
               settings,
-              fromServer: true,
+              dariServer: true,
             );
             Log.info('Update Settings lokal berhasil.');
           } else {
@@ -36031,7 +36715,7 @@ class LayananUnggahData {
       unggahDataPelangganAktif(),
       uploadCustomerData(),
       uploadOrderData(),
-      uploadTransactionData(),
+      uploadDataTransaksi(),
       uploadSubCategoryData(),
       uploadApkVersionData(),
       uploadSettingsData(),
@@ -36284,7 +36968,7 @@ class LayananUnggahData {
   }
 
   /// Mengunggah data transaksi ke Firestore.
-  Future<void> uploadTransactionData() async {
+  Future<void> uploadDataTransaksi() async {
     Log.info(
       'Memulai proses unggah data transaksi. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
@@ -36298,7 +36982,7 @@ class LayananUnggahData {
         NamaTabel.transaksi,
         NamaTabel.transaksi,
         TransaksiModel.fromSqlite,
-        (final m) => m.toFirebase(),
+        (m) => m.toFirebase(),
         waktu,
       );
       Log.info('Proses unggah data transaksi selesai dengan sukses.');
@@ -41271,18 +41955,19 @@ class DurasiUtil {
 }
 
 // File: lib/shared/utils/format_util.dart
+// File: lib/shared/utils/format_util.dart
 import 'package:intl/intl.dart';
 
 class FormatWaktuLengkap {
   FormatWaktuLengkap._();
 
   static String formatLengkap(DateTime date) {
-    final format = DateFormat('d MMM yyyy, HH:mm', 'id_ID');
+    final format = DateFormat('d MMM yyyy, HH:mm');
     return format.format(date);
   }
 
   static String formatSingkat(DateTime date) {
-    final format = DateFormat('E, d MMM yy, HH:mm', 'id_ID');
+    final format = DateFormat('E, d MMM yy, HH:mm');
     return format.format(date);
   }
 }
@@ -41291,15 +41976,15 @@ class FormatTanggal {
   FormatTanggal._();
 
   static String formatDasar(DateTime date) {
-    return DateFormat('d MMM yyyy', 'id_ID').format(date);
+    return DateFormat('d MMM yyyy').format(date);
   }
 
   static String formatSingkat(DateTime date) {
-    return DateFormat('E, d MMM yy', 'id_ID').format(date);
+    return DateFormat('E, d MMM yy').format(date);
   }
 
   static String formatBulanTahun(DateTime date) {
-    return DateFormat('MMMM yyyy', 'id_ID').format(date);
+    return DateFormat('MMMM yyyy').format(date);
   }
 }
 
@@ -41328,11 +42013,7 @@ class FormatUang {
   FormatUang._();
 
   static String formatMataUang(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
+    final formatter = NumberFormat.currency(symbol: 'Rp ', decimalDigits: 0);
     return formatter.format(amount.abs());
   }
 }
@@ -41341,15 +42022,14 @@ class FormatNomor {
   FormatNomor._();
 
   static String formatRibuan(int value) {
-    final formatter = NumberFormat('#,###', 'id_ID');
+    final formatter = NumberFormat('#,###');
     return formatter.format(value);
   }
 }
 
 
 // File: lib/shared/widget/nama_pelanggan_widget.dart
-import 'dart:ui';
-
+// path: lib/shared/widget/nama_pelanggan_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
@@ -41405,7 +42085,6 @@ class NamaPelangganWidget extends ConsumerWidget {
   }
 }
 
-
 // File: lib/shared/widget/input/input_rupiah.dart
 // path: lib/shared/widget/input/input_rupiah.dart
 
@@ -41459,7 +42138,7 @@ class InputRupiah extends StatelessWidget {
       inputFormatters: [
         CurrencyTextInputFormatter.currency(
           locale: 'id',
-          symbol: 'Rp ',
+          symbol: 'Rp',
           decimalDigits: 0,
         ),
       ],
@@ -44823,7 +45502,7 @@ final baseOpSqliteProvider = Provider<BaseOpSqlite>((ref) {
 class BaseOpSqlite {
   final SqliteDatabase _sqliteDb;
   final StatusUploadOpSqlite _statusUnggahOpsqlite;
-  final now = DateTime.now().toUtc();
+  DateTime get _sekarang => DateTime.now().toUtc();
 
   /// Konstruktor untuk `BaseOperation`.
   ///
@@ -44841,8 +45520,8 @@ class BaseOpSqlite {
   ///
   /// Jika [dariServer] bernilai `false`, maka akan menandai status `needUpload`
   /// menjadi `true` untuk sinkronisasi data ke server.
-  Future<T> _runInTransaction<T>(
-    final Future<T> Function(Transaction) action, {
+  Future<T> _operasiInti<T>(
+    final Future<T> Function(Transaction) aksi, {
     final bool dariServer = false,
   }) async {
     Log.info(
@@ -44873,13 +45552,13 @@ class BaseOpSqlite {
               '[TRANSAKSI AKTIF] Melewati penandaan `needUpload` (operasi dari server).',
             );
           }
-          final result = await action(txn);
+          final hasil = await aksi(txn);
           Log.info(
-            '[TRANSAKSI AKTIF] Aksi utama berhasil dieksekusi. Hasil: ${result.runtimeType}',
+            '[TRANSAKSI AKTIF] Aksi utama berhasil dieksekusi. Hasil: ${hasil.runtimeType}',
           );
 
           Log.info('[TRANSAKSI COMMIT] Transaksi akan di-commit.');
-          return result;
+          return hasil;
         } catch (e, st) {
           Log.error(
             '[TRANSAKSI GAGAL DI DALAM] Error di dalam blok transaksi.',
@@ -44900,12 +45579,12 @@ class BaseOpSqlite {
   }
 
   /// Menjalankan operasi database yang kompleks di dalam sebuah transaksi.
-  Future<T> runComplexOperation<T>(
-    final Future<T> Function(Transaction txn) customAction, {
+  Future<T> operasiKompleks<T>(
+    final Future<T> Function(Transaction txn) aksiKustom, {
     final bool dariServer = false,
   }) async {
     Log.info('Mendelegasikan eksekusi transaksi kompleks');
-    return await _runInTransaction(customAction, dariServer: dariServer);
+    return await _operasiInti(aksiKustom, dariServer: dariServer);
   }
 
   Future<void> sisipkan(
@@ -44915,7 +45594,7 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai penyisipan data ke tabel: $table');
     try {
-      await _runInTransaction((txn) async {
+      await _operasiInti((txn) async {
         final hasil = await txn.insert(
           table,
           data,
@@ -44946,22 +45625,22 @@ class BaseOpSqlite {
       'data': data,
     });
     try {
-      await _runInTransaction((txn) async {
-        final rowsAffected = await txn.update(
+      await _operasiInti((txn) async {
+        final jumlahDiperbarui = await txn.update(
           table,
           data,
           where: 'id = ?',
           whereArgs: [id],
         );
-        if (rowsAffected == 0) {
+        if (jumlahDiperbarui == 0) {
           Log.warning(
             'Update selesai tapi tidak ada baris yang berubah (ID tidak ditemukan)',
             {'id': id, 'tabel': table},
           );
         } else {
-          Log.info('UPDATE berhasil', {'rowsAffected': rowsAffected, 'id': id});
+          Log.info('UPDATE berhasil', {'jumlah': jumlahDiperbarui, 'id': id});
         }
-        return rowsAffected;
+        return jumlahDiperbarui;
       }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
@@ -44981,7 +45660,7 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai penghapusan data', {'tabel': table, 'id': id});
     try {
-      await _runInTransaction((txn) async {
+      await _operasiInti((txn) async {
         final rowsDeleted = await txn.delete(
           table,
           where: 'id = ?',
@@ -45016,30 +45695,27 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai soft delete', {'tabel': table, 'id': id});
     try {
-      await _runInTransaction((final txn) async {
-        final rowsAffected = await txn.update(
+      await _operasiInti((final txn) async {
+        final jumlah = await txn.update(
           table,
           {
             NamaKolom.dihapus: 1,
-            NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
-            NamaKolom.diperbaruiPada: now.millisecondsSinceEpoch,
+            NamaKolom.diarsipkanPada: _sekarang.millisecondsSinceEpoch,
+            NamaKolom.diperbaruiPada: _sekarang.millisecondsSinceEpoch,
           },
           where: '${NamaKolom.id} = ?',
           whereArgs: [id],
         );
 
-        if (rowsAffected == 0) {
+        if (jumlah == 0) {
           Log.warning(
             'Soft delete selesai tapi tidak ada baris yang berubah (ID tidak ditemukan)',
             {'id': id, 'tabel': table},
           );
         } else {
-          Log.info('Soft delete berhasil', {
-            'rowsAffected': rowsAffected,
-            'id': id,
-          });
+          Log.info('Soft delete berhasil', {'jumlah': jumlah, 'id': id});
         }
-        return rowsAffected;
+        return jumlah;
       }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
@@ -45059,18 +45735,18 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai soft delete semua data di tabel: $table');
     try {
-      final count = await _runInTransaction<int>((final txn) async {
-        final rowsAffected = await txn.update(table, {
+      final count = await _operasiInti<int>((final txn) async {
+        final jumlah = await txn.update(table, {
           NamaKolom.dihapus: 1,
-          NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
-          NamaKolom.diperbaruiPada: now.millisecondsSinceEpoch,
+          NamaKolom.diarsipkanPada: _sekarang.millisecondsSinceEpoch,
+          NamaKolom.diperbaruiPada: _sekarang.millisecondsSinceEpoch,
         }, where: '${NamaKolom.dihapus} = 0');
 
         Log.info('Soft delete semua data berhasil', {
-          'rowsAffected': rowsAffected,
+          'jumlah': jumlah,
           'tabel': table,
         });
-        return rowsAffected;
+        return jumlah;
       }, dariServer: dariServer);
       return count;
     } catch (e, s) {
@@ -45101,9 +45777,9 @@ class BaseOpSqlite {
       'fromServer': dariServer,
     });
     try {
-      await _runInTransaction((final txn) async {
+      await _operasiInti((final txn) async {
         final batch = txn.batch();
-        int validCount = 0;
+        int valid = 0;
 
         for (int i = 0; i < dataList.length; i++) {
           final data = dataList[i];
@@ -45113,10 +45789,10 @@ class BaseOpSqlite {
               data,
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
-            validCount++;
+            valid++;
           }
         }
-        Log.info('Melakukan commit batch...', {'validCount': validCount});
+        Log.info('Melakukan commit batch...', {'validCount': valid});
         await batch.commit(noResult: true);
         Log.info('Batch operation sukses');
       }, dariServer: dariServer);
@@ -46779,12 +47455,12 @@ class FirebaseMigrationService {
 // File: lib/data_dummy/data_dummy.dart
 // path: lib/data_dummy/data_dummy.dart
 
-export 'dummy_pelanggan.dart';
 export 'dummy_dompet.dart';
 export 'dummy_kategori.dart';
 export 'dummy_paket.dart';
-export 'dummy_transaksi.dart';
+export 'dummy_pelanggan.dart';
 export 'dummy_sub_kategori.dart';  // ← Tambahkan ini
+export 'dummy_transaksi.dart';
 
 // File: lib/data_dummy/dummy_pelanggan.dart
 // path lib/data_dummy/dummy_pelanggan.dart
@@ -47109,14 +47785,12 @@ class DummyKategori {
       id: idKategoriTransfer,
       nama: 'Transfer',
       tipe: TipeKategori.transfer,
-      idSubKategori: const [],
     ),
     // Kategori Lainnya
     KategoriModel(
       id: idKategoriLainnya,
       nama: 'Lainnya',
       tipe: TipeKategori.expense,
-      idSubKategori: const [],
     ),
   ];
 
@@ -47143,7 +47817,6 @@ class DummyKategori {
     return null;
   }
 }
-
 
 // File: lib/data_dummy/dummy_transaksi.dart
 // path: lib/data_dummy/dummy_transaksi.dart
@@ -47733,7 +48406,7 @@ class HalamanDataDummy extends ConsumerWidget {
       Log.info('Memulai proses penambahan data Pengaturan dummy');
       final settingsOperation = ref.read(settingsOpSqliteProvider);
       // Settings default
-      await settingsOperation.saveOrUpdateSettings(const SettingsModel());
+      await settingsOperation.simpanAtauPerbaruiSettings(const SettingsModel());
 
       if (context.mounted) {
         ToastUtil.success(
@@ -47798,7 +48471,7 @@ class HalamanDataDummy extends ConsumerWidget {
       // 7. Tambahkan Pengaturan
       await ref
           .read(settingsOpSqliteProvider)
-          .saveOrUpdateSettings(const SettingsModel());
+          .simpanAtauPerbaruiSettings(const SettingsModel());
       Log.info('✅ Pengaturan: 1 data');
 
       // Invalidate semua provider
@@ -47861,8 +48534,8 @@ class HalamanDataDummy extends ConsumerWidget {
 // File: lib/data_dummy/dummy_sub_kategori.dart
 // path: lib/data_dummy/dummy_sub_kategori.dart
 
-import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 import 'package:wifi/data_dummy/dummy_kategori.dart';
+import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 
 /// Data dummy untuk sub-kategori
 class DummySubKategori {
@@ -48233,7 +48906,6 @@ void main() async {
   Log.info(
       '[main-dev] Memulai aplikasi user. Menyerahkan kendali ke AppUser...');
 
-  // Native splash akan dihilangkan dari dalam SplashScreenUser.
   runApp(
     ProviderScope(
       overrides: [
@@ -50370,7 +51042,7 @@ import 'package:wifi/fitur/kategori/page/kategori.dart';
 import 'package:wifi/fitur/paket/page/paket.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
 import 'package:wifi/fitur/settings/page/settings_page_a.dart';
-import 'package:wifi/fitur/transaksi/page/riwayat_aktivasi_paket.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/page/riwayat_aktivasi_paket.dart';
 import 'package:wifi/fitur/versi_apk/page/versi_apk_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -50641,775 +51313,6 @@ abstract class _$CustomerNotifier extends $AsyncNotifier<List<PelangganModel>> {
                 List<PelangganModel>
               >,
               AsyncValue<List<PelangganModel>>,
-              Object?,
-              Object?
-            >;
-    return element.handleCreate(ref, build);
-  }
-}
-
-
-// File: lib/admin/providers/detail_langganan_provider.g.dart
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
-part of 'detail_langganan_provider.dart';
-
-// **************************************************************************
-// RiverpodGenerator
-// **************************************************************************
-
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
-
-@ProviderFor(ambilDetailLangganan)
-final ambilDetailLanggananProvider = AmbilDetailLanggananFamily._();
-
-final class AmbilDetailLanggananProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<DetailLanggananState?>,
-          DetailLanggananState?,
-          FutureOr<DetailLanggananState?>
-        >
-    with
-        $FutureModifier<DetailLanggananState?>,
-        $FutureProvider<DetailLanggananState?> {
-  AmbilDetailLanggananProvider._({
-    required AmbilDetailLanggananFamily super.from,
-    required String super.argument,
-  }) : super(
-         retry: null,
-         name: r'ambilDetailLanggananProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$ambilDetailLanggananHash();
-
-  @override
-  String toString() {
-    return r'ambilDetailLanggananProvider'
-        ''
-        '($argument)';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<DetailLanggananState?> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<DetailLanggananState?> create(Ref ref) {
-    final argument = this.argument as String;
-    return ambilDetailLangganan(ref, argument);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is AmbilDetailLanggananProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$ambilDetailLanggananHash() =>
-    r'cb1a8692e90a7e2730006d6bb274c80720436c79';
-
-final class AmbilDetailLanggananFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<DetailLanggananState?>, String> {
-  AmbilDetailLanggananFamily._()
-    : super(
-        retry: null,
-        name: r'ambilDetailLanggananProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  AmbilDetailLanggananProvider call(String idTransaksi) =>
-      AmbilDetailLanggananProvider._(argument: idTransaksi, from: this);
-
-  @override
-  String toString() => r'ambilDetailLanggananProvider';
-}
-
-
-// File: lib/admin/providers/riwayat_aktivasi_paket_provider.dart
-// path lib/admin/providers/riwayat_aktivasi_paket_provider.dart
-
-import 'dart:async';
-
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
-
-part 'riwayat_aktivasi_paket_provider.g.dart';
-
-class TransaksiDenganPelanggan {
-  final TransaksiModel transaksi;
-  final PelangganModel? pelanggan;
-  TransaksiDenganPelanggan({required this.transaksi, this.pelanggan});
-  String get namaPelanggan => pelanggan?.nama ?? 'Tidak diketahui';
-}
-
-enum OpsiUrutan {
-  tanggalBerakhir,
-  namaAZ,
-  namaZA,
-  berakhirHariIni,
-  diperbaruiPadaAZ,
-  diperbaruiPadaZA,
-  lunas,
-  belumLunas,
-}
-
-class RiwayatAktivasiPaketState {
-  final List<TransaksiDenganPelanggan> items;
-  final OpsiUrutan sortBy;
-  RiwayatAktivasiPaketState({
-    this.items = const [],
-    this.sortBy = OpsiUrutan.berakhirHariIni,
-  });
-
-  RiwayatAktivasiPaketState copyWith({
-    List<TransaksiDenganPelanggan>? items,
-    OpsiUrutan? sortBy,
-  }) {
-    return RiwayatAktivasiPaketState(
-      items: items ?? this.items,
-      sortBy: sortBy ?? this.sortBy,
-    );
-  }
-}
-
-@riverpod
-class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
-  @override
-  FutureOr<RiwayatAktivasiPaketState> build() {
-    ref.watch(transaksiOpGlobalProvider);
-    ref.watch(pelangganOpSqliteProvider);
-    return _loadData(OpsiUrutan.berakhirHariIni);
-  }
-
-  Future<RiwayatAktivasiPaketState> _loadData(OpsiUrutan targetSort) async {
-    final transaksiOp = ref.read(transaksiOpGlobalProvider);
-    final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
-    final transaksi = await transaksiOp.ambilBerdasarkanStatusAktivasi();
-    final pealnggan = await pelangganOpSqlite.ambilSemua();
-    final customerMap = {for (var c in pealnggan) c.id: c};
-    final combinedList = transaksi.map((trans) {
-      return TransaksiDenganPelanggan(
-        transaksi: trans,
-        pelanggan: customerMap[trans.idPelanggan],
-      );
-    }).toList();
-    _performSort(combinedList, targetSort);
-    return RiwayatAktivasiPaketState(items: combinedList, sortBy: targetSort);
-  }
-
-  void changeSort(OpsiUrutan newSort) {
-    if (!state.hasValue) return;
-    final currentState = state.value!;
-    if (currentState.sortBy == newSort) return;
-    final List<TransaksiDenganPelanggan> sortedList = List.from(
-      currentState.items,
-    );
-    _performSort(sortedList, newSort);
-    state = AsyncValue.data(
-      currentState.copyWith(items: sortedList, sortBy: newSort),
-    );
-  }
-
-  void _performSort(List<TransaksiDenganPelanggan> list, OpsiUrutan option) {
-    switch (option) {
-      case OpsiUrutan.tanggalBerakhir:
-        list.sort((a, b) {
-          if (a.transaksi.tanggalBerakhir == null &&
-              b.transaksi.tanggalBerakhir == null) {
-            return 0;
-          }
-          if (a.transaksi.tanggalBerakhir == null) return 1;
-          if (b.transaksi.tanggalBerakhir == null) return -1;
-          final dateCompare = a.transaksi.tanggalBerakhir!.compareTo(
-            b.transaksi.tanggalBerakhir!,
-          );
-          if (dateCompare != 0) return dateCompare;
-          return a.transaksi.id.compareTo(b.transaksi.id);
-        });
-        break;
-      case OpsiUrutan.diperbaruiPadaAZ:
-        list.sort((a, b) {
-          final updateAtA = a.transaksi.diperbaruiPada;
-          final updateAtB = b.transaksi.diperbaruiPada;
-          if (updateAtA == null && updateAtB == null) return 0;
-          if (updateAtA == null) return 1;
-          if (updateAtB == null) return -1;
-          return updateAtB.compareTo(updateAtA);
-        });
-        break;
-      case OpsiUrutan.diperbaruiPadaZA:
-        list.sort((a, b) {
-          final updateAtA = a.transaksi.diperbaruiPada;
-          final updateAtB = b.transaksi.diperbaruiPada;
-          if (updateAtA == null && updateAtB == null) return 0;
-          if (updateAtA == null) return -1;
-          if (updateAtB == null) return 1;
-          return updateAtA.compareTo(updateAtB);
-        });
-        break;
-      case OpsiUrutan.namaAZ:
-        list.sort((a, b) {
-          final nameCompare = a.namaPelanggan.toLowerCase().compareTo(
-            b.namaPelanggan.toLowerCase(),
-          );
-          if (nameCompare != 0) return nameCompare;
-          // Jika nama sama, urutkan berdasarkan ID transaksi (trx1 < trx3)
-          return a.transaksi.id.compareTo(b.transaksi.id);
-        });
-        break;
-      case OpsiUrutan.namaZA:
-        list.sort((a, b) {
-          final nameCompare = b.namaPelanggan.toLowerCase().compareTo(
-            a.namaPelanggan.toLowerCase(),
-          );
-          if (nameCompare != 0) return nameCompare;
-          return a.transaksi.id.compareTo(b.transaksi.id);
-        });
-        break;
-      case OpsiUrutan.berakhirHariIni:
-        final now = DateTime.now();
-        list.sort((a, b) {
-          final isTodayA =
-              a.transaksi.tanggalBerakhir != null &&
-              a.transaksi.tanggalBerakhir!.year == now.year &&
-              a.transaksi.tanggalBerakhir!.month == now.month &&
-              a.transaksi.tanggalBerakhir!.day == now.day;
-          final isTodayB =
-              b.transaksi.tanggalBerakhir != null &&
-              b.transaksi.tanggalBerakhir!.year == now.year &&
-              b.transaksi.tanggalBerakhir!.month == now.month &&
-              b.transaksi.tanggalBerakhir!.day == now.day;
-          if (isTodayA && !isTodayB) return -1;
-          if (!isTodayA && isTodayB) return 1;
-          if (a.transaksi.tanggalBerakhir == null &&
-              b.transaksi.tanggalBerakhir == null) {
-            return 0;
-          }
-          if (a.transaksi.tanggalBerakhir == null) return 1;
-          if (b.transaksi.tanggalBerakhir == null) return -1;
-          return a.transaksi.tanggalBerakhir!.compareTo(
-            b.transaksi.tanggalBerakhir!,
-          );
-        });
-        break;
-      case OpsiUrutan.lunas:
-        list.sort((a, b) {
-          final isPaidA = a.transaksi.statusPembayaran == StatusPembayaran.paid;
-          final isPaidB = b.transaksi.statusPembayaran == StatusPembayaran.paid;
-          if (isPaidA && !isPaidB) return -1;
-          if (!isPaidA && isPaidB) return 1;
-          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal).compareTo(
-            a.transaksi.diperbaruiPada ?? a.transaksi.tanggal,
-          );
-        });
-        break;
-      case OpsiUrutan.belumLunas:
-        list.sort((a, b) {
-          final isUnpaidA =
-              a.transaksi.statusPembayaran == StatusPembayaran.unpaid;
-          final isUnpaidB =
-              b.transaksi.statusPembayaran == StatusPembayaran.unpaid;
-          if (isUnpaidA && !isUnpaidB) return -1;
-          if (!isUnpaidA && isUnpaidB) return 1;
-          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal).compareTo(
-            a.transaksi.diperbaruiPada ?? a.transaksi.tanggal,
-          );
-        });
-        break;
-    }
-  }
-}
-
-
-// File: lib/admin/providers/detail_langganan_provider.freezed.dart
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// coverage:ignore-file
-// ignore_for_file: type=lint
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
-
-part of 'detail_langganan_provider.dart';
-
-// **************************************************************************
-// FreezedGenerator
-// **************************************************************************
-
-// dart format off
-T _$identity<T>(T value) => value;
-/// @nodoc
-mixin _$DetailLanggananState {
-
- TransaksiModel? get transaksi; PelangganModel? get pelanggan; PaketModel? get paket;
-/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$DetailLanggananStateCopyWith<DetailLanggananState> get copyWith => _$DetailLanggananStateCopyWithImpl<DetailLanggananState>(this as DetailLanggananState, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DetailLanggananState&&(identical(other.transaksi, transaksi) || other.transaksi == transaksi)&&(identical(other.pelanggan, pelanggan) || other.pelanggan == pelanggan)&&(identical(other.paket, paket) || other.paket == paket));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,transaksi,pelanggan,paket);
-
-@override
-String toString() {
-  return 'DetailLanggananState(transaksi: $transaksi, pelanggan: $pelanggan, paket: $paket)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $DetailLanggananStateCopyWith<$Res>  {
-  factory $DetailLanggananStateCopyWith(DetailLanggananState value, $Res Function(DetailLanggananState) _then) = _$DetailLanggananStateCopyWithImpl;
-@useResult
-$Res call({
- TransaksiModel? transaksi, PelangganModel? pelanggan, PaketModel? paket
-});
-
-
-$TransaksiModelCopyWith<$Res>? get transaksi;$PelangganModelCopyWith<$Res>? get pelanggan;$PaketModelCopyWith<$Res>? get paket;
-
-}
-/// @nodoc
-class _$DetailLanggananStateCopyWithImpl<$Res>
-    implements $DetailLanggananStateCopyWith<$Res> {
-  _$DetailLanggananStateCopyWithImpl(this._self, this._then);
-
-  final DetailLanggananState _self;
-  final $Res Function(DetailLanggananState) _then;
-
-/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? transaksi = freezed,Object? pelanggan = freezed,Object? paket = freezed,}) {
-  return _then(_self.copyWith(
-transaksi: freezed == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
-as TransaksiModel?,pelanggan: freezed == pelanggan ? _self.pelanggan : pelanggan // ignore: cast_nullable_to_non_nullable
-as PelangganModel?,paket: freezed == paket ? _self.paket : paket // ignore: cast_nullable_to_non_nullable
-as PaketModel?,
-  ));
-}
-/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$TransaksiModelCopyWith<$Res>? get transaksi {
-    if (_self.transaksi == null) {
-    return null;
-  }
-
-  return $TransaksiModelCopyWith<$Res>(_self.transaksi!, (value) {
-    return _then(_self.copyWith(transaksi: value));
-  });
-}/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$PelangganModelCopyWith<$Res>? get pelanggan {
-    if (_self.pelanggan == null) {
-    return null;
-  }
-
-  return $PelangganModelCopyWith<$Res>(_self.pelanggan!, (value) {
-    return _then(_self.copyWith(pelanggan: value));
-  });
-}/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$PaketModelCopyWith<$Res>? get paket {
-    if (_self.paket == null) {
-    return null;
-  }
-
-  return $PaketModelCopyWith<$Res>(_self.paket!, (value) {
-    return _then(_self.copyWith(paket: value));
-  });
-}
-}
-
-
-/// Adds pattern-matching-related methods to [DetailLanggananState].
-extension DetailLanggananStatePatterns on DetailLanggananState {
-/// A variant of `map` that fallback to returning `orElse`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _DetailLanggananState value)?  $default,{required TResult orElse(),}){
-final _that = this;
-switch (_that) {
-case _DetailLanggananState() when $default != null:
-return $default(_that);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// Callbacks receives the raw object, upcasted.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case final Subclass2 value:
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _DetailLanggananState value)  $default,){
-final _that = this;
-switch (_that) {
-case _DetailLanggananState():
-return $default(_that);case _:
-  throw StateError('Unexpected subclass');
-
-}
-}
-/// A variant of `map` that fallback to returning `null`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _DetailLanggananState value)?  $default,){
-final _that = this;
-switch (_that) {
-case _DetailLanggananState() when $default != null:
-return $default(_that);case _:
-  return null;
-
-}
-}
-/// A variant of `when` that fallback to an `orElse` callback.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( TransaksiModel? transaksi,  PelangganModel? pelanggan,  PaketModel? paket)?  $default,{required TResult orElse(),}) {final _that = this;
-switch (_that) {
-case _DetailLanggananState() when $default != null:
-return $default(_that.transaksi,_that.pelanggan,_that.paket);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// As opposed to `map`, this offers destructuring.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case Subclass2(:final field2):
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( TransaksiModel? transaksi,  PelangganModel? pelanggan,  PaketModel? paket)  $default,) {final _that = this;
-switch (_that) {
-case _DetailLanggananState():
-return $default(_that.transaksi,_that.pelanggan,_that.paket);case _:
-  throw StateError('Unexpected subclass');
-
-}
-}
-/// A variant of `when` that fallback to returning `null`
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( TransaksiModel? transaksi,  PelangganModel? pelanggan,  PaketModel? paket)?  $default,) {final _that = this;
-switch (_that) {
-case _DetailLanggananState() when $default != null:
-return $default(_that.transaksi,_that.pelanggan,_that.paket);case _:
-  return null;
-
-}
-}
-
-}
-
-/// @nodoc
-
-
-class _DetailLanggananState implements DetailLanggananState {
-  const _DetailLanggananState({this.transaksi, this.pelanggan, this.paket});
-  
-
-@override final  TransaksiModel? transaksi;
-@override final  PelangganModel? pelanggan;
-@override final  PaketModel? paket;
-
-/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-_$DetailLanggananStateCopyWith<_DetailLanggananState> get copyWith => __$DetailLanggananStateCopyWithImpl<_DetailLanggananState>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DetailLanggananState&&(identical(other.transaksi, transaksi) || other.transaksi == transaksi)&&(identical(other.pelanggan, pelanggan) || other.pelanggan == pelanggan)&&(identical(other.paket, paket) || other.paket == paket));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,transaksi,pelanggan,paket);
-
-@override
-String toString() {
-  return 'DetailLanggananState(transaksi: $transaksi, pelanggan: $pelanggan, paket: $paket)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class _$DetailLanggananStateCopyWith<$Res> implements $DetailLanggananStateCopyWith<$Res> {
-  factory _$DetailLanggananStateCopyWith(_DetailLanggananState value, $Res Function(_DetailLanggananState) _then) = __$DetailLanggananStateCopyWithImpl;
-@override @useResult
-$Res call({
- TransaksiModel? transaksi, PelangganModel? pelanggan, PaketModel? paket
-});
-
-
-@override $TransaksiModelCopyWith<$Res>? get transaksi;@override $PelangganModelCopyWith<$Res>? get pelanggan;@override $PaketModelCopyWith<$Res>? get paket;
-
-}
-/// @nodoc
-class __$DetailLanggananStateCopyWithImpl<$Res>
-    implements _$DetailLanggananStateCopyWith<$Res> {
-  __$DetailLanggananStateCopyWithImpl(this._self, this._then);
-
-  final _DetailLanggananState _self;
-  final $Res Function(_DetailLanggananState) _then;
-
-/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? transaksi = freezed,Object? pelanggan = freezed,Object? paket = freezed,}) {
-  return _then(_DetailLanggananState(
-transaksi: freezed == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
-as TransaksiModel?,pelanggan: freezed == pelanggan ? _self.pelanggan : pelanggan // ignore: cast_nullable_to_non_nullable
-as PelangganModel?,paket: freezed == paket ? _self.paket : paket // ignore: cast_nullable_to_non_nullable
-as PaketModel?,
-  ));
-}
-
-/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$TransaksiModelCopyWith<$Res>? get transaksi {
-    if (_self.transaksi == null) {
-    return null;
-  }
-
-  return $TransaksiModelCopyWith<$Res>(_self.transaksi!, (value) {
-    return _then(_self.copyWith(transaksi: value));
-  });
-}/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$PelangganModelCopyWith<$Res>? get pelanggan {
-    if (_self.pelanggan == null) {
-    return null;
-  }
-
-  return $PelangganModelCopyWith<$Res>(_self.pelanggan!, (value) {
-    return _then(_self.copyWith(pelanggan: value));
-  });
-}/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$PaketModelCopyWith<$Res>? get paket {
-    if (_self.paket == null) {
-    return null;
-  }
-
-  return $PaketModelCopyWith<$Res>(_self.paket!, (value) {
-    return _then(_self.copyWith(paket: value));
-  });
-}
-}
-
-// dart format on
-
-
-// File: lib/admin/providers/detail_langganan_provider.dart
-// path: lib/admin/providers/detail_langganan_provider.dart
-
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
-
-part 'detail_langganan_provider.freezed.dart';
-part 'detail_langganan_provider.g.dart';
-
-@freezed
-abstract class DetailLanggananState with _$DetailLanggananState {
-  const factory DetailLanggananState({
-    TransaksiModel? transaksi,
-    PelangganModel? pelanggan,
-    PaketModel? paket,
-  }) = _DetailLanggananState;
-}
-
-@riverpod
-Future<DetailLanggananState?> ambilDetailLangganan(
-  Ref ref,
-  String idTransaksi,
-) async {
-  final transaksiOp = ref.watch(transaksiOpGlobalProvider);
-  final pelangganOpSqlite = ref.watch(pelangganOpGlobalProvider);
-  final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-
-  // 1. Ambil data transaksi utama
-  final transaksi = await transaksiOp.ambilBerdasarkanId(idTransaksi);
-  if (transaksi == null) return null;
-
-  // 2. Ambil data relasi secara paralel untuk menghemat waktu pemuatan
-  final hasil = await Future.wait<Object?>([
-    transaksi.idPelanggan != null
-        ? pelangganOpSqlite.ambilBerdasarkanId(transaksi.idPelanggan!)
-        : Future<PelangganModel?>.value(),
-    transaksi.idPaket != null
-        ? paketOpSqlite.ambilBerdasarkanId(transaksi.idPaket!)
-        : Future<PaketModel?>.value(),
-  ]);
-
-  return DetailLanggananState(
-    transaksi: transaksi,
-    pelanggan: hasil[0] as PelangganModel?,
-    paket: hasil[1] as PaketModel?,
-  );
-}
-
-
-// File: lib/admin/providers/riwayat_aktivasi_paket_provider.g.dart
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
-part of 'riwayat_aktivasi_paket_provider.dart';
-
-// **************************************************************************
-// RiverpodGenerator
-// **************************************************************************
-
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
-
-@ProviderFor(RiwayatAktivasiPaket)
-final riwayatAktivasiPaketProvider = RiwayatAktivasiPaketProvider._();
-
-final class RiwayatAktivasiPaketProvider
-    extends
-        $AsyncNotifierProvider<
-          RiwayatAktivasiPaket,
-          RiwayatAktivasiPaketState
-        > {
-  RiwayatAktivasiPaketProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'riwayatAktivasiPaketProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$riwayatAktivasiPaketHash();
-
-  @$internal
-  @override
-  RiwayatAktivasiPaket create() => RiwayatAktivasiPaket();
-}
-
-String _$riwayatAktivasiPaketHash() =>
-    r'170e5e33b4bf3c206e533f6c5571db1beecfbbc1';
-
-abstract class _$RiwayatAktivasiPaket
-    extends $AsyncNotifier<RiwayatAktivasiPaketState> {
-  FutureOr<RiwayatAktivasiPaketState> build();
-  @$mustCallSuper
-  @override
-  WhenComplete runBuild() {
-    final ref =
-        this.ref
-            as $Ref<
-              AsyncValue<RiwayatAktivasiPaketState>,
-              RiwayatAktivasiPaketState
-            >;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<
-                AsyncValue<RiwayatAktivasiPaketState>,
-                RiwayatAktivasiPaketState
-              >,
-              AsyncValue<RiwayatAktivasiPaketState>,
               Object?,
               Object?
             >;
@@ -52797,6 +52700,10 @@ Dilarang menggunakan `withOpacity`. Gunakan `withValues` atau `withAlpha` untuk 
 
 ## Text
 1. harus menggunakan text custom dari lib/shared/common/text.dart dan pilih yang sesuai kalau semisal ui membutuhkan parameter dari text maka tambahkan parameter nya itu ke textcustom jadi ui tinggal menggunakan text custom saja.
+
+# Komentar dokumentasi
+jangan pernah menulis komentar dokumen di dalam file kode karean itu sangat berantakan dan susah di baca.
+2. jangan terlalu banyak komentar di dalam file kode.
 
 // File: prompt/aturan_kepatuhan_ai.md
 # // path: prompt/aturan_kepatuhan_ai.md
@@ -55030,7 +54937,6 @@ class MockIosUtsname extends _i1.Mock implements _i3.IosUtsname {
 
 // File: test/fitur/settings/settings_model_test.dart
 // path: test/fitur/settings/settings_model_test.dart
-import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -55221,11 +55127,13 @@ void main() {
         NamaKolom.diperbaruiPada: DateTime(2023).millisecondsSinceEpoch,
       };
 
-      when(mockDb.query(
-        namaTabel,
-        where: anyNamed('where'),
-        whereArgs: anyNamed('whereArgs'),
-      )).thenAnswer((_) async => [dbData]);
+      when(
+        mockDb.query(
+          namaTabel,
+          where: anyNamed('where'),
+          whereArgs: anyNamed('whereArgs'),
+        ),
+      ).thenAnswer((_) async => [dbData]);
 
       // Act
       final result = await settingsOpSqlite.ambilSettings();
@@ -55233,187 +55141,226 @@ void main() {
       // Assert
       expect(result.id, id);
       expect(result.waktuOtomatisSinkronisasi, 48);
-      verify(mockDb.query(namaTabel, where: 'id = ?', whereArgs: [id]))
-          .called(1);
+      verify(
+        mockDb.query(namaTabel, where: 'id = ?', whereArgs: [id]),
+      ).called(1);
     });
 
     test(
-        '02. harus membuat, menyimpan, dan mengembalikan pengaturan default jika tidak ada di DB',
-        () async {
-      // Arrange
-      when(mockDb.query(
-        namaTabel,
-        where: anyNamed('where'),
-        whereArgs: anyNamed('whereArgs'),
-      )).thenAnswer((_) async => []); // Mengembalikan list kosong
+      '02. harus membuat, menyimpan, dan mengembalikan pengaturan default jika tidak ada di DB',
+      () async {
+        // Arrange
+        when(
+          mockDb.query(
+            namaTabel,
+            where: anyNamed('where'),
+            whereArgs: anyNamed('whereArgs'),
+          ),
+        ).thenAnswer((_) async => []); // Mengembalikan list kosong
 
-      when(mockBaseOpSqlite.sisipkan(
-        any,
-        any,
-        dariServer: anyNamed('dariServer'),
-      )).thenAnswer((_) async {});
+        when(
+          mockBaseOpSqlite.sisipkan(
+            any,
+            any,
+            dariServer: anyNamed('dariServer'),
+          ),
+        ).thenAnswer((_) async {});
 
-      // Act
-      final result = await settingsOpSqlite.ambilSettings();
+        // Act
+        final result = await settingsOpSqlite.ambilSettings();
 
-      // Assert
-      expect(result.id, id); // Harusnya di-set ke id global
-      expect(result.modeMaintenance, false);
-      verify(mockDb.query(namaTabel, where: 'id = ?', whereArgs: [id]))
-          .called(1);
-      verify(mockBaseOpSqlite.sisipkan(
-        namaTabel,
-        argThat(isA<Map<String, dynamic>>()),
-      )).called(1);
-    });
+        // Assert
+        expect(result.id, id); // Harusnya di-set ke id global
+        expect(result.modeMaintenance, false);
+        verify(
+          mockDb.query(namaTabel, where: 'id = ?', whereArgs: [id]),
+        ).called(1);
+        verify(
+          mockBaseOpSqlite.sisipkan(
+            namaTabel,
+            argThat(isA<Map<String, dynamic>>()),
+          ),
+        ).called(1);
+      },
+    );
 
-    test('03. harus mengembalikan model default saat terjadi Exception',
-        () async {
-      // Arrange
-      when(mockDb.query(
-        any,
-        where: anyNamed('where'),
-        whereArgs: anyNamed('whereArgs'),
-      )).thenThrow(Exception('DB Error'));
+    test(
+      '03. harus mengembalikan model default saat terjadi Exception',
+      () async {
+        // Arrange
+        when(
+          mockDb.query(
+            any,
+            where: anyNamed('where'),
+            whereArgs: anyNamed('whereArgs'),
+          ),
+        ).thenThrow(Exception('DB Error'));
 
-      // Act
-      final result = await settingsOpSqlite.ambilSettings();
+        // Act
+        final result = await settingsOpSqlite.ambilSettings();
 
-      // Assert
-      expect(result, const SettingsModel()); // Ekspektasi model default
-    });
+        // Assert
+        expect(result, const SettingsModel()); // Ekspektasi model default
+      },
+    );
   });
 
   group('saveOrUpdateSettings', () {
-    test('04. harus memanggil baseOpSqlite.sisipkan dengan data yang benar',
-        () async {
-      // Arrange
-      when(mockBaseOpSqlite.sisipkan(
-        any,
-        any,
-        dariServer: anyNamed('dariServer'),
-      )).thenAnswer((_) async {});
+    test(
+      '04. harus memanggil baseOpSqlite.sisipkan dengan data yang benar',
+      () async {
+        // Arrange
+        when(
+          mockBaseOpSqlite.sisipkan(
+            any,
+            any,
+            dariServer: anyNamed('dariServer'),
+          ),
+        ).thenAnswer((_) async {});
 
-      // Act
-      await settingsOpSqlite.saveOrUpdateSettings(settingsModel);
+        // Act
+        await settingsOpSqlite.simpanAtauPerbaruiSettings(settingsModel);
 
-      // Assert
-      final captured = verify(mockBaseOpSqlite.sisipkan(
-        namaTabel,
-        captureAny,
-      )).captured;
+        // Assert
+        final captured = verify(
+          mockBaseOpSqlite.sisipkan(namaTabel, captureAny),
+        ).captured;
 
-      final Map<String, dynamic> capturedData = captured.first as Map<String, dynamic>;
-      expect(capturedData[NamaKolom.id], id);
-      expect(capturedData[NamaKolom.waktuOtomatisSinkronisasi], 48);
-    });
+        final Map<String, dynamic> capturedData =
+            captured.first as Map<String, dynamic>;
+        expect(capturedData[NamaKolom.id], id);
+        expect(capturedData[NamaKolom.waktuOtomatisSinkronisasi], 48);
+      },
+    );
 
-    test('05. harus melempar kembali Exception jika baseOpSqlite gagal',
-        () async {
-      // Arrange
-      when(mockBaseOpSqlite.sisipkan(
-        any,
-        any,
-        dariServer: anyNamed('dariServer'),
-      )).thenThrow(Exception('Insert failed'));
+    test(
+      '05. harus melempar kembali Exception jika baseOpSqlite gagal',
+      () async {
+        // Arrange
+        when(
+          mockBaseOpSqlite.sisipkan(
+            any,
+            any,
+            dariServer: anyNamed('dariServer'),
+          ),
+        ).thenThrow(Exception('Insert failed'));
 
-      // Act & Assert
-      expect(
-        () => settingsOpSqlite.saveOrUpdateSettings(settingsModel),
-        throwsA(isA<Exception>()),
-      );
-    });
+        // Act & Assert
+        expect(
+          () => settingsOpSqlite.simpanAtauPerbaruiSettings(settingsModel),
+          throwsA(isA<Exception>()),
+        );
+      },
+    );
   });
 
   group('updateSettings', () {
     test(
-        '06. harus memanggil baseOpSqlite.update dengan data parsial yang benar',
-        () async {
-      // Arrange
-      final partialData = {NamaKolom.modeMaintenance: true};
-      when(mockBaseOpSqlite.update(
-        any,
-        any,
-        any,
-        dariServer: anyNamed('dariServer'),
-      )).thenAnswer((_) async {});
+      '06. harus memanggil baseOpSqlite.update dengan data parsial yang benar',
+      () async {
+        // Arrange
+        final partialData = {NamaKolom.modeMaintenance: true};
+        when(
+          mockBaseOpSqlite.update(
+            any,
+            any,
+            any,
+            dariServer: anyNamed('dariServer'),
+          ),
+        ).thenAnswer((_) async {});
 
-      // Act
-      await settingsOpSqlite.updateSettings(partialData);
+        // Act
+        await settingsOpSqlite.perbaruiSettings(partialData);
 
-      // Assert
-      final captured = verify(mockBaseOpSqlite.update(
-        namaTabel,
-        captureAny,
-        id,
-      )).captured;
+        // Assert
+        final captured = verify(
+          mockBaseOpSqlite.update(namaTabel, captureAny, id),
+        ).captured;
 
-      final Map<String, dynamic> capturedData = captured.first as Map<String, dynamic>;
-      expect(capturedData[NamaKolom.modeMaintenance], true);
-      expect(capturedData.containsKey(NamaKolom.diperbaruiPada), isTrue);
-    });
+        final Map<String, dynamic> capturedData =
+            captured.first as Map<String, dynamic>;
+        expect(capturedData[NamaKolom.modeMaintenance], true);
+        expect(capturedData.containsKey(NamaKolom.diperbaruiPada), isTrue);
+      },
+    );
 
-    test('07. harus melempar kembali Exception jika baseOpSqlite gagal',
-        () async {
-      // Arrange
-      when(mockBaseOpSqlite.update(
-        any,
-        any,
-        any,
-        dariServer: anyNamed('dariServer'),
-      )).thenThrow(Exception('Update failed'));
+    test(
+      '07. harus melempar kembali Exception jika baseOpSqlite gagal',
+      () async {
+        // Arrange
+        when(
+          mockBaseOpSqlite.update(
+            any,
+            any,
+            any,
+            dariServer: anyNamed('dariServer'),
+          ),
+        ).thenThrow(Exception('Update failed'));
 
-      // Act & Assert
-      expect(
-        () => settingsOpSqlite.updateSettings({}),
-        throwsA(isA<Exception>()),
-      );
-    });
+        // Act & Assert
+        expect(
+          () => settingsOpSqlite.perbaruiSettings({}),
+          throwsA(isA<Exception>()),
+        );
+      },
+    );
   });
 
   group('saveOrUpdateSettingsWithBatch', () {
     test(
-        '08. harus memanggil baseOpSqlite.sisipkanAtauPerbaruiBatch dengan data yang benar',
-        () async {
-      // Arrange
-      when(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
-        any,
-        any,
-        dariServer: anyNamed('dariServer'),
-      )).thenAnswer((_) async {});
+      '08. harus memanggil baseOpSqlite.sisipkanAtauPerbaruiBatch dengan data yang benar',
+      () async {
+        // Arrange
+        when(
+          mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+            any,
+            any,
+            dariServer: anyNamed('dariServer'),
+          ),
+        ).thenAnswer((_) async {});
 
-      // Act
-      await settingsOpSqlite.saveOrUpdateSettingsWithBatch(settingsModel);
+        // Act
+        await settingsOpSqlite.simpanAtauPerbaruiSettingsDenganBatch(
+          settingsModel,
+        );
 
-      // Assert
-      final captured = verify(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
-        namaTabel,
-        captureAny,
-      )).captured;
+        // Assert
+        final captured = verify(
+          mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(namaTabel, captureAny),
+        ).captured;
 
-      final List<Map<String, dynamic>> capturedList = captured.first as List<Map<String, dynamic>>;
-      expect(capturedList.length, 1);
-      expect(capturedList[0][NamaKolom.id], id);
-      expect(capturedList[0][NamaKolom.waktuOtomatisSinkronisasi], 48);
-    });
+        final List<Map<String, dynamic>> capturedList =
+            captured.first as List<Map<String, dynamic>>;
+        expect(capturedList.length, 1);
+        expect(capturedList[0][NamaKolom.id], id);
+        expect(capturedList[0][NamaKolom.waktuOtomatisSinkronisasi], 48);
+      },
+    );
 
-    test('09. harus melempar kembali Exception jika baseOpSqlite gagal',
-        () async {
-      // Arrange
-      when(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
-        any,
-        any,
-        dariServer: anyNamed('dariServer'),
-      )).thenThrow(Exception('Batch failed'));
+    test(
+      '09. harus melempar kembali Exception jika baseOpSqlite gagal',
+      () async {
+        // Arrange
+        when(
+          mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+            any,
+            any,
+            dariServer: anyNamed('dariServer'),
+          ),
+        ).thenThrow(Exception('Batch failed'));
 
-      // Act & Assert
-      expect(
-        () => settingsOpSqlite.saveOrUpdateSettingsWithBatch(settingsModel),
-        throwsA(isA<Exception>()),
-      );
-    });
+        // Act & Assert
+        expect(
+          () => settingsOpSqlite.simpanAtauPerbaruiSettingsDenganBatch(
+            settingsModel,
+          ),
+          throwsA(isA<Exception>()),
+        );
+      },
+    );
   });
 }
+
 
 // File: test/fitur/settings/operasi/settings_op_sqlite_test.mocks.dart
 // Mocks generated by Mockito 5.4.6 from annotations
@@ -55449,23 +55396,18 @@ class _FakeDatabase_0 extends _i1.SmartFake implements _i2.Database {
     : super(parent, parentInvocation);
 }
 
-class _FakeDateTime_1 extends _i1.SmartFake implements DateTime {
-  _FakeDateTime_1(Object parent, Invocation parentInvocation)
+class _FakeFuture_1<T1> extends _i1.SmartFake implements _i3.Future<T1> {
+  _FakeFuture_1(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeFuture_2<T1> extends _i1.SmartFake implements _i3.Future<T1> {
-  _FakeFuture_2(Object parent, Invocation parentInvocation)
+class _FakeQueryCursor_2 extends _i1.SmartFake implements _i2.QueryCursor {
+  _FakeQueryCursor_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeQueryCursor_3 extends _i1.SmartFake implements _i2.QueryCursor {
-  _FakeQueryCursor_3(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeBatch_4 extends _i1.SmartFake implements _i2.Batch {
-  _FakeBatch_4(Object parent, Invocation parentInvocation)
+class _FakeBatch_3 extends _i1.SmartFake implements _i2.Batch {
+  _FakeBatch_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -55512,22 +55454,14 @@ class MockBaseOpSqlite extends _i1.Mock implements _i5.BaseOpSqlite {
   }
 
   @override
-  DateTime get now =>
-      (super.noSuchMethod(
-            Invocation.getter(#now),
-            returnValue: _FakeDateTime_1(this, Invocation.getter(#now)),
-          )
-          as DateTime);
-
-  @override
-  _i3.Future<T> runComplexOperation<T>(
-    _i3.Future<T> Function(_i2.Transaction)? customAction, {
+  _i3.Future<T> operasiKompleks<T>(
+    _i3.Future<T> Function(_i2.Transaction)? aksiKustom, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
-              #runComplexOperation,
-              [customAction],
+              #operasiKompleks,
+              [aksiKustom],
               {#dariServer: dariServer},
             ),
             returnValue:
@@ -55535,18 +55469,18 @@ class MockBaseOpSqlite extends _i1.Mock implements _i5.BaseOpSqlite {
                   _i6.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
-                      #runComplexOperation,
-                      [customAction],
+                      #operasiKompleks,
+                      [aksiKustom],
                       {#dariServer: dariServer},
                     ),
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(
-                    #runComplexOperation,
-                    [customAction],
+                    #operasiKompleks,
+                    [aksiKustom],
                     {#dariServer: dariServer},
                   ),
                 ),
@@ -55705,7 +55639,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -55730,7 +55664,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(#readTransaction, [action]),
                 ),
@@ -55749,7 +55683,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(#devInvokeMethod, [method, arguments]),
                 ),
@@ -55776,7 +55710,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(#devInvokeSqlMethod, [
                     method,
@@ -55885,7 +55819,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
               {#bufferSize: bufferSize},
             ),
             returnValue: _i3.Future<_i2.QueryCursor>.value(
-              _FakeQueryCursor_3(
+              _FakeQueryCursor_2(
                 this,
                 Invocation.method(
                   #rawQueryCursor,
@@ -55929,7 +55863,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
               },
             ),
             returnValue: _i3.Future<_i2.QueryCursor>.value(
-              _FakeQueryCursor_3(
+              _FakeQueryCursor_2(
                 this,
                 Invocation.method(
                   #queryCursor,
@@ -56010,7 +55944,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
   _i2.Batch batch() =>
       (super.noSuchMethod(
             Invocation.method(#batch, []),
-            returnValue: _FakeBatch_4(this, Invocation.method(#batch, [])),
+            returnValue: _FakeBatch_3(this, Invocation.method(#batch, [])),
           )
           as _i2.Batch);
 }
@@ -56410,9 +56344,9 @@ class MockPaketOpSqlite extends _i1.Mock implements _i7.PaketOpSqlite {
           as _i5.Future<void>);
 
   @override
-  _i5.Future<List<_i8.PaketModel>> ambilPerubahanSejak(DateTime? since) =>
+  _i5.Future<List<_i8.PaketModel>> ambilPerubahanSejak(DateTime? sejak) =>
       (super.noSuchMethod(
-            Invocation.method(#ambilPerubahanSejak, [since]),
+            Invocation.method(#ambilPerubahanSejak, [sejak]),
             returnValue: _i5.Future<List<_i8.PaketModel>>.value(
               <_i8.PaketModel>[],
             ),
@@ -56722,23 +56656,18 @@ class _FakeDatabase_0 extends _i1.SmartFake implements _i2.Database {
     : super(parent, parentInvocation);
 }
 
-class _FakeDateTime_1 extends _i1.SmartFake implements DateTime {
-  _FakeDateTime_1(Object parent, Invocation parentInvocation)
+class _FakeFuture_1<T1> extends _i1.SmartFake implements _i3.Future<T1> {
+  _FakeFuture_1(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeFuture_2<T1> extends _i1.SmartFake implements _i3.Future<T1> {
-  _FakeFuture_2(Object parent, Invocation parentInvocation)
+class _FakeQueryCursor_2 extends _i1.SmartFake implements _i2.QueryCursor {
+  _FakeQueryCursor_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeQueryCursor_3 extends _i1.SmartFake implements _i2.QueryCursor {
-  _FakeQueryCursor_3(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeBatch_4 extends _i1.SmartFake implements _i2.Batch {
-  _FakeBatch_4(Object parent, Invocation parentInvocation)
+class _FakeBatch_3 extends _i1.SmartFake implements _i2.Batch {
+  _FakeBatch_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -56785,22 +56714,14 @@ class MockBaseOpSqlite extends _i1.Mock implements _i5.BaseOpSqlite {
   }
 
   @override
-  DateTime get now =>
-      (super.noSuchMethod(
-            Invocation.getter(#now),
-            returnValue: _FakeDateTime_1(this, Invocation.getter(#now)),
-          )
-          as DateTime);
-
-  @override
-  _i3.Future<T> runComplexOperation<T>(
-    _i3.Future<T> Function(_i2.Transaction)? customAction, {
+  _i3.Future<T> operasiKompleks<T>(
+    _i3.Future<T> Function(_i2.Transaction)? aksiKustom, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
-              #runComplexOperation,
-              [customAction],
+              #operasiKompleks,
+              [aksiKustom],
               {#dariServer: dariServer},
             ),
             returnValue:
@@ -56808,18 +56729,18 @@ class MockBaseOpSqlite extends _i1.Mock implements _i5.BaseOpSqlite {
                   _i6.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
-                      #runComplexOperation,
-                      [customAction],
+                      #operasiKompleks,
+                      [aksiKustom],
                       {#dariServer: dariServer},
                     ),
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(
-                    #runComplexOperation,
-                    [customAction],
+                    #operasiKompleks,
+                    [aksiKustom],
                     {#dariServer: dariServer},
                   ),
                 ),
@@ -56978,7 +56899,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -57003,7 +56924,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(#readTransaction, [action]),
                 ),
@@ -57022,7 +56943,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(#devInvokeMethod, [method, arguments]),
                 ),
@@ -57049,7 +56970,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(#devInvokeSqlMethod, [
                     method,
@@ -57158,7 +57079,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
               {#bufferSize: bufferSize},
             ),
             returnValue: _i3.Future<_i2.QueryCursor>.value(
-              _FakeQueryCursor_3(
+              _FakeQueryCursor_2(
                 this,
                 Invocation.method(
                   #rawQueryCursor,
@@ -57202,7 +57123,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
               },
             ),
             returnValue: _i3.Future<_i2.QueryCursor>.value(
-              _FakeQueryCursor_3(
+              _FakeQueryCursor_2(
                 this,
                 Invocation.method(
                   #queryCursor,
@@ -57283,7 +57204,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
   _i2.Batch batch() =>
       (super.noSuchMethod(
             Invocation.method(#batch, []),
-            returnValue: _FakeBatch_4(this, Invocation.method(#batch, [])),
+            returnValue: _FakeBatch_3(this, Invocation.method(#batch, [])),
           )
           as _i2.Batch);
 }
@@ -59941,9 +59862,7 @@ void main() {
 
     when(mockSqliteDb.database).thenAnswer((_) async => mockDb);
     // Atur default stub untuk runComplexOperation
-    when(
-      mockBaseOpSqlite.runComplexOperation<void>(any),
-    ).thenAnswer((_) async {});
+    when(mockBaseOpSqlite.operasiKompleks<void>(any)).thenAnswer((_) async {});
   });
 
   const namaTabel = NamaTabel.feedback;
@@ -60021,7 +59940,7 @@ void main() {
       '06. deleteAll harus menjalankan delete dalam runComplexOperation',
       () async {
         final mockTxn = MockTransaction();
-        when(mockBaseOpSqlite.runComplexOperation<int>(any)).thenAnswer((
+        when(mockBaseOpSqlite.operasiKompleks<int>(any)).thenAnswer((
           invocation,
         ) async {
           final action =
@@ -60034,7 +59953,7 @@ void main() {
 
         await feedbackOpSqlite.deleteAll();
 
-        verify(mockBaseOpSqlite.runComplexOperation<int>(any)).called(1);
+        verify(mockBaseOpSqlite.operasiKompleks<int>(any)).called(1);
       },
     );
   });
@@ -60067,7 +59986,7 @@ void main() {
 
         final result = await feedbackOpSqlite.ambilBerdasarkanId('fb1');
 
-        expect(result?.id, 'fb1');
+        expect(result.id, 'fb1');
         verify(
           mockDb.query(namaTabel, where: 'id = ?', whereArgs: ['fb1']),
         ).called(1);
@@ -60187,23 +60106,18 @@ class _FakeDatabase_0 extends _i1.SmartFake implements _i2.Database {
     : super(parent, parentInvocation);
 }
 
-class _FakeDateTime_1 extends _i1.SmartFake implements DateTime {
-  _FakeDateTime_1(Object parent, Invocation parentInvocation)
+class _FakeFuture_1<T1> extends _i1.SmartFake implements _i3.Future<T1> {
+  _FakeFuture_1(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeFuture_2<T1> extends _i1.SmartFake implements _i3.Future<T1> {
-  _FakeFuture_2(Object parent, Invocation parentInvocation)
+class _FakeQueryCursor_2 extends _i1.SmartFake implements _i2.QueryCursor {
+  _FakeQueryCursor_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeQueryCursor_3 extends _i1.SmartFake implements _i2.QueryCursor {
-  _FakeQueryCursor_3(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeBatch_4 extends _i1.SmartFake implements _i2.Batch {
-  _FakeBatch_4(Object parent, Invocation parentInvocation)
+class _FakeBatch_3 extends _i1.SmartFake implements _i2.Batch {
+  _FakeBatch_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -60250,22 +60164,14 @@ class MockBaseOpSqlite extends _i1.Mock implements _i5.BaseOpSqlite {
   }
 
   @override
-  DateTime get now =>
-      (super.noSuchMethod(
-            Invocation.getter(#now),
-            returnValue: _FakeDateTime_1(this, Invocation.getter(#now)),
-          )
-          as DateTime);
-
-  @override
-  _i3.Future<T> runComplexOperation<T>(
-    _i3.Future<T> Function(_i2.Transaction)? customAction, {
+  _i3.Future<T> operasiKompleks<T>(
+    _i3.Future<T> Function(_i2.Transaction)? aksiKustom, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
-              #runComplexOperation,
-              [customAction],
+              #operasiKompleks,
+              [aksiKustom],
               {#dariServer: dariServer},
             ),
             returnValue:
@@ -60273,18 +60179,18 @@ class MockBaseOpSqlite extends _i1.Mock implements _i5.BaseOpSqlite {
                   _i6.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
-                      #runComplexOperation,
-                      [customAction],
+                      #operasiKompleks,
+                      [aksiKustom],
                       {#dariServer: dariServer},
                     ),
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(
-                    #runComplexOperation,
-                    [customAction],
+                    #operasiKompleks,
+                    [aksiKustom],
                     {#dariServer: dariServer},
                   ),
                 ),
@@ -60443,7 +60349,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -60468,7 +60374,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(#readTransaction, [action]),
                 ),
@@ -60487,7 +60393,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(#devInvokeMethod, [method, arguments]),
                 ),
@@ -60514,7 +60420,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(#devInvokeSqlMethod, [
                     method,
@@ -60623,7 +60529,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
               {#bufferSize: bufferSize},
             ),
             returnValue: _i3.Future<_i2.QueryCursor>.value(
-              _FakeQueryCursor_3(
+              _FakeQueryCursor_2(
                 this,
                 Invocation.method(
                   #rawQueryCursor,
@@ -60667,7 +60573,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
               },
             ),
             returnValue: _i3.Future<_i2.QueryCursor>.value(
-              _FakeQueryCursor_3(
+              _FakeQueryCursor_2(
                 this,
                 Invocation.method(
                   #queryCursor,
@@ -60748,7 +60654,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
   _i2.Batch batch() =>
       (super.noSuchMethod(
             Invocation.method(#batch, []),
-            returnValue: _FakeBatch_4(this, Invocation.method(#batch, [])),
+            returnValue: _FakeBatch_3(this, Invocation.method(#batch, [])),
           )
           as _i2.Batch);
 }
@@ -60867,7 +60773,7 @@ class MockTransaction extends _i1.Mock implements _i2.Transaction {
               {#bufferSize: bufferSize},
             ),
             returnValue: _i3.Future<_i2.QueryCursor>.value(
-              _FakeQueryCursor_3(
+              _FakeQueryCursor_2(
                 this,
                 Invocation.method(
                   #rawQueryCursor,
@@ -60911,7 +60817,7 @@ class MockTransaction extends _i1.Mock implements _i2.Transaction {
               },
             ),
             returnValue: _i3.Future<_i2.QueryCursor>.value(
-              _FakeQueryCursor_3(
+              _FakeQueryCursor_2(
                 this,
                 Invocation.method(
                   #queryCursor,
@@ -60992,7 +60898,7 @@ class MockTransaction extends _i1.Mock implements _i2.Transaction {
   _i2.Batch batch() =>
       (super.noSuchMethod(
             Invocation.method(#batch, []),
-            returnValue: _FakeBatch_4(this, Invocation.method(#batch, [])),
+            returnValue: _FakeBatch_3(this, Invocation.method(#batch, [])),
           )
           as _i2.Batch);
 }
@@ -61143,23 +61049,18 @@ class _FakeDatabase_0 extends _i1.SmartFake implements _i2.Database {
     : super(parent, parentInvocation);
 }
 
-class _FakeDateTime_1 extends _i1.SmartFake implements DateTime {
-  _FakeDateTime_1(Object parent, Invocation parentInvocation)
+class _FakeFuture_1<T1> extends _i1.SmartFake implements _i3.Future<T1> {
+  _FakeFuture_1(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeFuture_2<T1> extends _i1.SmartFake implements _i3.Future<T1> {
-  _FakeFuture_2(Object parent, Invocation parentInvocation)
+class _FakeQueryCursor_2 extends _i1.SmartFake implements _i2.QueryCursor {
+  _FakeQueryCursor_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeQueryCursor_3 extends _i1.SmartFake implements _i2.QueryCursor {
-  _FakeQueryCursor_3(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeBatch_4 extends _i1.SmartFake implements _i2.Batch {
-  _FakeBatch_4(Object parent, Invocation parentInvocation)
+class _FakeBatch_3 extends _i1.SmartFake implements _i2.Batch {
+  _FakeBatch_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -61206,22 +61107,14 @@ class MockBaseOpSqlite extends _i1.Mock implements _i5.BaseOpSqlite {
   }
 
   @override
-  DateTime get now =>
-      (super.noSuchMethod(
-            Invocation.getter(#now),
-            returnValue: _FakeDateTime_1(this, Invocation.getter(#now)),
-          )
-          as DateTime);
-
-  @override
-  _i3.Future<T> runComplexOperation<T>(
-    _i3.Future<T> Function(_i2.Transaction)? customAction, {
+  _i3.Future<T> operasiKompleks<T>(
+    _i3.Future<T> Function(_i2.Transaction)? aksiKustom, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
-              #runComplexOperation,
-              [customAction],
+              #operasiKompleks,
+              [aksiKustom],
               {#dariServer: dariServer},
             ),
             returnValue:
@@ -61229,18 +61122,18 @@ class MockBaseOpSqlite extends _i1.Mock implements _i5.BaseOpSqlite {
                   _i6.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
-                      #runComplexOperation,
-                      [customAction],
+                      #operasiKompleks,
+                      [aksiKustom],
                       {#dariServer: dariServer},
                     ),
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(
-                    #runComplexOperation,
-                    [customAction],
+                    #operasiKompleks,
+                    [aksiKustom],
                     {#dariServer: dariServer},
                   ),
                 ),
@@ -61399,7 +61292,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -61424,7 +61317,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(#readTransaction, [action]),
                 ),
@@ -61443,7 +61336,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(#devInvokeMethod, [method, arguments]),
                 ),
@@ -61470,7 +61363,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(#devInvokeSqlMethod, [
                     method,
@@ -61579,7 +61472,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
               {#bufferSize: bufferSize},
             ),
             returnValue: _i3.Future<_i2.QueryCursor>.value(
-              _FakeQueryCursor_3(
+              _FakeQueryCursor_2(
                 this,
                 Invocation.method(
                   #rawQueryCursor,
@@ -61623,7 +61516,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
               },
             ),
             returnValue: _i3.Future<_i2.QueryCursor>.value(
-              _FakeQueryCursor_3(
+              _FakeQueryCursor_2(
                 this,
                 Invocation.method(
                   #queryCursor,
@@ -61704,7 +61597,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
   _i2.Batch batch() =>
       (super.noSuchMethod(
             Invocation.method(#batch, []),
-            returnValue: _FakeBatch_4(this, Invocation.method(#batch, [])),
+            returnValue: _FakeBatch_3(this, Invocation.method(#batch, [])),
           )
           as _i2.Batch);
 }
@@ -64529,18 +64422,13 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart' as _i4;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-class _FakeDateTime_0 extends _i1.SmartFake implements DateTime {
-  _FakeDateTime_0(Object parent, Invocation parentInvocation)
+class _FakeFuture_0<T1> extends _i1.SmartFake implements _i2.Future<T1> {
+  _FakeFuture_0(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeFuture_1<T1> extends _i1.SmartFake implements _i2.Future<T1> {
-  _FakeFuture_1(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeDatabase_2 extends _i1.SmartFake implements _i3.Database {
-  _FakeDatabase_2(Object parent, Invocation parentInvocation)
+class _FakeDatabase_1 extends _i1.SmartFake implements _i3.Database {
+  _FakeDatabase_1(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -64553,22 +64441,14 @@ class MockBaseOpSqlite extends _i1.Mock implements _i4.BaseOpSqlite {
   }
 
   @override
-  DateTime get now =>
-      (super.noSuchMethod(
-            Invocation.getter(#now),
-            returnValue: _FakeDateTime_0(this, Invocation.getter(#now)),
-          )
-          as DateTime);
-
-  @override
-  _i2.Future<T> runComplexOperation<T>(
-    _i2.Future<T> Function(_i3.Transaction)? customAction, {
+  _i2.Future<T> operasiKompleks<T>(
+    _i2.Future<T> Function(_i3.Transaction)? aksiKustom, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
-              #runComplexOperation,
-              [customAction],
+              #operasiKompleks,
+              [aksiKustom],
               {#dariServer: dariServer},
             ),
             returnValue:
@@ -64576,18 +64456,18 @@ class MockBaseOpSqlite extends _i1.Mock implements _i4.BaseOpSqlite {
                   _i5.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
-                      #runComplexOperation,
-                      [customAction],
+                      #operasiKompleks,
+                      [aksiKustom],
                       {#dariServer: dariServer},
                     ),
                   ),
                   (T v) => _i2.Future<T>.value(v),
                 ) ??
-                _FakeFuture_1<T>(
+                _FakeFuture_0<T>(
                   this,
                   Invocation.method(
-                    #runComplexOperation,
-                    [customAction],
+                    #operasiKompleks,
+                    [aksiKustom],
                     {#dariServer: dariServer},
                   ),
                 ),
@@ -64702,7 +64582,7 @@ class MockSqliteDatabase extends _i1.Mock implements _i6.SqliteDatabase {
       (super.noSuchMethod(
             Invocation.getter(#database),
             returnValue: _i2.Future<_i3.Database>.value(
-              _FakeDatabase_2(this, Invocation.getter(#database)),
+              _FakeDatabase_1(this, Invocation.getter(#database)),
             ),
           )
           as _i2.Future<_i3.Database>);
@@ -65941,9 +65821,6 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
-import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 
 import 'penjadwal_notifikasi_test.mocks.dart';
 
@@ -65964,26 +65841,11 @@ void main() {
       ),
     ).thenAnswer((_) async => Future.value());
 
-    when(mockLayananNotifikasi.batalNotifikasi(any))
-        .thenAnswer((_) async => Future.value());
+    when(
+      mockLayananNotifikasi.batalNotifikasi(any),
+    ).thenAnswer((_) async => Future.value());
   });
 
-  final transaksi = TransaksiModel(
-    id: 'trx1',
-    idPelanggan: 'cust1',
-    idPaket: 'pkg1',
-    tanggal: DateTime.now(),
-    deskripsi: 'Deskripsi Transaksi',
-    jumlah: 50000,
-    tipe: TipeTransaksi.income,
-    idDompet: 'dompet1',
-    idKategori: 'kategori1',
-    statusPembayaran: StatusPembayaran.paid,
-    tanggalMulai: DateTime.now(),
-    tanggalBerakhir: DateTime.now().add(const Duration(days: 30)),
-  );
-
-  final namaPelanggan = 'John Doe';
 
   group('PenjadwalNotifikasi', () {
     test(
@@ -66019,6 +65881,7 @@ void main() {
     });
   });
 }
+
 
 // File: test/fitur/notfikasi/enum/tipe_notifikasi_enum_test.dart
 // path: test/fitur/notfikasi/enum/tipe_notifikasi_enum_test.dart
@@ -66828,6 +66691,7 @@ class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_unduh_data.dart';
@@ -66837,20 +66701,16 @@ import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 
-// Mocks manual
-class MockPengelolaSinkronisasi extends Mock implements PengelolaSinkronisasi {}
+import 'layanan_cek_sinkronisasi_test.mocks.dart';
 
-class MockLayananUnggahData extends Mock implements LayananUnggahData {}
-
-class MockLayananUnduhData extends Mock implements LayananUnduhData {}
-
-class MockLayananPengecekanDataBaru extends Mock
-    implements LayananPengecekanDataBaru {}
-
-class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
-
-class MockKoneksiInternetService extends Mock implements KoneksiInternetService {}
-
+@GenerateMocks([
+  PengelolaSinkronisasi,
+  LayananUnggahData,
+  LayananUnduhData,
+  LayananPengecekanDataBaru,
+  FirebaseFirestore,
+  KoneksiInternetService,
+])
 void main() {
   late MockPengelolaSinkronisasi mockPengelolaSinkronisasi;
   late MockLayananUnggahData mockLayananUnggah;
@@ -66870,20 +66730,24 @@ void main() {
 
     container = ProviderContainer(
       overrides: [
-        pengelolaSinkronisasiProvider
-            .overrideWithValue(mockPengelolaSinkronisasi),
+        pengelolaSinkronisasiProvider.overrideWithValue(
+          mockPengelolaSinkronisasi,
+        ),
         layananUnggahDataProvider.overrideWithValue(mockLayananUnggah),
         layananUnduhDataProvider.overrideWithValue(mockLayananUnduh),
-        pengecekanDataBaruServiceProvider
-            .overrideWithValue(mockPengecekanDataBaru),
+        pengecekanDataBaruServiceProvider.overrideWithValue(
+          mockPengecekanDataBaru,
+        ),
         firestoreProvider.overrideWithValue(mockFirestore),
-        koneksiInternetServiceProvider
-            .overrideWithValue(mockKoneksiInternetService),
+        koneksiInternetServiceProvider.overrideWithValue(
+          mockKoneksiInternetService,
+        ),
       ],
     );
 
-    when(mockKoneksiInternetService.cekInternet())
-        .thenAnswer((_) async => true);
+    when(
+      mockKoneksiInternetService.cekInternet(),
+    ).thenAnswer((_) async => true);
   });
 
   tearDown(() {
@@ -66894,44 +66758,56 @@ void main() {
     required bool adaDataLokal,
     required bool adaDataServer,
   }) {
-    when(mockPengecekanDataBaru.apakahSqliteAdaDataBaru())
-        .thenAnswer((_) async => adaDataLokal);
-    when(mockPengecekanDataBaru.apakahFirebaseAdaDataBaru(
-      namaKoleksi: anyNamed('namaKoleksi'),
-      idDokumen: anyNamed('idDokumen'),
-    )).thenAnswer((_) async => adaDataServer);
+    when(
+      mockPengecekanDataBaru.apakahSqliteAdaDataBaru(),
+    ).thenAnswer((_) async => adaDataLokal);
+    when(
+      mockPengecekanDataBaru.apakahFirebaseAdaDataBaru(
+        namaKoleksi: anyNamed('namaKoleksi'),
+        idDokumen: anyNamed('idDokumen'),
+      ),
+    ).thenAnswer((_) async => adaDataServer);
   }
 
   void aturAksiSinkronisasiBerhasil() {
-    when(mockLayananUnggah.unggahSemuaData())
-        .thenAnswer((_) async => Future.value());
-    when(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any))
-        .thenAnswer((_) async => Future.value());
-    when(mockPengecekanDataBaru.resetButuhUpload())
-        .thenAnswer((_) async => Future.value());
-    when(mockLayananUnduh.unduhSemuaData())
-        .thenAnswer((_) async => Future.value());
-    when(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any))
-        .thenAnswer((_) async => Future.value());
+    when(
+      mockLayananUnggah.unggahSemuaData(),
+    ).thenAnswer((_) async => Future.value());
+    when(
+      mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any),
+    ).thenAnswer((_) async => Future.value());
+    when(
+      mockPengecekanDataBaru.resetButuhUpload(),
+    ).thenAnswer((_) async => Future.value());
+    when(
+      mockLayananUnduh.unduhSemuaData(),
+    ).thenAnswer((_) async => Future.value());
+    when(
+      mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any),
+    ).thenAnswer((_) async => Future.value());
   }
 
   group('LayananCekSinkronisasi', () {
-    test('01. harus unggah & unduh jika ada data baru di lokal dan server',
-        () async {
-      aturPengecekanData(adaDataLokal: true, adaDataServer: true);
-      aturAksiSinkronisasiBerhasil();
+    test(
+      '01. harus unggah & unduh jika ada data baru di lokal dan server',
+      () async {
+        aturPengecekanData(adaDataLokal: true, adaDataServer: true);
+        aturAksiSinkronisasiBerhasil();
 
-      final layanan = container.read(layananCekSinkronisasiProvider);
-      await layanan.jalankanCekSinkronisasi();
+        final layanan = container.read(layananCekSinkronisasiProvider);
+        await layanan.jalankanCekSinkronisasi();
 
-      verify(mockLayananUnggah.unggahSemuaData()).called(1);
-      verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any))
-          .called(1);
-      verify(mockPengecekanDataBaru.resetButuhUpload()).called(1);
-      verify(mockLayananUnduh.unduhSemuaData()).called(1);
-      verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any))
-          .called(1);
-    });
+        verify(mockLayananUnggah.unggahSemuaData()).called(1);
+        verify(
+          mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any),
+        ).called(1);
+        verify(mockPengecekanDataBaru.resetButuhUpload()).called(1);
+        verify(mockLayananUnduh.unduhSemuaData()).called(1);
+        verify(
+          mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any),
+        ).called(1);
+      },
+    );
 
     test('02. harus unggah saja jika hanya ada data baru di lokal', () async {
       aturPengecekanData(adaDataLokal: true, adaDataServer: false);
@@ -66941,8 +66817,9 @@ void main() {
       await layanan.jalankanCekSinkronisasi();
 
       verify(mockLayananUnggah.unggahSemuaData()).called(1);
-      verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any))
-          .called(1);
+      verify(
+        mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any),
+      ).called(1);
       verify(mockPengecekanDataBaru.resetButuhUpload()).called(1);
 
       verifyNever(mockLayananUnduh.unduhSemuaData());
@@ -66961,8 +66838,7 @@ void main() {
       verifyNever(mockPengecekanDataBaru.resetButuhUpload());
 
       verify(mockLayananUnduh.unduhSemuaData()).called(1);
-      verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any))
-          .called(1);
+      verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any)).called(1);
     });
 
     test('04. tidak melakukan apa-apa jika tidak ada data baru', () async {
@@ -66975,21 +66851,23 @@ void main() {
       verifyNever(mockLayananUnduh.unduhSemuaData());
     });
 
-    test('05. harus menangani error saat unggah dan tidak melanjutkan',
-        () async {
-      aturPengecekanData(adaDataLokal: true, adaDataServer: true);
-      final exception = Exception('Gagal unggah');
-      when(mockLayananUnggah.unggahSemuaData()).thenThrow(exception);
+    test(
+      '05. harus menangani error saat unggah dan tidak melanjutkan',
+      () async {
+        aturPengecekanData(adaDataLokal: true, adaDataServer: true);
+        final exception = Exception('Gagal unggah');
+        when(mockLayananUnggah.unggahSemuaData()).thenThrow(exception);
 
-      final layanan = container.read(layananCekSinkronisasiProvider);
-      await layanan.jalankanCekSinkronisasi();
+        final layanan = container.read(layananCekSinkronisasiProvider);
+        await layanan.jalankanCekSinkronisasi();
 
-      verify(mockLayananUnggah.unggahSemuaData()).called(1);
-      verifyNever(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any));
-      verifyNever(mockPengecekanDataBaru.resetButuhUpload());
-      verifyNever(mockLayananUnduh.unduhSemuaData());
-      verifyNever(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any));
-    });
+        verify(mockLayananUnggah.unggahSemuaData()).called(1);
+        verifyNever(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any));
+        verifyNever(mockPengecekanDataBaru.resetButuhUpload());
+        verifyNever(mockLayananUnduh.unduhSemuaData());
+        verifyNever(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any));
+      },
+    );
 
     test('06. harus menangani error saat unduh', () async {
       aturPengecekanData(adaDataLokal: false, adaDataServer: true);
@@ -67005,6 +66883,7 @@ void main() {
     });
   });
 }
+
 
 // File: test/shared/data/services/pengecekan_data_baru_service_test.mocks.dart
 // Mocks generated by Mockito 5.4.6 from annotations
@@ -67156,22 +67035,810 @@ class MockStatusUploadOpSqlite extends _i1.Mock
 }
 
 
+// File: test/shared/data/services/layanan_cek_sinkronisasi_test.mocks.dart
+// Mocks generated by Mockito 5.4.6 from annotations
+// in wifi/test/shared/data/services/layanan_cek_sinkronisasi_test.dart.
+// Do not manually edit this file.
+
+// ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'dart:async' as _i4;
+import 'dart:typed_data' as _i11;
+
+import 'package:cloud_firestore/cloud_firestore.dart' as _i3;
+import 'package:firebase_core/firebase_core.dart' as _i2;
+import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i10;
+import 'package:wifi/fitur/sinkronisasi/layanan_unduh_data.dart' as _i8;
+import 'package:wifi/fitur/sinkronisasi/layanan_unggah_data.dart' as _i6;
+import 'package:wifi/fitur/sinkronisasi/pengelola_sinkronisasi.dart' as _i5;
+import 'package:wifi/shared/data/services/layanan_pengecekan_data_baru.dart'
+    as _i9;
+import 'package:wifi/shared/model/has_id.dart' as _i7;
+import 'package:wifi/shared/services/koneksi_internet_service.dart' as _i12;
+
+// ignore_for_file: type=lint
+// ignore_for_file: avoid_redundant_argument_values
+// ignore_for_file: avoid_setters_without_getters
+// ignore_for_file: comment_references
+// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use_from_same_package
+// ignore_for_file: implementation_imports
+// ignore_for_file: invalid_use_of_visible_for_testing_member
+// ignore_for_file: must_be_immutable
+// ignore_for_file: prefer_const_constructors
+// ignore_for_file: unnecessary_parenthesis
+// ignore_for_file: camel_case_types
+// ignore_for_file: subtype_of_sealed_class
+// ignore_for_file: invalid_use_of_internal_member
+
+class _FakeDateTime_0 extends _i1.SmartFake implements DateTime {
+  _FakeDateTime_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeFirebaseApp_1 extends _i1.SmartFake implements _i2.FirebaseApp {
+  _FakeFirebaseApp_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeSettings_2 extends _i1.SmartFake implements _i3.Settings {
+  _FakeSettings_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeCollectionReference_3<T extends Object?> extends _i1.SmartFake
+    implements _i3.CollectionReference<T> {
+  _FakeCollectionReference_3(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeWriteBatch_4 extends _i1.SmartFake implements _i3.WriteBatch {
+  _FakeWriteBatch_4(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeLoadBundleTask_5 extends _i1.SmartFake
+    implements _i3.LoadBundleTask {
+  _FakeLoadBundleTask_5(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeQuerySnapshot_6<T1 extends Object?> extends _i1.SmartFake
+    implements _i3.QuerySnapshot<T1> {
+  _FakeQuerySnapshot_6(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeQuery_7<T extends Object?> extends _i1.SmartFake
+    implements _i3.Query<T> {
+  _FakeQuery_7(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeDocumentReference_8<T extends Object?> extends _i1.SmartFake
+    implements _i3.DocumentReference<T> {
+  _FakeDocumentReference_8(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeFuture_9<T1> extends _i1.SmartFake implements _i4.Future<T1> {
+  _FakeFuture_9(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakePipelineSource_10 extends _i1.SmartFake
+    implements _i3.PipelineSource {
+  _FakePipelineSource_10(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+/// A class which mocks [PengelolaSinkronisasi].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockPengelolaSinkronisasi extends _i1.Mock
+    implements _i5.PengelolaSinkronisasi {
+  MockPengelolaSinkronisasi() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<DateTime> ambilWaktuTerakhirUnduh() =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilWaktuTerakhirUnduh, []),
+            returnValue: _i4.Future<DateTime>.value(
+              _FakeDateTime_0(
+                this,
+                Invocation.method(#ambilWaktuTerakhirUnduh, []),
+              ),
+            ),
+          )
+          as _i4.Future<DateTime>);
+
+  @override
+  _i4.Future<void> simpanWaktuTerakhirUnduh(DateTime? waktu) =>
+      (super.noSuchMethod(
+            Invocation.method(#simpanWaktuTerakhirUnduh, [waktu]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<DateTime> ambilWaktuTerakhirUnggah() =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilWaktuTerakhirUnggah, []),
+            returnValue: _i4.Future<DateTime>.value(
+              _FakeDateTime_0(
+                this,
+                Invocation.method(#ambilWaktuTerakhirUnggah, []),
+              ),
+            ),
+          )
+          as _i4.Future<DateTime>);
+
+  @override
+  _i4.Future<void> simpanWaktuTerakhirUnggah(DateTime? waktu) =>
+      (super.noSuchMethod(
+            Invocation.method(#simpanWaktuTerakhirUnggah, [waktu]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> resetWaktuSinkronisasi() =>
+      (super.noSuchMethod(
+            Invocation.method(#resetWaktuSinkronisasi, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+}
+
+/// A class which mocks [LayananUnggahData].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockLayananUnggahData extends _i1.Mock implements _i6.LayananUnggahData {
+  MockLayananUnggahData() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<void> unggahSemuaData() =>
+      (super.noSuchMethod(
+            Invocation.method(#unggahSemuaData, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unggahDataDompet() =>
+      (super.noSuchMethod(
+            Invocation.method(#unggahDataDompet, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unggahDataKategori() =>
+      (super.noSuchMethod(
+            Invocation.method(#unggahDataKategori, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unggahDataFeedback() =>
+      (super.noSuchMethod(
+            Invocation.method(#unggahDataFeedback, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unggahDataPaket() =>
+      (super.noSuchMethod(
+            Invocation.method(#unggahDataPaket, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unggahDataPelangganAktif() =>
+      (super.noSuchMethod(
+            Invocation.method(#unggahDataPelangganAktif, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> uploadCustomerData() =>
+      (super.noSuchMethod(
+            Invocation.method(#uploadCustomerData, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> uploadOrderData() =>
+      (super.noSuchMethod(
+            Invocation.method(#uploadOrderData, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> uploadDataTransaksi() =>
+      (super.noSuchMethod(
+            Invocation.method(#uploadTransactionData, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> uploadSubCategoryData() =>
+      (super.noSuchMethod(
+            Invocation.method(#uploadSubCategoryData, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> uploadSettingsData() =>
+      (super.noSuchMethod(
+            Invocation.method(#uploadSettingsData, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> uploadApkVersionData() =>
+      (super.noSuchMethod(
+            Invocation.method(#uploadApkVersionData, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> uploadGenericData<T extends _i7.HasId>(
+    String? namaTabel,
+    String? namaKoleksi,
+    T Function(Map<String, dynamic>)? fromSqlite,
+    Map<String, dynamic> Function(T)? toFirebase,
+    DateTime? waktuTerakhirSinkronisasi,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#uploadGenericData, [
+              namaTabel,
+              namaKoleksi,
+              fromSqlite,
+              toFirebase,
+              waktuTerakhirSinkronisasi,
+            ]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+}
+
+/// A class which mocks [LayananUnduhData].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
+  MockLayananUnduhData() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<void> unduhSemuaData() =>
+      (super.noSuchMethod(
+            Invocation.method(#unduhSemuaData, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unduhDataPengaturan() =>
+      (super.noSuchMethod(
+            Invocation.method(#unduhDataPengaturan, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unduhDataDompet() =>
+      (super.noSuchMethod(
+            Invocation.method(#unduhDataDompet, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unduhDataKategori() =>
+      (super.noSuchMethod(
+            Invocation.method(#unduhDataKategori, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unduhDataPaket() =>
+      (super.noSuchMethod(
+            Invocation.method(#unduhDataPaket, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unduhDataPelanggan() =>
+      (super.noSuchMethod(
+            Invocation.method(#unduhDataPelanggan, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unduhDataPelangganAktif() =>
+      (super.noSuchMethod(
+            Invocation.method(#unduhDataPelangganAktif, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unduhDataTransaksi() =>
+      (super.noSuchMethod(
+            Invocation.method(#unduhDataTransaksi, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unduhDataUmpanBalik() =>
+      (super.noSuchMethod(
+            Invocation.method(#unduhDataUmpanBalik, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unduhDataPesanan() =>
+      (super.noSuchMethod(
+            Invocation.method(#unduhDataPesanan, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unduhDataSubKategori() =>
+      (super.noSuchMethod(
+            Invocation.method(#unduhDataSubKategori, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unduhDataVersiApk() =>
+      (super.noSuchMethod(
+            Invocation.method(#unduhDataVersiApk, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> sinkronkanKoleksi<T>({
+    required String? namaKoleksi,
+    required DateTime? waktuTerakhirUnduh,
+    required T Function(String, Map<String, dynamic>)? dariFirebase,
+    required _i4.Future<void> Function(List<T>)? operasiBatch,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#sinkronkanKoleksi, [], {
+              #namaKoleksi: namaKoleksi,
+              #waktuTerakhirUnduh: waktuTerakhirUnduh,
+              #dariFirebase: dariFirebase,
+              #operasiBatch: operasiBatch,
+            }),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+}
+
+/// A class which mocks [LayananPengecekanDataBaru].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockLayananPengecekanDataBaru extends _i1.Mock
+    implements _i9.LayananPengecekanDataBaru {
+  MockLayananPengecekanDataBaru() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<bool> apakahSqliteAdaDataBaru() =>
+      (super.noSuchMethod(
+            Invocation.method(#apakahSqliteAdaDataBaru, []),
+            returnValue: _i4.Future<bool>.value(false),
+          )
+          as _i4.Future<bool>);
+
+  @override
+  _i4.Future<void> resetButuhUpload() =>
+      (super.noSuchMethod(
+            Invocation.method(#resetButuhUpload, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<bool> apakahFirebaseAdaDataBaru({
+    required String? namaKoleksi,
+    required String? idDokumen,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#apakahFirebaseAdaDataBaru, [], {
+              #namaKoleksi: namaKoleksi,
+              #idDokumen: idDokumen,
+            }),
+            returnValue: _i4.Future<bool>.value(false),
+          )
+          as _i4.Future<bool>);
+}
+
+/// A class which mocks [FirebaseFirestore].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockFirebaseFirestore extends _i1.Mock implements _i3.FirebaseFirestore {
+  MockFirebaseFirestore() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i2.FirebaseApp get app =>
+      (super.noSuchMethod(
+            Invocation.getter(#app),
+            returnValue: _FakeFirebaseApp_1(this, Invocation.getter(#app)),
+          )
+          as _i2.FirebaseApp);
+
+  @override
+  String get databaseId =>
+      (super.noSuchMethod(
+            Invocation.getter(#databaseId),
+            returnValue: _i10.dummyValue<String>(
+              this,
+              Invocation.getter(#databaseId),
+            ),
+          )
+          as String);
+
+  @override
+  _i3.Settings get settings =>
+      (super.noSuchMethod(
+            Invocation.getter(#settings),
+            returnValue: _FakeSettings_2(this, Invocation.getter(#settings)),
+          )
+          as _i3.Settings);
+
+  @override
+  set app(_i2.FirebaseApp? value) => super.noSuchMethod(
+    Invocation.setter(#app, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set databaseId(String? value) => super.noSuchMethod(
+    Invocation.setter(#databaseId, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set settings(_i3.Settings? settings) => super.noSuchMethod(
+    Invocation.setter(#settings, settings),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  Map<dynamic, dynamic> get pluginConstants =>
+      (super.noSuchMethod(
+            Invocation.getter(#pluginConstants),
+            returnValue: <dynamic, dynamic>{},
+          )
+          as Map<dynamic, dynamic>);
+
+  @override
+  _i3.CollectionReference<Map<String, dynamic>> collection(
+    String? collectionPath,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#collection, [collectionPath]),
+            returnValue: _FakeCollectionReference_3<Map<String, dynamic>>(
+              this,
+              Invocation.method(#collection, [collectionPath]),
+            ),
+          )
+          as _i3.CollectionReference<Map<String, dynamic>>);
+
+  @override
+  _i3.WriteBatch batch() =>
+      (super.noSuchMethod(
+            Invocation.method(#batch, []),
+            returnValue: _FakeWriteBatch_4(this, Invocation.method(#batch, [])),
+          )
+          as _i3.WriteBatch);
+
+  @override
+  _i4.Future<void> clearPersistence() =>
+      (super.noSuchMethod(
+            Invocation.method(#clearPersistence, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i3.LoadBundleTask loadBundle(_i11.Uint8List? bundle) =>
+      (super.noSuchMethod(
+            Invocation.method(#loadBundle, [bundle]),
+            returnValue: _FakeLoadBundleTask_5(
+              this,
+              Invocation.method(#loadBundle, [bundle]),
+            ),
+          )
+          as _i3.LoadBundleTask);
+
+  @override
+  void useFirestoreEmulator(
+    String? host,
+    int? port, {
+    bool? sslEnabled = false,
+    bool? automaticHostMapping = true,
+  }) => super.noSuchMethod(
+    Invocation.method(
+      #useFirestoreEmulator,
+      [host, port],
+      {#sslEnabled: sslEnabled, #automaticHostMapping: automaticHostMapping},
+    ),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i4.Future<_i3.QuerySnapshot<T>> namedQueryWithConverterGet<T>(
+    String? name, {
+    _i3.GetOptions? options = const _i3.GetOptions(),
+    required _i3.FromFirestore<T>? fromFirestore,
+    required _i3.ToFirestore<T>? toFirestore,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #namedQueryWithConverterGet,
+              [name],
+              {
+                #options: options,
+                #fromFirestore: fromFirestore,
+                #toFirestore: toFirestore,
+              },
+            ),
+            returnValue: _i4.Future<_i3.QuerySnapshot<T>>.value(
+              _FakeQuerySnapshot_6<T>(
+                this,
+                Invocation.method(
+                  #namedQueryWithConverterGet,
+                  [name],
+                  {
+                    #options: options,
+                    #fromFirestore: fromFirestore,
+                    #toFirestore: toFirestore,
+                  },
+                ),
+              ),
+            ),
+          )
+          as _i4.Future<_i3.QuerySnapshot<T>>);
+
+  @override
+  _i4.Future<_i3.QuerySnapshot<Map<String, dynamic>>> namedQueryGet(
+    String? name, {
+    _i3.GetOptions? options = const _i3.GetOptions(),
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#namedQueryGet, [name], {#options: options}),
+            returnValue:
+                _i4.Future<_i3.QuerySnapshot<Map<String, dynamic>>>.value(
+                  _FakeQuerySnapshot_6<Map<String, dynamic>>(
+                    this,
+                    Invocation.method(
+                      #namedQueryGet,
+                      [name],
+                      {#options: options},
+                    ),
+                  ),
+                ),
+          )
+          as _i4.Future<_i3.QuerySnapshot<Map<String, dynamic>>>);
+
+  @override
+  _i3.Query<Map<String, dynamic>> collectionGroup(String? collectionPath) =>
+      (super.noSuchMethod(
+            Invocation.method(#collectionGroup, [collectionPath]),
+            returnValue: _FakeQuery_7<Map<String, dynamic>>(
+              this,
+              Invocation.method(#collectionGroup, [collectionPath]),
+            ),
+          )
+          as _i3.Query<Map<String, dynamic>>);
+
+  @override
+  _i4.Future<void> disableNetwork() =>
+      (super.noSuchMethod(
+            Invocation.method(#disableNetwork, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i3.DocumentReference<Map<String, dynamic>> doc(String? documentPath) =>
+      (super.noSuchMethod(
+            Invocation.method(#doc, [documentPath]),
+            returnValue: _FakeDocumentReference_8<Map<String, dynamic>>(
+              this,
+              Invocation.method(#doc, [documentPath]),
+            ),
+          )
+          as _i3.DocumentReference<Map<String, dynamic>>);
+
+  @override
+  _i4.Future<void> enableNetwork() =>
+      (super.noSuchMethod(
+            Invocation.method(#enableNetwork, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Stream<void> snapshotsInSync() =>
+      (super.noSuchMethod(
+            Invocation.method(#snapshotsInSync, []),
+            returnValue: _i4.Stream<void>.empty(),
+          )
+          as _i4.Stream<void>);
+
+  @override
+  _i4.Future<T> runTransaction<T>(
+    _i3.TransactionHandler<T>? transactionHandler, {
+    Duration? timeout = const Duration(seconds: 30),
+    int? maxAttempts = 5,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #runTransaction,
+              [transactionHandler],
+              {#timeout: timeout, #maxAttempts: maxAttempts},
+            ),
+            returnValue:
+                _i10.ifNotNull(
+                  _i10.dummyValueOrNull<T>(
+                    this,
+                    Invocation.method(
+                      #runTransaction,
+                      [transactionHandler],
+                      {#timeout: timeout, #maxAttempts: maxAttempts},
+                    ),
+                  ),
+                  (T v) => _i4.Future<T>.value(v),
+                ) ??
+                _FakeFuture_9<T>(
+                  this,
+                  Invocation.method(
+                    #runTransaction,
+                    [transactionHandler],
+                    {#timeout: timeout, #maxAttempts: maxAttempts},
+                  ),
+                ),
+          )
+          as _i4.Future<T>);
+
+  @override
+  _i4.Future<void> terminate() =>
+      (super.noSuchMethod(
+            Invocation.method(#terminate, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> waitForPendingWrites() =>
+      (super.noSuchMethod(
+            Invocation.method(#waitForPendingWrites, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i3.PipelineSource pipeline() =>
+      (super.noSuchMethod(
+            Invocation.method(#pipeline, []),
+            returnValue: _FakePipelineSource_10(
+              this,
+              Invocation.method(#pipeline, []),
+            ),
+          )
+          as _i3.PipelineSource);
+
+  @override
+  _i4.Future<void> setIndexConfigurationFromJSON(String? json) =>
+      (super.noSuchMethod(
+            Invocation.method(#setIndexConfigurationFromJSON, [json]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+}
+
+/// A class which mocks [KoneksiInternetService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockKoneksiInternetService extends _i1.Mock
+    implements _i12.KoneksiInternetService {
+  MockKoneksiInternetService() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<bool> cekKoneksiLokal() =>
+      (super.noSuchMethod(
+            Invocation.method(#cekKoneksiLokal, []),
+            returnValue: _i4.Future<bool>.value(false),
+          )
+          as _i4.Future<bool>);
+
+  @override
+  _i4.Future<bool> cekInternet() =>
+      (super.noSuchMethod(
+            Invocation.method(#cekInternet, []),
+            returnValue: _i4.Future<bool>.value(false),
+          )
+          as _i4.Future<bool>);
+}
+
+
 // File: test/shared/debug/log_test.dart
 // path: test/shared/debug/log_test.dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-import 'log_test.mocks.dart';
-
-@GenerateMocks([], customMocks: [
-  // Mock Logger tidak digunakan lagi karena Log sudah di-refactor
-])
 void main() {
   group('Log', () {
     test('01. info harus mencatat pesan informasi', () {
-      // Log.info sekarang menggunakan print internal, tidak perlu mock
       expect(
         () => Log.info('Info message'),
         returnsNormally,
@@ -67193,7 +67860,7 @@ void main() {
         () => Log.error(
           'Error message',
           e: error,
-          st: stackTrace,
+          s: stackTrace,
         ),
         returnsNormally,
       );
@@ -67211,10 +67878,6 @@ void main() {
     });
 
     test('05. hanya boleh log dalam debug mode', () {
-      // kDebugMode adalah compile-time constant
-      // Jika dalam debug mode, log akan berjalan normal
-      // Jika dalam release mode, log akan di-skip
-      // Kita hanya perlu memastikan tidak ada error
       expect(
         () {
           Log.info('Test in debug mode');
@@ -68498,7 +69161,6 @@ void main() {
 
 // File: test/shared/operasi/firebase_operasi/base_op_firebase_test.dart
 // path: test/shared/operasi/firebase_operasi/base_op_firebase_test.dart
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/model/has_id.dart';
@@ -69497,7 +70159,6 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
-import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 
@@ -69518,14 +70179,20 @@ class DummyModel {
   });
 
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'name': name,
-        'diperbarui_pada': diperbaruiPada?.millisecondsSinceEpoch,
-        'dihapus': dihapus == true ? 1 : 0,
-      };
+    'id': id,
+    'name': name,
+    'diperbarui_pada': diperbaruiPada?.millisecondsSinceEpoch,
+    'dihapus': dihapus == true ? 1 : 0,
+  };
 }
 
-@GenerateMocks([SqliteDatabase, Database, Transaction, Batch, StatusUploadOpSqlite])
+@GenerateMocks([
+  SqliteDatabase,
+  Database,
+  Transaction,
+  Batch,
+  StatusUploadOpSqlite,
+])
 void main() {
   late BaseOpSqlite baseOpSqlite;
   late MockSqliteDatabase mockSqliteDb;
@@ -69536,7 +70203,7 @@ void main() {
     mockSqliteDb = MockSqliteDatabase();
     mockDb = MockDatabase();
     mockStatusUpload = MockStatusUploadOpSqlite();
-    
+
     baseOpSqlite = BaseOpSqlite(
       sqliteDb: mockSqliteDb,
       statusUnggahOpSqlite: mockStatusUpload,
@@ -69551,8 +70218,9 @@ void main() {
 
   group('Operasi Dasar', () {
     test('01. sisipkan harus memanggil db.insert dengan benar', () async {
-      when(mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace))
-          .thenAnswer((_) async => 1);
+      when(
+        mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace),
+      ).thenAnswer((_) async => 1);
       await baseOpSqlite.sisipkan(tableName, modelMap);
       verify(
         mockDb.insert(
@@ -69565,7 +70233,12 @@ void main() {
 
     test('02. update harus memanggil db.update dengan benar', () async {
       when(
-        mockDb.update(any, any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')),
+        mockDb.update(
+          any,
+          any,
+          where: anyNamed('where'),
+          whereArgs: anyNamed('whereArgs'),
+        ),
       ).thenAnswer((_) async => 1);
 
       final updatedModel = {'name': 'updated'};
@@ -69583,7 +70256,11 @@ void main() {
 
     test('03. delete harus memanggil db.delete dengan benar', () async {
       when(
-        mockDb.delete(any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')),
+        mockDb.delete(
+          any,
+          where: anyNamed('where'),
+          whereArgs: anyNamed('whereArgs'),
+        ),
       ).thenAnswer((_) async => 1);
 
       await baseOpSqlite.delete(tableName, '1');
@@ -69595,26 +70272,34 @@ void main() {
   });
 
   group('Operasi Soft Delete', () {
-    test('04. softDelete harus memperbarui kolom dihapus dan diperbaruiPada', () async {
-      when(
-        mockDb.update(any, any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')),
-      ).thenAnswer((_) async => 1);
+    test(
+      '04. softDelete harus memperbarui kolom dihapus dan diperbaruiPada',
+      () async {
+        when(
+          mockDb.update(
+            any,
+            any,
+            where: anyNamed('where'),
+            whereArgs: anyNamed('whereArgs'),
+          ),
+        ).thenAnswer((_) async => 1);
 
-      await baseOpSqlite.softDelete(tableName, '1');
+        await baseOpSqlite.softDelete(tableName, '1');
 
-      final captured = verify(
-        mockDb.update(
-          any,
-          captureAny,
-          where: anyNamed('where'),
-          whereArgs: anyNamed('whereArgs'),
-        ),
-      ).captured;
+        final captured = verify(
+          mockDb.update(
+            any,
+            captureAny,
+            where: anyNamed('where'),
+            whereArgs: anyNamed('whereArgs'),
+          ),
+        ).captured;
 
-      final data = captured.first as Map<String, dynamic>;
-      expect(data[NamaKolom.dihapus], 1);
-      expect(data[NamaKolom.diperbaruiPada], isA<int>());
-    });
+        final data = captured.first as Map<String, dynamic>;
+        expect(data[NamaKolom.dihapus], 1);
+        expect(data[NamaKolom.diperbaruiPada], isA<int>());
+      },
+    );
 
     test('05. softDeleteAll harus memperbarui semua record', () async {
       when(mockDb.update(any, any)).thenAnswer((_) async => 5);
@@ -69622,9 +70307,7 @@ void main() {
       final count = await baseOpSqlite.softDeleteAll(tableName);
 
       expect(count, 5);
-      final captured = verify(
-        mockDb.update(tableName, captureAny),
-      ).captured;
+      final captured = verify(mockDb.update(tableName, captureAny)).captured;
 
       final data = captured.first as Map<String, dynamic>;
       expect(data[NamaKolom.dihapus], 1);
@@ -69638,77 +70321,129 @@ void main() {
 
     setUp(() {
       when(mockDb.batch()).thenReturn(mockBatch);
-      when(mockBatch.commit(noResult: anyNamed('noResult'))).thenAnswer((_) async => []);
+      when(
+        mockBatch.commit(noResult: anyNamed('noResult')),
+      ).thenAnswer((_) async => []);
     });
 
     test('06. sisipkanBatch harus mengeksekusi batch insert', () async {
-      // PERBAIKAN: Method sisipkanBatch tidak ada, gunakan sisipkanAtauPerbaruiBatch
       await baseOpSqlite.sisipkanAtauPerbaruiBatch(tableName, listMap);
-      verify(mockBatch.insert(tableName, any, conflictAlgorithm: ConflictAlgorithm.replace))
-          .called(listMap.length);
+      verify(
+        mockBatch.insert(
+          tableName,
+          any,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        ),
+      ).called(listMap.length);
       verify(mockBatch.commit(noResult: true)).called(1);
     });
 
-    test('07. sisipkanAtauPerbaruiBatch harus mengeksekusi batch insert replace', () async {
-      await baseOpSqlite.sisipkanAtauPerbaruiBatch(tableName, listMap);
-      verify(mockBatch.insert(tableName, any, conflictAlgorithm: ConflictAlgorithm.replace))
-          .called(listMap.length);
-      verify(mockBatch.commit(noResult: true)).called(1);
-    });
+    test(
+      '07. sisipkanAtauPerbaruiBatch harus mengeksekusi batch insert replace',
+      () async {
+        await baseOpSqlite.sisipkanAtauPerbaruiBatch(tableName, listMap);
+        verify(
+          mockBatch.insert(
+            tableName,
+            any,
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          ),
+        ).called(listMap.length);
+        verify(mockBatch.commit(noResult: true)).called(1);
+      },
+    );
 
     test('08. updateBatch harus mengeksekusi batch update', () async {
-      // PERBAIKAN: Method updateBatch tidak ada, gunakan sisipkanAtauPerbaruiBatch
       await baseOpSqlite.sisipkanAtauPerbaruiBatch(tableName, listMap);
-      verify(mockBatch.insert(tableName, any, conflictAlgorithm: ConflictAlgorithm.replace))
-          .called(listMap.length);
+      verify(
+        mockBatch.insert(
+          tableName,
+          any,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        ),
+      ).called(listMap.length);
       verify(mockBatch.commit(noResult: true)).called(1);
     });
   });
 
   group('Sinkronisasi dari Server', () {
-    test('09. sisipkan harus menandai butuhUpload saat dariServer false', () async {
-      when(mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace))
-          .thenAnswer((_) async => 1);
-      
-      await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: false);
+    test(
+      '09. sisipkan harus menandai butuhUpload saat dariServer false',
+      () async {
+        when(
+          mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace),
+        ).thenAnswer((_) async => 1);
 
-      verify(mockStatusUpload.tandaiButuhUpload(true, transaction: null)).called(1);
-    });
+        await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: false);
 
-    test('10. sisipkan tidak boleh menandai butuhUpload saat dariServer true', () async {
-      when(mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace))
-          .thenAnswer((_) async => 1);
-      
-      await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: true);
+        verify(
+          mockStatusUpload.tandaiButuhUpload(true, transaction: null),
+        ).called(1);
+      },
+    );
 
-      verifyNever(mockStatusUpload.tandaiButuhUpload(true, transaction: null));
-    });
+    test(
+      '10. sisipkan tidak boleh menandai butuhUpload saat dariServer true',
+      () async {
+        when(
+          mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace),
+        ).thenAnswer((_) async => 1);
 
-    test('11. update harus menandai butuhUpload saat dariServer false', () async {
-      when(
-        mockDb.update(any, any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')),
-      ).thenAnswer((_) async => 1);
-      
-      await baseOpSqlite.update(tableName, modelMap, '1', dariServer: false);
+        await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: true);
 
-      verify(mockStatusUpload.tandaiButuhUpload(true, transaction: null)).called(1);
-    });
+        verifyNever(
+          mockStatusUpload.tandaiButuhUpload(true, transaction: null),
+        );
+      },
+    );
 
-    test('12. update tidak boleh menandai butuhUpload saat dariServer true', () async {
-      when(
-        mockDb.update(any, any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')),
-      ).thenAnswer((_) async => 1);
-      
-      await baseOpSqlite.update(tableName, modelMap, '1', dariServer: true);
+    test(
+      '11. update harus menandai butuhUpload saat dariServer false',
+      () async {
+        when(
+          mockDb.update(
+            any,
+            any,
+            where: anyNamed('where'),
+            whereArgs: anyNamed('whereArgs'),
+          ),
+        ).thenAnswer((_) async => 1);
 
-      verifyNever(mockStatusUpload.tandaiButuhUpload(true, transaction: null));
-    });
+        await baseOpSqlite.update(tableName, modelMap, '1', dariServer: false);
+
+        verify(
+          mockStatusUpload.tandaiButuhUpload(true, transaction: null),
+        ).called(1);
+      },
+    );
+
+    test(
+      '12. update tidak boleh menandai butuhUpload saat dariServer true',
+      () async {
+        when(
+          mockDb.update(
+            any,
+            any,
+            where: anyNamed('where'),
+            whereArgs: anyNamed('whereArgs'),
+          ),
+        ).thenAnswer((_) async => 1);
+
+        await baseOpSqlite.update(tableName, modelMap, '1', dariServer: true);
+
+        verifyNever(
+          mockStatusUpload.tandaiButuhUpload(true, transaction: null),
+        );
+      },
+    );
   });
 
   group('runComplexOperation', () {
     test('13. harus menjalankan action di dalam db.transaction', () async {
       when(mockDb.transaction<String>(any)).thenAnswer((invocation) async {
-        final action = invocation.positionalArguments.first as Future<String> Function(Transaction);
+        final action =
+            invocation.positionalArguments.first
+                as Future<String> Function(Transaction);
         final mockTxn = MockTransaction();
         when(mockTxn.rawQuery(any)).thenAnswer((_) async => []);
         return action(mockTxn);
@@ -69719,25 +70454,29 @@ void main() {
         return 'done';
       }
 
-      final result = await baseOpSqlite.runComplexOperation(dummyAction);
+      final result = await baseOpSqlite.operasiKompleks(dummyAction);
 
       verify(mockDb.transaction<String>(any)).called(1);
       expect(result, 'done');
     });
 
     test('14. harus menandai butuhUpload jika dariServer false', () async {
-      when(mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace))
-          .thenAnswer((_) async => 1);
+      when(
+        mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace),
+      ).thenAnswer((_) async => 1);
 
-      await baseOpSqlite.runComplexOperation((txn) async {
+      await baseOpSqlite.operasiKompleks((txn) async {
         await txn.insert('test', {'id': '1'});
         return 'done';
       }, dariServer: false);
 
-      verify(mockStatusUpload.tandaiButuhUpload(true, transaction: any)).called(1);
+      verify(
+        mockStatusUpload.tandaiButuhUpload(true, transaction: any),
+      ).called(1);
     });
   });
 }
+
 
 // File: test/data_dummy/data_dummy_test.dart
 
@@ -72286,15 +73025,15 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i15.SettingsOpSqlite {
           as _i8.Future<_i6.SettingsModel>);
 
   @override
-  _i8.Future<void> saveOrUpdateSettings(
+  _i8.Future<void> simpanAtauPerbaruiSettings(
     _i6.SettingsModel? settings, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
-              #saveOrUpdateSettings,
+              #simpanAtauPerbaruiSettings,
               [settings],
-              {#fromServer: fromServer},
+              {#dariServer: dariServer},
             ),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),
@@ -72302,13 +73041,13 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i15.SettingsOpSqlite {
           as _i8.Future<void>);
 
   @override
-  _i8.Future<void> updateSettings(
+  _i8.Future<void> perbaruiSettings(
     Map<String, dynamic>? data, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
-              #updateSettings,
+              #perbaruiSettings,
               [data],
               {#dariServer: dariServer},
             ),
@@ -72318,15 +73057,15 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i15.SettingsOpSqlite {
           as _i8.Future<void>);
 
   @override
-  _i8.Future<void> saveOrUpdateSettingsWithBatch(
+  _i8.Future<void> simpanAtauPerbaruiSettingsDenganBatch(
     _i6.SettingsModel? settings, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
-              #saveOrUpdateSettingsWithBatch,
+              #simpanAtauPerbaruiSettingsDenganBatch,
               [settings],
-              {#fromServer: fromServer},
+              {#dariServer: dariServer},
             ),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),
@@ -72401,8 +73140,277 @@ class MockNotificationAppLaunchDetails extends _i1.Mock
 }
 
 
+// File: test/admin/halaman/lainnya/paket_test.mocks.dart
+// Mocks generated by Mockito 5.4.6 from annotations
+// in wifi/test/admin/halaman/lainnya/paket_test.dart.
+// Do not manually edit this file.
+
+// ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'dart:async' as _i5;
+
+import 'package:flutter/src/widgets/navigator.dart' as _i7;
+import 'package:mockito/mockito.dart' as _i1;
+import 'package:wifi/admin/data/sqlite.dart' as _i2;
+import 'package:wifi/fitur/paket/model/paket_model.dart' as _i6;
+import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart' as _i4;
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart' as _i3;
+
+// ignore_for_file: type=lint
+// ignore_for_file: avoid_redundant_argument_values
+// ignore_for_file: avoid_setters_without_getters
+// ignore_for_file: comment_references
+// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use_from_same_package
+// ignore_for_file: implementation_imports
+// ignore_for_file: invalid_use_of_visible_for_testing_member
+// ignore_for_file: must_be_immutable
+// ignore_for_file: prefer_const_constructors
+// ignore_for_file: unnecessary_parenthesis
+// ignore_for_file: camel_case_types
+// ignore_for_file: subtype_of_sealed_class
+// ignore_for_file: invalid_use_of_internal_member
+
+class _FakeSqliteDatabase_0 extends _i1.SmartFake
+    implements _i2.SqliteDatabase {
+  _FakeSqliteDatabase_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeBaseOpSqlite_1 extends _i1.SmartFake implements _i3.BaseOpSqlite {
+  _FakeBaseOpSqlite_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+/// A class which mocks [PaketOpSqlite].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockPaketOpSqlite extends _i1.Mock implements _i4.PaketOpSqlite {
+  MockPaketOpSqlite() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i2.SqliteDatabase get sqliteDb =>
+      (super.noSuchMethod(
+            Invocation.getter(#sqliteDb),
+            returnValue: _FakeSqliteDatabase_0(
+              this,
+              Invocation.getter(#sqliteDb),
+            ),
+          )
+          as _i2.SqliteDatabase);
+
+  @override
+  _i3.BaseOpSqlite get basOpSqlite =>
+      (super.noSuchMethod(
+            Invocation.getter(#basOpSqlite),
+            returnValue: _FakeBaseOpSqlite_1(
+              this,
+              Invocation.getter(#basOpSqlite),
+            ),
+          )
+          as _i3.BaseOpSqlite);
+
+  @override
+  _i5.Future<void> tambahPaket(
+    _i6.PaketModel? paket, {
+    bool? dariServer = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#tambahPaket, [paket], {#dariServer: dariServer}),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<List<_i6.PaketModel>> ambilSemua({
+    bool? tampilkanYangDiarsip = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilSemua, [], {
+              #tampilkanYangDiarsip: tampilkanYangDiarsip,
+            }),
+            returnValue: _i5.Future<List<_i6.PaketModel>>.value(
+              <_i6.PaketModel>[],
+            ),
+          )
+          as _i5.Future<List<_i6.PaketModel>>);
+
+  @override
+  _i5.Future<List<_i6.PaketModel>> ambilPaketPublik() =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilPaketPublik, []),
+            returnValue: _i5.Future<List<_i6.PaketModel>>.value(
+              <_i6.PaketModel>[],
+            ),
+          )
+          as _i5.Future<List<_i6.PaketModel>>);
+
+  @override
+  _i5.Future<_i6.PaketModel?> ambilBerdasarkanId(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilBerdasarkanId, [id]),
+            returnValue: _i5.Future<_i6.PaketModel?>.value(),
+          )
+          as _i5.Future<_i6.PaketModel?>);
+
+  @override
+  _i5.Future<void> perbaruiPaket(
+    _i6.PaketModel? paket, {
+    bool? dariServer = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #perbaruiPaket,
+              [paket],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> hapusSementara(String? id, {bool? dariServer = false}) =>
+      (super.noSuchMethod(
+            Invocation.method(#hapusSementara, [id], {#dariServer: dariServer}),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<int> hapusSementaraSemua({bool? dariServer = false}) =>
+      (super.noSuchMethod(
+            Invocation.method(#hapusSementaraSemua, [], {
+              #dariServer: dariServer,
+            }),
+            returnValue: _i5.Future<int>.value(0),
+          )
+          as _i5.Future<int>);
+
+  @override
+  _i5.Future<void> hapusSemua({bool? dariServer = false}) =>
+      (super.noSuchMethod(
+            Invocation.method(#hapusSemua, [], {#dariServer: dariServer}),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<List<_i6.PaketModel>> ambilPerubahanSejak(DateTime? sejak) =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilPerubahanSejak, [sejak]),
+            returnValue: _i5.Future<List<_i6.PaketModel>>.value(
+              <_i6.PaketModel>[],
+            ),
+          )
+          as _i5.Future<List<_i6.PaketModel>>);
+
+  @override
+  _i5.Future<void> sisipkanAtauPerbaruiBatch(
+    List<_i6.PaketModel>? items, {
+    bool? dariServer = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #sisipkanAtauPerbaruiBatch,
+              [items],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<List<_i6.PaketModel>> ambilBerdasarkanBeberapaId(
+    List<String>? ids,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#ambilBerdasarkanBeberapaId, [ids]),
+            returnValue: _i5.Future<List<_i6.PaketModel>>.value(
+              <_i6.PaketModel>[],
+            ),
+          )
+          as _i5.Future<List<_i6.PaketModel>>);
+}
+
+/// A class which mocks [NavigatorObserver].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockNavigatorObserver extends _i1.Mock implements _i7.NavigatorObserver {
+  MockNavigatorObserver() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  void didPush(_i7.Route<dynamic>? route, _i7.Route<dynamic>? previousRoute) =>
+      super.noSuchMethod(
+        Invocation.method(#didPush, [route, previousRoute]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void didPop(_i7.Route<dynamic>? route, _i7.Route<dynamic>? previousRoute) =>
+      super.noSuchMethod(
+        Invocation.method(#didPop, [route, previousRoute]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void didRemove(
+    _i7.Route<dynamic>? route,
+    _i7.Route<dynamic>? previousRoute,
+  ) => super.noSuchMethod(
+    Invocation.method(#didRemove, [route, previousRoute]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void didReplace({
+    _i7.Route<dynamic>? newRoute,
+    _i7.Route<dynamic>? oldRoute,
+  }) => super.noSuchMethod(
+    Invocation.method(#didReplace, [], {
+      #newRoute: newRoute,
+      #oldRoute: oldRoute,
+    }),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void didChangeTop(
+    _i7.Route<dynamic>? topRoute,
+    _i7.Route<dynamic>? previousTopRoute,
+  ) => super.noSuchMethod(
+    Invocation.method(#didChangeTop, [topRoute, previousTopRoute]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void didStartUserGesture(
+    _i7.Route<dynamic>? route,
+    _i7.Route<dynamic>? previousRoute,
+  ) => super.noSuchMethod(
+    Invocation.method(#didStartUserGesture, [route, previousRoute]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void didStopUserGesture() => super.noSuchMethod(
+    Invocation.method(#didStopUserGesture, []),
+    returnValueForMissingStub: null,
+  );
+}
+
+
 // File: test/admin/halaman/lainnya/paket_test.dart
 // path: test/admin/halaman/lainnya/paket_test.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -72448,23 +73456,12 @@ void main() {
 
   final paketState = PaketState(daftarPaket: paketList);
 
-  // Membuat class Paket override untuk testing
-  class TestPaket extends Paket {
-    final PaketState state;
-
-    TestPaket(this.state);
-
-    @override
-    FutureOr<PaketState> build() {
-      return state;
-    }
-  }
-
   Widget createWidget() {
     return ProviderScope(
       overrides: [
         paketOpSqliteProvider.overrideWithValue(mockPaketOpSqlite),
-        paketProvider.overrideWith(() => TestPaket(paketState)),
+        // Gunakan cara yang benar untuk override AsyncNotifierProvider
+        paketProvider.overrideWith(() => _MockPaketNotifier(paketState)),
       ],
       child: MaterialApp(
         home: const PackagePage(),
@@ -72571,6 +73568,19 @@ void main() {
     });
   });
 }
+
+/// Mock Notifier untuk testing PaketProvider
+class _MockPaketNotifier extends Paket {
+  final PaketState _state;
+
+  _MockPaketNotifier(this._state);
+
+  @override
+  FutureOr<PaketState> build() {
+    return _state;
+  }
+}
+
 
 // File: test/admin/halaman/lainnya/halaman_migrasi_test.dart
 // path: test/admin/halaman/lainnya/halaman_migrasi_test.dart
@@ -72705,7 +73715,6 @@ import 'package:wifi/fitur/dompet/page/detail_dompet.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
-import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 
 import 'detail_dompet_test.mocks.dart';
 
@@ -72732,7 +73741,7 @@ void main() {
       idKategori: 'k1',
       idPelanggan: 'pelanggan1',
       idPaket: 'paket1',
-      tanggalMulai: DateTime(2023, 1, 1),
+      tanggalMulai: DateTime(2023, 1, 3),
       tanggalBerakhir: DateTime(2023, 1, 31),
     ),
     TransaksiModel(
@@ -72879,8 +73888,9 @@ void main() {
         await tester.pumpWidget(createWidget());
         await tester.pumpAndSettle();
 
-        when(mockNavigatorObserver.didPush(any, any))
-            .thenAnswer((_) => Future.value(true));
+        when(
+          mockNavigatorObserver.didPush(any, any),
+        ).thenAnswer((_) => Future.value(true));
 
         await tester.tap(find.text('Gaji'));
         await tester.pumpAndSettle();
@@ -72893,9 +73903,7 @@ void main() {
     testWidgets(
       '03. harus hapus transaksi dan refresh data saat on_delete ditekan',
       (tester) async {
-        when(
-          mockTransaksiOpSqlite.softDelete('t1'),
-        ).thenAnswer((_) async => 1);
+        when(mockTransaksiOpSqlite.softDelete('t1')).thenAnswer((_) async => 1);
 
         await tester.pumpWidget(createWidget());
         await tester.pumpAndSettle();
@@ -72934,12 +73942,14 @@ void main() {
       await tester.tap(editIcon);
       await tester.pump();
 
-      final pushedRoute = verify(mockNavigatorObserver.didPush(captureAny, any))
-          .captured.last as Route<dynamic>;
+      final pushedRoute =
+          verify(mockNavigatorObserver.didPush(captureAny, any)).captured.last
+              as Route<dynamic>;
       expect(pushedRoute, isA<MaterialPageRoute>());
     });
   });
 }
+
 
 // File: test/admin/halaman/detail/detail_dompet_test.mocks.dart
 // Mocks generated by Mockito 5.4.6 from annotations
@@ -73058,18 +74068,18 @@ class MockDompetOpSqlite extends _i1.Mock implements _i5.DompetOpSqlite {
           as _i6.Future<void>);
 
   @override
-  _i6.Future<void> softDelete(String? id, {bool? fromServer = false}) =>
+  _i6.Future<void> softDelete(String? id, {bool? dariServer = false}) =>
       (super.noSuchMethod(
-            Invocation.method(#softDelete, [id], {#fromServer: fromServer}),
+            Invocation.method(#softDelete, [id], {#dariServer: dariServer}),
             returnValue: _i6.Future<void>.value(),
             returnValueForMissingStub: _i6.Future<void>.value(),
           )
           as _i6.Future<void>);
 
   @override
-  _i6.Future<int> softDeleteAll({bool? fromServer = false}) =>
+  _i6.Future<int> softDeleteAll({bool? dariServer = false}) =>
       (super.noSuchMethod(
-            Invocation.method(#softDeleteAll, [], {#fromServer: fromServer}),
+            Invocation.method(#softDeleteAll, [], {#dariServer: dariServer}),
             returnValue: _i6.Future<int>.value(0),
           )
           as _i6.Future<int>);
@@ -73262,17 +74272,17 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i8.TransaksiOpSqlite {
           as _i6.Future<int>);
 
   @override
-  _i6.Future<double> getTotalIncome() =>
+  _i6.Future<double> ambilTotalPemasukan() =>
       (super.noSuchMethod(
-            Invocation.method(#getTotalIncome, []),
+            Invocation.method(#ambilTotalPemasukan, []),
             returnValue: _i6.Future<double>.value(0.0),
           )
           as _i6.Future<double>);
 
   @override
-  _i6.Future<double> getTotalExpense() =>
+  _i6.Future<double> ambilTotalPengeluaran() =>
       (super.noSuchMethod(
-            Invocation.method(#getTotalExpense, []),
+            Invocation.method(#ambilTotalPengeluaran, []),
             returnValue: _i6.Future<double>.value(0.0),
           )
           as _i6.Future<double>);
@@ -74652,17 +75662,17 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i5.TransaksiOpSqlite {
           as _i6.Future<int>);
 
   @override
-  _i6.Future<double> getTotalIncome() =>
+  _i6.Future<double> ambilTotalPemasukan() =>
       (super.noSuchMethod(
-            Invocation.method(#getTotalIncome, []),
+            Invocation.method(#ambilTotalPemasukan, []),
             returnValue: _i6.Future<double>.value(0.0),
           )
           as _i6.Future<double>);
 
   @override
-  _i6.Future<double> getTotalExpense() =>
+  _i6.Future<double> ambilTotalPengeluaran() =>
       (super.noSuchMethod(
-            Invocation.method(#getTotalExpense, []),
+            Invocation.method(#ambilTotalPengeluaran, []),
             returnValue: _i6.Future<double>.value(0.0),
           )
           as _i6.Future<double>);
@@ -75206,9 +76216,9 @@ class MockPaketOpSqlite extends _i1.Mock implements _i4.PaketOpSqlite {
           as _i6.Future<void>);
 
   @override
-  _i6.Future<List<_i8.PaketModel>> ambilPerubahanSejak(DateTime? since) =>
+  _i6.Future<List<_i8.PaketModel>> ambilPerubahanSejak(DateTime? sejak) =>
       (super.noSuchMethod(
-            Invocation.method(#ambilPerubahanSejak, [since]),
+            Invocation.method(#ambilPerubahanSejak, [sejak]),
             returnValue: _i6.Future<List<_i8.PaketModel>>.value(
               <_i8.PaketModel>[],
             ),
@@ -75391,17 +76401,17 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i9.TransaksiOpSqlite {
           as _i6.Future<int>);
 
   @override
-  _i6.Future<double> getTotalIncome() =>
+  _i6.Future<double> ambilTotalPemasukan() =>
       (super.noSuchMethod(
-            Invocation.method(#getTotalIncome, []),
+            Invocation.method(#ambilTotalPemasukan, []),
             returnValue: _i6.Future<double>.value(0.0),
           )
           as _i6.Future<double>);
 
   @override
-  _i6.Future<double> getTotalExpense() =>
+  _i6.Future<double> ambilTotalPengeluaran() =>
       (super.noSuchMethod(
-            Invocation.method(#getTotalExpense, []),
+            Invocation.method(#ambilTotalPengeluaran, []),
             returnValue: _i6.Future<double>.value(0.0),
           )
           as _i6.Future<double>);
@@ -75526,7 +76536,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/admin/providers/detail_langganan_provider.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/provider/detail_langganan_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 // PERBAIKAN: Tambahkan import yang hilang
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
@@ -75653,7 +76663,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';

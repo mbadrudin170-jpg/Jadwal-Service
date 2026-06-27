@@ -37,6 +37,22 @@ class PaketOpSqlite {
     }
   }
 
+  /// Memperbarui [PaketModel] yang ada di database.
+  Future<void> perbaruiPaket(
+    PaketModel paket, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Memulai updatePaket untuk id: ${paket.id}');
+    try {
+      final data = paket.copyWith(diperbaruiPada: _nowUtc).toSqlite();
+      await basOpSqlite.update(_tabel, data, paket.id, dariServer: dariServer);
+      Log.info('Berhasil updatePaket untuk id: ${paket.id}');
+    } catch (e, s) {
+      Log.error('Gagal updatePaket untuk id: ${paket.id}', e: e, s: s);
+      rethrow;
+    }
+  }
+
   /// Mengambil semua paket aktif (tidak diarsipkan).
   Future<List<PaketModel>> ambilSemua({
     bool tampilkanYangDiarsip = false,
@@ -117,22 +133,6 @@ class PaketOpSqlite {
       return null;
     } catch (e, s) {
       Log.error('Gagal mencari paket berdasarkan ID: $id', e: e, s: s);
-      rethrow;
-    }
-  }
-
-  /// Memperbarui [PaketModel] yang ada di database.
-  Future<void> perbaruiPaket(
-    PaketModel paket, {
-    bool dariServer = false,
-  }) async {
-    Log.info('Memulai updatePaket untuk id: ${paket.id}');
-    try {
-      final data = paket.copyWith(diperbaruiPada: _nowUtc).toSqlite();
-      await basOpSqlite.update(_tabel, data, paket.id, dariServer: dariServer);
-      Log.info('Berhasil updatePaket untuk id: ${paket.id}');
-    } catch (e, s) {
-      Log.error('Gagal updatePaket untuk id: ${paket.id}', e: e, s: s);
       rethrow;
     }
   }

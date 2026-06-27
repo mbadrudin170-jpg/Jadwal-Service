@@ -6,10 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -32,7 +30,6 @@ class FormPaket extends ConsumerStatefulWidget {
 }
 
 class _PackageFormState extends ConsumerState<FormPaket> {
-  late final PaketOpSqlite _paketOpSqlite;
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   final _hargaController = TextEditingController();
@@ -53,7 +50,6 @@ class _PackageFormState extends ConsumerState<FormPaket> {
   @override
   void initState() {
     super.initState();
-    _paketOpSqlite = ref.read(paketOpSqliteProvider);
     if (_modeEdit) {
       _namaController.text = widget.paket!.nama;
       _hargaController.text = widget.paket!.harga.toString();
@@ -66,6 +62,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
   }
 
   Future<void> _simpanForm() async {
+    final paketNotifier = ref.read(paketProvider.notifier);
     if (_formKey.currentState!.validate()) {
       final paketBaru = PaketModel(
         id: _modeEdit ? widget.paket!.id : const Uuid().v4(),
@@ -85,9 +82,9 @@ class _PackageFormState extends ConsumerState<FormPaket> {
 
       try {
         if (_modeEdit) {
-          await _paketOpSqlite.perbaruiPaket(paketBaru);
+          await paketNotifier.perbarui(paketBaru);
         } else {
-          await _paketOpSqlite.tambahPaket(paketBaru);
+          await paketNotifier.tambah(paketBaru);
         }
         ref.invalidate(paketProvider);
         unawaited(

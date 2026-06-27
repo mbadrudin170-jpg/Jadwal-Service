@@ -181,7 +181,7 @@ class TransaksiOpSqlite {
         );
 
         if (maps.isNotEmpty) {
-          final oldTransaction = TransaksiModel.fromSqlite(maps.first);
+          final transaksiLama = TransaksiModel.fromSqlite(maps.first);
           final updateData = transaksi.copyWith(diperbaruiPada: _nowUtc);
           await txn.update(
             _tabel,
@@ -189,13 +189,12 @@ class TransaksiOpSqlite {
             where: '${NamaKolom.id} = ?',
             whereArgs: [id],
           );
-          Log.info('Data transaksi $oldTransaction ke  $updateData diperbarui');
-
+          Log.info('Data transaksi $transaksiLama ke  $updateData diperbarui');
           final dompetTerpengaruh = <String>{};
-          dompetTerpengaruh.add(oldTransaction.idDompet);
+          dompetTerpengaruh.add(transaksiLama.idDompet);
           dompetTerpengaruh.add(updateData.idDompet);
-          if (oldTransaction.idDompetTujuan != null) {
-            dompetTerpengaruh.add(oldTransaction.idDompetTujuan!);
+          if (transaksiLama.idDompetTujuan != null) {
+            dompetTerpengaruh.add(transaksiLama.idDompetTujuan!);
           }
           if (updateData.idDompetTujuan != null) {
             dompetTerpengaruh.add(updateData.idDompetTujuan!);
@@ -313,12 +312,9 @@ class TransaksiOpSqlite {
   }
 
   /// Menandai transaksi sebagai dihapus (soft delete) dan menghitung ulang saldo dompet.
-  Future<void> softDelete(
-     String id, {
-     bool dariServer = false,
-  }) async {
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
     try {
-      await baseOpSqlite.operasiKompleks<void>(( Transaction txn) async {
+      await baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         Log.info('Memulai soft delete atomik untuk ID: $id');
         final maps = await txn.query(
           _tabel,

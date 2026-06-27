@@ -9938,6 +9938,8 @@ final class DetailPaketFamily extends $Family
 // File: lib/fitur/paket/provider/paket_provider.dart
 // path: lib/fitur/paket/provider/paket_provider.dart
 
+import 'dart:async';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
@@ -9976,6 +9978,33 @@ class Paket extends _$Paket {
       jumlahPaket: daftarpaket.length,
       daftarPaketPublik: daftarPaketPublik,
     );
+  }
+
+  Future<void> tambah(PaketModel paket) async {
+    try {
+      await _paketOp.tambahPaket(paket);
+      unawaited(_invalidateProviderPaket());
+      // Logika asinkron
+    } on Exception catch (e, s) {
+      Log.error('Error di tambah: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> perbarui(PaketModel paket) async {
+    try {
+      await _paketOp.perbaruiPaket(paket);
+      unawaited(_invalidateProviderPaket());
+    } on Exception catch (e, s) {
+      Log.error('Error diupdate: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> _invalidateProviderPaket() async {
+    ref.invalidateSelf();
+    ref.invalidate(detailPaketProvider);
+    ref.invalidate(urutanPaketStateProvider);
   }
 }
 
@@ -10549,7 +10578,7 @@ class PaketOpSqlite {
   /// Instance dari [BaseOpSqlite] untuk operasi CRUD dasar.
   final BaseOpSqlite basOpSqlite;
   final String _tabel = NamaTabel.paket;
-  final _nowUtc = DateTime.now().toUtc();
+  DateTime get _nowUtc => DateTime.now().toUtc();
 
   PaketOpSqlite({required this.sqliteDb, required this.basOpSqlite}) {
     Log.info('PackageOperation instance dibuat.');
@@ -10747,7 +10776,7 @@ class PaketOpSqlite {
         daftarPaket,
         dariServer: dariServer,
       );
-      Log.info('Berhasil insertOrUpdateBatch untuk ${items.length} item');
+      Log.info('Berhasil insertOrUpd,ateBatch untuk ${items.length} item');
     } catch (e, s) {
       Log.error('Gagal insertOrUpdateBatch', e: e, s: s);
       rethrow;
@@ -29335,6 +29364,7 @@ final transaksiOpGlobalProvider = Provider<TransaksiOpGlobal>((ref) {
 import 'package:collection/collection.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
@@ -29352,8 +29382,7 @@ class TransaksiOpSqlite {
   final PaketOpSqlite paketOpsqlite;
 
   final String _tabel = NamaTabel.transaksi;
-  final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
-  final _nowUtc = DateTime.now().toUtc();
+  DateTime get _nowUtc => DateTime.now().toUtc();
 
   TransaksiOpSqlite({
     required this.sqliteDb,
@@ -29403,10 +29432,24 @@ class TransaksiOpSqlite {
       );
 
       final saldoTotal = (hasilTotal.first['total'] as num?)?.toDouble() ?? 0.0;
+      final dompetMaps = await txn.query(
+        NamaTabel.dompet,
+        where: '${NamaKolom.id} = ?',
+        whereArgs: [idDompet],
+      );
 
+      if (dompetMaps.isEmpty) {
+        Log.warning('Dompet ID: $idDompet tidak ditemukan');
+        return;
+      }
+      final dompetLama = DompetModel.fromSqlite(dompetMaps.first);
+      final dompetBaru = dompetLama.copyWith(
+        saldo: saldoTotal,
+        diperbaruiPada: _nowUtc, // ← Gunakan DateTime
+      );
       await txn.update(
         NamaTabel.dompet,
-        {NamaKolom.saldo: saldoTotal, NamaKolom.diperbaruiPada: _nowEpoch},
+        dompetBaru.toSqlite(),
         where: '${NamaKolom.id} = ?',
         whereArgs: [idDompet],
       );
@@ -29483,6 +29526,58 @@ class TransaksiOpSqlite {
     }
   }
 
+  /// Memperbarui data transaksi yang ada dan menghitung ulang saldo dompet yang terpengaruh.
+  Future<void> perbaruiTransaksi(
+    String id,
+    TransaksiModel transaksi, {
+    bool dariServer = false,
+  }) async {
+    try {
+      await baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
+        Log.info('Memulai update transaksi database ID: $id');
+        final maps = await txn.query(
+          _tabel,
+          where: '${NamaKolom.id} = ?',
+          whereArgs: [id],
+        );
+
+        if (maps.isNotEmpty) {
+          final transaksiLama = TransaksiModel.fromSqlite(maps.first);
+          final updateData = transaksi.copyWith(diperbaruiPada: _nowUtc);
+          await txn.update(
+            _tabel,
+            updateData.toSqlite(),
+            where: '${NamaKolom.id} = ?',
+            whereArgs: [id],
+          );
+          Log.info('Data transaksi $transaksiLama ke  $updateData diperbarui');
+          final dompetTerpengaruh = <String>{};
+          dompetTerpengaruh.add(transaksiLama.idDompet);
+          dompetTerpengaruh.add(updateData.idDompet);
+          if (transaksiLama.idDompetTujuan != null) {
+            dompetTerpengaruh.add(transaksiLama.idDompetTujuan!);
+          }
+          if (updateData.idDompetTujuan != null) {
+            dompetTerpengaruh.add(updateData.idDompetTujuan!);
+          }
+
+          Log.info(
+            'Mengupdate saldo untuk wallet yang terpengaruh: $dompetTerpengaruh',
+          );
+          for (final idDompet in dompetTerpengaruh) {
+            await _hitungUlangDanPerbaruiSaldoDompet(idDompet, txn);
+          }
+        } else {
+          Log.warning('Update gagal: Transaksi ID $id tidak ditemukan');
+        }
+      }, dariServer: dariServer);
+      Log.info('Proses updateTransaction ID: $id selesai');
+    } on Exception catch (e, st) {
+      Log.error('Gagal update transaksi ID: $id', e: e, s: st);
+      rethrow;
+    }
+  }
+
   /// Mengambil satu transaksi berdasarkan ID-nya.
   Future<TransaksiModel?> ambilBerdasarkanId(String id) async {
     try {
@@ -29499,7 +29594,6 @@ class TransaksiOpSqlite {
         Log.warning('Transaksi dengan ID: $id tidak ditemukan');
         return null;
       }
-
       Log.info('Transaksi ID: $id ditemukan');
       return TransaksiModel.fromSqlite(maps.first);
     } catch (e, st) {
@@ -29578,66 +29672,10 @@ class TransaksiOpSqlite {
     }
   }
 
-  /// Memperbarui data transaksi yang ada dan menghitung ulang saldo dompet yang terpengaruh.
-  Future<void> perbaruiTransaksi(
-    final String id,
-    final TransaksiModel transaksi, {
-    final bool dariServer = false,
-  }) async {
-    try {
-      await baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
-        Log.info('Memulai update transaksi database ID: $id');
-        final maps = await txn.query(
-          _tabel,
-          where: '${NamaKolom.id} = ?',
-          whereArgs: [id],
-        );
-
-        if (maps.isNotEmpty) {
-          final oldTransaction = TransaksiModel.fromSqlite(maps.first);
-          final updateData = transaksi.copyWith(diperbaruiPada: _nowUtc);
-          await txn.update(
-            _tabel,
-            updateData.toSqlite(),
-            where: '${NamaKolom.id} = ?',
-            whereArgs: [id],
-          );
-          Log.info('Data transaksi ID: $id diperbarui');
-
-          final dompetTerpengaruh = <String>{};
-          dompetTerpengaruh.add(oldTransaction.idDompet);
-          dompetTerpengaruh.add(updateData.idDompet);
-          if (oldTransaction.idDompetTujuan != null) {
-            dompetTerpengaruh.add(oldTransaction.idDompetTujuan!);
-          }
-          if (updateData.idDompetTujuan != null) {
-            dompetTerpengaruh.add(updateData.idDompetTujuan!);
-          }
-
-          Log.info(
-            'Mengupdate saldo untuk wallet yang terpengaruh: $dompetTerpengaruh',
-          );
-          for (final idDompet in dompetTerpengaruh) {
-            await _hitungUlangDanPerbaruiSaldoDompet(idDompet, txn);
-          }
-        } else {
-          Log.warning('Update gagal: Transaksi ID $id tidak ditemukan');
-        }
-      }, dariServer: dariServer);
-      Log.info('Proses updateTransaction ID: $id selesai');
-    } on Exception catch (e, st) {
-      Log.error('Gagal update transaksi ID: $id', e: e, s: st);
-      rethrow;
-    }
-  }
-
   /// Menandai transaksi sebagai dihapus (soft delete) dan menghitung ulang saldo dompet.
-  Future<void> softDelete(
-    final String id, {
-    final bool dariServer = false,
-  }) async {
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
     try {
-      await baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
+      await baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         Log.info('Memulai soft delete atomik untuk ID: $id');
         final maps = await txn.query(
           _tabel,
@@ -29651,17 +29689,17 @@ class TransaksiOpSqlite {
         }
 
         final transaksiLama = TransaksiModel.fromSqlite(maps.first);
+        final transaksiDiarsip = transaksiLama.copyWith(
+          diHapus: true,
+          diperbaruiPada: _nowUtc,
+          diarsipkanPada: _nowUtc,
+        );
         await txn.update(
           _tabel,
-          {
-            NamaKolom.dihapus: 1,
-            NamaKolom.diperbaruiPada: _nowEpoch,
-            NamaKolom.diarsipkanPada: _nowEpoch,
-          },
+          transaksiDiarsip.toSqlite(),
           where: '${NamaKolom.id} = ?',
           whereArgs: [id],
         );
-
         Log.info('Flag isDeleted diatur ke 1 untuk ID: $id');
 
         await _hitungUlangDanPerbaruiSaldoDompet(transaksiLama.idDompet, txn);
@@ -29687,12 +29725,13 @@ class TransaksiOpSqlite {
         final Transaction txn,
       ) async {
         Log.warning('Memulai soft delete semua transaksi secara atomik');
+
         final rowsAffected = await txn.update(
           _tabel,
           {
             NamaKolom.dihapus: 1,
-            NamaKolom.diperbaruiPada: _nowEpoch,
-            NamaKolom.diarsipkanPada: _nowEpoch,
+            NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
+            NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
           },
           where: '${NamaKolom.dihapus} = ?',
           whereArgs: [0],
@@ -29701,7 +29740,7 @@ class TransaksiOpSqlite {
 
         await txn.update(NamaTabel.dompet, {
           NamaKolom.saldo: 0,
-          NamaKolom.diperbaruiPada: _nowEpoch,
+          NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
         });
         Log.info('Semua saldo dompet direset ke 0 setelah penghapusan massal');
 
@@ -33546,7 +33585,7 @@ class PelangganOpSqlite {
     Log.info('Memulai pembuatan customer dengan ID: ${pelanggan.id}');
     try {
       final pelangganBaru = pelanggan.copyWith(
-        diperbaruiPada: DateTime.now().toUtc(),
+        diperbaruiPada: DateTime.now(),
       );
       final data = pelangganBaru.toSqlite();
       await _baseOpSqlite.sisipkan(_tabel, data, dariServer: dariServer);
@@ -36676,7 +36715,7 @@ class LayananUnggahData {
       unggahDataPelangganAktif(),
       uploadCustomerData(),
       uploadOrderData(),
-      uploadTransactionData(),
+      uploadDataTransaksi(),
       uploadSubCategoryData(),
       uploadApkVersionData(),
       uploadSettingsData(),
@@ -36929,7 +36968,7 @@ class LayananUnggahData {
   }
 
   /// Mengunggah data transaksi ke Firestore.
-  Future<void> uploadTransactionData() async {
+  Future<void> uploadDataTransaksi() async {
     Log.info(
       'Memulai proses unggah data transaksi. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
@@ -36943,7 +36982,7 @@ class LayananUnggahData {
         NamaTabel.transaksi,
         NamaTabel.transaksi,
         TransaksiModel.fromSqlite,
-        (final m) => m.toFirebase(),
+        (m) => m.toFirebase(),
         waktu,
       );
       Log.info('Proses unggah data transaksi selesai dengan sukses.');
@@ -45463,7 +45502,7 @@ final baseOpSqliteProvider = Provider<BaseOpSqlite>((ref) {
 class BaseOpSqlite {
   final SqliteDatabase _sqliteDb;
   final StatusUploadOpSqlite _statusUnggahOpsqlite;
-  final _sekarang = DateTime.now().toUtc();
+  DateTime get _sekarang => DateTime.now().toUtc();
 
   /// Konstruktor untuk `BaseOperation`.
   ///
