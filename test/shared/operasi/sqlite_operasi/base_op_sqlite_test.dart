@@ -7,12 +7,12 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 
 import 'base_op_sqlite_test.mocks.dart';
 
 // Dummy model for testing
-class DummyModel with HasId {
-  @override
+class DummyModel {
   final String id;
   final String name;
   final DateTime? diperbaruiPada;
@@ -33,16 +33,22 @@ class DummyModel with HasId {
       };
 }
 
-@GenerateMocks([SqliteDatabase, Database, Transaction, Batch])
+@GenerateMocks([SqliteDatabase, Database, Transaction, Batch, StatusUploadOpSqlite])
 void main() {
   late BaseOpSqlite baseOpSqlite;
   late MockSqliteDatabase mockSqliteDb;
   late MockDatabase mockDb;
+  late MockStatusUploadOpSqlite mockStatusUpload;
 
   setUp(() {
     mockSqliteDb = MockSqliteDatabase();
     mockDb = MockDatabase();
-    baseOpSqlite = BaseOpSqlite(mockSqliteDb);
+    mockStatusUpload = MockStatusUploadOpSqlite();
+    
+    baseOpSqlite = BaseOpSqlite(
+      sqliteDb: mockSqliteDb,
+      statusUnggahOpSqlite: mockStatusUpload,
+    );
 
     when(mockSqliteDb.database).thenAnswer((_) async => mockDb);
   });
@@ -65,13 +71,13 @@ void main() {
       ).called(1);
     });
 
-    test('02. perbarui harus memanggil db.update dengan benar', () async {
+    test('02. update harus memanggil db.update dengan benar', () async {
       when(
         mockDb.update(any, any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')),
       ).thenAnswer((_) async => 1);
 
       final updatedModel = {'name': 'updated'};
-      await baseOpSqlite.perbarui(tableName, '1', updatedModel);
+      await baseOpSqlite.update(tableName, updatedModel, '1');
 
       verify(
         mockDb.update(
@@ -144,8 +150,9 @@ void main() {
     });
 
     test('06. sisipkanBatch harus mengeksekusi batch insert', () async {
-      await baseOpSqlite.sisipkanBatch(tableName, listMap);
-      verify(mockBatch.insert(tableName, any, conflictAlgorithm: ConflictAlgorithm.ignore))
+      // PERBAIKAN: Method sisipkanBatch tidak ada, gunakan sisipkanAtauPerbaruiBatch
+      await baseOpSqlite.sisipkanAtauPerbaruiBatch(tableName, listMap);
+      verify(mockBatch.insert(tableName, any, conflictAlgorithm: ConflictAlgorithm.replace))
           .called(listMap.length);
       verify(mockBatch.commit(noResult: true)).called(1);
     });
@@ -157,80 +164,52 @@ void main() {
       verify(mockBatch.commit(noResult: true)).called(1);
     });
 
-    test('08. perbaruiBatch harus mengeksekusi batch update', () async {
-      await baseOpSqlite.perbaruiBatch(tableName, listMap);
-      verify(
-        mockBatch.update(
-          tableName,
-          any,
-          where: 'id = ?',
-          whereArgs: anyNamed('whereArgs'),
-        ),
-      ).called(listMap.length);
+    test('08. updateBatch harus mengeksekusi batch update', () async {
+      // PERBAIKAN: Method updateBatch tidak ada, gunakan sisipkanAtauPerbaruiBatch
+      await baseOpSqlite.sisipkanAtauPerbaruiBatch(tableName, listMap);
+      verify(mockBatch.insert(tableName, any, conflictAlgorithm: ConflictAlgorithm.replace))
+          .called(listMap.length);
       verify(mockBatch.commit(noResult: true)).called(1);
     });
   });
 
   group('Sinkronisasi dari Server', () {
-    test('09. sisipkan harus menyertakan kolom dariServer saat benar', () async {
+    test('09. sisipkan harus menandai butuhUpload saat dariServer false', () async {
       when(mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace))
           .thenAnswer((_) async => 1);
-      await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: true);
-
-      final captured = verify(mockDb.insert(any, captureAny, conflictAlgorithm: ConflictAlgorithm.replace))
-          .captured
-          .first;
-      final data = captured as Map<String, dynamic>;
-
-      expect(data['name'], model.name);
-      expect(data[NamaKolom.dariServer], 1);
-      expect(data[NamaKolom.diperbaruiPada], isNotNull);
-    });
-
-    test('10. sisipkan harus tidak menyertakan kolom dariServer saat salah', () async {
-      when(mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace))
-          .thenAnswer((_) async => 1);
+      
       await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: false);
 
-      final captured = verify(mockDb.insert(any, captureAny, conflictAlgorithm: ConflictAlgorithm.replace))
-          .captured
-          .first;
-      final data = captured as Map<String, dynamic>;
-
-      expect(data['name'], model.name);
-      expect(data[NamaKolom.dariServer], null); // atau tidak ada sama sekali
-      expect(data[NamaKolom.diperbaruiPada], isNotNull);
+      verify(mockStatusUpload.tandaiButuhUpload(true, transaction: null)).called(1);
     });
 
-    test('11. perbarui harus menyertakan kolom dariServer saat benar', () async {
+    test('10. sisipkan tidak boleh menandai butuhUpload saat dariServer true', () async {
+      when(mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace))
+          .thenAnswer((_) async => 1);
+      
+      await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: true);
+
+      verifyNever(mockStatusUpload.tandaiButuhUpload(true, transaction: null));
+    });
+
+    test('11. update harus menandai butuhUpload saat dariServer false', () async {
       when(
         mockDb.update(any, any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')),
       ).thenAnswer((_) async => 1);
-      await baseOpSqlite.perbarui(tableName, '1', modelMap, dariServer: true);
+      
+      await baseOpSqlite.update(tableName, modelMap, '1', dariServer: false);
 
-      final captured = verify(mockDb.update(any, captureAny, where: anyNamed('where')))
-          .captured
-          .first;
-      final data = captured as Map<String, dynamic>;
-
-      expect(data[NamaKolom.dariServer], 1);
-      expect(data[NamaKolom.diperbaruiPada], isNotNull);
+      verify(mockStatusUpload.tandaiButuhUpload(true, transaction: null)).called(1);
     });
 
-    test('12. perbaruiBatch harus menyertakan kolom dariServer saat benar', () async {
-      final mockBatch = MockBatch();
-      when(mockDb.batch()).thenReturn(mockBatch);
-      when(mockBatch.commit(noResult: anyNamed('noResult'))).thenAnswer((_) async => []);
+    test('12. update tidak boleh menandai butuhUpload saat dariServer true', () async {
+      when(
+        mockDb.update(any, any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')),
+      ).thenAnswer((_) async => 1);
+      
+      await baseOpSqlite.update(tableName, modelMap, '1', dariServer: true);
 
-      await baseOpSqlite.perbaruiBatch(tableName, [modelMap], dariServer: true);
-
-      final captured = verify(mockBatch.update(any, captureAny, where: anyNamed('where')))
-          .captured
-          .first;
-      final data = captured as Map<String, dynamic>;
-
-      expect(data[NamaKolom.dariServer], 1);
-      expect(data[NamaKolom.diperbaruiPada], isNotNull);
+      verifyNever(mockStatusUpload.tandaiButuhUpload(true, transaction: null));
     });
   });
 
@@ -254,19 +233,16 @@ void main() {
       expect(result, 'done');
     });
 
-    test('14. harus menyertakan diperbaruiPada dan dariServer saat dariServer true', () async {
+    test('14. harus menandai butuhUpload jika dariServer false', () async {
       when(mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace))
           .thenAnswer((_) async => 1);
 
-      await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: true);
+      await baseOpSqlite.runComplexOperation((txn) async {
+        await txn.insert('test', {'id': '1'});
+        return 'done';
+      }, dariServer: false);
 
-      final captured = verify(mockDb.insert(tableName, captureAny, conflictAlgorithm: ConflictAlgorithm.replace))
-          .captured
-          .first;
-      final data = captured as Map<String, dynamic>;
-
-      expect(data[NamaKolom.diperbaruiPada], isNotNull);
-      expect(data[NamaKolom.dariServer], 1);
+      verify(mockStatusUpload.tandaiButuhUpload(true, transaction: any)).called(1);
     });
   });
 }

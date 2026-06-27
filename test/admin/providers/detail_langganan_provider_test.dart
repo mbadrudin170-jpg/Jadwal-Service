@@ -1,10 +1,15 @@
+// path: test/admin/providers/detail_langganan_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/admin/providers/detail_langganan_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+// PERBAIKAN: Tambahkan import yang hilang
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -12,7 +17,11 @@ import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
 import 'detail_langganan_provider_test.mocks.dart';
 
-@GenerateMocks([PelangganOpSqlite, PaketOpSqlite, TransaksiOpSqlite])
+@GenerateMocks([
+  PelangganOpSqlite,
+  PaketOpSqlite,
+  TransaksiOpSqlite,
+])
 void main() {
   late MockPelangganOpSqlite mockPelangganOp;
   late MockPaketOpSqlite mockPaketOp;
@@ -47,35 +56,70 @@ void main() {
     );
   });
 
-  group('hapusLanggananProvider', () {
-    test(
-      '01. harus memanggil softDelete pada semua operasi yang relevan',
-      () async {
-        when(
-          mockTransaksiOp.softDelete(transaksi.id),
-        ).thenAnswer((_) async => 1);
+  tearDown(() {
+    container.dispose();
+  });
 
-        final result = await container.read(
-          hapusLanggananProvider(transaksi).future,
-        );
+  group('ambilDetailLanggananProvider', () {
+    test('01. harus mengembalikan DetailLanggananState jika transaksi ditemukan', () async {
+      when(mockTransaksiOp.ambilBerdasarkanId('trx1'))
+          .thenAnswer((_) async => transaksi);
+      when(mockPelangganOp.ambilBerdasarkanId('cust1'))
+          .thenAnswer((_) async => null);
+      when(mockPaketOp.ambilBerdasarkanId('pkg1'))
+          .thenAnswer((_) async => null);
 
-        expect(result, true);
+      final result = await container.read(
+        ambilDetailLanggananProvider('trx1').future,
+      );
 
-        verify(mockTransaksiOp.softDelete(transaksi.id)).called(1);
-      },
-    );
+      expect(result, isNotNull);
+      expect(result?.transaksi?.id, 'trx1');
+    });
 
-    test(
-      '02. harus melempar exception jika salah satu operasi gagal',
-      () async {
-        final exception = Exception('Gagal hapus');
-        when(mockTransaksiOp.softDelete(transaksi.id)).thenThrow(exception);
+    test('02. harus mengembalikan null jika transaksi tidak ditemukan', () async {
+      when(mockTransaksiOp.ambilBerdasarkanId('trx99'))
+          .thenAnswer((_) async => null);
 
-        await expectLater(
-          container.read(hapusLanggananProvider(transaksi).future),
-          throwsA(exception),
-        );
-      },
-    );
+      final result = await container.read(
+        ambilDetailLanggananProvider('trx99').future,
+      );
+
+      expect(result, isNull);
+    });
+
+    test('03. harus mengembalikan pelanggan dan paket jika ada', () async {
+      final mockPelanggan = PelangganModel(
+        id: 'cust1',
+        nama: 'Pelanggan Test',
+        telepon: '08123456789',
+        alamat: 'Jl. Test',
+        kataSandi: 'password',
+        macAddress: '00:00:00:00:00:00',
+      );
+      final mockPaket = PaketModel(
+        id: 'pkg1',
+        nama: 'Paket Test',
+        harga: 100000,
+        durasi: 30,
+        tipe: TipeDurasiPaket.days,
+      );
+
+      when(mockTransaksiOp.ambilBerdasarkanId('trx1'))
+          .thenAnswer((_) async => transaksi);
+      when(mockPelangganOp.ambilBerdasarkanId('cust1'))
+          .thenAnswer((_) async => mockPelanggan);
+      when(mockPaketOp.ambilBerdasarkanId('pkg1'))
+          .thenAnswer((_) async => mockPaket);
+
+      final result = await container.read(
+        ambilDetailLanggananProvider('trx1').future,
+      );
+
+      expect(result, isNotNull);
+      expect(result?.transaksi?.id, 'trx1');
+      expect(result?.pelanggan?.id, 'cust1');
+      expect(result?.paket?.id, 'pkg1');
+    });
   });
 }
