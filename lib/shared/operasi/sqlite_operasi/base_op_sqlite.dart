@@ -39,7 +39,7 @@ class BaseOpSqlite {
   ///
   /// Jika [dariServer] bernilai `false`, maka akan menandai status `needUpload`
   /// menjadi `true` untuk sinkronisasi data ke server.
-  Future<T> _transaksi<T>(
+  Future<T> _operasiInti<T>(
     final Future<T> Function(Transaction) aksi, {
     final bool dariServer = false,
   }) async {
@@ -99,11 +99,11 @@ class BaseOpSqlite {
 
   /// Menjalankan operasi database yang kompleks di dalam sebuah transaksi.
   Future<T> operasiKompleks<T>(
-    final Future<T> Function(Transaction txn) customAction, {
+    final Future<T> Function(Transaction txn) aksiKustom, {
     final bool dariServer = false,
   }) async {
     Log.info('Mendelegasikan eksekusi transaksi kompleks');
-    return await _transaksi(customAction, dariServer: dariServer);
+    return await _operasiInti(aksiKustom, dariServer: dariServer);
   }
 
   Future<void> sisipkan(
@@ -113,7 +113,7 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai penyisipan data ke tabel: $table');
     try {
-      await _transaksi((txn) async {
+      await _operasiInti((txn) async {
         final hasil = await txn.insert(
           table,
           data,
@@ -144,7 +144,7 @@ class BaseOpSqlite {
       'data': data,
     });
     try {
-      await _transaksi((txn) async {
+      await _operasiInti((txn) async {
         final jumlahDiperbarui = await txn.update(
           table,
           data,
@@ -179,7 +179,7 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai penghapusan data', {'tabel': table, 'id': id});
     try {
-      await _transaksi((txn) async {
+      await _operasiInti((txn) async {
         final rowsDeleted = await txn.delete(
           table,
           where: 'id = ?',
@@ -214,7 +214,7 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai soft delete', {'tabel': table, 'id': id});
     try {
-      await _transaksi((final txn) async {
+      await _operasiInti((final txn) async {
         final jumlah = await txn.update(
           table,
           {
@@ -254,7 +254,7 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai soft delete semua data di tabel: $table');
     try {
-      final count = await _transaksi<int>((final txn) async {
+      final count = await _operasiInti<int>((final txn) async {
         final jumlah = await txn.update(table, {
           NamaKolom.dihapus: 1,
           NamaKolom.diarsipkanPada: _sekarang.millisecondsSinceEpoch,
@@ -296,7 +296,7 @@ class BaseOpSqlite {
       'fromServer': dariServer,
     });
     try {
-      await _transaksi((final txn) async {
+      await _operasiInti((final txn) async {
         final batch = txn.batch();
         int valid = 0;
 
