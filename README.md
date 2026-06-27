@@ -1738,6 +1738,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
     final notifikasiOpSqlite = ref.read(notifikasiOpSqliteProvider);
     final pelangganAktif = ref.read(pelangganAktifProvider.notifier);
+    final transaksiOp = ref.read(transaksiProvider.notifier);
+
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Validasi form gagal');
       if (mounted) {
@@ -1826,18 +1828,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       );
       if (_modeEdit) {
         await pelangganAktif.updatePelangganAktif(pelangganAktifData);
-        await ref
-            .read(transaksiProvider.notifier)
-            .updateTransaksi(transaksiData);
+        await transaksiOp.updateTransaksi(transaksiData);
         await notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi);
         Log.info(
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
         );
       } else {
         await pelangganAktif.tambahPelangganAktif(pelangganAktifData);
-        await ref
-            .read(transaksiProvider.notifier)
-            .tambahTransaksi(transaksiData);
+        await transaksiOp.tambahTransaksi(transaksiData);
       }
       final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
       final durasiSetengahJalan = Duration(
@@ -3989,9 +3987,7 @@ class PelangganAktifOpSqlite {
     try {
       final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
 
-      await _baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         final data = customerToSave.toSqlite();
         await txn.insert(
           _namaTabel,
@@ -4063,7 +4059,7 @@ class PelangganAktifOpSqlite {
     try {
       final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
       Log.info('Memperbarui active customer ID: ${customerToSave.id}');
-      await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         final data = customerToSave.toSqlite();
         await txn.update(
           _namaTabel,
@@ -4197,7 +4193,7 @@ class PelangganAktifOpSqlite {
         return;
       }
 
-      await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         final archivedCustomer = pelangganAktif.copyWith(
           diperbaruiPada: _nowUtc,
           diHapus: true,
@@ -4242,7 +4238,7 @@ class PelangganAktifOpSqlite {
         Log.info('Transaksi dengan ID $idTransaksi tidak ditemukan');
       }
     }
-    await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+    await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
       final archivedCustomer = pelangganAktif.copyWith(
         diperbaruiPada: _nowUtc,
         diHapus: true,
@@ -4276,7 +4272,7 @@ class PelangganAktifOpSqlite {
     final bool dariServer = false,
   }) async {
     try {
-      await _baseOpSqlite.runComplexOperation<void>((Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         final deadline = _nowUtc.subtract(const Duration(days: 30));
 
         final List<Map<String, dynamic>> expiredCustomers = await txn.query(
@@ -4336,9 +4332,7 @@ class PelangganAktifOpSqlite {
           .map((final p) => p[NamaKolom.id] as String)
           .toList();
 
-      await _baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         await txn.update(
           _namaTabel,
           {
@@ -4380,9 +4374,7 @@ class PelangganAktifOpSqlite {
 
       final dataUntukDiarsip = pelangganAktif.map((p) => p.id).toList();
 
-      await _baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         await txn.update(
           _namaTabel,
           {
@@ -7323,7 +7315,7 @@ final class SettingsProvider
   Settings create() => Settings();
 }
 
-String _$settingsHash() => r'466d0fc88c7ab16b8faa61b24eb6425f25e89f5a';
+String _$settingsHash() => r'f831d7a597ed690753449b65018194faadc0d87a';
 
 abstract class _$Settings extends $AsyncNotifier<SettingsState> {
   FutureOr<SettingsState> build();
@@ -10708,7 +10700,7 @@ class PaketOpSqlite {
   Future<void> hapusSemua({bool dariServer = false}) async {
     Log.info('Memulai proses penghapusan semua data paket');
     try {
-      await basOpSqlite.runComplexOperation<void>((Transaction txn) async {
+      await basOpSqlite.operasiKompleks<void>((Transaction txn) async {
         final int count = await txn.delete(_tabel);
         Log.info('Berhasil menghapus semua data paket. Total terhapus: $count');
       }, dariServer: dariServer);
@@ -23310,9 +23302,7 @@ class FeedbackOpSqlite {
       'PERINGATAN: Memulai deleteAllFeedback. Ini adalah operasi destruktif.',
     );
     try {
-      await baseOpSqlite.runComplexOperation<int>((
-        final Transaction txn,
-      ) async {
+      await baseOpSqlite.operasiKompleks<int>((final Transaction txn) async {
         final int count = await txn.delete(_namaTabel);
         Log.info(
           'Berhasil deleteAllFeedback. Total baris yang dihapus: $count',
@@ -28936,7 +28926,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'2cc0fbb5ca32e2cdd647291f674c2ed51cdc50a2';
+String _$transaksiHash() => r'bf950c78b9d6a9be15724d75b96a1a00806f1348';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -29436,7 +29426,7 @@ class TransaksiOpSqlite {
     final bool fromServer = false,
   }) async {
     try {
-      final id = await baseOpSqlite.runComplexOperation<int>((
+      final id = await baseOpSqlite.operasiKompleks<int>((
         final Transaction txn,
       ) async {
         Log.info('Memulai transaksi database untuk addTransaction');
@@ -29595,9 +29585,7 @@ class TransaksiOpSqlite {
     final bool dariServer = false,
   }) async {
     try {
-      await baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         Log.info('Memulai update transaksi database ID: $id');
         final maps = await txn.query(
           _tabel,
@@ -29649,9 +29637,7 @@ class TransaksiOpSqlite {
     final bool dariServer = false,
   }) async {
     try {
-      await baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         Log.info('Memulai soft delete atomik untuk ID: $id');
         final maps = await txn.query(
           _tabel,
@@ -29697,7 +29683,7 @@ class TransaksiOpSqlite {
   /// Menandai semua transaksi sebagai dihapus dan mereset saldo semua dompet menjadi 0.
   Future<int> softDeleteAll({bool dariServer = false}) async {
     try {
-      final count = await baseOpSqlite.runComplexOperation<int>((
+      final count = await baseOpSqlite.operasiKompleks<int>((
         final Transaction txn,
       ) async {
         Log.warning('Memulai soft delete semua transaksi secara atomik');
@@ -30040,9 +30026,7 @@ class TransaksiOpSqlite {
     final Set<String> dompetTerpengaruh = {};
 
     try {
-      await baseOpSqlite.runComplexOperation<void>((
-        final Transaction txn,
-      ) async {
+      await baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         Log.info(
           'Memulai proses Batch insert/update untuk ${transaksi.length} item',
         );
@@ -34520,7 +34504,7 @@ class LayananNotifikasi {
   LayananNotifikasi._internal() : plugin = FlutterLocalNotificationsPlugin() {
     Log.info('Konstruktor internal NotifikasiServis dipanggil.');
   }
-  
+
   @visibleForTesting
   LayananNotifikasi.testing(this.plugin);
 
@@ -34568,7 +34552,7 @@ class LayananNotifikasi {
     }
   }
 
-  Future<void> inisialisasiNotifikasi({required final String iconName}) async {
+  Future<void> inisialisasiNotifikasi({required String iconName}) async {
     Log.info('Memulai proses inisialisasi NotifikasiServis...');
     await _inisialisasiZonaWaktu();
     Log.info('inisialisai');
@@ -34580,7 +34564,7 @@ class LayananNotifikasi {
       Log.info('Menginisialisasi plugin flutter_local_notifications.');
       await plugin.initialize(
         settings: settings,
-        onDidReceiveNotificationResponse: (final response) {
+        onDidReceiveNotificationResponse: (response) {
           Log.info(
             'Notifikasi foreground di-tap. Payload: ${response.payload}',
           );
@@ -34968,8 +34952,6 @@ class PengingatService {
         e: e,
         s: st,
       );
-      // Tidak perlu menampilkan toast ke user karena ini proses background,
-      // cukup log saja.
     }
   }
 }
@@ -35001,11 +34983,11 @@ class PenjadwalNotifikasi {
     Log.info(
       'Memulai pengecekan untuk penjadwalan notifikasi untuk pengguna: $userId',
     );
-    final endNotificationId = userId.hashCode;
-    final midNotificationId = '${userId}_midpoint'.hashCode;
+    final idNotifikasiAkhir = userId.hashCode;
+    final idNotifikasiTengah = '${userId}_midpoint'.hashCode;
 
     // ID untuk AlarmManager harus unik per alarm.
-    final int alarmId = endNotificationId;
+    final int idAlarm = idNotifikasiAkhir;
 
     try {
       final transaksiOpFirebase = transaksiOp ?? TransaksiOpFirebase();
@@ -35020,75 +35002,77 @@ class PenjadwalNotifikasi {
           transaksi.tanggalBerakhir != null &&
           transaksi.tanggalBerakhir!.isAfter(DateTime.now())) {
         // -- Penjadwalan Notifikasi & Alarm Akhir Periode --
-        final scheduledTime = transaksi.tanggalBerakhir!;
+        final waktuJadwal = transaksi.tanggalBerakhir!;
         Log.info(
-          'Langganan aktif ditemukan (ID: ${transaksi.id}). Menjadwalkan notifikasi & alarm akhir pada $scheduledTime',
+          'Langganan aktif ditemukan (ID: ${transaksi.id}). Menjadwalkan notifikasi & alarm akhir pada $waktuJadwal',
         );
 
         // 1. Jadwalkan Notifikasi Visual
         await layananNotifikasi.perbaruiJadwalNotifikasi(
-          id: endNotificationId,
+          id: idNotifikasiAkhir,
           title: 'Langganan Telah Berakhir',
           body:
               'Masa aktif paket Anda telah berakhir. Perpanjang sekarang untuk terhubung lagi.',
-          jadwal: scheduledTime,
+          jadwal: waktuJadwal,
           payload: 'subscription_expired',
         );
 
         // 2. Jadwalkan Alarm untuk Eksekusi Background
         await AndroidAlarmManager.oneShotAt(
-          scheduledTime,
-          alarmId,
+          waktuJadwal,
+          idAlarm,
           _callbackAlarm, // Fungsi top-level
           exact: true, // Memastikan eksekusi tepat waktu
           wakeup: true, // Membangunkan perangkat jika dalam mode sleep
         );
         Log.info(
-          'Alarm untuk ID $alarmId berhasil dijadwalkan pada $scheduledTime',
+          'Alarm untuk ID $idAlarm berhasil dijadwalkan pada $waktuJadwal',
         );
 
         // -- Logika untuk Notifikasi Tengah Periode (tidak berubah) --
-        final totalDuration = transaksi.tanggalBerakhir!.difference(
+        final totalDurasi = transaksi.tanggalBerakhir!.difference(
           transaksi.tanggalMulai!,
         );
-        final midpointDuration = totalDuration.inSeconds ~/ 2;
-        final midpointDate = transaksi.tanggalMulai!.add(
-          Duration(seconds: midpointDuration),
+        final durasiTengah = totalDurasi.inSeconds ~/ 2;
+        final tanggalTengah = transaksi.tanggalMulai!.add(
+          Duration(seconds: durasiTengah),
         );
 
-        if (midpointDate.isAfter(DateTime.now())) {
-          Log.info('Menjadwalkan notifikasi tengah periode pada $midpointDate');
+        if (tanggalTengah.isAfter(DateTime.now())) {
+          Log.info(
+            'Menjadwalkan notifikasi tengah periode pada $tanggalTengah',
+          );
           await layananNotifikasi.perbaruiJadwalNotifikasi(
-            id: midNotificationId,
+            id: idNotifikasiTengah,
             title: 'Status Langganan Anda',
             body:
                 'Masa aktif paket Anda sudah berjalan 50%. Terima kasih telah menggunakan layanan kami.',
-            jadwal: midpointDate,
+            jadwal: tanggalTengah,
             payload: 'subscription_midpoint',
           );
         } else {
           Log.info(
             'Tanggal tengah periode sudah lewat. Membatalkan notifikasi jika ada.',
           );
-          await layananNotifikasi.batalNotifikasi(midNotificationId);
+          await layananNotifikasi.batalNotifikasi(idNotifikasiTengah);
         }
       } else {
         // Jika tidak ada langganan aktif, batalkan semua notifikasi DAN alarm.
         Log.info(
           'Tidak ada langganan aktif. Membatalkan semua notifikasi dan alarm untuk pengguna ini.',
         );
-        await layananNotifikasi.batalNotifikasi(endNotificationId);
-        await layananNotifikasi.batalNotifikasi(midNotificationId);
-        await AndroidAlarmManager.cancel(alarmId);
-        Log.info('Alarm dengan ID $alarmId juga dibatalkan.');
+        await layananNotifikasi.batalNotifikasi(idNotifikasiAkhir);
+        await layananNotifikasi.batalNotifikasi(idNotifikasiTengah);
+        await AndroidAlarmManager.cancel(idAlarm);
+        Log.info('Alarm dengan ID $idAlarm juga dibatalkan.');
       }
     } on Exception catch (e, st) {
       Log.error('Gagal mengatur notifikasi dari Firebase', e: e, s: st);
       // Jika terjadi error, coba batalkan semua notifikasi dan alarm untuk kebersihan.
-      await layananNotifikasi.batalNotifikasi(endNotificationId);
-      await layananNotifikasi.batalNotifikasi(midNotificationId);
-      await AndroidAlarmManager.cancel(alarmId);
-      Log.info('Alarm dengan ID $alarmId juga dibatalkan karena error.');
+      await layananNotifikasi.batalNotifikasi(idNotifikasiAkhir);
+      await layananNotifikasi.batalNotifikasi(idNotifikasiTengah);
+      await AndroidAlarmManager.cancel(idAlarm);
+      Log.info('Alarm dengan ID $idAlarm juga dibatalkan karena error.');
     }
   }
 }
@@ -35152,9 +35136,7 @@ class NotifikasiOpSqlite {
   }) async {
     Log.info('Menambahkan notifikasi baru - ID: ${notifikasi.id}');
     try {
-      final data = notifikasi
-          .copyWith(diperbaruiPada: _nowUtc)
-          .toSqlite();
+      final data = notifikasi.copyWith(diperbaruiPada: _nowUtc).toSqlite();
       await _baseOpSqlite.sisipkan(_namaTabel, data, dariServer: dariServer);
       Log.info('Notifikasi berhasil ditambahkan - ID: ${notifikasi.id}');
     } catch (e, st) {
@@ -35174,9 +35156,7 @@ class NotifikasiOpSqlite {
   }) async {
     Log.info('Memperbarui notifikasi - ID: ${notifikasi.id}');
     try {
-      final data = notifikasi
-          .copyWith(diperbaruiPada: _nowUtc)
-          .toSqlite();
+      final data = notifikasi.copyWith(diperbaruiPada: _nowUtc).toSqlite();
       await _baseOpSqlite.update(
         _namaTabel,
         data,
@@ -35195,10 +35175,7 @@ class NotifikasiOpSqlite {
   }
 
   /// Menandai notifikasi sebagai sudah dibaca.
-  Future<void> tandaiSudahDibaca(
-    String id, {
-    bool dariServer = false,
-  }) async {
+  Future<void> tandaiSudahDibaca(String id, {bool dariServer = false}) async {
     Log.info('Menandai notifikasi sudah dibaca - ID: $id');
     try {
       final data = {
@@ -35218,28 +35195,19 @@ class NotifikasiOpSqlite {
   }
 
   /// Melakukan soft delete pada notifikasi berdasarkan ID.
-  Future<void> softDelete(
-    String id, {
-    bool dariServer = false,
-  }) async {
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
     Log.info('Memulai soft delete notifikasi - ID: $id');
     try {
       await _baseOpSqlite.softDelete(_namaTabel, id, dariServer: dariServer);
       Log.info('Soft delete notifikasi berhasil - ID: $id');
     } catch (e, st) {
-      Log.error(
-        'Gagal soft delete notifikasi - ID: $id',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal soft delete notifikasi - ID: $id', e: e, s: st);
       rethrow;
     }
   }
 
   /// Melakukan soft delete pada semua notifikasi.
-  Future<int> softDeleteAll({
-    bool dariServer = false,
-  }) async {
+  Future<int> softDeleteAll({bool dariServer = false}) async {
     Log.info('Memulai soft delete semua notifikasi');
     try {
       final count = await _baseOpSqlite.softDeleteAll(
@@ -35255,20 +35223,13 @@ class NotifikasiOpSqlite {
   }
 
   /// Menghapus notifikasi secara permanen dari database.
-  Future<void> hapusPermanen(
-    String id, {
-    bool dariServer = false,
-  }) async {
+  Future<void> hapusPermanen(String id, {bool dariServer = false}) async {
     Log.warning('Menghapus notifikasi secara permanen - ID: $id');
     try {
       await _baseOpSqlite.delete(_namaTabel, id, dariServer: dariServer);
       Log.info('Notifikasi berhasil dihapus permanen - ID: $id');
     } catch (e, st) {
-      Log.error(
-        'Gagal menghapus permanen notifikasi - ID: $id',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal menghapus permanen notifikasi - ID: $id', e: e, s: st);
       rethrow;
     }
   }
@@ -35297,11 +35258,7 @@ class NotifikasiOpSqlite {
       );
       Log.info('Batch ${daftarNotifikasi.length} notifikasi berhasil diproses');
     } catch (e, st) {
-      Log.error(
-        'Gagal memproses batch notifikasi',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal memproses batch notifikasi', e: e, s: st);
       rethrow;
     }
   }
@@ -35317,9 +35274,7 @@ class NotifikasiOpSqlite {
     Log.info('Mengambil semua notifikasi dari tabel $_namaTabel');
     try {
       final db = await sqliteDb.database;
-      final query = tampilkanYangDiarsip
-          ? null
-          : '${NamaKolom.dihapus} = 0';
+      final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = 0';
       final List<Map<String, dynamic>> maps = await db.query(
         _namaTabel,
         where: query,
@@ -35383,10 +35338,16 @@ class NotifikasiOpSqlite {
         maps.length,
         (i) => NotifikasiModel.fromSqlite(maps[i]),
       );
-      Log.info('Berhasil mengambil ${hasil.length} notifikasi untuk User $userId');
+      Log.info(
+        'Berhasil mengambil ${hasil.length} notifikasi untuk User $userId',
+      );
       return hasil;
     } catch (e, st) {
-      Log.error('Gagal mengambil notifikasi untuk User ID: $userId', e: e, s: st);
+      Log.error(
+        'Gagal mengambil notifikasi untuk User ID: $userId',
+        e: e,
+        s: st,
+      );
       rethrow;
     }
   }
@@ -35435,7 +35396,9 @@ class NotifikasiOpSqlite {
         maps.length,
         (i) => NotifikasiModel.fromSqlite(maps[i]),
       );
-      Log.info('Berhasil mengambil ${hasil.length} notifikasi untuk ID Tujuan $idTujuan');
+      Log.info(
+        'Berhasil mengambil ${hasil.length} notifikasi untuk ID Tujuan $idTujuan',
+      );
       return hasil;
     } catch (e, st) {
       Log.error(
@@ -35454,9 +35417,7 @@ class NotifikasiOpSqlite {
   }) async {
     Log.info('Menghapus notifikasi berdasarkan ID Tujuan: $idTujuan');
     try {
-      await _baseOpSqlite.runComplexOperation<void>((
-        Transaction txn,
-      ) async {
+      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         await txn.delete(
           _namaTabel,
           where: '${NamaKolom.idTujuan} = ?',
@@ -35474,6 +35435,7 @@ class NotifikasiOpSqlite {
     }
   }
 }
+
 
 // File: lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
 // path: lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
@@ -41954,18 +41916,19 @@ class DurasiUtil {
 }
 
 // File: lib/shared/utils/format_util.dart
+// File: lib/shared/utils/format_util.dart
 import 'package:intl/intl.dart';
 
 class FormatWaktuLengkap {
   FormatWaktuLengkap._();
 
   static String formatLengkap(DateTime date) {
-    final format = DateFormat('d MMM yyyy, HH:mm', 'id_ID');
+    final format = DateFormat('d MMM yyyy, HH:mm');
     return format.format(date);
   }
 
   static String formatSingkat(DateTime date) {
-    final format = DateFormat('E, d MMM yy, HH:mm', 'id_ID');
+    final format = DateFormat('E, d MMM yy, HH:mm');
     return format.format(date);
   }
 }
@@ -41974,15 +41937,15 @@ class FormatTanggal {
   FormatTanggal._();
 
   static String formatDasar(DateTime date) {
-    return DateFormat('d MMM yyyy', 'id_ID').format(date);
+    return DateFormat('d MMM yyyy').format(date);
   }
 
   static String formatSingkat(DateTime date) {
-    return DateFormat('E, d MMM yy', 'id_ID').format(date);
+    return DateFormat('E, d MMM yy').format(date);
   }
 
   static String formatBulanTahun(DateTime date) {
-    return DateFormat('MMMM yyyy', 'id_ID').format(date);
+    return DateFormat('MMMM yyyy').format(date);
   }
 }
 
@@ -42011,11 +41974,7 @@ class FormatUang {
   FormatUang._();
 
   static String formatMataUang(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
+    final formatter = NumberFormat.currency(symbol: 'Rp ', decimalDigits: 0);
     return formatter.format(amount.abs());
   }
 }
@@ -42024,7 +41983,7 @@ class FormatNomor {
   FormatNomor._();
 
   static String formatRibuan(int value) {
-    final formatter = NumberFormat('#,###', 'id_ID');
+    final formatter = NumberFormat('#,###');
     return formatter.format(value);
   }
 }
@@ -45504,7 +45463,7 @@ final baseOpSqliteProvider = Provider<BaseOpSqlite>((ref) {
 class BaseOpSqlite {
   final SqliteDatabase _sqliteDb;
   final StatusUploadOpSqlite _statusUnggahOpsqlite;
-  final now = DateTime.now().toUtc();
+  final _sekarang = DateTime.now().toUtc();
 
   /// Konstruktor untuk `BaseOperation`.
   ///
@@ -45522,8 +45481,8 @@ class BaseOpSqlite {
   ///
   /// Jika [dariServer] bernilai `false`, maka akan menandai status `needUpload`
   /// menjadi `true` untuk sinkronisasi data ke server.
-  Future<T> _runInTransaction<T>(
-    final Future<T> Function(Transaction) action, {
+  Future<T> _operasiInti<T>(
+    final Future<T> Function(Transaction) aksi, {
     final bool dariServer = false,
   }) async {
     Log.info(
@@ -45554,13 +45513,13 @@ class BaseOpSqlite {
               '[TRANSAKSI AKTIF] Melewati penandaan `needUpload` (operasi dari server).',
             );
           }
-          final result = await action(txn);
+          final hasil = await aksi(txn);
           Log.info(
-            '[TRANSAKSI AKTIF] Aksi utama berhasil dieksekusi. Hasil: ${result.runtimeType}',
+            '[TRANSAKSI AKTIF] Aksi utama berhasil dieksekusi. Hasil: ${hasil.runtimeType}',
           );
 
           Log.info('[TRANSAKSI COMMIT] Transaksi akan di-commit.');
-          return result;
+          return hasil;
         } catch (e, st) {
           Log.error(
             '[TRANSAKSI GAGAL DI DALAM] Error di dalam blok transaksi.',
@@ -45581,12 +45540,12 @@ class BaseOpSqlite {
   }
 
   /// Menjalankan operasi database yang kompleks di dalam sebuah transaksi.
-  Future<T> runComplexOperation<T>(
-    final Future<T> Function(Transaction txn) customAction, {
+  Future<T> operasiKompleks<T>(
+    final Future<T> Function(Transaction txn) aksiKustom, {
     final bool dariServer = false,
   }) async {
     Log.info('Mendelegasikan eksekusi transaksi kompleks');
-    return await _runInTransaction(customAction, dariServer: dariServer);
+    return await _operasiInti(aksiKustom, dariServer: dariServer);
   }
 
   Future<void> sisipkan(
@@ -45596,7 +45555,7 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai penyisipan data ke tabel: $table');
     try {
-      await _runInTransaction((txn) async {
+      await _operasiInti((txn) async {
         final hasil = await txn.insert(
           table,
           data,
@@ -45627,22 +45586,22 @@ class BaseOpSqlite {
       'data': data,
     });
     try {
-      await _runInTransaction((txn) async {
-        final rowsAffected = await txn.update(
+      await _operasiInti((txn) async {
+        final jumlahDiperbarui = await txn.update(
           table,
           data,
           where: 'id = ?',
           whereArgs: [id],
         );
-        if (rowsAffected == 0) {
+        if (jumlahDiperbarui == 0) {
           Log.warning(
             'Update selesai tapi tidak ada baris yang berubah (ID tidak ditemukan)',
             {'id': id, 'tabel': table},
           );
         } else {
-          Log.info('UPDATE berhasil', {'rowsAffected': rowsAffected, 'id': id});
+          Log.info('UPDATE berhasil', {'jumlah': jumlahDiperbarui, 'id': id});
         }
-        return rowsAffected;
+        return jumlahDiperbarui;
       }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
@@ -45662,7 +45621,7 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai penghapusan data', {'tabel': table, 'id': id});
     try {
-      await _runInTransaction((txn) async {
+      await _operasiInti((txn) async {
         final rowsDeleted = await txn.delete(
           table,
           where: 'id = ?',
@@ -45697,30 +45656,27 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai soft delete', {'tabel': table, 'id': id});
     try {
-      await _runInTransaction((final txn) async {
-        final rowsAffected = await txn.update(
+      await _operasiInti((final txn) async {
+        final jumlah = await txn.update(
           table,
           {
             NamaKolom.dihapus: 1,
-            NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
-            NamaKolom.diperbaruiPada: now.millisecondsSinceEpoch,
+            NamaKolom.diarsipkanPada: _sekarang.millisecondsSinceEpoch,
+            NamaKolom.diperbaruiPada: _sekarang.millisecondsSinceEpoch,
           },
           where: '${NamaKolom.id} = ?',
           whereArgs: [id],
         );
 
-        if (rowsAffected == 0) {
+        if (jumlah == 0) {
           Log.warning(
             'Soft delete selesai tapi tidak ada baris yang berubah (ID tidak ditemukan)',
             {'id': id, 'tabel': table},
           );
         } else {
-          Log.info('Soft delete berhasil', {
-            'rowsAffected': rowsAffected,
-            'id': id,
-          });
+          Log.info('Soft delete berhasil', {'jumlah': jumlah, 'id': id});
         }
-        return rowsAffected;
+        return jumlah;
       }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
@@ -45740,18 +45696,18 @@ class BaseOpSqlite {
   }) async {
     Log.info('Memulai soft delete semua data di tabel: $table');
     try {
-      final count = await _runInTransaction<int>((final txn) async {
-        final rowsAffected = await txn.update(table, {
+      final count = await _operasiInti<int>((final txn) async {
+        final jumlah = await txn.update(table, {
           NamaKolom.dihapus: 1,
-          NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
-          NamaKolom.diperbaruiPada: now.millisecondsSinceEpoch,
+          NamaKolom.diarsipkanPada: _sekarang.millisecondsSinceEpoch,
+          NamaKolom.diperbaruiPada: _sekarang.millisecondsSinceEpoch,
         }, where: '${NamaKolom.dihapus} = 0');
 
         Log.info('Soft delete semua data berhasil', {
-          'rowsAffected': rowsAffected,
+          'jumlah': jumlah,
           'tabel': table,
         });
-        return rowsAffected;
+        return jumlah;
       }, dariServer: dariServer);
       return count;
     } catch (e, s) {
@@ -45782,9 +45738,9 @@ class BaseOpSqlite {
       'fromServer': dariServer,
     });
     try {
-      await _runInTransaction((final txn) async {
+      await _operasiInti((final txn) async {
         final batch = txn.batch();
-        int validCount = 0;
+        int valid = 0;
 
         for (int i = 0; i < dataList.length; i++) {
           final data = dataList[i];
@@ -45794,10 +45750,10 @@ class BaseOpSqlite {
               data,
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
-            validCount++;
+            valid++;
           }
         }
-        Log.info('Melakukan commit batch...', {'validCount': validCount});
+        Log.info('Melakukan commit batch...', {'validCount': valid});
         await batch.commit(noResult: true);
         Log.info('Batch operation sukses');
       }, dariServer: dariServer);
@@ -48911,7 +48867,6 @@ void main() async {
   Log.info(
       '[main-dev] Memulai aplikasi user. Menyerahkan kendali ke AppUser...');
 
-  // Native splash akan dihilangkan dari dalam SplashScreenUser.
   runApp(
     ProviderScope(
       overrides: [
