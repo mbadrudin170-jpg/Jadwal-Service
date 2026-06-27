@@ -136,21 +136,12 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
     Log.info(
       'Membuka FormTransaksiPage untuk mengedit transaksi ID: ${transaksi?.id} dari WalletDetail.',
     );
-    final hasil = await Navigator.push<bool>(
+    await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (context) => FormTransaksi(transaksi: transaksi),
       ),
     );
-
-    if (hasil ?? false) {
-      Log.info(
-        'Kembali dari form edit dengan sinyal reload. Memuat ulang data dompet.',
-      );
-      _muatUlangData();
-    } else {
-      Log.info('Kembali dari form edit tanpa perubahan.');
-    }
   }
 
   @override

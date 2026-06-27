@@ -24178,12 +24178,374 @@ class _FormRiwayatAktivasiState extends ConsumerState<FormRiwayatAktivasi> {
 }
 
 
+// File: lib/fitur/riwayat_aktivasi/page/riwayat_aktivasi_paket.dart
+// path lib/fitur/riwayat_aktivasi/page/riwayat_aktivasi_paket.dart
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_provider.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/shared/common/teks.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/widget/package_name.dart';
+
+class RiwayatAktivasiPaket extends ConsumerStatefulWidget {
+  const RiwayatAktivasiPaket({super.key});
+  @override
+  ConsumerState<RiwayatAktivasiPaket> createState() =>
+      _RiwayatAktivasiPaketState();
+}
+
+class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
+  final ScrollController _pengendaliScroll = ScrollController();
+  final TextEditingController _cariController = TextEditingController();
+  late final FocusNode _cariFocusNode;
+  int _jumlahTampil = 20;
+  String _queryCari = '';
+  bool _sedangMemuatLebih = false;
+  bool _sedangMencari = false; // Perbaikan 1: State khusus untuk mode pencarian
+
+  @override
+  void initState() {
+    super.initState();
+    ref.listenManual(riwayatAktivasiPaketProvider, (prev, next) {
+      if (next.hasValue && mounted) {
+        setState(() => _jumlahTampil = 20);
+      }
+    });
+    _pengendaliScroll.addListener(_deteksiScroll);
+    _cariFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _pengendaliScroll.removeListener(_deteksiScroll);
+    _pengendaliScroll.dispose();
+    _cariController.dispose();
+    _cariFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _deteksiScroll() {
+    if (_sedangMemuatLebih) return;
+    if (_pengendaliScroll.position.pixels >=
+        _pengendaliScroll.position.maxScrollExtent - 200) {
+      final state = ref.read(riwayatAktivasiPaketProvider).value;
+      if (state == null) return;
+
+      final itemsFiltered = _filterData(state.items, _queryCari);
+      if (_jumlahTampil < itemsFiltered.length) {
+        setState(() {
+          _sedangMemuatLebih = true;
+          _jumlahTampil += 20;
+        });
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) setState(() => _sedangMemuatLebih = false);
+        });
+      }
+    }
+  }
+
+  List<TransaksiDenganPelanggan> _filterData(
+    List<TransaksiDenganPelanggan> items,
+    String katakunci,
+  ) {
+    if (katakunci.trim().isEmpty) return items;
+
+    final katakunciLower = katakunci.toLowerCase().trim();
+    return items.where((item) {
+      return item.namaPelanggan.toLowerCase().contains(katakunciLower) ||
+          item.transaksi.deskripsi.toLowerCase().contains(katakunciLower) ||
+          item.transaksi.id.toLowerCase().contains(katakunciLower);
+    }).toList();
+  }
+
+  Future<void> _dialogOpsi(TransaksiModel transaksi) async {
+    final aksiDipilih = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Pilih Aksi'),
+          children: <Widget>[
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, 'edit'),
+              child: const Text('Edit'),
+            ),
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, 'hapus'),
+              child: const Text('Hapus'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (aksiDipilih != null) {
+      Log.info('Aksi dipilih: $aksiDipilih');
+
+      if (aksiDipilih == 'edit') {
+        if (!mounted) return;
+        await Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (context) => FormTransaksi(transaksi: transaksi),
+          ),
+        );
+      } else if (aksiDipilih == 'hapus') {
+        await _dialogKonfirmasiSoftDelete(transaksi);
+      }
+    }
+  }
+
+  Future<void> _dialogKonfirmasiSoftDelete(TransaksiModel transaksi) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi'),
+        content: const Text('Apakah Anda yakin ingin menghapus transaksi ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await ref
+                  .read(transaksiProvider.notifier)
+                  .softDelete(transaksi.id);
+              unawaited(
+                ref
+                    .read(layananCekSinkronisasiProvider)
+                    .jalankanCekSinkronisasi(),
+              );
+              ref.invalidate(riwayatAktivasiPaketProvider);
+
+              if (!context.mounted) return;
+              Navigator.pop(context);
+            },
+            child: const Text('Iya', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final historyAsync = ref.watch(riwayatAktivasiPaketProvider);
+    final paketOpSqlite = ref.watch(paketOpSqliteProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        // Perbaikan Utama pada Logika Tampilan AppBar
+        title: !_sedangMencari
+            ? const TeksJudulBesar('Riwayat Langganan', warna: Colors.white)
+            : TextField(
+                controller: _cariController,
+                focusNode: _cariFocusNode,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: 'Cari data...',
+                  hintStyle: const TextStyle(color: Colors.white70),
+                  border: InputBorder.none,
+                  prefixIcon: const Icon(TIcons.search, color: Colors.white),
+                  suffixIcon: IconButton(
+                    icon: const Icon(TIcons.close, color: Colors.white),
+                    onPressed: () {
+                      _cariController.clear();
+                      setState(() {
+                        _queryCari = '';
+                        _jumlahTampil = 20;
+                        _sedangMencari = false; // Keluar dari mode pencarian
+                      });
+                    },
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
+                onChanged: (value) {
+                  setState(() {
+                    _queryCari = value;
+                    _jumlahTampil = 20;
+                  });
+                },
+              ),
+        actions: [
+          if (!_sedangMencari) ...[
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _sedangMencari = true;
+                });
+                Future.microtask(() => _cariFocusNode.requestFocus());
+              },
+              icon: const Icon(TIcons.search),
+            ),
+            IconButton(
+              icon: const Icon(TIcons.filter),
+              onPressed: () {
+                if (historyAsync.hasValue) {
+                  Log.info('Membuka dialog pengurutan riwayat langganan.');
+                  _tampilkanDialogUrutan(
+                    context,
+                    ref,
+                    historyAsync.value!.sortBy,
+                  );
+                }
+              },
+              tooltip: 'Urutkan',
+            ),
+          ],
+        ],
+      ),
+      body: historyAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text('Error: $error')),
+        data: (state) {
+          final itemsFiltered = _filterData(state.items, _queryCari);
+          if (itemsFiltered.isEmpty) {
+            return const Center(
+              child: Text('Tidak ada riwayat langganan ditemukan.'),
+            );
+          }
+          final itemsTampil = itemsFiltered.take(_jumlahTampil).toList();
+          return ListView.builder(
+            controller: _pengendaliScroll,
+            itemCount:
+                itemsTampil.length +
+                (_jumlahTampil < itemsFiltered.length ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == itemsTampil.length) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              final item = itemsTampil[index];
+              final transaksi = item.transaksi;
+              final warnaStatusPembayaran =
+                  transaksi.statusPembayaran == StatusPembayaran.paid
+                  ? Colors.green
+                  : Colors.red;
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                child: ListTile(
+                  onTap: () async {
+                    Log.info('Melihat detail riwayat langganan.', {
+                      'transactionId': transaksi.id,
+                    });
+                    await Navigator.push<bool>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailRiwayatAktivasiPage(
+                          idTransaksi: transaksi.id,
+                        ),
+                      ),
+                    );
+                  },
+                  onLongPress: () => _dialogOpsi(transaksi),
+                  title: Text(
+                    item.namaPelanggan,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      PackageNameWidget(
+                        paketFuture: paketOpSqlite.ambilBerdasarkanId(
+                          transaksi.idPaket ?? '',
+                        ),
+                        style: TextStyle(color: warnaStatusPembayaran),
+                      ),
+                      gapH4,
+                      Text(
+                        'Status: ${transaksi.statusPembayaran.displayName}',
+                        style: TextStyle(
+                          color: warnaStatusPembayaran,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      gapH4,
+                      if (transaksi.tanggalMulai != null &&
+                          transaksi.tanggalBerakhir != null)
+                        Text(
+                          'Aktif: ${FormatTanggal.formatDasar(transaksi.tanggalMulai!)} - ${FormatTanggal.formatDasar(transaksi.tanggalBerakhir!)}',
+                        ),
+                    ],
+                  ),
+                  trailing: const Icon(TIcons.chevronRight),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _tampilkanDialogUrutan(
+    BuildContext context,
+    WidgetRef ref,
+    OpsiUrutan currentSort,
+  ) async {
+    final OpsiUrutan? selected = await showDialog<OpsiUrutan>(
+      context: context,
+      builder: (BuildContext context) {
+        Widget buildOption(String text, OpsiUrutan value) {
+          return SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, value),
+            child: Text(
+              text,
+              style: TextStyle(
+                fontWeight: currentSort == value
+                    ? FontWeight.bold
+                    : FontWeight.normal,
+              ),
+            ),
+          );
+        }
+
+        return SimpleDialog(
+          title: const Text('Urutkan Berdasarkan'),
+          children: <Widget>[
+            // Perbaikan: Pastikan enum beralhirHariIni sudah dibetulkan typo-nya jika diperlukan
+            buildOption('Berakhir Hari Ini', OpsiUrutan.berakhirHariIni),
+            buildOption('Tanggal Berakhir', OpsiUrutan.tanggalBerakhir),
+            buildOption('Nama A-Z', OpsiUrutan.namaAZ),
+            buildOption('Nama Z-A', OpsiUrutan.namaZA),
+            buildOption('Lunas', OpsiUrutan.lunas),
+            buildOption('Belum Lunas', OpsiUrutan.belumLunas),
+            buildOption('Update Terbaru', OpsiUrutan.diperbaruiPadaAZ),
+            buildOption('Update Terlama', OpsiUrutan.diperbaruiPadaZA),
+          ],
+        );
+      },
+    );
+
+    if (selected != null) {
+      ref.read(riwayatAktivasiPaketProvider.notifier).changeSort(selected);
+    }
+  }
+}
+
+
 // File: lib/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart
 // path: lib/admin/halaman/detail/subscription_history_detail.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/providers/detail_langganan_provider.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/provider/detail_langganan_provider.dart';
 import 'package:wifi/fitur/paket/page/detail_paket.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/form_riwayat_aktivasi.dart';
@@ -24198,7 +24560,6 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watch data gabungan langsung dari provider
     final detailAsync = ref.watch(ambilDetailLanggananProvider(idTransaksi));
 
     return detailAsync.when(
@@ -24402,6 +24763,776 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+
+// File: lib/fitur/riwayat_aktivasi/provider/detail_langganan_provider.g.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'detail_langganan_provider.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(ambilDetailLangganan)
+final ambilDetailLanggananProvider = AmbilDetailLanggananFamily._();
+
+final class AmbilDetailLanggananProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<DetailLanggananState?>,
+          DetailLanggananState?,
+          FutureOr<DetailLanggananState?>
+        >
+    with
+        $FutureModifier<DetailLanggananState?>,
+        $FutureProvider<DetailLanggananState?> {
+  AmbilDetailLanggananProvider._({
+    required AmbilDetailLanggananFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'ambilDetailLanggananProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$ambilDetailLanggananHash();
+
+  @override
+  String toString() {
+    return r'ambilDetailLanggananProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<DetailLanggananState?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<DetailLanggananState?> create(Ref ref) {
+    final argument = this.argument as String;
+    return ambilDetailLangganan(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is AmbilDetailLanggananProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$ambilDetailLanggananHash() =>
+    r'cb1a8692e90a7e2730006d6bb274c80720436c79';
+
+final class AmbilDetailLanggananFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<DetailLanggananState?>, String> {
+  AmbilDetailLanggananFamily._()
+    : super(
+        retry: null,
+        name: r'ambilDetailLanggananProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  AmbilDetailLanggananProvider call(String idTransaksi) =>
+      AmbilDetailLanggananProvider._(argument: idTransaksi, from: this);
+
+  @override
+  String toString() => r'ambilDetailLanggananProvider';
+}
+
+
+// File: lib/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_provider.dart
+// path lib/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_provider.dart
+
+import 'dart:async';
+
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+
+part 'riwayat_aktivasi_paket_provider.g.dart';
+
+class TransaksiDenganPelanggan {
+  final TransaksiModel transaksi;
+  final PelangganModel? pelanggan;
+  TransaksiDenganPelanggan({required this.transaksi, this.pelanggan});
+  String get namaPelanggan => pelanggan?.nama ?? 'Tidak diketahui';
+}
+
+enum OpsiUrutan {
+  tanggalBerakhir,
+  namaAZ,
+  namaZA,
+  berakhirHariIni,
+  diperbaruiPadaAZ,
+  diperbaruiPadaZA,
+  lunas,
+  belumLunas,
+}
+
+class RiwayatAktivasiPaketState {
+  final List<TransaksiDenganPelanggan> items;
+  final OpsiUrutan sortBy;
+  RiwayatAktivasiPaketState({
+    this.items = const [],
+    this.sortBy = OpsiUrutan.berakhirHariIni,
+  });
+
+  RiwayatAktivasiPaketState copyWith({
+    List<TransaksiDenganPelanggan>? items,
+    OpsiUrutan? sortBy,
+  }) {
+    return RiwayatAktivasiPaketState(
+      items: items ?? this.items,
+      sortBy: sortBy ?? this.sortBy,
+    );
+  }
+}
+
+@riverpod
+class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
+  @override
+  FutureOr<RiwayatAktivasiPaketState> build() {
+    ref.watch(transaksiOpGlobalProvider);
+    ref.watch(pelangganOpGlobalProvider);
+    return _loadData(OpsiUrutan.berakhirHariIni);
+  }
+
+  Future<RiwayatAktivasiPaketState> _loadData(OpsiUrutan targetSort) async {
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
+    final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
+    final transaksi = await transaksiOp.ambilBerdasarkanStatusAktivasi();
+    final pealnggan = await pelangganOpSqlite.ambilSemua();
+    final customerMap = {for (var c in pealnggan) c.id: c};
+    final combinedList = transaksi.map((trans) {
+      return TransaksiDenganPelanggan(
+        transaksi: trans,
+        pelanggan: customerMap[trans.idPelanggan],
+      );
+    }).toList();
+    _performSort(combinedList, targetSort);
+    return RiwayatAktivasiPaketState(items: combinedList, sortBy: targetSort);
+  }
+
+  void changeSort(OpsiUrutan newSort) {
+    if (!state.hasValue) return;
+    final currentState = state.value!;
+    if (currentState.sortBy == newSort) return;
+    final List<TransaksiDenganPelanggan> sortedList = List.from(
+      currentState.items,
+    );
+    _performSort(sortedList, newSort);
+    state = AsyncValue.data(
+      currentState.copyWith(items: sortedList, sortBy: newSort),
+    );
+  }
+
+  void _performSort(List<TransaksiDenganPelanggan> list, OpsiUrutan option) {
+    switch (option) {
+      case OpsiUrutan.tanggalBerakhir:
+        list.sort((a, b) {
+          if (a.transaksi.tanggalBerakhir == null &&
+              b.transaksi.tanggalBerakhir == null) {
+            return 0;
+          }
+          if (a.transaksi.tanggalBerakhir == null) return 1;
+          if (b.transaksi.tanggalBerakhir == null) return -1;
+          final dateCompare = a.transaksi.tanggalBerakhir!.compareTo(
+            b.transaksi.tanggalBerakhir!,
+          );
+          if (dateCompare != 0) return dateCompare;
+          return a.transaksi.id.compareTo(b.transaksi.id);
+        });
+        break;
+      case OpsiUrutan.diperbaruiPadaAZ:
+        list.sort((a, b) {
+          final updateAtA = a.transaksi.diperbaruiPada;
+          final updateAtB = b.transaksi.diperbaruiPada;
+          if (updateAtA == null && updateAtB == null) return 0;
+          if (updateAtA == null) return 1;
+          if (updateAtB == null) return -1;
+          return updateAtB.compareTo(updateAtA);
+        });
+        break;
+      case OpsiUrutan.diperbaruiPadaZA:
+        list.sort((a, b) {
+          final updateAtA = a.transaksi.diperbaruiPada;
+          final updateAtB = b.transaksi.diperbaruiPada;
+          if (updateAtA == null && updateAtB == null) return 0;
+          if (updateAtA == null) return -1;
+          if (updateAtB == null) return 1;
+          return updateAtA.compareTo(updateAtB);
+        });
+        break;
+      case OpsiUrutan.namaAZ:
+        list.sort((a, b) {
+          final nameCompare = a.namaPelanggan.toLowerCase().compareTo(
+            b.namaPelanggan.toLowerCase(),
+          );
+          if (nameCompare != 0) return nameCompare;
+          // Jika nama sama, urutkan berdasarkan ID transaksi (trx1 < trx3)
+          return a.transaksi.id.compareTo(b.transaksi.id);
+        });
+        break;
+      case OpsiUrutan.namaZA:
+        list.sort((a, b) {
+          final nameCompare = b.namaPelanggan.toLowerCase().compareTo(
+            a.namaPelanggan.toLowerCase(),
+          );
+          if (nameCompare != 0) return nameCompare;
+          return a.transaksi.id.compareTo(b.transaksi.id);
+        });
+        break;
+      case OpsiUrutan.berakhirHariIni:
+        final now = DateTime.now();
+        list.sort((a, b) {
+          final isTodayA =
+              a.transaksi.tanggalBerakhir != null &&
+              a.transaksi.tanggalBerakhir!.year == now.year &&
+              a.transaksi.tanggalBerakhir!.month == now.month &&
+              a.transaksi.tanggalBerakhir!.day == now.day;
+          final isTodayB =
+              b.transaksi.tanggalBerakhir != null &&
+              b.transaksi.tanggalBerakhir!.year == now.year &&
+              b.transaksi.tanggalBerakhir!.month == now.month &&
+              b.transaksi.tanggalBerakhir!.day == now.day;
+          if (isTodayA && !isTodayB) return -1;
+          if (!isTodayA && isTodayB) return 1;
+          if (a.transaksi.tanggalBerakhir == null &&
+              b.transaksi.tanggalBerakhir == null) {
+            return 0;
+          }
+          if (a.transaksi.tanggalBerakhir == null) return 1;
+          if (b.transaksi.tanggalBerakhir == null) return -1;
+          return a.transaksi.tanggalBerakhir!.compareTo(
+            b.transaksi.tanggalBerakhir!,
+          );
+        });
+        break;
+      case OpsiUrutan.lunas:
+        list.sort((a, b) {
+          final isPaidA = a.transaksi.statusPembayaran == StatusPembayaran.paid;
+          final isPaidB = b.transaksi.statusPembayaran == StatusPembayaran.paid;
+          if (isPaidA && !isPaidB) return -1;
+          if (!isPaidA && isPaidB) return 1;
+          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal).compareTo(
+            a.transaksi.diperbaruiPada ?? a.transaksi.tanggal,
+          );
+        });
+        break;
+      case OpsiUrutan.belumLunas:
+        list.sort((a, b) {
+          final isUnpaidA =
+              a.transaksi.statusPembayaran == StatusPembayaran.unpaid;
+          final isUnpaidB =
+              b.transaksi.statusPembayaran == StatusPembayaran.unpaid;
+          if (isUnpaidA && !isUnpaidB) return -1;
+          if (!isUnpaidA && isUnpaidB) return 1;
+          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal).compareTo(
+            a.transaksi.diperbaruiPada ?? a.transaksi.tanggal,
+          );
+        });
+        break;
+    }
+  }
+}
+
+
+// File: lib/fitur/riwayat_aktivasi/provider/detail_langganan_provider.freezed.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'detail_langganan_provider.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$DetailLanggananState {
+
+ TransaksiModel? get transaksi; PelangganModel? get pelanggan; PaketModel? get paket;
+/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$DetailLanggananStateCopyWith<DetailLanggananState> get copyWith => _$DetailLanggananStateCopyWithImpl<DetailLanggananState>(this as DetailLanggananState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DetailLanggananState&&(identical(other.transaksi, transaksi) || other.transaksi == transaksi)&&(identical(other.pelanggan, pelanggan) || other.pelanggan == pelanggan)&&(identical(other.paket, paket) || other.paket == paket));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,transaksi,pelanggan,paket);
+
+@override
+String toString() {
+  return 'DetailLanggananState(transaksi: $transaksi, pelanggan: $pelanggan, paket: $paket)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $DetailLanggananStateCopyWith<$Res>  {
+  factory $DetailLanggananStateCopyWith(DetailLanggananState value, $Res Function(DetailLanggananState) _then) = _$DetailLanggananStateCopyWithImpl;
+@useResult
+$Res call({
+ TransaksiModel? transaksi, PelangganModel? pelanggan, PaketModel? paket
+});
+
+
+$TransaksiModelCopyWith<$Res>? get transaksi;$PelangganModelCopyWith<$Res>? get pelanggan;$PaketModelCopyWith<$Res>? get paket;
+
+}
+/// @nodoc
+class _$DetailLanggananStateCopyWithImpl<$Res>
+    implements $DetailLanggananStateCopyWith<$Res> {
+  _$DetailLanggananStateCopyWithImpl(this._self, this._then);
+
+  final DetailLanggananState _self;
+  final $Res Function(DetailLanggananState) _then;
+
+/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? transaksi = freezed,Object? pelanggan = freezed,Object? paket = freezed,}) {
+  return _then(_self.copyWith(
+transaksi: freezed == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
+as TransaksiModel?,pelanggan: freezed == pelanggan ? _self.pelanggan : pelanggan // ignore: cast_nullable_to_non_nullable
+as PelangganModel?,paket: freezed == paket ? _self.paket : paket // ignore: cast_nullable_to_non_nullable
+as PaketModel?,
+  ));
+}
+/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$TransaksiModelCopyWith<$Res>? get transaksi {
+    if (_self.transaksi == null) {
+    return null;
+  }
+
+  return $TransaksiModelCopyWith<$Res>(_self.transaksi!, (value) {
+    return _then(_self.copyWith(transaksi: value));
+  });
+}/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PelangganModelCopyWith<$Res>? get pelanggan {
+    if (_self.pelanggan == null) {
+    return null;
+  }
+
+  return $PelangganModelCopyWith<$Res>(_self.pelanggan!, (value) {
+    return _then(_self.copyWith(pelanggan: value));
+  });
+}/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PaketModelCopyWith<$Res>? get paket {
+    if (_self.paket == null) {
+    return null;
+  }
+
+  return $PaketModelCopyWith<$Res>(_self.paket!, (value) {
+    return _then(_self.copyWith(paket: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [DetailLanggananState].
+extension DetailLanggananStatePatterns on DetailLanggananState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _DetailLanggananState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _DetailLanggananState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _DetailLanggananState value)  $default,){
+final _that = this;
+switch (_that) {
+case _DetailLanggananState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _DetailLanggananState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _DetailLanggananState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( TransaksiModel? transaksi,  PelangganModel? pelanggan,  PaketModel? paket)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _DetailLanggananState() when $default != null:
+return $default(_that.transaksi,_that.pelanggan,_that.paket);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( TransaksiModel? transaksi,  PelangganModel? pelanggan,  PaketModel? paket)  $default,) {final _that = this;
+switch (_that) {
+case _DetailLanggananState():
+return $default(_that.transaksi,_that.pelanggan,_that.paket);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( TransaksiModel? transaksi,  PelangganModel? pelanggan,  PaketModel? paket)?  $default,) {final _that = this;
+switch (_that) {
+case _DetailLanggananState() when $default != null:
+return $default(_that.transaksi,_that.pelanggan,_that.paket);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _DetailLanggananState implements DetailLanggananState {
+  const _DetailLanggananState({this.transaksi, this.pelanggan, this.paket});
+  
+
+@override final  TransaksiModel? transaksi;
+@override final  PelangganModel? pelanggan;
+@override final  PaketModel? paket;
+
+/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$DetailLanggananStateCopyWith<_DetailLanggananState> get copyWith => __$DetailLanggananStateCopyWithImpl<_DetailLanggananState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DetailLanggananState&&(identical(other.transaksi, transaksi) || other.transaksi == transaksi)&&(identical(other.pelanggan, pelanggan) || other.pelanggan == pelanggan)&&(identical(other.paket, paket) || other.paket == paket));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,transaksi,pelanggan,paket);
+
+@override
+String toString() {
+  return 'DetailLanggananState(transaksi: $transaksi, pelanggan: $pelanggan, paket: $paket)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$DetailLanggananStateCopyWith<$Res> implements $DetailLanggananStateCopyWith<$Res> {
+  factory _$DetailLanggananStateCopyWith(_DetailLanggananState value, $Res Function(_DetailLanggananState) _then) = __$DetailLanggananStateCopyWithImpl;
+@override @useResult
+$Res call({
+ TransaksiModel? transaksi, PelangganModel? pelanggan, PaketModel? paket
+});
+
+
+@override $TransaksiModelCopyWith<$Res>? get transaksi;@override $PelangganModelCopyWith<$Res>? get pelanggan;@override $PaketModelCopyWith<$Res>? get paket;
+
+}
+/// @nodoc
+class __$DetailLanggananStateCopyWithImpl<$Res>
+    implements _$DetailLanggananStateCopyWith<$Res> {
+  __$DetailLanggananStateCopyWithImpl(this._self, this._then);
+
+  final _DetailLanggananState _self;
+  final $Res Function(_DetailLanggananState) _then;
+
+/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? transaksi = freezed,Object? pelanggan = freezed,Object? paket = freezed,}) {
+  return _then(_DetailLanggananState(
+transaksi: freezed == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
+as TransaksiModel?,pelanggan: freezed == pelanggan ? _self.pelanggan : pelanggan // ignore: cast_nullable_to_non_nullable
+as PelangganModel?,paket: freezed == paket ? _self.paket : paket // ignore: cast_nullable_to_non_nullable
+as PaketModel?,
+  ));
+}
+
+/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$TransaksiModelCopyWith<$Res>? get transaksi {
+    if (_self.transaksi == null) {
+    return null;
+  }
+
+  return $TransaksiModelCopyWith<$Res>(_self.transaksi!, (value) {
+    return _then(_self.copyWith(transaksi: value));
+  });
+}/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PelangganModelCopyWith<$Res>? get pelanggan {
+    if (_self.pelanggan == null) {
+    return null;
+  }
+
+  return $PelangganModelCopyWith<$Res>(_self.pelanggan!, (value) {
+    return _then(_self.copyWith(pelanggan: value));
+  });
+}/// Create a copy of DetailLanggananState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PaketModelCopyWith<$Res>? get paket {
+    if (_self.paket == null) {
+    return null;
+  }
+
+  return $PaketModelCopyWith<$Res>(_self.paket!, (value) {
+    return _then(_self.copyWith(paket: value));
+  });
+}
+}
+
+// dart format on
+
+
+// File: lib/fitur/riwayat_aktivasi/provider/detail_langganan_provider.dart
+// path lib/fitur/riwayat_aktivasi/provider/detail_langganan_provider.dart
+
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+
+part 'detail_langganan_provider.g.dart';
+part 'detail_langganan_provider.freezed.dart';
+
+@freezed
+abstract class DetailLanggananState with _$DetailLanggananState {
+  const factory DetailLanggananState({
+    TransaksiModel? transaksi,
+    PelangganModel? pelanggan,
+    PaketModel? paket,
+  }) = _DetailLanggananState;
+}
+
+@riverpod
+Future<DetailLanggananState?> ambilDetailLangganan(
+  Ref ref,
+  String idTransaksi,
+) async {
+  final transaksiOp = ref.watch(transaksiOpGlobalProvider);
+  final pelangganOpSqlite = ref.watch(pelangganOpGlobalProvider);
+  final paketOpSqlite = ref.watch(paketOpSqliteProvider);
+
+  // 1. Ambil data transaksi utama
+  final transaksi = await transaksiOp.ambilBerdasarkanId(idTransaksi);
+  if (transaksi == null) return null;
+
+  // 2. Ambil data relasi secara paralel untuk menghemat waktu pemuatan
+  final hasil = await Future.wait<Object?>([
+    transaksi.idPelanggan != null
+        ? pelangganOpSqlite.ambilBerdasarkanId(transaksi.idPelanggan!)
+        : Future<PelangganModel?>.value(),
+    transaksi.idPaket != null
+        ? paketOpSqlite.ambilBerdasarkanId(transaksi.idPaket!)
+        : Future<PaketModel?>.value(),
+  ]);
+
+  return DetailLanggananState(
+    transaksi: transaksi,
+    pelanggan: hasil[0] as PelangganModel?,
+    paket: hasil[1] as PaketModel?,
+  );
+}
+
+
+// File: lib/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_provider.g.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'riwayat_aktivasi_paket_provider.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(RiwayatAktivasiPaket)
+final riwayatAktivasiPaketProvider = RiwayatAktivasiPaketProvider._();
+
+final class RiwayatAktivasiPaketProvider
+    extends
+        $AsyncNotifierProvider<
+          RiwayatAktivasiPaket,
+          RiwayatAktivasiPaketState
+        > {
+  RiwayatAktivasiPaketProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'riwayatAktivasiPaketProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$riwayatAktivasiPaketHash();
+
+  @$internal
+  @override
+  RiwayatAktivasiPaket create() => RiwayatAktivasiPaket();
+}
+
+String _$riwayatAktivasiPaketHash() =>
+    r'843e477154979997a18f9c110615d08bc475d890';
+
+abstract class _$RiwayatAktivasiPaket
+    extends $AsyncNotifier<RiwayatAktivasiPaketState> {
+  FutureOr<RiwayatAktivasiPaketState> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref
+            as $Ref<
+              AsyncValue<RiwayatAktivasiPaketState>,
+              RiwayatAktivasiPaketState
+            >;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                AsyncValue<RiwayatAktivasiPaketState>,
+                RiwayatAktivasiPaketState
+              >,
+              AsyncValue<RiwayatAktivasiPaketState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
   }
 }
 
@@ -26029,366 +27160,6 @@ class DetailTransaksiU extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-
-// File: lib/fitur/transaksi/page/riwayat_aktivasi_paket.dart
-// path lib/fitur/transaksi/page/riwayat_aktivasi_paket.dart
-
-import 'dart:async';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
-import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
-import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
-import 'package:wifi/shared/common/teks.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/widget/package_name.dart';
-
-class RiwayatAktivasiPaket extends ConsumerStatefulWidget {
-  const RiwayatAktivasiPaket({super.key});
-  @override
-  ConsumerState<RiwayatAktivasiPaket> createState() =>
-      _RiwayatAktivasiPaketState();
-}
-
-class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
-  final ScrollController _pengendaliScroll = ScrollController();
-  final TextEditingController _cariController = TextEditingController();
-  late final FocusNode _cariFocusNode;
-  int _jumlahTampil = 20;
-  String _queryCari = '';
-  bool _sedangMemuatLebih = false;
-  bool _sedangMencari = false; // Perbaikan 1: State khusus untuk mode pencarian
-
-  @override
-  void initState() {
-    super.initState();
-    ref.listenManual(riwayatAktivasiPaketProvider, (prev, next) {
-      if (next.hasValue && mounted) {
-        setState(() => _jumlahTampil = 20);
-      }
-    });
-    _pengendaliScroll.addListener(_deteksiScroll);
-    _cariFocusNode = FocusNode();
-  }
-
-  @override
-  void dispose() {
-    _pengendaliScroll.removeListener(_deteksiScroll);
-    _pengendaliScroll.dispose();
-    _cariController.dispose();
-    _cariFocusNode.dispose();
-    super.dispose();
-  }
-
-  void _deteksiScroll() {
-    if (_sedangMemuatLebih) return;
-    if (_pengendaliScroll.position.pixels >=
-        _pengendaliScroll.position.maxScrollExtent - 200) {
-      final state = ref.read(riwayatAktivasiPaketProvider).value;
-      if (state == null) return;
-
-      final itemsFiltered = _filterData(state.items, _queryCari);
-      if (_jumlahTampil < itemsFiltered.length) {
-        setState(() {
-          _sedangMemuatLebih = true;
-          _jumlahTampil += 20;
-        });
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (mounted) setState(() => _sedangMemuatLebih = false);
-        });
-      }
-    }
-  }
-
-  List<TransaksiDenganPelanggan> _filterData(
-    List<TransaksiDenganPelanggan> items,
-    String katakunci,
-  ) {
-    if (katakunci.trim().isEmpty) return items;
-
-    final katakunciLower = katakunci.toLowerCase().trim();
-    return items.where((item) {
-      return item.namaPelanggan.toLowerCase().contains(katakunciLower) ||
-          item.transaksi.deskripsi.toLowerCase().contains(katakunciLower) ||
-          item.transaksi.id.toLowerCase().contains(katakunciLower);
-    }).toList();
-  }
-
-  Future<void> _dialogOpsi(TransaksiModel transaksi) async {
-    final aksiDipilih = await showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: const Text('Pilih Aksi'),
-          children: <Widget>[
-            SimpleDialogOption(
-              onPressed: () => Navigator.pop(context, 'edit'),
-              child: const Text('Edit'),
-            ),
-            SimpleDialogOption(
-              onPressed: () => Navigator.pop(context, 'hapus'),
-              child: const Text('Hapus'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (aksiDipilih != null) {
-      Log.info('Aksi dipilih: $aksiDipilih');
-
-      if (aksiDipilih == 'edit') {
-        if (!mounted) return;
-        await Navigator.push(
-          context,
-          MaterialPageRoute<void>(
-            builder: (context) => FormTransaksi(transaksi: transaksi),
-          ),
-        );
-      } else if (aksiDipilih == 'hapus') {
-        await _dialogKonfirmasiSoftDelete(transaksi);
-      }
-    }
-  }
-
-  Future<void> _dialogKonfirmasiSoftDelete(TransaksiModel transaksi) async {
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Konfirmasi'),
-        content: const Text('Apakah Anda yakin ingin menghapus transaksi ini?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () async {
-              await ref
-                  .read(transaksiProvider.notifier)
-                  .softDelete(transaksi.id);
-              unawaited(
-                ref
-                    .read(layananCekSinkronisasiProvider)
-                    .jalankanCekSinkronisasi(),
-              );
-              if (!context.mounted) return;
-              Navigator.pop(context);
-            },
-            child: const Text('Iya', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final historyAsync = ref.watch(riwayatAktivasiPaketProvider);
-    final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-
-    return Scaffold(
-      appBar: AppBar(
-        // Perbaikan Utama pada Logika Tampilan AppBar
-        title: !_sedangMencari
-            ? const TeksJudulBesar('Riwayat Langganan', warna: Colors.white)
-            : TextField(
-                controller: _cariController,
-                focusNode: _cariFocusNode,
-                textInputAction: TextInputAction.search,
-                decoration: InputDecoration(
-                  hintText: 'Cari data...',
-                  hintStyle: const TextStyle(color: Colors.white70),
-                  border: InputBorder.none,
-                  prefixIcon: const Icon(TIcons.search, color: Colors.white),
-                  suffixIcon: IconButton(
-                    icon: const Icon(TIcons.close, color: Colors.white),
-                    onPressed: () {
-                      _cariController.clear();
-                      setState(() {
-                        _queryCari = '';
-                        _jumlahTampil = 20;
-                        _sedangMencari = false; // Keluar dari mode pencarian
-                      });
-                    },
-                  ),
-                ),
-                style: const TextStyle(color: Colors.white),
-                onChanged: (value) {
-                  setState(() {
-                    _queryCari = value;
-                    _jumlahTampil = 20;
-                  });
-                },
-              ),
-        actions: [
-          if (!_sedangMencari) ...[
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  _sedangMencari = true;
-                });
-                Future.microtask(() => _cariFocusNode.requestFocus());
-              },
-              icon: const Icon(TIcons.search),
-            ),
-            IconButton(
-              icon: const Icon(TIcons.filter),
-              onPressed: () {
-                if (historyAsync.hasValue) {
-                  Log.info('Membuka dialog pengurutan riwayat langganan.');
-                  _tampilkanDialogUrutan(
-                    context,
-                    ref,
-                    historyAsync.value!.sortBy,
-                  );
-                }
-              },
-              tooltip: 'Urutkan',
-            ),
-          ],
-        ],
-      ),
-      body: historyAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
-        data: (state) {
-          final itemsFiltered = _filterData(state.items, _queryCari);
-          if (itemsFiltered.isEmpty) {
-            return const Center(
-              child: Text('Tidak ada riwayat langganan ditemukan.'),
-            );
-          }
-          final itemsTampil = itemsFiltered.take(_jumlahTampil).toList();
-          return ListView.builder(
-            controller: _pengendaliScroll,
-            itemCount:
-                itemsTampil.length +
-                (_jumlahTampil < itemsFiltered.length ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index == itemsTampil.length) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              }
-              final item = itemsTampil[index];
-              final transaksi = item.transaksi;
-              final warnaStatusPembayaran =
-                  transaksi.statusPembayaran == StatusPembayaran.paid
-                  ? Colors.green
-                  : Colors.red;
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                child: ListTile(
-                  onTap: () async {
-                    Log.info('Melihat detail riwayat langganan.', {
-                      'transactionId': transaksi.id,
-                    });
-                    await Navigator.push<bool>(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailRiwayatAktivasiPage(
-                          idTransaksi: transaksi.id,
-                        ),
-                      ),
-                    );
-                  },
-                  onLongPress: () => _dialogOpsi(transaksi),
-                  title: Text(
-                    item.namaPelanggan,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      PackageNameWidget(
-                        paketFuture: paketOpSqlite.ambilBerdasarkanId(
-                          transaksi.idPaket ?? '',
-                        ),
-                        style: TextStyle(color: warnaStatusPembayaran),
-                      ),
-                      gapH4,
-                      Text(
-                        'Status: ${transaksi.statusPembayaran.displayName}',
-                        style: TextStyle(
-                          color: warnaStatusPembayaran,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      gapH4,
-                      if (transaksi.tanggalMulai != null &&
-                          transaksi.tanggalBerakhir != null)
-                        Text(
-                          'Aktif: ${FormatTanggal.formatDasar(transaksi.tanggalMulai!)} - ${FormatTanggal.formatDasar(transaksi.tanggalBerakhir!)}',
-                        ),
-                    ],
-                  ),
-                  trailing: const Icon(TIcons.chevronRight),
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Future<void> _tampilkanDialogUrutan(
-    BuildContext context,
-    WidgetRef ref,
-    OpsiUrutan currentSort,
-  ) async {
-    final OpsiUrutan? selected = await showDialog<OpsiUrutan>(
-      context: context,
-      builder: (BuildContext context) {
-        Widget buildOption(String text, OpsiUrutan value) {
-          return SimpleDialogOption(
-            onPressed: () => Navigator.pop(context, value),
-            child: Text(
-              text,
-              style: TextStyle(
-                fontWeight: currentSort == value
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-              ),
-            ),
-          );
-        }
-
-        return SimpleDialog(
-          title: const Text('Urutkan Berdasarkan'),
-          children: <Widget>[
-            // Perbaikan: Pastikan enum beralhirHariIni sudah dibetulkan typo-nya jika diperlukan
-            buildOption('Berakhir Hari Ini', OpsiUrutan.berakhirHariIni),
-            buildOption('Tanggal Berakhir', OpsiUrutan.tanggalBerakhir),
-            buildOption('Nama A-Z', OpsiUrutan.namaAZ),
-            buildOption('Nama Z-A', OpsiUrutan.namaZA),
-            buildOption('Lunas', OpsiUrutan.lunas),
-            buildOption('Belum Lunas', OpsiUrutan.belumLunas),
-            buildOption('Update Terbaru', OpsiUrutan.diperbaruiPadaAZ),
-            buildOption('Update Terlama', OpsiUrutan.diperbaruiPadaZA),
-          ],
-        );
-      },
-    );
-
-    if (selected != null) {
-      ref.read(riwayatAktivasiPaketProvider.notifier).changeSort(selected);
-    }
   }
 }
 
@@ -50365,7 +51136,7 @@ import 'package:wifi/fitur/kategori/page/kategori.dart';
 import 'package:wifi/fitur/paket/page/paket.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
 import 'package:wifi/fitur/settings/page/settings_page_a.dart';
-import 'package:wifi/fitur/transaksi/page/riwayat_aktivasi_paket.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/page/riwayat_aktivasi_paket.dart';
 import 'package:wifi/fitur/versi_apk/page/versi_apk_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -50636,775 +51407,6 @@ abstract class _$CustomerNotifier extends $AsyncNotifier<List<PelangganModel>> {
                 List<PelangganModel>
               >,
               AsyncValue<List<PelangganModel>>,
-              Object?,
-              Object?
-            >;
-    return element.handleCreate(ref, build);
-  }
-}
-
-
-// File: lib/admin/providers/detail_langganan_provider.g.dart
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
-part of 'detail_langganan_provider.dart';
-
-// **************************************************************************
-// RiverpodGenerator
-// **************************************************************************
-
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
-
-@ProviderFor(ambilDetailLangganan)
-final ambilDetailLanggananProvider = AmbilDetailLanggananFamily._();
-
-final class AmbilDetailLanggananProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<DetailLanggananState?>,
-          DetailLanggananState?,
-          FutureOr<DetailLanggananState?>
-        >
-    with
-        $FutureModifier<DetailLanggananState?>,
-        $FutureProvider<DetailLanggananState?> {
-  AmbilDetailLanggananProvider._({
-    required AmbilDetailLanggananFamily super.from,
-    required String super.argument,
-  }) : super(
-         retry: null,
-         name: r'ambilDetailLanggananProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$ambilDetailLanggananHash();
-
-  @override
-  String toString() {
-    return r'ambilDetailLanggananProvider'
-        ''
-        '($argument)';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<DetailLanggananState?> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<DetailLanggananState?> create(Ref ref) {
-    final argument = this.argument as String;
-    return ambilDetailLangganan(ref, argument);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is AmbilDetailLanggananProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$ambilDetailLanggananHash() =>
-    r'cb1a8692e90a7e2730006d6bb274c80720436c79';
-
-final class AmbilDetailLanggananFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<DetailLanggananState?>, String> {
-  AmbilDetailLanggananFamily._()
-    : super(
-        retry: null,
-        name: r'ambilDetailLanggananProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  AmbilDetailLanggananProvider call(String idTransaksi) =>
-      AmbilDetailLanggananProvider._(argument: idTransaksi, from: this);
-
-  @override
-  String toString() => r'ambilDetailLanggananProvider';
-}
-
-
-// File: lib/admin/providers/riwayat_aktivasi_paket_provider.dart
-// path lib/admin/providers/riwayat_aktivasi_paket_provider.dart
-
-import 'dart:async';
-
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
-
-part 'riwayat_aktivasi_paket_provider.g.dart';
-
-class TransaksiDenganPelanggan {
-  final TransaksiModel transaksi;
-  final PelangganModel? pelanggan;
-  TransaksiDenganPelanggan({required this.transaksi, this.pelanggan});
-  String get namaPelanggan => pelanggan?.nama ?? 'Tidak diketahui';
-}
-
-enum OpsiUrutan {
-  tanggalBerakhir,
-  namaAZ,
-  namaZA,
-  berakhirHariIni,
-  diperbaruiPadaAZ,
-  diperbaruiPadaZA,
-  lunas,
-  belumLunas,
-}
-
-class RiwayatAktivasiPaketState {
-  final List<TransaksiDenganPelanggan> items;
-  final OpsiUrutan sortBy;
-  RiwayatAktivasiPaketState({
-    this.items = const [],
-    this.sortBy = OpsiUrutan.berakhirHariIni,
-  });
-
-  RiwayatAktivasiPaketState copyWith({
-    List<TransaksiDenganPelanggan>? items,
-    OpsiUrutan? sortBy,
-  }) {
-    return RiwayatAktivasiPaketState(
-      items: items ?? this.items,
-      sortBy: sortBy ?? this.sortBy,
-    );
-  }
-}
-
-@riverpod
-class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
-  @override
-  FutureOr<RiwayatAktivasiPaketState> build() {
-    ref.watch(transaksiOpGlobalProvider);
-    ref.watch(pelangganOpSqliteProvider);
-    return _loadData(OpsiUrutan.berakhirHariIni);
-  }
-
-  Future<RiwayatAktivasiPaketState> _loadData(OpsiUrutan targetSort) async {
-    final transaksiOp = ref.read(transaksiOpGlobalProvider);
-    final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
-    final transaksi = await transaksiOp.ambilBerdasarkanStatusAktivasi();
-    final pealnggan = await pelangganOpSqlite.ambilSemua();
-    final customerMap = {for (var c in pealnggan) c.id: c};
-    final combinedList = transaksi.map((trans) {
-      return TransaksiDenganPelanggan(
-        transaksi: trans,
-        pelanggan: customerMap[trans.idPelanggan],
-      );
-    }).toList();
-    _performSort(combinedList, targetSort);
-    return RiwayatAktivasiPaketState(items: combinedList, sortBy: targetSort);
-  }
-
-  void changeSort(OpsiUrutan newSort) {
-    if (!state.hasValue) return;
-    final currentState = state.value!;
-    if (currentState.sortBy == newSort) return;
-    final List<TransaksiDenganPelanggan> sortedList = List.from(
-      currentState.items,
-    );
-    _performSort(sortedList, newSort);
-    state = AsyncValue.data(
-      currentState.copyWith(items: sortedList, sortBy: newSort),
-    );
-  }
-
-  void _performSort(List<TransaksiDenganPelanggan> list, OpsiUrutan option) {
-    switch (option) {
-      case OpsiUrutan.tanggalBerakhir:
-        list.sort((a, b) {
-          if (a.transaksi.tanggalBerakhir == null &&
-              b.transaksi.tanggalBerakhir == null) {
-            return 0;
-          }
-          if (a.transaksi.tanggalBerakhir == null) return 1;
-          if (b.transaksi.tanggalBerakhir == null) return -1;
-          final dateCompare = a.transaksi.tanggalBerakhir!.compareTo(
-            b.transaksi.tanggalBerakhir!,
-          );
-          if (dateCompare != 0) return dateCompare;
-          return a.transaksi.id.compareTo(b.transaksi.id);
-        });
-        break;
-      case OpsiUrutan.diperbaruiPadaAZ:
-        list.sort((a, b) {
-          final updateAtA = a.transaksi.diperbaruiPada;
-          final updateAtB = b.transaksi.diperbaruiPada;
-          if (updateAtA == null && updateAtB == null) return 0;
-          if (updateAtA == null) return 1;
-          if (updateAtB == null) return -1;
-          return updateAtB.compareTo(updateAtA);
-        });
-        break;
-      case OpsiUrutan.diperbaruiPadaZA:
-        list.sort((a, b) {
-          final updateAtA = a.transaksi.diperbaruiPada;
-          final updateAtB = b.transaksi.diperbaruiPada;
-          if (updateAtA == null && updateAtB == null) return 0;
-          if (updateAtA == null) return -1;
-          if (updateAtB == null) return 1;
-          return updateAtA.compareTo(updateAtB);
-        });
-        break;
-      case OpsiUrutan.namaAZ:
-        list.sort((a, b) {
-          final nameCompare = a.namaPelanggan.toLowerCase().compareTo(
-            b.namaPelanggan.toLowerCase(),
-          );
-          if (nameCompare != 0) return nameCompare;
-          // Jika nama sama, urutkan berdasarkan ID transaksi (trx1 < trx3)
-          return a.transaksi.id.compareTo(b.transaksi.id);
-        });
-        break;
-      case OpsiUrutan.namaZA:
-        list.sort((a, b) {
-          final nameCompare = b.namaPelanggan.toLowerCase().compareTo(
-            a.namaPelanggan.toLowerCase(),
-          );
-          if (nameCompare != 0) return nameCompare;
-          return a.transaksi.id.compareTo(b.transaksi.id);
-        });
-        break;
-      case OpsiUrutan.berakhirHariIni:
-        final now = DateTime.now();
-        list.sort((a, b) {
-          final isTodayA =
-              a.transaksi.tanggalBerakhir != null &&
-              a.transaksi.tanggalBerakhir!.year == now.year &&
-              a.transaksi.tanggalBerakhir!.month == now.month &&
-              a.transaksi.tanggalBerakhir!.day == now.day;
-          final isTodayB =
-              b.transaksi.tanggalBerakhir != null &&
-              b.transaksi.tanggalBerakhir!.year == now.year &&
-              b.transaksi.tanggalBerakhir!.month == now.month &&
-              b.transaksi.tanggalBerakhir!.day == now.day;
-          if (isTodayA && !isTodayB) return -1;
-          if (!isTodayA && isTodayB) return 1;
-          if (a.transaksi.tanggalBerakhir == null &&
-              b.transaksi.tanggalBerakhir == null) {
-            return 0;
-          }
-          if (a.transaksi.tanggalBerakhir == null) return 1;
-          if (b.transaksi.tanggalBerakhir == null) return -1;
-          return a.transaksi.tanggalBerakhir!.compareTo(
-            b.transaksi.tanggalBerakhir!,
-          );
-        });
-        break;
-      case OpsiUrutan.lunas:
-        list.sort((a, b) {
-          final isPaidA = a.transaksi.statusPembayaran == StatusPembayaran.paid;
-          final isPaidB = b.transaksi.statusPembayaran == StatusPembayaran.paid;
-          if (isPaidA && !isPaidB) return -1;
-          if (!isPaidA && isPaidB) return 1;
-          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal).compareTo(
-            a.transaksi.diperbaruiPada ?? a.transaksi.tanggal,
-          );
-        });
-        break;
-      case OpsiUrutan.belumLunas:
-        list.sort((a, b) {
-          final isUnpaidA =
-              a.transaksi.statusPembayaran == StatusPembayaran.unpaid;
-          final isUnpaidB =
-              b.transaksi.statusPembayaran == StatusPembayaran.unpaid;
-          if (isUnpaidA && !isUnpaidB) return -1;
-          if (!isUnpaidA && isUnpaidB) return 1;
-          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal).compareTo(
-            a.transaksi.diperbaruiPada ?? a.transaksi.tanggal,
-          );
-        });
-        break;
-    }
-  }
-}
-
-
-// File: lib/admin/providers/detail_langganan_provider.freezed.dart
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// coverage:ignore-file
-// ignore_for_file: type=lint
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
-
-part of 'detail_langganan_provider.dart';
-
-// **************************************************************************
-// FreezedGenerator
-// **************************************************************************
-
-// dart format off
-T _$identity<T>(T value) => value;
-/// @nodoc
-mixin _$DetailLanggananState {
-
- TransaksiModel? get transaksi; PelangganModel? get pelanggan; PaketModel? get paket;
-/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$DetailLanggananStateCopyWith<DetailLanggananState> get copyWith => _$DetailLanggananStateCopyWithImpl<DetailLanggananState>(this as DetailLanggananState, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DetailLanggananState&&(identical(other.transaksi, transaksi) || other.transaksi == transaksi)&&(identical(other.pelanggan, pelanggan) || other.pelanggan == pelanggan)&&(identical(other.paket, paket) || other.paket == paket));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,transaksi,pelanggan,paket);
-
-@override
-String toString() {
-  return 'DetailLanggananState(transaksi: $transaksi, pelanggan: $pelanggan, paket: $paket)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $DetailLanggananStateCopyWith<$Res>  {
-  factory $DetailLanggananStateCopyWith(DetailLanggananState value, $Res Function(DetailLanggananState) _then) = _$DetailLanggananStateCopyWithImpl;
-@useResult
-$Res call({
- TransaksiModel? transaksi, PelangganModel? pelanggan, PaketModel? paket
-});
-
-
-$TransaksiModelCopyWith<$Res>? get transaksi;$PelangganModelCopyWith<$Res>? get pelanggan;$PaketModelCopyWith<$Res>? get paket;
-
-}
-/// @nodoc
-class _$DetailLanggananStateCopyWithImpl<$Res>
-    implements $DetailLanggananStateCopyWith<$Res> {
-  _$DetailLanggananStateCopyWithImpl(this._self, this._then);
-
-  final DetailLanggananState _self;
-  final $Res Function(DetailLanggananState) _then;
-
-/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? transaksi = freezed,Object? pelanggan = freezed,Object? paket = freezed,}) {
-  return _then(_self.copyWith(
-transaksi: freezed == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
-as TransaksiModel?,pelanggan: freezed == pelanggan ? _self.pelanggan : pelanggan // ignore: cast_nullable_to_non_nullable
-as PelangganModel?,paket: freezed == paket ? _self.paket : paket // ignore: cast_nullable_to_non_nullable
-as PaketModel?,
-  ));
-}
-/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$TransaksiModelCopyWith<$Res>? get transaksi {
-    if (_self.transaksi == null) {
-    return null;
-  }
-
-  return $TransaksiModelCopyWith<$Res>(_self.transaksi!, (value) {
-    return _then(_self.copyWith(transaksi: value));
-  });
-}/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$PelangganModelCopyWith<$Res>? get pelanggan {
-    if (_self.pelanggan == null) {
-    return null;
-  }
-
-  return $PelangganModelCopyWith<$Res>(_self.pelanggan!, (value) {
-    return _then(_self.copyWith(pelanggan: value));
-  });
-}/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$PaketModelCopyWith<$Res>? get paket {
-    if (_self.paket == null) {
-    return null;
-  }
-
-  return $PaketModelCopyWith<$Res>(_self.paket!, (value) {
-    return _then(_self.copyWith(paket: value));
-  });
-}
-}
-
-
-/// Adds pattern-matching-related methods to [DetailLanggananState].
-extension DetailLanggananStatePatterns on DetailLanggananState {
-/// A variant of `map` that fallback to returning `orElse`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _DetailLanggananState value)?  $default,{required TResult orElse(),}){
-final _that = this;
-switch (_that) {
-case _DetailLanggananState() when $default != null:
-return $default(_that);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// Callbacks receives the raw object, upcasted.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case final Subclass2 value:
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _DetailLanggananState value)  $default,){
-final _that = this;
-switch (_that) {
-case _DetailLanggananState():
-return $default(_that);case _:
-  throw StateError('Unexpected subclass');
-
-}
-}
-/// A variant of `map` that fallback to returning `null`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _DetailLanggananState value)?  $default,){
-final _that = this;
-switch (_that) {
-case _DetailLanggananState() when $default != null:
-return $default(_that);case _:
-  return null;
-
-}
-}
-/// A variant of `when` that fallback to an `orElse` callback.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( TransaksiModel? transaksi,  PelangganModel? pelanggan,  PaketModel? paket)?  $default,{required TResult orElse(),}) {final _that = this;
-switch (_that) {
-case _DetailLanggananState() when $default != null:
-return $default(_that.transaksi,_that.pelanggan,_that.paket);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// As opposed to `map`, this offers destructuring.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case Subclass2(:final field2):
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( TransaksiModel? transaksi,  PelangganModel? pelanggan,  PaketModel? paket)  $default,) {final _that = this;
-switch (_that) {
-case _DetailLanggananState():
-return $default(_that.transaksi,_that.pelanggan,_that.paket);case _:
-  throw StateError('Unexpected subclass');
-
-}
-}
-/// A variant of `when` that fallback to returning `null`
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( TransaksiModel? transaksi,  PelangganModel? pelanggan,  PaketModel? paket)?  $default,) {final _that = this;
-switch (_that) {
-case _DetailLanggananState() when $default != null:
-return $default(_that.transaksi,_that.pelanggan,_that.paket);case _:
-  return null;
-
-}
-}
-
-}
-
-/// @nodoc
-
-
-class _DetailLanggananState implements DetailLanggananState {
-  const _DetailLanggananState({this.transaksi, this.pelanggan, this.paket});
-  
-
-@override final  TransaksiModel? transaksi;
-@override final  PelangganModel? pelanggan;
-@override final  PaketModel? paket;
-
-/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-_$DetailLanggananStateCopyWith<_DetailLanggananState> get copyWith => __$DetailLanggananStateCopyWithImpl<_DetailLanggananState>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DetailLanggananState&&(identical(other.transaksi, transaksi) || other.transaksi == transaksi)&&(identical(other.pelanggan, pelanggan) || other.pelanggan == pelanggan)&&(identical(other.paket, paket) || other.paket == paket));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,transaksi,pelanggan,paket);
-
-@override
-String toString() {
-  return 'DetailLanggananState(transaksi: $transaksi, pelanggan: $pelanggan, paket: $paket)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class _$DetailLanggananStateCopyWith<$Res> implements $DetailLanggananStateCopyWith<$Res> {
-  factory _$DetailLanggananStateCopyWith(_DetailLanggananState value, $Res Function(_DetailLanggananState) _then) = __$DetailLanggananStateCopyWithImpl;
-@override @useResult
-$Res call({
- TransaksiModel? transaksi, PelangganModel? pelanggan, PaketModel? paket
-});
-
-
-@override $TransaksiModelCopyWith<$Res>? get transaksi;@override $PelangganModelCopyWith<$Res>? get pelanggan;@override $PaketModelCopyWith<$Res>? get paket;
-
-}
-/// @nodoc
-class __$DetailLanggananStateCopyWithImpl<$Res>
-    implements _$DetailLanggananStateCopyWith<$Res> {
-  __$DetailLanggananStateCopyWithImpl(this._self, this._then);
-
-  final _DetailLanggananState _self;
-  final $Res Function(_DetailLanggananState) _then;
-
-/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? transaksi = freezed,Object? pelanggan = freezed,Object? paket = freezed,}) {
-  return _then(_DetailLanggananState(
-transaksi: freezed == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
-as TransaksiModel?,pelanggan: freezed == pelanggan ? _self.pelanggan : pelanggan // ignore: cast_nullable_to_non_nullable
-as PelangganModel?,paket: freezed == paket ? _self.paket : paket // ignore: cast_nullable_to_non_nullable
-as PaketModel?,
-  ));
-}
-
-/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$TransaksiModelCopyWith<$Res>? get transaksi {
-    if (_self.transaksi == null) {
-    return null;
-  }
-
-  return $TransaksiModelCopyWith<$Res>(_self.transaksi!, (value) {
-    return _then(_self.copyWith(transaksi: value));
-  });
-}/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$PelangganModelCopyWith<$Res>? get pelanggan {
-    if (_self.pelanggan == null) {
-    return null;
-  }
-
-  return $PelangganModelCopyWith<$Res>(_self.pelanggan!, (value) {
-    return _then(_self.copyWith(pelanggan: value));
-  });
-}/// Create a copy of DetailLanggananState
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$PaketModelCopyWith<$Res>? get paket {
-    if (_self.paket == null) {
-    return null;
-  }
-
-  return $PaketModelCopyWith<$Res>(_self.paket!, (value) {
-    return _then(_self.copyWith(paket: value));
-  });
-}
-}
-
-// dart format on
-
-
-// File: lib/admin/providers/detail_langganan_provider.dart
-// path: lib/admin/providers/detail_langganan_provider.dart
-
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
-
-part 'detail_langganan_provider.freezed.dart';
-part 'detail_langganan_provider.g.dart';
-
-@freezed
-abstract class DetailLanggananState with _$DetailLanggananState {
-  const factory DetailLanggananState({
-    TransaksiModel? transaksi,
-    PelangganModel? pelanggan,
-    PaketModel? paket,
-  }) = _DetailLanggananState;
-}
-
-@riverpod
-Future<DetailLanggananState?> ambilDetailLangganan(
-  Ref ref,
-  String idTransaksi,
-) async {
-  final transaksiOp = ref.watch(transaksiOpGlobalProvider);
-  final pelangganOpSqlite = ref.watch(pelangganOpGlobalProvider);
-  final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-
-  // 1. Ambil data transaksi utama
-  final transaksi = await transaksiOp.ambilBerdasarkanId(idTransaksi);
-  if (transaksi == null) return null;
-
-  // 2. Ambil data relasi secara paralel untuk menghemat waktu pemuatan
-  final hasil = await Future.wait<Object?>([
-    transaksi.idPelanggan != null
-        ? pelangganOpSqlite.ambilBerdasarkanId(transaksi.idPelanggan!)
-        : Future<PelangganModel?>.value(),
-    transaksi.idPaket != null
-        ? paketOpSqlite.ambilBerdasarkanId(transaksi.idPaket!)
-        : Future<PaketModel?>.value(),
-  ]);
-
-  return DetailLanggananState(
-    transaksi: transaksi,
-    pelanggan: hasil[0] as PelangganModel?,
-    paket: hasil[1] as PaketModel?,
-  );
-}
-
-
-// File: lib/admin/providers/riwayat_aktivasi_paket_provider.g.dart
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
-part of 'riwayat_aktivasi_paket_provider.dart';
-
-// **************************************************************************
-// RiverpodGenerator
-// **************************************************************************
-
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
-
-@ProviderFor(RiwayatAktivasiPaket)
-final riwayatAktivasiPaketProvider = RiwayatAktivasiPaketProvider._();
-
-final class RiwayatAktivasiPaketProvider
-    extends
-        $AsyncNotifierProvider<
-          RiwayatAktivasiPaket,
-          RiwayatAktivasiPaketState
-        > {
-  RiwayatAktivasiPaketProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'riwayatAktivasiPaketProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$riwayatAktivasiPaketHash();
-
-  @$internal
-  @override
-  RiwayatAktivasiPaket create() => RiwayatAktivasiPaket();
-}
-
-String _$riwayatAktivasiPaketHash() =>
-    r'170e5e33b4bf3c206e533f6c5571db1beecfbbc1';
-
-abstract class _$RiwayatAktivasiPaket
-    extends $AsyncNotifier<RiwayatAktivasiPaketState> {
-  FutureOr<RiwayatAktivasiPaketState> build();
-  @$mustCallSuper
-  @override
-  WhenComplete runBuild() {
-    final ref =
-        this.ref
-            as $Ref<
-              AsyncValue<RiwayatAktivasiPaketState>,
-              RiwayatAktivasiPaketState
-            >;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<
-                AsyncValue<RiwayatAktivasiPaketState>,
-                RiwayatAktivasiPaketState
-              >,
-              AsyncValue<RiwayatAktivasiPaketState>,
               Object?,
               Object?
             >;

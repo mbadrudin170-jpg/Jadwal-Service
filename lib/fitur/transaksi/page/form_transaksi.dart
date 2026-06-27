@@ -280,7 +280,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         }
 
         if (mounted) {
-          Navigator.pop(context, true);
+          Navigator.pop(context);
         }
       } on Exception catch (e, s) {
         Log.error('Gagal menyimpan transaksi ke database.', e: e, s: s);
