@@ -164,25 +164,25 @@ analyzer:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
   
-  errors:
-    # Kritis (Blocking build)
-    use_build_context_synchronously: error
-    unawaited_futures: error
-    hash_and_equals: error
-    avoid_dynamic_calls: error
-    only_throw_errors: error
-    throw_in_finally: error
-    cancel_subscriptions: error
-    close_sinks: error
-    avoid_void_async: error
+  # errors:
+  #   # Kritis (Blocking build)
+  #   use_build_context_synchronously: error
+  #   unawaited_futures: error
+  #   hash_and_equals: error
+  #   avoid_dynamic_calls: error
+  #   only_throw_errors: error
+  #   throw_in_finally: error
+  #   cancel_subscriptions: error
+  #   close_sinks: error
+  #   avoid_void_async: error
 
-    prefer_const_constructors: error
-    prefer_const_constructors_in_immutables: error
-    use_super_parameters: error
-    always_use_package_imports: error
-    prefer_final_locals: error
-    prefer_final_fields: error
-    # directives_ordering: error
+  #   prefer_const_constructors: error
+  #   prefer_const_constructors_in_immutables: error
+  #   use_super_parameters: error
+  #   always_use_package_imports: error
+  #   prefer_final_locals: error
+  #   prefer_final_fields: error
+  #   # directives_ordering: error
 
 
   language:
@@ -41348,8 +41348,7 @@ class FormatNomor {
 
 
 // File: lib/shared/widget/nama_pelanggan_widget.dart
-import 'dart:ui';
-
+// path: lib/shared/widget/nama_pelanggan_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
@@ -41404,7 +41403,6 @@ class NamaPelangganWidget extends ConsumerWidget {
     );
   }
 }
-
 
 // File: lib/shared/widget/input/input_rupiah.dart
 // path: lib/shared/widget/input/input_rupiah.dart
@@ -46779,12 +46777,12 @@ class FirebaseMigrationService {
 // File: lib/data_dummy/data_dummy.dart
 // path: lib/data_dummy/data_dummy.dart
 
-export 'dummy_pelanggan.dart';
 export 'dummy_dompet.dart';
 export 'dummy_kategori.dart';
 export 'dummy_paket.dart';
-export 'dummy_transaksi.dart';
+export 'dummy_pelanggan.dart';
 export 'dummy_sub_kategori.dart';  // ← Tambahkan ini
+export 'dummy_transaksi.dart';
 
 // File: lib/data_dummy/dummy_pelanggan.dart
 // path lib/data_dummy/dummy_pelanggan.dart
@@ -47109,14 +47107,12 @@ class DummyKategori {
       id: idKategoriTransfer,
       nama: 'Transfer',
       tipe: TipeKategori.transfer,
-      idSubKategori: const [],
     ),
     // Kategori Lainnya
     KategoriModel(
       id: idKategoriLainnya,
       nama: 'Lainnya',
       tipe: TipeKategori.expense,
-      idSubKategori: const [],
     ),
   ];
 
@@ -47143,7 +47139,6 @@ class DummyKategori {
     return null;
   }
 }
-
 
 // File: lib/data_dummy/dummy_transaksi.dart
 // path: lib/data_dummy/dummy_transaksi.dart
@@ -47861,8 +47856,8 @@ class HalamanDataDummy extends ConsumerWidget {
 // File: lib/data_dummy/dummy_sub_kategori.dart
 // path: lib/data_dummy/dummy_sub_kategori.dart
 
-import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 import 'package:wifi/data_dummy/dummy_kategori.dart';
+import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 
 /// Data dummy untuk sub-kategori
 class DummySubKategori {
