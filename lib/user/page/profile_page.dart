@@ -7,11 +7,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan_u.dart';
 import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -46,16 +46,12 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
-  late final PelangganOpFirebase _pelangganOpFirebase;
-  late final TransaksiOpFirebase _transaksiOpFirebase;
   late final PaketOpFirebase _paketOpFirebase;
   Future<_DaataProfil>? _futureProfileData;
   @override
   void initState() {
     super.initState();
     unawaited(ref.read(interstitialAdServiceProvider).preloadAd());
-    _pelangganOpFirebase = ref.read(pelangganOpFirebaseProvider);
-    _transaksiOpFirebase = ref.read(transaksiOpFirebaseProvider);
     _paketOpFirebase = ref.read(paketOpFirebaseProvider);
     _futureProfileData = _loadProfileData();
   }
@@ -66,16 +62,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       throw Exception('ID Pengguna tidak ditemukan, mohon login kembali.');
     }
     Log.info('Memulai pengambilan data profil lengkap untuk userId: $userId.');
+    final pelangganOp = ref.read(pelangganOpGlobalProvider);
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
     try {
-      final pelanggan = await _pelangganOpFirebase.ambilBerdasarkanId(userId);
+      final pelanggan = await pelangganOp.ambilBerdasarkanId(userId);
       if (pelanggan == null) {
         throw Exception('Pelanggan dengan ID  tidak ditemukan.');
       }
       Log.info('Data pelanggan berhasil diambil: ${pelanggan.nama}.');
 
       final hasil = await Future.wait([
-        _transaksiOpFirebase.ambilTotalPoin(pelanggan.id),
-        _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(pelanggan.id),
+        transaksiOp.ambilTotalPoin(pelanggan.id),
+        transaksiOp.ambilBerdasarkanIdPelanggan(pelanggan.id),
       ]);
       final totalPoin = hasil[0] as int;
       final daftarPaketAktif = hasil[1] as List<TransaksiModel>;
@@ -367,7 +365,7 @@ class _InfoItem extends StatelessWidget {
     this.trailingIcon,
     this.onTap,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     final Widget content = Padding(

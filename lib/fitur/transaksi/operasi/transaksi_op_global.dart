@@ -165,11 +165,7 @@ class TransaksiOpGlobal {
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.getTotalIncome();
     } else {
-      // Untuk user, hitung dari transaksi sendiri
-      final transaksi = await ambilSemua();
-      return transaksi
-          .where((t) => t.tipe.name == 'income')
-          .fold<double>(0.0, (sum, t) => sum + t.jumlah);
+      return 0;
     }
   }
 
@@ -179,10 +175,7 @@ class TransaksiOpGlobal {
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.getTotalExpense();
     } else {
-      final transaksi = await ambilSemua();
-      return transaksi
-          .where((t) => t.tipe.name == 'expense')
-          .fold<double>(0.0, (sum, t) => sum + t.jumlah);
+      return 0;
     }
   }
 
@@ -204,24 +197,7 @@ class TransaksiOpGlobal {
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.ambilTotalPendapatanPerbulan();
     } else {
-      final transaksi = await ambilSemua();
-      final sekarang = DateTime.now();
-      final awalBulan = DateTime(sekarang.year, sekarang.month);
-
-      return transaksi
-          .where(
-            (t) =>
-                t.tanggal.isAfter(awalBulan) &&
-                t.statusPembayaran.name == 'paid',
-          )
-          .fold<double>(0.0, (sum, t) {
-            if (t.tipe.name == 'income') {
-              return sum + t.jumlah;
-            } else if (t.tipe.name == 'expense') {
-              return sum - t.jumlah;
-            }
-            return sum;
-          });
+      return 0;
     }
   }
 
@@ -231,19 +207,6 @@ class TransaksiOpGlobal {
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.ambilPaketTerlaris(limit: limit);
     } else {
-      // Untuk user, hitung dari transaksi sendiri
-      final transaksi = await ambilSemua();
-      final Map<String, int> jumlahPenjualan = {};
-
-      for (final t in transaksi) {
-        if (t.idPaket != null) {
-          jumlahPenjualan[t.idPaket!] = (jumlahPenjualan[t.idPaket!] ?? 0) + 1;
-        }
-      }
-
-      // Konversi ke List<PaketTerlarisModel>
-      // Note: Ini memerlukan akses ke data paket
-      // Implementasi lebih lanjut jika diperlukan
       return [];
     }
   }
@@ -254,30 +217,7 @@ class TransaksiOpGlobal {
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.ambilPendapatanHarian();
     } else {
-      final List<double> hasil = [];
-      final now = DateTime.now();
-      final transaksi = await ambilSemua();
-
-      for (int i = 6; i >= 0; i--) {
-        final date = now.subtract(Duration(days: i));
-        final startOfDay = DateTime(date.year, date.month, date.day);
-        final endOfDay = startOfDay.add(const Duration(days: 1));
-
-        double total = 0.0;
-        for (final t in transaksi) {
-          if (t.tanggal.isAfter(startOfDay) &&
-              t.tanggal.isBefore(endOfDay) &&
-              t.statusPembayaran.name == 'paid') {
-            if (t.tipe.name == 'income') {
-              total += t.jumlah;
-            } else if (t.tipe.name == 'expense') {
-              total -= t.jumlah;
-            }
-          }
-        }
-        hasil.add(total / 1000000); // Konversi ke Jutaan
-      }
-      return hasil;
+      return [];
     }
   }
 
@@ -287,36 +227,7 @@ class TransaksiOpGlobal {
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.ambilPendapatanMingguan();
     } else {
-      final List<double> hasil = [];
-      final now = DateTime.now();
-      final transaksi = await ambilSemua();
-
-      for (int i = 3; i >= 0; i--) {
-        final startOfWeek = now.subtract(
-          Duration(days: i * 7 + now.weekday - 1),
-        );
-        final start = DateTime(
-          startOfWeek.year,
-          startOfWeek.month,
-          startOfWeek.day,
-        );
-        final end = start.add(const Duration(days: 7));
-
-        double total = 0.0;
-        for (final t in transaksi) {
-          if (t.tanggal.isAfter(start) &&
-              t.tanggal.isBefore(end) &&
-              t.statusPembayaran.name == 'paid') {
-            if (t.tipe.name == 'income') {
-              total += t.jumlah;
-            } else if (t.tipe.name == 'expense') {
-              total -= t.jumlah;
-            }
-          }
-        }
-        hasil.add(total / 1000000);
-      }
-      return hasil;
+      return [];
     }
   }
 
@@ -326,36 +237,7 @@ class TransaksiOpGlobal {
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.ambilPendapatanBulanan();
     } else {
-      final List<double> hasil = [];
-      final now = DateTime.now();
-      final transaksi = await ambilSemua();
-
-      for (int i = 4; i >= 0; i--) {
-        final month = now.month - i;
-        final year = now.year - (month <= 0 ? 1 : 0);
-        final actualMonth = month <= 0 ? month + 12 : month;
-
-        final startOfMonth = DateTime(year, actualMonth);
-        final endOfMonth = DateTime(
-          actualMonth == 12 ? year + 1 : year,
-          actualMonth == 12 ? 1 : actualMonth + 1,
-        );
-
-        double total = 0.0;
-        for (final t in transaksi) {
-          if (t.tanggal.isAfter(startOfMonth) &&
-              t.tanggal.isBefore(endOfMonth) &&
-              t.statusPembayaran.name == 'paid') {
-            if (t.tipe.name == 'income') {
-              total += t.jumlah;
-            } else if (t.tipe.name == 'expense') {
-              total -= t.jumlah;
-            }
-          }
-        }
-        hasil.add(total / 1000000);
-      }
-      return hasil;
+      return [];
     }
   }
 
@@ -442,39 +324,20 @@ class TransaksiOpGlobal {
       await _transaksiOpFirebase.sisipkanAtauPerbaruiBatch(items);
     }
   }
-/// Menghitung total poin semua pelanggan dengan logika berdasarkan role.
-///
-/// Untuk admin: menggunakan SQLite (satu query agregasi).
-/// Untuk user: menghitung total poin semua pelanggan dari Firebase (iterasi semua transaksi).
-Future<int> ambilTotalPoinSemuaPelanggan() async {
-  Log.info('Menghitung total poin semua pelanggan');
 
-  if (RoleUtil.isAdmin(ref)) {
-    return await _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan();
-  } else {
-    // Untuk user, ambil semua transaksi dan hitung total poin
-    final userId = await ref.read(userIdProvider.future);
-    if (userId == null || userId.isEmpty) {
-      Log.warning('User ID tidak ditemukan, mengembalikan 0');
+  /// Menghitung total poin semua pelanggan dengan logika berdasarkan role.
+  ///
+  /// Untuk admin: menggunakan SQLite (satu query agregasi).
+  /// Untuk user: menghitung total poin semua pelanggan dari Firebase (iterasi semua transaksi).
+  Future<int> ambilTotalPoinSemuaPelanggan() async {
+    Log.info('Menghitung total poin semua pelanggan');
+
+    if (RoleUtil.isAdmin(ref)) {
+      return await _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan();
+    } else {
       return 0;
     }
-
-    // Ambil semua transaksi untuk user ini
-    final transaksi = await _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(
-      userId,
-    );
-
-    int totalPoin = 0;
-    for (final t in transaksi) {
-      totalPoin += t.poinDidapat;
-      totalPoin -= t.poinDigunakan;
-    }
-
-    Log.info('Total poin semua pelanggan: $totalPoin');
-    return totalPoin;
   }
-}
-
 }
 
 /// Provider untuk TransaksiOpGlobal.

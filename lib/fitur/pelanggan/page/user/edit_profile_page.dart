@@ -82,9 +82,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         final pelangganOp = ref.read(pelangganOpGlobalProvider);
         await pelangganOp.updatePelanggan(dataPelanggan);
         Log.info('perbaruiPelanggan selesai untuk id=${dataPelanggan.id}.');
-        Log.info(
-          'Provider pelangganOpFirebase di-invalidate agar data terbaru diambil.',
-        );
 
         if (!mounted) {
           Log.info(
