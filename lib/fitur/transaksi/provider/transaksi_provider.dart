@@ -51,20 +51,20 @@ class Transaksi extends _$Transaksi {
     final userId = await ref.watch(userIdProvider.future);
     final hasil = await Future.wait([
       _transaksiOp.ambilSemua(), // [0]
-      _transaksiOpSqlite.getTotalIncome(), // [1]
-      _transaksiOpSqlite.getTotalExpense(), // [2]
-      _transaksiOpSqlite.getNetTotal(), // [3]
-      _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan(), // [4]
-      _transaksiOpSqlite.ambilPaketTerlaris(), // [5] ✅ TAMBAHKAN
-      _transaksiOpSqlite.ambilPendapatanHarian(), // [6]
-      _transaksiOpSqlite.ambilPendapatanMingguan(), // [7]
-      _transaksiOpSqlite.ambilPendapatanBulanan(), // [8]
-      _transaksiOpSqlite.ambilTotalPendapatanPerbulan(), //[9]
+      _transaksiOp.getTotalIncome(), // [1]
+      _transaksiOp.getTotalExpense(), // [2]
+      _transaksiOp.getNetTotal(), // [3]
+      _transaksiOp.ambilTotalPoinSemuaPelanggan(), // [4]
+      _transaksiOp.ambilPaketTerlaris(), // [5] ✅ TAMBAHKAN
+      _transaksiOp.ambilPendapatanHarian(), // [6]
+      _transaksiOp.ambilPendapatanMingguan(), // [7]
+      _transaksiOp.ambilPendapatanBulanan(), // [8]
+      _transaksiOp.ambilTotalPendapatanPerbulan(), //[9]
       userId != null
           ? _pointsDataSource.ambilTotalPoin(userId) // [10]
           : Future<int>.value(0),
       userId != null
-          ? _transaksiOpSqlite.ambilBerdasarkanIdPelanggan(userId) // [11]
+          ? _transaksiOp.ambilBerdasarkanIdPelanggan(userId) // [11]
           : Future<List<TransaksiModel>>.value([]),
     ]);
 
