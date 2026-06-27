@@ -179,17 +179,16 @@ class PaketOpSqlite {
     }
   }
 
-  /// Mengambil semua paket yang telah diubah sejak [since].
-  Future<List<PaketModel>> ambilPerubahanSejak(DateTime since) async {
+  Future<List<PaketModel>> ambilPerubahanSejak(DateTime sejak) async {
     Log.info(
-      'Memulai pengambilan perubahan paket sejak ${since.toIso8601String()}',
+      'Memulai pengambilan perubahan paket sejak ${sejak.toIso8601String()}',
     );
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
         where: '${NamaKolom.diperbaruiPada} > ?',
-        whereArgs: [since.toUtc().millisecondsSinceEpoch],
+        whereArgs: [sejak.toUtc().millisecondsSinceEpoch],
       );
       Log.info('Ditemukan ${maps.length} perubahan paket');
       return List.generate(maps.length, (i) => PaketModel.fromSqlite(maps[i]));
@@ -199,7 +198,6 @@ class PaketOpSqlite {
     }
   }
 
-  /// Menyisipkan atau memperbarui sekumpulan [PaketModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
     List<PaketModel> items, {
     bool dariServer = false,
@@ -210,12 +208,12 @@ class PaketOpSqlite {
       return;
     }
     try {
-      final dataList = items
+      final daftarPaket = items
           .map((item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite())
           .toList();
       await basOpSqlite.sisipkanAtauPerbaruiBatch(
         _tabel,
-        dataList,
+        daftarPaket,
         dariServer: dariServer,
       );
       Log.info('Berhasil insertOrUpdateBatch untuk ${items.length} item');

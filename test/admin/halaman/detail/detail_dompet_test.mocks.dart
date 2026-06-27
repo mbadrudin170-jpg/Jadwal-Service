@@ -114,18 +114,18 @@ class MockDompetOpSqlite extends _i1.Mock implements _i5.DompetOpSqlite {
           as _i6.Future<void>);
 
   @override
-  _i6.Future<void> softDelete(String? id, {bool? fromServer = false}) =>
+  _i6.Future<void> softDelete(String? id, {bool? dariServer = false}) =>
       (super.noSuchMethod(
-            Invocation.method(#softDelete, [id], {#fromServer: fromServer}),
+            Invocation.method(#softDelete, [id], {#fromServer: dariServer}),
             returnValue: _i6.Future<void>.value(),
             returnValueForMissingStub: _i6.Future<void>.value(),
           )
           as _i6.Future<void>);
 
   @override
-  _i6.Future<int> softDeleteAll({bool? fromServer = false}) =>
+  _i6.Future<int> softDeleteAll({bool? dariServer = false}) =>
       (super.noSuchMethod(
-            Invocation.method(#softDeleteAll, [], {#fromServer: fromServer}),
+            Invocation.method(#softDeleteAll, [], {#fromServer: dariServer}),
             returnValue: _i6.Future<int>.value(0),
           )
           as _i6.Future<int>);
@@ -318,7 +318,7 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i8.TransaksiOpSqlite {
           as _i6.Future<int>);
 
   @override
-  _i6.Future<double> getTotalIncome() =>
+  _i6.Future<double> ambilTotalPemasukan() =>
       (super.noSuchMethod(
             Invocation.method(#getTotalIncome, []),
             returnValue: _i6.Future<double>.value(0.0),
@@ -326,7 +326,7 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i8.TransaksiOpSqlite {
           as _i6.Future<double>);
 
   @override
-  _i6.Future<double> getTotalExpense() =>
+  _i6.Future<double> ambilTotalPengeluaran() =>
       (super.noSuchMethod(
             Invocation.method(#getTotalExpense, []),
             returnValue: _i6.Future<double>.value(0.0),

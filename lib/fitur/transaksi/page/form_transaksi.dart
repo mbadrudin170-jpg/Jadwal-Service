@@ -268,7 +268,6 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         Log.info(
           'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
         );
-
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
         );
@@ -395,7 +394,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                       focusNode: _keteranganFocusNode,
                       nextFocusNode: _jumlahFocusNode,
                     ),
-
+                    gapH8,
                     InputRupiah(
                       controller: _jumlahController,
                       focusNode: _jumlahFocusNode,

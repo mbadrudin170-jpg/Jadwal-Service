@@ -156,9 +156,9 @@ class LayananUnduhData {
           if (waktuPembaruanServer.isAfter(lastDownloadTime)) {
             Log.info('Data pengaturan server lebih baru, memperbarui lokal.');
             final settings = SettingsModel.fromFirebase(data);
-            await _operasiPengaturan.saveOrUpdateSettings(
+            await _operasiPengaturan.simpanAtauPerbaruiSettings(
               settings,
-              fromServer: true,
+              dariServer: true,
             );
             Log.info('Update Settings lokal berhasil.');
           } else {

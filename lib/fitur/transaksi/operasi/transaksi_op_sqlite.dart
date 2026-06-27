@@ -387,7 +387,7 @@ class TransaksiOpSqlite {
   }
 
   /// Menghitung total pemasukan (income) dari semua transaksi.
-  Future<double> getTotalIncome() async {
+  Future<double> ambilTotalPemasukan() async {
     try {
       final db = await _sqliteDb;
       Log.info('Menghitung total seluruh pemasukan');
@@ -407,7 +407,7 @@ class TransaksiOpSqlite {
   }
 
   /// Menghitung total pengeluaran (expense) dari semua transaksi.
-  Future<double> getTotalExpense() async {
+  Future<double> ambilTotalPengeluaran() async {
     try {
       final db = await _sqliteDb;
       Log.info('Menghitung total seluruh pengeluaran');
@@ -429,8 +429,8 @@ class TransaksiOpSqlite {
   /// Menghitung total bersih (pemasukan - pengeluaran).
   Future<double> getNetTotal() async {
     Log.info('Menghitung Net Total (Pemasukan - Pengeluaran)');
-    final income = await getTotalIncome();
-    final expense = await getTotalExpense();
+    final income = await ambilTotalPemasukan();
+    final expense = await ambilTotalPengeluaran();
     final net = income - expense;
     Log.info('Hasil Net Total: $net');
     return net;

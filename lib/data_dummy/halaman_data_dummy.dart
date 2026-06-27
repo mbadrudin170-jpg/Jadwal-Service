@@ -268,7 +268,7 @@ class HalamanDataDummy extends ConsumerWidget {
       Log.info('Memulai proses penambahan data Pengaturan dummy');
       final settingsOperation = ref.read(settingsOpSqliteProvider);
       // Settings default
-      await settingsOperation.saveOrUpdateSettings(const SettingsModel());
+      await settingsOperation.simpanAtauPerbaruiSettings(const SettingsModel());
 
       if (context.mounted) {
         ToastUtil.success(
@@ -333,7 +333,7 @@ class HalamanDataDummy extends ConsumerWidget {
       // 7. Tambahkan Pengaturan
       await ref
           .read(settingsOpSqliteProvider)
-          .saveOrUpdateSettings(const SettingsModel());
+          .simpanAtauPerbaruiSettings(const SettingsModel());
       Log.info('✅ Pengaturan: 1 data');
 
       // Invalidate semua provider

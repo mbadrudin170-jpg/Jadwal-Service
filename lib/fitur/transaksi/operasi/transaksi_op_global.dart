@@ -140,19 +140,19 @@ class TransaksiOpGlobal {
     }
   }
 
-  Future<double> getTotalIncome() async {
+  Future<double> ambilTotalPemasukan() async {
     Log.info('Menghitung total pemasukan');
     if (RoleUtil.isAdmin(ref)) {
-      return await _transaksiOpSqlite.getTotalIncome();
+      return await _transaksiOpSqlite.ambilTotalPemasukan();
     } else {
       return 0;
     }
   }
 
-  Future<double> getTotalExpense() async {
+  Future<double> ambilTotalPengeluaran() async {
     Log.info('Menghitung total pengeluaran');
     if (RoleUtil.isAdmin(ref)) {
-      return await _transaksiOpSqlite.getTotalExpense();
+      return await _transaksiOpSqlite.ambilTotalPengeluaran();
     } else {
       return 0;
     }
@@ -163,8 +163,8 @@ class TransaksiOpGlobal {
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.getNetTotal();
     } else {
-      final income = await getTotalIncome();
-      final expense = await getTotalExpense();
+      final income = await ambilTotalPemasukan();
+      final expense = await ambilTotalPengeluaran();
       return income - expense;
     }
   }

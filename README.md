@@ -10815,23 +10815,15 @@ import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
-/// Kelas untuk mengelola operasi paket secara global
-/// dengan logika berdasarkan role (admin/user).
 class PaketOpGlobal {
   final Ref ref;
 
   PaketOpGlobal({required this.ref});
 
-  // ✅ Accessor untuk SQLite (digunakan oleh admin)
   PaketOpSqlite get _paketOpSqlite => ref.read(paketOpSqliteProvider);
 
-  // ✅ Accessor untuk Firebase (digunakan oleh user)
   PaketOpFirebase get _paketOpFirebase => ref.read(paketOpFirebaseProvider);
 
-  /// Menambahkan paket baru dengan logika berdasarkan role
-  ///
-  /// - Admin: Simpan ke SQLite (akan disinkronisasi ke Firebase)
-  /// - User: Simpan langsung ke Firebase
   Future<void> tambahPaket(PaketModel paket) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin menambah paket ke SQLite: ${paket.nama}');
@@ -10844,10 +10836,6 @@ class PaketOpGlobal {
     }
   }
 
-  /// Mengambil semua paket berdasarkan role
-  ///
-  /// - Admin: Ambil dari SQLite
-  /// - User: Ambil dari Firebase
   Future<List<PaketModel>> ambilSemua() async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin mengambil paket dari SQLite');
@@ -10858,10 +10846,6 @@ class PaketOpGlobal {
     }
   }
 
-  /// Mengambil paket berdasarkan ID
-  ///
-  /// - Admin: Ambil dari SQLite
-  /// - User: Ambil dari Firebase
   Future<PaketModel?> ambilPaketBerdasarkanId(String id) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin mengambil paket ID: $id dari SQLite');
@@ -10872,10 +10856,6 @@ class PaketOpGlobal {
     }
   }
 
-  /// Mengambil paket publik (hanya yang statusPublik = true)
-  ///
-  /// - Admin: Ambil dari SQLite
-  /// - User: Ambil dari Firebase
   Future<List<PaketModel>> ambilPaketPublik() async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin mengambil paket publik dari SQLite');
@@ -10886,10 +10866,6 @@ class PaketOpGlobal {
     }
   }
 
-  /// Memperbarui paket yang ada
-  ///
-  /// - Admin: Update di SQLite (akan disinkronisasi ke Firebase)
-  /// - User: Update langsung di Firebase
   Future<void> updatePaket(PaketModel paket) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin update paket di SQLite: ${paket.nama}');
@@ -10898,14 +10874,10 @@ class PaketOpGlobal {
       Log.info('[PaketOpGlobal] User update paket di Firebase: ${paket.nama}');
       await _paketOpFirebase.tambahPaket(
         paket,
-      ); // Firebase menggunakan tambahPaket untuk upsert
+      );
     }
   }
 
-  /// Menghapus paket (soft delete)
-  ///
-  /// - Admin: Soft delete di SQLite (akan disinkronisasi ke Firebase)
-  /// - User: Soft delete langsung di Firebase
   Future<void> hapusPaket(String id) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin hapus paket ID: $id di SQLite');
@@ -10916,10 +10888,6 @@ class PaketOpGlobal {
     }
   }
 
-  /// Mengambil beberapa paket berdasarkan daftar ID
-  ///
-  /// - Admin: Ambil dari SQLite
-  /// - User: Ambil dari Firebase (satu per satu)
   Future<List<PaketModel>> ambilPaketBerdasarkanIds(List<String> ids) async {
     if (ids.isEmpty) {
       Log.warning(
@@ -10948,10 +10916,6 @@ class PaketOpGlobal {
     }
   }
 
-  /// Mengecek apakah ada paket dengan nama yang sama (untuk validasi)
-  ///
-  /// - Admin: Cek di SQLite
-  /// - User: Cek di Firebase
   Future<bool> cekNamaPaketSudahAda(String nama, {String? excludeId}) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin cek nama paket di SQLite: $nama');
@@ -10973,11 +10937,9 @@ class PaketOpGlobal {
   }
 }
 
-/// Provider untuk PaketOpGlobal
 final paketOpGlobalProvider = Provider<PaketOpGlobal>((ref) {
   return PaketOpGlobal(ref: ref);
 });
-
 
 // File: lib/fitur/paket/enum/tipe_durasi_paket.dart
 // path: lib/fitur/paket/enum/tipe_durasi_paket.dart
@@ -24177,6 +24139,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
@@ -24320,7 +24283,6 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
                     .jalankanCekSinkronisasi(),
               );
               ref.invalidate(riwayatAktivasiPaketProvider);
-
               if (!context.mounted) return;
               Navigator.pop(context);
             },
@@ -24334,7 +24296,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
   @override
   Widget build(BuildContext context) {
     final historyAsync = ref.watch(riwayatAktivasiPaketProvider);
-    final paketOpSqlite = ref.watch(paketOpSqliteProvider);
+    final paketOpSqlite = ref.watch(paketOpGlobalProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -27419,7 +27381,6 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         Log.info(
           'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
         );
-
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
         );
@@ -27546,7 +27507,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                       focusNode: _keteranganFocusNode,
                       nextFocusNode: _jumlahFocusNode,
                     ),
-
+                    gapH8,
                     InputRupiah(
                       controller: _jumlahController,
                       focusNode: _jumlahFocusNode,
@@ -42211,7 +42172,7 @@ class InputRupiah extends StatelessWidget {
       inputFormatters: [
         CurrencyTextInputFormatter.currency(
           locale: 'id',
-          symbol: 'Rp ',
+          symbol: 'Rp',
           decimalDigits: 0,
         ),
       ],
@@ -52777,6 +52738,10 @@ Dilarang menggunakan `withOpacity`. Gunakan `withValues` atau `withAlpha` untuk 
 
 ## Text
 1. harus menggunakan text custom dari lib/shared/common/text.dart dan pilih yang sesuai kalau semisal ui membutuhkan parameter dari text maka tambahkan parameter nya itu ke textcustom jadi ui tinggal menggunakan text custom saja.
+
+# Komentar dokumentasi
+jangan pernah menulis komentar dokumen di dalam file kode karean itu sangat berantakan dan susah di baca.
+2. jangan terlalu banyak komentar di dalam file kode.
 
 // File: prompt/aturan_kepatuhan_ai.md
 # // path: prompt/aturan_kepatuhan_ai.md

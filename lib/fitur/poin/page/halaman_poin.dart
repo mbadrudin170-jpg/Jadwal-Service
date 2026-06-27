@@ -189,7 +189,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     if (transaksi.idPaket != null && transaksi.idPaket!.isNotEmpty) {
       try {
         final paketOp = ref.read(paketOpGlobalProvider);
-        paket = await paketOp.ambilPaketBerdasarkanId(transaksi.idPaket!);
+        paket = await paketOp.ambilBerdasarkanId(transaksi.idPaket!);
       } on Exception catch (e, st) {
         Log.error(
           'Failed to get package ${transaksi.idPaket}: $e',

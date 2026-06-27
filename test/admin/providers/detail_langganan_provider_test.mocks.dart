@@ -480,7 +480,7 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i9.TransaksiOpSqlite {
           as _i6.Future<int>);
 
   @override
-  _i6.Future<double> getTotalIncome() =>
+  _i6.Future<double> ambilTotalPemasukan() =>
       (super.noSuchMethod(
             Invocation.method(#getTotalIncome, []),
             returnValue: _i6.Future<double>.value(0.0),
@@ -488,7 +488,7 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i9.TransaksiOpSqlite {
           as _i6.Future<double>);
 
   @override
-  _i6.Future<double> getTotalExpense() =>
+  _i6.Future<double> ambilTotalPengeluaran() =>
       (super.noSuchMethod(
             Invocation.method(#getTotalExpense, []),
             returnValue: _i6.Future<double>.value(0.0),

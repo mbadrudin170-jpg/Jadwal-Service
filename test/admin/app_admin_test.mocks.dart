@@ -667,15 +667,15 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i15.SettingsOpSqlite {
           as _i8.Future<_i6.SettingsModel>);
 
   @override
-  _i8.Future<void> saveOrUpdateSettings(
+  _i8.Future<void> simpanAtauPerbaruiSettings(
     _i6.SettingsModel? settings, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #saveOrUpdateSettings,
               [settings],
-              {#fromServer: fromServer},
+              {#fromServer: dariServer},
             ),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),
@@ -683,7 +683,7 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i15.SettingsOpSqlite {
           as _i8.Future<void>);
 
   @override
-  _i8.Future<void> updateSettings(
+  _i8.Future<void> perbaruiSettings(
     Map<String, dynamic>? data, {
     bool? dariServer = false,
   }) =>
@@ -699,15 +699,15 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i15.SettingsOpSqlite {
           as _i8.Future<void>);
 
   @override
-  _i8.Future<void> saveOrUpdateSettingsWithBatch(
+  _i8.Future<void> simpanAtauPerbaruiSettingsDenganBatch(
     _i6.SettingsModel? settings, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #saveOrUpdateSettingsWithBatch,
               [settings],
-              {#fromServer: fromServer},
+              {#fromServer: dariServer},
             ),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),

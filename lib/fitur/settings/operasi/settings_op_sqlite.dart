@@ -47,27 +47,21 @@ class SettingsOpSqlite {
         final defaultSettings = SettingsModel(
           diperbaruiPada: DateTime.now().toUtc(),
         );
-        await saveOrUpdateSettings(
-          defaultSettings,
-        );
+        await simpanAtauPerbaruiSettings(defaultSettings);
         Log.info('Pengaturan default berhasil dibuat dan disimpan.');
         return defaultSettings;
       }
     } on Exception catch (e, st) {
-      Log.error(
-        'Gagal mengambil data pengaturan: $e',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal mengambil data pengaturan: $e', e: e, s: st);
       Log.warning('Mengembalikan SettingsModel default sebagai fallback.');
       return const SettingsModel();
     }
   }
 
   /// Menyimpan atau memperbarui [SettingsModel] di database.
-  Future<void> saveOrUpdateSettings(
+  Future<void> simpanAtauPerbaruiSettings(
     final SettingsModel settings, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     try {
       final settingsToSave = settings.copyWith(
@@ -81,7 +75,7 @@ class SettingsOpSqlite {
       await _baseOpSqlite.sisipkan(
         _namaTabel,
         settingsToSave.toSqlite(),
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info(
         'Pengaturan berhasil disimpan atau diperbarui dengan metode UPSERT.',
@@ -99,7 +93,7 @@ class SettingsOpSqlite {
   /// Memperbarui sebagian field dari [SettingsModel] di database.
   ///
   /// [data] adalah Map yang berisi field yang akan diperbarui.
-  Future<void> updateSettings(
+  Future<void> perbaruiSettings(
     final Map<String, dynamic> data, {
     final bool dariServer = false,
   }) async {
@@ -130,9 +124,9 @@ class SettingsOpSqlite {
   }
 
   /// Menyimpan atau memperbarui [SettingsModel] di database menggunakan batch.
-  Future<void> saveOrUpdateSettingsWithBatch(
+  Future<void> simpanAtauPerbaruiSettingsDenganBatch(
     final SettingsModel settings, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     try {
       Log.info('Memulai penyimpanan pengaturan dengan batch operation.');
@@ -141,11 +135,9 @@ class SettingsOpSqlite {
         diperbaruiPada: DateTime.now().toUtc(),
       );
       final data = dataToSave.toSqlite();
-      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
-        _namaTabel,
-        [data],
-        dariServer: fromServer,
-      );
+      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(_namaTabel, [
+        data,
+      ], dariServer: dariServer);
       Log.info('Batch operation untuk pengaturan berhasil.');
     } catch (e, st) {
       Log.error('Gagal menyimpan pengaturan dengan batch: $e', e: e, s: st);

@@ -50,7 +50,7 @@ class InputRupiah extends StatelessWidget {
       inputFormatters: [
         CurrencyTextInputFormatter.currency(
           locale: 'id',
-          symbol: 'Rp ',
+          symbol: 'Rp',
           decimalDigits: 0,
         ),
       ],

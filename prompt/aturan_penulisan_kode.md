@@ -56,3 +56,7 @@ Dilarang menggunakan `withOpacity`. Gunakan `withValues` atau `withAlpha` untuk 
 
 ## Text
 1. harus menggunakan text custom dari lib/shared/common/text.dart dan pilih yang sesuai kalau semisal ui membutuhkan parameter dari text maka tambahkan parameter nya itu ke textcustom jadi ui tinggal menggunakan text custom saja.
+
+# Komentar dokumentasi
+jangan pernah menulis komentar dokumen di dalam file kode karean itu sangat berantakan dan susah di baca.
+2. jangan terlalu banyak komentar di dalam file kode.

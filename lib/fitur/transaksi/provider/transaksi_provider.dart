@@ -40,8 +40,8 @@ class Transaksi extends _$Transaksi {
   Future<TransaksiState> _loadData() async {
     final hasil = await Future.wait([
       _transaksiOp.ambilSemua(), // [0]
-      _transaksiOp.getTotalIncome(), // [1]
-      _transaksiOp.getTotalExpense(), // [2]
+      _transaksiOp.ambilTotalPemasukan(), // [1]
+      _transaksiOp.ambilTotalPengeluaran(), // [2]
       _transaksiOp.getNetTotal(), // [3]
       _transaksiOp.ambilTotalPoinSemuaPelanggan(), // [4]
       _transaksiOp.ambilPaketTerlaris(), // [5] ✅ TAMBAHKAN

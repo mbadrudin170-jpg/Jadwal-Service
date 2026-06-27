@@ -95,13 +95,10 @@ class DompetOpSqlite {
     }
   }
 
-  Future<void> softDelete(
-    final String id, {
-    final bool fromServer = false,
-  }) async {
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
     Log.info('Memulai soft delete untuk wallet ID: $id');
     try {
-      await _baseOpSqlite.softDelete(_tabelDompet, id, dariServer: fromServer);
+      await _baseOpSqlite.softDelete(_tabelDompet, id, dariServer: dariServer);
       Log.info('Berhasil soft delete wallet ID: $id.');
     } catch (e, st) {
       Log.error('Gagal saat soft delete wallet ID: $id', e: e, s: st);
@@ -109,12 +106,12 @@ class DompetOpSqlite {
     }
   }
 
-  Future<int> softDeleteAll({final bool fromServer = false}) async {
+  Future<int> softDeleteAll({bool dariServer = false}) async {
     Log.info('Memulai soft delete untuk semua dompet');
     try {
       final count = await _baseOpSqlite.softDeleteAll(
         _tabelDompet,
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil soft delete semua dompet. Total: $count item.');
       return count;

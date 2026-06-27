@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
@@ -148,7 +148,6 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
                     .jalankanCekSinkronisasi(),
               );
               ref.invalidate(riwayatAktivasiPaketProvider);
-
               if (!context.mounted) return;
               Navigator.pop(context);
             },
@@ -162,7 +161,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
   @override
   Widget build(BuildContext context) {
     final historyAsync = ref.watch(riwayatAktivasiPaketProvider);
-    final paketOpSqlite = ref.watch(paketOpSqliteProvider);
+    final paketOpSqlite = ref.watch(paketOpGlobalProvider);
 
     return Scaffold(
       appBar: AppBar(

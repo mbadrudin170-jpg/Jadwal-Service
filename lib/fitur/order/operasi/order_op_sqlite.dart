@@ -15,14 +15,14 @@ class OrderOpsqlite {
 
   OrderOpsqlite({required this.sqliteDb, required this.baseOpSqlite});
 
-  String get _tableName => NamaTabel.pesananPelanggan;
+  String get _namaTabel => NamaTabel.pesananPelanggan;
 
   Future<int> ambilTotalDataPerStatus(StatusOrderEnum status) async {
     Log.info('Menghitung pesanan dengan status: ${status.name}');
     try {
       final db = await sqliteDb.database;
       final result = await db.rawQuery(
-        'SELECT COUNT(*) FROM $_tableName WHERE ${NamaKolom.status} = ? AND ${NamaKolom.dihapus} = 0',
+        'SELECT COUNT(*) FROM $_namaTabel WHERE ${NamaKolom.status} = ? AND ${NamaKolom.dihapus} = 0',
         [status.name],
       );
       final count = result.first.values.first as int? ?? 0;
@@ -46,7 +46,7 @@ class OrderOpsqlite {
         diperbaruiPada: DateTime.now().toUtc(),
       );
       await baseOpSqlite.sisipkan(
-        _tableName,
+        _namaTabel,
         dataOrderBaru.toSqlite(),
         dariServer: dariServer,
       );
@@ -65,7 +65,7 @@ class OrderOpsqlite {
       final db = await sqliteDb.database;
       final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = 0';
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: query,
         orderBy: '${NamaKolom.tanggal} DESC',
       );
@@ -78,12 +78,12 @@ class OrderOpsqlite {
     }
   }
 
-  Stream<List<OrderModel>> getAllActiveOrdersStream() async* {
+  Stream<List<OrderModel>> ambilStreamSemuaOrderAktif() async* {
     Log.info('Mengambil semua pesanan aktif dari database (stream sekali).');
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.dihapus} = 0',
         orderBy: '${NamaKolom.tanggal} DESC',
       );
@@ -102,7 +102,7 @@ class OrderOpsqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.status} = ? AND ${NamaKolom.dihapus} = 0',
         whereArgs: [status.name],
         orderBy: '${NamaKolom.tanggal} DESC',
@@ -117,7 +117,7 @@ class OrderOpsqlite {
     }
   }
 
-  Future<void> updateStatusOrder(
+  Future<void> perbaruiStatusOrder(
     final String id,
     final StatusOrderEnum status, {
     final bool dariServer = false,
@@ -126,7 +126,7 @@ class OrderOpsqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.id} = ?',
         whereArgs: [id],
       );
@@ -138,7 +138,7 @@ class OrderOpsqlite {
           diperbaruiPada: DateTime.now().toUtc(),
         );
         await baseOpSqlite.update(
-          _tableName,
+          _namaTabel,
           orderBaru.toSqlite(),
           id,
           dariServer: dariServer,
@@ -157,19 +157,6 @@ class OrderOpsqlite {
     }
   }
 
-  Future<void> deleteOrder(
-    final String id, {
-    final bool fromServer = false,
-  }) async {
-    Log.warning('Menghapus pesanan ID: $id (hard delete)');
-    try {
-      await baseOpSqlite.delete(_tableName, id, dariServer: fromServer);
-      Log.info('Berhasil menghapus pesanan dengan ID: $id.');
-    } on Exception catch (e, s) {
-      Log.error('Gagal menghapus pesanan.', e: e, s: s);
-      rethrow;
-    }
-  }
 
   Future<void> softDeleteorder(
     final String id, {
@@ -177,7 +164,7 @@ class OrderOpsqlite {
   }) async {
     Log.info('Memulai soft delete untuk pesanan ID: $id');
     try {
-      await baseOpSqlite.softDelete(_tableName, id, dariServer: dariServer);
+      await baseOpSqlite.softDelete(_namaTabel, id, dariServer: dariServer);
       Log.info('Berhasil soft delete pesanan ID: $id.');
     } on Exception catch (e, st) {
       Log.error('Gagal saat soft delete pesanan ID: $id', e: e, s: st);
@@ -189,7 +176,7 @@ class OrderOpsqlite {
     Log.info('Memulai soft delete untuk semua pesanan');
     try {
       final count = await baseOpSqlite.softDeleteAll(
-        _tableName,
+        _namaTabel,
         dariServer: fromServer,
       );
       Log.info('Berhasil soft delete semua pesanan. Total: $count item.');
@@ -218,7 +205,7 @@ class OrderOpsqlite {
           )
           .toList();
       await baseOpSqlite.sisipkanAtauPerbaruiBatch(
-        _tableName,
+        _namaTabel,
         data,
         dariServer: dariServer,
       );
@@ -229,7 +216,7 @@ class OrderOpsqlite {
     }
   }
 
-  Future<List<OrderModel>> getOrdersByIds(final List<String> ids) async {
+  Future<List<OrderModel>> ambilOrderBerdasarkanIds(final List<String> ids) async {
     Log.info('Mengambil pesanan untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning('List ID kosong, mengembalikan list kosong.');
@@ -238,7 +225,7 @@ class OrderOpsqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where:
             '${NamaKolom.id} IN (${List.filled(ids.length, '?').join(',')}) AND ${NamaKolom.dihapus} = 0',
         whereArgs: ids,

@@ -9,23 +9,15 @@ import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
-/// Kelas untuk mengelola operasi paket secara global
-/// dengan logika berdasarkan role (admin/user).
 class PaketOpGlobal {
   final Ref ref;
 
   PaketOpGlobal({required this.ref});
 
-  // ✅ Accessor untuk SQLite (digunakan oleh admin)
   PaketOpSqlite get _paketOpSqlite => ref.read(paketOpSqliteProvider);
 
-  // ✅ Accessor untuk Firebase (digunakan oleh user)
   PaketOpFirebase get _paketOpFirebase => ref.read(paketOpFirebaseProvider);
 
-  /// Menambahkan paket baru dengan logika berdasarkan role
-  ///
-  /// - Admin: Simpan ke SQLite (akan disinkronisasi ke Firebase)
-  /// - User: Simpan langsung ke Firebase
   Future<void> tambahPaket(PaketModel paket) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin menambah paket ke SQLite: ${paket.nama}');
@@ -38,10 +30,6 @@ class PaketOpGlobal {
     }
   }
 
-  /// Mengambil semua paket berdasarkan role
-  ///
-  /// - Admin: Ambil dari SQLite
-  /// - User: Ambil dari Firebase
   Future<List<PaketModel>> ambilSemua() async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin mengambil paket dari SQLite');
@@ -52,11 +40,7 @@ class PaketOpGlobal {
     }
   }
 
-  /// Mengambil paket berdasarkan ID
-  ///
-  /// - Admin: Ambil dari SQLite
-  /// - User: Ambil dari Firebase
-  Future<PaketModel?> ambilPaketBerdasarkanId(String id) async {
+  Future<PaketModel?> ambilBerdasarkanId(String id) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin mengambil paket ID: $id dari SQLite');
       return await _paketOpSqlite.ambilBerdasarkanId(id);
@@ -66,10 +50,6 @@ class PaketOpGlobal {
     }
   }
 
-  /// Mengambil paket publik (hanya yang statusPublik = true)
-  ///
-  /// - Admin: Ambil dari SQLite
-  /// - User: Ambil dari Firebase
   Future<List<PaketModel>> ambilPaketPublik() async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin mengambil paket publik dari SQLite');
@@ -80,26 +60,16 @@ class PaketOpGlobal {
     }
   }
 
-  /// Memperbarui paket yang ada
-  ///
-  /// - Admin: Update di SQLite (akan disinkronisasi ke Firebase)
-  /// - User: Update langsung di Firebase
-  Future<void> updatePaket(PaketModel paket) async {
+  Future<void> perbaruiPaket(PaketModel paket) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin update paket di SQLite: ${paket.nama}');
       await _paketOpSqlite.perbaruiPaket(paket);
     } else {
       Log.info('[PaketOpGlobal] User update paket di Firebase: ${paket.nama}');
-      await _paketOpFirebase.tambahPaket(
-        paket,
-      ); // Firebase menggunakan tambahPaket untuk upsert
+      await _paketOpFirebase.perbaruiPaket(paket);
     }
   }
 
-  /// Menghapus paket (soft delete)
-  ///
-  /// - Admin: Soft delete di SQLite (akan disinkronisasi ke Firebase)
-  /// - User: Soft delete langsung di Firebase
   Future<void> hapusPaket(String id) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin hapus paket ID: $id di SQLite');
@@ -110,10 +80,6 @@ class PaketOpGlobal {
     }
   }
 
-  /// Mengambil beberapa paket berdasarkan daftar ID
-  ///
-  /// - Admin: Ambil dari SQLite
-  /// - User: Ambil dari Firebase (satu per satu)
   Future<List<PaketModel>> ambilPaketBerdasarkanIds(List<String> ids) async {
     if (ids.isEmpty) {
       Log.warning(
@@ -142,18 +108,14 @@ class PaketOpGlobal {
     }
   }
 
-  /// Mengecek apakah ada paket dengan nama yang sama (untuk validasi)
-  ///
-  /// - Admin: Cek di SQLite
-  /// - User: Cek di Firebase
-  Future<bool> cekNamaPaketSudahAda(String nama, {String? excludeId}) async {
+  Future<bool> cekNamaPaketSudahAda(String nama, {String? idKecuali}) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin cek nama paket di SQLite: $nama');
       final semuaPaket = await _paketOpSqlite.ambilSemua();
       return semuaPaket.any(
         (p) =>
             p.nama.toLowerCase() == nama.toLowerCase() &&
-            (excludeId == null || p.id != excludeId),
+            (idKecuali == null || p.id != idKecuali),
       );
     } else {
       Log.info('[PaketOpGlobal] User cek nama paket di Firebase: $nama');
@@ -161,13 +123,12 @@ class PaketOpGlobal {
       return semuaPaket.any(
         (p) =>
             p.nama.toLowerCase() == nama.toLowerCase() &&
-            (excludeId == null || p.id != excludeId),
+            (idKecuali == null || p.id != idKecuali),
       );
     }
   }
 }
 
-/// Provider untuk PaketOpGlobal
 final paketOpGlobalProvider = Provider<PaketOpGlobal>((ref) {
   return PaketOpGlobal(ref: ref);
 });

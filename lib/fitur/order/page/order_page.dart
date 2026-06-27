@@ -454,7 +454,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           try {
             await ref
                 .read(orderOpSqliteProvider)
-                .updateStatusOrder(order.id, status);
+                .perbaruiStatusOrder(order.id, status);
             Log.info(
               '_tombolOpsiUbahStatus: status berhasil diubah untuk orderId: ${order.id}',
             );
