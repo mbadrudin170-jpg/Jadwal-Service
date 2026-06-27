@@ -287,9 +287,9 @@ class MockPaketOpSqlite extends _i1.Mock implements _i7.PaketOpSqlite {
           as _i5.Future<void>);
 
   @override
-  _i5.Future<List<_i8.PaketModel>> ambilPerubahanSejak(DateTime? since) =>
+  _i5.Future<List<_i8.PaketModel>> ambilPerubahanSejak(DateTime? sejak) =>
       (super.noSuchMethod(
-            Invocation.method(#ambilPerubahanSejak, [since]),
+            Invocation.method(#ambilPerubahanSejak, [sejak]),
             returnValue: _i5.Future<List<_i8.PaketModel>>.value(
               <_i8.PaketModel>[],
             ),

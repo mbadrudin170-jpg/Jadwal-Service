@@ -33,7 +33,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'2cc0fbb5ca32e2cdd647291f674c2ed51cdc50a2';
+String _$transaksiHash() => r'bf950c78b9d6a9be15724d75b96a1a00806f1348';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();

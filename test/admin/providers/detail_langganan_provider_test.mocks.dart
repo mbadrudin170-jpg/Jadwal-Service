@@ -295,9 +295,9 @@ class MockPaketOpSqlite extends _i1.Mock implements _i4.PaketOpSqlite {
           as _i6.Future<void>);
 
   @override
-  _i6.Future<List<_i8.PaketModel>> ambilPerubahanSejak(DateTime? since) =>
+  _i6.Future<List<_i8.PaketModel>> ambilPerubahanSejak(DateTime? sejak) =>
       (super.noSuchMethod(
-            Invocation.method(#ambilPerubahanSejak, [since]),
+            Invocation.method(#ambilPerubahanSejak, [sejak]),
             returnValue: _i6.Future<List<_i8.PaketModel>>.value(
               <_i8.PaketModel>[],
             ),
@@ -482,7 +482,7 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i9.TransaksiOpSqlite {
   @override
   _i6.Future<double> ambilTotalPemasukan() =>
       (super.noSuchMethod(
-            Invocation.method(#getTotalIncome, []),
+            Invocation.method(#ambilTotalPemasukan, []),
             returnValue: _i6.Future<double>.value(0.0),
           )
           as _i6.Future<double>);
@@ -490,7 +490,7 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i9.TransaksiOpSqlite {
   @override
   _i6.Future<double> ambilTotalPengeluaran() =>
       (super.noSuchMethod(
-            Invocation.method(#getTotalExpense, []),
+            Invocation.method(#ambilTotalPengeluaran, []),
             returnValue: _i6.Future<double>.value(0.0),
           )
           as _i6.Future<double>);

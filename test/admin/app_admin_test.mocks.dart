@@ -673,9 +673,9 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i15.SettingsOpSqlite {
   }) =>
       (super.noSuchMethod(
             Invocation.method(
-              #saveOrUpdateSettings,
+              #simpanAtauPerbaruiSettings,
               [settings],
-              {#fromServer: dariServer},
+              {#dariServer: dariServer},
             ),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),
@@ -689,7 +689,7 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i15.SettingsOpSqlite {
   }) =>
       (super.noSuchMethod(
             Invocation.method(
-              #updateSettings,
+              #perbaruiSettings,
               [data],
               {#dariServer: dariServer},
             ),
@@ -705,9 +705,9 @@ class MockSettingsOpSqlite extends _i1.Mock implements _i15.SettingsOpSqlite {
   }) =>
       (super.noSuchMethod(
             Invocation.method(
-              #saveOrUpdateSettingsWithBatch,
+              #simpanAtauPerbaruiSettingsDenganBatch,
               [settings],
-              {#fromServer: dariServer},
+              {#dariServer: dariServer},
             ),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),

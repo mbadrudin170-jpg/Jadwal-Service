@@ -31,23 +31,18 @@ class _FakeDatabase_0 extends _i1.SmartFake implements _i2.Database {
     : super(parent, parentInvocation);
 }
 
-class _FakeDateTime_1 extends _i1.SmartFake implements DateTime {
-  _FakeDateTime_1(Object parent, Invocation parentInvocation)
+class _FakeFuture_1<T1> extends _i1.SmartFake implements _i3.Future<T1> {
+  _FakeFuture_1(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeFuture_2<T1> extends _i1.SmartFake implements _i3.Future<T1> {
-  _FakeFuture_2(Object parent, Invocation parentInvocation)
+class _FakeQueryCursor_2 extends _i1.SmartFake implements _i2.QueryCursor {
+  _FakeQueryCursor_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeQueryCursor_3 extends _i1.SmartFake implements _i2.QueryCursor {
-  _FakeQueryCursor_3(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeBatch_4 extends _i1.SmartFake implements _i2.Batch {
-  _FakeBatch_4(Object parent, Invocation parentInvocation)
+class _FakeBatch_3 extends _i1.SmartFake implements _i2.Batch {
+  _FakeBatch_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -94,22 +89,14 @@ class MockBaseOpSqlite extends _i1.Mock implements _i5.BaseOpSqlite {
   }
 
   @override
-  DateTime get _sekarang =>
-      (super.noSuchMethod(
-            Invocation.getter(#now),
-            returnValue: _FakeDateTime_1(this, Invocation.getter(#now)),
-          )
-          as DateTime);
-
-  @override
   _i3.Future<T> operasiKompleks<T>(
-    _i3.Future<T> Function(_i2.Transaction)? customAction, {
+    _i3.Future<T> Function(_i2.Transaction)? aksiKustom, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
-              #runComplexOperation,
-              [customAction],
+              #operasiKompleks,
+              [aksiKustom],
               {#dariServer: dariServer},
             ),
             returnValue:
@@ -117,18 +104,18 @@ class MockBaseOpSqlite extends _i1.Mock implements _i5.BaseOpSqlite {
                   _i6.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
-                      #runComplexOperation,
-                      [customAction],
+                      #operasiKompleks,
+                      [aksiKustom],
                       {#dariServer: dariServer},
                     ),
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(
-                    #runComplexOperation,
-                    [customAction],
+                    #operasiKompleks,
+                    [aksiKustom],
                     {#dariServer: dariServer},
                   ),
                 ),
@@ -287,7 +274,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(
                     #transaction,
@@ -312,7 +299,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(#readTransaction, [action]),
                 ),
@@ -331,7 +318,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(#devInvokeMethod, [method, arguments]),
                 ),
@@ -358,7 +345,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
-                _FakeFuture_2<T>(
+                _FakeFuture_1<T>(
                   this,
                   Invocation.method(#devInvokeSqlMethod, [
                     method,
@@ -467,7 +454,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
               {#bufferSize: bufferSize},
             ),
             returnValue: _i3.Future<_i2.QueryCursor>.value(
-              _FakeQueryCursor_3(
+              _FakeQueryCursor_2(
                 this,
                 Invocation.method(
                   #rawQueryCursor,
@@ -511,7 +498,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
               },
             ),
             returnValue: _i3.Future<_i2.QueryCursor>.value(
-              _FakeQueryCursor_3(
+              _FakeQueryCursor_2(
                 this,
                 Invocation.method(
                   #queryCursor,
@@ -592,7 +579,7 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
   _i2.Batch batch() =>
       (super.noSuchMethod(
             Invocation.method(#batch, []),
-            returnValue: _FakeBatch_4(this, Invocation.method(#batch, [])),
+            returnValue: _FakeBatch_3(this, Invocation.method(#batch, [])),
           )
           as _i2.Batch);
 }

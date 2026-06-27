@@ -26,18 +26,13 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart' as _i4;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-class _FakeDateTime_0 extends _i1.SmartFake implements DateTime {
-  _FakeDateTime_0(Object parent, Invocation parentInvocation)
+class _FakeFuture_0<T1> extends _i1.SmartFake implements _i2.Future<T1> {
+  _FakeFuture_0(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeFuture_1<T1> extends _i1.SmartFake implements _i2.Future<T1> {
-  _FakeFuture_1(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeDatabase_2 extends _i1.SmartFake implements _i3.Database {
-  _FakeDatabase_2(Object parent, Invocation parentInvocation)
+class _FakeDatabase_1 extends _i1.SmartFake implements _i3.Database {
+  _FakeDatabase_1(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -50,22 +45,14 @@ class MockBaseOpSqlite extends _i1.Mock implements _i4.BaseOpSqlite {
   }
 
   @override
-  DateTime get _sekarang =>
-      (super.noSuchMethod(
-            Invocation.getter(#now),
-            returnValue: _FakeDateTime_0(this, Invocation.getter(#now)),
-          )
-          as DateTime);
-
-  @override
   _i2.Future<T> operasiKompleks<T>(
-    _i2.Future<T> Function(_i3.Transaction)? customAction, {
+    _i2.Future<T> Function(_i3.Transaction)? aksiKustom, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
-              #runComplexOperation,
-              [customAction],
+              #operasiKompleks,
+              [aksiKustom],
               {#dariServer: dariServer},
             ),
             returnValue:
@@ -73,18 +60,18 @@ class MockBaseOpSqlite extends _i1.Mock implements _i4.BaseOpSqlite {
                   _i5.dummyValueOrNull<T>(
                     this,
                     Invocation.method(
-                      #runComplexOperation,
-                      [customAction],
+                      #operasiKompleks,
+                      [aksiKustom],
                       {#dariServer: dariServer},
                     ),
                   ),
                   (T v) => _i2.Future<T>.value(v),
                 ) ??
-                _FakeFuture_1<T>(
+                _FakeFuture_0<T>(
                   this,
                   Invocation.method(
-                    #runComplexOperation,
-                    [customAction],
+                    #operasiKompleks,
+                    [aksiKustom],
                     {#dariServer: dariServer},
                   ),
                 ),
@@ -199,7 +186,7 @@ class MockSqliteDatabase extends _i1.Mock implements _i6.SqliteDatabase {
       (super.noSuchMethod(
             Invocation.getter(#database),
             returnValue: _i2.Future<_i3.Database>.value(
-              _FakeDatabase_2(this, Invocation.getter(#database)),
+              _FakeDatabase_1(this, Invocation.getter(#database)),
             ),
           )
           as _i2.Future<_i3.Database>);
