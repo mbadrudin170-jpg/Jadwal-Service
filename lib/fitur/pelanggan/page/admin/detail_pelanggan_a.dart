@@ -24,10 +24,12 @@ class DetailPelanggan extends ConsumerWidget {
   ) async {
     if (pelanggan == null) return;
     Log.info('Navigasi ke form edit pelanggan: ${pelanggan.nama}');
-    await Navigator.push<bool>(
-      context,
-      MaterialPageRoute<bool>(
-        builder: (context) => FormPelanggan(pelanggan: pelanggan),
+    unawaited(
+      Navigator.push<bool>(
+        context,
+        MaterialPageRoute<bool>(
+          builder: (context) => FormPelanggan(pelanggan: pelanggan),
+        ),
       ),
     );
   }
@@ -60,10 +62,12 @@ MAC : ${customer.macAddress}
     if (pelanggan == null) return;
     Log.info('Navigasi ke halaman poin pelanggan: ${pelanggan.nama}');
 
-    await Navigator.push<void>(
-      context,
-      MaterialPageRoute<void>(
-        builder: (context) => HalamanPoin(idPelanggan: pelanggan.id),
+    unawaited(
+      Navigator.push<void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (context) => HalamanPoin(idPelanggan: pelanggan.id),
+        ),
       ),
     );
   }
@@ -72,6 +76,7 @@ MAC : ${customer.macAddress}
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(pelangganDetailProvider(idPelanggan));
     return detailAsync.when(
+      skipLoadingOnReload: true,
       loading: () => Scaffold(
         appBar: AppBar(title: const Text('Memuat Detail...')),
         body: const Center(child: CircularProgressIndicator()),

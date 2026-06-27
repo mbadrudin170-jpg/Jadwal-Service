@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
@@ -58,7 +59,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
         });
   }
 
-  Future<void> _deleteFeedback() async {
+  Future<void> _softDeletedFeedback() async {
     Log.info('Menampilkan dialog konfirmasi penghapusan kritik dan saran.');
 
     final konfirmasi = await showDialog<bool>(
@@ -111,32 +112,24 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
             barrierDismissible: false,
             builder: (context) {
               Log.info('Loading dialog berhasil ditampilkan.');
-
               return const Center(child: CircularProgressIndicator());
             },
           ),
         );
-
         Log.info('Memanggil operasi hapus kritik dan saran ke database.');
-
         await _feedbackOpSqlite.softDelete(widget.id);
-
         Log.info('Data kritik dan saran berhasil dihapus dari database.');
-
         if (mounted) {
           Log.info('Menutup loading dialog.');
-
           Navigator.of(context).pop();
         }
-
         if (mounted) {
           ToastUtil.success(context, 'Kritik dan saran berhasil dihapus');
         }
 
         if (mounted) {
           Log.info('Kembali ke halaman sebelumnya dengan status sukses.');
-
-          Navigator.of(context).pop(true);
+          Navigator.pop(context);
         }
       } catch (e, st) {
         Log.error(
@@ -147,10 +140,8 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
 
         if (mounted) {
           Log.warning('Menutup loading dialog karena terjadi error.');
-
           Navigator.of(context).pop();
         }
-
         if (mounted) {
           ToastUtil.error(context, 'Gagal menghapus: $e');
         }
@@ -175,11 +166,12 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
             icon: const Icon(TIcons.edit),
             tooltip: 'Edit',
           ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: _deleteFeedback,
-            tooltip: 'Hapus Kritik & Saran',
-          ),
+          if (ref.isAdmin)
+            IconButton(
+              icon: const Icon(TIcons.delete),
+              onPressed: _softDeletedFeedback,
+              tooltip: 'Hapus Kritik & Saran',
+            ),
         ],
       ),
       body: FutureBuilder<FeedbackModel>(
