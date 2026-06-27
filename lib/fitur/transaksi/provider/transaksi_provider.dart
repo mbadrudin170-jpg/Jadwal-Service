@@ -10,6 +10,7 @@ import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
@@ -38,6 +39,7 @@ abstract class TransaksiState with _$TransaksiState {
 class Transaksi extends _$Transaksi {
   TransaksiOpSqlite get _transaksiOpSqlite =>
       ref.read(transaksiOpSqliteProvider);
+  TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
   PointsPageDataSource get _pointsDataSource =>
       ref.read(pointsDataSourceProvider);
   @override
@@ -48,7 +50,7 @@ class Transaksi extends _$Transaksi {
   Future<TransaksiState> _loadData() async {
     final userId = await ref.watch(userIdProvider.future);
     final hasil = await Future.wait([
-      _transaksiOpSqlite.ambilSemua(), // [0]
+      _transaksiOp.ambilSemua(), // [0]
       _transaksiOpSqlite.getTotalIncome(), // [1]
       _transaksiOpSqlite.getTotalExpense(), // [2]
       _transaksiOpSqlite.getNetTotal(), // [3]

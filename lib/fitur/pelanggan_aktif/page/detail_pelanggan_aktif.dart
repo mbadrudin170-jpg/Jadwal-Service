@@ -16,6 +16,7 @@ import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/whatsapp/info_paket.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -49,7 +50,7 @@ final detailPleangganAktifProvider =
       final pelangganAktif = detailPelangganAktif.pelangganAktif;
       final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
       final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-      final transaksiOpsqlite = ref.watch(transaksiOpSqliteProvider);
+      final transaksiOpsqlite = ref.watch(transaksiOpGlobalProvider);
       final hasil = await Future.wait<Object?>([
         pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.idPelanggan),
         pelangganAktif.idPaket.isNotEmpty

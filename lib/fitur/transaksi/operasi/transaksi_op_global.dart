@@ -6,6 +6,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
@@ -15,15 +16,10 @@ class TransaksiOpGlobal {
 
   TransaksiOpGlobal({required this.ref});
 
-  /// Mengakses provider operasi transaksi SQLite.
   TransaksiOpSqlite get _transaksiOpSqlite =>
       ref.read(transaksiOpSqliteProvider);
-
-  /// Mengakses provider operasi transaksi Firebase.
   TransaksiOpFirebase get _transaksiOpFirebase =>
       ref.read(transaksiOpFirebaseProvider);
-
-  /// Menambahkan transaksi baru dengan logika berdasarkan role.
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     if (RoleUtil.isAdmin(ref)) {
       await _transaksiOpSqlite.tambahTransaksi(transaksi);
@@ -32,8 +28,7 @@ class TransaksiOpGlobal {
     }
   }
 
-  /// Mengambil semua transaksi berdasarkan role.
-  Future<List<TransaksiModel>> ambilSemuaTransaksi() async {
+  Future<List<TransaksiModel>> ambilSemua() async {
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.ambilSemua();
     } else {
@@ -70,6 +65,14 @@ class TransaksiOpGlobal {
       return await _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(
         idPelanggan,
       );
+    }
+  }
+
+  Future<List<TransaksiModel>> ambilBerdasarkanStatusAktivasi() async {
+    if (RoleUtil.isAdmin(ref)) {
+      return await _transaksiOpSqlite.ambilBerdasarkanStatusAktivasi();
+    } else {
+      return await _transaksiOpFirebase.ambilBerdasarkanStatusAktivasi();
     }
   }
 
@@ -118,6 +121,27 @@ class TransaksiOpGlobal {
           .toList();
     } else {
       return await _transaksiOpFirebase.ambilPaketAktifPelanggan(idPelanggan);
+    }
+  }
+
+  /// Menyisipkan atau memperbarui beberapa transaksi sekaligus (batch) berdasarkan role pengguna.
+  ///
+  /// Jika user adalah admin, menggunakan SQLite. Jika user, menggunakan Firebase.
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<TransaksiModel> items, {
+    bool dariServer = false,
+  }) async {
+    if (items.isEmpty) {
+      Log.info('Batch transaksi: daftar kosong, operasi dibatalkan.');
+      return;
+    }
+
+    Log.info('Memulai batch insert/update untuk ${items.length} transaksi');
+
+    if (RoleUtil.isAdmin(ref)) {
+      await _transaksiOpSqlite.sisipkanAtauPerbaruiBatch(items);
+    } else {
+      await _transaksiOpFirebase.sisipkanAtauPerbaruiBatch(items);
     }
   }
 }

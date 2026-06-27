@@ -12,6 +12,7 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -93,7 +94,7 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
         'Form edit melaporkan keberhasilan penyimpanan. Memuat ulang data transaksi dari database.',
       );
       try {
-        final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
+        final transaksiOpSqlite = ref.read(transaksiOpGlobalProvider);
         final transaksi = await transaksiOpSqlite.ambilBerdasarkanId(
           _currentTransaction.id,
         );

@@ -16,7 +16,7 @@ import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -51,8 +51,6 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
 
   late final DompetOpSqlite _dompetOpSlite;
   late final KategoriOpSqlite _kategoriOpSqlite;
-  late final TransaksiOpSqlite _transaksiOpSqlite;
-
   List<KategoriModel> _daftarKategori = [];
   List<DompetModel> _daftarDompet = [];
   List<KategoriModel> _kategoriDifilter = [];
@@ -69,7 +67,6 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     );
     _dompetOpSlite = ref.read(dompetOpSqliteProvider);
     _kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
-    _transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
     unawaited(_loadData());
   }
 
@@ -256,34 +253,32 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
       );
 
       Log.info('Model Transaksi yang akan disimpan: ${transaksi.toSqlite()}');
-
+      final transaksiNotifier = ref.read(transaksiProvider.notifier);
       try {
         if (_modeEdit) {
           Log.info(
             'Menjalankan operasi UPDATE untuk transaksi ID: ${transaksi.id}',
           );
-          await _transaksiOpSqlite.perbaruiTransaksi(
-            widget.transaksi!.id,
-            transaksi,
-          );
+          await transaksiNotifier.updateTransaksi(transaksi);
         } else {
           Log.info('Menjalankan operasi CREATE untuk transaksi baru.');
-          await _transaksiOpSqlite.tambahTransaksi(transaksi);
+          await transaksiNotifier.tambahTransaksi(transaksi);
         }
-        ref.invalidate(transaksiOpSqliteProvider);
         if (!mounted) return;
         Log.info(
           'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
         );
 
-        unawaited(ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi());
-          if (mounted) {
-            ToastUtil.success(
-              context,
-              'Transaksi berhasil disimpan dan disinkronkan.',
-            );
-          }
-       
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
+        if (mounted) {
+          ToastUtil.success(
+            context,
+            'Transaksi berhasil disimpan dan disinkronkan.',
+          );
+        }
+
         if (mounted) {
           Navigator.pop(context, true);
         }

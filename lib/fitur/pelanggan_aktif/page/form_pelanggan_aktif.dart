@@ -21,6 +21,7 @@ import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -103,7 +104,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     Log.info('Memulai memuat semua data untuk FormPelangganAktif');
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
     final paketOpsqlite = ref.read(paketOpSqliteProvider);
-    final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
+    final transaksiOperasi = ref.read(transaksiOpGlobalProvider);
     final dompetOpSqlite = ref.read(dompetOpSqliteProvider);
     final kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
     try {
@@ -170,7 +171,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Future<void> _mapEditData(TransaksiModel? transaksi) async {
-    final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
+    final transaksiOperasi = ref.read(transaksiOpGlobalProvider);
     final pa = widget.pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
     _pelangganDipilih = _daftarPelanggan.firstWhereOrNull(
@@ -564,7 +565,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Widget _buildPelangganDropdown() {
-    final transaksiOperasi = ref.read(transaksiOpSqliteProvider);
+    final transaksiOperasi = ref.read(transaksiOpGlobalProvider);
     return DropdownButtonFormField<PelangganModel>(
       key: const Key('pelanggan_dropdown'),
       decoration: const InputDecoration(

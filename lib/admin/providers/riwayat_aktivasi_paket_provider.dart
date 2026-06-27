@@ -7,6 +7,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 
 part 'riwayat_aktivasi_paket_provider.g.dart';
 
@@ -51,15 +52,15 @@ class RiwayatAktivasiPaketState {
 class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
   @override
   FutureOr<RiwayatAktivasiPaketState> build() {
-    ref.watch(transaksiOpSqliteProvider);
+    ref.watch(transaksiOpGlobalProvider);
     ref.watch(pelangganOpSqliteProvider);
     return _loadData(OpsiUrutan.berakhirHariIni);
   }
 
   Future<RiwayatAktivasiPaketState> _loadData(OpsiUrutan targetSort) async {
-    final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
-    final transaksi = await transaksiOpSqlite.ambilBerdasarkanStatusAktivasi();
+    final transaksi = await transaksiOp.ambilBerdasarkanStatusAktivasi();
     final pealnggan = await pelangganOpSqlite.ambilSemua();
     final customerMap = {for (var c in pealnggan) c.id: c};
     final combinedList = transaksi.map((trans) {

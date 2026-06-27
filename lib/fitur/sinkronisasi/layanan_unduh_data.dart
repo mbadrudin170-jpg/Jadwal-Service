@@ -15,6 +15,7 @@ import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 import 'package:wifi/fitur/sinkronisasi/pengelola_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
@@ -29,7 +30,7 @@ class LayananUnduhData {
   final PaketOpSqlite _operasiPaket;
   final PelangganOpSqlite _operasiPelanggan;
   final PelangganAktifOpSqlite _operasiPelangganAktif;
-  final TransaksiOpSqlite _operasiTransaksi;
+  final TransaksiOpGlobal _operasiTransaksi;
   final FeedbackOpSqlite _operasiUmpanBalik;
   final OrderOpsqlite _operasiPesanan;
   final SubKategoriOpSqlite _operasiSubKategori;
@@ -45,7 +46,7 @@ class LayananUnduhData {
     required PaketOpSqlite operasiPaket,
     required PelangganOpSqlite operasiPelanggan,
     required PelangganAktifOpSqlite operasiPelangganAktif,
-    required TransaksiOpSqlite operasiTransaksi,
+    required TransaksiOpGlobal operasiTransaksi,
     required FeedbackOpSqlite operasiUmpanBalik,
     required OrderOpsqlite operasiPesanan,
     required SubKategoriOpSqlite operasiSubKategori,
@@ -76,7 +77,7 @@ class LayananUnduhData {
     required final PaketOpSqlite operasiPaket,
     required final PelangganOpSqlite operasiPelanggan,
     required final PelangganAktifOpSqlite operasiPelangganAktif,
-    required final TransaksiOpSqlite operasiTransaksi,
+    required final TransaksiOpGlobal operasiTransaksi,
     required final FeedbackOpSqlite operasiUmpanBalik,
     required final OrderOpsqlite operasiPesanan,
     required final SubKategoriOpSqlite operasiSubKategori,
@@ -371,7 +372,7 @@ final layananUnduhDataProvider = Provider<LayananUnduhData>((ref) {
     operasiPaket: ref.read(paketOpSqliteProvider),
     operasiPelanggan: ref.read(pelangganOpSqliteProvider),
     operasiPelangganAktif: ref.read(pelangganAktifOpSqliteProvider),
-    operasiTransaksi: ref.read(transaksiOpSqliteProvider),
+    operasiTransaksi: ref.read(transaksiOpGlobalProvider),
     operasiUmpanBalik: ref.read(feedbackOpSqliteProvider),
     operasiPesanan: ref.read(orderOpSqliteProvider),
     operasiSubKategori: ref.read(subKategoriOpSqliteProvider),

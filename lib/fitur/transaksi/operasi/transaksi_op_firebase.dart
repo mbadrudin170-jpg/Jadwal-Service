@@ -13,7 +13,6 @@ class TransaksiOpFirebase extends BaseOpFirebase {
     Log.info('TransactionOpFirebase diinisialisasi.');
   }
   CollectionReference get _koleksi => firestore.collection(NamaTabel.transaksi);
-
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     Log.info('Menambahkan transaksi baru: ${transaksi.id}');
     try {
@@ -45,6 +44,41 @@ class TransaksiOpFirebase extends BaseOpFirebase {
         data: {'transactionId': id},
       );
       return null;
+    }
+  }
+
+  /// Mengambil semua transaksi yang merupakan aktivasi paket dari Firebase.
+  Future<List<TransaksiModel>> ambilBerdasarkanStatusAktivasi() async {
+    try {
+      Log.info(
+        'Mengambil transaksi dengan status aktivasi = true dari Firebase',
+      );
+      final querySnapshot = await _koleksi
+          .where(NamaKolom.statusAktivasi, isEqualTo: true)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.tanggal, descending: true)
+          .get();
+      Log.info(
+        'Berhasil mengambil ${querySnapshot.docs.length} transaksi aktivasi paket dari Firebase',
+      );
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return TransaksiModel.fromFirebase(doc.id, data);
+      }).toList();
+    } on FirebaseException catch (e, st) {
+      Log.error(
+        'Error saat mengambil transaksi aktivasi paket dari Firebase',
+        e: e,
+        s: st,
+      );
+      return [];
+    } on Exception catch (e, st) {
+      Log.error(
+        'Error umum saat mengambil transaksi aktivasi paket dari Firebase',
+        e: e,
+        s: st,
+      );
+      return [];
     }
   }
 
@@ -259,6 +293,56 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       );
       // Kembalikan list kosong jika terjadi error agar aplikasi tidak crash
       return [];
+    }
+  }
+
+  /// Menyisipkan atau memperbarui beberapa transaksi sekaligus (batch) di Firestore.
+  ///
+  /// [items] adalah daftar [TransaksiModel] yang akan disisipkan atau diperbarui.
+  /// Fungsi ini menggunakan batch write untuk efisiensi dan atomisitas.
+  Future<void> sisipkanAtauPerbaruiBatch(List<TransaksiModel> items) async {
+    if (items.isEmpty) {
+      Log.info('Batch transaksi: daftar kosong, operasi dibatalkan.');
+      return;
+    }
+
+    Log.info(
+      'Memulai batch insert/update untuk ${items.length} transaksi di Firestore',
+    );
+
+    try {
+      final batch = firestore.batch();
+
+      for (final transaksi in items) {
+        final docRef = _koleksi.doc(transaksi.id);
+        final data = transaksi.toFirebase();
+
+        // Tambahkan timestamp server untuk updated_at
+        data[NamaKolom.diperbaruiPada] = FieldValue.serverTimestamp();
+
+        batch.set(docRef, data, SetOptions(merge: true));
+      }
+
+      await batch.commit();
+      Log.info(
+        'Batch ${items.length} transaksi berhasil diproses di Firestore',
+      );
+    } on FirebaseException catch (e, st) {
+      Log.error(
+        'Gagal memproses batch transaksi di Firestore',
+        e: e,
+        s: st,
+        data: {'jumlahItem': items.length},
+      );
+      rethrow;
+    } on Exception catch (e, st) {
+      Log.error(
+        'Error umum saat memproses batch transaksi di Firestore',
+        e: e,
+        s: st,
+        data: {'jumlahItem': items.length},
+      );
+      rethrow;
     }
   }
 }
