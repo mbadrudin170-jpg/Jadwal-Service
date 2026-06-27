@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -82,7 +83,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
 
   Future<void> _simpanPelanggan() async {
     if (_menyimpan) return;
-    final pelangganOp = ref.read(pelangganOpGlobalProvider);
+    final pelangganOp = ref.read(pelangganProvider.notifier);
     Log.info('Tombol "Simpan" ditekan.');
     if (_formKey.currentState!.validate()) {
       Log.info('Form valid. Memulai proses penyimpanan.');
@@ -103,7 +104,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           Log.info(
             'Menjalankan operasi UPDATE untuk pelanggan ID: ${pelangganBaru.id}',
           );
-          await pelangganOp.updatePelanggan(pelangganBaru);
+          await pelangganOp.tambahPelanggan(pelangganBaru);
         } else {
           Log.info(
             'Menjalankan operasi CREATE untuk pelanggan baru: ${pelangganBaru.nama}',

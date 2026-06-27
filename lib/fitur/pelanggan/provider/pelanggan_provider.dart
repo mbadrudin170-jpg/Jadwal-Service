@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
 
 part 'pelanggan_provider.g.dart';
@@ -47,11 +48,10 @@ class Pelanggan extends _$Pelanggan {
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
     try {
       await _pelangganOpSqlite.tambahPelanggan(pelanggan);
-      final dataBaru = await _ambilData();
-      state = AsyncValue.data(dataBaru);
-    } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
-      rethrow; // 🌟 PENTING: Supaya try-catch di FormPelanggan bisa menangkap error ini
+      await _ambilData();
+      ref.invalidateSelf();
+    } catch (e, s) {
+      Log.error('gagal $e $s');
     }
   }
 
