@@ -12,11 +12,7 @@ import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
 import 'detail_langganan_provider_test.mocks.dart';
 
-@GenerateMocks([
-  PelangganOpSqlite,
-  PaketOpSqlite,
-  TransaksiOpSqlite,
-])
+@GenerateMocks([PelangganOpSqlite, PaketOpSqlite, TransaksiOpSqlite])
 void main() {
   late MockPelangganOpSqlite mockPelangganOp;
   late MockPaketOpSqlite mockPaketOp;
@@ -55,8 +51,9 @@ void main() {
     test(
       '01. harus memanggil softDelete pada semua operasi yang relevan',
       () async {
-        when(mockTransaksiOp.softDelete(transaksi.id))
-            .thenAnswer((_) async => 1);
+        when(
+          mockTransaksiOp.softDelete(transaksi.id),
+        ).thenAnswer((_) async => 1);
 
         final result = await container.read(
           hapusLanggananProvider(transaksi).future,
@@ -64,20 +61,21 @@ void main() {
 
         expect(result, true);
 
-        verify(mockTransaksiOp.softDelete(transaksi.id))
-            .called(1);
+        verify(mockTransaksiOp.softDelete(transaksi.id)).called(1);
       },
     );
 
-    test('02. harus melempar exception jika salah satu operasi gagal', () async {
-      final exception = Exception('Gagal hapus');
-      when(mockTransaksiOp.softDelete(transaksi.id))
-          .thenThrow(exception);
+    test(
+      '02. harus melempar exception jika salah satu operasi gagal',
+      () async {
+        final exception = Exception('Gagal hapus');
+        when(mockTransaksiOp.softDelete(transaksi.id)).thenThrow(exception);
 
-      await expectLater(
-        container.read(hapusLanggananProvider(transaksi).future),
-        throwsA(exception),
-      );
-    });
+        await expectLater(
+          container.read(hapusLanggananProvider(transaksi).future),
+          throwsA(exception),
+        );
+      },
+    );
   });
 }

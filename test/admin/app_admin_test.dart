@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
@@ -115,7 +116,7 @@ void main() {
     ).thenAnswer((_) async => true);
     when(mockUnduhanAwalService.jalankanUnduhanAwal()).thenAnswer((_) async {});
     when(mockSettingsOpSqlite.ambilSettings()).thenAnswer(
-      (_) async => const SettingsModel(waktuOtomatisHapusDataArsip: 30),
+      (_) async => const SettingsModel(),
     );
     when(
       mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
