@@ -8988,10 +8988,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -9014,7 +9012,6 @@ class FormPaket extends ConsumerStatefulWidget {
 }
 
 class _PackageFormState extends ConsumerState<FormPaket> {
-  late final PaketOpSqlite _paketOpSqlite;
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   final _hargaController = TextEditingController();
@@ -9035,7 +9032,6 @@ class _PackageFormState extends ConsumerState<FormPaket> {
   @override
   void initState() {
     super.initState();
-    _paketOpSqlite = ref.read(paketOpSqliteProvider);
     if (_modeEdit) {
       _namaController.text = widget.paket!.nama;
       _hargaController.text = widget.paket!.harga.toString();
@@ -9048,6 +9044,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
   }
 
   Future<void> _simpanForm() async {
+    final paketNotifier = ref.read(paketProvider.notifier);
     if (_formKey.currentState!.validate()) {
       final paketBaru = PaketModel(
         id: _modeEdit ? widget.paket!.id : const Uuid().v4(),
@@ -9067,9 +9064,9 @@ class _PackageFormState extends ConsumerState<FormPaket> {
 
       try {
         if (_modeEdit) {
-          await _paketOpSqlite.perbaruiPaket(paketBaru);
+          await paketNotifier.perbarui(paketBaru);
         } else {
-          await _paketOpSqlite.tambahPaket(paketBaru);
+          await paketNotifier.tambah(paketBaru);
         }
         ref.invalidate(paketProvider);
         unawaited(
@@ -9585,9 +9582,9 @@ Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/page/form_paket.dart';
+import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -9602,28 +9599,29 @@ class DetailPaketPage extends ConsumerStatefulWidget {
 }
 
 class _DetailPaketState extends ConsumerState<DetailPaketPage> {
-  late PaketModel _paket;
-  
+  late String _paketId;
+
   @override
   void initState() {
     super.initState();
-    Log.info('Membuka halaman detail paket.');
-    _paket = widget.paket;
-    Log.info('Data paket berhasil dimuat: ${_paket.nama}, ID: ${_paket.id}.');
+    _paketId = widget.paket.id;
+    Log.info('DetailPaketPage: Membuka halaman detail paket ID: $_paketId');
   }
 
   @override
   Widget build(BuildContext context) {
+    final detailPaketAsync = ref.watch(detailPaketProvider(_paketId));
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_paket.nama),
+        title: Text(widget.paket.nama),
         actions: [
           IconButton(
-            onPressed: () {
-              Navigator.push<bool>(
+            onPressed: () async {
+              await Navigator.push<bool>(
                 context,
                 MaterialPageRoute<bool>(
-                  builder: (context) => FormPaket(paket: _paket),
+                  builder: (context) => FormPaket(paket: widget.paket),
                 ),
               );
             },
@@ -9632,78 +9630,109 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+      body: detailPaketAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 60, color: Colors.red),
+              gapH16,
+              Text(
+                'Gagal memuat data paket',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              gapH8,
+              Text(
+                error.toString(),
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center,
+              ),
+              gapH16,
+              ElevatedButton(
+                onPressed: () {
+                  ref.invalidate(detailPaketProvider(_paketId));
+                },
+                child: const Text('Coba Lagi'),
+              ),
+            ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.inventory_2, color: Colors.blueAccent),
-                    gapH8,
-                    Text(
-                      'Informasi Layanan',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+        ),
+        data: (paket) => _buildContent(context, paket),
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context, PaketModel paket) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.inventory_2, color: Colors.blueAccent),
+                  gapH8,
+                  Text(
+                    'Informasi Layanan',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
-                gapH20,
-                _buildDetailRow('Nama Paket', _paket.nama),
-                _buildDetailRow('Harga Sewa', 'Rp ${_paket.harga}'),
-                _buildDetailRow(
-                  'Masa Aktif',
-                  '${_paket.durasi} ${_paket.tipe.displayName}',
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Divider(thickness: 1),
-                ),
-                Row(
-                  children: [
-                    const Icon(TIcons.points, color: Colors.orange),
-                    gapH8,
-                    Text(
-                      'Sistem Poin',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  ),
+                ],
+              ),
+              gapH20,
+              _buildDetailRow('Nama Paket', paket.nama),
+              _buildDetailRow('Harga Sewa', 'Rp ${paket.harga}'),
+              _buildDetailRow(
+                'Masa Aktif',
+                '${paket.durasi} ${paket.tipe.displayName}',
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Divider(thickness: 1),
+              ),
+              Row(
+                children: [
+                  const Icon(TIcons.points, color: Colors.orange),
+                  gapH8,
+                  Text(
+                    'Sistem Poin',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
-                gapH12,
-                _buildDetailRow(
-                  'Poin Hadiah',
-                  '${_paket.poinHadiah} Poin',
-                  subTitle: 'Didapat saat beli paket',
-                ),
-                _buildDetailRow(
-                  'Poin Penukaran',
-                  '${_paket.poinPenukaran} Poin',
-                  subTitle: 'Syarat tukar gratis',
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Divider(thickness: 1),
-                ),
-                _buildDetailRow(
-                  'Status Publik',
-                  _paket.statusPublik ? 'Tersedia di Aplikasi' : 'Hanya Admin',
-                  customValueColor: _paket.statusPublik
-                      ? Colors.green
-                      : Colors.red,
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+              gapH12,
+              _buildDetailRow(
+                'Poin Hadiah',
+                '${paket.poinHadiah} Poin',
+                subTitle: 'Didapat saat beli paket',
+              ),
+              _buildDetailRow(
+                'Poin Penukaran',
+                '${paket.poinPenukaran} Poin',
+                subTitle: 'Syarat tukar gratis',
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Divider(thickness: 1),
+              ),
+              _buildDetailRow(
+                'Status Publik',
+                paket.statusPublik ? 'Tersedia di Aplikasi' : 'Hanya Admin',
+                customValueColor: paket.statusPublik
+                    ? Colors.green
+                    : Colors.red,
+              ),
+            ],
           ),
         ),
       ),
@@ -9942,7 +9971,6 @@ import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/paket/page/paket.dart';
@@ -10001,6 +10029,25 @@ class Paket extends _$Paket {
     }
   }
 
+  Future<void> softDelete(String id) async {
+    try {
+      await _paketOp.hapusSementara(id);
+      unawaited(_invalidateProviderPaket());
+    } on Exception catch (e, s) {
+      Log.error('Error disoftDelete: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> refresh() async {
+    Log.info('PaketProvider: Menyegarkan data paket');
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      return _ambilData();
+    });
+    Log.info('PaketProvider: Penyegaran data paket selesai');
+  }
+
   Future<void> _invalidateProviderPaket() async {
     ref.invalidateSelf();
     ref.invalidate(detailPaketProvider);
@@ -10023,8 +10070,8 @@ class UrutanPaketState extends _$UrutanPaketState {
 @riverpod
 Future<PaketModel> detailPaket(Ref ref, String id) async {
   Log.info('Mendapatkan detail paket dari SQLite via paketProvider...');
-  final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-  final paket = await paketOpSqlite.ambilBerdasarkanId(id);
+  final paketOp = ref.watch(paketOpGlobalProvider);
+  final paket = await paketOp.ambilBerdasarkanId(id);
   if (paket == null) {
     throw Exception('Paket dengan id $id tidak ditemukan');
   }
@@ -10597,6 +10644,22 @@ class PaketOpSqlite {
     }
   }
 
+  /// Memperbarui [PaketModel] yang ada di database.
+  Future<void> perbaruiPaket(
+    PaketModel paket, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Memulai updatePaket untuk id: ${paket.id}');
+    try {
+      final data = paket.copyWith(diperbaruiPada: _nowUtc).toSqlite();
+      await basOpSqlite.update(_tabel, data, paket.id, dariServer: dariServer);
+      Log.info('Berhasil updatePaket untuk id: ${paket.id}');
+    } catch (e, s) {
+      Log.error('Gagal updatePaket untuk id: ${paket.id}', e: e, s: s);
+      rethrow;
+    }
+  }
+
   /// Mengambil semua paket aktif (tidak diarsipkan).
   Future<List<PaketModel>> ambilSemua({
     bool tampilkanYangDiarsip = false,
@@ -10677,22 +10740,6 @@ class PaketOpSqlite {
       return null;
     } catch (e, s) {
       Log.error('Gagal mencari paket berdasarkan ID: $id', e: e, s: s);
-      rethrow;
-    }
-  }
-
-  /// Memperbarui [PaketModel] yang ada di database.
-  Future<void> perbaruiPaket(
-    PaketModel paket, {
-    bool dariServer = false,
-  }) async {
-    Log.info('Memulai updatePaket untuk id: ${paket.id}');
-    try {
-      final data = paket.copyWith(diperbaruiPada: _nowUtc).toSqlite();
-      await basOpSqlite.update(_tabel, data, paket.id, dariServer: dariServer);
-      Log.info('Berhasil updatePaket untuk id: ${paket.id}');
-    } catch (e, s) {
-      Log.error('Gagal updatePaket untuk id: ${paket.id}', e: e, s: s);
       rethrow;
     }
   }
@@ -10883,7 +10930,7 @@ class PaketOpGlobal {
     }
   }
 
-  Future<void> hapusPaket(String id) async {
+  Future<void> hapusSementara(String id) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin hapus paket ID: $id di SQLite');
       await _paketOpSqlite.hapusSementara(id);

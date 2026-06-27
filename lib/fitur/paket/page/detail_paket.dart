@@ -1,10 +1,12 @@
 // path lib/fitur/paket/page/detail_paket.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/page/form_paket.dart';
+import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -19,28 +21,30 @@ class DetailPaketPage extends ConsumerStatefulWidget {
 }
 
 class _DetailPaketState extends ConsumerState<DetailPaketPage> {
-  late PaketModel _paket;
-  
   @override
   void initState() {
     super.initState();
-    Log.info('Membuka halaman detail paket.');
-    _paket = widget.paket;
-    Log.info('Data paket berhasil dimuat: ${_paket.nama}, ID: ${_paket.id}.');
+    Log.info(
+      'DetailPaketPage: Membuka halaman detail paket ID: $widget.paket.id',
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final detailPaketAsync = ref.watch(detailPaketProvider(widget.paket.id));
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_paket.nama),
+        title: Text(detailPaketAsync.value?.nama ?? ''),
         actions: [
           IconButton(
-            onPressed: () {
-              Navigator.push<bool>(
-                context,
-                MaterialPageRoute<bool>(
-                  builder: (context) => FormPaket(paket: _paket),
+            onPressed: () async {
+              unawaited(
+                Navigator.push<void>(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (context) => FormPaket(paket: widget.paket),
+                  ),
                 ),
               );
             },
@@ -49,78 +53,111 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+      body: detailPaketAsync.when(
+        skipLoadingOnRefresh: true,
+        skipLoadingOnReload: true,
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 60, color: Colors.red),
+              gapH16,
+              Text(
+                'Gagal memuat data paket',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              gapH8,
+              Text(
+                error.toString(),
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center,
+              ),
+              gapH16,
+              ElevatedButton(
+                onPressed: () {
+                  ref.invalidate(detailPaketProvider(widget.paket.id));
+                },
+                child: const Text('Coba Lagi'),
+              ),
+            ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.inventory_2, color: Colors.blueAccent),
-                    gapH8,
-                    Text(
-                      'Informasi Layanan',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+        ),
+        data: (paket) => _buildContent(context, paket),
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context, PaketModel paket) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.inventory_2, color: Colors.blueAccent),
+                  gapH8,
+                  Text(
+                    'Informasi Layanan',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
-                gapH20,
-                _buildDetailRow('Nama Paket', _paket.nama),
-                _buildDetailRow('Harga Sewa', 'Rp ${_paket.harga}'),
-                _buildDetailRow(
-                  'Masa Aktif',
-                  '${_paket.durasi} ${_paket.tipe.displayName}',
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Divider(thickness: 1),
-                ),
-                Row(
-                  children: [
-                    const Icon(TIcons.points, color: Colors.orange),
-                    gapH8,
-                    Text(
-                      'Sistem Poin',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  ),
+                ],
+              ),
+              gapH20,
+              _buildDetailRow('Nama Paket', paket.nama),
+              _buildDetailRow('Harga Sewa', 'Rp ${paket.harga}'),
+              _buildDetailRow(
+                'Masa Aktif',
+                '${paket.durasi} ${paket.tipe.displayName}',
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Divider(thickness: 1),
+              ),
+              Row(
+                children: [
+                  const Icon(TIcons.points, color: Colors.orange),
+                  gapH8,
+                  Text(
+                    'Sistem Poin',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
-                gapH12,
-                _buildDetailRow(
-                  'Poin Hadiah',
-                  '${_paket.poinHadiah} Poin',
-                  subTitle: 'Didapat saat beli paket',
-                ),
-                _buildDetailRow(
-                  'Poin Penukaran',
-                  '${_paket.poinPenukaran} Poin',
-                  subTitle: 'Syarat tukar gratis',
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Divider(thickness: 1),
-                ),
-                _buildDetailRow(
-                  'Status Publik',
-                  _paket.statusPublik ? 'Tersedia di Aplikasi' : 'Hanya Admin',
-                  customValueColor: _paket.statusPublik
-                      ? Colors.green
-                      : Colors.red,
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+              gapH12,
+              _buildDetailRow(
+                'Poin Hadiah',
+                '${paket.poinHadiah} Poin',
+                subTitle: 'Didapat saat beli paket',
+              ),
+              _buildDetailRow(
+                'Poin Penukaran',
+                '${paket.poinPenukaran} Poin',
+                subTitle: 'Syarat tukar gratis',
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Divider(thickness: 1),
+              ),
+              _buildDetailRow(
+                'Status Publik',
+                paket.statusPublik ? 'Tersedia di Aplikasi' : 'Hanya Admin',
+                customValueColor: paket.statusPublik
+                    ? Colors.green
+                    : Colors.red,
+              ),
+            ],
           ),
         ),
       ),
