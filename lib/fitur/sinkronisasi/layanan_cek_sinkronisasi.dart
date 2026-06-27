@@ -103,7 +103,7 @@ class LayananCekSinkronisasi {
     } catch (e, s) {
       Log.error(
         'Gagal memperbarui dokumen ${NamaTabel.statusGlobal}/global.',
-        e: e,
+        e: e,   
         s: s,
       );
     }

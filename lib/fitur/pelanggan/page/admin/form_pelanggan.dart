@@ -125,7 +125,6 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         );
         await pelangganOp.tambahPelanggan(pelangganBaru);
       }
-      Log.info('jalankan sinkroniasi');
       if (mounted) {
         ToastUtil.success(context, 'Data pelanggan berhasil disimpan.');
       }
@@ -133,6 +132,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         Navigator.pop(context);
       }
       if (ref.isAdmin) {
+        Log.info('jalankan sinkroniasi');
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
         );
