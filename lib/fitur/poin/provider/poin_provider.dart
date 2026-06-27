@@ -1,56 +1,41 @@
-// path: lib/fitur/poin/provider/poin_provider.dart
+// // path: lib/fitur/poin/provider/poin_provider.dart
 
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/app_role/role_util.dart';
-import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/poin/operasi/firebase_points_data_source.dart';
-import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
-import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
-import 'package:wifi/shared/export/model.dart';
+// import 'package:freezed_annotation/freezed_annotation.dart';
+// import 'package:riverpod_annotation/riverpod_annotation.dart';
+// import 'package:wifi/fitur/app_role/role_util.dart';
+// import 'package:wifi/fitur/paket/model/paket_model.dart';
+// import 'package:wifi/fitur/poin/operasi/firebase_points_data_source.dart';
+// import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
+// import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
+// import 'package:wifi/shared/export/model.dart';
 
-part 'poin_provider.g.dart';
-part 'poin_provider.freezed.dart';
+// part 'poin_provider.g.dart';
+// part 'poin_provider.freezed.dart';
 
-@freezed
-abstract class PoinState with _$PoinState {
-  const factory PoinState({
-    @Default([]) List<PaketModel> hadiah,
-    @Default([]) List<TransaksiModel> transaksi,
-    @Default(0) int totalPoin,
-  }) = _PoinState;
-}
+// @freezed
+// abstract class PoinState with _$PoinState {
+//   const factory PoinState({
+//     @Default([]) List<PaketModel> hadiah,
+//     @Default([]) List<TransaksiModel> transaksi,
+//     @Default(0) int totalPoin,
+//   }) = _PoinState;
+// }
 
-@riverpod
-class Poin extends _$Poin {
-  @override
-  FutureOr<PoinState> build(Ref ref, String idPelanggan) async {
-    final dataSource = ref.watch(pointsDataSourceProvider);
+// @riverpod
+// class Poin extends _$Poin {
+//   @override
+//   FutureOr<PoinState> build(Ref ref, String idPelanggan) async {
+//     final dataSource = ref.watch(pointsDataSourceProvider);
 
-    final hadiah = await dataSource.getPublicPackages();
-    final transaksi = await dataSource.getPointsTransactions(idPelanggan);
-    final totalPoin = await dataSource.ambilTotalPoin(idPelanggan);
-    return PoinState(
-      hadiah: hadiah,
-      transaksi: transaksi,
-      totalPoin: totalPoin,
-    );
-  }
-}
+//     final hadiah = await dataSource.getPublicPackages();
+//     final transaksi = await dataSource.getPointsTransactions(idPelanggan);
+//     final totalPoin = await dataSource.ambilTotalPoin(idPelanggan);
+//     return PoinState(
+//       hadiah: hadiah,
+//       transaksi: transaksi,
+//       totalPoin: totalPoin,
+//     );
+//   }
+// }
 
-@riverpod
-PointsPageDataSource pointsDataSource(Ref ref) {
-  if (RoleUtil.isAdmin(ref)) {
-    return ref.watch(sqlitePointsDataSourceProvider);
-  } else {
-    return ref.watch(firebasePointsDataSourceProvider);
-  }
-}
-
-typedef PointsPageData = ({int totalPoin, List<PaketModel> hadiah});
-
-@Riverpod(keepAlive: true)
-Future<List<TransaksiModel>> pointsHistory(Ref ref, String idPelanggan) {
-  final dataSource = ref.watch(pointsDataSourceProvider);
-  return dataSource.getPointsTransactions(idPelanggan);
-}
+// typedef PointsPageData = ({int totalPoin, List<PaketModel> hadiah});

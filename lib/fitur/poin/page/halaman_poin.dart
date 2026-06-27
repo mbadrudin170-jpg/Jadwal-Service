@@ -7,8 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
-import 'package:wifi/fitur/poin/provider/poin_provider.dart';
 import 'package:wifi/fitur/poin/service/poin_transaction_service.dart';
 import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
@@ -148,7 +148,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           poinSaatIni: poinSaatIni,
         );
         if (mounted) {
-          ref.invalidate(pointsHistoryProvider);
           ref.invalidate(orderProvider);
           ToastUtil.success(
             context,
@@ -188,9 +187,9 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     Log.info('Navigating to transaction detail for ID: ${transaksi.id}');
     PaketModel? paket;
     if (transaksi.idPaket != null && transaksi.idPaket!.isNotEmpty) {
-      final dataSource = ref.read(pointsDataSourceProvider);
       try {
-        paket = await dataSource.getPaketByid(transaksi.idPaket!);
+        final paketOp = ref.read(paketOpGlobalProvider);
+        paket = await paketOp.ambilPaketBerdasarkanId(transaksi.idPaket!);
       } on Exception catch (e, st) {
         Log.error(
           'Failed to get package ${transaksi.idPaket}: $e',

@@ -5,13 +5,10 @@ import 'dart:async';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
-import 'package:wifi/fitur/poin/provider/poin_provider.dart';
-import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/user/providers/user_provider.dart';
 
 part 'transaksi_provider.freezed.dart';
 part 'transaksi_provider.g.dart';
@@ -20,7 +17,6 @@ part 'transaksi_provider.g.dart';
 abstract class TransaksiState with _$TransaksiState {
   const factory TransaksiState({
     @Default([]) List<TransaksiModel> transaksi,
-    required List<TransaksiModel> transaksiUser,
     @Default(0.0) double totalPemasukan,
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
@@ -30,22 +26,18 @@ abstract class TransaksiState with _$TransaksiState {
     required List<double> pendapatanMingguan,
     required List<double> pendapatanBulanan,
     required double totalPendapatanPerbulan,
-    @Default(0) int totalPoinUser,
   }) = _TransaksiState;
 }
 
 @riverpod
 class Transaksi extends _$Transaksi {
   TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
-  PointsPageDataSource get _pointsDataSource =>
-      ref.read(pointsDataSourceProvider);
   @override
   FutureOr<TransaksiState> build() {
     return _loadData();
   }
 
   Future<TransaksiState> _loadData() async {
-    final userId = await ref.watch(userIdProvider.future);
     final hasil = await Future.wait([
       _transaksiOp.ambilSemua(), // [0]
       _transaksiOp.getTotalIncome(), // [1]
@@ -57,12 +49,6 @@ class Transaksi extends _$Transaksi {
       _transaksiOp.ambilPendapatanMingguan(), // [7]
       _transaksiOp.ambilPendapatanBulanan(), // [8]
       _transaksiOp.ambilTotalPendapatanPerbulan(), //[9]
-      userId != null
-          ? _pointsDataSource.ambilTotalPoin(userId) // [10]
-          : Future<int>.value(0),
-      userId != null
-          ? _transaksiOp.ambilBerdasarkanIdPelanggan(userId) // [11]
-          : Future<List<TransaksiModel>>.value([]),
     ]);
 
     final transaksi = hasil[0] as List<TransaksiModel>;
@@ -77,8 +63,6 @@ class Transaksi extends _$Transaksi {
       pendapatanMingguan: hasil[7] as List<double>,
       pendapatanBulanan: hasil[8] as List<double>,
       totalPendapatanPerbulan: hasil[9] as double,
-      totalPoinUser: hasil[10] as int,
-      transaksiUser: hasil[11] as List<TransaksiModel>,
     );
   }
 
@@ -140,18 +124,6 @@ class Transaksi extends _$Transaksi {
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(_loadData);
-  }
-
-  Future<void> refreshPoin() async {
-    final userId = await ref.watch(userIdProvider.future);
-    if (userId == null) return;
-
-    final totalPoin = await _pointsDataSource.ambilTotalPoin(userId);
-
-    if (state.hasValue) {
-      final currentState = state.value!;
-      state = AsyncValue.data(currentState.copyWith(totalPoinUser: totalPoin));
-    }
   }
 
   Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
