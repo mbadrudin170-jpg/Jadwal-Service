@@ -271,6 +271,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
     final notifikasiOpSqlite = ref.read(notifikasiOpSqliteProvider);
     final pelangganAktif = ref.read(pelangganAktifProvider.notifier);
+    final transaksiOp = ref.read(transaksiProvider.notifier);
+
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Validasi form gagal');
       if (mounted) {
@@ -359,18 +361,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       );
       if (_modeEdit) {
         await pelangganAktif.updatePelangganAktif(pelangganAktifData);
-        await ref
-            .read(transaksiProvider.notifier)
-            .updateTransaksi(transaksiData);
+        await transaksiOp.updateTransaksi(transaksiData);
         await notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi);
         Log.info(
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
         );
       } else {
         await pelangganAktif.tambahPelangganAktif(pelangganAktifData);
-        await ref
-            .read(transaksiProvider.notifier)
-            .tambahTransaksi(transaksiData);
+        await transaksiOp.tambahTransaksi(transaksiData);
       }
       final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
       final durasiSetengahJalan = Duration(

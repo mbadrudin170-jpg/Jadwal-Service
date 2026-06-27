@@ -59,7 +59,6 @@ void main() async {
   Log.info(
       '[main-dev] Memulai aplikasi user. Menyerahkan kendali ke AppUser...');
 
-  // Native splash akan dihilangkan dari dalam SplashScreenUser.
   runApp(
     ProviderScope(
       overrides: [
