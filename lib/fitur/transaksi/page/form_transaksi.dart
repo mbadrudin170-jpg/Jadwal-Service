@@ -401,7 +401,6 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                       focusNode: _jumlahFocusNode,
                       textInputAction: TextInputAction.done,
                     ),
-
                     gapH24,
                     PemilihTanggalWaktuWidget(
                       tanggalTerpilih: _tanggalDipilih,
