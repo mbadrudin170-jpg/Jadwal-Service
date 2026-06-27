@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/lainnya/paket.dart
+// path lib/fitur/paket/page/paket.dart
 
 import 'dart:async';
 

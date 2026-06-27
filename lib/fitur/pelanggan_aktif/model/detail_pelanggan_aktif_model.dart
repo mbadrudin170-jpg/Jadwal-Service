@@ -1,4 +1,4 @@
-// path: lib/shared/model/active_customer_detail_model.dart
+// path lib/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart
 
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 

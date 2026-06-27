@@ -1,4 +1,4 @@
-// path: lib/fitur/transaksi/page/transaksi_a.dart
+// path lib/fitur/transaksi/page/transaksi_a.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

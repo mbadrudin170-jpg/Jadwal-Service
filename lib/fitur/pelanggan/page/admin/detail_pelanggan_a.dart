@@ -1,4 +1,4 @@
-// path: lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
+// path lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
 
 import 'dart:async';
 

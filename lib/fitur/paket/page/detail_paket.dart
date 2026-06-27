@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/detail/detail_paket.dart
+// path lib/fitur/paket/page/detail_paket.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
