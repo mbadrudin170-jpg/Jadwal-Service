@@ -21,6 +21,7 @@ import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dart';
 
@@ -44,38 +45,30 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   late final Widget _judulAppBar;
   bool _sedangTukarPoin = false;
   String? _idRewardYangDiproses;
-
   @override
   void initState() {
     super.initState();
     _layananIklanInterstisial = LayananIklanInterstisial();
-    final pakaiFirebase = ref.isUser;
-    Log.info(
-      'Initializing PointsPage for customer: ${widget.idPelanggan} with role: $pakaiFirebase',
-    );
-
     _judulAppBar = Row(
       children: [
         const Text('Poin: '),
-        Expanded(
-          child: NamaPelangganWidget(
-            idPelanggan: widget.idPelanggan,
-            pakaiFirebase: pakaiFirebase,
-          ),
-        ),
+        Expanded(child: NamaPelangganWidget(idPelanggan: widget.idPelanggan)),
       ],
     );
-
-    if (widget.tampilkanIklan) {
-      Log.info('Preloading interstitial ad for PointsPage.');
-      _layananIklanInterstisial.preloadAd().catchError((Object e) {
-        Log.warning('Failed to preload interstitial ad: $e');
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final userId = await ref.read(userIdProvider.future);
+      if (userId != null && userId.isNotEmpty) {
+        Log.info('Preloading interstitial ad for PointsPage.');
+        unawaited(
+          _layananIklanInterstisial.preloadAd().catchError((Object e) {
+            Log.warning('Failed to preload interstitial ad: $e');
+          }),
+        );
+      }
+    });
   }
 
   Future<void> _tukarPoin(PaketModel hadiah, int poinSaatIni) async {
-    // Cegah double tap
     if (_sedangTukarPoin) return;
 
     setState(() {
@@ -84,7 +77,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     });
 
     try {
-      // 1. Validasi Role
       final role = ref.read(appRoleProvider);
       if (role == AppRole.admin) {
         Log.warning('Admin mencoba menukar poin, operasi diblokir.');
@@ -95,12 +87,10 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         return;
       }
 
-      // 2. Cek Koneksi Internet
       final isOnline = await ref
           .read(koneksiInternetServiceProvider)
           .cekInternet();
       if (!mounted) return;
-
       if (!isOnline) {
         ToastUtil.warning(context, 'Cek koneksi internet Anda');
         return;
