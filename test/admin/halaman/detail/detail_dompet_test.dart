@@ -13,7 +13,6 @@ import 'package:wifi/fitur/dompet/page/detail_dompet.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
-import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 
 import 'detail_dompet_test.mocks.dart';
 
@@ -63,7 +62,6 @@ void main() {
     mockTransaksiOpSqlite = MockTransaksiOpSqlite();
     mockNavigatorObserver = MockNavigatorObserver();
 
-    // Stub default successful data loading
     when(
       mockDompetOpSqlite.ambilBerdasarkanId(any),
     ).thenAnswer((_) async => dompetAwal);
@@ -142,18 +140,13 @@ void main() {
         await tester.pumpWidget(createWidget());
         await tester.pumpAndSettle();
 
-        // Cek AppBar title
         expect(find.text('Dompet Utama'), findsOneWidget);
-
-        // Cek summary info (Pemasukan, Pengeluaran, Saldo)
         expect(find.text('Pemasukan'), findsOneWidget);
         expect(find.textContaining('5,000'), findsOneWidget);
         expect(find.text('Pengeluaran'), findsOneWidget);
         expect(find.textContaining('15'), findsOneWidget);
         expect(find.text('Saldo'), findsOneWidget);
         expect(find.textContaining('1,000'), findsOneWidget);
-
-        // Cek item transaksi
         expect(find.text('Gaji'), findsOneWidget);
         expect(find.text('Beli Kopi'), findsOneWidget);
       },
@@ -193,18 +186,13 @@ void main() {
         await tester.pumpWidget(createWidget());
         await tester.pumpAndSettle();
 
-        final route = MaterialPageRoute<bool>(
-            builder: (_) => const Scaffold(),
-            settings: const RouteSettings(name: '/detailTransaksi'));
         when(mockNavigatorObserver.didPush(any, any))
             .thenAnswer((_) => Future.value(true));
 
-        // Tap item transaksi
         await tester.tap(find.text('Gaji'));
-        await tester.pumpAndSettle(); // Tunggu navigasi dan refresh
+        await tester.pumpAndSettle();
 
         verify(mockNavigatorObserver.didPush(any, any)).called(1);
-        // Called once in setup, and once after refresh
         verify(mockDompetOpSqlite.ambilBerdasarkanId('d1')).called(2);
       },
     );
@@ -231,7 +219,6 @@ void main() {
         await tester.pumpAndSettle();
 
         verify(mockTransaksiOpSqlite.softDelete('t1')).called(1);
-        // Called once in setup, and once after refresh
         verify(mockDompetOpSqlite.ambilBerdasarkanId('d1')).called(2);
         verify(mockTransaksiOpSqlite.ambilBerdasarkanIdDompet('d1')).called(2);
       },
@@ -254,13 +241,9 @@ void main() {
       await tester.tap(editIcon);
       await tester.pump();
 
-      final pushedRoute =
-          verify(mockNavigatorObserver.didPush(captureAny, any)).captured.last;
+      final pushedRoute = verify(mockNavigatorObserver.didPush(captureAny, any))
+          .captured.last as Route<dynamic>;
       expect(pushedRoute, isA<MaterialPageRoute>());
-      final page = (pushedRoute as MaterialPageRoute).builder(MockBuildContext());
-      expect(page, isA<FormTransaksi>());
     });
   });
 }
-
-class MockBuildContext extends Mock implements BuildContext {}

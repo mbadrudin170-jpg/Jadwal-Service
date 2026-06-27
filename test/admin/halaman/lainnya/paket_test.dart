@@ -1,4 +1,6 @@
 // path: test/admin/halaman/lainnya/paket_test.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -42,15 +44,14 @@ void main() {
     ),
   ];
 
-  // PERBAIKAN: Buat provider override dengan cara yang benar
   final paketState = PaketState(daftarPaket: paketList);
 
   Widget createWidget() {
     return ProviderScope(
       overrides: [
         paketOpSqliteProvider.overrideWithValue(mockPaketOpSqlite),
-        // PERBAIKAN: Gunakan overrideWithValue dengan AsyncValue
-        paketProvider.overrideWithValue(AsyncValue.data(paketState)),
+        // Gunakan cara yang benar untuk override AsyncNotifierProvider
+        paketProvider.overrideWith(() => _MockPaketNotifier(paketState)),
       ],
       child: MaterialApp(
         home: const PackagePage(),
@@ -156,4 +157,16 @@ void main() {
       expect(find.text('Pilih aksi yang ingin Anda lakukan.'), findsOneWidget);
     });
   });
+}
+
+/// Mock Notifier untuk testing PaketProvider
+class _MockPaketNotifier extends Paket {
+  final PaketState _state;
+
+  _MockPaketNotifier(this._state);
+
+  @override
+  FutureOr<PaketState> build() {
+    return _state;
+  }
 }

@@ -24,11 +24,8 @@ void main() {
         ),
       );
 
-      // Lewati frame pertama setelah callback post-frame dieksekusi
       await tester.pump();
-      // Paksa simulasi waktu maju melewati batas autoCloseDuration (2 detik) + animationDuration (1 detik)
       await tester.pump(const Duration(seconds: 4));
-      // Bersihkan sisa animasi jika ada
       await tester.pumpAndSettle();
     });
 
