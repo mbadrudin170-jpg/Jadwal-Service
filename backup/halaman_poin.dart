@@ -33,13 +33,8 @@ import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dar
 
 class HalamanPoin extends ConsumerStatefulWidget {
   final String idPelanggan;
-  final bool tampilkanIklan;
 
-  const HalamanPoin({
-    super.key,
-    required this.idPelanggan,
-    this.tampilkanIklan = false,
-  });
+  const HalamanPoin({super.key, required this.idPelanggan});
 
   @override
   ConsumerState<HalamanPoin> createState() => _HalamanPoinState();
@@ -55,24 +50,16 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   @override
   void initState() {
     super.initState();
-    final pakaiFirebase = ref.read(appRoleProvider) == AppRole.user;
-
     Log.info(
       'Initializing PointsPage for customer: ${widget.idPelanggan} with role: ${ref.read(appRoleProvider)}',
     );
     _judulAppBar = Row(
       children: [
         const Text('Poin: '),
-        Expanded(
-          child: NamaPelangganWidget(
-            idPelanggan: widget.idPelanggan,
-            pakaiFirebase: pakaiFirebase,
-          ),
-        ),
+        Expanded(child: NamaPelangganWidget(idPelanggan: widget.idPelanggan)),
       ],
     );
-
-    if (widget.tampilkanIklan) {
+    if (ref.isUser) {
       Log.info('Preloading interstitial ad for PointsPage.');
       unawaited(_layananIklanInterstisial.preloadAd());
     }
@@ -278,7 +265,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             Log.info('Points menu changed to: $selection');
             setState(() => _menuAktif = selection);
 
-            if (selection == OpsiMenuPoin.riwayat && widget.tampilkanIklan) {
+            if (selection == OpsiMenuPoin.riwayat && ref.isUser) {
               await _layananIklanInterstisial.show();
             }
           },
@@ -288,7 +275,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
                   dataHalaman.totalPoinUser,
                 )
               : _bangunRiwayatPoin(),
-          bottomWidget: widget.tampilkanIklan ? const BannerAdsWidget() : null,
+          bottomWidget: ref.isUser ? const BannerAdsWidget() : null,
         );
       },
     );

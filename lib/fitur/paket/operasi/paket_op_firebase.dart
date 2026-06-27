@@ -14,6 +14,11 @@ class PaketOpFirebase {
   }
 
   CollectionReference get _collection => db.collection(NamaTabel.paket);
+  // Di paket_op_firebase.dart
+  Future<void> tambahPaket(PaketModel paket) async {
+    Log.info('Menambahkan paket ke Firebase: ${paket.id}');
+    await _baseOp.sisipkan(_namaKoleksi, paket.id, paket.toFirebase());
+  }
 
   Future<List<PaketModel>> ambilPaketPublik() async {
     try {
@@ -74,17 +79,6 @@ class PaketOpFirebase {
           Log.error('Error pada stream paket ID: $id', e: e, s: s);
           return null;
         });
-  }
-
-  Future<void> delete(String id) async {
-    Log.warning('Memulai penghapusan permanen paket di Firestore: $id');
-    try {
-      await _collection.doc(id).delete();
-      Log.info('Penghapusan permanen paket berhasil: $id');
-    } on FirebaseException catch (e, s) {
-      Log.error('Gagal menghapus paket secara permanen: $id', e: e, s: s);
-      rethrow;
-    }
   }
 
   Future<void> softDelete(String id) async {
