@@ -47,7 +47,7 @@ void main() {
         mockBaseOpSqlite.sisipkan(namaTabel, any),
       ).thenAnswer((_) async => 1);
 
-      await feedbackOpSqlite.tambahFeedback(feedback);
+      await feedbackOpSqlite.tambah(feedback);
 
       verify(
         mockBaseOpSqlite.sisipkan(
@@ -62,7 +62,7 @@ void main() {
         mockBaseOpSqlite.delete(namaTabel, 'fb1'),
       ).thenAnswer((_) async => 1);
 
-      await feedbackOpSqlite.delete('fb1');
+      await feedbackOpSqlite.hapus('fb1');
 
       verify(mockBaseOpSqlite.delete(namaTabel, 'fb1')).called(1);
     });

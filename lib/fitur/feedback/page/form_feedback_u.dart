@@ -12,10 +12,9 @@ import 'package:wifi/user/providers/user_provider.dart';
 
 /// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
 class FormFeedBackU extends ConsumerStatefulWidget {
-  final String? idFeedback;
+  final FeedbackModel? feedback;
 
-  final String? pesan;
-  const FormFeedBackU({super.key, this.idFeedback, this.pesan});
+  const FormFeedBackU({super.key, this.feedback});
 
   @override
   ConsumerState<FormFeedBackU> createState() => _FormKritikDanSaranState();
@@ -25,13 +24,13 @@ class _FormKritikDanSaranState extends ConsumerState<FormFeedBackU> {
   final _formKey = GlobalKey<FormState>();
   final _feedbackController = TextEditingController();
   bool _isLoading = false;
-  bool get _modeEdit => widget.idFeedback != null;
+  bool get _modeEdit => widget.feedback != null;
 
   @override
   void initState() {
     super.initState();
-    if (widget.pesan != null) {
-      _feedbackController.text = widget.pesan!;
+    if (widget.feedback != null) {
+      _feedbackController.text = widget.feedback!.pesan;
     }
   }
 
@@ -43,17 +42,19 @@ class _FormKritikDanSaranState extends ConsumerState<FormFeedBackU> {
 
       try {
         if (_modeEdit) {
-          await feedbackOpFirebase.perbaruiFeedback(
-            widget.idFeedback!,
-            _feedbackController.text,
+          final updateFeedback = FeedbackModel(
+            id: widget.feedback?.id ?? const Uuid().v4(),
+            pesan: widget.feedback?.pesan ?? '',
+            userId: userId,
           );
+          await feedbackOpFirebase.perbarui(updateFeedback);
         } else {
-          final dataBaru = FeedbackModel(
+          final tambahFeedback = FeedbackModel(
             id: const Uuid().v4(),
             pesan: _feedbackController.text,
             userId: userId,
           );
-          await feedbackOpFirebase.tambahFeedback(dataBaru);
+          await feedbackOpFirebase.tambah(tambahFeedback);
         }
 
         if (mounted) {
@@ -115,7 +116,7 @@ class _FormKritikDanSaranState extends ConsumerState<FormFeedBackU> {
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : Text(
-                        widget.idFeedback != null
+                        widget.feedback != null
                             ? 'Simpan Perubahan'
                             : 'Kirim Masukan',
                       ),

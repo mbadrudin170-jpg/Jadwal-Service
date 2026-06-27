@@ -73,7 +73,7 @@ void main() {
       ).thenAnswer((_) async => mockDocRef);
 
       // Act
-      await feedbackOpFirebase.tambahFeedback(feedbackModel);
+      await feedbackOpFirebase.tambah(feedbackModel);
 
       // Assert
       verify(mockBaseOpFirebase.tambah(any, any)).called(1);
@@ -90,7 +90,7 @@ void main() {
         ).thenAnswer((_) async => Future.value());
 
         // Act
-        await feedbackOpFirebase.perbaruiFeedback(docId, newContent);
+        await feedbackOpFirebase.perbarui(docId, newContent);
 
         // Assert
         verify(
@@ -123,7 +123,7 @@ void main() {
         ).thenAnswer((_) async => Future.value());
 
         // Act
-        await feedbackOpFirebase.softDeleteFeedback(docId);
+        await feedbackOpFirebase.softDelete(docId);
 
         // Assert
         verify(mockBaseOpFirebase.softDelete(any, docId)).called(1);

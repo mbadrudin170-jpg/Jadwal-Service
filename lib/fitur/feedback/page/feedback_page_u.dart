@@ -19,7 +19,6 @@ class FeedbackPageU extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userId = ref.watch(userIdProvider).value ?? '';
     final feedbackAsync = ref.watch(feedbackStreamProvider(userId));
-
     return Scaffold(
       appBar: AppBar(title: const Text('Riwayat Masukan')),
       body: feedbackAsync.when(
@@ -39,8 +38,7 @@ class FeedbackPageU extends ConsumerWidget {
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8.0),
                 child: ListTile(
-                  onTap: () =>
-                      _showOptionsDialog(context, ref, feedback, userId),
+                  onTap: () => _showOptionsDialog(context, ref, feedback),
                   title: Text(feedback.pesan),
                   subtitle: Padding(
                     padding: const EdgeInsets.only(top: 8.0),
@@ -58,9 +56,9 @@ class FeedbackPageU extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(
+        onPressed: () => Navigator.push<void>(
           context,
-          MaterialPageRoute<void>(builder: (context) => const FormFeedBackU()),
+          MaterialPageRoute(builder: (context) => const FormFeedBackU()),
         ),
         label: const Text('Beri Masukan'),
         icon: const Icon(TIcons.add),
@@ -72,7 +70,6 @@ class FeedbackPageU extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     FeedbackModel feedback,
-    String userId,
   ) async {
     await showDialog<void>(
       context: context,
@@ -84,19 +81,18 @@ class FeedbackPageU extends ConsumerWidget {
               child: const Text('Hapus', style: TextStyle(color: Colors.red)),
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
-                await _dialogHapus(context, ref, feedback.id, userId);
+                await _dialogHapus(context, ref, feedback);
               },
             ),
             TextButton(
               child: const Text('Edit'),
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
-                await Navigator.push<void>(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (_) => FormFeedBackU(
-                      idFeedback: feedback.id,
-                      pesan: feedback.pesan,
+                unawaited(
+                  Navigator.push<void>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => FormFeedBackU(feedback: feedback),
                     ),
                   ),
                 );
@@ -115,8 +111,7 @@ class FeedbackPageU extends ConsumerWidget {
   Future<void> _dialogHapus(
     BuildContext context,
     WidgetRef ref,
-    String docId,
-    String userId,
+    FeedbackModel feedback,
   ) async {
     final bool? konfirmasi = await showDialog<bool>(
       context: context,
@@ -144,8 +139,8 @@ class FeedbackPageU extends ConsumerWidget {
     if (konfirmasi ?? false) {
       try {
         final feedbackOpFirebase = ref.read(feedbackOpFirebaseProvider);
-        await feedbackOpFirebase.softDeleteFeedback(docId);
-        ref.invalidate(feedbackStreamProvider(userId));
+        await feedbackOpFirebase.softDelete(feedback.id);
+        ref.invalidate(feedbackStreamProvider(feedback.userId));
         if (!context.mounted) return;
         ToastUtil.success(context, 'Masukan berhasil dihapus.');
       } catch (e, s) {

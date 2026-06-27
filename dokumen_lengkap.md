@@ -9295,6 +9295,7 @@ class PackagePage extends ConsumerWidget {
         ],
       ),
       body: paketAsync.when(
+        skipLoadingOnReload: true,
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) {
           Log.error('Terjadi error saat memuat data paket', e: err, s: stack);
@@ -9580,6 +9581,8 @@ Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
 // File: lib/fitur/paket/page/detail_paket.dart
 // path lib/fitur/paket/page/detail_paket.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
@@ -9599,29 +9602,30 @@ class DetailPaketPage extends ConsumerStatefulWidget {
 }
 
 class _DetailPaketState extends ConsumerState<DetailPaketPage> {
-  late String _paketId;
-
   @override
   void initState() {
     super.initState();
-    _paketId = widget.paket.id;
-    Log.info('DetailPaketPage: Membuka halaman detail paket ID: $_paketId');
+    Log.info(
+      'DetailPaketPage: Membuka halaman detail paket ID: $widget.paket.id',
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final detailPaketAsync = ref.watch(detailPaketProvider(_paketId));
+    final detailPaketAsync = ref.watch(detailPaketProvider(widget.paket.id));
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.paket.nama),
+        title: Text(detailPaketAsync.value?.nama ?? ''),
         actions: [
           IconButton(
             onPressed: () async {
-              await Navigator.push<bool>(
-                context,
-                MaterialPageRoute<bool>(
-                  builder: (context) => FormPaket(paket: widget.paket),
+              unawaited(
+                Navigator.push<void>(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (context) => FormPaket(paket: widget.paket),
+                  ),
                 ),
               );
             },
@@ -9631,6 +9635,8 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
         ],
       ),
       body: detailPaketAsync.when(
+        skipLoadingOnRefresh: true,
+        skipLoadingOnReload: true,
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(
           child: Column(
@@ -9651,7 +9657,7 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
               gapH16,
               ElevatedButton(
                 onPressed: () {
-                  ref.invalidate(detailPaketProvider(_paketId));
+                  ref.invalidate(detailPaketProvider(widget.paket.id));
                 },
                 child: const Text('Coba Lagi'),
               ),
@@ -21812,7 +21818,6 @@ class FeedbackPageU extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userId = ref.watch(userIdProvider).value ?? '';
     final feedbackAsync = ref.watch(feedbackStreamProvider(userId));
-
     return Scaffold(
       appBar: AppBar(title: const Text('Riwayat Masukan')),
       body: feedbackAsync.when(
@@ -21832,8 +21837,7 @@ class FeedbackPageU extends ConsumerWidget {
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8.0),
                 child: ListTile(
-                  onTap: () =>
-                      _showOptionsDialog(context, ref, feedback, userId),
+                  onTap: () => _showOptionsDialog(context, ref, feedback),
                   title: Text(feedback.pesan),
                   subtitle: Padding(
                     padding: const EdgeInsets.only(top: 8.0),
@@ -21851,9 +21855,9 @@ class FeedbackPageU extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(
+        onPressed: () => Navigator.push<void>(
           context,
-          MaterialPageRoute<void>(builder: (context) => const FormFeedBackU()),
+          MaterialPageRoute(builder: (context) => const FormFeedBackU()),
         ),
         label: const Text('Beri Masukan'),
         icon: const Icon(TIcons.add),
@@ -21865,7 +21869,6 @@ class FeedbackPageU extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     FeedbackModel feedback,
-    String userId,
   ) async {
     await showDialog<void>(
       context: context,
@@ -21877,19 +21880,18 @@ class FeedbackPageU extends ConsumerWidget {
               child: const Text('Hapus', style: TextStyle(color: Colors.red)),
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
-                await _dialogHapus(context, ref, feedback.id, userId);
+                await _dialogHapus(context, ref, feedback);
               },
             ),
             TextButton(
               child: const Text('Edit'),
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
-                await Navigator.push<void>(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (_) => FormFeedBackU(
-                      idFeedback: feedback.id,
-                      pesan: feedback.pesan,
+                unawaited(
+                  Navigator.push<void>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => FormFeedBackU(feedback: feedback),
                     ),
                   ),
                 );
@@ -21908,8 +21910,7 @@ class FeedbackPageU extends ConsumerWidget {
   Future<void> _dialogHapus(
     BuildContext context,
     WidgetRef ref,
-    String docId,
-    String userId,
+    FeedbackModel feedback,
   ) async {
     final bool? konfirmasi = await showDialog<bool>(
       context: context,
@@ -21937,8 +21938,8 @@ class FeedbackPageU extends ConsumerWidget {
     if (konfirmasi ?? false) {
       try {
         final feedbackOpFirebase = ref.read(feedbackOpFirebaseProvider);
-        await feedbackOpFirebase.softDeleteFeedback(docId);
-        ref.invalidate(feedbackStreamProvider(userId));
+        await feedbackOpFirebase.softDeleteFeedback(feedback.id);
+        ref.invalidate(feedbackStreamProvider(feedback.userId));
         if (!context.mounted) return;
         ToastUtil.success(context, 'Masukan berhasil dihapus.');
       } catch (e, s) {
@@ -21965,10 +21966,9 @@ import 'package:wifi/user/providers/user_provider.dart';
 
 /// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
 class FormFeedBackU extends ConsumerStatefulWidget {
-  final String? idFeedback;
+  final FeedbackModel? feedback;
 
-  final String? pesan;
-  const FormFeedBackU({super.key, this.idFeedback, this.pesan});
+  const FormFeedBackU({super.key, this.feedback});
 
   @override
   ConsumerState<FormFeedBackU> createState() => _FormKritikDanSaranState();
@@ -21978,13 +21978,13 @@ class _FormKritikDanSaranState extends ConsumerState<FormFeedBackU> {
   final _formKey = GlobalKey<FormState>();
   final _feedbackController = TextEditingController();
   bool _isLoading = false;
-  bool get _modeEdit => widget.idFeedback != null;
+  bool get _modeEdit => widget.feedback != null;
 
   @override
   void initState() {
     super.initState();
-    if (widget.pesan != null) {
-      _feedbackController.text = widget.pesan!;
+    if (widget.feedback != null) {
+      _feedbackController.text = widget.feedback!.pesan;
     }
   }
 
@@ -21996,17 +21996,19 @@ class _FormKritikDanSaranState extends ConsumerState<FormFeedBackU> {
 
       try {
         if (_modeEdit) {
-          await feedbackOpFirebase.perbaruiFeedback(
-            widget.idFeedback!,
-            _feedbackController.text,
+          final updateFeedback = FeedbackModel(
+            id: widget.feedback?.id ?? const Uuid().v4(),
+            pesan: widget.feedback?.pesan ?? '',
+            userId: userId,
           );
+          await feedbackOpFirebase.perbarui(updateFeedback);
         } else {
-          final dataBaru = FeedbackModel(
+          final tambahFeedback = FeedbackModel(
             id: const Uuid().v4(),
             pesan: _feedbackController.text,
             userId: userId,
           );
-          await feedbackOpFirebase.tambahFeedback(dataBaru);
+          await feedbackOpFirebase.tambah(tambahFeedback);
         }
 
         if (mounted) {
@@ -22068,7 +22070,7 @@ class _FormKritikDanSaranState extends ConsumerState<FormFeedBackU> {
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : Text(
-                        widget.idFeedback != null
+                        widget.feedback != null
                             ? 'Simpan Perubahan'
                             : 'Kirim Masukan',
                       ),
@@ -22091,6 +22093,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
 import 'package:wifi/fitur/feedback/page/feedback_detail_a.dart';
 import 'package:wifi/fitur/feedback/provider/feedback_provider.dart'; // Import provider baru Anda
 import 'package:wifi/shared/debug/log.dart';
@@ -22183,7 +22186,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
     if ((konfirmasi ?? false) && mounted) {
       Log.info('Memproses penghapusan kritik/saran ID: ${feedback.id}');
       try {
-        await ref.read(feedbackOpSqliteProvider).softDelete(feedback.id);
+        await ref.read(feedbackOpGlobalProvider).softDelete(feedback.id);
         final _ = ref.refresh(daftarFeedbackAktifProvider);
         if (mounted) {
           ToastUtil.success(context, 'Kritik dan saran berhasil dihapus');
@@ -22356,6 +22359,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
@@ -22410,7 +22414,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
         });
   }
 
-  Future<void> _deleteFeedback() async {
+  Future<void> _softDeletedFeedback() async {
     Log.info('Menampilkan dialog konfirmasi penghapusan kritik dan saran.');
 
     final konfirmasi = await showDialog<bool>(
@@ -22463,32 +22467,24 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
             barrierDismissible: false,
             builder: (context) {
               Log.info('Loading dialog berhasil ditampilkan.');
-
               return const Center(child: CircularProgressIndicator());
             },
           ),
         );
-
         Log.info('Memanggil operasi hapus kritik dan saran ke database.');
-
         await _feedbackOpSqlite.softDelete(widget.id);
-
         Log.info('Data kritik dan saran berhasil dihapus dari database.');
-
         if (mounted) {
           Log.info('Menutup loading dialog.');
-
           Navigator.of(context).pop();
         }
-
         if (mounted) {
           ToastUtil.success(context, 'Kritik dan saran berhasil dihapus');
         }
 
         if (mounted) {
           Log.info('Kembali ke halaman sebelumnya dengan status sukses.');
-
-          Navigator.of(context).pop(true);
+          Navigator.pop(context);
         }
       } catch (e, st) {
         Log.error(
@@ -22499,10 +22495,8 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
 
         if (mounted) {
           Log.warning('Menutup loading dialog karena terjadi error.');
-
           Navigator.of(context).pop();
         }
-
         if (mounted) {
           ToastUtil.error(context, 'Gagal menghapus: $e');
         }
@@ -22527,11 +22521,12 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
             icon: const Icon(TIcons.edit),
             tooltip: 'Edit',
           ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: _deleteFeedback,
-            tooltip: 'Hapus Kritik & Saran',
-          ),
+          if (ref.isAdmin)
+            IconButton(
+              icon: const Icon(TIcons.delete),
+              onPressed: _softDeletedFeedback,
+              tooltip: 'Hapus Kritik & Saran',
+            ),
         ],
       ),
       body: FutureBuilder<FeedbackModel>(
@@ -23174,7 +23169,7 @@ class FeedbackOpSqlite {
   FeedbackOpSqlite({required this.sqliteDb, required this.baseOpSqlite});
 
   /// Menyimpan [FeedbackModel] baru ke dalam database.
-  Future<void> tambahFeedback(
+  Future<void> tambah(
     final FeedbackModel feedback, {
     final bool dariServer = false,
   }) async {
@@ -23188,6 +23183,34 @@ class FeedbackOpSqlite {
       Log.info('Berhasil membuat kritik_saran dengan ID: ${feedback.id}');
     } on Exception catch (e, st) {
       Log.error('Gagal saat createFeedback', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  /// Memperbarui [FeedbackModel] yang sudah ada di database.
+  Future<void> perbarui(
+    final FeedbackModel feedback, {
+    final bool dariServer = false,
+  }) async {
+    Log.info('Memulai updateFeedback untuk ID: ${feedback.id}');
+    try {
+      final data = feedback
+          .copyWith(diperbaruiPada: DateTime.now().toUtc())
+          .toSqlite();
+
+      await baseOpSqlite.update(
+        _namaTabel,
+        data,
+        feedback.id,
+        dariServer: dariServer,
+      );
+      Log.info('Berhasil memperbarui feedback dengan ID: ${feedback.id}');
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal saat updateFeedback untuk ID: ${feedback.id}',
+        e: e,
+        s: st,
+      );
       rethrow;
     }
   }
@@ -23328,7 +23351,7 @@ class FeedbackOpSqlite {
   // ===========================================================================
 
   /// Menghapus [FeedbackModel] dari database secara permanen.
-  Future<void> delete(final String id, {final bool fromServer = false}) async {
+  Future<void> hapus(final String id, {final bool fromServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai deleteFeedback (hard delete) untuk ID: $id',
     );
@@ -23423,6 +23446,58 @@ class FeedbackOpSqlite {
 }
 
 
+// File: lib/fitur/feedback/operasi/feedback_op_global.dart
+// path lib/fitur/feedback/operasi/feedback_op_global.dart
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+
+final feedbackOpGlobalProvider = Provider<FeedbackOpGlobal>((ref) {
+  return FeedbackOpGlobal(ref: ref);
+});
+
+class FeedbackOpGlobal {
+  final Ref ref;
+
+  FeedbackOpGlobal({required this.ref});
+  FeedbackOpSqlite get _feedbackOpSqlite => ref.read(feedbackOpSqliteProvider);
+  FeedbackOpFirebase get _feedbackOpFirebase =>
+      ref.read(feedbackOpFirebaseProvider);
+
+  Future<void> tambah(FeedbackModel feedback) async {
+    try {
+      if (RoleUtil.isAdmin(ref)) {
+        await _feedbackOpSqlite.tambah(feedback);
+      } else {
+        await _feedbackOpFirebase.tambah(feedback);
+      }
+    } on Exception catch (e, s) {
+      Log.error('Error ditambah: $e', e: e, s: s);
+      rethrow; // Error handling opsional
+    }
+  }
+
+  Future<void> perbarui(FeedbackModel feedback) async {
+    try {
+      if (RoleUtil.isAdmin(ref)) {
+        await _feedbackOpSqlite.perbarui(feedback);
+      } else {
+        await _feedbackOpFirebase.perbarui(feedback);
+      }
+    } on Exception catch (e, s) {
+      Log.error('Error ditambah: $e', e: e, s: s);
+      rethrow; // Error handling opsional
+    }
+  }
+}
+
+
 // File: lib/fitur/feedback/operasi/feedback_op_firebase.dart
 // path: lib/fitur/feedback/operasi/feedback_op_firebase.dart
 
@@ -23454,7 +23529,7 @@ class FeedbackOpFirebase {
   CollectionReference get _koleksi => _firestore.collection(_namaKoleksi);
 
   /// Menyimpan feedback baru dengan ID otomatis dari Firestore.
-  Future<void> tambahFeedback(FeedbackModel feedback) async {
+  Future<void> tambah(FeedbackModel feedback) async {
     Log.info('Mendelegasikan pembuatan feedback baru...');
 
     // 1. Ambil data dasar dari model
@@ -23464,11 +23539,14 @@ class FeedbackOpFirebase {
   }
 
   /// Memperbarui isi feedback.
-  Future<void> perbaruiFeedback(String id, String pesanBaru) async {
-    Log.info('Mendelegasikan pembaruan feedback: $id');
-    await _baseOpFirebase.update(_namaKoleksi, id, {
-      NamaKolom.pesan: pesanBaru,
-    });
+  Future<void> perbarui(FeedbackModel feedback) async {
+    Log.info('Mendelegasikan pembaruan feedback: ${feedback.id}');
+
+    final data = feedback.toFirebase();
+    data.remove(NamaKolom.id);
+    data.remove(NamaKolom.tanggal);
+    await _baseOpFirebase.update(_namaKoleksi, feedback.id, data);
+    Log.info('Berhasil memperbarui feedback ID: ${feedback.id}');
   }
 
   /// Menghapus feedback secara permanen dari Firestore.
@@ -31614,6 +31692,7 @@ class _PelangganState extends ConsumerState<PelangganPage> {
     final pelangganAsync = ref.watch(filteredCustomersProvider);
     final sedangMencari = ref.watch(searchQueryPelangganProvider).isNotEmpty;
     return pelangganAsync.when(
+      skipLoadingOnReload: true,
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, s) {
         Log.error('Gagal memuat daftar customer', e: e, s: s);
@@ -32068,10 +32147,12 @@ class DetailPelanggan extends ConsumerWidget {
   ) async {
     if (pelanggan == null) return;
     Log.info('Navigasi ke form edit pelanggan: ${pelanggan.nama}');
-    await Navigator.push<bool>(
-      context,
-      MaterialPageRoute<bool>(
-        builder: (context) => FormPelanggan(pelanggan: pelanggan),
+    unawaited(
+      Navigator.push<bool>(
+        context,
+        MaterialPageRoute<bool>(
+          builder: (context) => FormPelanggan(pelanggan: pelanggan),
+        ),
       ),
     );
   }
@@ -32104,10 +32185,12 @@ MAC : ${customer.macAddress}
     if (pelanggan == null) return;
     Log.info('Navigasi ke halaman poin pelanggan: ${pelanggan.nama}');
 
-    await Navigator.push<void>(
-      context,
-      MaterialPageRoute<void>(
-        builder: (context) => HalamanPoin(idPelanggan: pelanggan.id),
+    unawaited(
+      Navigator.push<void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (context) => HalamanPoin(idPelanggan: pelanggan.id),
+        ),
       ),
     );
   }
@@ -32116,6 +32199,7 @@ MAC : ${customer.macAddress}
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(pelangganDetailProvider(idPelanggan));
     return detailAsync.when(
+      skipLoadingOnReload: true,
       loading: () => Scaffold(
         appBar: AppBar(title: const Text('Memuat Detail...')),
         body: const Center(child: CircularProgressIndicator()),
@@ -58221,7 +58305,7 @@ void main() {
       ).thenAnswer((_) async => mockDocRef);
 
       // Act
-      await feedbackOpFirebase.tambahFeedback(feedbackModel);
+      await feedbackOpFirebase.tambah(feedbackModel);
 
       // Assert
       verify(mockBaseOpFirebase.tambah(any, any)).called(1);
@@ -58238,7 +58322,7 @@ void main() {
         ).thenAnswer((_) async => Future.value());
 
         // Act
-        await feedbackOpFirebase.perbaruiFeedback(docId, newContent);
+        await feedbackOpFirebase.perbarui(docId, newContent);
 
         // Assert
         verify(
@@ -59926,7 +60010,7 @@ void main() {
         mockBaseOpSqlite.sisipkan(namaTabel, any),
       ).thenAnswer((_) async => 1);
 
-      await feedbackOpSqlite.tambahFeedback(feedback);
+      await feedbackOpSqlite.tambah(feedback);
 
       verify(
         mockBaseOpSqlite.sisipkan(
@@ -59941,7 +60025,7 @@ void main() {
         mockBaseOpSqlite.delete(namaTabel, 'fb1'),
       ).thenAnswer((_) async => 1);
 
-      await feedbackOpSqlite.delete('fb1');
+      await feedbackOpSqlite.hapus('fb1');
 
       verify(mockBaseOpSqlite.delete(namaTabel, 'fb1')).called(1);
     });

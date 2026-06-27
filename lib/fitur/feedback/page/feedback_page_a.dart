@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
 import 'package:wifi/fitur/feedback/page/feedback_detail_a.dart';
 import 'package:wifi/fitur/feedback/provider/feedback_provider.dart'; // Import provider baru Anda
 import 'package:wifi/shared/debug/log.dart';
@@ -98,8 +99,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
     if ((konfirmasi ?? false) && mounted) {
       Log.info('Memproses penghapusan kritik/saran ID: ${feedback.id}');
       try {
-        await ref.read(feedbackOpSqliteProvider).softDelete(feedback.id);
-        final _ = ref.refresh(daftarFeedbackAktifProvider);
+        await ref.read(feedbackOpGlobalProvider).softDelete(feedback.id);
         if (mounted) {
           ToastUtil.success(context, 'Kritik dan saran berhasil dihapus');
         }

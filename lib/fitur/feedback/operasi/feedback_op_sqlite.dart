@@ -17,7 +17,7 @@ class FeedbackOpSqlite {
   FeedbackOpSqlite({required this.sqliteDb, required this.baseOpSqlite});
 
   /// Menyimpan [FeedbackModel] baru ke dalam database.
-  Future<void> tambahFeedback(
+  Future<void> tambah(
     final FeedbackModel feedback, {
     final bool dariServer = false,
   }) async {
@@ -31,6 +31,34 @@ class FeedbackOpSqlite {
       Log.info('Berhasil membuat kritik_saran dengan ID: ${feedback.id}');
     } on Exception catch (e, st) {
       Log.error('Gagal saat createFeedback', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  /// Memperbarui [FeedbackModel] yang sudah ada di database.
+  Future<void> perbarui(
+    final FeedbackModel feedback, {
+    final bool dariServer = false,
+  }) async {
+    Log.info('Memulai updateFeedback untuk ID: ${feedback.id}');
+    try {
+      final data = feedback
+          .copyWith(diperbaruiPada: DateTime.now().toUtc())
+          .toSqlite();
+
+      await baseOpSqlite.update(
+        _namaTabel,
+        data,
+        feedback.id,
+        dariServer: dariServer,
+      );
+      Log.info('Berhasil memperbarui feedback dengan ID: ${feedback.id}');
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal saat updateFeedback untuk ID: ${feedback.id}',
+        e: e,
+        s: st,
+      );
       rethrow;
     }
   }
@@ -171,7 +199,7 @@ class FeedbackOpSqlite {
   // ===========================================================================
 
   /// Menghapus [FeedbackModel] dari database secara permanen.
-  Future<void> delete(final String id, {final bool fromServer = false}) async {
+  Future<void> hapus(final String id, {final bool fromServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai deleteFeedback (hard delete) untuk ID: $id',
     );

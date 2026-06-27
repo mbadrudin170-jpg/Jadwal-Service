@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 
@@ -41,16 +42,22 @@ class Feedback extends _$Feedback {
     state = await AsyncValue.guard(_loadData);
     Log.info('[StatistikNotifier] Refresh selesai.');
   }
+
+  void _invalidateTabelFeedback(){
+    ref.invalidateSelf();
+    ref.invalidate(detailFeedbackProvider);
+    ref.invalidate(daftarFeedbackAktifProvider);
+  }
 }
 
 @riverpod
 Future<List<FeedbackModel>> daftarFeedbackAktif(Ref ref) async {
-  final feedbackOpSqlite = ref.watch(feedbackOpSqliteProvider);
+  final feedbackOpSqlite = ref.watch(feedbackOpGlobalProvider);
   return await feedbackOpSqlite.ambilSemua();
 }
 
 @riverpod
 Future<FeedbackModel> detailFeedback(Ref ref, String id) async {
-  final feedbackOpSqlite = ref.watch(feedbackOpSqliteProvider);
+  final feedbackOpSqlite = ref.watch(feedbackOpGlobalProvider);
   return await feedbackOpSqlite.ambilBerdasarkanId(id);
 }

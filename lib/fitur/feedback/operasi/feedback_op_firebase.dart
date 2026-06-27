@@ -28,7 +28,7 @@ class FeedbackOpFirebase {
   CollectionReference get _koleksi => _firestore.collection(_namaKoleksi);
 
   /// Menyimpan feedback baru dengan ID otomatis dari Firestore.
-  Future<void> tambahFeedback(FeedbackModel feedback) async {
+  Future<void> tambah(FeedbackModel feedback) async {
     Log.info('Mendelegasikan pembuatan feedback baru...');
 
     // 1. Ambil data dasar dari model
@@ -38,11 +38,14 @@ class FeedbackOpFirebase {
   }
 
   /// Memperbarui isi feedback.
-  Future<void> perbaruiFeedback(String id, String pesanBaru) async {
-    Log.info('Mendelegasikan pembaruan feedback: $id');
-    await _baseOpFirebase.update(_namaKoleksi, id, {
-      NamaKolom.pesan: pesanBaru,
-    });
+  Future<void> perbarui(FeedbackModel feedback) async {
+    Log.info('Mendelegasikan pembaruan feedback: ${feedback.id}');
+
+    final data = feedback.toFirebase();
+    data.remove(NamaKolom.id);
+    data.remove(NamaKolom.tanggal);
+    await _baseOpFirebase.update(_namaKoleksi, feedback.id, data);
+    Log.info('Berhasil memperbarui feedback ID: ${feedback.id}');
   }
 
   /// Menghapus feedback secara permanen dari Firestore.
@@ -52,7 +55,7 @@ class FeedbackOpFirebase {
   }
 
   /// Melakukan soft delete pada feedback di Firestore.
-  Future<void> softDeleteFeedback(String id) async {
+  Future<void> softDelete(String id) async {
     Log.info('Mendelegasikan soft delete feedback: $id');
     await _baseOpFirebase.softDelete(_namaKoleksi, id);
   }
