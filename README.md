@@ -5809,7 +5809,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     if (transaksi.idPaket != null && transaksi.idPaket!.isNotEmpty) {
       try {
         final paketOp = ref.read(paketOpGlobalProvider);
-        paket = await paketOp.ambilPaketBerdasarkanId(transaksi.idPaket!);
+        paket = await paketOp.ambilBerdasarkanId(transaksi.idPaket!);
       } on Exception catch (e, st) {
         Log.error(
           'Failed to get package ${transaksi.idPaket}: $e',
@@ -7387,7 +7387,7 @@ class Settings extends _$Settings {
 
   Future<void> tambahAtauUpdate(SettingsModel settings) async {
     state = await AsyncValue.guard(() async {
-      await _settingsOpSqlite.saveOrUpdateSettings(settings);
+      await _settingsOpSqlite.simpanAtauPerbaruiSettings(settings);
       return await _ambilData();
     });
   }
@@ -7718,48 +7718,40 @@ class SettingsOpSqlite {
       );
       final db = await sqliteDb.database;
 
-      final result = await db.query(
+      final hasil = await db.query(
         _namaTabel,
         where: 'id = ?',
         whereArgs: [idGlobalSetting],
       );
 
-      if (result.isNotEmpty) {
+      if (hasil.isNotEmpty) {
         Log.info('Data pengaturan berhasil ditemukan di database.');
-        return SettingsModel.fromSqlite(result.first);
+        return SettingsModel.fromSqlite(hasil.first);
       } else {
         Log.warning(
           'Tidak ditemukan data pengaturan, membuat pengaturan default.',
         );
-        final defaultSettings = SettingsModel(
-          diperbaruiPada: DateTime.now().toUtc(),
-        );
-        await saveOrUpdateSettings(
-          defaultSettings,
-        );
+        final defaultSettings = SettingsModel(diperbaruiPada: DateTime.now());
+        await simpanAtauPerbaruiSettings(defaultSettings);
         Log.info('Pengaturan default berhasil dibuat dan disimpan.');
         return defaultSettings;
       }
     } on Exception catch (e, st) {
-      Log.error(
-        'Gagal mengambil data pengaturan: $e',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal mengambil data pengaturan: $e', e: e, s: st);
       Log.warning('Mengembalikan SettingsModel default sebagai fallback.');
       return const SettingsModel();
     }
   }
 
   /// Menyimpan atau memperbarui [SettingsModel] di database.
-  Future<void> saveOrUpdateSettings(
+  Future<void> simpanAtauPerbaruiSettings(
     final SettingsModel settings, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     try {
       final settingsToSave = settings.copyWith(
         id: idGlobalSetting,
-        diperbaruiPada: DateTime.now().toUtc(),
+        diperbaruiPada: DateTime.now(),
       );
 
       Log.info(
@@ -7768,7 +7760,7 @@ class SettingsOpSqlite {
       await _baseOpSqlite.sisipkan(
         _namaTabel,
         settingsToSave.toSqlite(),
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info(
         'Pengaturan berhasil disimpan atau diperbarui dengan metode UPSERT.',
@@ -7786,7 +7778,7 @@ class SettingsOpSqlite {
   /// Memperbarui sebagian field dari [SettingsModel] di database.
   ///
   /// [data] adalah Map yang berisi field yang akan diperbarui.
-  Future<void> updateSettings(
+  Future<void> perbaruiSettings(
     final Map<String, dynamic> data, {
     final bool dariServer = false,
   }) async {
@@ -7817,22 +7809,18 @@ class SettingsOpSqlite {
   }
 
   /// Menyimpan atau memperbarui [SettingsModel] di database menggunakan batch.
-  Future<void> saveOrUpdateSettingsWithBatch(
+  Future<void> simpanAtauPerbaruiSettingsDenganBatch(
     final SettingsModel settings, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     try {
       Log.info('Memulai penyimpanan pengaturan dengan batch operation.');
-      final dataToSave = settings.copyWith(
-        id: idGlobalSetting,
-        diperbaruiPada: DateTime.now().toUtc(),
-      );
-      final data = dataToSave.toSqlite();
-      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
-        _namaTabel,
-        [data],
-        dariServer: fromServer,
-      );
+      final data = settings
+          .copyWith(id: idGlobalSetting, diperbaruiPada: DateTime.now().toUtc())
+          .toSqlite();
+      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(_namaTabel, [
+        data,
+      ], dariServer: dariServer);
       Log.info('Batch operation untuk pengaturan berhasil.');
     } catch (e, st) {
       Log.error('Gagal menyimpan pengaturan dengan batch: $e', e: e, s: st);
@@ -10730,17 +10718,16 @@ class PaketOpSqlite {
     }
   }
 
-  /// Mengambil semua paket yang telah diubah sejak [since].
-  Future<List<PaketModel>> ambilPerubahanSejak(DateTime since) async {
+  Future<List<PaketModel>> ambilPerubahanSejak(DateTime sejak) async {
     Log.info(
-      'Memulai pengambilan perubahan paket sejak ${since.toIso8601String()}',
+      'Memulai pengambilan perubahan paket sejak ${sejak.toIso8601String()}',
     );
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
         where: '${NamaKolom.diperbaruiPada} > ?',
-        whereArgs: [since.toUtc().millisecondsSinceEpoch],
+        whereArgs: [sejak.toUtc().millisecondsSinceEpoch],
       );
       Log.info('Ditemukan ${maps.length} perubahan paket');
       return List.generate(maps.length, (i) => PaketModel.fromSqlite(maps[i]));
@@ -10750,7 +10737,6 @@ class PaketOpSqlite {
     }
   }
 
-  /// Menyisipkan atau memperbarui sekumpulan [PaketModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
     List<PaketModel> items, {
     bool dariServer = false,
@@ -10761,12 +10747,12 @@ class PaketOpSqlite {
       return;
     }
     try {
-      final dataList = items
+      final daftarPaket = items
           .map((item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite())
           .toList();
       await basOpSqlite.sisipkanAtauPerbaruiBatch(
         _tabel,
-        dataList,
+        daftarPaket,
         dariServer: dariServer,
       );
       Log.info('Berhasil insertOrUpdateBatch untuk ${items.length} item');
@@ -10846,7 +10832,7 @@ class PaketOpGlobal {
     }
   }
 
-  Future<PaketModel?> ambilPaketBerdasarkanId(String id) async {
+  Future<PaketModel?> ambilBerdasarkanId(String id) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin mengambil paket ID: $id dari SQLite');
       return await _paketOpSqlite.ambilBerdasarkanId(id);
@@ -10866,15 +10852,13 @@ class PaketOpGlobal {
     }
   }
 
-  Future<void> updatePaket(PaketModel paket) async {
+  Future<void> perbaruiPaket(PaketModel paket) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin update paket di SQLite: ${paket.nama}');
       await _paketOpSqlite.perbaruiPaket(paket);
     } else {
       Log.info('[PaketOpGlobal] User update paket di Firebase: ${paket.nama}');
-      await _paketOpFirebase.tambahPaket(
-        paket,
-      );
+      await _paketOpFirebase.perbaruiPaket(paket);
     }
   }
 
@@ -10916,14 +10900,14 @@ class PaketOpGlobal {
     }
   }
 
-  Future<bool> cekNamaPaketSudahAda(String nama, {String? excludeId}) async {
+  Future<bool> cekNamaPaketSudahAda(String nama, {String? idKecuali}) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin cek nama paket di SQLite: $nama');
       final semuaPaket = await _paketOpSqlite.ambilSemua();
       return semuaPaket.any(
         (p) =>
             p.nama.toLowerCase() == nama.toLowerCase() &&
-            (excludeId == null || p.id != excludeId),
+            (idKecuali == null || p.id != idKecuali),
       );
     } else {
       Log.info('[PaketOpGlobal] User cek nama paket di Firebase: $nama');
@@ -10931,7 +10915,7 @@ class PaketOpGlobal {
       return semuaPaket.any(
         (p) =>
             p.nama.toLowerCase() == nama.toLowerCase() &&
-            (excludeId == null || p.id != excludeId),
+            (idKecuali == null || p.id != idKecuali),
       );
     }
   }
@@ -10940,6 +10924,7 @@ class PaketOpGlobal {
 final paketOpGlobalProvider = Provider<PaketOpGlobal>((ref) {
   return PaketOpGlobal(ref: ref);
 });
+
 
 // File: lib/fitur/paket/enum/tipe_durasi_paket.dart
 // path: lib/fitur/paket/enum/tipe_durasi_paket.dart
@@ -12005,7 +11990,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           try {
             await ref
                 .read(orderOpSqliteProvider)
-                .updateStatusOrder(order.id, status);
+                .perbaruiStatusOrder(order.id, status);
             Log.info(
               '_tombolOpsiUbahStatus: status berhasil diubah untuk orderId: ${order.id}',
             );
@@ -12512,14 +12497,14 @@ class OrderOpsqlite {
 
   OrderOpsqlite({required this.sqliteDb, required this.baseOpSqlite});
 
-  String get _tableName => NamaTabel.pesananPelanggan;
+  String get _namaTabel => NamaTabel.pesananPelanggan;
 
   Future<int> ambilTotalDataPerStatus(StatusOrderEnum status) async {
     Log.info('Menghitung pesanan dengan status: ${status.name}');
     try {
       final db = await sqliteDb.database;
       final result = await db.rawQuery(
-        'SELECT COUNT(*) FROM $_tableName WHERE ${NamaKolom.status} = ? AND ${NamaKolom.dihapus} = 0',
+        'SELECT COUNT(*) FROM $_namaTabel WHERE ${NamaKolom.status} = ? AND ${NamaKolom.dihapus} = 0',
         [status.name],
       );
       final count = result.first.values.first as int? ?? 0;
@@ -12543,7 +12528,7 @@ class OrderOpsqlite {
         diperbaruiPada: DateTime.now().toUtc(),
       );
       await baseOpSqlite.sisipkan(
-        _tableName,
+        _namaTabel,
         dataOrderBaru.toSqlite(),
         dariServer: dariServer,
       );
@@ -12562,7 +12547,7 @@ class OrderOpsqlite {
       final db = await sqliteDb.database;
       final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = 0';
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: query,
         orderBy: '${NamaKolom.tanggal} DESC',
       );
@@ -12575,12 +12560,12 @@ class OrderOpsqlite {
     }
   }
 
-  Stream<List<OrderModel>> getAllActiveOrdersStream() async* {
+  Stream<List<OrderModel>> ambilStreamSemuaOrderAktif() async* {
     Log.info('Mengambil semua pesanan aktif dari database (stream sekali).');
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.dihapus} = 0',
         orderBy: '${NamaKolom.tanggal} DESC',
       );
@@ -12599,7 +12584,7 @@ class OrderOpsqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.status} = ? AND ${NamaKolom.dihapus} = 0',
         whereArgs: [status.name],
         orderBy: '${NamaKolom.tanggal} DESC',
@@ -12614,7 +12599,7 @@ class OrderOpsqlite {
     }
   }
 
-  Future<void> updateStatusOrder(
+  Future<void> perbaruiStatusOrder(
     final String id,
     final StatusOrderEnum status, {
     final bool dariServer = false,
@@ -12623,7 +12608,7 @@ class OrderOpsqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.id} = ?',
         whereArgs: [id],
       );
@@ -12635,7 +12620,7 @@ class OrderOpsqlite {
           diperbaruiPada: DateTime.now().toUtc(),
         );
         await baseOpSqlite.update(
-          _tableName,
+          _namaTabel,
           orderBaru.toSqlite(),
           id,
           dariServer: dariServer,
@@ -12654,19 +12639,6 @@ class OrderOpsqlite {
     }
   }
 
-  Future<void> deleteOrder(
-    final String id, {
-    final bool fromServer = false,
-  }) async {
-    Log.warning('Menghapus pesanan ID: $id (hard delete)');
-    try {
-      await baseOpSqlite.delete(_tableName, id, dariServer: fromServer);
-      Log.info('Berhasil menghapus pesanan dengan ID: $id.');
-    } on Exception catch (e, s) {
-      Log.error('Gagal menghapus pesanan.', e: e, s: s);
-      rethrow;
-    }
-  }
 
   Future<void> softDeleteorder(
     final String id, {
@@ -12674,7 +12646,7 @@ class OrderOpsqlite {
   }) async {
     Log.info('Memulai soft delete untuk pesanan ID: $id');
     try {
-      await baseOpSqlite.softDelete(_tableName, id, dariServer: dariServer);
+      await baseOpSqlite.softDelete(_namaTabel, id, dariServer: dariServer);
       Log.info('Berhasil soft delete pesanan ID: $id.');
     } on Exception catch (e, st) {
       Log.error('Gagal saat soft delete pesanan ID: $id', e: e, s: st);
@@ -12686,7 +12658,7 @@ class OrderOpsqlite {
     Log.info('Memulai soft delete untuk semua pesanan');
     try {
       final count = await baseOpSqlite.softDeleteAll(
-        _tableName,
+        _namaTabel,
         dariServer: fromServer,
       );
       Log.info('Berhasil soft delete semua pesanan. Total: $count item.');
@@ -12715,7 +12687,7 @@ class OrderOpsqlite {
           )
           .toList();
       await baseOpSqlite.sisipkanAtauPerbaruiBatch(
-        _tableName,
+        _namaTabel,
         data,
         dariServer: dariServer,
       );
@@ -12726,7 +12698,7 @@ class OrderOpsqlite {
     }
   }
 
-  Future<List<OrderModel>> getOrdersByIds(final List<String> ids) async {
+  Future<List<OrderModel>> ambilOrderBerdasarkanIds(final List<String> ids) async {
     Log.info('Mengambil pesanan untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning('List ID kosong, mengembalikan list kosong.');
@@ -12735,7 +12707,7 @@ class OrderOpsqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where:
             '${NamaKolom.id} IN (${List.filled(ids.length, '?').join(',')}) AND ${NamaKolom.dihapus} = 0',
         whereArgs: ids,
@@ -14803,7 +14775,7 @@ class KategoriOpSqlite {
     }
   }
 
-  Future<List<KategoriModel>> getCategoriesByIds(final List<String> ids) async {
+  Future<List<KategoriModel>> ambilKategoriBerdasarkanIds(final List<String> ids) async {
     Log.info('Memulai getCategoriesByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning(
@@ -16990,13 +16962,10 @@ class DompetOpSqlite {
     }
   }
 
-  Future<void> softDelete(
-    final String id, {
-    final bool fromServer = false,
-  }) async {
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
     Log.info('Memulai soft delete untuk wallet ID: $id');
     try {
-      await _baseOpSqlite.softDelete(_tabelDompet, id, dariServer: fromServer);
+      await _baseOpSqlite.softDelete(_tabelDompet, id, dariServer: dariServer);
       Log.info('Berhasil soft delete wallet ID: $id.');
     } catch (e, st) {
       Log.error('Gagal saat soft delete wallet ID: $id', e: e, s: st);
@@ -17004,12 +16973,12 @@ class DompetOpSqlite {
     }
   }
 
-  Future<int> softDeleteAll({final bool fromServer = false}) async {
+  Future<int> softDeleteAll({bool dariServer = false}) async {
     Log.info('Memulai soft delete untuk semua dompet');
     try {
       final count = await _baseOpSqlite.softDeleteAll(
         _tabelDompet,
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil soft delete semua dompet. Total: $count item.');
       return count;
@@ -24138,7 +24107,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_provider.dart';
@@ -28797,8 +28765,8 @@ class Transaksi extends _$Transaksi {
   Future<TransaksiState> _loadData() async {
     final hasil = await Future.wait([
       _transaksiOp.ambilSemua(), // [0]
-      _transaksiOp.getTotalIncome(), // [1]
-      _transaksiOp.getTotalExpense(), // [2]
+      _transaksiOp.ambilTotalPemasukan(), // [1]
+      _transaksiOp.ambilTotalPengeluaran(), // [2]
       _transaksiOp.getNetTotal(), // [3]
       _transaksiOp.ambilTotalPoinSemuaPelanggan(), // [4]
       _transaksiOp.ambilPaketTerlaris(), // [5] ✅ TAMBAHKAN
@@ -29214,19 +29182,19 @@ class TransaksiOpGlobal {
     }
   }
 
-  Future<double> getTotalIncome() async {
+  Future<double> ambilTotalPemasukan() async {
     Log.info('Menghitung total pemasukan');
     if (RoleUtil.isAdmin(ref)) {
-      return await _transaksiOpSqlite.getTotalIncome();
+      return await _transaksiOpSqlite.ambilTotalPemasukan();
     } else {
       return 0;
     }
   }
 
-  Future<double> getTotalExpense() async {
+  Future<double> ambilTotalPengeluaran() async {
     Log.info('Menghitung total pengeluaran');
     if (RoleUtil.isAdmin(ref)) {
-      return await _transaksiOpSqlite.getTotalExpense();
+      return await _transaksiOpSqlite.ambilTotalPengeluaran();
     } else {
       return 0;
     }
@@ -29237,8 +29205,8 @@ class TransaksiOpGlobal {
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.getNetTotal();
     } else {
-      final income = await getTotalIncome();
-      final expense = await getTotalExpense();
+      final income = await ambilTotalPemasukan();
+      final expense = await ambilTotalPengeluaran();
       return income - expense;
     }
   }
@@ -29761,7 +29729,7 @@ class TransaksiOpSqlite {
   }
 
   /// Menghitung total pemasukan (income) dari semua transaksi.
-  Future<double> getTotalIncome() async {
+  Future<double> ambilTotalPemasukan() async {
     try {
       final db = await _sqliteDb;
       Log.info('Menghitung total seluruh pemasukan');
@@ -29781,7 +29749,7 @@ class TransaksiOpSqlite {
   }
 
   /// Menghitung total pengeluaran (expense) dari semua transaksi.
-  Future<double> getTotalExpense() async {
+  Future<double> ambilTotalPengeluaran() async {
     try {
       final db = await _sqliteDb;
       Log.info('Menghitung total seluruh pengeluaran');
@@ -29803,8 +29771,8 @@ class TransaksiOpSqlite {
   /// Menghitung total bersih (pemasukan - pengeluaran).
   Future<double> getNetTotal() async {
     Log.info('Menghitung Net Total (Pemasukan - Pengeluaran)');
-    final income = await getTotalIncome();
-    final expense = await getTotalExpense();
+    final income = await ambilTotalPemasukan();
+    final expense = await ambilTotalPengeluaran();
     final net = income - expense;
     Log.info('Hasil Net Total: $net');
     return net;
@@ -36458,9 +36426,9 @@ class LayananUnduhData {
           if (waktuPembaruanServer.isAfter(lastDownloadTime)) {
             Log.info('Data pengaturan server lebih baru, memperbarui lokal.');
             final settings = SettingsModel.fromFirebase(data);
-            await _operasiPengaturan.saveOrUpdateSettings(
+            await _operasiPengaturan.simpanAtauPerbaruiSettings(
               settings,
-              fromServer: true,
+              dariServer: true,
             );
             Log.info('Update Settings lokal berhasil.');
           } else {
@@ -48443,7 +48411,7 @@ class HalamanDataDummy extends ConsumerWidget {
       Log.info('Memulai proses penambahan data Pengaturan dummy');
       final settingsOperation = ref.read(settingsOpSqliteProvider);
       // Settings default
-      await settingsOperation.saveOrUpdateSettings(const SettingsModel());
+      await settingsOperation.simpanAtauPerbaruiSettings(const SettingsModel());
 
       if (context.mounted) {
         ToastUtil.success(
@@ -48508,7 +48476,7 @@ class HalamanDataDummy extends ConsumerWidget {
       // 7. Tambahkan Pengaturan
       await ref
           .read(settingsOpSqliteProvider)
-          .saveOrUpdateSettings(const SettingsModel());
+          .simpanAtauPerbaruiSettings(const SettingsModel());
       Log.info('✅ Pengaturan: 1 data');
 
       // Invalidate semua provider

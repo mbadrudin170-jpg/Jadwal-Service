@@ -31,22 +31,20 @@ class SettingsOpSqlite {
       );
       final db = await sqliteDb.database;
 
-      final result = await db.query(
+      final hasil = await db.query(
         _namaTabel,
         where: 'id = ?',
         whereArgs: [idGlobalSetting],
       );
 
-      if (result.isNotEmpty) {
+      if (hasil.isNotEmpty) {
         Log.info('Data pengaturan berhasil ditemukan di database.');
-        return SettingsModel.fromSqlite(result.first);
+        return SettingsModel.fromSqlite(hasil.first);
       } else {
         Log.warning(
           'Tidak ditemukan data pengaturan, membuat pengaturan default.',
         );
-        final defaultSettings = SettingsModel(
-          diperbaruiPada: DateTime.now().toUtc(),
-        );
+        final defaultSettings = SettingsModel(diperbaruiPada: DateTime.now());
         await simpanAtauPerbaruiSettings(defaultSettings);
         Log.info('Pengaturan default berhasil dibuat dan disimpan.');
         return defaultSettings;
@@ -66,7 +64,7 @@ class SettingsOpSqlite {
     try {
       final settingsToSave = settings.copyWith(
         id: idGlobalSetting,
-        diperbaruiPada: DateTime.now().toUtc(),
+        diperbaruiPada: DateTime.now(),
       );
 
       Log.info(
@@ -130,11 +128,9 @@ class SettingsOpSqlite {
   }) async {
     try {
       Log.info('Memulai penyimpanan pengaturan dengan batch operation.');
-      final dataToSave = settings.copyWith(
-        id: idGlobalSetting,
-        diperbaruiPada: DateTime.now().toUtc(),
-      );
-      final data = dataToSave.toSqlite();
+      final data = settings
+          .copyWith(id: idGlobalSetting, diperbaruiPada: DateTime.now().toUtc())
+          .toSqlite();
       await _baseOpSqlite.sisipkanAtauPerbaruiBatch(_namaTabel, [
         data,
       ], dariServer: dariServer);
