@@ -11751,12 +11751,14 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                       );
                       Navigator.of(dialogContext).pop();
                       final bool? dikonfirmasi = await _konfirmasiOpsi(context);
-                      if (dikonfirmasi ?? false) {
+                      if (dikonfirmasi == true) {
                         Log.info(
                           '_showDialog: konfirmasi hapus disetujui untuk orderId: ${order.id}',
                         );
                         try {
-                          await ref.read(orderOpGlobalProvider).update(order);
+                          await ref
+                              .read(orderOpGlobalProvider)
+                              .softDelete(order.id);
                           Log.info(
                             '_showDialog: order berhasil dihapus orderId: ${order.id}',
                           );
@@ -12034,13 +12036,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
   Widget _tombolOpsiUbahStatus({
     required String label,
     required OrderModel order,
-    required StatusOrderEnum status,
     required BuildContext dialogContext,
     required BuildContext pageContext,
   }) {
-    Log.info(
-      '_tombolOpsiUbahStatus dipanggil untuk label: $label, orderId: ${order.id}, targetStatus: ${status.name}',
-    );
     return TextButton(
       onPressed: () async {
         Log.info(
@@ -12048,14 +12046,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         );
         Navigator.of(dialogContext).pop();
         final bool? dikonfirmasi = await _konfirmasiOpsi(pageContext);
-        if (dikonfirmasi ?? false) {
-          Log.info(
-            '_tombolOpsiUbahStatus: konfirmasi disetujui, mengubah status orderId: ${order.id} menjadi ${status.name}',
-          );
+        if (dikonfirmasi == true) {
           try {
-            await ref
-                .read(orderOpSqliteProvider)
-                .perbaruiStatusOrder(order.id, status);
+            await ref.read(orderOpGlobalProvider).perbarui(order);
             Log.info(
               '_tombolOpsiUbahStatus: status berhasil diubah untuk orderId: ${order.id}',
             );
@@ -12559,7 +12552,46 @@ class OrderOpSqlite {
   final SqliteDatabase sqliteDb;
   final BaseOpSqlite baseOpSqlite;
   OrderOpSqlite({required this.sqliteDb, required this.baseOpSqlite});
+
   String get _namaTabel => NamaTabel.pesananPelanggan;
+  DateTime? get _nowUtc => DateTime.now().toUtc();
+
+  Future<void> tambahOrder(
+    final OrderModel order, {
+    final bool dariServer = false,
+  }) async {
+    Log.info('Menyimpan pesanan baru ID: ${order.id}');
+    try {
+      final dataOrderBaru = order.copyWith(diperbaruiPada: _nowUtc);
+      await baseOpSqlite.sisipkan(
+        _namaTabel,
+        dataOrderBaru.toSqlite(),
+        dariServer: dariServer,
+      );
+      Log.info('Berhasil menyimpan pesanan ID: ${order.id}');
+    } on Exception catch (e, s) {
+      Log.error('Gagal menyimpan pesanan.', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> perbarui(OrderModel order, {bool dariServer = false}) async {
+    try {
+      final dataBaru = order.copyWith(diperbaruiPada: _nowUtc);
+      await baseOpSqlite.update(
+        _namaTabel,
+        dataBaru.toSqlite(),
+        order.id,
+        dariServer: dariServer,
+      );
+      Log.info(
+        'Status pesanan ID: $order berhasil diperbarui beserta timestamp-nya.',
+      );
+    } on Exception catch (e, s) {
+      Log.error('Gagal memperbarui status pesanan.', e: e, s: s);
+      rethrow;
+    }
+  }
 
   Future<int> ambilTotalDataPerStatus(StatusOrderEnum status) async {
     Log.info('Menghitung pesanan dengan status: ${status.name}');
@@ -12576,27 +12608,6 @@ class OrderOpSqlite {
       return count;
     } on Exception catch (e, s) {
       Log.error('Gagal menghitung pesanan berdasarkan status.', e: e, s: s);
-      rethrow;
-    }
-  }
-
-  Future<void> tambahOrder(
-    final OrderModel order, {
-    final bool dariServer = false,
-  }) async {
-    Log.info('Menyimpan pesanan baru ID: ${order.id}');
-    try {
-      final dataOrderBaru = order.copyWith(
-        diperbaruiPada: DateTime.now().toUtc(),
-      );
-      await baseOpSqlite.sisipkan(
-        _namaTabel,
-        dataOrderBaru.toSqlite(),
-        dariServer: dariServer,
-      );
-      Log.info('Berhasil menyimpan pesanan ID: ${order.id}');
-    } on Exception catch (e, s) {
-      Log.error('Gagal menyimpan pesanan.', e: e, s: s);
       rethrow;
     }
   }
@@ -12657,46 +12668,6 @@ class OrderOpSqlite {
       return maps.map(OrderModel.fromSqlite).toList();
     } on Exception catch (e, s) {
       Log.error('Gagal mengambil pesanan berdasarkan status.', e: e, s: s);
-      rethrow;
-    }
-  }
-
-  Future<void> perbaruiStatusOrder(
-    final String id,
-    final StatusOrderEnum status, {
-    final bool dariServer = false,
-  }) async {
-    Log.info('Memperbarui status pesanan ID: $id menjadi ${status.name}');
-    try {
-      final db = await sqliteDb.database;
-      final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
-        where: '${NamaKolom.id} = ?',
-        whereArgs: [id],
-      );
-
-      if (maps.isNotEmpty) {
-        final orderLama = OrderModel.fromSqlite(maps.first);
-        final orderBaru = orderLama.copyWith(
-          status: status,
-          diperbaruiPada: DateTime.now().toUtc(),
-        );
-        await baseOpSqlite.update(
-          _namaTabel,
-          orderBaru.toSqlite(),
-          id,
-          dariServer: dariServer,
-        );
-        Log.info(
-          'Status pesanan ID: $id berhasil diperbarui beserta timestamp-nya.',
-        );
-      } else {
-        Log.warning(
-          'Gagal memperbarui status: Pesanan dengan ID: $id tidak ditemukan.',
-        );
-      }
-    } on Exception catch (e, s) {
-      Log.error('Gagal memperbarui status pesanan.', e: e, s: s);
       rethrow;
     }
   }
@@ -12827,12 +12798,26 @@ class OrderOpGlobal {
     }
   }
 
-  Future<void> update(OrderModel order) async {
+  Future<void> perbarui(OrderModel order) async {
     try {
       if (RoleUtil.isAdmin(ref)) {
-        await _orderOpSqlite.perbaruiStatusOrder(order.id, order.status);
+        await _orderOpSqlite.perbarui(order);
       } else {
-        await _orderOpFirebase.updateOrder(order);
+        await _orderOpFirebase.perbarui(order);
+      }
+    } on Exception catch (e, s) {
+      Log.error('Error ditambah: $e', e: e, s: s);
+      // Error handling opsional
+      rethrow;
+    }
+  }
+
+  Future<void> softDelete(String id) async {
+    try {
+      if (RoleUtil.isAdmin(ref)) {
+        await _orderOpSqlite.softDeleteorder(id);
+      } else {
+        await _orderOpFirebase.softDeleteOrder(id);
       }
     } on Exception catch (e, s) {
       Log.error('Error ditambah: $e', e: e, s: s);
@@ -12880,7 +12865,7 @@ class OrderOpFirebase {
   }
 
   /// 2. Memperbarui pesanan yang ada
-  Future<void> updateOrder(OrderModel order) async {
+  Future<void> perbarui(OrderModel order) async {
     Log.info('Memperbarui pesanan: ${order.id}');
     await _baseOp.update(_namaKoleksi, order.id, order.toFirebase());
   }
@@ -44188,7 +44173,9 @@ class BaseOpFirebase {
 
           Log.info('[FIRESTORE TRANSAKSI AKTIF] Memperbarui status global...');
           await _statusOp.perbaruiStatusGlobal();
-          Log.info('[FIRESTORE TRANSAKSI AKTIF] Status global berhasil diperbarui.');
+          Log.info(
+            '[FIRESTORE TRANSAKSI AKTIF] Status global berhasil diperbarui.',
+          );
 
           return actionResult;
         } catch (e, st) {
@@ -44244,23 +44231,23 @@ class BaseOpFirebase {
   }
 
   Future<void> sisipkan(
-    final String collectionName,
+    final String namaKoleksi,
     final String docId,
     final Map<String, dynamic> data,
   ) async {
-    Log.info('Base insert: $collectionName/$docId');
+    Log.info('Base insert: $namaKoleksi/$docId');
     try {
-      final docRef = firestore.collection(collectionName).doc(docId);
+      final docRef = firestore.collection(namaKoleksi).doc(docId);
       data[NamaKolom.diperbaruiPada] = FieldValue.serverTimestamp();
       await docRef.set(data);
       unawaited(_statusOp.perbaruiStatusGlobal());
-      Log.info('Base insert berhasil: $collectionName/$docId');
+      Log.info('Base insert berhasil: $namaKoleksi/$docId');
     } on FirebaseException catch (e, s) {
       Log.error(
         'Gagal melakukan base insert',
         e: e,
         s: s,
-        data: {'collection': collectionName, 'docId': docId},
+        data: {'collection': namaKoleksi, 'docId': docId},
       );
       rethrow;
     }
@@ -44409,6 +44396,7 @@ class BaseOpFirebase {
     }
   }
 }
+
 
 // File: lib/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
@@ -52341,214 +52329,14 @@ File APK yang dihasilkan akan berada di direktori: `build/app/outputs/flutter-ap
 
 
 // File: prompt/aturan_ai.md
-# Aturan Penggunaan Radio Button Flutter
+# Aturan Analaysa proyek
 
-1. **Dilarang menggunakan widget `Radio`.**
-2. **Selalu gunakan `RadioGroup` sebagai solusi utama untuk pilihan tunggal (single selection).**
-3. **Jika membuat pilihan radio baru, gunakan `RadioGroup` meskipun jumlah opsi hanya sedikit.**
-4. **Jangan merekomendasikan `Radio` dalam contoh kode, dokumentasi, maupun saran implementasi.**
-5. **Jangan mengganti `RadioGroup` yang sudah ada menjadi `Radio`.**
-6. **Jika menemukan `Radio` pada kode lama, rekomendasikan migrasi ke `RadioGroup`.**
-7. **Pisahkan tampilan (label, ikon, deskripsi) dari komponen radio agar lebih fleksibel dibanding `Radio`.**
-8. **Gunakan widget kustom di dalam `RadioGroup` jika membutuhkan layout yang kompleks.**
-9. **Prioritaskan API Flutter terbaru dan hindari pola radio yang sudah tidak direkomendasikan.**
-10. **Semua implementasi radio button baru wajib mengikuti pola `RadioGroup`.**
-11. **Jika pengguna meminta radio button, asumsikan solusi yang diinginkan adalah `RadioGroup`, bukan `Radio`.**
-12. **Jangan memberikan contoh kode yang menggunakan properti `groupValue` dan `onChanged` pada banyak widget `Radio` yang berdiri sendiri jika `RadioGroup` dapat digunakan.**
-13. **Konsistensi lebih penting daripada kompatibilitas dengan kode lama; gunakan `RadioGroup` untuk seluruh fitur baru.**
-14. **Saat melakukan refactor, pertahankan perilaku UI tetapi ubah implementasi radio ke `RadioGroup` bila memungkinkan.**
-15. **Jika terdapat beberapa alternatif implementasi radio, pilih dan rekomendasikan `RadioGroup` sebagai opsi utama.**
-
-# Ringkasan Singkat
-
-* ❌ Jangan gunakan `Radio`.
-* ❌ Jangan merekomendasikan `Radio`.
-* ✅ Gunakan `RadioGroup`.
-* ✅ Semua radio button baru menggunakan `RadioGroup`.
-* ✅ Migrasikan kode lama ke `RadioGroup` jika memungkinkan.
-
-# Aturan Perbaikan Unit Test
-
-1. **Dilarang mengubah unit test yang sudah lulus (passing test).**
-2. **Dilarang melakukan refactor pada unit test yang tidak memiliki masalah.**
-3. **Fokus hanya pada unit test yang gagal (failing test).**
-4. **Perbaikan harus seminimal mungkin untuk membuat test kembali lulus.**
-5. **Jangan mengubah assertion yang sudah benar dan berhasil dijalankan.**
-6. **Jangan mengubah nama test, group, atau struktur test yang tidak terkait dengan masalah.**
-7. **Jangan memindahkan kode test yang sudah berfungsi dengan baik.**
-8. **Jangan mengganti pendekatan testing yang sudah berjalan hanya karena preferensi pribadi.**
-9. **Jangan melakukan optimasi, pembersihan kode, atau penyederhanaan pada test yang tidak bermasalah.**
-10. **Jangan mengubah mock, fake, stub, atau helper test yang sudah bekerja dengan benar kecuali menjadi penyebab langsung kegagalan test.**
-11. **Perubahan harus dibatasi pada area yang menyebabkan error.**
-12. **Jika hanya satu test yang gagal, jangan mengubah test lain yang lulus.**
-13. **Jika hanya satu blok kode yang bermasalah, jangan mengubah kode test secara menyeluruh.**
-14. **Pertahankan perilaku, cakupan, dan tujuan test yang sudah ada.**
-15. **Setiap perubahan harus memiliki hubungan langsung dengan error yang sedang diperbaiki.**
-16. **Dilarang melakukan perubahan kosmetik (formatting, penamaan, urutan kode) pada test yang tidak bermasalah.**
-17. **Jangan menulis ulang seluruh kode test jika cukup memperbaiki beberapa baris saja.**
-18. **Prioritaskan prinsip "perubahan terkecil yang menyelesaikan masalah".**
-19. **Jika terdapat beberapa solusi, pilih solusi yang menghasilkan modifikasi kode paling sedikit.**
-20. **Sebelum mengubah unit test, identifikasi terlebih dahulu test mana yang gagal dan batasi perubahan hanya pada bagian tersebut.**
-
-# Ringkasan Singkat
-
-* ❌ Jangan sentuh test yang sudah lulus.
-* ❌ Jangan refactor test yang tidak bermasalah.
-* ❌ Jangan menulis ulang kode test secara keseluruhan.
-* ✅ Perbaiki hanya test yang gagal.
-* ✅ Ubah hanya baris yang menyebabkan error.
-* ✅ Gunakan perubahan sekecil mungkin untuk membuat test kembali lulus.
-
-# Aturan Analisis Kode Sebelum Mengubah Kode
-
-1. **Wajib membaca seluruh kode yang akan diubah sebelum melakukan perubahan apa pun.**
-2. **Dilarang langsung menulis atau mengubah kode tanpa memahami isi kode terlebih dahulu.**
-3. **Pahami tujuan, tanggung jawab, dan alur kerja kode sebelum melakukan modifikasi.**
-4. **Identifikasi seluruh fungsi, class, provider, model, state, dan konstanta yang ada di dalam kode.**
-5. **Periksa seluruh import yang digunakan oleh kode tersebut.**
-6. **Baca setiap kode yang menjadi dependency langsung dari kode yang sedang dikerjakan.**
-7. **Pahami hubungan antara kode yang sedang diubah dengan kode lain yang terkait.**
-8. **Jangan membuat asumsi terhadap isi kode yang belum dibaca.**
-9. **Jika terdapat dependency yang belum diberikan, minta kode tersebut terlebih dahulu.**
-10. **Pastikan memahami alur data masuk dan keluar dari kode sebelum mengubah logika.**
-
-# Aturan Membaca Dependency
-
-11. **Wajib membaca kode yang dipanggil langsung oleh kode yang sedang dikerjakan jika memengaruhi logika perubahan.**
-12. **Wajib membaca model yang digunakan oleh kode tersebut.**
-13. **Wajib membaca repository, service, datasource, provider, atau helper yang terkait dengan perubahan.**
-14. **Wajib membaca interface atau abstract class yang digunakan.**
-15. **Jika suatu fungsi berasal dari kode lain, pahami implementasinya sebelum mengubah kode yang bergantung padanya.**
-16. **Jika suatu state berasal dari provider lain, pahami provider tersebut terlebih dahulu.**
-17. **Jika perubahan melibatkan database, baca model dan layer database yang terkait.**
-18. **Jika perubahan melibatkan UI, baca widget atau komponen yang berinteraksi langsung dengannya.**
-19. **Jika perubahan melibatkan navigasi, baca alur navigasi yang terkait.**
-20. **Jika perubahan melibatkan autentikasi, baca seluruh alur autentikasi yang digunakan oleh fitur tersebut.**
-
-# Aturan Sebelum Menulis Solusi
-
-21. **Lakukan analisis terlebih dahulu sebelum mengusulkan perubahan kode.**
-22. **Jelaskan kode mana saja yang sudah dibaca dan dipahami.**
-23. **Identifikasi kode tambahan yang masih diperlukan sebelum implementasi dimulai.**
-24. **Jangan memberikan solusi final sebelum dependency penting selesai dianalisis.**
-25. **Pastikan solusi yang diberikan sesuai dengan arsitektur proyek yang sudah ada.**
-26. **Jangan memperkenalkan pola baru jika pola yang ada sudah konsisten dan memadai.**
-27. **Utamakan konsistensi dengan struktur proyek yang sudah berjalan.**
-28. **Periksa dampak perubahan terhadap kode lain yang terhubung.**
-29. **Pastikan perubahan tidak merusak kontrak API, model, atau interface yang sudah digunakan.**
-30. **Pastikan perubahan tetap kompatibel dengan kode yang sudah ada.**
-
-# Aturan Jika Informasi Belum Lengkap
-
-31. **Jika kode yang diperlukan belum tersedia, hentikan implementasi dan minta kode tersebut.**
-32. **Jangan menebak isi kode yang belum diberikan.**
-33. **Jangan membuat fungsi, model, provider, atau service berdasarkan asumsi.**
-34. **Jangan mengubah arsitektur karena keterbatasan informasi.**
-35. **Tentukan secara jelas kode apa saja yang masih perlu dikirim.**
-36. **Sebutkan alasan mengapa kode tersebut diperlukan.**
-37. **Tunggu hingga kode yang diperlukan tersedia sebelum melakukan perubahan.**
-
-# Checklist Sebelum Mengubah Kode
-
-* ✅ Sudah membaca seluruh kode yang akan diubah.
-* ✅ Sudah membaca dependency yang relevan.
-* ✅ Sudah memahami alur data.
-* ✅ Sudah memahami model yang digunakan.
-* ✅ Sudah memahami provider/repository/service terkait.
-* ✅ Sudah mengecek dampak perubahan ke kode lain.
-* ✅ Tidak ada asumsi terhadap kode yang belum dibaca.
-* ✅ Semua kode penting sudah tersedia.
-
-# Ringkasan Singkat
-
-* Baca kode yang akan diubah terlebih dahulu.
-* Baca dependency yang digunakan kode tersebut.
-* Jangan membuat asumsi terhadap kode yang belum dibaca.
-* Jika ada dependency yang belum tersedia, minta kode tersebut.
-* Analisis dulu, implementasi kemudian.
-* Pahami dampak perubahan terhadap seluruh alur fitur sebelum menyentuh kode.
-# Aturan Penomoran Unit Test
-
-1. **Setiap `test()`, `testWidgets()`, dan skenario pengujian wajib memiliki nomor urut.**
-2. **Nomor urut harus diletakkan di awal nama test.**
-3. **Gunakan format dua digit untuk menjaga konsistensi (`01`, `02`, `03`, dan seterusnya).**
-4. **Penomoran harus berurutan dalam setiap `group()`.**
-5. **Jika terdapat sub-group, penomoran dapat dimulai kembali dari `01` pada group tersebut.**
-6. **Jangan melewati nomor urut tanpa alasan yang jelas.**
-7. **Jika menambahkan test baru, sesuaikan nomor agar tetap berurutan.**
-8. **Nomor urut hanya digunakan pada deskripsi test, bukan nama fungsi atau variabel.**
-9. **Setiap deskripsi test tetap wajib menggunakan Bahasa Indonesia.**
-10. **Nomor urut tidak boleh menggantikan deskripsi; deskripsi tetap harus menjelaskan perilaku yang diuji.**
-
-# Format yang Wajib Digunakan
-
-```dart
-test('01. harus mengembalikan akun yang sedang login', () async {});
-test('02. harus menghapus token login saat logout', () async {});
-test('03. harus menampilkan error ketika penyimpanan gagal', () async {});
-```
-
-# Contoh Group
-
-```dart
-group('Provider Akun', () {
-  test(
-    '01. harus mengembalikan akun yang sedang login',
-    () async {},
-  );
-
-  test(
-    '02. harus menghapus token login saat logout',
-    () async {},
-  );
-
-  test(
-    '03. harus menampilkan error ketika penyimpanan gagal',
-    () async {},
-  );
-});
-```
-
-# Contoh yang Salah
-
-```dart
-test('harus mengembalikan akun yang sedang login', () async {});
-```
-
-Alasan: tidak memiliki nomor urut.
-
-```dart
-test('1. harus mengembalikan akun yang sedang login', () async {});
-```
-
-Alasan: tidak menggunakan format dua digit.
-
-```dart
-test('03. harus mengembalikan akun yang sedang login', () async {});
-test('07. harus menghapus token login saat logout', () async {});
-```
-
-Alasan: nomor tidak berurutan.
-
-# Aturan Tambahan untuk Kode Test Baru
-
-11. **Sebelum membuat test, identifikasi seluruh skenario yang akan diuji.**
-12. **Susun urutan test berdasarkan alur logika fitur, bukan secara acak.**
-13. **Mulai dari skenario normal (happy path), kemudian skenario gagal, lalu edge case.**
-14. **Nomor urut harus mencerminkan urutan pembacaan yang logis.**
-15. **Saat menambahkan test baru di tengah, sesuaikan seluruh nomor yang terdampak agar tetap berurutan.**
-
-# Ringkasan Singkat
-
-* ✅ Semua test wajib bernomor.
-* ✅ Format nomor: `01.`, `02.`, `03.`
-* ✅ Nomor di awal deskripsi test.
-* ✅ Deskripsi tetap menggunakan Bahasa Indonesia.
-* ✅ Nomor harus berurutan dalam setiap group.
-* ❌ Jangan membuat test tanpa nomor urut.
-* ❌ Jangan menggunakan format `1.`, `2.`, `3.`.
-* ❌ Jangan membuat nomor yang loncat-loncat.
-
+1. sebelum memutuskan final tolong analysa dahulu semua kode yang bersangkutan di folder README.md,
+2. selalu analysa secara mendalam dan lebih teliti lagi sebelum memberikan keputusan.
+3. kalau bisa selalu cari di web resmi dokumen dart, flutter dan dokumn paket terkait dan sesuai kan dengan versi yang ada di pubscl.yml.
+4. selalu berikan penjelasan kenapa kode ini bisa error atau salah dan beri penjelasan mengenai kode yang benar nya itu.
+5. jangan berasumsi liar tolong selalu cek disetipa kode yang di import dari class lain dan telusurui sampai ke akar akarnya.
+6. 
 
 // File: prompt/style.md
 # Panduan Gaya Flutter

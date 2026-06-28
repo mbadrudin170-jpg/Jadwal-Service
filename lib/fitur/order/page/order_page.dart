@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/operasi/order_op_global.dart';
 import 'package:wifi/fitur/order/provider/order_provider.dart';
@@ -127,7 +126,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     }
   }
 
-  /// ✅ PERBAIKAN 3: _showDialog sekarang pakai await dengan benar
   Future<bool?> _showDialog(BuildContext context, OrderModel order) async {
     try {
       return await showDialog<bool>(
@@ -167,7 +165,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                           '_showDialog: konfirmasi hapus disetujui untuk orderId: ${order.id}',
                         );
                         try {
-                          await ref.read(orderOpGlobalProvider).update(order);
+                          await ref
+                              .read(orderOpGlobalProvider)
+                              .softDelete(order.id);
                           Log.info(
                             '_showDialog: order berhasil dihapus orderId: ${order.id}',
                           );
@@ -414,7 +414,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                 Log.info(
                   '_daftarPesanan: long press pada orderId: ${order.id}',
                 );
-                // ✅ PERBAIKAN 4: Pakai try-catch untuk _showDialog
                 try {
                   _showDialog(context, order);
                 } on Exception catch (e, st) {
@@ -445,13 +444,10 @@ class _OrderPageState extends ConsumerState<OrderPage> {
   Widget _tombolOpsiUbahStatus({
     required String label,
     required OrderModel order,
-    required StatusOrderEnum status,
     required BuildContext dialogContext,
     required BuildContext pageContext,
+    required StatusOrderEnum status,
   }) {
-    Log.info(
-      '_tombolOpsiUbahStatus dipanggil untuk label: $label, orderId: ${order.id}, targetStatus: ${status.name}',
-    );
     return TextButton(
       onPressed: () async {
         Log.info(
@@ -460,13 +456,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         Navigator.of(dialogContext).pop();
         final bool? dikonfirmasi = await _konfirmasiOpsi(pageContext);
         if (dikonfirmasi == true) {
-          Log.info(
-            '_tombolOpsiUbahStatus: konfirmasi disetujui, mengubah status orderId: ${order.id} menjadi ${status.name}',
-          );
           try {
-            await ref
-                .read(orderOpGlobalProvider)
-                .perbaruiStatusOrder(order.id, status);
+            final updatedOrder = order.copyWith(status: status);
+            await ref.read(orderOpGlobalProvider).perbarui(updatedOrder);
             Log.info(
               '_tombolOpsiUbahStatus: status berhasil diubah untuk orderId: ${order.id}',
             );

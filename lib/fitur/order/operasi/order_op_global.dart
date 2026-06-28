@@ -31,12 +31,26 @@ class OrderOpGlobal {
     }
   }
 
-  Future<void> update(OrderModel order) async {
+  Future<void> perbarui(OrderModel order) async {
     try {
       if (RoleUtil.isAdmin(ref)) {
         await _orderOpSqlite.perbarui(order);
       } else {
-        await _orderOpFirebase.updateOrder(order);
+        await _orderOpFirebase.perbarui(order);
+      }
+    } on Exception catch (e, s) {
+      Log.error('Error ditambah: $e', e: e, s: s);
+      // Error handling opsional
+      rethrow;
+    }
+  }
+
+  Future<void> softDelete(String id) async {
+    try {
+      if (RoleUtil.isAdmin(ref)) {
+        await _orderOpSqlite.softDeleteorder(id);
+      } else {
+        await _orderOpFirebase.softDeleteOrder(id);
       }
     } on Exception catch (e, s) {
       Log.error('Error ditambah: $e', e: e, s: s);

@@ -38,7 +38,9 @@ class BaseOpFirebase {
 
           Log.info('[FIRESTORE TRANSAKSI AKTIF] Memperbarui status global...');
           await _statusOp.perbaruiStatusGlobal();
-          Log.info('[FIRESTORE TRANSAKSI AKTIF] Status global berhasil diperbarui.');
+          Log.info(
+            '[FIRESTORE TRANSAKSI AKTIF] Status global berhasil diperbarui.',
+          );
 
           return actionResult;
         } catch (e, st) {
@@ -94,23 +96,23 @@ class BaseOpFirebase {
   }
 
   Future<void> sisipkan(
-    final String collectionName,
+    final String namaKoleksi,
     final String docId,
     final Map<String, dynamic> data,
   ) async {
-    Log.info('Base insert: $collectionName/$docId');
+    Log.info('Base insert: $namaKoleksi/$docId');
     try {
-      final docRef = firestore.collection(collectionName).doc(docId);
+      final docRef = firestore.collection(namaKoleksi).doc(docId);
       data[NamaKolom.diperbaruiPada] = FieldValue.serverTimestamp();
       await docRef.set(data);
       unawaited(_statusOp.perbaruiStatusGlobal());
-      Log.info('Base insert berhasil: $collectionName/$docId');
+      Log.info('Base insert berhasil: $namaKoleksi/$docId');
     } on FirebaseException catch (e, s) {
       Log.error(
         'Gagal melakukan base insert',
         e: e,
         s: s,
-        data: {'collection': collectionName, 'docId': docId},
+        data: {'collection': namaKoleksi, 'docId': docId},
       );
       rethrow;
     }

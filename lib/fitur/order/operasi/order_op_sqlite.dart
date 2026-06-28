@@ -16,25 +16,6 @@ class OrderOpSqlite {
   String get _namaTabel => NamaTabel.pesananPelanggan;
   DateTime? get _nowUtc => DateTime.now().toUtc();
 
-  Future<int> ambilTotalDataPerStatus(StatusOrderEnum status) async {
-    Log.info('Menghitung pesanan dengan status: ${status.name}');
-    try {
-      final db = await sqliteDb.database;
-      final result = await db.rawQuery(
-        'SELECT COUNT(*) FROM $_namaTabel WHERE ${NamaKolom.status} = ? AND ${NamaKolom.dihapus} = 0',
-        [status.name],
-      );
-      final count = result.first.values.first as int? ?? 0;
-      Log.info(
-        'Berhasil menghitung $count data pesanan aktif berstatus ${status.name}.',
-      );
-      return count;
-    } on Exception catch (e, s) {
-      Log.error('Gagal menghitung pesanan berdasarkan status.', e: e, s: s);
-      rethrow;
-    }
-  }
-
   Future<void> tambahOrder(
     final OrderModel order, {
     final bool dariServer = false,
@@ -50,6 +31,43 @@ class OrderOpSqlite {
       Log.info('Berhasil menyimpan pesanan ID: ${order.id}');
     } on Exception catch (e, s) {
       Log.error('Gagal menyimpan pesanan.', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> perbarui(OrderModel order, {bool dariServer = false}) async {
+    try {
+      final dataBaru = order.copyWith(diperbaruiPada: _nowUtc);
+      await baseOpSqlite.update(
+        _namaTabel,
+        dataBaru.toSqlite(),
+        order.id,
+        dariServer: dariServer,
+      );
+      Log.info(
+        'Status pesanan ID: $order berhasil diperbarui beserta timestamp-nya.',
+      );
+    } on Exception catch (e, s) {
+      Log.error('Gagal memperbarui status pesanan.', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<int> ambilTotalDataPerStatus(StatusOrderEnum status) async {
+    Log.info('Menghitung pesanan dengan status: ${status.name}');
+    try {
+      final db = await sqliteDb.database;
+      final result = await db.rawQuery(
+        'SELECT COUNT(*) FROM $_namaTabel WHERE ${NamaKolom.status} = ? AND ${NamaKolom.dihapus} = 0',
+        [status.name],
+      );
+      final count = result.first.values.first as int? ?? 0;
+      Log.info(
+        'Berhasil menghitung $count data pesanan aktif berstatus ${status.name}.',
+      );
+      return count;
+    } on Exception catch (e, s) {
+      Log.error('Gagal menghitung pesanan berdasarkan status.', e: e, s: s);
       rethrow;
     }
   }
@@ -110,24 +128,6 @@ class OrderOpSqlite {
       return maps.map(OrderModel.fromSqlite).toList();
     } on Exception catch (e, s) {
       Log.error('Gagal mengambil pesanan berdasarkan status.', e: e, s: s);
-      rethrow;
-    }
-  }
-
-  Future<void> perbarui(OrderModel order, {bool dariServer = false}) async {
-    try {
-      final dataBaru = order.copyWith(diperbaruiPada: _nowUtc);
-      await baseOpSqlite.update(
-        _namaTabel,
-        dataBaru.toSqlite(),
-        order.id,
-        dariServer: dariServer,
-      );
-      Log.info(
-        'Status pesanan ID: $order berhasil diperbarui beserta timestamp-nya.',
-      );
-    } on Exception catch (e, s) {
-      Log.error('Gagal memperbarui status pesanan.', e: e, s: s);
       rethrow;
     }
   }

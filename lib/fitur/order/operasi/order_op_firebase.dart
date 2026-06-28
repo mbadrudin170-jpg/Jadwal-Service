@@ -30,7 +30,7 @@ class OrderOpFirebase {
   }
 
   /// 2. Memperbarui pesanan yang ada
-  Future<void> updateOrder(OrderModel order) async {
+  Future<void> perbarui(OrderModel order) async {
     Log.info('Memperbarui pesanan: ${order.id}');
     await _baseOp.update(_namaKoleksi, order.id, order.toFirebase());
   }

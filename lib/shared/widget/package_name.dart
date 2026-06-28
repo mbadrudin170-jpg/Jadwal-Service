@@ -43,8 +43,10 @@ class PackageNameWidget extends StatelessWidget {
           );
           return Text(
             'Error',
-            style:
-                style?.copyWith(color: Colors.red, fontStyle: FontStyle.italic),
+            style: style?.copyWith(
+              color: Colors.red,
+              fontStyle: FontStyle.italic,
+            ),
           );
         }
 
@@ -52,7 +54,9 @@ class PackageNameWidget extends StatelessWidget {
           return Text(
             'Paket tidak tersedia',
             style: style?.copyWith(
-                color: Colors.grey, fontStyle: FontStyle.italic),
+              color: Colors.grey,
+              fontStyle: FontStyle.italic,
+            ),
           );
         }
 
