@@ -1,6 +1,6 @@
 // path: lib/tes_fitur/tes_notifikasi.dart
 import 'package:flutter/material.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 
@@ -91,7 +91,7 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
   Future<void> _batalkanSemuaNotifikasi() async {
     Log.info('Tombol "Batalkan Semua Notifikasi" ditekan.');
     // PERBAIKAN: Tambahkan await karena ini adalah operasi async
-    await _notifikasiServis.batalSemuaNotifikasi();
+    await _notifikasiServis.batalkanSemuaNotifikasi();
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(

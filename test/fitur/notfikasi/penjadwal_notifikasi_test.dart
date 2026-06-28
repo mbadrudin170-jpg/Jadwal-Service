@@ -2,8 +2,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
-import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/penjadwal_notifikasi.dart';
 
 import 'penjadwal_notifikasi_test.mocks.dart';
 
@@ -25,10 +25,9 @@ void main() {
     ).thenAnswer((_) async => Future.value());
 
     when(
-      mockLayananNotifikasi.batalNotifikasi(any),
+      mockLayananNotifikasi.batalkanNotifikasi(any),
     ).thenAnswer((_) async => Future.value());
   });
-
 
   group('PenjadwalNotifikasi', () {
     test(
@@ -60,7 +59,7 @@ void main() {
         'cust1',
       );
 
-      verify(mockLayananNotifikasi.batalNotifikasi(any)).called(any);
+      verify(mockLayananNotifikasi.batalkanNotifikasi(any)).called(any);
     });
   });
 }

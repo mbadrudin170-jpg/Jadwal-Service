@@ -3,7 +3,7 @@ import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
@@ -88,23 +88,23 @@ class PenjadwalNotifikasi {
           Log.info(
             'Tanggal tengah periode sudah lewat. Membatalkan notifikasi jika ada.',
           );
-          await layananNotifikasi.batalNotifikasi(idNotifikasiTengah);
+          await layananNotifikasi.batalkanNotifikasi(idNotifikasiTengah);
         }
       } else {
         // Jika tidak ada langganan aktif, batalkan semua notifikasi DAN alarm.
         Log.info(
           'Tidak ada langganan aktif. Membatalkan semua notifikasi dan alarm untuk pengguna ini.',
         );
-        await layananNotifikasi.batalNotifikasi(idNotifikasiAkhir);
-        await layananNotifikasi.batalNotifikasi(idNotifikasiTengah);
+        await layananNotifikasi.batalkanNotifikasi(idNotifikasiAkhir);
+        await layananNotifikasi.batalkanNotifikasi(idNotifikasiTengah);
         await AndroidAlarmManager.cancel(idAlarm);
         Log.info('Alarm dengan ID $idAlarm juga dibatalkan.');
       }
     } on Exception catch (e, st) {
       Log.error('Gagal mengatur notifikasi dari Firebase', e: e, s: st);
       // Jika terjadi error, coba batalkan semua notifikasi dan alarm untuk kebersihan.
-      await layananNotifikasi.batalNotifikasi(idNotifikasiAkhir);
-      await layananNotifikasi.batalNotifikasi(idNotifikasiTengah);
+      await layananNotifikasi.batalkanNotifikasi(idNotifikasiAkhir);
+      await layananNotifikasi.batalkanNotifikasi(idNotifikasiTengah);
       await AndroidAlarmManager.cancel(idAlarm);
       Log.info('Alarm dengan ID $idAlarm juga dibatalkan karena error.');
     }

@@ -5,7 +5,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 class InfoApkPageUser extends StatefulWidget {
   const InfoApkPageUser({super.key});
@@ -24,20 +26,25 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
   }
 
   Future<void> _initPackageInfo() async {
-    final infoPerangkat = await PackageInfo.fromPlatform();
-    if (mounted) {
-      setState(() {
-        _versi = infoPerangkat.version.split('-').first;
-      });
+    try {
+      final infoPerangkat = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() {
+          _versi = infoPerangkat.version.split('-').first;
+        });
+      }
+    } on Exception catch (e, st) {
+      Log.error('Gagal mengambil info package', e: e, s: st);
+      if (mounted) {
+        ToastUtil.error(context, 'Gagal memuat versi aplikasi');
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Info Aplikasi'),
-      ),
+      appBar: AppBar(title: const Text('Info Aplikasi')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -46,12 +53,14 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
             children: [
               ElevatedButton(
                 onPressed: () {
-                  unawaited(Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const HalamanTes(),
+                  unawaited(
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HalamanTes(),
+                      ),
                     ),
-                  ));
+                  );
                 },
                 child: const Text('Pergi ke Detail'),
               ),
@@ -63,18 +72,12 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
               ),
               const Text(
                 'Aplikasi Pelanggan',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               gapH8,
               Text(
                 'Versi $_versi',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
               gapH24,
               const CircleAvatar(
@@ -84,10 +87,7 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
               gapH24,
               const Text(
                 'Dibuat dengan Flutter',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],
           ),

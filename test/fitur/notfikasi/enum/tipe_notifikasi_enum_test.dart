@@ -1,6 +1,6 @@
 // path: test/fitur/notfikasi/enum/tipe_notifikasi_enum_test.dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/fitur/notfikasi/enum/tipe_notifikasi_enum.dart';
+import 'package:wifi/fitur/notifikasi/enum/tipe_notifikasi_enum.dart';
 
 void main() {
   group('TipeNotifikasiExtension', () {

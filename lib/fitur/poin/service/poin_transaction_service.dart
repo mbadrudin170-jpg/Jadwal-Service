@@ -2,8 +2,8 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/fitur/notfikasi/enum/tipe_notifikasi_enum.dart';
-import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
+import 'package:wifi/fitur/notifikasi/enum/tipe_notifikasi_enum.dart';
+import 'package:wifi/fitur/notifikasi/model/notifikasi_model.dart';
 import 'package:wifi/fitur/order/enum/status_order_enum.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';

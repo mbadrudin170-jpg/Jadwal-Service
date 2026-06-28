@@ -1,7 +1,7 @@
 // path: lib/tes_fitur/tes_iklan.dart
 
 import 'package:flutter/material.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 
@@ -18,12 +18,15 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
   // [DIPERBAIKI] Gunakan ID notifikasi yang konstan untuk pengujian
   static const int _testNotificationId = 99;
 
-  final TextEditingController _titleController =
-      TextEditingController(text: 'Notifikasi Uji Coba');
-  final TextEditingController _bodyController =
-      TextEditingController(text: 'Ini adalah isi dari notifikasi.');
-  final TextEditingController _payloadController =
-      TextEditingController(text: 'test_payload_123');
+  final TextEditingController _titleController = TextEditingController(
+    text: 'Notifikasi Uji Coba',
+  );
+  final TextEditingController _bodyController = TextEditingController(
+    text: 'Ini adalah isi dari notifikasi.',
+  );
+  final TextEditingController _payloadController = TextEditingController(
+    text: 'test_payload_123',
+  );
 
   @override
   void dispose() {
@@ -56,7 +59,8 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
         payload: payload.isNotEmpty ? payload : null,
       );
       _tampilkanSnackbar(
-          'Notifikasi dijadwalkan ulang pukul \${jadwal.hour}:\${jadwal.minute}:\${jadwal.second}');
+        'Notifikasi dijadwalkan ulang pukul \${jadwal.hour}:\${jadwal.minute}:\${jadwal.second}',
+      );
     } on Exception catch (e) {
       Log.error('Gagal memperbarui jadwal notifikasi', e: e);
       _tampilkanSnackbar('Error: \$e');
@@ -88,19 +92,16 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
 
   void _tampilkanSnackbar(final String message) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     }
   }
 
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Notifikasi Test'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Notifikasi Test'), centerTitle: true),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -159,7 +160,7 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
               // Tombol untuk membatalkan semua notifikasi
               ElevatedButton.icon(
                 onPressed: () async {
-                  await _notifikasiServis.batalSemuaNotifikasi();
+                  await _notifikasiServis.batalkanSemuaNotifikasi();
                   _tampilkanSnackbar('Semua notifikasi telah dibatalkan.');
                 },
                 icon: const Icon(Icons.cancel),
@@ -177,7 +178,9 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
                       Text(
                         '💡 Tips Pengujian:',
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.white),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                       gapH8,
                       Text(

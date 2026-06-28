@@ -2,7 +2,7 @@
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
@@ -223,11 +223,11 @@ class PelangganAktifOpSqlite {
       );
       final customerName = pelanggan?.nama ?? 'Tanpa Nama';
 
-      await _layananNotifikasi.batalNotifikasi(pelangganAktif.id.hashCode);
-      await _layananNotifikasi.batalNotifikasi(
+      await _layananNotifikasi.batalkanNotifikasi(pelangganAktif.id.hashCode);
+      await _layananNotifikasi.batalkanNotifikasi(
         (pelangganAktif.id.hashCode + 1),
       );
-      await _layananNotifikasi.batalNotifikasi(
+      await _layananNotifikasi.batalkanNotifikasi(
         (pelangganAktif.id.hashCode + 2),
       );
       Log.info(
@@ -338,9 +338,9 @@ class PelangganAktifOpSqlite {
           whereArgs: [id],
         );
 
-        await _layananNotifikasi.batalNotifikasi(id.hashCode);
-        await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
-        await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
+        await _layananNotifikasi.batalkanNotifikasi(id.hashCode);
+        await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 1));
+        await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 2));
 
         Log.info('Notifikasi telah di batalkan pada fungsi softDelete');
       }, dariServer: dariServer);
@@ -477,9 +477,9 @@ class PelangganAktifOpSqlite {
         );
 
         for (final id in idsToArchive) {
-          await _layananNotifikasi.batalNotifikasi(id.hashCode);
-          await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
-          await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
+          await _layananNotifikasi.batalkanNotifikasi(id.hashCode);
+          await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 1));
+          await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 2));
         }
       }, dariServer: dariServer);
 
@@ -519,9 +519,9 @@ class PelangganAktifOpSqlite {
         );
 
         for (final id in dataUntukDiarsip) {
-          await _layananNotifikasi.batalNotifikasi(id.hashCode);
-          await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
-          await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
+          await _layananNotifikasi.batalkanNotifikasi(id.hashCode);
+          await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 1));
+          await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 2));
         }
       }, dariServer: dariServer);
 

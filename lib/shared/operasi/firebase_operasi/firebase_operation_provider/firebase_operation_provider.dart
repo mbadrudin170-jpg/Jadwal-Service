@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
-import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart';
+import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';

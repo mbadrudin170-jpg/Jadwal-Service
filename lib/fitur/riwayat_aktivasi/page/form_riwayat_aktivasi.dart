@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -171,7 +171,7 @@ class _FormRiwayatAktivasiState extends ConsumerState<FormRiwayatAktivasi> {
       Log.info(
         'Membatalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi karena status tidak lagi LUNAS.',
       );
-      await layananNotifikasi.batalNotifikasi(idNotifikasi);
+      await layananNotifikasi.batalkanNotifikasi(idNotifikasi);
     }
   }
 

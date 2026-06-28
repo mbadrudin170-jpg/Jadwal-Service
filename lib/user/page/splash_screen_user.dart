@@ -14,7 +14,7 @@ import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 import 'package:wifi/fitur/event/page/event_page_u.dart';
 import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/operasi/settings_op_firebase.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';

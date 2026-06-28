@@ -9,10 +9,10 @@ import 'package:mockito/mockito.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:wifi/fitur/notfikasi/enum/tipe_notifikasi_enum.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
-import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
-import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart';
+import 'package:wifi/fitur/notifikasi/enum/tipe_notifikasi_enum.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/model/notifikasi_model.dart';
+import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
 
 import 'layanan_notifikasi_test.mocks.dart';
@@ -164,9 +164,9 @@ void main() {
 
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(
-          timezoneChannel,
-          (MethodCall methodCall) async => 'America/Detroit',
-        );
+              timezoneChannel,
+              (MethodCall methodCall) async => 'America/Detroit',
+            );
         tz.setLocalLocation(tz.getLocation('America/Detroit'));
       },
     );
@@ -317,7 +317,7 @@ void main() {
         const id = 789;
         when(mockPlugin.cancel(id: anyNamed('id'))).thenAnswer((_) async {});
 
-        await layananNotifikasi.batalNotifikasi(id);
+        await layananNotifikasi.batalkanNotifikasi(id);
 
         verify(mockPlugin.cancel(id: id)).called(1);
       },
@@ -326,7 +326,7 @@ void main() {
     test('07. batalSemuaNotifikasi harus memanggil plugin.cancelAll', () async {
       when(mockPlugin.cancelAll()).thenAnswer((_) async {});
 
-      await layananNotifikasi.batalSemuaNotifikasi();
+      await layananNotifikasi.batalkanSemuaNotifikasi();
 
       verify(mockPlugin.cancelAll()).called(1);
     });

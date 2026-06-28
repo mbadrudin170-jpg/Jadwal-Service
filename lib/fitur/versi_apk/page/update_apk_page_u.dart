@@ -239,7 +239,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Colors.red.withAlpha(100)),
+                        side: BorderSide(color: Colors.red.withAlpha(77)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),

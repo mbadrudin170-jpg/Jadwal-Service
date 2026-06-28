@@ -10,7 +10,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
-import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
+import 'package:wifi/fitur/notifikasi/model/notifikasi_model.dart';
 import 'package:wifi/fitur/paket/core/perhitungan_paket.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';

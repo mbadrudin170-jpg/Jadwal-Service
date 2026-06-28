@@ -11,8 +11,8 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:shared_preferences/src/shared_preferences_legacy.dart' as _i7;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' as _i3;
 import 'package:wifi/admin/data/sqlite.dart' as _i4;
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart' as _i9;
-import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart'
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart' as _i9;
+import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart'
     as _i10;
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart'
     as _i5;
@@ -331,7 +331,7 @@ class MockLayananNotifikasi extends _i1.Mock implements _i9.LayananNotifikasi {
           as _i8.Future<void>);
 
   @override
-  _i8.Future<void> batalNotifikasi(int? id) =>
+  _i8.Future<void> batalkanNotifikasi(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#batalNotifikasi, [id]),
             returnValue: _i8.Future<void>.value(),
@@ -340,7 +340,7 @@ class MockLayananNotifikasi extends _i1.Mock implements _i9.LayananNotifikasi {
           as _i8.Future<void>);
 
   @override
-  _i8.Future<void> batalSemuaNotifikasi() =>
+  _i8.Future<void> batalkanSemuaNotifikasi() =>
       (super.noSuchMethod(
             Invocation.method(#batalSemuaNotifikasi, []),
             returnValue: _i8.Future<void>.value(),
@@ -349,7 +349,7 @@ class MockLayananNotifikasi extends _i1.Mock implements _i9.LayananNotifikasi {
           as _i8.Future<void>);
 
   @override
-  _i8.Future<bool> pastikanIzinExactAlarm() =>
+  _i8.Future<bool> mengecekIzinExactAlarm() =>
       (super.noSuchMethod(
             Invocation.method(#pastikanIzinExactAlarm, []),
             returnValue: _i8.Future<bool>.value(false),

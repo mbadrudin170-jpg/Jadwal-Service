@@ -70,51 +70,58 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     BuildContext context,
     OrderModel order,
     WidgetRef ref,
-  ) {
+  ) async {
     Log.info('_ubahStatus dipanggil untuk orderId: ${order.id}');
-    return showDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return Dialog(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _tombolOpsiUbahStatus(
-                  pageContext: context,
-                  dialogContext: dialogContext,
-                  label: StatusOrderEnum.selesai.displayName,
-                  order: order,
-                  status: StatusOrderEnum.selesai,
-                ),
-                _tombolOpsiUbahStatus(
-                  pageContext: context,
-                  dialogContext: dialogContext,
-                  label: StatusOrderEnum.baru.displayName,
-                  order: order,
-                  status: StatusOrderEnum.baru,
-                ),
-                _tombolOpsiUbahStatus(
-                  pageContext: context,
-                  dialogContext: dialogContext,
-                  label: StatusOrderEnum.diproses.displayName,
-                  order: order,
-                  status: StatusOrderEnum.diproses,
-                ),
-                _tombolOpsiUbahStatus(
-                  pageContext: context,
-                  dialogContext: dialogContext,
-                  label: StatusOrderEnum.ditolak.displayName,
-                  order: order,
-                  status: StatusOrderEnum.ditolak,
-                ),
-              ],
+    try {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) {
+          return Dialog(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _tombolOpsiUbahStatus(
+                    pageContext: context,
+                    dialogContext: dialogContext,
+                    label: StatusOrderEnum.selesai.displayName,
+                    order: order,
+                    status: StatusOrderEnum.selesai,
+                  ),
+                  _tombolOpsiUbahStatus(
+                    pageContext: context,
+                    dialogContext: dialogContext,
+                    label: StatusOrderEnum.baru.displayName,
+                    order: order,
+                    status: StatusOrderEnum.baru,
+                  ),
+                  _tombolOpsiUbahStatus(
+                    pageContext: context,
+                    dialogContext: dialogContext,
+                    label: StatusOrderEnum.diproses.displayName,
+                    order: order,
+                    status: StatusOrderEnum.diproses,
+                  ),
+                  _tombolOpsiUbahStatus(
+                    pageContext: context,
+                    dialogContext: dialogContext,
+                    label: StatusOrderEnum.ditolak.displayName,
+                    order: order,
+                    status: StatusOrderEnum.ditolak,
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    } on Exception catch (e, s) {
+      Log.error('Gagal menampilkan dialog ubah status', e: e, s: s);
+      if (context.mounted) {
+        ToastUtil.error(context, 'Gagal membuka dialog');
+      }
+    }
   }
 
   Future<bool?> _showDialog(BuildContext context, OrderModel order) {
@@ -123,7 +130,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
       '_showDialog dipanggil untuk orderId: ${order.id}, appRole: ${appRole.name}',
     );
 
-    return showDialog<bool>(
+    return showDialog<bool>(batalNotifikasi
       context: context,
       builder: (BuildContext dialogContext) {
         return Dialog(

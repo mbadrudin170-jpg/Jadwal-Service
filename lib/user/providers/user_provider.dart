@@ -2,7 +2,7 @@
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/pelanggan/core/layanan_aktivitas_user.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';

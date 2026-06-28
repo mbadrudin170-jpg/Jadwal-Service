@@ -8,8 +8,8 @@ import 'dart:async' as _i4;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart' as _i3;
-import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart'
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart' as _i3;
+import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart'
     as _i5;
 
 // ignore_for_file: type=lint
@@ -172,7 +172,7 @@ class MockLayananNotifikasi extends _i1.Mock implements _i3.LayananNotifikasi {
           as _i4.Future<void>);
 
   @override
-  _i4.Future<void> batalNotifikasi(int? id) =>
+  _i4.Future<void> batalkanNotifikasi(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#batalNotifikasi, [id]),
             returnValue: _i4.Future<void>.value(),
@@ -181,7 +181,7 @@ class MockLayananNotifikasi extends _i1.Mock implements _i3.LayananNotifikasi {
           as _i4.Future<void>);
 
   @override
-  _i4.Future<void> batalSemuaNotifikasi() =>
+  _i4.Future<void> batalkanSemuaNotifikasi() =>
       (super.noSuchMethod(
             Invocation.method(#batalSemuaNotifikasi, []),
             returnValue: _i4.Future<void>.value(),
@@ -190,7 +190,7 @@ class MockLayananNotifikasi extends _i1.Mock implements _i3.LayananNotifikasi {
           as _i4.Future<void>);
 
   @override
-  _i4.Future<bool> pastikanIzinExactAlarm() =>
+  _i4.Future<bool> mengecekIzinExactAlarm() =>
       (super.noSuchMethod(
             Invocation.method(#pastikanIzinExactAlarm, []),
             returnValue: _i4.Future<bool>.value(false),

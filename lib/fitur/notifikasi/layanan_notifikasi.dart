@@ -10,8 +10,8 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
-import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart';
+import 'package:wifi/fitur/notifikasi/model/notifikasi_model.dart';
+import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 @pragma('vm:entry-point')
@@ -315,7 +315,7 @@ class LayananNotifikasi {
       Log.info('ID: ${notif.id}, Title: ${notif.title}, Scheduled: $notif');
     }
 
-    final bool hasPermission = await pastikanIzinExactAlarm();
+    final bool hasPermission = await mengecekIzinExactAlarm();
     if (!hasPermission) {
       Log.error(
         'Gagal menjadwalkan notifikasi karena izin exact alarm ditolak.',
@@ -330,21 +330,21 @@ class LayananNotifikasi {
       importance: Importance.max,
       priority: Priority.high,
     );
-    final notificationDetails = NotificationDetails(android: androidDetails);
+    final detailNotifikasi = NotificationDetails(android: androidDetails);
     try {
-      final tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(
+      final tz.TZDateTime waktuTerjadwalTZ = tz.TZDateTime.from(
         jadwal,
         tz.local,
       );
       Log.info(
-        'Waktu notifikasi dikonversi ke zona waktu lokal (${tz.local.name}): $scheduledTZDate',
+        'Waktu notifikasi dikonversi ke zona waktu lokal (${tz.local.name}): $waktuTerjadwalTZ',
       );
       await plugin.zonedSchedule(
         id: id,
         title: judul,
         body: pesan,
-        scheduledDate: scheduledTZDate,
-        notificationDetails: notificationDetails,
+        scheduledDate: waktuTerjadwalTZ,
+        notificationDetails: detailNotifikasi,
         payload: payload,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
@@ -363,7 +363,7 @@ class LayananNotifikasi {
   }) async {
     Log.info('Memulai pembaruan jadwal notifikasi untuk ID: $id');
 
-    await batalNotifikasi(id);
+    await batalkanNotifikasi(id);
     await jadwalNotifikasi(
       id: id,
       judul: title,
@@ -374,17 +374,18 @@ class LayananNotifikasi {
     Log.info('Pembaruan jadwal selesai dilakukan untuk ID: $id.');
   }
 
-  Future<void> batalNotifikasi(int id) async {
+  Future<void> batalkanNotifikasi(int id) async {
     Log.info('Membatalkan notifikasi aktif/terjadwal dengan ID: $id');
     try {
       await plugin.cancel(id: id);
       Log.info('Perintah pembatalan untuk notifikasi ID: $id telah dikirim.');
     } on Exception catch (e, s) {
       Log.error('Gagal membatalkan notifikasi ID: $id', e: e, s: s);
+      rethrow;
     }
   }
 
-  Future<void> batalSemuaNotifikasi() async {
+  Future<void> batalkanSemuaNotifikasi() async {
     Log.info(
       'Membersihkan semua notifikasi yang ada (aktif maupun terjadwal)...',
     );
@@ -400,7 +401,7 @@ class LayananNotifikasi {
     }
   }
 
-  Future<bool> pastikanIzinExactAlarm() async {
+  Future<bool> mengecekIzinExactAlarm() async {
     if (!Platform.isAndroid) return true;
     Log.info('Memeriksa izin SCHEDULE_EXACT_ALARM.');
     final status = await Permission.scheduleExactAlarm.status;
