@@ -6,12 +6,26 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 part 'dompet_provider.freezed.dart';
 part 'dompet_provider.g.dart';
+
+@freezed
+abstract class DetailDompetState with _$DetailDompetState {
+  const factory DetailDompetState({
+    required List<TransaksiModel> daftarTransaksi,
+    DompetModel? dompet,
+    required int totalTransaksi,
+    required double totalPemasukan,
+    required double totalPengeluaran,
+    required double totalSaldo,
+    required String namaDompet,
+  }) = _DetailDompetState;
+}
 
 @freezed
 abstract class DompetState with _$DompetState {
@@ -90,15 +104,12 @@ class Dompet extends _$Dompet {
 }
 
 @riverpod
-Future<({List<TransaksiModel> transaksi, DompetModel? dompet})> detailDompet(
-  Ref ref,
-  String idDompet,
-) async {
+Future<DetailDompetState> detailDompet(Ref ref, String idDompet) async {
   try {
-    final dompetOpSqlite = ref.watch(dompetOpSqliteProvider);
-    final transaksiOp = ref.watch(transaksiOpGlobalProvider);
+    final dompetOpSqlite = ref.read(dompetOpSqliteProvider);
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
 
-    // Ambil kedua data secara paralel
+    // Ambil data secara paralel
     final results = await Future.wait([
       transaksiOp.ambilBerdasarkanIdDompet(idDompet),
       dompetOpSqlite.ambilBerdasarkanId(idDompet),
@@ -106,7 +117,33 @@ Future<({List<TransaksiModel> transaksi, DompetModel? dompet})> detailDompet(
 
     final daftarTransaksi = results[0] as List<TransaksiModel>;
     final dompet = results[1] as DompetModel?;
-    return (transaksi: daftarTransaksi, dompet: dompet);
+
+    // Hitung total pemasukan dan pengeluaran
+    double totalPemasukan = 0;
+    double totalPengeluaran = 0;
+
+    for (final transaksi in daftarTransaksi) {
+      if (transaksi.tipe == TipeTransaksi.income) {
+        totalPemasukan += transaksi.jumlah;
+      } else if (transaksi.tipe == TipeTransaksi.expense) {
+        totalPengeluaran += transaksi.jumlah;
+      }
+    }
+
+    final totalSaldo = totalPemasukan - totalPengeluaran;
+
+    // ✅ Ambil nama dari dompet, jika null gunakan 'Dompet Tidak Ditemukan'
+    final namaDompet = dompet?.nama ?? 'Dompet Tidak Ditemukan';
+
+    return DetailDompetState(
+      daftarTransaksi: daftarTransaksi,
+      dompet: dompet,
+      totalTransaksi: daftarTransaksi.length,
+      totalPemasukan: totalPemasukan,
+      totalPengeluaran: totalPengeluaran,
+      totalSaldo: totalSaldo,
+      namaDompet: namaDompet, // 🔥 ISI FIELD nama
+    );
   } on Exception catch (e, s) {
     Log.error('Error diDetailDompet: $e', e: e, s: s);
     rethrow;
