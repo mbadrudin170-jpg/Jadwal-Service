@@ -4,19 +4,6 @@
 		"body": "final ${1:variable} = ref.read(${2:provider});",
 		"description": "ref.read untuk membaca nilai sekali (onPressed, async method)"
 	},
-	"ref.read di initState (late final)": {
-		"prefix": "/riv_read_init",
-		"body": [
-			"late final ${1:Type} _${2:variable};",
-			"",
-			"@override",
-			"void initState() {",
-			"  super.initState();",
-			"  _${2:variable} = ref.read(${3:provider});",
-			"}"
-		],
-		"description": "Deklarasi late final + inisialisasi ref.read di initState"
-	},
 	"ref.watch (reaktif, di build)": {
 		"prefix": "/riv_watch",
 		"body": "final ${1:value} = ref.watch(${2:provider});",
@@ -68,8 +55,67 @@
 		],
 		"description": "ref.listen dengan penanganan error"
 	},
+	"Provider with Dependency": {
+		"prefix": "/riv_provider_dep",
+		"body": [
+			"final ${1:name}Provider = Provider<${2:Type}>((ref) {",
+			"  final dependency = ref.watch(${3:dependencyProvider});",
+			"  return ${2:Type}(dependency: dependency);",
+			"});"
+		],
+		"description": "Provider dengan dependency injection"
+	},
+	"Consumer (Inline)": {
+		"prefix": "/riv_consumer",
+		"body": [
+			"Consumer(",
+			"  builder: (context, ref, child) {",
+			"    final ${1:data} = ref.watch(${2:provider});",
+			"    return ${3:Widget();}",
+			"  },",
+			")"
+		],
+		"description": "Consumer widget untuk penggunaan inline"
+	},
+	"AsyncValue.when with If": {
+		"prefix": "/when_if",
+		"body": [
+			"return ${1:asyncValue}.when(",
+			"  loading: () => const Center(child: CircularProgressIndicator()),",
+			"  error: (e, s) => Center(child: Text('Error: \\$e')),",
+			"  data: ${2:(data) {",
+			"    if (data.isEmpty) {",
+			"      return const Center(child: Text('Tidak ada data'));",
+			"    }",
+			"    return WidgetBuatData(data);",
+			"  }},",
+			");"
+		],
+		"description": "AsyncValue.when dengan if condition untuk empty state"
+	},
+	"Provider Notifier (StateNotifier)": {
+		"prefix": "/riv_notifier",
+		"body": [
+			"import 'package:riverpod_annotation/riverpod_annotation.dart';",
+			"",
+			"part '${1:file_name}.g.dart';",
+			"",
+			"@riverpod",
+			"class ${2:Name}Notifier extends _\\$${2:Name}Notifier {",
+			"  @override",
+			"  ${3:StateType} build() {",
+			"    return ${4:initialValue};",
+			"  }",
+			"",
+			"  void ${5:methodName}() {",
+			"    state = ${6:newValue};",
+			"  }",
+			"}"
+		],
+		"description": "Template Notifier Provider dengan riverpod_annotation"
+	},
 	"ConsumerWidget (stateless) sederhana": {
-		"prefix": "/riv_consumer_widget",
+		"prefix": "/riv_ConsumerWidget",
 		"body": [
 			"class ${1:MyWidget} extends ConsumerWidget {",
 			"  const ${1:MyWidget}({super.key});",
@@ -84,7 +130,7 @@
 		"description": "Template ConsumerWidget dengan ref.watch"
 	},
 	"ConsumerStatefulWidget (stateful) + initState + loading": {
-		"prefix": "/riv_consumer_state",
+		"prefix": "/riv_ConsumerStatefulWidget",
 		"body": [
 			"class ${1:MyPage} extends ConsumerStatefulWidget {",
 			"  const ${1:MyPage}({super.key});",

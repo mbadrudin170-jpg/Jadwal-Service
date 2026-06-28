@@ -160,7 +160,6 @@ class DaftarAkunPage extends ConsumerWidget {
           TextButton(
             child: const Text('Hapus'),
             onPressed: () async {
-              final navigator = Navigator.of(context);
               final dialogNavigator = Navigator.of(dialogContext);
               try {
                 final akunLogin = await ref.read(userIdProvider.future);
@@ -169,12 +168,7 @@ class DaftarAkunPage extends ConsumerWidget {
                 }
                 if (!context.mounted) return;
                 if (akunLogin == customer.id) {
-                  await _tanganiHapusAkunAktif(
-                    context,
-                    navigator,
-                    ref,
-                    customer,
-                  );
+                  await _tanganiHapusAkunAktif(context, ref, customer);
                 } else {
                   Log.info('Menghapus akun tersimpan', {
                     'customer_id': customer.id,
@@ -210,7 +204,6 @@ class DaftarAkunPage extends ConsumerWidget {
 
   Future<void> _tanganiHapusAkunAktif(
     BuildContext context,
-    NavigatorState navigator,
     WidgetRef ref,
     PelangganModel pelanggan,
   ) async {
@@ -221,7 +214,7 @@ class DaftarAkunPage extends ConsumerWidget {
     await ref.read(pengelolaAkunProvider.notifier).hapusAkun(pelanggan.id);
     if (!context.mounted) return;
     ToastUtil.success(context, 'Akun berhasil dihapus, silakan login ulang');
-    await navigator.pushAndRemoveUntil(
+    await Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute<void>(builder: (context) => const LoginPage()),
       (route) => false,
     );
