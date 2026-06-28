@@ -556,47 +556,38 @@ AppRole appRole(Ref ref) {
   );
 }
 
-/// Utility class untuk mengecek role pengguna.
 class RoleUtil {
-  /// Mengecek apakah pengguna saat ini adalah admin.
   static bool isAdmin(Ref ref) {
     return ref.read(appRoleProvider) == AppRole.admin;
   }
 
-  /// Mengecek apakah pengguna saat ini adalah user.
   static bool isUser(Ref ref) {
     return ref.read(appRoleProvider) == AppRole.user;
   }
 
-  /// Mengecek apakah pengguna saat ini memiliki role yang sama dengan [role].
   static bool hasRole(Ref ref, AppRole role) {
     return ref.read(appRoleProvider) == role;
   }
 
-  /// Mengecek apakah pengguna saat ini adalah admin (versi async).
   static Future<bool> isAdminAsync(Ref ref) async {
     final role = ref.watch(appRoleProvider);
     return role == AppRole.admin;
   }
 
-  /// Mengecek apakah pengguna saat ini adalah user (versi async).
   static Future<bool> isUserAsync(Ref ref) async {
     final role = ref.watch(appRoleProvider);
     return role == AppRole.user;
   }
 
-  /// Mengecek apakah pengguna saat ini memiliki role yang sama dengan [role] (versi async).
   static Future<bool> hasRoleAsync(Ref ref, AppRole role) async {
     final currentRole = ref.watch(appRoleProvider);
     return currentRole == role;
   }
 
-  /// Mendapatkan role saat ini sebagai string.
   static String getRoleName(Ref ref) {
     return ref.read(appRoleProvider).name;
   }
 
-  /// Mendapatkan role saat ini sebagai string (versi async).
   static Future<String> getRoleNameAsync(Ref ref) async {
     final role = ref.watch(appRoleProvider);
     return role.name;
@@ -796,9 +787,7 @@ class DaftarAkunPage extends ConsumerWidget {
         'customer_id': pelanggan.id,
         'nama': pelanggan.nama,
       });
-
       unawaited(activityService.pingAktivitas(pelanggan.id, paksa: true));
-
       if (!context.mounted) return;
       await navigator.pushAndRemoveUntil(
         MaterialPageRoute<void>(builder: (context) => const MainPage()),
@@ -835,21 +824,12 @@ class DaftarAkunPage extends ConsumerWidget {
           TextButton(
             child: const Text('Hapus'),
             onPressed: () async {
-              final navigator = Navigator.of(context);
-              final dialogNavigator = Navigator.of(dialogContext);
               try {
                 final akunLogin = await ref.read(userIdProvider.future);
-                if (dialogNavigator.context.mounted) {
-                  dialogNavigator.pop(); // Tutup dialog
-                }
                 if (!context.mounted) return;
+                Navigator.of(dialogContext).pop();
                 if (akunLogin == customer.id) {
-                  await _tanganiHapusAkunAktif(
-                    context,
-                    navigator,
-                    ref,
-                    customer,
-                  );
+                  await _tanganiHapusAkunAktif(context, ref, customer);
                 } else {
                   Log.info('Menghapus akun tersimpan', {
                     'customer_id': customer.id,
@@ -885,7 +865,6 @@ class DaftarAkunPage extends ConsumerWidget {
 
   Future<void> _tanganiHapusAkunAktif(
     BuildContext context,
-    NavigatorState navigator,
     WidgetRef ref,
     PelangganModel pelanggan,
   ) async {
@@ -896,7 +875,7 @@ class DaftarAkunPage extends ConsumerWidget {
     await ref.read(pengelolaAkunProvider.notifier).hapusAkun(pelanggan.id);
     if (!context.mounted) return;
     ToastUtil.success(context, 'Akun berhasil dihapus, silakan login ulang');
-    await navigator.pushAndRemoveUntil(
+    await Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute<void>(builder: (context) => const LoginPage()),
       (route) => false,
     );
@@ -21793,161 +21772,6 @@ class LayananCekUpdateApk {
 }
 
 
-// File: lib/fitur/feedback/page/feedback_page_u.dart
-// // path: lib/fitur/feedback/page/feedback_page_u.dart
-
-// import 'dart:async';
-
-// import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:wifi/fitur/feedback/model/feedback_model.dart';
-// import 'package:wifi/fitur/feedback/page/form_feedback_u.dart';
-// import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-// import 'package:wifi/shared/theme/app_icons.dart';
-// import 'package:wifi/shared/utils/format_util.dart';
-// import 'package:wifi/shared/utils/toast_util.dart';
-// import 'package:wifi/user/providers/user_provider.dart';
-
-// class FeedbackPageU extends ConsumerWidget {
-//   const FeedbackPageU({super.key});
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     final userId = ref.watch(userIdProvider).value ?? '';
-//     final feedbackAsync = ref.watch(feedbackStreamProvider(userId));
-//     return Scaffold(
-//       appBar: AppBar(title: const Text('Riwayat Masukan')),
-//       body: feedbackAsync.when(
-//         loading: () => const Center(child: CircularProgressIndicator()),
-//         error: (e, st) => Center(child: Text('Gagal memuat masukan: $e')),
-//         data: (feedbacks) {
-//           if (feedbacks.isEmpty) {
-//             return const Center(
-//               child: Text('Anda belum pernah mengirim masukan.'),
-//             );
-//           }
-//           return ListView.builder(
-//             padding: const EdgeInsets.all(16.0),
-//             itemCount: feedbacks.length,
-//             itemBuilder: (context, index) {
-//               final feedback = feedbacks[index];
-//               return Card(
-//                 margin: const EdgeInsets.symmetric(vertical: 8.0),
-//                 child: ListTile(
-//                   onTap: () => _showOptionsDialog(context, ref, feedback),
-//                   title: Text(feedback.pesan),
-//                   subtitle: Padding(
-//                     padding: const EdgeInsets.only(top: 8.0),
-//                     child: Text(
-//                       feedback.tanggal != null
-//                           ? FormatWaktuLengkap.formatSingkat(feedback.tanggal!)
-//                           : '',
-//                       style: const TextStyle(fontSize: 12, color: Colors.grey),
-//                     ),
-//                   ),
-//                 ),
-//               );
-//             },
-//           );
-//         },
-//       ),
-//       floatingActionButton: FloatingActionButton.extended(
-//         onPressed: () => Navigator.push<void>(
-//           context,
-//           MaterialPageRoute(builder: (context) => const FormFeedBackU()),
-//         ),
-//         label: const Text('Beri Masukan'),
-//         icon: const Icon(TIcons.add),
-//       ),
-//     );
-//   }
-
-//   Future<void> _showOptionsDialog(
-//     BuildContext context,
-//     WidgetRef ref,
-//     FeedbackModel feedback,
-//   ) async {
-//     await showDialog<void>(
-//       context: context,
-//       builder: (dialogContext) {
-//         return AlertDialog(
-//           title: const Text('Pilih Aksi'),
-//           actions: <Widget>[
-//             TextButton(
-//               child: const Text('Hapus', style: TextStyle(color: Colors.red)),
-//               onPressed: () async {
-//                 Navigator.of(dialogContext).pop();
-//                 await _dialogHapus(context, ref, feedback);
-//               },
-//             ),
-//             TextButton(
-//               child: const Text('Edit'),
-//               onPressed: () async {
-//                 Navigator.of(dialogContext).pop();
-//                 unawaited(
-//                   Navigator.push<void>(
-//                     context,
-//                     MaterialPageRoute(
-//                       builder: (_) => FormFeedBackU(feedback: feedback),
-//                     ),
-//                   ),
-//                 );
-//               },
-//             ),
-//             TextButton(
-//               onPressed: () => Navigator.of(dialogContext).pop(),
-//               child: const Text('Batal'),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-
-//   Future<void> _dialogHapus(
-//     BuildContext context,
-//     WidgetRef ref,
-//     FeedbackModel feedback,
-//   ) async {
-//     final bool? konfirmasi = await showDialog<bool>(
-//       context: context,
-//       builder: (dialogContext) {
-//         return AlertDialog(
-//           title: const Text('Konfirmasi Hapus'),
-//           content: const Text('Yakin ingin menghapus masukan ini?'),
-//           actions: <Widget>[
-//             TextButton(
-//               child: const Text('Batal'),
-//               onPressed: () => Navigator.of(dialogContext).pop(false),
-//             ),
-//             TextButton(
-//               child: const Text(
-//                 'Ya, Hapus',
-//                 style: TextStyle(color: Colors.red),
-//               ),
-//               onPressed: () => Navigator.of(dialogContext).pop(true),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-
-//     if (konfirmasi ?? false) {
-//       try {
-//         final feedbackOpFirebase = ref.read(feedbackOpFirebaseProvider);
-//         await feedbackOpFirebase.softDelete(feedback.id);
-//         ref.invalidate(feedbackStreamProvider(feedback.userId));
-//         if (!context.mounted) return;
-//         ToastUtil.success(context, 'Masukan berhasil dihapus.');
-//       } catch (e, s) {
-//         if (!context.mounted) return;
-//         ToastUtil.error(context, 'Gagal menghapus: $e $s');
-//       }
-//     }
-//   }
-// }
-
-
 // File: lib/fitur/feedback/page/feedback_detail.dart
 // path lib/fitur/feedback/page/feedback_detail.dart
 
@@ -31275,190 +31099,6 @@ as bool,
 }
 
 // dart format on
-
-
-// File: lib/fitur/pelanggan/page/user/edit_profile_page.dart
-// // path lib/fitur/pelanggan/page/user/edit_profile_page.dart
-
-// import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-// import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
-// import 'package:wifi/shared/debug/log.dart';
-// import 'package:wifi/shared/export/theme.dart';
-// import 'package:wifi/shared/services/koneksi_internet_service.dart';
-// import 'package:wifi/shared/utils/toast_util.dart';
-// import 'package:wifi/shared/widget/input/input_password.dart';
-// import 'package:wifi/shared/widget/input/input_teks.dart';
-// import 'package:wifi/shared/widget/input/input_telepon.dart';
-
-// class EditProfilePage extends ConsumerStatefulWidget {
-//   final PelangganModel pelanggan;
-//   const EditProfilePage({super.key, required this.pelanggan});
-//   @override
-//   ConsumerState<EditProfilePage> createState() => _EditProfilePageState();
-// }
-
-// class _EditProfilePageState extends ConsumerState<EditProfilePage> {
-//   final _formKey = GlobalKey<FormState>();
-//   late TextEditingController _namaController;
-//   late TextEditingController _teleponController;
-//   late TextEditingController _passwordController;
-
-//   final _namaFocusNode = FocusNode();
-//   final _teleponFocusNode = FocusNode();
-//   final _passwordFocusNode = FocusNode();
-//   bool _menyimpan = false;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     Log.info('EditProfilePage.initState - mulai inisialisasi controller.');
-//     _namaController = TextEditingController(text: widget.pelanggan.nama);
-//     _teleponController = TextEditingController(text: widget.pelanggan.telepon);
-//     _passwordController = TextEditingController(
-//       text: widget.pelanggan.kataSandi,
-//     );
-//     Log.info(
-//       'EditProfilePage.initState - data pelanggan dimuat: id=${widget.pelanggan.id}, nama=${widget.pelanggan.nama}, telepon=${widget.pelanggan.telepon}.',
-//     );
-//   }
-
-//   Future<void> _simpanForm() async {
-//     Log.info('SimpanForm dipanggil - validasi form dimulai.');
-//     if (_formKey.currentState?.validate() ?? false) {
-//       Log.info('Form valid - memproses penyimpanan perubahan profil.');
-//       try {
-//         Log.info('Memeriksa koneksi internet sebelum menyimpan perubahan.');
-//         final isOnline = await ref
-//             .read(koneksiInternetServiceProvider)
-//             .cekInternet();
-//         Log.info('Hasil cek koneksi: isOnline=$isOnline');
-
-//         if (!isOnline) {
-//           if (mounted) {
-//             ToastUtil.info(context, 'Cek koneksi internet Anda.');
-//           }
-//           Log.info(
-//             'Proses simpan dibatalkan karena tidak ada koneksi internet.',
-//           );
-//           return;
-//         }
-
-//         final dataPelanggan = widget.pelanggan.copyWith(
-//           nama: _namaController.text,
-//           telepon: _teleponController.text,
-//           kataSandi: _passwordController.text,
-//         );
-
-//         Log.info(
-//           'Menyiapkan update pelanggan: id=${dataPelanggan.id}, nama=${dataPelanggan.nama}, telepon=${dataPelanggan.telepon}.',
-//         );
-
-//         final pelangganOp = ref.read(pelangganOpGlobalProvider);
-//         await pelangganOp.updatePelanggan(dataPelanggan);
-//         Log.info('perbaruiPelanggan selesai untuk id=${dataPelanggan.id}.');
-//         if (!mounted) {
-//           Log.info(
-//             'Widget tidak lagi mounted setelah update; tidak menampilkan toast atau menutup halaman.',
-//           );
-//           return;
-//         }
-//         ToastUtil.success(context, 'Profil berhasil diperbarui.');
-//         Log.info('Toast sukses ditampilkan, mmenutup halaman edit.');
-//         // Hapus deklarasi navigator di awal, atau gunakan langsung
-//         // Ganti navigator.pop(context); dengan:
-//         if (mounted) {
-//           Navigator.of(context).pop();
-//         }
-//       } catch (e, st) {
-//         Log.error('Gagal menyimpan perubahan profil', e: e, s: st);
-//         if (!mounted) {
-//           Log.error(
-//             'Widget tidak mounted saat terjadi error: tidak menampilkan toast.',
-//           );
-//           return;
-//         }
-//         ToastUtil.error(context, 'Gagal menyimpan perubahan: $e');
-//       }
-//     } else {
-//       Log.info('Form tidak valid - pembatalan penyimpanan.');
-//     }
-//   }
-
-//   @override
-//   void dispose() {
-//     Log.info('EditProfilePage.dispose - membuang controller.');
-//     _namaController.dispose();
-//     _teleponController.dispose();
-//     _passwordController.dispose();
-//     _namaFocusNode.dispose();
-//     _teleponFocusNode.dispose();
-//     _passwordFocusNode.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(final BuildContext context) {
-//     Log.info('Membangun UI EditProfilePage.');
-//     return Scaffold(
-//       appBar: AppBar(title: const Text('Edit Profil')),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Form(
-//           key: _formKey,
-//           child: ListView(
-//             children: [
-//               InputTeks(
-//                 focusNode: _namaFocusNode,
-//                 controller: _namaController,
-//                 nextFocusNode: _teleponFocusNode,
-//                 label: 'Nama Lengkap',
-//                 prefixIcon: TIcons.person,
-//               ),
-//               gapH16,
-//               InputTelepon(
-//                 controller: _teleponController,
-//                 focusNode: _teleponFocusNode,
-//                 nextFocusNode: _passwordFocusNode,
-//               ),
-
-//               gapH16,
-//               InputPassword(
-//                 controller: _passwordController,
-//                 focusNode: _passwordFocusNode,
-//                 textInputAction: TextInputAction.done,
-//               ),
-//               gapH32,
-//               ElevatedButton(
-//                 onPressed: _menyimpan
-//                     ? null
-//                     : () async {
-//                         setState(() => _menyimpan = true);
-//                         try {
-//                           await _simpanForm();
-//                         } finally {
-//                           if (mounted) setState(() => _menyimpan = false);
-//                         }
-//                       },
-//                 style: ElevatedButton.styleFrom(
-//                   backgroundColor: TColors.primaryColor,
-//                   foregroundColor: Colors.white,
-//                 ),
-//                 child: _menyimpan
-//                     ? const CircularProgressIndicator()
-//                     : const Text(
-//                         'SIMPAN',
-//                         style: TextStyle(fontWeight: FontWeight.w500),
-//                       ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 
 // File: lib/fitur/pelanggan/page/user/detail_pelanggan_u.dart
@@ -51785,13 +51425,16 @@ Kalau “tidak yakin” → ganti nama.
 
 
 // File: prompt/struktur_proyek.md
-jadwal-service-02257685:~/myapp{master}$ ls -R lib
+bash: /home/user/.bash_aliases: line 45: unexpected EOF while looking for matching ``'
+jadwal-service-02257685:~/myapp{master}$ ls -R lib test
 lib:
-admin  data_dummy  fitur  main  services  shared  tes_fitur  user
+admin       fitur  services  tes_fitur
+data_dummy  main   shared    user
 
 lib/admin:
-app_admin.dart  firebase_option  halaman_utama.dart  splash_screen_admin.dart
-data            halaman          providers
+app_admin.dart   halaman             splash_screen_admin.dart
+data             halaman_utama.dart
+firebase_option  providers
 
 lib/admin/data:
 sqlite.dart
@@ -51812,23 +51455,26 @@ lib/admin/halaman/tes:
 contoh_simpan_status.dart  halaman_tes.dart
 
 lib/admin/halaman/widget:
-box_info.dart               nama_paket_widget.dart  tombol_aksi.dart
-container_with_border.dart  nama_pelanggan.dart
+box_info.dart               nama_pelanggan.dart
+container_with_border.dart  tombol_aksi.dart
+nama_paket_widget.dart
 
 lib/admin/providers:
-customer_provider.dart                  detail_langganan_provider.g.dart
-customer_provider.g.dart                riwayat_aktivasi_paket_provider.dart
-detail_langganan_provider.dart          riwayat_aktivasi_paket_provider.g.dart
-detail_langganan_provider.freezed.dart
+customer_provider.dart  customer_provider.g.dart
 
 lib/data_dummy:
-data_dummy.dart  halaman_data_dummy.dart
+data_dummy.dart      dummy_pelanggan.dart
+dummy_dompet.dart    dummy_sub_kategori.dart
+dummy_kategori.dart  dummy_transaksi.dart
+dummy_paket.dart     halaman_data_dummy.dart
 
 lib/fitur:
-akun        dompet          kategori   pelanggan         settings      transaksi
-alarm       event           notfikasi  pelanggan_aktif   sinkronisasi  versi_apk
-background  feedback        order      poin              speedtest     whatsapp
-database    info_perangkat  paket      riwayat_aktivasi  statistik
+akun        event           paket             sinkronisasi
+alarm       feedback        pelanggan         speedtest
+app_role    info_perangkat  pelanggan_aktif   statistik
+background  kategori        poin              transaksi
+database    notfikasi       riwayat_aktivasi  versi_apk
+dompet      order           settings          whatsapp
 
 lib/fitur/akun:
 page  provider
@@ -51837,13 +51483,18 @@ lib/fitur/akun/page:
 daftar_akun_page.dart
 
 lib/fitur/akun/provider:
-akun_provider.dart  akun_provider.freezed.dart  akun_provider.g.dart
+akun_provider.dart          akun_provider.g.dart
+akun_provider.freezed.dart
 
 lib/fitur/alarm:
 penjadwal_alarm_android.dart  penjadwal_alarm.dart
 
+lib/fitur/app_role:
+role_util.dart  role_util.g.dart
+
 lib/fitur/background:
-alarm_utils.dart  layanan_latar_belakang.dart  layanan_peluncuran.dart
+alarm_utils.dart             layanan_peluncuran.dart
+layanan_latar_belakang.dart
 
 lib/fitur/database:
 provider  sqlite_user.dart
@@ -51864,7 +51515,8 @@ lib/fitur/dompet/page:
 detail_dompet.dart  dompet_page.dart  form_dompet.dart
 
 lib/fitur/dompet/provider:
-dompet_provider.dart  dompet_provider.freezed.dart  dompet_provider.g.dart
+dompet_provider.dart          dompet_provider.g.dart
+dompet_provider.freezed.dart
 
 lib/fitur/event:
 model  operasi  page
@@ -51887,13 +51539,14 @@ feedback_model.dart  feedback_model.freezed.dart
 
 lib/fitur/feedback/operasi:
 feedback_op_firebase.dart  feedback_op_sqlite.dart
+feedback_op_global.dart
 
 lib/fitur/feedback/page:
-feedback_detail_a.dart  feedback_page_u.dart
-feedback_page_a.dart    form_feedback_u.dart
+feedback_detail.dart  feedback_page.dart  form_feedback.dart
 
 lib/fitur/feedback/provider:
-feedback_provider.dart  feedback_provider.freezed.dart  feedback_provider.g.dart
+feedback_provider.dart          feedback_provider.g.dart
+feedback_provider.freezed.dart
 
 lib/fitur/info_perangkat:
 enum  model  page  service
@@ -51927,8 +51580,9 @@ lib/fitur/kategori/page:
 form_kategori.dart  kategori.dart
 
 lib/fitur/notfikasi:
-enum                     model    pengingat_paket_belum_lunas.dart
-layanan_notifikasi.dart  operasi  penjadwal_notifikasi.dart
+enum                     operasi
+layanan_notifikasi.dart  pengingat_paket_belum_lunas.dart
+model                    penjadwal_notifikasi.dart
 
 lib/fitur/notfikasi/enum:
 tipe_notifikasi_enum.dart
@@ -51955,7 +51609,8 @@ lib/fitur/order/page:
 order_page.dart
 
 lib/fitur/order/provider:
-order_provider.dart  order_provider.freezed.dart  order_provider.g.dart
+order_provider.dart          order_provider.g.dart
+order_provider.freezed.dart
 
 lib/fitur/paket:
 core  enum  model  operasi  page  provider
@@ -51971,12 +51626,14 @@ paket_model.dart  paket_model.freezed.dart
 
 lib/fitur/paket/operasi:
 paket_op_firebase.dart  paket_op_sqlite.dart
+paket_op_global.dart
 
 lib/fitur/paket/page:
 detail_paket.dart  form_paket.dart  paket.dart
 
 lib/fitur/paket/provider:
-paket_provider.dart  paket_provider.g.dart
+paket_provider.dart          paket_provider.g.dart
+paket_provider.freezed.dart
 
 lib/fitur/pelanggan:
 core  helper  model  operasi  page  provider  widget
@@ -51992,15 +51649,17 @@ pelanggan_model.dart  pelanggan_model.freezed.dart
 
 lib/fitur/pelanggan/operasi:
 pelanggan_op_firebase.dart  pelanggan_op_sqlite.dart
+pelanggan_op_global.dart
 
 lib/fitur/pelanggan/page:
 admin  user
 
 lib/fitur/pelanggan/page/admin:
-detail_pelanggan_a.dart  form_pelanggan.dart  pelanggan_page.dart
+detail_pelanggan_a.dart  pelanggan_page.dart
+form_pelanggan.dart
 
 lib/fitur/pelanggan/page/user:
-detail_pelanggan_u.dart  edit_profile_page.dart
+detail_pelanggan_u.dart
 
 lib/fitur/pelanggan/provider:
 pelanggan_provider.dart          pelanggan_provider.g.dart
@@ -52016,18 +51675,21 @@ lib/fitur/pelanggan_aktif/helper:
 pengurut_pelanggan_aktif.dart  pengurut_pelanggan_aktif.g.dart
 
 lib/fitur/pelanggan_aktif/model:
-detail_pelanggan_aktif_model.dart  pelanggan_aktif_model.freezed.dart
+detail_pelanggan_aktif_model.dart
 pelanggan_aktif_model.dart
+pelanggan_aktif_model.freezed.dart
 
 lib/fitur/pelanggan_aktif/operasi:
 pelanggan_aktif_op_firebase.dart  pelanggan_aktif_op_sqlite.dart
 
 lib/fitur/pelanggan_aktif/page:
-detail_pelanggan_aktif.dart  form_pelanggan_aktif.dart  pelanggan_aktif_page.dart
+detail_pelanggan_aktif.dart  pelanggan_aktif_page.dart
+form_pelanggan_aktif.dart
 
 lib/fitur/pelanggan_aktif/provider:
-pelanggan_aktif_provider.dart          pelanggan_aktif_provider.g.dart
+pelanggan_aktif_provider.dart
 pelanggan_aktif_provider.freezed.dart
+pelanggan_aktif_provider.g.dart
 
 lib/fitur/poin:
 operasi  page  provider  service  widget
@@ -52039,8 +51701,7 @@ lib/fitur/poin/page:
 halaman_poin.dart
 
 lib/fitur/poin/provider:
-poin_provider.dart          poin_provider.g.dart
-poin_provider.freezed.dart  points_page_data_source.dart
+poin_provider.dart  points_page_data_source.dart
 
 lib/fitur/poin/service:
 poin_transaction_service.dart
@@ -52049,10 +51710,18 @@ lib/fitur/poin/widget:
 kartu_total_poin.dart  ui_halaman_poin.dart
 
 lib/fitur/riwayat_aktivasi:
-page
+page  provider
 
 lib/fitur/riwayat_aktivasi/page:
-detail_riwayat_aktivasi.dart  form_riwayat_aktivasi.dart
+detail_riwayat_aktivasi.dart  riwayat_aktivasi_paket.dart
+form_riwayat_aktivasi.dart
+
+lib/fitur/riwayat_aktivasi/provider:
+detail_langganan_provider.dart
+detail_langganan_provider.freezed.dart
+detail_langganan_provider.g.dart
+riwayat_aktivasi_paket_provider.dart
+riwayat_aktivasi_paket_provider.g.dart
 
 lib/fitur/settings:
 model  operasi  page  provider
@@ -52067,7 +51736,8 @@ lib/fitur/settings/page:
 form_settings.dart  settings_page_a.dart  settings_page_u.dart
 
 lib/fitur/settings/provider:
-settings_provider.dart  settings_provider.freezed.dart  settings_provider.g.dart
+settings_provider.dart          settings_provider.g.dart
+settings_provider.freezed.dart
 
 lib/fitur/sinkronisasi:
 layanan_cek_sinkronisasi.dart  layanan_unggah_data.dart
@@ -52108,10 +51778,11 @@ transaksi_model.dart  transaksi_model.freezed.dart
 
 lib/fitur/transaksi/operasi:
 transaksi_op_firebase.dart  transaksi_op_sqlite.dart
+transaksi_op_global.dart
 
 lib/fitur/transaksi/page:
-detail_transaksi_a.dart  form_transaksi.dart          transaksi_a.dart
-detail_transaksi_u.dart  riwayat_aktivasi_paket.dart  transaksi_u.dart
+detail_transaksi_a.dart  form_transaksi.dart  transaksi_u.dart
+detail_transaksi_u.dart  transaksi_a.dart
 
 lib/fitur/transaksi/provider:
 transaksi_provider.dart          transaksi_provider.g.dart
@@ -52168,7 +51839,8 @@ lib/shared/data:
 services
 
 lib/shared/data/services:
-layanan_navigasi.dart  layanan_pengecekan_data_baru.dart  layanan_preferensi.dart
+layanan_navigasi.dart              layanan_preferensi.dart
+layanan_pengecekan_data_baru.dart
 
 lib/shared/debug:
 global_key.dart  log.dart
@@ -52177,30 +51849,36 @@ lib/shared/enum:
 app_role_enum.dart  url_supabase_enum.dart
 
 lib/shared/export:
-enum.dart  model.dart  operation.dart  op_firebase.dart  theme.dart
+enum.dart   operation.dart    theme.dart
+model.dart  op_firebase.dart
 
 lib/shared/model:
-has_id.dart        status_model.freezed.dart  status_unggah_model.freezed.dart
-status_model.dart  status_unggah_model.dart
+has_id.dart                status_unggah_model.dart
+status_model.dart          status_unggah_model.freezed.dart
+status_model.freezed.dart
 
 lib/shared/operasi:
 firebase_operasi  sqlite_operasi
 
 lib/shared/operasi/firebase_operasi:
-base_op_firebase.dart  firebase_operation_provider  status_op_firebase.dart
+base_op_firebase.dart        status_op_firebase.dart
+firebase_operation_provider
 
 lib/shared/operasi/firebase_operasi/firebase_operation_provider:
-firebase_operation_provider.dart  firebase_operation_provider.g.dart
+firebase_operation_provider.dart
+firebase_operation_provider.g.dart
 
 lib/shared/operasi/sqlite_operasi:
-base_op_sqlite.dart  pembersihan_data_operasi.dart  status_upload_op_sqlite.dart
+base_op_sqlite.dart            status_upload_op_sqlite.dart
+pembersihan_data_operasi.dart
 
 lib/shared/providers:
 shared_providers.dart  shared_providers.g.dart
 
 lib/shared/services:
-arsipkan_langganan_kadaluarsa_service.dart  layanan_penyimpanan_gambar.dart
+arsipkan_langganan_kadaluarsa_service.dart
 koneksi_internet_service.dart
+layanan_penyimpanan_gambar.dart
 
 lib/shared/theme:
 app_colors.dart  app_sizes.dart  tema_provider.dart
@@ -52211,14 +51889,14 @@ durasi_util.dart  parser_util.dart       toast_util.dart
 format_util.dart  perhitungan_util.dart
 
 lib/shared/widget:
-input                         pemilih_tanggal_waktu_widget.dart
-nama_pelanggan_widget.dart    summary_info_widget.dart
-nama_pelanggan_widget.g.dart  widget_ringkasan_keuangan.dart
-package_name.dart
+input                       pemilih_tanggal_waktu_widget.dart
+nama_pelanggan_widget.dart  summary_info_widget.dart
+package_name.dart           widget_ringkasan_keuangan.dart
 
 lib/shared/widget/input:
-formatter         input_mac_address.dart  input_rupiah.dart  input_telepon.dart
-input_angka.dart  input_password.dart     input_teks.dart
+formatter               input_password.dart  input_telepon.dart
+input_angka.dart        input_rupiah.dart
+input_mac_address.dart  input_teks.dart
 
 lib/shared/widget/input/formatter:
 mac_address_formatter.dart
@@ -52234,10 +51912,12 @@ lib/user/firebase_option:
 firebase_option_user_dev.dart  firebase_option_user_prod.dart
 
 lib/user/page:
-login_page.dart  main_page.dart  profile_page.dart  splash_screen_user.dart
+login_page.dart  profile_page.dart
+main_page.dart   splash_screen_user.dart
 
 lib/user/providers:
-ad_providers.dart  ad_providers.g.dart  user_provider.dart  user_provider.g.dart
+ad_providers.dart    user_provider.dart
+ad_providers.g.dart  user_provider.g.dart
 
 lib/user/services:
 storage
@@ -52246,13 +51926,15 @@ lib/user/services/storage:
 layanan_penyimpanan_lokal.dart
 
 lib/user/widget:
-ads  data_not_found.dart  error_message.dart  theme_menu_widget.dart
+ads                  error_message.dart
+data_not_found.dart  theme_menu_widget.dart
 
 lib/user/widget/ads:
 app_open  banner  bonused_mediator  interstitial
 
 lib/user/widget/ads/app_open:
-app_lifecycle_reactor.dart  app_open_ad_service.dart  id_app_open_ads.dart
+app_lifecycle_reactor.dart  id_app_open_ads.dart
+app_open_ad_service.dart
 
 lib/user/widget/ads/banner:
 banner_ads_widget.dart  id_banner_ads.dart
@@ -52262,6 +51944,289 @@ bonused_mediator_ad_service.dart  id_bonused_mediator_ads.dart
 
 lib/user/widget/ads/interstitial:
 id_interstitial_ads.dart  layanan_iklan_interstisial.dart
+
+test:
+admin  data_dummy  fitur  image_mock_http_client.dart  shared
+
+test/admin:
+app_admin_test.dart        halaman_utama_test.dart
+app_admin_test.mocks.dart  halaman_utama_test.mocks.dart
+data                       model
+firebase_option            providers
+halaman                    splash_screen_admin_test.dart
+
+test/admin/data:
+sqlite_test.dart  sqlite_test.mocks.dart
+
+test/admin/firebase_option:
+firebase_option_admin_dev_test.dart
+firebase_option_admin_prod_test.dart
+
+test/admin/halaman:
+detail  event  form  lainnya  tab  tes  widget
+
+test/admin/halaman/detail:
+detail_dompet_test.dart        detail_paket_test.dart
+detail_dompet_test.mocks.dart  detail_paket_test.mocks.dart
+
+test/admin/halaman/event:
+
+test/admin/halaman/form:
+form_kategori_test.dart         form_pelanggan_test.dart
+form_pelanggan_aktif_test.dart  form_pelanggan_test.mocks.dart
+
+test/admin/halaman/lainnya:
+halaman_migrasi_test.dart  paket_test.mocks.dart
+paket_test.dart            riwayat_aktivasi_paket_test.dart
+
+test/admin/halaman/tab:
+lainnya_test.dart
+
+test/admin/halaman/tes:
+contoh_simpan_status_test.dart  halaman_tes_test.dart
+
+test/admin/halaman/widget:
+box_info_test.dart               nama_pelanggan_test.dart
+container_with_border_test.dart  tombol_aksi_test.dart
+nama_paket_widget_test.dart
+
+test/admin/model:
+best_selling_package_test.dart
+
+test/admin/providers:
+customer_provider_test.dart
+customer_provider_test.mocks.dart
+detail_langganan_provider_test.dart
+detail_langganan_provider_test.mocks.dart
+riwayat_aktivasi_paket_provider_test.dart
+riwayat_aktivasi_paket_provider_test.mocks.dart
+
+test/data_dummy:
+data_dummy_test.dart  halaman_data_dummy_test.dart
+
+test/fitur:
+akun        dompet          notfikasi  sinkronisasi  versi_apk
+alarm       event           pelanggan  speedtest     whatsapp
+background  feedback        router     statistik
+database    info_perangkat  settings   transaksi
+
+test/fitur/akun:
+page  provider
+
+test/fitur/akun/page:
+daftar_akun_page_test.dart  daftar_akun_page_test.mocks.dart
+
+test/fitur/akun/provider:
+akun_provider_test.dart  akun_provider_test.mocks.dart
+
+test/fitur/alarm:
+alarm_scheduler_test.dart
+alarm_scheduler_test.mocks.dart
+android_alarm_scheduler_test.dart
+
+test/fitur/background:
+alarm_utils_test.dart             layanan_peluncuran_test.dart
+layanan_latar_belakang_test.dart
+
+test/fitur/database:
+provider
+
+test/fitur/database/provider:
+operasi_sqlite_provider_test.dart
+operasi_sqlite_provider_test.mocks.dart
+
+test/fitur/dompet:
+model  operasi  page  state
+
+test/fitur/dompet/model:
+item_dompet_model_test.dart     transaksi_model_test.dart
+item_transaksi_model_test.dart  wallet_model_test.dart
+
+test/fitur/dompet/operasi:
+dompet_op_sqlite_test.dart  dompet_op_sqlite_test.mocks.dart
+
+test/fitur/dompet/page:
+dompet_page_test.dart  form_dompet_test.dart
+
+test/fitur/dompet/state:
+state_item_transaksi_test.dart  state_wallet_test.dart
+state_transaksi_test.dart
+
+test/fitur/event:
+model  operasi  page
+
+test/fitur/event/model:
+event_model_test.dart
+
+test/fitur/event/operasi:
+event_op_supabase_test.dart
+
+test/fitur/event/page:
+detail_event_a_test.dart        event_page_a_test.dart
+detail_event_a_test.mocks.dart  event_page_a_test.mocks.dart
+
+test/fitur/feedback:
+model  operasi
+
+test/fitur/feedback/model:
+feedback_model_test.dart
+
+test/fitur/feedback/operasi:
+feedback_op_firebase_test.dart
+feedback_op_firebase_test.mocks.dart
+feedback_op_sqlite_test.dart
+feedback_op_sqlite_test.mocks.dart
+
+test/fitur/info_perangkat:
+model  service
+
+test/fitur/info_perangkat/model:
+info_perangkat_model_test.dart
+
+test/fitur/info_perangkat/service:
+layanan_info_paket_test.dart
+layanan_info_perangkat_test.dart
+layanan_info_perangkat_test.mocks.dart
+
+test/fitur/notfikasi:
+enum
+layanan_notifikasi_test.dart
+layanan_notifikasi_test.mocks.dart
+penjadwal_notifikasi_test.dart
+penjadwal_notifikasi_test.mocks.dart
+
+test/fitur/notfikasi/enum:
+tipe_notifikasi_enum_test.dart
+
+test/fitur/pelanggan:
+core  operasi  page  widget
+
+test/fitur/pelanggan/core:
+layanan_aktivitas_user_test.dart
+layanan_aktivitas_user_test.mocks.dart
+
+test/fitur/pelanggan/operasi:
+pelanggan_op_firebase_test.dart
+pelanggan_op_firebase_test.mocks.dart
+pelanggan_op_sqlite_test.dart
+pelanggan_op_sqlite_test.mocks.dart
+
+test/fitur/pelanggan/page:
+admin  user
+
+test/fitur/pelanggan/page/admin:
+detail_pelanggan_a_test.dart
+
+test/fitur/pelanggan/page/user:
+detail_pelanggan_u_test.dart  detail_pelanggan_u_test.mocks.dart
+
+test/fitur/pelanggan/widget:
+detail_pelanggan_ui_test.dart
+
+test/fitur/router:
+operasi  provider
+
+test/fitur/router/operasi:
+router_op_sqlite_test.dart
+
+test/fitur/router/provider:
+router_provider_test.dart
+
+test/fitur/settings:
+operasi                   settings_op_firebase_test.dart
+settings_model_test.dart
+
+test/fitur/settings/operasi:
+settings_op_sqlite_test.dart  settings_op_sqlite_test.mocks.dart
+
+test/fitur/sinkronisasi:
+layanan_unduh_data_test.dart   provider
+layanan_unggah_data_test.dart
+
+test/fitur/sinkronisasi/provider:
+sinkronisasi_provider_test.dart
+
+test/fitur/speedtest:
+provider
+
+test/fitur/speedtest/provider:
+ping_provider_test.dart  uji_kecepatan_provider_test.dart
+
+test/fitur/statistik:
+model  operasi  provider
+
+test/fitur/statistik/model:
+paket_terlaris_model_test.dart
+
+test/fitur/statistik/operasi:
+statistik_op_sqlite_test.dart
+
+test/fitur/statistik/provider:
+statistik_provider_test.dart
+
+test/fitur/transaksi:
+model  operasi  provider
+
+test/fitur/transaksi/model:
+transaksi_model_test.dart
+
+test/fitur/transaksi/operasi:
+transaksi_op_firebase_test.dart  transaksi_op_sqlite_test.dart
+
+test/fitur/transaksi/provider:
+transaksi_provider_test.dart
+
+test/fitur/versi_apk:
+model  operasi  provider  service
+
+test/fitur/versi_apk/model:
+versi_apk_model_test.dart
+
+test/fitur/versi_apk/operasi:
+versi_apk_op_firebase_test.dart  versi_apk_op_sqlite_test.dart
+
+test/fitur/versi_apk/provider:
+versi_apk_provider_test.dart
+
+test/fitur/versi_apk/service:
+update_service_test.dart
+
+test/fitur/whatsapp:
+info_paket_test.dart  info_paket_test.mocks.dart
+
+test/shared:
+data  debug  operasi  utils
+
+test/shared/data:
+services
+
+test/shared/data/services:
+layanan_cek_sinkronisasi_test.dart
+layanan_cek_sinkronisasi_test.mocks.dart
+layanan_navigasi_test.dart
+layanan_preferensi_test.dart
+pengecekan_data_baru_service_test.dart
+pengecekan_data_baru_service_test.mocks.dart
+
+test/shared/debug:
+log_test.dart
+
+test/shared/operasi:
+firebase_operasi  sqlite_operasi
+
+test/shared/operasi/firebase_operasi:
+base_op_firebase_test.dart
+notifikasi_op_firebase_test.dart
+notifikasi_op_firebase_test.mocks.dart
+status_op_firebase_test.dart
+
+test/shared/operasi/sqlite_operasi:
+base_op_sqlite_test.dart  base_op_sqlite_test.mocks.dart
+
+test/shared/utils:
+durasi_util_test.dart  pengelola_sinkronisasi_test.dart
+format_util_test.dart  perhitungan_util_test.dart
+parser_util_test.dart  toast_util_test.dart
 jadwal-service-02257685:~/myapp{master}$ 
 
 // File: prompt/aturan_analisis_error.md
@@ -52886,6 +52851,357 @@ jangan pernah menulis komentar dokumen di dalam file kode karean itu sangat bera
 - AI wajib mengikuti semua instruksi pengguna tanpa membantah, berdebat, atau mempertanyakan keputusan pengguna.
 - AI tidak boleh menggunakan frasa yang meragukan seperti: "tapi", "sebaiknya", "menurut saya", "lebih baik", "saya sarankan", kecuali pengguna secara eksplisit meminta pendapat.
 
+
+// ============================================================
+// SNIPPET VS CODE
+// ============================================================
+
+
+
+// File: .vscode/komentar_ask.code-snippets
+
+{
+	"Prompt - Analisis File + Relasi (Detail)": {
+		"prefix": "/f",
+		"body": [
+			"// === ANALISIS FILE DAN RELASI MENDALAM (TRACE BERANTAI) ===",
+			"//",
+			"// Saya ingin kamu menganalisis file berikut secara MENDALAM dan MENYELURUH:",
+			"//",
+			"// --- FILE UTAMA ---",
+			"// Nama file: ${TM_FILENAME}",
+			"// Path: ${TM_FILEPATH}",
+			"//",
+			"// Isi file:",
+			"// ```dart",
+			"// ${TM_SELECTED_TEXT}${1:isi file lengkap}",
+			"// ```",
+			"//",
+			"// --- ATURAN PENTING (WAJIB DIPATUHI) ---",
+			"//",
+			"// ATURAN TRACE BERANTAI:",
+			"// - Jika file ini import/reference/memanggil file B, kamu WAJIB menanyakan isi file B",
+			"// - Jika file B ternyata juga import/reference/memanggil file C, kamu WAJIB menanyakan isi file C",
+			"// - Jika file C import file D, tanyakan file D, begitu seterusnya sampai AKAR",
+			"// - Jangan berhenti sebelum SEMUA rantai dependency terlacak",
+			"// - Jangan berspekulasi atau menebak isi file lain, WAJIB minta isinya padaku",
+			"// - Kalau kamu butuh isi file terkait, TANYAKAN dengan format: 'Tolong paste isi file [nama_file]'",
+			"//",
+			"// ATURAN DUA ARAH:",
+			"// - Selain file yang di-import, kamu juga WAJIB menanyakan file yang meng-import file utama ini",
+			"// - Trace dua arah: ke atas (parent/caller) dan ke bawah (child/dependency)",
+			"//",
+			"// --- TUGAS KAMU ---",
+			"//",
+			"// 1. IDENTIFIKASI SEMUA IMPORT & DEPENDENCY",
+			"//    - Sebutkan SATU PER SATU import yang ada di file ini",
+			"//    - Untuk SETIAP import, sebutkan nama file dan path-nya",
+			"//    - Jelaskan kegunaan masing-masing import",
+			"//",
+			"// 2. TRACE BERANTAI KE BAWAH (FILE YANG DI-IMPORT)",
+			"//    - Untuk SETIAP file yang di-import, WAJIB minta isinya padaku",
+			"//    - Format: 'Tolong paste isi file [nama_file] di path [path_file]'",
+			"//    - Kalau di file import itu ada import lagi, ulangi terus sampai ke akar",
+			"//    - Tampilkan dependency chain lengkap: File A → File B → File C → ... → File Akar",
+			"//",
+			"// 3. TRACE BERANTAI KE ATAS (FILE YANG MENG-IMPORT FILE INI)",
+			"//    - WAJIB tanyakan file-file yang meng-import file utama ini",
+			"//    - Format: 'Apakah ada file lain yang meng-import ${TM_FILENAME}? Tolong paste isinya'",
+			"//    - Kalau ada, trace terus ke atas: File X → File Y → ... → File Utama",
+			"//",
+			"// 4. ANALISIS MASALAH DI SETIAP LEVEL RANTAI",
+			"//    - Di setiap file dalam rantai, analisis potensi error",
+			"//    - Cek apakah error di file utama disebabkan oleh file import",
+			"//    - Cek sampai ke akar penyebab, jangan cuma di permukaan",
+			"//    - Siapa yang pertama kali menyebabkan masalah di rantai ini?",
+			"//",
+			"// 5. DAMPAK PERUBAHAN SEPANJANG RANTAI",
+			"//    - Kalau file utama diubah, trace dampaknya ke SEMUA file di rantai",
+			"//    - Kalau file akar diubah, trace dampaknya ke file utama",
+			"//    - Di setiap level, sebutkan apa yang akan error/terpengaruh",
+			"//",
+			"// 6. VISUALISASI RANTAI DEPENDENCY",
+			"//    - Gambarkan diagram rantai lengkap: File A → File B → File C → File D",
+			"//    - Tandai file mana yang bermasalah",
+			"//    - Tandai arah aliran data/dependency",
+			"//",
+			"// 7. KONTEKS PROJECT",
+			"//    - Di folder mana file ini berada?",
+			"//    - Apa peran file ini dalam arsitektur project?",
+			"//    - File apa saja yang satu folder/feature?",
+			"//",
+			"// 8. POTENSI MASALAH DI SELURUH RANTAI",
+			"//    - Circular dependency?",
+			"//    - Import tidak digunakan?",
+			"//    - Best practice dilanggar?",
+			"//    - Potensi bug dari relasi?",
+			"//",
+			"// 9. REKOMENDASI PERBAIKAN",
+			"//    - Perbaikan untuk file utama",
+			"//    - Perbaikan untuk file-file di rantai (kalau perlu)",
+			"//    - Saran restruktur dependency kalau diperlukan",
+			"//",
+			"// --- FORMAT JAWABAN ---",
+			"// 1. Mulai dengan identifikasi import file utama",
+			"// 2. TANYAKAN padaku SATU PER SATU file yang dibutuhkan",
+			"// 3. Tunggu aku berikan isinya, baru lanjut analisis",
+			"// 4. JANGAN LANGSUNG menyimpulkan sebelum SEMUA file di rantai diperiksa",
+			"// 5. Tampilkan dependency chain lengkap di akhir",
+			"// Setelah melakukan perbaikan list semua file yang telah diperbaiki dari awal kita mualai hingga saat ini",
+			"// Setelah melakukan pekerjaan beritahukan ke saya sisa tokok AI yang belum terpakai agar proses kita tidak terpotong",
+			"// ubah nama class, file variabel, parameter ke dalam bahasa inggris untuk menjaga konsistensi projek tapi untuk komentar wajib indonesia",
+			"// tambahkan inofrmasi didalam file file ini digunakan oleh file apa saja dan bungkus dengan komentar",
+		],
+		"description": "Analisis file Flutter + trace dependency berantai sampai akar + auto nama file & path"
+	},
+
+}
+
+
+// File: .vscode/riverpod.code-snippets
+{
+	"ref.read (satu kali, di method)": {
+		"prefix": "/riv_read",
+		"body": "final ${1:variable} = ref.read(${2:provider});",
+		"description": "ref.read untuk membaca nilai sekali (onPressed, async method)"
+	},
+	"ref.watch (reaktif, di build)": {
+		"prefix": "/riv_watch",
+		"body": "final ${1:value} = ref.watch(${2:provider});",
+		"description": "ref.watch untuk mendengarkan perubahan (hanya di build)"
+	},
+	"ref.watch dengan select (optimasi)": {
+		"prefix": "/riv_watch_select",
+		"body": "final ${1:value} = ref.watch(${2:provider}.select((state) => state.${3:property}));",
+		"description": "ref.watch dengan select untuk rebuild hanya pada properti tertentu"
+	},
+	"ref.watch dengan .when (AsyncValue)": {
+		"prefix": "/riv_watch_when",
+		"body": [
+			"final ${1:asyncValue} = ref.watch(${2:provider});",
+			"",
+			"${1:asyncValue}.when(",
+			"  loading: () => const CircularProgressIndicator(),",
+			"  error: (err, stack) => Text('Error: $err'),",
+			"  data: (data) => Text(data.toString()),",
+			");"
+		],
+		"description": "Pattern AsyncValue.when untuk FutureProvider/StreamProvider"
+	},
+	"ref.listen (side effect tanpa rebuild)": {
+		"prefix": "/riv_listen",
+		"body": [
+			"ref.listen<${1:StateType}>(",
+			"  ${2:provider},",
+			"  (previous, next) {",
+			"    Log.info('State berubah: $previous -> $next');",
+			"  },",
+			");"
+		],
+		"description": "ref.listen untuk efek samping (snackbar, navigasi, log)"
+	},
+	"ref.listen dengan onError": {
+		"prefix": "/riv_listen_error",
+		"body": [
+			"ref.listen<${1:StateType}>(",
+			"  ${2:provider},",
+			"  (previous, next) {",
+			"    // handler sukses",
+			"  },",
+			"  onError: (error, stackTrace) {",
+			"    Log.error('Error: $error', e: error, st: stackTrace);",
+			"    ToastUtil.error(context, 'Terjadi kesalahan');",
+			"  },",
+			");"
+		],
+		"description": "ref.listen dengan penanganan error"
+	},
+	"Provider with Dependency": {
+		"prefix": "/riv_provider_dep",
+		"body": [
+			"final ${1:name}Provider = Provider<${2:Type}>((ref) {",
+			"  final dependency = ref.watch(${3:dependencyProvider});",
+			"  return ${2:Type}(dependency: dependency);",
+			"});"
+		],
+		"description": "Provider dengan dependency injection"
+	},
+	"Consumer (Inline)": {
+		"prefix": "/riv_consumer",
+		"body": [
+			"Consumer(",
+			"  builder: (context, ref, child) {",
+			"    final ${1:data} = ref.watch(${2:provider});",
+			"    return ${3:Widget();}",
+			"  },",
+			")"
+		],
+		"description": "Consumer widget untuk penggunaan inline"
+	},
+	"AsyncValue.when with If": {
+		"prefix": "/when_if",
+		"body": [
+			"return ${1:asyncValue}.when(",
+			"  loading: () => const Center(child: CircularProgressIndicator()),",
+			"  error: (e, s) => Center(child: Text('Error: \\$e')),",
+			"  data: (${2:data}) {",
+			"    if (data.isEmpty) {",
+			"      return const Center(child: Text('Tidak ada data'));",
+			"    }",
+			"    return WidgetBuatData(data);",
+			"  }},",
+			");"
+		],
+		"description": "AsyncValue.when dengan if condition untuk empty state"
+	},
+	"Provider Notifier (StateNotifier)": {
+		"prefix": "/riv_notifier",
+		"body": [
+			"import 'package:riverpod_annotation/riverpod_annotation.dart';",
+			"",
+			"part '${1:file_name}.g.dart';",
+			"",
+			"@riverpod",
+			"class ${2:Name}Notifier extends _\\$${2:Name}Notifier {",
+			"  @override",
+			"  ${3:StateType} build() {",
+			"    return ${4:initialValue};",
+			"  }",
+			"",
+			"  void ${5:methodName}() {",
+			"    state = ${6:newValue};",
+			"  }",
+			"}"
+		],
+		"description": "Template Notifier Provider dengan riverpod_annotation"
+	},
+	"ConsumerWidget (stateless) sederhana": {
+		"prefix": "/riv_ConsumerWidget",
+		"body": [
+			"class ${1:MyWidget} extends ConsumerWidget {",
+			"  const ${1:MyWidget}({super.key});",
+			"",
+			"  @override",
+			"  Widget build(BuildContext context, WidgetRef ref) {",
+			"    final ${2:data} = ref.watch(${3:provider});",
+			"    return ${4:Container()};",
+			"  }",
+			"}"
+		],
+		"description": "Template ConsumerWidget dengan ref.watch"
+	},
+	"ConsumerStatefulWidget (stateful) + initState + loading": {
+		"prefix": "/riv_ConsumerStatefulWidget",
+		"body": [
+			"class ${1:MyPage} extends ConsumerStatefulWidget {",
+			"  const ${1:MyPage}({super.key});",
+			"",
+			"  @override",
+			"  ConsumerState<${1:MyPage}> createState() => _${1:MyPage}State();",
+			"}",
+			"",
+			"class _${1:MyPage}State extends ConsumerState<${1:MyPage}> {",
+			"  late final ${2:Repository} _repository;",
+			"  bool _isLoading = true;",
+			"",
+			"  @override",
+			"  void initState() {",
+			"    super.initState();",
+			"    _repository = ref.read(${3:repositoryProvider});",
+			"    _loadData();",
+			"  }",
+			"",
+			"  Future<void> _loadData() async {",
+			"    setState(() => _isLoading = true);",
+			"    try {",
+			"      // panggil repository",
+			"      if (mounted) setState(() => _isLoading = false);",
+			"    } on Exception catch (e, st) {",
+			"      Log.error('Error', e: e, st: st);",
+			"      if (mounted) {",
+			"        setState(() => _isLoading = false);",
+			"        ToastUtil.error(context, 'Gagal memuat data');",
+			"      }",
+			"    }",
+			"  }",
+			"",
+			"  @override",
+			"  Widget build(BuildContext context) {",
+			"    if (_isLoading) {",
+			"      return const Scaffold(",
+			"        body: Center(child: CircularProgressIndicator()),",
+			"      );",
+			"    }",
+			"    return Scaffold(",
+			"      appBar: AppBar(title: const Text('${1:MyPage}')),",
+			"      body: Container(),",
+			"    );",
+			"  }",
+			"}"
+		],
+		"description": "Template lengkap ConsumerStatefulWidget dengan initState dan loading"
+	}}
+
+// File: .vscode/komentar_path.code-snippets
+{
+	"Komentar Path": {
+		"prefix": "/path",
+		"body": [
+			"// path ${RELATIVE_FILEPATH}",
+			"",
+		],
+		"description": "Sisipkan komentar path file saat ini"
+	},
+	"Komentar TODO": {
+		"prefix": "/todo",
+		"body": [
+			"// TODO : $1"
+		],
+		"description": "Sisipkan Komentar TODO"
+	}
+}
+
+// File: .vscode/komponen.code-snippets
+{
+	"Flutter FutureBuilder": {
+		"scope": "dart",
+		"prefix": "/builder",
+		"body": [
+			"FutureBuilder<${1:TipeData}>(",
+			"  future: ${2:futureVariable},",
+			"  builder: (context, snapshot) {",
+			"    if (snapshot.connectionState == ConnectionState.waiting) {",
+			"      return const Center(child: CircularProgressIndicator());",
+			"    }",
+			"    if (snapshot.hasError) {",
+			"      return Center(child: Text('Error: \\${snapshot.error}'));",
+			"    }",
+			"    if (!snapshot.hasData) {",
+			"      return const Center(child: Text('Tidak ada data'));",
+			"    }",
+			"    final data = snapshot.data!;",
+			"    return ${3:widget};",
+			"  },",
+			")"
+		],
+		"description": "Snippet FutureBuilder universal"
+	},
+	"Flutter Future Async Method": {
+		"scope": "dart",
+		"prefix": "/future",
+		"body": [
+			"Future<void> _${1:methodName}() async {",
+			"  try {",
+			"    ${2:// Logika asinkron}",
+			"  } on Exception catch (e, s) {",
+			"    Log.error('Error di ${1:methodName}: \\$e', e: e, s: s);",
+			"    ${3:// Error handling opsional}",
+			"  }",
+			"}"
+		],
+		"description": "Snippet method Future universal dengan try-catch"
+	}
+}
 
 // File: test/image_mock_http_client.dart
 

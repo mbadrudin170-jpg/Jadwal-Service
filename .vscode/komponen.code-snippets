@@ -1,23 +1,4 @@
 {
-	"ElevatedButton Nav Ad": {
-		"scope": "dart",
-		"prefix": "/btn-nav-ad",
-		"body": [
-			"ElevatedButton(",
-			"  onPressed: () {",
-			"    InterstitialAdService().showAdIfReady(onAdDismissed: () {",
-			"      if (!mounted) return;",
-			"      Navigator.push(",
-			"        context,",
-			"        MaterialPageRoute(builder: (context) => ${1:DestinationPage()}),",
-			"      );",
-			"    });",
-			"  },",
-			"  child: const Text('${2:Teks Tombol}'),",
-			")"
-		],
-		"description": "ElevatedButton dengan Interstitial Ad dan Navigation"
-	},
 	"Flutter FutureBuilder": {
 		"scope": "dart",
 		"prefix": "/builder",
@@ -50,7 +31,6 @@
 			"    ${2:// Logika asinkron}",
 			"  } on Exception catch (e, s) {",
 			"    Log.error('Error di ${1:methodName}: \\$e', e: e, s: s);",
-			"    if (!mounted) return;",
 			"    ${3:// Error handling opsional}",
 			"  }",
 			"}"

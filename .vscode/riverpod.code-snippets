@@ -83,7 +83,7 @@
 			"return ${1:asyncValue}.when(",
 			"  loading: () => const Center(child: CircularProgressIndicator()),",
 			"  error: (e, s) => Center(child: Text('Error: \\$e')),",
-			"  data: ${2:(data) {",
+			"  data: (${2:data}) {",
 			"    if (data.isEmpty) {",
 			"      return const Center(child: Text('Tidak ada data'));",
 			"    }",
@@ -179,5 +179,4 @@
 			"}"
 		],
 		"description": "Template lengkap ConsumerStatefulWidget dengan initState dan loading"
-	}
-}
+	}}

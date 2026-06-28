@@ -121,9 +121,7 @@ class DaftarAkunPage extends ConsumerWidget {
         'customer_id': pelanggan.id,
         'nama': pelanggan.nama,
       });
-
       unawaited(activityService.pingAktivitas(pelanggan.id, paksa: true));
-
       if (!context.mounted) return;
       await navigator.pushAndRemoveUntil(
         MaterialPageRoute<void>(builder: (context) => const MainPage()),
@@ -160,13 +158,10 @@ class DaftarAkunPage extends ConsumerWidget {
           TextButton(
             child: const Text('Hapus'),
             onPressed: () async {
-              final dialogNavigator = Navigator.of(dialogContext);
               try {
                 final akunLogin = await ref.read(userIdProvider.future);
-                if (dialogNavigator.context.mounted) {
-                  dialogNavigator.pop(); // Tutup dialog
-                }
                 if (!context.mounted) return;
+                Navigator.of(dialogContext).pop();
                 if (akunLogin == customer.id) {
                   await _tanganiHapusAkunAktif(context, ref, customer);
                 } else {
