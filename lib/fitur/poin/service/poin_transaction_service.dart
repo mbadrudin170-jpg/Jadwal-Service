@@ -57,7 +57,7 @@ class PoinTransactionService {
 
     try {
       // Gunakan BaseOpFirebase.runComplexOperation
-      await _baseOpFirebase.runComplexOperation((txn) async {
+      await _baseOpFirebase.operasiKompleks((txn) async {
         Log.info('Transaksi Firestore dimulai melalui BaseOpFirebase');
 
         // 1. BACA DATA PELANGGAN

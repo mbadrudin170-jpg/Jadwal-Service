@@ -63,7 +63,7 @@ class MockBaseOpFirebase extends _i1.Mock implements _i4.BaseOpFirebase {
           as _i2.FirebaseFirestore);
 
   @override
-  _i3.Future<T> runComplexOperation<T>(
+  _i3.Future<T> operasiKompleks<T>(
     _i3.Future<T> Function(_i2.Transaction)? customAction,
   ) =>
       (super.noSuchMethod(

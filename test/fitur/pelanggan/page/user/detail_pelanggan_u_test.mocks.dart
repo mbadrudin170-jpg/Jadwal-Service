@@ -284,7 +284,7 @@ class MockTransaksiOpFirebase extends _i1.Mock
           as _i3.Future<void>);
 
   @override
-  _i3.Future<T> runComplexOperation<T>(
+  _i3.Future<T> operasiKompleks<T>(
     _i3.Future<T> Function(_i2.Transaction)? customAction,
   ) =>
       (super.noSuchMethod(

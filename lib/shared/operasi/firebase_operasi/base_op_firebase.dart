@@ -79,7 +79,7 @@ class BaseOpFirebase {
     }
   }
 
-  Future<T> runComplexOperation<T>(
+  Future<T> operasiKompleks<T>(
     Future<T> Function(Transaction txn) customAction,
   ) async {
     Log.info('[FIRESTORE] Mendelegasikan eksekusi transaksi kompleks.');
