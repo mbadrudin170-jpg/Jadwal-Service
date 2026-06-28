@@ -129,11 +129,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
   /// ✅ PERBAIKAN 3: _showDialog sekarang pakai await dengan benar
   Future<bool?> _showDialog(BuildContext context, OrderModel order) async {
-    final appRole = ref.watch(appRoleProvider);
-    Log.info(
-      '_showDialog dipanggil untuk orderId: ${order.id}, appRole: ${appRole.name}',
-    );
-
     try {
       return await showDialog<bool>(
         context: context,
@@ -151,7 +146,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                           '_showDialog: admin memilih Ubah Status untuk orderId: ${order.id}',
                         );
                         Navigator.of(dialogContext).pop();
-                        // ✅ Perbaikan: Sekarang pakai try-catch
                         try {
                           _ubahStatus(context, order, ref);
                         } on Exception catch (e, st) {
@@ -168,14 +162,12 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                       );
                       Navigator.of(dialogContext).pop();
                       final bool? dikonfirmasi = await _konfirmasiOpsi(context);
-                      if (dikonfirmasi ?? false) {
+                      if (dikonfirmasi == true) {
                         Log.info(
                           '_showDialog: konfirmasi hapus disetujui untuk orderId: ${order.id}',
                         );
                         try {
-                          final orderOp = ref
-                              .read(orderOpGlobalProvider)
-                              .update(order);
+                          await ref.read(orderOpGlobalProvider).update(order);
                           Log.info(
                             '_showDialog: order berhasil dihapus orderId: ${order.id}',
                           );
@@ -467,13 +459,13 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         );
         Navigator.of(dialogContext).pop();
         final bool? dikonfirmasi = await _konfirmasiOpsi(pageContext);
-        if (dikonfirmasi ?? false) {
+        if (dikonfirmasi == true) {
           Log.info(
             '_tombolOpsiUbahStatus: konfirmasi disetujui, mengubah status orderId: ${order.id} menjadi ${status.name}',
           );
           try {
             await ref
-                .read(orderOpSqliteProvider)
+                .read(orderOpGlobalProvider)
                 .perbaruiStatusOrder(order.id, status);
             Log.info(
               '_tombolOpsiUbahStatus: status berhasil diubah untuk orderId: ${order.id}',

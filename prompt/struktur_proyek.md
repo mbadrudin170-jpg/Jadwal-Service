@@ -53,10 +53,9 @@ lib
 │   │   ├── layanan_latar_belakang.dart
 │   │   └── layanan_peluncuran.dart
 │   ├── database
-│   │   ├── provider
-│   │   │   ├── operasi_sqlite_provider.dart
-│   │   │   └── operasi_sqlite_provider.g.dart
-│   │   └── sqlite_user.dart
+│   │   └── provider
+│   │       ├── operasi_sqlite_provider.dart
+│   │       └── operasi_sqlite_provider.g.dart
 │   ├── dompet
 │   │   ├── model
 │   │   │   ├── dompet_model.dart
@@ -144,6 +143,7 @@ lib
 │   │   │   └── order_model.freezed.dart
 │   │   ├── operasi
 │   │   │   ├── order_op_firebase.dart
+│   │   │   ├── order_op_global.dart
 │   │   │   └── order_op_sqlite.dart
 │   │   ├── page
 │   │   │   └── order_page.dart

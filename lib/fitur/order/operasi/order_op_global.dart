@@ -21,8 +21,22 @@ class OrderOpGlobal {
     try {
       if (RoleUtil.isAdmin(ref)) {
         await _orderOpSqlite.tambahOrder(order);
-      }else{
+      } else {
         await _orderOpFirebase.tambahOrder(order);
+      }
+    } on Exception catch (e, s) {
+      Log.error('Error ditambah: $e', e: e, s: s);
+      // Error handling opsional
+      rethrow;
+    }
+  }
+
+  Future<void> update(OrderModel order) async {
+    try {
+      if (RoleUtil.isAdmin(ref)) {
+        await _orderOpSqlite.perbarui(order);
+      } else {
+        await _orderOpFirebase.updateOrder(order);
       }
     } on Exception catch (e, s) {
       Log.error('Error ditambah: $e', e: e, s: s);

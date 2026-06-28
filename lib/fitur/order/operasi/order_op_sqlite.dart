@@ -12,7 +12,9 @@ class OrderOpSqlite {
   final SqliteDatabase sqliteDb;
   final BaseOpSqlite baseOpSqlite;
   OrderOpSqlite({required this.sqliteDb, required this.baseOpSqlite});
+
   String get _namaTabel => NamaTabel.pesananPelanggan;
+  DateTime? get _nowUtc => DateTime.now().toUtc();
 
   Future<int> ambilTotalDataPerStatus(StatusOrderEnum status) async {
     Log.info('Menghitung pesanan dengan status: ${status.name}');
@@ -39,9 +41,7 @@ class OrderOpSqlite {
   }) async {
     Log.info('Menyimpan pesanan baru ID: ${order.id}');
     try {
-      final dataOrderBaru = order.copyWith(
-        diperbaruiPada: DateTime.now().toUtc(),
-      );
+      final dataOrderBaru = order.copyWith(diperbaruiPada: _nowUtc);
       await baseOpSqlite.sisipkan(
         _namaTabel,
         dataOrderBaru.toSqlite(),
@@ -114,40 +114,18 @@ class OrderOpSqlite {
     }
   }
 
-  Future<void> perbaruiStatusOrder(
-    final String id,
-    final StatusOrderEnum status, {
-    final bool dariServer = false,
-  }) async {
-    Log.info('Memperbarui status pesanan ID: $id menjadi ${status.name}');
+  Future<void> perbarui(OrderModel order, {bool dariServer = false}) async {
     try {
-      final db = await sqliteDb.database;
-      final List<Map<String, dynamic>> maps = await db.query(
+      final dataBaru = order.copyWith(diperbaruiPada: _nowUtc);
+      await baseOpSqlite.update(
         _namaTabel,
-        where: '${NamaKolom.id} = ?',
-        whereArgs: [id],
+        dataBaru.toSqlite(),
+        order.id,
+        dariServer: dariServer,
       );
-
-      if (maps.isNotEmpty) {
-        final orderLama = OrderModel.fromSqlite(maps.first);
-        final orderBaru = orderLama.copyWith(
-          status: status,
-          diperbaruiPada: DateTime.now().toUtc(),
-        );
-        await baseOpSqlite.update(
-          _namaTabel,
-          orderBaru.toSqlite(),
-          id,
-          dariServer: dariServer,
-        );
-        Log.info(
-          'Status pesanan ID: $id berhasil diperbarui beserta timestamp-nya.',
-        );
-      } else {
-        Log.warning(
-          'Gagal memperbarui status: Pesanan dengan ID: $id tidak ditemukan.',
-        );
-      }
+      Log.info(
+        'Status pesanan ID: $order berhasil diperbarui beserta timestamp-nya.',
+      );
     } on Exception catch (e, s) {
       Log.error('Gagal memperbarui status pesanan.', e: e, s: s);
       rethrow;

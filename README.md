@@ -6502,7 +6502,7 @@ class PoinTransactionService {
 
     try {
       // Gunakan BaseOpFirebase.runComplexOperation
-      await _baseOpFirebase.runComplexOperation((txn) async {
+      await _baseOpFirebase.operasiKompleks((txn) async {
         Log.info('Transaksi Firestore dimulai melalui BaseOpFirebase');
 
         // 1. BACA DATA PELANGGAN
@@ -11596,6 +11596,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
+import 'package:wifi/fitur/order/operasi/order_op_global.dart';
 import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -11626,9 +11627,10 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     super.dispose();
   }
 
-  Future<bool?> _konfirmasiOpsi(BuildContext context) {
+  /// ✅ PERBAIKAN 1: Fungsi konfirmasi sekarang pakai await dengan benar
+  Future<bool?> _konfirmasiOpsi(BuildContext context) async {
     Log.info('_konfirmasiOpsi dipanggil');
-    return showDialog<bool>(
+    return await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
@@ -11655,6 +11657,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     );
   }
 
+  /// ✅ PERBAIKAN 2: Fungsi ubah status sekarang pakai await dengan benar
   Future<void> _ubahStatus(
     BuildContext context,
     OrderModel order,
@@ -11705,100 +11708,94 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           );
         },
       );
-    } on Exception catch (e, s) {
-      Log.error('Gagal menampilkan dialog ubah status', e: e, s: s);
+    } on Exception catch (e, st) {
+      Log.error('Gagal menampilkan dialog ubah status', e: e, s: st);
       if (context.mounted) {
-        ToastUtil.error(context, 'Gagal membuka dialog');
+        ToastUtil.error(context, 'Gagal membuka dialog ubah status');
       }
     }
   }
 
-  Future<bool?> _showDialog(BuildContext context, OrderModel order) {
-    final appRole = ref.watch(appRoleProvider);
-    Log.info(
-      '_showDialog dipanggil untuk orderId: ${order.id}, appRole: ${appRole.name}',
-    );
-
-    return showDialog<bool>(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return Dialog(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (ref.isAdmin)
+  /// ✅ PERBAIKAN 3: _showDialog sekarang pakai await dengan benar
+  Future<bool?> _showDialog(BuildContext context, OrderModel order) async {
+    try {
+      return await showDialog<bool>(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return Dialog(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (ref.isAdmin)
+                    TextButton(
+                      onPressed: () {
+                        Log.info(
+                          '_showDialog: admin memilih Ubah Status untuk orderId: ${order.id}',
+                        );
+                        Navigator.of(dialogContext).pop();
+                        try {
+                          _ubahStatus(context, order, ref);
+                        } on Exception catch (e, st) {
+                          Log.error('Gagal memanggil _ubahStatus', e: e, s: st);
+                        }
+                      },
+                      child: const Text('Ubah Status'),
+                    ),
                   TextButton(
-                    onPressed: () {
+                    child: const Text('Hapus'),
+                    onPressed: () async {
                       Log.info(
-                        '_showDialog: admin memilih Ubah Status untuk orderId: ${order.id}',
+                        '_showDialog: pengguna memilih Hapus untuk orderId: ${order.id}',
                       );
                       Navigator.of(dialogContext).pop();
-                      unawaited(_ubahStatus(context, order, ref));
-                    },
-                    child: const Text('Ubah Status'),
-                  ),
-                TextButton(
-                  child: const Text('Hapus'),
-                  onPressed: () async {
-                    Log.info(
-                      '_showDialog: pengguna memilih Hapus untuk orderId: ${order.id}',
-                    );
-                    Navigator.of(dialogContext).pop();
-                    final bool? dikonfirmasi = await _konfirmasiOpsi(context);
-                    if (dikonfirmasi ?? false) {
-                      Log.info(
-                        '_showDialog: konfirmasi hapus disetujui untuk orderId: ${order.id}',
-                      );
-                      try {
-                        if (appRole == AppRole.admin) {
-                          Log.info(
-                            '_showDialog: menghapus order via SQLite (admin) orderId: ${order.id}',
-                          );
-                          await ref
-                              .read(orderOpSqliteProvider)
-                              .softDeleteorder(order.id);
-                        } else {
-                          Log.info(
-                            '_showDialog: menghapus order via Firebase (user) orderId: ${order.id}',
-                          );
-                          await ref
-                              .read(orderOpFirebaseProvider)
-                              .softDeleteOrder(order.id);
-                        }
+                      final bool? dikonfirmasi = await _konfirmasiOpsi(context);
+                      if (dikonfirmasi ?? false) {
                         Log.info(
-                          '_showDialog: order berhasil dihapus orderId: ${order.id}',
+                          '_showDialog: konfirmasi hapus disetujui untuk orderId: ${order.id}',
                         );
-                        ref.invalidate(daftarPesananProvider);
-                        ref.invalidate(orderProvider);
+                        try {
+                          await ref.read(orderOpGlobalProvider).update(order);
+                          Log.info(
+                            '_showDialog: order berhasil dihapus orderId: ${order.id}',
+                          );
+                          ref.invalidate(daftarPesananProvider);
+                          ref.invalidate(orderProvider);
 
-                        if (context.mounted) {
-                          ToastUtil.success(context, 'Data berhasil dihapus');
+                          if (context.mounted) {
+                            ToastUtil.success(context, 'Data berhasil dihapus');
+                          }
+                        } on Exception catch (e, st) {
+                          Log.error(
+                            '_showDialog: gagal menghapus order',
+                            e: e,
+                            s: st,
+                          );
+                          if (context.mounted) {
+                            ToastUtil.error(context, 'Gagal menghapus pesanan');
+                          }
                         }
-                      } catch (e, st) {
-                        Log.error(
-                          '_showDialog: gagal menghapus order',
-                          e: e,
-                          s: st,
+                      } else {
+                        Log.info(
+                          '_showDialog: konfirmasi hapus dibatalkan untuk orderId: ${order.id}',
                         );
-                        if (context.mounted) {
-                          ToastUtil.error(context, 'Gagal menghapus pesanan');
-                        }
                       }
-                    } else {
-                      Log.info(
-                        '_showDialog: konfirmasi hapus dibatalkan untuk orderId: ${order.id}',
-                      );
-                    }
-                  },
-                ),
-              ],
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    } on Exception catch (e, st) {
+      Log.error('Gagal menampilkan dialog opsi', e: e, s: st);
+      if (context.mounted) {
+        ToastUtil.error(context, 'Gagal membuka opsi');
+      }
+      return null;
+    }
   }
 
   @override
@@ -12006,7 +12003,15 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                 Log.info(
                   '_daftarPesanan: long press pada orderId: ${order.id}',
                 );
-                _showDialog(context, order);
+                // ✅ PERBAIKAN 4: Pakai try-catch untuk _showDialog
+                try {
+                  _showDialog(context, order);
+                } on Exception catch (e, st) {
+                  Log.error('Gagal memanggil _showDialog', e: e, s: st);
+                  if (context.mounted) {
+                    ToastUtil.error(context, 'Gagal membuka opsi');
+                  }
+                }
               },
               title: Row(
                 children: [
@@ -12550,13 +12555,10 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
-class OrderOpsqlite {
+class OrderOpSqlite {
   final SqliteDatabase sqliteDb;
-
   final BaseOpSqlite baseOpSqlite;
-
-  OrderOpsqlite({required this.sqliteDb, required this.baseOpSqlite});
-
+  OrderOpSqlite({required this.sqliteDb, required this.baseOpSqlite});
   String get _namaTabel => NamaTabel.pesananPelanggan;
 
   Future<int> ambilTotalDataPerStatus(StatusOrderEnum status) async {
@@ -12699,7 +12701,6 @@ class OrderOpsqlite {
     }
   }
 
-
   Future<void> softDeleteorder(
     final String id, {
     final bool dariServer = false,
@@ -12758,7 +12759,9 @@ class OrderOpsqlite {
     }
   }
 
-  Future<List<OrderModel>> ambilOrderBerdasarkanIds(final List<String> ids) async {
+  Future<List<OrderModel>> ambilOrderBerdasarkanIds(
+    final List<String> ids,
+  ) async {
     Log.info('Mengambil pesanan untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning('List ID kosong, mengembalikan list kosong.');
@@ -12790,6 +12793,60 @@ class OrderOpsqlite {
 }
 
 
+// File: lib/fitur/order/operasi/order_op_global.dart
+// path lib/fitur/order/operasi/order_op_global.dart
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/order/model/order_model.dart';
+import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
+import 'package:wifi/fitur/order/operasi/order_op_sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+
+class OrderOpGlobal {
+  final Ref ref;
+
+  OrderOpGlobal({required this.ref});
+
+  OrderOpSqlite get _orderOpSqlite => ref.read(orderOpSqliteProvider);
+  OrderOpFirebase get _orderOpFirebase => ref.read(orderOpFirebaseProvider);
+
+  Future<void> tambah(OrderModel order) async {
+    try {
+      if (RoleUtil.isAdmin(ref)) {
+        await _orderOpSqlite.tambahOrder(order);
+      } else {
+        await _orderOpFirebase.tambahOrder(order);
+      }
+    } on Exception catch (e, s) {
+      Log.error('Error ditambah: $e', e: e, s: s);
+      // Error handling opsional
+      rethrow;
+    }
+  }
+
+  Future<void> update(OrderModel order) async {
+    try {
+      if (RoleUtil.isAdmin(ref)) {
+        await _orderOpSqlite.perbaruiStatusOrder(order.id, order.status);
+      } else {
+        await _orderOpFirebase.updateOrder(order);
+      }
+    } on Exception catch (e, s) {
+      Log.error('Error ditambah: $e', e: e, s: s);
+      // Error handling opsional
+      rethrow;
+    }
+  }
+}
+
+final orderOpGlobalProvider = Provider<OrderOpGlobal>((ref) {
+  return OrderOpGlobal(ref: ref);
+});
+
+
 // File: lib/fitur/order/operasi/order_op_firebase.dart
 // path: lib/fitur/order/operasi/order_op_firebase.dart
 
@@ -12803,7 +12860,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
-class OrderOpFirebase extends BaseOpFirebase {
+class OrderOpFirebase {
   final BaseOpFirebase _baseOp;
   final FirebaseFirestore _firestore;
   final String _namaKoleksi = NamaTabel.pesananPelanggan;
@@ -12812,13 +12869,12 @@ class OrderOpFirebase extends BaseOpFirebase {
     required FirebaseFirestore firestore,
     required BaseOpFirebase baseOp,
   }) : _firestore = firestore,
-       _baseOp = baseOp,
-       super(firestore: firestore) {
+       _baseOp = baseOp {
     Log.info('OrderOpFirebase diinisialisasi.');
   }
 
   /// 1. Menambahkan pesanan baru
-  Future<void> addOrder(OrderModel order) async {
+  Future<void> tambahOrder(OrderModel order) async {
     Log.info('Menambahkan pesanan baru: ${order.id}');
     await _baseOp.sisipkan(_namaKoleksi, order.id, order.toFirebase());
   }
@@ -25473,10 +25529,6 @@ abstract class _$RiwayatAktivasiPaket
 }
 
 
-// File: lib/fitur/database/sqlite_user.dart
-// path: lib/fitur/database/sqlite_user.dart
-
-
 // File: lib/fitur/database/provider/operasi_sqlite_provider.dart
 // path: lib/fitur/database/provider/operasi_sqlite_provider.dart
 
@@ -25591,11 +25643,11 @@ FeedbackOpSqlite feedbackOpSqlite(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
-OrderOpsqlite orderOpSqlite(Ref ref) {
+OrderOpSqlite orderOpSqlite(Ref ref) {
   Log.info('Membuat instance OrderOperation via @riverpod...');
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
-  return OrderOpsqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
+  return OrderOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
 }
 
 /// Provider untuk menyediakan instance dari [SettingsOpSqlite].
@@ -34487,7 +34539,7 @@ class LayananUnduhData {
   final PelangganAktifOpSqlite _operasiPelangganAktif;
   final TransaksiOpGlobal _operasiTransaksi;
   final FeedbackOpSqlite _operasiUmpanBalik;
-  final OrderOpsqlite _operasiPesanan;
+  final OrderOpSqlite _operasiPesanan;
   final SubKategoriOpSqlite _operasiSubKategori;
   final VersiApkOpSqlite _operasiVersiApk;
   final SettingsOpSqlite _operasiPengaturan;
@@ -34503,7 +34555,7 @@ class LayananUnduhData {
     required PelangganAktifOpSqlite operasiPelangganAktif,
     required TransaksiOpGlobal operasiTransaksi,
     required FeedbackOpSqlite operasiUmpanBalik,
-    required OrderOpsqlite operasiPesanan,
+    required OrderOpSqlite operasiPesanan,
     required SubKategoriOpSqlite operasiSubKategori,
     required VersiApkOpSqlite operasiVersiApk,
     required SettingsOpSqlite operasiPengaturan,
@@ -34534,7 +34586,7 @@ class LayananUnduhData {
     required final PelangganAktifOpSqlite operasiPelangganAktif,
     required final TransaksiOpGlobal operasiTransaksi,
     required final FeedbackOpSqlite operasiUmpanBalik,
-    required final OrderOpsqlite operasiPesanan,
+    required final OrderOpSqlite operasiPesanan,
     required final SubKategoriOpSqlite operasiSubKategori,
     required final VersiApkOpSqlite operasiVersiApk,
     required final SettingsOpSqlite operasiPengaturan,
@@ -44105,16 +44157,10 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 
-/// Kelas dasar untuk operasi CRUD umum di Firestore.
-///
-/// Kelas ini mengabstraksi operasi tulis umum dan secara otomatis
-/// memanggil `StatusOpFirebase` untuk memperbarui timestamp global
-/// setiap kali ada perubahan data.
 class BaseOpFirebase {
   final FirebaseFirestore firestore;
   final StatusOpFirebase _statusOp;
 
-  /// Konstruktor dengan injeksi dependensi untuk pengujian.
   BaseOpFirebase({
     final FirebaseFirestore? firestore,
     final StatusOpFirebase? statusOp,
@@ -44129,15 +44175,10 @@ class BaseOpFirebase {
     Log.info('[FIRESTORE TRANSAKSI DIMULAI] Memulai proses transaksi.');
 
     try {
-      // Firestore transaction dengan retry otomatis
       final result = await firestore.runTransaction((transaction) async {
-        Log.info(
-          '[FIRESTORE TRANSAKSI AKTIF] Blok transaksi dimulai. '
-          'Firestore akan otomatis retry jika ada konflik.',
-        );
+        Log.info('[FIRESTORE TRANSAKSI AKTIF] Blok transaksi dimulai.');
 
         try {
-          // Eksekusi aksi yang diberikan
           final actionResult = await action(transaction);
 
           Log.info(
@@ -44145,13 +44186,9 @@ class BaseOpFirebase {
             'Hasil: ${actionResult.runtimeType}',
           );
 
-          // Update status global setelah transaksi berhasil
-          // Ini mirip dengan update `needUpload` di SQLite
           Log.info('[FIRESTORE TRANSAKSI AKTIF] Memperbarui status global...');
           await _statusOp.perbaruiStatusGlobal();
-          Log.info(
-            '[FIRESTORE TRANSAKSI AKTIF] Status global berhasil diperbarui.',
-          );
+          Log.info('[FIRESTORE TRANSAKSI AKTIF] Status global berhasil diperbarui.');
 
           return actionResult;
         } catch (e, st) {
@@ -44160,7 +44197,6 @@ class BaseOpFirebase {
             e: e,
             s: st,
           );
-          // Firestore akan otomatis membatalkan transaksi jika terjadi error
           rethrow;
         }
       });
@@ -44177,17 +44213,13 @@ class BaseOpFirebase {
     }
   }
 
-  Future<T> runComplexOperation<T>(
+  Future<T> operasiKompleks<T>(
     Future<T> Function(Transaction txn) customAction,
   ) async {
     Log.info('[FIRESTORE] Mendelegasikan eksekusi transaksi kompleks.');
     return await _runInTransaction(customAction);
   }
-  /// Menyisipkan dokumen baru dengan ID yang dibuat otomatis oleh Firestore.
-  ///
-  /// [collectionName]: Nama koleksi target.
-  /// [data]: Map data yang akan disimpan.
-  /// Mengembalikan [DocumentReference] dari dokumen yang baru dibuat.
+
   Future<DocumentReference> tambah(
     final String collectionName,
     final Map<String, dynamic> data,
@@ -44211,11 +44243,6 @@ class BaseOpFirebase {
     }
   }
 
-  /// Menyisipkan dokumen baru ke dalam koleksi.
-  ///
-  /// [collectionName]: Nama koleksi target.
-  /// [docId]: ID dokumen yang akan dibuat.
-  /// [data]: Map data yang akan disimpan.
   Future<void> sisipkan(
     final String collectionName,
     final String docId,
@@ -44239,11 +44266,6 @@ class BaseOpFirebase {
     }
   }
 
-  /// Memperbarui dokumen yang ada.
-  ///
-  /// [collectionName]: Nama koleksi target.
-  /// [docId]: ID dokumen yang akan diperbarui.
-  /// [data]: Map data yang akan diperbarui.
   Future<void> update(
     final String collectionName,
     final String docId,
@@ -44267,11 +44289,6 @@ class BaseOpFirebase {
     }
   }
 
-  /// Melakukan soft delete pada sebuah dokumen.
-  ///
-  /// Ini akan mengatur `isDeleted` menjadi true dan memperbarui `updatedAt`.
-  /// [collectionName]: Nama koleksi target.
-  /// [docId]: ID dokumen yang akan di-soft-delete.
   Future<void> softDelete(String collectionName, String docId) async {
     Log.info('Base softDelete: $collectionName/$docId');
     try {
@@ -44294,10 +44311,6 @@ class BaseOpFirebase {
     }
   }
 
-  /// Menghapus dokumen dari Firestore secara permanen.
-  ///
-  /// [collectionName]: Nama koleksi target.
-  /// [docId]: ID dokumen yang akan dihapus.
   Future<void> hapusPermanen(
     final String collectionName,
     final String docId,
@@ -44319,11 +44332,6 @@ class BaseOpFirebase {
     }
   }
 
-  /// Melakukan soft delete pada semua dokumen di sebuah koleksi.
-  ///
-  /// Fungsi ini akan mengambil semua dokumen yang belum di-soft-delete
-  /// lalu memperbaruinya dalam satu batch.
-  /// Mengembalikan jumlah dokumen yang berhasil di-soft-delete.
   Future<int> hapusSementaraSemua(final String collectionName) async {
     Log.info('Base softDeleteAll: Memulai untuk koleksi $collectionName');
     try {
@@ -44347,7 +44355,6 @@ class BaseOpFirebase {
       }
 
       await batch.commit();
-      // Panggil updateGlobalStatus SATU KALI setelah batch selesai.
       unawaited(_statusOp.perbaruiStatusGlobal());
 
       final count = querySnapshot.docs.length;
@@ -44366,11 +44373,6 @@ class BaseOpFirebase {
     }
   }
 
-  /// Melakukan operasi sisip atau perbarui secara batch (upsert).
-  ///
-  /// [collectionName]: Nama koleksi target.
-  /// [items]: Daftar Map data yang akan diproses.
-  /// [idKey]: Kunci di dalam setiap map yang berisi ID dokumen.
   Future<void> insertOrUpdateBatch(
     final String collectionName,
     final List<Map<String, dynamic>> items,
@@ -44390,7 +44392,6 @@ class BaseOpFirebase {
         if (docId != null) {
           final docRef = firestore.collection(collectionName).doc(docId);
           item[NamaKolom.diperbaruiPada] = FieldValue.serverTimestamp();
-          // Menggunakan set dengan merge: true untuk perilaku upsert
           batch.set(docRef, item, SetOptions(merge: true));
         }
       }
@@ -44408,7 +44409,6 @@ class BaseOpFirebase {
     }
   }
 }
-
 
 // File: lib/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
@@ -45070,12 +45070,6 @@ FeedbackOpFirebase feedbackOpFirebase(Ref ref) {
   );
 }
 
-@riverpod
-Stream<List<FeedbackModel>> feedbackStream(Ref ref, String userId) {
-  final feedbackOp = ref.watch(feedbackOpFirebaseProvider);
-  return feedbackOp.ambilBerdasarkanUser(userId);
-}
-
 @Riverpod(keepAlive: true)
 PelangganOpFirebase pelangganOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
@@ -45123,12 +45117,6 @@ OrderOpFirebase orderOpFirebase(Ref ref) {
   return OrderOpFirebase(firestore: firestoreInstance, baseOp: baseOp);
 }
 
-@riverpod
-Stream<List<NotifikasiModel>> activeNotificationsStream(Ref ref) {
-  final notifikasiOp = ref.read(notifikasiOpFirebaseProvider);
-  return notifikasiOp.getNotifAktif();
-}
-
 
 // File: lib/shared/operasi/firebase_operasi/status_op_firebase.dart
 // path: lib/shared/operasi/firebase_operasi/status_op_firebase.dart
@@ -45139,39 +45127,30 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/status_model.dart';
 
-/// Kelas untuk operasi terkait data status di Firestore.
 class StatusOpFirebase {
   final CollectionReference _koleksiStatus;
 
-  /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
   StatusOpFirebase({FirebaseFirestore? firestore})
-      : _koleksiStatus = (firestore ?? FirebaseFirestore.instance)
-            .collection(NamaTabel.statusGlobal) {
+    : _koleksiStatus = (firestore ?? FirebaseFirestore.instance).collection(
+        NamaTabel.statusGlobal,
+      ) {
     Log.info('StatusOpFirebase diinisialisasi.');
   }
 
-  /// Memperbarui atau membuat status global dengan timestamp server.
-  ///
-  /// Fungsi ini akan mengatur `updatedAt` ke waktu server saat ini di Firestore.
-  /// Jika dokumen 'global_status' belum ada, dokumen itu akan dibuat.
   Future<void> perbaruiStatusGlobal() async {
     Log.info('Memulai pembaruan global status di Firestore.');
     try {
-      // Menggunakan ID 'global_status' yang sudah didefinisikan di model.
       final docRef = _koleksiStatus.doc(globalStatusId);
 
       final dataToUpdate = {
         NamaKolom.diperbaruiPada: FieldValue.serverTimestamp(),
       };
 
-      // Menggunakan `set` dengan `SetOptions(merge: true)` agar bisa
-      // membuat dokumen jika belum ada, atau memperbarui jika sudah ada.
       await docRef.set(dataToUpdate, SetOptions(merge: true));
 
       Log.info('Pembaruan global status berhasil.');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal memperbarui global status.', e: e, s: s);
-      // Melempar ulang error agar bisa ditangani di lapisan atas jika perlu.
       rethrow;
     }
   }
@@ -51491,10 +51470,9 @@ lib
 │   │   ├── layanan_latar_belakang.dart
 │   │   └── layanan_peluncuran.dart
 │   ├── database
-│   │   ├── provider
-│   │   │   ├── operasi_sqlite_provider.dart
-│   │   │   └── operasi_sqlite_provider.g.dart
-│   │   └── sqlite_user.dart
+│   │   └── provider
+│   │       ├── operasi_sqlite_provider.dart
+│   │       └── operasi_sqlite_provider.g.dart
 │   ├── dompet
 │   │   ├── model
 │   │   │   ├── dompet_model.dart
@@ -51582,6 +51560,7 @@ lib
 │   │   │   └── order_model.freezed.dart
 │   │   ├── operasi
 │   │   │   ├── order_op_firebase.dart
+│   │   │   ├── order_op_global.dart
 │   │   │   └── order_op_sqlite.dart
 │   │   ├── page
 │   │   │   └── order_page.dart
