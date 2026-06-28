@@ -49,14 +49,13 @@ class DetailDompet extends ConsumerStatefulWidget {
 }
 
 class _DetailDompetState extends ConsumerState<DetailDompet> {
-  late Future<DataDetailDompet> _futureDataDetail;
   String? _namaDompetTerbaru;
 
   @override
   void initState() {
     super.initState();
     Log.info('Membuat state untuk WalletDetail. ID: ${widget.dompet.id}');
-    _futureDataDetail = _muatData();
+    _muatData();
   }
 
   Future<DataDetailDompet> _muatData() async {
@@ -106,9 +105,7 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
 
   void _muatUlangData() {
     Log.info('Memicu pemuatan ulang data untuk WalletDetail.');
-    setState(() {
-      _futureDataDetail = _muatData();
-    });
+    setState(_muatData);
   }
 
   Future<void> _navigasiKeDetailTransaksi(TransaksiModel transaction) async {
