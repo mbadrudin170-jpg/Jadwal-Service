@@ -39,12 +39,10 @@ class PengelolaAkun extends _$PengelolaAkun {
     );
   }
 
-  // 2. Logout (hapus akun saat ini)
   Future<void> logout() async {
     final penyimpananLokal = await ref.read(
       layananPenyimpananLokalProvider.future,
     );
-
     await penyimpananLokal.hapusAkunSaatIni();
     final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
     final daftarAkun = await penyimpananLokal.ambilDaftarAkun();

@@ -212,13 +212,13 @@ class DaftarAkunPage extends ConsumerWidget {
     BuildContext context,
     NavigatorState navigator,
     WidgetRef ref,
-    PelangganModel customer,
+    PelangganModel pelanggan,
   ) async {
     Log.info('akun yang di hapus ternyata akun yang sedang login', {
-      'customer_id': customer.id,
-      'nama': customer.nama,
+      'customer_id': pelanggan.id,
+      'nama': pelanggan.nama,
     });
-    await ref.read(pengelolaAkunProvider.notifier).hapusAkun(customer.id);
+    await ref.read(pengelolaAkunProvider.notifier).hapusAkun(pelanggan.id);
     if (!context.mounted) return;
     ToastUtil.success(context, 'Akun berhasil dihapus, silakan login ulang');
     await navigator.pushAndRemoveUntil(
