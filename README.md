@@ -44895,7 +44895,6 @@ String _$orderOpFirebaseHash() => r'91a84983dc0ee49d1317fca190b73daaf5369c6d';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
 import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
@@ -44904,7 +44903,6 @@ import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_firebase.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 
@@ -44960,7 +44958,6 @@ PelangganOpFirebase pelangganOpFirebase(Ref ref) {
 @Riverpod(keepAlive: true)
 PelangganAktifOpFirebase pelangganAktifOpFirebase(Ref ref) {
   final baseOp = ref.watch(baseOpFirebaseProvider);
-
   return PelangganAktifOpFirebase(baseOp: baseOp);
 }
 
@@ -44968,7 +44965,6 @@ PelangganAktifOpFirebase pelangganAktifOpFirebase(Ref ref) {
 PaketOpFirebase paketOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
   final baseOp = ref.watch(baseOpFirebaseProvider);
-
   return PaketOpFirebase(firestore: firestoreInstance, baseOp: baseOp);
 }
 

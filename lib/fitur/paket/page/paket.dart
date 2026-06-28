@@ -65,7 +65,6 @@ class PackagePage extends ConsumerWidget {
           }
           final sortedList = List<PaketModel>.from(paketList.daftarPaket);
           _urutkanList(sortedList, urutanSaatIni);
-
           return ListView.builder(
             itemCount: sortedList.length,
             itemBuilder: (context, index) {
