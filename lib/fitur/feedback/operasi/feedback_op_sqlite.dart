@@ -265,7 +265,7 @@ class FeedbackOpSqlite {
       );
       final daftarFeedback = List.generate(
         maps.length,
-        (final i) => FeedbackModel.fromSqlite(maps[i]),
+        (i) => FeedbackModel.fromSqlite(maps[i]),
       );
       Log.info(
         'Berhasil mengambil ${daftarFeedback.length} data kritik_saran dari ${ids.length} ID yang diminta.',
