@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
+import 'package:wifi/fitur/order/operasi/order_op_global.dart';
 import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -172,21 +173,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                           '_showDialog: konfirmasi hapus disetujui untuk orderId: ${order.id}',
                         );
                         try {
-                          if (appRole == AppRole.admin) {
-                            Log.info(
-                              '_showDialog: menghapus order via SQLite (admin) orderId: ${order.id}',
-                            );
-                            await ref
-                                .read(orderOpSqliteProvider)
-                                .softDeleteorder(order.id);
-                          } else {
-                            Log.info(
-                              '_showDialog: menghapus order via Firebase (user) orderId: ${order.id}',
-                            );
-                            await ref
-                                .read(orderOpFirebaseProvider)
-                                .softDeleteOrder(order.id);
-                          }
+                          final orderOp = ref
+                              .read(orderOpGlobalProvider)
+                              .update(order);
                           Log.info(
                             '_showDialog: order berhasil dihapus orderId: ${order.id}',
                           );

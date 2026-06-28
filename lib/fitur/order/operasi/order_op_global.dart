@@ -31,3 +31,7 @@ class OrderOpGlobal {
     }
   }
 }
+
+final orderOpGlobalProvider = Provider<OrderOpGlobal>((ref) {
+  return OrderOpGlobal(ref: ref);
+});
