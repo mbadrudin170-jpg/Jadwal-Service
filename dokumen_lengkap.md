@@ -887,13 +887,13 @@ class DaftarAkunPage extends ConsumerWidget {
     BuildContext context,
     NavigatorState navigator,
     WidgetRef ref,
-    PelangganModel customer,
+    PelangganModel pelanggan,
   ) async {
     Log.info('akun yang di hapus ternyata akun yang sedang login', {
-      'customer_id': customer.id,
-      'nama': customer.nama,
+      'customer_id': pelanggan.id,
+      'nama': pelanggan.nama,
     });
-    await ref.read(pengelolaAkunProvider.notifier).hapusAkun(customer.id);
+    await ref.read(pengelolaAkunProvider.notifier).hapusAkun(pelanggan.id);
     if (!context.mounted) return;
     ToastUtil.success(context, 'Akun berhasil dihapus, silakan login ulang');
     await navigator.pushAndRemoveUntil(
@@ -1103,12 +1103,10 @@ class PengelolaAkun extends _$PengelolaAkun {
     );
   }
 
-  // 2. Logout (hapus akun saat ini)
   Future<void> logout() async {
     final penyimpananLokal = await ref.read(
       layananPenyimpananLokalProvider.future,
     );
-
     await penyimpananLokal.hapusAkunSaatIni();
     final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
     final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
@@ -6948,13 +6946,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
-import 'package:wifi/fitur/feedback/page/feedback_page_u.dart';
+import 'package:wifi/fitur/feedback/page/feedback_page.dart';
 import 'package:wifi/fitur/info_perangkat/page/info_apk_page_user.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
-/// Halaman pengaturan untuk pengguna.
 class SettingsPageU extends ConsumerWidget {
   const SettingsPageU({super.key});
 
@@ -6994,7 +6991,7 @@ class SettingsPageU extends ConsumerWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: ( context) => const FeedbackPageU(),
+                  builder: (context) => const FeedbackPage(),
                 ),
               );
             },
@@ -7007,7 +7004,7 @@ class SettingsPageU extends ConsumerWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: ( context) => const InfoApkPageUser(),
+                  builder: (context) => const InfoApkPageUser(),
                 ),
               );
             },
@@ -7022,7 +7019,7 @@ class SettingsPageU extends ConsumerWidget {
                 await Navigator.push(
                   context,
                   MaterialPageRoute<void>(
-                    builder: ( context) => const HalamanTes(),
+                    builder: (context) => const HalamanTes(),
                   ),
                 );
               },
@@ -9823,7 +9820,7 @@ final class PaketProvider extends $AsyncNotifierProvider<Paket, PaketState> {
   Paket create() => Paket();
 }
 
-String _$paketHash() => r'9f43517b676d2932f986efc25396b3799db94372';
+String _$paketHash() => r'fb6d283ab6332454ac2c6483dd179aaa10e25030';
 
 abstract class _$Paket extends $AsyncNotifier<PaketState> {
   FutureOr<PaketState> build();
@@ -9949,7 +9946,7 @@ final class DetailPaketProvider
   }
 }
 
-String _$detailPaketHash() => r'e85da754aee33b5837d869b7cc36ea2865dca91a';
+String _$detailPaketHash() => r'50b17c83ded1f696610458751fee28c61eac43a2';
 
 final class DetailPaketFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<PaketModel>, String> {
@@ -21797,184 +21794,413 @@ class LayananCekUpdateApk {
 
 
 // File: lib/fitur/feedback/page/feedback_page_u.dart
-// path: lib/fitur/feedback/page/feedback_page_u.dart
+// // path: lib/fitur/feedback/page/feedback_page_u.dart
+
+// import 'dart:async';
+
+// import 'package:flutter/material.dart';
+// import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+// import 'package:wifi/fitur/feedback/page/form_feedback_u.dart';
+// import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+// import 'package:wifi/shared/theme/app_icons.dart';
+// import 'package:wifi/shared/utils/format_util.dart';
+// import 'package:wifi/shared/utils/toast_util.dart';
+// import 'package:wifi/user/providers/user_provider.dart';
+
+// class FeedbackPageU extends ConsumerWidget {
+//   const FeedbackPageU({super.key});
+
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     final userId = ref.watch(userIdProvider).value ?? '';
+//     final feedbackAsync = ref.watch(feedbackStreamProvider(userId));
+//     return Scaffold(
+//       appBar: AppBar(title: const Text('Riwayat Masukan')),
+//       body: feedbackAsync.when(
+//         loading: () => const Center(child: CircularProgressIndicator()),
+//         error: (e, st) => Center(child: Text('Gagal memuat masukan: $e')),
+//         data: (feedbacks) {
+//           if (feedbacks.isEmpty) {
+//             return const Center(
+//               child: Text('Anda belum pernah mengirim masukan.'),
+//             );
+//           }
+//           return ListView.builder(
+//             padding: const EdgeInsets.all(16.0),
+//             itemCount: feedbacks.length,
+//             itemBuilder: (context, index) {
+//               final feedback = feedbacks[index];
+//               return Card(
+//                 margin: const EdgeInsets.symmetric(vertical: 8.0),
+//                 child: ListTile(
+//                   onTap: () => _showOptionsDialog(context, ref, feedback),
+//                   title: Text(feedback.pesan),
+//                   subtitle: Padding(
+//                     padding: const EdgeInsets.only(top: 8.0),
+//                     child: Text(
+//                       feedback.tanggal != null
+//                           ? FormatWaktuLengkap.formatSingkat(feedback.tanggal!)
+//                           : '',
+//                       style: const TextStyle(fontSize: 12, color: Colors.grey),
+//                     ),
+//                   ),
+//                 ),
+//               );
+//             },
+//           );
+//         },
+//       ),
+//       floatingActionButton: FloatingActionButton.extended(
+//         onPressed: () => Navigator.push<void>(
+//           context,
+//           MaterialPageRoute(builder: (context) => const FormFeedBackU()),
+//         ),
+//         label: const Text('Beri Masukan'),
+//         icon: const Icon(TIcons.add),
+//       ),
+//     );
+//   }
+
+//   Future<void> _showOptionsDialog(
+//     BuildContext context,
+//     WidgetRef ref,
+//     FeedbackModel feedback,
+//   ) async {
+//     await showDialog<void>(
+//       context: context,
+//       builder: (dialogContext) {
+//         return AlertDialog(
+//           title: const Text('Pilih Aksi'),
+//           actions: <Widget>[
+//             TextButton(
+//               child: const Text('Hapus', style: TextStyle(color: Colors.red)),
+//               onPressed: () async {
+//                 Navigator.of(dialogContext).pop();
+//                 await _dialogHapus(context, ref, feedback);
+//               },
+//             ),
+//             TextButton(
+//               child: const Text('Edit'),
+//               onPressed: () async {
+//                 Navigator.of(dialogContext).pop();
+//                 unawaited(
+//                   Navigator.push<void>(
+//                     context,
+//                     MaterialPageRoute(
+//                       builder: (_) => FormFeedBackU(feedback: feedback),
+//                     ),
+//                   ),
+//                 );
+//               },
+//             ),
+//             TextButton(
+//               onPressed: () => Navigator.of(dialogContext).pop(),
+//               child: const Text('Batal'),
+//             ),
+//           ],
+//         );
+//       },
+//     );
+//   }
+
+//   Future<void> _dialogHapus(
+//     BuildContext context,
+//     WidgetRef ref,
+//     FeedbackModel feedback,
+//   ) async {
+//     final bool? konfirmasi = await showDialog<bool>(
+//       context: context,
+//       builder: (dialogContext) {
+//         return AlertDialog(
+//           title: const Text('Konfirmasi Hapus'),
+//           content: const Text('Yakin ingin menghapus masukan ini?'),
+//           actions: <Widget>[
+//             TextButton(
+//               child: const Text('Batal'),
+//               onPressed: () => Navigator.of(dialogContext).pop(false),
+//             ),
+//             TextButton(
+//               child: const Text(
+//                 'Ya, Hapus',
+//                 style: TextStyle(color: Colors.red),
+//               ),
+//               onPressed: () => Navigator.of(dialogContext).pop(true),
+//             ),
+//           ],
+//         );
+//       },
+//     );
+
+//     if (konfirmasi ?? false) {
+//       try {
+//         final feedbackOpFirebase = ref.read(feedbackOpFirebaseProvider);
+//         await feedbackOpFirebase.softDelete(feedback.id);
+//         ref.invalidate(feedbackStreamProvider(feedback.userId));
+//         if (!context.mounted) return;
+//         ToastUtil.success(context, 'Masukan berhasil dihapus.');
+//       } catch (e, s) {
+//         if (!context.mounted) return;
+//         ToastUtil.error(context, 'Gagal menghapus: $e $s');
+//       }
+//     }
+//   }
+// }
+
+
+// File: lib/fitur/feedback/page/feedback_detail.dart
+// path lib/fitur/feedback/page/feedback_detail.dart
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
-import 'package:wifi/fitur/feedback/page/form_feedback_u.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
+import 'package:wifi/fitur/feedback/page/form_feedback.dart';
+import 'package:wifi/fitur/feedback/provider/feedback_provider.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/user/providers/user_provider.dart';
+import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 
-class FeedbackPageU extends ConsumerWidget {
-  const FeedbackPageU({super.key});
+class FeedbackDetail extends ConsumerStatefulWidget {
+  final String id;
+
+  const FeedbackDetail({super.key, required this.id});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final userId = ref.watch(userIdProvider).value ?? '';
-    final feedbackAsync = ref.watch(feedbackStreamProvider(userId));
-    return Scaffold(
-      appBar: AppBar(title: const Text('Riwayat Masukan')),
-      body: feedbackAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Gagal memuat masukan: $e')),
-        data: (feedbacks) {
-          if (feedbacks.isEmpty) {
-            return const Center(
-              child: Text('Anda belum pernah mengirim masukan.'),
-            );
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.all(16.0),
-            itemCount: feedbacks.length,
-            itemBuilder: (context, index) {
-              final feedback = feedbacks[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8.0),
-                child: ListTile(
-                  onTap: () => _showOptionsDialog(context, ref, feedback),
-                  title: Text(feedback.pesan),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      feedback.tanggal != null
-                          ? FormatWaktuLengkap.formatSingkat(feedback.tanggal!)
-                          : '',
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push<void>(
-          context,
-          MaterialPageRoute(builder: (context) => const FormFeedBackU()),
-        ),
-        label: const Text('Beri Masukan'),
-        icon: const Icon(TIcons.add),
-      ),
-    );
+  ConsumerState<FeedbackDetail> createState() => _FeedbackDetailState();
+}
+
+class _FeedbackDetailState extends ConsumerState<FeedbackDetail> {
+  FeedbackOpGlobal get _feedbackOpGlobal => ref.read(feedbackOpGlobalProvider);
+  @override
+  void initState() {
+    super.initState();
+    Log.info('Membuka halaman detail feedback dengan ID: ${widget.id}');
+    // ✅ Hapus _loadData() karena tidak berguna
   }
 
-  Future<void> _showOptionsDialog(
-    BuildContext context,
-    WidgetRef ref,
-    FeedbackModel feedback,
-  ) async {
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Pilih Aksi'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Hapus', style: TextStyle(color: Colors.red)),
-              onPressed: () async {
-                Navigator.of(dialogContext).pop();
-                await _dialogHapus(context, ref, feedback);
-              },
-            ),
-            TextButton(
-              child: const Text('Edit'),
-              onPressed: () async {
-                Navigator.of(dialogContext).pop();
-                unawaited(
-                  Navigator.push<void>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => FormFeedBackU(feedback: feedback),
-                    ),
-                  ),
-                );
-              },
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Batal'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  Future<void> _softDeletedFeedback() async {
+    Log.info('Menampilkan dialog konfirmasi penghapusan feedback.');
 
-  Future<void> _dialogHapus(
-    BuildContext context,
-    WidgetRef ref,
-    FeedbackModel feedback,
-  ) async {
-    final bool? konfirmasi = await showDialog<bool>(
+    final konfirmasi = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) {
+      builder: (context) {
         return AlertDialog(
           title: const Text('Konfirmasi Hapus'),
-          content: const Text('Yakin ingin menghapus masukan ini?'),
-          actions: <Widget>[
+          content: const Text(
+            'Apakah Anda yakin ingin menghapus kritik dan saran ini?',
+          ),
+          actions: [
             TextButton(
+              onPressed: () {
+                Log.warning('Pengguna membatalkan penghapusan.');
+                Navigator.of(context).pop(false);
+              },
               child: const Text('Batal'),
-              onPressed: () => Navigator.of(dialogContext).pop(false),
             ),
             TextButton(
-              child: const Text(
-                'Ya, Hapus',
-                style: TextStyle(color: Colors.red),
-              ),
-              onPressed: () => Navigator.of(dialogContext).pop(true),
+              onPressed: () {
+                Log.info('Pengguna mengonfirmasi penghapusan.');
+                Navigator.of(context).pop(true);
+              },
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Hapus'),
             ),
           ],
         );
       },
     );
 
-    if (konfirmasi ?? false) {
+    if ((konfirmasi ?? false) && mounted) {
       try {
-        final feedbackOpFirebase = ref.read(feedbackOpFirebaseProvider);
-        await feedbackOpFirebase.softDeleteFeedback(feedback.id);
-        ref.invalidate(feedbackStreamProvider(feedback.userId));
-        if (!context.mounted) return;
-        ToastUtil.success(context, 'Masukan berhasil dihapus.');
-      } catch (e, s) {
-        if (!context.mounted) return;
-        ToastUtil.error(context, 'Gagal menghapus: $e $s');
+        unawaited(
+          showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(
+              child: Card(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Menghapus feedback...'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        await _feedbackOpGlobal.softDelete(widget.id);
+        if (mounted) {
+          Navigator.pop(context); // Tutup loading dialog
+          ToastUtil.success(context, 'Feedback berhasil dihapus');
+          Navigator.pop(context); // Kembali ke halaman sebelumnya
+        }
+      } catch (e, st) {
+        Log.error('Gagal menghapus feedback', e: e, s: st);
+        if (mounted) {
+          Navigator.pop(context); // Tutup loading dialog
+          ToastUtil.error(context, 'Gagal menghapus: $e');
+        }
       }
     }
+  }
+
+  void _navigasiKeDetail(FeedbackModel feedback) {
+    try {
+      unawaited(
+        Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (context) => FormFeedback(feedback: feedback),
+          ),
+        ),
+      );
+    } on Exception catch (e, s) {
+      Log.error('Error di navigasiKeDetail: $e', e: e, s: s);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Log.info('Membangun UI halaman detail feedback.');
+
+    final detailFeedbackAsync = ref.watch(detailFeedbackProvider(widget.id));
+    return detailFeedbackAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, s) {
+        Log.error('Gagal memuat detail feedback', e: e, s: s);
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text('Gagal memuat data: $e', textAlign: TextAlign.center),
+          ),
+        );
+      },
+      data: (feedback) {
+        if (feedback == null) {
+          return const Center(child: Text('Tidak ada feedback ditemukan'));
+        }
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Detail Feedback'),
+            actions: [
+              IconButton(
+                onPressed: () => _navigasiKeDetail(feedback),
+                icon: const Icon(TIcons.edit),
+                tooltip: 'Edit',
+              ),
+              // ✅ Perbaiki akses isAdmin
+              IconButton(
+                icon: const Icon(TIcons.delete),
+                onPressed: _softDeletedFeedback,
+                tooltip: 'Hapus Feedback',
+              ),
+            ],
+          ),
+          body: _buildContent(context, feedback),
+        );
+      },
+    );
+  }
+
+  Widget _buildContent(BuildContext context, FeedbackModel feedback) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.person_pin,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: TSizes.p12,
+                  ),
+                  gapH12,
+                  Expanded(
+                    child: NamaPelangganWidget(
+                      idPelanggan: feedback.userId,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              gapH12,
+              const Text(
+                'Pesan:',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey,
+                ),
+              ),
+              gapH8,
+              Text(
+                feedback.pesan,
+                style: const TextStyle(fontSize: 16, height: 1.5),
+              ),
+              const Divider(height: 40),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  feedback.tanggal != null
+                      ? FormatWaktuLengkap.formatSingkat(feedback.tanggal!)
+                      : 'Tanggal tidak tersedia',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
 
-// File: lib/fitur/feedback/page/form_feedback_u.dart
-// path: lib/fitur/feedback/page/form_feedback_u.dart
+// File: lib/fitur/feedback/page/form_feedback.dart
+// path lib/fitur/feedback/page/form_feedback.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
 /// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
-class FormFeedBackU extends ConsumerStatefulWidget {
+class FormFeedback extends ConsumerStatefulWidget {
   final FeedbackModel? feedback;
 
-  const FormFeedBackU({super.key, this.feedback});
+  const FormFeedback({super.key, this.feedback});
 
   @override
-  ConsumerState<FormFeedBackU> createState() => _FormKritikDanSaranState();
+  ConsumerState<FormFeedback> createState() => _FormFeedbackState();
 }
 
-class _FormKritikDanSaranState extends ConsumerState<FormFeedBackU> {
+class _FormFeedbackState extends ConsumerState<FormFeedback> {
   final _formKey = GlobalKey<FormState>();
   final _feedbackController = TextEditingController();
   bool _isLoading = false;
@@ -21991,6 +22217,20 @@ class _FormKritikDanSaranState extends ConsumerState<FormFeedBackU> {
   Future<void> _simpanForm() async {
     final userId = ref.watch(userIdProvider).value ?? '';
     final feedbackOpFirebase = ref.read(feedbackOpFirebaseProvider);
+
+    if (ref.isUser && userId.isEmpty) {
+      ToastUtil.warning(context, 'Silakan login terlebih dahulu');
+      return;
+    }
+    final isOnline = await ref
+        .read(koneksiInternetServiceProvider)
+        .cekInternet();
+    if (ref.isUser && !isOnline) {
+      if (mounted) {
+        ToastUtil.error(context, 'Cek koneksi internet Anda');
+      }
+      return;
+    }
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
@@ -21998,7 +22238,7 @@ class _FormKritikDanSaranState extends ConsumerState<FormFeedBackU> {
         if (_modeEdit) {
           final updateFeedback = FeedbackModel(
             id: widget.feedback?.id ?? const Uuid().v4(),
-            pesan: widget.feedback?.pesan ?? '',
+            pesan: _feedbackController.text,
             userId: userId,
           );
           await feedbackOpFirebase.perbarui(updateFeedback);
@@ -22084,8 +22324,8 @@ class _FormKritikDanSaranState extends ConsumerState<FormFeedBackU> {
 }
 
 
-// File: lib/fitur/feedback/page/feedback_page_a.dart
-// path: lib/fitur/feedback/page/feedback_page_a.dart
+// File: lib/fitur/feedback/page/feedback_page.dart
+// path lib/fitur/feedback/page/feedback_page.dart
 
 import 'dart:async';
 
@@ -22094,7 +22334,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
-import 'package:wifi/fitur/feedback/page/feedback_detail_a.dart';
+import 'package:wifi/fitur/feedback/page/feedback_detail.dart';
+import 'package:wifi/fitur/feedback/page/form_feedback.dart';
 import 'package:wifi/fitur/feedback/provider/feedback_provider.dart'; // Import provider baru Anda
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -22102,14 +22343,14 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 
-class FeedbackPageA extends ConsumerStatefulWidget {
-  const FeedbackPageA({super.key});
+class FeedbackPage extends ConsumerStatefulWidget {
+  const FeedbackPage({super.key});
 
   @override
-  ConsumerState<FeedbackPageA> createState() => _FeedbackPageState();
+  ConsumerState<FeedbackPage> createState() => _FeedbackPageState();
 }
 
-class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
+class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   List<FeedbackModel> _hasilFilter = [];
   Map<String, String> _mapNamaUser = {};
   bool _mencari = false;
@@ -22187,7 +22428,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
       Log.info('Memproses penghapusan kritik/saran ID: ${feedback.id}');
       try {
         await ref.read(feedbackOpGlobalProvider).softDelete(feedback.id);
-        final _ = ref.refresh(daftarFeedbackAktifProvider);
         if (mounted) {
           ToastUtil.success(context, 'Kritik dan saran berhasil dihapus');
         }
@@ -22206,7 +22446,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
 
   @override
   Widget build(BuildContext context) {
-    // 3. Ambil dan pantau (watch) state dari provider baru Anda di sini
     final feedbackAsync = ref.watch(daftarFeedbackAktifProvider);
 
     return Scaffold(
@@ -22222,9 +22461,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
             return Center(child: Text('Gagal memuat data: $e'));
           },
           data: (semuaFeedback) {
-            // Jalankan filter pencarian terhadap data real-time dari Riverpod
             _applyFilter(semuaFeedback);
-
             if (_hasilFilter.isEmpty) {
               return Center(
                 child: Text(
@@ -22244,15 +22481,14 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   child: InkWell(
                     onTap: () async {
-                      final hasil = await Navigator.push(
-                        context,
-                        MaterialPageRoute<bool>(
-                          builder: (context) => FeedbackDetailA(id: item.id),
+                      unawaited(
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (context) => FeedbackDetail(id: item.id),
+                          ),
                         ),
                       );
-                      if ((hasil ?? false) && mounted) {
-                        ref.invalidate(daftarFeedbackAktifProvider);
-                      }
                     },
                     onLongPress: () => _hapusFeedback(item),
                     child: Padding(
@@ -22291,6 +22527,14 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
             );
           },
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.push<void>(
+          context,
+          MaterialPageRoute(builder: (context) => const FormFeedback()),
+        ),
+        label: const Text('Beri Masukan'),
+        icon: const Icon(TIcons.add),
       ),
     );
   }
@@ -22352,287 +22596,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
 }
 
 
-// File: lib/fitur/feedback/page/feedback_detail_a.dart
-// path: lib/fitur/feedback/page/feedback_detail_a.dart
-
-import 'dart:async';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/app_role/role_util.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/feedback/model/feedback_model.dart';
-import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
-import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
-
-class FeedbackDetailA extends ConsumerStatefulWidget {
-  final String id;
-
-  const FeedbackDetailA({super.key, required this.id});
-
-  @override
-  ConsumerState<FeedbackDetailA> createState() => _FeedbackDetailPageState();
-}
-
-class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
-  late final FeedbackOpSqlite _feedbackOpSqlite;
-
-  late Future<FeedbackModel> _feedbackFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _feedbackOpSqlite = ref.watch(feedbackOpSqliteProvider);
-    Log.info(
-      'Membuka halaman detail kritik dan saran dengan ID: ${widget.id}.',
-    );
-    _loadData();
-  }
-
-  void _loadData() {
-    Log.info('Memulai proses pengambilan data kritik dan saran dari database.');
-
-    _feedbackFuture = _feedbackOpSqlite
-        .ambilBerdasarkanId(widget.id)
-        .then((value) {
-          Log.info('Data kritik dan saran berhasil dimuat dari database.');
-
-          return value;
-        })
-        .catchError((Object e, StackTrace s) {
-          Log.error(
-            'Terjadi kesalahan saat mengambil data kritik dan saran.',
-            e: e,
-            s: s,
-          );
-          throw Exception(e);
-        });
-  }
-
-  Future<void> _softDeletedFeedback() async {
-    Log.info('Menampilkan dialog konfirmasi penghapusan kritik dan saran.');
-
-    final konfirmasi = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        Log.info('Dialog konfirmasi penghapusan berhasil ditampilkan.');
-
-        return AlertDialog(
-          title: const Text('Konfirmasi Hapus'),
-          content: const Text(
-            'Apakah Anda yakin ingin menghapus kritik dan saran ini?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Log.warning(
-                  'Pengguna membatalkan proses penghapusan kritik dan saran.',
-                );
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('Batal'),
-            ),
-            TextButton(
-              onPressed: () {
-                Log.info(
-                  'Pengguna mengonfirmasi penghapusan kritik dan saran.',
-                );
-
-                Navigator.of(context).pop(true);
-              },
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Hapus'),
-            ),
-          ],
-        );
-      },
-    );
-
-    Log.info('Dialog konfirmasi selesai diproses dengan hasil: $konfirmasi.');
-
-    if ((konfirmasi ?? false) && mounted) {
-      Log.info('Memulai proses penghapusan data kritik dan saran.');
-
-      try {
-        Log.info('Menampilkan loading dialog selama proses penghapusan.');
-
-        unawaited(
-          showDialog<void>(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) {
-              Log.info('Loading dialog berhasil ditampilkan.');
-              return const Center(child: CircularProgressIndicator());
-            },
-          ),
-        );
-        Log.info('Memanggil operasi hapus kritik dan saran ke database.');
-        await _feedbackOpSqlite.softDelete(widget.id);
-        Log.info('Data kritik dan saran berhasil dihapus dari database.');
-        if (mounted) {
-          Log.info('Menutup loading dialog.');
-          Navigator.of(context).pop();
-        }
-        if (mounted) {
-          ToastUtil.success(context, 'Kritik dan saran berhasil dihapus');
-        }
-
-        if (mounted) {
-          Log.info('Kembali ke halaman sebelumnya dengan status sukses.');
-          Navigator.pop(context);
-        }
-      } catch (e, st) {
-        Log.error(
-          'Terjadi kesalahan saat menghapus kritik dan saran.',
-          e: e,
-          s: st,
-        );
-
-        if (mounted) {
-          Log.warning('Menutup loading dialog karena terjadi error.');
-          Navigator.of(context).pop();
-        }
-        if (mounted) {
-          ToastUtil.error(context, 'Gagal menghapus: $e');
-        }
-      }
-    } else {
-      Log.warning(
-        'Proses penghapusan dibatalkan atau widget sudah tidak mounted.',
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Log.info('Membangun UI halaman detail kritik dan saran.');
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Kritik & Saran'),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(TIcons.edit),
-            tooltip: 'Edit',
-          ),
-          if (ref.isAdmin)
-            IconButton(
-              icon: const Icon(TIcons.delete),
-              onPressed: _softDeletedFeedback,
-              tooltip: 'Hapus Kritik & Saran',
-            ),
-        ],
-      ),
-      body: FutureBuilder<FeedbackModel>(
-        future: _feedbackFuture,
-        builder: (context, snapshot) {
-          Log.info(
-            'FutureBuilder dijalankan dengan connection state: ${snapshot.connectionState}.',
-          );
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            Log.info('Data masih dalam proses loading.');
-
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            Log.error(
-              'FutureBuilder menerima error saat memuat data.',
-              e: snapshot.error,
-              s: snapshot.stackTrace,
-            );
-
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            Log.info('FutureBuilder berhasil menerima data kritik dan saran.');
-
-            final kritikSaran = snapshot.data!;
-
-            Log.info(
-              'Menampilkan detail kritik dan saran dengan ID: ${kritikSaran.id}.',
-            );
-
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.person_pin,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: TSizes.p12,
-                          ),
-                          gapH12,
-                          Expanded(
-                            child: NamaPelangganWidget(
-                              idPelanggan: kritikSaran.userId,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      gapH12,
-                      const Text(
-                        'Pesan:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      gapH8,
-                      Text(
-                        kritikSaran.pesan,
-                        style: const TextStyle(fontSize: 16, height: 1.5),
-                      ),
-                      const Divider(height: 40),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          kritikSaran.tanggal != null
-                              ? FormatWaktuLengkap.formatSingkat(
-                                  kritikSaran.tanggal!,
-                                )
-                              : 'Tanggal tidak tersedia',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          } else {
-            Log.warning('FutureBuilder tidak menerima data kritik dan saran.');
-
-            return const Center(child: Text('Data tidak ditemukan'));
-          }
-        },
-      ),
-    );
-  }
-}
-
-
 // File: lib/fitur/feedback/provider/feedback_provider.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
@@ -22669,7 +22632,7 @@ final class FeedbackProvider
   Feedback create() => Feedback();
 }
 
-String _$feedbackHash() => r'9eadefcb224084c22312fa6325107b16e49cad51';
+String _$feedbackHash() => r'dc2f71b068d16202fb77515c41af72635e845494';
 
 abstract class _$Feedback extends $AsyncNotifier<FeedbackState> {
   FutureOr<FeedbackState> build();
@@ -22729,7 +22692,7 @@ final class DaftarFeedbackAktifProvider
 }
 
 String _$daftarFeedbackAktifHash() =>
-    r'b340f89f938d3f177a7984b45150e25b69115649';
+    r'58cbd840ace4249dbd8a4ebeb5a2f386f8eb79b5';
 
 @ProviderFor(detailFeedback)
 final detailFeedbackProvider = DetailFeedbackFamily._();
@@ -22737,11 +22700,11 @@ final detailFeedbackProvider = DetailFeedbackFamily._();
 final class DetailFeedbackProvider
     extends
         $FunctionalProvider<
-          AsyncValue<FeedbackModel>,
-          FeedbackModel,
-          FutureOr<FeedbackModel>
+          AsyncValue<FeedbackModel?>,
+          FeedbackModel?,
+          FutureOr<FeedbackModel?>
         >
-    with $FutureModifier<FeedbackModel>, $FutureProvider<FeedbackModel> {
+    with $FutureModifier<FeedbackModel?>, $FutureProvider<FeedbackModel?> {
   DetailFeedbackProvider._({
     required DetailFeedbackFamily super.from,
     required String super.argument,
@@ -22765,12 +22728,12 @@ final class DetailFeedbackProvider
 
   @$internal
   @override
-  $FutureProviderElement<FeedbackModel> $createElement(
+  $FutureProviderElement<FeedbackModel?> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<FeedbackModel> create(Ref ref) {
+  FutureOr<FeedbackModel?> create(Ref ref) {
     final argument = this.argument as String;
     return detailFeedback(ref, argument);
   }
@@ -22786,10 +22749,10 @@ final class DetailFeedbackProvider
   }
 }
 
-String _$detailFeedbackHash() => r'7a2426b79ddfa428b35a52c199ce26ece0af068b';
+String _$detailFeedbackHash() => r'9fb746244ed3ac8f12d4eb63760ca334b9804d74';
 
 final class DetailFeedbackFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<FeedbackModel>, String> {
+    with $FunctionalFamilyOverride<FutureOr<FeedbackModel?>, String> {
   DetailFeedbackFamily._()
     : super(
         retry: null,
@@ -23097,6 +23060,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 
@@ -23131,20 +23095,28 @@ class Feedback extends _$Feedback {
   Future<void> refresh() async {
     Log.info('[StatistikNotifier] Refresh dipicu oleh UI.');
     state = const AsyncLoading();
-    state = await AsyncValue.guard(_loadData);
+    state = await AsyncValue.guard(() async {
+      return await _loadData(); // ✅ Kembalikan hasil _loadData()
+    });
     Log.info('[StatistikNotifier] Refresh selesai.');
+  }
+
+  void invalidateTabelFeedback() {
+    ref.invalidateSelf();
+    ref.invalidate(detailFeedbackProvider);
+    ref.invalidate(daftarFeedbackAktifProvider);
   }
 }
 
 @riverpod
 Future<List<FeedbackModel>> daftarFeedbackAktif(Ref ref) async {
-  final feedbackOpSqlite = ref.watch(feedbackOpSqliteProvider);
+  final feedbackOpSqlite = ref.watch(feedbackOpGlobalProvider);
   return await feedbackOpSqlite.ambilSemua();
 }
 
 @riverpod
-Future<FeedbackModel> detailFeedback(Ref ref, String id) async {
-  final feedbackOpSqlite = ref.watch(feedbackOpSqliteProvider);
+Future<FeedbackModel?> detailFeedback(Ref ref, String id) async {
+  final feedbackOpSqlite = ref.watch(feedbackOpGlobalProvider);
   return await feedbackOpSqlite.ambilBerdasarkanId(id);
 }
 
@@ -23160,7 +23132,6 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
-/// Kelas untuk operasi terkait data kritik dan saran di database lokal.
 class FeedbackOpSqlite {
   final SqliteDatabase sqliteDb;
   final BaseOpSqlite baseOpSqlite;
@@ -23168,7 +23139,6 @@ class FeedbackOpSqlite {
 
   FeedbackOpSqlite({required this.sqliteDb, required this.baseOpSqlite});
 
-  /// Menyimpan [FeedbackModel] baru ke dalam database.
   Future<void> tambah(
     final FeedbackModel feedback, {
     final bool dariServer = false,
@@ -23187,7 +23157,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Memperbarui [FeedbackModel] yang sudah ada di database.
   Future<void> perbarui(
     final FeedbackModel feedback, {
     final bool dariServer = false,
@@ -23215,7 +23184,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Mengambil semua kritik dan saran dari database, diurutkan berdasarkan tanggal terbaru.
   Future<List<FeedbackModel>> ambilSemua({
     bool tampilkanYangDiarsip = false,
   }) async {
@@ -23282,7 +23250,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Mengambil semua kritik dan saran yang telah diubah sejak [sinkronisasiTerakhir].
   Future<List<FeedbackModel>> ambilPerubahan(
     DateTime sinkronisasiTerakhir,
   ) async {
@@ -23310,7 +23277,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Menyisipkan atau memperbarui sekumpulan [FeedbackModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
     final List<FeedbackModel> daftarFeedback, {
     final bool dariServer = false,
@@ -23346,11 +23312,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  // ===========================================================================
-  // DELETE (SOFT & HARD)
-  // ===========================================================================
-
-  /// Menghapus [FeedbackModel] dari database secara permanen.
   Future<void> hapus(final String id, {final bool fromServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai deleteFeedback (hard delete) untuk ID: $id',
@@ -23364,7 +23325,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Melakukan soft delete pada satu feedback berdasarkan [id].
   Future<void> softDelete(
     final String id, {
     final bool fromServer = false,
@@ -23379,7 +23339,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Melakukan soft delete pada semua feedback.
   Future<int> softDeleteAll({final bool fromServer = false}) async {
     Log.info('Memulai soft delete untuk semua feedback');
     try {
@@ -23395,7 +23354,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Menghapus semua kritik dan saran dari database secara permanen.
   Future<void> deleteAll({final bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai deleteAllFeedback. Ini adalah operasi destruktif.',
@@ -23414,7 +23372,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Mengambil beberapa [FeedbackModel] berdasarkan daftar [ids].
   Future<List<FeedbackModel>> ambilBerdasarkanIds(List<String> ids) async {
     Log.info('Memulai getFeedbackByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {
@@ -23432,7 +23389,7 @@ class FeedbackOpSqlite {
       );
       final daftarFeedback = List.generate(
         maps.length,
-        (final i) => FeedbackModel.fromSqlite(maps[i]),
+        (i) => FeedbackModel.fromSqlite(maps[i]),
       );
       Log.info(
         'Berhasil mengambil ${daftarFeedback.length} data kritik_saran dari ${ids.length} ID yang diminta.',
@@ -23455,6 +23412,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
+import 'package:wifi/fitur/feedback/provider/feedback_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
@@ -23477,9 +23435,10 @@ class FeedbackOpGlobal {
       } else {
         await _feedbackOpFirebase.tambah(feedback);
       }
+      _invalidateTabelFeedback();
     } on Exception catch (e, s) {
       Log.error('Error ditambah: $e', e: e, s: s);
-      rethrow; // Error handling opsional
+      rethrow;
     }
   }
 
@@ -23490,10 +23449,55 @@ class FeedbackOpGlobal {
       } else {
         await _feedbackOpFirebase.perbarui(feedback);
       }
+      _invalidateTabelFeedback();
     } on Exception catch (e, s) {
-      Log.error('Error ditambah: $e', e: e, s: s);
-      rethrow; // Error handling opsional
+      Log.error('Error diperbarui: $e', e: e, s: s);
+      rethrow;
     }
+  }
+
+  Future<void> softDelete(String id) async {
+    try {
+      if (RoleUtil.isAdmin(ref)) {
+        await _feedbackOpSqlite.softDelete(id);
+      } else {
+        await _feedbackOpFirebase.softDelete(id);
+      }
+      _invalidateTabelFeedback();
+    } on Exception catch (e, s) {
+      Log.error('Error di softDelete: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<FeedbackModel?> ambilBerdasarkanId(String id) async {
+    try {
+      if (RoleUtil.isAdmin(ref)) {
+        return await _feedbackOpSqlite.ambilBerdasarkanId(id);
+      } else {
+        return await _feedbackOpFirebase.ambilBerdasarkanId(id);
+      }
+    } on Exception catch (e, s) {
+      Log.error('Error di ambilBerdasarkanId: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<List<FeedbackModel>> ambilSemua() async {
+    try {
+      if (RoleUtil.isAdmin(ref)) {
+        return await _feedbackOpSqlite.ambilSemua();
+      } else {
+        return await _feedbackOpFirebase.ambilSemua();
+      }
+    } on Exception catch (e, s) {
+      Log.error('Error di ambilSemua: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  void _invalidateTabelFeedback() {
+    ref.read(feedbackProvider.notifier).invalidateTabelFeedback();
   }
 }
 
@@ -23510,13 +23514,11 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
-/// Kelas untuk mengelola operasi CRUD terkait data feedback di Firestore.
 class FeedbackOpFirebase {
   final FirebaseFirestore _firestore;
   final BaseOpFirebase _baseOpFirebase;
   final String _namaKoleksi = NamaTabel.feedback;
 
-  /// Konstruktor untuk inisialisasi.
   FeedbackOpFirebase({
     required FirebaseFirestore firestore,
     required BaseOpFirebase baseOpFirebase,
@@ -23525,20 +23527,16 @@ class FeedbackOpFirebase {
     Log.info('FeedbackOpFirebase diinisialisasi.');
   }
 
-  /// Referensi ke koleksi feedback.
   CollectionReference get _koleksi => _firestore.collection(_namaKoleksi);
 
-  /// Menyimpan feedback baru dengan ID otomatis dari Firestore.
   Future<void> tambah(FeedbackModel feedback) async {
     Log.info('Mendelegasikan pembuatan feedback baru...');
 
-    // 1. Ambil data dasar dari model
     final data = feedback.toFirebase();
     data[NamaKolom.tanggal] = FieldValue.serverTimestamp();
     await _baseOpFirebase.tambah(_namaKoleksi, data);
   }
 
-  /// Memperbarui isi feedback.
   Future<void> perbarui(FeedbackModel feedback) async {
     Log.info('Mendelegasikan pembaruan feedback: ${feedback.id}');
 
@@ -23549,23 +23547,64 @@ class FeedbackOpFirebase {
     Log.info('Berhasil memperbarui feedback ID: ${feedback.id}');
   }
 
-  /// Menghapus feedback secara permanen dari Firestore.
   Future<void> delete(final String id) async {
     Log.warning('Mendelegasikan penghapusan permanen feedback: $id');
     await _baseOpFirebase.hapusPermanen(_namaKoleksi, id);
   }
 
-  /// Melakukan soft delete pada feedback di Firestore.
-  Future<void> softDeleteFeedback(String id) async {
+  Future<void> softDelete(String id) async {
     Log.info('Mendelegasikan soft delete feedback: $id');
     await _baseOpFirebase.softDelete(_namaKoleksi, id);
   }
 
-  // =======================================================================
-  // OPERASI BACA (Tidak didelegasikan karena spesifik untuk model)
-  // =======================================================================
+  Future<List<FeedbackModel>> ambilSemua() async {
+    try {
+      Log.info('Mengambil semua feedback aktif dari Firestore');
+      final querySnapshot = await _koleksi
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.tanggal, descending: true)
+          .get();
 
-  /// Membaca semua feedback oleh pengguna tertentu.
+      Log.info('Berhasil mengambil ${querySnapshot.docs.length} feedback');
+      return querySnapshot.docs.map((doc) {
+        return FeedbackModel.fromFirebase(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }).toList();
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal mengambil semua feedback dari Firestore', e: e, s: s);
+      rethrow;
+    } on Exception catch (e, s) {
+      Log.error('Error umum saat mengambil semua feedback', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<FeedbackModel?> ambilBerdasarkanId(String id) async {
+    try {
+      Log.info('Mengambil feedback berdasarkan ID: $id');
+      final doc = await _koleksi.doc(id).get();
+      if (doc.exists) {
+        return FeedbackModel.fromFirebase(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }
+      return null;
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal mengambil feedback berdasarkan ID: $id', e: e, s: s);
+      rethrow;
+    } on Exception catch (e, s) {
+      Log.error(
+        'Error umum saat mengambil feedback berdasarkan ID: $id',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
   Stream<List<FeedbackModel>> ambilBerdasarkanUser(String userId) {
     try {
       Log.info('Memuat feedback untuk userId: $userId');
@@ -23584,7 +23623,6 @@ class FeedbackOpFirebase {
               }).toList();
             } catch (e, s) {
               Log.error('Error saat mem-parsing data feedback', e: e, s: s);
-              // Melempar kembali error untuk ditangani oleh handleError
               throw Exception('Gagal mem-parsing data feedback: $e');
             }
           })
@@ -23602,7 +23640,6 @@ class FeedbackOpFirebase {
     }
   }
 }
-
 
 // File: lib/fitur/feedback/model/feedback_model.dart
 // path: lib/fitur/feedback/model/feedback_model.dart
@@ -37604,7 +37641,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
+import 'package:wifi/fitur/feedback/page/feedback_page.dart';
 import 'package:wifi/fitur/feedback/provider/feedback_provider.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
@@ -37771,7 +37808,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute<void>(
-                                  builder: (_) => const FeedbackPageA(),
+                                  builder: (_) => const FeedbackPage(),
                                 ),
                               );
                             },
@@ -51167,7 +51204,7 @@ import 'package:flutter/services.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/data_dummy/halaman_data_dummy.dart';
 import 'package:wifi/fitur/event/page/event_page_a.dart';
-import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
+import 'package:wifi/fitur/feedback/page/feedback_page.dart';
 import 'package:wifi/fitur/info_perangkat/page/tentang_aplikasi.dart';
 import 'package:wifi/fitur/kategori/page/kategori.dart';
 import 'package:wifi/fitur/paket/page/paket.dart';
@@ -51278,7 +51315,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
             context: context,
             icon: TIcons.help,
             title: 'Kritik dan Saran',
-            onTap: () => _navigateTo(const FeedbackPageA(), 'Kritik dan Saran'),
+            onTap: () => _navigateTo(const FeedbackPage(), 'Kritik dan Saran'),
           ),
           _buildMenuItem(
             context: context,
@@ -56399,6 +56436,22 @@ class MockPaketOpSqlite extends _i1.Mock implements _i7.PaketOpSqlite {
           as _i5.Future<void>);
 
   @override
+  _i5.Future<void> perbaruiPaket(
+    _i8.PaketModel? paket, {
+    bool? dariServer = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #perbaruiPaket,
+              [paket],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
   _i5.Future<List<_i8.PaketModel>> ambilSemua({
     bool? tampilkanYangDiarsip = false,
   }) =>
@@ -56429,22 +56482,6 @@ class MockPaketOpSqlite extends _i1.Mock implements _i7.PaketOpSqlite {
             returnValue: _i5.Future<_i8.PaketModel?>.value(),
           )
           as _i5.Future<_i8.PaketModel?>);
-
-  @override
-  _i5.Future<void> perbaruiPaket(
-    _i8.PaketModel? paket, {
-    bool? dariServer = false,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #perbaruiPaket,
-              [paket],
-              {#dariServer: dariServer},
-            ),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
 
   @override
   _i5.Future<void> hapusSementara(String? id, {bool? dariServer = false}) =>
@@ -58355,7 +58392,7 @@ void main() {
         ).thenAnswer((_) async => Future.value());
 
         // Act
-        await feedbackOpFirebase.softDeleteFeedback(docId);
+        await feedbackOpFirebase.softDelete(docId);
 
         // Assert
         verify(mockBaseOpFirebase.softDelete(any, docId)).called(1);
@@ -67409,7 +67446,7 @@ class MockLayananUnggahData extends _i1.Mock implements _i6.LayananUnggahData {
   @override
   _i4.Future<void> uploadDataTransaksi() =>
       (super.noSuchMethod(
-            Invocation.method(#uploadTransactionData, []),
+            Invocation.method(#uploadDataTransaksi, []),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
@@ -73355,6 +73392,22 @@ class MockPaketOpSqlite extends _i1.Mock implements _i4.PaketOpSqlite {
           as _i5.Future<void>);
 
   @override
+  _i5.Future<void> perbaruiPaket(
+    _i6.PaketModel? paket, {
+    bool? dariServer = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #perbaruiPaket,
+              [paket],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
   _i5.Future<List<_i6.PaketModel>> ambilSemua({
     bool? tampilkanYangDiarsip = false,
   }) =>
@@ -73385,22 +73438,6 @@ class MockPaketOpSqlite extends _i1.Mock implements _i4.PaketOpSqlite {
             returnValue: _i5.Future<_i6.PaketModel?>.value(),
           )
           as _i5.Future<_i6.PaketModel?>);
-
-  @override
-  _i5.Future<void> perbaruiPaket(
-    _i6.PaketModel? paket, {
-    bool? dariServer = false,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #perbaruiPaket,
-              [paket],
-              {#dariServer: dariServer},
-            ),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
-          )
-          as _i5.Future<void>);
 
   @override
   _i5.Future<void> hapusSementara(String? id, {bool? dariServer = false}) =>
@@ -74327,6 +74364,23 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i8.TransaksiOpSqlite {
           as _i6.Future<List<_i9.TransaksiModel>>);
 
   @override
+  _i6.Future<void> perbaruiTransaksi(
+    String? id,
+    _i9.TransaksiModel? transaksi, {
+    bool? dariServer = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #perbaruiTransaksi,
+              [id, transaksi],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
   _i6.Future<_i9.TransaksiModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBerdasarkanId, [id]),
@@ -74367,23 +74421,6 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i8.TransaksiOpSqlite {
             ),
           )
           as _i6.Future<List<_i9.TransaksiModel>>);
-
-  @override
-  _i6.Future<void> perbaruiTransaksi(
-    String? id,
-    _i9.TransaksiModel? transaksi, {
-    bool? dariServer = false,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #perbaruiTransaksi,
-              [id, transaksi],
-              {#dariServer: dariServer},
-            ),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
 
   @override
   _i6.Future<void> softDelete(String? id, {bool? dariServer = false}) =>
@@ -75717,6 +75754,23 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i5.TransaksiOpSqlite {
           as _i6.Future<List<_i7.TransaksiModel>>);
 
   @override
+  _i6.Future<void> perbaruiTransaksi(
+    String? id,
+    _i7.TransaksiModel? transaksi, {
+    bool? dariServer = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #perbaruiTransaksi,
+              [id, transaksi],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
   _i6.Future<_i7.TransaksiModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBerdasarkanId, [id]),
@@ -75757,23 +75811,6 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i5.TransaksiOpSqlite {
             ),
           )
           as _i6.Future<List<_i7.TransaksiModel>>);
-
-  @override
-  _i6.Future<void> perbaruiTransaksi(
-    String? id,
-    _i7.TransaksiModel? transaksi, {
-    bool? dariServer = false,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #perbaruiTransaksi,
-              [id, transaksi],
-              {#dariServer: dariServer},
-            ),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
 
   @override
   _i6.Future<void> softDelete(String? id, {bool? dariServer = false}) =>
@@ -76271,6 +76308,22 @@ class MockPaketOpSqlite extends _i1.Mock implements _i4.PaketOpSqlite {
           as _i6.Future<void>);
 
   @override
+  _i6.Future<void> perbaruiPaket(
+    _i8.PaketModel? paket, {
+    bool? dariServer = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #perbaruiPaket,
+              [paket],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
   _i6.Future<List<_i8.PaketModel>> ambilSemua({
     bool? tampilkanYangDiarsip = false,
   }) =>
@@ -76301,22 +76354,6 @@ class MockPaketOpSqlite extends _i1.Mock implements _i4.PaketOpSqlite {
             returnValue: _i6.Future<_i8.PaketModel?>.value(),
           )
           as _i6.Future<_i8.PaketModel?>);
-
-  @override
-  _i6.Future<void> perbaruiPaket(
-    _i8.PaketModel? paket, {
-    bool? dariServer = false,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #perbaruiPaket,
-              [paket],
-              {#dariServer: dariServer},
-            ),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
 
   @override
   _i6.Future<void> hapusSementara(String? id, {bool? dariServer = false}) =>
@@ -76456,6 +76493,23 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i9.TransaksiOpSqlite {
           as _i6.Future<List<_i10.TransaksiModel>>);
 
   @override
+  _i6.Future<void> perbaruiTransaksi(
+    String? id,
+    _i10.TransaksiModel? transaksi, {
+    bool? dariServer = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #perbaruiTransaksi,
+              [id, transaksi],
+              {#dariServer: dariServer},
+            ),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
   _i6.Future<_i10.TransaksiModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBerdasarkanId, [id]),
@@ -76496,23 +76550,6 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i9.TransaksiOpSqlite {
             ),
           )
           as _i6.Future<List<_i10.TransaksiModel>>);
-
-  @override
-  _i6.Future<void> perbaruiTransaksi(
-    String? id,
-    _i10.TransaksiModel? transaksi, {
-    bool? dariServer = false,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #perbaruiTransaksi,
-              [id, transaksi],
-              {#dariServer: dariServer},
-            ),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
 
   @override
   _i6.Future<void> softDelete(String? id, {bool? dariServer = false}) =>
