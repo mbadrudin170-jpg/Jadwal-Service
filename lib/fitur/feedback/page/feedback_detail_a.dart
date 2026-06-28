@@ -109,7 +109,9 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
       unawaited(
         Navigator.push(
           context,
-          MaterialPageRoute<void>(builder: (context) => FormFeedBackU()),
+          MaterialPageRoute<void>(
+            builder: (context) => FormFeedBackU(feedback: feedback),
+          ),
         ),
       );
     } on Exception catch (e, s) {
@@ -122,7 +124,6 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
     Log.info('Membangun UI halaman detail feedback.');
 
     final detailFeedbackAsync = ref.watch(detailFeedbackProvider(widget.id));
-
     return detailFeedbackAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, s) {
@@ -134,25 +135,30 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
           ),
         );
       },
-      data: (feedback) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Detail Feedback'),
-          actions: [
-            IconButton(
-              onPressed: () => _navigasiKeDetail(feedback!),
-              icon: const Icon(TIcons.edit),
-              tooltip: 'Edit',
-            ),
-            // ✅ Perbaiki akses isAdmin
-            IconButton(
-              icon: const Icon(TIcons.delete),
-              onPressed: _softDeletedFeedback,
-              tooltip: 'Hapus Feedback',
-            ),
-          ],
-        ),
-        body: _buildContent(context, feedback!),
-      ),
+      data: (feedback) {
+        if (feedback == null) {
+          return const Center(child: Text('Tidak ada feedback ditemukan'));
+        }
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Detail Feedback'),
+            actions: [
+              IconButton(
+                onPressed: () => _navigasiKeDetail(feedback),
+                icon: const Icon(TIcons.edit),
+                tooltip: 'Edit',
+              ),
+              // ✅ Perbaiki akses isAdmin
+              IconButton(
+                icon: const Icon(TIcons.delete),
+                onPressed: _softDeletedFeedback,
+                tooltip: 'Hapus Feedback',
+              ),
+            ],
+          ),
+          body: _buildContent(context, feedback),
+        );
+      },
     );
   }
 
