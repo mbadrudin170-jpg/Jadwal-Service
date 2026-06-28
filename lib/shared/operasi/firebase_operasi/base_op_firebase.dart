@@ -7,16 +7,10 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 
-/// Kelas dasar untuk operasi CRUD umum di Firestore.
-///
-/// Kelas ini mengabstraksi operasi tulis umum dan secara otomatis
-/// memanggil `StatusOpFirebase` untuk memperbarui timestamp global
-/// setiap kali ada perubahan data.
 class BaseOpFirebase {
   final FirebaseFirestore firestore;
   final StatusOpFirebase _statusOp;
 
-  /// Konstruktor dengan injeksi dependensi untuk pengujian.
   BaseOpFirebase({
     final FirebaseFirestore? firestore,
     final StatusOpFirebase? statusOp,
@@ -31,15 +25,10 @@ class BaseOpFirebase {
     Log.info('[FIRESTORE TRANSAKSI DIMULAI] Memulai proses transaksi.');
 
     try {
-      // Firestore transaction dengan retry otomatis
       final result = await firestore.runTransaction((transaction) async {
-        Log.info(
-          '[FIRESTORE TRANSAKSI AKTIF] Blok transaksi dimulai. '
-          'Firestore akan otomatis retry jika ada konflik.',
-        );
+        Log.info('[FIRESTORE TRANSAKSI AKTIF] Blok transaksi dimulai.');
 
         try {
-          // Eksekusi aksi yang diberikan
           final actionResult = await action(transaction);
 
           Log.info(
@@ -47,13 +36,9 @@ class BaseOpFirebase {
             'Hasil: ${actionResult.runtimeType}',
           );
 
-          // Update status global setelah transaksi berhasil
-          // Ini mirip dengan update `needUpload` di SQLite
           Log.info('[FIRESTORE TRANSAKSI AKTIF] Memperbarui status global...');
           await _statusOp.perbaruiStatusGlobal();
-          Log.info(
-            '[FIRESTORE TRANSAKSI AKTIF] Status global berhasil diperbarui.',
-          );
+          Log.info('[FIRESTORE TRANSAKSI AKTIF] Status global berhasil diperbarui.');
 
           return actionResult;
         } catch (e, st) {
@@ -62,7 +47,6 @@ class BaseOpFirebase {
             e: e,
             s: st,
           );
-          // Firestore akan otomatis membatalkan transaksi jika terjadi error
           rethrow;
         }
       });
@@ -86,11 +70,6 @@ class BaseOpFirebase {
     return await _runInTransaction(customAction);
   }
 
-  /// Menyisipkan dokumen baru dengan ID yang dibuat otomatis oleh Firestore.
-  ///
-  /// [collectionName]: Nama koleksi target.
-  /// [data]: Map data yang akan disimpan.
-  /// Mengembalikan [DocumentReference] dari dokumen yang baru dibuat.
   Future<DocumentReference> tambah(
     final String collectionName,
     final Map<String, dynamic> data,
@@ -114,11 +93,6 @@ class BaseOpFirebase {
     }
   }
 
-  /// Menyisipkan dokumen baru ke dalam koleksi.
-  ///
-  /// [collectionName]: Nama koleksi target.
-  /// [docId]: ID dokumen yang akan dibuat.
-  /// [data]: Map data yang akan disimpan.
   Future<void> sisipkan(
     final String collectionName,
     final String docId,
@@ -142,11 +116,6 @@ class BaseOpFirebase {
     }
   }
 
-  /// Memperbarui dokumen yang ada.
-  ///
-  /// [collectionName]: Nama koleksi target.
-  /// [docId]: ID dokumen yang akan diperbarui.
-  /// [data]: Map data yang akan diperbarui.
   Future<void> update(
     final String collectionName,
     final String docId,
@@ -170,11 +139,6 @@ class BaseOpFirebase {
     }
   }
 
-  /// Melakukan soft delete pada sebuah dokumen.
-  ///
-  /// Ini akan mengatur `isDeleted` menjadi true dan memperbarui `updatedAt`.
-  /// [collectionName]: Nama koleksi target.
-  /// [docId]: ID dokumen yang akan di-soft-delete.
   Future<void> softDelete(String collectionName, String docId) async {
     Log.info('Base softDelete: $collectionName/$docId');
     try {
@@ -197,10 +161,6 @@ class BaseOpFirebase {
     }
   }
 
-  /// Menghapus dokumen dari Firestore secara permanen.
-  ///
-  /// [collectionName]: Nama koleksi target.
-  /// [docId]: ID dokumen yang akan dihapus.
   Future<void> hapusPermanen(
     final String collectionName,
     final String docId,
@@ -222,11 +182,6 @@ class BaseOpFirebase {
     }
   }
 
-  /// Melakukan soft delete pada semua dokumen di sebuah koleksi.
-  ///
-  /// Fungsi ini akan mengambil semua dokumen yang belum di-soft-delete
-  /// lalu memperbaruinya dalam satu batch.
-  /// Mengembalikan jumlah dokumen yang berhasil di-soft-delete.
   Future<int> hapusSementaraSemua(final String collectionName) async {
     Log.info('Base softDeleteAll: Memulai untuk koleksi $collectionName');
     try {
@@ -250,7 +205,6 @@ class BaseOpFirebase {
       }
 
       await batch.commit();
-      // Panggil updateGlobalStatus SATU KALI setelah batch selesai.
       unawaited(_statusOp.perbaruiStatusGlobal());
 
       final count = querySnapshot.docs.length;
@@ -269,11 +223,6 @@ class BaseOpFirebase {
     }
   }
 
-  /// Melakukan operasi sisip atau perbarui secara batch (upsert).
-  ///
-  /// [collectionName]: Nama koleksi target.
-  /// [items]: Daftar Map data yang akan diproses.
-  /// [idKey]: Kunci di dalam setiap map yang berisi ID dokumen.
   Future<void> insertOrUpdateBatch(
     final String collectionName,
     final List<Map<String, dynamic>> items,
@@ -293,7 +242,6 @@ class BaseOpFirebase {
         if (docId != null) {
           final docRef = firestore.collection(collectionName).doc(docId);
           item[NamaKolom.diperbaruiPada] = FieldValue.serverTimestamp();
-          // Menggunakan set dengan merge: true untuk perilaku upsert
           batch.set(docRef, item, SetOptions(merge: true));
         }
       }
