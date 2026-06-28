@@ -3,15 +3,15 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 class PackageNameWidget extends StatelessWidget {
-  final Future<PaketModel?> paketFuture;
+  final Future<PaketModel?> idPaket;
   final TextStyle? style;
 
-  const PackageNameWidget({super.key, required this.paketFuture, this.style});
+  const PackageNameWidget({super.key, required this.idPaket, this.style});
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<PaketModel?>(
-      future: paketFuture,
+      future: idPaket,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Text('');

@@ -281,7 +281,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       PackageNameWidget(
-                        paketFuture: paketOpSqlite.ambilBerdasarkanId(
+                        idPaket: paketOpSqlite.ambilBerdasarkanId(
                           transaksi.idPaket ?? '',
                         ),
                         style: TextStyle(color: warnaStatusPembayaran),

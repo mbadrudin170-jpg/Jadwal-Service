@@ -1,5 +1,4 @@
-// path: lib/shared/widget/summary_info_widget.dart
-// digunakan oleh: lib/admin/halaman/detail/wallet_detail.dart
+// path lib/shared/widget/summary_info_widget.dart
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/export/theme.dart';

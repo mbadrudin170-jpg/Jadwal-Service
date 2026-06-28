@@ -319,9 +319,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                               ),
                               child: ListTile(
                                 leading: const Icon(TIcons.receiptLong),
-                                title: PackageNameWidget(
-                                  paketFuture: paketFuture,
-                                ),
+                                title: PackageNameWidget(idPaket: paketFuture),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
