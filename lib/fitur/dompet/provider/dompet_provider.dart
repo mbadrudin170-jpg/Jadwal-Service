@@ -90,11 +90,23 @@ class Dompet extends _$Dompet {
 }
 
 @riverpod
-Future<List<TransaksiModel>> detailDompet(Ref ref, String? idDompet) async {
+Future<({List<TransaksiModel> transaksi, DompetModel? dompet})> detailDompet(
+  Ref ref,
+  String idDompet,
+) async {
   try {
+    final dompetOpSqlite = ref.watch(dompetOpSqliteProvider);
     final transaksiOp = ref.watch(transaksiOpGlobalProvider);
-    final daftarTransaksi = transaksiOp.ambilBerdasarkanIdDompet(idDompet!);
-    return daftarTransaksi;
+
+    // Ambil kedua data secara paralel
+    final results = await Future.wait([
+      transaksiOp.ambilBerdasarkanIdDompet(idDompet),
+      dompetOpSqlite.ambilBerdasarkanId(idDompet),
+    ]);
+
+    final daftarTransaksi = results[0] as List<TransaksiModel>;
+    final dompet = results[1] as DompetModel?;
+    return (transaksi: daftarTransaksi, dompet: dompet);
   } on Exception catch (e, s) {
     Log.error('Error diDetailDompet: $e', e: e, s: s);
     rethrow;

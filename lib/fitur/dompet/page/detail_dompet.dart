@@ -181,7 +181,6 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
               sum +
               (item.tipe == TipeTransaksi.income ? item.jumlah : -item.jumlah),
         );
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
