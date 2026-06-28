@@ -9,13 +9,11 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
-/// Kelas untuk mengelola operasi CRUD terkait data feedback di Firestore.
 class FeedbackOpFirebase {
   final FirebaseFirestore _firestore;
   final BaseOpFirebase _baseOpFirebase;
   final String _namaKoleksi = NamaTabel.feedback;
 
-  /// Konstruktor untuk inisialisasi.
   FeedbackOpFirebase({
     required FirebaseFirestore firestore,
     required BaseOpFirebase baseOpFirebase,
@@ -24,20 +22,16 @@ class FeedbackOpFirebase {
     Log.info('FeedbackOpFirebase diinisialisasi.');
   }
 
-  /// Referensi ke koleksi feedback.
   CollectionReference get _koleksi => _firestore.collection(_namaKoleksi);
 
-  /// Menyimpan feedback baru dengan ID otomatis dari Firestore.
   Future<void> tambah(FeedbackModel feedback) async {
     Log.info('Mendelegasikan pembuatan feedback baru...');
 
-    // 1. Ambil data dasar dari model
     final data = feedback.toFirebase();
     data[NamaKolom.tanggal] = FieldValue.serverTimestamp();
     await _baseOpFirebase.tambah(_namaKoleksi, data);
   }
 
-  /// Memperbarui isi feedback.
   Future<void> perbarui(FeedbackModel feedback) async {
     Log.info('Mendelegasikan pembaruan feedback: ${feedback.id}');
 
@@ -48,21 +42,16 @@ class FeedbackOpFirebase {
     Log.info('Berhasil memperbarui feedback ID: ${feedback.id}');
   }
 
-  /// Menghapus feedback secara permanen dari Firestore.
   Future<void> delete(final String id) async {
     Log.warning('Mendelegasikan penghapusan permanen feedback: $id');
     await _baseOpFirebase.hapusPermanen(_namaKoleksi, id);
   }
 
-  /// Melakukan soft delete pada feedback di Firestore.
   Future<void> softDelete(String id) async {
     Log.info('Mendelegasikan soft delete feedback: $id');
     await _baseOpFirebase.softDelete(_namaKoleksi, id);
   }
 
-  // =======================================================================
-  // OPERASI BACA (Tidak didelegasikan karena spesifik untuk model)
-  // =======================================================================
   Future<List<FeedbackModel>> ambilSemua() async {
     try {
       Log.info('Mengambil semua feedback aktif dari Firestore');
@@ -111,7 +100,6 @@ class FeedbackOpFirebase {
     }
   }
 
-  /// Membaca semua feedback oleh pengguna tertentu.
   Stream<List<FeedbackModel>> ambilBerdasarkanUser(String userId) {
     try {
       Log.info('Memuat feedback untuk userId: $userId');
@@ -130,7 +118,6 @@ class FeedbackOpFirebase {
               }).toList();
             } catch (e, s) {
               Log.error('Error saat mem-parsing data feedback', e: e, s: s);
-              // Melempar kembali error untuk ditangani oleh handleError
               throw Exception('Gagal mem-parsing data feedback: $e');
             }
           })

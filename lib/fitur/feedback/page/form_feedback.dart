@@ -1,4 +1,4 @@
-// path: lib/fitur/feedback/page/form_feedback_u.dart
+// path lib/fitur/feedback/page/form_feedback.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,16 +13,16 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
 /// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
-class FormFeedBackU extends ConsumerStatefulWidget {
+class FormFeedback extends ConsumerStatefulWidget {
   final FeedbackModel? feedback;
 
-  const FormFeedBackU({super.key, this.feedback});
+  const FormFeedback({super.key, this.feedback});
 
   @override
-  ConsumerState<FormFeedBackU> createState() => _FormKritikDanSaranState();
+  ConsumerState<FormFeedback> createState() => _FormFeedbackState();
 }
 
-class _FormKritikDanSaranState extends ConsumerState<FormFeedBackU> {
+class _FormFeedbackState extends ConsumerState<FormFeedback> {
   final _formKey = GlobalKey<FormState>();
   final _feedbackController = TextEditingController();
   bool _isLoading = false;

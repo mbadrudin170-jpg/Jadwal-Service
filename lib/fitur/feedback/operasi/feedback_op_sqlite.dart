@@ -8,7 +8,6 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
-/// Kelas untuk operasi terkait data kritik dan saran di database lokal.
 class FeedbackOpSqlite {
   final SqliteDatabase sqliteDb;
   final BaseOpSqlite baseOpSqlite;
@@ -16,7 +15,6 @@ class FeedbackOpSqlite {
 
   FeedbackOpSqlite({required this.sqliteDb, required this.baseOpSqlite});
 
-  /// Menyimpan [FeedbackModel] baru ke dalam database.
   Future<void> tambah(
     final FeedbackModel feedback, {
     final bool dariServer = false,
@@ -35,7 +33,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Memperbarui [FeedbackModel] yang sudah ada di database.
   Future<void> perbarui(
     final FeedbackModel feedback, {
     final bool dariServer = false,
@@ -63,7 +60,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Mengambil semua kritik dan saran dari database, diurutkan berdasarkan tanggal terbaru.
   Future<List<FeedbackModel>> ambilSemua({
     bool tampilkanYangDiarsip = false,
   }) async {
@@ -130,7 +126,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Mengambil semua kritik dan saran yang telah diubah sejak [sinkronisasiTerakhir].
   Future<List<FeedbackModel>> ambilPerubahan(
     DateTime sinkronisasiTerakhir,
   ) async {
@@ -158,7 +153,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Menyisipkan atau memperbarui sekumpulan [FeedbackModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
     final List<FeedbackModel> daftarFeedback, {
     final bool dariServer = false,
@@ -194,11 +188,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  // ===========================================================================
-  // DELETE (SOFT & HARD)
-  // ===========================================================================
-
-  /// Menghapus [FeedbackModel] dari database secara permanen.
   Future<void> hapus(final String id, {final bool fromServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai deleteFeedback (hard delete) untuk ID: $id',
@@ -212,7 +201,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Melakukan soft delete pada satu feedback berdasarkan [id].
   Future<void> softDelete(
     final String id, {
     final bool fromServer = false,
@@ -227,7 +215,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Melakukan soft delete pada semua feedback.
   Future<int> softDeleteAll({final bool fromServer = false}) async {
     Log.info('Memulai soft delete untuk semua feedback');
     try {
@@ -243,7 +230,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Menghapus semua kritik dan saran dari database secara permanen.
   Future<void> deleteAll({final bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai deleteAllFeedback. Ini adalah operasi destruktif.',
@@ -262,7 +248,6 @@ class FeedbackOpSqlite {
     }
   }
 
-  /// Mengambil beberapa [FeedbackModel] berdasarkan daftar [ids].
   Future<List<FeedbackModel>> ambilBerdasarkanIds(List<String> ids) async {
     Log.info('Memulai getFeedbackByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {

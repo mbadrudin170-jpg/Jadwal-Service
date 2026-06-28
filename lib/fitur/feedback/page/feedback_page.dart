@@ -1,4 +1,4 @@
-// path: lib/fitur/feedback/page/feedback_page_a.dart
+// path lib/fitur/feedback/page/feedback_page.dart
 
 import 'dart:async';
 
@@ -7,8 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
-import 'package:wifi/fitur/feedback/page/feedback_detail_a.dart';
-import 'package:wifi/fitur/feedback/page/form_feedback_u.dart';
+import 'package:wifi/fitur/feedback/page/feedback_detail.dart';
+import 'package:wifi/fitur/feedback/page/form_feedback.dart';
 import 'package:wifi/fitur/feedback/provider/feedback_provider.dart'; // Import provider baru Anda
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -16,14 +16,14 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 
-class FeedbackPageA extends ConsumerStatefulWidget {
-  const FeedbackPageA({super.key});
+class FeedbackPage extends ConsumerStatefulWidget {
+  const FeedbackPage({super.key});
 
   @override
-  ConsumerState<FeedbackPageA> createState() => _FeedbackPageState();
+  ConsumerState<FeedbackPage> createState() => _FeedbackPageState();
 }
 
-class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
+class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   List<FeedbackModel> _hasilFilter = [];
   Map<String, String> _mapNamaUser = {};
   bool _mencari = false;
@@ -158,7 +158,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
                         Navigator.push(
                           context,
                           MaterialPageRoute<void>(
-                            builder: (context) => FeedbackDetailA(id: item.id),
+                            builder: (context) => FeedbackDetail(id: item.id),
                           ),
                         ),
                       );
@@ -204,7 +204,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.push<void>(
           context,
-          MaterialPageRoute(builder: (context) => const FormFeedBackU()),
+          MaterialPageRoute(builder: (context) => const FormFeedback()),
         ),
         label: const Text('Beri Masukan'),
         icon: const Icon(TIcons.add),

@@ -4,7 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
+import 'package:wifi/fitur/feedback/page/feedback_page.dart';
 import 'package:wifi/fitur/feedback/provider/feedback_provider.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
@@ -171,7 +171,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute<void>(
-                                  builder: (_) => const FeedbackPageA(),
+                                  builder: (_) => const FeedbackPage(),
                                 ),
                               );
                             },

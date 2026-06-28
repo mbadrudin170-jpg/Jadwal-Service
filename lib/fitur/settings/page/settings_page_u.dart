@@ -7,13 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
-import 'package:wifi/fitur/feedback/page/feedback_page_u.dart';
+import 'package:wifi/fitur/feedback/page/feedback_page.dart';
 import 'package:wifi/fitur/info_perangkat/page/info_apk_page_user.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
-/// Halaman pengaturan untuk pengguna.
 class SettingsPageU extends ConsumerWidget {
   const SettingsPageU({super.key});
 
@@ -53,7 +52,7 @@ class SettingsPageU extends ConsumerWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: ( context) => const FeedbackPageU(),
+                  builder: (context) => const FeedbackPage(),
                 ),
               );
             },
@@ -66,7 +65,7 @@ class SettingsPageU extends ConsumerWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: ( context) => const InfoApkPageUser(),
+                  builder: (context) => const InfoApkPageUser(),
                 ),
               );
             },
@@ -81,7 +80,7 @@ class SettingsPageU extends ConsumerWidget {
                 await Navigator.push(
                   context,
                   MaterialPageRoute<void>(
-                    builder: ( context) => const HalamanTes(),
+                    builder: (context) => const HalamanTes(),
                   ),
                 );
               },

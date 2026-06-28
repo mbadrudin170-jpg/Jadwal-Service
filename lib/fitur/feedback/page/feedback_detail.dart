@@ -1,4 +1,4 @@
-// path: lib/fitur/feedback/page/feedback_detail_a.dart
+// path lib/fitur/feedback/page/feedback_detail.dart
 
 import 'dart:async';
 
@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
-import 'package:wifi/fitur/feedback/page/form_feedback_u.dart';
+import 'package:wifi/fitur/feedback/page/form_feedback.dart';
 import 'package:wifi/fitur/feedback/provider/feedback_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -15,16 +15,16 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 
-class FeedbackDetailA extends ConsumerStatefulWidget {
+class FeedbackDetail extends ConsumerStatefulWidget {
   final String id;
 
-  const FeedbackDetailA({super.key, required this.id});
+  const FeedbackDetail({super.key, required this.id});
 
   @override
-  ConsumerState<FeedbackDetailA> createState() => _FeedbackDetailPageState();
+  ConsumerState<FeedbackDetail> createState() => _FeedbackDetailState();
 }
 
-class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
+class _FeedbackDetailState extends ConsumerState<FeedbackDetail> {
   FeedbackOpGlobal get _feedbackOpGlobal => ref.read(feedbackOpGlobalProvider);
   @override
   void initState() {
@@ -110,7 +110,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailA> {
         Navigator.push(
           context,
           MaterialPageRoute<void>(
-            builder: (context) => FormFeedBackU(feedback: feedback),
+            builder: (context) => FormFeedback(feedback: feedback),
           ),
         ),
       );

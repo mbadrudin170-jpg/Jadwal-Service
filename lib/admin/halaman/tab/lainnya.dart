@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/data_dummy/halaman_data_dummy.dart';
 import 'package:wifi/fitur/event/page/event_page_a.dart';
-import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
+import 'package:wifi/fitur/feedback/page/feedback_page.dart';
 import 'package:wifi/fitur/info_perangkat/page/tentang_aplikasi.dart';
 import 'package:wifi/fitur/kategori/page/kategori.dart';
 import 'package:wifi/fitur/paket/page/paket.dart';
@@ -119,7 +119,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
             context: context,
             icon: TIcons.help,
             title: 'Kritik dan Saran',
-            onTap: () => _navigateTo(const FeedbackPageA(), 'Kritik dan Saran'),
+            onTap: () => _navigateTo(const FeedbackPage(), 'Kritik dan Saran'),
           ),
           _buildMenuItem(
             context: context,
