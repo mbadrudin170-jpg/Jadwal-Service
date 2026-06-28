@@ -194,7 +194,7 @@ analyzer:
 // path: lib/tes_fitur/tes_iklan.dart
 
 import 'package:flutter/material.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 
@@ -211,12 +211,15 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
   // [DIPERBAIKI] Gunakan ID notifikasi yang konstan untuk pengujian
   static const int _testNotificationId = 99;
 
-  final TextEditingController _titleController =
-      TextEditingController(text: 'Notifikasi Uji Coba');
-  final TextEditingController _bodyController =
-      TextEditingController(text: 'Ini adalah isi dari notifikasi.');
-  final TextEditingController _payloadController =
-      TextEditingController(text: 'test_payload_123');
+  final TextEditingController _titleController = TextEditingController(
+    text: 'Notifikasi Uji Coba',
+  );
+  final TextEditingController _bodyController = TextEditingController(
+    text: 'Ini adalah isi dari notifikasi.',
+  );
+  final TextEditingController _payloadController = TextEditingController(
+    text: 'test_payload_123',
+  );
 
   @override
   void dispose() {
@@ -249,7 +252,8 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
         payload: payload.isNotEmpty ? payload : null,
       );
       _tampilkanSnackbar(
-          'Notifikasi dijadwalkan ulang pukul \${jadwal.hour}:\${jadwal.minute}:\${jadwal.second}');
+        'Notifikasi dijadwalkan ulang pukul \${jadwal.hour}:\${jadwal.minute}:\${jadwal.second}',
+      );
     } on Exception catch (e) {
       Log.error('Gagal memperbarui jadwal notifikasi', e: e);
       _tampilkanSnackbar('Error: \$e');
@@ -281,19 +285,16 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
 
   void _tampilkanSnackbar(final String message) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     }
   }
 
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Notifikasi Test'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Notifikasi Test'), centerTitle: true),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -352,7 +353,7 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
               // Tombol untuk membatalkan semua notifikasi
               ElevatedButton.icon(
                 onPressed: () async {
-                  await _notifikasiServis.batalSemuaNotifikasi();
+                  await _notifikasiServis.batalkanSemuaNotifikasi();
                   _tampilkanSnackbar('Semua notifikasi telah dibatalkan.');
                 },
                 icon: const Icon(Icons.cancel),
@@ -370,7 +371,9 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
                       Text(
                         '💡 Tips Pengujian:',
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.white),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                       gapH8,
                       Text(
@@ -396,7 +399,7 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
 // File: lib/tes_fitur/tes_notifikasi.dart
 // path: lib/tes_fitur/tes_notifikasi.dart
 import 'package:flutter/material.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 
@@ -487,7 +490,7 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
   Future<void> _batalkanSemuaNotifikasi() async {
     Log.info('Tombol "Batalkan Semua Notifikasi" ditekan.');
     // PERBAIKAN: Tambahkan await karena ini adalah operasi async
-    await _notifikasiServis.batalSemuaNotifikasi();
+    await _notifikasiServis.batalkanSemuaNotifikasi();
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1454,7 +1457,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/kategori/enum/tipe_kategori.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
-import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
+import 'package:wifi/fitur/notifikasi/model/notifikasi_model.dart';
 import 'package:wifi/fitur/paket/core/perhitungan_paket.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
@@ -3848,7 +3851,7 @@ class PelangganAktifOpFirebase extends BaseOpFirebase {
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
@@ -4069,11 +4072,11 @@ class PelangganAktifOpSqlite {
       );
       final customerName = pelanggan?.nama ?? 'Tanpa Nama';
 
-      await _layananNotifikasi.batalNotifikasi(pelangganAktif.id.hashCode);
-      await _layananNotifikasi.batalNotifikasi(
+      await _layananNotifikasi.batalkanNotifikasi(pelangganAktif.id.hashCode);
+      await _layananNotifikasi.batalkanNotifikasi(
         (pelangganAktif.id.hashCode + 1),
       );
-      await _layananNotifikasi.batalNotifikasi(
+      await _layananNotifikasi.batalkanNotifikasi(
         (pelangganAktif.id.hashCode + 2),
       );
       Log.info(
@@ -4184,9 +4187,9 @@ class PelangganAktifOpSqlite {
           whereArgs: [id],
         );
 
-        await _layananNotifikasi.batalNotifikasi(id.hashCode);
-        await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
-        await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
+        await _layananNotifikasi.batalkanNotifikasi(id.hashCode);
+        await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 1));
+        await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 2));
 
         Log.info('Notifikasi telah di batalkan pada fungsi softDelete');
       }, dariServer: dariServer);
@@ -4323,9 +4326,9 @@ class PelangganAktifOpSqlite {
         );
 
         for (final id in idsToArchive) {
-          await _layananNotifikasi.batalNotifikasi(id.hashCode);
-          await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
-          await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
+          await _layananNotifikasi.batalkanNotifikasi(id.hashCode);
+          await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 1));
+          await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 2));
         }
       }, dariServer: dariServer);
 
@@ -4365,9 +4368,9 @@ class PelangganAktifOpSqlite {
         );
 
         for (final id in dataUntukDiarsip) {
-          await _layananNotifikasi.batalNotifikasi(id.hashCode);
-          await _layananNotifikasi.batalNotifikasi((id.hashCode + 1));
-          await _layananNotifikasi.batalNotifikasi((id.hashCode + 2));
+          await _layananNotifikasi.batalkanNotifikasi(id.hashCode);
+          await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 1));
+          await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 2));
         }
       }, dariServer: dariServer);
 
@@ -4892,7 +4895,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 class InfoApkPageUser extends StatefulWidget {
   const InfoApkPageUser({super.key});
@@ -4911,20 +4916,25 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
   }
 
   Future<void> _initPackageInfo() async {
-    final infoPerangkat = await PackageInfo.fromPlatform();
-    if (mounted) {
-      setState(() {
-        _versi = infoPerangkat.version.split('-').first;
-      });
+    try {
+      final infoPerangkat = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() {
+          _versi = infoPerangkat.version.split('-').first;
+        });
+      }
+    } on Exception catch (e, st) {
+      Log.error('Gagal mengambil info package', e: e, s: st);
+      if (mounted) {
+        ToastUtil.error(context, 'Gagal memuat versi aplikasi');
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Info Aplikasi'),
-      ),
+      appBar: AppBar(title: const Text('Info Aplikasi')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -4933,12 +4943,14 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
             children: [
               ElevatedButton(
                 onPressed: () {
-                  unawaited(Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const HalamanTes(),
+                  unawaited(
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HalamanTes(),
+                      ),
                     ),
-                  ));
+                  );
                 },
                 child: const Text('Pergi ke Detail'),
               ),
@@ -4950,18 +4962,12 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
               ),
               const Text(
                 'Aplikasi Pelanggan',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               gapH8,
               Text(
                 'Versi $_versi',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
               gapH24,
               const CircleAvatar(
@@ -4971,10 +4977,7 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
               gapH24,
               const Text(
                 'Dibuat dengan Flutter',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],
           ),
@@ -6444,8 +6447,8 @@ final sqlitePointsDataSourceProvider = Provider<SQLitePointsDataSource>((ref) {
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/fitur/notfikasi/enum/tipe_notifikasi_enum.dart';
-import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
+import 'package:wifi/fitur/notifikasi/enum/tipe_notifikasi_enum.dart';
+import 'package:wifi/fitur/notifikasi/model/notifikasi_model.dart';
 import 'package:wifi/fitur/order/enum/status_order_enum.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
@@ -11656,51 +11659,58 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     BuildContext context,
     OrderModel order,
     WidgetRef ref,
-  ) {
+  ) async {
     Log.info('_ubahStatus dipanggil untuk orderId: ${order.id}');
-    return showDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return Dialog(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _tombolOpsiUbahStatus(
-                  pageContext: context,
-                  dialogContext: dialogContext,
-                  label: StatusOrderEnum.selesai.displayName,
-                  order: order,
-                  status: StatusOrderEnum.selesai,
-                ),
-                _tombolOpsiUbahStatus(
-                  pageContext: context,
-                  dialogContext: dialogContext,
-                  label: StatusOrderEnum.baru.displayName,
-                  order: order,
-                  status: StatusOrderEnum.baru,
-                ),
-                _tombolOpsiUbahStatus(
-                  pageContext: context,
-                  dialogContext: dialogContext,
-                  label: StatusOrderEnum.diproses.displayName,
-                  order: order,
-                  status: StatusOrderEnum.diproses,
-                ),
-                _tombolOpsiUbahStatus(
-                  pageContext: context,
-                  dialogContext: dialogContext,
-                  label: StatusOrderEnum.ditolak.displayName,
-                  order: order,
-                  status: StatusOrderEnum.ditolak,
-                ),
-              ],
+    try {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) {
+          return Dialog(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _tombolOpsiUbahStatus(
+                    pageContext: context,
+                    dialogContext: dialogContext,
+                    label: StatusOrderEnum.selesai.displayName,
+                    order: order,
+                    status: StatusOrderEnum.selesai,
+                  ),
+                  _tombolOpsiUbahStatus(
+                    pageContext: context,
+                    dialogContext: dialogContext,
+                    label: StatusOrderEnum.baru.displayName,
+                    order: order,
+                    status: StatusOrderEnum.baru,
+                  ),
+                  _tombolOpsiUbahStatus(
+                    pageContext: context,
+                    dialogContext: dialogContext,
+                    label: StatusOrderEnum.diproses.displayName,
+                    order: order,
+                    status: StatusOrderEnum.diproses,
+                  ),
+                  _tombolOpsiUbahStatus(
+                    pageContext: context,
+                    dialogContext: dialogContext,
+                    label: StatusOrderEnum.ditolak.displayName,
+                    order: order,
+                    status: StatusOrderEnum.ditolak,
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    } on Exception catch (e, s) {
+      Log.error('Gagal menampilkan dialog ubah status', e: e, s: s);
+      if (context.mounted) {
+        ToastUtil.error(context, 'Gagal membuka dialog');
+      }
+    }
   }
 
   Future<bool?> _showDialog(BuildContext context, OrderModel order) {
@@ -19375,7 +19385,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Colors.red.withAlpha(100)),
+                        side: BorderSide(color: Colors.red.withAlpha(77)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -23850,7 +23860,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -24017,7 +24027,7 @@ class _FormRiwayatAktivasiState extends ConsumerState<FormRiwayatAktivasi> {
       Log.info(
         'Membatalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi karena status tidak lagi LUNAS.',
       );
-      await layananNotifikasi.batalNotifikasi(idNotifikasi);
+      await layananNotifikasi.batalkanNotifikasi(idNotifikasi);
     }
   }
 
@@ -25476,7 +25486,7 @@ import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 import 'package:wifi/fitur/kategori/operasi/sub_kategori_op_sqlite.dart';
-import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_sqlite.dart';
+import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_sqlite.dart';
 import 'package:wifi/fitur/order/operasi/order_op_sqlite.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
@@ -34012,7 +34022,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/notfikasi/pengingat_paket_belum_lunas.dart';
+import 'package:wifi/fitur/notifikasi/pengingat_paket_belum_lunas.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:workmanager/workmanager.dart';
@@ -34300,1640 +34310,6 @@ Future<void> alarmCallback() async {
     container.dispose();
   }
   Log.info('ALARM SELESAI: Proses pengecekan langganan kedaluwarsa selesai.');
-}
-
-
-// File: lib/fitur/notfikasi/layanan_notifikasi.dart
-// path: lib/fitur/notfikasi/layanan_notifikasi.dart
-
-import 'dart:async';
-import 'dart:io';
-import 'dart:math';
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
-import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
-import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart';
-import 'package:wifi/shared/debug/log.dart';
-
-@pragma('vm:entry-point')
-void onDidReceiveBackgroundNotificationResponse(
-  final NotificationResponse response,
-) {
-  final String? payload = response.payload;
-  if (response.payload != null) {
-    debugPrint('notification payload: $payload');
-  }
-  debugPrint('Notifikasi background di-tap. Payload: ${response.payload}');
-}
-
-class LayananNotifikasi {
-  static LayananNotifikasi? _instance;
-  factory LayananNotifikasi() {
-    if (_instance == null) {
-      Log.info('Membuat instance baru untuk NotifikasiServis (Singleton).');
-      _instance = LayananNotifikasi._internal();
-    } else {
-      Log.info('Menggunakan instance NotifikasiServis yang sudah ada.');
-    }
-    return _instance!;
-  }
-  final FlutterLocalNotificationsPlugin plugin;
-  final Random _random = Random();
-  AndroidNotificationChannel? channelNotifikasiPenting;
-  static bool _zonaWaktuTelahDiinisialisasi = false;
-  final Set<String> _idNotifikasiTampil = {};
-  StreamSubscription<List<NotifikasiModel>>? _langgananNotifikasiFirebase;
-  LayananNotifikasi._internal() : plugin = FlutterLocalNotificationsPlugin() {
-    Log.info('Konstruktor internal NotifikasiServis dipanggil.');
-  }
-
-  @visibleForTesting
-  LayananNotifikasi.testing(this.plugin);
-
-  Future<void> _inisialisasiZonaWaktu() async {
-    Log.info('Memeriksa status inisialisasi zona waktu.');
-    if (_zonaWaktuTelahDiinisialisasi) {
-      Log.info(
-        'Inisialisasi zona waktu dilewati karena sudah berhasil dilakukan sebelumnya.',
-      );
-      return;
-    }
-    try {
-      Log.info('Memulai inisialisasi data zona waktu...');
-      tz.initializeTimeZones();
-      String zonaWaktuLokal =
-          (await FlutterTimezone.getLocalTimezone()).identifier;
-      Log.info('Zona waktu terdeteksi dari perangkat: $zonaWaktuLokal');
-      if (zonaWaktuLokal == 'GMT') {
-        Log.warning(
-          'Zona waktu "GMT" terdeteksi (kemungkinan dari emulator). Menggunakan "Asia/Jakarta" sebagai fallback.',
-        );
-        zonaWaktuLokal = 'Asia/Jakarta';
-      }
-      tz.Location lokasi;
-      try {
-        Log.info('Mencari lokasi untuk zona waktu: $zonaWaktuLokal');
-        lokasi = tz.getLocation(zonaWaktuLokal);
-      } on tz.LocationNotFoundException catch (e) {
-        Log.error(
-          'Lokasi untuk zona waktu "$zonaWaktuLokal" tidak ditemukan. Menggunakan "UTC" sebagai fallback utama. Detail: $e',
-        );
-        lokasi = tz.UTC;
-      }
-      tz.setLocalLocation(lokasi);
-      Log.info(
-        'Zona waktu lokal berhasil diatur ke: ${lokasi.name}. Inisialisasi selesai.',
-      );
-      _zonaWaktuTelahDiinisialisasi = true;
-    } on Exception catch (e, st) {
-      Log.error(
-        'Gagal total saat menginisialisasi zona waktu lokal.',
-        e: e,
-        s: st,
-      );
-    }
-  }
-
-  Future<void> inisialisasiNotifikasi({required String iconName}) async {
-    Log.info('Memulai proses inisialisasi NotifikasiServis...');
-    await _inisialisasiZonaWaktu();
-    Log.info('inisialisai');
-    await _setupAndroidChannel();
-    final android = AndroidInitializationSettings(iconName);
-    const ios = DarwinInitializationSettings();
-    final settings = InitializationSettings(android: android, iOS: ios);
-    try {
-      Log.info('Menginisialisasi plugin flutter_local_notifications.');
-      await plugin.initialize(
-        settings: settings,
-        onDidReceiveNotificationResponse: (response) {
-          Log.info(
-            'Notifikasi foreground di-tap. Payload: ${response.payload}',
-          );
-        },
-        onDidReceiveBackgroundNotificationResponse:
-            onDidReceiveBackgroundNotificationResponse,
-      );
-      Log.info('Layanan Notifikasi berhasil diinisialisasi secara lengkap.');
-    } on Exception catch (e, s) {
-      Log.error('Gagal melakukan inisialisasi plugin notifikasi', e: e, s: s);
-    }
-  }
-
-  Future<void> _setupAndroidChannel() async {
-    Log.info('Memulai pengaturan channel notifikasi Android.');
-    channelNotifikasiPenting = const AndroidNotificationChannel(
-      'notifikasi_penting_wifi_app',
-      'Notifikasi Penting',
-      description:
-          'Channel ini digunakan untuk notifikasi penting dari aplikasi.',
-      importance: Importance.max,
-    );
-    Log.info(
-      'Objek AndroidNotificationChannel dibuat: ${channelNotifikasiPenting!.id}',
-    );
-
-    final androidPlugin = plugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
-    await androidPlugin?.requestNotificationsPermission();
-    await androidPlugin?.requestExactAlarmsPermission();
-    if (androidPlugin == null) {
-      Log.warning(
-        'Gagal mendapatkan implementasi plugin Android. Tidak dapat membuat channel.',
-      );
-      return;
-    }
-    try {
-      await androidPlugin.createNotificationChannel(channelNotifikasiPenting!);
-      Log.info(
-        'Android Notification Channel "Notifikasi Penting" berhasil dibuat.',
-      );
-    } on Exception catch (e, s) {
-      Log.error('Gagal membuat Android Notification Channel', e: e, s: s);
-    }
-  }
-
-  void pantauNotifUmum(NotifikasiOpFirebase notifikasiOp) {
-    Log.info('Memulai pemantauan notifikasi umum dari Firebase...');
-    unawaited(_langgananNotifikasiFirebase?.cancel());
-    _langgananNotifikasiFirebase = notifikasiOp.ambilKhususAdmin().listen(
-      (listNotifikasi) async {
-        for (final notifikasi in listNotifikasi) {
-          if (!_idNotifikasiTampil.contains(notifikasi.id)) {
-            await tampilkanNotifikasiLangsung(
-              title: notifikasi.judul,
-              body: notifikasi.deskripsi,
-              payload: 'notifikasi_id_${notifikasi.id}',
-            );
-            _idNotifikasiTampil.add(notifikasi.id);
-            await notifikasiOp.softDeleteNotifikasi(notifikasi.id);
-          }
-        }
-      },
-      onError: (Object e, StackTrace st) {
-        Log.error('Error pada stream notifikasi umum', e: e, s: st);
-      },
-    );
-  }
-
-  void pantauNotifUser(NotifikasiOpFirebase notifikasiOp, String userId) {
-    Log.info('Memulai pemantauan notifikasi dari Firebase...');
-    unawaited(_langgananNotifikasiFirebase?.cancel());
-    _langgananNotifikasiFirebase = notifikasiOp
-        .getByUserId(userId)
-        .listen(
-          (listNotifikasi) async {
-            Log.info(
-              'Menerima ${listNotifikasi.length} notifikasi aktif dari stream.',
-            );
-            for (final notifikasi in listNotifikasi) {
-              if (!_idNotifikasiTampil.contains(notifikasi.id)) {
-                Log.info(
-                  'Menampilkan notifikasi baru: ${notifikasi.id} - ${notifikasi.judul}',
-                );
-                await tampilkanNotifikasiLangsung(
-                  title: notifikasi.judul,
-                  body: notifikasi.deskripsi,
-                  payload: 'notifikasi_id_${notifikasi.id}',
-                );
-                _idNotifikasiTampil.add(notifikasi.id);
-                await notifikasiOp.softDeleteNotifikasi(notifikasi.id);
-              }
-            }
-          },
-          onError: (Object e, StackTrace st) {
-            Log.error('Error pada stream notifikasi Firebase', e: e, s: st);
-          },
-          onDone: () {
-            Log.warning('Stream notifikasi Firebase selesai.');
-          },
-        );
-  }
-
-  void hentikanPemantauanNotifikasi() {
-    Log.info('Menghentikan pemantauan notifikasi dari Firebase.');
-    unawaited(_langgananNotifikasiFirebase?.cancel());
-    _idNotifikasiTampil.clear();
-  }
-
-  Future<void> mintaIzin() async {
-    Log.info('Meminta izin notifikasi dari pengguna...');
-    try {
-      if (kIsWeb) {
-        Log.warning('Permintaan izin tidak berlaku untuk platform web.');
-        return;
-      }
-      final AndroidFlutterLocalNotificationsPlugin? androidPlugin = plugin
-          .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin
-          >();
-      if (androidPlugin != null) {
-        final bool? granted = await androidPlugin
-            .requestNotificationsPermission();
-        Log.info(
-          'Izin notifikasi diberikan oleh pengguna: ${granted ?? false}',
-        );
-      } else {
-        Log.warning(
-          'Gagal mendapatkan implementasi plugin Android. Tidak dapat meminta izin.',
-        );
-      }
-    } on Exception catch (e, s) {
-      Log.error('Gagal meminta izin notifikasi', e: e, s: s);
-    }
-  }
-
-  Future<NotificationAppLaunchDetails?> getDetailPeluncuranNotifikasi() async {
-    Log.info('Memeriksa apakah aplikasi diluncurkan melalui notifikasi...');
-    final details = await plugin.getNotificationAppLaunchDetails();
-
-    if (details != null && details.didNotificationLaunchApp) {
-      Log.info(
-        'Aplikasi diluncurkan dari notifikasi dengan ID: ${details.notificationResponse?.id}',
-      );
-    } else {
-      Log.info('Aplikasi diluncurkan secara normal (bukan dari notifikasi).');
-    }
-    return details;
-  }
-
-  Future<void> tampilkanNotifikasiLangsung({
-    required final String title,
-    required final String body,
-    final String? payload,
-  }) async {
-    Log.info(
-      'Memeriksa channel notifikasi sebelum menampilkan notifikasi langsung.',
-    );
-    if (channelNotifikasiPenting == null) {
-      Log.error('Gagal menampilkan notifikasi: Channel belum diinisialisasi.');
-      return;
-    }
-    Log.info('Channel notifikasi ditemukan: ${channelNotifikasiPenting!.id}');
-
-    final int id = payload?.hashCode ?? _random.nextInt(pow(2, 31).toInt());
-    Log.info('Mengirim notifikasi langsung (ID: $id, Judul: $title)');
-    final androidDetails = AndroidNotificationDetails(
-      channelNotifikasiPenting!.id,
-      channelNotifikasiPenting!.name,
-      channelDescription: channelNotifikasiPenting!.description,
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-    final notificationDetails = NotificationDetails(android: androidDetails);
-    try {
-      await plugin.show(
-        id: id,
-        title: title,
-        body: body,
-        notificationDetails: notificationDetails,
-        payload: payload,
-      );
-      Log.info('Notifikasi langsung berhasil ditampilkan di layar.');
-    } on Exception catch (e, s) {
-      Log.error('Gagal menampilkan notifikasi langsung', e: e, s: s);
-    }
-  }
-
-  Future<void> jadwalNotifikasi({
-    required final int id,
-    required final String judul,
-    required final String pesan,
-    required final DateTime jadwal,
-    final String? payload,
-  }) async {
-    Log.info('Memeriksa channel notifikasi sebelum menjadwalkan notifikasi.');
-    if (channelNotifikasiPenting == null) {
-      Log.error('Gagal menjadwalkan notifikasi: Channel belum diinisialisasi.');
-      return;
-    }
-    Log.info('Channel notifikasi ditemukan: ${channelNotifikasiPenting!.id}');
-    final pending = await plugin.pendingNotificationRequests();
-    Log.info('=== DAFTAR NOTIFIKASI TERJADWAL (${pending.length}) ===');
-    for (var notif in pending) {
-      Log.info('ID: ${notif.id}, Title: ${notif.title}, Scheduled: $notif');
-    }
-
-    final bool hasPermission = await pastikanIzinExactAlarm();
-    if (!hasPermission) {
-      Log.error(
-        'Gagal menjadwalkan notifikasi karena izin exact alarm ditolak.',
-      );
-      return;
-    }
-    Log.info('Merencanakan notifikasi terjadwal (ID: $id) pada waktu: $jadwal');
-    final androidDetails = AndroidNotificationDetails(
-      channelNotifikasiPenting!.id,
-      channelNotifikasiPenting!.name,
-      channelDescription: channelNotifikasiPenting!.description,
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-    final notificationDetails = NotificationDetails(android: androidDetails);
-    try {
-      final tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(
-        jadwal,
-        tz.local,
-      );
-      Log.info(
-        'Waktu notifikasi dikonversi ke zona waktu lokal (${tz.local.name}): $scheduledTZDate',
-      );
-      await plugin.zonedSchedule(
-        id: id,
-        title: judul,
-        body: pesan,
-        scheduledDate: scheduledTZDate,
-        notificationDetails: notificationDetails,
-        payload: payload,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      );
-      Log.info('Notifikasi terjadwal berhasil didaftarkan ke sistem.');
-    } on Exception catch (e, s) {
-      Log.error('Gagal mendaftarkan jadwal notifikasi', e: e, s: s);
-    }
-  }
-
-  Future<void> perbaruiJadwalNotifikasi({
-    required final int id,
-    required final String title,
-    required final String body,
-    required final DateTime jadwal,
-    final String? payload,
-  }) async {
-    Log.info('Memulai pembaruan jadwal notifikasi untuk ID: $id');
-
-    await batalNotifikasi(id);
-    await jadwalNotifikasi(
-      id: id,
-      judul: title,
-      pesan: body,
-      jadwal: jadwal,
-      payload: payload,
-    );
-    Log.info('Pembaruan jadwal selesai dilakukan untuk ID: $id.');
-  }
-
-  Future<void> batalNotifikasi(int id) async {
-    Log.info('Membatalkan notifikasi aktif/terjadwal dengan ID: $id');
-    try {
-      await plugin.cancel(id: id);
-      Log.info('Perintah pembatalan untuk notifikasi ID: $id telah dikirim.');
-    } on Exception catch (e, s) {
-      Log.error('Gagal membatalkan notifikasi ID: $id', e: e, s: s);
-    }
-  }
-
-  Future<void> batalSemuaNotifikasi() async {
-    Log.info(
-      'Membersihkan semua notifikasi yang ada (aktif maupun terjadwal)...',
-    );
-    try {
-      await plugin.cancelAll();
-      Log.info('Seluruh notifikasi berhasil dibersihkan.');
-    } on Exception catch (e, s) {
-      Log.error(
-        'Terjadi kesalahan saat membersihkan semua notifikasi',
-        e: e,
-        s: s,
-      );
-    }
-  }
-
-  Future<bool> pastikanIzinExactAlarm() async {
-    if (!Platform.isAndroid) return true;
-    Log.info('Memeriksa izin SCHEDULE_EXACT_ALARM.');
-    final status = await Permission.scheduleExactAlarm.status;
-    Log.info('Status izin SCHEDULE_EXACT_ALARM saat ini: $status');
-    if (status.isGranted) {
-      Log.info('Izin SCHEDULE_EXACT_ALARM sudah diberikan.');
-      return true;
-    } else {
-      Log.warning('Izin SCHEDULE_EXACT_ALARM belum diberikan. Meminta izin...');
-      final newStatus = await Permission.scheduleExactAlarm.request();
-      Log.info('Status izin setelah meminta: $newStatus');
-      if (newStatus.isGranted) {
-        Log.info('Izin SCHEDULE_EXACT_ALARM berhasil didapatkan.');
-        return true;
-      } else {
-        Log.error('Izin SCHEDULE_EXACT_ALARM ditolak oleh pengguna.');
-        return false;
-      }
-    }
-  }
-}
-
-
-// File: lib/fitur/notfikasi/pengingat_paket_belum_lunas.dart
-// path lib/fitur/notfikasi/pengingat_paket_belum_lunas.dart
-
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:wifi/fitur/app_role/role_util.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/user/providers/user_provider.dart'
-    hide layananNotifikasiProvider;
-
-const String waktuTerkahirNotif = 'last_notif_date';
-
-/// Service untuk mengecek paket belum lunas dan menampilkan notifikasi pengingat.
-class PengingatService {
-  final LayananNotifikasi _notifServis;
-  final Ref _ref;
-
-  PengingatService(this._ref, this._notifServis);
-
-  /// Mengecek transaksi dengan status belum lunas dan menampilkan notifikasi
-  /// jika ada dan belum pernah ditampilkan hari ini.
-  Future<void> cekDanTampilkanPengingatTagihan() async {
-    Log.info('[PengingatTagihan] Memulai pengecekan paket belum lunas.');
-
-    try {
-      final role = _ref.read(appRoleProvider);
-      if (role == AppRole.admin) {
-        return;
-      }
-      final prefs = await _ref.read(sharedPreferencesProvider.future);
-      final hariIni = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      final terakhirNotif = prefs.getString(waktuTerkahirNotif) ?? '';
-      if (terakhirNotif == hariIni) {
-        Log.info(
-          '[PengingatTagihan] Notifikasi sudah tampil hari ini, dilewati.',
-        );
-        return;
-      }
-      final userId = await _ref.read(userIdProvider.future);
-      if (userId == null) {
-        return;
-      }
-      final transaksiOpFirebase = _ref.read(transaksiOpFirebaseProvider);
-      final daftarBelumLunas = await transaksiOpFirebase
-          .ambilBelumLunasBerdasarkanIdPelanggan(userId);
-      if (daftarBelumLunas.isNotEmpty) {
-        Log.info(
-          '[PengingatTagihan] Ditemukan ${daftarBelumLunas.length} paket belum lunas.',
-        );
-        await _notifServis.tampilkanNotifikasiLangsung(
-          title: 'Pengingat Tagihan',
-          body:
-              'Anda memiliki ${daftarBelumLunas.length} paket yang belum lunas. Segera lakukan pembayaran.',
-        );
-        await prefs.setString(waktuTerkahirNotif, hariIni);
-        Log.info('[PengingatTagihan] Notifikasi berhasil ditampilkan.');
-      } else {
-        Log.info('[PengingatTagihan] Tidak ada paket belum lunas.');
-      }
-    } on Exception catch (e, st) {
-      Log.error(
-        '[PengingatTagihan] Gagal mengecek atau menampilkan notifikasi.',
-        e: e,
-        s: st,
-      );
-    }
-  }
-}
-
-/// Provider untuk service pengingat.
-final pengingatServiceProvider = Provider<PengingatService>((ref) {
-  final notifServis = ref.watch(layananNotifikasiProvider);
-  return PengingatService(ref, notifServis);
-});
-
-
-// File: lib/fitur/notfikasi/penjadwal_notifikasi.dart
-// path: lib/fitur/notfikasi/penjadwal_notifikasi.dart
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
-
-class PenjadwalNotifikasi {
-  static Future<void> aturNotifikasiLangganan(
-    LayananNotifikasi layananNotifikasi,
-    final String userId, {
-    @visibleForTesting TransaksiOpFirebase? transaksiOp,
-  }) async {
-    Log.info(
-      'Memulai pengecekan untuk penjadwalan notifikasi untuk pengguna: $userId',
-    );
-    final idNotifikasiAkhir = userId.hashCode;
-    final idNotifikasiTengah = '${userId}_midpoint'.hashCode;
-
-    // ID untuk AlarmManager harus unik per alarm.
-    final int idAlarm = idNotifikasiAkhir;
-
-    try {
-      final transaksiOpFirebase = transaksiOp ?? TransaksiOpFirebase();
-
-      // Dapatkan transaksi lunas terbaru yang akan datang dari Firebase.
-      final transaksi = await transaksiOpFirebase
-          .ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(userId);
-
-      // Logika utama penjadwalan notifikasi
-      if (transaksi != null &&
-          transaksi.tanggalMulai != null &&
-          transaksi.tanggalBerakhir != null &&
-          transaksi.tanggalBerakhir!.isAfter(DateTime.now())) {
-        // -- Penjadwalan Notifikasi & Alarm Akhir Periode --
-        final waktuJadwal = transaksi.tanggalBerakhir!;
-        Log.info(
-          'Langganan aktif ditemukan (ID: ${transaksi.id}). Menjadwalkan notifikasi & alarm akhir pada $waktuJadwal',
-        );
-
-        // 1. Jadwalkan Notifikasi Visual
-        await layananNotifikasi.perbaruiJadwalNotifikasi(
-          id: idNotifikasiAkhir,
-          title: 'Langganan Telah Berakhir',
-          body:
-              'Masa aktif paket Anda telah berakhir. Perpanjang sekarang untuk terhubung lagi.',
-          jadwal: waktuJadwal,
-          payload: 'subscription_expired',
-        );
-
-        // 2. Jadwalkan Alarm untuk Eksekusi Background
-        await AndroidAlarmManager.oneShotAt(
-          waktuJadwal,
-          idAlarm,
-          _callbackAlarm, // Fungsi top-level
-          exact: true, // Memastikan eksekusi tepat waktu
-          wakeup: true, // Membangunkan perangkat jika dalam mode sleep
-        );
-        Log.info(
-          'Alarm untuk ID $idAlarm berhasil dijadwalkan pada $waktuJadwal',
-        );
-
-        // -- Logika untuk Notifikasi Tengah Periode (tidak berubah) --
-        final totalDurasi = transaksi.tanggalBerakhir!.difference(
-          transaksi.tanggalMulai!,
-        );
-        final durasiTengah = totalDurasi.inSeconds ~/ 2;
-        final tanggalTengah = transaksi.tanggalMulai!.add(
-          Duration(seconds: durasiTengah),
-        );
-
-        if (tanggalTengah.isAfter(DateTime.now())) {
-          Log.info(
-            'Menjadwalkan notifikasi tengah periode pada $tanggalTengah',
-          );
-          await layananNotifikasi.perbaruiJadwalNotifikasi(
-            id: idNotifikasiTengah,
-            title: 'Status Langganan Anda',
-            body:
-                'Masa aktif paket Anda sudah berjalan 50%. Terima kasih telah menggunakan layanan kami.',
-            jadwal: tanggalTengah,
-            payload: 'subscription_midpoint',
-          );
-        } else {
-          Log.info(
-            'Tanggal tengah periode sudah lewat. Membatalkan notifikasi jika ada.',
-          );
-          await layananNotifikasi.batalNotifikasi(idNotifikasiTengah);
-        }
-      } else {
-        // Jika tidak ada langganan aktif, batalkan semua notifikasi DAN alarm.
-        Log.info(
-          'Tidak ada langganan aktif. Membatalkan semua notifikasi dan alarm untuk pengguna ini.',
-        );
-        await layananNotifikasi.batalNotifikasi(idNotifikasiAkhir);
-        await layananNotifikasi.batalNotifikasi(idNotifikasiTengah);
-        await AndroidAlarmManager.cancel(idAlarm);
-        Log.info('Alarm dengan ID $idAlarm juga dibatalkan.');
-      }
-    } on Exception catch (e, st) {
-      Log.error('Gagal mengatur notifikasi dari Firebase', e: e, s: st);
-      // Jika terjadi error, coba batalkan semua notifikasi dan alarm untuk kebersihan.
-      await layananNotifikasi.batalNotifikasi(idNotifikasiAkhir);
-      await layananNotifikasi.batalNotifikasi(idNotifikasiTengah);
-      await AndroidAlarmManager.cancel(idAlarm);
-      Log.info('Alarm dengan ID $idAlarm juga dibatalkan karena error.');
-    }
-  }
-}
-
-@pragma('vm:entry-point')
-Future<void> _callbackAlarm() async {
-  try {
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
-
-    final container = ProviderContainer();
-    try {
-      final service = container.read(arsipLanggananKadaluarsaServiceProvider);
-      await service.prosesArsipLanggananKadaluarsa();
-    } catch (e, st) {
-      Log.error('Gagal menjalankan callback alarm', e: e, s: st);
-    } finally {
-      container.dispose();
-    }
-  } catch (e, st) {
-    Log.error('Gagal inisialisasi callback alarm', e: e, s: st);
-  }
-}
-
-
-// File: lib/fitur/notfikasi/operasi/notifikasi_op_sqlite.dart
-// path lib/fitur/notfikasi/operasi/notifikasi_op_sqlite.dart
-// path: lib/fitur/notfikasi/operasi/notifikasi_op_sqlite.dart
-
-import 'package:sqflite/sqflite.dart';
-import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
-import 'package:wifi/shared/constant/nama_kolom.dart';
-import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
-
-/// Kelas untuk operasi terkait data notifikasi di database lokal.
-class NotifikasiOpSqlite {
-  final SqliteDatabase sqliteDb;
-  final BaseOpSqlite _baseOpSqlite;
-  final String _namaTabel = NamaTabel.notifikasi;
-  final DateTime _nowUtc = DateTime.now().toUtc();
-
-  /// Konstruktor dengan injeksi dependensi.
-  NotifikasiOpSqlite({
-    required this.sqliteDb,
-    required BaseOpSqlite baseOpSqlite,
-  }) : _baseOpSqlite = baseOpSqlite {
-    Log.info('NotifikasiOpSqlite diinisialisasi - Tabel: $_namaTabel');
-  }
-
-  // =========================
-  // OPERASI TULIS (WRITE)
-  // =========================
-
-  /// Menambahkan notifikasi baru ke database.
-  Future<void> tambahNotifikasi(
-    NotifikasiModel notifikasi, {
-    bool dariServer = false,
-  }) async {
-    Log.info('Menambahkan notifikasi baru - ID: ${notifikasi.id}');
-    try {
-      final data = notifikasi.copyWith(diperbaruiPada: _nowUtc).toSqlite();
-      await _baseOpSqlite.sisipkan(_namaTabel, data, dariServer: dariServer);
-      Log.info('Notifikasi berhasil ditambahkan - ID: ${notifikasi.id}');
-    } catch (e, st) {
-      Log.error(
-        'Gagal menambahkan notifikasi - ID: ${notifikasi.id}',
-        e: e,
-        s: st,
-      );
-      rethrow;
-    }
-  }
-
-  /// Memperbarui notifikasi yang sudah ada di database.
-  Future<void> perbaruiNotifikasi(
-    NotifikasiModel notifikasi, {
-    bool dariServer = false,
-  }) async {
-    Log.info('Memperbarui notifikasi - ID: ${notifikasi.id}');
-    try {
-      final data = notifikasi.copyWith(diperbaruiPada: _nowUtc).toSqlite();
-      await _baseOpSqlite.update(
-        _namaTabel,
-        data,
-        notifikasi.id,
-        dariServer: dariServer,
-      );
-      Log.info('Notifikasi berhasil diperbarui - ID: ${notifikasi.id}');
-    } catch (e, st) {
-      Log.error(
-        'Gagal memperbarui notifikasi - ID: ${notifikasi.id}',
-        e: e,
-        s: st,
-      );
-      rethrow;
-    }
-  }
-
-  /// Menandai notifikasi sebagai sudah dibaca.
-  Future<void> tandaiSudahDibaca(String id, {bool dariServer = false}) async {
-    Log.info('Menandai notifikasi sudah dibaca - ID: $id');
-    try {
-      final data = {
-        NamaKolom.setatusDibaca: 1,
-        NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
-      };
-      await _baseOpSqlite.update(_namaTabel, data, id, dariServer: dariServer);
-      Log.info('Notifikasi berhasil ditandai sudah dibaca - ID: $id');
-    } catch (e, st) {
-      Log.error(
-        'Gagal menandai notifikasi sudah dibaca - ID: $id',
-        e: e,
-        s: st,
-      );
-      rethrow;
-    }
-  }
-
-  /// Melakukan soft delete pada notifikasi berdasarkan ID.
-  Future<void> softDelete(String id, {bool dariServer = false}) async {
-    Log.info('Memulai soft delete notifikasi - ID: $id');
-    try {
-      await _baseOpSqlite.softDelete(_namaTabel, id, dariServer: dariServer);
-      Log.info('Soft delete notifikasi berhasil - ID: $id');
-    } catch (e, st) {
-      Log.error('Gagal soft delete notifikasi - ID: $id', e: e, s: st);
-      rethrow;
-    }
-  }
-
-  /// Melakukan soft delete pada semua notifikasi.
-  Future<int> softDeleteAll({bool dariServer = false}) async {
-    Log.info('Memulai soft delete semua notifikasi');
-    try {
-      final count = await _baseOpSqlite.softDeleteAll(
-        _namaTabel,
-        dariServer: dariServer,
-      );
-      Log.info('Soft delete semua notifikasi berhasil - Total: $count');
-      return count;
-    } catch (e, st) {
-      Log.error('Gagal soft delete semua notifikasi', e: e, s: st);
-      rethrow;
-    }
-  }
-
-  /// Menghapus notifikasi secara permanen dari database.
-  Future<void> hapusPermanen(String id, {bool dariServer = false}) async {
-    Log.warning('Menghapus notifikasi secara permanen - ID: $id');
-    try {
-      await _baseOpSqlite.delete(_namaTabel, id, dariServer: dariServer);
-      Log.info('Notifikasi berhasil dihapus permanen - ID: $id');
-    } catch (e, st) {
-      Log.error('Gagal menghapus permanen notifikasi - ID: $id', e: e, s: st);
-      rethrow;
-    }
-  }
-
-  /// Menyisipkan atau memperbarui beberapa notifikasi sekaligus (batch).
-  Future<void> sisipkanAtauPerbaruiBatch(
-    List<NotifikasiModel> daftarNotifikasi, {
-    bool dariServer = false,
-  }) async {
-    if (daftarNotifikasi.isEmpty) {
-      Log.info('Daftar notifikasi kosong, batch dibatalkan.');
-      return;
-    }
-
-    Log.info(
-      'Memulai batch insert/update untuk ${daftarNotifikasi.length} notifikasi',
-    );
-    try {
-      final data = daftarNotifikasi
-          .map((item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite())
-          .toList();
-      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
-        _namaTabel,
-        data,
-        dariServer: dariServer,
-      );
-      Log.info('Batch ${daftarNotifikasi.length} notifikasi berhasil diproses');
-    } catch (e, st) {
-      Log.error('Gagal memproses batch notifikasi', e: e, s: st);
-      rethrow;
-    }
-  }
-
-  // =========================
-  // OPERASI BACA (READ)
-  // =========================
-
-  /// Mengambil semua notifikasi dari database.
-  Future<List<NotifikasiModel>> ambilSemua({
-    bool tampilkanYangDiarsip = false,
-  }) async {
-    Log.info('Mengambil semua notifikasi dari tabel $_namaTabel');
-    try {
-      final db = await sqliteDb.database;
-      final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = 0';
-      final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
-        where: query,
-        orderBy: '${NamaKolom.tanggalTampil} DESC',
-      );
-      final hasil = List.generate(
-        maps.length,
-        (i) => NotifikasiModel.fromSqlite(maps[i]),
-      );
-      Log.info('Berhasil mengambil ${hasil.length} notifikasi');
-      return hasil;
-    } catch (e, st) {
-      Log.error('Gagal mengambil semua notifikasi', e: e, s: st);
-      rethrow;
-    }
-  }
-
-  /// Mengambil semua notifikasi yang aktif (belum dibaca dan belum dihapus).
-  Future<List<NotifikasiModel>> ambilNotifikasiAktif() async {
-    Log.info('Mengambil notifikasi aktif dari tabel $_namaTabel');
-    try {
-      final db = await sqliteDb.database;
-      final now = DateTime.now().millisecondsSinceEpoch;
-      final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
-        where:
-            '${NamaKolom.dihapus} = 0 AND ${NamaKolom.setatusDibaca} = 0 AND ${NamaKolom.tanggalTampil} <= ?',
-        whereArgs: [now],
-        orderBy: '${NamaKolom.tanggalTampil} DESC',
-      );
-      final hasil = List.generate(
-        maps.length,
-        (i) => NotifikasiModel.fromSqlite(maps[i]),
-      );
-      Log.info('Berhasil mengambil ${hasil.length} notifikasi aktif');
-      return hasil;
-    } catch (e, st) {
-      Log.error('Gagal mengambil notifikasi aktif', e: e, s: st);
-      rethrow;
-    }
-  }
-
-  /// Mengambil notifikasi berdasarkan ID pengguna.
-  Future<List<NotifikasiModel>> ambilBerdasarkanUserId(
-    String userId, {
-    bool tampilkanYangDiarsip = false,
-  }) async {
-    Log.info('Mengambil notifikasi untuk User ID: $userId');
-    try {
-      final db = await sqliteDb.database;
-      final query = tampilkanYangDiarsip
-          ? '${NamaKolom.userId} = ?'
-          : '${NamaKolom.userId} = ? AND ${NamaKolom.dihapus} = 0';
-      final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
-        where: query,
-        whereArgs: [userId],
-        orderBy: '${NamaKolom.tanggalTampil} DESC',
-      );
-      final hasil = List.generate(
-        maps.length,
-        (i) => NotifikasiModel.fromSqlite(maps[i]),
-      );
-      Log.info(
-        'Berhasil mengambil ${hasil.length} notifikasi untuk User $userId',
-      );
-      return hasil;
-    } catch (e, st) {
-      Log.error(
-        'Gagal mengambil notifikasi untuk User ID: $userId',
-        e: e,
-        s: st,
-      );
-      rethrow;
-    }
-  }
-
-  /// Mengambil notifikasi berdasarkan ID.
-  Future<NotifikasiModel?> ambilBerdasarkanId(String id) async {
-    Log.info('Mengambil notifikasi berdasarkan ID: $id');
-    try {
-      final db = await sqliteDb.database;
-      final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
-        where: '${NamaKolom.id} = ?',
-        whereArgs: [id],
-      );
-      if (maps.isNotEmpty) {
-        final hasil = NotifikasiModel.fromSqlite(maps.first);
-        Log.info('Notifikasi ditemukan - ID: $id');
-        return hasil;
-      }
-      Log.info('Notifikasi dengan ID: $id tidak ditemukan');
-      return null;
-    } catch (e, st) {
-      Log.error('Gagal mengambil notifikasi berdasarkan ID: $id', e: e, s: st);
-      rethrow;
-    }
-  }
-
-  /// Mengambil notifikasi berdasarkan ID tujuan (misal: ID transaksi).
-  Future<List<NotifikasiModel>> ambilBerdasarkanIdTujuan(
-    String idTujuan, {
-    bool tampilkanYangDiarsip = false,
-  }) async {
-    Log.info('Mengambil notifikasi untuk ID Tujuan: $idTujuan');
-    try {
-      final db = await sqliteDb.database;
-      final query = tampilkanYangDiarsip
-          ? '${NamaKolom.idTujuan} = ?'
-          : '${NamaKolom.idTujuan} = ? AND ${NamaKolom.dihapus} = 0';
-      final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
-        where: query,
-        whereArgs: [idTujuan],
-        orderBy: '${NamaKolom.tanggalTampil} DESC',
-      );
-      final hasil = List.generate(
-        maps.length,
-        (i) => NotifikasiModel.fromSqlite(maps[i]),
-      );
-      Log.info(
-        'Berhasil mengambil ${hasil.length} notifikasi untuk ID Tujuan $idTujuan',
-      );
-      return hasil;
-    } catch (e, st) {
-      Log.error(
-        'Gagal mengambil notifikasi untuk ID Tujuan: $idTujuan',
-        e: e,
-        s: st,
-      );
-      rethrow;
-    }
-  }
-
-  /// Menghapus notifikasi berdasarkan ID tujuan.
-  Future<void> hapusBerdasarkanIdTujuan(
-    String idTujuan, {
-    bool dariServer = false,
-  }) async {
-    Log.info('Menghapus notifikasi berdasarkan ID Tujuan: $idTujuan');
-    try {
-      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
-        await txn.delete(
-          _namaTabel,
-          where: '${NamaKolom.idTujuan} = ?',
-          whereArgs: [idTujuan],
-        );
-        Log.info('Notifikasi dengan ID Tujuan $idTujuan berhasil dihapus');
-      }, dariServer: dariServer);
-    } catch (e, st) {
-      Log.error(
-        'Gagal menghapus notifikasi berdasarkan ID Tujuan: $idTujuan',
-        e: e,
-        s: st,
-      );
-      rethrow;
-    }
-  }
-}
-
-
-// File: lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
-// path: lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:wifi/fitur/notfikasi/model/notifikasi_model.dart';
-import 'package:wifi/shared/constant/nama_kolom.dart';
-import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
-
-class NotifikasiOpFirebase {
-  final FirebaseFirestore _firestore;
-  final BaseOpFirebase _baseOp;
-  final String _koleksi = NamaTabel.notifikasi;
-
-  NotifikasiOpFirebase({
-    required FirebaseFirestore firestore,
-    required BaseOpFirebase baseOp,
-  }) : _firestore = firestore,
-       _baseOp = baseOp;
-
-  Stream<List<NotifikasiModel>> getNotifAktif() {
-    final now = DateTime.now();
-    return _firestore
-        .collection(_koleksi)
-        .where(NamaKolom.dihapus, isEqualTo: false)
-        .where(NamaKolom.setatusDibaca, isEqualTo: false)
-        .where(
-          NamaKolom.tanggalTampil,
-          isLessThanOrEqualTo: Timestamp.fromDate(now),
-        )
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            return NotifikasiModel.fromFirebase(doc.id, doc.data());
-          }).toList();
-        });
-  }
-
-  /// Mendapatkan stream notifikasi aktif untuk user tertentu (belum dibaca & belum dihapus)
-  Stream<List<NotifikasiModel>> getByUserId(String userId) {
-    return _firestore
-        .collection(_koleksi)
-        .where(NamaKolom.userId, isEqualTo: userId)
-        .where(NamaKolom.targetRole, isEqualTo: AppRole.user.name)
-        .where(NamaKolom.dihapus, isEqualTo: false)
-        .where(NamaKolom.setatusDibaca, isEqualTo: false)
-        .snapshots()
-        .map(
-          (snapshot) => snapshot.docs
-              .map((doc) => NotifikasiModel.fromFirebase(doc.id, doc.data()))
-              .toList(),
-        );
-  }
-
-  Stream<List<NotifikasiModel>> getById(String id) {
-    return _firestore.collection(_koleksi).doc(id).snapshots().map((snapshot) {
-      if (!snapshot.exists) return [];
-      final data = snapshot.data()!;
-      if (data[NamaKolom.dihapus] == true ||
-          data[NamaKolom.setatusDibaca] == true) {
-        return [];
-      }
-      return [NotifikasiModel.fromFirebase(snapshot.id, data)];
-    });
-  }
-
-  // TODO : tambahkan unit test
-  Stream<List<NotifikasiModel>> ambilKhususAdmin() {
-    final now = DateTime.now();
-    return _firestore
-        .collection(_koleksi)
-        .where(NamaKolom.targetRole, isEqualTo: AppRole.admin.name)
-        .where(NamaKolom.tipe, isEqualTo: TipeNotifikasiEnum.order.name)
-        .where(NamaKolom.setatusDibaca, isEqualTo: false)
-        .where(NamaKolom.dihapus, isEqualTo: false)
-        .where(
-          NamaKolom.tanggalTampil,
-          isLessThanOrEqualTo: Timestamp.fromDate(now),
-        )
-        .snapshots()
-        .map(
-          (snapshot) => snapshot.docs
-              .map((doc) => NotifikasiModel.fromFirebase(doc.id, doc.data()))
-              .toList(),
-        );
-  }
-
-  Future<void> addNotifikasi(NotifikasiModel notifikasi) async {
-    try {
-      Log.info('Saving notification to Firebase via BaseOp: ${notifikasi.id}');
-      await _baseOp.sisipkan(_koleksi, notifikasi.id, notifikasi.toFirebase());
-    } catch (e) {
-      Log.error('Error saving notification: $e');
-      rethrow;
-    }
-  }
-
-  Future<void> updateNotif(NotifikasiModel notifikasi) async {
-    try {
-      Log.info(
-        'Updating notification in Firebase via BaseOp: ${notifikasi.id}',
-      );
-      await _baseOp.update(_koleksi, notifikasi.id, notifikasi.toFirebase());
-    } catch (e) {
-      Log.error('Error updating notification: $e');
-      rethrow;
-    }
-  }
-
-  Future<void> softDeleteNotifikasi(String id) async {
-    try {
-      Log.info('Soft delete notifikasi: $id');
-      await _baseOp.softDelete(_koleksi, id);
-      Log.info('Soft delete notifikasi berhasil: $id');
-    } catch (e, s) {
-      Log.error('gagal fungsi soft delete notifikasi$e$s');
-      rethrow;
-    }
-  }
-
-  Future<void> hapusBerdasarkanIdTransaksi(String idTransaksi) async {
-    try {
-      Log.info(
-        'Menghapus notifikasi berdasarkan idTujuan (transactionId): $idTransaksi',
-      );
-      final querySnapshot = await _firestore
-          .collection(_koleksi)
-          .where(NamaKolom.idTujuan, isEqualTo: idTransaksi)
-          .get();
-      final batch = _firestore.batch();
-      for (final doc in querySnapshot.docs) {
-        batch.delete(doc.reference);
-      }
-      await batch.commit();
-      Log.info('Berhasil menghapus ${querySnapshot.docs.length} notifikasi.');
-    } catch (e, st) {
-      Log.error(
-        'Gagal menghapus notifikasi berdasarkan transactionId',
-        e: e,
-        s: st,
-      );
-      rethrow;
-    }
-  }
-
-  /// Menandai notifikasi sebagai sudah dibaca.
-  Future<void> tandaiSudahDibaca(String id) async {
-    try {
-      Log.info('Marking notification as read via BaseOp: $id');
-      await _baseOp.update(_koleksi, id, {NamaKolom.setatusDibaca: true});
-    } catch (e) {
-      Log.error('Error marking notification as read: $e');
-      rethrow;
-    }
-  }
-}
-
-
-// File: lib/fitur/notfikasi/enum/tipe_notifikasi_enum.dart
-// path: lib/fitur/notfikasi/enum/tipe_notifikasi_enum.dart
-
-enum TipeNotifikasiEnum { transaksi, events, order, info }
-
-extension TipeNotifikasiExtension on TipeNotifikasiEnum {
-  String get displayName {
-    switch (this) {
-      case TipeNotifikasiEnum.transaksi:
-        return 'Transaksi';
-      case TipeNotifikasiEnum.events:
-        return 'Event';
-      case TipeNotifikasiEnum.order:
-        return 'Pesanan';
-      case TipeNotifikasiEnum.info:
-        return 'Info';
-    }
-  }
-}
-
-
-// File: lib/fitur/notfikasi/model/notifikasi_model.freezed.dart
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// coverage:ignore-file
-// ignore_for_file: type=lint
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
-
-part of 'notifikasi_model.dart';
-
-// **************************************************************************
-// FreezedGenerator
-// **************************************************************************
-
-// dart format off
-T _$identity<T>(T value) => value;
-/// @nodoc
-mixin _$NotifikasiModel {
-
- String get id; DateTime get tanggalMulai; DateTime get tanggalBerakhir; DateTime get tanggalTampil; String get judul; String get deskripsi; bool get setatusDibaca; TipeNotifikasiEnum get tipe; DateTime get diperbaruiPada; String get idTujuan; String get userId; bool get dihapus; DateTime? get diarsipkanPada; AppRole get targetRole;
-/// Create a copy of NotifikasiModel
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$NotifikasiModelCopyWith<NotifikasiModel> get copyWith => _$NotifikasiModelCopyWithImpl<NotifikasiModel>(this as NotifikasiModel, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotifikasiModel&&(identical(other.id, id) || other.id == id)&&(identical(other.tanggalMulai, tanggalMulai) || other.tanggalMulai == tanggalMulai)&&(identical(other.tanggalBerakhir, tanggalBerakhir) || other.tanggalBerakhir == tanggalBerakhir)&&(identical(other.tanggalTampil, tanggalTampil) || other.tanggalTampil == tanggalTampil)&&(identical(other.judul, judul) || other.judul == judul)&&(identical(other.deskripsi, deskripsi) || other.deskripsi == deskripsi)&&(identical(other.setatusDibaca, setatusDibaca) || other.setatusDibaca == setatusDibaca)&&(identical(other.tipe, tipe) || other.tipe == tipe)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.idTujuan, idTujuan) || other.idTujuan == idTujuan)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.targetRole, targetRole) || other.targetRole == targetRole));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,id,tanggalMulai,tanggalBerakhir,tanggalTampil,judul,deskripsi,setatusDibaca,tipe,diperbaruiPada,idTujuan,userId,dihapus,diarsipkanPada,targetRole);
-
-@override
-String toString() {
-  return 'NotifikasiModel(id: $id, tanggalMulai: $tanggalMulai, tanggalBerakhir: $tanggalBerakhir, tanggalTampil: $tanggalTampil, judul: $judul, deskripsi: $deskripsi, setatusDibaca: $setatusDibaca, tipe: $tipe, diperbaruiPada: $diperbaruiPada, idTujuan: $idTujuan, userId: $userId, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada, targetRole: $targetRole)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $NotifikasiModelCopyWith<$Res>  {
-  factory $NotifikasiModelCopyWith(NotifikasiModel value, $Res Function(NotifikasiModel) _then) = _$NotifikasiModelCopyWithImpl;
-@useResult
-$Res call({
- String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada, AppRole targetRole
-});
-
-
-
-
-}
-/// @nodoc
-class _$NotifikasiModelCopyWithImpl<$Res>
-    implements $NotifikasiModelCopyWith<$Res> {
-  _$NotifikasiModelCopyWithImpl(this._self, this._then);
-
-  final NotifikasiModel _self;
-  final $Res Function(NotifikasiModel) _then;
-
-/// Create a copy of NotifikasiModel
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = null,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,Object? targetRole = null,}) {
-  return _then(_self.copyWith(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,tanggalMulai: null == tanggalMulai ? _self.tanggalMulai : tanggalMulai // ignore: cast_nullable_to_non_nullable
-as DateTime,tanggalBerakhir: null == tanggalBerakhir ? _self.tanggalBerakhir : tanggalBerakhir // ignore: cast_nullable_to_non_nullable
-as DateTime,tanggalTampil: null == tanggalTampil ? _self.tanggalTampil : tanggalTampil // ignore: cast_nullable_to_non_nullable
-as DateTime,judul: null == judul ? _self.judul : judul // ignore: cast_nullable_to_non_nullable
-as String,deskripsi: null == deskripsi ? _self.deskripsi : deskripsi // ignore: cast_nullable_to_non_nullable
-as String,setatusDibaca: null == setatusDibaca ? _self.setatusDibaca : setatusDibaca // ignore: cast_nullable_to_non_nullable
-as bool,tipe: null == tipe ? _self.tipe : tipe // ignore: cast_nullable_to_non_nullable
-as TipeNotifikasiEnum,diperbaruiPada: null == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
-as DateTime,idTujuan: null == idTujuan ? _self.idTujuan : idTujuan // ignore: cast_nullable_to_non_nullable
-as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
-as String,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
-as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
-as DateTime?,targetRole: null == targetRole ? _self.targetRole : targetRole // ignore: cast_nullable_to_non_nullable
-as AppRole,
-  ));
-}
-
-}
-
-
-/// Adds pattern-matching-related methods to [NotifikasiModel].
-extension NotifikasiModelPatterns on NotifikasiModel {
-/// A variant of `map` that fallback to returning `orElse`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _NotifikasiModel value)?  $default,{required TResult orElse(),}){
-final _that = this;
-switch (_that) {
-case _NotifikasiModel() when $default != null:
-return $default(_that);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// Callbacks receives the raw object, upcasted.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case final Subclass2 value:
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _NotifikasiModel value)  $default,){
-final _that = this;
-switch (_that) {
-case _NotifikasiModel():
-return $default(_that);case _:
-  throw StateError('Unexpected subclass');
-
-}
-}
-/// A variant of `map` that fallback to returning `null`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _NotifikasiModel value)?  $default,){
-final _that = this;
-switch (_that) {
-case _NotifikasiModel() when $default != null:
-return $default(_that);case _:
-  return null;
-
-}
-}
-/// A variant of `when` that fallback to an `orElse` callback.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)?  $default,{required TResult orElse(),}) {final _that = this;
-switch (_that) {
-case _NotifikasiModel() when $default != null:
-return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada,_that.targetRole);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// As opposed to `map`, this offers destructuring.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case Subclass2(:final field2):
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)  $default,) {final _that = this;
-switch (_that) {
-case _NotifikasiModel():
-return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada,_that.targetRole);case _:
-  throw StateError('Unexpected subclass');
-
-}
-}
-/// A variant of `when` that fallback to returning `null`
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)?  $default,) {final _that = this;
-switch (_that) {
-case _NotifikasiModel() when $default != null:
-return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada,_that.targetRole);case _:
-  return null;
-
-}
-}
-
-}
-
-/// @nodoc
-
-
-class _NotifikasiModel extends NotifikasiModel {
-  const _NotifikasiModel({required this.id, required this.tanggalMulai, required this.tanggalBerakhir, required this.tanggalTampil, required this.judul, required this.deskripsi, this.setatusDibaca = false, required this.tipe, required this.diperbaruiPada, required this.idTujuan, required this.userId, this.dihapus = false, this.diarsipkanPada, required this.targetRole}): super._();
-  
-
-@override final  String id;
-@override final  DateTime tanggalMulai;
-@override final  DateTime tanggalBerakhir;
-@override final  DateTime tanggalTampil;
-@override final  String judul;
-@override final  String deskripsi;
-@override@JsonKey() final  bool setatusDibaca;
-@override final  TipeNotifikasiEnum tipe;
-@override final  DateTime diperbaruiPada;
-@override final  String idTujuan;
-@override final  String userId;
-@override@JsonKey() final  bool dihapus;
-@override final  DateTime? diarsipkanPada;
-@override final  AppRole targetRole;
-
-/// Create a copy of NotifikasiModel
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-_$NotifikasiModelCopyWith<_NotifikasiModel> get copyWith => __$NotifikasiModelCopyWithImpl<_NotifikasiModel>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotifikasiModel&&(identical(other.id, id) || other.id == id)&&(identical(other.tanggalMulai, tanggalMulai) || other.tanggalMulai == tanggalMulai)&&(identical(other.tanggalBerakhir, tanggalBerakhir) || other.tanggalBerakhir == tanggalBerakhir)&&(identical(other.tanggalTampil, tanggalTampil) || other.tanggalTampil == tanggalTampil)&&(identical(other.judul, judul) || other.judul == judul)&&(identical(other.deskripsi, deskripsi) || other.deskripsi == deskripsi)&&(identical(other.setatusDibaca, setatusDibaca) || other.setatusDibaca == setatusDibaca)&&(identical(other.tipe, tipe) || other.tipe == tipe)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.idTujuan, idTujuan) || other.idTujuan == idTujuan)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.targetRole, targetRole) || other.targetRole == targetRole));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,id,tanggalMulai,tanggalBerakhir,tanggalTampil,judul,deskripsi,setatusDibaca,tipe,diperbaruiPada,idTujuan,userId,dihapus,diarsipkanPada,targetRole);
-
-@override
-String toString() {
-  return 'NotifikasiModel(id: $id, tanggalMulai: $tanggalMulai, tanggalBerakhir: $tanggalBerakhir, tanggalTampil: $tanggalTampil, judul: $judul, deskripsi: $deskripsi, setatusDibaca: $setatusDibaca, tipe: $tipe, diperbaruiPada: $diperbaruiPada, idTujuan: $idTujuan, userId: $userId, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada, targetRole: $targetRole)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class _$NotifikasiModelCopyWith<$Res> implements $NotifikasiModelCopyWith<$Res> {
-  factory _$NotifikasiModelCopyWith(_NotifikasiModel value, $Res Function(_NotifikasiModel) _then) = __$NotifikasiModelCopyWithImpl;
-@override @useResult
-$Res call({
- String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada, AppRole targetRole
-});
-
-
-
-
-}
-/// @nodoc
-class __$NotifikasiModelCopyWithImpl<$Res>
-    implements _$NotifikasiModelCopyWith<$Res> {
-  __$NotifikasiModelCopyWithImpl(this._self, this._then);
-
-  final _NotifikasiModel _self;
-  final $Res Function(_NotifikasiModel) _then;
-
-/// Create a copy of NotifikasiModel
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = null,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,Object? targetRole = null,}) {
-  return _then(_NotifikasiModel(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,tanggalMulai: null == tanggalMulai ? _self.tanggalMulai : tanggalMulai // ignore: cast_nullable_to_non_nullable
-as DateTime,tanggalBerakhir: null == tanggalBerakhir ? _self.tanggalBerakhir : tanggalBerakhir // ignore: cast_nullable_to_non_nullable
-as DateTime,tanggalTampil: null == tanggalTampil ? _self.tanggalTampil : tanggalTampil // ignore: cast_nullable_to_non_nullable
-as DateTime,judul: null == judul ? _self.judul : judul // ignore: cast_nullable_to_non_nullable
-as String,deskripsi: null == deskripsi ? _self.deskripsi : deskripsi // ignore: cast_nullable_to_non_nullable
-as String,setatusDibaca: null == setatusDibaca ? _self.setatusDibaca : setatusDibaca // ignore: cast_nullable_to_non_nullable
-as bool,tipe: null == tipe ? _self.tipe : tipe // ignore: cast_nullable_to_non_nullable
-as TipeNotifikasiEnum,diperbaruiPada: null == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
-as DateTime,idTujuan: null == idTujuan ? _self.idTujuan : idTujuan // ignore: cast_nullable_to_non_nullable
-as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
-as String,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
-as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
-as DateTime?,targetRole: null == targetRole ? _self.targetRole : targetRole // ignore: cast_nullable_to_non_nullable
-as AppRole,
-  ));
-}
-
-
-}
-
-// dart format on
-
-
-// File: lib/fitur/notfikasi/model/notifikasi_model.dart
-// path: lib/fitur/notfikasi/model/notifikasi_model.dart
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/constant/nama_kolom.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/has_id.dart';
-import 'package:wifi/shared/utils/parser_util.dart';
-
-part 'notifikasi_model.freezed.dart';
-
-@freezed
-abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
-  const NotifikasiModel._();
-  const factory NotifikasiModel({
-    required String id,
-    required DateTime tanggalMulai,
-    required DateTime tanggalBerakhir,
-    required DateTime tanggalTampil,
-    required String judul,
-    required String deskripsi,
-    @Default(false) bool setatusDibaca,
-    required TipeNotifikasiEnum tipe,
-    required DateTime diperbaruiPada,
-    required String idTujuan,
-    required String userId,
-    @Default(false) bool dihapus,
-    DateTime? diarsipkanPada,
-    required AppRole targetRole,
-  }) = _NotifikasiModel;
-
-  static T? _safeParseEnum<T extends Enum>(
-    final List<T> values,
-    final dynamic name,
-  ) {
-    if (name == null || name is! String) {
-      return null;
-    }
-    for (final value in values) {
-      if (value.name == name) {
-        return value;
-      }
-    }
-    Log.warning('Failed to parse enum for type $T', name);
-    return null;
-  }
-
-  factory NotifikasiModel.fromSqlite(Map<String, dynamic> map) {
-    Log.info('Creating NotifikasiModel from SQLite: ${map[NamaKolom.id]}');
-    return NotifikasiModel(
-      id: map[NamaKolom.id] as String? ?? const Uuid().v4(),
-      tanggalMulai:
-          ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]) ??
-          DateTime.now(),
-      tanggalBerakhir:
-          ParserUtil.parseDateTime(map[NamaKolom.tanggalBerakhir]) ??
-          DateTime.now(),
-      judul: map[NamaKolom.judul] as String? ?? '',
-      deskripsi: map[NamaKolom.deskripsi] as String? ?? '',
-      setatusDibaca: ParserUtil.parseBool(map[NamaKolom.setatusDibaca]),
-      tipe:
-          _safeParseEnum(TipeNotifikasiEnum.values, map[NamaKolom.tipe]) ??
-          TipeNotifikasiEnum.transaksi,
-      diperbaruiPada:
-          ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]) ??
-          DateTime.now(),
-      idTujuan: map[NamaKolom.idTujuan] as String? ?? '',
-      targetRole:
-          _safeParseEnum(AppRole.values, map[NamaKolom.targetRole]) ??
-          AppRole.user,
-      userId: map[NamaKolom.userId] as String? ?? '',
-      dihapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
-      diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
-      tanggalTampil:
-          ParserUtil.parseDateTime(map[NamaKolom.tanggalTampil]) ??
-          DateTime.now(),
-    );
-  }
-
-  Map<String, dynamic> toSqlite() {
-    return {
-      NamaKolom.id: id,
-      NamaKolom.tanggalMulai: tanggalMulai.millisecondsSinceEpoch,
-      NamaKolom.tanggalBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
-      NamaKolom.judul: judul,
-      NamaKolom.deskripsi: deskripsi,
-      NamaKolom.setatusDibaca: setatusDibaca ? 1 : 0,
-      NamaKolom.tipe: tipe.name,
-      NamaKolom.diperbaruiPada: diperbaruiPada.millisecondsSinceEpoch,
-      NamaKolom.idTujuan: idTujuan,
-      NamaKolom.targetRole: targetRole.name,
-      NamaKolom.userId: userId,
-      NamaKolom.dihapus: dihapus ? 1 : 0,
-      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
-      NamaKolom.tanggalTampil: tanggalTampil.millisecondsSinceEpoch,
-    };
-  }
-
-  factory NotifikasiModel.fromFirebase(
-    final String id,
-    final Map<String, dynamic> data,
-  ) {
-    Log.info('Creating NotifikasiModel from Firebase: $id');
-    return NotifikasiModel(
-      id: id,
-      tanggalMulai:
-          ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]) ??
-          DateTime.now(),
-      tanggalBerakhir:
-          ParserUtil.parseDateTime(data[NamaKolom.tanggalBerakhir]) ??
-          DateTime.now(),
-      tanggalTampil:
-          ParserUtil.parseDateTime(data[NamaKolom.tanggalTampil]) ??
-          DateTime.now(),
-      judul: data[NamaKolom.judul] as String? ?? '',
-      deskripsi: data[NamaKolom.deskripsi] as String? ?? '',
-      setatusDibaca: ParserUtil.parseBool(data[NamaKolom.setatusDibaca]),
-      tipe:
-          _safeParseEnum(TipeNotifikasiEnum.values, data[NamaKolom.tipe]) ??
-          TipeNotifikasiEnum.transaksi,
-      diperbaruiPada:
-          ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]) ??
-          DateTime.now(),
-      idTujuan: data[NamaKolom.idTujuan] as String? ?? '',
-      targetRole:
-          _safeParseEnum(AppRole.values, data[NamaKolom.targetRole]) ??
-          AppRole.user,
-      userId: data[NamaKolom.userId] as String? ?? '',
-      dihapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
-      diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
-    );
-  }
-
-  Map<String, dynamic> toFirebase() {
-    return {
-      NamaKolom.id: id,
-      NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai),
-      NamaKolom.tanggalBerakhir: Timestamp.fromDate(tanggalBerakhir),
-      NamaKolom.judul: judul,
-      NamaKolom.deskripsi: deskripsi,
-      NamaKolom.setatusDibaca: setatusDibaca,
-      NamaKolom.tipe: tipe.name,
-      NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada),
-      NamaKolom.idTujuan: idTujuan,
-      NamaKolom.targetRole: targetRole.name,
-      NamaKolom.userId: userId,
-      NamaKolom.dihapus: dihapus,
-      NamaKolom.tanggalTampil: Timestamp.fromDate(tanggalTampil),
-      NamaKolom.diarsipkanPada: diarsipkanPada != null
-          ? Timestamp.fromDate(diarsipkanPada!)
-          : null,
-    };
-  }
 }
 
 
@@ -37947,6 +36323,1641 @@ abstract class PenjadwalAlarm {
 }
 
 
+// File: lib/fitur/notifikasi/layanan_notifikasi.dart
+// path: lib/fitur/notfikasi/layanan_notifikasi.dart
+
+import 'dart:async';
+import 'dart:io';
+import 'dart:math';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
+import 'package:wifi/fitur/notifikasi/model/notifikasi_model.dart';
+import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart';
+import 'package:wifi/shared/debug/log.dart';
+
+@pragma('vm:entry-point')
+void onDidReceiveBackgroundNotificationResponse(
+  final NotificationResponse response,
+) {
+  final String? payload = response.payload;
+  if (response.payload != null) {
+    debugPrint('notification payload: $payload');
+  }
+  debugPrint('Notifikasi background di-tap. Payload: ${response.payload}');
+}
+
+class LayananNotifikasi {
+  static LayananNotifikasi? _instance;
+  factory LayananNotifikasi() {
+    if (_instance == null) {
+      Log.info('Membuat instance baru untuk NotifikasiServis (Singleton).');
+      _instance = LayananNotifikasi._internal();
+    } else {
+      Log.info('Menggunakan instance NotifikasiServis yang sudah ada.');
+    }
+    return _instance!;
+  }
+  final FlutterLocalNotificationsPlugin plugin;
+  final Random _random = Random();
+  AndroidNotificationChannel? channelNotifikasiPenting;
+  static bool _zonaWaktuTelahDiinisialisasi = false;
+  final Set<String> _idNotifikasiTampil = {};
+  StreamSubscription<List<NotifikasiModel>>? _langgananNotifikasiFirebase;
+  LayananNotifikasi._internal() : plugin = FlutterLocalNotificationsPlugin() {
+    Log.info('Konstruktor internal NotifikasiServis dipanggil.');
+  }
+
+  @visibleForTesting
+  LayananNotifikasi.testing(this.plugin);
+
+  Future<void> _inisialisasiZonaWaktu() async {
+    Log.info('Memeriksa status inisialisasi zona waktu.');
+    if (_zonaWaktuTelahDiinisialisasi) {
+      Log.info(
+        'Inisialisasi zona waktu dilewati karena sudah berhasil dilakukan sebelumnya.',
+      );
+      return;
+    }
+    try {
+      Log.info('Memulai inisialisasi data zona waktu...');
+      tz.initializeTimeZones();
+      String zonaWaktuLokal =
+          (await FlutterTimezone.getLocalTimezone()).identifier;
+      Log.info('Zona waktu terdeteksi dari perangkat: $zonaWaktuLokal');
+      if (zonaWaktuLokal == 'GMT') {
+        Log.warning(
+          'Zona waktu "GMT" terdeteksi (kemungkinan dari emulator). Menggunakan "Asia/Jakarta" sebagai fallback.',
+        );
+        zonaWaktuLokal = 'Asia/Jakarta';
+      }
+      tz.Location lokasi;
+      try {
+        Log.info('Mencari lokasi untuk zona waktu: $zonaWaktuLokal');
+        lokasi = tz.getLocation(zonaWaktuLokal);
+      } on tz.LocationNotFoundException catch (e) {
+        Log.error(
+          'Lokasi untuk zona waktu "$zonaWaktuLokal" tidak ditemukan. Menggunakan "UTC" sebagai fallback utama. Detail: $e',
+        );
+        lokasi = tz.UTC;
+      }
+      tz.setLocalLocation(lokasi);
+      Log.info(
+        'Zona waktu lokal berhasil diatur ke: ${lokasi.name}. Inisialisasi selesai.',
+      );
+      _zonaWaktuTelahDiinisialisasi = true;
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal total saat menginisialisasi zona waktu lokal.',
+        e: e,
+        s: st,
+      );
+    }
+  }
+
+  Future<void> inisialisasiNotifikasi({required String iconName}) async {
+    Log.info('Memulai proses inisialisasi NotifikasiServis...');
+    await _inisialisasiZonaWaktu();
+    Log.info('inisialisai');
+    await _setupAndroidChannel();
+    final android = AndroidInitializationSettings(iconName);
+    const ios = DarwinInitializationSettings();
+    final settings = InitializationSettings(android: android, iOS: ios);
+    try {
+      Log.info('Menginisialisasi plugin flutter_local_notifications.');
+      await plugin.initialize(
+        settings: settings,
+        onDidReceiveNotificationResponse: (response) {
+          Log.info(
+            'Notifikasi foreground di-tap. Payload: ${response.payload}',
+          );
+        },
+        onDidReceiveBackgroundNotificationResponse:
+            onDidReceiveBackgroundNotificationResponse,
+      );
+      Log.info('Layanan Notifikasi berhasil diinisialisasi secara lengkap.');
+    } on Exception catch (e, s) {
+      Log.error('Gagal melakukan inisialisasi plugin notifikasi', e: e, s: s);
+    }
+  }
+
+  Future<void> _setupAndroidChannel() async {
+    Log.info('Memulai pengaturan channel notifikasi Android.');
+    channelNotifikasiPenting = const AndroidNotificationChannel(
+      'notifikasi_penting_wifi_app',
+      'Notifikasi Penting',
+      description:
+          'Channel ini digunakan untuk notifikasi penting dari aplikasi.',
+      importance: Importance.max,
+    );
+    Log.info(
+      'Objek AndroidNotificationChannel dibuat: ${channelNotifikasiPenting!.id}',
+    );
+
+    final androidPlugin = plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    await androidPlugin?.requestNotificationsPermission();
+    await androidPlugin?.requestExactAlarmsPermission();
+    if (androidPlugin == null) {
+      Log.warning(
+        'Gagal mendapatkan implementasi plugin Android. Tidak dapat membuat channel.',
+      );
+      return;
+    }
+    try {
+      await androidPlugin.createNotificationChannel(channelNotifikasiPenting!);
+      Log.info(
+        'Android Notification Channel "Notifikasi Penting" berhasil dibuat.',
+      );
+    } on Exception catch (e, s) {
+      Log.error('Gagal membuat Android Notification Channel', e: e, s: s);
+    }
+  }
+
+  void pantauNotifUmum(NotifikasiOpFirebase notifikasiOp) {
+    Log.info('Memulai pemantauan notifikasi umum dari Firebase...');
+    unawaited(_langgananNotifikasiFirebase?.cancel());
+    _langgananNotifikasiFirebase = notifikasiOp.ambilKhususAdmin().listen(
+      (listNotifikasi) async {
+        for (final notifikasi in listNotifikasi) {
+          if (!_idNotifikasiTampil.contains(notifikasi.id)) {
+            await tampilkanNotifikasiLangsung(
+              title: notifikasi.judul,
+              body: notifikasi.deskripsi,
+              payload: 'notifikasi_id_${notifikasi.id}',
+            );
+            _idNotifikasiTampil.add(notifikasi.id);
+            await notifikasiOp.softDeleteNotifikasi(notifikasi.id);
+          }
+        }
+      },
+      onError: (Object e, StackTrace st) {
+        Log.error('Error pada stream notifikasi umum', e: e, s: st);
+      },
+    );
+  }
+
+  void pantauNotifUser(NotifikasiOpFirebase notifikasiOp, String userId) {
+    Log.info('Memulai pemantauan notifikasi dari Firebase...');
+    unawaited(_langgananNotifikasiFirebase?.cancel());
+    _langgananNotifikasiFirebase = notifikasiOp
+        .getByUserId(userId)
+        .listen(
+          (listNotifikasi) async {
+            Log.info(
+              'Menerima ${listNotifikasi.length} notifikasi aktif dari stream.',
+            );
+            for (final notifikasi in listNotifikasi) {
+              if (!_idNotifikasiTampil.contains(notifikasi.id)) {
+                Log.info(
+                  'Menampilkan notifikasi baru: ${notifikasi.id} - ${notifikasi.judul}',
+                );
+                await tampilkanNotifikasiLangsung(
+                  title: notifikasi.judul,
+                  body: notifikasi.deskripsi,
+                  payload: 'notifikasi_id_${notifikasi.id}',
+                );
+                _idNotifikasiTampil.add(notifikasi.id);
+                await notifikasiOp.softDeleteNotifikasi(notifikasi.id);
+              }
+            }
+          },
+          onError: (Object e, StackTrace st) {
+            Log.error('Error pada stream notifikasi Firebase', e: e, s: st);
+          },
+          onDone: () {
+            Log.warning('Stream notifikasi Firebase selesai.');
+          },
+        );
+  }
+
+  void hentikanPemantauanNotifikasi() {
+    Log.info('Menghentikan pemantauan notifikasi dari Firebase.');
+    unawaited(_langgananNotifikasiFirebase?.cancel());
+    _idNotifikasiTampil.clear();
+  }
+
+  Future<void> mintaIzin() async {
+    Log.info('Meminta izin notifikasi dari pengguna...');
+    try {
+      if (kIsWeb) {
+        Log.warning('Permintaan izin tidak berlaku untuk platform web.');
+        return;
+      }
+      final AndroidFlutterLocalNotificationsPlugin? androidPlugin = plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+      if (androidPlugin != null) {
+        final bool? granted = await androidPlugin
+            .requestNotificationsPermission();
+        Log.info(
+          'Izin notifikasi diberikan oleh pengguna: ${granted ?? false}',
+        );
+      } else {
+        Log.warning(
+          'Gagal mendapatkan implementasi plugin Android. Tidak dapat meminta izin.',
+        );
+      }
+    } on Exception catch (e, s) {
+      Log.error('Gagal meminta izin notifikasi', e: e, s: s);
+    }
+  }
+
+  Future<NotificationAppLaunchDetails?> getDetailPeluncuranNotifikasi() async {
+    Log.info('Memeriksa apakah aplikasi diluncurkan melalui notifikasi...');
+    final details = await plugin.getNotificationAppLaunchDetails();
+
+    if (details != null && details.didNotificationLaunchApp) {
+      Log.info(
+        'Aplikasi diluncurkan dari notifikasi dengan ID: ${details.notificationResponse?.id}',
+      );
+    } else {
+      Log.info('Aplikasi diluncurkan secara normal (bukan dari notifikasi).');
+    }
+    return details;
+  }
+
+  Future<void> tampilkanNotifikasiLangsung({
+    required final String title,
+    required final String body,
+    final String? payload,
+  }) async {
+    Log.info(
+      'Memeriksa channel notifikasi sebelum menampilkan notifikasi langsung.',
+    );
+    if (channelNotifikasiPenting == null) {
+      Log.error('Gagal menampilkan notifikasi: Channel belum diinisialisasi.');
+      return;
+    }
+    Log.info('Channel notifikasi ditemukan: ${channelNotifikasiPenting!.id}');
+
+    final int id = payload?.hashCode ?? _random.nextInt(pow(2, 31).toInt());
+    Log.info('Mengirim notifikasi langsung (ID: $id, Judul: $title)');
+    final androidDetails = AndroidNotificationDetails(
+      channelNotifikasiPenting!.id,
+      channelNotifikasiPenting!.name,
+      channelDescription: channelNotifikasiPenting!.description,
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    final notificationDetails = NotificationDetails(android: androidDetails);
+    try {
+      await plugin.show(
+        id: id,
+        title: title,
+        body: body,
+        notificationDetails: notificationDetails,
+        payload: payload,
+      );
+      Log.info('Notifikasi langsung berhasil ditampilkan di layar.');
+    } on Exception catch (e, s) {
+      Log.error('Gagal menampilkan notifikasi langsung', e: e, s: s);
+    }
+  }
+
+  Future<void> jadwalNotifikasi({
+    required final int id,
+    required final String judul,
+    required final String pesan,
+    required final DateTime jadwal,
+    final String? payload,
+  }) async {
+    Log.info('Memeriksa channel notifikasi sebelum menjadwalkan notifikasi.');
+    if (channelNotifikasiPenting == null) {
+      Log.error('Gagal menjadwalkan notifikasi: Channel belum diinisialisasi.');
+      return;
+    }
+    Log.info('Channel notifikasi ditemukan: ${channelNotifikasiPenting!.id}');
+    final pending = await plugin.pendingNotificationRequests();
+    Log.info('=== DAFTAR NOTIFIKASI TERJADWAL (${pending.length}) ===');
+    for (var notif in pending) {
+      Log.info('ID: ${notif.id}, Title: ${notif.title}, Scheduled: $notif');
+    }
+
+    final bool hasPermission = await mengecekIzinExactAlarm();
+    if (!hasPermission) {
+      Log.error(
+        'Gagal menjadwalkan notifikasi karena izin exact alarm ditolak.',
+      );
+      return;
+    }
+    Log.info('Merencanakan notifikasi terjadwal (ID: $id) pada waktu: $jadwal');
+    final androidDetails = AndroidNotificationDetails(
+      channelNotifikasiPenting!.id,
+      channelNotifikasiPenting!.name,
+      channelDescription: channelNotifikasiPenting!.description,
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    final detailNotifikasi = NotificationDetails(android: androidDetails);
+    try {
+      final tz.TZDateTime waktuTerjadwalTZ = tz.TZDateTime.from(
+        jadwal,
+        tz.local,
+      );
+      Log.info(
+        'Waktu notifikasi dikonversi ke zona waktu lokal (${tz.local.name}): $waktuTerjadwalTZ',
+      );
+      await plugin.zonedSchedule(
+        id: id,
+        title: judul,
+        body: pesan,
+        scheduledDate: waktuTerjadwalTZ,
+        notificationDetails: detailNotifikasi,
+        payload: payload,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      );
+      Log.info('Notifikasi terjadwal berhasil didaftarkan ke sistem.');
+    } on Exception catch (e, s) {
+      Log.error('Gagal mendaftarkan jadwal notifikasi', e: e, s: s);
+    }
+  }
+
+  Future<void> perbaruiJadwalNotifikasi({
+    required final int id,
+    required final String title,
+    required final String body,
+    required final DateTime jadwal,
+    final String? payload,
+  }) async {
+    Log.info('Memulai pembaruan jadwal notifikasi untuk ID: $id');
+
+    await batalkanNotifikasi(id);
+    await jadwalNotifikasi(
+      id: id,
+      judul: title,
+      pesan: body,
+      jadwal: jadwal,
+      payload: payload,
+    );
+    Log.info('Pembaruan jadwal selesai dilakukan untuk ID: $id.');
+  }
+
+  Future<void> batalkanNotifikasi(int id) async {
+    Log.info('Membatalkan notifikasi aktif/terjadwal dengan ID: $id');
+    try {
+      await plugin.cancel(id: id);
+      Log.info('Perintah pembatalan untuk notifikasi ID: $id telah dikirim.');
+    } on Exception catch (e, s) {
+      Log.error('Gagal membatalkan notifikasi ID: $id', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> batalkanSemuaNotifikasi() async {
+    Log.info(
+      'Membersihkan semua notifikasi yang ada (aktif maupun terjadwal)...',
+    );
+    try {
+      await plugin.cancelAll();
+      Log.info('Seluruh notifikasi berhasil dibersihkan.');
+    } on Exception catch (e, s) {
+      Log.error(
+        'Terjadi kesalahan saat membersihkan semua notifikasi',
+        e: e,
+        s: s,
+      );
+    }
+  }
+
+  Future<bool> mengecekIzinExactAlarm() async {
+    if (!Platform.isAndroid) return true;
+    Log.info('Memeriksa izin SCHEDULE_EXACT_ALARM.');
+    final status = await Permission.scheduleExactAlarm.status;
+    Log.info('Status izin SCHEDULE_EXACT_ALARM saat ini: $status');
+    if (status.isGranted) {
+      Log.info('Izin SCHEDULE_EXACT_ALARM sudah diberikan.');
+      return true;
+    } else {
+      Log.warning('Izin SCHEDULE_EXACT_ALARM belum diberikan. Meminta izin...');
+      final newStatus = await Permission.scheduleExactAlarm.request();
+      Log.info('Status izin setelah meminta: $newStatus');
+      if (newStatus.isGranted) {
+        Log.info('Izin SCHEDULE_EXACT_ALARM berhasil didapatkan.');
+        return true;
+      } else {
+        Log.error('Izin SCHEDULE_EXACT_ALARM ditolak oleh pengguna.');
+        return false;
+      }
+    }
+  }
+}
+
+
+// File: lib/fitur/notifikasi/pengingat_paket_belum_lunas.dart
+// path lib/fitur/notfikasi/pengingat_paket_belum_lunas.dart
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
+import 'package:wifi/user/providers/user_provider.dart'
+    hide layananNotifikasiProvider;
+
+const String waktuTerkahirNotif = 'last_notif_date';
+
+/// Service untuk mengecek paket belum lunas dan menampilkan notifikasi pengingat.
+class PengingatService {
+  final LayananNotifikasi _notifServis;
+  final Ref _ref;
+
+  PengingatService(this._ref, this._notifServis);
+
+  /// Mengecek transaksi dengan status belum lunas dan menampilkan notifikasi
+  /// jika ada dan belum pernah ditampilkan hari ini.
+  Future<void> cekDanTampilkanPengingatTagihan() async {
+    Log.info('[PengingatTagihan] Memulai pengecekan paket belum lunas.');
+
+    try {
+      final role = _ref.read(appRoleProvider);
+      if (role == AppRole.admin) {
+        return;
+      }
+      final prefs = await _ref.read(sharedPreferencesProvider.future);
+      final hariIni = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final terakhirNotif = prefs.getString(waktuTerkahirNotif) ?? '';
+      if (terakhirNotif == hariIni) {
+        Log.info(
+          '[PengingatTagihan] Notifikasi sudah tampil hari ini, dilewati.',
+        );
+        return;
+      }
+      final userId = await _ref.read(userIdProvider.future);
+      if (userId == null) {
+        return;
+      }
+      final transaksiOpFirebase = _ref.read(transaksiOpFirebaseProvider);
+      final daftarBelumLunas = await transaksiOpFirebase
+          .ambilBelumLunasBerdasarkanIdPelanggan(userId);
+      if (daftarBelumLunas.isNotEmpty) {
+        Log.info(
+          '[PengingatTagihan] Ditemukan ${daftarBelumLunas.length} paket belum lunas.',
+        );
+        await _notifServis.tampilkanNotifikasiLangsung(
+          title: 'Pengingat Tagihan',
+          body:
+              'Anda memiliki ${daftarBelumLunas.length} paket yang belum lunas. Segera lakukan pembayaran.',
+        );
+        await prefs.setString(waktuTerkahirNotif, hariIni);
+        Log.info('[PengingatTagihan] Notifikasi berhasil ditampilkan.');
+      } else {
+        Log.info('[PengingatTagihan] Tidak ada paket belum lunas.');
+      }
+    } on Exception catch (e, st) {
+      Log.error(
+        '[PengingatTagihan] Gagal mengecek atau menampilkan notifikasi.',
+        e: e,
+        s: st,
+      );
+    }
+  }
+}
+
+/// Provider untuk service pengingat.
+final pengingatServiceProvider = Provider<PengingatService>((ref) {
+  final notifServis = ref.watch(layananNotifikasiProvider);
+  return PengingatService(ref, notifServis);
+});
+
+
+// File: lib/fitur/notifikasi/penjadwal_notifikasi.dart
+// path: lib/fitur/notfikasi/penjadwal_notifikasi.dart
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
+
+class PenjadwalNotifikasi {
+  static Future<void> aturNotifikasiLangganan(
+    LayananNotifikasi layananNotifikasi,
+    final String userId, {
+    @visibleForTesting TransaksiOpFirebase? transaksiOp,
+  }) async {
+    Log.info(
+      'Memulai pengecekan untuk penjadwalan notifikasi untuk pengguna: $userId',
+    );
+    final idNotifikasiAkhir = userId.hashCode;
+    final idNotifikasiTengah = '${userId}_midpoint'.hashCode;
+
+    // ID untuk AlarmManager harus unik per alarm.
+    final int idAlarm = idNotifikasiAkhir;
+
+    try {
+      final transaksiOpFirebase = transaksiOp ?? TransaksiOpFirebase();
+
+      // Dapatkan transaksi lunas terbaru yang akan datang dari Firebase.
+      final transaksi = await transaksiOpFirebase
+          .ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(userId);
+
+      // Logika utama penjadwalan notifikasi
+      if (transaksi != null &&
+          transaksi.tanggalMulai != null &&
+          transaksi.tanggalBerakhir != null &&
+          transaksi.tanggalBerakhir!.isAfter(DateTime.now())) {
+        // -- Penjadwalan Notifikasi & Alarm Akhir Periode --
+        final waktuJadwal = transaksi.tanggalBerakhir!;
+        Log.info(
+          'Langganan aktif ditemukan (ID: ${transaksi.id}). Menjadwalkan notifikasi & alarm akhir pada $waktuJadwal',
+        );
+
+        // 1. Jadwalkan Notifikasi Visual
+        await layananNotifikasi.perbaruiJadwalNotifikasi(
+          id: idNotifikasiAkhir,
+          title: 'Langganan Telah Berakhir',
+          body:
+              'Masa aktif paket Anda telah berakhir. Perpanjang sekarang untuk terhubung lagi.',
+          jadwal: waktuJadwal,
+          payload: 'subscription_expired',
+        );
+
+        // 2. Jadwalkan Alarm untuk Eksekusi Background
+        await AndroidAlarmManager.oneShotAt(
+          waktuJadwal,
+          idAlarm,
+          _callbackAlarm, // Fungsi top-level
+          exact: true, // Memastikan eksekusi tepat waktu
+          wakeup: true, // Membangunkan perangkat jika dalam mode sleep
+        );
+        Log.info(
+          'Alarm untuk ID $idAlarm berhasil dijadwalkan pada $waktuJadwal',
+        );
+
+        // -- Logika untuk Notifikasi Tengah Periode (tidak berubah) --
+        final totalDurasi = transaksi.tanggalBerakhir!.difference(
+          transaksi.tanggalMulai!,
+        );
+        final durasiTengah = totalDurasi.inSeconds ~/ 2;
+        final tanggalTengah = transaksi.tanggalMulai!.add(
+          Duration(seconds: durasiTengah),
+        );
+
+        if (tanggalTengah.isAfter(DateTime.now())) {
+          Log.info(
+            'Menjadwalkan notifikasi tengah periode pada $tanggalTengah',
+          );
+          await layananNotifikasi.perbaruiJadwalNotifikasi(
+            id: idNotifikasiTengah,
+            title: 'Status Langganan Anda',
+            body:
+                'Masa aktif paket Anda sudah berjalan 50%. Terima kasih telah menggunakan layanan kami.',
+            jadwal: tanggalTengah,
+            payload: 'subscription_midpoint',
+          );
+        } else {
+          Log.info(
+            'Tanggal tengah periode sudah lewat. Membatalkan notifikasi jika ada.',
+          );
+          await layananNotifikasi.batalkanNotifikasi(idNotifikasiTengah);
+        }
+      } else {
+        // Jika tidak ada langganan aktif, batalkan semua notifikasi DAN alarm.
+        Log.info(
+          'Tidak ada langganan aktif. Membatalkan semua notifikasi dan alarm untuk pengguna ini.',
+        );
+        await layananNotifikasi.batalkanNotifikasi(idNotifikasiAkhir);
+        await layananNotifikasi.batalkanNotifikasi(idNotifikasiTengah);
+        await AndroidAlarmManager.cancel(idAlarm);
+        Log.info('Alarm dengan ID $idAlarm juga dibatalkan.');
+      }
+    } on Exception catch (e, st) {
+      Log.error('Gagal mengatur notifikasi dari Firebase', e: e, s: st);
+      // Jika terjadi error, coba batalkan semua notifikasi dan alarm untuk kebersihan.
+      await layananNotifikasi.batalkanNotifikasi(idNotifikasiAkhir);
+      await layananNotifikasi.batalkanNotifikasi(idNotifikasiTengah);
+      await AndroidAlarmManager.cancel(idAlarm);
+      Log.info('Alarm dengan ID $idAlarm juga dibatalkan karena error.');
+    }
+  }
+}
+
+@pragma('vm:entry-point')
+Future<void> _callbackAlarm() async {
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+
+    final container = ProviderContainer();
+    try {
+      final service = container.read(arsipLanggananKadaluarsaServiceProvider);
+      await service.prosesArsipLanggananKadaluarsa();
+    } catch (e, st) {
+      Log.error('Gagal menjalankan callback alarm', e: e, s: st);
+    } finally {
+      container.dispose();
+    }
+  } catch (e, st) {
+    Log.error('Gagal inisialisasi callback alarm', e: e, s: st);
+  }
+}
+
+
+// File: lib/fitur/notifikasi/operasi/notifikasi_op_sqlite.dart
+// path lib/fitur/notfikasi/operasi/notifikasi_op_sqlite.dart
+// path: lib/fitur/notfikasi/operasi/notifikasi_op_sqlite.dart
+
+import 'package:sqflite/sqflite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/notifikasi/model/notifikasi_model.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
+
+/// Kelas untuk operasi terkait data notifikasi di database lokal.
+class NotifikasiOpSqlite {
+  final SqliteDatabase sqliteDb;
+  final BaseOpSqlite _baseOpSqlite;
+  final String _namaTabel = NamaTabel.notifikasi;
+  final DateTime _nowUtc = DateTime.now().toUtc();
+
+  /// Konstruktor dengan injeksi dependensi.
+  NotifikasiOpSqlite({
+    required this.sqliteDb,
+    required BaseOpSqlite baseOpSqlite,
+  }) : _baseOpSqlite = baseOpSqlite {
+    Log.info('NotifikasiOpSqlite diinisialisasi - Tabel: $_namaTabel');
+  }
+
+  // =========================
+  // OPERASI TULIS (WRITE)
+  // =========================
+
+  /// Menambahkan notifikasi baru ke database.
+  Future<void> tambahNotifikasi(
+    NotifikasiModel notifikasi, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Menambahkan notifikasi baru - ID: ${notifikasi.id}');
+    try {
+      final data = notifikasi.copyWith(diperbaruiPada: _nowUtc).toSqlite();
+      await _baseOpSqlite.sisipkan(_namaTabel, data, dariServer: dariServer);
+      Log.info('Notifikasi berhasil ditambahkan - ID: ${notifikasi.id}');
+    } catch (e, st) {
+      Log.error(
+        'Gagal menambahkan notifikasi - ID: ${notifikasi.id}',
+        e: e,
+        s: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Memperbarui notifikasi yang sudah ada di database.
+  Future<void> perbaruiNotifikasi(
+    NotifikasiModel notifikasi, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Memperbarui notifikasi - ID: ${notifikasi.id}');
+    try {
+      final data = notifikasi.copyWith(diperbaruiPada: _nowUtc).toSqlite();
+      await _baseOpSqlite.update(
+        _namaTabel,
+        data,
+        notifikasi.id,
+        dariServer: dariServer,
+      );
+      Log.info('Notifikasi berhasil diperbarui - ID: ${notifikasi.id}');
+    } catch (e, st) {
+      Log.error(
+        'Gagal memperbarui notifikasi - ID: ${notifikasi.id}',
+        e: e,
+        s: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Menandai notifikasi sebagai sudah dibaca.
+  Future<void> tandaiSudahDibaca(String id, {bool dariServer = false}) async {
+    Log.info('Menandai notifikasi sudah dibaca - ID: $id');
+    try {
+      final data = {
+        NamaKolom.setatusDibaca: 1,
+        NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
+      };
+      await _baseOpSqlite.update(_namaTabel, data, id, dariServer: dariServer);
+      Log.info('Notifikasi berhasil ditandai sudah dibaca - ID: $id');
+    } catch (e, st) {
+      Log.error(
+        'Gagal menandai notifikasi sudah dibaca - ID: $id',
+        e: e,
+        s: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada notifikasi berdasarkan ID.
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
+    Log.info('Memulai soft delete notifikasi - ID: $id');
+    try {
+      await _baseOpSqlite.softDelete(_namaTabel, id, dariServer: dariServer);
+      Log.info('Soft delete notifikasi berhasil - ID: $id');
+    } catch (e, st) {
+      Log.error('Gagal soft delete notifikasi - ID: $id', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada semua notifikasi.
+  Future<int> softDeleteAll({bool dariServer = false}) async {
+    Log.info('Memulai soft delete semua notifikasi');
+    try {
+      final count = await _baseOpSqlite.softDeleteAll(
+        _namaTabel,
+        dariServer: dariServer,
+      );
+      Log.info('Soft delete semua notifikasi berhasil - Total: $count');
+      return count;
+    } catch (e, st) {
+      Log.error('Gagal soft delete semua notifikasi', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  /// Menghapus notifikasi secara permanen dari database.
+  Future<void> hapusPermanen(String id, {bool dariServer = false}) async {
+    Log.warning('Menghapus notifikasi secara permanen - ID: $id');
+    try {
+      await _baseOpSqlite.delete(_namaTabel, id, dariServer: dariServer);
+      Log.info('Notifikasi berhasil dihapus permanen - ID: $id');
+    } catch (e, st) {
+      Log.error('Gagal menghapus permanen notifikasi - ID: $id', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  /// Menyisipkan atau memperbarui beberapa notifikasi sekaligus (batch).
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<NotifikasiModel> daftarNotifikasi, {
+    bool dariServer = false,
+  }) async {
+    if (daftarNotifikasi.isEmpty) {
+      Log.info('Daftar notifikasi kosong, batch dibatalkan.');
+      return;
+    }
+
+    Log.info(
+      'Memulai batch insert/update untuk ${daftarNotifikasi.length} notifikasi',
+    );
+    try {
+      final data = daftarNotifikasi
+          .map((item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite())
+          .toList();
+      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
+        _namaTabel,
+        data,
+        dariServer: dariServer,
+      );
+      Log.info('Batch ${daftarNotifikasi.length} notifikasi berhasil diproses');
+    } catch (e, st) {
+      Log.error('Gagal memproses batch notifikasi', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  // =========================
+  // OPERASI BACA (READ)
+  // =========================
+
+  /// Mengambil semua notifikasi dari database.
+  Future<List<NotifikasiModel>> ambilSemua({
+    bool tampilkanYangDiarsip = false,
+  }) async {
+    Log.info('Mengambil semua notifikasi dari tabel $_namaTabel');
+    try {
+      final db = await sqliteDb.database;
+      final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = 0';
+      final List<Map<String, dynamic>> maps = await db.query(
+        _namaTabel,
+        where: query,
+        orderBy: '${NamaKolom.tanggalTampil} DESC',
+      );
+      final hasil = List.generate(
+        maps.length,
+        (i) => NotifikasiModel.fromSqlite(maps[i]),
+      );
+      Log.info('Berhasil mengambil ${hasil.length} notifikasi');
+      return hasil;
+    } catch (e, st) {
+      Log.error('Gagal mengambil semua notifikasi', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  /// Mengambil semua notifikasi yang aktif (belum dibaca dan belum dihapus).
+  Future<List<NotifikasiModel>> ambilNotifikasiAktif() async {
+    Log.info('Mengambil notifikasi aktif dari tabel $_namaTabel');
+    try {
+      final db = await sqliteDb.database;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final List<Map<String, dynamic>> maps = await db.query(
+        _namaTabel,
+        where:
+            '${NamaKolom.dihapus} = 0 AND ${NamaKolom.setatusDibaca} = 0 AND ${NamaKolom.tanggalTampil} <= ?',
+        whereArgs: [now],
+        orderBy: '${NamaKolom.tanggalTampil} DESC',
+      );
+      final hasil = List.generate(
+        maps.length,
+        (i) => NotifikasiModel.fromSqlite(maps[i]),
+      );
+      Log.info('Berhasil mengambil ${hasil.length} notifikasi aktif');
+      return hasil;
+    } catch (e, st) {
+      Log.error('Gagal mengambil notifikasi aktif', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  /// Mengambil notifikasi berdasarkan ID pengguna.
+  Future<List<NotifikasiModel>> ambilBerdasarkanUserId(
+    String userId, {
+    bool tampilkanYangDiarsip = false,
+  }) async {
+    Log.info('Mengambil notifikasi untuk User ID: $userId');
+    try {
+      final db = await sqliteDb.database;
+      final query = tampilkanYangDiarsip
+          ? '${NamaKolom.userId} = ?'
+          : '${NamaKolom.userId} = ? AND ${NamaKolom.dihapus} = 0';
+      final List<Map<String, dynamic>> maps = await db.query(
+        _namaTabel,
+        where: query,
+        whereArgs: [userId],
+        orderBy: '${NamaKolom.tanggalTampil} DESC',
+      );
+      final hasil = List.generate(
+        maps.length,
+        (i) => NotifikasiModel.fromSqlite(maps[i]),
+      );
+      Log.info(
+        'Berhasil mengambil ${hasil.length} notifikasi untuk User $userId',
+      );
+      return hasil;
+    } catch (e, st) {
+      Log.error(
+        'Gagal mengambil notifikasi untuk User ID: $userId',
+        e: e,
+        s: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Mengambil notifikasi berdasarkan ID.
+  Future<NotifikasiModel?> ambilBerdasarkanId(String id) async {
+    Log.info('Mengambil notifikasi berdasarkan ID: $id');
+    try {
+      final db = await sqliteDb.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        _namaTabel,
+        where: '${NamaKolom.id} = ?',
+        whereArgs: [id],
+      );
+      if (maps.isNotEmpty) {
+        final hasil = NotifikasiModel.fromSqlite(maps.first);
+        Log.info('Notifikasi ditemukan - ID: $id');
+        return hasil;
+      }
+      Log.info('Notifikasi dengan ID: $id tidak ditemukan');
+      return null;
+    } catch (e, st) {
+      Log.error('Gagal mengambil notifikasi berdasarkan ID: $id', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  /// Mengambil notifikasi berdasarkan ID tujuan (misal: ID transaksi).
+  Future<List<NotifikasiModel>> ambilBerdasarkanIdTujuan(
+    String idTujuan, {
+    bool tampilkanYangDiarsip = false,
+  }) async {
+    Log.info('Mengambil notifikasi untuk ID Tujuan: $idTujuan');
+    try {
+      final db = await sqliteDb.database;
+      final query = tampilkanYangDiarsip
+          ? '${NamaKolom.idTujuan} = ?'
+          : '${NamaKolom.idTujuan} = ? AND ${NamaKolom.dihapus} = 0';
+      final List<Map<String, dynamic>> maps = await db.query(
+        _namaTabel,
+        where: query,
+        whereArgs: [idTujuan],
+        orderBy: '${NamaKolom.tanggalTampil} DESC',
+      );
+      final hasil = List.generate(
+        maps.length,
+        (i) => NotifikasiModel.fromSqlite(maps[i]),
+      );
+      Log.info(
+        'Berhasil mengambil ${hasil.length} notifikasi untuk ID Tujuan $idTujuan',
+      );
+      return hasil;
+    } catch (e, st) {
+      Log.error(
+        'Gagal mengambil notifikasi untuk ID Tujuan: $idTujuan',
+        e: e,
+        s: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Menghapus notifikasi berdasarkan ID tujuan.
+  Future<void> hapusBerdasarkanIdTujuan(
+    String idTujuan, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Menghapus notifikasi berdasarkan ID Tujuan: $idTujuan');
+    try {
+      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
+        await txn.delete(
+          _namaTabel,
+          where: '${NamaKolom.idTujuan} = ?',
+          whereArgs: [idTujuan],
+        );
+        Log.info('Notifikasi dengan ID Tujuan $idTujuan berhasil dihapus');
+      }, dariServer: dariServer);
+    } catch (e, st) {
+      Log.error(
+        'Gagal menghapus notifikasi berdasarkan ID Tujuan: $idTujuan',
+        e: e,
+        s: st,
+      );
+      rethrow;
+    }
+  }
+}
+
+
+// File: lib/fitur/notifikasi/operasi/notifikasi_op_firebase.dart
+// path: lib/fitur/notfikasi/operasi/notifikasi_op_firebase.dart
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/fitur/notifikasi/model/notifikasi_model.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
+
+class NotifikasiOpFirebase {
+  final FirebaseFirestore _firestore;
+  final BaseOpFirebase _baseOp;
+  final String _koleksi = NamaTabel.notifikasi;
+
+  NotifikasiOpFirebase({
+    required FirebaseFirestore firestore,
+    required BaseOpFirebase baseOp,
+  }) : _firestore = firestore,
+       _baseOp = baseOp;
+
+  Stream<List<NotifikasiModel>> getNotifAktif() {
+    final now = DateTime.now();
+    return _firestore
+        .collection(_koleksi)
+        .where(NamaKolom.dihapus, isEqualTo: false)
+        .where(NamaKolom.setatusDibaca, isEqualTo: false)
+        .where(
+          NamaKolom.tanggalTampil,
+          isLessThanOrEqualTo: Timestamp.fromDate(now),
+        )
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) {
+            return NotifikasiModel.fromFirebase(doc.id, doc.data());
+          }).toList();
+        });
+  }
+
+  /// Mendapatkan stream notifikasi aktif untuk user tertentu (belum dibaca & belum dihapus)
+  Stream<List<NotifikasiModel>> getByUserId(String userId) {
+    return _firestore
+        .collection(_koleksi)
+        .where(NamaKolom.userId, isEqualTo: userId)
+        .where(NamaKolom.targetRole, isEqualTo: AppRole.user.name)
+        .where(NamaKolom.dihapus, isEqualTo: false)
+        .where(NamaKolom.setatusDibaca, isEqualTo: false)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => NotifikasiModel.fromFirebase(doc.id, doc.data()))
+              .toList(),
+        );
+  }
+
+  Stream<List<NotifikasiModel>> getById(String id) {
+    return _firestore.collection(_koleksi).doc(id).snapshots().map((snapshot) {
+      if (!snapshot.exists) return [];
+      final data = snapshot.data()!;
+      if (data[NamaKolom.dihapus] == true ||
+          data[NamaKolom.setatusDibaca] == true) {
+        return [];
+      }
+      return [NotifikasiModel.fromFirebase(snapshot.id, data)];
+    });
+  }
+
+  // TODO : tambahkan unit test
+  Stream<List<NotifikasiModel>> ambilKhususAdmin() {
+    final now = DateTime.now();
+    return _firestore
+        .collection(_koleksi)
+        .where(NamaKolom.targetRole, isEqualTo: AppRole.admin.name)
+        .where(NamaKolom.tipe, isEqualTo: TipeNotifikasiEnum.order.name)
+        .where(NamaKolom.setatusDibaca, isEqualTo: false)
+        .where(NamaKolom.dihapus, isEqualTo: false)
+        .where(
+          NamaKolom.tanggalTampil,
+          isLessThanOrEqualTo: Timestamp.fromDate(now),
+        )
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => NotifikasiModel.fromFirebase(doc.id, doc.data()))
+              .toList(),
+        );
+  }
+
+  Future<void> addNotifikasi(NotifikasiModel notifikasi) async {
+    try {
+      Log.info('Saving notification to Firebase via BaseOp: ${notifikasi.id}');
+      await _baseOp.sisipkan(_koleksi, notifikasi.id, notifikasi.toFirebase());
+    } catch (e) {
+      Log.error('Error saving notification: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateNotif(NotifikasiModel notifikasi) async {
+    try {
+      Log.info(
+        'Updating notification in Firebase via BaseOp: ${notifikasi.id}',
+      );
+      await _baseOp.update(_koleksi, notifikasi.id, notifikasi.toFirebase());
+    } catch (e) {
+      Log.error('Error updating notification: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> softDeleteNotifikasi(String id) async {
+    try {
+      Log.info('Soft delete notifikasi: $id');
+      await _baseOp.softDelete(_koleksi, id);
+      Log.info('Soft delete notifikasi berhasil: $id');
+    } catch (e, s) {
+      Log.error('gagal fungsi soft delete notifikasi$e$s');
+      rethrow;
+    }
+  }
+
+  Future<void> hapusBerdasarkanIdTransaksi(String idTransaksi) async {
+    try {
+      Log.info(
+        'Menghapus notifikasi berdasarkan idTujuan (transactionId): $idTransaksi',
+      );
+      final querySnapshot = await _firestore
+          .collection(_koleksi)
+          .where(NamaKolom.idTujuan, isEqualTo: idTransaksi)
+          .get();
+      final batch = _firestore.batch();
+      for (final doc in querySnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+      Log.info('Berhasil menghapus ${querySnapshot.docs.length} notifikasi.');
+    } catch (e, st) {
+      Log.error(
+        'Gagal menghapus notifikasi berdasarkan transactionId',
+        e: e,
+        s: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Menandai notifikasi sebagai sudah dibaca.
+  Future<void> tandaiSudahDibaca(String id) async {
+    try {
+      Log.info('Marking notification as read via BaseOp: $id');
+      await _baseOp.update(_koleksi, id, {NamaKolom.setatusDibaca: true});
+    } catch (e) {
+      Log.error('Error marking notification as read: $e');
+      rethrow;
+    }
+  }
+}
+
+
+// File: lib/fitur/notifikasi/enum/tipe_notifikasi_enum.dart
+// path: lib/fitur/notfikasi/enum/tipe_notifikasi_enum.dart
+
+enum TipeNotifikasiEnum { transaksi, events, order, info }
+
+extension TipeNotifikasiExtension on TipeNotifikasiEnum {
+  String get displayName {
+    switch (this) {
+      case TipeNotifikasiEnum.transaksi:
+        return 'Transaksi';
+      case TipeNotifikasiEnum.events:
+        return 'Event';
+      case TipeNotifikasiEnum.order:
+        return 'Pesanan';
+      case TipeNotifikasiEnum.info:
+        return 'Info';
+    }
+  }
+}
+
+
+// File: lib/fitur/notifikasi/model/notifikasi_model.freezed.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'notifikasi_model.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$NotifikasiModel {
+
+ String get id; DateTime get tanggalMulai; DateTime get tanggalBerakhir; DateTime get tanggalTampil; String get judul; String get deskripsi; bool get setatusDibaca; TipeNotifikasiEnum get tipe; DateTime get diperbaruiPada; String get idTujuan; String get userId; bool get dihapus; DateTime? get diarsipkanPada; AppRole get targetRole;
+/// Create a copy of NotifikasiModel
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$NotifikasiModelCopyWith<NotifikasiModel> get copyWith => _$NotifikasiModelCopyWithImpl<NotifikasiModel>(this as NotifikasiModel, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotifikasiModel&&(identical(other.id, id) || other.id == id)&&(identical(other.tanggalMulai, tanggalMulai) || other.tanggalMulai == tanggalMulai)&&(identical(other.tanggalBerakhir, tanggalBerakhir) || other.tanggalBerakhir == tanggalBerakhir)&&(identical(other.tanggalTampil, tanggalTampil) || other.tanggalTampil == tanggalTampil)&&(identical(other.judul, judul) || other.judul == judul)&&(identical(other.deskripsi, deskripsi) || other.deskripsi == deskripsi)&&(identical(other.setatusDibaca, setatusDibaca) || other.setatusDibaca == setatusDibaca)&&(identical(other.tipe, tipe) || other.tipe == tipe)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.idTujuan, idTujuan) || other.idTujuan == idTujuan)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.targetRole, targetRole) || other.targetRole == targetRole));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,tanggalMulai,tanggalBerakhir,tanggalTampil,judul,deskripsi,setatusDibaca,tipe,diperbaruiPada,idTujuan,userId,dihapus,diarsipkanPada,targetRole);
+
+@override
+String toString() {
+  return 'NotifikasiModel(id: $id, tanggalMulai: $tanggalMulai, tanggalBerakhir: $tanggalBerakhir, tanggalTampil: $tanggalTampil, judul: $judul, deskripsi: $deskripsi, setatusDibaca: $setatusDibaca, tipe: $tipe, diperbaruiPada: $diperbaruiPada, idTujuan: $idTujuan, userId: $userId, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada, targetRole: $targetRole)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $NotifikasiModelCopyWith<$Res>  {
+  factory $NotifikasiModelCopyWith(NotifikasiModel value, $Res Function(NotifikasiModel) _then) = _$NotifikasiModelCopyWithImpl;
+@useResult
+$Res call({
+ String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada, AppRole targetRole
+});
+
+
+
+
+}
+/// @nodoc
+class _$NotifikasiModelCopyWithImpl<$Res>
+    implements $NotifikasiModelCopyWith<$Res> {
+  _$NotifikasiModelCopyWithImpl(this._self, this._then);
+
+  final NotifikasiModel _self;
+  final $Res Function(NotifikasiModel) _then;
+
+/// Create a copy of NotifikasiModel
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = null,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,Object? targetRole = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,tanggalMulai: null == tanggalMulai ? _self.tanggalMulai : tanggalMulai // ignore: cast_nullable_to_non_nullable
+as DateTime,tanggalBerakhir: null == tanggalBerakhir ? _self.tanggalBerakhir : tanggalBerakhir // ignore: cast_nullable_to_non_nullable
+as DateTime,tanggalTampil: null == tanggalTampil ? _self.tanggalTampil : tanggalTampil // ignore: cast_nullable_to_non_nullable
+as DateTime,judul: null == judul ? _self.judul : judul // ignore: cast_nullable_to_non_nullable
+as String,deskripsi: null == deskripsi ? _self.deskripsi : deskripsi // ignore: cast_nullable_to_non_nullable
+as String,setatusDibaca: null == setatusDibaca ? _self.setatusDibaca : setatusDibaca // ignore: cast_nullable_to_non_nullable
+as bool,tipe: null == tipe ? _self.tipe : tipe // ignore: cast_nullable_to_non_nullable
+as TipeNotifikasiEnum,diperbaruiPada: null == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as DateTime,idTujuan: null == idTujuan ? _self.idTujuan : idTujuan // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
+as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,targetRole: null == targetRole ? _self.targetRole : targetRole // ignore: cast_nullable_to_non_nullable
+as AppRole,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [NotifikasiModel].
+extension NotifikasiModelPatterns on NotifikasiModel {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _NotifikasiModel value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _NotifikasiModel() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _NotifikasiModel value)  $default,){
+final _that = this;
+switch (_that) {
+case _NotifikasiModel():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _NotifikasiModel value)?  $default,){
+final _that = this;
+switch (_that) {
+case _NotifikasiModel() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _NotifikasiModel() when $default != null:
+return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada,_that.targetRole);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)  $default,) {final _that = this;
+switch (_that) {
+case _NotifikasiModel():
+return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada,_that.targetRole);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DateTime tanggalMulai,  DateTime tanggalBerakhir,  DateTime tanggalTampil,  String judul,  String deskripsi,  bool setatusDibaca,  TipeNotifikasiEnum tipe,  DateTime diperbaruiPada,  String idTujuan,  String userId,  bool dihapus,  DateTime? diarsipkanPada,  AppRole targetRole)?  $default,) {final _that = this;
+switch (_that) {
+case _NotifikasiModel() when $default != null:
+return $default(_that.id,_that.tanggalMulai,_that.tanggalBerakhir,_that.tanggalTampil,_that.judul,_that.deskripsi,_that.setatusDibaca,_that.tipe,_that.diperbaruiPada,_that.idTujuan,_that.userId,_that.dihapus,_that.diarsipkanPada,_that.targetRole);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _NotifikasiModel extends NotifikasiModel {
+  const _NotifikasiModel({required this.id, required this.tanggalMulai, required this.tanggalBerakhir, required this.tanggalTampil, required this.judul, required this.deskripsi, this.setatusDibaca = false, required this.tipe, required this.diperbaruiPada, required this.idTujuan, required this.userId, this.dihapus = false, this.diarsipkanPada, required this.targetRole}): super._();
+  
+
+@override final  String id;
+@override final  DateTime tanggalMulai;
+@override final  DateTime tanggalBerakhir;
+@override final  DateTime tanggalTampil;
+@override final  String judul;
+@override final  String deskripsi;
+@override@JsonKey() final  bool setatusDibaca;
+@override final  TipeNotifikasiEnum tipe;
+@override final  DateTime diperbaruiPada;
+@override final  String idTujuan;
+@override final  String userId;
+@override@JsonKey() final  bool dihapus;
+@override final  DateTime? diarsipkanPada;
+@override final  AppRole targetRole;
+
+/// Create a copy of NotifikasiModel
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$NotifikasiModelCopyWith<_NotifikasiModel> get copyWith => __$NotifikasiModelCopyWithImpl<_NotifikasiModel>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotifikasiModel&&(identical(other.id, id) || other.id == id)&&(identical(other.tanggalMulai, tanggalMulai) || other.tanggalMulai == tanggalMulai)&&(identical(other.tanggalBerakhir, tanggalBerakhir) || other.tanggalBerakhir == tanggalBerakhir)&&(identical(other.tanggalTampil, tanggalTampil) || other.tanggalTampil == tanggalTampil)&&(identical(other.judul, judul) || other.judul == judul)&&(identical(other.deskripsi, deskripsi) || other.deskripsi == deskripsi)&&(identical(other.setatusDibaca, setatusDibaca) || other.setatusDibaca == setatusDibaca)&&(identical(other.tipe, tipe) || other.tipe == tipe)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.idTujuan, idTujuan) || other.idTujuan == idTujuan)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.targetRole, targetRole) || other.targetRole == targetRole));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,tanggalMulai,tanggalBerakhir,tanggalTampil,judul,deskripsi,setatusDibaca,tipe,diperbaruiPada,idTujuan,userId,dihapus,diarsipkanPada,targetRole);
+
+@override
+String toString() {
+  return 'NotifikasiModel(id: $id, tanggalMulai: $tanggalMulai, tanggalBerakhir: $tanggalBerakhir, tanggalTampil: $tanggalTampil, judul: $judul, deskripsi: $deskripsi, setatusDibaca: $setatusDibaca, tipe: $tipe, diperbaruiPada: $diperbaruiPada, idTujuan: $idTujuan, userId: $userId, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada, targetRole: $targetRole)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$NotifikasiModelCopyWith<$Res> implements $NotifikasiModelCopyWith<$Res> {
+  factory _$NotifikasiModelCopyWith(_NotifikasiModel value, $Res Function(_NotifikasiModel) _then) = __$NotifikasiModelCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, DateTime tanggalMulai, DateTime tanggalBerakhir, DateTime tanggalTampil, String judul, String deskripsi, bool setatusDibaca, TipeNotifikasiEnum tipe, DateTime diperbaruiPada, String idTujuan, String userId, bool dihapus, DateTime? diarsipkanPada, AppRole targetRole
+});
+
+
+
+
+}
+/// @nodoc
+class __$NotifikasiModelCopyWithImpl<$Res>
+    implements _$NotifikasiModelCopyWith<$Res> {
+  __$NotifikasiModelCopyWithImpl(this._self, this._then);
+
+  final _NotifikasiModel _self;
+  final $Res Function(_NotifikasiModel) _then;
+
+/// Create a copy of NotifikasiModel
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tanggalMulai = null,Object? tanggalBerakhir = null,Object? tanggalTampil = null,Object? judul = null,Object? deskripsi = null,Object? setatusDibaca = null,Object? tipe = null,Object? diperbaruiPada = null,Object? idTujuan = null,Object? userId = null,Object? dihapus = null,Object? diarsipkanPada = freezed,Object? targetRole = null,}) {
+  return _then(_NotifikasiModel(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,tanggalMulai: null == tanggalMulai ? _self.tanggalMulai : tanggalMulai // ignore: cast_nullable_to_non_nullable
+as DateTime,tanggalBerakhir: null == tanggalBerakhir ? _self.tanggalBerakhir : tanggalBerakhir // ignore: cast_nullable_to_non_nullable
+as DateTime,tanggalTampil: null == tanggalTampil ? _self.tanggalTampil : tanggalTampil // ignore: cast_nullable_to_non_nullable
+as DateTime,judul: null == judul ? _self.judul : judul // ignore: cast_nullable_to_non_nullable
+as String,deskripsi: null == deskripsi ? _self.deskripsi : deskripsi // ignore: cast_nullable_to_non_nullable
+as String,setatusDibaca: null == setatusDibaca ? _self.setatusDibaca : setatusDibaca // ignore: cast_nullable_to_non_nullable
+as bool,tipe: null == tipe ? _self.tipe : tipe // ignore: cast_nullable_to_non_nullable
+as TipeNotifikasiEnum,diperbaruiPada: null == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as DateTime,idTujuan: null == idTujuan ? _self.idTujuan : idTujuan // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
+as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,targetRole: null == targetRole ? _self.targetRole : targetRole // ignore: cast_nullable_to_non_nullable
+as AppRole,
+  ));
+}
+
+
+}
+
+// dart format on
+
+
+// File: lib/fitur/notifikasi/model/notifikasi_model.dart
+// path: lib/fitur/notfikasi/model/notifikasi_model.dart
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart';
+
+part 'notifikasi_model.freezed.dart';
+
+@freezed
+abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
+  const NotifikasiModel._();
+  const factory NotifikasiModel({
+    required String id,
+    required DateTime tanggalMulai,
+    required DateTime tanggalBerakhir,
+    required DateTime tanggalTampil,
+    required String judul,
+    required String deskripsi,
+    @Default(false) bool setatusDibaca,
+    required TipeNotifikasiEnum tipe,
+    required DateTime diperbaruiPada,
+    required String idTujuan,
+    required String userId,
+    @Default(false) bool dihapus,
+    DateTime? diarsipkanPada,
+    required AppRole targetRole,
+  }) = _NotifikasiModel;
+
+  static T? _safeParseEnum<T extends Enum>(
+    final List<T> values,
+    final dynamic name,
+  ) {
+    if (name == null || name is! String) {
+      return null;
+    }
+    for (final value in values) {
+      if (value.name == name) {
+        return value;
+      }
+    }
+    Log.warning('Failed to parse enum for type $T', name);
+    return null;
+  }
+
+  factory NotifikasiModel.fromSqlite(Map<String, dynamic> map) {
+    Log.info('Creating NotifikasiModel from SQLite: ${map[NamaKolom.id]}');
+    return NotifikasiModel(
+      id: map[NamaKolom.id] as String? ?? const Uuid().v4(),
+      tanggalMulai:
+          ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]) ??
+          DateTime.now(),
+      tanggalBerakhir:
+          ParserUtil.parseDateTime(map[NamaKolom.tanggalBerakhir]) ??
+          DateTime.now(),
+      judul: map[NamaKolom.judul] as String? ?? '',
+      deskripsi: map[NamaKolom.deskripsi] as String? ?? '',
+      setatusDibaca: ParserUtil.parseBool(map[NamaKolom.setatusDibaca]),
+      tipe:
+          _safeParseEnum(TipeNotifikasiEnum.values, map[NamaKolom.tipe]) ??
+          TipeNotifikasiEnum.transaksi,
+      diperbaruiPada:
+          ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]) ??
+          DateTime.now(),
+      idTujuan: map[NamaKolom.idTujuan] as String? ?? '',
+      targetRole:
+          _safeParseEnum(AppRole.values, map[NamaKolom.targetRole]) ??
+          AppRole.user,
+      userId: map[NamaKolom.userId] as String? ?? '',
+      dihapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
+      diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
+      tanggalTampil:
+          ParserUtil.parseDateTime(map[NamaKolom.tanggalTampil]) ??
+          DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toSqlite() {
+    return {
+      NamaKolom.id: id,
+      NamaKolom.tanggalMulai: tanggalMulai.millisecondsSinceEpoch,
+      NamaKolom.tanggalBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
+      NamaKolom.judul: judul,
+      NamaKolom.deskripsi: deskripsi,
+      NamaKolom.setatusDibaca: setatusDibaca ? 1 : 0,
+      NamaKolom.tipe: tipe.name,
+      NamaKolom.diperbaruiPada: diperbaruiPada.millisecondsSinceEpoch,
+      NamaKolom.idTujuan: idTujuan,
+      NamaKolom.targetRole: targetRole.name,
+      NamaKolom.userId: userId,
+      NamaKolom.dihapus: dihapus ? 1 : 0,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
+      NamaKolom.tanggalTampil: tanggalTampil.millisecondsSinceEpoch,
+    };
+  }
+
+  factory NotifikasiModel.fromFirebase(
+    final String id,
+    final Map<String, dynamic> data,
+  ) {
+    Log.info('Creating NotifikasiModel from Firebase: $id');
+    return NotifikasiModel(
+      id: id,
+      tanggalMulai:
+          ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]) ??
+          DateTime.now(),
+      tanggalBerakhir:
+          ParserUtil.parseDateTime(data[NamaKolom.tanggalBerakhir]) ??
+          DateTime.now(),
+      tanggalTampil:
+          ParserUtil.parseDateTime(data[NamaKolom.tanggalTampil]) ??
+          DateTime.now(),
+      judul: data[NamaKolom.judul] as String? ?? '',
+      deskripsi: data[NamaKolom.deskripsi] as String? ?? '',
+      setatusDibaca: ParserUtil.parseBool(data[NamaKolom.setatusDibaca]),
+      tipe:
+          _safeParseEnum(TipeNotifikasiEnum.values, data[NamaKolom.tipe]) ??
+          TipeNotifikasiEnum.transaksi,
+      diperbaruiPada:
+          ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]) ??
+          DateTime.now(),
+      idTujuan: data[NamaKolom.idTujuan] as String? ?? '',
+      targetRole:
+          _safeParseEnum(AppRole.values, data[NamaKolom.targetRole]) ??
+          AppRole.user,
+      userId: data[NamaKolom.userId] as String? ?? '',
+      dihapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
+      diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
+    );
+  }
+
+  Map<String, dynamic> toFirebase() {
+    return {
+      NamaKolom.id: id,
+      NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai),
+      NamaKolom.tanggalBerakhir: Timestamp.fromDate(tanggalBerakhir),
+      NamaKolom.judul: judul,
+      NamaKolom.deskripsi: deskripsi,
+      NamaKolom.setatusDibaca: setatusDibaca,
+      NamaKolom.tipe: tipe.name,
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada),
+      NamaKolom.idTujuan: idTujuan,
+      NamaKolom.targetRole: targetRole.name,
+      NamaKolom.userId: userId,
+      NamaKolom.dihapus: dihapus,
+      NamaKolom.tanggalTampil: Timestamp.fromDate(tanggalTampil),
+      NamaKolom.diarsipkanPada: diarsipkanPada != null
+          ? Timestamp.fromDate(diarsipkanPada!)
+          : null,
+    };
+  }
+}
+
+
 // File: lib/user/page/profile_page.dart
 // path: lib/user/page/profile_page.dart
 
@@ -38376,7 +38387,7 @@ import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 import 'package:wifi/fitur/event/page/event_page_u.dart';
 import 'package:wifi/fitur/info_perangkat/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/operasi/settings_op_firebase.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
@@ -38613,8 +38624,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/notfikasi/pengingat_paket_belum_lunas.dart';
-import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/pengingat_paket_belum_lunas.dart';
+import 'package:wifi/fitur/notifikasi/penjadwal_notifikasi.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';
 import 'package:wifi/fitur/settings/page/settings_page_u.dart';
 import 'package:wifi/fitur/speedtest/page/uji_kecepatan_page.dart';
@@ -40413,7 +40424,7 @@ String _$interstitialAdServiceHash() =>
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/pelanggan/core/layanan_aktivitas_user.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
@@ -42825,7 +42836,7 @@ class PemilihTanggalWaktuWidget extends StatelessWidget {
 // File: lib/shared/export/enum.dart
 
 // path: lib/shared/export/enum.dart
-export '../../fitur/notfikasi/enum/tipe_notifikasi_enum.dart';
+export '../../fitur/notifikasi/enum/tipe_notifikasi_enum.dart';
 export '../../fitur/order/enum/status_order_enum.dart';
 export '../enum/app_role_enum.dart';
 
@@ -42842,7 +42853,7 @@ export '../../fitur/versi_apk/operasi/versi_apk_op_firebase.dart';
 // File: lib/shared/export/model.dart
 // path: lib/shared/export/model.dart
 export '../../fitur/event/model/event_model.dart';
-export '../../fitur/notfikasi/model/notifikasi_model.dart';
+export '../../fitur/notifikasi/model/notifikasi_model.dart';
 export '../../fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 export '../../fitur/transaksi/model/transaksi_model.dart';
 export '../model/status_model.dart';
@@ -44009,7 +44020,7 @@ String _$pengontrolNotifikasiHash() =>
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
-import 'package:wifi/fitur/notfikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
@@ -45010,7 +45021,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
-import 'package:wifi/fitur/notfikasi/operasi/notifikasi_op_firebase.dart';
+import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
@@ -51551,7 +51562,7 @@ lib
 │   │   └── page
 │   │       ├── form_kategori.dart
 │   │       └── kategori.dart
-│   ├── notfikasi
+│   ├── notifikasi
 │   │   ├── enum
 │   │   │   └── tipe_notifikasi_enum.dart
 │   │   ├── layanan_notifikasi.dart

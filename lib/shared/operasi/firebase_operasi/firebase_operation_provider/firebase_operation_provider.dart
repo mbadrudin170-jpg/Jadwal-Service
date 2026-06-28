@@ -53,12 +53,6 @@ FeedbackOpFirebase feedbackOpFirebase(Ref ref) {
   );
 }
 
-@riverpod
-Stream<List<FeedbackModel>> feedbackStream(Ref ref, String userId) {
-  final feedbackOp = ref.watch(feedbackOpFirebaseProvider);
-  return feedbackOp.ambilBerdasarkanUser(userId);
-}
-
 @Riverpod(keepAlive: true)
 PelangganOpFirebase pelangganOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
@@ -104,10 +98,4 @@ OrderOpFirebase orderOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
   final baseOp = ref.watch(baseOpFirebaseProvider);
   return OrderOpFirebase(firestore: firestoreInstance, baseOp: baseOp);
-}
-
-@riverpod
-Stream<List<NotifikasiModel>> activeNotificationsStream(Ref ref) {
-  final notifikasiOp = ref.read(notifikasiOpFirebaseProvider);
-  return notifikasiOp.getNotifAktif();
 }

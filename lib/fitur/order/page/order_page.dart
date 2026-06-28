@@ -37,9 +37,10 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     super.dispose();
   }
 
-  Future<bool?> _konfirmasiOpsi(BuildContext context) {
+  /// ✅ PERBAIKAN 1: Fungsi konfirmasi sekarang pakai await dengan benar
+  Future<bool?> _konfirmasiOpsi(BuildContext context) async {
     Log.info('_konfirmasiOpsi dipanggil');
-    return showDialog<bool>(
+    return await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
@@ -66,6 +67,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     );
   }
 
+  /// ✅ PERBAIKAN 2: Fungsi ubah status sekarang pakai await dengan benar
   Future<void> _ubahStatus(
     BuildContext context,
     OrderModel order,
@@ -116,100 +118,114 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           );
         },
       );
-    } on Exception catch (e, s) {
-      Log.error('Gagal menampilkan dialog ubah status', e: e, s: s);
+    } on Exception catch (e, st) {
+      Log.error('Gagal menampilkan dialog ubah status', e: e, s: st);
       if (context.mounted) {
-        ToastUtil.error(context, 'Gagal membuka dialog');
+        ToastUtil.error(context, 'Gagal membuka dialog ubah status');
       }
     }
   }
 
-  Future<bool?> _showDialog(BuildContext context, OrderModel order) {
+  /// ✅ PERBAIKAN 3: _showDialog sekarang pakai await dengan benar
+  Future<bool?> _showDialog(BuildContext context, OrderModel order) async {
     final appRole = ref.watch(appRoleProvider);
     Log.info(
       '_showDialog dipanggil untuk orderId: ${order.id}, appRole: ${appRole.name}',
     );
 
-    return showDialog<bool>(batalNotifikasi
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return Dialog(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (ref.isAdmin)
+    try {
+      return await showDialog<bool>(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return Dialog(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (ref.isAdmin)
+                    TextButton(
+                      onPressed: () {
+                        Log.info(
+                          '_showDialog: admin memilih Ubah Status untuk orderId: ${order.id}',
+                        );
+                        Navigator.of(dialogContext).pop();
+                        // ✅ Perbaikan: Sekarang pakai try-catch
+                        try {
+                          _ubahStatus(context, order, ref);
+                        } on Exception catch (e, st) {
+                          Log.error('Gagal memanggil _ubahStatus', e: e, s: st);
+                        }
+                      },
+                      child: const Text('Ubah Status'),
+                    ),
                   TextButton(
-                    onPressed: () {
+                    child: const Text('Hapus'),
+                    onPressed: () async {
                       Log.info(
-                        '_showDialog: admin memilih Ubah Status untuk orderId: ${order.id}',
+                        '_showDialog: pengguna memilih Hapus untuk orderId: ${order.id}',
                       );
                       Navigator.of(dialogContext).pop();
-                      unawaited(_ubahStatus(context, order, ref));
-                    },
-                    child: const Text('Ubah Status'),
-                  ),
-                TextButton(
-                  child: const Text('Hapus'),
-                  onPressed: () async {
-                    Log.info(
-                      '_showDialog: pengguna memilih Hapus untuk orderId: ${order.id}',
-                    );
-                    Navigator.of(dialogContext).pop();
-                    final bool? dikonfirmasi = await _konfirmasiOpsi(context);
-                    if (dikonfirmasi ?? false) {
-                      Log.info(
-                        '_showDialog: konfirmasi hapus disetujui untuk orderId: ${order.id}',
-                      );
-                      try {
-                        if (appRole == AppRole.admin) {
-                          Log.info(
-                            '_showDialog: menghapus order via SQLite (admin) orderId: ${order.id}',
-                          );
-                          await ref
-                              .read(orderOpSqliteProvider)
-                              .softDeleteorder(order.id);
-                        } else {
-                          Log.info(
-                            '_showDialog: menghapus order via Firebase (user) orderId: ${order.id}',
-                          );
-                          await ref
-                              .read(orderOpFirebaseProvider)
-                              .softDeleteOrder(order.id);
-                        }
+                      final bool? dikonfirmasi = await _konfirmasiOpsi(context);
+                      if (dikonfirmasi ?? false) {
                         Log.info(
-                          '_showDialog: order berhasil dihapus orderId: ${order.id}',
+                          '_showDialog: konfirmasi hapus disetujui untuk orderId: ${order.id}',
                         );
-                        ref.invalidate(daftarPesananProvider);
-                        ref.invalidate(orderProvider);
+                        try {
+                          if (appRole == AppRole.admin) {
+                            Log.info(
+                              '_showDialog: menghapus order via SQLite (admin) orderId: ${order.id}',
+                            );
+                            await ref
+                                .read(orderOpSqliteProvider)
+                                .softDeleteorder(order.id);
+                          } else {
+                            Log.info(
+                              '_showDialog: menghapus order via Firebase (user) orderId: ${order.id}',
+                            );
+                            await ref
+                                .read(orderOpFirebaseProvider)
+                                .softDeleteOrder(order.id);
+                          }
+                          Log.info(
+                            '_showDialog: order berhasil dihapus orderId: ${order.id}',
+                          );
+                          ref.invalidate(daftarPesananProvider);
+                          ref.invalidate(orderProvider);
 
-                        if (context.mounted) {
-                          ToastUtil.success(context, 'Data berhasil dihapus');
+                          if (context.mounted) {
+                            ToastUtil.success(context, 'Data berhasil dihapus');
+                          }
+                        } on Exception catch (e, st) {
+                          Log.error(
+                            '_showDialog: gagal menghapus order',
+                            e: e,
+                            s: st,
+                          );
+                          if (context.mounted) {
+                            ToastUtil.error(context, 'Gagal menghapus pesanan');
+                          }
                         }
-                      } catch (e, st) {
-                        Log.error(
-                          '_showDialog: gagal menghapus order',
-                          e: e,
-                          s: st,
+                      } else {
+                        Log.info(
+                          '_showDialog: konfirmasi hapus dibatalkan untuk orderId: ${order.id}',
                         );
-                        if (context.mounted) {
-                          ToastUtil.error(context, 'Gagal menghapus pesanan');
-                        }
                       }
-                    } else {
-                      Log.info(
-                        '_showDialog: konfirmasi hapus dibatalkan untuk orderId: ${order.id}',
-                      );
-                    }
-                  },
-                ),
-              ],
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    } on Exception catch (e, st) {
+      Log.error('Gagal menampilkan dialog opsi', e: e, s: st);
+      if (context.mounted) {
+        ToastUtil.error(context, 'Gagal membuka opsi');
+      }
+      return null;
+    }
   }
 
   @override
@@ -417,7 +433,15 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                 Log.info(
                   '_daftarPesanan: long press pada orderId: ${order.id}',
                 );
-                _showDialog(context, order);
+                // ✅ PERBAIKAN 4: Pakai try-catch untuk _showDialog
+                try {
+                  _showDialog(context, order);
+                } on Exception catch (e, st) {
+                  Log.error('Gagal memanggil _showDialog', e: e, s: st);
+                  if (context.mounted) {
+                    ToastUtil.error(context, 'Gagal membuka opsi');
+                  }
+                }
               },
               title: Row(
                 children: [

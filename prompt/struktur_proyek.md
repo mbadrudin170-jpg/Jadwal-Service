@@ -124,7 +124,7 @@ lib
 │   │   └── page
 │   │       ├── form_kategori.dart
 │   │       └── kategori.dart
-│   ├── notfikasi
+│   ├── notifikasi
 │   │   ├── enum
 │   │   │   └── tipe_notifikasi_enum.dart
 │   │   ├── layanan_notifikasi.dart

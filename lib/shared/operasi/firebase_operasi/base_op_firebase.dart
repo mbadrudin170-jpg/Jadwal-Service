@@ -85,6 +85,7 @@ class BaseOpFirebase {
     Log.info('[FIRESTORE] Mendelegasikan eksekusi transaksi kompleks.');
     return await _runInTransaction(customAction);
   }
+
   /// Menyisipkan dokumen baru dengan ID yang dibuat otomatis oleh Firestore.
   ///
   /// [collectionName]: Nama koleksi target.

@@ -10,7 +10,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
-class OrderOpFirebase extends BaseOpFirebase {
+class OrderOpFirebase {
   final BaseOpFirebase _baseOp;
   final FirebaseFirestore _firestore;
   final String _namaKoleksi = NamaTabel.pesananPelanggan;
@@ -19,13 +19,12 @@ class OrderOpFirebase extends BaseOpFirebase {
     required FirebaseFirestore firestore,
     required BaseOpFirebase baseOp,
   }) : _firestore = firestore,
-       _baseOp = baseOp,
-       super(firestore: firestore) {
+       _baseOp = baseOp {
     Log.info('OrderOpFirebase diinisialisasi.');
   }
 
   /// 1. Menambahkan pesanan baru
-  Future<void> addOrder(OrderModel order) async {
+  Future<void> tambahOrder(OrderModel order) async {
     Log.info('Menambahkan pesanan baru: ${order.id}');
     await _baseOp.sisipkan(_namaKoleksi, order.id, order.toFirebase());
   }

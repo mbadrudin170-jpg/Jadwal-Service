@@ -111,11 +111,11 @@ FeedbackOpSqlite feedbackOpSqlite(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
-OrderOpsqlite orderOpSqlite(Ref ref) {
+OrderOpSqlite orderOpSqlite(Ref ref) {
   Log.info('Membuat instance OrderOperation via @riverpod...');
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
-  return OrderOpsqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
+  return OrderOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
 }
 
 /// Provider untuk menyediakan instance dari [SettingsOpSqlite].

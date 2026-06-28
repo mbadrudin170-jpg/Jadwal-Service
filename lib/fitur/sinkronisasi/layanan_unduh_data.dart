@@ -32,7 +32,7 @@ class LayananUnduhData {
   final PelangganAktifOpSqlite _operasiPelangganAktif;
   final TransaksiOpGlobal _operasiTransaksi;
   final FeedbackOpSqlite _operasiUmpanBalik;
-  final OrderOpsqlite _operasiPesanan;
+  final OrderOpSqlite _operasiPesanan;
   final SubKategoriOpSqlite _operasiSubKategori;
   final VersiApkOpSqlite _operasiVersiApk;
   final SettingsOpSqlite _operasiPengaturan;
@@ -48,7 +48,7 @@ class LayananUnduhData {
     required PelangganAktifOpSqlite operasiPelangganAktif,
     required TransaksiOpGlobal operasiTransaksi,
     required FeedbackOpSqlite operasiUmpanBalik,
-    required OrderOpsqlite operasiPesanan,
+    required OrderOpSqlite operasiPesanan,
     required SubKategoriOpSqlite operasiSubKategori,
     required VersiApkOpSqlite operasiVersiApk,
     required SettingsOpSqlite operasiPengaturan,
@@ -79,7 +79,7 @@ class LayananUnduhData {
     required final PelangganAktifOpSqlite operasiPelangganAktif,
     required final TransaksiOpGlobal operasiTransaksi,
     required final FeedbackOpSqlite operasiUmpanBalik,
-    required final OrderOpsqlite operasiPesanan,
+    required final OrderOpSqlite operasiPesanan,
     required final SubKategoriOpSqlite operasiSubKategori,
     required final VersiApkOpSqlite operasiVersiApk,
     required final SettingsOpSqlite operasiPengaturan,

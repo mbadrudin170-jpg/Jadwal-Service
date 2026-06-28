@@ -8,13 +8,10 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
-class OrderOpsqlite {
+class OrderOpSqlite {
   final SqliteDatabase sqliteDb;
-
   final BaseOpSqlite baseOpSqlite;
-
-  OrderOpsqlite({required this.sqliteDb, required this.baseOpSqlite});
-
+  OrderOpSqlite({required this.sqliteDb, required this.baseOpSqlite});
   String get _namaTabel => NamaTabel.pesananPelanggan;
 
   Future<int> ambilTotalDataPerStatus(StatusOrderEnum status) async {
@@ -157,7 +154,6 @@ class OrderOpsqlite {
     }
   }
 
-
   Future<void> softDeleteorder(
     final String id, {
     final bool dariServer = false,
@@ -216,7 +212,9 @@ class OrderOpsqlite {
     }
   }
 
-  Future<List<OrderModel>> ambilOrderBerdasarkanIds(final List<String> ids) async {
+  Future<List<OrderModel>> ambilOrderBerdasarkanIds(
+    final List<String> ids,
+  ) async {
     Log.info('Mengambil pesanan untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning('List ID kosong, mengembalikan list kosong.');
