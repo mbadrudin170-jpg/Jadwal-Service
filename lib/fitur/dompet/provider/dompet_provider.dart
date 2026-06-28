@@ -49,7 +49,6 @@ class Dompet extends _$Dompet {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(dompetOpSqliteProvider);
       await operation.tambahDompet(dompet);
-
       return _loadData();
     });
   }

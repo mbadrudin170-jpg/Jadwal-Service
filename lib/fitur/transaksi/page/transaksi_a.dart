@@ -175,7 +175,7 @@ class _TransactionBody extends ConsumerWidget {
       onRefresh: () => ref.read(transaksiProvider.notifier).refresh(),
       child: Column(
         children: [
-          TransactionSummary(
+          RingkasanKeuanganWidget(
             pemasukan: state.totalPemasukan,
             pengeluaran: state.totalPengeluaran,
             total: state.total,
@@ -260,7 +260,6 @@ class _TransactionListViewState extends ConsumerState<_TransactionListView> {
               sum +
               (item.tipe == TipeTransaksi.income ? item.jumlah : -item.jumlah),
         );
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -303,56 +302,6 @@ class _TransactionListViewState extends ConsumerState<_TransactionListView> {
       context,
       MaterialPageRoute<bool>(
         builder: (context) => FormTransaksi(transaksi: transaksi),
-      ),
-    );
-  }
-}
-
-// ============================================================
-// Widget Ringkasan (tidak diubah)
-// ============================================================
-class TransactionSummary extends StatelessWidget {
-  final double pemasukan;
-  final double pengeluaran;
-  final double total;
-
-  const TransactionSummary({
-    super.key,
-    required this.pemasukan,
-    required this.pengeluaran,
-    required this.total,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(8.0),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            bangunRingkasanInfoKeuangan(
-              context: context,
-              label: 'Pemasukan',
-              jumlah: pemasukan,
-              color: Colors.green,
-            ),
-            bangunRingkasanInfoKeuangan(
-              context: context,
-              label: 'Pengeluaran',
-              jumlah: pengeluaran,
-              color: Colors.red,
-            ),
-            bangunRingkasanInfoKeuangan(
-              context: context,
-              label: 'Total',
-              jumlah: total,
-              color: total >= 0 ? Colors.blue : Colors.red,
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -16,7 +16,7 @@ import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/fitur/transaksi/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/widget/info_ringkasan_widget.dart';
+import 'package:wifi/shared/widget/ringkasan_keuangan_widget.dart';
 
 class DataDetailDompet {
   final DompetModel dompet;
@@ -146,64 +146,30 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
 
   @override
   Widget build(BuildContext context) {
+    final transaksiAsync = ref.watch(transaksiProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_namaDompetTerbaru ?? widget.dompet.nama),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context, true),
-        ),
-      ),
-      body: FutureBuilder<DataDetailDompet>(
-        future: _futureDataDetail,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: Text('Data Kosong'));
-          }
-
-          final data = snapshot.data!;
-
+      appBar: AppBar(title: Text(_namaDompetTerbaru ?? widget.dompet.nama)),
+      body: transaksiAsync.when(
+        skipLoadingOnReload: true,
+        data: (transaksi) {
           return Column(
             children: [
               Container(
                 color: Theme.of(context).primaryColor.withAlpha(13),
                 padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    InfoRingkasanWidget(
-                      label: 'Pemasukan',
-                      jumlah: data.totalPemasukan,
-                      color: Colors.green,
-                    ),
-                    InfoRingkasanWidget(
-                      label: 'Pengeluaran',
-                      jumlah: data.totalPengeluaran,
-                      color: Colors.red,
-                    ),
-                    InfoRingkasanWidget(
-                      label: 'Saldo',
-                      jumlah: data.dompet.saldo,
-                      color: data.dompet.saldo >= 0 ? Colors.blue : Colors.red,
-                    ),
-                  ],
+                child: RingkasanKeuanganWidget(
+                  pemasukan: transaksi.totalPemasukan,
+                  pengeluaran: transaksi.totalPengeluaran,
+                  total: transaksi.total,
                 ),
               ),
               const Divider(height: 1),
-              Expanded(
-                child: data.daftarTransaksi.isEmpty
-                    ? const Center(child: Text('Belum ada transaksi.'))
-                    : _bangunDaftarTransaksi(data.daftarTransaksi),
-              ),
+              Expanded(child: _bangunDaftarTransaksi(transaksi.transaksi)),
             ],
           );
         },
+        error: (e, s) => Text('e'),
+        loading: () => const Center(child: CircularProgressIndicator()),
       ),
     );
   }

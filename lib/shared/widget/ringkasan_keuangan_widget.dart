@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/toast_util.dart';
 
 class RingkasanKeuanganWidget extends StatelessWidget {
   final double pemasukan;
@@ -118,7 +117,6 @@ class RingkasanKeuanganWidget extends StatelessWidget {
     );
 
     final textColor = color ?? context.colorScheme.primary;
-
     return Column(
       children: [
         Text(
@@ -140,21 +138,21 @@ class RingkasanKeuanganWidget extends StatelessWidget {
   }
 }
 
-extension EkstensiRingkasanKeuangan on BuildContext {
-  void showFinancialSummarySnackbar({
-    required final double pemasukan,
-    required final double pengeluaran,
-    required final double total,
-  }) {
-    Log.info(
-      'Menampilkan snackbar ringkasan keuangan: income=$pemasukan, expense=$pengeluaran, total=$total',
-    );
+// extension EkstensiRingkasanKeuangan on BuildContext {
+//   void showFinancialSummarySnackbar({
+//     required final double pemasukan,
+//     required final double pengeluaran,
+//     required final double total,
+//   }) {
+//     Log.info(
+//       'Menampilkan snackbar ringkasan keuangan: income=$pemasukan, expense=$pengeluaran, total=$total',
+//     );
 
-    final message =
-        '📊 Ringkasan: ${FormatUang.formatMataUang(pemasukan)} | '
-        '${FormatUang.formatMataUang(pengeluaran.abs())} | '
-        '${FormatUang.formatMataUang(total)}';
+//     final message =
+//         '📊 Ringkasan: ${FormatUang.formatMataUang(pemasukan)} | '
+//         '${FormatUang.formatMataUang(pengeluaran.abs())} | '
+//         '${FormatUang.formatMataUang(total)}';
 
-    ToastUtil.info(this, message);
-  }
-}
+//     ToastUtil.info(this, message);
+//   }
+// }
