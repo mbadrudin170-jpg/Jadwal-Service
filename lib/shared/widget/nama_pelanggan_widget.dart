@@ -19,7 +19,7 @@ class NamaPelangganWidget extends ConsumerWidget {
       future: pelangganOp.ambilBerdasarkanId(idPelanggan),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Text('Memuat...', style: TextStyle(color: Colors.grey));
+          return const Text('', style: TextStyle(color: Colors.grey));
         }
         if (snapshot.hasError) {
           Log.error(

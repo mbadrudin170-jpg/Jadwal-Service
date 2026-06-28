@@ -13,7 +13,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/package_name.dart';
+import 'package:wifi/shared/widget/nama_paket_widget.dart';
 
 class OrderPage extends ConsumerStatefulWidget {
   const OrderPage({super.key});
