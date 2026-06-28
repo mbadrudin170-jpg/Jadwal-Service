@@ -20,22 +20,17 @@ class PenjadwalNotifikasi {
     final idNotifikasiAkhir = userId.hashCode;
     final idNotifikasiTengah = '${userId}_midpoint'.hashCode;
 
-    // ID untuk AlarmManager harus unik per alarm.
     final int idAlarm = idNotifikasiAkhir;
 
     try {
       final transaksiOpFirebase = transaksiOp ?? TransaksiOpFirebase();
 
-      // Dapatkan transaksi lunas terbaru yang akan datang dari Firebase.
       final transaksi = await transaksiOpFirebase
           .ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(userId);
-
-      // Logika utama penjadwalan notifikasi
       if (transaksi != null &&
           transaksi.tanggalMulai != null &&
           transaksi.tanggalBerakhir != null &&
           transaksi.tanggalBerakhir!.isAfter(DateTime.now())) {
-        // -- Penjadwalan Notifikasi & Alarm Akhir Periode --
         final waktuJadwal = transaksi.tanggalBerakhir!;
         Log.info(
           'Langganan aktif ditemukan (ID: ${transaksi.id}). Menjadwalkan notifikasi & alarm akhir pada $waktuJadwal',

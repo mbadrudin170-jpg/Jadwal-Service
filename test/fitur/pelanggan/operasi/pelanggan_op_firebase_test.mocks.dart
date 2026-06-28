@@ -132,18 +132,18 @@ class MockBaseOpFirebase extends _i1.Mock implements _i5.BaseOpFirebase {
     _i3.Future<T> Function(_i2.Transaction)? customAction,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#runComplexOperation, [customAction]),
+            Invocation.method(#operasiKompleks, [customAction]),
             returnValue:
                 _i6.ifNotNull(
                   _i6.dummyValueOrNull<T>(
                     this,
-                    Invocation.method(#runComplexOperation, [customAction]),
+                    Invocation.method(#operasiKompleks, [customAction]),
                   ),
                   (T v) => _i3.Future<T>.value(v),
                 ) ??
                 _FakeFuture_1<T>(
                   this,
-                  Invocation.method(#runComplexOperation, [customAction]),
+                  Invocation.method(#operasiKompleks, [customAction]),
                 ),
           )
           as _i3.Future<T>);
@@ -166,12 +166,12 @@ class MockBaseOpFirebase extends _i1.Mock implements _i5.BaseOpFirebase {
 
   @override
   _i3.Future<void> sisipkan(
-    String? collectionName,
+    String? namaKoleksi,
     String? docId,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#sisipkan, [collectionName, docId, data]),
+            Invocation.method(#sisipkan, [namaKoleksi, docId, data]),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )

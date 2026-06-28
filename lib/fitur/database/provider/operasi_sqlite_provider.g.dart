@@ -416,8 +416,8 @@ String _$feedbackOpSqliteHash() => r'aa32fce6b44047bb5d2038471fe8dab1127d0c67';
 final orderOpSqliteProvider = OrderOpSqliteProvider._();
 
 final class OrderOpSqliteProvider
-    extends $FunctionalProvider<OrderOpsqlite, OrderOpsqlite, OrderOpsqlite>
-    with $Provider<OrderOpsqlite> {
+    extends $FunctionalProvider<OrderOpSqlite, OrderOpSqlite, OrderOpSqlite>
+    with $Provider<OrderOpSqlite> {
   OrderOpSqliteProvider._()
     : super(
         from: null,
@@ -434,24 +434,24 @@ final class OrderOpSqliteProvider
 
   @$internal
   @override
-  $ProviderElement<OrderOpsqlite> $createElement($ProviderPointer pointer) =>
+  $ProviderElement<OrderOpSqlite> $createElement($ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  OrderOpsqlite create(Ref ref) {
+  OrderOpSqlite create(Ref ref) {
     return orderOpSqlite(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(OrderOpsqlite value) {
+  Override overrideWithValue(OrderOpSqlite value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<OrderOpsqlite>(value),
+      providerOverride: $SyncValueProvider<OrderOpSqlite>(value),
     );
   }
 }
 
-String _$orderOpSqliteHash() => r'2b9a173f47bff8aeef23483c79d37a08a71bf3a1';
+String _$orderOpSqliteHash() => r'eebb4015f5bb0220e1c7121f2b813f6243b611b4';
 
 /// Provider untuk menyediakan instance dari [SettingsOpSqlite].
 

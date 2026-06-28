@@ -174,7 +174,7 @@ class MockLayananNotifikasi extends _i1.Mock implements _i3.LayananNotifikasi {
   @override
   _i4.Future<void> batalkanNotifikasi(int? id) =>
       (super.noSuchMethod(
-            Invocation.method(#batalNotifikasi, [id]),
+            Invocation.method(#batalkanNotifikasi, [id]),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
@@ -183,7 +183,7 @@ class MockLayananNotifikasi extends _i1.Mock implements _i3.LayananNotifikasi {
   @override
   _i4.Future<void> batalkanSemuaNotifikasi() =>
       (super.noSuchMethod(
-            Invocation.method(#batalSemuaNotifikasi, []),
+            Invocation.method(#batalkanSemuaNotifikasi, []),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
@@ -192,7 +192,7 @@ class MockLayananNotifikasi extends _i1.Mock implements _i3.LayananNotifikasi {
   @override
   _i4.Future<bool> mengecekIzinExactAlarm() =>
       (super.noSuchMethod(
-            Invocation.method(#pastikanIzinExactAlarm, []),
+            Invocation.method(#mengecekIzinExactAlarm, []),
             returnValue: _i4.Future<bool>.value(false),
           )
           as _i4.Future<bool>);

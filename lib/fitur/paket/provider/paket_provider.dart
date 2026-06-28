@@ -44,7 +44,7 @@ class Paket extends _$Paket {
   Future<void> tambah(PaketModel paket) async {
     try {
       await _paketOp.tambahPaket(paket);
-      unawaited(_invalidateProviderPaket());
+      unawaited(invalidateProviderPaket());
       // Logika asinkron
     } on Exception catch (e, s) {
       Log.error('Error di tambah: $e', e: e, s: s);
@@ -55,7 +55,7 @@ class Paket extends _$Paket {
   Future<void> perbarui(PaketModel paket) async {
     try {
       await _paketOp.perbaruiPaket(paket);
-      unawaited(_invalidateProviderPaket());
+      unawaited(invalidateProviderPaket());
     } on Exception catch (e, s) {
       Log.error('Error diupdate: $e', e: e, s: s);
       rethrow;
@@ -64,8 +64,8 @@ class Paket extends _$Paket {
 
   Future<void> softDelete(String id) async {
     try {
-      await _paketOp.hapusSementara(id);
-      unawaited(_invalidateProviderPaket());
+      await _paketOp.softDelete(id);
+      unawaited(invalidateProviderPaket());
     } on Exception catch (e, s) {
       Log.error('Error disoftDelete: $e', e: e, s: s);
       rethrow;
@@ -81,7 +81,7 @@ class Paket extends _$Paket {
     Log.info('PaketProvider: Penyegaran data paket selesai');
   }
 
-  Future<void> _invalidateProviderPaket() async {
+  Future<void> invalidateProviderPaket() async {
     ref.invalidateSelf();
     ref.invalidate(detailPaketProvider);
     ref.invalidate(urutanPaketStateProvider);

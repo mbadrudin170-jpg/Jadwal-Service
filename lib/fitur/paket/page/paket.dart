@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/paket/page/detail_paket.dart';
 import 'package:wifi/fitur/paket/page/form_paket.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
@@ -219,6 +220,7 @@ Future<void> _tampilkanDialogHapusEdit(
           TextButton(
             onPressed: () async {
               Navigator.pop(dialogContext);
+              if (!context.mounted) return;
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
@@ -246,7 +248,7 @@ Future<void> _tampilkanDialogKonfirmasiHapus(
   WidgetRef ref,
   PaketModel paket,
 ) async {
-  final paketOpSqlite = ref.read(paketOpSqliteProvider);
+  final paketOp = ref.read(paketOpGlobalProvider);
 
   await showDialog<void>(
     context: context,
@@ -265,19 +267,19 @@ Future<void> _tampilkanDialogKonfirmasiHapus(
             onPressed: () async {
               Navigator.pop(dialogContext);
               try {
-                await paketOpSqlite.hapusSementara(paket.id);
+                await paketOp.softDelete(paket.id);
                 ref.invalidate(paketProvider);
                 unawaited(
                   ref
                       .read(layananCekSinkronisasiProvider)
                       .jalankanCekSinkronisasi(),
                 );
-                if (context.mounted) {
+                if (dialogContext.mounted) {
                   ToastUtil.success(context, 'Paket berhasil dihapus.');
                 }
               } on Exception catch (e, s) {
                 Log.error('Gagal hapus paket', e: e, s: s);
-                if (context.mounted) {
+                if (dialogContext.mounted) {
                   ToastUtil.error(context, 'Gagal menghapus paket: $e');
                 }
               }

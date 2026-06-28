@@ -33,7 +33,7 @@ final class FeedbackProvider
   Feedback create() => Feedback();
 }
 
-String _$feedbackHash() => r'dc2f71b068d16202fb77515c41af72635e845494';
+String _$feedbackHash() => r'8a8db05af5ea13701877c969fc6a09b273dcb5f3';
 
 abstract class _$Feedback extends $AsyncNotifier<FeedbackState> {
   FutureOr<FeedbackState> build();

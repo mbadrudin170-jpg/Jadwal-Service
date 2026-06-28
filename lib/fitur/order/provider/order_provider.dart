@@ -34,13 +34,12 @@ class Order extends _$Order {
   Future<void> tambahOrder(OrderModel order) async {
     final orderOpSqlite = ref.read(orderOpSqliteProvider);
     await orderOpSqlite.tambahOrder(order);
-    state = await AsyncValue.guard(() async {
-      final daftarPesanan = await ref.read(daftarPesananProvider.future);
-      return OrderState(
-        daftarOrder: daftarPesanan,
-        totalDaftar: daftarPesanan.length,
-      );
-    });
+    invalidateOrderProvider();
+  }
+
+  void invalidateOrderProvider() {
+    ref.invalidate(daftarPesananProvider);
+    ref.invalidateSelf();
   }
 }
 

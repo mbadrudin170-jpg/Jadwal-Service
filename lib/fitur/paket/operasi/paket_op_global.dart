@@ -70,7 +70,7 @@ class PaketOpGlobal {
     }
   }
 
-  Future<void> hapusSementara(String id) async {
+  Future<void> softDelete(String id) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[PaketOpGlobal] Admin hapus paket ID: $id di SQLite');
       await _paketOpSqlite.hapusSementara(id);
@@ -119,7 +119,7 @@ class PaketOpGlobal {
       );
     } else {
       Log.info('[PaketOpGlobal] User cek nama paket di Firebase: $nama');
-      final semuaPaket = await _paketOpFirebase.ambilPaketPublik();
+      final semuaPaket = await _paketOpFirebase.ambilSemua();
       return semuaPaket.any(
         (p) =>
             p.nama.toLowerCase() == nama.toLowerCase() &&

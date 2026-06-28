@@ -160,37 +160,45 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                       );
                       Navigator.of(dialogContext).pop();
                       final bool? dikonfirmasi = await _konfirmasiOpsi(context);
-                      if (dikonfirmasi == true) {
-                        Log.info(
-                          '_showDialog: konfirmasi hapus disetujui untuk orderId: ${order.id}',
-                        );
-                        try {
-                          await ref
-                              .read(orderOpGlobalProvider)
-                              .softDelete(order.id);
+                      if (context.mounted) {
+                        if (dikonfirmasi == true) {
                           Log.info(
-                            '_showDialog: order berhasil dihapus orderId: ${order.id}',
+                            '_showDialog: konfirmasi hapus disetujui untuk orderId: ${order.id}',
                           );
-                          ref.invalidate(daftarPesananProvider);
-                          ref.invalidate(orderProvider);
+                          try {
+                            await ref
+                                .read(orderOpGlobalProvider)
+                                .softDelete(order.id);
+                            Log.info(
+                              '_showDialog: order berhasil dihapus orderId: ${order.id}',
+                            );
+                            ref.invalidate(daftarPesananProvider);
+                            ref.invalidate(orderProvider);
 
-                          if (context.mounted) {
-                            ToastUtil.success(context, 'Data berhasil dihapus');
+                            if (dialogContext.mounted) {
+                              ToastUtil.success(
+                                context,
+                                'Data berhasil dihapus',
+                              );
+                            }
+                          } on Exception catch (e, st) {
+                            Log.error(
+                              '_showDialog: gagal menghapus order',
+                              e: e,
+                              s: st,
+                            );
+                            if (dialogContext.mounted) {
+                              ToastUtil.error(
+                                context,
+                                'Gagal menghapus pesanan',
+                              );
+                            }
                           }
-                        } on Exception catch (e, st) {
-                          Log.error(
-                            '_showDialog: gagal menghapus order',
-                            e: e,
-                            s: st,
+                        } else {
+                          Log.info(
+                            '_showDialog: konfirmasi hapus dibatalkan untuk orderId: ${order.id}',
                           );
-                          if (context.mounted) {
-                            ToastUtil.error(context, 'Gagal menghapus pesanan');
-                          }
                         }
-                      } else {
-                        Log.info(
-                          '_showDialog: konfirmasi hapus dibatalkan untuk orderId: ${order.id}',
-                        );
                       }
                     },
                   ),
