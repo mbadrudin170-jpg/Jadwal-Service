@@ -119,7 +119,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
 
   @override
   Widget build(BuildContext context) {
-    // 3. Ambil dan pantau (watch) state dari provider baru Anda di sini
     final feedbackAsync = ref.watch(daftarFeedbackAktifProvider);
 
     return Scaffold(
@@ -135,9 +134,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
             return Center(child: Text('Gagal memuat data: $e'));
           },
           data: (semuaFeedback) {
-            // Jalankan filter pencarian terhadap data real-time dari Riverpod
             _applyFilter(semuaFeedback);
-
             if (_hasilFilter.isEmpty) {
               return Center(
                 child: Text(
@@ -157,15 +154,14 @@ class _FeedbackPageState extends ConsumerState<FeedbackPageA> {
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   child: InkWell(
                     onTap: () async {
-                      final hasil = await Navigator.push(
-                        context,
-                        MaterialPageRoute<bool>(
-                          builder: (context) => FeedbackDetailA(id: item.id),
+                      unawaited(
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (context) => FeedbackDetailA(id: item.id),
+                          ),
                         ),
                       );
-                      if ((hasil ?? false) && mounted) {
-                        ref.invalidate(daftarFeedbackAktifProvider);
-                      }
                     },
                     onLongPress: () => _hapusFeedback(item),
                     child: Padding(
