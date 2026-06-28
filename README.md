@@ -9287,7 +9287,6 @@ class PackagePage extends ConsumerWidget {
           }
           final sortedList = List<PaketModel>.from(paketList.daftarPaket);
           _urutkanList(sortedList, urutanSaatIni);
-
           return ListView.builder(
             itemCount: sortedList.length,
             itemBuilder: (context, index) {
@@ -9804,7 +9803,7 @@ final class PaketProvider extends $AsyncNotifierProvider<Paket, PaketState> {
   Paket create() => Paket();
 }
 
-String _$paketHash() => r'fb6d283ab6332454ac2c6483dd179aaa10e25030';
+String _$paketHash() => r'5fef2281a7974d52ea0f0e82686182ef575c1c12';
 
 abstract class _$Paket extends $AsyncNotifier<PaketState> {
   FutureOr<PaketState> build();
@@ -11604,7 +11603,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/package_name.dart';
+import 'package:wifi/shared/widget/nama_paket_widget.dart';
 
 class OrderPage extends ConsumerStatefulWidget {
   const OrderPage({super.key});
@@ -12025,10 +12024,8 @@ class _OrderPageState extends ConsumerState<OrderPage> {
               title: Row(
                 children: [
                   const Text('Paket: '),
-                  PackageNameWidget(
-                    paketFuture: paketOpFirebase.ambilBerdasarkanId(
-                      order.idPaket,
-                    ),
+                  NamaPaketWidget(
+                    idPaket: paketOpFirebase.ambilBerdasarkanId(order.idPaket),
                   ),
                 ],
               ),
@@ -12423,7 +12420,7 @@ final class OrderProvider extends $AsyncNotifierProvider<Order, OrderState> {
   Order create() => Order();
 }
 
-String _$orderHash() => r'adfe09f2a8ad1a583ffa7a5b7553d58716312283';
+String _$orderHash() => r'549fe16969e46f27af5c8b1e062dee3daac26402';
 
 abstract class _$Order extends $AsyncNotifier<OrderState> {
   FutureOr<OrderState> build();
@@ -15795,6 +15792,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
+import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
@@ -15804,7 +15802,7 @@ import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/fitur/transaksi/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/widget/summary_info_widget.dart';
+import 'package:wifi/shared/widget/ringkasan_keuangan_widget.dart';
 
 class DataDetailDompet {
   final DompetModel dompet;
@@ -15837,14 +15835,13 @@ class DetailDompet extends ConsumerStatefulWidget {
 }
 
 class _DetailDompetState extends ConsumerState<DetailDompet> {
-  late Future<DataDetailDompet> _futureDataDetail;
   String? _namaDompetTerbaru;
 
   @override
   void initState() {
     super.initState();
     Log.info('Membuat state untuk WalletDetail. ID: ${widget.dompet.id}');
-    _futureDataDetail = _muatData();
+    _muatData();
   }
 
   Future<DataDetailDompet> _muatData() async {
@@ -15894,30 +15891,19 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
 
   void _muatUlangData() {
     Log.info('Memicu pemuatan ulang data untuk WalletDetail.');
-    setState(() {
-      _futureDataDetail = _muatData();
-    });
+    setState(_muatData);
   }
 
-  Future<void> _navigasiKeDetailTransaksi(TransaksiModel transaction) async {
+  Future<void> _navigasiKeDetailTransaksi(TransaksiModel transaksi) async {
     Log.info(
-      'Navigasi ke TransactionDetailPage dari WalletDetail untuk transaksi ID: ${transaction.id}',
+      'Navigasi ke TransactionDetailPage dari WalletDetail untuk transaksi ID: ${transaksi.id}',
     );
-    final hasil = await Navigator.push<bool>(
+    await Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (context) => DetailTransaksiA(transaksi: transaction),
+        builder: (context) => DetailTransaksiA(transaksi: transaksi),
       ),
     );
-
-    if (hasil ?? false) {
-      Log.info(
-        'Kembali dari halaman detail transaksi dengan sinyal reload. Memuat ulang data dompet.',
-      );
-      _muatUlangData();
-    } else {
-      Log.info('Kembali dari halaman detail transaksi tanpa perubahan.');
-    }
   }
 
   Future<void> _navigasiKeFormTransaksi({TransaksiModel? transaksi}) async {
@@ -15934,67 +15920,35 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
 
   @override
   Widget build(BuildContext context) {
+    final transaksiAsync = ref.watch(transaksiProvider);
+    final detailDompet = ref.watch(detailDompetProvider(widget.dompet.id));
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_namaDompetTerbaru ?? widget.dompet.nama),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context, true),
-        ),
-      ),
-      body: FutureBuilder<DataDetailDompet>(
-        future: _futureDataDetail,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: Text('Data Kosong'));
-          }
-
-          final data = snapshot.data!;
-
+      appBar: AppBar(title: Text(_namaDompetTerbaru ?? widget.dompet.nama)),
+      body: transaksiAsync.when(
+        skipLoadingOnReload: true,
+        data: (transaksi) {
           return Column(
             children: [
               Container(
                 color: Theme.of(context).primaryColor.withAlpha(13),
                 padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    buildSummaryInfo(
-                      context: context,
-                      label: 'Pemasukan',
-                      amount: data.totalPemasukan,
-                      color: Colors.green,
-                    ),
-                    buildSummaryInfo(
-                      context: context,
-                      label: 'Pengeluaran',
-                      amount: data.totalPengeluaran,
-                      color: Colors.red,
-                    ),
-                    buildSummaryInfo(
-                      context: context,
-                      label: 'Saldo',
-                      amount: data.dompet.saldo,
-                      color: data.dompet.saldo >= 0 ? Colors.blue : Colors.red,
-                    ),
-                  ],
+                child: RingkasanKeuanganWidget(
+                  pemasukan: transaksi.totalPemasukan,
+                  pengeluaran: transaksi.totalPengeluaran,
+                  total: transaksi.total,
                 ),
               ),
               const Divider(height: 1),
               Expanded(
-                child: data.daftarTransaksi.isEmpty
-                    ? const Center(child: Text('Belum ada transaksi.'))
-                    : _bangunDaftarTransaksi(data.daftarTransaksi),
+                child: _bangunDaftarTransaksi(
+                  detailDompet as List<TransaksiModel>,
+                ),
               ),
             ],
           );
         },
+        error: (e, s) => Text('e'),
+        loading: () => const Center(child: CircularProgressIndicator()),
       ),
     );
   }
@@ -16061,7 +16015,7 @@ import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/widget_ringkasan_keuangan.dart';
+import 'package:wifi/shared/widget/ringkasan_keuangan_widget.dart';
 
 class DompetPage extends ConsumerWidget {
   const DompetPage({super.key});
@@ -16111,7 +16065,7 @@ class DompetPage extends ConsumerWidget {
 
           return Column(
             children: [
-              WidgetRingkasanKeuangan(
+              RingkasanKeuanganWidget(
                 pemasukan: walletState.totalSaldoPositif,
                 pengeluaran: walletState.totalSaldoNegatif,
                 total: walletState.totalSaldo,
@@ -16592,6 +16546,83 @@ abstract class _$Dompet extends $AsyncNotifier<DompetState> {
   }
 }
 
+@ProviderFor(detailDompet)
+final detailDompetProvider = DetailDompetFamily._();
+
+final class DetailDompetProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<TransaksiModel>>,
+          List<TransaksiModel>,
+          FutureOr<List<TransaksiModel>>
+        >
+    with
+        $FutureModifier<List<TransaksiModel>>,
+        $FutureProvider<List<TransaksiModel>> {
+  DetailDompetProvider._({
+    required DetailDompetFamily super.from,
+    required String? super.argument,
+  }) : super(
+         retry: null,
+         name: r'detailDompetProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$detailDompetHash();
+
+  @override
+  String toString() {
+    return r'detailDompetProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<TransaksiModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<TransaksiModel>> create(Ref ref) {
+    final argument = this.argument as String?;
+    return detailDompet(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DetailDompetProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$detailDompetHash() => r'16175046388bab33a8624f819318f91d7303a41b';
+
+final class DetailDompetFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<TransaksiModel>>, String?> {
+  DetailDompetFamily._()
+    : super(
+        retry: null,
+        name: r'detailDompetProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  DetailDompetProvider call(String? idDompet) =>
+      DetailDompetProvider._(argument: idDompet, from: this);
+
+  @override
+  String toString() => r'detailDompetProvider';
+}
+
 
 // File: lib/fitur/dompet/provider/dompet_provider.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
@@ -16891,6 +16922,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 part 'dompet_provider.freezed.dart';
 part 'dompet_provider.g.dart';
@@ -16934,7 +16969,6 @@ class Dompet extends _$Dompet {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(dompetOpSqliteProvider);
       await operation.tambahDompet(dompet);
-
       return _loadData();
     });
   }
@@ -16969,6 +17003,18 @@ class Dompet extends _$Dompet {
   /// fungsi untuk menyegarkan data dompet
   Future<void> refresh() async {
     state = await AsyncValue.guard(_loadData);
+  }
+}
+
+@riverpod
+Future<List<TransaksiModel>> detailDompet(Ref ref, String? idDompet) async {
+  try {
+    final transaksiOp = ref.watch(transaksiOpGlobalProvider);
+    final daftarTransaksi = transaksiOp.ambilBerdasarkanIdDompet(idDompet!);
+    return daftarTransaksi;
+  } on Exception catch (e, s) {
+    Log.error('Error diDetailDompet: $e', e: e, s: s);
+    rethrow;
   }
 }
 
@@ -24183,7 +24229,7 @@ import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/widget/package_name.dart';
+import 'package:wifi/shared/widget/nama_paket_widget.dart';
 
 class RiwayatAktivasiPaket extends ConsumerStatefulWidget {
   const RiwayatAktivasiPaket({super.key});
@@ -24447,8 +24493,8 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      PackageNameWidget(
-                        paketFuture: paketOpSqlite.ambilBerdasarkanId(
+                      NamaPaketWidget(
+                        idPaket: paketOpSqlite.ambilBerdasarkanId(
                           transaksi.idPaket ?? '',
                         ),
                         style: TextStyle(color: warnaStatusPembayaran),
@@ -26361,7 +26407,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
-import 'package:wifi/shared/widget/package_name.dart';
+import 'package:wifi/shared/widget/nama_paket_widget.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
@@ -26665,9 +26711,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                               ),
                               child: ListTile(
                                 leading: const Icon(TIcons.receiptLong),
-                                title: PackageNameWidget(
-                                  paketFuture: paketFuture,
-                                ),
+                                title: NamaPaketWidget(idPaket: paketFuture),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -27686,7 +27730,7 @@ import 'package:wifi/fitur/transaksi/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/widget_ringkasan_keuangan.dart';
+import 'package:wifi/shared/widget/ringkasan_keuangan_widget.dart';
 
 // ============================================================
 // Halaman Utama
@@ -27849,7 +27893,7 @@ class _TransactionBody extends ConsumerWidget {
       onRefresh: () => ref.read(transaksiProvider.notifier).refresh(),
       child: Column(
         children: [
-          TransactionSummary(
+          RingkasanKeuanganWidget(
             pemasukan: state.totalPemasukan,
             pengeluaran: state.totalPengeluaran,
             total: state.total,
@@ -27934,7 +27978,6 @@ class _TransactionListViewState extends ConsumerState<_TransactionListView> {
               sum +
               (item.tipe == TipeTransaksi.income ? item.jumlah : -item.jumlah),
         );
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -27977,56 +28020,6 @@ class _TransactionListViewState extends ConsumerState<_TransactionListView> {
       context,
       MaterialPageRoute<bool>(
         builder: (context) => FormTransaksi(transaksi: transaksi),
-      ),
-    );
-  }
-}
-
-// ============================================================
-// Widget Ringkasan (tidak diubah)
-// ============================================================
-class TransactionSummary extends StatelessWidget {
-  final double pemasukan;
-  final double pengeluaran;
-  final double total;
-
-  const TransactionSummary({
-    super.key,
-    required this.pemasukan,
-    required this.pengeluaran,
-    required this.total,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(8.0),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            bangunRingkasanInfoKeuangan(
-              context: context,
-              label: 'Pemasukan',
-              jumlah: pemasukan,
-              color: Colors.green,
-            ),
-            bangunRingkasanInfoKeuangan(
-              context: context,
-              label: 'Pengeluaran',
-              jumlah: pengeluaran,
-              color: Colors.red,
-            ),
-            bangunRingkasanInfoKeuangan(
-              context: context,
-              label: 'Total',
-              jumlah: total,
-              color: total >= 0 ? Colors.blue : Colors.red,
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -28191,7 +28184,6 @@ class _StateTileTransaksi extends ConsumerState<TileTransaksi> {
         onTap: widget.onTap,
         onLongPress: () {
           if (widget.onEdit == null && widget.onDelete == null) return;
-
           unawaited(
             showDialog<void>(
               context: context,
@@ -41888,7 +41880,6 @@ class FormatNomor {
 
 
 // File: lib/shared/widget/nama_pelanggan_widget.dart
-// path: lib/shared/widget/nama_pelanggan_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
@@ -41898,8 +41889,14 @@ import 'package:wifi/shared/debug/log.dart';
 class NamaPelangganWidget extends ConsumerWidget {
   final String idPelanggan;
   final TextStyle? style;
+  final bool showLoadingIndicator;
 
-  const NamaPelangganWidget({super.key, required this.idPelanggan, this.style});
+  const NamaPelangganWidget({
+    super.key,
+    required this.idPelanggan,
+    this.style,
+    this.showLoadingIndicator = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -41909,7 +41906,13 @@ class NamaPelangganWidget extends ConsumerWidget {
       future: pelangganOp.ambilBerdasarkanId(idPelanggan),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Text('Memuat...', style: TextStyle(color: Colors.grey));
+          return showLoadingIndicator
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('');
         }
         if (snapshot.hasError) {
           Log.error(
@@ -41919,23 +41922,32 @@ class NamaPelangganWidget extends ConsumerWidget {
           return Text(
             'Error memuat data',
             style:
-                style ??
+                style?.copyWith(
+                  color: Colors.red,
+                  fontStyle: FontStyle.italic,
+                ) ??
                 const TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
           );
         }
-        if (!snapshot.hasData || snapshot.data == null) {
+
+        final pelanggan = snapshot.data;
+        if (pelanggan == null) {
           return Text(
             'Pelanggan tidak ditemukan',
             style:
-                style ??
+                style?.copyWith(
+                  color: Colors.grey,
+                  fontStyle: FontStyle.italic,
+                ) ??
                 const TextStyle(
                   color: Colors.grey,
                   fontStyle: FontStyle.italic,
                 ),
           );
         }
+
         return Text(
-          snapshot.data!.nama,
+          pelanggan.nama,
           style: style,
           overflow: TextOverflow.ellipsis,
         );
@@ -41943,6 +41955,7 @@ class NamaPelangganWidget extends ConsumerWidget {
     );
   }
 }
+
 
 // File: lib/shared/widget/input/input_rupiah.dart
 // path: lib/shared/widget/input/input_rupiah.dart
@@ -42547,84 +42560,25 @@ class MacAddressFormatter extends TextInputFormatter {
 }
 
 
-// File: lib/shared/widget/summary_info_widget.dart
-// path: lib/shared/widget/summary_info_widget.dart
-// digunakan oleh: lib/admin/halaman/detail/wallet_detail.dart
-
-import 'package:flutter/material.dart';
-import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/utils/format_util.dart';
-
-/// Membangun widget ringkasan informasi dengan label dan jumlah yang diformat.
-///
-/// Menampilkan [label] di atas dan [amount] di bawah dengan [color] tertentu.
-/// [alignment] mengatur perataan kolom (default: center).
-/// [textKey] dapat digunakan untuk memberikan key khusus pada teks jumlah.
-Widget buildSummaryInfo({
-  required final BuildContext context,
-  required final String label,
-  required final double amount,
-  required final Color color,
-  final CrossAxisAlignment alignment = CrossAxisAlignment.center,
-  final Key? textKey,
-}) {
-  return Column(
-    crossAxisAlignment: alignment,
-    children: [
-      Text(label, style: Theme.of(context).textTheme.bodySmall),
-      gapH4,
-      Text(
-        FormatUang.formatMataUang(amount),
-        key: textKey ?? ValueKey(label),
-        style: TextStyle(
-          color: color,
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-        ),
-      ),
-    ],
-  );
-}
-
-
-// File: lib/shared/widget/package_name.dart
-// path: lib/shared/widget/package_name.dart
-// digunakan oleh: lib/user/page/riwayat_langganan_user.dart
-// ditambah: Menambahkan logging untuk error di FutureBuilder.
-
+// File: lib/shared/widget/nama_paket_widget.dart
 import 'package:flutter/material.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-/// Widget yang menampilkan nama paket berdasarkan Future yang diberikan.
-///
-/// Widget ini didekopling dari sumber data. Ia hanya menerima [paketFuture]
-/// dan menampilkan hasilnya. Menampilkan indikator loading saat menunggu,
-/// atau 'Paket tidak tersedia' jika data null atau error.
-class PackageNameWidget extends StatelessWidget {
-  /// Future yang mengembalikan [PaketModel] untuk ditampilkan namanya.
-  final Future<PaketModel?> paketFuture;
-
-  /// Gaya teks opsional untuk nama paket.
+class NamaPaketWidget extends StatelessWidget {
+  final Future<PaketModel?> idPaket;
   final TextStyle? style;
 
-  /// Membuat widget [PackageNameWidget].
-  const PackageNameWidget({super.key, required this.paketFuture, this.style});
+  const NamaPaketWidget({super.key, required this.idPaket, this.style});
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<PaketModel?>(
-      future: paketFuture,
-      builder: (final context, final snapshot) {
+      future: idPaket,
+      builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const SizedBox(
-            width: 12,
-            height: 12,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          );
+          return Text('');
         }
-
-        // ditambah: Pengecekan error yang eksplisit dengan logging.
         if (snapshot.hasError) {
           Log.error(
             'Error di PackageNameWidget saat memuat paket',
@@ -42639,64 +42593,25 @@ class PackageNameWidget extends StatelessWidget {
             ),
           );
         }
-
-        if (!snapshot.hasData || snapshot.data == null) {
-          return Text(
-            'Paket tidak tersedia',
-            style: style?.copyWith(
-              color: Colors.grey,
-              fontStyle: FontStyle.italic,
-            ),
-          );
-        }
-
-        return Text(snapshot.data!.nama, style: style);
+        return Text(
+          snapshot.data?.nama ?? 'Paket tidak tersedia',
+          style: style,
+        );
       },
     );
   }
 }
 
 
-// File: lib/shared/widget/widget_ringkasan_keuangan.dart
+// File: lib/shared/widget/ringkasan_keuangan_widget.dart
+// path lib/shared/widget/widget_ringkasan_keuangan.dart
+
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/toast_util.dart';
 
-Widget bangunRingkasanInfoKeuangan({
-  required final BuildContext context,
-  required final String label,
-  required final double jumlah,
-  final Color? color,
-}) {
-  Log.info(
-    'Membangun widget FinancialSummaryInfo untuk label: "$label", amount: $jumlah',
-  );
-
-  final textColor = color ?? context.colorScheme.primary;
-
-  return Column(
-    children: [
-      Text(
-        label,
-        style: context.textTheme.bodyMedium?.copyWith(
-          color: context.colorScheme.onSurfaceVariant,
-        ),
-      ),
-      gapH4,
-      Text(
-        FormatUang.formatMataUang(jumlah),
-        style: context.textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: textColor,
-        ),
-      ),
-    ],
-  );
-}
-
-class WidgetRingkasanKeuangan extends StatelessWidget {
+class RingkasanKeuanganWidget extends StatelessWidget {
   final double pemasukan;
   final double pengeluaran;
   final double total;
@@ -42704,7 +42619,7 @@ class WidgetRingkasanKeuangan extends StatelessWidget {
   final String? pesanError;
   final VoidCallback? onRefresh;
 
-  const WidgetRingkasanKeuangan({
+  const RingkasanKeuanganWidget({
     super.key,
     required this.pemasukan,
     required this.pengeluaran,
@@ -42715,7 +42630,7 @@ class WidgetRingkasanKeuangan extends StatelessWidget {
   });
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     Log.info(
       'Membangun FinancialSummaryWidget: income=$pemasukan, expense=$pengeluaran, total=$total, isLoading=$sedangLoading',
     );
@@ -42796,26 +42711,57 @@ class WidgetRingkasanKeuangan extends StatelessWidget {
       ],
     );
   }
-}
 
-extension EkstensiRingkasanKeuangan on BuildContext {
-  void showFinancialSummarySnackbar({
-    required final double pemasukan,
-    required final double pengeluaran,
-    required final double total,
+  Widget bangunRingkasanInfoKeuangan({
+    required final BuildContext context,
+    required final String label,
+    required final double jumlah,
+    final Color? color,
   }) {
     Log.info(
-      'Menampilkan snackbar ringkasan keuangan: income=$pemasukan, expense=$pengeluaran, total=$total',
+      'Membangun widget FinancialSummaryInfo untuk label: "$label", amount: $jumlah',
     );
 
-    final message =
-        '📊 Ringkasan: ${FormatUang.formatMataUang(pemasukan)} | '
-        '${FormatUang.formatMataUang(pengeluaran.abs())} | '
-        '${FormatUang.formatMataUang(total)}';
-
-    ToastUtil.info(this, message);
+    final textColor = color ?? context.colorScheme.primary;
+    return Column(
+      children: [
+        Text(
+          label,
+          style: context.textTheme.bodyMedium?.copyWith(
+            color: context.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        gapH4,
+        Text(
+          FormatUang.formatMataUang(jumlah),
+          style: context.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
+        ),
+      ],
+    );
   }
 }
+
+// extension EkstensiRingkasanKeuangan on BuildContext {
+//   void showFinancialSummarySnackbar({
+//     required final double pemasukan,
+//     required final double pengeluaran,
+//     required final double total,
+//   }) {
+//     Log.info(
+//       'Menampilkan snackbar ringkasan keuangan: income=$pemasukan, expense=$pengeluaran, total=$total',
+//     );
+
+//     final message =
+//         '📊 Ringkasan: ${FormatUang.formatMataUang(pemasukan)} | '
+//         '${FormatUang.formatMataUang(pengeluaran.abs())} | '
+//         '${FormatUang.formatMataUang(total)}';
+
+//     ToastUtil.info(this, message);
+//   }
+// }
 
 
 // File: lib/shared/widget/pemilih_tanggal_waktu_widget.dart
@@ -50450,64 +50396,6 @@ class _HalamanTesState extends State<HalamanTes> {
 // }
 
 
-// File: lib/admin/halaman/widget/nama_pelanggan.dart
-// path: lib/admin/halaman/widget/nama_pelanggan.dart
-
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/shared/debug/log.dart';
-
-/// Sebuah widget untuk menampilkan nama pelanggan berdasarkan ID pelanggan.
-class CustomerNameWidget extends ConsumerWidget {
-  /// ID dari pelanggan yang akan ditampilkan namanya.
-  final String customerId;
-
-  /// Gaya teks untuk nama pelanggan.
-  final TextStyle? style;
-
-  /// Membuat sebuah widget [CustomerNameWidget].
-  const CustomerNameWidget({
-    super.key,
-    required this.customerId,
-    this.style,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    Log.info('Membangun CustomerNameWidget untuk customerId: $customerId');
-    final customerOperation = ref.read(pelangganOpSqliteProvider);
-    return FutureBuilder<PelangganModel?>(
-      future: customerOperation.ambilBerdasarkanId(customerId),
-      builder: (final context, final snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          Log.info('Menunggu data pelanggan untuk ID: $customerId');
-          return const Text('Loading...', style: TextStyle(color: Colors.grey));
-        }
-        if (snapshot.hasError) {
-          Log.error('Error saat memuat pelanggan ID: $customerId',
-              e: snapshot.error);
-          return const Text('Error', style: TextStyle(color: Colors.red));
-        }
-        if (!snapshot.hasData || snapshot.data == null) {
-          Log.warning('Pelanggan dengan ID: $customerId tidak ditemukan');
-          return const Text(
-            'Pelanggan tidak ditemukan',
-            style: TextStyle(color: Colors.red),
-          );
-        }
-
-        final customer = snapshot.data!;
-        Log.info(
-            'Berhasil memuat pelanggan: ${customer.nama} (ID: $customerId)');
-        return Text(customer.nama, style: style);
-      },
-    );
-  }
-}
-
-
 // File: lib/admin/halaman/widget/tombol_aksi.dart
 // path: lib/admin/halaman/widget/tombol_aksi.dart
 import 'package:flutter/material.dart';
@@ -50539,63 +50427,6 @@ class TombolAksi extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         textStyle: const TextStyle(fontSize: 16),
       ),
-    );
-  }
-}
-
-
-// File: lib/admin/halaman/widget/nama_paket_widget.dart
-// path: lib/admin/halaman/widget/nama_paket_widget.dart
-
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/shared/debug/log.dart';
-
-class PackageNameWidget extends ConsumerWidget {
-  /// ID dari paket yang akan ditampilkan namanya.
-  final String packageId;
-
-  /// Gaya teks untuk nama paket.
-  final TextStyle? style;
-
-  /// Membuat sebuah widget [PackageNameWidget].
-  const PackageNameWidget({
-    super.key,
-    required this.packageId,
-    this.style,
-  });
-
-  @override
-  Widget build(final BuildContext context, WidgetRef ref) {
-    Log.info('Membangun PackageNameWidget untuk packageId: $packageId');
-
-    final packageOperation = ref.read(paketOpSqliteProvider);
-    return FutureBuilder<PaketModel?>(
-      future: packageOperation.ambilBerdasarkanId(packageId),
-      builder: (final context, final snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          Log.info('Menunggu data paket untuk ID: $packageId');
-          return const Text('Loading...', style: TextStyle(color: Colors.grey));
-        }
-        if (snapshot.hasError) {
-          Log.error('Error saat memuat paket ID: $packageId',
-              e: snapshot.error);
-          return const Text('Error', style: TextStyle(color: Colors.red));
-        }
-        if (!snapshot.hasData || snapshot.data == null) {
-          Log.warning('Paket dengan ID: $packageId tidak ditemukan');
-          return const Text(
-            'Paket tidak ditemukan',
-            style: TextStyle(color: Colors.red),
-          );
-        }
-
-        final package = snapshot.data!;
-        Log.info('Berhasil memuat paket: ${package.nama} (ID: $packageId)');
-        return Text(package.nama, style: style);
-      },
     );
   }
 }
@@ -51289,658 +51120,655 @@ Kalau “tidak yakin” → ganti nama.
 // File: prompt/struktur_proyek.md
 lib
 ├── admin
-│   ├── app_admin.dart
-│   ├── data
-│   │   └── sqlite.dart
-│   ├── firebase_option
-│   │   ├── firebase_option_admin_dev.dart
-│   │   └── firebase_option_admin_prod.dart
-│   ├── halaman
-│   │   ├── lainnya
-│   │   │   └── halaman_migrasi.dart
-│   │   ├── tab
-│   │   │   └── lainnya.dart
-│   │   ├── tes
-│   │   │   ├── contoh_simpan_status.dart
-│   │   │   └── halaman_tes.dart
-│   │   └── widget
-│   │       ├── box_info.dart
-│   │       ├── container_with_border.dart
-│   │       ├── nama_paket_widget.dart
-│   │       ├── nama_pelanggan.dart
-│   │       └── tombol_aksi.dart
-│   ├── halaman_utama.dart
-│   ├── providers
-│   │   ├── customer_provider.dart
-│   │   └── customer_provider.g.dart
-│   └── splash_screen_admin.dart
+│   ├── app_admin.dart
+│   ├── data
+│   │   └── sqlite.dart
+│   ├── firebase_option
+│   │   ├── firebase_option_admin_dev.dart
+│   │   └── firebase_option_admin_prod.dart
+│   ├── halaman
+│   │   ├── lainnya
+│   │   │   └── halaman_migrasi.dart
+│   │   ├── tab
+│   │   │   └── lainnya.dart
+│   │   ├── tes
+│   │   │   ├── contoh_simpan_status.dart
+│   │   │   └── halaman_tes.dart
+│   │   └── widget
+│   │       ├── box_info.dart
+│   │       ├── container_with_border.dart
+│   │       └── tombol_aksi.dart
+│   ├── halaman_utama.dart
+│   ├── providers
+│   │   ├── customer_provider.dart
+│   │   └── customer_provider.g.dart
+│   └── splash_screen_admin.dart
 ├── data_dummy
-│   ├── data_dummy.dart
-│   ├── dummy_dompet.dart
-│   ├── dummy_kategori.dart
-│   ├── dummy_paket.dart
-│   ├── dummy_pelanggan.dart
-│   ├── dummy_sub_kategori.dart
-│   ├── dummy_transaksi.dart
-│   └── halaman_data_dummy.dart
+│   ├── data_dummy.dart
+│   ├── dummy_dompet.dart
+│   ├── dummy_kategori.dart
+│   ├── dummy_paket.dart
+│   ├── dummy_pelanggan.dart
+│   ├── dummy_sub_kategori.dart
+│   ├── dummy_transaksi.dart
+│   └── halaman_data_dummy.dart
 ├── fitur
-│   ├── akun
-│   │   ├── page
-│   │   │   └── daftar_akun_page.dart
-│   │   └── provider
-│   │       ├── akun_provider.dart
-│   │       ├── akun_provider.freezed.dart
-│   │       └── akun_provider.g.dart
-│   ├── alarm
-│   │   ├── penjadwal_alarm.dart
-│   │   └── penjadwal_alarm_android.dart
-│   ├── app_role
-│   │   ├── role_util.dart
-│   │   └── role_util.g.dart
-│   ├── background
-│   │   ├── alarm_utils.dart
-│   │   ├── layanan_latar_belakang.dart
-│   │   └── layanan_peluncuran.dart
-│   ├── database
-│   │   └── provider
-│   │       ├── operasi_sqlite_provider.dart
-│   │       └── operasi_sqlite_provider.g.dart
-│   ├── dompet
-│   │   ├── model
-│   │   │   ├── dompet_model.dart
-│   │   │   └── dompet_model.freezed.dart
-│   │   ├── operasi
-│   │   │   └── dompet_op_sqlite.dart
-│   │   ├── page
-│   │   │   ├── detail_dompet.dart
-│   │   │   ├── dompet_page.dart
-│   │   │   └── form_dompet.dart
-│   │   └── provider
-│   │       ├── dompet_provider.dart
-│   │       ├── dompet_provider.freezed.dart
-│   │       └── dompet_provider.g.dart
-│   ├── event
-│   │   ├── model
-│   │   │   ├── event_model.dart
-│   │   │   └── event_model.freezed.dart
-│   │   ├── operasi
-│   │   │   └── event_op_supabase.dart
-│   │   └── page
-│   │       ├── detail_event_a.dart
-│   │       ├── event_page_a.dart
-│   │       ├── event_page_u.dart
-│   │       └── manage_announcement_page.dart
-│   ├── feedback
-│   │   ├── model
-│   │   │   ├── feedback_model.dart
-│   │   │   └── feedback_model.freezed.dart
-│   │   ├── operasi
-│   │   │   ├── feedback_op_firebase.dart
-│   │   │   ├── feedback_op_global.dart
-│   │   │   └── feedback_op_sqlite.dart
-│   │   ├── page
-│   │   │   ├── feedback_detail.dart
-│   │   │   ├── feedback_page.dart
-│   │   │   └── form_feedback.dart
-│   │   └── provider
-│   │       ├── feedback_provider.dart
-│   │       ├── feedback_provider.freezed.dart
-│   │       └── feedback_provider.g.dart
-│   ├── info_perangkat
-│   │   ├── enum
-│   │   │   └── arsitektur_apk.dart
-│   │   ├── model
-│   │   │   ├── info_perangkat_model.dart
-│   │   │   └── info_perangkat_model.freezed.dart
-│   │   ├── page
-│   │   │   ├── info_apk_page_user.dart
-│   │   │   └── tentang_aplikasi.dart
-│   │   └── service
-│   │       ├── layanan_info_paket.dart
-│   │       └── layanan_info_perangkat.dart
-│   ├── kategori
-│   │   ├── enum
-│   │   │   └── tipe_kategori.dart
-│   │   ├── model
-│   │   │   ├── kategori_model.dart
-│   │   │   ├── kategori_model.freezed.dart
-│   │   │   ├── sub_kategori_model.dart
-│   │   │   └── sub_kategori_model.freezed.dart
-│   │   ├── operasi
-│   │   │   ├── kategori_op_sqlite.dart
-│   │   │   └── sub_kategori_op_sqlite.dart
-│   │   └── page
-│   │       ├── form_kategori.dart
-│   │       └── kategori.dart
-│   ├── notifikasi
-│   │   ├── enum
-│   │   │   └── tipe_notifikasi_enum.dart
-│   │   ├── layanan_notifikasi.dart
-│   │   ├── model
-│   │   │   ├── notifikasi_model.dart
-│   │   │   └── notifikasi_model.freezed.dart
-│   │   ├── operasi
-│   │   │   ├── notifikasi_op_firebase.dart
-│   │   │   └── notifikasi_op_sqlite.dart
-│   │   ├── pengingat_paket_belum_lunas.dart
-│   │   └── penjadwal_notifikasi.dart
-│   ├── order
-│   │   ├── enum
-│   │   │   └── status_order_enum.dart
-│   │   ├── model
-│   │   │   ├── order_model.dart
-│   │   │   └── order_model.freezed.dart
-│   │   ├── operasi
-│   │   │   ├── order_op_firebase.dart
-│   │   │   ├── order_op_global.dart
-│   │   │   └── order_op_sqlite.dart
-│   │   ├── page
-│   │   │   └── order_page.dart
-│   │   └── provider
-│   │       ├── order_provider.dart
-│   │       ├── order_provider.freezed.dart
-│   │       └── order_provider.g.dart
-│   ├── paket
-│   │   ├── core
-│   │   │   └── perhitungan_paket.dart
-│   │   ├── enum
-│   │   │   └── tipe_durasi_paket.dart
-│   │   ├── model
-│   │   │   ├── paket_model.dart
-│   │   │   └── paket_model.freezed.dart
-│   │   ├── operasi
-│   │   │   ├── paket_op_firebase.dart
-│   │   │   ├── paket_op_global.dart
-│   │   │   └── paket_op_sqlite.dart
-│   │   ├── page
-│   │   │   ├── detail_paket.dart
-│   │   │   ├── form_paket.dart
-│   │   │   └── paket.dart
-│   │   └── provider
-│   │       ├── paket_provider.dart
-│   │       ├── paket_provider.freezed.dart
-│   │       └── paket_provider.g.dart
-│   ├── pelanggan
-│   │   ├── core
-│   │   │   └── layanan_aktivitas_user.dart
-│   │   ├── helper
-│   │   │   ├── pengurut_pelanggan.dart
-│   │   │   └── pengurut_pelanggan.g.dart
-│   │   ├── model
-│   │   │   ├── pelanggan_model.dart
-│   │   │   └── pelanggan_model.freezed.dart
-│   │   ├── operasi
-│   │   │   ├── pelanggan_op_firebase.dart
-│   │   │   ├── pelanggan_op_global.dart
-│   │   │   └── pelanggan_op_sqlite.dart
-│   │   ├── page
-│   │   │   ├── admin
-│   │   │   │   ├── detail_pelanggan_a.dart
-│   │   │   │   ├── form_pelanggan.dart
-│   │   │   │   └── pelanggan_page.dart
-│   │   │   └── user
-│   │   │       └── detail_pelanggan_u.dart
-│   │   ├── provider
-│   │   │   ├── pelanggan_provider.dart
-│   │   │   ├── pelanggan_provider.freezed.dart
-│   │   │   └── pelanggan_provider.g.dart
-│   │   └── widget
-│   │       └── detail_pelanggan_ui.dart
-│   ├── pelanggan_aktif
-│   │   ├── helper
-│   │   │   ├── pengurut_pelanggan_aktif.dart
-│   │   │   └── pengurut_pelanggan_aktif.g.dart
-│   │   ├── model
-│   │   │   ├── detail_pelanggan_aktif_model.dart
-│   │   │   ├── pelanggan_aktif_model.dart
-│   │   │   └── pelanggan_aktif_model.freezed.dart
-│   │   ├── operasi
-│   │   │   ├── pelanggan_aktif_op_firebase.dart
-│   │   │   └── pelanggan_aktif_op_sqlite.dart
-│   │   ├── page
-│   │   │   ├── detail_pelanggan_aktif.dart
-│   │   │   ├── form_pelanggan_aktif.dart
-│   │   │   └── pelanggan_aktif_page.dart
-│   │   └── provider
-│   │       ├── pelanggan_aktif_provider.dart
-│   │       ├── pelanggan_aktif_provider.freezed.dart
-│   │       └── pelanggan_aktif_provider.g.dart
-│   ├── poin
-│   │   ├── operasi
-│   │   │   ├── firebase_points_data_source.dart
-│   │   │   └── sqlite_points_data_source.dart
-│   │   ├── page
-│   │   │   └── halaman_poin.dart
-│   │   ├── provider
-│   │   │   ├── poin_provider.dart
-│   │   │   └── points_page_data_source.dart
-│   │   ├── service
-│   │   │   └── poin_transaction_service.dart
-│   │   └── widget
-│   │       ├── kartu_total_poin.dart
-│   │       └── ui_halaman_poin.dart
-│   ├── riwayat_aktivasi
-│   │   ├── page
-│   │   │   ├── detail_riwayat_aktivasi.dart
-│   │   │   ├── form_riwayat_aktivasi.dart
-│   │   │   └── riwayat_aktivasi_paket.dart
-│   │   └── provider
-│   │       ├── detail_langganan_provider.dart
-│   │       ├── detail_langganan_provider.freezed.dart
-│   │       ├── detail_langganan_provider.g.dart
-│   │       ├── riwayat_aktivasi_paket_provider.dart
-│   │       └── riwayat_aktivasi_paket_provider.g.dart
-│   ├── settings
-│   │   ├── model
-│   │   │   ├── settings_model.dart
-│   │   │   └── settings_model.freezed.dart
-│   │   ├── operasi
-│   │   │   ├── settings_op_firebase.dart
-│   │   │   └── settings_op_sqlite.dart
-│   │   ├── page
-│   │   │   ├── form_settings.dart
-│   │   │   ├── settings_page_a.dart
-│   │   │   └── settings_page_u.dart
-│   │   └── provider
-│   │       ├── settings_provider.dart
-│   │       ├── settings_provider.freezed.dart
-│   │       └── settings_provider.g.dart
-│   ├── sinkronisasi
-│   │   ├── layanan_cek_sinkronisasi.dart
-│   │   ├── layanan_unduh_data.dart
-│   │   ├── layanan_unduhan_awal.dart
-│   │   ├── layanan_unggah_data.dart
-│   │   └── pengelola_sinkronisasi.dart
-│   ├── speedtest
-│   │   ├── page
-│   │   │   └── uji_kecepatan_page.dart
-│   │   └── provider
-│   │       ├── ping_provider.dart
-│   │       ├── ping_provider.g.dart
-│   │       ├── uji_kecepatan_provider.dart
-│   │       ├── uji_kecepatan_provider.freezed.dart
-│   │       └── uji_kecepatan_provider.g.dart
-│   ├── statistik
-│   │   ├── model
-│   │   │   └── paket_terlaris_model.dart
-│   │   └── page
-│   │       └── statistik_page_a.dart
-│   ├── transaksi
-│   │   ├── enum
-│   │   │   ├── status_pembayaran.dart
-│   │   │   └── tipe_transaksi.dart
-│   │   ├── helper
-│   │   │   ├── pengurut_transaksi.dart
-│   │   │   └── pengurut_transaksi.g.dart
-│   │   ├── model
-│   │   │   ├── transaksi_model.dart
-│   │   │   └── transaksi_model.freezed.dart
-│   │   ├── operasi
-│   │   │   ├── transaksi_op_firebase.dart
-│   │   │   ├── transaksi_op_global.dart
-│   │   │   └── transaksi_op_sqlite.dart
-│   │   ├── page
-│   │   │   ├── detail_transaksi_a.dart
-│   │   │   ├── detail_transaksi_u.dart
-│   │   │   ├── form_transaksi.dart
-│   │   │   ├── transaksi_a.dart
-│   │   │   └── transaksi_u.dart
-│   │   ├── provider
-│   │   │   ├── transaksi_provider.dart
-│   │   │   ├── transaksi_provider.freezed.dart
-│   │   │   └── transaksi_provider.g.dart
-│   │   └── widget
-│   │       └── daftar_transaksi_widget.dart
-│   ├── versi_apk
-│   │   ├── model
-│   │   │   ├── versi_apk_model.dart
-│   │   │   └── versi_apk_model.freezed.dart
-│   │   ├── operasi
-│   │   │   ├── versi_apk_op_firebase.dart
-│   │   │   └── versi_apk_op_sqlite.dart
-│   │   ├── page
-│   │   │   ├── detail_versi_apk.dart
-│   │   │   ├── form_versi_apk.dart
-│   │   │   ├── update_apk_page_u.dart
-│   │   │   └── versi_apk_page.dart
-│   │   └── service
-│   │       ├── layanan_cek_update_apk.dart
-│   │       └── update_service.dart
-│   └── whatsapp
-│       └── info_paket.dart
+│   ├── akun
+│   │   ├── page
+│   │   │   └── daftar_akun_page.dart
+│   │   └── provider
+│   │       ├── akun_provider.dart
+│   │       ├── akun_provider.freezed.dart
+│   │       └── akun_provider.g.dart
+│   ├── alarm
+│   │   ├── penjadwal_alarm_android.dart
+│   │   └── penjadwal_alarm.dart
+│   ├── app_role
+│   │   ├── role_util.dart
+│   │   └── role_util.g.dart
+│   ├── background
+│   │   ├── alarm_utils.dart
+│   │   ├── layanan_latar_belakang.dart
+│   │   └── layanan_peluncuran.dart
+│   ├── database
+│   │   └── provider
+│   │       ├── operasi_sqlite_provider.dart
+│   │       └── operasi_sqlite_provider.g.dart
+│   ├── dompet
+│   │   ├── model
+│   │   │   ├── dompet_model.dart
+│   │   │   └── dompet_model.freezed.dart
+│   │   ├── operasi
+│   │   │   └── dompet_op_sqlite.dart
+│   │   ├── page
+│   │   │   ├── detail_dompet.dart
+│   │   │   ├── dompet_page.dart
+│   │   │   └── form_dompet.dart
+│   │   └── provider
+│   │       ├── dompet_provider.dart
+│   │       ├── dompet_provider.freezed.dart
+│   │       └── dompet_provider.g.dart
+│   ├── event
+│   │   ├── model
+│   │   │   ├── event_model.dart
+│   │   │   └── event_model.freezed.dart
+│   │   ├── operasi
+│   │   │   └── event_op_supabase.dart
+│   │   └── page
+│   │       ├── detail_event_a.dart
+│   │       ├── event_page_a.dart
+│   │       ├── event_page_u.dart
+│   │       └── manage_announcement_page.dart
+│   ├── feedback
+│   │   ├── model
+│   │   │   ├── feedback_model.dart
+│   │   │   └── feedback_model.freezed.dart
+│   │   ├── operasi
+│   │   │   ├── feedback_op_firebase.dart
+│   │   │   ├── feedback_op_global.dart
+│   │   │   └── feedback_op_sqlite.dart
+│   │   ├── page
+│   │   │   ├── feedback_detail.dart
+│   │   │   ├── feedback_page.dart
+│   │   │   └── form_feedback.dart
+│   │   └── provider
+│   │       ├── feedback_provider.dart
+│   │       ├── feedback_provider.freezed.dart
+│   │       └── feedback_provider.g.dart
+│   ├── info_perangkat
+│   │   ├── enum
+│   │   │   └── arsitektur_apk.dart
+│   │   ├── model
+│   │   │   ├── info_perangkat_model.dart
+│   │   │   └── info_perangkat_model.freezed.dart
+│   │   ├── page
+│   │   │   ├── info_apk_page_user.dart
+│   │   │   └── tentang_aplikasi.dart
+│   │   └── service
+│   │       ├── layanan_info_paket.dart
+│   │       └── layanan_info_perangkat.dart
+│   ├── kategori
+│   │   ├── enum
+│   │   │   └── tipe_kategori.dart
+│   │   ├── model
+│   │   │   ├── kategori_model.dart
+│   │   │   ├── kategori_model.freezed.dart
+│   │   │   ├── sub_kategori_model.dart
+│   │   │   └── sub_kategori_model.freezed.dart
+│   │   ├── operasi
+│   │   │   ├── kategori_op_sqlite.dart
+│   │   │   └── sub_kategori_op_sqlite.dart
+│   │   └── page
+│   │       ├── form_kategori.dart
+│   │       └── kategori.dart
+│   ├── notifikasi
+│   │   ├── enum
+│   │   │   └── tipe_notifikasi_enum.dart
+│   │   ├── layanan_notifikasi.dart
+│   │   ├── model
+│   │   │   ├── notifikasi_model.dart
+│   │   │   └── notifikasi_model.freezed.dart
+│   │   ├── operasi
+│   │   │   ├── notifikasi_op_firebase.dart
+│   │   │   └── notifikasi_op_sqlite.dart
+│   │   ├── pengingat_paket_belum_lunas.dart
+│   │   └── penjadwal_notifikasi.dart
+│   ├── order
+│   │   ├── enum
+│   │   │   └── status_order_enum.dart
+│   │   ├── model
+│   │   │   ├── order_model.dart
+│   │   │   └── order_model.freezed.dart
+│   │   ├── operasi
+│   │   │   ├── order_op_firebase.dart
+│   │   │   ├── order_op_global.dart
+│   │   │   └── order_op_sqlite.dart
+│   │   ├── page
+│   │   │   └── order_page.dart
+│   │   └── provider
+│   │       ├── order_provider.dart
+│   │       ├── order_provider.freezed.dart
+│   │       └── order_provider.g.dart
+│   ├── paket
+│   │   ├── core
+│   │   │   └── perhitungan_paket.dart
+│   │   ├── enum
+│   │   │   └── tipe_durasi_paket.dart
+│   │   ├── model
+│   │   │   ├── paket_model.dart
+│   │   │   └── paket_model.freezed.dart
+│   │   ├── operasi
+│   │   │   ├── paket_op_firebase.dart
+│   │   │   ├── paket_op_global.dart
+│   │   │   └── paket_op_sqlite.dart
+│   │   ├── page
+│   │   │   ├── detail_paket.dart
+│   │   │   ├── form_paket.dart
+│   │   │   └── paket.dart
+│   │   └── provider
+│   │       ├── paket_provider.dart
+│   │       ├── paket_provider.freezed.dart
+│   │       └── paket_provider.g.dart
+│   ├── pelanggan
+│   │   ├── core
+│   │   │   └── layanan_aktivitas_user.dart
+│   │   ├── helper
+│   │   │   ├── pengurut_pelanggan.dart
+│   │   │   └── pengurut_pelanggan.g.dart
+│   │   ├── model
+│   │   │   ├── pelanggan_model.dart
+│   │   │   └── pelanggan_model.freezed.dart
+│   │   ├── operasi
+│   │   │   ├── pelanggan_op_firebase.dart
+│   │   │   ├── pelanggan_op_global.dart
+│   │   │   └── pelanggan_op_sqlite.dart
+│   │   ├── page
+│   │   │   ├── admin
+│   │   │   │   ├── detail_pelanggan_a.dart
+│   │   │   │   ├── form_pelanggan.dart
+│   │   │   │   └── pelanggan_page.dart
+│   │   │   └── user
+│   │   │       └── detail_pelanggan_u.dart
+│   │   ├── provider
+│   │   │   ├── pelanggan_provider.dart
+│   │   │   ├── pelanggan_provider.freezed.dart
+│   │   │   └── pelanggan_provider.g.dart
+│   │   └── widget
+│   │       └── detail_pelanggan_ui.dart
+│   ├── pelanggan_aktif
+│   │   ├── helper
+│   │   │   ├── pengurut_pelanggan_aktif.dart
+│   │   │   └── pengurut_pelanggan_aktif.g.dart
+│   │   ├── model
+│   │   │   ├── detail_pelanggan_aktif_model.dart
+│   │   │   ├── pelanggan_aktif_model.dart
+│   │   │   └── pelanggan_aktif_model.freezed.dart
+│   │   ├── operasi
+│   │   │   ├── pelanggan_aktif_op_firebase.dart
+│   │   │   └── pelanggan_aktif_op_sqlite.dart
+│   │   ├── page
+│   │   │   ├── detail_pelanggan_aktif.dart
+│   │   │   ├── form_pelanggan_aktif.dart
+│   │   │   └── pelanggan_aktif_page.dart
+│   │   └── provider
+│   │       ├── pelanggan_aktif_provider.dart
+│   │       ├── pelanggan_aktif_provider.freezed.dart
+│   │       └── pelanggan_aktif_provider.g.dart
+│   ├── poin
+│   │   ├── operasi
+│   │   │   ├── firebase_points_data_source.dart
+│   │   │   └── sqlite_points_data_source.dart
+│   │   ├── page
+│   │   │   └── halaman_poin.dart
+│   │   ├── provider
+│   │   │   ├── poin_provider.dart
+│   │   │   └── points_page_data_source.dart
+│   │   ├── service
+│   │   │   └── poin_transaction_service.dart
+│   │   └── widget
+│   │       ├── kartu_total_poin.dart
+│   │       └── ui_halaman_poin.dart
+│   ├── riwayat_aktivasi
+│   │   ├── page
+│   │   │   ├── detail_riwayat_aktivasi.dart
+│   │   │   ├── form_riwayat_aktivasi.dart
+│   │   │   └── riwayat_aktivasi_paket.dart
+│   │   └── provider
+│   │       ├── detail_langganan_provider.dart
+│   │       ├── detail_langganan_provider.freezed.dart
+│   │       ├── detail_langganan_provider.g.dart
+│   │       ├── riwayat_aktivasi_paket_provider.dart
+│   │       └── riwayat_aktivasi_paket_provider.g.dart
+│   ├── settings
+│   │   ├── model
+│   │   │   ├── settings_model.dart
+│   │   │   └── settings_model.freezed.dart
+│   │   ├── operasi
+│   │   │   ├── settings_op_firebase.dart
+│   │   │   └── settings_op_sqlite.dart
+│   │   ├── page
+│   │   │   ├── form_settings.dart
+│   │   │   ├── settings_page_a.dart
+│   │   │   └── settings_page_u.dart
+│   │   └── provider
+│   │       ├── settings_provider.dart
+│   │       ├── settings_provider.freezed.dart
+│   │       └── settings_provider.g.dart
+│   ├── sinkronisasi
+│   │   ├── layanan_cek_sinkronisasi.dart
+│   │   ├── layanan_unduhan_awal.dart
+│   │   ├── layanan_unduh_data.dart
+│   │   ├── layanan_unggah_data.dart
+│   │   └── pengelola_sinkronisasi.dart
+│   ├── speedtest
+│   │   ├── page
+│   │   │   └── uji_kecepatan_page.dart
+│   │   └── provider
+│   │       ├── ping_provider.dart
+│   │       ├── ping_provider.g.dart
+│   │       ├── uji_kecepatan_provider.dart
+│   │       ├── uji_kecepatan_provider.freezed.dart
+│   │       └── uji_kecepatan_provider.g.dart
+│   ├── statistik
+│   │   ├── model
+│   │   │   └── paket_terlaris_model.dart
+│   │   └── page
+│   │       └── statistik_page_a.dart
+│   ├── transaksi
+│   │   ├── enum
+│   │   │   ├── status_pembayaran.dart
+│   │   │   └── tipe_transaksi.dart
+│   │   ├── helper
+│   │   │   ├── pengurut_transaksi.dart
+│   │   │   └── pengurut_transaksi.g.dart
+│   │   ├── model
+│   │   │   ├── transaksi_model.dart
+│   │   │   └── transaksi_model.freezed.dart
+│   │   ├── operasi
+│   │   │   ├── transaksi_op_firebase.dart
+│   │   │   ├── transaksi_op_global.dart
+│   │   │   └── transaksi_op_sqlite.dart
+│   │   ├── page
+│   │   │   ├── detail_transaksi_a.dart
+│   │   │   ├── detail_transaksi_u.dart
+│   │   │   ├── form_transaksi.dart
+│   │   │   ├── transaksi_a.dart
+│   │   │   └── transaksi_u.dart
+│   │   ├── provider
+│   │   │   ├── transaksi_provider.dart
+│   │   │   ├── transaksi_provider.freezed.dart
+│   │   │   └── transaksi_provider.g.dart
+│   │   └── widget
+│   │       └── daftar_transaksi_widget.dart
+│   ├── versi_apk
+│   │   ├── model
+│   │   │   ├── versi_apk_model.dart
+│   │   │   └── versi_apk_model.freezed.dart
+│   │   ├── operasi
+│   │   │   ├── versi_apk_op_firebase.dart
+│   │   │   └── versi_apk_op_sqlite.dart
+│   │   ├── page
+│   │   │   ├── detail_versi_apk.dart
+│   │   │   ├── form_versi_apk.dart
+│   │   │   ├── update_apk_page_u.dart
+│   │   │   └── versi_apk_page.dart
+│   │   └── service
+│   │       ├── layanan_cek_update_apk.dart
+│   │       └── update_service.dart
+│   └── whatsapp
+│       └── info_paket.dart
 ├── main
-│   ├── main_admin
-│   │   ├── admin_dev.dart
-│   │   └── admin_prod.dart
-│   └── main_user
-│       ├── user_dev.dart
-│       └── user_prod.dart
+│   ├── main_admin
+│   │   ├── admin_dev.dart
+│   │   └── admin_prod.dart
+│   └── main_user
+│       ├── user_dev.dart
+│       └── user_prod.dart
 ├── services
-│   └── firebase_migration
-│       └── firebase_migration_service.dart
+│   └── firebase_migration
+│       └── firebase_migration_service.dart
 ├── shared
-│   ├── common
-│   │   └── teks.dart
-│   ├── constant
-│   │   ├── app_constants.dart
-│   │   ├── nama_kolom.dart
-│   │   └── nama_tabel.dart
-│   ├── data
-│   │   └── services
-│   │       ├── layanan_navigasi.dart
-│   │       ├── layanan_pengecekan_data_baru.dart
-│   │       └── layanan_preferensi.dart
-│   ├── debug
-│   │   ├── global_key.dart
-│   │   └── log.dart
-│   ├── enum
-│   │   ├── app_role_enum.dart
-│   │   └── url_supabase_enum.dart
-│   ├── export
-│   │   ├── enum.dart
-│   │   ├── model.dart
-│   │   ├── op_firebase.dart
-│   │   ├── operation.dart
-│   │   └── theme.dart
-│   ├── model
-│   │   ├── has_id.dart
-│   │   ├── status_model.dart
-│   │   ├── status_model.freezed.dart
-│   │   ├── status_unggah_model.dart
-│   │   └── status_unggah_model.freezed.dart
-│   ├── operasi
-│   │   ├── firebase_operasi
-│   │   │   ├── base_op_firebase.dart
-│   │   │   ├── firebase_operation_provider
-│   │   │   │   ├── firebase_operation_provider.dart
-│   │   │   │   └── firebase_operation_provider.g.dart
-│   │   │   └── status_op_firebase.dart
-│   │   └── sqlite_operasi
-│   │       ├── base_op_sqlite.dart
-│   │       ├── pembersihan_data_operasi.dart
-│   │       └── status_upload_op_sqlite.dart
-│   ├── providers
-│   │   ├── shared_providers.dart
-│   │   └── shared_providers.g.dart
-│   ├── services
-│   │   ├── arsipkan_langganan_kadaluarsa_service.dart
-│   │   ├── koneksi_internet_service.dart
-│   │   └── layanan_penyimpanan_gambar.dart
-│   ├── theme
-│   │   ├── app_colors.dart
-│   │   ├── app_icons.dart
-│   │   ├── app_sizes.dart
-│   │   ├── app_theme.dart
-│   │   ├── tema_provider.dart
-│   │   └── tema_provider.g.dart
-│   ├── utils
-│   │   ├── durasi_util.dart
-│   │   ├── format_util.dart
-│   │   ├── parser_util.dart
-│   │   ├── perhitungan_util.dart
-│   │   └── toast_util.dart
-│   └── widget
-│       ├── input
-│       │   ├── formatter
-│       │   │   └── mac_address_formatter.dart
-│       │   ├── input_angka.dart
-│       │   ├── input_mac_address.dart
-│       │   ├── input_password.dart
-│       │   ├── input_rupiah.dart
-│       │   ├── input_teks.dart
-│       │   └── input_telepon.dart
-│       ├── nama_pelanggan_widget.dart
-│       ├── package_name.dart
-│       ├── pemilih_tanggal_waktu_widget.dart
-│       ├── summary_info_widget.dart
-│       └── widget_ringkasan_keuangan.dart
+│   ├── common
+│   │   └── teks.dart
+│   ├── constant
+│   │   ├── app_constants.dart
+│   │   ├── nama_kolom.dart
+│   │   └── nama_tabel.dart
+│   ├── data
+│   │   └── services
+│   │       ├── layanan_navigasi.dart
+│   │       ├── layanan_pengecekan_data_baru.dart
+│   │       └── layanan_preferensi.dart
+│   ├── debug
+│   │   ├── global_key.dart
+│   │   └── log.dart
+│   ├── enum
+│   │   ├── app_role_enum.dart
+│   │   └── url_supabase_enum.dart
+│   ├── export
+│   │   ├── enum.dart
+│   │   ├── model.dart
+│   │   ├── operation.dart
+│   │   ├── op_firebase.dart
+│   │   └── theme.dart
+│   ├── model
+│   │   ├── has_id.dart
+│   │   ├── status_model.dart
+│   │   ├── status_model.freezed.dart
+│   │   ├── status_unggah_model.dart
+│   │   └── status_unggah_model.freezed.dart
+│   ├── operasi
+│   │   ├── firebase_operasi
+│   │   │   ├── base_op_firebase.dart
+│   │   │   ├── firebase_operation_provider
+│   │   │   │   ├── firebase_operation_provider.dart
+│   │   │   │   └── firebase_operation_provider.g.dart
+│   │   │   └── status_op_firebase.dart
+│   │   └── sqlite_operasi
+│   │       ├── base_op_sqlite.dart
+│   │       ├── pembersihan_data_operasi.dart
+│   │       └── status_upload_op_sqlite.dart
+│   ├── providers
+│   │   ├── shared_providers.dart
+│   │   └── shared_providers.g.dart
+│   ├── services
+│   │   ├── arsipkan_langganan_kadaluarsa_service.dart
+│   │   ├── koneksi_internet_service.dart
+│   │   └── layanan_penyimpanan_gambar.dart
+│   ├── theme
+│   │   ├── app_colors.dart
+│   │   ├── app_icons.dart
+│   │   ├── app_sizes.dart
+│   │   ├── app_theme.dart
+│   │   ├── tema_provider.dart
+│   │   └── tema_provider.g.dart
+│   ├── utils
+│   │   ├── durasi_util.dart
+│   │   ├── format_util.dart
+│   │   ├── parser_util.dart
+│   │   ├── perhitungan_util.dart
+│   │   └── toast_util.dart
+│   └── widget
+│       ├── input
+│       │   ├── formatter
+│       │   │   └── mac_address_formatter.dart
+│       │   ├── input_angka.dart
+│       │   ├── input_mac_address.dart
+│       │   ├── input_password.dart
+│       │   ├── input_rupiah.dart
+│       │   ├── input_teks.dart
+│       │   └── input_telepon.dart
+│       ├── nama_paket_widget.dart
+│       ├── nama_pelanggan_widget.dart
+│       ├── pemilih_tanggal_waktu_widget.dart
+│       └── ringkasan_keuangan_widget.dart
 ├── tes_fitur
-│   ├── tes_iklan.dart
-│   └── tes_notifikasi.dart
+│   ├── tes_iklan.dart
+│   └── tes_notifikasi.dart
 └── user
     ├── app_user.dart
     ├── firebase_option
-    │   ├── firebase_option_user_dev.dart
-    │   └── firebase_option_user_prod.dart
+    │   ├── firebase_option_user_dev.dart
+    │   └── firebase_option_user_prod.dart
     ├── maintenance_page.dart
     ├── page
-    │   ├── login_page.dart
-    │   ├── main_page.dart
-    │   ├── profile_page.dart
-    │   └── splash_screen_user.dart
+    │   ├── login_page.dart
+    │   ├── main_page.dart
+    │   ├── profile_page.dart
+    │   └── splash_screen_user.dart
     ├── providers
-    │   ├── ad_providers.dart
-    │   ├── ad_providers.g.dart
-    │   ├── user_provider.dart
-    │   └── user_provider.g.dart
+    │   ├── ad_providers.dart
+    │   ├── ad_providers.g.dart
+    │   ├── user_provider.dart
+    │   └── user_provider.g.dart
     ├── services
-    │   └── storage
-    │       └── layanan_penyimpanan_lokal.dart
+    │   └── storage
+    │       └── layanan_penyimpanan_lokal.dart
     └── widget
         ├── ads
-        │   ├── app_open
-        │   │   ├── app_lifecycle_reactor.dart
-        │   │   ├── app_open_ad_service.dart
-        │   │   └── id_app_open_ads.dart
-        │   ├── banner
-        │   │   ├── banner_ads_widget.dart
-        │   │   └── id_banner_ads.dart
-        │   ├── bonused_mediator
-        │   │   ├── bonused_mediator_ad_service.dart
-        │   │   └── id_bonused_mediator_ads.dart
-        │   └── interstitial
-        │       ├── id_interstitial_ads.dart
-        │       └── layanan_iklan_interstisial.dart
+        │   ├── app_open
+        │   │   ├── app_lifecycle_reactor.dart
+        │   │   ├── app_open_ad_service.dart
+        │   │   └── id_app_open_ads.dart
+        │   ├── banner
+        │   │   ├── banner_ads_widget.dart
+        │   │   └── id_banner_ads.dart
+        │   ├── bonused_mediator
+        │   │   ├── bonused_mediator_ad_service.dart
+        │   │   └── id_bonused_mediator_ads.dart
+        │   └── interstitial
+        │       ├── id_interstitial_ads.dart
+        │       └── layanan_iklan_interstisial.dart
         ├── data_not_found.dart
         ├── error_message.dart
         └── theme_menu_widget.dart
 test
 ├── admin
-│   ├── app_admin_test.dart
-│   ├── app_admin_test.mocks.dart
-│   ├── data
-│   │   ├── sqlite_test.dart
-│   │   └── sqlite_test.mocks.dart
-│   ├── firebase_option
-│   │   ├── firebase_option_admin_dev_test.dart
-│   │   └── firebase_option_admin_prod_test.dart
-│   ├── halaman
-│   │   ├── detail
-│   │   │   ├── detail_dompet_test.dart
-│   │   │   ├── detail_dompet_test.mocks.dart
-│   │   │   ├── detail_paket_test.dart
-│   │   │   └── detail_paket_test.mocks.dart
-│   │   ├── event
-│   │   ├── form
-│   │   │   ├── form_kategori_test.dart
-│   │   │   ├── form_pelanggan_aktif_test.dart
-│   │   │   ├── form_pelanggan_test.dart
-│   │   │   └── form_pelanggan_test.mocks.dart
-│   │   ├── lainnya
-│   │   │   ├── halaman_migrasi_test.dart
-│   │   │   ├── paket_test.dart
-│   │   │   ├── paket_test.mocks.dart
-│   │   │   └── riwayat_aktivasi_paket_test.dart
-│   │   ├── tab
-│   │   │   └── lainnya_test.dart
-│   │   ├── tes
-│   │   │   ├── contoh_simpan_status_test.dart
-│   │   │   └── halaman_tes_test.dart
-│   │   └── widget
-│   │       ├── box_info_test.dart
-│   │       ├── container_with_border_test.dart
-│   │       ├── nama_paket_widget_test.dart
-│   │       ├── nama_pelanggan_test.dart
-│   │       └── tombol_aksi_test.dart
-│   ├── halaman_utama_test.dart
-│   ├── halaman_utama_test.mocks.dart
-│   ├── model
-│   │   └── best_selling_package_test.dart
-│   ├── providers
-│   │   ├── customer_provider_test.dart
-│   │   ├── customer_provider_test.mocks.dart
-│   │   ├── detail_langganan_provider_test.dart
-│   │   ├── detail_langganan_provider_test.mocks.dart
-│   │   ├── riwayat_aktivasi_paket_provider_test.dart
-│   │   └── riwayat_aktivasi_paket_provider_test.mocks.dart
-│   └── splash_screen_admin_test.dart
+│   ├── app_admin_test.dart
+│   ├── app_admin_test.mocks.dart
+│   ├── data
+│   │   ├── sqlite_test.dart
+│   │   └── sqlite_test.mocks.dart
+│   ├── firebase_option
+│   │   ├── firebase_option_admin_dev_test.dart
+│   │   └── firebase_option_admin_prod_test.dart
+│   ├── halaman
+│   │   ├── detail
+│   │   │   ├── detail_dompet_test.dart
+│   │   │   ├── detail_dompet_test.mocks.dart
+│   │   │   ├── detail_paket_test.dart
+│   │   │   └── detail_paket_test.mocks.dart
+│   │   ├── event
+│   │   ├── form
+│   │   │   ├── form_kategori_test.dart
+│   │   │   ├── form_pelanggan_aktif_test.dart
+│   │   │   ├── form_pelanggan_test.dart
+│   │   │   └── form_pelanggan_test.mocks.dart
+│   │   ├── lainnya
+│   │   │   ├── halaman_migrasi_test.dart
+│   │   │   ├── paket_test.dart
+│   │   │   ├── paket_test.mocks.dart
+│   │   │   └── riwayat_aktivasi_paket_test.dart
+│   │   ├── tab
+│   │   │   └── lainnya_test.dart
+│   │   ├── tes
+│   │   │   ├── contoh_simpan_status_test.dart
+│   │   │   └── halaman_tes_test.dart
+│   │   └── widget
+│   │       ├── box_info_test.dart
+│   │       ├── container_with_border_test.dart
+│   │       ├── nama_paket_widget_test.dart
+│   │       ├── nama_pelanggan_test.dart
+│   │       └── tombol_aksi_test.dart
+│   ├── halaman_utama_test.dart
+│   ├── halaman_utama_test.mocks.dart
+│   ├── model
+│   │   └── best_selling_package_test.dart
+│   ├── providers
+│   │   ├── customer_provider_test.dart
+│   │   ├── customer_provider_test.mocks.dart
+│   │   ├── detail_langganan_provider_test.dart
+│   │   ├── detail_langganan_provider_test.mocks.dart
+│   │   ├── riwayat_aktivasi_paket_provider_test.dart
+│   │   └── riwayat_aktivasi_paket_provider_test.mocks.dart
+│   └── splash_screen_admin_test.dart
 ├── data_dummy
-│   ├── data_dummy_test.dart
-│   └── halaman_data_dummy_test.dart
+│   ├── data_dummy_test.dart
+│   └── halaman_data_dummy_test.dart
 ├── fitur
-│   ├── akun
-│   │   ├── page
-│   │   │   ├── daftar_akun_page_test.dart
-│   │   │   └── daftar_akun_page_test.mocks.dart
-│   │   └── provider
-│   │       ├── akun_provider_test.dart
-│   │       └── akun_provider_test.mocks.dart
-│   ├── alarm
-│   │   ├── alarm_scheduler_test.dart
-│   │   ├── alarm_scheduler_test.mocks.dart
-│   │   └── android_alarm_scheduler_test.dart
-│   ├── background
-│   │   ├── alarm_utils_test.dart
-│   │   ├── layanan_latar_belakang_test.dart
-│   │   └── layanan_peluncuran_test.dart
-│   ├── database
-│   │   └── provider
-│   │       ├── operasi_sqlite_provider_test.dart
-│   │       └── operasi_sqlite_provider_test.mocks.dart
-│   ├── dompet
-│   │   ├── model
-│   │   │   ├── item_dompet_model_test.dart
-│   │   │   ├── item_transaksi_model_test.dart
-│   │   │   ├── transaksi_model_test.dart
-│   │   │   └── wallet_model_test.dart
-│   │   ├── operasi
-│   │   │   ├── dompet_op_sqlite_test.dart
-│   │   │   └── dompet_op_sqlite_test.mocks.dart
-│   │   ├── page
-│   │   │   ├── dompet_page_test.dart
-│   │   │   └── form_dompet_test.dart
-│   │   └── state
-│   │       ├── state_item_transaksi_test.dart
-│   │       ├── state_transaksi_test.dart
-│   │       └── state_wallet_test.dart
-│   ├── event
-│   │   ├── model
-│   │   │   └── event_model_test.dart
-│   │   ├── operasi
-│   │   │   └── event_op_supabase_test.dart
-│   │   └── page
-│   │       ├── detail_event_a_test.dart
-│   │       ├── detail_event_a_test.mocks.dart
-│   │       ├── event_page_a_test.dart
-│   │       └── event_page_a_test.mocks.dart
-│   ├── feedback
-│   │   ├── model
-│   │   │   └── feedback_model_test.dart
-│   │   └── operasi
-│   │       ├── feedback_op_firebase_test.dart
-│   │       ├── feedback_op_firebase_test.mocks.dart
-│   │       ├── feedback_op_sqlite_test.dart
-│   │       └── feedback_op_sqlite_test.mocks.dart
-│   ├── info_perangkat
-│   │   ├── model
-│   │   │   └── info_perangkat_model_test.dart
-│   │   └── service
-│   │       ├── layanan_info_paket_test.dart
-│   │       ├── layanan_info_perangkat_test.dart
-│   │       └── layanan_info_perangkat_test.mocks.dart
-│   ├── notfikasi
-│   │   ├── enum
-│   │   │   └── tipe_notifikasi_enum_test.dart
-│   │   ├── layanan_notifikasi_test.dart
-│   │   ├── layanan_notifikasi_test.mocks.dart
-│   │   ├── penjadwal_notifikasi_test.dart
-│   │   └── penjadwal_notifikasi_test.mocks.dart
-│   ├── pelanggan
-│   │   ├── core
-│   │   │   ├── layanan_aktivitas_user_test.dart
-│   │   │   └── layanan_aktivitas_user_test.mocks.dart
-│   │   ├── operasi
-│   │   │   ├── pelanggan_op_firebase_test.dart
-│   │   │   ├── pelanggan_op_firebase_test.mocks.dart
-│   │   │   ├── pelanggan_op_sqlite_test.dart
-│   │   │   └── pelanggan_op_sqlite_test.mocks.dart
-│   │   ├── page
-│   │   │   ├── admin
-│   │   │   │   └── detail_pelanggan_a_test.dart
-│   │   │   └── user
-│   │   │       ├── detail_pelanggan_u_test.dart
-│   │   │       └── detail_pelanggan_u_test.mocks.dart
-│   │   └── widget
-│   │       └── detail_pelanggan_ui_test.dart
-│   ├── router
-│   │   ├── operasi
-│   │   │   └── router_op_sqlite_test.dart
-│   │   └── provider
-│   │       └── router_provider_test.dart
-│   ├── settings
-│   │   ├── operasi
-│   │   │   ├── settings_op_sqlite_test.dart
-│   │   │   └── settings_op_sqlite_test.mocks.dart
-│   │   ├── settings_model_test.dart
-│   │   └── settings_op_firebase_test.dart
-│   ├── sinkronisasi
-│   │   ├── layanan_unduh_data_test.dart
-│   │   ├── layanan_unggah_data_test.dart
-│   │   └── provider
-│   │       └── sinkronisasi_provider_test.dart
-│   ├── speedtest
-│   │   └── provider
-│   │       ├── ping_provider_test.dart
-│   │       └── uji_kecepatan_provider_test.dart
-│   ├── statistik
-│   │   ├── model
-│   │   │   └── paket_terlaris_model_test.dart
-│   │   ├── operasi
-│   │   │   └── statistik_op_sqlite_test.dart
-│   │   └── provider
-│   │       └── statistik_provider_test.dart
-│   ├── transaksi
-│   │   ├── model
-│   │   │   └── transaksi_model_test.dart
-│   │   ├── operasi
-│   │   │   ├── transaksi_op_firebase_test.dart
-│   │   │   └── transaksi_op_sqlite_test.dart
-│   │   └── provider
-│   │       └── transaksi_provider_test.dart
-│   ├── versi_apk
-│   │   ├── model
-│   │   │   └── versi_apk_model_test.dart
-│   │   ├── operasi
-│   │   │   ├── versi_apk_op_firebase_test.dart
-│   │   │   └── versi_apk_op_sqlite_test.dart
-│   │   ├── provider
-│   │   │   └── versi_apk_provider_test.dart
-│   │   └── service
-│   │       └── update_service_test.dart
-│   └── whatsapp
-│       ├── info_paket_test.dart
-│       └── info_paket_test.mocks.dart
+│   ├── akun
+│   │   ├── page
+│   │   │   ├── daftar_akun_page_test.dart
+│   │   │   └── daftar_akun_page_test.mocks.dart
+│   │   └── provider
+│   │       ├── akun_provider_test.dart
+│   │       └── akun_provider_test.mocks.dart
+│   ├── alarm
+│   │   ├── alarm_scheduler_test.dart
+│   │   ├── alarm_scheduler_test.mocks.dart
+│   │   └── android_alarm_scheduler_test.dart
+│   ├── background
+│   │   ├── alarm_utils_test.dart
+│   │   ├── layanan_latar_belakang_test.dart
+│   │   └── layanan_peluncuran_test.dart
+│   ├── database
+│   │   └── provider
+│   │       ├── operasi_sqlite_provider_test.dart
+│   │       └── operasi_sqlite_provider_test.mocks.dart
+│   ├── dompet
+│   │   ├── model
+│   │   │   ├── item_dompet_model_test.dart
+│   │   │   ├── item_transaksi_model_test.dart
+│   │   │   ├── transaksi_model_test.dart
+│   │   │   └── wallet_model_test.dart
+│   │   ├── operasi
+│   │   │   ├── dompet_op_sqlite_test.dart
+│   │   │   └── dompet_op_sqlite_test.mocks.dart
+│   │   ├── page
+│   │   │   ├── dompet_page_test.dart
+│   │   │   └── form_dompet_test.dart
+│   │   └── state
+│   │       ├── state_item_transaksi_test.dart
+│   │       ├── state_transaksi_test.dart
+│   │       └── state_wallet_test.dart
+│   ├── event
+│   │   ├── model
+│   │   │   └── event_model_test.dart
+│   │   ├── operasi
+│   │   │   └── event_op_supabase_test.dart
+│   │   └── page
+│   │       ├── detail_event_a_test.dart
+│   │       ├── detail_event_a_test.mocks.dart
+│   │       ├── event_page_a_test.dart
+│   │       └── event_page_a_test.mocks.dart
+│   ├── feedback
+│   │   ├── model
+│   │   │   └── feedback_model_test.dart
+│   │   └── operasi
+│   │       ├── feedback_op_firebase_test.dart
+│   │       ├── feedback_op_firebase_test.mocks.dart
+│   │       ├── feedback_op_sqlite_test.dart
+│   │       └── feedback_op_sqlite_test.mocks.dart
+│   ├── info_perangkat
+│   │   ├── model
+│   │   │   └── info_perangkat_model_test.dart
+│   │   └── service
+│   │       ├── layanan_info_paket_test.dart
+│   │       ├── layanan_info_perangkat_test.dart
+│   │       └── layanan_info_perangkat_test.mocks.dart
+│   ├── notfikasi
+│   │   ├── enum
+│   │   │   └── tipe_notifikasi_enum_test.dart
+│   │   ├── layanan_notifikasi_test.dart
+│   │   ├── layanan_notifikasi_test.mocks.dart
+│   │   ├── penjadwal_notifikasi_test.dart
+│   │   └── penjadwal_notifikasi_test.mocks.dart
+│   ├── pelanggan
+│   │   ├── core
+│   │   │   ├── layanan_aktivitas_user_test.dart
+│   │   │   └── layanan_aktivitas_user_test.mocks.dart
+│   │   ├── operasi
+│   │   │   ├── pelanggan_op_firebase_test.dart
+│   │   │   ├── pelanggan_op_firebase_test.mocks.dart
+│   │   │   ├── pelanggan_op_sqlite_test.dart
+│   │   │   └── pelanggan_op_sqlite_test.mocks.dart
+│   │   ├── page
+│   │   │   ├── admin
+│   │   │   │   └── detail_pelanggan_a_test.dart
+│   │   │   └── user
+│   │   │       ├── detail_pelanggan_u_test.dart
+│   │   │       └── detail_pelanggan_u_test.mocks.dart
+│   │   └── widget
+│   │       └── detail_pelanggan_ui_test.dart
+│   ├── router
+│   │   ├── operasi
+│   │   │   └── router_op_sqlite_test.dart
+│   │   └── provider
+│   │       └── router_provider_test.dart
+│   ├── settings
+│   │   ├── operasi
+│   │   │   ├── settings_op_sqlite_test.dart
+│   │   │   └── settings_op_sqlite_test.mocks.dart
+│   │   ├── settings_model_test.dart
+│   │   └── settings_op_firebase_test.dart
+│   ├── sinkronisasi
+│   │   ├── layanan_unduh_data_test.dart
+│   │   ├── layanan_unggah_data_test.dart
+│   │   └── provider
+│   │       └── sinkronisasi_provider_test.dart
+│   ├── speedtest
+│   │   └── provider
+│   │       ├── ping_provider_test.dart
+│   │       └── uji_kecepatan_provider_test.dart
+│   ├── statistik
+│   │   ├── model
+│   │   │   └── paket_terlaris_model_test.dart
+│   │   ├── operasi
+│   │   │   └── statistik_op_sqlite_test.dart
+│   │   └── provider
+│   │       └── statistik_provider_test.dart
+│   ├── transaksi
+│   │   ├── model
+│   │   │   └── transaksi_model_test.dart
+│   │   ├── operasi
+│   │   │   ├── transaksi_op_firebase_test.dart
+│   │   │   └── transaksi_op_sqlite_test.dart
+│   │   └── provider
+│   │       └── transaksi_provider_test.dart
+│   ├── versi_apk
+│   │   ├── model
+│   │   │   └── versi_apk_model_test.dart
+│   │   ├── operasi
+│   │   │   ├── versi_apk_op_firebase_test.dart
+│   │   │   └── versi_apk_op_sqlite_test.dart
+│   │   ├── provider
+│   │   │   └── versi_apk_provider_test.dart
+│   │   └── service
+│   │       └── update_service_test.dart
+│   └── whatsapp
+│       ├── info_paket_test.dart
+│       └── info_paket_test.mocks.dart
 ├── image_mock_http_client.dart
 └── shared
     ├── data
-    │   └── services
-    │       ├── layanan_cek_sinkronisasi_test.dart
-    │       ├── layanan_cek_sinkronisasi_test.mocks.dart
-    │       ├── layanan_navigasi_test.dart
-    │       ├── layanan_preferensi_test.dart
-    │       ├── pengecekan_data_baru_service_test.dart
-    │       └── pengecekan_data_baru_service_test.mocks.dart
+    │   └── services
+    │       ├── layanan_cek_sinkronisasi_test.dart
+    │       ├── layanan_cek_sinkronisasi_test.mocks.dart
+    │       ├── layanan_navigasi_test.dart
+    │       ├── layanan_preferensi_test.dart
+    │       ├── pengecekan_data_baru_service_test.dart
+    │       └── pengecekan_data_baru_service_test.mocks.dart
     ├── debug
-    │   └── log_test.dart
+    │   └── log_test.dart
     ├── operasi
-    │   ├── firebase_operasi
-    │   │   ├── base_op_firebase_test.dart
-    │   │   ├── notifikasi_op_firebase_test.dart
-    │   │   ├── notifikasi_op_firebase_test.mocks.dart
-    │   │   └── status_op_firebase_test.dart
-    │   └── sqlite_operasi
-    │       ├── base_op_sqlite_test.dart
-    │       └── base_op_sqlite_test.mocks.dart
+    │   ├── firebase_operasi
+    │   │   ├── base_op_firebase_test.dart
+    │   │   ├── notifikasi_op_firebase_test.dart
+    │   │   ├── notifikasi_op_firebase_test.mocks.dart
+    │   │   └── status_op_firebase_test.dart
+    │   └── sqlite_operasi
+    │       ├── base_op_sqlite_test.dart
+    │       └── base_op_sqlite_test.mocks.dart
     └── utils
         ├── durasi_util_test.dart
         ├── format_util_test.dart
@@ -51949,7 +51777,7 @@ test
         ├── perhitungan_util_test.dart
         └── toast_util_test.dart
 
-226 directories, 433 files
+228 directories, 430 files
 tree is not installed, but available in the following packages, pick one to run it, Ctrl+C to cancel.
 
 

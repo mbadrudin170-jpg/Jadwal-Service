@@ -51,3 +51,80 @@ abstract class _$Dompet extends $AsyncNotifier<DompetState> {
     return element.handleCreate(ref, build);
   }
 }
+
+@ProviderFor(detailDompet)
+final detailDompetProvider = DetailDompetFamily._();
+
+final class DetailDompetProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<TransaksiModel>>,
+          List<TransaksiModel>,
+          FutureOr<List<TransaksiModel>>
+        >
+    with
+        $FutureModifier<List<TransaksiModel>>,
+        $FutureProvider<List<TransaksiModel>> {
+  DetailDompetProvider._({
+    required DetailDompetFamily super.from,
+    required String? super.argument,
+  }) : super(
+         retry: null,
+         name: r'detailDompetProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$detailDompetHash();
+
+  @override
+  String toString() {
+    return r'detailDompetProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<TransaksiModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<TransaksiModel>> create(Ref ref) {
+    final argument = this.argument as String?;
+    return detailDompet(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DetailDompetProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$detailDompetHash() => r'16175046388bab33a8624f819318f91d7303a41b';
+
+final class DetailDompetFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<TransaksiModel>>, String?> {
+  DetailDompetFamily._()
+    : super(
+        retry: null,
+        name: r'detailDompetProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  DetailDompetProvider call(String? idDompet) =>
+      DetailDompetProvider._(argument: idDompet, from: this);
+
+  @override
+  String toString() => r'detailDompetProvider';
+}

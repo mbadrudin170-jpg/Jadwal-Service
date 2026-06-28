@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
+import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
@@ -108,25 +109,16 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
     setState(_muatData);
   }
 
-  Future<void> _navigasiKeDetailTransaksi(TransaksiModel transaction) async {
+  Future<void> _navigasiKeDetailTransaksi(TransaksiModel transaksi) async {
     Log.info(
-      'Navigasi ke TransactionDetailPage dari WalletDetail untuk transaksi ID: ${transaction.id}',
+      'Navigasi ke TransactionDetailPage dari WalletDetail untuk transaksi ID: ${transaksi.id}',
     );
-    final hasil = await Navigator.push<bool>(
+    await Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (context) => DetailTransaksiA(transaksi: transaction),
+        builder: (context) => DetailTransaksiA(transaksi: transaksi),
       ),
     );
-
-    if (hasil ?? false) {
-      Log.info(
-        'Kembali dari halaman detail transaksi dengan sinyal reload. Memuat ulang data dompet.',
-      );
-      _muatUlangData();
-    } else {
-      Log.info('Kembali dari halaman detail transaksi tanpa perubahan.');
-    }
   }
 
   Future<void> _navigasiKeFormTransaksi({TransaksiModel? transaksi}) async {
@@ -144,29 +136,32 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
   @override
   Widget build(BuildContext context) {
     final transaksiAsync = ref.watch(transaksiProvider);
+    final detailDompet = ref.watch(detailDompetProvider(widget.dompet.id));
     return Scaffold(
       appBar: AppBar(title: Text(_namaDompetTerbaru ?? widget.dompet.nama)),
-      body: transaksiAsync.when(
-        skipLoadingOnReload: true,
-        data: (transaksi) {
-          return Column(
-            children: [
-              Container(
-                color: Theme.of(context).primaryColor.withAlpha(13),
-                padding: const EdgeInsets.all(20.0),
-                child: RingkasanKeuanganWidget(
-                  pemasukan: transaksi.totalPemasukan,
-                  pengeluaran: transaksi.totalPengeluaran,
-                  total: transaksi.total,
-                ),
-              ),
-              const Divider(height: 1),
-              Expanded(child: _bangunDaftarTransaksi(transaksi.transaksi)),
-            ],
+      body: detailDompet.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) =>
+            Center(child: Text('Gagal memuat transaksi: $err')),
+        data: (daftarTransaksi) {
+          return transaksiAsync.when(
+            skipLoadingOnReload: true,
+            data: (transaksi) {
+              return Column(
+                children: [
+                  RingkasanKeuanganWidget(
+                    pemasukan: transaksi.totalPemasukan,
+                    pengeluaran: transaksi.totalPengeluaran,
+                    total: transaksi.total,
+                  ),
+                  Expanded(child: _bangunDaftarTransaksi(daftarTransaksi)),
+                ],
+              );
+            },
+            error: (e, s) => Center(child: Text('Error: $e')),
+            loading: () => const Center(child: CircularProgressIndicator()),
           );
         },
-        error: (e, s) => Text('e'),
-        loading: () => const Center(child: CircularProgressIndicator()),
       ),
     );
   }

@@ -155,7 +155,6 @@ class _StateTileTransaksi extends ConsumerState<TileTransaksi> {
         onTap: widget.onTap,
         onLongPress: () {
           if (widget.onEdit == null && widget.onDelete == null) return;
-
           unawaited(
             showDialog<void>(
               context: context,

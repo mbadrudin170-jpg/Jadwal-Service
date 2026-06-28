@@ -6,6 +6,9 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 part 'dompet_provider.freezed.dart';
 part 'dompet_provider.g.dart';
@@ -83,5 +86,17 @@ class Dompet extends _$Dompet {
   /// fungsi untuk menyegarkan data dompet
   Future<void> refresh() async {
     state = await AsyncValue.guard(_loadData);
+  }
+}
+
+@riverpod
+Future<List<TransaksiModel>> detailDompet(Ref ref, String? idDompet) async {
+  try {
+    final transaksiOp = ref.watch(transaksiOpGlobalProvider);
+    final daftarTransaksi = transaksiOp.ambilBerdasarkanIdDompet(idDompet!);
+    return daftarTransaksi;
+  } on Exception catch (e, s) {
+    Log.error('Error diDetailDompet: $e', e: e, s: s);
+    rethrow;
   }
 }
