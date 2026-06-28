@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-class PackageNameWidget extends StatelessWidget {
+class NamaPaketWidget extends StatelessWidget {
   final Future<PaketModel?> idPaket;
   final TextStyle? style;
 
-  const PackageNameWidget({super.key, required this.idPaket, this.style});
+  const NamaPaketWidget({super.key, required this.idPaket, this.style});
 
   @override
   Widget build(BuildContext context) {

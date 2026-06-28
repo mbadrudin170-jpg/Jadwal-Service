@@ -16,7 +16,7 @@ import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/fitur/transaksi/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/widget/summary_info_widget.dart';
+import 'package:wifi/shared/widget/info_ringkasan_widget.dart';
 
 class DataDetailDompet {
   final DompetModel dompet;
@@ -177,22 +177,19 @@ class _DetailDompetState extends ConsumerState<DetailDompet> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    buildSummaryInfo(
-                      context: context,
+                    InfoRingkasanWidget(
                       label: 'Pemasukan',
-                      amount: data.totalPemasukan,
+                      jumlah: data.totalPemasukan,
                       color: Colors.green,
                     ),
-                    buildSummaryInfo(
-                      context: context,
+                    InfoRingkasanWidget(
                       label: 'Pengeluaran',
-                      amount: data.totalPengeluaran,
+                      jumlah: data.totalPengeluaran,
                       color: Colors.red,
                     ),
-                    buildSummaryInfo(
-                      context: context,
+                    InfoRingkasanWidget(
                       label: 'Saldo',
-                      amount: data.dompet.saldo,
+                      jumlah: data.dompet.saldo,
                       color: data.dompet.saldo >= 0 ? Colors.blue : Colors.red,
                     ),
                   ],

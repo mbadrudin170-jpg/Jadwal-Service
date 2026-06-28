@@ -434,7 +434,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
               title: Row(
                 children: [
                   const Text('Paket: '),
-                  PackageNameWidget(
+                  NamaPaketWidget(
                     idPaket: paketOpFirebase.ambilBerdasarkanId(order.idPaket),
                   ),
                 ],

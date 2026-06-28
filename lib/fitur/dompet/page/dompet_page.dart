@@ -14,7 +14,7 @@ import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/widget_ringkasan_keuangan.dart';
+import 'package:wifi/shared/widget/ringkasan_keuangan_widget.dart';
 
 class DompetPage extends ConsumerWidget {
   const DompetPage({super.key});
@@ -64,7 +64,7 @@ class DompetPage extends ConsumerWidget {
 
           return Column(
             children: [
-              WidgetRingkasanKeuangan(
+              RingkasanKeuanganWidget(
                 pemasukan: walletState.totalSaldoPositif,
                 pengeluaran: walletState.totalSaldoNegatif,
                 total: walletState.totalSaldo,

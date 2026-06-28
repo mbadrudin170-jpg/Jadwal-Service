@@ -1,42 +1,12 @@
+// path lib/shared/widget/widget_ringkasan_keuangan.dart
+
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-Widget bangunRingkasanInfoKeuangan({
-  required final BuildContext context,
-  required final String label,
-  required final double jumlah,
-  final Color? color,
-}) {
-  Log.info(
-    'Membangun widget FinancialSummaryInfo untuk label: "$label", amount: $jumlah',
-  );
-
-  final textColor = color ?? context.colorScheme.primary;
-
-  return Column(
-    children: [
-      Text(
-        label,
-        style: context.textTheme.bodyMedium?.copyWith(
-          color: context.colorScheme.onSurfaceVariant,
-        ),
-      ),
-      gapH4,
-      Text(
-        FormatUang.formatMataUang(jumlah),
-        style: context.textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: textColor,
-        ),
-      ),
-    ],
-  );
-}
-
-class WidgetRingkasanKeuangan extends StatelessWidget {
+class RingkasanKeuanganWidget extends StatelessWidget {
   final double pemasukan;
   final double pengeluaran;
   final double total;
@@ -44,7 +14,7 @@ class WidgetRingkasanKeuangan extends StatelessWidget {
   final String? pesanError;
   final VoidCallback? onRefresh;
 
-  const WidgetRingkasanKeuangan({
+  const RingkasanKeuanganWidget({
     super.key,
     required this.pemasukan,
     required this.pengeluaran,
@@ -55,7 +25,7 @@ class WidgetRingkasanKeuangan extends StatelessWidget {
   });
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     Log.info(
       'Membangun FinancialSummaryWidget: income=$pemasukan, expense=$pengeluaran, total=$total, isLoading=$sedangLoading',
     );
@@ -132,6 +102,38 @@ class WidgetRingkasanKeuangan extends StatelessWidget {
           label: 'Total',
           jumlah: total,
           color: context.colorScheme.primary,
+        ),
+      ],
+    );
+  }
+
+  Widget bangunRingkasanInfoKeuangan({
+    required final BuildContext context,
+    required final String label,
+    required final double jumlah,
+    final Color? color,
+  }) {
+    Log.info(
+      'Membangun widget FinancialSummaryInfo untuk label: "$label", amount: $jumlah',
+    );
+
+    final textColor = color ?? context.colorScheme.primary;
+
+    return Column(
+      children: [
+        Text(
+          label,
+          style: context.textTheme.bodyMedium?.copyWith(
+            color: context.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        gapH4,
+        Text(
+          FormatUang.formatMataUang(jumlah),
+          style: context.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
         ),
       ],
     );
