@@ -338,6 +338,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       riwayatTransaksiPelangganProvider(widget.idPelanggan),
     );
     return riwayatAsync.when(
+      skipLoadingOnReload: true,
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Error: $err')),
       data: (data) {
