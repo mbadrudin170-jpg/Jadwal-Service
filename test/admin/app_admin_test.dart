@@ -115,9 +115,9 @@ void main() {
       mockKoneksiInternetService.cekInternet(),
     ).thenAnswer((_) async => true);
     when(mockUnduhanAwalService.jalankanUnduhanAwal()).thenAnswer((_) async {});
-    when(mockSettingsOpSqlite.ambilSettings()).thenAnswer(
-      (_) async => const SettingsModel(),
-    );
+    when(
+      mockSettingsOpSqlite.ambilSettings(),
+    ).thenAnswer((_) async => const SettingsModel());
     when(
       mockPembersihanDataOperasi.hapusPermanentDataYangDiarsip(
         waktuPenjadwalanHapusDataArsip: any,
@@ -147,7 +147,7 @@ void main() {
         pelangganAktifOpSqliteProvider.overrideWithValue(
           mockPelangganAktifOpSqlite,
         ),
-        providerLayananUnduhanAwal.overrideWithValue(mockUnduhanAwalService),
+        layananUnduhanAwalProvider.overrideWithValue(mockUnduhanAwalService),
         settingsOpSqliteProvider.overrideWithValue(mockSettingsOpSqlite),
         appRoleProvider.overrideWithValue(role),
         pembersihanDataOperasiProvider.overrideWithValue(

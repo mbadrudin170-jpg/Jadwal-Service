@@ -33,7 +33,7 @@ void main() async {
   Log.info('Inisialisasi Firebase selesai.');
 
   FirebaseFirestore.instance.settings = const Settings(
-    persistenceEnabled: true, // Memastikan cache aktif
+    persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
 

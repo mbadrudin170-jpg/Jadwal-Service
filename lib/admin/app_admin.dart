@@ -117,7 +117,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       final isOnline = await koneksiInternetService.cekInternet();
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
-        final unduhanAwalService = ref.read(providerLayananUnduhanAwal);
+        final unduhanAwalService = ref.read(layananUnduhanAwalProvider);
         try {
           await unduhanAwalService.jalankanUnduhanAwal().timeout(
             const Duration(seconds: 30),

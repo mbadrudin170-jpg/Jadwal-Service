@@ -2,11 +2,9 @@
 
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
@@ -76,7 +74,6 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
           .watch(koneksiInternetServiceProvider)
           .cekInternet();
       if (_terhubung == true) {
-        await _lanjutkanInisialisasi();
         final eventInfo = await _cekEvent();
         if (eventInfo != null) {
           if (mounted) {
@@ -146,17 +143,6 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     );
     await LayananNotifikasi().mintaIzin();
     await initializeDateFormatting('id_ID');
-  }
-
-  Future<void> _lanjutkanInisialisasi() async {
-    try {
-      await MobileAds.instance.initialize();
-      FirebaseFirestore.instance.settings = const Settings(
-        persistenceEnabled: true,
-      );
-    } on Exception catch (e, st) {
-      Log.error('Gagal inisialisasi layanan online', e: e, s: st);
-    }
   }
 
   Future<EventModel?> _cekEvent() async {

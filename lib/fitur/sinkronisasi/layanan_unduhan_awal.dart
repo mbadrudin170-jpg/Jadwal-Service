@@ -14,8 +14,8 @@ class LayananUnduhanAwal {
   LayananUnduhanAwal({
     required SqliteDatabase databaseSqlite,
     required LayananUnduhData layananUnduhData,
-  })  : _databaseSqlite = databaseSqlite,
-        _layananUnduhData = layananUnduhData {
+  }) : _databaseSqlite = databaseSqlite,
+       _layananUnduhData = layananUnduhData {
     Log.info('LayananUnduhanAwal diinisialisasi dengan dependency injection.');
   }
 
@@ -37,14 +37,16 @@ class LayananUnduhanAwal {
 
     pengukurWaktu.stop();
     Log.info(
-        'Proses unduhan awal selesai dalam ${pengukurWaktu.elapsed.inSeconds} detik.');
+      'Proses unduhan awal selesai dalam ${pengukurWaktu.elapsed.inSeconds} detik.',
+    );
   }
 
   Future<bool> _apakahTabelKosong(String namaTabel) async {
     try {
       final db = await _databaseSqlite.database;
-      final result =
-          await db.rawQuery('SELECT COUNT(*) as count FROM $namaTabel');
+      final result = await db.rawQuery(
+        'SELECT COUNT(*) as count FROM $namaTabel',
+      );
       final jumlah = Sqflite.firstIntValue(result) ?? 0;
       Log.info("Tabel '$namaTabel': $jumlah baris.");
       return jumlah == 0;
@@ -72,63 +74,62 @@ class LayananUnduhanAwal {
   }
 
   Future<void> _unduhPaketJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.paket,
-        fungsiUnduh: _layananUnduhData.unduhDataPaket,
-      );
+    namaTabel: NamaTabel.paket,
+    fungsiUnduh: _layananUnduhData.unduhDataPaket,
+  );
 
   Future<void> _unduhKategoriJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.kategori,
-        fungsiUnduh: _layananUnduhData.unduhDataKategori,
-      );
+    namaTabel: NamaTabel.kategori,
+    fungsiUnduh: _layananUnduhData.unduhDataKategori,
+  );
 
   Future<void> _unduhSubKategoriJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.subKategori,
-        fungsiUnduh: _layananUnduhData.unduhDataSubKategori,
-      );
+    namaTabel: NamaTabel.subKategori,
+    fungsiUnduh: _layananUnduhData.unduhDataSubKategori,
+  );
 
   Future<void> _unduhDompetJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.dompet,
-        fungsiUnduh: _layananUnduhData.unduhDataDompet,
-      );
+    namaTabel: NamaTabel.dompet,
+    fungsiUnduh: _layananUnduhData.unduhDataDompet,
+  );
 
   Future<void> _unduhPelangganJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.pelanggan,
-        fungsiUnduh: _layananUnduhData.unduhDataPelanggan,
-      );
+    namaTabel: NamaTabel.pelanggan,
+    fungsiUnduh: _layananUnduhData.unduhDataPelanggan,
+  );
 
   Future<void> _unduhVersiApkJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.versiApkUser,
-        fungsiUnduh: _layananUnduhData.unduhDataVersiApk,
-      );
+    namaTabel: NamaTabel.versiApkUser,
+    fungsiUnduh: _layananUnduhData.unduhDataVersiApk,
+  );
 
   Future<void> _unduhPengaturanJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.settings,
-        fungsiUnduh: _layananUnduhData.unduhDataPengaturan,
-      );
+    namaTabel: NamaTabel.settings,
+    fungsiUnduh: _layananUnduhData.unduhDataPengaturan,
+  );
 
   Future<void> _unduhPelangganAktifJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.pelangganAktif,
-        fungsiUnduh: _layananUnduhData.unduhDataPelangganAktif,
-      );
+    namaTabel: NamaTabel.pelangganAktif,
+    fungsiUnduh: _layananUnduhData.unduhDataPelangganAktif,
+  );
 
   Future<void> _unduhTransaksiJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.transaksi,
-        fungsiUnduh: _layananUnduhData.unduhDataTransaksi,
-      );
+    namaTabel: NamaTabel.transaksi,
+    fungsiUnduh: _layananUnduhData.unduhDataTransaksi,
+  );
 
   Future<void> _unduhUmpanBalikJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.feedback,
-        fungsiUnduh: _layananUnduhData.unduhDataUmpanBalik,
-      );
+    namaTabel: NamaTabel.feedback,
+    fungsiUnduh: _layananUnduhData.unduhDataUmpanBalik,
+  );
 
   Future<void> _unduhPesananJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.pesananPelanggan,
-        fungsiUnduh: _layananUnduhData.unduhDataPesanan,
-      );
+    namaTabel: NamaTabel.pesananPelanggan,
+    fungsiUnduh: _layananUnduhData.unduhDataPesanan,
+  );
 }
 
-// ✅ HANYA SATU PROVIDER - gunakan Provider biasa
-final providerLayananUnduhanAwal = Provider<LayananUnduhanAwal>((ref) {
+final layananUnduhanAwalProvider = Provider<LayananUnduhanAwal>((ref) {
   return LayananUnduhanAwal(
     databaseSqlite: ref.read(sqliteDatabaseProvider),
     layananUnduhData: ref.read(layananUnduhDataProvider),
