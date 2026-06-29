@@ -28,6 +28,12 @@ class DompetPage extends ConsumerWidget {
         title: const Text('Dompet'),
         actions: [
           IconButton(
+            onPressed: () {
+              ToastUtil.info(context, 'Fitur dalam pengembangan');
+            },
+            icon: Icon(TIcons.sort),
+          ),
+          IconButton(
             icon: const Icon(TIcons.delete),
             onPressed: () => _showDeleteAllDialog(context, ref),
             tooltip: 'Hapus Semua Dompet',
