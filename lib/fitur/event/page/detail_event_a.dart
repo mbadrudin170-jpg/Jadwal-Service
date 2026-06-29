@@ -1,10 +1,11 @@
 // path: lib/fitur/event/page/detail_event_a.dart
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/event/model/event_model.dart';
 import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
-import 'package:wifi/shared/common/teks.dart';
+import 'package:wifi/fitur/event/page/form_event.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 
@@ -13,12 +14,12 @@ class DetailEventA extends ConsumerWidget {
   const DetailEventA({super.key, required this.event});
 
   @override
-  Widget build( BuildContext context,  WidgetRef ref) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final futureEvent = ref
         .watch(eventOpSupabaseProvider)
         .ambilBerdasarkanId(event.id);
     return Scaffold(
-      appBar: AppBar(title: const TeksJudulSedang('Detail Pengumuman')),
+      appBar: AppBar(title: const Text('Detail Pengumuman')),
       body: FutureBuilder<EventModel?>(
         future: futureEvent,
         builder: (context, snapshot) {
@@ -48,16 +49,15 @@ class DetailEventA extends ConsumerWidget {
                 if (detailedEvent.linkGambar.isNotEmpty)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12.0),
-                    child: Image.network(
-                      detailedEvent.linkGambar,
+                    child: CachedNetworkImage(
+                      imageUrl: detailedEvent.linkGambar,
                       width: double.infinity,
                       height: 200,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, e, st) {
+                      errorWidget: (context, url, e) {
                         Log.error(
                           'Gagal memuat gambar detail: ${detailedEvent.linkGambar}',
                           e: e,
-                          s: st,
                         );
                         return Container(
                           height: 200,
@@ -119,7 +119,10 @@ class DetailEventA extends ConsumerWidget {
         padding: const EdgeInsets.all(TSizes.p16),
         child: ElevatedButton.icon(
           onPressed: () {
-            // Logika untuk edit bisa ditambahkan di sini
+            Navigator.push<void>(
+              context,
+              MaterialPageRoute(builder: (context) => FormEvent(event: event)),
+            );
             Log.info('Tombol edit untuk ${event.id} ditekan');
           },
           icon: const Icon(TIcons.edit),

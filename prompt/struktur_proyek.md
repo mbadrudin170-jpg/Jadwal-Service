@@ -78,7 +78,7 @@ lib
 │   │       ├── detail_event_a.dart
 │   │       ├── event_page_a.dart
 │   │       ├── event_page_u.dart
-│   │       └── manage_announcement_page.dart
+│   │       └── form_event.dart
 │   ├── feedback
 │   │   ├── model
 │   │   │   ├── feedback_model.dart

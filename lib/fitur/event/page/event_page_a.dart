@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/event/model/event_model.dart';
 import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 import 'package:wifi/fitur/event/page/detail_event_a.dart';
-import 'package:wifi/fitur/event/page/manage_announcement_page.dart';
+import 'package:wifi/fitur/event/page/form_event.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 
@@ -88,20 +88,20 @@ class EventPageA extends ConsumerWidget {
                               width: 60,
                               height: 60,
                               fit: BoxFit.cover,
-                              // placeholder: (context, url) => Container(
-                              //   width: 60,
-                              //   height: 60,
-                              //   color: Colors.grey.shade200,
-                              //   child: const Center(
-                              //     child: SizedBox(
-                              //       width: 20,
-                              //       height: 20,
-                              //       child: CircularProgressIndicator(
-                              //         strokeWidth: 2,
-                              //       ),
-                              //     ),
-                              //   ),
-                              // ),
+                              placeholder: (context, url) => Container(
+                                width: 60,
+                                height: 60,
+                                color: Colors.grey.shade200,
+                                child: const Center(
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
                               errorWidget: (context, url, error) {
                                 Log.error(
                                   'Gagal memuat gambar: ${event.linkGambar}',
@@ -182,9 +182,7 @@ class EventPageA extends ConsumerWidget {
           unawaited(
             Navigator.push(
               context,
-              MaterialPageRoute<void>(
-                builder: (context) => const ManageAnnouncementPage(),
-              ),
+              MaterialPageRoute<void>(builder: (context) => const FormEvent()),
             ),
           );
         },

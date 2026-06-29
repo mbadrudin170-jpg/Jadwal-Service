@@ -1,5 +1,3 @@
-// path lib/fitur/event/page/manage_announcement_page.dart
-
 import 'dart:async';
 import 'dart:io';
 
@@ -17,17 +15,15 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
 
-class ManageAnnouncementPage extends ConsumerStatefulWidget {
-  const ManageAnnouncementPage({super.key, this.event});
+class FormEvent extends ConsumerStatefulWidget {
+  const FormEvent({super.key, this.event});
   final EventModel? event;
 
   @override
-  ConsumerState<ManageAnnouncementPage> createState() =>
-      _ManageAnnouncementPageState();
+  ConsumerState<FormEvent> createState() => _FormEventState();
 }
 
-class _ManageAnnouncementPageState
-    extends ConsumerState<ManageAnnouncementPage> {
+class _FormEventState extends ConsumerState<FormEvent> {
   final _formKey = GlobalKey<FormState>();
   final _imageUrlController = TextEditingController();
   final _scrollController = ScrollController();
@@ -284,7 +280,6 @@ class _ManageAnnouncementPageState
             tanggalBerakhir: _selectedEndDate!,
           );
 
-    // 4. Manajemen status aktif (Hanya izinkan satu pengumuman yang aktif secara simultan)
     if (isActive) {
       try {
         final currentActive = await eventOpSupabase.ambilEventAktif();

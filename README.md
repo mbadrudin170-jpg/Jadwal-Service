@@ -17823,11 +17823,12 @@ abstract class DompetModel with _$DompetModel implements HasId {
 // File: lib/fitur/event/page/detail_event_a.dart
 // path: lib/fitur/event/page/detail_event_a.dart
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/event/model/event_model.dart';
 import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
-import 'package:wifi/shared/common/teks.dart';
+import 'package:wifi/fitur/event/page/form_event.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 
@@ -17836,12 +17837,12 @@ class DetailEventA extends ConsumerWidget {
   const DetailEventA({super.key, required this.event});
 
   @override
-  Widget build( BuildContext context,  WidgetRef ref) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final futureEvent = ref
         .watch(eventOpSupabaseProvider)
         .ambilBerdasarkanId(event.id);
     return Scaffold(
-      appBar: AppBar(title: const TeksJudulSedang('Detail Pengumuman')),
+      appBar: AppBar(title: const Text('Detail Pengumuman')),
       body: FutureBuilder<EventModel?>(
         future: futureEvent,
         builder: (context, snapshot) {
@@ -17871,16 +17872,15 @@ class DetailEventA extends ConsumerWidget {
                 if (detailedEvent.linkGambar.isNotEmpty)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12.0),
-                    child: Image.network(
-                      detailedEvent.linkGambar,
+                    child: CachedNetworkImage(
+                      imageUrl: detailedEvent.linkGambar,
                       width: double.infinity,
                       height: 200,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, e, st) {
+                      errorWidget: (context, url, e) {
                         Log.error(
                           'Gagal memuat gambar detail: ${detailedEvent.linkGambar}',
                           e: e,
-                          s: st,
                         );
                         return Container(
                           height: 200,
@@ -17942,7 +17942,10 @@ class DetailEventA extends ConsumerWidget {
         padding: const EdgeInsets.all(TSizes.p16),
         child: ElevatedButton.icon(
           onPressed: () {
-            // Logika untuk edit bisa ditambahkan di sini
+            Navigator.push<void>(
+              context,
+              MaterialPageRoute(builder: (context) => FormEvent(event: event)),
+            );
             Log.info('Tombol edit untuk ${event.id} ditekan');
           },
           icon: const Icon(TIcons.edit),
@@ -17957,9 +17960,7 @@ class DetailEventA extends ConsumerWidget {
 }
 
 
-// File: lib/fitur/event/page/manage_announcement_page.dart
-// path lib/fitur/event/page/manage_announcement_page.dart
-
+// File: lib/fitur/event/page/form_event.dart
 import 'dart:async';
 import 'dart:io';
 
@@ -17977,17 +17978,15 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
 
-class ManageAnnouncementPage extends ConsumerStatefulWidget {
-  const ManageAnnouncementPage({super.key, this.event});
+class FormEvent extends ConsumerStatefulWidget {
+  const FormEvent({super.key, this.event});
   final EventModel? event;
 
   @override
-  ConsumerState<ManageAnnouncementPage> createState() =>
-      _ManageAnnouncementPageState();
+  ConsumerState<FormEvent> createState() => _FormEventState();
 }
 
-class _ManageAnnouncementPageState
-    extends ConsumerState<ManageAnnouncementPage> {
+class _FormEventState extends ConsumerState<FormEvent> {
   final _formKey = GlobalKey<FormState>();
   final _imageUrlController = TextEditingController();
   final _scrollController = ScrollController();
@@ -18244,7 +18243,6 @@ class _ManageAnnouncementPageState
             tanggalBerakhir: _selectedEndDate!,
           );
 
-    // 4. Manajemen status aktif (Hanya izinkan satu pengumuman yang aktif secara simultan)
     if (isActive) {
       try {
         final currentActive = await eventOpSupabase.ambilEventAktif();
@@ -18522,37 +18520,40 @@ class _EventPageUState extends ConsumerState<EventPageU> {
     final EventModel data = widget.event;
 
     return Scaffold(
-        body: Stack(
-      fit: StackFit.expand,
-      children: [
-        CachedNetworkImage(
-          imageUrl: data.linkGambar,
-          fit: BoxFit.cover,
-        ),
-        Positioned(
-          top: 30,
-          right: 10,
-          child: ElevatedButton(
-            onPressed: () {
-              _timer?.cancel();
-              Navigator.of(context).pop();
-            },
-            style: ElevatedButton.styleFrom(
-              shape: const CircleBorder(),
-              padding: const EdgeInsets.all(8),
-              backgroundColor: TColors.darkBackground.withValues(alpha: 0.7),
-            ),
-            child: Text(
-              _countdown > 0 ? '$_countdown' : 'X',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          CachedNetworkImage(
+            imageUrl: data.linkGambar,
+            fit: BoxFit.cover,
+            fadeOutDuration: const Duration(seconds: 200),
+            fadeInDuration: const Duration(seconds: 300),
+          ),
+          Positioned(
+            top: 30,
+            right: 10,
+            child: ElevatedButton(
+              onPressed: () {
+                _timer?.cancel();
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                shape: const CircleBorder(),
+                padding: const EdgeInsets.all(8),
+                backgroundColor: TColors.darkBackground.withValues(alpha: 0.7),
+              ),
+              child: Text(
+                _countdown > 0 ? '$_countdown' : 'X',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
-        ),
-      ],
-    ));
+        ],
+      ),
+    );
   }
 }
 
@@ -18562,12 +18563,13 @@ class _EventPageUState extends ConsumerState<EventPageU> {
 
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/event/model/event_model.dart';
 import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 import 'package:wifi/fitur/event/page/detail_event_a.dart';
-import 'package:wifi/fitur/event/page/manage_announcement_page.dart';
+import 'package:wifi/fitur/event/page/form_event.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 
@@ -18635,31 +18637,56 @@ class EventPageA extends ConsumerWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               itemCount: announcements.length,
               itemBuilder: (final context, final index) {
-                final announcement = announcements[index];
+                final event = announcements[index];
                 return Card(
                   margin: const EdgeInsets.only(bottom: TSizes.p16),
                   child: ListTile(
-                    leading: announcement.linkGambar.isNotEmpty
+                    leading: event.linkGambar.isNotEmpty
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(8.0),
-                            child: Image.network(
-                              announcement.linkGambar,
+                            child: CachedNetworkImage(
+                              imageUrl: event.linkGambar,
                               width: 60,
                               height: 60,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, e, st) {
+                              placeholder: (context, url) => Container(
+                                width: 60,
+                                height: 60,
+                                color: Colors.grey.shade200,
+                                child: const Center(
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) {
                                 Log.error(
-                                  'Gagal memuat gambar: ${announcement.linkGambar}',
-                                  e: e,
-                                  s: st,
+                                  'Gagal memuat gambar: ${event.linkGambar}',
+                                  e: error,
                                 );
-                                return const Icon(TIcons.error);
+                                return Container(
+                                  width: 60,
+                                  height: 60,
+                                  color: Colors.grey.shade200,
+                                  child: const Icon(
+                                    TIcons.error,
+                                    color: Colors.red,
+                                    size: 30,
+                                  ),
+                                );
                               },
+                              // 🔥 Cache lebih cepat
+                              fadeInDuration: const Duration(milliseconds: 200),
+                              fadeInCurve: Curves.easeOut,
                             ),
                           )
                         : null,
                     title: Text(
-                      'ID: ${announcement.id.length > 30 ? '${announcement.id.substring(0, 30)}...' : announcement.id}',
+                      'ID: ${event.id.length > 30 ? '${event.id.substring(0, 30)}...' : event.id}',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Column(
@@ -18667,23 +18694,23 @@ class EventPageA extends ConsumerWidget {
                       children: [
                         gapH8,
                         Text(
-                          'Dibuat: ${announcement.tanggalDibuat.toLocal().toString().split(' ')[0]}',
+                          'Dibuat: ${event.tanggalDibuat.toLocal().toString().split(' ')[0]}',
                         ),
                         gapH4,
                         Chip(
                           label: Text(
-                            announcement.statusAktif ? 'Aktif' : 'Tidak Aktif',
+                            event.statusAktif ? 'Aktif' : 'Tidak Aktif',
                           ),
                           avatar: Icon(
-                            announcement.statusAktif
+                            event.statusAktif
                                 ? TIcons.toggleOn
                                 : TIcons.toggleOff,
                             size: 18,
-                            color: announcement.statusAktif
+                            color: event.statusAktif
                                 ? Colors.green
                                 : Colors.grey,
                           ),
-                          backgroundColor: announcement.statusAktif
+                          backgroundColor: event.statusAktif
                               ? Colors.green.withValues(alpha: 0.08)
                               : Colors.grey.withValues(alpha: 0.08),
                           padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -18692,14 +18719,13 @@ class EventPageA extends ConsumerWidget {
                     ),
                     onTap: () {
                       Log.info('Menavigasi ke detail pengumuman.', {
-                        'id': announcement.id,
+                        'id': event.id,
                       });
                       unawaited(
                         Navigator.push(
                           context,
                           MaterialPageRoute<void>(
-                            builder: (context) =>
-                                DetailEventA(event: announcement),
+                            builder: (context) => DetailEventA(event: event),
                           ),
                         ),
                       );
@@ -18717,9 +18743,7 @@ class EventPageA extends ConsumerWidget {
           unawaited(
             Navigator.push(
               context,
-              MaterialPageRoute<void>(
-                builder: (context) => const ManageAnnouncementPage(),
-              ),
+              MaterialPageRoute<void>(builder: (context) => const FormEvent()),
             ),
           );
         },
@@ -30832,7 +30856,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
     @Default(false) bool statusAktivasi,
   }) = _TransaksiModel;
 
-  factory TransaksiModel.fromSqlite(final Map<String, dynamic> map) {
+  factory TransaksiModel.fromSqlite(Map<String, dynamic> map) {
     Log.info('Membuat TransaksiModel dari SQLite: ${map[NamaKolom.id]}');
     return TransaksiModel(
       id: map[NamaKolom.id] as String? ?? const Uuid().v4(),
@@ -34559,8 +34583,8 @@ class LayananUnduhanAwal {
   LayananUnduhanAwal({
     required SqliteDatabase databaseSqlite,
     required LayananUnduhData layananUnduhData,
-  })  : _databaseSqlite = databaseSqlite,
-        _layananUnduhData = layananUnduhData {
+  }) : _databaseSqlite = databaseSqlite,
+       _layananUnduhData = layananUnduhData {
     Log.info('LayananUnduhanAwal diinisialisasi dengan dependency injection.');
   }
 
@@ -34582,14 +34606,16 @@ class LayananUnduhanAwal {
 
     pengukurWaktu.stop();
     Log.info(
-        'Proses unduhan awal selesai dalam ${pengukurWaktu.elapsed.inSeconds} detik.');
+      'Proses unduhan awal selesai dalam ${pengukurWaktu.elapsed.inSeconds} detik.',
+    );
   }
 
   Future<bool> _apakahTabelKosong(String namaTabel) async {
     try {
       final db = await _databaseSqlite.database;
-      final result =
-          await db.rawQuery('SELECT COUNT(*) as count FROM $namaTabel');
+      final result = await db.rawQuery(
+        'SELECT COUNT(*) as count FROM $namaTabel',
+      );
       final jumlah = Sqflite.firstIntValue(result) ?? 0;
       Log.info("Tabel '$namaTabel': $jumlah baris.");
       return jumlah == 0;
@@ -34617,63 +34643,62 @@ class LayananUnduhanAwal {
   }
 
   Future<void> _unduhPaketJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.paket,
-        fungsiUnduh: _layananUnduhData.unduhDataPaket,
-      );
+    namaTabel: NamaTabel.paket,
+    fungsiUnduh: _layananUnduhData.unduhDataPaket,
+  );
 
   Future<void> _unduhKategoriJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.kategori,
-        fungsiUnduh: _layananUnduhData.unduhDataKategori,
-      );
+    namaTabel: NamaTabel.kategori,
+    fungsiUnduh: _layananUnduhData.unduhDataKategori,
+  );
 
   Future<void> _unduhSubKategoriJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.subKategori,
-        fungsiUnduh: _layananUnduhData.unduhDataSubKategori,
-      );
+    namaTabel: NamaTabel.subKategori,
+    fungsiUnduh: _layananUnduhData.unduhDataSubKategori,
+  );
 
   Future<void> _unduhDompetJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.dompet,
-        fungsiUnduh: _layananUnduhData.unduhDataDompet,
-      );
+    namaTabel: NamaTabel.dompet,
+    fungsiUnduh: _layananUnduhData.unduhDataDompet,
+  );
 
   Future<void> _unduhPelangganJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.pelanggan,
-        fungsiUnduh: _layananUnduhData.unduhDataPelanggan,
-      );
+    namaTabel: NamaTabel.pelanggan,
+    fungsiUnduh: _layananUnduhData.unduhDataPelanggan,
+  );
 
   Future<void> _unduhVersiApkJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.versiApkUser,
-        fungsiUnduh: _layananUnduhData.unduhDataVersiApk,
-      );
+    namaTabel: NamaTabel.versiApkUser,
+    fungsiUnduh: _layananUnduhData.unduhDataVersiApk,
+  );
 
   Future<void> _unduhPengaturanJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.settings,
-        fungsiUnduh: _layananUnduhData.unduhDataPengaturan,
-      );
+    namaTabel: NamaTabel.settings,
+    fungsiUnduh: _layananUnduhData.unduhDataPengaturan,
+  );
 
   Future<void> _unduhPelangganAktifJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.pelangganAktif,
-        fungsiUnduh: _layananUnduhData.unduhDataPelangganAktif,
-      );
+    namaTabel: NamaTabel.pelangganAktif,
+    fungsiUnduh: _layananUnduhData.unduhDataPelangganAktif,
+  );
 
   Future<void> _unduhTransaksiJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.transaksi,
-        fungsiUnduh: _layananUnduhData.unduhDataTransaksi,
-      );
+    namaTabel: NamaTabel.transaksi,
+    fungsiUnduh: _layananUnduhData.unduhDataTransaksi,
+  );
 
   Future<void> _unduhUmpanBalikJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.feedback,
-        fungsiUnduh: _layananUnduhData.unduhDataUmpanBalik,
-      );
+    namaTabel: NamaTabel.feedback,
+    fungsiUnduh: _layananUnduhData.unduhDataUmpanBalik,
+  );
 
   Future<void> _unduhPesananJikaKosong() => _unduhJikaKosong(
-        namaTabel: NamaTabel.pesananPelanggan,
-        fungsiUnduh: _layananUnduhData.unduhDataPesanan,
-      );
+    namaTabel: NamaTabel.pesananPelanggan,
+    fungsiUnduh: _layananUnduhData.unduhDataPesanan,
+  );
 }
 
-// ✅ HANYA SATU PROVIDER - gunakan Provider biasa
-final providerLayananUnduhanAwal = Provider<LayananUnduhanAwal>((ref) {
+final layananUnduhanAwalProvider = Provider<LayananUnduhanAwal>((ref) {
   return LayananUnduhanAwal(
     databaseSqlite: ref.read(sqliteDatabaseProvider),
     layananUnduhData: ref.read(layananUnduhDataProvider),
@@ -38683,11 +38708,9 @@ class _InfoItem extends StatelessWidget {
 
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
@@ -38739,7 +38762,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   final SettingsOpFirebase _settingsOp = SettingsOpFirebase();
   final idUnitIklan = IdInterstitialAds.interstitialAdUnitIds[0];
 
-  bool? _terhubung;
+  bool _terhubung = false;
 
   @override
   void initState() {
@@ -38753,11 +38776,8 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     try {
       Log.info('Memulai inisialisasi dari Splash Screen...');
       await _inisialisasiLayananOffline();
-      _terhubung = await ref
-          .watch(koneksiInternetServiceProvider)
-          .cekInternet();
+      _terhubung = await ref.read(koneksiInternetServiceProvider).cekInternet();
       if (_terhubung == true) {
-        await _lanjutkanInisialisasi();
         final eventInfo = await _cekEvent();
         if (eventInfo != null) {
           if (mounted) {
@@ -38827,17 +38847,6 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     );
     await LayananNotifikasi().mintaIzin();
     await initializeDateFormatting('id_ID');
-  }
-
-  Future<void> _lanjutkanInisialisasi() async {
-    try {
-      await MobileAds.instance.initialize();
-      FirebaseFirestore.instance.settings = const Settings(
-        persistenceEnabled: true,
-      );
-    } on Exception catch (e, st) {
-      Log.error('Gagal inisialisasi layanan online', e: e, s: st);
-    }
   }
 
   Future<EventModel?> _cekEvent() async {
@@ -48702,7 +48711,7 @@ void main() async {
   Log.info('Inisialisasi Firebase selesai.');
 
   FirebaseFirestore.instance.settings = const Settings(
-    persistenceEnabled: true, // Memastikan cache aktif
+    persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
 
@@ -50267,7 +50276,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       final isOnline = await koneksiInternetService.cekInternet();
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
-        final unduhanAwalService = ref.read(providerLayananUnduhanAwal);
+        final unduhanAwalService = ref.read(layananUnduhanAwalProvider);
         try {
           await unduhanAwalService.jalankanUnduhanAwal().timeout(
             const Duration(seconds: 30),
@@ -51580,7 +51589,7 @@ lib
 │   │       ├── detail_event_a.dart
 │   │       ├── event_page_a.dart
 │   │       ├── event_page_u.dart
-│   │       └── manage_announcement_page.dart
+│   │       └── form_event.dart
 │   ├── feedback
 │   │   ├── model
 │   │   │   ├── feedback_model.dart
