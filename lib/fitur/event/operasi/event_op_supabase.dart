@@ -10,14 +10,14 @@ import 'package:wifi/shared/debug/log.dart';
 class EventOpSupabase {
   EventOpSupabase({SupabaseClient? supabase})
     : _supabase = supabase ?? Supabase.instance.client;
-  final String _namaTabel = NamaTabel.event;
+  final String _tabelEvent = NamaTabel.event;
   final SupabaseClient _supabase;
 
   Future<List<EventModel>> ambilSemuaEvent() async {
     Log.info('EventOpSupabase: Mengambil semua data pengumuman');
     try {
       Log.info('1️⃣ Membangun query...');
-      final query = _supabase.from(_namaTabel).select();
+      final query = _supabase.from(_tabelEvent).select();
       Log.info('2️⃣ Eksekusi query ke Supabase...');
       final List<Map<String, dynamic>> response = await query;
       Log.info('3️⃣ Response diterima, jumlah data: ${response.length}');
@@ -37,11 +37,11 @@ class EventOpSupabase {
 
   /// Mengambil aliran data (Stream) pengumuman secara realtime (Versi Asinkron Aman).
   Stream<List<EventModel>> ambilRealtimeStream() async* {
-    Log.info('EventOpSupabase: Membuka stream realtime untuk $_namaTabel');
+    Log.info('EventOpSupabase: Membuka stream realtime untuk $_tabelEvent');
 
     // Gunakan yield* untuk mengalirkan data tanpa mengunci thread utama
     yield* _supabase
-        .from(_namaTabel)
+        .from(_tabelEvent)
         .stream(primaryKey: [NamaKolom.id])
         .handleError((Object e, StackTrace s) {
           Log.error('❌ Error di dalam stream: $e', e: e, s: s);
@@ -64,18 +64,18 @@ class EventOpSupabase {
     Log.info('EventOpSupabase: Mengambil pengumuman aktif');
     try {
       final List<Map<String, dynamic>> respon = await _supabase
-          .from(_namaTabel)
+          .from(_tabelEvent)
           .select()
           .eq(NamaKolom.statusAktif, true)
           .limit(1);
-      Log.info('$respon $_namaTabel');
+      Log.info('$respon $_tabelEvent');
 
       if (respon.isEmpty) {
         return null;
       }
 
       final data = respon.first;
-      Log.info('$data $_namaTabel');
+      Log.info('$data $_tabelEvent');
       return EventModel.fromSupabase(
         data[NamaKolom.id]?.toString() ?? '',
         data,
@@ -91,7 +91,7 @@ class EventOpSupabase {
     Log.info('EventOpSupabase: Mengambil pengumuman berdasarkan id: $id');
     try {
       final List<Map<String, dynamic>> respon = await _supabase
-          .from(_namaTabel)
+          .from(_tabelEvent)
           .select()
           .eq(NamaKolom.id, id)
           .limit(1);
@@ -100,7 +100,6 @@ class EventOpSupabase {
         Log.warning('Pengumuman dengan id: $id tidak ditemukan');
         return null;
       }
-
       final data = respon.first;
       Log.info('Pengumuman ditemukan: $data');
       return EventModel.fromSupabase(
@@ -118,7 +117,7 @@ class EventOpSupabase {
     Log.info('EventOpSupabase: Membuat pengumuman baru ${event.id}');
     try {
       final Map<String, dynamic> dataPayload = event.toSupabase();
-      await _supabase.from(_namaTabel).insert(dataPayload);
+      await _supabase.from(_tabelEvent).insert(dataPayload);
     } catch (e, s) {
       Log.error('Gagal membuat pengumuman di Supabase', e: e, s: s);
       rethrow;
@@ -131,7 +130,7 @@ class EventOpSupabase {
     try {
       final Map<String, dynamic> dataPayload = event.toSupabase();
       await _supabase
-          .from(_namaTabel)
+          .from(_tabelEvent)
           .update(dataPayload)
           .eq(NamaKolom.id, event.id);
     } catch (e, s) {
@@ -144,7 +143,7 @@ class EventOpSupabase {
   Future<void> hapusEvent(String id) async {
     Log.warning('EventOpSupabase: Menghapus pengumuman $id');
     try {
-      await _supabase.from(_namaTabel).delete().eq(NamaKolom.id, id);
+      await _supabase.from(_tabelEvent).delete().eq(NamaKolom.id, id);
     } catch (e, s) {
       Log.error('Gagal menghapus pengumuman di Supabase', e: e, s: s);
       rethrow;
