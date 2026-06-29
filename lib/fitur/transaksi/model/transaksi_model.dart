@@ -43,7 +43,7 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
     @Default(false) bool statusAktivasi,
   }) = _TransaksiModel;
 
-  factory TransaksiModel.fromSqlite(final Map<String, dynamic> map) {
+  factory TransaksiModel.fromSqlite(Map<String, dynamic> map) {
     Log.info('Membuat TransaksiModel dari SQLite: ${map[NamaKolom.id]}');
     return TransaksiModel(
       id: map[NamaKolom.id] as String? ?? const Uuid().v4(),
