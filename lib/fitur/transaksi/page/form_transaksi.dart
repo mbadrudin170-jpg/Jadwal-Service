@@ -223,7 +223,11 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
 
   Future<void> _simpanForm() async {
     Log.info('Tombol "Simpan" ditekan.');
-    if (_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    try {
       Log.info('Form valid. Memulai proses penyimpanan.');
       setState(() => _menyimpan = true);
       final DateTime combinedDateTime = DateTime(
@@ -233,7 +237,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         _jamDipilih!.hour,
         _jamDipilih!.minute,
       );
-      final double jumlah = double.parse(_jumlahController.text).abs();
+      final double jumlah = InputRupiah.parse(_jumlahController.text).abs();
       final transaksi = TransaksiModel(
         id: _modeEdit ? widget.transaksi!.id : const Uuid().v4(),
         deskripsi: _keteranganController.text,
@@ -277,7 +281,6 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
             'Transaksi berhasil disimpan dan disinkronkan.',
           );
         }
-
         if (mounted) {
           Navigator.pop(context);
         }
@@ -285,24 +288,16 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         Log.error('Gagal menyimpan transaksi ke database.', e: e, s: s);
         if (!mounted) return;
         ToastUtil.error(context, 'Gagal menyimpan transaksi: $e');
-      } finally {
-        if (mounted) {
-          setState(() => _menyimpan = false);
-          Log.info('Proses penyimpanan selesai. isSaving diatur ke false.');
-        }
       }
-    } else {
-      Log.warning(
-        'Form tidak valid. Proses penyimpanan dibatalkan. Silakan periksa error di UI.',
-      );
+    } on Exception catch (e) {
+      ToastUtil.error(context, 'Gagal menyimpan Transaksi $e');
+    } finally {
+      setState(() => _menyimpan = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    Log.info(
-      'Membangun UI FormTransaksiPage. isLoading: $_loading, isSaving: $_menyimpan',
-    );
     return Scaffold(
       appBar: AppBar(
         title: Text(_modeEdit ? 'Edit Transaksi' : 'Tambah Transaksi'),

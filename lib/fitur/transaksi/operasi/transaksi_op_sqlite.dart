@@ -37,7 +37,6 @@ class TransaksiOpSqlite {
   ) async {
     try {
       Log.info('Memulai hitung ulang saldo untuk Wallet ID: $idDompet');
-
       final hasilTotal = await txn.rawQuery(
         '''
         SELECT
@@ -67,14 +66,12 @@ class TransaksiOpSqlite {
         ''',
         [idDompet, idDompet, idDompet, idDompet, idDompet, idDompet],
       );
-
       final saldoTotal = (hasilTotal.first['total'] as num?)?.toDouble() ?? 0.0;
       final dompetMaps = await txn.query(
         NamaTabel.dompet,
         where: '${NamaKolom.id} = ?',
         whereArgs: [idDompet],
       );
-
       if (dompetMaps.isEmpty) {
         Log.warning('Dompet ID: $idDompet tidak ditemukan');
         return;
@@ -152,7 +149,6 @@ class TransaksiOpSqlite {
         where: query,
         orderBy: '${NamaKolom.tanggal} DESC',
       );
-
       Log.info('Berhasil mengambil ${maps.length} data transaksi dari SQLite');
       return List.generate(maps.length, (i) {
         return TransaksiModel.fromSqlite(maps[i]);

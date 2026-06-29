@@ -15,6 +15,27 @@ class InputRupiah extends StatelessWidget {
   final FocusNode? nextFocusNode;
   final void Function(String)? onSubmitted;
 
+  static final CurrencyTextInputFormatter _formatter =
+      CurrencyTextInputFormatter.currency(
+        locale: 'id',
+        symbol: 'Rp',
+        decimalDigits: 0,
+      );
+
+  /// Mengembalikan nilai numerik murni dari teks terformat.
+  double get numericValue {
+    final unformatted = _formatter.getUnformattedValue();
+    return double.tryParse(unformatted.toString()) ?? 0.0;
+  }
+
+  static double parse(String formatted) {
+    // Hapus "Rp", spasi, titik (pemisah ribuan)
+    String cleaned = formatted.replaceAll(RegExp(r'[Rp.\s]'), '');
+    // Ganti koma desimal (jika ada) ke titik
+    cleaned = cleaned.replaceAll(',', '.');
+    return double.tryParse(cleaned) ?? 0.0;
+  }
+
   const InputRupiah({
     super.key,
     required this.controller,
@@ -47,13 +68,7 @@ class InputRupiah extends StatelessWidget {
           FocusScope.of(context).requestFocus(nextFocusNode);
         }
       },
-      inputFormatters: [
-        CurrencyTextInputFormatter.currency(
-          locale: 'id',
-          symbol: 'Rp',
-          decimalDigits: 0,
-        ),
-      ],
+      inputFormatters: [_formatter],
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
