@@ -1,4 +1,5 @@
 // path: lib/admin/app_admin.dart
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -16,6 +17,11 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 
+/// Widget root untuk aplikasi admin WiFi.
+///
+/// Menunggu ketersediaan `SharedPreferences` asinkron sebelum melanjutkan
+/// ke proses inisialisasi utama ([AppInitializer]). Jika gagal memuat,
+/// menampilkan pesan error.
 class AppAdmin extends ConsumerWidget {
   const AppAdmin({super.key});
 
@@ -36,6 +42,17 @@ class AppAdmin extends ConsumerWidget {
   }
 }
 
+/// Menangani inisialisasi awal aplikasi setelah `SharedPreferences` tersedia.
+///
+/// Menjalankan serangkaian tugas awal secara berurutan:
+/// 1. Inisialisasi layanan latar belakang dan notifikasi.
+/// 2. Memeriksa payload notifikasi yang meluncurkan aplikasi.
+/// 3. Menginisialisasi format tanggal lokal (id_ID).
+/// 4. Membuka database SQLite dan melakukan pengarsipan data kedaluwarsa.
+/// 5. Jika perangkat online, menjalankan unduhan data awal dan pembersihan data arsip.
+///
+/// Menampilkan indikator loading hingga seluruh proses selesai, lalu meneruskan
+/// ke [AppMaterial] dengan status koneksi yang sesuai.
 class AppInitializer extends ConsumerStatefulWidget {
   const AppInitializer({super.key});
 
@@ -44,6 +61,7 @@ class AppInitializer extends ConsumerStatefulWidget {
 }
 
 class _AppInitializerState extends ConsumerState<AppInitializer> {
+  /// Future yang menyimpan hasil inisialisasi, sekaligus status koneksi.
   late Future<bool> _initialization;
 
   @override
@@ -52,16 +70,23 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
     _initialization = _initializeAndNavigate();
   }
 
+  /// Menjalankan semua langkah inisialisasi dan mengembalikan status koneksi.
+  ///
+  /// Mengembalikan `true` jika perangkat online, `false` jika offline,
+  /// atau saat terjadi error kritis.
   Future<bool> _initializeAndNavigate() async {
     final notifikasiServis = ref.read(layananNotifikasiProvider);
     final koneksiInternetService = ref.read(koneksiInternetServiceProvider);
     final sqliteDb = ref.read(sqliteDatabaseProvider);
     try {
+      // 1. Inisialisasi layanan latar belakang dan notifikasi
       await LayananLatarBelakang.inisialisasi();
       await notifikasiServis.inisialisasiNotifikasi(
         iconName: 'ic_notification',
       );
       await notifikasiServis.mintaIzin();
+
+      // 2. Tangani payload notifikasi yang mungkin membuka aplikasi
       final launchDetails = await notifikasiServis
           .getDetailPeluncuranNotifikasi();
       final prefs = ref.read(sharedPreferencesProvider).requireValue;
@@ -75,7 +100,11 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       } else {
         await prefs.remove('initial_notification_payload');
       }
+
+      // 3. Format tanggal lokal
       await initializeDateFormatting('id_ID');
+
+      // 4. Buka database dan arsipkan data kedaluwarsa
       await sqliteDb.database;
       try {
         final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
@@ -83,6 +112,8 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       } catch (e) {
         Log.error('gagal menghapus data yang status nya diarsipkan');
       }
+
+      // 5. Jika online, jalankan unduhan awal & pembersihan data arsip
       final isOnline = await koneksiInternetService.cekInternet();
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
@@ -113,6 +144,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
           'Perangkat offline, melewati proses unduhan data awal dan pembersihan.',
         );
       }
+
       return isOnline;
     } catch (e, s) {
       Log.error('Error kritis selama inisialisasi sekunder.', e: e, s: s);
@@ -135,24 +167,32 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
           }
           return AppMaterial(isOffline: isOffline);
         }
+        // Tampilkan layar loading saat inisialisasi berlangsung
         return const MaterialApp(
-          home: Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          ), // Initial splash
+          home: Scaffold(body: Center(child: CircularProgressIndicator())),
         );
       },
     );
   }
 }
 
+/// Widget yang membangun [MaterialApp] utama dengan tema dinamis
+/// dan navigasi siap pakai.
+///
+/// Menerima parameter [isOffline] untuk diteruskan ke [HalamanUtama]
+/// sehingga UI dapat menyesuaikan diri dengan status koneksi.
 class AppMaterial extends ConsumerWidget {
+  /// Apakah perangkat sedang offline.
   final bool isOffline;
+
   const AppMaterial({super.key, required this.isOffline});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Pantau notifikasi dan pengontrol notifikasi agar tetap aktif
     ref.watch(layananNotifikasiProvider);
     ref.watch(pengontrolNotifikasiProvider);
+
     final temaAsync = ref.watch(temaProvider);
     return temaAsync.when(
       data: (themeMode) => ToastificationWrapper(

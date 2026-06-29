@@ -52,7 +52,6 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
   /// akan menangani pembaruan status dan log secara real-time.
   Future<void> _runMigration() async {
     Log.info('Tombol "Jalankan Migrasi Data" ditekan oleh pengguna.');
-
     if (_isMigrating) {
       Log.warning('Migrasi sudah berjalan, tindakan dicegah.');
       ToastUtil.warning(context, 'Migrasi sedang berjalan, harap tunggu.');
