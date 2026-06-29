@@ -14,6 +14,11 @@ import 'package:wifi/fitur/notifikasi/model/notifikasi_model.dart';
 import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/shared/debug/log.dart';
 
+/// Callback yang dipanggil saat pengguna mengetuk notifikasi di background.
+///
+/// Dipicu oleh sistem ketika aplikasi tidak sedang berjalan dan pengguna
+/// berinteraksi dengan notifikasi. Payload notifikasi dicatat untuk
+/// pemrosesan lebih lanjut.
 @pragma('vm:entry-point')
 void onDidReceiveBackgroundNotificationResponse(
   final NotificationResponse response,
@@ -25,8 +30,19 @@ void onDidReceiveBackgroundNotificationResponse(
   debugPrint('Notifikasi background di-tap. Payload: ${response.payload}');
 }
 
+/// Layanan utama untuk mengelola notifikasi lokal dan Firebase.
+///
+/// Menyediakan fungsi-fungsi untuk menampilkan notifikasi langsung,
+/// menjadwalkan notifikasi, memantau notifikasi dari Firebase,
+/// serta mengelola izin dan channel Android. Kelas ini mengimplementasikan
+/// pola singleton agar seluruh aplikasi menggunakan satu instance yang sama.
 class LayananNotifikasi {
   static LayananNotifikasi? _instance;
+
+  /// Mendapatkan instance singleton [LayananNotifikasi].
+  ///
+  /// Jika belum ada, akan dibuat instance baru. Jika sudah ada, instance
+  /// yang sama akan dikembalikan.
   factory LayananNotifikasi() {
     if (_instance == null) {
       Log.info('Membuat instance baru untuk NotifikasiServis (Singleton).');
@@ -36,19 +52,44 @@ class LayananNotifikasi {
     }
     return _instance!;
   }
+
+  /// Plugin utama untuk notifikasi lokal Flutter.
   final FlutterLocalNotificationsPlugin plugin;
+
+  /// Generator angka acak untuk membuat ID notifikasi unik.
   final Random _random = Random();
+
+  /// Channel notifikasi Android untuk notifikasi penting.
   AndroidNotificationChannel? channelNotifikasiPenting;
+
+  /// Menandakan apakah zona waktu sudah berhasil diinisialisasi.
   static bool _zonaWaktuTelahDiinisialisasi = false;
+
+  /// Kumpulan ID notifikasi yang sudah pernah ditampilkan, untuk mencegah
+  /// duplikasi.
   final Set<String> _idNotifikasiTampil = {};
+
+  /// Langganan stream notifikasi Firebase yang aktif.
   StreamSubscription<List<NotifikasiModel>>? _langgananNotifikasiFirebase;
+
+  /// Konstruktor internal untuk singleton.
+  ///
+  /// Tidak dapat dipanggil langsung dari luar. Gunakan factory constructor.
   LayananNotifikasi._internal() : plugin = FlutterLocalNotificationsPlugin() {
     Log.info('Konstruktor internal NotifikasiServis dipanggil.');
   }
 
+  /// Konstruktor untuk keperluan pengujian (testing).
+  ///
+  /// Memungkinkan injeksi dependency [FlutterLocalNotificationsPlugin].
   @visibleForTesting
   LayananNotifikasi.testing(this.plugin);
 
+  /// Menginisialisasi data zona waktu lokal yang akan digunakan oleh
+  /// notifikasi terjadwal.
+  ///
+  /// Hanya dijalankan sekali. Jika zona waktu perangkat adalah 'GMT'
+  /// (umumnya pada emulator), akan menggunakan 'Asia/Jakarta' sebagai fallback.
   Future<void> _inisialisasiZonaWaktu() async {
     Log.info('Memeriksa status inisialisasi zona waktu.');
     if (_zonaWaktuTelahDiinisialisasi) {
@@ -93,6 +134,11 @@ class LayananNotifikasi {
     }
   }
 
+  /// Melakukan inisialisasi penuh layanan notifikasi.
+  ///
+  /// Termasuk inisialisasi zona waktu, pembuatan channel Android, dan
+  /// pendaftaran plugin notifikasi lokal. Harus dipanggil sebelum
+  /// menggunakan fitur notifikasi lainnya.
   Future<void> inisialisasiNotifikasi({required String iconName}) async {
     Log.info('Memulai proses inisialisasi NotifikasiServis...');
     await _inisialisasiZonaWaktu();
@@ -119,6 +165,10 @@ class LayananNotifikasi {
     }
   }
 
+  /// Membuat dan mendaftarkan channel notifikasi Android.
+  ///
+  /// Channel ini digunakan untuk semua notifikasi penting dari aplikasi.
+  /// Juga meminta izin notifikasi dan exact alarm.
   Future<void> _setupAndroidChannel() async {
     Log.info('Memulai pengaturan channel notifikasi Android.');
     channelNotifikasiPenting = const AndroidNotificationChannel(
@@ -154,6 +204,10 @@ class LayananNotifikasi {
     }
   }
 
+  /// Memulai pemantauan notifikasi umum (broadcast) dari Firebase.
+  ///
+  /// Setiap notifikasi baru akan langsung ditampilkan kepada pengguna,
+  /// lalu ditandai sebagai sudah dibaca (soft delete) di Firebase.
   void pantauNotifUmum(NotifikasiOpFirebase notifikasiOp) {
     Log.info('Memulai pemantauan notifikasi umum dari Firebase...');
     unawaited(_langgananNotifikasiFirebase?.cancel());
@@ -177,6 +231,9 @@ class LayananNotifikasi {
     );
   }
 
+  /// Memantau notifikasi yang dikirim khusus untuk pengguna tertentu.
+  ///
+  /// [userId] digunakan untuk memfilter notifikasi dari Firebase.
   void pantauNotifUser(NotifikasiOpFirebase notifikasiOp, String userId) {
     Log.info('Memulai pemantauan notifikasi dari Firebase...');
     unawaited(_langgananNotifikasiFirebase?.cancel());
@@ -211,12 +268,19 @@ class LayananNotifikasi {
         );
   }
 
+  /// Menghentikan semua pemantauan notifikasi dari Firebase.
+  ///
+  /// Membersihkan langganan dan menghapus daftar ID notifikasi yang sudah
+  /// ditampilkan.
   void hentikanPemantauanNotifikasi() {
     Log.info('Menghentikan pemantauan notifikasi dari Firebase.');
     unawaited(_langgananNotifikasiFirebase?.cancel());
     _idNotifikasiTampil.clear();
   }
 
+  /// Meminta izin notifikasi kepada pengguna.
+  ///
+  /// Hanya berlaku pada platform Android. Untuk platform lain akan diabaikan.
   Future<void> mintaIzin() async {
     Log.info('Meminta izin notifikasi dari pengguna...');
     try {
@@ -244,6 +308,10 @@ class LayananNotifikasi {
     }
   }
 
+  /// Mendapatkan detail peluncuran notifikasi saat aplikasi dibuka.
+  ///
+  /// Mengembalikan [NotificationAppLaunchDetails] jika aplikasi diluncurkan
+  /// melalui notifikasi, atau `null` jika tidak.
   Future<NotificationAppLaunchDetails?> getDetailPeluncuranNotifikasi() async {
     Log.info('Memeriksa apakah aplikasi diluncurkan melalui notifikasi...');
     final details = await plugin.getNotificationAppLaunchDetails();
@@ -258,6 +326,10 @@ class LayananNotifikasi {
     return details;
   }
 
+  /// Menampilkan notifikasi secara langsung (tanpa penjadwalan).
+  ///
+  /// Notifikasi akan muncul segera setelah dipanggil. ID notifikasi dibuat
+  /// berdasarkan hash payload atau acak.
   Future<void> tampilkanNotifikasiLangsung({
     required final String title,
     required final String body,
@@ -296,6 +368,9 @@ class LayananNotifikasi {
     }
   }
 
+  /// Menjadwalkan notifikasi untuk waktu tertentu di masa depan.
+  ///
+  /// Memerlukan izin exact alarm. Waktu dijadwalkan dalam zona waktu lokal.
   Future<void> jadwalNotifikasi({
     required final int id,
     required final String judul,
@@ -354,6 +429,10 @@ class LayananNotifikasi {
     }
   }
 
+  /// Memperbarui jadwal notifikasi yang sudah ada.
+  ///
+  /// Membatalkan notifikasi lama dengan ID yang sama, lalu menjadwalkan
+  /// ulang dengan data terbaru.
   Future<void> perbaruiJadwalNotifikasi({
     required final int id,
     required final String title,
@@ -374,6 +453,7 @@ class LayananNotifikasi {
     Log.info('Pembaruan jadwal selesai dilakukan untuk ID: $id.');
   }
 
+  /// Membatalkan notifikasi aktif atau terjadwal berdasarkan ID.
   Future<void> batalkanNotifikasi(int id) async {
     Log.info('Membatalkan notifikasi aktif/terjadwal dengan ID: $id');
     try {
@@ -385,6 +465,7 @@ class LayananNotifikasi {
     }
   }
 
+  /// Membatalkan semua notifikasi yang sedang aktif maupun terjadwal.
   Future<void> batalkanSemuaNotifikasi() async {
     Log.info(
       'Membersihkan semua notifikasi yang ada (aktif maupun terjadwal)...',
@@ -401,6 +482,10 @@ class LayananNotifikasi {
     }
   }
 
+  /// Memeriksa dan meminta izin `SCHEDULE_EXACT_ALARM` pada Android.
+  ///
+  /// Mengembalikan `true` jika izin diberikan, `false` jika ditolak.
+  /// Untuk platform selain Android langsung mengembalikan `true`.
   Future<bool> mengecekIzinExactAlarm() async {
     if (!Platform.isAndroid) return true;
     Log.info('Memeriksa izin SCHEDULE_EXACT_ALARM.');
