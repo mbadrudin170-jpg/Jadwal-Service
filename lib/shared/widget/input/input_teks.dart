@@ -22,7 +22,7 @@ class InputTeks extends StatelessWidget {
     this.wajib = true,
     this.validator,
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
-    this.textInputAction = TextInputAction.next, // Default tombol Next
+    this.textInputAction = TextInputAction.next,
     this.prefixIcon,
     this.focusNode,
     this.nextFocusNode,
@@ -35,8 +35,7 @@ class InputTeks extends StatelessWidget {
     return TextFormField(
       controller: controller,
       autovalidateMode: autovalidateMode,
-      textInputAction:
-          textInputAction, // 🛠️ PERBAIKAN 1: Sekarang parameternya sudah dipasang
+      textInputAction: textInputAction,
       enabled: enabled,
       focusNode: focusNode,
       onTapOutside: (event) => FocusScope.of(context).unfocus(),
@@ -45,15 +44,10 @@ class InputTeks extends StatelessWidget {
         border: const OutlineInputBorder(),
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
       ),
-
-      // 🛠️ PERBAIKAN 2: Logika disamakan dengan aturan independen & berantai
       onFieldSubmitted: (v) {
-        // 1. Urusan data/callback jalan duluan jika ada
         if (onSubmitted != null) {
           onSubmitted!(v);
         }
-
-        // 2. Urusan navigasi keyboard memakai if - else if
         if (textInputAction == TextInputAction.next && nextFocusNode != null) {
           FocusScope.of(context).requestFocus(nextFocusNode);
         } else if (textInputAction == TextInputAction.done) {
