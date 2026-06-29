@@ -9,6 +9,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gma_mediation_unity/gma_mediation_unity.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
@@ -28,9 +29,7 @@ void main() async {
   Log.info('Variabel lingkungan berhasil dimuat.');
 
   Log.info('Menginisialisasi Firebase...');
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   Log.info('Inisialisasi Firebase selesai.');
 
   FirebaseFirestore.instance.settings = const Settings(
@@ -43,7 +42,9 @@ void main() async {
   final supabasePublishableKey =
       dotenv.env[AppConstants.supabasePublishableKey]!;
   await Supabase.initialize(
-      url: supabaseUrl, publishableKey: supabasePublishableKey);
+    url: supabaseUrl,
+    publishableKey: supabasePublishableKey,
+  );
   Log.info('Inisialisasi Supabase selesai.');
 
   // Baris yang ditambahkan: Mengaktifkan service notifikasi untuk aplikasi user
@@ -57,16 +58,15 @@ void main() async {
 
   Log.info('Menginisialisasi MobileAds');
   await MobileAds.instance.initialize();
-
+  Intl.defaultLocale = 'id_ID';
   Log.info(
-      '[main-prod] Memulai aplikasi user. Menyerahkan kendali ke AppUser...');
+    '[main-prod] Memulai aplikasi user. Menyerahkan kendali ke AppUser...',
+  );
 
   // Native splash akan dihilangkan dari dalam SplashScreenUser.
   runApp(
     ProviderScope(
-      overrides: [
-        appRoleProvider.overrideWithValue(AppRole.user),
-      ],
+      overrides: [appRoleProvider.overrideWithValue(AppRole.user)],
       child: const AppUser(),
     ),
   );
