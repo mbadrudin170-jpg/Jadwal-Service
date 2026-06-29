@@ -48,12 +48,12 @@ class DompetPage extends ConsumerWidget {
             ),
           );
         },
-        data: (walletState) {
+        data: (dompetState) {
           Log.info(
-            'WalletProvider berhasil memuat ${walletState.daftarDompet.length} dompet.',
+            'WalletProvider berhasil memuat ${dompetState.daftarDompet.length} dompet.',
           );
-          final wallets = walletState.daftarDompet;
-          if (wallets.isEmpty) {
+          final daftarDompet = dompetState.daftarDompet;
+          if (daftarDompet.isEmpty) {
             return Center(
               child: Text(
                 'Tidak ada dompet ditemukan.',
@@ -61,25 +61,24 @@ class DompetPage extends ConsumerWidget {
               ),
             );
           }
-
           return Column(
             children: [
               RingkasanKeuanganWidget(
-                pemasukan: walletState.totalSaldoPositif,
-                pengeluaran: walletState.totalSaldoNegatif,
-                total: walletState.totalSaldo,
+                pemasukan: dompetState.totalSaldoPositif,
+                pengeluaran: dompetState.totalSaldoNegatif,
+                total: dompetState.totalSaldo,
               ),
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.only(top: TSizes.p8),
-                  itemCount: wallets.length,
+                  itemCount: daftarDompet.length,
                   itemBuilder: (context, index) {
-                    final wallet = wallets[index];
+                    final dompet = daftarDompet[index];
                     return WalletCard(
-                      dompet: wallet,
-                      onTap: () => _navigateToDetail(context, ref, wallet),
+                      dompet: dompet,
+                      onTap: () => _navigateToDetail(context, ref, dompet),
                       onLongPress: () =>
-                          _showArchiveOneDialog(context, ref, wallet),
+                          _showArchiveOneDialog(context, ref, dompet),
                     );
                   },
                 ),
@@ -109,20 +108,16 @@ class DompetPage extends ConsumerWidget {
     }
   }
 
-  Future<void> _navigateToDetail(
+  void _navigateToDetail(
     BuildContext context,
     WidgetRef ref,
     DompetModel dompet,
-  ) async {
+  ) {
     Log.info('Navigasi ke detail dompet: "${dompet.nama}".');
-    await Navigator.push<void>(
+    Navigator.push<void>(
       context,
-      MaterialPageRoute<void>(
-        builder: (context) => DetailDompet(dompet: dompet),
-      ),
+      MaterialPageRoute(builder: (context) => DetailDompet(dompet: dompet)),
     );
-    Log.info('Kembali dari detail dompet, memicu refresh.');
-    await ref.read(dompetProvider.notifier).refresh();
   }
 
   Future<void> _showDeleteAllDialog(BuildContext context, WidgetRef ref) async {
