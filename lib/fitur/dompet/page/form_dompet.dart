@@ -34,6 +34,7 @@ class _WalletFormState extends ConsumerState<FormDompet> {
   late FocusNode _namaFocusNode;
   bool get _modeEdit => widget.dompet != null;
   bool _menyimpan = false;
+
   @override
   void initState() {
     super.initState();
@@ -43,24 +44,11 @@ class _WalletFormState extends ConsumerState<FormDompet> {
       'Mode: ${modeEdit ? "EDIT (ID: ${widget.dompet!.id}, Nama: ${widget.dompet!.nama}, Saldo: ${widget.dompet!.saldo})" : "TAMBAH BARU"}',
     );
     _dompetOpSqlite = ref.read(dompetOpSqliteProvider);
-
     Log.info('Membuat FocusNode untuk input nama dompet.');
     _namaFocusNode = FocusNode();
-
     if (_modeEdit) {
       _namaController.text = widget.dompet!.nama;
-    } else {
-      Log.info('MODE TAMBAH BARU terdeteksi.');
-      Log.info('Form akan membuat dompet baru dengan:');
-      Log.info('  - ID: Akan digenerate otomatis menggunakan UUID v4');
-      Log.info('  - Nama: Dari input pengguna');
-      Log.info('  - Saldo Awal: 0.0');
-      Log.info('  - Diperbarui: DateTime.now()');
-      Log.info('  - isDeleted: 0 (default)');
-      Log.info('  - Diarsipkan: NULL (default)');
     }
-
-    Log.info('Inisialisasi WalletForm selesai.');
   }
 
   @override

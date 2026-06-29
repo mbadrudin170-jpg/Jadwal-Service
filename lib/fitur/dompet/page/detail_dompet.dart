@@ -41,7 +41,6 @@ class DetailDompet extends ConsumerWidget {
     Log.info(
       'Membuka FormTransaksiPage untuk mengedit transaksi ID: ${transaksi?.id} dari WalletDetail.',
     );
-
     Navigator.push<void>(
       context,
       MaterialPageRoute(
@@ -50,7 +49,10 @@ class DetailDompet extends ConsumerWidget {
     );
   }
 
-  void _navigasiKeFormDompet(BuildContext context) {
+  void _navigasiKeFormDompet(
+    BuildContext context, {
+    required DompetModel dompet,
+  }) {
     Navigator.push<void>(
       context,
       MaterialPageRoute(builder: (context) => FormDompet(dompet: dompet)),
@@ -75,7 +77,10 @@ class DetailDompet extends ConsumerWidget {
             actions: [
               IconButton(
                 onPressed: () {
-                  _navigasiKeFormDompet(context);
+                  _navigasiKeFormDompet(
+                    context,
+                    dompet: detailDompet.dompet ?? dompet,
+                  );
                 },
                 icon: Icon(TIcons.edit),
               ),
