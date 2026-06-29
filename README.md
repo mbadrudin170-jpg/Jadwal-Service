@@ -3894,7 +3894,7 @@ class PelangganAktifOpSqlite {
     );
   }
 
-  Future<void> rescheduleAllNotifications() async {
+  Future<void> jadwalkanUlangSemuaNotifikasi() async {
     Log.info('MEMULAI PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI...');
     try {
       final List<PelangganAktifModel> pelangganAktif = await ambilSemua();
@@ -3909,7 +3909,7 @@ class PelangganAktifOpSqlite {
       );
 
       for (final pelangganAktif in pelangganAktif) {
-        await scheduleNotification(pelangganAktif);
+        await jadwalkanNotifikasi(pelangganAktif);
       }
 
       Log.info('PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI SELESAI.');
@@ -3984,7 +3984,7 @@ class PelangganAktifOpSqlite {
         );
       }, dariServer: fromServer);
 
-      await scheduleNotification(customerToSave);
+      await jadwalkanNotifikasi(customerToSave);
 
       return customerToSave;
     } on Exception catch (e, st) {
@@ -4009,7 +4009,7 @@ class PelangganAktifOpSqlite {
       Log.info('Berhasil mengambil ${maps.length} active customer');
       return List.generate(
         maps.length,
-        (final i) => PelangganAktifModel.fromSqlite(maps[i]),
+        (i) => PelangganAktifModel.fromSqlite(maps[i]),
       );
     } on Exception catch (e, st) {
       Log.error('Gagal mengambil semua active customer', e: e, s: st);
@@ -4060,7 +4060,7 @@ class PelangganAktifOpSqlite {
           whereArgs: [customerToSave.id],
         );
       }, dariServer: fromServer);
-      await scheduleNotification(customerToSave);
+      await jadwalkanNotifikasi(customerToSave);
       Log.info('Active customer ID: ${customerToSave.id} berhasil diperbarui');
       return customerToSave;
     } on Exception catch (e, st) {
@@ -4073,7 +4073,7 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<void> scheduleNotification(PelangganAktifModel pelangganAktif) async {
+  Future<void> jadwalkanNotifikasi(PelangganAktifModel pelangganAktif) async {
     try {
       Log.info(
         '(RE)SCHEDULING: Menjadwalkan notifikasi untuk active customer ID: ${pelangganAktif.id}',
@@ -27453,7 +27453,6 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
   List<KategoriModel> _kategoriDifilter = [];
 
   bool get _modeEdit => widget.transaksi != null;
-  bool _loading = true;
   bool _menyimpan = false;
 
   @override
@@ -27469,8 +27468,6 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
 
   Future<void> _loadData() async {
     Log.info('Memulai pemuatan data awal (dompet & kategori).');
-    setState(() => _loading = true);
-
     try {
       final daftarDompet = await _dompetOpSlite.ambilSemua();
       Log.info('Berhasil memuat ${daftarDompet.length} dompet.');
@@ -27504,6 +27501,14 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                 (d) => d.id == trx.idDompetTujuan,
               ) ??
               _daftarDompet.firstOrNull;
+          if (_dompetTujuanDipilih != null &&
+              _dompetDipilih != null &&
+              _dompetTujuanDipilih!.id == _dompetDipilih!.id) {
+            _dompetTujuanDipilih = null;
+            Log.warning(
+              'Dompet tujuan sama dengan dompet asal, di-reset ke null.',
+            );
+          }
         }
 
         _filterKategoriInternal();
@@ -27547,11 +27552,6 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
       Log.error('Gagal total saat memuat data awal.', e: e, s: s);
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal memuat data penting: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _loading = false);
-        Log.info('Pemuatan data awal selesai. isLoading diatur ke false.');
-      }
     }
   }
 
@@ -27620,7 +27620,11 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
 
   Future<void> _simpanForm() async {
     Log.info('Tombol "Simpan" ditekan.');
-    if (_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    try {
       Log.info('Form valid. Memulai proses penyimpanan.');
       setState(() => _menyimpan = true);
       final DateTime combinedDateTime = DateTime(
@@ -27630,7 +27634,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         _jamDipilih!.hour,
         _jamDipilih!.minute,
       );
-      final double jumlah = double.parse(_jumlahController.text).abs();
+      final double jumlah = InputRupiah.parse(_jumlahController.text).abs();
       final transaksi = TransaksiModel(
         id: _modeEdit ? widget.transaksi!.id : const Uuid().v4(),
         deskripsi: _keteranganController.text,
@@ -27674,7 +27678,6 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
             'Transaksi berhasil disimpan dan disinkronkan.',
           );
         }
-
         if (mounted) {
           Navigator.pop(context);
         }
@@ -27682,234 +27685,206 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         Log.error('Gagal menyimpan transaksi ke database.', e: e, s: s);
         if (!mounted) return;
         ToastUtil.error(context, 'Gagal menyimpan transaksi: $e');
-      } finally {
-        if (mounted) {
-          setState(() => _menyimpan = false);
-          Log.info('Proses penyimpanan selesai. isSaving diatur ke false.');
-        }
       }
-    } else {
-      Log.warning(
-        'Form tidak valid. Proses penyimpanan dibatalkan. Silakan periksa error di UI.',
-      );
+    } on Exception catch (e) {
+      ToastUtil.error(context, 'Gagal menyimpan Transaksi $e');
+    } finally {
+      setState(() => _menyimpan = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    Log.info(
-      'Membangun UI FormTransaksiPage. isLoading: $_loading, isSaving: $_menyimpan',
-    );
     return Scaffold(
       appBar: AppBar(
         title: Text(_modeEdit ? 'Edit Transaksi' : 'Tambah Transaksi'),
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  children: [
-                    Center(
-                      child: SegmentedButton<TipeTransaksi>(
-                        showSelectedIcon: false,
-                        style: ButtonStyle(
-                          backgroundColor:
-                              WidgetStateProperty.resolveWith<Color>((
-                                Set<WidgetState> states,
-                              ) {
-                                if (states.contains(WidgetState.selected)) {
-                                  switch (_tipe) {
-                                    case TipeTransaksi.income:
-                                      return Colors.green.withAlpha(51);
-                                    case TipeTransaksi.expense:
-                                      return Colors.red.withAlpha(51);
-                                    case TipeTransaksi.transfer:
-                                      return Colors.blue.withAlpha(51);
-                                  }
-                                }
-                                return Colors.transparent;
-                              }),
-                          foregroundColor:
-                              WidgetStateProperty.resolveWith<Color>((
-                                Set<WidgetState> states,
-                              ) {
-                                if (states.contains(WidgetState.selected)) {
-                                  switch (_tipe) {
-                                    case TipeTransaksi.income:
-                                      return Colors.green;
-                                    case TipeTransaksi.expense:
-                                      return Colors.red;
-                                    case TipeTransaksi.transfer:
-                                      return Colors.blue;
-                                  }
-                                }
-                                return Colors.grey;
-                              }),
-                          side: WidgetStateProperty.resolveWith<BorderSide>((
-                            Set<WidgetState> states,
-                          ) {
-                            if (states.contains(WidgetState.selected)) {
-                              switch (_tipe) {
-                                case TipeTransaksi.income:
-                                  return const BorderSide(color: Colors.green);
-                                case TipeTransaksi.expense:
-                                  return const BorderSide(color: Colors.red);
-                                case TipeTransaksi.transfer:
-                                  return const BorderSide(color: Colors.blue);
-                              }
-                            }
-                            return const BorderSide(color: Colors.grey);
-                          }),
+      body: Padding(
+        padding: const EdgeInsets.all(14.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              Row(
+                children: TipeTransaksi.values.map((tipe) {
+                  final bool isSelected = _tipe == tipe;
+                  Color getColor() {
+                    switch (tipe) {
+                      case TipeTransaksi.income:
+                        return Colors.green;
+                      case TipeTransaksi.expense:
+                        return Colors.red;
+                      case TipeTransaksi.transfer:
+                        return Colors.blue;
+                    }
+                  }
+
+                  return Expanded(
+                    child: Container(
+                      // Memberikan border hanya di bagian bawah
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: isSelected
+                                ? getColor()
+                                : Colors.grey.shade300,
+                            width: isSelected
+                                ? 3.0
+                                : 1.0, // Border lebih tebal saat terpilih
+                          ),
                         ),
-                        segments: TipeTransaksi.values.map((
-                          TipeTransaksi tipe,
-                        ) {
-                          return ButtonSegment<TipeTransaksi>(
-                            value: tipe,
-                            label: Text(tipe.displayName.toUpperCase()),
-                          );
-                        }).toList(),
-                        selected: <TipeTransaksi>{_tipe},
-                        onSelectionChanged: (Set<TipeTransaksi> newSelection) {
+                      ),
+                      child: TextButton(
+                        onPressed: () {
                           setState(() {
-                            Log.info(
-                              'Tipe transaksi diubah menjadi: ${newSelection.first.name}',
-                            );
-                            _tipe = newSelection.first;
+                            _tipe = tipe;
                             _filterKategori();
                             _dompetTujuanDipilih = null;
                           });
                         },
+                        style: TextButton.styleFrom(
+                          shape: const RoundedRectangleBorder(),
+                        ),
+                        child: Text(
+                          tipe.displayName.toUpperCase(),
+                          style: TextStyle(
+                            color: isSelected ? getColor() : Colors.black45,
+                            fontSize: 12,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                        ),
                       ),
                     ),
-                    InputTeks(
-                      controller: _keteranganController,
-                      label: 'Keterangan',
-                      focusNode: _keteranganFocusNode,
-                      nextFocusNode: _jumlahFocusNode,
-                    ),
-                    gapH8,
-                    InputRupiah(
-                      controller: _jumlahController,
-                      focusNode: _jumlahFocusNode,
-                      textInputAction: TextInputAction.done,
-                    ),
-                    gapH24,
-                    PemilihTanggalWaktuWidget(
-                      tanggalTerpilih: _tanggalDipilih,
-                      waktuTerpilih: _jamDipilih,
-                      onPilihTanggal: () => _pilihTanggal(context),
-                      onPilihWaktu: () => _pilihJam(context),
-                    ),
-                    DropdownButtonFormField<DompetModel>(
-                      key: ValueKey<DompetModel?>(_dompetDipilih),
-                      initialValue: _dompetDipilih,
-                      decoration: const InputDecoration(labelText: 'Dompet'),
-                      items: _daftarDompet.map((dompet) {
+                  );
+                }).toList(),
+              ),
+
+              gapH8,
+              InputTeks(
+                controller: _keteranganController,
+                label: 'Keterangan',
+                focusNode: _keteranganFocusNode,
+                nextFocusNode: _jumlahFocusNode,
+              ),
+              gapH8,
+              InputRupiah(
+                controller: _jumlahController,
+                focusNode: _jumlahFocusNode,
+                textInputAction: TextInputAction.done,
+              ),
+              gapH24,
+              PemilihTanggalWaktuWidget(
+                tanggalTerpilih: _tanggalDipilih,
+                waktuTerpilih: _jamDipilih,
+                onPilihTanggal: () => _pilihTanggal(context),
+                onPilihWaktu: () => _pilihJam(context),
+              ),
+              DropdownButtonFormField<DompetModel>(
+                key: ValueKey<String?>(_dompetDipilih?.id ?? 'null'),
+                initialValue: _dompetDipilih,
+                decoration: const InputDecoration(labelText: 'Dompet'),
+                items: _daftarDompet.map((dompet) {
+                  return DropdownMenuItem(
+                    value: dompet,
+                    child: Text(dompet.nama),
+                  );
+                }).toList(),
+                onChanged: (v) {
+                  Log.info('Pengguna memilih dompet: ${v?.nama ?? "null"}');
+                  setState(() {
+                    _dompetDipilih = v;
+                    // ✅ Reset dompet tujuan jika nilainya sama dengan dompet asal
+                    if (_dompetTujuanDipilih == v ||
+                        _dompetTujuanDipilih?.id == v?.id) {
+                      _dompetTujuanDipilih = null;
+                    }
+                  });
+                },
+                validator: (v) => v == null ? 'Dompet harus dipilih' : null,
+              ),
+              if (_tipe == TipeTransaksi.transfer)
+                DropdownButtonFormField<DompetModel>(
+                  key: ValueKey<DompetModel?>(_dompetTujuanDipilih),
+                  initialValue: _dompetTujuanDipilih,
+                  decoration: const InputDecoration(labelText: 'Dompet Tujuan'),
+                  items: _daftarDompet
+                      .where((dompet) => dompet.id != _dompetDipilih?.id)
+                      .map((dompet) {
                         return DropdownMenuItem(
                           value: dompet,
                           child: Text(dompet.nama),
                         );
-                      }).toList(),
-                      onChanged: (v) {
-                        Log.info(
-                          'Pengguna memilih dompet: ${v?.nama ?? "null"}',
-                        );
-                        setState(() => _dompetDipilih = v);
-                      },
-                      validator: (v) =>
-                          v == null ? 'Dompet harus dipilih' : null,
-                    ),
-                    if (_tipe == TipeTransaksi.transfer)
-                      DropdownButtonFormField<DompetModel>(
-                        key: ValueKey<DompetModel?>(_dompetTujuanDipilih),
-                        initialValue: _dompetTujuanDipilih,
-                        decoration: const InputDecoration(
-                          labelText: 'Dompet Tujuan',
-                        ),
-                        items: _daftarDompet.map((dompet) {
-                          return DropdownMenuItem(
-                            value: dompet,
-                            child: Text(dompet.nama),
-                          );
-                        }).toList(),
-                        onChanged: (val) {
-                          Log.info(
-                            'Pengguna memilih dompet tujuan: ${val?.nama ?? "null"}',
-                          );
-                          setState(() => _dompetTujuanDipilih = val);
-                        },
-                        validator: (val) {
-                          if (val == null) return 'Dompet tujuan harus dipilih';
-                          if (val == _dompetDipilih) {
-                            return 'Dompet tidak boleh sama';
-                          }
-                          return null;
-                        },
-                      ),
-                    if (_tipe != TipeTransaksi.transfer &&
-                        _kategoriDifilter.isNotEmpty)
-                      DropdownButtonFormField<KategoriModel>(
-                        key: ValueKey<KategoriModel?>(_kategoriDipilih),
-                        initialValue: _kategoriDipilih,
-                        decoration: const InputDecoration(
-                          labelText: 'Kategori',
-                        ),
-                        items: _kategoriDifilter.map((kategori) {
-                          return DropdownMenuItem(
-                            value: kategori,
-                            child: Text(kategori.nama),
-                          );
-                        }).toList(),
-                        onChanged: (val) {
-                          Log.info(
-                            'Pengguna memilih kategori: ${val?.nama ?? "null"}',
-                          );
-                          setState(() {
-                            _kategoriDipilih = val;
-                            _subKategoriDipilih = null;
-                          });
-                        },
-                        validator: (val) =>
-                            val == null ? 'Kategori harus dipilih' : null,
-                      ),
-                    if (_kategoriDipilih != null &&
-                        _kategoriDipilih!.idSubKategori.isNotEmpty)
-                      DropdownButtonFormField<SubKategoriModel>(
-                        key: ValueKey<SubKategoriModel?>(_subKategoriDipilih),
-                        initialValue: _subKategoriDipilih,
-                        decoration: const InputDecoration(
-                          labelText: 'Sub Kategori',
-                        ),
-                        items: _kategoriDipilih!.idSubKategori.map((sub) {
-                          return DropdownMenuItem(
-                            value: sub,
-                            child: Text(sub.nama),
-                          );
-                        }).toList(),
-                        onChanged: (val) {
-                          Log.info(
-                            'Pengguna memilih sub-kategori: ${val?.nama ?? "null"}',
-                          );
-                          setState(() => _subKategoriDipilih = val);
-                        },
-                        validator: (val) =>
-                            val == null ? 'Sub Kategori harus dipilih' : null,
-                      ),
-                    gapH20,
-                    ElevatedButton(
-                      onPressed: _menyimpan ? null : _simpanForm,
-                      child: _menyimpan
-                          ? const CircularProgressIndicator()
-                          : const Text('Simpan'),
-                    ),
-                  ],
+                      })
+                      .toList(),
+                  onChanged: (val) {
+                    Log.info(
+                      'Pengguna memilih dompet tujuan: ${val?.nama ?? "null"}',
+                    );
+                    setState(() => _dompetTujuanDipilih = val);
+                  },
+                  validator: (val) {
+                    if (val == null) return 'Dompet tujuan harus dipilih';
+                    if (val == _dompetDipilih) {
+                      return 'Dompet tidak boleh sama';
+                    }
+                    return null;
+                  },
                 ),
+              if (_tipe != TipeTransaksi.transfer &&
+                  _kategoriDifilter.isNotEmpty)
+                DropdownButtonFormField<KategoriModel>(
+                  key: ValueKey<KategoriModel?>(_kategoriDipilih),
+                  initialValue: _kategoriDipilih,
+                  decoration: const InputDecoration(labelText: 'Kategori'),
+                  items: _kategoriDifilter.map((kategori) {
+                    return DropdownMenuItem(
+                      value: kategori,
+                      child: Text(kategori.nama),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    Log.info(
+                      'Pengguna memilih kategori: ${val?.nama ?? "null"}',
+                    );
+                    setState(() {
+                      _kategoriDipilih = val;
+                      _subKategoriDipilih = null;
+                    });
+                  },
+                  validator: (val) =>
+                      val == null ? 'Kategori harus dipilih' : null,
+                ),
+              if (_kategoriDipilih != null &&
+                  _kategoriDipilih!.idSubKategori.isNotEmpty)
+                DropdownButtonFormField<SubKategoriModel>(
+                  key: ValueKey<SubKategoriModel?>(_subKategoriDipilih),
+                  initialValue: _subKategoriDipilih,
+                  decoration: const InputDecoration(labelText: 'Sub Kategori'),
+                  items: _kategoriDipilih!.idSubKategori.map((sub) {
+                    return DropdownMenuItem(value: sub, child: Text(sub.nama));
+                  }).toList(),
+                  onChanged: (val) {
+                    Log.info(
+                      'Pengguna memilih sub-kategori: ${val?.nama ?? "null"}',
+                    );
+                    setState(() => _subKategoriDipilih = val);
+                  },
+                  validator: (val) =>
+                      val == null ? 'Sub Kategori harus dipilih' : null,
+                ),
+              gapH20,
+              ElevatedButton(
+                onPressed: _menyimpan ? null : _simpanForm,
+                child: _menyimpan
+                    ? const CircularProgressIndicator()
+                    : const Text('Simpan'),
               ),
-            ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -29615,7 +29590,7 @@ class TransaksiOpSqlite {
   final BaseOpSqlite baseOpSqlite;
   final PaketOpSqlite paketOpsqlite;
 
-  final String _tabel = NamaTabel.transaksi;
+  final String _tabelTransaksi = NamaTabel.transaksi;
   DateTime get _nowUtc => DateTime.now().toUtc();
 
   TransaksiOpSqlite({
@@ -29623,8 +29598,6 @@ class TransaksiOpSqlite {
     required this.baseOpSqlite,
     required this.paketOpsqlite,
   });
-
-  Future<Database> get _sqliteDb async => await sqliteDb.database;
 
   /// Menghitung ulang saldo dompet berdasarkan semua transaksi terkait dan memperbaruinya.
   /// Operasi ini harus dijalankan di dalam sebuah transaksi database [txn].
@@ -29634,7 +29607,6 @@ class TransaksiOpSqlite {
   ) async {
     try {
       Log.info('Memulai hitung ulang saldo untuk Wallet ID: $idDompet');
-
       final hasilTotal = await txn.rawQuery(
         '''
         SELECT
@@ -29659,19 +29631,17 @@ class TransaksiOpSqlite {
               ELSE 0
             END
           ), 0) as total
-        FROM $_tabel
+        FROM $_tabelTransaksi
         WHERE ${NamaKolom.dihapus} = 0 AND (${NamaKolom.idDompet} = ? OR ${NamaKolom.idDompetTujuan} = ?)
         ''',
         [idDompet, idDompet, idDompet, idDompet, idDompet, idDompet],
       );
-
       final saldoTotal = (hasilTotal.first['total'] as num?)?.toDouble() ?? 0.0;
       final dompetMaps = await txn.query(
         NamaTabel.dompet,
         where: '${NamaKolom.id} = ?',
         whereArgs: [idDompet],
       );
-
       if (dompetMaps.isEmpty) {
         Log.warning('Dompet ID: $idDompet tidak ditemukan');
         return;
@@ -29710,7 +29680,7 @@ class TransaksiOpSqlite {
         final data = transaction.copyWith(diperbaruiPada: _nowUtc);
 
         final newId = await txn.insert(
-          _tabel,
+          _tabelTransaksi,
           data.toSqlite(),
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
@@ -29745,11 +29715,10 @@ class TransaksiOpSqlite {
       final db = await sqliteDb.database;
       final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = 0';
       final List<Map<String, dynamic>> maps = await db.query(
-        _tabel,
+        _tabelTransaksi,
         where: query,
         orderBy: '${NamaKolom.tanggal} DESC',
       );
-
       Log.info('Berhasil mengambil ${maps.length} data transaksi dari SQLite');
       return List.generate(maps.length, (i) {
         return TransaksiModel.fromSqlite(maps[i]);
@@ -29770,7 +29739,7 @@ class TransaksiOpSqlite {
       await baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         Log.info('Memulai update transaksi database ID: $id');
         final maps = await txn.query(
-          _tabel,
+          _tabelTransaksi,
           where: '${NamaKolom.id} = ?',
           whereArgs: [id],
         );
@@ -29779,7 +29748,7 @@ class TransaksiOpSqlite {
           final transaksiLama = TransaksiModel.fromSqlite(maps.first);
           final updateData = transaksi.copyWith(diperbaruiPada: _nowUtc);
           await txn.update(
-            _tabel,
+            _tabelTransaksi,
             updateData.toSqlite(),
             where: '${NamaKolom.id} = ?',
             whereArgs: [id],
@@ -29815,10 +29784,10 @@ class TransaksiOpSqlite {
   /// Mengambil satu transaksi berdasarkan ID-nya.
   Future<TransaksiModel?> ambilBerdasarkanId(String id) async {
     try {
-      final db = await _sqliteDb;
+      final db = await sqliteDb.database;
       Log.info('Mencari transaksi berdasarkan ID: $id');
       final List<Map<String, dynamic>> maps = await db.query(
-        _tabel,
+        _tabelTransaksi,
         where: '${NamaKolom.id} = ?',
         whereArgs: [id],
         limit: 1,
@@ -29841,10 +29810,10 @@ class TransaksiOpSqlite {
     String idPelanggan,
   ) async {
     try {
-      final db = await _sqliteDb;
+      final db = await sqliteDb.database;
       Log.info('Mengambil transaksi untuk Customer ID: $idPelanggan');
       final List<Map<String, dynamic>> maps = await db.query(
-        _tabel,
+        _tabelTransaksi,
         where: '${NamaKolom.idPelanggan} = ? AND ${NamaKolom.dihapus} = ?',
         whereArgs: [idPelanggan, 0],
         orderBy: '${NamaKolom.tanggal} DESC',
@@ -29866,10 +29835,10 @@ class TransaksiOpSqlite {
     final String idDompet,
   ) async {
     try {
-      final db = await _sqliteDb;
+      final db = await sqliteDb.database;
       Log.info('Mengambil transaksi terkait Wallet ID: $idDompet');
       final List<Map<String, dynamic>> maps = await db.query(
-        _tabel,
+        _tabelTransaksi,
         where:
             '(${NamaKolom.idDompet} = ? OR ${NamaKolom.idDompetTujuan} = ?) AND ${NamaKolom.dihapus} = ?',
         whereArgs: [idDompet, idDompet, 0],
@@ -29888,10 +29857,10 @@ class TransaksiOpSqlite {
   /// Mengambil semua transaksi yang merupakan aktivasi paket.
   Future<List<TransaksiModel>> ambilBerdasarkanStatusAktivasi() async {
     try {
-      final db = await _sqliteDb;
+      final db = await sqliteDb.database;
       Log.info('Mengambil transaksi dengan status isActivated = 1');
       final List<Map<String, dynamic>> maps = await db.query(
-        _tabel,
+        _tabelTransaksi,
         where: '${NamaKolom.statusAktivasi} = ? AND ${NamaKolom.dihapus} = ?',
         whereArgs: [1, 0],
         orderBy: '${NamaKolom.tanggal} DESC',
@@ -29912,7 +29881,7 @@ class TransaksiOpSqlite {
       await baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         Log.info('Memulai soft delete atomik untuk ID: $id');
         final maps = await txn.query(
-          _tabel,
+          _tabelTransaksi,
           where: '${NamaKolom.id} = ?',
           whereArgs: [id],
         );
@@ -29929,7 +29898,7 @@ class TransaksiOpSqlite {
           diarsipkanPada: _nowUtc,
         );
         await txn.update(
-          _tabel,
+          _tabelTransaksi,
           transaksiDiarsip.toSqlite(),
           where: '${NamaKolom.id} = ?',
           whereArgs: [id],
@@ -29961,7 +29930,7 @@ class TransaksiOpSqlite {
         Log.warning('Memulai soft delete semua transaksi secara atomik');
 
         final rowsAffected = await txn.update(
-          _tabel,
+          _tabelTransaksi,
           {
             NamaKolom.dihapus: 1,
             NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
@@ -29990,10 +29959,10 @@ class TransaksiOpSqlite {
   /// Menghitung total pemasukan (income) dari semua transaksi.
   Future<double> ambilTotalPemasukan() async {
     try {
-      final db = await _sqliteDb;
+      final db = await sqliteDb.database;
       Log.info('Menghitung total seluruh pemasukan');
       final result = await db.rawQuery(
-        "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabel WHERE ${NamaKolom.tipe} = 'income' AND ${NamaKolom.dihapus} = 0",
+        "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabelTransaksi WHERE ${NamaKolom.tipe} = 'income' AND ${NamaKolom.dihapus} = 0",
       );
       double total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
@@ -30010,10 +29979,10 @@ class TransaksiOpSqlite {
   /// Menghitung total pengeluaran (expense) dari semua transaksi.
   Future<double> ambilTotalPengeluaran() async {
     try {
-      final db = await _sqliteDb;
+      final db = await sqliteDb.database;
       Log.info('Menghitung total seluruh pengeluaran');
       final result = await db.rawQuery(
-        "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabel WHERE ${NamaKolom.tipe} = 'expense' AND ${NamaKolom.dihapus} = 0",
+        "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabelTransaksi WHERE ${NamaKolom.tipe} = 'expense' AND ${NamaKolom.dihapus} = 0",
       );
       double total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
@@ -30073,7 +30042,7 @@ class TransaksiOpSqlite {
   /// Mengambil data pendapatan harian dalam 7 hari terakhir
   Future<List<double>> ambilPendapatanHarian() async {
     try {
-      final db = await SqliteDatabase.instance.database;
+      final db = await sqliteDb.database;
       final now = DateTime.now();
       final results = <double>[];
 
@@ -30114,7 +30083,7 @@ class TransaksiOpSqlite {
   /// Mengambil data pendapatan mingguan dalam 4 minggu terakhir
   Future<List<double>> ambilPendapatanMingguan() async {
     try {
-      final db = await SqliteDatabase.instance.database;
+      final db = await sqliteDb.database;
       final now = DateTime.now();
       final results = <double>[];
 
@@ -30161,7 +30130,7 @@ class TransaksiOpSqlite {
   /// Mengambil data pendapatan bulanan dalam 5 bulan terakhir
   Future<List<double>> ambilPendapatanBulanan() async {
     try {
-      final db = await SqliteDatabase.instance.database;
+      final db = await sqliteDb.database;
       final now = DateTime.now();
       final results = <double>[];
 
@@ -30214,7 +30183,7 @@ class TransaksiOpSqlite {
       final db = await sqliteDb.database;
       Log.info('Menghitung poin yang dihasilkan Customer: $idPelanggan');
       final result = await db.rawQuery(
-        'SELECT SUM(${NamaKolom.poinDidapat}) as total FROM $_tabel WHERE ${NamaKolom.idPelanggan} = ? AND ${NamaKolom.dihapus} = 0 AND ${NamaKolom.statusPembayaran} = ?',
+        'SELECT SUM(${NamaKolom.poinDidapat}) as total FROM $_tabelTransaksi WHERE ${NamaKolom.idPelanggan} = ? AND ${NamaKolom.dihapus} = 0 AND ${NamaKolom.statusPembayaran} = ?',
         [idPelanggan, StatusPembayaran.paid.name],
       );
       final total = result.first['total'] as int? ?? 0;
@@ -30231,7 +30200,7 @@ class TransaksiOpSqlite {
       final db = await sqliteDb.database;
       Log.info('Menghitung poin yang digunakan Customer: $idPelanggan');
       final result = await db.rawQuery(
-        'SELECT SUM(${NamaKolom.poinDigunakan}) as total FROM $_tabel WHERE ${NamaKolom.idPelanggan} = ? AND ${NamaKolom.dihapus} = 0 AND ${NamaKolom.statusPembayaran} = ?',
+        'SELECT SUM(${NamaKolom.poinDigunakan}) as total FROM $_tabelTransaksi WHERE ${NamaKolom.idPelanggan} = ? AND ${NamaKolom.dihapus} = 0 AND ${NamaKolom.statusPembayaran} = ?',
         [idPelanggan, StatusPembayaran.paid.name],
       );
       final total = result.first['total'] as int? ?? 0;
@@ -30268,7 +30237,7 @@ class TransaksiOpSqlite {
       SELECT 
         SUM(${NamaKolom.poinDidapat}) as total_poin_didapat,
         SUM(${NamaKolom.poinDigunakan}) as total_poin_digunakan
-      FROM $_tabel 
+      FROM $_tabelTransaksi 
       WHERE ${NamaKolom.dihapus} = 0 
         AND ${NamaKolom.statusPembayaran} = ?
       ''',
@@ -30306,7 +30275,7 @@ class TransaksiOpSqlite {
         final batch = txn.batch();
         for (final item in transaksi) {
           batch.insert(
-            _tabel,
+            _tabelTransaksi,
             item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
@@ -30333,7 +30302,7 @@ class TransaksiOpSqlite {
 
   Future<double> ambilTotalPendapatanPerbulan() async {
     try {
-      final db = await SqliteDatabase.instance.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> hasil = await db.rawQuery(
         '''
       SELECT SUM(
@@ -30372,11 +30341,11 @@ class TransaksiOpSqlite {
       return [];
     }
     try {
-      final db = await _sqliteDb;
+      final db = await sqliteDb.database;
       Log.info('Mengambil transaksi berdasarkan list ID: $ids');
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
-        _tabel,
+        _tabelTransaksi,
         where: '${NamaKolom.id} IN ($placeholders)',
         whereArgs: ids,
       );
@@ -30707,14 +30676,10 @@ class TransaksiOpFirebase extends BaseOpFirebase {
 
     try {
       final batch = firestore.batch();
-
       for (final transaksi in items) {
         final docRef = _koleksi.doc(transaksi.id);
         final data = transaksi.toFirebase();
-
-        // Tambahkan timestamp server untuk updated_at
         data[NamaKolom.diperbaruiPada] = FieldValue.serverTimestamp();
-
         batch.set(docRef, data, SetOptions(merge: true));
       }
 
@@ -34301,7 +34266,7 @@ void callbackDispatcher() {
             final pelangganAktifOpSqlite = container.read(
               pelangganAktifOpSqliteProvider,
             );
-            await pelangganAktifOpSqlite.rescheduleAllNotifications();
+            await pelangganAktifOpSqlite.jadwalkanUlangSemuaNotifikasi();
             Log.info(
               'Background task "$tugas" (reschedule) selesai dengan sukses.',
             );
@@ -42259,6 +42224,27 @@ class InputRupiah extends StatelessWidget {
   final FocusNode? nextFocusNode;
   final void Function(String)? onSubmitted;
 
+  static final CurrencyTextInputFormatter _formatter =
+      CurrencyTextInputFormatter.currency(
+        locale: 'id',
+        symbol: 'Rp',
+        decimalDigits: 0,
+      );
+
+  /// Mengembalikan nilai numerik murni dari teks terformat.
+  double get numericValue {
+    final unformatted = _formatter.getUnformattedValue();
+    return double.tryParse(unformatted.toString()) ?? 0.0;
+  }
+
+  static double parse(String formatted) {
+    // Hapus "Rp", spasi, titik (pemisah ribuan)
+    String cleaned = formatted.replaceAll(RegExp(r'[Rp.\s]'), '');
+    // Ganti koma desimal (jika ada) ke titik
+    cleaned = cleaned.replaceAll(',', '.');
+    return double.tryParse(cleaned) ?? 0.0;
+  }
+
   const InputRupiah({
     super.key,
     required this.controller,
@@ -42291,13 +42277,7 @@ class InputRupiah extends StatelessWidget {
           FocusScope.of(context).requestFocus(nextFocusNode);
         }
       },
-      inputFormatters: [
-        CurrencyTextInputFormatter.currency(
-          locale: 'id',
-          symbol: 'Rp',
-          decimalDigits: 0,
-        ),
-      ],
+      inputFormatters: [_formatter],
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
@@ -49159,7 +49139,6 @@ class SqliteDatabase {
     );
 
     const String tableName = NamaTabel.transaksi;
-    // Mengambil informasi kolom yang ada saat ini di tabel transactions
     final results = await db.rawQuery('PRAGMA table_info("$tableName")');
     final existingColumns = results
         .map((row) => row['name'] as String)
@@ -49581,7 +49560,7 @@ class SqliteDatabase {
     Log.info('Semua 3 definisi index (v51) ditambahkan ke batch.');
   }
 
-  void _createAllTablesV47(final Batch batch) {
+  void _createAllTablesV47(Batch batch) {
     batch.execute(_tabelKategoriV47);
     batch.execute(_tabelSubKategoriV47);
     batch.execute(_tabelPaketV47);
