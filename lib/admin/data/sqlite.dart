@@ -19,34 +19,25 @@ final sqliteProvider = FutureProvider((ref) async {
   return db;
 });
 
-/// Kelas pembantu untuk mengelola database SQLite.
 class SqliteDatabase {
-  /// Instance tunggal dari DatabaseHelper.
   static final SqliteDatabase instance = SqliteDatabase._internal();
   static Database? _database;
-
-  // diubah: Versi dinaikkan ke 53 untuk menambah kolom durasi bonus di transaksi.
   static const int _databaseVersion = 54;
-
   SqliteDatabase._internal() {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
   }
-
-  /// Atur ulang instance database (hanya untuk pengujian).
   void debugSetDatabaseNull() {
     if (Platform.environment.containsKey('FLUTTER_TEST')) {
       _database = null;
     }
   }
 
-  /// Mendapatkan instance database.
   Future<Database> get database async {
     Log.info('Memulai proses akses properti database getter.');
     if (_database != null) {
       Log.info('Instance database sudah ada di memori, mengembalikan...');
       return _database!;
     }
-
     Log.info('Instance database belum ada, memanggil _initDB().');
     try {
       _database = await _initDB();
