@@ -39,7 +39,7 @@ class PenjadwalNotifikasi {
         // 1. Jadwalkan Notifikasi Visual
         await layananNotifikasi.perbaruiJadwalNotifikasi(
           id: idNotifikasiAkhir,
-          title: 'Langganan Telah Berakhir',
+          title: 'Voucher Telah Berakhir',
           body:
               'Masa aktif paket Anda telah berakhir. Perpanjang sekarang untuk terhubung lagi.',
           jadwal: waktuJadwal,
@@ -73,7 +73,7 @@ class PenjadwalNotifikasi {
           );
           await layananNotifikasi.perbaruiJadwalNotifikasi(
             id: idNotifikasiTengah,
-            title: 'Status Langganan Anda',
+            title: 'Status voucher Anda',
             body:
                 'Masa aktif paket Anda sudah berjalan 50%. Terima kasih telah menggunakan layanan kami.',
             jadwal: tanggalTengah,

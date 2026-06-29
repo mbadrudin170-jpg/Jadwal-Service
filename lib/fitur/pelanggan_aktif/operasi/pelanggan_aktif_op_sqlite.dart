@@ -18,9 +18,9 @@ class PelangganAktifOpSqlite {
   final LayananNotifikasi _layananNotifikasi;
   final PelangganOpSqlite _pelangganOpSqlite;
   final TransaksiOpSqlite _transaksiOpSqlite;
-  final String _namaTabel = NamaTabel.pelangganAktif;
-  final String _namaTabelCustomer = NamaTabel.pelanggan;
-  final String _namaTabelPaket = NamaTabel.paket;
+  final String _tabelPelangganAktif = NamaTabel.pelangganAktif;
+  final String _tabelPelanggan = NamaTabel.pelanggan;
+  final String _tabelPaket = NamaTabel.paket;
 
   DateTime get _nowUtc => DateTime.now().toUtc();
 
@@ -34,7 +34,9 @@ class PelangganAktifOpSqlite {
        _pelangganOpSqlite = pelangganOpSqlite,
        _layananNotifikasi = layananNotifikasi,
        _transaksiOpSqlite = transaksiOpSqlite {
-    Log.info('PelangganAktifOperation diinisialisasi - Tabel: $_namaTabel');
+    Log.info(
+      'PelangganAktifOperation diinisialisasi - Tabel: $_tabelPelangganAktif',
+    );
   }
 
   Future<void> rescheduleAllNotifications() async {
@@ -78,9 +80,9 @@ class PelangganAktifOpSqlite {
         ac.*,
         c.${NamaKolom.nama} as customer_name,
         p.${NamaKolom.nama} as package_name
-      FROM $_namaTabel ac
-      LEFT JOIN $_namaTabelCustomer c ON ac.${NamaKolom.idPelanggan} = c.${NamaKolom.id}
-      LEFT JOIN $_namaTabelPaket p ON ac.${NamaKolom.idPaket} = p.${NamaKolom.id}
+      FROM $_tabelPelangganAktif ac
+      LEFT JOIN $_tabelPelanggan c ON ac.${NamaKolom.idPelanggan} = c.${NamaKolom.id}
+      LEFT JOIN $_tabelPaket p ON ac.${NamaKolom.idPaket} = p.${NamaKolom.id}
       WHERE ac.${NamaKolom.dihapus} = 0
         AND ac.${NamaKolom.tanggalBerakhir} >= ?
     ''';
@@ -121,7 +123,7 @@ class PelangganAktifOpSqlite {
       await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         final data = customerToSave.toSqlite();
         await txn.insert(
-          _namaTabel,
+          _tabelPelangganAktif,
           data,
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
@@ -139,10 +141,12 @@ class PelangganAktifOpSqlite {
   Future<List<PelangganAktifModel>> ambilSemua() async {
     try {
       final db = await sqliteDb.database;
-      Log.info('Mengambil semua active customer dari tabel $_namaTabel');
+      Log.info(
+        'Mengambil semua active customer dari tabel $_tabelPelangganAktif',
+      );
 
       final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
+        _tabelPelangganAktif,
         where: '${NamaKolom.dihapus} = ?',
         whereArgs: [0],
       );
@@ -161,10 +165,12 @@ class PelangganAktifOpSqlite {
   Future<PelangganAktifModel?> ambilBerdasarkanid(final String id) async {
     try {
       final db = await sqliteDb.database;
-      Log.info('Mencari active customer dengan ID: $id di tabel $_namaTabel');
+      Log.info(
+        'Mencari active customer dengan ID: $id di tabel $_tabelPelangganAktif',
+      );
 
       final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
+        _tabelPelangganAktif,
         where: '${NamaKolom.id} = ?',
         whereArgs: [id],
       );
@@ -193,7 +199,7 @@ class PelangganAktifOpSqlite {
       await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
         final data = customerToSave.toSqlite();
         await txn.update(
-          _namaTabel,
+          _tabelPelangganAktif,
           data,
           where: '${NamaKolom.id} = ?',
           whereArgs: [customerToSave.id],
@@ -288,7 +294,7 @@ class PelangganAktifOpSqlite {
   }) async {
     try {
       Log.info(
-        'Memproses batch ${daftarPelangganAktif.length} active customer di $_namaTabel',
+        'Memproses batch ${daftarPelangganAktif.length} active customer di $_tabelPelangganAktif',
       );
 
       final data = daftarPelangganAktif
@@ -296,7 +302,7 @@ class PelangganAktifOpSqlite {
           .toList();
 
       await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
-        _namaTabel,
+        _tabelPelangganAktif,
         data,
         dariServer: dariServer,
       );
@@ -325,15 +331,15 @@ class PelangganAktifOpSqlite {
       }
 
       await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
-        final archivedCustomer = pelangganAktif.copyWith(
+        final pelangganAktifArsip = pelangganAktif.copyWith(
           diperbaruiPada: _nowUtc,
           diHapus: true,
           diarsipkanPada: _nowUtc,
         );
 
         await txn.update(
-          _namaTabel,
-          archivedCustomer.toSqlite(),
+          _tabelPelangganAktif,
+          pelangganAktifArsip.toSqlite(),
           where: '${NamaKolom.id} = ?',
           whereArgs: [id],
         );
@@ -370,15 +376,15 @@ class PelangganAktifOpSqlite {
       }
     }
     await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
-      final archivedCustomer = pelangganAktif.copyWith(
+      final pelangganAktifArsip = pelangganAktif.copyWith(
         diperbaruiPada: _nowUtc,
         diHapus: true,
         diarsipkanPada: _nowUtc,
       );
 
       await txn.update(
-        _namaTabel,
-        archivedCustomer.toSqlite(),
+        _tabelPelangganAktif,
+        pelangganAktifArsip.toSqlite(),
         where: '${NamaKolom.id} = ?',
         whereArgs: [idPelangganAKtif],
       );
@@ -399,57 +405,13 @@ class PelangganAktifOpSqlite {
     });
   }
 
-  Future<void> hapusPermanenDataSoftDelete({
-    final bool dariServer = false,
-  }) async {
-    try {
-      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
-        final deadline = _nowUtc.subtract(const Duration(days: 30));
-
-        final List<Map<String, dynamic>> expiredCustomers = await txn.query(
-          _namaTabel,
-          where:
-              '${NamaKolom.diarsipkanPada} IS NOT NULL AND ${NamaKolom.diarsipkanPada} < ?',
-          whereArgs: [deadline.millisecondsSinceEpoch],
-        );
-
-        if (expiredCustomers.isEmpty) {
-          Log.info('Tidak ada active customer diarsipkan lebih dari 30 hari');
-          return;
-        }
-
-        final idsToDelete = expiredCustomers
-            .map((final map) => map[NamaKolom.id] as String)
-            .toList();
-
-        final jumlah = await txn.delete(
-          _namaTabel,
-          where:
-              '${NamaKolom.id} IN (${List.filled(idsToDelete.length, '?').join(',')})',
-          whereArgs: idsToDelete,
-        );
-
-        Log.info(
-          '$jumlah active customer telah dihapus permanen dari $_namaTabel',
-        );
-      }, dariServer: dariServer);
-    } catch (e, st) {
-      Log.error(
-        'Gagal menghapus permanen active customer diarsipkan',
-        e: e,
-        s: st,
-      );
-      rethrow;
-    }
-  }
-
   Future<int> arsipkanLanggananKadaluarsa({bool dariServer = false}) async {
     try {
       Log.info('Memeriksa active customer kadaluarsa');
       final db = await sqliteDb.database;
 
       final List<Map<String, dynamic>> expiredCustomers = await db.query(
-        _namaTabel,
+        _tabelPelangganAktif,
         where: '${NamaKolom.tanggalBerakhir} < ? AND ${NamaKolom.dihapus} = 0',
         whereArgs: [_nowUtc.millisecondsSinceEpoch],
       );
@@ -463,9 +425,9 @@ class PelangganAktifOpSqlite {
           .map((final p) => p[NamaKolom.id] as String)
           .toList();
 
-      await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((txn) async {
         await txn.update(
-          _namaTabel,
+          _tabelPelangganAktif,
           {
             NamaKolom.dihapus: 1,
             NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
@@ -507,7 +469,7 @@ class PelangganAktifOpSqlite {
 
       await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
         await txn.update(
-          _namaTabel,
+          _tabelPelangganAktif,
           {
             NamaKolom.dihapus: 1,
             NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
@@ -545,7 +507,7 @@ class PelangganAktifOpSqlite {
       final db = await sqliteDb.database;
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
+        _tabelPelangganAktif,
         where: '${NamaKolom.id} IN ($placeholders)',
         whereArgs: ids,
       );
