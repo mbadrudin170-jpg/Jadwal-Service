@@ -38,13 +38,7 @@ class _WalletFormState extends ConsumerState<FormDompet> {
   @override
   void initState() {
     super.initState();
-    final modeEdit = widget.dompet != null;
-    Log.info(
-      'Membuat state WalletForm. '
-      'Mode: ${modeEdit ? "EDIT (ID: ${widget.dompet!.id}, Nama: ${widget.dompet!.nama}, Saldo: ${widget.dompet!.saldo})" : "TAMBAH BARU"}',
-    );
     _dompetOpSqlite = ref.read(dompetOpSqliteProvider);
-    Log.info('Membuat FocusNode untuk input nama dompet.');
     _namaFocusNode = FocusNode();
     if (_modeEdit) {
       _namaController.text = widget.dompet!.nama;

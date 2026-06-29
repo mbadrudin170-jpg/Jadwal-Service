@@ -76,7 +76,8 @@ class DompetPage extends ConsumerWidget {
                     final dompet = daftarDompet[index];
                     return WalletCard(
                       dompet: dompet,
-                      onTap: () => _navigateToDetail(context, ref, dompet),
+                      onTap: () =>
+                          _navigasiKeDetailDompet(context, ref, dompet),
                       onLongPress: () =>
                           _showArchiveOneDialog(context, ref, dompet),
                     );
@@ -96,19 +97,15 @@ class DompetPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _navigasiKeForm(BuildContext context, WidgetRef ref) async {
+  void _navigasiKeForm(BuildContext context, WidgetRef ref) {
     Log.info('Navigasi ke halaman tambah dompet.');
-    final hasil = await Navigator.push<bool>(
+    Navigator.push<void>(
       context,
-      MaterialPageRoute<bool>(builder: (context) => const FormDompet()),
+      MaterialPageRoute(builder: (context) => const FormDompet()),
     );
-    if (hasil ?? false) {
-      Log.info('Berhasil menambahkan dompet baru, memicu refresh.');
-      await ref.read(dompetProvider.notifier).refresh();
-    }
   }
 
-  void _navigateToDetail(
+  void _navigasiKeDetailDompet(
     BuildContext context,
     WidgetRef ref,
     DompetModel dompet,
