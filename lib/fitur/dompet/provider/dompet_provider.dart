@@ -79,7 +79,6 @@ class Dompet extends _$Dompet {
     });
   }
 
-  /// fungsi untuk menghapus data dompet secara soft delete
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(dompetOpSqliteProvider);
@@ -88,7 +87,6 @@ class Dompet extends _$Dompet {
     });
   }
 
-  /// fungsi untuk menghapus semua data dompet
   Future<void> softDeleteAll() async {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(dompetOpSqliteProvider);
