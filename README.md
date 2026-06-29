@@ -5898,6 +5898,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       riwayatTransaksiPelangganProvider(widget.idPelanggan),
     );
     return riwayatAsync.when(
+      skipLoadingOnReload: true,
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Error: $err')),
       data: (data) {
@@ -9951,9 +9952,8 @@ class Paket extends _$Paket {
   }
 
   Future<PaketState> _ambilData() async {
-    List<PaketModel> daftarPaketPublik;
     final daftarpaket = await _paketOp.ambilSemua();
-    daftarPaketPublik = await _paketOp.ambilPaketPublik();
+    final daftarPaketPublik = await _paketOp.ambilPaketPublik();
 
     return PaketState(
       daftarPaket: daftarpaket,
@@ -9966,7 +9966,6 @@ class Paket extends _$Paket {
     try {
       await _paketOp.tambahPaket(paket);
       unawaited(invalidateProviderPaket());
-      // Logika asinkron
     } on Exception catch (e, s) {
       Log.error('Error di tambah: $e', e: e, s: s);
       rethrow;
@@ -16392,7 +16391,7 @@ final class DompetProvider extends $AsyncNotifierProvider<Dompet, DompetState> {
   Dompet create() => Dompet();
 }
 
-String _$dompetHash() => r'1d7c2433ccf492b780a0ca9427d4bfde347b1df1';
+String _$dompetHash() => r'92db81efa71166f62c2642d04b107547808a2f2d';
 
 abstract class _$Dompet extends $AsyncNotifier<DompetState> {
   FutureOr<DompetState> build();
@@ -22343,22 +22342,23 @@ class _FeedbackDetailState extends ConsumerState<FeedbackDetail> {
 // File: lib/fitur/feedback/page/form_feedback.dart
 // path lib/fitur/feedback/page/form_feedback.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
-/// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
 class FormFeedback extends ConsumerStatefulWidget {
   final FeedbackModel? feedback;
-
   const FormFeedback({super.key, this.feedback});
 
   @override
@@ -22381,7 +22381,7 @@ class _FormFeedbackState extends ConsumerState<FormFeedback> {
 
   Future<void> _simpanForm() async {
     final userId = ref.watch(userIdProvider).value ?? '';
-    final feedbackOpFirebase = ref.read(feedbackOpFirebaseProvider);
+    final feedbackOp = ref.read(feedbackOpGlobalProvider);
 
     if (ref.isUser && userId.isEmpty) {
       ToastUtil.warning(context, 'Silakan login terlebih dahulu');
@@ -22406,16 +22406,18 @@ class _FormFeedbackState extends ConsumerState<FormFeedback> {
             pesan: _feedbackController.text,
             userId: userId,
           );
-          await feedbackOpFirebase.perbarui(updateFeedback);
+          await feedbackOp.perbarui(updateFeedback);
         } else {
           final tambahFeedback = FeedbackModel(
             id: const Uuid().v4(),
             pesan: _feedbackController.text,
             userId: userId,
           );
-          await feedbackOpFirebase.tambah(tambahFeedback);
+          await feedbackOp.tambah(tambahFeedback);
         }
-
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
         if (mounted) {
           ToastUtil.success(
             context,
@@ -22612,7 +22614,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   @override
   Widget build(BuildContext context) {
     final feedbackAsync = ref.watch(daftarFeedbackAktifProvider);
-
     return Scaffold(
       appBar: _buildAppBar(),
       body: RefreshIndicator(
@@ -22636,7 +22637,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                 ),
               );
             }
-
             return ListView.builder(
               padding: const EdgeInsets.all(8.0),
               itemCount: _hasilFilter.length,
@@ -23228,6 +23228,7 @@ import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 
 part 'feedback_provider.g.dart';
 part 'feedback_provider.freezed.dart';
@@ -23275,8 +23276,10 @@ class Feedback extends _$Feedback {
 
 @riverpod
 Future<List<FeedbackModel>> daftarFeedbackAktif(Ref ref) async {
+  final userId = await ref.watch(userIdProvider.future);
+  if (userId == null) return [];
   final feedbackOpSqlite = ref.watch(feedbackOpGlobalProvider);
-  return await feedbackOpSqlite.ambilSemua();
+  return await feedbackOpSqlite.ambilSemua(userId);
 }
 
 @riverpod
@@ -23648,12 +23651,12 @@ class FeedbackOpGlobal {
     }
   }
 
-  Future<List<FeedbackModel>> ambilSemua() async {
+  Future<List<FeedbackModel>> ambilSemua(String userId) async {
     try {
       if (RoleUtil.isAdmin(ref)) {
         return await _feedbackOpSqlite.ambilSemua();
       } else {
-        return await _feedbackOpFirebase.ambilSemua();
+        return await _feedbackOpFirebase.ambilBerdasarkanUser(userId);
       }
     } on Exception catch (e, s) {
       Log.error('Error di ambilSemua: $e', e: e, s: s);
@@ -23770,41 +23773,40 @@ class FeedbackOpFirebase {
     }
   }
 
-  Stream<List<FeedbackModel>> ambilBerdasarkanUser(String userId) {
+  Future<List<FeedbackModel>> ambilBerdasarkanUser(String userId) async {
     try {
       Log.info('Memuat feedback untuk userId: $userId');
-      return _koleksi
+
+      final querySnapshot = await _koleksi
           .where(NamaKolom.userId, isEqualTo: userId)
           .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.tanggal, descending: true)
-          .snapshots()
-          .map((snapshot) {
-            try {
-              return snapshot.docs.map((doc) {
-                return FeedbackModel.fromFirebase(
-                  doc.id,
-                  doc.data() as Map<String, dynamic>,
-                );
-              }).toList();
-            } catch (e, s) {
-              Log.error('Error saat mem-parsing data feedback', e: e, s: s);
-              throw Exception('Gagal mem-parsing data feedback: $e');
-            }
-          })
-          .handleError((Object e, StackTrace s) {
-            Log.error('Error pada stream feedback untuk: $userId', e: e, s: s);
-            throw Exception(e.toString());
-          });
-    } catch (e, s) {
+          .get();
+
+      return querySnapshot.docs.map((doc) {
+        return FeedbackModel.fromFirebase(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }).toList();
+    } on FirebaseException catch (e, s) {
       Log.error(
-        'Gagal membuat query feedback untuk userId: $userId',
+        'Gagal mengambil feedback berdasarkan userId: $userId',
         e: e,
         s: s,
       );
-      return Stream.error(e, s);
+      rethrow;
+    } on Exception catch (e, s) {
+      Log.error(
+        'Error umum saat mengambil feedback berdasarkan userId: $userId',
+        e: e,
+        s: s,
+      );
+      rethrow;
     }
   }
 }
+
 
 // File: lib/fitur/feedback/model/feedback_model.dart
 // path: lib/fitur/feedback/model/feedback_model.dart
@@ -29189,7 +29191,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'bf950c78b9d6a9be15724d75b96a1a00806f1348';
+String _$transaksiHash() => r'90c643f1be56f9479e02819f0c33507709783a09';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -44284,7 +44286,7 @@ final class PengontrolNotifikasiProvider
 }
 
 String _$pengontrolNotifikasiHash() =>
-    r'fe0141bb5b26e3c4daf18499c674c1c4b59be7e5';
+    r'26ae02c220f18bc760585f65a9b76d3e37fd1e75';
 
 
 // File: lib/shared/providers/shared_providers.dart
@@ -50337,10 +50339,8 @@ class AppMaterial extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Pantau notifikasi dan pengontrol notifikasi agar tetap aktif
     ref.watch(layananNotifikasiProvider);
     ref.watch(pengontrolNotifikasiProvider);
-
     final temaAsync = ref.watch(temaProvider);
     return temaAsync.when(
       data: (themeMode) => ToastificationWrapper(
