@@ -11,6 +11,7 @@ import 'package:wifi/fitur/event/page/detail_event_a.dart';
 import 'package:wifi/fitur/event/page/form_event.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 
 /// Menggunakan StreamProvider dengan proteksi siklus hidup
 final announcementsStreamProvider = StreamProvider.autoDispose<List<EventModel>>((
@@ -133,7 +134,7 @@ class EventPageA extends ConsumerWidget {
                       children: [
                         gapH8,
                         Text(
-                          'Dibuat: ${event.tanggalDibuat.toLocal().toString().split(' ')[0]}',
+                          'Dibuat pada: ${FormatTanggal.formatSingkat(event.tanggalDibuat)}',
                         ),
                         gapH4,
                         Chip(
@@ -150,8 +151,8 @@ class EventPageA extends ConsumerWidget {
                                 : Colors.grey,
                           ),
                           backgroundColor: event.statusAktif
-                              ? Colors.green.withValues(alpha: 0.08)
-                              : Colors.grey.withValues(alpha: 0.08),
+                              ? Colors.green.withAlpha(26)
+                              : Colors.grey.withAlpha(26),
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                         ),
                       ],

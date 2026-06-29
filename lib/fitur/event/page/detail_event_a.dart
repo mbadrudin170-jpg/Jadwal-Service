@@ -8,6 +8,7 @@ import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 import 'package:wifi/fitur/event/page/form_event.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 
 class DetailEventA extends ConsumerWidget {
   final EventModel event;
@@ -86,7 +87,7 @@ class DetailEventA extends ConsumerWidget {
                     ),
                     const Spacer(),
                     Text(
-                      'Dibuat: ${detailedEvent.tanggalDibuat.toLocal().toString().split(' ')[0]}',
+                      'Dibuat pada: ${FormatTanggal.formatSingkat(event.tanggalDibuat)}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
