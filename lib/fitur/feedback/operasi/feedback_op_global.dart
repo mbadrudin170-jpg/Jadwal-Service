@@ -77,12 +77,12 @@ class FeedbackOpGlobal {
     }
   }
 
-  Future<List<FeedbackModel>> ambilSemua() async {
+  Future<List<FeedbackModel>> ambilSemua(String userId) async {
     try {
       if (RoleUtil.isAdmin(ref)) {
         return await _feedbackOpSqlite.ambilSemua();
       } else {
-        return await _feedbackOpFirebase.ambilSemua();
+        return await _feedbackOpFirebase.ambilBerdasarkanUser(userId);
       }
     } on Exception catch (e, s) {
       Log.error('Error di ambilSemua: $e', e: e, s: s);

@@ -189,10 +189,8 @@ class AppMaterial extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Pantau notifikasi dan pengontrol notifikasi agar tetap aktif
     ref.watch(layananNotifikasiProvider);
     ref.watch(pengontrolNotifikasiProvider);
-
     final temaAsync = ref.watch(temaProvider);
     return temaAsync.when(
       data: (themeMode) => ToastificationWrapper(

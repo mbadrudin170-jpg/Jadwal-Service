@@ -120,7 +120,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   @override
   Widget build(BuildContext context) {
     final feedbackAsync = ref.watch(daftarFeedbackAktifProvider);
-
     return Scaffold(
       appBar: _buildAppBar(),
       body: RefreshIndicator(
@@ -144,7 +143,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                 ),
               );
             }
-
             return ListView.builder(
               padding: const EdgeInsets.all(8.0),
               itemCount: _hasilFilter.length,

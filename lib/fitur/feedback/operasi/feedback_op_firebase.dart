@@ -100,38 +100,36 @@ class FeedbackOpFirebase {
     }
   }
 
-  Stream<List<FeedbackModel>> ambilBerdasarkanUser(String userId) {
+  Future<List<FeedbackModel>> ambilBerdasarkanUser(String userId) async {
     try {
       Log.info('Memuat feedback untuk userId: $userId');
-      return _koleksi
+
+      final querySnapshot = await _koleksi
           .where(NamaKolom.userId, isEqualTo: userId)
           .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.tanggal, descending: true)
-          .snapshots()
-          .map((snapshot) {
-            try {
-              return snapshot.docs.map((doc) {
-                return FeedbackModel.fromFirebase(
-                  doc.id,
-                  doc.data() as Map<String, dynamic>,
-                );
-              }).toList();
-            } catch (e, s) {
-              Log.error('Error saat mem-parsing data feedback', e: e, s: s);
-              throw Exception('Gagal mem-parsing data feedback: $e');
-            }
-          })
-          .handleError((Object e, StackTrace s) {
-            Log.error('Error pada stream feedback untuk: $userId', e: e, s: s);
-            throw Exception(e.toString());
-          });
-    } catch (e, s) {
+          .get();
+
+      return querySnapshot.docs.map((doc) {
+        return FeedbackModel.fromFirebase(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }).toList();
+    } on FirebaseException catch (e, s) {
       Log.error(
-        'Gagal membuat query feedback untuk userId: $userId',
+        'Gagal mengambil feedback berdasarkan userId: $userId',
         e: e,
         s: s,
       );
-      return Stream.error(e, s);
+      rethrow;
+    } on Exception catch (e, s) {
+      Log.error(
+        'Error umum saat mengambil feedback berdasarkan userId: $userId',
+        e: e,
+        s: s,
+      );
+      rethrow;
     }
   }
 }

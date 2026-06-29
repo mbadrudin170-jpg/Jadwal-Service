@@ -7,6 +7,7 @@ import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 
 part 'feedback_provider.g.dart';
 part 'feedback_provider.freezed.dart';
@@ -54,8 +55,10 @@ class Feedback extends _$Feedback {
 
 @riverpod
 Future<List<FeedbackModel>> daftarFeedbackAktif(Ref ref) async {
+  final userId = await ref.watch(userIdProvider.future);
+  if (userId == null) return [];
   final feedbackOpSqlite = ref.watch(feedbackOpGlobalProvider);
-  return await feedbackOpSqlite.ambilSemua();
+  return await feedbackOpSqlite.ambilSemua(userId);
 }
 
 @riverpod

@@ -1,5 +1,6 @@
 // path: lib/fitur/versi_apk/page/update_apk_page_u.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -249,6 +250,29 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
                 ),
               if (adaTutorial && !perluUpdate) gapW12,
               if (!perluUpdate)
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: OutlinedButton(
+                      onPressed: _lewatiUpdateDanNavigasi,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.grey[700],
+                        side: BorderSide(color: Colors.grey[300]!),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text(
+                        'Lewati',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              if (kDebugMode)
                 Expanded(
                   child: SizedBox(
                     height: 50,

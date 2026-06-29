@@ -440,7 +440,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
   @override
   _i8.Future<void> jadwalkanUlangSemuaNotifikasi() =>
       (super.noSuchMethod(
-            Invocation.method(#rescheduleAllNotifications, []),
+            Invocation.method(#jadwalkanUlangSemuaNotifikasi, []),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),
           )
@@ -528,7 +528,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
     _i5.PelangganAktifModel? pelangganAktif,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#scheduleNotification, [pelangganAktif]),
+            Invocation.method(#jadwalkanNotifikasi, [pelangganAktif]),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),
           )

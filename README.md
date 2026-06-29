@@ -19453,6 +19453,7 @@ class _DetailVersiApkState extends ConsumerState<DetailVersiApk> {
 // File: lib/fitur/versi_apk/page/update_apk_page_u.dart
 // path: lib/fitur/versi_apk/page/update_apk_page_u.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19702,6 +19703,29 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
                 ),
               if (adaTutorial && !perluUpdate) gapW12,
               if (!perluUpdate)
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: OutlinedButton(
+                      onPressed: _lewatiUpdateDanNavigasi,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.grey[700],
+                        side: BorderSide(color: Colors.grey[300]!),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text(
+                        'Lewati',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              if (kDebugMode)
                 Expanded(
                   child: SizedBox(
                     height: 50,
@@ -44297,11 +44321,9 @@ LayananNotifikasi layananNotifikasi(Ref ref) {
 
 @Riverpod(keepAlive: true)
 void pengontrolNotifikasi(Ref ref) {
-  final role = ref.watch(appRoleProvider);
   final layananNotifikasi = ref.watch(layananNotifikasiProvider);
   final notifikasiOpFirebase = ref.watch(notifikasiOpFirebaseProvider);
-  Log.info('Menginisialisasi Notifikasi Controller untuk peran: $role');
-  if (role == AppRole.admin) {
+  if (RoleUtil.isAdmin(ref)) {
     Log.info('Mode Admin: Memulai pemantauan notifikasi umum.');
     layananNotifikasi.pantauNotifUmum(notifikasiOpFirebase);
   } else {
