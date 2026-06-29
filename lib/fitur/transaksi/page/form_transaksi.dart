@@ -368,6 +368,9 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                           return ButtonSegment<TipeTransaksi>(
                             value: tipe,
                             label: Text(tipe.displayName.toUpperCase()),
+                            enabled:
+                                tipe != TipeTransaksi.transfer ||
+                                _daftarDompet.length >= 2,
                           );
                         }).toList(),
                         selected: <TipeTransaksi>{_tipe},
