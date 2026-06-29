@@ -40,8 +40,7 @@ class SettingsAdminPage extends ConsumerWidget {
         ],
       ),
     );
-
-    if ((konfirmasi ?? false) && context.mounted) {
+    if ((konfirmasi == true) && context.mounted) {
       try {
         await ref.read(pengelolaSinkronisasiProvider).resetWaktuSinkronisasi();
         unawaited(
