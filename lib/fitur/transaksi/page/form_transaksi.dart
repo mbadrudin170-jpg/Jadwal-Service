@@ -107,6 +107,14 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                 (d) => d.id == trx.idDompetTujuan,
               ) ??
               _daftarDompet.firstOrNull;
+          if (_dompetTujuanDipilih != null &&
+              _dompetDipilih != null &&
+              _dompetTujuanDipilih!.id == _dompetDipilih!.id) {
+            _dompetTujuanDipilih = null;
+            Log.warning(
+              'Dompet tujuan sama dengan dompet asal, di-reset ke null.',
+            );
+          }
         }
 
         _filterKategoriInternal();
@@ -419,7 +427,14 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                         Log.info(
                           'Pengguna memilih dompet: ${v?.nama ?? "null"}',
                         );
-                        setState(() => _dompetDipilih = v);
+                        setState(() {
+                          _dompetDipilih = v;
+                          // ✅ Reset dompet tujuan jika nilainya sama dengan dompet asal
+                          if (_dompetTujuanDipilih == v ||
+                              _dompetTujuanDipilih?.id == v?.id) {
+                            _dompetTujuanDipilih = null;
+                          }
+                        });
                       },
                       validator: (v) =>
                           v == null ? 'Dompet harus dipilih' : null,
@@ -431,12 +446,15 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                         decoration: const InputDecoration(
                           labelText: 'Dompet Tujuan',
                         ),
-                        items: _daftarDompet.map((dompet) {
-                          return DropdownMenuItem(
-                            value: dompet,
-                            child: Text(dompet.nama),
-                          );
-                        }).toList(),
+                        items: _daftarDompet
+                            .where((dompet) => dompet.id != _dompetDipilih?.id)
+                            .map((dompet) {
+                              return DropdownMenuItem(
+                                value: dompet,
+                                child: Text(dompet.nama),
+                              );
+                            })
+                            .toList(),
                         onChanged: (val) {
                           Log.info(
                             'Pengguna memilih dompet tujuan: ${val?.nama ?? "null"}',
