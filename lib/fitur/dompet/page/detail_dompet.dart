@@ -1,10 +1,9 @@
 // path: lib/fitur/dompet/page/detail_dompet.dart
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/page/form_dompet.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -13,20 +12,21 @@ import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/fitur/transaksi/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/widget/ringkasan_keuangan_widget.dart';
 
 class DetailDompet extends ConsumerWidget {
   final DompetModel dompet;
   const DetailDompet({super.key, required this.dompet});
 
-  Future<void> _navigasiKeDetailTransaksi(
+  void _navigasiKeDetailTransaksi(
     BuildContext context,
     TransaksiModel transaksi,
-  ) async {
+  ) {
     Log.info(
       'Navigasi ke TransactionDetailPage dari WalletDetail untuk transaksi ID: ${transaksi.id}',
     );
-    await Navigator.push<void>(
+    Navigator.push<void>(
       context,
       MaterialPageRoute(
         builder: (context) => DetailTransaksiA(transaksi: transaksi),
@@ -34,18 +34,26 @@ class DetailDompet extends ConsumerWidget {
     );
   }
 
-  Future<void> _navigasiKeFormTransaksi(
+  void _navigasiKeFormTransaksi(
     BuildContext context, {
     TransaksiModel? transaksi,
-  }) async {
+  }) {
     Log.info(
       'Membuka FormTransaksiPage untuk mengedit transaksi ID: ${transaksi?.id} dari WalletDetail.',
     );
-    await Navigator.push<bool>(
+
+    Navigator.push<void>(
       context,
       MaterialPageRoute(
         builder: (context) => FormTransaksi(transaksi: transaksi),
       ),
+    );
+  }
+
+  void _navigasiKeFormDompet(BuildContext context) {
+    Navigator.push<void>(
+      context,
+      MaterialPageRoute(builder: (context) => FormDompet(dompet: dompet)),
     );
   }
 
@@ -62,7 +70,17 @@ class DetailDompet extends ConsumerWidget {
         final totalPengeluaran = detailDompet.totalPengeluaran;
         final total = detailDompet.totalSaldo;
         return Scaffold(
-          appBar: AppBar(title: Text(detailDompet.namaDompet)),
+          appBar: AppBar(
+            title: Text(detailDompet.namaDompet),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  _navigasiKeFormDompet(context);
+                },
+                icon: Icon(TIcons.edit),
+              ),
+            ],
+          ),
           body: Column(
             children: [
               RingkasanKeuanganWidget(
@@ -107,12 +125,10 @@ class DetailDompet extends ConsumerWidget {
                 context,
                 transaction,
                 onTap: () {
-                  unawaited(_navigasiKeDetailTransaksi(context, transaction));
+                  _navigasiKeDetailTransaksi(context, transaction);
                 },
                 onEdit: () {
-                  unawaited(
-                    _navigasiKeFormTransaksi(context, transaksi: transaction),
-                  );
+                  _navigasiKeFormTransaksi(context, transaksi: transaction);
                 },
                 onDelete: () async {
                   Log.info('Hapus transaksi: ${transaction.id}');
