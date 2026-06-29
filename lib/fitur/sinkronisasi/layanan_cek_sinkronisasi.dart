@@ -22,7 +22,6 @@ class LayananCekSinkronisasi {
   final Ref _ref;
   bool _berjalan = false;
 
-  /// Konstruktor dengan injeksi dependensi (wajib).
   LayananCekSinkronisasi({
     required PengelolaSinkronisasi pengelolaSinkronisasi,
     required LayananUnggahData layananUnggah,

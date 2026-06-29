@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_prod.dart';
@@ -27,9 +28,7 @@ void main() async {
   Log.info('Variabel lingkungan berhasil dimuat.');
 
   Log.info('Menginisialisasi Firebase...');
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   Log.info('Inisialisasi Firebase selesai.');
 
   Log.info('Menginisialisasi Supabase...');
@@ -37,7 +36,9 @@ void main() async {
   final supabasePublishableKey =
       dotenv.env[AppConstants.supabasePublishableKey] ?? '';
   await Supabase.initialize(
-      url: supabaseUrl, publishableKey: supabasePublishableKey);
+    url: supabaseUrl,
+    publishableKey: supabasePublishableKey,
+  );
   Log.info('Inisialisasi Supabase selesai.');
 
   if (supabaseUrl.isEmpty || supabasePublishableKey.isEmpty) {
@@ -64,14 +65,11 @@ void main() async {
   Log.info('Menginisialisasi Google Mobile Ads SDK...');
   await MobileAds.instance.initialize();
   Log.info('Inisialisasi Google Mobile Ads SDK selesai.');
-
+  Intl.defaultLocale = 'id_ID';
   Log.info('Memulai aplikasi admin. Menyerahkan kendali ke AppAdmin...');
-
   runApp(
     ProviderScope(
-      overrides: [
-        appRoleProvider.overrideWithValue(AppRole.admin),
-      ],
+      overrides: [appRoleProvider.overrideWithValue(AppRole.admin)],
       child: const AppAdmin(),
     ),
   );

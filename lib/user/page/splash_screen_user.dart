@@ -81,8 +81,8 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
         if (eventInfo != null) {
           if (mounted) {
             Log.info('menuju ke halaman event');
-            await Navigator.of(context).push(
-              MaterialPageRoute<void>(
+            await Navigator.of(context).push<void>(
+              MaterialPageRoute(
                 builder: (context) => EventPageU(event: eventInfo),
               ),
             );

@@ -54,7 +54,6 @@ class FormatJam {
 
 class FormatUang {
   FormatUang._();
-
   static String formatMataUang(double amount) {
     final formatter = NumberFormat.currency(symbol: 'Rp ', decimalDigits: 0);
     return formatter.format(amount.abs());
