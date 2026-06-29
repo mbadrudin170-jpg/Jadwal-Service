@@ -1,21 +1,22 @@
 // path lib/fitur/feedback/page/form_feedback.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
-/// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
 class FormFeedback extends ConsumerStatefulWidget {
   final FeedbackModel? feedback;
-
   const FormFeedback({super.key, this.feedback});
 
   @override
@@ -38,7 +39,7 @@ class _FormFeedbackState extends ConsumerState<FormFeedback> {
 
   Future<void> _simpanForm() async {
     final userId = ref.watch(userIdProvider).value ?? '';
-    final feedbackOpFirebase = ref.read(feedbackOpFirebaseProvider);
+    final feedbackOp = ref.read(feedbackOpGlobalProvider);
 
     if (ref.isUser && userId.isEmpty) {
       ToastUtil.warning(context, 'Silakan login terlebih dahulu');
@@ -63,16 +64,18 @@ class _FormFeedbackState extends ConsumerState<FormFeedback> {
             pesan: _feedbackController.text,
             userId: userId,
           );
-          await feedbackOpFirebase.perbarui(updateFeedback);
+          await feedbackOp.perbarui(updateFeedback);
         } else {
           final tambahFeedback = FeedbackModel(
             id: const Uuid().v4(),
             pesan: _feedbackController.text,
             userId: userId,
           );
-          await feedbackOpFirebase.tambah(tambahFeedback);
+          await feedbackOp.tambah(tambahFeedback);
         }
-
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
         if (mounted) {
           ToastUtil.success(
             context,
