@@ -1,4 +1,5 @@
 // path: lib/main/main_admin/admin_prod.dart
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -16,7 +17,16 @@ import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
 
-/// Fungsi utama untuk menjalankan aplikasi admin dalam mode produksi (prod).
+/// Titik masuk (entry point) aplikasi admin untuk mode produksi (prod).
+///
+/// Fungsi ini menjalankan serangkaian inisialisasi startup sebelum
+/// menyerahkan kendali ke [AppAdmin]:
+/// 1. Mempertahankan splash screen native hingga UI Flutter siap.
+/// 2. Memuat variabel lingkungan dari file `.env`.
+/// 3. Menginisialisasi Firebase, Supabase, dan layanan latar belakang.
+/// 4. Menjadwalkan tugas pengarsipan periodik.
+/// 5. Menginisialisasi Google Mobile Ads SDK.
+/// 6. Menjalankan aplikasi dengan [ProviderScope] dan melewatkan role admin.
 void main() async {
   final WidgetsBinding widgetsBinding =
       WidgetsFlutterBinding.ensureInitialized();
