@@ -57,36 +57,39 @@ class _EventPageUState extends ConsumerState<EventPageU> {
     final EventModel data = widget.event;
 
     return Scaffold(
-        body: Stack(
-      fit: StackFit.expand,
-      children: [
-        CachedNetworkImage(
-          imageUrl: data.linkGambar,
-          fit: BoxFit.cover,
-        ),
-        Positioned(
-          top: 30,
-          right: 10,
-          child: ElevatedButton(
-            onPressed: () {
-              _timer?.cancel();
-              Navigator.of(context).pop();
-            },
-            style: ElevatedButton.styleFrom(
-              shape: const CircleBorder(),
-              padding: const EdgeInsets.all(8),
-              backgroundColor: TColors.darkBackground.withValues(alpha: 0.7),
-            ),
-            child: Text(
-              _countdown > 0 ? '$_countdown' : 'X',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          CachedNetworkImage(
+            imageUrl: data.linkGambar,
+            fit: BoxFit.cover,
+            fadeOutDuration: const Duration(seconds: 200),
+            fadeInDuration: const Duration(seconds: 300),
+          ),
+          Positioned(
+            top: 30,
+            right: 10,
+            child: ElevatedButton(
+              onPressed: () {
+                _timer?.cancel();
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                shape: const CircleBorder(),
+                padding: const EdgeInsets.all(8),
+                backgroundColor: TColors.darkBackground.withValues(alpha: 0.7),
+              ),
+              child: Text(
+                _countdown > 0 ? '$_countdown' : 'X',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
-        ),
-      ],
-    ));
+        ],
+      ),
+    );
   }
 }

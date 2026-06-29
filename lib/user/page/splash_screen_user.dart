@@ -56,7 +56,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   final SettingsOpFirebase _settingsOp = SettingsOpFirebase();
   final idUnitIklan = IdInterstitialAds.interstitialAdUnitIds[0];
 
-  bool? _terhubung;
+  bool _terhubung = false;
 
   @override
   void initState() {
@@ -70,9 +70,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     try {
       Log.info('Memulai inisialisasi dari Splash Screen...');
       await _inisialisasiLayananOffline();
-      _terhubung = await ref
-          .watch(koneksiInternetServiceProvider)
-          .cekInternet();
+      _terhubung = await ref.read(koneksiInternetServiceProvider).cekInternet();
       if (_terhubung == true) {
         final eventInfo = await _cekEvent();
         if (eventInfo != null) {
