@@ -65,10 +65,10 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: ( BuildContext dialogContext) {
+      builder: (BuildContext dialogContext) {
         return _MigrationProgressDialog(
           migrationService: _migrationService,
-          onComplete: ( bool hasError) {
+          onComplete: (bool hasError) {
             Log.info(
               'Migrasi selesai, dialog ditutup. Status error: $hasError',
             );
