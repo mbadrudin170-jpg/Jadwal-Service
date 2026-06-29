@@ -30,9 +30,8 @@ class Paket extends _$Paket {
   }
 
   Future<PaketState> _ambilData() async {
-    List<PaketModel> daftarPaketPublik;
     final daftarpaket = await _paketOp.ambilSemua();
-    daftarPaketPublik = await _paketOp.ambilPaketPublik();
+    final daftarPaketPublik = await _paketOp.ambilPaketPublik();
 
     return PaketState(
       daftarPaket: daftarpaket,
@@ -45,7 +44,6 @@ class Paket extends _$Paket {
     try {
       await _paketOp.tambahPaket(paket);
       unawaited(invalidateProviderPaket());
-      // Logika asinkron
     } on Exception catch (e, s) {
       Log.error('Error di tambah: $e', e: e, s: s);
       rethrow;
