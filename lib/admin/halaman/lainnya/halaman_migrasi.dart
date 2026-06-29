@@ -9,12 +9,25 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-/// Halaman untuk alat migrasi data Firebase.
+/// Halaman untuk menjalankan alat migrasi data Firebase.
 ///
-/// Halaman ini menyediakan antarmuka untuk menjalankan [FirebaseMigrationService],
-/// yang bertanggung jawab untuk memperbarui skema database Firestore ke versi terbaru.
+/// Halaman ini menampilkan antarmuka sederhana yang memungkinkan pengguna
+/// memulai proses migrasi skema database Firestore dari versi lama ke versi
+/// terbaru menggunakan [FirebaseMigrationService].
+///
+/// Tombol migrasi akan dinonaktifkan secara permanen setelah migrasi berhasil
+/// dilakukan. Selama migrasi berjalan, tombol juga dinonaktifkan untuk
+/// mencegah pemanggilan ganda.
+///
+/// Penggunaan:
+/// ```dart
+/// Navigator.push(
+///   context,
+///   MaterialPageRoute(builder: (_) => const HalamanMigrasi()),
+/// );
+/// ```
 class HalamanMigrasi extends StatefulWidget {
-  /// Konstruktor untuk HalamanMigrasi.
+  /// Membuat [HalamanMigrasi] baru.
   const HalamanMigrasi({super.key});
 
   @override
@@ -22,10 +35,21 @@ class HalamanMigrasi extends StatefulWidget {
 }
 
 class _HalamanMigrasiState extends State<HalamanMigrasi> {
+  /// Layanan migrasi yang menangani semua logika pembaruan skema Firestore.
   final FirebaseMigrationService _migrationService = FirebaseMigrationService();
+
+  /// Menandakan apakah proses migrasi sedang berjalan.
   bool _isMigrating = false;
+
+  /// Menandakan apakah migrasi telah selesai dan berhasil.
+  /// Digunakan untuk menonaktifkan tombol secara permanen setelah sukses.
   bool _migrationCompletedSuccessfully = false;
 
+  /// Memulai proses migrasi setelah konfirmasi pengguna.
+  ///
+  /// Jika migrasi sedang berjalan, menampilkan peringatan dan mengabaikan
+  /// permintaan. Menampilkan dialog progres [_MigrationProgressDialog] yang
+  /// akan menangani pembaruan status dan log secara real-time.
   Future<void> _runMigration() async {
     Log.info('Tombol "Jalankan Migrasi Data" ditekan oleh pengguna.');
 
@@ -47,7 +71,8 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
           migrationService: _migrationService,
           onComplete: (final bool hasError) {
             Log.info(
-                'Migrasi selesai, dialog ditutup. Status error: $hasError');
+              'Migrasi selesai, dialog ditutup. Status error: $hasError',
+            );
             if (mounted) {
               setState(() {
                 _isMigrating = false;
@@ -56,7 +81,9 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
                   ToastUtil.success(context, 'Migrasi berhasil dilakukan.');
                 } else {
                   ToastUtil.error(
-                      context, 'Migrasi gagal, cek log untuk detail.');
+                    context,
+                    'Migrasi gagal, cek log untuk detail.',
+                  );
                 }
               });
             }
@@ -70,6 +97,7 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
   Widget build(final BuildContext context) {
     Log.info('Membangun UI HalamanMigrasi.');
 
+    // Tombol dinonaktifkan jika migrasi sedang berjalan atau sudah berhasil.
     final bool isButtonDisabled =
         _isMigrating || _migrationCompletedSuccessfully;
 
@@ -92,9 +120,7 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Alat Migrasi Data Firebase'),
-      ),
+      appBar: AppBar(title: const Text('Alat Migrasi Data Firebase')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -111,8 +137,10 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
               icon: buttonIcon,
               label: Text(buttonText),
               style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
             ),
           ],
@@ -122,11 +150,21 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
   }
 }
 
-/// Dialog progress migrasi.
+/// Dialog yang menampilkan progres migrasi Firebase secara real-time.
+///
+/// Dialog ini tidak dapat ditutup selama proses migrasi berlangsung.
+/// Pengguna hanya dapat menutupnya setelah migrasi selesai atau gagal.
+/// Log progres ditampilkan dalam area yang dapat digulir.
 class _MigrationProgressDialog extends StatefulWidget {
+  /// Layanan migrasi yang akan menjalankan proses.
   final FirebaseMigrationService migrationService;
+
+  /// Callback yang dipanggil ketika migrasi selesai (berhasil atau gagal).
+  ///
+  /// Parameter [hasError] bernilai `true` jika terjadi kesalahan selama proses.
   final void Function(bool hasError) onComplete;
 
+  /// Membuat [_MigrationProgressDialog].
   const _MigrationProgressDialog({
     required this.migrationService,
     required this.onComplete,
@@ -138,9 +176,16 @@ class _MigrationProgressDialog extends StatefulWidget {
 }
 
 class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
+  /// Daftar log yang akan ditampilkan kepada pengguna.
   final List<String> _logs = [];
+
+  /// Status terkini dari proses migrasi (ditampilkan di atas log).
   String _currentStatus = 'Memulai analisis migrasi...';
+
+  /// Menandakan apakah proses migrasi telah selesai (berhasil atau gagal).
   bool _isDone = false;
+
+  /// Menandakan apakah terjadi kesalahan selama migrasi.
   bool _hasError = false;
 
   @override
@@ -150,6 +195,11 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
     unawaited(_startMigration());
   }
 
+  /// Memulai dan memantau proses migrasi.
+  ///
+  /// Memanggil [FirebaseMigrationService.runAllMigrations] dan memperbarui
+  /// UI berdasarkan progres yang diterima. Menangani kesalahan yang terjadi
+  /// dan memanggil [widget.onComplete] setelah selesai.
   Future<void> _startMigration() async {
     try {
       final logs = await widget.migrationService.runAllMigrations(_onProgress);
@@ -172,7 +222,10 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
     }
   }
 
-  void _onProgress(final String message) {
+  /// Callback yang dipanggil setiap kali ada progres baru dari layanan migrasi.
+  ///
+  /// [message] berisi deskripsi langkah yang sedang dikerjakan.
+  void _onProgress(String message) {
     Log.info('Progress migrasi: $message');
     setState(() {
       _currentStatus = message;
@@ -192,9 +245,11 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
           if (!_isDone) gapH12,
-          Text(_isDone
-              ? (_hasError ? 'Migrasi Gagal' : 'Migrasi Selesai')
-              : 'Sedang Bermigrasi'),
+          Text(
+            _isDone
+                ? (_hasError ? 'Migrasi Gagal' : 'Migrasi Selesai')
+                : 'Sedang Bermigrasi',
+          ),
         ],
       ),
       content: Container(
@@ -203,20 +258,28 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(_currentStatus,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              _currentStatus,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             const Divider(),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: _logs
-                      .map((final log) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2),
-                            child: Text(log,
-                                style: const TextStyle(
-                                    fontFamily: 'monospace', fontSize: 11)),
-                          ))
+                      .map(
+                        (final log) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: Text(
+                            log,
+                            style: const TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: 11,
+                            ),
+                          ),
+                        ),
+                      )
                       .toList(),
                 ),
               ),
