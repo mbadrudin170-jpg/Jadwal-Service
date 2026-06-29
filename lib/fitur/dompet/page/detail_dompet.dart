@@ -57,7 +57,7 @@ class DetailDompet extends ConsumerWidget {
       error: (err, stack) =>
           Center(child: Text('Gagal memuat transaksi: $err')),
       data: (detailDompet) {
-        final daftarDompet = detailDompet.daftarTransaksi;
+        final daftarTransaksi = detailDompet.daftarTransaksi;
         final totalPemasukan = detailDompet.totalPemasukan;
         final totalPengeluaran = detailDompet.totalPengeluaran;
         final total = detailDompet.totalSaldo;
@@ -71,7 +71,7 @@ class DetailDompet extends ConsumerWidget {
                 total: total,
               ),
               Expanded(
-                child: _bangunDaftarTransaksi(context, ref, daftarDompet),
+                child: _bangunDaftarTransaksi(context, ref, daftarTransaksi),
               ),
             ],
           ),
@@ -117,6 +117,7 @@ class DetailDompet extends ConsumerWidget {
                 onDelete: () async {
                   Log.info('Hapus transaksi: ${transaction.id}');
                   await transaksi.softDelete(transaction.id);
+                  ref.invalidate(detailDompetProvider(dompet.id));
                 },
               ),
             ),

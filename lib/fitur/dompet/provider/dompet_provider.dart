@@ -108,20 +108,14 @@ Future<DetailDompetState> detailDompet(Ref ref, String idDompet) async {
   try {
     final dompetOpSqlite = ref.read(dompetOpSqliteProvider);
     final transaksiOp = ref.read(transaksiOpGlobalProvider);
-
-    // Ambil data secara paralel
     final results = await Future.wait([
       transaksiOp.ambilBerdasarkanIdDompet(idDompet),
       dompetOpSqlite.ambilBerdasarkanId(idDompet),
     ]);
-
     final daftarTransaksi = results[0] as List<TransaksiModel>;
     final dompet = results[1] as DompetModel?;
-
-    // Hitung total pemasukan dan pengeluaran
     double totalPemasukan = 0;
     double totalPengeluaran = 0;
-
     for (final transaksi in daftarTransaksi) {
       if (transaksi.tipe == TipeTransaksi.income) {
         totalPemasukan += transaksi.jumlah;
@@ -129,12 +123,8 @@ Future<DetailDompetState> detailDompet(Ref ref, String idDompet) async {
         totalPengeluaran += transaksi.jumlah;
       }
     }
-
     final totalSaldo = totalPemasukan - totalPengeluaran;
-
-    // ✅ Ambil nama dari dompet, jika null gunakan 'Dompet Tidak Ditemukan'
     final namaDompet = dompet?.nama ?? 'Dompet Tidak Ditemukan';
-
     return DetailDompetState(
       daftarTransaksi: daftarTransaksi,
       dompet: dompet,
@@ -142,7 +132,7 @@ Future<DetailDompetState> detailDompet(Ref ref, String idDompet) async {
       totalPemasukan: totalPemasukan,
       totalPengeluaran: totalPengeluaran,
       totalSaldo: totalSaldo,
-      namaDompet: namaDompet, // 🔥 ISI FIELD nama
+      namaDompet: namaDompet,
     );
   } on Exception catch (e, s) {
     Log.error('Error diDetailDompet: $e', e: e, s: s);

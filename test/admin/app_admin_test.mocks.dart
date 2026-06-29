@@ -577,17 +577,6 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
           as _i8.Future<void>);
 
   @override
-  _i8.Future<void> hapusPermanenDataSoftDelete({bool? dariServer = false}) =>
-      (super.noSuchMethod(
-            Invocation.method(#hapusPermanenDataSoftDelete, [], {
-              #dariServer: dariServer,
-            }),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
-          )
-          as _i8.Future<void>);
-
-  @override
   _i8.Future<int> arsipkanLanggananKadaluarsa({bool? dariServer = false}) =>
       (super.noSuchMethod(
             Invocation.method(#arsipkanLanggananKadaluarsa, [], {
