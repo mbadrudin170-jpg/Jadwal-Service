@@ -6699,8 +6699,7 @@ class SettingsAdminPage extends ConsumerWidget {
         ],
       ),
     );
-
-    if ((konfirmasi ?? false) && context.mounted) {
+    if ((konfirmasi == true) && context.mounted) {
       try {
         await ref.read(pengelolaSinkronisasiProvider).resetWaktuSinkronisasi();
         unawaited(
@@ -6725,6 +6724,7 @@ class SettingsAdminPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Pengaturan Aplikasi')),
       body: settingsAsync.when(
+        skipLoadingOnReload: true,
         data: (settings) {
           Log.info('Data pengaturan tersedia, menampilkan detail.');
           return Padding(
@@ -15753,11 +15753,10 @@ abstract class SubKategoriModel with _$SubKategoriModel implements HasId {
 // File: lib/fitur/dompet/page/detail_dompet.dart
 // path: lib/fitur/dompet/page/detail_dompet.dart
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/page/form_dompet.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -15766,20 +15765,21 @@ import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/fitur/transaksi/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/widget/ringkasan_keuangan_widget.dart';
 
 class DetailDompet extends ConsumerWidget {
   final DompetModel dompet;
   const DetailDompet({super.key, required this.dompet});
 
-  Future<void> _navigasiKeDetailTransaksi(
+  void _navigasiKeDetailTransaksi(
     BuildContext context,
     TransaksiModel transaksi,
-  ) async {
+  ) {
     Log.info(
       'Navigasi ke TransactionDetailPage dari WalletDetail untuk transaksi ID: ${transaksi.id}',
     );
-    await Navigator.push<void>(
+    Navigator.push<void>(
       context,
       MaterialPageRoute(
         builder: (context) => DetailTransaksiA(transaksi: transaksi),
@@ -15787,18 +15787,28 @@ class DetailDompet extends ConsumerWidget {
     );
   }
 
-  Future<void> _navigasiKeFormTransaksi(
+  void _navigasiKeFormTransaksi(
     BuildContext context, {
     TransaksiModel? transaksi,
-  }) async {
+  }) {
     Log.info(
       'Membuka FormTransaksiPage untuk mengedit transaksi ID: ${transaksi?.id} dari WalletDetail.',
     );
-    await Navigator.push<bool>(
+    Navigator.push<void>(
       context,
       MaterialPageRoute(
         builder: (context) => FormTransaksi(transaksi: transaksi),
       ),
+    );
+  }
+
+  void _navigasiKeFormDompet(
+    BuildContext context, {
+    required DompetModel dompet,
+  }) {
+    Navigator.push<void>(
+      context,
+      MaterialPageRoute(builder: (context) => FormDompet(dompet: dompet)),
     );
   }
 
@@ -15810,12 +15820,25 @@ class DetailDompet extends ConsumerWidget {
       error: (err, stack) =>
           Center(child: Text('Gagal memuat transaksi: $err')),
       data: (detailDompet) {
-        final daftarDompet = detailDompet.daftarTransaksi;
+        final daftarTransaksi = detailDompet.daftarTransaksi;
         final totalPemasukan = detailDompet.totalPemasukan;
         final totalPengeluaran = detailDompet.totalPengeluaran;
         final total = detailDompet.totalSaldo;
         return Scaffold(
-          appBar: AppBar(title: Text(detailDompet.namaDompet)),
+          appBar: AppBar(
+            title: Text(detailDompet.namaDompet),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  _navigasiKeFormDompet(
+                    context,
+                    dompet: detailDompet.dompet ?? dompet,
+                  );
+                },
+                icon: Icon(TIcons.edit),
+              ),
+            ],
+          ),
           body: Column(
             children: [
               RingkasanKeuanganWidget(
@@ -15824,7 +15847,7 @@ class DetailDompet extends ConsumerWidget {
                 total: total,
               ),
               Expanded(
-                child: _bangunDaftarTransaksi(context, ref, daftarDompet),
+                child: _bangunDaftarTransaksi(context, ref, daftarTransaksi),
               ),
             ],
           ),
@@ -15860,16 +15883,15 @@ class DetailDompet extends ConsumerWidget {
                 context,
                 transaction,
                 onTap: () {
-                  unawaited(_navigasiKeDetailTransaksi(context, transaction));
+                  _navigasiKeDetailTransaksi(context, transaction);
                 },
                 onEdit: () {
-                  unawaited(
-                    _navigasiKeFormTransaksi(context, transaksi: transaction),
-                  );
+                  _navigasiKeFormTransaksi(context, transaksi: transaction);
                 },
                 onDelete: () async {
                   Log.info('Hapus transaksi: ${transaction.id}');
                   await transaksi.softDelete(transaction.id);
+                  ref.invalidate(detailDompetProvider(dompet.id));
                 },
               ),
             ),
@@ -15912,8 +15934,14 @@ class DompetPage extends ConsumerWidget {
         title: const Text('Dompet'),
         actions: [
           IconButton(
+            onPressed: () {
+              ToastUtil.info(context, 'Fitur dalam pengembangan');
+            },
+            icon: Icon(TIcons.sort),
+          ),
+          IconButton(
             icon: const Icon(TIcons.delete),
-            onPressed: () => _showDeleteAllDialog(context, ref),
+            onPressed: () => _tampilkanDialogSoftDeleteAll(context, ref),
             tooltip: 'Hapus Semua Dompet',
           ),
         ],
@@ -15932,12 +15960,12 @@ class DompetPage extends ConsumerWidget {
             ),
           );
         },
-        data: (walletState) {
+        data: (dompetState) {
           Log.info(
-            'WalletProvider berhasil memuat ${walletState.daftarDompet.length} dompet.',
+            'WalletProvider berhasil memuat ${dompetState.daftarDompet.length} dompet.',
           );
-          final wallets = walletState.daftarDompet;
-          if (wallets.isEmpty) {
+          final daftarDompet = dompetState.daftarDompet;
+          if (daftarDompet.isEmpty) {
             return Center(
               child: Text(
                 'Tidak ada dompet ditemukan.',
@@ -15945,25 +15973,25 @@ class DompetPage extends ConsumerWidget {
               ),
             );
           }
-
           return Column(
             children: [
               RingkasanKeuanganWidget(
-                pemasukan: walletState.totalSaldoPositif,
-                pengeluaran: walletState.totalSaldoNegatif,
-                total: walletState.totalSaldo,
+                pemasukan: dompetState.totalSaldoPositif,
+                pengeluaran: dompetState.totalSaldoNegatif,
+                total: dompetState.totalSaldo,
               ),
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.only(top: TSizes.p8),
-                  itemCount: wallets.length,
+                  itemCount: daftarDompet.length,
                   itemBuilder: (context, index) {
-                    final wallet = wallets[index];
+                    final dompet = daftarDompet[index];
                     return WalletCard(
-                      dompet: wallet,
-                      onTap: () => _navigateToDetail(context, ref, wallet),
+                      dompet: dompet,
+                      onTap: () =>
+                          _navigasiKeDetailDompet(context, ref, dompet),
                       onLongPress: () =>
-                          _showArchiveOneDialog(context, ref, wallet),
+                          _tampilkanDialogSoftDelete(context, ref, dompet),
                     );
                   },
                 ),
@@ -15981,35 +16009,30 @@ class DompetPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _navigasiKeForm(BuildContext context, WidgetRef ref) async {
+  void _navigasiKeForm(BuildContext context, WidgetRef ref) {
     Log.info('Navigasi ke halaman tambah dompet.');
-    final hasil = await Navigator.push<bool>(
+    Navigator.push<void>(
       context,
-      MaterialPageRoute<bool>(builder: (context) => const FormDompet()),
+      MaterialPageRoute(builder: (context) => const FormDompet()),
     );
-    if (hasil ?? false) {
-      Log.info('Berhasil menambahkan dompet baru, memicu refresh.');
-      await ref.read(dompetProvider.notifier).refresh();
-    }
   }
 
-  Future<void> _navigateToDetail(
+  void _navigasiKeDetailDompet(
     BuildContext context,
     WidgetRef ref,
     DompetModel dompet,
-  ) async {
+  ) {
     Log.info('Navigasi ke detail dompet: "${dompet.nama}".');
-    await Navigator.push<void>(
+    Navigator.push<void>(
       context,
-      MaterialPageRoute<void>(
-        builder: (context) => DetailDompet(dompet: dompet),
-      ),
+      MaterialPageRoute(builder: (context) => DetailDompet(dompet: dompet)),
     );
-    Log.info('Kembali dari detail dompet, memicu refresh.');
-    await ref.read(dompetProvider.notifier).refresh();
   }
 
-  Future<void> _showDeleteAllDialog(BuildContext context, WidgetRef ref) async {
+  Future<void> _tampilkanDialogSoftDeleteAll(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     Log.info('Menampilkan dialog konfirmasi hapus semua dompet.');
     final daftarDompet = ref.read(dompetProvider).value?.daftarDompet ?? [];
     if (daftarDompet.isEmpty) {
@@ -16031,34 +16054,27 @@ class DompetPage extends ConsumerWidget {
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
             TextButton(
-              child: const Text('Hapus'),
-              onPressed: () {
+              child: const Text('Hapus Semua'),
+              onPressed: () async {
                 Navigator.of(dialogContext).pop();
-                unawaited(
-                  ref
-                      .read(dompetProvider.notifier)
-                      .softDeleteAll()
-                      .then((_) {
-                        if (context.mounted) {
-                          ToastUtil.success(
-                            context,
-                            'Semua dompet berhasil dihapus.',
-                          );
-                        }
-                      })
-                      .catchError((Object e, StackTrace s) {
-                        Log.error('Gagal menghapus semua dompet.', e: e, s: s);
-                        if (context.mounted) {
-                          ToastUtil.error(
-                            context,
-                            'Gagal menghapus dompet: $e',
-                          );
-                        }
-                      }),
-                );
-                ref
-                    .read(layananCekSinkronisasiProvider)
-                    .jalankanCekSinkronisasi();
+                try {
+                  await ref.read(dompetProvider.notifier).softDeleteAll();
+                  if (context.mounted) {
+                    ToastUtil.success(
+                      context,
+                      'Semua dompet berhasil dihapus.',
+                    );
+                  }
+                  unawaited(
+                    ref
+                        .read(layananCekSinkronisasiProvider)
+                        .jalankanCekSinkronisasi(),
+                  );
+                } on Exception catch (e) {
+                  if (context.mounted) {
+                    ToastUtil.error(context, 'Gagal menghapus dompet: $e');
+                  }
+                }
               },
             ),
           ],
@@ -16067,7 +16083,7 @@ class DompetPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _showArchiveOneDialog(
+  Future<void> _tampilkanDialogSoftDelete(
     BuildContext context,
     WidgetRef ref,
     DompetModel dompet,
@@ -16076,9 +16092,9 @@ class DompetPage extends ConsumerWidget {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Konfirmasi Arsip'),
+          title: const Text('Konfirmasi Hapus'),
           content: Text(
-            'Apakah Anda yakin ingin mengarsipkan dompet "${dompet.nama}"?',
+            'Apakah Anda yakin ingin menghapus dompet "${dompet.nama}"?',
           ),
           actions: <Widget>[
             TextButton(
@@ -16086,28 +16102,24 @@ class DompetPage extends ConsumerWidget {
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
             TextButton(
-              child: const Text('Arsipkan'),
-              onPressed: () {
+              child: const Text('Hapus'),
+              onPressed: () async {
                 Navigator.of(dialogContext).pop();
-                unawaited(
-                  ref
-                      .read(dompetProvider.notifier)
-                      .softDelete(dompet.id)
-                      .then((_) {
-                        if (context.mounted) {
-                          ToastUtil.success(
-                            context,
-                            'Dompet berhasil diarsipkan.',
-                          );
-                        }
-                      })
-                      .catchError((Object e, StackTrace st) {
-                        Log.error('Gagal mengarsipkan dompet.', e: e, s: st);
-                        if (context.mounted) {
-                          ToastUtil.error(context, 'Gagal mengarsipkan: $e');
-                        }
-                      }),
-                );
+                try {
+                  await ref.read(dompetProvider.notifier).softDelete(dompet.id);
+                  if (context.mounted) {
+                    ToastUtil.success(context, 'Dompet berhasil dihapus.');
+                  }
+                  unawaited(
+                    ref
+                        .read(layananCekSinkronisasiProvider)
+                        .jalankanCekSinkronisasi(),
+                  );
+                } on Exception catch (e) {
+                  if (context.mounted) {
+                    ToastUtil.error(context, 'Gagal menghapus: $e');
+                  }
+                }
               },
             ),
           ],
@@ -16131,7 +16143,6 @@ class WalletCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Log.info('WalletCard build: name=${dompet.nama} balance=${dompet.saldo}');
     final subtitleColor = dompet.saldo < 0
         ? context.colorScheme.error
         : context.textTheme.bodySmall?.color;
@@ -16173,10 +16184,12 @@ import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
+import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/input/input_teks.dart';
 
 /// Halaman form untuk menambah atau mengedit dompet.
 class FormDompet extends ConsumerStatefulWidget {
@@ -16194,38 +16207,18 @@ class _WalletFormState extends ConsumerState<FormDompet> {
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   late final DompetOpSqlite _dompetOpSqlite;
-
   late FocusNode _namaFocusNode;
-
   bool get _modeEdit => widget.dompet != null;
+  bool _menyimpan = false;
 
   @override
   void initState() {
     super.initState();
-    final modeEdit = widget.dompet != null;
-    Log.info(
-      'Membuat state WalletForm. '
-      'Mode: ${modeEdit ? "EDIT (ID: ${widget.dompet!.id}, Nama: ${widget.dompet!.nama}, Saldo: ${widget.dompet!.saldo})" : "TAMBAH BARU"}',
-    );
     _dompetOpSqlite = ref.read(dompetOpSqliteProvider);
-
-    Log.info('Membuat FocusNode untuk input nama dompet.');
     _namaFocusNode = FocusNode();
-
     if (_modeEdit) {
       _namaController.text = widget.dompet!.nama;
-    } else {
-      Log.info('MODE TAMBAH BARU terdeteksi.');
-      Log.info('Form akan membuat dompet baru dengan:');
-      Log.info('  - ID: Akan digenerate otomatis menggunakan UUID v4');
-      Log.info('  - Nama: Dari input pengguna');
-      Log.info('  - Saldo Awal: 0.0');
-      Log.info('  - Diperbarui: DateTime.now()');
-      Log.info('  - isDeleted: 0 (default)');
-      Log.info('  - Diarsipkan: NULL (default)');
     }
-
-    Log.info('Inisialisasi WalletForm selesai.');
   }
 
   @override
@@ -16237,68 +16230,54 @@ class _WalletFormState extends ConsumerState<FormDompet> {
   }
 
   Future<void> _simpanform() async {
-    Log.info(
-      'Tombol Simpan ditekan. Mode: ${_modeEdit ? "EDIT" : "TAMBAH BARU"}',
-    );
-
-    _namaFocusNode.unfocus();
-
-    if (_formKey.currentState!.validate()) {
+    if (_menyimpan) return;
+    try {
+      _menyimpan = true;
+      _namaFocusNode.unfocus();
+      if (!_formKey.currentState!.validate()) {
+        return;
+      }
       Log.info('Validasi form berhasil. Nama: "${_namaController.text}"');
 
-      try {
-        if (_modeEdit) {
-          Log.info('Proses UPDATE dompet ID: ${widget.dompet!.id}');
-          Log.info(
-            'Nama Lama: "${widget.dompet!.nama}", Nama Baru: "${_namaController.text}"',
-          );
-          Log.info('Saldo tetap: ${widget.dompet!.saldo}');
-
-          final dataBaru = DompetModel(
-            id: widget.dompet!.id,
-            nama: _namaController.text,
-            saldo: widget.dompet!.saldo,
-          );
-
-          await _dompetOpSqlite.updateDompet(dataBaru);
-          Log.info('Update dompet berhasil.');
-        } else {
-          Log.info('Proses TAMBAH dompet baru');
-
-          final id = const Uuid().v4();
-          Log.info(
-            'UUID baru: $id, Nama: ${_namaController.text}, Saldo awal: 0.0',
-          );
-
-          final dataBaru = DompetModel(
-            id: id,
-            nama: _namaController.text,
-            diperbaruiPada: DateTime.now(),
-          );
-
-          await _dompetOpSqlite.tambahDompet(dataBaru);
-          Log.info('Dompet baru berhasil disimpan. ID: $id');
-        }
-        if (!mounted) return;
-        unawaited(
-          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+      if (_modeEdit) {
+        Log.info('Proses UPDATE dompet ID: ${widget.dompet!.id}');
+        Log.info(
+          'Nama Lama: "${widget.dompet!.nama}", Nama Baru: "${_namaController.text}"',
         );
-        ToastUtil.success(context, 'Dompet berhasil disimpan.');
-        if (mounted) {
-          Navigator.pop(context, true);
-        }
-      } catch (e, s) {
-        Log.error(
-          'Gagal menyimpan dompet. Proses ${_modeEdit ? "update" : "create"} gagal.',
-          e: e,
-          s: s,
+        Log.info('Saldo tetap: ${widget.dompet!.saldo}');
+        final dataBaru = DompetModel(
+          id: widget.dompet!.id,
+          nama: _namaController.text,
+          saldo: widget.dompet!.saldo,
         );
-
-        if (!mounted) return;
-        ToastUtil.error(context, 'Gagal menyimpan dompet: $e');
+        await _dompetOpSqlite.updateDompet(dataBaru);
+        ref.invalidate(detailDompetProvider(widget.dompet!.id));
+      } else {
+        final dataBaru = DompetModel(
+          id: const Uuid().v4(),
+          nama: _namaController.text,
+        );
+        await _dompetOpSqlite.tambahDompet(dataBaru);
       }
-    } else {
-      Log.warning('Validasi form gagal. Nama dompet kosong atau tidak valid.');
+      ref.invalidate(dompetProvider);
+      unawaited(
+        ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+      );
+      if (!mounted) return;
+      ToastUtil.success(context, 'Dompet berhasil disimpan.');
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } catch (e, s) {
+      Log.error(
+        'Gagal menyimpan dompet. Proses ${_modeEdit ? "update" : "create"} gagal.',
+        e: e,
+        s: s,
+      );
+      if (!mounted) return;
+      ToastUtil.error(context, 'Gagal menyimpan dompet: $e');
+    } finally {
+      if (mounted) setState(() => _menyimpan = false);
     }
   }
 
@@ -16311,13 +16290,6 @@ class _WalletFormState extends ConsumerState<FormDompet> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_modeEdit ? 'Edit Nama Dompet' : 'Tambah Dompet Baru'),
-        leading: IconButton(
-          icon: const Icon(TIcons.back),
-          onPressed: () {
-            Log.info('Tombol Kembali ditekan. Kembali tanpa perubahan.');
-            Navigator.pop(context, false);
-          },
-        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(TSizes.p16),
@@ -16325,38 +16297,49 @@ class _WalletFormState extends ConsumerState<FormDompet> {
           key: _formKey,
           child: Column(
             children: [
-              TextFormField(
+              InputTeks(
                 controller: _namaController,
                 focusNode: _namaFocusNode,
-                decoration: const InputDecoration(
-                  labelText: 'Nama Dompet',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(TIcons.wallet),
-                ),
+                label: 'Nama Dompet',
                 textInputAction: TextInputAction.done,
-                onFieldSubmitted: (_) async {
-                  Log.info('Field nama disubmit. Memanggil simpan.');
+                prefixIcon: TIcons.wallet,
+                onSubmitted: (_) async {
                   await _simpanform();
-                },
-                onChanged: (value) {
-                  Log.info(
-                    'Nama dompet berubah: "$value" (${value.length} karakter)',
-                  );
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    Log.warning('Validasi: Nama dompet kosong.');
-                    return 'Nama dompet tidak boleh kosong';
-                  }
-                  return null;
                 },
               ),
+              // TextFormField(
+              //   controller: _namaController,
+              //   focusNode: _namaFocusNode,
+              //   decoration: const InputDecoration(
+              //     labelText: 'Nama Dompet',
+              //     border: OutlineInputBorder(),
+              //     prefixIcon: Icon(TIcons.wallet),
+              //   ),
+              //   textInputAction: TextInputAction.done,
+              //   onFieldSubmitted: (_) async {
+              //     Log.info('Field nama disubmit. Memanggil simpan.');
+              //     await _simpanform();
+              //   },
+              //   onChanged: (value) {
+              //     Log.info(
+              //       'Nama dompet berubah: "$value" (${value.length} karakter)',
+              //     );
+              //   },
+              //   validator: (value) {
+              //     if (value == null || value.isEmpty) {
+              //       Log.warning('Validasi: Nama dompet kosong.');
+              //       return 'Nama dompet tidak boleh kosong';
+              //     }
+              //     return null;
+              //   },
+              // ),
               gapH24,
               ElevatedButton(
-                onPressed: () async {
-                  Log.info('Tombol Simpan ditekan.');
-                  await _simpanform();
-                },
+                onPressed: _menyimpan
+                    ? null
+                    : () async {
+                        await _simpanform();
+                      },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, TSizes.p48),
                   shape: RoundedRectangleBorder(
@@ -17183,7 +17166,6 @@ class Dompet extends _$Dompet {
     });
   }
 
-  /// fungsi untuk menghapus data dompet secara soft delete
   Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(dompetOpSqliteProvider);
@@ -17192,7 +17174,6 @@ class Dompet extends _$Dompet {
     });
   }
 
-  /// fungsi untuk menghapus semua data dompet
   Future<void> softDeleteAll() async {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(dompetOpSqliteProvider);
@@ -17205,6 +17186,11 @@ class Dompet extends _$Dompet {
   Future<void> refresh() async {
     state = await AsyncValue.guard(_loadData);
   }
+
+  void invalidateDompet() {
+    ref.invalidateSelf();
+    ref.invalidate(detailDompetProvider);
+  }
 }
 
 @riverpod
@@ -17212,20 +17198,14 @@ Future<DetailDompetState> detailDompet(Ref ref, String idDompet) async {
   try {
     final dompetOpSqlite = ref.read(dompetOpSqliteProvider);
     final transaksiOp = ref.read(transaksiOpGlobalProvider);
-
-    // Ambil data secara paralel
     final results = await Future.wait([
       transaksiOp.ambilBerdasarkanIdDompet(idDompet),
       dompetOpSqlite.ambilBerdasarkanId(idDompet),
     ]);
-
     final daftarTransaksi = results[0] as List<TransaksiModel>;
     final dompet = results[1] as DompetModel?;
-
-    // Hitung total pemasukan dan pengeluaran
     double totalPemasukan = 0;
     double totalPengeluaran = 0;
-
     for (final transaksi in daftarTransaksi) {
       if (transaksi.tipe == TipeTransaksi.income) {
         totalPemasukan += transaksi.jumlah;
@@ -17233,12 +17213,8 @@ Future<DetailDompetState> detailDompet(Ref ref, String idDompet) async {
         totalPengeluaran += transaksi.jumlah;
       }
     }
-
     final totalSaldo = totalPemasukan - totalPengeluaran;
-
-    // ✅ Ambil nama dari dompet, jika null gunakan 'Dompet Tidak Ditemukan'
     final namaDompet = dompet?.nama ?? 'Dompet Tidak Ditemukan';
-
     return DetailDompetState(
       daftarTransaksi: daftarTransaksi,
       dompet: dompet,
@@ -17246,7 +17222,7 @@ Future<DetailDompetState> detailDompet(Ref ref, String idDompet) async {
       totalPemasukan: totalPemasukan,
       totalPengeluaran: totalPengeluaran,
       totalSaldo: totalSaldo,
-      namaDompet: namaDompet, // 🔥 ISI FIELD nama
+      namaDompet: namaDompet,
     );
   } on Exception catch (e, s) {
     Log.error('Error diDetailDompet: $e', e: e, s: s);
@@ -29103,35 +29079,23 @@ class Transaksi extends _$Transaksi {
   }
 
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
-    state = await AsyncValue.guard(() async {
-      await _transaksiOp.tambahTransaksi(transaksi);
-      _invalidateSistemTerkait();
-      return _loadData();
-    });
+    await _transaksiOp.tambahTransaksi(transaksi);
+    invalidateSistemTerkait();
   }
 
   Future<void> updateTransaksi(TransaksiModel transaksi) async {
-    state = await AsyncValue.guard(() async {
-      await _transaksiOp.perbaruiTransaksi(transaksi.id, transaksi);
-      _invalidateSistemTerkait();
-      return _loadData();
-    });
+    await _transaksiOp.perbaruiTransaksi(transaksi.id, transaksi);
+    invalidateSistemTerkait();
   }
 
   Future<void> softDelete(String id) async {
-    state = await AsyncValue.guard(() async {
-      await _transaksiOp.softDelete(id);
-      _invalidateSistemTerkait();
-      return _loadData();
-    });
+    await _transaksiOp.softDelete(id);
+    invalidateSistemTerkait();
   }
 
   Future<void> softDeleteAll() async {
-    state = await AsyncValue.guard(() async {
-      await _transaksiOp.softDeleteAll();
-      _invalidateSistemTerkait();
-      return _loadData();
-    });
+    await _transaksiOp.softDeleteAll();
+    invalidateSistemTerkait();
   }
 
   Future<void> refresh() async {
@@ -29159,8 +29123,10 @@ class Transaksi extends _$Transaksi {
     }
   }
 
-  void _invalidateSistemTerkait() {
-    ref.invalidate(dompetProvider);
+  void invalidateSistemTerkait() {
+    ref.invalidateSelf();
+    ref.read(dompetProvider.notifier).invalidateDompet();
+    ref.invalidate(riwayatTransaksiPelangganProvider);
   }
 }
 
@@ -29337,19 +29303,23 @@ import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
 class TransaksiOpGlobal {
   final Ref ref;
-
   TransaksiOpGlobal({required this.ref});
 
   TransaksiOpSqlite get _transaksiOpSqlite =>
       ref.read(transaksiOpSqliteProvider);
   TransaksiOpFirebase get _transaksiOpFirebase =>
       ref.read(transaksiOpFirebaseProvider);
+
+  void _invalidate() {
+    ref.read(transaksiProvider.notifier).invalidateSistemTerkait();
+  }
 
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     Log.info('Menambahkan transaksi baru: ${transaksi.id}');
@@ -29384,8 +29354,6 @@ class TransaksiOpGlobal {
       return await _transaksiOpFirebase.ambilBerdasarkanId(id);
     }
   }
-
-  // path: lib/fitur/transaksi/operasi/transaksi_op_global.dart
 
   Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
     String idPelanggan,
@@ -29598,9 +29566,7 @@ class TransaksiOpGlobal {
       Log.info('Batch transaksi: daftar kosong, operasi dibatalkan.');
       return;
     }
-
     Log.info('Memulai batch insert/update untuk ${items.length} transaksi');
-
     if (RoleUtil.isAdmin(ref)) {
       await _transaksiOpSqlite.sisipkanAtauPerbaruiBatch(
         items,
@@ -29613,7 +29579,6 @@ class TransaksiOpGlobal {
 
   Future<int> ambilTotalPoinSemuaPelanggan() async {
     Log.info('Menghitung total poin semua pelanggan');
-
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan();
     } else {
@@ -36612,6 +36577,11 @@ import 'package:wifi/fitur/notifikasi/model/notifikasi_model.dart';
 import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/shared/debug/log.dart';
 
+/// Callback yang dipanggil saat pengguna mengetuk notifikasi di background.
+///
+/// Dipicu oleh sistem ketika aplikasi tidak sedang berjalan dan pengguna
+/// berinteraksi dengan notifikasi. Payload notifikasi dicatat untuk
+/// pemrosesan lebih lanjut.
 @pragma('vm:entry-point')
 void onDidReceiveBackgroundNotificationResponse(
   final NotificationResponse response,
@@ -36623,8 +36593,19 @@ void onDidReceiveBackgroundNotificationResponse(
   debugPrint('Notifikasi background di-tap. Payload: ${response.payload}');
 }
 
+/// Layanan utama untuk mengelola notifikasi lokal dan Firebase.
+///
+/// Menyediakan fungsi-fungsi untuk menampilkan notifikasi langsung,
+/// menjadwalkan notifikasi, memantau notifikasi dari Firebase,
+/// serta mengelola izin dan channel Android. Kelas ini mengimplementasikan
+/// pola singleton agar seluruh aplikasi menggunakan satu instance yang sama.
 class LayananNotifikasi {
   static LayananNotifikasi? _instance;
+
+  /// Mendapatkan instance singleton [LayananNotifikasi].
+  ///
+  /// Jika belum ada, akan dibuat instance baru. Jika sudah ada, instance
+  /// yang sama akan dikembalikan.
   factory LayananNotifikasi() {
     if (_instance == null) {
       Log.info('Membuat instance baru untuk NotifikasiServis (Singleton).');
@@ -36634,19 +36615,44 @@ class LayananNotifikasi {
     }
     return _instance!;
   }
+
+  /// Plugin utama untuk notifikasi lokal Flutter.
   final FlutterLocalNotificationsPlugin plugin;
+
+  /// Generator angka acak untuk membuat ID notifikasi unik.
   final Random _random = Random();
+
+  /// Channel notifikasi Android untuk notifikasi penting.
   AndroidNotificationChannel? channelNotifikasiPenting;
+
+  /// Menandakan apakah zona waktu sudah berhasil diinisialisasi.
   static bool _zonaWaktuTelahDiinisialisasi = false;
+
+  /// Kumpulan ID notifikasi yang sudah pernah ditampilkan, untuk mencegah
+  /// duplikasi.
   final Set<String> _idNotifikasiTampil = {};
+
+  /// Langganan stream notifikasi Firebase yang aktif.
   StreamSubscription<List<NotifikasiModel>>? _langgananNotifikasiFirebase;
+
+  /// Konstruktor internal untuk singleton.
+  ///
+  /// Tidak dapat dipanggil langsung dari luar. Gunakan factory constructor.
   LayananNotifikasi._internal() : plugin = FlutterLocalNotificationsPlugin() {
     Log.info('Konstruktor internal NotifikasiServis dipanggil.');
   }
 
+  /// Konstruktor untuk keperluan pengujian (testing).
+  ///
+  /// Memungkinkan injeksi dependency [FlutterLocalNotificationsPlugin].
   @visibleForTesting
   LayananNotifikasi.testing(this.plugin);
 
+  /// Menginisialisasi data zona waktu lokal yang akan digunakan oleh
+  /// notifikasi terjadwal.
+  ///
+  /// Hanya dijalankan sekali. Jika zona waktu perangkat adalah 'GMT'
+  /// (umumnya pada emulator), akan menggunakan 'Asia/Jakarta' sebagai fallback.
   Future<void> _inisialisasiZonaWaktu() async {
     Log.info('Memeriksa status inisialisasi zona waktu.');
     if (_zonaWaktuTelahDiinisialisasi) {
@@ -36691,6 +36697,11 @@ class LayananNotifikasi {
     }
   }
 
+  /// Melakukan inisialisasi penuh layanan notifikasi.
+  ///
+  /// Termasuk inisialisasi zona waktu, pembuatan channel Android, dan
+  /// pendaftaran plugin notifikasi lokal. Harus dipanggil sebelum
+  /// menggunakan fitur notifikasi lainnya.
   Future<void> inisialisasiNotifikasi({required String iconName}) async {
     Log.info('Memulai proses inisialisasi NotifikasiServis...');
     await _inisialisasiZonaWaktu();
@@ -36717,6 +36728,10 @@ class LayananNotifikasi {
     }
   }
 
+  /// Membuat dan mendaftarkan channel notifikasi Android.
+  ///
+  /// Channel ini digunakan untuk semua notifikasi penting dari aplikasi.
+  /// Juga meminta izin notifikasi dan exact alarm.
   Future<void> _setupAndroidChannel() async {
     Log.info('Memulai pengaturan channel notifikasi Android.');
     channelNotifikasiPenting = const AndroidNotificationChannel(
@@ -36752,6 +36767,10 @@ class LayananNotifikasi {
     }
   }
 
+  /// Memulai pemantauan notifikasi umum (broadcast) dari Firebase.
+  ///
+  /// Setiap notifikasi baru akan langsung ditampilkan kepada pengguna,
+  /// lalu ditandai sebagai sudah dibaca (soft delete) di Firebase.
   void pantauNotifUmum(NotifikasiOpFirebase notifikasiOp) {
     Log.info('Memulai pemantauan notifikasi umum dari Firebase...');
     unawaited(_langgananNotifikasiFirebase?.cancel());
@@ -36775,6 +36794,9 @@ class LayananNotifikasi {
     );
   }
 
+  /// Memantau notifikasi yang dikirim khusus untuk pengguna tertentu.
+  ///
+  /// [userId] digunakan untuk memfilter notifikasi dari Firebase.
   void pantauNotifUser(NotifikasiOpFirebase notifikasiOp, String userId) {
     Log.info('Memulai pemantauan notifikasi dari Firebase...');
     unawaited(_langgananNotifikasiFirebase?.cancel());
@@ -36809,12 +36831,19 @@ class LayananNotifikasi {
         );
   }
 
+  /// Menghentikan semua pemantauan notifikasi dari Firebase.
+  ///
+  /// Membersihkan langganan dan menghapus daftar ID notifikasi yang sudah
+  /// ditampilkan.
   void hentikanPemantauanNotifikasi() {
     Log.info('Menghentikan pemantauan notifikasi dari Firebase.');
     unawaited(_langgananNotifikasiFirebase?.cancel());
     _idNotifikasiTampil.clear();
   }
 
+  /// Meminta izin notifikasi kepada pengguna.
+  ///
+  /// Hanya berlaku pada platform Android. Untuk platform lain akan diabaikan.
   Future<void> mintaIzin() async {
     Log.info('Meminta izin notifikasi dari pengguna...');
     try {
@@ -36842,6 +36871,10 @@ class LayananNotifikasi {
     }
   }
 
+  /// Mendapatkan detail peluncuran notifikasi saat aplikasi dibuka.
+  ///
+  /// Mengembalikan [NotificationAppLaunchDetails] jika aplikasi diluncurkan
+  /// melalui notifikasi, atau `null` jika tidak.
   Future<NotificationAppLaunchDetails?> getDetailPeluncuranNotifikasi() async {
     Log.info('Memeriksa apakah aplikasi diluncurkan melalui notifikasi...');
     final details = await plugin.getNotificationAppLaunchDetails();
@@ -36856,6 +36889,10 @@ class LayananNotifikasi {
     return details;
   }
 
+  /// Menampilkan notifikasi secara langsung (tanpa penjadwalan).
+  ///
+  /// Notifikasi akan muncul segera setelah dipanggil. ID notifikasi dibuat
+  /// berdasarkan hash payload atau acak.
   Future<void> tampilkanNotifikasiLangsung({
     required final String title,
     required final String body,
@@ -36894,6 +36931,9 @@ class LayananNotifikasi {
     }
   }
 
+  /// Menjadwalkan notifikasi untuk waktu tertentu di masa depan.
+  ///
+  /// Memerlukan izin exact alarm. Waktu dijadwalkan dalam zona waktu lokal.
   Future<void> jadwalNotifikasi({
     required final int id,
     required final String judul,
@@ -36952,6 +36992,10 @@ class LayananNotifikasi {
     }
   }
 
+  /// Memperbarui jadwal notifikasi yang sudah ada.
+  ///
+  /// Membatalkan notifikasi lama dengan ID yang sama, lalu menjadwalkan
+  /// ulang dengan data terbaru.
   Future<void> perbaruiJadwalNotifikasi({
     required final int id,
     required final String title,
@@ -36972,6 +37016,7 @@ class LayananNotifikasi {
     Log.info('Pembaruan jadwal selesai dilakukan untuk ID: $id.');
   }
 
+  /// Membatalkan notifikasi aktif atau terjadwal berdasarkan ID.
   Future<void> batalkanNotifikasi(int id) async {
     Log.info('Membatalkan notifikasi aktif/terjadwal dengan ID: $id');
     try {
@@ -36983,6 +37028,7 @@ class LayananNotifikasi {
     }
   }
 
+  /// Membatalkan semua notifikasi yang sedang aktif maupun terjadwal.
   Future<void> batalkanSemuaNotifikasi() async {
     Log.info(
       'Membersihkan semua notifikasi yang ada (aktif maupun terjadwal)...',
@@ -36999,6 +37045,10 @@ class LayananNotifikasi {
     }
   }
 
+  /// Memeriksa dan meminta izin `SCHEDULE_EXACT_ALARM` pada Android.
+  ///
+  /// Mengembalikan `true` jika izin diberikan, `false` jika ditolak.
+  /// Untuk platform selain Android langsung mengembalikan `true`.
   Future<bool> mengecekIzinExactAlarm() async {
     if (!Platform.isAndroid) return true;
     Log.info('Memeriksa izin SCHEDULE_EXACT_ALARM.');
@@ -42098,11 +42148,7 @@ class FormatJam {
 class FormatUang {
   FormatUang._();
   static String formatMataUang(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
+    final formatter = NumberFormat.currency(symbol: 'Rp ', decimalDigits: 0);
     return formatter.format(amount.abs());
   }
 }
@@ -42111,7 +42157,7 @@ class FormatNomor {
   FormatNomor._();
 
   static String formatRibuan(int value) {
-    final formatter = NumberFormat('#,###', 'id_ID');
+    final formatter = NumberFormat('#,###');
     return formatter.format(value);
   }
 }
@@ -42547,7 +42593,7 @@ class InputTeks extends StatelessWidget {
     this.wajib = true,
     this.validator,
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
-    this.textInputAction = TextInputAction.next, // Default tombol Next
+    this.textInputAction = TextInputAction.next,
     this.prefixIcon,
     this.focusNode,
     this.nextFocusNode,
@@ -42560,8 +42606,7 @@ class InputTeks extends StatelessWidget {
     return TextFormField(
       controller: controller,
       autovalidateMode: autovalidateMode,
-      textInputAction:
-          textInputAction, // 🛠️ PERBAIKAN 1: Sekarang parameternya sudah dipasang
+      textInputAction: textInputAction,
       enabled: enabled,
       focusNode: focusNode,
       onTapOutside: (event) => FocusScope.of(context).unfocus(),
@@ -42570,15 +42615,10 @@ class InputTeks extends StatelessWidget {
         border: const OutlineInputBorder(),
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
       ),
-
-      // 🛠️ PERBAIKAN 2: Logika disamakan dengan aturan independen & berantai
       onFieldSubmitted: (v) {
-        // 1. Urusan data/callback jalan duluan jika ada
         if (onSubmitted != null) {
           onSubmitted!(v);
         }
-
-        // 2. Urusan navigasi keyboard memakai if - else if
         if (textInputAction == TextInputAction.next && nextFocusNode != null) {
           FocusScope.of(context).requestFocus(nextFocusNode);
         } else if (textInputAction == TextInputAction.done) {
@@ -48634,6 +48674,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gma_mediation_unity/gma_mediation_unity.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
@@ -48653,9 +48694,7 @@ void main() async {
   Log.info('Variabel lingkungan berhasil dimuat.');
 
   Log.info('Menginisialisasi Firebase...');
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   Log.info('Inisialisasi Firebase selesai.');
 
   FirebaseFirestore.instance.settings = const Settings(
@@ -48668,7 +48707,9 @@ void main() async {
   final supabasePublishableKey =
       dotenv.env[AppConstants.supabasePublishableKey]!;
   await Supabase.initialize(
-      url: supabaseUrl, publishableKey: supabasePublishableKey);
+    url: supabaseUrl,
+    publishableKey: supabasePublishableKey,
+  );
   Log.info('Inisialisasi Supabase selesai.');
 
   // Baris yang ditambahkan: Mengaktifkan service notifikasi untuk aplikasi user
@@ -48682,16 +48723,15 @@ void main() async {
 
   Log.info('Menginisialisasi MobileAds');
   await MobileAds.instance.initialize();
-
+  Intl.defaultLocale = 'id_ID';
   Log.info(
-      '[main-prod] Memulai aplikasi user. Menyerahkan kendali ke AppUser...');
+    '[main-prod] Memulai aplikasi user. Menyerahkan kendali ke AppUser...',
+  );
 
   // Native splash akan dihilangkan dari dalam SplashScreenUser.
   runApp(
     ProviderScope(
-      overrides: [
-        appRoleProvider.overrideWithValue(AppRole.user),
-      ],
+      overrides: [appRoleProvider.overrideWithValue(AppRole.user)],
       child: const AppUser(),
     ),
   );
@@ -48709,6 +48749,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gma_mediation_unity/gma_mediation_unity.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
@@ -48728,9 +48769,7 @@ void main() async {
   Log.info('Variabel lingkungan berhasil dimuat.');
 
   Log.info('Menginisialisasi Firebase...');
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   Log.info('Inisialisasi Firebase selesai.');
 
   FirebaseFirestore.instance.settings = const Settings(
@@ -48743,28 +48782,29 @@ void main() async {
   final supabasePublishableKey =
       dotenv.env[AppConstants.supabasePublishableKey]!;
   await Supabase.initialize(
-      url: supabaseUrl, publishableKey: supabasePublishableKey);
+    url: supabaseUrl,
+    publishableKey: supabasePublishableKey,
+  );
   Log.info('Inisialisasi Supabase selesai.');
 
   Log.info('Menginisialisasi workmanager');
   await LayananLatarBelakang.inisialisasi();
 
   Log.info('Menginisialisasi GmaMediationUnity');
-  // Konfigurasi consent GDPR dan CCPA untuk Unity Ads Mediation.
   await GmaMediationUnity().setGDPRConsent(true);
   await GmaMediationUnity().setCCPAConsent(true);
 
   Log.info('Menginisialisasi MobileAds');
   await MobileAds.instance.initialize();
+  Intl.defaultLocale = 'id_ID';
 
   Log.info(
-      '[main-dev] Memulai aplikasi user. Menyerahkan kendali ke AppUser...');
+    '[main-dev] Memulai aplikasi user. Menyerahkan kendali ke AppUser...',
+  );
 
   runApp(
     ProviderScope(
-      overrides: [
-        appRoleProvider.overrideWithValue(AppRole.user),
-      ],
+      overrides: [appRoleProvider.overrideWithValue(AppRole.user)],
       child: const AppUser(),
     ),
   );
@@ -48773,12 +48813,14 @@ void main() async {
 
 // File: lib/main/main_admin/admin_prod.dart
 // path: lib/main/main_admin/admin_prod.dart
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_prod.dart';
@@ -48789,7 +48831,16 @@ import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
 
-/// Fungsi utama untuk menjalankan aplikasi admin dalam mode produksi (prod).
+/// Titik masuk (entry point) aplikasi admin untuk mode produksi (prod).
+///
+/// Fungsi ini menjalankan serangkaian inisialisasi startup sebelum
+/// menyerahkan kendali ke [AppAdmin]:
+/// 1. Mempertahankan splash screen native hingga UI Flutter siap.
+/// 2. Memuat variabel lingkungan dari file `.env`.
+/// 3. Menginisialisasi Firebase, Supabase, dan layanan latar belakang.
+/// 4. Menjadwalkan tugas pengarsipan periodik.
+/// 5. Menginisialisasi Google Mobile Ads SDK.
+/// 6. Menjalankan aplikasi dengan [ProviderScope] dan melewatkan role admin.
 void main() async {
   final WidgetsBinding widgetsBinding =
       WidgetsFlutterBinding.ensureInitialized();
@@ -48801,9 +48852,7 @@ void main() async {
   Log.info('Variabel lingkungan berhasil dimuat.');
 
   Log.info('Menginisialisasi Firebase...');
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   Log.info('Inisialisasi Firebase selesai.');
 
   Log.info('Menginisialisasi Supabase...');
@@ -48811,7 +48860,9 @@ void main() async {
   final supabasePublishableKey =
       dotenv.env[AppConstants.supabasePublishableKey] ?? '';
   await Supabase.initialize(
-      url: supabaseUrl, publishableKey: supabasePublishableKey);
+    url: supabaseUrl,
+    publishableKey: supabasePublishableKey,
+  );
   Log.info('Inisialisasi Supabase selesai.');
 
   if (supabaseUrl.isEmpty || supabasePublishableKey.isEmpty) {
@@ -48838,14 +48889,11 @@ void main() async {
   Log.info('Menginisialisasi Google Mobile Ads SDK...');
   await MobileAds.instance.initialize();
   Log.info('Inisialisasi Google Mobile Ads SDK selesai.');
-
+  Intl.defaultLocale = 'id_ID';
   Log.info('Memulai aplikasi admin. Menyerahkan kendali ke AppAdmin...');
-
   runApp(
     ProviderScope(
-      overrides: [
-        appRoleProvider.overrideWithValue(AppRole.admin),
-      ],
+      overrides: [appRoleProvider.overrideWithValue(AppRole.admin)],
       child: const AppAdmin(),
     ),
   );
@@ -48860,6 +48908,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_dev.dart';
@@ -48921,6 +48970,7 @@ void main() async {
   Log.info('Menginisialisasi Google Mobile Ads SDK...');
   await MobileAds.instance.initialize();
   Log.info('Inisialisasi Google Mobile Ads SDK selesai.');
+  Intl.defaultLocale = 'id_ID';
 
   Log.info('Memulai aplikasi admin. Menyerahkan kendali ke AppAdmin...');
 
@@ -48955,34 +49005,25 @@ final sqliteProvider = FutureProvider((ref) async {
   return db;
 });
 
-/// Kelas pembantu untuk mengelola database SQLite.
 class SqliteDatabase {
-  /// Instance tunggal dari DatabaseHelper.
   static final SqliteDatabase instance = SqliteDatabase._internal();
   static Database? _database;
-
-  // diubah: Versi dinaikkan ke 53 untuk menambah kolom durasi bonus di transaksi.
   static const int _databaseVersion = 54;
-
   SqliteDatabase._internal() {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
   }
-
-  /// Atur ulang instance database (hanya untuk pengujian).
   void debugSetDatabaseNull() {
     if (Platform.environment.containsKey('FLUTTER_TEST')) {
       _database = null;
     }
   }
 
-  /// Mendapatkan instance database.
   Future<Database> get database async {
     Log.info('Memulai proses akses properti database getter.');
     if (_database != null) {
       Log.info('Instance database sudah ada di memori, mengembalikan...');
       return _database!;
     }
-
     Log.info('Instance database belum ada, memanggil _initDB().');
     try {
       _database = await _initDB();
@@ -50105,6 +50146,7 @@ class SplashScreen extends StatelessWidget {
 
 // File: lib/admin/app_admin.dart
 // path: lib/admin/app_admin.dart
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -50122,6 +50164,11 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 
+/// Widget root untuk aplikasi admin WiFi.
+///
+/// Menunggu ketersediaan `SharedPreferences` asinkron sebelum melanjutkan
+/// ke proses inisialisasi utama ([AppInitializer]). Jika gagal memuat,
+/// menampilkan pesan error.
 class AppAdmin extends ConsumerWidget {
   const AppAdmin({super.key});
 
@@ -50142,6 +50189,17 @@ class AppAdmin extends ConsumerWidget {
   }
 }
 
+/// Menangani inisialisasi awal aplikasi setelah `SharedPreferences` tersedia.
+///
+/// Menjalankan serangkaian tugas awal secara berurutan:
+/// 1. Inisialisasi layanan latar belakang dan notifikasi.
+/// 2. Memeriksa payload notifikasi yang meluncurkan aplikasi.
+/// 3. Menginisialisasi format tanggal lokal (id_ID).
+/// 4. Membuka database SQLite dan melakukan pengarsipan data kedaluwarsa.
+/// 5. Jika perangkat online, menjalankan unduhan data awal dan pembersihan data arsip.
+///
+/// Menampilkan indikator loading hingga seluruh proses selesai, lalu meneruskan
+/// ke [AppMaterial] dengan status koneksi yang sesuai.
 class AppInitializer extends ConsumerStatefulWidget {
   const AppInitializer({super.key});
 
@@ -50150,6 +50208,7 @@ class AppInitializer extends ConsumerStatefulWidget {
 }
 
 class _AppInitializerState extends ConsumerState<AppInitializer> {
+  /// Future yang menyimpan hasil inisialisasi, sekaligus status koneksi.
   late Future<bool> _initialization;
 
   @override
@@ -50158,16 +50217,23 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
     _initialization = _initializeAndNavigate();
   }
 
+  /// Menjalankan semua langkah inisialisasi dan mengembalikan status koneksi.
+  ///
+  /// Mengembalikan `true` jika perangkat online, `false` jika offline,
+  /// atau saat terjadi error kritis.
   Future<bool> _initializeAndNavigate() async {
     final notifikasiServis = ref.read(layananNotifikasiProvider);
     final koneksiInternetService = ref.read(koneksiInternetServiceProvider);
     final sqliteDb = ref.read(sqliteDatabaseProvider);
     try {
+      // 1. Inisialisasi layanan latar belakang dan notifikasi
       await LayananLatarBelakang.inisialisasi();
       await notifikasiServis.inisialisasiNotifikasi(
         iconName: 'ic_notification',
       );
       await notifikasiServis.mintaIzin();
+
+      // 2. Tangani payload notifikasi yang mungkin membuka aplikasi
       final launchDetails = await notifikasiServis
           .getDetailPeluncuranNotifikasi();
       final prefs = ref.read(sharedPreferencesProvider).requireValue;
@@ -50181,7 +50247,11 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       } else {
         await prefs.remove('initial_notification_payload');
       }
+
+      // 3. Format tanggal lokal
       await initializeDateFormatting('id_ID');
+
+      // 4. Buka database dan arsipkan data kedaluwarsa
       await sqliteDb.database;
       try {
         final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
@@ -50189,6 +50259,8 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       } catch (e) {
         Log.error('gagal menghapus data yang status nya diarsipkan');
       }
+
+      // 5. Jika online, jalankan unduhan awal & pembersihan data arsip
       final isOnline = await koneksiInternetService.cekInternet();
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
@@ -50219,6 +50291,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
           'Perangkat offline, melewati proses unduhan data awal dan pembersihan.',
         );
       }
+
       return isOnline;
     } catch (e, s) {
       Log.error('Error kritis selama inisialisasi sekunder.', e: e, s: s);
@@ -50241,24 +50314,32 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
           }
           return AppMaterial(isOffline: isOffline);
         }
+        // Tampilkan layar loading saat inisialisasi berlangsung
         return const MaterialApp(
-          home: Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          ), // Initial splash
+          home: Scaffold(body: Center(child: CircularProgressIndicator())),
         );
       },
     );
   }
 }
 
+/// Widget yang membangun [MaterialApp] utama dengan tema dinamis
+/// dan navigasi siap pakai.
+///
+/// Menerima parameter [isOffline] untuk diteruskan ke [HalamanUtama]
+/// sehingga UI dapat menyesuaikan diri dengan status koneksi.
 class AppMaterial extends ConsumerWidget {
+  /// Apakah perangkat sedang offline.
   final bool isOffline;
+
   const AppMaterial({super.key, required this.isOffline});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Pantau notifikasi dan pengontrol notifikasi agar tetap aktif
     ref.watch(layananNotifikasiProvider);
     ref.watch(pengontrolNotifikasiProvider);
+
     final temaAsync = ref.watch(temaProvider);
     return temaAsync.when(
       data: (themeMode) => ToastificationWrapper(
@@ -50294,12 +50375,25 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-/// Halaman untuk alat migrasi data Firebase.
+/// Halaman untuk menjalankan alat migrasi data Firebase.
 ///
-/// Halaman ini menyediakan antarmuka untuk menjalankan [FirebaseMigrationService],
-/// yang bertanggung jawab untuk memperbarui skema database Firestore ke versi terbaru.
+/// Halaman ini menampilkan antarmuka sederhana yang memungkinkan pengguna
+/// memulai proses migrasi skema database Firestore dari versi lama ke versi
+/// terbaru menggunakan [FirebaseMigrationService].
+///
+/// Tombol migrasi akan dinonaktifkan secara permanen setelah migrasi berhasil
+/// dilakukan. Selama migrasi berjalan, tombol juga dinonaktifkan untuk
+/// mencegah pemanggilan ganda.
+///
+/// Penggunaan:
+/// ```dart
+/// Navigator.push(
+///   context,
+///   MaterialPageRoute(builder: (_) => const HalamanMigrasi()),
+/// );
+/// ```
 class HalamanMigrasi extends StatefulWidget {
-  /// Konstruktor untuk HalamanMigrasi.
+  /// Membuat [HalamanMigrasi] baru.
   const HalamanMigrasi({super.key});
 
   @override
@@ -50307,13 +50401,23 @@ class HalamanMigrasi extends StatefulWidget {
 }
 
 class _HalamanMigrasiState extends State<HalamanMigrasi> {
+  /// Layanan migrasi yang menangani semua logika pembaruan skema Firestore.
   final FirebaseMigrationService _migrationService = FirebaseMigrationService();
+
+  /// Menandakan apakah proses migrasi sedang berjalan.
   bool _isMigrating = false;
+
+  /// Menandakan apakah migrasi telah selesai dan berhasil.
+  /// Digunakan untuk menonaktifkan tombol secara permanen setelah sukses.
   bool _migrationCompletedSuccessfully = false;
 
+  /// Memulai proses migrasi setelah konfirmasi pengguna.
+  ///
+  /// Jika migrasi sedang berjalan, menampilkan peringatan dan mengabaikan
+  /// permintaan. Menampilkan dialog progres [_MigrationProgressDialog] yang
+  /// akan menangani pembaruan status dan log secara real-time.
   Future<void> _runMigration() async {
     Log.info('Tombol "Jalankan Migrasi Data" ditekan oleh pengguna.');
-
     if (_isMigrating) {
       Log.warning('Migrasi sudah berjalan, tindakan dicegah.');
       ToastUtil.warning(context, 'Migrasi sedang berjalan, harap tunggu.');
@@ -50327,12 +50431,13 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (final BuildContext dialogContext) {
+      builder: (BuildContext dialogContext) {
         return _MigrationProgressDialog(
           migrationService: _migrationService,
-          onComplete: (final bool hasError) {
+          onComplete: (bool hasError) {
             Log.info(
-                'Migrasi selesai, dialog ditutup. Status error: $hasError');
+              'Migrasi selesai, dialog ditutup. Status error: $hasError',
+            );
             if (mounted) {
               setState(() {
                 _isMigrating = false;
@@ -50341,7 +50446,9 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
                   ToastUtil.success(context, 'Migrasi berhasil dilakukan.');
                 } else {
                   ToastUtil.error(
-                      context, 'Migrasi gagal, cek log untuk detail.');
+                    context,
+                    'Migrasi gagal, cek log untuk detail.',
+                  );
                 }
               });
             }
@@ -50355,6 +50462,7 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
   Widget build(final BuildContext context) {
     Log.info('Membangun UI HalamanMigrasi.');
 
+    // Tombol dinonaktifkan jika migrasi sedang berjalan atau sudah berhasil.
     final bool isButtonDisabled =
         _isMigrating || _migrationCompletedSuccessfully;
 
@@ -50377,9 +50485,7 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Alat Migrasi Data Firebase'),
-      ),
+      appBar: AppBar(title: const Text('Alat Migrasi Data Firebase')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -50396,8 +50502,10 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
               icon: buttonIcon,
               label: Text(buttonText),
               style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
             ),
           ],
@@ -50407,11 +50515,21 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
   }
 }
 
-/// Dialog progress migrasi.
+/// Dialog yang menampilkan progres migrasi Firebase secara real-time.
+///
+/// Dialog ini tidak dapat ditutup selama proses migrasi berlangsung.
+/// Pengguna hanya dapat menutupnya setelah migrasi selesai atau gagal.
+/// Log progres ditampilkan dalam area yang dapat digulir.
 class _MigrationProgressDialog extends StatefulWidget {
+  /// Layanan migrasi yang akan menjalankan proses.
   final FirebaseMigrationService migrationService;
+
+  /// Callback yang dipanggil ketika migrasi selesai (berhasil atau gagal).
+  ///
+  /// Parameter [hasError] bernilai `true` jika terjadi kesalahan selama proses.
   final void Function(bool hasError) onComplete;
 
+  /// Membuat [_MigrationProgressDialog].
   const _MigrationProgressDialog({
     required this.migrationService,
     required this.onComplete,
@@ -50423,9 +50541,16 @@ class _MigrationProgressDialog extends StatefulWidget {
 }
 
 class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
+  /// Daftar log yang akan ditampilkan kepada pengguna.
   final List<String> _logs = [];
+
+  /// Status terkini dari proses migrasi (ditampilkan di atas log).
   String _currentStatus = 'Memulai analisis migrasi...';
+
+  /// Menandakan apakah proses migrasi telah selesai (berhasil atau gagal).
   bool _isDone = false;
+
+  /// Menandakan apakah terjadi kesalahan selama migrasi.
   bool _hasError = false;
 
   @override
@@ -50435,6 +50560,11 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
     unawaited(_startMigration());
   }
 
+  /// Memulai dan memantau proses migrasi.
+  ///
+  /// Memanggil [FirebaseMigrationService.runAllMigrations] dan memperbarui
+  /// UI berdasarkan progres yang diterima. Menangani kesalahan yang terjadi
+  /// dan memanggil [widget.onComplete] setelah selesai.
   Future<void> _startMigration() async {
     try {
       final logs = await widget.migrationService.runAllMigrations(_onProgress);
@@ -50457,7 +50587,10 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
     }
   }
 
-  void _onProgress(final String message) {
+  /// Callback yang dipanggil setiap kali ada progres baru dari layanan migrasi.
+  ///
+  /// [message] berisi deskripsi langkah yang sedang dikerjakan.
+  void _onProgress(String message) {
     Log.info('Progress migrasi: $message');
     setState(() {
       _currentStatus = message;
@@ -50477,9 +50610,11 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
           if (!_isDone) gapH12,
-          Text(_isDone
-              ? (_hasError ? 'Migrasi Gagal' : 'Migrasi Selesai')
-              : 'Sedang Bermigrasi'),
+          Text(
+            _isDone
+                ? (_hasError ? 'Migrasi Gagal' : 'Migrasi Selesai')
+                : 'Sedang Bermigrasi',
+          ),
         ],
       ),
       content: Container(
@@ -50488,20 +50623,28 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(_currentStatus,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              _currentStatus,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             const Divider(),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: _logs
-                      .map((final log) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2),
-                            child: Text(log,
-                                style: const TextStyle(
-                                    fontFamily: 'monospace', fontSize: 11)),
-                          ))
+                      .map(
+                        (final log) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: Text(
+                            log,
+                            style: const TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: 11,
+                            ),
+                          ),
+                        ),
+                      )
                       .toList(),
                 ),
               ),
