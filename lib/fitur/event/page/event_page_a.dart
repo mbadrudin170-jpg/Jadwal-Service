@@ -134,7 +134,7 @@ class EventPageA extends ConsumerWidget {
                       children: [
                         gapH8,
                         Text(
-                          'Dibuat pada: ${FormatTanggal.formatSingkat(event.tanggalDibuat)}',
+                          'Dibuat: ${FormatTanggal.formatSingkat(event.tanggalDibuat)}',
                         ),
                         gapH4,
                         Chip(

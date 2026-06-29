@@ -87,7 +87,7 @@ class DetailEventA extends ConsumerWidget {
                     ),
                     const Spacer(),
                     Text(
-                      'Dibuat pada: ${FormatTanggal.formatSingkat(event.tanggalDibuat)}',
+                      'Dibuat: ${FormatTanggal.formatSingkat(event.tanggalDibuat)}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
