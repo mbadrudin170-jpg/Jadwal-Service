@@ -88,20 +88,20 @@ class EventPageA extends ConsumerWidget {
                               width: 60,
                               height: 60,
                               fit: BoxFit.cover,
-                              placeholder: (context, url) => Container(
-                                width: 60,
-                                height: 60,
-                                color: Colors.grey.shade200,
-                                child: const Center(
-                                  child: SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              // placeholder: (context, url) => Container(
+                              //   width: 60,
+                              //   height: 60,
+                              //   color: Colors.grey.shade200,
+                              //   child: const Center(
+                              //     child: SizedBox(
+                              //       width: 20,
+                              //       height: 20,
+                              //       child: CircularProgressIndicator(
+                              //         strokeWidth: 2,
+                              //       ),
+                              //     ),
+                              //   ),
+                              // ),
                               errorWidget: (context, url, error) {
                                 Log.error(
                                   'Gagal memuat gambar: ${event.linkGambar}',
