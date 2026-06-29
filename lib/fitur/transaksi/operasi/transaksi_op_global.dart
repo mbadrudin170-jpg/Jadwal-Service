@@ -7,19 +7,23 @@ import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
 class TransaksiOpGlobal {
   final Ref ref;
-
   TransaksiOpGlobal({required this.ref});
 
   TransaksiOpSqlite get _transaksiOpSqlite =>
       ref.read(transaksiOpSqliteProvider);
   TransaksiOpFirebase get _transaksiOpFirebase =>
       ref.read(transaksiOpFirebaseProvider);
+
+  void _invalidate() {
+    ref.read(transaksiProvider.notifier).invalidateSistemTerkait();
+  }
 
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     Log.info('Menambahkan transaksi baru: ${transaksi.id}');
@@ -54,8 +58,6 @@ class TransaksiOpGlobal {
       return await _transaksiOpFirebase.ambilBerdasarkanId(id);
     }
   }
-
-  // path: lib/fitur/transaksi/operasi/transaksi_op_global.dart
 
   Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
     String idPelanggan,
@@ -268,9 +270,7 @@ class TransaksiOpGlobal {
       Log.info('Batch transaksi: daftar kosong, operasi dibatalkan.');
       return;
     }
-
     Log.info('Memulai batch insert/update untuk ${items.length} transaksi');
-
     if (RoleUtil.isAdmin(ref)) {
       await _transaksiOpSqlite.sisipkanAtauPerbaruiBatch(
         items,
@@ -283,7 +283,6 @@ class TransaksiOpGlobal {
 
   Future<int> ambilTotalPoinSemuaPelanggan() async {
     Log.info('Menghitung total poin semua pelanggan');
-
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan();
     } else {

@@ -35,7 +35,7 @@ class DompetPage extends ConsumerWidget {
           ),
           IconButton(
             icon: const Icon(TIcons.delete),
-            onPressed: () => _showDeleteAllDialog(context, ref),
+            onPressed: () => _tampilkanDialogSoftDeleteAll(context, ref),
             tooltip: 'Hapus Semua Dompet',
           ),
         ],
@@ -85,7 +85,7 @@ class DompetPage extends ConsumerWidget {
                       onTap: () =>
                           _navigasiKeDetailDompet(context, ref, dompet),
                       onLongPress: () =>
-                          _showArchiveOneDialog(context, ref, dompet),
+                          _tampilkanDialogSoftDelete(context, ref, dompet),
                     );
                   },
                 ),
@@ -123,7 +123,10 @@ class DompetPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _showDeleteAllDialog(BuildContext context, WidgetRef ref) async {
+  Future<void> _tampilkanDialogSoftDeleteAll(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     Log.info('Menampilkan dialog konfirmasi hapus semua dompet.');
     final daftarDompet = ref.read(dompetProvider).value?.daftarDompet ?? [];
     if (daftarDompet.isEmpty) {
@@ -145,34 +148,27 @@ class DompetPage extends ConsumerWidget {
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
             TextButton(
-              child: const Text('Hapus'),
-              onPressed: () {
+              child: const Text('Hapus Semua'),
+              onPressed: () async {
                 Navigator.of(dialogContext).pop();
-                unawaited(
-                  ref
-                      .read(dompetProvider.notifier)
-                      .softDeleteAll()
-                      .then((_) {
-                        if (context.mounted) {
-                          ToastUtil.success(
-                            context,
-                            'Semua dompet berhasil dihapus.',
-                          );
-                        }
-                      })
-                      .catchError((Object e, StackTrace s) {
-                        Log.error('Gagal menghapus semua dompet.', e: e, s: s);
-                        if (context.mounted) {
-                          ToastUtil.error(
-                            context,
-                            'Gagal menghapus dompet: $e',
-                          );
-                        }
-                      }),
-                );
-                ref
-                    .read(layananCekSinkronisasiProvider)
-                    .jalankanCekSinkronisasi();
+                try {
+                  await ref.read(dompetProvider.notifier).softDeleteAll();
+                  if (context.mounted) {
+                    ToastUtil.success(
+                      context,
+                      'Semua dompet berhasil dihapus.',
+                    );
+                  }
+                  unawaited(
+                    ref
+                        .read(layananCekSinkronisasiProvider)
+                        .jalankanCekSinkronisasi(),
+                  );
+                } on Exception catch (e) {
+                  if (context.mounted) {
+                    ToastUtil.error(context, 'Gagal menghapus dompet: $e');
+                  }
+                }
               },
             ),
           ],
@@ -181,7 +177,7 @@ class DompetPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _showArchiveOneDialog(
+  Future<void> _tampilkanDialogSoftDelete(
     BuildContext context,
     WidgetRef ref,
     DompetModel dompet,
@@ -190,9 +186,9 @@ class DompetPage extends ConsumerWidget {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Konfirmasi Arsip'),
+          title: const Text('Konfirmasi Hapus'),
           content: Text(
-            'Apakah Anda yakin ingin mengarsipkan dompet "${dompet.nama}"?',
+            'Apakah Anda yakin ingin menghapus dompet "${dompet.nama}"?',
           ),
           actions: <Widget>[
             TextButton(
@@ -200,28 +196,24 @@ class DompetPage extends ConsumerWidget {
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
             TextButton(
-              child: const Text('Arsipkan'),
-              onPressed: () {
+              child: const Text('Hapus'),
+              onPressed: () async {
                 Navigator.of(dialogContext).pop();
-                unawaited(
-                  ref
-                      .read(dompetProvider.notifier)
-                      .softDelete(dompet.id)
-                      .then((_) {
-                        if (context.mounted) {
-                          ToastUtil.success(
-                            context,
-                            'Dompet berhasil diarsipkan.',
-                          );
-                        }
-                      })
-                      .catchError((Object e, StackTrace st) {
-                        Log.error('Gagal mengarsipkan dompet.', e: e, s: st);
-                        if (context.mounted) {
-                          ToastUtil.error(context, 'Gagal mengarsipkan: $e');
-                        }
-                      }),
-                );
+                try {
+                  await ref.read(dompetProvider.notifier).softDelete(dompet.id);
+                  if (context.mounted) {
+                    ToastUtil.success(context, 'Dompet berhasil dihapus.');
+                  }
+                  unawaited(
+                    ref
+                        .read(layananCekSinkronisasiProvider)
+                        .jalankanCekSinkronisasi(),
+                  );
+                } on Exception catch (e) {
+                  if (context.mounted) {
+                    ToastUtil.error(context, 'Gagal menghapus: $e');
+                  }
+                }
               },
             ),
           ],
@@ -245,7 +237,6 @@ class WalletCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Log.info('WalletCard build: name=${dompet.nama} balance=${dompet.saldo}');
     final subtitleColor = dompet.saldo < 0
         ? context.colorScheme.error
         : context.textTheme.bodySmall?.color;
