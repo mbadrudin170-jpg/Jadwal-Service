@@ -65,6 +65,7 @@ class SettingsAdminPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Pengaturan Aplikasi')),
       body: settingsAsync.when(
+        skipLoadingOnReload: true,
         data: (settings) {
           Log.info('Data pengaturan tersedia, menampilkan detail.');
           return Padding(
