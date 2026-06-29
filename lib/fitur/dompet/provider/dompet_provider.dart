@@ -99,6 +99,11 @@ class Dompet extends _$Dompet {
   Future<void> refresh() async {
     state = await AsyncValue.guard(_loadData);
   }
+
+  void invalidateDompet() {
+    ref.invalidateSelf();
+    ref.invalidate(detailDompetProvider);
+  }
 }
 
 @riverpod

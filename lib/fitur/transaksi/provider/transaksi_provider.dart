@@ -90,35 +90,23 @@ class Transaksi extends _$Transaksi {
   }
 
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
-    state = await AsyncValue.guard(() async {
-      await _transaksiOp.tambahTransaksi(transaksi);
-      _invalidateSistemTerkait();
-      return _loadData();
-    });
+    await _transaksiOp.tambahTransaksi(transaksi);
+    _invalidateSistemTerkait();
   }
 
   Future<void> updateTransaksi(TransaksiModel transaksi) async {
-    state = await AsyncValue.guard(() async {
-      await _transaksiOp.perbaruiTransaksi(transaksi.id, transaksi);
-      _invalidateSistemTerkait();
-      return _loadData();
-    });
+    await _transaksiOp.perbaruiTransaksi(transaksi.id, transaksi);
+    _invalidateSistemTerkait();
   }
 
   Future<void> softDelete(String id) async {
-    state = await AsyncValue.guard(() async {
-      await _transaksiOp.softDelete(id);
-      _invalidateSistemTerkait();
-      return _loadData();
-    });
+    await _transaksiOp.softDelete(id);
+    _invalidateSistemTerkait();
   }
 
   Future<void> softDeleteAll() async {
-    state = await AsyncValue.guard(() async {
-      await _transaksiOp.softDeleteAll();
-      _invalidateSistemTerkait();
-      return _loadData();
-    });
+    await _transaksiOp.softDeleteAll();
+    _invalidateSistemTerkait();
   }
 
   Future<void> refresh() async {
@@ -147,7 +135,9 @@ class Transaksi extends _$Transaksi {
   }
 
   void _invalidateSistemTerkait() {
-    ref.invalidate(dompetProvider);
+    ref.invalidateSelf();
+    ref.read(dompetProvider.notifier).invalidateDompet();
+    ref.invalidate(riwayatTransaksiPelangganProvider);
   }
 }
 
