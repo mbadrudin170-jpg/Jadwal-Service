@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/event/model/event_model.dart';
@@ -75,31 +76,56 @@ class EventPageA extends ConsumerWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               itemCount: announcements.length,
               itemBuilder: (final context, final index) {
-                final announcement = announcements[index];
+                final event = announcements[index];
                 return Card(
                   margin: const EdgeInsets.only(bottom: TSizes.p16),
                   child: ListTile(
-                    leading: announcement.linkGambar.isNotEmpty
+                    leading: event.linkGambar.isNotEmpty
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(8.0),
-                            child: Image.network(
-                              announcement.linkGambar,
+                            child: CachedNetworkImage(
+                              imageUrl: event.linkGambar,
                               width: 60,
                               height: 60,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, e, st) {
+                              placeholder: (context, url) => Container(
+                                width: 60,
+                                height: 60,
+                                color: Colors.grey.shade200,
+                                child: const Center(
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) {
                                 Log.error(
-                                  'Gagal memuat gambar: ${announcement.linkGambar}',
-                                  e: e,
-                                  s: st,
+                                  'Gagal memuat gambar: ${event.linkGambar}',
+                                  e: error,
                                 );
-                                return const Icon(TIcons.error);
+                                return Container(
+                                  width: 60,
+                                  height: 60,
+                                  color: Colors.grey.shade200,
+                                  child: const Icon(
+                                    TIcons.error,
+                                    color: Colors.red,
+                                    size: 30,
+                                  ),
+                                );
                               },
+                              // 🔥 Cache lebih cepat
+                              fadeInDuration: const Duration(milliseconds: 200),
+                              fadeInCurve: Curves.easeOut,
                             ),
                           )
                         : null,
                     title: Text(
-                      'ID: ${announcement.id.length > 30 ? '${announcement.id.substring(0, 30)}...' : announcement.id}',
+                      'ID: ${event.id.length > 30 ? '${event.id.substring(0, 30)}...' : event.id}',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Column(
@@ -107,23 +133,23 @@ class EventPageA extends ConsumerWidget {
                       children: [
                         gapH8,
                         Text(
-                          'Dibuat: ${announcement.tanggalDibuat.toLocal().toString().split(' ')[0]}',
+                          'Dibuat: ${event.tanggalDibuat.toLocal().toString().split(' ')[0]}',
                         ),
                         gapH4,
                         Chip(
                           label: Text(
-                            announcement.statusAktif ? 'Aktif' : 'Tidak Aktif',
+                            event.statusAktif ? 'Aktif' : 'Tidak Aktif',
                           ),
                           avatar: Icon(
-                            announcement.statusAktif
+                            event.statusAktif
                                 ? TIcons.toggleOn
                                 : TIcons.toggleOff,
                             size: 18,
-                            color: announcement.statusAktif
+                            color: event.statusAktif
                                 ? Colors.green
                                 : Colors.grey,
                           ),
-                          backgroundColor: announcement.statusAktif
+                          backgroundColor: event.statusAktif
                               ? Colors.green.withValues(alpha: 0.08)
                               : Colors.grey.withValues(alpha: 0.08),
                           padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -132,14 +158,13 @@ class EventPageA extends ConsumerWidget {
                     ),
                     onTap: () {
                       Log.info('Menavigasi ke detail pengumuman.', {
-                        'id': announcement.id,
+                        'id': event.id,
                       });
                       unawaited(
                         Navigator.push(
                           context,
                           MaterialPageRoute<void>(
-                            builder: (context) =>
-                                DetailEventA(event: announcement),
+                            builder: (context) => DetailEventA(event: event),
                           ),
                         ),
                       );
