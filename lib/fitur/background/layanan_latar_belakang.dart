@@ -45,7 +45,7 @@ void callbackDispatcher() {
             final pelangganAktifOpSqlite = container.read(
               pelangganAktifOpSqliteProvider,
             );
-            await pelangganAktifOpSqlite.rescheduleAllNotifications();
+            await pelangganAktifOpSqlite.jadwalkanUlangSemuaNotifikasi();
             Log.info(
               'Background task "$tugas" (reschedule) selesai dengan sukses.',
             );

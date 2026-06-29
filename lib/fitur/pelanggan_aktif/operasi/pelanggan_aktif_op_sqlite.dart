@@ -39,7 +39,7 @@ class PelangganAktifOpSqlite {
     );
   }
 
-  Future<void> rescheduleAllNotifications() async {
+  Future<void> jadwalkanUlangSemuaNotifikasi() async {
     Log.info('MEMULAI PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI...');
     try {
       final List<PelangganAktifModel> pelangganAktif = await ambilSemua();
@@ -54,7 +54,7 @@ class PelangganAktifOpSqlite {
       );
 
       for (final pelangganAktif in pelangganAktif) {
-        await scheduleNotification(pelangganAktif);
+        await jadwalkanNotifikasi(pelangganAktif);
       }
 
       Log.info('PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI SELESAI.');
@@ -129,7 +129,7 @@ class PelangganAktifOpSqlite {
         );
       }, dariServer: fromServer);
 
-      await scheduleNotification(customerToSave);
+      await jadwalkanNotifikasi(customerToSave);
 
       return customerToSave;
     } on Exception catch (e, st) {
@@ -154,7 +154,7 @@ class PelangganAktifOpSqlite {
       Log.info('Berhasil mengambil ${maps.length} active customer');
       return List.generate(
         maps.length,
-        (final i) => PelangganAktifModel.fromSqlite(maps[i]),
+        (i) => PelangganAktifModel.fromSqlite(maps[i]),
       );
     } on Exception catch (e, st) {
       Log.error('Gagal mengambil semua active customer', e: e, s: st);
@@ -205,7 +205,7 @@ class PelangganAktifOpSqlite {
           whereArgs: [customerToSave.id],
         );
       }, dariServer: fromServer);
-      await scheduleNotification(customerToSave);
+      await jadwalkanNotifikasi(customerToSave);
       Log.info('Active customer ID: ${customerToSave.id} berhasil diperbarui');
       return customerToSave;
     } on Exception catch (e, st) {
@@ -218,7 +218,7 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<void> scheduleNotification(PelangganAktifModel pelangganAktif) async {
+  Future<void> jadwalkanNotifikasi(PelangganAktifModel pelangganAktif) async {
     try {
       Log.info(
         '(RE)SCHEDULING: Menjadwalkan notifikasi untuk active customer ID: ${pelangganAktif.id}',

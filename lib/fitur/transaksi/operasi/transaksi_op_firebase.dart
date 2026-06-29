@@ -312,14 +312,10 @@ class TransaksiOpFirebase extends BaseOpFirebase {
 
     try {
       final batch = firestore.batch();
-
       for (final transaksi in items) {
         final docRef = _koleksi.doc(transaksi.id);
         final data = transaksi.toFirebase();
-
-        // Tambahkan timestamp server untuk updated_at
         data[NamaKolom.diperbaruiPada] = FieldValue.serverTimestamp();
-
         batch.set(docRef, data, SetOptions(merge: true));
       }
 

@@ -173,7 +173,6 @@ class SqliteDatabase {
     );
 
     const String tableName = NamaTabel.transaksi;
-    // Mengambil informasi kolom yang ada saat ini di tabel transactions
     final results = await db.rawQuery('PRAGMA table_info("$tableName")');
     final existingColumns = results
         .map((row) => row['name'] as String)
@@ -595,7 +594,7 @@ class SqliteDatabase {
     Log.info('Semua 3 definisi index (v51) ditambahkan ke batch.');
   }
 
-  void _createAllTablesV47(final Batch batch) {
+  void _createAllTablesV47(Batch batch) {
     batch.execute(_tabelKategoriV47);
     batch.execute(_tabelSubKategoriV47);
     batch.execute(_tabelPaketV47);
