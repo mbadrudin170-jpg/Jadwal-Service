@@ -359,6 +359,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
       body: RefreshIndicator(
         onRefresh: refreshData,
         child: pelangganAktifAsync.when(
+          skipLoadingOnReload: true,
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) {
             Log.error('Error UI Pelanggan Aktif', e: error, s: stack);
