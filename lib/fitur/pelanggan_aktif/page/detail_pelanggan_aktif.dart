@@ -134,6 +134,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
       detailPleangganAktifProvider(widget.pelangganAktif.id),
     );
     return detailAsync.when(
+      skipLoadingOnReload: true,
       data: (data) => _buildScaffold(context, data),
       loading: () => const Scaffold(body: Center(child: Text(''))),
       error: (e, s) =>
@@ -155,7 +156,6 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
     final pelanggan = data.pelanggan;
     final paket = data.paket;
     final transaksi = data.transaksi;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(pelanggan?.nama ?? 'Detail Pelanggan'),
