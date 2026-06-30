@@ -1,5 +1,6 @@
 // path: lib/user/widget/ads/banner/banner_ads_widget.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -7,9 +8,7 @@ import 'package:wifi/user/widget/ads/banner/id_banner_ads.dart';
 
 /// Widget yang memuat satu unit iklan banner berdasarkan ID yang diberikan.
 class BannerAdsWidget extends StatefulWidget {
-  const BannerAdsWidget({
-    super.key,
-  });
+  const BannerAdsWidget({super.key});
   @override
   State<BannerAdsWidget> createState() => _BannerAdsWidgetState();
 }
@@ -59,8 +58,8 @@ class _BannerAdsWidgetState extends State<BannerAdsWidget> {
   }
 
   @override
-  Widget build(final BuildContext context) {
-    if (_bannerAd != null && _isAdLoaded) {
+  Widget build(BuildContext context) {
+    if (_bannerAd != null && _isAdLoaded && !kDebugMode) {
       return SafeArea(
         child: SizedBox(
           width: _bannerAd!.size.width.toDouble(),
