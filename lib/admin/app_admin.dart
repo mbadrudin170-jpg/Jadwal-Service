@@ -78,6 +78,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
     final notifikasiServis = ref.read(layananNotifikasiProvider);
     final koneksiInternetService = ref.read(koneksiInternetServiceProvider);
     final sqliteDb = ref.read(sqliteDatabaseProvider);
+
     try {
       // 1. Inisialisasi layanan latar belakang dan notifikasi
       await LayananLatarBelakang.inisialisasi();
@@ -106,39 +107,40 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
       // 4. Buka database dan arsipkan data kedaluwarsa
       await sqliteDb.database;
-      try {
-        final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
-        await pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
-      } catch (e) {
-        Log.error('gagal menghapus data yang status nya diarsipkan');
-      }
-
-      // 5. Jika online, jalankan unduhan awal & pembersihan data arsip
       final isOnline = await koneksiInternetService.cekInternet();
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
-        final unduhanAwalService = ref.read(layananUnduhanAwalProvider);
-        try {
-          await unduhanAwalService.jalankanUnduhanAwal().timeout(
-            const Duration(seconds: 30),
-          );
-          Log.info('Initial download berhasil diselesaikan.');
-        } catch (e) {
-          Log.warning(
-            'Initial download memakan waktu terlalu lama (timeout). Melanjutkan inisialisasi... $e',
-          );
-        }
-        final dataPengaturan = await ref
-            .read(settingsOpSqliteProvider)
-            .ambilSettings();
-        final waktuPenjadwalanHapusDataArsip =
-            dataPengaturan.waktuOtomatisHapusDataArsip;
-        final pembersihanDataOperasi = ref.read(pembersihanDataOperasiProvider);
-        await pembersihanDataOperasi
-            .hapusPermanentDataYangDiarsip(
+        unawaited(() async {
+          try {
+            final pelangganAktifOpSqlite = ref.read(
+              pelangganAktifOpSqliteProvider,
+            );
+            await pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
+            final unduhanAwalService = ref.read(layananUnduhanAwalProvider);
+            await unduhanAwalService.jalankanUnduhanAwal().timeout(
+              const Duration(seconds: 30),
+            );
+
+            final dataPengaturan = await ref
+                .read(settingsOpSqliteProvider)
+                .ambilSettings();
+            final waktuPenjadwalanHapusDataArsip =
+                dataPengaturan.waktuOtomatisHapusDataArsip;
+
+            final pembersihanDataOperasi = ref.read(
+              pembersihanDataOperasiProvider,
+            );
+            await pembersihanDataOperasi.hapusPermanentDataYangDiarsip(
               waktuPenjadwalanHapusDataArsip: waktuPenjadwalanHapusDataArsip,
-            )
-            .timeout(const Duration(seconds: 5));
+            );
+          } catch (e, s) {
+            Log.error(
+              'Gagal menjalankan proses sinkronisasi background',
+              e: e,
+              s: s,
+            );
+          }
+        }());
       } else {
         Log.warning(
           'Perangkat offline, melewati proses unduhan data awal dan pembersihan.',

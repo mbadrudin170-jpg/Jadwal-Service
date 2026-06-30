@@ -30,13 +30,9 @@ class PelangganAktifPage extends ConsumerStatefulWidget {
   ConsumerState<PelangganAktifPage> createState() => _PelangganAktifPageState();
 }
 
-class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
-    with AutomaticKeepAliveClientMixin<PelangganAktifPage> {
+class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
   bool _mencari = false;
   final TextEditingController _searchController = TextEditingController();
-
-  @override
-  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -314,7 +310,6 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     final pelangganAktifAsync = ref.watch(pelangganAktifProvider);
     return Scaffold(
       appBar: AppBar(
