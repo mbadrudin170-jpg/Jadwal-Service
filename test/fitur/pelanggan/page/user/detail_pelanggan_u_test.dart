@@ -47,7 +47,7 @@ void main() {
         transaksiOpFirebaseProvider.overrideWithValue(mockTransaksiOp),
         interstitialAdServiceProvider.overrideWithValue(mockInterstitialAd),
       ],
-      child: const MaterialApp(home: DetailPelangganU(userId: 'user123')),
+      child: const MaterialApp(home: DetailPelanggan(idPelanggan: 'user123')),
     );
   }
 
