@@ -1,40 +1,38 @@
-import 'dart:async';
-
+// file: lib/fitur/chating/chating.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/chating/model/chating_model.dart';
 
 class Chating extends ConsumerStatefulWidget {
-  const Chating({super.key});
+  final String idPercakapan;
+  final String namaLawanbicara;
+  final List<Pesan>? pesanAwal;
+  final String idPenggunaSaatIni; // ID pengguna yang sedang login
+
+  const Chating({
+    super.key,
+    required this.idPercakapan,
+    required this.namaLawanbicara,
+    this.pesanAwal,
+    this.idPenggunaSaatIni = 'u1', // sementara hardcode, nanti dari auth
+  });
 
   @override
   ConsumerState<Chating> createState() => _ChatingState();
 }
 
 class _ChatingState extends ConsumerState<Chating> {
-  final List<_Message> _pesan = [
-    _Message(
-      id: '1',
-      teks: 'Halo, ada yang bisa dibantu?',
-      dariSaya: false,
-      waktu: DateTime.now().subtract(const Duration(minutes: 5)),
-    ),
-    _Message(
-      id: '2',
-      teks: 'Saya mau tanya soal paket internet.',
-      dariSaya: true,
-      waktu: DateTime.now().subtract(const Duration(minutes: 4)),
-    ),
-    _Message(
-      id: '3',
-      teks: 'Silakan, sebutkan kendalanya.',
-      dariSaya: false,
-      waktu: DateTime.now().subtract(const Duration(minutes: 3)),
-    ),
-  ];
-
+  late final List<Pesan> _pesan;
   final TextEditingController _pengontrol = TextEditingController();
   final ScrollController _penggulir = ScrollController();
   bool _sedangMengirim = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // gunakan pesan awal jika ada, atau daftar kosong
+    _pesan = List<Pesan>.from(widget.pesanAwal ?? []);
+  }
 
   @override
   void dispose() {
@@ -43,43 +41,49 @@ class _ChatingState extends ConsumerState<Chating> {
     super.dispose();
   }
 
-  Future<void> _kirimPesan() async {
+  Future<void> _kirimPesan({bool popAfterSend = false}) async {
     final teks = _pengontrol.text.trim();
     if (teks.isEmpty) return;
+
+    final pesanBaru = Pesan(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      idPercakapan: widget.idPercakapan,
+      idPengirim: widget.idPenggunaSaatIni,
+      teks: teks,
+      dibuatPada: DateTime.now(),
+      status: StatusPesan.mengirim,
+    );
+
     setState(() {
       _sedangMengirim = true;
-      _pesan.add(
-        _Message(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          teks: teks,
-          dariSaya: true,
-          waktu: DateTime.now(),
-        ),
-      );
+      _pesan.add(pesanBaru);
       _pengontrol.clear();
     });
     _gulirKeBawah();
 
-    // Simulasi pengiriman ke server / balasan otomatis
+    // Simulasi pengiriman (ganti dengan backend call)
     await Future<void>.delayed(const Duration(milliseconds: 400));
+
+    // Perbarui status menjadi terkirim
     setState(() {
+      _pesan[_pesan.length - 1] = pesanBaru.copyWith(
+        status: StatusPesan.terkirim,
+      );
       _sedangMengirim = false;
     });
 
-    // Contoh balasan otomatis (hapus atau ganti dengan logika nyata)
-    Future.delayed(const Duration(milliseconds: 600), () {
-      setState(() {
-        _pesan.add(
-          _Message(
-            id: DateTime.now().millisecondsSinceEpoch.toString(),
-            teks: 'Terima kasih, kami akan cek dan segera merespon.',
-            dariSaya: false,
-            waktu: DateTime.now(),
-          ),
-        );
-      });
-      _gulirKeBawah();
-    });
+    if (popAfterSend) {
+      Navigator.pop(context, pesanBaru);
+    }
+  }
+
+  void _tutupDanKembalikanHasil() {
+    final hasil = {
+      'idPercakapan': widget.idPercakapan,
+      'jumlahPesan': _pesan.length,
+      'pesanTerakhir': _pesan.isNotEmpty ? _pesan.last : null,
+    };
+    Navigator.pop(context, hasil);
   }
 
   void _gulirKeBawah() {
@@ -93,74 +97,29 @@ class _ChatingState extends ConsumerState<Chating> {
     });
   }
 
-  Widget _bangunBubblePesan(_Message m) {
-    final alignment = m.dariSaya
-        ? CrossAxisAlignment.end
-        : CrossAxisAlignment.start;
-    final bgColor = m.dariSaya ? Colors.blue.shade600 : Colors.grey.shade200;
-    final textColor = m.dariSaya ? Colors.white : Colors.black87;
-    final radius = BorderRadius.only(
-      topLeft: const Radius.circular(12),
-      topRight: const Radius.circular(12),
-      bottomLeft: Radius.circular(m.dariSaya ? 12 : 0),
-      bottomRight: Radius.circular(m.dariSaya ? 0 : 12),
-    );
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      child: Column(
-        crossAxisAlignment: alignment,
-        children: [
-          ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.75,
-            ),
-            child: Container(
-              decoration: BoxDecoration(color: bgColor, borderRadius: radius),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              child: Text(
-                m.teks,
-                style: TextStyle(color: textColor, fontSize: 15),
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            _formatWaktu(m.waktu),
-            style: const TextStyle(fontSize: 11, color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatWaktu(DateTime t) {
-    final now = DateTime.now();
-    if (now.difference(t).inDays == 0) {
-      final hh = t.hour.toString().padLeft(2, '0');
-      final mm = t.minute.toString().padLeft(2, '0');
-      return '$hh:$mm';
-    } else {
-      return '${t.day}/${t.month}/${t.year}';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: _tutupDanKembalikanHasil,
+        ),
         title: Row(
-          children: const [
-            CircleAvatar(radius: 16, child: Icon(Icons.person, size: 18)),
-            SizedBox(width: 12),
+          children: [
+            const CircleAvatar(radius: 16, child: Icon(Icons.person, size: 18)),
+            const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Admin Support',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  widget.namaLawanbicara,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                Text(
+                const Text(
                   'Online',
                   style: TextStyle(fontSize: 12, color: Colors.white70),
                 ),
@@ -175,7 +134,6 @@ class _ChatingState extends ConsumerState<Chating> {
       body: SafeArea(
         child: Column(
           children: [
-            // Daftar pesan
             Expanded(
               child: ListView.builder(
                 controller: _penggulir,
@@ -183,17 +141,15 @@ class _ChatingState extends ConsumerState<Chating> {
                 itemCount: _pesan.length,
                 itemBuilder: (context, index) {
                   final m = _pesan[index];
+                  final isMine = m.dariSaya(widget.idPenggunaSaatIni);
                   return Align(
-                    alignment: m.dariSaya
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                    child: _bangunBubblePesan(m),
+                    alignment:
+                        isMine ? Alignment.centerRight : Alignment.centerLeft,
+                    child: _bangunBubblePesan(m, isMine),
                   );
                 },
               ),
             ),
-
-            // Area input
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               decoration: BoxDecoration(
@@ -211,7 +167,7 @@ class _ChatingState extends ConsumerState<Chating> {
                   IconButton(
                     icon: const Icon(Icons.add_circle_outline),
                     onPressed: () {
-                      // lampirkan file / foto
+                      // TODO: lampiran
                     },
                   ),
                   Expanded(
@@ -257,18 +213,55 @@ class _ChatingState extends ConsumerState<Chating> {
       ),
     );
   }
-}
 
-class _Message {
-  final String id;
-  final String teks;
-  final bool dariSaya;
-  final DateTime waktu;
+  Widget _bangunBubblePesan(Pesan m, bool isMine) {
+    final alignment = isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start;
+    final bgColor = isMine ? Colors.blue.shade600 : Colors.grey.shade200;
+    final textColor = isMine ? Colors.white : Colors.black87;
+    final radius = BorderRadius.only(
+      topLeft: const Radius.circular(12),
+      topRight: const Radius.circular(12),
+      bottomLeft: Radius.circular(isMine ? 12 : 0),
+      bottomRight: Radius.circular(isMine ? 0 : 12),
+    );
 
-  _Message({
-    required this.id,
-    required this.teks,
-    required this.dariSaya,
-    required this.waktu,
-  });
+    // Tampilkan teks dan mungkin lampiran (disederhanakan dulu)
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Column(
+        crossAxisAlignment: alignment,
+        children: [
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.75,
+            ),
+            child: Container(
+              decoration: BoxDecoration(color: bgColor, borderRadius: radius),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Text(
+                m.teks ?? '',
+                style: TextStyle(color: textColor, fontSize: 15),
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _formatWaktu(m.dibuatPada),
+            style: const TextStyle(fontSize: 11, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatWaktu(DateTime t) {
+    final now = DateTime.now();
+    if (now.difference(t).inDays == 0) {
+      final hh = t.hour.toString().padLeft(2, '0');
+      final mm = t.minute.toString().padLeft(2, '0');
+      return '$hh:$mm';
+    } else {
+      return '${t.day}/${t.month}/${t.year}';
+    }
+  }
 }

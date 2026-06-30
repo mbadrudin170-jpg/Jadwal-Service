@@ -1,36 +1,34 @@
+// path: lib/fitur/chating/chating_dashboard.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/chating/chating.dart';
+import 'package:wifi/fitur/chating/dummy_chatting.dart';
+import 'package:wifi/fitur/chating/model/chating_model.dart';
 
 class ChatingDashboard extends ConsumerWidget {
   const ChatingDashboard({super.key});
 
+  String _formatWaktu(DateTime t) {
+    final now = DateTime.now();
+    final diff = now.difference(t);
+    if (diff.inDays == 0) {
+      final hh = t.hour.toString().padLeft(2, '0');
+      final mm = t.minute.toString().padLeft(2, '0');
+      return '$hh:$mm';
+    } else if (diff.inDays == 1) {
+      return 'Kemarin';
+    } else if (diff.inDays < 7) {
+      return '${diff.inDays} hari lalu';
+    } else {
+      return '${t.day}/${t.month}/${t.year}';
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Contoh data sementara; ganti dengan provider atau sumber data nyata
-    final chats = <_ChatItem>[
-      _ChatItem(
-        id: '1',
-        name: 'Budi',
-        lastMessage: 'Halo, ada promo?',
-        time: '09:12',
-        unread: 2,
-      ),
-      _ChatItem(
-        id: '2',
-        name: 'Siti',
-        lastMessage: 'Terima kasih',
-        time: '08:45',
-        unread: 0,
-      ),
-      _ChatItem(
-        id: '3',
-        name: 'Admin',
-        lastMessage: 'Pembayaran diterima',
-        time: 'Kemarin',
-        unread: 1,
-      ),
-    ];
+    // Gunakan dummy conversations dari dummy_chatting.dart
+    const chats = sampleConversations;
 
     return Scaffold(
       appBar: AppBar(
@@ -63,9 +61,24 @@ class ChatingDashboard extends ConsumerWidget {
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: chats.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
+              separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (context, index) {
-                final item = chats[index];
+                final conv = chats[index];
+                // Ambil pesan dummy untuk percakapan ini
+                final msgs = sampleMessagesForConversation(conv.id);
+                final lastMsg = msgs.isNotEmpty ? msgs.last : null;
+
+                // Pratinjau: gunakan pratinjau dari percakapan atau teks pesan terakhir
+                final preview =
+                    conv.pratinjauPesanTerakhir ?? lastMsg?.teks ?? '-';
+
+                // Waktu: gunakan waktuPesanTerakhir atau dibuatPada dari pesan terakhir
+                final waktu = conv.waktuPesanTerakhir ?? lastMsg?.dibuatPada;
+                final waktuTampil = waktu != null ? _formatWaktu(waktu) : '';
+
+                // Judul: gunakan tampilkanJudul getter
+                final judul = conv.tampilkanJudul;
+
                 return ListTile(
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -74,15 +87,15 @@ class ChatingDashboard extends ConsumerWidget {
                   leading: CircleAvatar(
                     radius: 24,
                     child: Text(
-                      item.name.isNotEmpty ? item.name[0].toUpperCase() : '?',
+                      judul.isNotEmpty ? judul[0].toUpperCase() : '?',
                     ),
                   ),
                   title: Text(
-                    item.name,
+                    judul,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   subtitle: Text(
-                    item.lastMessage,
+                    preview,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -90,14 +103,14 @@ class ChatingDashboard extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        item.time,
+                        waktuTampil,
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.grey,
                         ),
                       ),
                       const SizedBox(height: 6),
-                      if (item.unread > 0)
+                      if (conv.jumlahBelumDibaca > 0)
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -108,7 +121,7 @@ class ChatingDashboard extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            item.unread.toString(),
+                            conv.jumlahBelumDibaca.toString(),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -118,9 +131,18 @@ class ChatingDashboard extends ConsumerWidget {
                     ],
                   ),
                   onTap: () {
+                    // Konversi Pesan dari dummy ke data yang bisa dipakai Chating
+                    final pesanAwal =
+                        msgs; // sampleMessagesForConversation sudah List<Pesan>
                     Navigator.push(
                       context,
-                      MaterialPageRoute<void>(builder: (context) => Chating()),
+                      MaterialPageRoute<void>(
+                        builder: (context) => Chating(
+                          idPercakapan: conv.id,
+                          namaLawanbicara: judul,
+                          pesanAwal: pesanAwal,
+                        ),
+                      ),
                     );
                   },
                 );
@@ -165,25 +187,9 @@ class ChatingDashboard extends ConsumerWidget {
   }
 }
 
-class _ChatItem {
-  final String id;
-  final String name;
-  final String lastMessage;
-  final String time;
-  final int unread;
-
-  const _ChatItem({
-    required this.id,
-    required this.name,
-    required this.lastMessage,
-    required this.time,
-    required this.unread,
-  });
-}
-
 class _ChatSearchDelegate extends SearchDelegate<String> {
-  final List<_ChatItem> chats;
-  _ChatSearchDelegate(this.chats);
+  final List<Percakapan> conversations;
+  _ChatSearchDelegate(List<Percakapan> chats) : conversations = chats;
 
   @override
   String get searchFieldLabel => 'Cari nama atau pesan';
@@ -206,10 +212,14 @@ class _ChatSearchDelegate extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    final results = chats.where((c) {
+    final results = conversations.where((c) {
       final q = query.toLowerCase();
-      return c.name.toLowerCase().contains(q) ||
-          c.lastMessage.toLowerCase().contains(q);
+      final judul = c.tampilkanJudul.toLowerCase();
+      final msgs = sampleMessagesForConversation(c.id);
+      final preview =
+          c.pratinjauPesanTerakhir ??
+          (msgs.isNotEmpty ? msgs.last.teks ?? '' : '');
+      return judul.contains(q) || preview.toLowerCase().contains(q);
     }).toList();
 
     if (results.isEmpty) {
@@ -218,20 +228,32 @@ class _ChatSearchDelegate extends SearchDelegate<String> {
 
     return ListView.separated(
       itemCount: results.length,
-      separatorBuilder: (_, _) => const Divider(height: 1),
+      separatorBuilder: (_, __) => const Divider(height: 1),
       itemBuilder: (context, index) {
-        final item = results[index];
+        final conv = results[index];
+        final judul = conv.tampilkanJudul;
+        final msgs = sampleMessagesForConversation(conv.id);
+        final preview =
+            conv.pratinjauPesanTerakhir ??
+            (msgs.isNotEmpty ? msgs.last.teks ?? '' : '');
         return ListTile(
-          leading: CircleAvatar(child: Text(item.name[0].toUpperCase())),
-          title: Text(item.name),
-          subtitle: Text(
-            item.lastMessage,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          leading: CircleAvatar(
+            child: Text(judul.isNotEmpty ? judul[0].toUpperCase() : '?'),
           ),
+          title: Text(judul),
+          subtitle: Text(preview, maxLines: 1, overflow: TextOverflow.ellipsis),
           onTap: () {
-            // buka chat detail
-            close(context, item.id);
+            close(context, conv.id);
+            Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => Chating(
+                  idPercakapan: conv.id,
+                  namaLawanbicara: judul,
+                  pesanAwal: msgs,
+                ),
+              ),
+            );
           },
         );
       },
@@ -241,27 +263,34 @@ class _ChatSearchDelegate extends SearchDelegate<String> {
   @override
   Widget buildSuggestions(BuildContext context) {
     final suggestions = query.isEmpty
-        ? chats
-        : chats.where((c) {
+        ? conversations
+        : conversations.where((c) {
             final q = query.toLowerCase();
-            return c.name.toLowerCase().contains(q) ||
-                c.lastMessage.toLowerCase().contains(q);
+            final judul = c.tampilkanJudul.toLowerCase();
+            final msgs = sampleMessagesForConversation(c.id);
+            final preview =
+                c.pratinjauPesanTerakhir ??
+                (msgs.isNotEmpty ? msgs.last.teks ?? '' : '');
+            return judul.contains(q) || preview.toLowerCase().contains(q);
           }).toList();
 
     return ListView.builder(
       itemCount: suggestions.length,
       itemBuilder: (context, index) {
-        final item = suggestions[index];
+        final conv = suggestions[index];
+        final judul = conv.tampilkanJudul;
+        final msgs = sampleMessagesForConversation(conv.id);
+        final preview =
+            conv.pratinjauPesanTerakhir ??
+            (msgs.isNotEmpty ? msgs.last.teks ?? '' : '');
         return ListTile(
-          leading: CircleAvatar(child: Text(item.name[0].toUpperCase())),
-          title: Text(item.name),
-          subtitle: Text(
-            item.lastMessage,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          leading: CircleAvatar(
+            child: Text(judul.isNotEmpty ? judul[0].toUpperCase() : '?'),
           ),
+          title: Text(judul),
+          subtitle: Text(preview, maxLines: 1, overflow: TextOverflow.ellipsis),
           onTap: () {
-            query = item.name;
+            query = judul;
             showResults(context);
           },
         );
