@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -71,25 +72,58 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       Log.info('Memulai inisialisasi dari Splash Screen...');
       await _inisialisasiLayananOffline();
       _terhubung = await ref.read(koneksiInternetServiceProvider).cekInternet();
-      if (_terhubung == true) {
-        final eventInfo = await _cekEvent();
-        if (eventInfo != null) {
-          if (mounted) {
-            Log.info('menuju ke halaman event');
-            await Navigator.of(context).push<void>(
-              MaterialPageRoute(
-                builder: (context) => EventPageU(event: eventInfo),
-              ),
-            );
-          }
-        }
-        await _continueInitialization();
-      } else {
+      if (_terhubung == false) {
         if (mounted) {
           ToastUtil.info(context, 'Anda sedang offline.');
         }
+        FlutterNativeSplash.remove();
         await _navigasiKeHalamanBerikutnya();
+        return;
       }
+      final hasilInisialisasi = await Future.wait([
+        _periksaModePemeliharaan(),
+        _periksaPembaruanAplikasi(),
+        _cekEvent(),
+      ]);
+      final pengaturanPemeliharaan = hasilInisialisasi[0] as SettingsModel?;
+      final infoPembaruan = hasilInisialisasi[1] as InfoPembaruanRecord?;
+      final eventInfo = hasilInisialisasi[2] as EventModel?;
+      if (!mounted) return;
+
+      if (eventInfo != null) {
+        Log.info('Menuju ke halaman event');
+        // Gunakan await agar ketika halaman event di-back, aplikasi lanjut ke baris berikutnya
+        await Navigator.of(context).push<void>(
+          MaterialPageRoute(builder: (context) => EventPageU(event: eventInfo)),
+        );
+      }
+      if (!mounted) return;
+      
+      if (pengaturanPemeliharaan != null) {
+        await Navigator.of(context).pushReplacement(
+          MaterialPageRoute<void>(
+            builder: (context) => MaintenancePage(
+              infoMaintenance: pengaturanPemeliharaan.infoMaintenance,
+              onRefresh: _inisialisasiAplikasi,
+              onExit: SystemNavigator.pop,
+            ),
+          ),
+        );
+        return;
+      }
+      if (infoPembaruan != null) {
+        await Navigator.of(context).pushReplacement(
+          MaterialPageRoute<void>(
+            builder: (context) => UpdateApkPage(
+              infoApk: infoPembaruan.apkInfo!,
+              infoPaket: infoPembaruan.packageInfo!,
+              arsitektur: infoPembaruan.architecture!,
+            ),
+          ),
+        );
+        return;
+      }
+      await _navigasiKeHalamanBerikutnya();
     } catch (e, st) {
       Log.error('Error kritis saat inisialisasi', e: e, s: st);
       if (mounted) {
