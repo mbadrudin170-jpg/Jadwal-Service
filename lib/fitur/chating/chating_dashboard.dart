@@ -61,7 +61,7 @@ class ChatingDashboard extends ConsumerWidget {
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: chats.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
+              separatorBuilder: (_, _) => const Divider(height: 1),
               itemBuilder: (context, index) {
                 final conv = chats[index];
                 // Ambil pesan dummy untuk percakapan ini
@@ -228,7 +228,7 @@ class _ChatSearchDelegate extends SearchDelegate<String> {
 
     return ListView.separated(
       itemCount: results.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
+      separatorBuilder: (_, _) => const Divider(height: 1),
       itemBuilder: (context, index) {
         final conv = results[index];
         final judul = conv.tampilkanJudul;

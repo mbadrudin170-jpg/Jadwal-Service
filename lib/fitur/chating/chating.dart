@@ -73,6 +73,7 @@ class _ChatingState extends ConsumerState<Chating> {
     });
 
     if (popAfterSend) {
+      if(mounted)
       Navigator.pop(context, pesanBaru);
     }
   }
@@ -156,7 +157,7 @@ class _ChatingState extends ConsumerState<Chating> {
                 color: Theme.of(context).scaffoldBackgroundColor,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withAlpha(20),
                     blurRadius: 6,
                     offset: const Offset(0, -2),
                   ),
