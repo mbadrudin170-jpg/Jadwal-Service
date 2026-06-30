@@ -13,6 +13,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
     Log.info('TransactionOpFirebase diinisialisasi.');
   }
   CollectionReference get _koleksi => firestore.collection(NamaTabel.transaksi);
+
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     Log.info('Menambahkan transaksi baru: ${transaksi.id}');
     try {
@@ -20,6 +21,30 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       Log.info('Berhasil menambahkan transaksi: ${transaksi.id}');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal menambahkan transaksi: ${transaksi.id}', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Memperbarui seluruh data transaksi (merge) berdasarkan objek TransaksiModel.
+  /// Jika Anda ingin hanya memperbarui beberapa field, gunakan updateTransaksiFields.
+  Future<void> perbaruiTransaksi(TransaksiModel transaksi) async {
+    Log.info('Memulai update transaksi di Firestore: ${transaksi.id}');
+    try {
+      final docRef = _koleksi.doc(transaksi.id);
+      final data = transaksi.toFirebase();
+      // set merge agar tidak menimpa seluruh dokumen jika ada field server-side lain
+      data[NamaKolom.diperbaruiPada] = FieldValue.serverTimestamp();
+      await docRef.set(data, SetOptions(merge: true));
+      Log.info('Update transaksi berhasil: ${transaksi.id}');
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal mengupdate transaksi: ${transaksi.id}', e: e, s: s);
+      rethrow;
+    } on Exception catch (e, s) {
+      Log.error(
+        'Error umum saat mengupdate transaksi: ${transaksi.id}',
+        e: e,
+        s: s,
+      );
       rethrow;
     }
   }

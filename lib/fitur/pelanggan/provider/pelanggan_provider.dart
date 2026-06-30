@@ -2,11 +2,9 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
-import 'package:wifi/shared/export/operation.dart';
 
 part 'pelanggan_provider.g.dart';
 part 'pelanggan_provider.freezed.dart';
@@ -22,12 +20,8 @@ abstract class PelangganState with _$PelangganState {
 
 @Riverpod(keepAlive: true)
 class Pelanggan extends _$Pelanggan {
-  PelangganOpSqlite get _pelangganOpSqlite =>
-      ref.read(pelangganOpSqliteProvider);
   PelangganOpGlobal get _pelangganOp => ref.read(pelangganOpGlobalProvider);
-
-  TransaksiOpSqlite get _transaksiOpSqlite =>
-      ref.read(transaksiOpSqliteProvider);
+  TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
 
   @override
   FutureOr<PelangganState> build() {
@@ -35,9 +29,9 @@ class Pelanggan extends _$Pelanggan {
   }
 
   Future<PelangganState> _ambilData() async {
-    final hasil = await _pelangganOpSqlite.ambilSemua();
+    final hasil = await _pelangganOp.ambilSemua();
     final hitungPoinFutures = hasil.map(
-      (pelanggan) => _transaksiOpSqlite.ambilTotalPoin(pelanggan.id),
+      (pelanggan) => _transaksiOp.ambilTotalPoin(pelanggan.id),
     );
     final daftarPoin = await Future.wait(hitungPoinFutures);
     final totalPoinSistem = daftarPoin.fold<int>(0, (sum, poin) => sum + poin);
@@ -48,38 +42,7 @@ class Pelanggan extends _$Pelanggan {
     );
   }
 
-  Future<void> tambahPelanggan(PelangganModel pelanggan) async {
-    try {
-      await _pelangganOpSqlite.tambahPelanggan(pelanggan);
-      ref.invalidateSelf();
-    } catch (e, s) {
-      state = AsyncValue.error(e, s);
-      rethrow;
-    }
-  }
-
-  Future<void> updatePelanggan(PelangganModel pelanggan) async {
-    try {
-      await _pelangganOp.updatePelanggan(pelanggan);
-      _invalidateDetailPelanggan(pelanggan.id);
-    } catch (e, s) {
-      state = AsyncValue.error(e, s);
-      rethrow;
-    }
-  }
-
-  Future<void> softDelete(String id) async {
-    try {
-      await _pelangganOpSqlite.softDelete(id);
-      ref.invalidateSelf();
-      _invalidateDetailPelanggan(id);
-    } catch (e, s) {
-      state = AsyncValue.error(e, s);
-      rethrow;
-    }
-  }
-
-  void _invalidateDetailPelanggan(String? idPelanggan) {
+  void invalidateDetailPelanggan(String? idPelanggan) {
     ref.invalidateSelf();
     if (idPelanggan != null) {
       ref.invalidate(pelangganDetailProvider(idPelanggan));

@@ -112,7 +112,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
           idPelangganAktif,
           idTransaksi,
         );
-        ref.read(transaksiProvider.notifier).invalidateSistemTerkait();
+        ref.read(transaksiProvider.notifier).invalidateProviderTransaksi();
         Log.info('Berhasil soft delete pelanggan ID: $idPelangganAktif');
         if (mounted) {
           ToastUtil.success(

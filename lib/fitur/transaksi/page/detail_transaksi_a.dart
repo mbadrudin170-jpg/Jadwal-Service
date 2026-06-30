@@ -14,7 +14,6 @@ import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -89,32 +88,28 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
         builder: (context) => FormTransaksi(transaksi: _currentTransaction),
       ),
     );
-      try {
-        final transaksiOpSqlite = ref.read(transaksiOpGlobalProvider);
-        final transaksi = await transaksiOpSqlite.ambilBerdasarkanId(
-          _currentTransaction.id,
+    try {
+      final transaksiOpSqlite = ref.read(transaksiOpGlobalProvider);
+      final transaksi = await transaksiOpSqlite.ambilBerdasarkanId(
+        _currentTransaction.id,
+      );
+      if (transaksi != null) {
+        Log.info('Berhasil memuat data transaksi terbaru. Memperbarui UI.');
+        setState(() {
+          _currentTransaction = transaksi;
+        });
+      } else {
+        Log.warning(
+          'Gagal memuat ulang transaksi: data tidak ditemukan setelah update.',
         );
-        if (transaksi != null) {
-          Log.info('Berhasil memuat data transaksi terbaru. Memperbarui UI.');
-          setState(() {
-            _currentTransaction = transaksi;
-          });
-        } else {
-          Log.warning(
-            'Gagal memuat ulang transaksi: data tidak ditemukan setelah update.',
-          );
-          if (mounted) Navigator.pop(context);
-        }
-      } catch (e, s) {
-        Log.error(
-          'Gagal memuat ulang data transaksi setelah edit.',
-          e: e,
-          s: s,
-        );
-        if (mounted) {
-          ToastUtil.error(context, 'Gagal memuat data terbaru.');
-        }
+        if (mounted) Navigator.pop(context);
       }
+    } catch (e, s) {
+      Log.error('Gagal memuat ulang data transaksi setelah edit.', e: e, s: s);
+      if (mounted) {
+        ToastUtil.error(context, 'Gagal memuat data terbaru.');
+      }
+    }
   }
 
   Future<void> _softDeleteTransaksi() async {
@@ -161,7 +156,7 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
     );
     try {
       await ref
-          .read(transaksiProvider.notifier)
+          .read(transaksiOpGlobalProvider)
           .softDelete(_currentTransaction.id);
       unawaited(
         ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),

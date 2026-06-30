@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/helper/pengurut_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
@@ -147,7 +148,7 @@ Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
 
   if ((konfirmasi ?? false) && context.mounted) {
     try {
-      await ref.read(transaksiProvider.notifier).softDeleteAll();
+      await ref.read(transaksiOpGlobalProvider).softDeleteAll();
       if (context.mounted) {
         ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
       }
@@ -272,7 +273,7 @@ class _TransactionListViewState extends ConsumerState<_TransactionListView> {
                 onEdit: () =>
                     _navigasiKeFormTransaksi(context, transaksi: transaksi),
                 onDelete: () => ref
-                    .read(transaksiProvider.notifier)
+                    .read(transaksiOpGlobalProvider)
                     .softDelete(transaksi.id),
               ),
             ),

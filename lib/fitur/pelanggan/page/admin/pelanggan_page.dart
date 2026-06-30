@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/helper/pengurut_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
@@ -292,7 +293,7 @@ class _PelangganState extends ConsumerState<PelangganPage> {
 
   Future<void> _softdelete(String id) async {
     try {
-      await ref.read(pelangganProvider.notifier).softDelete(id);
+      await ref.read(pelangganOpGlobalProvider).softDelete(id);
       if (!mounted) return;
       ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
     } on Exception catch (e, s) {

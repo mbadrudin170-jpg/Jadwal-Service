@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -93,7 +93,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         return;
       }
     }
-    final pelangganOp = ref.read(pelangganProvider.notifier);
+    final pelangganOp = ref.read(pelangganOpGlobalProvider);
     Log.info('Tombol "Simpan" ditekan.');
     if (!_formKey.currentState!.validate()) {
       Log.warning('Form tidak valid. Proses penyimpanan dibatalkan.');

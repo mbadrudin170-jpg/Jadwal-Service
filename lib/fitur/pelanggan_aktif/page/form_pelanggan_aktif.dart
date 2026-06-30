@@ -22,7 +22,6 @@ import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -271,7 +270,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
     final notifikasiOpSqlite = ref.read(notifikasiOpSqliteProvider);
     final pelangganAktif = ref.read(pelangganAktifProvider.notifier);
-    final transaksiOp = ref.read(transaksiProvider.notifier);
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
 
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Validasi form gagal');
@@ -361,7 +360,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       );
       if (_modeEdit) {
         await pelangganAktif.updatePelangganAktif(pelangganAktifData);
-        await transaksiOp.updateTransaksi(transaksiData);
+        await transaksiOp.perbaruiTransaksi(transaksiData);
         await notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi);
         Log.info(
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',

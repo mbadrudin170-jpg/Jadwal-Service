@@ -7,9 +7,9 @@ import 'package:wifi/fitur/dompet/page/form_dompet.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/fitur/transaksi/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -109,7 +109,6 @@ class DetailDompet extends ConsumerWidget {
     List<TransaksiModel> daftarTransaksi,
   ) {
     final transaksiPerTanggal = kelompokkanTransaksiPerTanggal(daftarTransaksi);
-    final transaksi = ref.read(transaksiProvider.notifier);
     return ListView.builder(
       itemCount: transaksiPerTanggal.length,
       itemBuilder: (context, index) {
@@ -137,7 +136,7 @@ class DetailDompet extends ConsumerWidget {
                 },
                 onDelete: () async {
                   Log.info('Hapus transaksi: ${transaction.id}');
-                  await transaksi.softDelete(transaction.id);
+                  await ref.read(transaksiOpGlobalProvider).softDelete(transaction.id);
                   ref.invalidate(detailDompetProvider(dompet.id));
                 },
               ),

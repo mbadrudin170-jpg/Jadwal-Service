@@ -10,8 +10,8 @@ import 'package:wifi/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_prov
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -140,7 +140,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
           TextButton(
             onPressed: () async {
               await ref
-                  .read(transaksiProvider.notifier)
+                  .read(transaksiOpGlobalProvider)
                   .softDelete(transaksi.id);
               unawaited(
                 ref

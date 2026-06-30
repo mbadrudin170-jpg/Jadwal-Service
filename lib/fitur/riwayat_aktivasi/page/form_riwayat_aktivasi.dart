@@ -8,7 +8,7 @@ import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -105,7 +105,7 @@ class _FormRiwayatAktivasiState extends ConsumerState<FormRiwayatAktivasi> {
     }
     if (!mounted) return;
     Log.info('Menyimpan perubahan untuk transaksi ID: ${widget.transaksi.id}');
-    final transaksiOpSqlite = ref.read(transaksiProvider.notifier);
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
     final layananNotifikasi = ref.read(layananNotifikasiProvider);
 
     try {
@@ -115,7 +115,7 @@ class _FormRiwayatAktivasiState extends ConsumerState<FormRiwayatAktivasi> {
         statusPembayaran: _statusPembayaran,
         diperbaruiPada: DateTime.now(),
       );
-      await transaksiOpSqlite.updateTransaksi(updateTransaksi);
+      await transaksiOp.perbaruiTransaksi(updateTransaksi);
       Log.info('Transaksi berhasil diperbarui di database.');
       await _handleExpiryNotification(
         layananNotifikasi: layananNotifikasi,

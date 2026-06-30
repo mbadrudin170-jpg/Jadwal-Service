@@ -161,17 +161,16 @@ class TransaksiOpSqlite {
 
   /// Memperbarui data transaksi yang ada dan menghitung ulang saldo dompet yang terpengaruh.
   Future<void> perbaruiTransaksi(
-    String id,
     TransaksiModel transaksi, {
     bool dariServer = false,
   }) async {
     try {
       await baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
-        Log.info('Memulai update transaksi database ID: $id');
+        Log.info('Memulai update transaksi database ID: $transaksi.id');
         final maps = await txn.query(
           _tabelTransaksi,
           where: '${NamaKolom.id} = ?',
-          whereArgs: [id],
+          whereArgs: [transaksi.id],
         );
 
         if (maps.isNotEmpty) {
@@ -181,7 +180,7 @@ class TransaksiOpSqlite {
             _tabelTransaksi,
             updateData.toSqlite(),
             where: '${NamaKolom.id} = ?',
-            whereArgs: [id],
+            whereArgs: [transaksi.id],
           );
           Log.info('Data transaksi $transaksiLama ke  $updateData diperbarui');
           final dompetTerpengaruh = <String>{};
@@ -201,12 +200,14 @@ class TransaksiOpSqlite {
             await _hitungUlangDanPerbaruiSaldoDompet(idDompet, txn);
           }
         } else {
-          Log.warning('Update gagal: Transaksi ID $id tidak ditemukan');
+          Log.warning(
+            'Update gagal: Transaksi ID $transaksi.id tidak ditemukan',
+          );
         }
       }, dariServer: dariServer);
-      Log.info('Proses updateTransaction ID: $id selesai');
+      Log.info('Proses updateTransaction ID: $transaksi.id selesai');
     } on Exception catch (e, st) {
-      Log.error('Gagal update transaksi ID: $id', e: e, s: st);
+      Log.error('Gagal update transaksi ID: $transaksi.id', e: e, s: st);
       rethrow;
     }
   }

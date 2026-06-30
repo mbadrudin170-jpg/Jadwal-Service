@@ -3,6 +3,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
@@ -22,7 +23,8 @@ class TransaksiOpGlobal {
       ref.read(transaksiOpFirebaseProvider);
 
   void _invalidate() {
-    ref.read(transaksiProvider.notifier).invalidateSistemTerkait();
+    ref.read(transaksiProvider.notifier).invalidateProviderTransaksi();
+    ref.read(dompetProvider.notifier).invalidateDompetProvider();
   }
 
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
@@ -32,6 +34,72 @@ class TransaksiOpGlobal {
     } else {
       await _transaksiOpFirebase.tambahTransaksi(transaksi);
     }
+    _invalidate();
+  }
+
+  Future<void> perbaruiTransaksi(
+    TransaksiModel transaksi, {
+    bool dariServer = false,
+  }) async {
+    if (RoleUtil.isAdmin(ref)) {
+      await _transaksiOpSqlite.perbaruiTransaksi(
+        transaksi,
+        dariServer: dariServer,
+      );
+    } else {
+      await _transaksiOpFirebase.perbaruiTransaksi(transaksi);
+    }
+    _invalidate();
+  }
+
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
+    Log.info('Menghapus transaksi ID: $id');
+    if (RoleUtil.isAdmin(ref)) {
+      await _transaksiOpSqlite.softDelete(id, dariServer: dariServer);
+    } else {
+      await _transaksiOpFirebase.softDeleteTransaksi(id);
+    }
+    _invalidate();
+  }
+
+  Future<void> softDeleteAll({bool dariServer = false}) async {
+    Log.info('Menghapus semua transaksi');
+    if (RoleUtil.isAdmin(ref)) {
+      await _transaksiOpSqlite.softDeleteAll(dariServer: dariServer);
+    } else {
+      final userId = await ref.read(userIdProvider.future);
+      if (userId == null || userId.isEmpty) {
+        Log.warning('User ID tidak ditemukan, tidak ada yang dihapus');
+        return;
+      }
+      final transaksi = await _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(
+        userId,
+      );
+      for (final t in transaksi) {
+        await _transaksiOpFirebase.softDeleteTransaksi(t.id);
+      }
+    }
+    _invalidate();
+  }
+
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<TransaksiModel> items, {
+    bool dariServer = false,
+  }) async {
+    if (items.isEmpty) {
+      Log.info('Batch transaksi: daftar kosong, operasi dibatalkan.');
+      return;
+    }
+    Log.info('Memulai batch insert/update untuk ${items.length} transaksi');
+    if (RoleUtil.isAdmin(ref)) {
+      await _transaksiOpSqlite.sisipkanAtauPerbaruiBatch(
+        items,
+        dariServer: dariServer,
+      );
+    } else {
+      await _transaksiOpFirebase.sisipkanAtauPerbaruiBatch(items);
+    }
+    _invalidate();
   }
 
   Future<List<TransaksiModel>> ambilSemua() async {
@@ -213,71 +281,6 @@ class TransaksiOpGlobal {
       return await _transaksiOpSqlite.ambilPendapatanBulanan();
     } else {
       return [];
-    }
-  }
-
-  Future<void> perbaruiTransaksi(
-    String id,
-    TransaksiModel transaksi, {
-    bool dariServer = false,
-  }) async {
-    Log.info('Memperbarui transaksi ID: $id');
-    if (RoleUtil.isAdmin(ref)) {
-      await _transaksiOpSqlite.perbaruiTransaksi(
-        id,
-        transaksi,
-        dariServer: dariServer,
-      );
-    } else {
-      await _transaksiOpFirebase.softDeleteTransaksi(id);
-    }
-  }
-
-  Future<void> softDelete(String id, {bool dariServer = false}) async {
-    Log.info('Menghapus transaksi ID: $id');
-    if (RoleUtil.isAdmin(ref)) {
-      await _transaksiOpSqlite.softDelete(id, dariServer: dariServer);
-    } else {
-      await _transaksiOpFirebase.softDeleteTransaksi(id);
-    }
-  }
-
-  Future<int> softDeleteAll({bool dariServer = false}) async {
-    Log.info('Menghapus semua transaksi');
-    if (RoleUtil.isAdmin(ref)) {
-      return await _transaksiOpSqlite.softDeleteAll(dariServer: dariServer);
-    } else {
-      final userId = await ref.read(userIdProvider.future);
-      if (userId == null || userId.isEmpty) {
-        Log.warning('User ID tidak ditemukan, tidak ada yang dihapus');
-        return 0;
-      }
-      final transaksi = await _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(
-        userId,
-      );
-      for (final t in transaksi) {
-        await _transaksiOpFirebase.softDeleteTransaksi(t.id);
-      }
-      return transaksi.length;
-    }
-  }
-
-  Future<void> sisipkanAtauPerbaruiBatch(
-    List<TransaksiModel> items, {
-    bool dariServer = false,
-  }) async {
-    if (items.isEmpty) {
-      Log.info('Batch transaksi: daftar kosong, operasi dibatalkan.');
-      return;
-    }
-    Log.info('Memulai batch insert/update untuk ${items.length} transaksi');
-    if (RoleUtil.isAdmin(ref)) {
-      await _transaksiOpSqlite.sisipkanAtauPerbaruiBatch(
-        items,
-        dariServer: dariServer,
-      );
-    } else {
-      await _transaksiOpFirebase.sisipkanAtauPerbaruiBatch(items);
     }
   }
 

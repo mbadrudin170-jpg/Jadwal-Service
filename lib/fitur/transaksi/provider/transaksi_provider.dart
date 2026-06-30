@@ -89,25 +89,25 @@ class Transaksi extends _$Transaksi {
     return await Future.wait(futures);
   }
 
-  Future<void> tambahTransaksi(TransaksiModel transaksi) async {
-    await _transaksiOp.tambahTransaksi(transaksi);
-    invalidateSistemTerkait();
-  }
+  // Future<void> tambahTransaksi(TransaksiModel transaksi) async {
+  //   await _transaksiOp.tambahTransaksi(transaksi);
+  //   invalidateProviderTransaksi();
+  // }
 
-  Future<void> updateTransaksi(TransaksiModel transaksi) async {
-    await _transaksiOp.perbaruiTransaksi(transaksi.id, transaksi);
-    invalidateSistemTerkait();
-  }
+  // Future<void> updateTransaksi(TransaksiModel transaksi) async {
+  //   await _transaksiOp.perbaruiTransaksi(transaksi.id, transaksi);
+  //   invalidateProviderTransaksi();
+  // }
 
-  Future<void> softDelete(String id) async {
-    await _transaksiOp.softDelete(id);
-    invalidateSistemTerkait();
-  }
+  // Future<void> softDelete(String id) async {
+  //   await _transaksiOp.softDelete(id);
+  //   invalidateProviderTransaksi();
+  // }
 
-  Future<void> softDeleteAll() async {
-    await _transaksiOp.softDeleteAll();
-    invalidateSistemTerkait();
-  }
+  // Future<void> softDeleteAll() async {
+  //   await _transaksiOp.softDeleteAll();
+  //   invalidateProviderTransaksi();
+  // }
 
   Future<void> refresh() async {
     state = const AsyncLoading();
@@ -134,9 +134,9 @@ class Transaksi extends _$Transaksi {
     }
   }
 
-  void invalidateSistemTerkait() {
+  void invalidateProviderTransaksi() {
     ref.invalidateSelf();
-    ref.read(dompetProvider.notifier).invalidateDompet();
+    ref.read(dompetProvider.notifier).invalidateDompetProvider();
     ref.invalidate(riwayatTransaksiPelangganProvider);
   }
 }
