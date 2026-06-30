@@ -250,6 +250,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           },
           contentView: _menuAktif == OpsiMenuPoin.penukaran
               ? daftarHadiah.when(
+                  skipLoadingOnReload: true,
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
                   error: (err, stack) => Center(child: Text('Error: $err')),
