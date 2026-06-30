@@ -74,7 +74,7 @@ class _ChatingState extends ConsumerState<Chating> {
     });
 
     if (popAfterSend) {
-      if(mounted) {
+      if (mounted) {
         Navigator.pop(context, pesanBaru);
       }
     }
@@ -146,8 +146,9 @@ class _ChatingState extends ConsumerState<Chating> {
                   final m = _pesan[index];
                   final isMine = m.dariSaya(widget.idPenggunaSaatIni);
                   return Align(
-                    alignment:
-                        isMine ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment: isMine
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
                     child: _bangunBubblePesan(m, isMine),
                   );
                 },
@@ -218,7 +219,9 @@ class _ChatingState extends ConsumerState<Chating> {
   }
 
   Widget _bangunBubblePesan(Pesan m, bool isMine) {
-    final alignment = isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start;
+    final alignment = isMine
+        ? CrossAxisAlignment.end
+        : CrossAxisAlignment.start;
     final bgColor = isMine ? Colors.blue.shade600 : Colors.grey.shade200;
     final textColor = isMine ? Colors.white : Colors.black87;
     final radius = BorderRadius.only(

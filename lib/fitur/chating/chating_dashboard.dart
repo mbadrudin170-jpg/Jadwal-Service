@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/chating/chating.dart';
 import 'package:wifi/fitur/chating/dummy_chatting.dart';
-import 'package:wifi/fitur/chating/model/chating_model.dart';
+import 'package:wifi/fitur/chating/model/percakapan.dart';
 
 class ChatingDashboard extends ConsumerWidget {
   const ChatingDashboard({super.key});

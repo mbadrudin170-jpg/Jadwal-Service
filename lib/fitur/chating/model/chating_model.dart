@@ -1,59 +1,7 @@
-// path: lib/fitur/chating/model/chating_model.dart
-
+// lib/fitur/chating/model/pesan.dart
 import 'package:wifi/fitur/chating/enum/status_pesan_enum.dart';
+import 'package:wifi/fitur/chating/model/lampiran.dart';
 
-/// Status pengiriman pesan.
-
-/// Lampiran (gambar, file, audio) yang disertakan dalam pesan.
-class Lampiran {
-  final String id;
-  final String url;
-  final String tipe; // 'gambar', 'file', 'audio'
-  final String? nama;
-  final int? ukuran; // dalam byte
-
-  const Lampiran({
-    required this.id,
-    required this.url,
-    required this.tipe,
-    this.nama,
-    this.ukuran,
-  });
-
-  Lampiran copyWith({
-    String? id,
-    String? url,
-    String? tipe,
-    String? nama,
-    int? ukuran,
-  }) {
-    return Lampiran(
-      id: id ?? this.id,
-      url: url ?? this.url,
-      tipe: tipe ?? this.tipe,
-      nama: nama ?? this.nama,
-      ukuran: ukuran ?? this.ukuran,
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'url': url,
-    'tipe': tipe,
-    'nama': nama,
-    'ukuran': ukuran,
-  };
-
-  factory Lampiran.fromJson(Map<String, dynamic> json) => Lampiran(
-    id: json['id'] as String,
-    url: json['url'] as String,
-    tipe: json['tipe'] as String,
-    nama: json['nama'] as String?,
-    ukuran: json['ukuran'] as int?,
-  );
-}
-
-/// Model pesan obrolan.
 class Pesan {
   final String id;
   final String idPercakapan;
@@ -63,8 +11,8 @@ class Pesan {
   final DateTime? dieditPada;
   final StatusPesan status;
   final List<Lampiran> lampiran;
-  final String? balasanUntuk; // ✅ Konsisten: id pesan yang dibalas
-  final Map<String, int> reaksi; // emoji -> jumlah
+  final String? balasanUntuk;
+  final Map<String, int> reaksi;
   final Map<String, dynamic>? metadata;
   final bool dihapus;
   final DateTime? diarsipkanPada;
@@ -78,14 +26,13 @@ class Pesan {
     this.dieditPada,
     this.status = StatusPesan.terkirim,
     this.lampiran = const [],
-    this.balasanUntuk, // ✅ Nama sudah disamakan
+    this.balasanUntuk,
     this.reaksi = const {},
     this.metadata,
     this.dihapus = false,
     this.diarsipkanPada,
   });
 
-  /// Mengecek apakah pesan ini dikirim oleh pengguna yang sedang login.
   bool dariSaya(String idPenggunaSaatIni) => idPengirim == idPenggunaSaatIni;
 
   Pesan copyWith({
@@ -97,7 +44,7 @@ class Pesan {
     DateTime? dieditPada,
     StatusPesan? status,
     List<Lampiran>? lampiran,
-    String? balasanUntuk, // ✅ Konsisten
+    String? balasanUntuk,
     Map<String, int>? reaksi,
     Map<String, dynamic>? metadata,
     bool? dihapus,
@@ -112,7 +59,7 @@ class Pesan {
       dieditPada: dieditPada ?? this.dieditPada,
       status: status ?? this.status,
       lampiran: lampiran ?? this.lampiran,
-      balasanUntuk: balasanUntuk ?? this.balasanUntuk, // ✅ Perbaikan
+      balasanUntuk: balasanUntuk ?? this.balasanUntuk,
       reaksi: reaksi ?? this.reaksi,
       metadata: metadata ?? this.metadata,
       dihapus: dihapus ?? this.dihapus,
@@ -129,7 +76,7 @@ class Pesan {
     'diedit_pada': dieditPada?.toIso8601String(),
     'status': status.name,
     'lampiran': lampiran.map((l) => l.toJson()).toList(),
-    'balasan_untuk': balasanUntuk, // ✅ Mengambil dari properti yang benar
+    'balasan_untuk': balasanUntuk,
     'reaksi': reaksi,
     'metadata': metadata,
     'dihapus': dihapus,
@@ -145,13 +92,16 @@ class Pesan {
     dieditPada: json['diedit_pada'] != null
         ? DateTime.parse(json['diedit_pada'] as String)
         : null,
-    status: StatusPesan.values.firstWhere((s) => s.name == json['status']),
+    status: StatusPesan.values.firstWhere(
+      (s) => s.name == json['status'],
+      orElse: () => StatusPesan.terkirim,
+    ),
     lampiran:
         (json['lampiran'] as List<dynamic>?)
             ?.map((l) => Lampiran.fromJson(l as Map<String, dynamic>))
             .toList() ??
         [],
-    balasanUntuk: json['balasan_untuk'] as String?, // ✅ Sudah benar
+    balasanUntuk: json['balasan_untuk'] as String?,
     reaksi:
         (json['reaksi'] as Map<String, dynamic>?)?.map(
           (k, v) => MapEntry(k, v as int),
@@ -163,34 +113,4 @@ class Pesan {
         ? DateTime.parse(json['diarsipkan_pada'] as String)
         : null,
   );
-}
-
-/// Model percakapan.
-class Percakapan {
-  final String id;
-  final List<String> idPartisipan;
-  final String? judul;
-  final Pesan? pesanTerakhir; // objek lengkap
-  final String? pratinjauPesanTerakhir; // fallback cepat
-  final DateTime? waktuPesanTerakhir;
-  final int jumlahBelumDibaca;
-
-  const Percakapan({
-    required this.id,
-    required this.idPartisipan,
-    this.judul,
-    this.pesanTerakhir,
-    this.pratinjauPesanTerakhir,
-    this.waktuPesanTerakhir,
-    this.jumlahBelumDibaca = 0,
-  });
-
-  /// Menampilkan judul percakapan. Jika tidak ada, gunakan ID partisipan.
-  String get tampilkanJudul {
-    if (judul != null && judul!.isNotEmpty) return judul!;
-    if (idPartisipan.isNotEmpty) return idPartisipan.join(', ');
-    return 'Percakapan';
-  }
-
-  // fromJson / toJson dapat ditambahkan nanti sesuai kebutuhan
 }

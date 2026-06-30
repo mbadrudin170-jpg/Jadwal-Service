@@ -3,6 +3,8 @@
 import 'dart:math';
 import 'package:wifi/fitur/chating/enum/status_pesan_enum.dart';
 import 'package:wifi/fitur/chating/model/chating_model.dart';
+import 'package:wifi/fitur/chating/model/lampiran.dart';
+import 'package:wifi/fitur/chating/model/percakapan.dart';
 
 /// Dummy data untuk fitur chating.
 /// Gunakan ini untuk pengujian UI sebelum menghubungkan ke backend nyata.
