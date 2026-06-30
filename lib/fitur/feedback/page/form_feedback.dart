@@ -40,7 +40,6 @@ class _FormFeedbackState extends ConsumerState<FormFeedback> {
   Future<void> _simpanForm() async {
     final userId = ref.watch(userIdProvider).value ?? '';
     final feedbackOp = ref.read(feedbackOpGlobalProvider);
-
     if (ref.isUser && userId.isEmpty) {
       ToastUtil.warning(context, 'Silakan login terlebih dahulu');
       return;

@@ -122,7 +122,6 @@ class _FeedbackDetailState extends ConsumerState<FeedbackDetail> {
   @override
   Widget build(BuildContext context) {
     Log.info('Membangun UI halaman detail feedback.');
-
     final detailFeedbackAsync = ref.watch(detailFeedbackProvider(widget.id));
     return detailFeedbackAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
