@@ -37,6 +37,7 @@ class DetailPelanggan extends ConsumerWidget {
   Future<void> _salinSemuaInfo(
     BuildContext context,
     PelangganModel customer,
+    int totalPoin,
   ) async {
     Log.info('Menyalin info pelanggan: ${customer.nama}');
     final info =
@@ -46,6 +47,7 @@ No HP : ${customer.telepon}
 Alamat : ${customer.alamat}
 Password : ${customer.kataSandi}
 MAC : ${customer.macAddress}
+Poin: $totalPoin
 '''
             .trim();
 
@@ -105,7 +107,7 @@ MAC : ${customer.macAddress}
           totalPoin: totalPoin,
           navigasiKeEdit: () => _editPelanggan(context, pelanggan),
           navigasiKePoin: () => _navigasiKePoin(context, pelanggan),
-          onCopyAll: () => _salinSemuaInfo(context, pelanggan),
+          onCopyAll: () => _salinSemuaInfo(context, pelanggan, totalPoin),
         );
       },
     );
