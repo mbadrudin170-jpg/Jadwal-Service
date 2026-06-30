@@ -36,9 +36,9 @@ class DetailEventA extends ConsumerWidget {
             return const Center(child: Text('Gagal memuat data.'));
           }
 
-          final detailedEvent = snapshot.data;
+          final detailEvent = snapshot.data;
 
-          if (detailedEvent == null) {
+          if (detailEvent == null) {
             return const Center(child: Text('Pengumuman tidak ditemukan.'));
           }
 
@@ -47,17 +47,17 @@ class DetailEventA extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (detailedEvent.linkGambar.isNotEmpty)
+                if (detailEvent.linkGambar.isNotEmpty)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12.0),
                     child: CachedNetworkImage(
-                      imageUrl: detailedEvent.linkGambar,
+                      imageUrl: detailEvent.linkGambar,
                       width: double.infinity,
                       height: 200,
                       fit: BoxFit.cover,
                       errorWidget: (context, url, e) {
                         Log.error(
-                          'Gagal memuat gambar detail: ${detailedEvent.linkGambar}',
+                          'Gagal memuat gambar detail: ${detailEvent.linkGambar}',
                           e: e,
                         );
                         return Container(
@@ -73,13 +73,13 @@ class DetailEventA extends ConsumerWidget {
                   children: [
                     Chip(
                       label: Text(
-                        detailedEvent.statusAktif ? 'Aktif' : 'Tidak Aktif',
+                        detailEvent.statusAktif ? 'Aktif' : 'Tidak Aktif',
                       ),
-                      backgroundColor: detailedEvent.statusAktif
+                      backgroundColor: detailEvent.statusAktif
                           ? Colors.green.withAlpha(25) // Menggunakan withAlpha
                           : Colors.grey.withAlpha(25), // Menggunakan withAlpha
                       labelStyle: TextStyle(
-                        color: detailedEvent.statusAktif
+                        color: detailEvent.statusAktif
                             ? Colors.green
                             : Colors.grey,
                         fontWeight: FontWeight.bold,
@@ -98,18 +98,13 @@ class DetailEventA extends ConsumerWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 Text(
-                  detailedEvent.id,
+                  detailEvent.id,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 gapH16,
                 const Text(
                   'Deskripsi / Konten',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                gapH8,
-                Text(
-                  'Detail informasi untuk pengumuman ini dapat dikelola melalui menu manajemen.',
-                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ],
             ),
