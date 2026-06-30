@@ -1,6 +1,7 @@
 // path: lib/fitur/chating/dummy_chatting.dart
 
 import 'dart:math';
+import 'package:wifi/fitur/chating/enum/status_pesan_enum.dart';
 import 'package:wifi/fitur/chating/model/chating_model.dart';
 
 /// Dummy data untuk fitur chating.

@@ -1,7 +1,8 @@
 // path: lib/fitur/chating/model/chating_model.dart
 
+import 'package:wifi/fitur/chating/enum/status_pesan_enum.dart';
+
 /// Status pengiriman pesan.
-enum StatusPesan { mengirim, terkirim, diterima, dibaca, gagal }
 
 /// Lampiran (gambar, file, audio) yang disertakan dalam pesan.
 class Lampiran {

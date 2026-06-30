@@ -1,6 +1,7 @@
 // file: lib/fitur/chating/chating.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/chating/enum/status_pesan_enum.dart';
 import 'package:wifi/fitur/chating/model/chating_model.dart';
 
 class Chating extends ConsumerStatefulWidget {
@@ -73,8 +74,9 @@ class _ChatingState extends ConsumerState<Chating> {
     });
 
     if (popAfterSend) {
-      if(mounted)
-      Navigator.pop(context, pesanBaru);
+      if(mounted) {
+        Navigator.pop(context, pesanBaru);
+      }
     }
   }
 
