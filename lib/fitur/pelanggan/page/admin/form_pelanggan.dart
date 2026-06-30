@@ -131,12 +131,12 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       if (mounted) {
         Navigator.pop(context);
       }
-      if (ref.isAdmin) {
-        Log.info('jalankan sinkroniasi');
-        unawaited(
-          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
-        );
-      }
+      unawaited(() {
+        if (ref.isAdmin) {
+          Log.info('jalankan sinkroniasi');
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
+        }
+      }());
     } catch (e, s) {
       Log.error('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
       if (mounted) {
