@@ -12,6 +12,7 @@ import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -116,6 +117,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
           idPelangganAktif,
           idTransaksi,
         );
+        ref.read(transaksiProvider.notifier).invalidateSistemTerkait();
         Log.info('Berhasil soft delete pelanggan ID: $idPelangganAktif');
         if (mounted) {
           ToastUtil.success(
