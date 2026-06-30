@@ -286,7 +286,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       await Navigator.push<bool>(
         context,
         MaterialPageRoute<bool>(
-          builder: (context) => DetailPelangganU(userId: userId),
+          builder: (context) => DetailPelanggan(idPelanggan: userId),
         ),
       );
       await ref.read(interstitialAdServiceProvider).show();

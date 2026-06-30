@@ -107,6 +107,7 @@ Poin: $totalPoin
           totalPoin: totalPoin,
           navigasiKeEdit: () => _editPelanggan(context, pelanggan),
           navigasiKePoin: () => _navigasiKePoin(context, pelanggan),
+          
           onCopyAll: () => _salinSemuaInfo(context, pelanggan, totalPoin),
         );
       },

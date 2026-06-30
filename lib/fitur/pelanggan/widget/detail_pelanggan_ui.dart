@@ -2,13 +2,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/poin/widget/kartu_total_poin.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-class DetailPelangganUI extends StatefulWidget {
+class DetailPelangganUI extends ConsumerStatefulWidget {
   final PelangganModel pelanggan;
   final int totalPoin;
   final VoidCallback? navigasiKeEdit;
@@ -25,10 +27,10 @@ class DetailPelangganUI extends StatefulWidget {
   });
 
   @override
-  State<DetailPelangganUI> createState() => _DetailPelangganUIState();
+  ConsumerState<DetailPelangganUI> createState() => _DetailPelangganUIState();
 }
 
-class _DetailPelangganUIState extends State<DetailPelangganUI> {
+class _DetailPelangganUIState extends ConsumerState<DetailPelangganUI> {
   Future<void> _salinInformasi(String label, String data) async {
     if (!mounted) return;
 
@@ -72,7 +74,8 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
             gapH24,
             _buildBagianInformasiPelanggan(),
             gapH24,
-            if (widget.onCopyAll != null) _buildTombolSalinSemua(),
+            if (widget.onCopyAll != null && ref.isAdmin)
+              _buildTombolSalinSemua(),
           ],
         ),
       ),
