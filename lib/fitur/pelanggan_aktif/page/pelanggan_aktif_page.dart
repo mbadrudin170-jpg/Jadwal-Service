@@ -56,7 +56,6 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
     } catch (e) {
       Log.error('Gagal menjalankan arsip otomatis saat aplikasi dibuka', e: e);
     }
-
     if (mounted) {
       await ref.read(pelangganAktifProvider.notifier).perbaruiData();
     }
