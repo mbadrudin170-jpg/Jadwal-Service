@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/export/operation.dart';
 
 part 'pelanggan_provider.g.dart';
@@ -61,7 +62,6 @@ class Pelanggan extends _$Pelanggan {
     try {
       await _pelangganOp.updatePelanggan(pelanggan);
       _invalidateDetailPelanggan(pelanggan.id);
-      ref.invalidateSelf();
     } catch (e, s) {
       state = AsyncValue.error(e, s);
       rethrow;
@@ -79,8 +79,16 @@ class Pelanggan extends _$Pelanggan {
     }
   }
 
-  void _invalidateDetailPelanggan(String id) {
-    ref.invalidate(pelangganDetailProvider(id));
+  void _invalidateDetailPelanggan(String? idPelanggan) {
+    ref.invalidateSelf();
+    if (idPelanggan != null) {
+      ref.invalidate(pelangganDetailProvider(idPelanggan));
+    } else {
+      ref.invalidate(pelangganDetailProvider);
+    }
+    ref.invalidate(isSearchingPelangganProvider);
+    ref.invalidate(searchQueryPelangganProvider);
+    ref.invalidate(namaPelangganProvider);
   }
 
   Future<void> refresh() async {
@@ -118,9 +126,9 @@ Future<String?> namaPelanggan(Ref ref, String idPelanggan) async {
 
 @riverpod
 Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
-  final pelangganOpSqlte = ref.watch(pelangganOpSqliteProvider);
-  final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
-  final pelanggan = await pelangganOpSqlte.ambilBerdasarkanId(id);
-  final poin = await transaksiOpSqlite.ambilTotalPoin(id);
+  final pelangganOp = ref.watch(pelangganOpGlobalProvider);
+  final transaksiOp = ref.watch(transaksiOpGlobalProvider);
+  final pelanggan = await pelangganOp.ambilBerdasarkanId(id);
+  final poin = await transaksiOp.ambilTotalPoin(id);
   return (pelanggan, poin);
 }

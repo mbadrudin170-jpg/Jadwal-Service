@@ -67,12 +67,11 @@ Poin: $totalPoin
     PelangganModel pelanggan,
   ) async {
     Log.info('Navigasi ke form edit pelanggan: ${pelanggan.nama}');
-    unawaited(
-      Navigator.push<void>(
-        context,
-        MaterialPageRoute<void>(
-          builder: (context) => FormPelanggan(pelanggan: pelanggan),
-        ),
+
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute<void>(
+        builder: (context) => FormPelanggan(pelanggan: pelanggan),
       ),
     );
   }
