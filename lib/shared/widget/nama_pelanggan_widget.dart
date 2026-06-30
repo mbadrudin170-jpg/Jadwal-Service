@@ -35,6 +35,7 @@ class NamaPelangganWidget extends ConsumerWidget {
     }
     final namaAsync = ref.watch(namaPelangganProvider(idPelanggan));
     return namaAsync.when(
+      skipLoadingOnReload: true,
       loading: () {
         if (showLoadingIndicator) {
           return const SizedBox(

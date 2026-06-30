@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -51,19 +50,6 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  unawaited(
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HalamanTes(),
-                      ),
-                    ),
-                  );
-                },
-                child: const Text('Pergi ke Detail'),
-              ),
               TextButton(
                 onPressed: () {
                   showLicensePage(context: context);

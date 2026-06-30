@@ -9,8 +9,7 @@ import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
-import 'package:wifi/fitur/poin/service/poin_transaction_service.dart';
-import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
+import 'package:wifi/fitur/poin/poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
@@ -53,7 +52,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     _layananIklanInterstisial = LayananIklanInterstisial();
     _judulAppBar = Row(
       children: [
-        const Text('Poin: '),
         Expanded(child: NamaPelangganWidget(idPelanggan: widget.idPelanggan)),
       ],
     );
