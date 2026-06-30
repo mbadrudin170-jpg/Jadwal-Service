@@ -225,6 +225,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     );
     final daftarHadiah = ref.watch(paketProvider);
     return dataAsync.when(
+      skipLoadingOnReload: true,
       loading: () => Scaffold(
         appBar: AppBar(title: _judulAppBar),
         body: const Center(child: CircularProgressIndicator()),
@@ -252,19 +253,19 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
                   error: (err, stack) => Center(child: Text('Error: $err')),
-                  data: (state) => _bangunDaftarHadiah(
+                  data: (state) => _buildDaftarHadiah(
                     state.daftarPaketPublik,
                     dataHalaman.totalPoin,
                   ),
                 )
-              : _bangunRiwayatPoin(),
+              : _buildRiwayatPoin(),
           bottomWidget: widget.tampilkanIklan ? const BannerAdsWidget() : null,
         );
       },
     );
   }
 
-  Widget _bangunDaftarHadiah(List<PaketModel> daftarHadiah, int totalPoin) {
+  Widget _buildDaftarHadiah(List<PaketModel> daftarHadiah, int totalPoin) {
     Log.info('Building reward list.');
     if (daftarHadiah.isEmpty) {
       return const Center(child: Text('Belum ada hadiah yang tersedia'));
@@ -330,7 +331,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     );
   }
 
-  Widget _bangunRiwayatPoin() {
+  Widget _buildRiwayatPoin() {
     Log.info('Building points history.');
     final riwayatAsync = ref.watch(
       riwayatTransaksiPelangganProvider(widget.idPelanggan),
