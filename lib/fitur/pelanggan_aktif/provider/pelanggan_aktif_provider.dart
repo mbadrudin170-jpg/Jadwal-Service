@@ -8,6 +8,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 
 part 'pelanggan_aktif_provider.g.dart';
 part 'pelanggan_aktif_provider.freezed.dart';
@@ -40,27 +41,13 @@ class PelangganAktif extends _$PelangganAktif {
   }
 
   Future<void> tambahPelangganAktif(PelangganAktifModel pelangganAktif) async {
-    state = await AsyncValue.guard(() async {
-      await pelangganAktifOpSqlite.tambahPelangganAktif(pelangganAktif);
-      final hasil = await pelangganAktifOpSqlite
-          .ambilSemuaPelangganAktifDenganDetail();
-      return PelangganAktifState(
-        daftarPelangganAktif: hasil,
-        jumlahPelangganAktif: hasil.length,
-      );
-    });
+    await pelangganAktifOpSqlite.tambahPelangganAktif(pelangganAktif);
+    invalidatePelangganAktif();
   }
 
   Future<void> updatePelangganAktif(PelangganAktifModel pelangganAktif) async {
-    state = await AsyncValue.guard(() async {
-      await pelangganAktifOpSqlite.updatePelangganAktif(pelangganAktif);
-      final hasil = await pelangganAktifOpSqlite
-          .ambilSemuaPelangganAktifDenganDetail();
-      return PelangganAktifState(
-        daftarPelangganAktif: hasil,
-        jumlahPelangganAktif: hasil.length,
-      );
-    });
+    await pelangganAktifOpSqlite.updatePelangganAktif(pelangganAktif);
+    invalidatePelangganAktif();
   }
 
   Future<void> perbaruiData() async {
@@ -73,5 +60,10 @@ class PelangganAktif extends _$PelangganAktif {
         jumlahPelangganAktif: data.length,
       );
     });
+  }
+
+  void invalidatePelangganAktif() {
+    ref.invalidateSelf();
+    ref.invalidate(transaksiProvider);
   }
 }
