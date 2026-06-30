@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 
@@ -26,8 +25,15 @@ class NamaPelangganWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (idPelanggan.isEmpty) {
+      return Text(
+        emptyText,
+        style:
+            style?.copyWith(color: Colors.grey, fontStyle: FontStyle.italic) ??
+            const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+      );
+    }
     final namaAsync = ref.watch(namaPelangganProvider(idPelanggan));
-
     return namaAsync.when(
       loading: () {
         if (showLoadingIndicator) {
@@ -73,54 +79,6 @@ class NamaPelangganWidget extends ConsumerWidget {
           );
         }
         return Text(nama, style: style, overflow: TextOverflow.ellipsis);
-      },
-    );
-  }
-}
-
-/// Widget yang mengembalikan data pelanggan lengkap
-class PelangganDetailWidget extends ConsumerWidget {
-  final String idPelanggan;
-  final Widget Function(PelangganModel pelanggan) builder;
-  final Widget? loadingWidget;
-  final Widget? errorWidget;
-  final Widget? emptyWidget;
-
-  const PelangganDetailWidget({
-    super.key,
-    required this.idPelanggan,
-    required this.builder,
-    this.loadingWidget,
-    this.errorWidget,
-    this.emptyWidget,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final pelangganAsync = ref.watch(pelangganDetailProvider(idPelanggan));
-
-    return pelangganAsync.when(
-      loading: () =>
-          loadingWidget ??
-          const SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-      error: (error, stack) {
-        Log.error(
-          'Gagal memuat pelanggan ID: $idPelanggan',
-          e: error,
-          s: stack,
-        );
-        return errorWidget ??
-            Text(
-              'Error',
-              style: TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
-            );
-      },
-      data: (pelanggan) {
-        return builder(pelanggan as PelangganModel);
       },
     );
   }

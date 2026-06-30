@@ -36,14 +36,14 @@ class _PackageFormState extends ConsumerState<FormPaket> {
   final _durasiController = TextEditingController();
   final _poinHadiahcontroller = TextEditingController();
   final _poinPenukaranController = TextEditingController();
-  final _namsFocusNode = FocusNode();
+  final _namaFocusNode = FocusNode();
   final _hargaFocusNode = FocusNode();
   final _durasiFocusNode = FocusNode();
   final _poinHadiahFocusNode = FocusNode();
   final _poinPenukaranFocusNode = FocusNode();
 
   TipeDurasiPaket _selectedType = TipeDurasiPaket.days;
-
+  bool _poin = false;
   bool get _modeEdit => widget.paket != null;
   bool _publik = false;
 
@@ -58,6 +58,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
       _poinPenukaranController.text = widget.paket!.poinPenukaran.toString();
       _selectedType = widget.paket!.tipe;
       _publik = widget.paket!.statusPublik;
+      _poin = widget.paket!.poinHadiah > 0 || widget.paket!.poinPenukaran > 0;
     }
   }
 
@@ -74,8 +75,10 @@ class _PackageFormState extends ConsumerState<FormPaket> {
             0,
         durasi: int.tryParse(_durasiController.text) ?? 0,
         tipe: _selectedType,
-        poinHadiah: int.tryParse(_poinHadiahcontroller.text) ?? 0,
-        poinPenukaran: int.tryParse(_poinPenukaranController.text) ?? 0,
+        poinHadiah: _poin ? (int.tryParse(_poinHadiahcontroller.text) ?? 0) : 0,
+        poinPenukaran: _poin
+            ? (int.tryParse(_poinPenukaranController.text) ?? 0)
+            : 0,
         statusPublik: _publik,
         diperbaruiPada: DateTime.now(),
       );
@@ -151,7 +154,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
               children: [
                 InputTeks(
                   controller: _namaController,
-                  focusNode: _namsFocusNode,
+                  focusNode: _namaFocusNode,
                   nextFocusNode: _hargaFocusNode,
                   label: 'Nama Paket',
                 ),
@@ -171,22 +174,31 @@ class _PackageFormState extends ConsumerState<FormPaket> {
                   nextFocusNode: _poinHadiahFocusNode,
                 ),
                 gapH12,
-                InputAngka(
-                  controller: _poinHadiahcontroller,
-                  focusNode: _poinHadiahFocusNode,
-                  nextFocusNode: _poinPenukaranFocusNode,
-                  label: 'Poin Hadiah',
+                SwitchListTile(
+                  title: const Text('Aktifkan Poin'),
+                  value: _poin,
+                  onChanged: (v) {
+                    setState(() {
+                      _poin = v;
+                    });
+                  },
                 ),
-
                 gapH12,
-                InputAngka(
-                  controller: _poinPenukaranController,
-                  focusNode: _poinPenukaranFocusNode,
-                  nextFocusNode: _poinPenukaranFocusNode,
-                  label: 'Poin Hadiah',
-                  textInputAction: TextInputAction.done,
-                ),
-
+                if (_poin) ...[
+                  InputAngka(
+                    controller: _poinHadiahcontroller,
+                    focusNode: _poinHadiahFocusNode,
+                    nextFocusNode: _poinPenukaranFocusNode,
+                    label: 'Poin Hadiah',
+                  ),
+                  gapH12,
+                  InputAngka(
+                    controller: _poinPenukaranController,
+                    focusNode: _poinPenukaranFocusNode,
+                    label: 'Poin Penukaran',
+                    textInputAction: TextInputAction.done,
+                  ),
+                ],
                 gapH16,
                 DropdownButtonFormField<TipeDurasiPaket>(
                   initialValue: _selectedType,
@@ -199,7 +211,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
                       child: Text(type.displayName),
                     );
                   }).toList(),
-                  onChanged: (final TipeDurasiPaket? newValue) {
+                  onChanged: (TipeDurasiPaket? newValue) {
                     if (newValue != null) {
                       setState(() {
                         _selectedType = newValue;
@@ -248,7 +260,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
     _durasiController.dispose();
     _poinHadiahcontroller.dispose();
     _poinPenukaranController.dispose();
-    _namsFocusNode.dispose();
+    _namaFocusNode.dispose();
     _hargaFocusNode.dispose();
     _durasiFocusNode.dispose();
     _poinHadiahFocusNode.dispose();
