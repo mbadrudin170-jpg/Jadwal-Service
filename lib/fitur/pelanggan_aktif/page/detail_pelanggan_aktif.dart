@@ -39,11 +39,9 @@ final detailPleangganAktifProvider =
         pelangganAktifProvider.future,
       );
       final daftarPelangganAktif = pelangganAktifState.daftarPelangganAktif;
-
       final detailPelangganAktif = daftarPelangganAktif.firstWhereOrNull(
         (detail) => detail.pelangganAktif.id == id,
       );
-
       if (detailPelangganAktif == null) {
         throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
       }
@@ -60,7 +58,6 @@ final detailPleangganAktifProvider =
             ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.idTransaksi)
             : Future<TransaksiModel?>.value(),
       ]);
-
       return (
         pelanggan: hasil[0] as PelangganModel?,
         paket: hasil[1] as PaketModel?,
@@ -87,7 +84,6 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
 
   Future<void> _bukaWhatsApp(String phone) async {
     String formatNomor = phone.replaceAll(RegExp(r'[^0-9]'), '');
-
     if (formatNomor.startsWith('0')) {
       formatNomor = '62${formatNomor.substring(1)}';
     } else if (!formatNomor.startsWith('62')) {
