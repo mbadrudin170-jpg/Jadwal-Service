@@ -2,9 +2,11 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/chating/chating_dashboard.dart';
 import 'package:wifi/fitur/notifikasi/pengingat_paket_belum_lunas.dart';
 import 'package:wifi/fitur/notifikasi/penjadwal_notifikasi.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';
@@ -55,7 +57,7 @@ class _MainPageState extends ConsumerState<MainPage> {
       const ProfilePage(),
       const TransaksiU(),
       const OrderPage(),
-      const HalamanUjiKecepatan(),
+      kDebugMode ? const ChatingDashboard() : const HalamanUjiKecepatan(),
       const SettingsPageU(),
     ];
     _reaktorSiklusHidup = AppLifecycleReactor(
