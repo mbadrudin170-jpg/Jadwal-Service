@@ -11,99 +11,99 @@ class Chating extends ConsumerStatefulWidget {
 }
 
 class _ChatingState extends ConsumerState<Chating> {
-  final List<_Message> _messages = [
+  final List<_Message> _pesan = [
     _Message(
       id: '1',
-      text: 'Halo, ada yang bisa dibantu?',
-      isMine: false,
-      time: DateTime.now().subtract(const Duration(minutes: 5)),
+      teks: 'Halo, ada yang bisa dibantu?',
+      dariSaya: false,
+      waktu: DateTime.now().subtract(const Duration(minutes: 5)),
     ),
     _Message(
       id: '2',
-      text: 'Saya mau tanya soal paket internet.',
-      isMine: true,
-      time: DateTime.now().subtract(const Duration(minutes: 4)),
+      teks: 'Saya mau tanya soal paket internet.',
+      dariSaya: true,
+      waktu: DateTime.now().subtract(const Duration(minutes: 4)),
     ),
     _Message(
       id: '3',
-      text: 'Silakan, sebutkan kendalanya.',
-      isMine: false,
-      time: DateTime.now().subtract(const Duration(minutes: 3)),
+      teks: 'Silakan, sebutkan kendalanya.',
+      dariSaya: false,
+      waktu: DateTime.now().subtract(const Duration(minutes: 3)),
     ),
   ];
 
-  final TextEditingController _controller = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
-  bool _isSending = false;
+  final TextEditingController _pengontrol = TextEditingController();
+  final ScrollController _penggulir = ScrollController();
+  bool _sedangMengirim = false;
 
   @override
   void dispose() {
-    _controller.dispose();
-    _scrollController.dispose();
+    _pengontrol.dispose();
+    _penggulir.dispose();
     super.dispose();
   }
 
-  Future<void> _sendMessage() async {
-    final text = _controller.text.trim();
-    if (text.isEmpty) return;
+  Future<void> _kirimPesan() async {
+    final teks = _pengontrol.text.trim();
+    if (teks.isEmpty) return;
     setState(() {
-      _isSending = true;
-      _messages.add(
+      _sedangMengirim = true;
+      _pesan.add(
         _Message(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
-          text: text,
-          isMine: true,
-          time: DateTime.now(),
+          teks: teks,
+          dariSaya: true,
+          waktu: DateTime.now(),
         ),
       );
-      _controller.clear();
+      _pengontrol.clear();
     });
-    _scrollToBottom();
+    _gulirKeBawah();
 
     // Simulasi pengiriman ke server / balasan otomatis
     await Future<void>.delayed(const Duration(milliseconds: 400));
     setState(() {
-      _isSending = false;
+      _sedangMengirim = false;
     });
 
     // Contoh balasan otomatis (hapus atau ganti dengan logika nyata)
     Future.delayed(const Duration(milliseconds: 600), () {
       setState(() {
-        _messages.add(
+        _pesan.add(
           _Message(
             id: DateTime.now().millisecondsSinceEpoch.toString(),
-            text: 'Terima kasih, kami akan cek dan segera merespon.',
-            isMine: false,
-            time: DateTime.now(),
+            teks: 'Terima kasih, kami akan cek dan segera merespon.',
+            dariSaya: false,
+            waktu: DateTime.now(),
           ),
         );
       });
-      _scrollToBottom();
+      _gulirKeBawah();
     });
   }
 
-  void _scrollToBottom() {
+  void _gulirKeBawah() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_scrollController.hasClients) return;
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
+      if (!_penggulir.hasClients) return;
+      _penggulir.animateTo(
+        _penggulir.position.maxScrollExtent,
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOut,
       );
     });
   }
 
-  Widget _buildMessageBubble(_Message m) {
-    final alignment = m.isMine
+  Widget _bangunBubblePesan(_Message m) {
+    final alignment = m.dariSaya
         ? CrossAxisAlignment.end
         : CrossAxisAlignment.start;
-    final bgColor = m.isMine ? Colors.blue.shade600 : Colors.grey.shade200;
-    final textColor = m.isMine ? Colors.white : Colors.black87;
+    final bgColor = m.dariSaya ? Colors.blue.shade600 : Colors.grey.shade200;
+    final textColor = m.dariSaya ? Colors.white : Colors.black87;
     final radius = BorderRadius.only(
       topLeft: const Radius.circular(12),
       topRight: const Radius.circular(12),
-      bottomLeft: Radius.circular(m.isMine ? 12 : 0),
-      bottomRight: Radius.circular(m.isMine ? 0 : 12),
+      bottomLeft: Radius.circular(m.dariSaya ? 12 : 0),
+      bottomRight: Radius.circular(m.dariSaya ? 0 : 12),
     );
 
     return Padding(
@@ -119,14 +119,14 @@ class _ChatingState extends ConsumerState<Chating> {
               decoration: BoxDecoration(color: bgColor, borderRadius: radius),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               child: Text(
-                m.text,
+                m.teks,
                 style: TextStyle(color: textColor, fontSize: 15),
               ),
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            _formatTime(m.time),
+            _formatWaktu(m.waktu),
             style: const TextStyle(fontSize: 11, color: Colors.grey),
           ),
         ],
@@ -134,7 +134,7 @@ class _ChatingState extends ConsumerState<Chating> {
     );
   }
 
-  String _formatTime(DateTime t) {
+  String _formatWaktu(DateTime t) {
     final now = DateTime.now();
     if (now.difference(t).inDays == 0) {
       final hh = t.hour.toString().padLeft(2, '0');
@@ -175,25 +175,25 @@ class _ChatingState extends ConsumerState<Chating> {
       body: SafeArea(
         child: Column(
           children: [
-            // Messages list
+            // Daftar pesan
             Expanded(
               child: ListView.builder(
-                controller: _scrollController,
+                controller: _penggulir,
                 padding: const EdgeInsets.only(top: 12, bottom: 12),
-                itemCount: _messages.length,
+                itemCount: _pesan.length,
                 itemBuilder: (context, index) {
-                  final m = _messages[index];
+                  final m = _pesan[index];
                   return Align(
-                    alignment: m.isMine
+                    alignment: m.dariSaya
                         ? Alignment.centerRight
                         : Alignment.centerLeft,
-                    child: _buildMessageBubble(m),
+                    child: _bangunBubblePesan(m),
                   );
                 },
               ),
             ),
 
-            // Input area
+            // Area input
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               decoration: BoxDecoration(
@@ -216,7 +216,7 @@ class _ChatingState extends ConsumerState<Chating> {
                   ),
                   Expanded(
                     child: TextField(
-                      controller: _controller,
+                      controller: _pengontrol,
                       textCapitalization: TextCapitalization.sentences,
                       minLines: 1,
                       maxLines: 5,
@@ -231,11 +231,11 @@ class _ChatingState extends ConsumerState<Chating> {
                         filled: true,
                         fillColor: Color(0xFFF2F3F5),
                       ),
-                      onSubmitted: (_) => _sendMessage(),
+                      onSubmitted: (_) => _kirimPesan(),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  _isSending
+                  _sedangMengirim
                       ? const Padding(
                           padding: EdgeInsets.symmetric(horizontal: 12),
                           child: SizedBox(
@@ -247,7 +247,7 @@ class _ChatingState extends ConsumerState<Chating> {
                       : IconButton(
                           icon: const Icon(Icons.send),
                           color: Theme.of(context).colorScheme.primary,
-                          onPressed: _sendMessage,
+                          onPressed: _kirimPesan,
                         ),
                 ],
               ),
@@ -261,14 +261,14 @@ class _ChatingState extends ConsumerState<Chating> {
 
 class _Message {
   final String id;
-  final String text;
-  final bool isMine;
-  final DateTime time;
+  final String teks;
+  final bool dariSaya;
+  final DateTime waktu;
 
   _Message({
     required this.id,
-    required this.text,
-    required this.isMine,
-    required this.time,
+    required this.teks,
+    required this.dariSaya,
+    required this.waktu,
   });
 }
