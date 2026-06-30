@@ -17831,6 +17831,7 @@ import 'package:wifi/fitur/event/operasi/event_op_supabase.dart';
 import 'package:wifi/fitur/event/page/form_event.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 
 class DetailEventA extends ConsumerWidget {
   final EventModel event;
@@ -17858,9 +17859,9 @@ class DetailEventA extends ConsumerWidget {
             return const Center(child: Text('Gagal memuat data.'));
           }
 
-          final detailedEvent = snapshot.data;
+          final detailEvent = snapshot.data;
 
-          if (detailedEvent == null) {
+          if (detailEvent == null) {
             return const Center(child: Text('Pengumuman tidak ditemukan.'));
           }
 
@@ -17869,17 +17870,17 @@ class DetailEventA extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (detailedEvent.linkGambar.isNotEmpty)
+                if (detailEvent.linkGambar.isNotEmpty)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12.0),
                     child: CachedNetworkImage(
-                      imageUrl: detailedEvent.linkGambar,
+                      imageUrl: detailEvent.linkGambar,
                       width: double.infinity,
                       height: 200,
                       fit: BoxFit.cover,
                       errorWidget: (context, url, e) {
                         Log.error(
-                          'Gagal memuat gambar detail: ${detailedEvent.linkGambar}',
+                          'Gagal memuat gambar detail: ${detailEvent.linkGambar}',
                           e: e,
                         );
                         return Container(
@@ -17895,13 +17896,13 @@ class DetailEventA extends ConsumerWidget {
                   children: [
                     Chip(
                       label: Text(
-                        detailedEvent.statusAktif ? 'Aktif' : 'Tidak Aktif',
+                        detailEvent.statusAktif ? 'Aktif' : 'Tidak Aktif',
                       ),
-                      backgroundColor: detailedEvent.statusAktif
+                      backgroundColor: detailEvent.statusAktif
                           ? Colors.green.withAlpha(25) // Menggunakan withAlpha
                           : Colors.grey.withAlpha(25), // Menggunakan withAlpha
                       labelStyle: TextStyle(
-                        color: detailedEvent.statusAktif
+                        color: detailEvent.statusAktif
                             ? Colors.green
                             : Colors.grey,
                         fontWeight: FontWeight.bold,
@@ -17909,7 +17910,7 @@ class DetailEventA extends ConsumerWidget {
                     ),
                     const Spacer(),
                     Text(
-                      'Dibuat: ${detailedEvent.tanggalDibuat.toLocal().toString().split(' ')[0]}',
+                      'Dibuat: ${FormatTanggal.formatSingkat(event.tanggalDibuat)}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -17920,18 +17921,13 @@ class DetailEventA extends ConsumerWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 Text(
-                  detailedEvent.id,
+                  detailEvent.id,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 gapH16,
                 const Text(
                   'Deskripsi / Konten',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                gapH8,
-                Text(
-                  'Detail informasi untuk pengumuman ini dapat dikelola melalui menu manajemen.',
-                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ],
             ),
@@ -18572,6 +18568,7 @@ import 'package:wifi/fitur/event/page/detail_event_a.dart';
 import 'package:wifi/fitur/event/page/form_event.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 
 /// Menggunakan StreamProvider dengan proteksi siklus hidup
 final announcementsStreamProvider = StreamProvider.autoDispose<List<EventModel>>((
@@ -18694,7 +18691,7 @@ class EventPageA extends ConsumerWidget {
                       children: [
                         gapH8,
                         Text(
-                          'Dibuat: ${event.tanggalDibuat.toLocal().toString().split(' ')[0]}',
+                          'Dibuat: ${FormatTanggal.formatSingkat(event.tanggalDibuat)}',
                         ),
                         gapH4,
                         Chip(
@@ -18711,8 +18708,8 @@ class EventPageA extends ConsumerWidget {
                                 : Colors.grey,
                           ),
                           backgroundColor: event.statusAktif
-                              ? Colors.green.withValues(alpha: 0.08)
-                              : Colors.grey.withValues(alpha: 0.08),
+                              ? Colors.green.withAlpha(26)
+                              : Colors.grey.withAlpha(26),
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                         ),
                       ],
@@ -18778,14 +18775,14 @@ import 'package:wifi/shared/debug/log.dart';
 class EventOpSupabase {
   EventOpSupabase({SupabaseClient? supabase})
     : _supabase = supabase ?? Supabase.instance.client;
-  final String _namaTabel = NamaTabel.event;
+  final String _tabelEvent = NamaTabel.event;
   final SupabaseClient _supabase;
 
   Future<List<EventModel>> ambilSemuaEvent() async {
     Log.info('EventOpSupabase: Mengambil semua data pengumuman');
     try {
       Log.info('1️⃣ Membangun query...');
-      final query = _supabase.from(_namaTabel).select();
+      final query = _supabase.from(_tabelEvent).select();
       Log.info('2️⃣ Eksekusi query ke Supabase...');
       final List<Map<String, dynamic>> response = await query;
       Log.info('3️⃣ Response diterima, jumlah data: ${response.length}');
@@ -18805,11 +18802,11 @@ class EventOpSupabase {
 
   /// Mengambil aliran data (Stream) pengumuman secara realtime (Versi Asinkron Aman).
   Stream<List<EventModel>> ambilRealtimeStream() async* {
-    Log.info('EventOpSupabase: Membuka stream realtime untuk $_namaTabel');
+    Log.info('EventOpSupabase: Membuka stream realtime untuk $_tabelEvent');
 
     // Gunakan yield* untuk mengalirkan data tanpa mengunci thread utama
     yield* _supabase
-        .from(_namaTabel)
+        .from(_tabelEvent)
         .stream(primaryKey: [NamaKolom.id])
         .handleError((Object e, StackTrace s) {
           Log.error('❌ Error di dalam stream: $e', e: e, s: s);
@@ -18832,18 +18829,18 @@ class EventOpSupabase {
     Log.info('EventOpSupabase: Mengambil pengumuman aktif');
     try {
       final List<Map<String, dynamic>> respon = await _supabase
-          .from(_namaTabel)
+          .from(_tabelEvent)
           .select()
           .eq(NamaKolom.statusAktif, true)
           .limit(1);
-      Log.info('$respon $_namaTabel');
+      Log.info('$respon $_tabelEvent');
 
       if (respon.isEmpty) {
         return null;
       }
 
       final data = respon.first;
-      Log.info('$data $_namaTabel');
+      Log.info('$data $_tabelEvent');
       return EventModel.fromSupabase(
         data[NamaKolom.id]?.toString() ?? '',
         data,
@@ -18859,7 +18856,7 @@ class EventOpSupabase {
     Log.info('EventOpSupabase: Mengambil pengumuman berdasarkan id: $id');
     try {
       final List<Map<String, dynamic>> respon = await _supabase
-          .from(_namaTabel)
+          .from(_tabelEvent)
           .select()
           .eq(NamaKolom.id, id)
           .limit(1);
@@ -18868,7 +18865,6 @@ class EventOpSupabase {
         Log.warning('Pengumuman dengan id: $id tidak ditemukan');
         return null;
       }
-
       final data = respon.first;
       Log.info('Pengumuman ditemukan: $data');
       return EventModel.fromSupabase(
@@ -18886,7 +18882,7 @@ class EventOpSupabase {
     Log.info('EventOpSupabase: Membuat pengumuman baru ${event.id}');
     try {
       final Map<String, dynamic> dataPayload = event.toSupabase();
-      await _supabase.from(_namaTabel).insert(dataPayload);
+      await _supabase.from(_tabelEvent).insert(dataPayload);
     } catch (e, s) {
       Log.error('Gagal membuat pengumuman di Supabase', e: e, s: s);
       rethrow;
@@ -18899,7 +18895,7 @@ class EventOpSupabase {
     try {
       final Map<String, dynamic> dataPayload = event.toSupabase();
       await _supabase
-          .from(_namaTabel)
+          .from(_tabelEvent)
           .update(dataPayload)
           .eq(NamaKolom.id, event.id);
     } catch (e, s) {
@@ -18912,7 +18908,7 @@ class EventOpSupabase {
   Future<void> hapusEvent(String id) async {
     Log.warning('EventOpSupabase: Menghapus pengumuman $id');
     try {
-      await _supabase.from(_namaTabel).delete().eq(NamaKolom.id, id);
+      await _supabase.from(_tabelEvent).delete().eq(NamaKolom.id, id);
     } catch (e, s) {
       Log.error('Gagal menghapus pengumuman di Supabase', e: e, s: s);
       rethrow;

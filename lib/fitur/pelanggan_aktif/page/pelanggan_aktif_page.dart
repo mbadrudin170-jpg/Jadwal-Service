@@ -110,7 +110,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
       ),
     );
 
-    if (konfirmasi ?? false) {
+    if (konfirmasi == true) {
       try {
         await _pelangganAktifOpSqlite.softDeletePelangganAktifDanTransaksi(
           idPelangganAktif,
@@ -258,7 +258,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
             ],
           ),
         );
-        if (konfirmasi ?? false) {
+        if (konfirmasi == true) {
           try {
             Log.warning('Eksekusi arsipkan semua pelanggan aktif');
             await _pelangganAktifOpSqlite.softDeleteAll();
