@@ -71,6 +71,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     try {
       Log.info('Memulai inisialisasi dari Splash Screen...');
       await _inisialisasiLayananOffline();
+
       _terhubung = await ref.read(koneksiInternetServiceProvider).cekInternet();
       if (_terhubung == false) {
         if (mounted) {
@@ -80,25 +81,34 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
         await _navigasiKeHalamanBerikutnya();
         return;
       }
+
+      // 1. Ambil seluruh data dari server secara paralel (bersamaan)
       final hasilInisialisasi = await Future.wait([
         _periksaModePemeliharaan(),
         _periksaPembaruanAplikasi(),
         _cekEvent(),
       ]);
+
       final pengaturanPemeliharaan = hasilInisialisasi[0] as SettingsModel?;
       final infoPembaruan = hasilInisialisasi[1] as InfoPembaruanRecord?;
       final eventInfo = hasilInisialisasi[2] as EventModel?;
       if (!mounted) return;
 
+      // 2. Tampilkan Event Terlebih Dahulu (Jika Ada)
       if (eventInfo != null) {
-        Log.info('Menuju ke halaman event');
-        // Gunakan await agar ketika halaman event di-back, aplikasi lanjut ke baris berikutnya
+        Log.info('Menuju ke halaman event (Pelapis Splash Screen)');
+        // Menunggu sampai masa countdown event selesai atau di-skip oleh user
         await Navigator.of(context).push<void>(
           MaterialPageRoute(builder: (context) => EventPageU(event: eventInfo)),
         );
+      } else {
+        // Keselamatan Visual: Jika event kosong, hapus Native Splash sekarang!
+        FlutterNativeSplash.remove();
       }
+
       if (!mounted) return;
-      
+
+      // 3. Validasi Sistem (Maintenance & Force Update) setelah Event ditutup
       if (pengaturanPemeliharaan != null) {
         await Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(
@@ -111,6 +121,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
         );
         return;
       }
+
       if (infoPembaruan != null) {
         await Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(
@@ -123,50 +134,17 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
         );
         return;
       }
+
+      // 4. Masuk ke aplikasi utama jika semua aman
       await _navigasiKeHalamanBerikutnya();
     } catch (e, st) {
       Log.error('Error kritis saat inisialisasi', e: e, s: st);
+      FlutterNativeSplash.remove(); // Atasi penahanan layar jika terjadi kendala/error
       if (mounted) {
         ToastUtil.error(context, 'Gagal terhubung ke server.');
       }
       await _navigasiKeHalamanBerikutnya();
     }
-  }
-
-  Future<void> _continueInitialization() async {
-    final pengaturanPemeliharaan = await _periksaModePemeliharaan();
-    if (pengaturanPemeliharaan != null) {
-      if (!mounted) return;
-      unawaited(
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => MaintenancePage(
-              infoMaintenance: pengaturanPemeliharaan.infoMaintenance,
-              onRefresh: _inisialisasiAplikasi,
-              onExit: SystemNavigator.pop,
-            ),
-          ),
-        ),
-      );
-      return;
-    }
-    final infoPembaruan = await _periksaPembaruanAplikasi();
-    if (infoPembaruan != null) {
-      if (!mounted) return;
-      unawaited(
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => UpdateApkPage(
-              infoApk: infoPembaruan.apkInfo!,
-              infoPaket: infoPembaruan.packageInfo!,
-              arsitektur: infoPembaruan.architecture!,
-            ),
-          ),
-        ),
-      );
-      return;
-    }
-    await _navigasiKeHalamanBerikutnya();
   }
 
   Future<void> _inisialisasiLayananOffline() async {
@@ -179,8 +157,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
 
   Future<EventModel?> _cekEvent() async {
     final eventOpSupabase = ref.read(eventOpSupabaseProvider);
-    final infoEvent = await eventOpSupabase.ambilEventAktif();
-    return infoEvent;
+    return await eventOpSupabase.ambilEventAktif();
   }
 
   Future<InfoPembaruanRecord?> _periksaPembaruanAplikasi() async {
@@ -220,25 +197,24 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     if (!mounted) return;
     final pengelolaAkun = await ref.read(pengelolaAkunProvider.future);
     final akunAktif = pengelolaAkun.akunSaatIni;
+
     if (akunAktif != null) {
       if (_terhubung == true) {
-        final layananAktivitasUser = await ref.read(
-          layananAktivitasUserProvider.future,
-        );
-        unawaited(layananAktivitasUser.pingAktivitas(akunAktif.id));
+        unawaited(() async {
+          final layananAktivitasUser = await ref.read(
+            layananAktivitasUserProvider.future,
+          );
+          await layananAktivitasUser.pingAktivitas(akunAktif.id);
+        }());
       }
       if (!mounted) return;
-      unawaited(
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const MainPage()),
-        ),
+      await Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (context) => const MainPage()),
       );
     } else {
       if (!mounted) return;
-      unawaited(
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-        ),
+      await Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (context) => const LoginPage()),
       );
     }
   }
