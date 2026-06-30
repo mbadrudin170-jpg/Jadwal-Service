@@ -147,7 +147,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
               padding: const EdgeInsets.all(8.0),
               itemCount: _hasilFilter.length,
               itemBuilder: (context, index) {
-                final pelanggan = _hasilFilter[index];
+                final feedback = _hasilFilter[index];
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   child: InkWell(
@@ -156,21 +156,21 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute<void>(
-                            builder: (context) => FeedbackDetail(id: pelanggan.id),
+                            builder: (context) => FeedbackDetail(id: feedback.id),
                           ),
                         ),
                       );
                     },
-                    onLongPress: () => _hapusFeedback(pelanggan),
+                    onLongPress: () => _hapusFeedback(feedback),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          NamaPelangganWidget(idPelanggan: pelanggan.userId),
+                          NamaPelangganWidget(idPelanggan: feedback.userId),
                           gapH12,
                           Text(
-                            pelanggan.pesan,
+                            feedback.pesan,
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -178,9 +178,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: Text(
-                              pelanggan.tanggal != null
+                              feedback.tanggal != null
                                   ? FormatWaktuLengkap.formatSingkat(
-                                      pelanggan.tanggal!,
+                                      feedback.tanggal!,
                                     )
                                   : 'Tanggal tidak tersedia',
                               style: TextStyle(
