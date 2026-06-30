@@ -22,9 +22,9 @@ class TransaksiOpGlobal {
   TransaksiOpFirebase get _transaksiOpFirebase =>
       ref.read(transaksiOpFirebaseProvider);
 
-  void _invalidate() {
+  void _invalidate(String? idDompet) {
     ref.read(transaksiProvider.notifier).invalidateProviderTransaksi();
-    ref.read(dompetProvider.notifier).invalidateDompetProvider();
+    ref.read(dompetProvider.notifier).invalidateDompetProvider(idDompet);
   }
 
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
@@ -34,7 +34,7 @@ class TransaksiOpGlobal {
     } else {
       await _transaksiOpFirebase.tambahTransaksi(transaksi);
     }
-    _invalidate();
+    _invalidate(null);
   }
 
   Future<void> perbaruiTransaksi(
@@ -49,7 +49,7 @@ class TransaksiOpGlobal {
     } else {
       await _transaksiOpFirebase.perbaruiTransaksi(transaksi);
     }
-    _invalidate();
+    _invalidate(null);
   }
 
   Future<void> softDelete(String id, {bool dariServer = false}) async {
@@ -59,7 +59,7 @@ class TransaksiOpGlobal {
     } else {
       await _transaksiOpFirebase.softDeleteTransaksi(id);
     }
-    _invalidate();
+    _invalidate(null);
   }
 
   Future<void> softDeleteAll({bool dariServer = false}) async {
@@ -79,7 +79,7 @@ class TransaksiOpGlobal {
         await _transaksiOpFirebase.softDeleteTransaksi(t.id);
       }
     }
-    _invalidate();
+    _invalidate(null);
   }
 
   Future<void> sisipkanAtauPerbaruiBatch(
@@ -99,7 +99,7 @@ class TransaksiOpGlobal {
     } else {
       await _transaksiOpFirebase.sisipkanAtauPerbaruiBatch(items);
     }
-    _invalidate();
+    _invalidate(null);
   }
 
   Future<List<TransaksiModel>> ambilSemua() async {

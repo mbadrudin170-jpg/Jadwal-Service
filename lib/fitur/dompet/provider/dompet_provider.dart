@@ -100,9 +100,13 @@ class Dompet extends _$Dompet {
     state = await AsyncValue.guard(_loadData);
   }
 
-  void invalidateDompetProvider() {
+  void invalidateDompetProvider(String? idDompet) {
     ref.invalidateSelf();
-    ref.invalidate(detailDompetProvider);
+    if (idDompet != null) {
+      ref.invalidate(detailDompetProvider(idDompet));
+    } else {
+      ref.invalidate(detailDompetProvider);
+    }
   }
 }
 

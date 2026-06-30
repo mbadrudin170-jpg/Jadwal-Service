@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
@@ -136,7 +135,6 @@ class Transaksi extends _$Transaksi {
 
   void invalidateProviderTransaksi() {
     ref.invalidateSelf();
-    ref.read(dompetProvider.notifier).invalidateDompetProvider();
     ref.invalidate(riwayatTransaksiPelangganProvider);
   }
 }
