@@ -211,9 +211,7 @@ lib
 │   │   │   ├── form_pelanggan_aktif.dart
 │   │   │   └── pelanggan_aktif_page.dart
 │   │   └── provider
-│   │       ├── pelanggan_aktif_provider.dart
-│   │       ├── pelanggan_aktif_provider.freezed.dart
-│   │       └── pelanggan_aktif_provider.g.dart
+│   │       └── pelanggan_aktif_provider.dart
 │   ├── poin
 │   │   ├── operasi
 │   │   │   ├── firebase_points_data_source.dart
@@ -657,5 +655,5 @@ test
         ├── perhitungan_util_test.dart
         └── toast_util_test.dart
 
-226 directories, 430 files
+226 directories, 428 files
 tree is not installed, but available in the following packages, pick one to run it, Ctrl+C to cancel.

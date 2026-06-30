@@ -117,7 +117,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
     unawaited(
       Navigator.push<void>(
         context,
-        MaterialPageRoute<void>(
+        MaterialPageRoute(
           builder: (context) =>
               FormPelangganAktif(pelangganAktif: pelangganaktif),
         ),

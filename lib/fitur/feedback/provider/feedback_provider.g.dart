@@ -93,7 +93,7 @@ final class DaftarFeedbackAktifProvider
 }
 
 String _$daftarFeedbackAktifHash() =>
-    r'58cbd840ace4249dbd8a4ebeb5a2f386f8eb79b5';
+    r'2a7e57222609098c9810edf1ace92502e804d1c1';
 
 @ProviderFor(detailFeedback)
 final detailFeedbackProvider = DetailFeedbackFamily._();

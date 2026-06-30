@@ -368,6 +368,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     Log.info('_daftarPesanan dipanggil, filterAktif: $_filterAktif');
 
     return orderAsync.when(
+      skipLoadingOnReload: true,
       loading: () {
         Log.info('_daftarPesanan: loading data');
         return const Center(child: CircularProgressIndicator());

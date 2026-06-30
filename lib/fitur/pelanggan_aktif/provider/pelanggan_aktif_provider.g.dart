@@ -33,7 +33,7 @@ final class PelangganAktifProvider
   PelangganAktif create() => PelangganAktif();
 }
 
-String _$pelangganAktifHash() => r'470d4f278efa561fb4fd2a31c9ca4a866b10ea18';
+String _$pelangganAktifHash() => r'0a88a052466a639ea13bc088759c436910cd6cfa';
 
 abstract class _$PelangganAktif extends $AsyncNotifier<PelangganAktifState> {
   FutureOr<PelangganAktifState> build();
@@ -53,3 +53,37 @@ abstract class _$PelangganAktif extends $AsyncNotifier<PelangganAktifState> {
     return element.handleCreate(ref, build);
   }
 }
+
+@ProviderFor(detailPelangganAktif)
+final detailPelangganAktifProvider = DetailPelangganAktifProvider._();
+
+final class DetailPelangganAktifProvider
+    extends $FunctionalProvider<AsyncValue<void>, void, FutureOr<void>>
+    with $FutureModifier<void>, $FutureProvider<void> {
+  DetailPelangganAktifProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'detailPelangganAktifProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$detailPelangganAktifHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<void> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<void> create(Ref ref) {
+    return detailPelangganAktif(ref);
+  }
+}
+
+String _$detailPelangganAktifHash() =>
+    r'27f1d5c020290ba608e0f2cfb0d8715a4f2ee1e8';

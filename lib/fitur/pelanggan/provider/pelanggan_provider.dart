@@ -109,6 +109,14 @@ class SearchQueryPelanggan extends _$SearchQueryPelanggan {
 }
 
 @riverpod
+Future<String?> namaPelanggan(Ref ref, String idPelanggan) async {
+  if (idPelanggan.isEmpty) return null;
+  final pelangganOp = ref.watch(pelangganOpGlobalProvider);
+  final pelanggan = await pelangganOp.ambilBerdasarkanId(idPelanggan);
+  return pelanggan?.nama;
+}
+
+@riverpod
 Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
   final pelangganOpSqlte = ref.watch(pelangganOpSqliteProvider);
   final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);

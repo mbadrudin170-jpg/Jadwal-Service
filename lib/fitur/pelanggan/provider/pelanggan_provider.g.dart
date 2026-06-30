@@ -165,6 +165,75 @@ abstract class _$SearchQueryPelanggan extends $Notifier<String> {
   }
 }
 
+@ProviderFor(namaPelanggan)
+final namaPelangganProvider = NamaPelangganFamily._();
+
+final class NamaPelangganProvider
+    extends $FunctionalProvider<AsyncValue<String?>, String?, FutureOr<String?>>
+    with $FutureModifier<String?>, $FutureProvider<String?> {
+  NamaPelangganProvider._({
+    required NamaPelangganFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'namaPelangganProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$namaPelangganHash();
+
+  @override
+  String toString() {
+    return r'namaPelangganProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String?> create(Ref ref) {
+    final argument = this.argument as String;
+    return namaPelanggan(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is NamaPelangganProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$namaPelangganHash() => r'158af6b8173dce7c341de04944963d1c3247f2ab';
+
+final class NamaPelangganFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<String?>, String> {
+  NamaPelangganFamily._()
+    : super(
+        retry: null,
+        name: r'namaPelangganProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  NamaPelangganProvider call(String idPelanggan) =>
+      NamaPelangganProvider._(argument: idPelanggan, from: this);
+
+  @override
+  String toString() => r'namaPelangganProvider';
+}
+
 @ProviderFor(pelangganDetail)
 final pelangganDetailProvider = PelangganDetailFamily._();
 

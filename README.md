@@ -2472,7 +2472,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
     unawaited(
       Navigator.push<void>(
         context,
-        MaterialPageRoute<void>(
+        MaterialPageRoute(
           builder: (context) =>
               FormPelangganAktif(pelangganAktif: pelangganaktif),
         ),
@@ -2764,6 +2764,7 @@ import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -2862,12 +2863,13 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
       ),
     );
 
-    if (konfirmasi ?? false) {
+    if (konfirmasi == true) {
       try {
         await _pelangganAktifOpSqlite.softDeletePelangganAktifDanTransaksi(
           idPelangganAktif,
           idTransaksi,
         );
+        ref.read(transaksiProvider.notifier).invalidateSistemTerkait();
         Log.info('Berhasil soft delete pelanggan ID: $idPelangganAktif');
         if (mounted) {
           ToastUtil.success(
@@ -3010,7 +3012,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
             ],
           ),
         );
-        if (konfirmasi ?? false) {
+        if (konfirmasi == true) {
           try {
             Log.warning('Eksekusi arsipkan semua pelanggan aktif');
             await _pelangganAktifOpSqlite.softDeleteAll();
@@ -3402,358 +3404,21 @@ class PengurutPelangganAktif {
 }
 
 
-// File: lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.g.dart
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
-part of 'pelanggan_aktif_provider.dart';
-
-// **************************************************************************
-// RiverpodGenerator
-// **************************************************************************
-
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
-
-@ProviderFor(PelangganAktif)
-final pelangganAktifProvider = PelangganAktifProvider._();
-
-final class PelangganAktifProvider
-    extends $AsyncNotifierProvider<PelangganAktif, PelangganAktifState> {
-  PelangganAktifProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'pelangganAktifProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$pelangganAktifHash();
-
-  @$internal
-  @override
-  PelangganAktif create() => PelangganAktif();
-}
-
-String _$pelangganAktifHash() => r'470d4f278efa561fb4fd2a31c9ca4a866b10ea18';
-
-abstract class _$PelangganAktif extends $AsyncNotifier<PelangganAktifState> {
-  FutureOr<PelangganAktifState> build();
-  @$mustCallSuper
-  @override
-  WhenComplete runBuild() {
-    final ref =
-        this.ref as $Ref<AsyncValue<PelangganAktifState>, PelangganAktifState>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<AsyncValue<PelangganAktifState>, PelangganAktifState>,
-              AsyncValue<PelangganAktifState>,
-              Object?,
-              Object?
-            >;
-    return element.handleCreate(ref, build);
-  }
-}
-
-
-// File: lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.freezed.dart
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// coverage:ignore-file
-// ignore_for_file: type=lint
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
-
-part of 'pelanggan_aktif_provider.dart';
-
-// **************************************************************************
-// FreezedGenerator
-// **************************************************************************
-
-// dart format off
-T _$identity<T>(T value) => value;
-/// @nodoc
-mixin _$PelangganAktifState {
-
- List<DetailPelangganAktifModel> get daftarPelangganAktif; int get jumlahPelangganAktif;
-/// Create a copy of PelangganAktifState
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$PelangganAktifStateCopyWith<PelangganAktifState> get copyWith => _$PelangganAktifStateCopyWithImpl<PelangganAktifState>(this as PelangganAktifState, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PelangganAktifState&&const DeepCollectionEquality().equals(other.daftarPelangganAktif, daftarPelangganAktif)&&(identical(other.jumlahPelangganAktif, jumlahPelangganAktif) || other.jumlahPelangganAktif == jumlahPelangganAktif));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(daftarPelangganAktif),jumlahPelangganAktif);
-
-@override
-String toString() {
-  return 'PelangganAktifState(daftarPelangganAktif: $daftarPelangganAktif, jumlahPelangganAktif: $jumlahPelangganAktif)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $PelangganAktifStateCopyWith<$Res>  {
-  factory $PelangganAktifStateCopyWith(PelangganAktifState value, $Res Function(PelangganAktifState) _then) = _$PelangganAktifStateCopyWithImpl;
-@useResult
-$Res call({
- List<DetailPelangganAktifModel> daftarPelangganAktif, int jumlahPelangganAktif
-});
-
-
-
-
-}
-/// @nodoc
-class _$PelangganAktifStateCopyWithImpl<$Res>
-    implements $PelangganAktifStateCopyWith<$Res> {
-  _$PelangganAktifStateCopyWithImpl(this._self, this._then);
-
-  final PelangganAktifState _self;
-  final $Res Function(PelangganAktifState) _then;
-
-/// Create a copy of PelangganAktifState
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? daftarPelangganAktif = null,Object? jumlahPelangganAktif = null,}) {
-  return _then(_self.copyWith(
-daftarPelangganAktif: null == daftarPelangganAktif ? _self.daftarPelangganAktif : daftarPelangganAktif // ignore: cast_nullable_to_non_nullable
-as List<DetailPelangganAktifModel>,jumlahPelangganAktif: null == jumlahPelangganAktif ? _self.jumlahPelangganAktif : jumlahPelangganAktif // ignore: cast_nullable_to_non_nullable
-as int,
-  ));
-}
-
-}
-
-
-/// Adds pattern-matching-related methods to [PelangganAktifState].
-extension PelangganAktifStatePatterns on PelangganAktifState {
-/// A variant of `map` that fallback to returning `orElse`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _PelangganAktifState value)?  $default,{required TResult orElse(),}){
-final _that = this;
-switch (_that) {
-case _PelangganAktifState() when $default != null:
-return $default(_that);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// Callbacks receives the raw object, upcasted.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case final Subclass2 value:
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _PelangganAktifState value)  $default,){
-final _that = this;
-switch (_that) {
-case _PelangganAktifState():
-return $default(_that);case _:
-  throw StateError('Unexpected subclass');
-
-}
-}
-/// A variant of `map` that fallback to returning `null`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _PelangganAktifState value)?  $default,){
-final _that = this;
-switch (_that) {
-case _PelangganAktifState() when $default != null:
-return $default(_that);case _:
-  return null;
-
-}
-}
-/// A variant of `when` that fallback to an `orElse` callback.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif,  int jumlahPelangganAktif)?  $default,{required TResult orElse(),}) {final _that = this;
-switch (_that) {
-case _PelangganAktifState() when $default != null:
-return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// As opposed to `map`, this offers destructuring.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case Subclass2(:final field2):
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif,  int jumlahPelangganAktif)  $default,) {final _that = this;
-switch (_that) {
-case _PelangganAktifState():
-return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
-  throw StateError('Unexpected subclass');
-
-}
-}
-/// A variant of `when` that fallback to returning `null`
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<DetailPelangganAktifModel> daftarPelangganAktif,  int jumlahPelangganAktif)?  $default,) {final _that = this;
-switch (_that) {
-case _PelangganAktifState() when $default != null:
-return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
-  return null;
-
-}
-}
-
-}
-
-/// @nodoc
-
-
-class _PelangganAktifState implements PelangganAktifState {
-  const _PelangganAktifState({final  List<DetailPelangganAktifModel> daftarPelangganAktif = const [], this.jumlahPelangganAktif = 0}): _daftarPelangganAktif = daftarPelangganAktif;
-  
-
- final  List<DetailPelangganAktifModel> _daftarPelangganAktif;
-@override@JsonKey() List<DetailPelangganAktifModel> get daftarPelangganAktif {
-  if (_daftarPelangganAktif is EqualUnmodifiableListView) return _daftarPelangganAktif;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_daftarPelangganAktif);
-}
-
-@override@JsonKey() final  int jumlahPelangganAktif;
-
-/// Create a copy of PelangganAktifState
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-_$PelangganAktifStateCopyWith<_PelangganAktifState> get copyWith => __$PelangganAktifStateCopyWithImpl<_PelangganAktifState>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PelangganAktifState&&const DeepCollectionEquality().equals(other._daftarPelangganAktif, _daftarPelangganAktif)&&(identical(other.jumlahPelangganAktif, jumlahPelangganAktif) || other.jumlahPelangganAktif == jumlahPelangganAktif));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_daftarPelangganAktif),jumlahPelangganAktif);
-
-@override
-String toString() {
-  return 'PelangganAktifState(daftarPelangganAktif: $daftarPelangganAktif, jumlahPelangganAktif: $jumlahPelangganAktif)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class _$PelangganAktifStateCopyWith<$Res> implements $PelangganAktifStateCopyWith<$Res> {
-  factory _$PelangganAktifStateCopyWith(_PelangganAktifState value, $Res Function(_PelangganAktifState) _then) = __$PelangganAktifStateCopyWithImpl;
-@override @useResult
-$Res call({
- List<DetailPelangganAktifModel> daftarPelangganAktif, int jumlahPelangganAktif
-});
-
-
-
-
-}
-/// @nodoc
-class __$PelangganAktifStateCopyWithImpl<$Res>
-    implements _$PelangganAktifStateCopyWith<$Res> {
-  __$PelangganAktifStateCopyWithImpl(this._self, this._then);
-
-  final _PelangganAktifState _self;
-  final $Res Function(_PelangganAktifState) _then;
-
-/// Create a copy of PelangganAktifState
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? daftarPelangganAktif = null,Object? jumlahPelangganAktif = null,}) {
-  return _then(_PelangganAktifState(
-daftarPelangganAktif: null == daftarPelangganAktif ? _self._daftarPelangganAktif : daftarPelangganAktif // ignore: cast_nullable_to_non_nullable
-as List<DetailPelangganAktifModel>,jumlahPelangganAktif: null == jumlahPelangganAktif ? _self.jumlahPelangganAktif : jumlahPelangganAktif // ignore: cast_nullable_to_non_nullable
-as int,
-  ));
-}
-
-
-}
-
-// dart format on
-
-
 // File: lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart
 // path: lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/shared/export/model.dart';
 
 part 'pelanggan_aktif_provider.g.dart';
 part 'pelanggan_aktif_provider.freezed.dart';
@@ -3786,27 +3451,13 @@ class PelangganAktif extends _$PelangganAktif {
   }
 
   Future<void> tambahPelangganAktif(PelangganAktifModel pelangganAktif) async {
-    state = await AsyncValue.guard(() async {
-      await pelangganAktifOpSqlite.tambahPelangganAktif(pelangganAktif);
-      final hasil = await pelangganAktifOpSqlite
-          .ambilSemuaPelangganAktifDenganDetail();
-      return PelangganAktifState(
-        daftarPelangganAktif: hasil,
-        jumlahPelangganAktif: hasil.length,
-      );
-    });
+    await pelangganAktifOpSqlite.tambahPelangganAktif(pelangganAktif);
+    invalidatePelangganAktif();
   }
 
   Future<void> updatePelangganAktif(PelangganAktifModel pelangganAktif) async {
-    state = await AsyncValue.guard(() async {
-      await pelangganAktifOpSqlite.updatePelangganAktif(pelangganAktif);
-      final hasil = await pelangganAktifOpSqlite
-          .ambilSemuaPelangganAktifDenganDetail();
-      return PelangganAktifState(
-        daftarPelangganAktif: hasil,
-        jumlahPelangganAktif: hasil.length,
-      );
-    });
+    await pelangganAktifOpSqlite.updatePelangganAktif(pelangganAktif);
+    invalidatePelangganAktif();
   }
 
   Future<void> perbaruiData() async {
@@ -3820,6 +3471,28 @@ class PelangganAktif extends _$PelangganAktif {
       );
     });
   }
+
+  void invalidatePelangganAktif() {
+    ref.invalidateSelf();
+    ref.invalidate(transaksiProvider);
+  }
+}
+
+@freezed
+abstract class DetailPelangganAktifState with _$DetailPelangganAktifState {
+  const factory DetailPelangganAktifState({
+    required PelangganAktifModel pelangganAktif,
+    required PelangganModel pelanggan,
+    required TransaksiModel transaksi,
+    required PaketModel paket,
+  }) = _DetailPelangganAktifState;
+}
+
+@riverpod
+Future<void> detailPelangganAktif(Ref ref) async {
+  final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
+  await pelangganAktifOpSqlite.ambilSemuaPelangganAktifDenganDetail();
+  return;
 }
 
 
@@ -9772,7 +9445,7 @@ final class PaketProvider extends $AsyncNotifierProvider<Paket, PaketState> {
   Paket create() => Paket();
 }
 
-String _$paketHash() => r'5fef2281a7974d52ea0f0e82686182ef575c1c12';
+String _$paketHash() => r'035fe50a6f279f2316e7412c89b48a9c4e21e767';
 
 abstract class _$Paket extends $AsyncNotifier<PaketState> {
   FutureOr<PaketState> build();
@@ -22877,7 +22550,7 @@ final class DaftarFeedbackAktifProvider
 }
 
 String _$daftarFeedbackAktifHash() =>
-    r'58cbd840ace4249dbd8a4ebeb5a2f386f8eb79b5';
+    r'2a7e57222609098c9810edf1ace92502e804d1c1';
 
 @ProviderFor(detailFeedback)
 final detailFeedbackProvider = DetailFeedbackFamily._();
@@ -51718,9 +51391,7 @@ lib
 │   │   │   ├── form_pelanggan_aktif.dart
 │   │   │   └── pelanggan_aktif_page.dart
 │   │   └── provider
-│   │       ├── pelanggan_aktif_provider.dart
-│   │       ├── pelanggan_aktif_provider.freezed.dart
-│   │       └── pelanggan_aktif_provider.g.dart
+│   │       └── pelanggan_aktif_provider.dart
 │   ├── poin
 │   │   ├── operasi
 │   │   │   ├── firebase_points_data_source.dart
@@ -52164,7 +51835,7 @@ test
         ├── perhitungan_util_test.dart
         └── toast_util_test.dart
 
-226 directories, 430 files
+226 directories, 428 files
 tree is not installed, but available in the following packages, pick one to run it, Ctrl+C to cancel.
 
 
