@@ -62,10 +62,7 @@ Poin: $totalPoin
     }
   }
 
-  Future<void> _editPelanggan(
-    BuildContext context,
-    PelangganModel pelanggan,
-  ) async {
+  void _editPelanggan(BuildContext context, PelangganModel pelanggan) {
     Log.info('Navigasi ke form edit pelanggan: ${pelanggan.nama}');
     unawaited(
       Navigator.push<void>(
@@ -96,43 +93,45 @@ Poin: $totalPoin
   Widget build(BuildContext context) {
     final detailAsync = ref.watch(pelangganDetailProvider(widget.idPelanggan));
 
-    return detailAsync.when(
-      skipLoadingOnReload: true,
-      loading: () => Scaffold(
-        appBar: AppBar(title: const Text('Memuat Detail...')),
-        body: const Center(child: CircularProgressIndicator()),
-      ),
-      error: (e, s) {
-        Log.error(
-          'Gagal mengambil data pelanggan ID: ${widget.idPelanggan}.',
-          e: e,
-          s: s,
-        );
-        return Scaffold(
-          appBar: AppBar(title: const Text('Detail Pelanggan')),
-          body: Center(child: Text('Gagal memuat data: $e')),
-        );
-      },
-      data: (data) {
-        final (pelanggan, totalPoin) = data;
-        if (pelanggan == null) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Detail Pelanggan')),
-            body: const Center(child: Text('Pelanggan tidak ditemukan')),
-          );
-        }
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Profil Pelanggan'),
-            actions: [
-              IconButton(
-                icon: const Icon(TIcons.edit),
-                tooltip: 'Edit Profil',
-                onPressed: () => _editPelanggan(context, pelanggan),
-              ),
-            ],
+    // AppBar selalu tampil, body berubah sesuai state AsyncValue
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profil Pelanggan'),
+        actions: [
+          // Tombol edit tetap tampil hanya jika data tersedia nanti,
+          // tapi kita bisa menampilkan tombol yang memanggil fungsi edit
+          // setelah data tersedia. Untuk menghindari tombol aktif tanpa data,
+          // kita cek detailAsync saat ditekan.
+          IconButton(
+            icon: const Icon(TIcons.edit),
+            tooltip: 'Edit Profil',
+            onPressed: () async {
+              final data = detailAsync.asData?.value;
+              if (data == null) return;
+              final (pelanggan, _) = data;
+              if (pelanggan == null) return;
+              _editPelanggan(context, pelanggan);
+            },
           ),
-          body: SingleChildScrollView(
+        ],
+      ),
+      body: detailAsync.when(
+        skipLoadingOnReload: true,
+        loading: () => const Center(child: SizedBox.shrink()),
+        error: (e, s) {
+          Log.error(
+            'Gagal mengambil data pelanggan ID: ${widget.idPelanggan}.',
+            e: e,
+            s: s,
+          );
+          return Center(child: Text('Gagal memuat data: $e'));
+        },
+        data: (data) {
+          final (pelanggan, totalPoin) = data;
+          if (pelanggan == null) {
+            return const Center(child: Text('Pelanggan tidak ditemukan'));
+          }
+          return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -156,9 +155,9 @@ Poin: $totalPoin
                   ),
               ],
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
