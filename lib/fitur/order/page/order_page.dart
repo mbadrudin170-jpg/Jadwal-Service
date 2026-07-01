@@ -68,6 +68,11 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     );
   }
 
+  Future<void> _softDeleteAll(String id) async {
+    await ref.read(orderOpGlobalProvider).softDelete(id);
+    
+  }
+
   /// ✅ PERBAIKAN 2: Fungsi ubah status sekarang pakai await dengan benar
   Future<void> _ubahStatus(
     BuildContext context,

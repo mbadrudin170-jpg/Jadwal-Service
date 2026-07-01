@@ -5963,6 +5963,7 @@ import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/poin/poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
@@ -6084,8 +6085,11 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           showDialog<void>(
             context: context,
             barrierDismissible: false,
-            builder: (context) =>
-                SizedBox(width:25,height: 25, child: Center(child: CircularProgressIndicator())),
+            builder: (context) => SizedBox(
+              width: 25,
+              height: 25,
+              child: Center(child: CircularProgressIndicator()),
+            ),
           ),
         );
       }
@@ -6097,12 +6101,8 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           paket: hadiah,
           poinSaatIni: poinSaatIni,
         );
+        _invalidateProviderTerkait(null, widget.idPelanggan);
         if (mounted) {
-          try {
-            _invalidateProviderTerkait(null);
-          } catch (e) {
-            Log.error('Gagal invalidasi provider', e: e);
-          }
           ToastUtil.success(
             context,
             'Order sudah terkirim menunggu konfirmasi Admin',
@@ -6172,12 +6172,13 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     }
   }
 
-  void _invalidateProviderTerkait(String? idDompet) {
+  void _invalidateProviderTerkait(String? idDompet, String? idPelanggan) {
     ref.read(transaksiOpGlobalProvider).invalidate(idDompet);
     ref.read(orderProvider.notifier).invalidateOrderProvider();
     if (ref.isAdmin) {
       ref.read(pelangganAktifProvider.notifier).invalidatePelangganAktif();
     }
+    ref.read(pelangganProvider.notifier).invalidateDetailPelanggan(idPelanggan);
   }
 
   @override
@@ -11951,6 +11952,7 @@ import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_paket_widget.dart';
@@ -12005,6 +12007,11 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         );
       },
     );
+  }
+
+  Future<void> _softDeleteAll(String id) async {
+    await ref.read(orderOpGlobalProvider).softDelete(id);
+    
   }
 
   /// ✅ PERBAIKAN 2: Fungsi ubah status sekarang pakai await dengan benar
@@ -12162,7 +12169,10 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     Log.info('OrderPage build dipanggil, filterAktif: $_filterAktif');
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Pesanan Saya')),
+      appBar: AppBar(
+        title: const Text('Pesanan Saya'),
+        actions: [IconButton(onPressed: () {}, icon: Icon(TIcons.delete))],
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Column(
@@ -12770,7 +12780,7 @@ final class OrderProvider extends $AsyncNotifierProvider<Order, OrderState> {
   Order create() => Order();
 }
 
-String _$orderHash() => r'549fe16969e46f27af5c8b1e062dee3daac26402';
+String _$orderHash() => r'3f706d5c4f2ad40cbc1ab8c1cd218825ee33d73c';
 
 abstract class _$Order extends $AsyncNotifier<OrderState> {
   FutureOr<OrderState> build();
@@ -12827,7 +12837,7 @@ final class DaftarPesananProvider
   }
 }
 
-String _$daftarPesananHash() => r'96c3c307bac18f01c28a0290916446f32f53c473';
+String _$daftarPesananHash() => r'9d650571c28b5c1b23bdef7cbd312befde5eba16';
 
 
 // File: lib/fitur/order/provider/order_provider.dart
@@ -31400,9 +31410,8 @@ class Transaksi extends _$Transaksi {
       _transaksiOp.ambilTotalPendapatanPerbulan(), //[9]
     ]);
 
-    final transaksi = hasil[0] as List<TransaksiModel>;
     return TransaksiState(
-      transaksi: transaksi,
+      transaksi: hasil[0] as List<TransaksiModel>,
       totalPemasukan: hasil[1] as double,
       totalPengeluaran: hasil[2] as double,
       total: hasil[3] as double,
@@ -31415,7 +31424,6 @@ class Transaksi extends _$Transaksi {
     );
   }
 
-  // ✅ Method untuk ambil poin per pelanggan
   Future<int> getTotalPoinPelanggan(String idPelanggan) async {
     return await _transaksiOp.ambilTotalPoin(idPelanggan);
   }
@@ -31438,49 +31446,9 @@ class Transaksi extends _$Transaksi {
     return await Future.wait(futures);
   }
 
-  // Future<void> tambahTransaksi(TransaksiModel transaksi) async {
-  //   await _transaksiOp.tambahTransaksi(transaksi);
-  //   invalidateProviderTransaksi();
-  // }
-
-  // Future<void> updateTransaksi(TransaksiModel transaksi) async {
-  //   await _transaksiOp.perbaruiTransaksi(transaksi.id, transaksi);
-  //   invalidateProviderTransaksi();
-  // }
-
-  // Future<void> softDelete(String id) async {
-  //   await _transaksiOp.softDelete(id);
-  //   invalidateProviderTransaksi();
-  // }
-
-  // Future<void> softDeleteAll() async {
-  //   await _transaksiOp.softDeleteAll();
-  //   invalidateProviderTransaksi();
-  // }
-
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(_loadData);
-  }
-
-  Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
-    Ref ref,
-    String idPelanggan,
-  ) async {
-    Log.info(
-      '[RiwayatPoin] 🔍 Mengambil riwayat poin untuk pelanggan: $idPelanggan',
-    );
-    try {
-      final transaksiOp = ref.read(transaksiOpGlobalProvider);
-      final semuaTransaksi = await transaksiOp.ambilBerdasarkanIdPelanggan(
-        idPelanggan,
-      );
-      Log.info('[RiwayatPoin] 📊 Total transaksi: ${semuaTransaksi.length}');
-      return semuaTransaksi;
-    } catch (e, s) {
-      Log.error('[RiwayatPoin] ❌ ERROR: $e', e: e, s: s);
-      rethrow;
-    }
   }
 
   void invalidateProviderTransaksi() {
@@ -31508,6 +31476,27 @@ riwayatTransaksiPelanggan(Ref ref, String idPelanggan) async {
     return (transaksi: semuaTransaksi, totalPoin: totalPoinUser);
   } catch (e, s) {
     Log.error('[RiwayatTransaksi] ❌ ERROR: $e', e: e, s: s);
+    rethrow;
+  }
+}
+
+@riverpod
+Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
+  Ref ref,
+  String idPelanggan,
+) async {
+  Log.info(
+    '[RiwayatPoin] 🔍 Mengambil riwayat poin untuk pelanggan: $idPelanggan',
+  );
+  try {
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
+    final semuaTransaksi = await transaksiOp.ambilBerdasarkanIdPelanggan(
+      idPelanggan,
+    );
+    Log.info('[RiwayatPoin] 📊 Total transaksi: ${semuaTransaksi.length}');
+    return semuaTransaksi;
+  } catch (e, s) {
+    Log.error('[RiwayatPoin] ❌ ERROR: $e', e: e, s: s);
     rethrow;
   }
 }
@@ -31549,7 +31538,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'07baf9da3bf9b7239d528627c68e00c3c2341086';
+String _$transaksiHash() => r'6edc2e16912803b946920322513f6e24309f6126';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -31649,6 +31638,86 @@ final class RiwayatTransaksiPelangganFamily extends $Family
 
   @override
   String toString() => r'riwayatTransaksiPelangganProvider';
+}
+
+@ProviderFor(ambilBerdasarkanIdPelanggan)
+final ambilBerdasarkanIdPelangganProvider =
+    AmbilBerdasarkanIdPelangganFamily._();
+
+final class AmbilBerdasarkanIdPelangganProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<TransaksiModel>>,
+          List<TransaksiModel>,
+          FutureOr<List<TransaksiModel>>
+        >
+    with
+        $FutureModifier<List<TransaksiModel>>,
+        $FutureProvider<List<TransaksiModel>> {
+  AmbilBerdasarkanIdPelangganProvider._({
+    required AmbilBerdasarkanIdPelangganFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'ambilBerdasarkanIdPelangganProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$ambilBerdasarkanIdPelangganHash();
+
+  @override
+  String toString() {
+    return r'ambilBerdasarkanIdPelangganProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<TransaksiModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<TransaksiModel>> create(Ref ref) {
+    final argument = this.argument as String;
+    return ambilBerdasarkanIdPelanggan(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is AmbilBerdasarkanIdPelangganProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$ambilBerdasarkanIdPelangganHash() =>
+    r'1c8553214c1e46644e83fae77251cef6ec393e09';
+
+final class AmbilBerdasarkanIdPelangganFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<TransaksiModel>>, String> {
+  AmbilBerdasarkanIdPelangganFamily._()
+    : super(
+        retry: null,
+        name: r'ambilBerdasarkanIdPelangganProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  AmbilBerdasarkanIdPelangganProvider call(String idPelanggan) =>
+      AmbilBerdasarkanIdPelangganProvider._(argument: idPelanggan, from: this);
+
+  @override
+  String toString() => r'ambilBerdasarkanIdPelangganProvider';
 }
 
 
@@ -35351,7 +35420,7 @@ final class PelangganDetailProvider
   }
 }
 
-String _$pelangganDetailHash() => r'c416415c0d014d3e761bbfb96bc45cfdc084ce5d';
+String _$pelangganDetailHash() => r'27eea80f9c820604463c983ccddf286ed828d60f';
 
 final class PelangganDetailFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<(PelangganModel?, int)>, String> {
@@ -35364,8 +35433,8 @@ final class PelangganDetailFamily extends $Family
         isAutoDispose: true,
       );
 
-  PelangganDetailProvider call(String id) =>
-      PelangganDetailProvider._(argument: id, from: this);
+  PelangganDetailProvider call(String idPelanggan) =>
+      PelangganDetailProvider._(argument: idPelanggan, from: this);
 
   @override
   String toString() => r'pelangganDetailProvider';
@@ -35463,11 +35532,14 @@ Future<String?> namaPelanggan(Ref ref, String idPelanggan) async {
 }
 
 @riverpod
-Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
+Future<(PelangganModel?, int)> pelangganDetail(
+  Ref ref,
+  String idPelanggan,
+) async {
   final pelangganOp = ref.watch(pelangganOpGlobalProvider);
   final transaksiOp = ref.watch(transaksiOpGlobalProvider);
-  final pelanggan = await pelangganOp.ambilBerdasarkanId(id);
-  final poin = await transaksiOp.ambilTotalPoin(id);
+  final pelanggan = await pelangganOp.ambilBerdasarkanId(idPelanggan);
+  final poin = await transaksiOp.ambilTotalPoin(idPelanggan);
   return (pelanggan, poin);
 }
 
@@ -40819,12 +40891,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
+import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
+import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -40832,24 +40909,9 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_provider.dart';
-
-class _DaataProfil {
-  final PelangganModel pelanggan;
-  final int totalPoin;
-  final double totalTagihanBelumLunas;
-  final TransaksiModel? transaksi;
-  final PaketModel? paket;
-
-  _DaataProfil({
-    required this.pelanggan,
-    required this.totalPoin,
-    required this.totalTagihanBelumLunas,
-    this.transaksi,
-    this.paket,
-  });
-}
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
@@ -40860,163 +40922,122 @@ class ProfilePage extends ConsumerStatefulWidget {
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   late final PaketOpFirebase _paketOpFirebase;
-  Future<_DaataProfil>? _futureProfileData;
+
   @override
   void initState() {
     super.initState();
     unawaited(ref.read(interstitialAdServiceProvider).preloadAd());
     _paketOpFirebase = ref.read(paketOpFirebaseProvider);
-    _futureProfileData = _loadProfileData();
-  }
-
-  Future<_DaataProfil> _loadProfileData() async {
-    final userId = await ref.watch(userIdProvider.future);
-    if (userId == null) {
-      throw Exception('ID Pengguna tidak ditemukan, mohon login kembali.');
-    }
-    Log.info('Memulai pengambilan data profil lengkap untuk userId: $userId.');
-    final pelangganOp = ref.read(pelangganOpGlobalProvider);
-    final transaksiOp = ref.read(transaksiOpGlobalProvider);
-    try {
-      final pelanggan = await pelangganOp.ambilBerdasarkanId(userId);
-      if (pelanggan == null) {
-        throw Exception('Pelanggan dengan ID  tidak ditemukan.');
-      }
-      Log.info('Data pelanggan berhasil diambil: ${pelanggan.nama}.');
-
-      final hasil = await Future.wait([
-        transaksiOp.ambilTotalPoin(pelanggan.id),
-        transaksiOp.ambilBerdasarkanIdPelanggan(pelanggan.id),
-      ]);
-      final totalPoin = hasil[0] as int;
-      final daftarPaketAktif = hasil[1] as List<TransaksiModel>;
-      Log.info(
-        'Total poin diambil: $totalPoin. Langganan aktif ditemukan: ${daftarPaketAktif.length}.',
-      );
-      final totalTagihanBelumLunas = daftarPaketAktif
-          .where((trx) => trx.statusPembayaran == StatusPembayaran.unpaid)
-          .fold<double>(0.0, (sum, trx) => sum + trx.jumlah);
-
-      final sekarang = DateTime.now();
-      final daftarMasihAktif = daftarPaketAktif
-          .where(
-            (trx) =>
-                trx.tanggalBerakhir != null &&
-                trx.tanggalBerakhir!.isAfter(sekarang),
-          )
-          .toList();
-      TransaksiModel? paketAktif;
-      PaketModel? paket;
-      if (daftarMasihAktif.isNotEmpty) {
-        paketAktif = daftarPaketAktif.reduce(
-          (a, b) => a.tanggalBerakhir!.isAfter(b.tanggalBerakhir!) ? a : b,
-        );
-        Log.info(
-          'Langganan terakhir berakhir pada: ${paketAktif.tanggalBerakhir}.',
-        );
-        if (paketAktif.idPaket != null) {
-          paket = await _paketOpFirebase.ambilBerdasarkanId(
-            paketAktif.idPaket!,
-          );
-          Log.info('Detail paket "${paket?.nama}" berhasil diambil.');
-        }
-      }
-      return _DaataProfil(
-        pelanggan: pelanggan,
-        totalPoin: totalPoin,
-        transaksi: paketAktif,
-        totalTagihanBelumLunas: totalTagihanBelumLunas,
-        paket: paket,
-      );
-    } on Exception catch (e, st) {
-      Log.error('Gagal total memuat data profil.', e: e, s: st);
-      if (mounted) {
-        ToastUtil.error(context, 'Gagal memuat data profil.');
-      }
-      rethrow;
-    }
-  }
-
-  Future<void> _reloadData() async {
-    setState(() {
-      _futureProfileData = _loadProfileData();
-    });
-    await _futureProfileData;
-    if (mounted) {
-      ToastUtil.success(context, 'Data berhasil diperbarui.');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final userId = ref.watch(userIdProvider).value ?? '';
+    final transaksiAsync = ref.watch(transaksiProvider);
+    final pelangganAsync = ref.watch(pelangganDetailProvider(userId));
+
     return Scaffold(
       appBar: AppBar(title: const Text('Profil Pelanggan')),
-      body: FutureBuilder<_DaataProfil>(
-        future: _futureProfileData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            Log.error(
-              'FutureBuilder<_ProfileData> error: ${snapshot.error}.',
-              e: snapshot.error,
-              s: snapshot.stackTrace,
+      body: transaksiAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, s) => Center(child: Text('Error: $e')),
+        data: (daftarTransaksi) {
+          final totalPoin = daftarTransaksi.transaksi.where(
+            (t) => (t.poinDidapat - t.poinDigunakan).toInt(),
+          );
+          final totalTagihan = daftarTransaksi
+              .where((t) => t.statusPembayaran == StatusPembayaran.unpaid)
+              .fold<double>(0, (sum, t) => sum + t.jumlah);
+          final sekarang = DateTime.now();
+          final transaksiAktif = daftarTransaksi
+              .where(
+                (t) =>
+                    t.tanggalBerakhir != null &&
+                    t.tanggalBerakhir!.isAfter(sekarang),
+              )
+              .toList();
+          TransaksiModel? paketAktif;
+          if (transaksiAktif.isNotEmpty) {
+            paketAktif = transaksiAktif.reduce(
+              (a, b) => a.tanggalBerakhir!.isAfter(b.tanggalBerakhir!) ? a : b,
             );
-            return Center(child: Text('Terjadi Error: ${snapshot.error}'));
           }
-          if (!snapshot.hasData) {
-            final userId = ref.watch(userIdProvider);
-            return Center(child: Text('Profil ID: $userId tidak ditemukan.'));
-          }
-          final profileData = snapshot.data!;
-          final pelanggan = profileData.pelanggan;
           return RefreshIndicator(
-            onRefresh: _reloadData,
+            onRefresh: () async {
+              ref.invalidate(transaksiProvider);
+              ref.invalidate(pelangganDetailProvider(userId));
+            },
             child: ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
+                // Kartu Informasi Pribadi
                 _buildInfoCard(
                   context,
                   title: 'Informasi Pribadi',
                   icon: TIcons.person,
                   children: [
+                    // Nama (widget kustom)
                     _InfoItem(
                       icon: TIcons.personOutlined,
                       label: 'Nama Lengkap',
-                      value: pelanggan.nama,
+                      valueKustom: NamaPelangganWidget(
+                        idPelanggan: userId,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                       trailingIcon: TIcons.chevronRight,
-                      onTap: () => _navigasiKeDetail(pelanggan.id),
+                      onTap: () => _navigasiKeDetail(userId),
                     ),
+                    // Poin
                     _InfoItem(
                       icon: TIcons.points,
                       label: 'Poin',
-                      value: profileData.totalPoin.toString(),
+                      value: totalPoin.toString(),
                       trailingIcon: TIcons.chevronRight,
-                      onTap: () => _navigasiKePoin(pelanggan.id),
+                      onTap: () => _navigasiKePoin(userId),
                     ),
-                    if (profileData.totalTagihanBelumLunas > 0)
+                    // Tagihan (jika ada)
+                    if (totalTagihan > 0)
                       _InfoItem(
                         icon: TIcons.money,
                         label: 'Tagihan Belum Lunas',
-                        value: FormatUang.formatMataUang(
-                          profileData.totalTagihanBelumLunas,
-                        ),
+                        value: FormatUang.formatMataUang(totalTagihan),
                         valueColor: Colors.red,
                       ),
                   ],
                 ),
                 gapH16,
+                // Kartu Informasi Paket Aktif
                 _buildInfoCard(
                   context,
                   title: 'Informasi Paket Aktif',
                   icon: TIcons.wifi,
                   children: [
-                    _buildDetailPaketAktif(
-                      context,
-                      profileData.transaksi,
-                      profileData.paket,
-                    ),
+                    if (paketAktif != null)
+                      // Ambil detail paket jika perlu
+                      FutureBuilder<PaketModel?>(
+                        future: paketAktif.idPaket != null
+                            ? _paketOpFirebase.ambilBerdasarkanId(
+                                paketAktif.idPaket!,
+                              )
+                            : Future.value(null),
+                        builder: (context, snapshot) {
+                          final paket = snapshot.data;
+                          return _buildDetailPaketAktif(
+                            context,
+                            paketAktif!,
+                            paket,
+                          );
+                        },
+                      )
+                    else
+                      const _InfoItem(
+                        icon: TIcons.noWifi,
+                        label: 'Paket Aktif',
+                        value: 'Tidak ada paket aktif.',
+                      ),
                   ],
                 ),
               ],
@@ -41029,14 +41050,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   Widget _buildDetailPaketAktif(
     BuildContext context,
-    TransaksiModel? transaksi,
+    TransaksiModel transaksi,
     PaketModel? paket,
   ) {
-    if (transaksi == null) {
+    if (transaksi.tanggalBerakhir == null) {
       return const _InfoItem(
         icon: TIcons.noWifi,
         label: 'Paket Aktif',
-        value: 'Tidak ada paket aktif.',
+        value: 'Data tidak lengkap.',
       );
     }
     final String teksMasaAktif = PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
@@ -41164,7 +41185,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 class _InfoItem extends StatelessWidget {
   final IconData icon;
   final String label;
-  final String value;
+  final String? value;
+  final Widget? valueKustom;
   final Color? valueColor;
   final IconData? trailingIcon;
   final VoidCallback? onTap;
@@ -41172,7 +41194,8 @@ class _InfoItem extends StatelessWidget {
   const _InfoItem({
     required this.icon,
     required this.label,
-    required this.value,
+    this.value,
+    this.valueKustom,
     this.valueColor,
     this.trailingIcon,
     this.onTap,
@@ -41196,14 +41219,17 @@ class _InfoItem extends StatelessWidget {
                   style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
                 ),
                 gapH4,
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: valueColor,
+                if (valueKustom != null)
+                  valueKustom!
+                else
+                  Text(
+                    value!,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: valueColor,
+                    ),
                   ),
-                ),
               ],
             ),
           ),

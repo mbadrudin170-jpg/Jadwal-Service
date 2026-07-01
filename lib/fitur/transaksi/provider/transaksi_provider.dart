@@ -50,9 +50,8 @@ class Transaksi extends _$Transaksi {
       _transaksiOp.ambilTotalPendapatanPerbulan(), //[9]
     ]);
 
-    final transaksi = hasil[0] as List<TransaksiModel>;
     return TransaksiState(
-      transaksi: transaksi,
+      transaksi: hasil[0] as List<TransaksiModel>,
       totalPemasukan: hasil[1] as double,
       totalPengeluaran: hasil[2] as double,
       total: hasil[3] as double,
@@ -65,7 +64,6 @@ class Transaksi extends _$Transaksi {
     );
   }
 
-  // ✅ Method untuk ambil poin per pelanggan
   Future<int> getTotalPoinPelanggan(String idPelanggan) async {
     return await _transaksiOp.ambilTotalPoin(idPelanggan);
   }

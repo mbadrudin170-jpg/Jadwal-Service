@@ -6,12 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -20,24 +18,9 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_provider.dart';
-
-class _DaataProfil {
-  final PelangganModel pelanggan;
-  final int totalPoin;
-  final double totalTagihanBelumLunas;
-  final TransaksiModel? transaksi;
-  final PaketModel? paket;
-
-  _DaataProfil({
-    required this.pelanggan,
-    required this.totalPoin,
-    required this.totalTagihanBelumLunas,
-    this.transaksi,
-    this.paket,
-  });
-}
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
@@ -48,165 +31,126 @@ class ProfilePage extends ConsumerStatefulWidget {
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   late final PaketOpFirebase _paketOpFirebase;
-  Future<_DaataProfil>? _futureProfileData;
+
   @override
   void initState() {
     super.initState();
     unawaited(ref.read(interstitialAdServiceProvider).preloadAd());
     _paketOpFirebase = ref.read(paketOpFirebaseProvider);
-    _futureProfileData = _loadProfileData();
-  }
-
-  Future<_DaataProfil> _loadProfileData() async {
-    final userId = await ref.watch(userIdProvider.future);
-    if (userId == null) {
-      throw Exception('ID Pengguna tidak ditemukan, mohon login kembali.');
-    }
-    Log.info('Memulai pengambilan data profil lengkap untuk userId: $userId.');
-    final pelangganOp = ref.read(pelangganOpGlobalProvider);
-    final transaksiOp = ref.read(transaksiOpGlobalProvider);
-    try {
-      final pelanggan = await pelangganOp.ambilBerdasarkanId(userId);
-      if (pelanggan == null) {
-        throw Exception('Pelanggan dengan ID  tidak ditemukan.');
-      }
-      Log.info('Data pelanggan berhasil diambil: ${pelanggan.nama}.');
-
-      final hasil = await Future.wait([
-        transaksiOp.ambilTotalPoin(pelanggan.id),
-        transaksiOp.ambilBerdasarkanIdPelanggan(pelanggan.id),
-      ]);
-      final totalPoin = hasil[0] as int;
-      final daftarPaketAktif = hasil[1] as List<TransaksiModel>;
-      Log.info(
-        'Total poin diambil: $totalPoin. Langganan aktif ditemukan: ${daftarPaketAktif.length}.',
-      );
-      final totalTagihanBelumLunas = daftarPaketAktif
-          .where((trx) => trx.statusPembayaran == StatusPembayaran.unpaid)
-          .fold<double>(0.0, (sum, trx) => sum + trx.jumlah);
-
-      final sekarang = DateTime.now();
-      final daftarMasihAktif = daftarPaketAktif
-          .where(
-            (trx) =>
-                trx.tanggalBerakhir != null &&
-                trx.tanggalBerakhir!.isAfter(sekarang),
-          )
-          .toList();
-      TransaksiModel? paketAktif;
-      PaketModel? paket;
-      if (daftarMasihAktif.isNotEmpty) {
-        paketAktif = daftarPaketAktif.reduce(
-          (a, b) => a.tanggalBerakhir!.isAfter(b.tanggalBerakhir!) ? a : b,
-        );
-        Log.info(
-          'Langganan terakhir berakhir pada: ${paketAktif.tanggalBerakhir}.',
-        );
-        if (paketAktif.idPaket != null) {
-          paket = await _paketOpFirebase.ambilBerdasarkanId(
-            paketAktif.idPaket!,
-          );
-          Log.info('Detail paket "${paket?.nama}" berhasil diambil.');
-        }
-      }
-      return _DaataProfil(
-        pelanggan: pelanggan,
-        totalPoin: totalPoin,
-        transaksi: paketAktif,
-        totalTagihanBelumLunas: totalTagihanBelumLunas,
-        paket: paket,
-      );
-    } on Exception catch (e, st) {
-      Log.error('Gagal total memuat data profil.', e: e, s: st);
-      if (mounted) {
-        ToastUtil.error(context, 'Gagal memuat data profil.');
-      }
-      rethrow;
-    }
-  }
-
-  Future<void> _reloadData() async {
-    setState(() {
-      _futureProfileData = _loadProfileData();
-    });
-    await _futureProfileData;
-    if (mounted) {
-      ToastUtil.success(context, 'Data berhasil diperbarui.');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final transaksi = ref.watch(transaksiProvider);
+    final userId = ref.watch(userIdProvider).value ?? '';
+    final transaksiAsync = ref.watch(transaksiProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profil Pelanggan')),
-      body: FutureBuilder<_DaataProfil>(
-        future: _futureProfileData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            Log.error(
-              'FutureBuilder<_ProfileData> error: ${snapshot.error}.',
-              e: snapshot.error,
-              s: snapshot.stackTrace,
+      body: transaksiAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, s) => Center(child: Text('Error: $e')),
+        data: (daftarTransaksi) {
+          final transaksiUser = daftarTransaksi.transaksi.where(
+            (t) => t.idPelanggan == userId,
+          );
+
+          final totalPoin = transaksiUser.fold<int>(
+            0,
+            (sum, t) => sum + t.poinDidapat - t.poinDigunakan,
+          );
+          final totalTagihan = transaksiUser
+              .where((t) => t.statusPembayaran == StatusPembayaran.unpaid)
+              .fold<double>(0, (sum, t) => sum + t.jumlah);
+          final sekarang = DateTime.now();
+          final transaksiAktif = transaksiUser
+              .where(
+                (t) =>
+                    t.tanggalBerakhir != null &&
+                    t.tanggalBerakhir!.isAfter(sekarang),
+              )
+              .toList();
+          TransaksiModel? paketAktif;
+          if (transaksiAktif.isNotEmpty) {
+            paketAktif = transaksiAktif.reduce(
+              (a, b) => a.tanggalBerakhir!.isAfter(b.tanggalBerakhir!) ? a : b,
             );
-            return Center(child: Text('Terjadi Error: ${snapshot.error}'));
           }
-          if (!snapshot.hasData) {
-            final userId = ref.watch(userIdProvider);
-            return Center(child: Text('Profil ID: $userId tidak ditemukan.'));
-          }
-          final profileData = snapshot.data!;
-          final pelanggan = profileData.pelanggan;
           return RefreshIndicator(
-            onRefresh: _reloadData,
+            onRefresh: () async {
+              ref.invalidate(transaksiProvider);
+              ref.invalidate(pelangganDetailProvider(userId));
+            },
             child: ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
+                // Kartu Informasi Pribadi
                 _buildInfoCard(
                   context,
                   title: 'Informasi Pribadi',
                   icon: TIcons.person,
                   children: [
+                    // Nama (widget kustom)
                     _InfoItem(
                       icon: TIcons.personOutlined,
                       label: 'Nama Lengkap',
-                      value: pelanggan.nama,
+                      valueKustom: NamaPelangganWidget(
+                        idPelanggan: userId,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                       trailingIcon: TIcons.chevronRight,
-                      onTap: () => _navigasiKeDetail(pelanggan.id),
+                      onTap: () => _navigasiKeDetail(userId),
                     ),
+                    // Poin
                     _InfoItem(
                       icon: TIcons.points,
                       label: 'Poin',
-                      value: profileData.totalPoin.toString(),
+                      value: totalPoin.toString(),
                       trailingIcon: TIcons.chevronRight,
-                      onTap: () => _navigasiKePoin(pelanggan.id),
+                      onTap: () => _navigasiKePoin(userId),
                     ),
-                    if (profileData.totalTagihanBelumLunas > 0)
+                    // Tagihan (jika ada)
+                    if (totalTagihan > 0)
                       _InfoItem(
                         icon: TIcons.money,
                         label: 'Tagihan Belum Lunas',
-                        value: FormatUang.formatMataUang(
-                          profileData.totalTagihanBelumLunas,
-                        ),
+                        value: FormatUang.formatMataUang(totalTagihan),
                         valueColor: Colors.red,
                       ),
                   ],
                 ),
                 gapH16,
+                // Kartu Informasi Paket Aktif
                 _buildInfoCard(
                   context,
                   title: 'Informasi Paket Aktif',
                   icon: TIcons.wifi,
                   children: [
-                    _buildDetailPaketAktif(
-                      context,
-                      profileData.transaksi,
-                      profileData.paket,
-                    ),
+                    if (paketAktif != null)
+                      // Ambil detail paket jika perlu
+                      FutureBuilder<PaketModel?>(
+                        future: paketAktif.idPaket != null
+                            ? _paketOpFirebase.ambilBerdasarkanId(
+                                paketAktif.idPaket!,
+                              )
+                            : Future.value(),
+                        builder: (context, snapshot) {
+                          final paket = snapshot.data;
+                          return _buildDetailPaketAktif(
+                            context,
+                            paketAktif!,
+                            paket,
+                          );
+                        },
+                      )
+                    else
+                      const _InfoItem(
+                        icon: TIcons.noWifi,
+                        label: 'Paket Aktif',
+                        value: 'Tidak ada paket aktif.',
+                      ),
                   ],
                 ),
               ],
@@ -219,14 +163,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   Widget _buildDetailPaketAktif(
     BuildContext context,
-    TransaksiModel? transaksi,
+    TransaksiModel transaksi,
     PaketModel? paket,
   ) {
-    if (transaksi == null) {
+    if (transaksi.tanggalBerakhir == null) {
       return const _InfoItem(
         icon: TIcons.noWifi,
         label: 'Paket Aktif',
-        value: 'Tidak ada paket aktif.',
+        value: 'Data tidak lengkap.',
       );
     }
     final String teksMasaAktif = PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
@@ -354,7 +298,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 class _InfoItem extends StatelessWidget {
   final IconData icon;
   final String label;
-  final String value;
+  final String? value;
+  final Widget? valueKustom;
   final Color? valueColor;
   final IconData? trailingIcon;
   final VoidCallback? onTap;
@@ -362,7 +307,8 @@ class _InfoItem extends StatelessWidget {
   const _InfoItem({
     required this.icon,
     required this.label,
-    required this.value,
+    this.value,
+    this.valueKustom,
     this.valueColor,
     this.trailingIcon,
     this.onTap,
@@ -386,14 +332,17 @@ class _InfoItem extends StatelessWidget {
                   style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
                 ),
                 gapH4,
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: valueColor,
+                if (valueKustom != null)
+                  valueKustom!
+                else
+                  Text(
+                    value!,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: valueColor,
+                    ),
                   ),
-                ),
               ],
             ),
           ),
