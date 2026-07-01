@@ -79,6 +79,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     return (_saldoPoinPelanggan - poinDipakai).clamp(0, 999999999);
   }
 
+  int _statusPembayaranNotif = 0;
+
   @override
   void initState() {
     super.initState();
@@ -88,6 +90,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       if (mounted) {
         ToastUtil.error(context, 'Gagal memuat data. Silakan coba lagi.');
         setState(() => _isLoading = false);
+        if (widget.pelangganAktif?.status == StatusPembayaran.unpaid) {
+          setState(() {
+            _statusPembayaranNotif = 1;
+          });
+          Log.info('Bernilai $_statusPembayaranNotif');
+        }
       }
     });
   }
@@ -359,15 +367,19 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$idTransaksi',
       );
       if (_modeEdit) {
-        await pelangganAktif.updatePelangganAktif(pelangganAktifData);
-        await transaksiOp.perbaruiTransaksi(transaksiData);
-        await notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi);
+        await Future.wait([
+          pelangganAktif.updatePelangganAktif(pelangganAktifData),
+          transaksiOp.perbaruiTransaksi(transaksiData),
+        ]);
+        unawaited(notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi));
         Log.info(
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
         );
       } else {
-        await pelangganAktif.tambahPelangganAktif(pelangganAktifData);
-        await transaksiOp.tambahTransaksi(transaksiData);
+        await Future.wait([
+          pelangganAktif.tambahPelangganAktif(pelangganAktifData),
+          transaksiOp.tambahTransaksi(transaksiData),
+        ]);
       }
       final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
       final durasiSetengahJalan = Duration(
@@ -440,7 +452,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       unawaited(
         ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
       );
-
       return true;
     } catch (e, s) {
       Log.error('Gagal menyimpan data pelanggan aktif.', e: e, s: s);

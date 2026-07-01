@@ -31,8 +31,8 @@ class PelangganAktifPage extends ConsumerStatefulWidget {
 }
 
 class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
-  bool _mencari = false;
   final TextEditingController _searchController = TextEditingController();
+  bool _mencari = false;
 
   @override
   void initState() {
