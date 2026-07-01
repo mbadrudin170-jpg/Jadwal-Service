@@ -11,7 +11,6 @@ part of 'percakapan.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$Percakapan {
 
@@ -22,8 +21,6 @@ mixin _$Percakapan {
 @pragma('vm:prefer-inline')
 $PercakapanCopyWith<Percakapan> get copyWith => _$PercakapanCopyWithImpl<Percakapan>(this as Percakapan, _$identity);
 
-  /// Serializes this Percakapan to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is Percakapan&&(identical(other.id, id) || other.id == id)&&const DeepCollectionEquality().equals(other.idPartisipan, idPartisipan)&&(identical(other.judul, judul) || other.judul == judul)&&(identical(other.pesanTerakhir, pesanTerakhir) || other.pesanTerakhir == pesanTerakhir)&&(identical(other.pratinjauPesanTerakhir, pratinjauPesanTerakhir) || other.pratinjauPesanTerakhir == pratinjauPesanTerakhir)&&(identical(other.waktuPesanTerakhir, waktuPesanTerakhir) || other.waktuPesanTerakhir == waktuPesanTerakhir)&&(identical(other.jumlahBelumDibaca, jumlahBelumDibaca) || other.jumlahBelumDibaca == jumlahBelumDibaca));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,const DeepCollectionEquality().hash(idPartisipan),judul,pesanTerakhir,pratinjauPesanTerakhir,waktuPesanTerakhir,jumlahBelumDibaca);
 
@@ -224,11 +221,11 @@ return $default(_that.id,_that.idPartisipan,_that.judul,_that.pesanTerakhir,_tha
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _Percakapan implements Percakapan {
   const _Percakapan({required this.id, final  List<String> idPartisipan = const [], this.judul, this.pesanTerakhir, this.pratinjauPesanTerakhir, this.waktuPesanTerakhir, this.jumlahBelumDibaca = 0}): _idPartisipan = idPartisipan;
-  factory _Percakapan.fromJson(Map<String, dynamic> json) => _$PercakapanFromJson(json);
+  
 
 @override final  String id;
  final  List<String> _idPartisipan;
@@ -250,17 +247,14 @@ class _Percakapan implements Percakapan {
 @pragma('vm:prefer-inline')
 _$PercakapanCopyWith<_Percakapan> get copyWith => __$PercakapanCopyWithImpl<_Percakapan>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$PercakapanToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _Percakapan&&(identical(other.id, id) || other.id == id)&&const DeepCollectionEquality().equals(other._idPartisipan, _idPartisipan)&&(identical(other.judul, judul) || other.judul == judul)&&(identical(other.pesanTerakhir, pesanTerakhir) || other.pesanTerakhir == pesanTerakhir)&&(identical(other.pratinjauPesanTerakhir, pratinjauPesanTerakhir) || other.pratinjauPesanTerakhir == pratinjauPesanTerakhir)&&(identical(other.waktuPesanTerakhir, waktuPesanTerakhir) || other.waktuPesanTerakhir == waktuPesanTerakhir)&&(identical(other.jumlahBelumDibaca, jumlahBelumDibaca) || other.jumlahBelumDibaca == jumlahBelumDibaca));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,const DeepCollectionEquality().hash(_idPartisipan),judul,pesanTerakhir,pratinjauPesanTerakhir,waktuPesanTerakhir,jumlahBelumDibaca);
 

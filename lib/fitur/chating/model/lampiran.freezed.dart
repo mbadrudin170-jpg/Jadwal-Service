@@ -11,7 +11,6 @@ part of 'lampiran.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$Lampiran {
 
@@ -22,8 +21,6 @@ mixin _$Lampiran {
 @pragma('vm:prefer-inline')
 $LampiranCopyWith<Lampiran> get copyWith => _$LampiranCopyWithImpl<Lampiran>(this as Lampiran, _$identity);
 
-  /// Serializes this Lampiran to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is Lampiran&&(identical(other.id, id) || other.id == id)&&(identical(other.url, url) || other.url == url)&&(identical(other.tipe, tipe) || other.tipe == tipe)&&(identical(other.nama, nama) || other.nama == nama)&&(identical(other.ukuran, ukuran) || other.ukuran == ukuran));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,url,tipe,nama,ukuran);
 
@@ -210,11 +207,11 @@ return $default(_that.id,_that.url,_that.tipe,_that.nama,_that.ukuran);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _Lampiran implements Lampiran {
   const _Lampiran({required this.id, required this.url, required this.tipe, this.nama, this.ukuran});
-  factory _Lampiran.fromJson(Map<String, dynamic> json) => _$LampiranFromJson(json);
+  
 
 @override final  String id;
 @override final  String url;
@@ -228,17 +225,14 @@ class _Lampiran implements Lampiran {
 @pragma('vm:prefer-inline')
 _$LampiranCopyWith<_Lampiran> get copyWith => __$LampiranCopyWithImpl<_Lampiran>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$LampiranToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _Lampiran&&(identical(other.id, id) || other.id == id)&&(identical(other.url, url) || other.url == url)&&(identical(other.tipe, tipe) || other.tipe == tipe)&&(identical(other.nama, nama) || other.nama == nama)&&(identical(other.ukuran, ukuran) || other.ukuran == ukuran));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,url,tipe,nama,ukuran);
 

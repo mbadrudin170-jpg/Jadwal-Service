@@ -2,7 +2,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'lampiran.freezed.dart';
-part 'lampiran.g.dart';
 
 @freezed
 abstract class Lampiran with _$Lampiran {
@@ -13,7 +12,4 @@ abstract class Lampiran with _$Lampiran {
     String? nama,
     int? ukuran, // dalam byte
   }) = _Lampiran;
-
-  factory Lampiran.fromJson(Map<String, dynamic> json) =>
-      _$LampiranFromJson(json);
 }

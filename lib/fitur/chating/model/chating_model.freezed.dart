@@ -11,19 +11,16 @@ part of 'chating_model.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$Pesan {
 
- String get id;@JsonKey(name: 'id_percakapan') String get idPercakapan;@JsonKey(name: 'id_pengirim') String get idPengirim; String? get teks;@JsonKey(name: 'dibuat_pada') DateTime get dibuatPada;@JsonKey(name: 'diedit_pada') DateTime? get dieditPada;@JsonKey(name: 'status', fromJson: _statusFromJson, toJson: _statusToJson) StatusPesan get status; List<Lampiran> get lampiran;@JsonKey(name: 'balasan_untuk') String? get balasanUntuk; Map<String, int> get reaksi; Map<String, dynamic>? get metadata;@JsonKey(name: 'dihapus', fromJson: _boolFromDynamic, toJson: _boolToDynamic) bool get dihapus;@JsonKey(name: 'diarsipkan_pada', fromJson: dateTimeFromDynamic, toJson: dateTimeToDynamic) DateTime? get diarsipkanPada;
+ String get id; String get idPercakapan; String get idPengirim; String? get teks; DateTime get dibuatPada; DateTime? get dieditPada; StatusPesan get status; List<Lampiran> get lampiran; String? get balasanUntuk; Map<String, int> get reaksi; Map<String, dynamic>? get metadata; bool get dihapus; DateTime? get diarsipkanPada;
 /// Create a copy of Pesan
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $PesanCopyWith<Pesan> get copyWith => _$PesanCopyWithImpl<Pesan>(this as Pesan, _$identity);
 
-  /// Serializes this Pesan to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is Pesan&&(identical(other.id, id) || other.id == id)&&(identical(other.idPercakapan, idPercakapan) || other.idPercakapan == idPercakapan)&&(identical(other.idPengirim, idPengirim) || other.idPengirim == idPengirim)&&(identical(other.teks, teks) || other.teks == teks)&&(identical(other.dibuatPada, dibuatPada) || other.dibuatPada == dibuatPada)&&(identical(other.dieditPada, dieditPada) || other.dieditPada == dieditPada)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.lampiran, lampiran)&&(identical(other.balasanUntuk, balasanUntuk) || other.balasanUntuk == balasanUntuk)&&const DeepCollectionEquality().equals(other.reaksi, reaksi)&&const DeepCollectionEquality().equals(other.metadata, metadata)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,idPercakapan,idPengirim,teks,dibuatPada,dieditPada,status,const DeepCollectionEquality().hash(lampiran),balasanUntuk,const DeepCollectionEquality().hash(reaksi),const DeepCollectionEquality().hash(metadata),dihapus,diarsipkanPada);
 
@@ -48,7 +45,7 @@ abstract mixin class $PesanCopyWith<$Res>  {
   factory $PesanCopyWith(Pesan value, $Res Function(Pesan) _then) = _$PesanCopyWithImpl;
 @useResult
 $Res call({
- String id,@JsonKey(name: 'id_percakapan') String idPercakapan,@JsonKey(name: 'id_pengirim') String idPengirim, String? teks,@JsonKey(name: 'dibuat_pada') DateTime dibuatPada,@JsonKey(name: 'diedit_pada') DateTime? dieditPada,@JsonKey(name: 'status', fromJson: _statusFromJson, toJson: _statusToJson) StatusPesan status, List<Lampiran> lampiran,@JsonKey(name: 'balasan_untuk') String? balasanUntuk, Map<String, int> reaksi, Map<String, dynamic>? metadata,@JsonKey(name: 'dihapus', fromJson: _boolFromDynamic, toJson: _boolToDynamic) bool dihapus,@JsonKey(name: 'diarsipkan_pada', fromJson: dateTimeFromDynamic, toJson: dateTimeToDynamic) DateTime? diarsipkanPada
+ String id, String idPercakapan, String idPengirim, String? teks, DateTime dibuatPada, DateTime? dieditPada, StatusPesan status, List<Lampiran> lampiran, String? balasanUntuk, Map<String, int> reaksi, Map<String, dynamic>? metadata, bool dihapus, DateTime? diarsipkanPada
 });
 
 
@@ -165,7 +162,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'id_percakapan')  String idPercakapan, @JsonKey(name: 'id_pengirim')  String idPengirim,  String? teks, @JsonKey(name: 'dibuat_pada')  DateTime dibuatPada, @JsonKey(name: 'diedit_pada')  DateTime? dieditPada, @JsonKey(name: 'status', fromJson: _statusFromJson, toJson: _statusToJson)  StatusPesan status,  List<Lampiran> lampiran, @JsonKey(name: 'balasan_untuk')  String? balasanUntuk,  Map<String, int> reaksi,  Map<String, dynamic>? metadata, @JsonKey(name: 'dihapus', fromJson: _boolFromDynamic, toJson: _boolToDynamic)  bool dihapus, @JsonKey(name: 'diarsipkan_pada', fromJson: dateTimeFromDynamic, toJson: dateTimeToDynamic)  DateTime? diarsipkanPada)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String idPercakapan,  String idPengirim,  String? teks,  DateTime dibuatPada,  DateTime? dieditPada,  StatusPesan status,  List<Lampiran> lampiran,  String? balasanUntuk,  Map<String, int> reaksi,  Map<String, dynamic>? metadata,  bool dihapus,  DateTime? diarsipkanPada)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Pesan() when $default != null:
 return $default(_that.id,_that.idPercakapan,_that.idPengirim,_that.teks,_that.dibuatPada,_that.dieditPada,_that.status,_that.lampiran,_that.balasanUntuk,_that.reaksi,_that.metadata,_that.dihapus,_that.diarsipkanPada);case _:
@@ -186,7 +183,7 @@ return $default(_that.id,_that.idPercakapan,_that.idPengirim,_that.teks,_that.di
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'id_percakapan')  String idPercakapan, @JsonKey(name: 'id_pengirim')  String idPengirim,  String? teks, @JsonKey(name: 'dibuat_pada')  DateTime dibuatPada, @JsonKey(name: 'diedit_pada')  DateTime? dieditPada, @JsonKey(name: 'status', fromJson: _statusFromJson, toJson: _statusToJson)  StatusPesan status,  List<Lampiran> lampiran, @JsonKey(name: 'balasan_untuk')  String? balasanUntuk,  Map<String, int> reaksi,  Map<String, dynamic>? metadata, @JsonKey(name: 'dihapus', fromJson: _boolFromDynamic, toJson: _boolToDynamic)  bool dihapus, @JsonKey(name: 'diarsipkan_pada', fromJson: dateTimeFromDynamic, toJson: dateTimeToDynamic)  DateTime? diarsipkanPada)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String idPercakapan,  String idPengirim,  String? teks,  DateTime dibuatPada,  DateTime? dieditPada,  StatusPesan status,  List<Lampiran> lampiran,  String? balasanUntuk,  Map<String, int> reaksi,  Map<String, dynamic>? metadata,  bool dihapus,  DateTime? diarsipkanPada)  $default,) {final _that = this;
 switch (_that) {
 case _Pesan():
 return $default(_that.id,_that.idPercakapan,_that.idPengirim,_that.teks,_that.dibuatPada,_that.dieditPada,_that.status,_that.lampiran,_that.balasanUntuk,_that.reaksi,_that.metadata,_that.dihapus,_that.diarsipkanPada);case _:
@@ -206,7 +203,7 @@ return $default(_that.id,_that.idPercakapan,_that.idPengirim,_that.teks,_that.di
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'id_percakapan')  String idPercakapan, @JsonKey(name: 'id_pengirim')  String idPengirim,  String? teks, @JsonKey(name: 'dibuat_pada')  DateTime dibuatPada, @JsonKey(name: 'diedit_pada')  DateTime? dieditPada, @JsonKey(name: 'status', fromJson: _statusFromJson, toJson: _statusToJson)  StatusPesan status,  List<Lampiran> lampiran, @JsonKey(name: 'balasan_untuk')  String? balasanUntuk,  Map<String, int> reaksi,  Map<String, dynamic>? metadata, @JsonKey(name: 'dihapus', fromJson: _boolFromDynamic, toJson: _boolToDynamic)  bool dihapus, @JsonKey(name: 'diarsipkan_pada', fromJson: dateTimeFromDynamic, toJson: dateTimeToDynamic)  DateTime? diarsipkanPada)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String idPercakapan,  String idPengirim,  String? teks,  DateTime dibuatPada,  DateTime? dieditPada,  StatusPesan status,  List<Lampiran> lampiran,  String? balasanUntuk,  Map<String, int> reaksi,  Map<String, dynamic>? metadata,  bool dihapus,  DateTime? diarsipkanPada)?  $default,) {final _that = this;
 switch (_that) {
 case _Pesan() when $default != null:
 return $default(_that.id,_that.idPercakapan,_that.idPengirim,_that.teks,_that.dibuatPada,_that.dieditPada,_that.status,_that.lampiran,_that.balasanUntuk,_that.reaksi,_that.metadata,_that.dihapus,_that.diarsipkanPada);case _:
@@ -218,19 +215,19 @@ return $default(_that.id,_that.idPercakapan,_that.idPengirim,_that.teks,_that.di
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _Pesan implements Pesan {
-  const _Pesan({required this.id, @JsonKey(name: 'id_percakapan') required this.idPercakapan, @JsonKey(name: 'id_pengirim') required this.idPengirim, this.teks, @JsonKey(name: 'dibuat_pada') required this.dibuatPada, @JsonKey(name: 'diedit_pada') this.dieditPada, @JsonKey(name: 'status', fromJson: _statusFromJson, toJson: _statusToJson) this.status = StatusPesan.terkirim, final  List<Lampiran> lampiran = const [], @JsonKey(name: 'balasan_untuk') this.balasanUntuk, final  Map<String, int> reaksi = const {}, final  Map<String, dynamic>? metadata, @JsonKey(name: 'dihapus', fromJson: _boolFromDynamic, toJson: _boolToDynamic) this.dihapus = false, @JsonKey(name: 'diarsipkan_pada', fromJson: dateTimeFromDynamic, toJson: dateTimeToDynamic) this.diarsipkanPada}): _lampiran = lampiran,_reaksi = reaksi,_metadata = metadata;
-  factory _Pesan.fromJson(Map<String, dynamic> json) => _$PesanFromJson(json);
+  const _Pesan({required this.id, required this.idPercakapan, required this.idPengirim, this.teks, required this.dibuatPada, this.dieditPada, this.status = StatusPesan.terkirim, final  List<Lampiran> lampiran = const [], this.balasanUntuk, final  Map<String, int> reaksi = const {}, final  Map<String, dynamic>? metadata, this.dihapus = false, this.diarsipkanPada}): _lampiran = lampiran,_reaksi = reaksi,_metadata = metadata;
+  
 
 @override final  String id;
-@override@JsonKey(name: 'id_percakapan') final  String idPercakapan;
-@override@JsonKey(name: 'id_pengirim') final  String idPengirim;
+@override final  String idPercakapan;
+@override final  String idPengirim;
 @override final  String? teks;
-@override@JsonKey(name: 'dibuat_pada') final  DateTime dibuatPada;
-@override@JsonKey(name: 'diedit_pada') final  DateTime? dieditPada;
-@override@JsonKey(name: 'status', fromJson: _statusFromJson, toJson: _statusToJson) final  StatusPesan status;
+@override final  DateTime dibuatPada;
+@override final  DateTime? dieditPada;
+@override@JsonKey() final  StatusPesan status;
  final  List<Lampiran> _lampiran;
 @override@JsonKey() List<Lampiran> get lampiran {
   if (_lampiran is EqualUnmodifiableListView) return _lampiran;
@@ -238,7 +235,7 @@ class _Pesan implements Pesan {
   return EqualUnmodifiableListView(_lampiran);
 }
 
-@override@JsonKey(name: 'balasan_untuk') final  String? balasanUntuk;
+@override final  String? balasanUntuk;
  final  Map<String, int> _reaksi;
 @override@JsonKey() Map<String, int> get reaksi {
   if (_reaksi is EqualUnmodifiableMapView) return _reaksi;
@@ -255,8 +252,8 @@ class _Pesan implements Pesan {
   return EqualUnmodifiableMapView(value);
 }
 
-@override@JsonKey(name: 'dihapus', fromJson: _boolFromDynamic, toJson: _boolToDynamic) final  bool dihapus;
-@override@JsonKey(name: 'diarsipkan_pada', fromJson: dateTimeFromDynamic, toJson: dateTimeToDynamic) final  DateTime? diarsipkanPada;
+@override@JsonKey() final  bool dihapus;
+@override final  DateTime? diarsipkanPada;
 
 /// Create a copy of Pesan
 /// with the given fields replaced by the non-null parameter values.
@@ -264,17 +261,14 @@ class _Pesan implements Pesan {
 @pragma('vm:prefer-inline')
 _$PesanCopyWith<_Pesan> get copyWith => __$PesanCopyWithImpl<_Pesan>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$PesanToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _Pesan&&(identical(other.id, id) || other.id == id)&&(identical(other.idPercakapan, idPercakapan) || other.idPercakapan == idPercakapan)&&(identical(other.idPengirim, idPengirim) || other.idPengirim == idPengirim)&&(identical(other.teks, teks) || other.teks == teks)&&(identical(other.dibuatPada, dibuatPada) || other.dibuatPada == dibuatPada)&&(identical(other.dieditPada, dieditPada) || other.dieditPada == dieditPada)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._lampiran, _lampiran)&&(identical(other.balasanUntuk, balasanUntuk) || other.balasanUntuk == balasanUntuk)&&const DeepCollectionEquality().equals(other._reaksi, _reaksi)&&const DeepCollectionEquality().equals(other._metadata, _metadata)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,idPercakapan,idPengirim,teks,dibuatPada,dieditPada,status,const DeepCollectionEquality().hash(_lampiran),balasanUntuk,const DeepCollectionEquality().hash(_reaksi),const DeepCollectionEquality().hash(_metadata),dihapus,diarsipkanPada);
 
@@ -291,7 +285,7 @@ abstract mixin class _$PesanCopyWith<$Res> implements $PesanCopyWith<$Res> {
   factory _$PesanCopyWith(_Pesan value, $Res Function(_Pesan) _then) = __$PesanCopyWithImpl;
 @override @useResult
 $Res call({
- String id,@JsonKey(name: 'id_percakapan') String idPercakapan,@JsonKey(name: 'id_pengirim') String idPengirim, String? teks,@JsonKey(name: 'dibuat_pada') DateTime dibuatPada,@JsonKey(name: 'diedit_pada') DateTime? dieditPada,@JsonKey(name: 'status', fromJson: _statusFromJson, toJson: _statusToJson) StatusPesan status, List<Lampiran> lampiran,@JsonKey(name: 'balasan_untuk') String? balasanUntuk, Map<String, int> reaksi, Map<String, dynamic>? metadata,@JsonKey(name: 'dihapus', fromJson: _boolFromDynamic, toJson: _boolToDynamic) bool dihapus,@JsonKey(name: 'diarsipkan_pada', fromJson: dateTimeFromDynamic, toJson: dateTimeToDynamic) DateTime? diarsipkanPada
+ String id, String idPercakapan, String idPengirim, String? teks, DateTime dibuatPada, DateTime? dieditPada, StatusPesan status, List<Lampiran> lampiran, String? balasanUntuk, Map<String, int> reaksi, Map<String, dynamic>? metadata, bool dihapus, DateTime? diarsipkanPada
 });
 
 
