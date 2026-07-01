@@ -15,7 +15,6 @@ dependencies:
   cloud_firestore: ^6.5.0
   collection: ^1.19.1
   connectivity_plus: ^6.1.5
-  cupertino_icons: ^1.0.9
   currency_text_input_formatter: ^2.3.0
   device_info_plus: ^13.1.0
   dio: ^5.9.2
