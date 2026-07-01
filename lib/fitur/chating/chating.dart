@@ -144,7 +144,7 @@ class _ChatingState extends ConsumerState<Chating> {
                 itemCount: _pesan.length,
                 itemBuilder: (context, index) {
                   final m = _pesan[index];
-                  final isMine = m.dariSaya(widget.idPenggunaSaatIni);
+                  final isMine = m.idPengirim == widget.idPenggunaSaatIni;
                   return Align(
                     alignment: isMine
                         ? Alignment.centerRight

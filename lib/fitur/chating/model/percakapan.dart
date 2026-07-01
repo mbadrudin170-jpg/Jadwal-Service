@@ -1,25 +1,27 @@
 // lib/fitur/chating/model/percakapan.dart
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:wifi/fitur/chating/model/chating_model.dart';
 
-class Percakapan {
-  final String id;
-  final List<String> idPartisipan;
-  final String? judul;
-  final Pesan? pesanTerakhir;
-  final String? pratinjauPesanTerakhir;
-  final DateTime? waktuPesanTerakhir;
-  final int jumlahBelumDibaca;
+part 'percakapan.freezed.dart';
+part 'percakapan.g.dart';
 
-  const Percakapan({
-    required this.id,
-    required this.idPartisipan,
-    this.judul,
-    this.pesanTerakhir,
-    this.pratinjauPesanTerakhir,
-    this.waktuPesanTerakhir,
-    this.jumlahBelumDibaca = 0,
-  });
+@freezed
+abstract class Percakapan with _$Percakapan {
+  const factory Percakapan({
+    required String id,
+    @Default([]) List<String> idPartisipan,
+    String? judul,
+    Pesan? pesanTerakhir,
+    String? pratinjauPesanTerakhir,
+    DateTime? waktuPesanTerakhir,
+    @Default(0) int jumlahBelumDibaca,
+  }) = _Percakapan;
 
+  factory Percakapan.fromJson(Map<String, dynamic> json) =>
+      _$PercakapanFromJson(json);
+}
+
+extension PercakapanX on Percakapan {
   String get tampilkanJudul {
     if (judul != null && judul!.isNotEmpty) return judul!;
     if (idPartisipan.isNotEmpty) return idPartisipan.join(', ');
