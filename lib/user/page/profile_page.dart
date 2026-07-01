@@ -303,8 +303,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       await Navigator.push<void>(
         context,
         MaterialPageRoute<bool>(
-          builder: (context) =>
-              HalamanPoin(idPelanggan: idPelanggan),
+          builder: (context) => HalamanPoin(idPelanggan: idPelanggan),
         ),
       );
       await ref.read(interstitialAdServiceProvider).show();
