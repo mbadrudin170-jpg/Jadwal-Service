@@ -112,8 +112,7 @@ Future<PaketModel> detailPaket(Ref ref, String id) async {
 @riverpod
 Future<String?> namaPaket(Ref ref, String idPaket) async {
   if (idPaket.isEmpty) return null;
-  final pelangganOp = ref.watch(paketOpGlobalProvider);
-  final paket = await pelangganOp.ambilBerdasarkanId(idPaket);
-  return paket?.nama;
+  final paketState = await ref.watch(paketProvider.future);
+  final paket = paketState.daftarPaket.firstWhere((p) => p.id == idPaket);
+  return paket.nama;
 }
-

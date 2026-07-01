@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
+import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 class NamaPaketWidget extends ConsumerWidget {
@@ -20,7 +20,7 @@ class NamaPaketWidget extends ConsumerWidget {
     this.showLoadingIndicator = false,
     this.loadingText = '',
     this.errorText = 'Error memuat data',
-    this.emptyText = 'Pelanggan tidak ditemukan',
+    this.emptyText = 'Paket tidak ditemukan',
   });
 
   @override
@@ -33,7 +33,7 @@ class NamaPaketWidget extends ConsumerWidget {
             const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
       );
     }
-    final namaAsync = ref.watch(namaPelangganProvider(idPaket));
+    final namaAsync = ref.watch(namaPaketProvider(idPaket));
     return namaAsync.when(
       skipLoadingOnReload: true,
       loading: () {
