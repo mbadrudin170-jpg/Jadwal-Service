@@ -9,13 +9,14 @@ import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/poin/poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -77,8 +78,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     });
 
     try {
-      final role = ref.read(appRoleProvider);
-      if (role == AppRole.admin) {
+      if (ref.isAdmin) {
         Log.warning('Admin mencoba menukar poin, operasi diblokir.');
         ToastUtil.error(
           context,
@@ -125,7 +125,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         ),
       );
       if (!mounted) return;
-      if (!(dikonfirmasi ?? false)) {
+      if (!(dikonfirmasi == true)) {
         Log.info('Penukaran dibatalkan oleh user');
         return;
       }
@@ -146,7 +146,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           poinSaatIni: poinSaatIni,
         );
         if (mounted) {
-          ref.invalidate(orderProvider);
+          _invalidateProviderTerkait(null);
           ToastUtil.success(
             context,
             'Order sudah terkirim menunggu konfirmasi Admin',
@@ -198,8 +198,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     }
 
     if (!mounted) return;
-    final role = ref.read(appRoleProvider);
-    if (role == AppRole.user) {
+    if (ref.isUser) {
       await Navigator.push<void>(
         context,
         MaterialPageRoute(
@@ -214,6 +213,14 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           builder: (context) => DetailTransaksiA(transaksi: transaksi),
         ),
       );
+    }
+  }
+
+  void _invalidateProviderTerkait(String? idDompet) {
+    ref.read(transaksiOpGlobalProvider).invalidate(idDompet);
+    ref.read(orderProvider.notifier).invalidateOrderProvider();
+    if (ref.isAdmin) {
+      ref.read(pelangganAktifProvider.notifier).invalidatePelangganAktif();
     }
   }
 

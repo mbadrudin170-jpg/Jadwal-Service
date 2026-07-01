@@ -22,7 +22,6 @@ import 'package:wifi/shared/utils/perhitungan_util.dart';
 /// Service untuk menangani transaksi penukaran poin dengan Firestore Transaction.
 class PoinTransactionService {
   final BaseOpFirebase _baseOpFirebase;
-
   PoinTransactionService({required BaseOpFirebase baseOpFirebase})
     : _baseOpFirebase = baseOpFirebase {
     Log.info('PoinTransactionService diinisialisasi.');
