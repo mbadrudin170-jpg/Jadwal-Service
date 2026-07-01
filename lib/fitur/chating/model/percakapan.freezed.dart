@@ -223,8 +223,8 @@ return $default(_that.id,_that.idPartisipan,_that.judul,_that.pesanTerakhir,_tha
 /// @nodoc
 
 
-class _Percakapan implements Percakapan {
-  const _Percakapan({required this.id, final  List<String> idPartisipan = const [], this.judul, this.pesanTerakhir, this.pratinjauPesanTerakhir, this.waktuPesanTerakhir, this.jumlahBelumDibaca = 0}): _idPartisipan = idPartisipan;
+class _Percakapan extends Percakapan {
+  const _Percakapan({required this.id, final  List<String> idPartisipan = const [], this.judul, this.pesanTerakhir, this.pratinjauPesanTerakhir, this.waktuPesanTerakhir, this.jumlahBelumDibaca = 0}): _idPartisipan = idPartisipan,super._();
   
 
 @override final  String id;
