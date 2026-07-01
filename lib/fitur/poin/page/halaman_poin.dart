@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
@@ -93,7 +94,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
       // 3. Validasi Poin
       final bool poinCukup = poinSaatIni >= hadiah.poinPenukaran;
-      if (!poinCukup) {
+      if (!kDebugMode && !poinCukup) {
         ToastUtil.warning(
           context,
           'Poin Anda tidak mencukupi untuk menukar hadiah ini.',
@@ -126,22 +127,28 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       }
       Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
       if (mounted) {
-        await showDialog<void>(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) =>
-              const Center(child: CircularProgressIndicator()),
+        unawaited(
+          showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => SizedBox(
+              width: 25,
+              height: 25,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ),
         );
       }
       try {
+        Log.info('Lanjut ke penukaran poin');
         final transactionService = ref.read(poinTransactionServiceProvider);
         await transactionService.tukarPoin(
           idPelanggan: widget.idPelanggan,
           paket: hadiah,
           poinSaatIni: poinSaatIni,
         );
+        _invalidateProviderTerkait(null);
         if (mounted) {
-          _invalidateProviderTerkait(null);
           ToastUtil.success(
             context,
             'Order sudah terkirim menunggu konfirmasi Admin',

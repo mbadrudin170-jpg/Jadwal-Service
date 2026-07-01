@@ -364,7 +364,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
   Widget _daftarPesanan() {
     final orderAsync = ref.watch(orderProvider);
-
     Log.info('_daftarPesanan dipanggil, filterAktif: $_filterAktif');
 
     return orderAsync.when(

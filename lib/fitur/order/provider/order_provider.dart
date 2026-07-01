@@ -40,11 +40,11 @@ class Order extends _$Order {
 @riverpod
 Future<List<OrderModel>> daftarPesanan(Ref ref) async {
   if (RoleUtil.isAdmin(ref)) {
-    final orderOpSqlite = ref.watch(orderOpSqliteProvider);
+    final orderOpSqlite = ref.read(orderOpSqliteProvider);
     return await orderOpSqlite.ambilSemua();
   } else {
     final userId = ref.watch(userIdProvider).value;
-    final orderOpFirebase = ref.watch(orderOpFirebaseProvider);
+    final orderOpFirebase = ref.read(orderOpFirebaseProvider);
     if (userId != null) {
       return await orderOpFirebase.ambilBerdasarkanIdPelanggan(userId).first;
     }

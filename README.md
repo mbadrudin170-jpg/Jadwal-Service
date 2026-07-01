@@ -1522,6 +1522,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     return (_saldoPoinPelanggan - poinDipakai).clamp(0, 999999999);
   }
 
+  int _statusPembayaranNotif = 0;
+
   @override
   void initState() {
     super.initState();
@@ -1531,6 +1533,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       if (mounted) {
         ToastUtil.error(context, 'Gagal memuat data. Silakan coba lagi.');
         setState(() => _isLoading = false);
+        if (widget.pelangganAktif?.status == StatusPembayaran.unpaid) {
+          setState(() {
+            _statusPembayaranNotif = 1;
+          });
+          Log.info('Bernilai $_statusPembayaranNotif');
+        }
       }
     });
   }
@@ -1802,15 +1810,19 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$idTransaksi',
       );
       if (_modeEdit) {
-        await pelangganAktif.updatePelangganAktif(pelangganAktifData);
-        await transaksiOp.perbaruiTransaksi(transaksiData);
-        await notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi);
+        await Future.wait([
+          pelangganAktif.updatePelangganAktif(pelangganAktifData),
+          transaksiOp.perbaruiTransaksi(transaksiData),
+        ]);
+        unawaited(notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi));
         Log.info(
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
         );
       } else {
-        await pelangganAktif.tambahPelangganAktif(pelangganAktifData);
-        await transaksiOp.tambahTransaksi(transaksiData);
+        await Future.wait([
+          pelangganAktif.tambahPelangganAktif(pelangganAktifData),
+          transaksiOp.tambahTransaksi(transaksiData),
+        ]);
       }
       final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
       final durasiSetengahJalan = Duration(
@@ -1883,7 +1895,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       unawaited(
         ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
       );
-
       return true;
     } catch (e, s) {
       Log.error('Gagal menyimpan data pelanggan aktif.', e: e, s: s);
@@ -2774,8 +2785,8 @@ class PelangganAktifPage extends ConsumerStatefulWidget {
 }
 
 class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
-  bool _mencari = false;
   final TextEditingController _searchController = TextEditingController();
+  bool _mencari = false;
 
   @override
   void initState() {
@@ -5944,6 +5955,7 @@ class LayananInfoPerangkat {
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
@@ -5951,13 +5963,14 @@ import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/poin/poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -5970,13 +5983,8 @@ import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dar
 
 class HalamanPoin extends ConsumerStatefulWidget {
   final String idPelanggan;
-  final bool tampilkanIklan;
 
-  const HalamanPoin({
-    super.key,
-    required this.idPelanggan,
-    this.tampilkanIklan = false,
-  });
+  const HalamanPoin({super.key, required this.idPelanggan});
 
   @override
   ConsumerState<HalamanPoin> createState() => _HalamanPoinState();
@@ -6019,8 +6027,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     });
 
     try {
-      final role = ref.read(appRoleProvider);
-      if (role == AppRole.admin) {
+      if (ref.isAdmin) {
         Log.warning('Admin mencoba menukar poin, operasi diblokir.');
         ToastUtil.error(
           context,
@@ -6040,7 +6047,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
       // 3. Validasi Poin
       final bool poinCukup = poinSaatIni >= hadiah.poinPenukaran;
-      if (!poinCukup) {
+      if (!kDebugMode && !poinCukup) {
         ToastUtil.warning(
           context,
           'Poin Anda tidak mencukupi untuk menukar hadiah ini.',
@@ -6067,20 +6074,23 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         ),
       );
       if (!mounted) return;
-      if (!(dikonfirmasi ?? false)) {
+      if (!(dikonfirmasi == true)) {
         Log.info('Penukaran dibatalkan oleh user');
         return;
       }
       Log.info('Pengguna mengonfirmasi penukaran untuk: ${hadiah.nama}');
       if (mounted) {
-        await showDialog<void>(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) =>
-              const Center(child: CircularProgressIndicator()),
+        unawaited(
+          showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) =>
+                SizedBox(width:25,height: 25, child: Center(child: CircularProgressIndicator())),
+          ),
         );
       }
       try {
+        Log.info('Lanjut ke penukaran poin');
         final transactionService = ref.read(poinTransactionServiceProvider);
         await transactionService.tukarPoin(
           idPelanggan: widget.idPelanggan,
@@ -6088,7 +6098,11 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           poinSaatIni: poinSaatIni,
         );
         if (mounted) {
-          ref.invalidate(orderProvider);
+          try {
+            _invalidateProviderTerkait(null);
+          } catch (e) {
+            Log.error('Gagal invalidasi provider', e: e);
+          }
           ToastUtil.success(
             context,
             'Order sudah terkirim menunggu konfirmasi Admin',
@@ -6140,8 +6154,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     }
 
     if (!mounted) return;
-    final role = ref.read(appRoleProvider);
-    if (role == AppRole.user) {
+    if (ref.isUser) {
       await Navigator.push<void>(
         context,
         MaterialPageRoute(
@@ -6156,6 +6169,14 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           builder: (context) => DetailTransaksiA(transaksi: transaksi),
         ),
       );
+    }
+  }
+
+  void _invalidateProviderTerkait(String? idDompet) {
+    ref.read(transaksiOpGlobalProvider).invalidate(idDompet);
+    ref.read(orderProvider.notifier).invalidateOrderProvider();
+    if (ref.isAdmin) {
+      ref.read(pelangganAktifProvider.notifier).invalidatePelangganAktif();
     }
   }
 
@@ -6186,7 +6207,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             Log.info('Points menu changed to: $selection');
             setState(() => _menuAktif = selection);
 
-            if (selection == OpsiMenuPoin.riwayat && widget.tampilkanIklan) {
+            if (selection == OpsiMenuPoin.riwayat && ref.isUser) {
               await _layananIklanInterstisial.show();
             }
           },
@@ -6202,7 +6223,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
                   ),
                 )
               : _buildRiwayatPoin(),
-          bottomWidget: widget.tampilkanIklan ? const BannerAdsWidget() : null,
+          bottomWidget: ref.isUser ? const BannerAdsWidget() : null,
         );
       },
     );
@@ -6617,7 +6638,6 @@ class UiHalamanPoin extends StatelessWidget {
 export 'package:wifi/fitur/poin/operasi/firebase_points_data_source.dart';
 export 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
 export 'package:wifi/fitur/poin/page/halaman_poin.dart';
-export 'package:wifi/fitur/poin/provider/poin_provider.dart';
 export 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
 export 'package:wifi/fitur/poin/service/poin_transaction_service.dart';
 export 'package:wifi/fitur/poin/widget/kartu_total_poin.dart';
@@ -6641,50 +6661,6 @@ abstract class PointsPageDataSource {
 
   bool get isFirebase;
 }
-
-
-// File: lib/fitur/poin/provider/poin_provider.dart
-// // path: lib/fitur/poin/provider/poin_provider.dart
-
-// import 'package:freezed_annotation/freezed_annotation.dart';
-// import 'package:riverpod_annotation/riverpod_annotation.dart';
-// import 'package:wifi/fitur/app_role/role_util.dart';
-// import 'package:wifi/fitur/paket/model/paket_model.dart';
-// import 'package:wifi/fitur/poin/operasi/firebase_points_data_source.dart';
-// import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
-// import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
-// import 'package:wifi/shared/export/model.dart';
-
-// part 'poin_provider.g.dart';
-// part 'poin_provider.freezed.dart';
-
-// @freezed
-// abstract class PoinState with _$PoinState {
-//   const factory PoinState({
-//     @Default([]) List<PaketModel> hadiah,
-//     @Default([]) List<TransaksiModel> transaksi,
-//     @Default(0) int totalPoin,
-//   }) = _PoinState;
-// }
-
-// @riverpod
-// class Poin extends _$Poin {
-//   @override
-//   FutureOr<PoinState> build(Ref ref, String idPelanggan) async {
-//     final dataSource = ref.watch(pointsDataSourceProvider);
-
-//     final hadiah = await dataSource.getPublicPackages();
-//     final transaksi = await dataSource.getPointsTransactions(idPelanggan);
-//     final totalPoin = await dataSource.ambilTotalPoin(idPelanggan);
-//     return PoinState(
-//       hadiah: hadiah,
-//       transaksi: transaksi,
-//       totalPoin: totalPoin,
-//     );
-//   }
-// }
-
-// typedef PointsPageData = ({int totalPoin, List<PaketModel> hadiah});
 
 
 // File: lib/fitur/poin/operasi/firebase_points_data_source.dart
@@ -6809,6 +6785,7 @@ final sqlitePointsDataSourceProvider = Provider<SQLitePointsDataSource>((ref) {
 // File: lib/fitur/poin/service/poin_transaction_service.dart
 // path: lib/fitur/poin/service/poin_transaction_service.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/notifikasi/enum/tipe_notifikasi_enum.dart';
@@ -6831,7 +6808,6 @@ import 'package:wifi/shared/utils/perhitungan_util.dart';
 /// Service untuk menangani transaksi penukaran poin dengan Firestore Transaction.
 class PoinTransactionService {
   final BaseOpFirebase _baseOpFirebase;
-
   PoinTransactionService({required BaseOpFirebase baseOpFirebase})
     : _baseOpFirebase = baseOpFirebase {
     Log.info('PoinTransactionService diinisialisasi.');
@@ -6855,7 +6831,7 @@ class PoinTransactionService {
     });
 
     // Validasi awal sebelum transaction
-    if (poinSaatIni < paket.poinPenukaran) {
+    if (!kDebugMode && poinSaatIni < paket.poinPenukaran) {
       Log.warning('Poin tidak mencukupi untuk penukaran', {
         'customerId': idPelanggan,
         'currentPoints': poinSaatIni,
@@ -6908,7 +6884,7 @@ class PoinTransactionService {
         });
 
         // 3. VALIDASI POIN
-        if (totalPoin < paket.poinPenukaran) {
+        if (!kDebugMode && totalPoin < paket.poinPenukaran) {
           Log.warning('Poin tidak mencukupi setelah perhitungan ulang', {
             'customerId': idPelanggan,
             'totalPoints': totalPoin,
@@ -12328,7 +12304,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
   Widget _daftarPesanan() {
     final orderAsync = ref.watch(orderProvider);
-
     Log.info('_daftarPesanan dipanggil, filterAktif: $_filterAktif');
 
     return orderAsync.when(
@@ -12889,12 +12864,6 @@ class Order extends _$Order {
     );
   }
 
-  Future<void> tambahOrder(OrderModel order) async {
-    final orderOpSqlite = ref.read(orderOpSqliteProvider);
-    await orderOpSqlite.tambahOrder(order);
-    invalidateOrderProvider();
-  }
-
   void invalidateOrderProvider() {
     ref.invalidate(daftarPesananProvider);
     ref.invalidateSelf();
@@ -12904,11 +12873,11 @@ class Order extends _$Order {
 @riverpod
 Future<List<OrderModel>> daftarPesanan(Ref ref) async {
   if (RoleUtil.isAdmin(ref)) {
-    final orderOpSqlite = ref.watch(orderOpSqliteProvider);
+    final orderOpSqlite = ref.read(orderOpSqliteProvider);
     return await orderOpSqlite.ambilSemua();
   } else {
     final userId = ref.watch(userIdProvider).value;
-    final orderOpFirebase = ref.watch(orderOpFirebaseProvider);
+    final orderOpFirebase = ref.read(orderOpFirebaseProvider);
     if (userId != null) {
       return await orderOpFirebase.ambilBerdasarkanIdPelanggan(userId).first;
     }
@@ -20504,7 +20473,6 @@ part 'percakapan.freezed.dart';
 @freezed
 abstract class Percakapan with _$Percakapan implements HasId {
   const Percakapan._();
-
   const factory Percakapan({
     required String id,
     @Default([]) List<String> idPartisipan,
@@ -20798,8 +20766,8 @@ return $default(_that.id,_that.url,_that.tipe,_that.nama,_that.ukuran);case _:
 /// @nodoc
 
 
-class _Lampiran implements Lampiran {
-  const _Lampiran({required this.id, required this.url, required this.tipe, this.nama, this.ukuran});
+class _Lampiran extends Lampiran {
+  const _Lampiran({required this.id, required this.url, required this.tipe, this.nama, this.ukuran}): super._();
   
 
 @override final  String id;
@@ -21092,8 +21060,8 @@ return $default(_that.id,_that.idPercakapan,_that.idPengirim,_that.teks,_that.di
 /// @nodoc
 
 
-class _Pesan implements Pesan {
-  const _Pesan({required this.id, required this.idPercakapan, required this.idPengirim, this.teks, required this.dibuatPada, this.dieditPada, this.status = StatusPesan.terkirim, final  List<Lampiran> lampiran = const [], this.balasanUntuk, final  Map<String, int> reaksi = const {}, final  Map<String, dynamic>? metadata, this.dihapus = false, this.diarsipkanPada}): _lampiran = lampiran,_reaksi = reaksi,_metadata = metadata;
+class _Pesan extends Pesan {
+  const _Pesan({required this.id, required this.idPercakapan, required this.idPengirim, this.teks, required this.dibuatPada, this.dieditPada, this.status = StatusPesan.terkirim, final  List<Lampiran> lampiran = const [], this.balasanUntuk, final  Map<String, int> reaksi = const {}, final  Map<String, dynamic>? metadata, this.dihapus = false, this.diarsipkanPada}): _lampiran = lampiran,_reaksi = reaksi,_metadata = metadata,super._();
   
 
 @override final  String id;
@@ -21214,6 +21182,7 @@ part 'chating_model.freezed.dart';
 
 @freezed
 abstract class Pesan with _$Pesan {
+  const Pesan._();
   const factory Pesan({
     required String id,
     required String idPercakapan,
@@ -21646,6 +21615,7 @@ part 'lampiran.freezed.dart';
 
 @freezed
 abstract class Lampiran with _$Lampiran {
+  const Lampiran._();
   const factory Lampiran({
     required String id,
     required String url,
@@ -31707,7 +31677,7 @@ class TransaksiOpGlobal {
   TransaksiOpFirebase get _transaksiOpFirebase =>
       ref.read(transaksiOpFirebaseProvider);
 
-  void _invalidate(String? idDompet) {
+  void invalidate(String? idDompet) {
     ref.read(transaksiProvider.notifier).invalidateProviderTransaksi();
     ref.read(dompetProvider.notifier).invalidateDompetProvider(idDompet);
   }
@@ -31719,7 +31689,7 @@ class TransaksiOpGlobal {
     } else {
       await _transaksiOpFirebase.tambahTransaksi(transaksi);
     }
-    _invalidate(null);
+    invalidate(null);
   }
 
   Future<void> perbaruiTransaksi(
@@ -31734,7 +31704,7 @@ class TransaksiOpGlobal {
     } else {
       await _transaksiOpFirebase.perbaruiTransaksi(transaksi);
     }
-    _invalidate(null);
+    invalidate(null);
   }
 
   Future<void> softDelete(String id, {bool dariServer = false}) async {
@@ -31744,7 +31714,7 @@ class TransaksiOpGlobal {
     } else {
       await _transaksiOpFirebase.softDeleteTransaksi(id);
     }
-    _invalidate(null);
+    invalidate(null);
   }
 
   Future<void> softDeleteAll({bool dariServer = false}) async {
@@ -31764,7 +31734,7 @@ class TransaksiOpGlobal {
         await _transaksiOpFirebase.softDeleteTransaksi(t.id);
       }
     }
-    _invalidate(null);
+    invalidate(null);
   }
 
   Future<void> sisipkanAtauPerbaruiBatch(
@@ -31784,7 +31754,7 @@ class TransaksiOpGlobal {
     } else {
       await _transaksiOpFirebase.sisipkanAtauPerbaruiBatch(items);
     }
-    _invalidate(null);
+    invalidate(null);
   }
 
   Future<List<TransaksiModel>> ambilSemua() async {
@@ -41146,8 +41116,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       await Navigator.push<void>(
         context,
         MaterialPageRoute<bool>(
-          builder: (context) =>
-              HalamanPoin(idPelanggan: idPelanggan, tampilkanIklan: true),
+          builder: (context) => HalamanPoin(idPelanggan: idPelanggan),
         ),
       );
       await ref.read(interstitialAdServiceProvider).show();
@@ -54322,7 +54291,6 @@ lib
 │   │   │   └── halaman_poin.dart
 │   │   ├── poin.dart
 │   │   ├── provider
-│   │   │   ├── poin_provider.dart
 │   │   │   └── points_page_data_source.dart
 │   │   ├── service
 │   │   │   └── poin_transaction_service.dart
@@ -54758,7 +54726,7 @@ test
         ├── perhitungan_util_test.dart
         └── toast_util_test.dart
 
-231 directories, 443 files
+231 directories, 442 files
 tree is not installed, but available in the following packages, pick one to run it, Ctrl+C to cancel.
 
 
