@@ -31,9 +31,7 @@ _Pesan _$PesanFromJson(Map<String, dynamic> json) => _Pesan(
       const {},
   metadata: json['metadata'] as Map<String, dynamic>?,
   dihapus: json['dihapus'] == null ? false : _boolFromDynamic(json['dihapus']),
-  diarsipkanPada: json['diarsipkan_pada'] == null
-      ? null
-      : DateTime.parse(json['diarsipkan_pada'] as String),
+  diarsipkanPada: dateTimeFromDynamic(json['diarsipkan_pada']),
 );
 
 Map<String, dynamic> _$PesanToJson(_Pesan instance) => <String, dynamic>{
@@ -49,5 +47,5 @@ Map<String, dynamic> _$PesanToJson(_Pesan instance) => <String, dynamic>{
   'reaksi': instance.reaksi,
   'metadata': instance.metadata,
   'dihapus': _boolToDynamic(instance.dihapus),
-  'diarsipkan_pada': instance.diarsipkanPada?.toIso8601String(),
+  'diarsipkan_pada': dateTimeToDynamic(instance.diarsipkanPada),
 };
