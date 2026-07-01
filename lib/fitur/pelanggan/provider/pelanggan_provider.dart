@@ -88,10 +88,13 @@ Future<String?> namaPelanggan(Ref ref, String idPelanggan) async {
 }
 
 @riverpod
-Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
+Future<(PelangganModel?, int)> pelangganDetail(
+  Ref ref,
+  String idPelanggan,
+) async {
   final pelangganOp = ref.watch(pelangganOpGlobalProvider);
   final transaksiOp = ref.watch(transaksiOpGlobalProvider);
-  final pelanggan = await pelangganOp.ambilBerdasarkanId(id);
-  final poin = await transaksiOp.ambilTotalPoin(id);
+  final pelanggan = await pelangganOp.ambilBerdasarkanId(idPelanggan);
+  final poin = await transaksiOp.ambilTotalPoin(idPelanggan);
   return (pelanggan, poin);
 }

@@ -88,49 +88,9 @@ class Transaksi extends _$Transaksi {
     return await Future.wait(futures);
   }
 
-  // Future<void> tambahTransaksi(TransaksiModel transaksi) async {
-  //   await _transaksiOp.tambahTransaksi(transaksi);
-  //   invalidateProviderTransaksi();
-  // }
-
-  // Future<void> updateTransaksi(TransaksiModel transaksi) async {
-  //   await _transaksiOp.perbaruiTransaksi(transaksi.id, transaksi);
-  //   invalidateProviderTransaksi();
-  // }
-
-  // Future<void> softDelete(String id) async {
-  //   await _transaksiOp.softDelete(id);
-  //   invalidateProviderTransaksi();
-  // }
-
-  // Future<void> softDeleteAll() async {
-  //   await _transaksiOp.softDeleteAll();
-  //   invalidateProviderTransaksi();
-  // }
-
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(_loadData);
-  }
-
-  Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
-    Ref ref,
-    String idPelanggan,
-  ) async {
-    Log.info(
-      '[RiwayatPoin] 🔍 Mengambil riwayat poin untuk pelanggan: $idPelanggan',
-    );
-    try {
-      final transaksiOp = ref.read(transaksiOpGlobalProvider);
-      final semuaTransaksi = await transaksiOp.ambilBerdasarkanIdPelanggan(
-        idPelanggan,
-      );
-      Log.info('[RiwayatPoin] 📊 Total transaksi: ${semuaTransaksi.length}');
-      return semuaTransaksi;
-    } catch (e, s) {
-      Log.error('[RiwayatPoin] ❌ ERROR: $e', e: e, s: s);
-      rethrow;
-    }
   }
 
   void invalidateProviderTransaksi() {
@@ -158,6 +118,27 @@ riwayatTransaksiPelanggan(Ref ref, String idPelanggan) async {
     return (transaksi: semuaTransaksi, totalPoin: totalPoinUser);
   } catch (e, s) {
     Log.error('[RiwayatTransaksi] ❌ ERROR: $e', e: e, s: s);
+    rethrow;
+  }
+}
+
+@riverpod
+Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
+  Ref ref,
+  String idPelanggan,
+) async {
+  Log.info(
+    '[RiwayatPoin] 🔍 Mengambil riwayat poin untuk pelanggan: $idPelanggan',
+  );
+  try {
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
+    final semuaTransaksi = await transaksiOp.ambilBerdasarkanIdPelanggan(
+      idPelanggan,
+    );
+    Log.info('[RiwayatPoin] 📊 Total transaksi: ${semuaTransaksi.length}');
+    return semuaTransaksi;
+  } catch (e, s) {
+    Log.error('[RiwayatPoin] ❌ ERROR: $e', e: e, s: s);
     rethrow;
   }
 }

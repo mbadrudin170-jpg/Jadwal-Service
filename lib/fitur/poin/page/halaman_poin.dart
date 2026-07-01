@@ -10,6 +10,7 @@ import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/poin/poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
@@ -147,7 +148,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           paket: hadiah,
           poinSaatIni: poinSaatIni,
         );
-        _invalidateProviderTerkait(null);
+        _invalidateProviderTerkait(null, widget.idPelanggan);
         if (mounted) {
           ToastUtil.success(
             context,
@@ -218,12 +219,13 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     }
   }
 
-  void _invalidateProviderTerkait(String? idDompet) {
+  void _invalidateProviderTerkait(String? idDompet, String? idPelanggan) {
     ref.read(transaksiOpGlobalProvider).invalidate(idDompet);
     ref.read(orderProvider.notifier).invalidateOrderProvider();
     if (ref.isAdmin) {
       ref.read(pelangganAktifProvider.notifier).invalidatePelangganAktif();
     }
+    ref.read(pelangganProvider.notifier).invalidateDetailPelanggan(idPelanggan);
   }
 
   @override

@@ -291,7 +291,7 @@ final class PelangganDetailProvider
   }
 }
 
-String _$pelangganDetailHash() => r'c416415c0d014d3e761bbfb96bc45cfdc084ce5d';
+String _$pelangganDetailHash() => r'27eea80f9c820604463c983ccddf286ed828d60f';
 
 final class PelangganDetailFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<(PelangganModel?, int)>, String> {
@@ -304,8 +304,8 @@ final class PelangganDetailFamily extends $Family
         isAutoDispose: true,
       );
 
-  PelangganDetailProvider call(String id) =>
-      PelangganDetailProvider._(argument: id, from: this);
+  PelangganDetailProvider call(String idPelanggan) =>
+      PelangganDetailProvider._(argument: idPelanggan, from: this);
 
   @override
   String toString() => r'pelangganDetailProvider';

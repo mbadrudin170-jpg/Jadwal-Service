@@ -33,7 +33,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'07baf9da3bf9b7239d528627c68e00c3c2341086';
+String _$transaksiHash() => r'6edc2e16912803b946920322513f6e24309f6126';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -133,4 +133,84 @@ final class RiwayatTransaksiPelangganFamily extends $Family
 
   @override
   String toString() => r'riwayatTransaksiPelangganProvider';
+}
+
+@ProviderFor(ambilBerdasarkanIdPelanggan)
+final ambilBerdasarkanIdPelangganProvider =
+    AmbilBerdasarkanIdPelangganFamily._();
+
+final class AmbilBerdasarkanIdPelangganProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<TransaksiModel>>,
+          List<TransaksiModel>,
+          FutureOr<List<TransaksiModel>>
+        >
+    with
+        $FutureModifier<List<TransaksiModel>>,
+        $FutureProvider<List<TransaksiModel>> {
+  AmbilBerdasarkanIdPelangganProvider._({
+    required AmbilBerdasarkanIdPelangganFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'ambilBerdasarkanIdPelangganProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$ambilBerdasarkanIdPelangganHash();
+
+  @override
+  String toString() {
+    return r'ambilBerdasarkanIdPelangganProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<TransaksiModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<TransaksiModel>> create(Ref ref) {
+    final argument = this.argument as String;
+    return ambilBerdasarkanIdPelanggan(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is AmbilBerdasarkanIdPelangganProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$ambilBerdasarkanIdPelangganHash() =>
+    r'1c8553214c1e46644e83fae77251cef6ec393e09';
+
+final class AmbilBerdasarkanIdPelangganFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<TransaksiModel>>, String> {
+  AmbilBerdasarkanIdPelangganFamily._()
+    : super(
+        retry: null,
+        name: r'ambilBerdasarkanIdPelangganProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  AmbilBerdasarkanIdPelangganProvider call(String idPelanggan) =>
+      AmbilBerdasarkanIdPelangganProvider._(argument: idPelanggan, from: this);
+
+  @override
+  String toString() => r'ambilBerdasarkanIdPelangganProvider';
 }
