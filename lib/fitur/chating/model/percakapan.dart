@@ -10,7 +10,6 @@ part 'percakapan.freezed.dart';
 @freezed
 abstract class Percakapan with _$Percakapan implements HasId {
   const Percakapan._();
-
   const factory Percakapan({
     required String id,
     @Default([]) List<String> idPartisipan,

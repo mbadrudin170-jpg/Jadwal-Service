@@ -209,8 +209,8 @@ return $default(_that.id,_that.url,_that.tipe,_that.nama,_that.ukuran);case _:
 /// @nodoc
 
 
-class _Lampiran implements Lampiran {
-  const _Lampiran({required this.id, required this.url, required this.tipe, this.nama, this.ukuran});
+class _Lampiran extends Lampiran {
+  const _Lampiran({required this.id, required this.url, required this.tipe, this.nama, this.ukuran}): super._();
   
 
 @override final  String id;

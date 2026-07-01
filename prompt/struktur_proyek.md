@@ -50,6 +50,23 @@ lib
 │   │   ├── alarm_utils.dart
 │   │   ├── layanan_latar_belakang.dart
 │   │   └── layanan_peluncuran.dart
+│   ├── chating
+│   │   ├── chating.dart
+│   │   ├── chating_dashboard.dart
+│   │   ├── dummy_chatting.dart
+│   │   ├── enum
+│   │   │   └── status_pesan_enum.dart
+│   │   ├── model
+│   │   │   ├── chating_model.dart
+│   │   │   ├── chating_model.freezed.dart
+│   │   │   ├── lampiran.dart
+│   │   │   ├── lampiran.freezed.dart
+│   │   │   ├── percakapan.dart
+│   │   │   └── percakapan.freezed.dart
+│   │   ├── operasi
+│   │   │   └── chating_op_supabase.dart
+│   │   └── provider
+│   │       └── chating_provider.dart
 │   ├── database
 │   │   └── provider
 │   │       ├── operasi_sqlite_provider.dart
@@ -188,7 +205,7 @@ lib
 │   │   │   │   ├── form_pelanggan.dart
 │   │   │   │   └── pelanggan_page.dart
 │   │   │   └── user
-│   │   │       └── detail_pelanggan_u.dart
+│   │   │       └── detail_pelanggan.dart
 │   │   ├── provider
 │   │   │   ├── pelanggan_provider.dart
 │   │   │   ├── pelanggan_provider.freezed.dart
@@ -220,6 +237,7 @@ lib
 │   │   │   └── sqlite_points_data_source.dart
 │   │   ├── page
 │   │   │   └── halaman_poin.dart
+│   │   ├── poin.dart
 │   │   ├── provider
 │   │   │   ├── poin_provider.dart
 │   │   │   └── points_page_data_source.dart
@@ -657,5 +675,5 @@ test
         ├── perhitungan_util_test.dart
         └── toast_util_test.dart
 
-226 directories, 430 files
+231 directories, 443 files
 tree is not installed, but available in the following packages, pick one to run it, Ctrl+C to cancel.

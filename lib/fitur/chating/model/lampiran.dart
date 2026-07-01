@@ -5,6 +5,7 @@ part 'lampiran.freezed.dart';
 
 @freezed
 abstract class Lampiran with _$Lampiran {
+  const Lampiran._();
   const factory Lampiran({
     required String id,
     required String url,

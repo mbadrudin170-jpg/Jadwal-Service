@@ -217,8 +217,8 @@ return $default(_that.id,_that.idPercakapan,_that.idPengirim,_that.teks,_that.di
 /// @nodoc
 
 
-class _Pesan implements Pesan {
-  const _Pesan({required this.id, required this.idPercakapan, required this.idPengirim, this.teks, required this.dibuatPada, this.dieditPada, this.status = StatusPesan.terkirim, final  List<Lampiran> lampiran = const [], this.balasanUntuk, final  Map<String, int> reaksi = const {}, final  Map<String, dynamic>? metadata, this.dihapus = false, this.diarsipkanPada}): _lampiran = lampiran,_reaksi = reaksi,_metadata = metadata;
+class _Pesan extends Pesan {
+  const _Pesan({required this.id, required this.idPercakapan, required this.idPengirim, this.teks, required this.dibuatPada, this.dieditPada, this.status = StatusPesan.terkirim, final  List<Lampiran> lampiran = const [], this.balasanUntuk, final  Map<String, int> reaksi = const {}, final  Map<String, dynamic>? metadata, this.dihapus = false, this.diarsipkanPada}): _lampiran = lampiran,_reaksi = reaksi,_metadata = metadata,super._();
   
 
 @override final  String id;

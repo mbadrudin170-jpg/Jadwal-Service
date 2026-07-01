@@ -9,6 +9,7 @@ part 'chating_model.freezed.dart';
 
 @freezed
 abstract class Pesan with _$Pesan {
+  const Pesan._();
   const factory Pesan({
     required String id,
     required String idPercakapan,

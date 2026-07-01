@@ -17,7 +17,6 @@ dependencies:
   cloud_firestore: ^6.5.0
   collection: ^1.19.1
   connectivity_plus: ^6.1.5
-  cupertino_icons: ^1.0.9
   currency_text_input_formatter: ^2.3.0
   device_info_plus: ^13.1.0
   dio: ^5.9.2
@@ -42,7 +41,6 @@ dependencies:
   image_picker: ^1.2.2
   intl: ^0.20.2
   jiffy: ^6.4.5
-  json_annotation: ^4.12.0
   meta: ^1.18.0
   open_filex: ^4.7.0
   package_info_plus: ^10.1.0
@@ -50,7 +48,6 @@ dependencies:
   path_provider: ^2.1.5
   permission_handler: ^12.0.2
   riverpod_annotation: ^4.0.3
-  rxdart: ^0.28.0
   shared_preferences: ^2.5.5
   sqflite: ^2.4.2+1
   sqflite_common_ffi: ^2.4.0+3
@@ -71,7 +68,6 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.4
   flutter_lints: ^6.0.0
   freezed: ^3.2.5
-  json_serializable: ^6.14.0
   mockito: ^5.6.4
   plugin_platform_interface: ^2.1.8
   rename: ^3.1.0
@@ -1469,7 +1465,6 @@ import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -1718,7 +1713,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
     final notifikasiOpSqlite = ref.read(notifikasiOpSqliteProvider);
     final pelangganAktif = ref.read(pelangganAktifProvider.notifier);
-    final transaksiOp = ref.read(transaksiProvider.notifier);
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
 
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Validasi form gagal');
@@ -1808,7 +1803,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       );
       if (_modeEdit) {
         await pelangganAktif.updatePelangganAktif(pelangganAktifData);
-        await transaksiOp.updateTransaksi(transaksiData);
+        await transaksiOp.perbaruiTransaksi(transaksiData);
         await notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi);
         Log.info(
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
@@ -2366,7 +2361,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/page/detail_paket.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
+import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
@@ -2394,11 +2389,9 @@ final detailPleangganAktifProvider =
         pelangganAktifProvider.future,
       );
       final daftarPelangganAktif = pelangganAktifState.daftarPelangganAktif;
-
       final detailPelangganAktif = daftarPelangganAktif.firstWhereOrNull(
         (detail) => detail.pelangganAktif.id == id,
       );
-
       if (detailPelangganAktif == null) {
         throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
       }
@@ -2415,7 +2408,6 @@ final detailPleangganAktifProvider =
             ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.idTransaksi)
             : Future<TransaksiModel?>.value(),
       ]);
-
       return (
         pelanggan: hasil[0] as PelangganModel?,
         paket: hasil[1] as PaketModel?,
@@ -2442,7 +2434,6 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
 
   Future<void> _bukaWhatsApp(String phone) async {
     String formatNomor = phone.replaceAll(RegExp(r'[^0-9]'), '');
-
     if (formatNomor.startsWith('0')) {
       formatNomor = '62${formatNomor.substring(1)}';
     } else if (!formatNomor.startsWith('62')) {
@@ -2489,6 +2480,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
       detailPleangganAktifProvider(widget.pelangganAktif.id),
     );
     return detailAsync.when(
+      skipLoadingOnReload: true,
       data: (data) => _buildScaffold(context, data),
       loading: () => const Scaffold(body: Center(child: Text(''))),
       error: (e, s) =>
@@ -2510,7 +2502,6 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
     final pelanggan = data.pelanggan;
     final paket = data.paket;
     final transaksi = data.transaksi;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(pelanggan?.nama ?? 'Detail Pelanggan'),
@@ -2597,18 +2588,18 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                         'Status',
                         pelangganAktif.status.displayName,
                       ),
-                      if (paket != null) ...[
-                        if (paket.poinHadiah > 0)
+                      if (transaksi != null) ...[
+                        if (transaksi.poinDidapat > 0)
                           _buildInfoRow(
                             context,
                             'Poin Hadiah',
-                            '${paket.poinHadiah} Poin',
+                            '${transaksi.poinDidapat} Poin',
                           ),
-                        if (paket.poinPenukaran > 0)
+                        if (transaksi.poinDigunakan > 0)
                           _buildInfoRow(
                             context,
                             'Poin Penukaran',
-                            '${paket.poinPenukaran} Poin',
+                            '${transaksi.poinDigunakan} Poin',
                           ),
                       ],
                       if (transaksi != null && (transaksi.durasiBonus) > 0)
@@ -2782,13 +2773,9 @@ class PelangganAktifPage extends ConsumerStatefulWidget {
   ConsumerState<PelangganAktifPage> createState() => _PelangganAktifPageState();
 }
 
-class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
-    with AutomaticKeepAliveClientMixin<PelangganAktifPage> {
+class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
   bool _mencari = false;
   final TextEditingController _searchController = TextEditingController();
-
-  @override
-  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -2808,7 +2795,6 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
     } catch (e) {
       Log.error('Gagal menjalankan arsip otomatis saat aplikasi dibuka', e: e);
     }
-
     if (mounted) {
       await ref.read(pelangganAktifProvider.notifier).perbaruiData();
     }
@@ -2869,7 +2855,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
           idPelangganAktif,
           idTransaksi,
         );
-        ref.read(transaksiProvider.notifier).invalidateSistemTerkait();
+        ref.read(transaksiProvider.notifier).invalidateProviderTransaksi();
         Log.info('Berhasil soft delete pelanggan ID: $idPelangganAktif');
         if (mounted) {
           ToastUtil.success(
@@ -3067,7 +3053,6 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     final pelangganAktifAsync = ref.watch(pelangganAktifProvider);
     return Scaffold(
       appBar: AppBar(
@@ -3111,6 +3096,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage>
       body: RefreshIndicator(
         onRefresh: refreshData,
         child: pelangganAktifAsync.when(
+          skipLoadingOnReload: true,
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) {
             Log.error('Error UI Pelanggan Aktif', e: error, s: stack);
@@ -5272,7 +5258,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -5319,19 +5304,6 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  unawaited(
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HalamanTes(),
-                      ),
-                    ),
-                  );
-                },
-                child: const Text('Pergi ke Detail'),
-              ),
               TextButton(
                 onPressed: () {
                   showLicensePage(context: context);
@@ -5979,8 +5951,7 @@ import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
-import 'package:wifi/fitur/poin/service/poin_transaction_service.dart';
-import 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
+import 'package:wifi/fitur/poin/poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
@@ -6023,7 +5994,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     _layananIklanInterstisial = LayananIklanInterstisial();
     _judulAppBar = Row(
       children: [
-        const Text('Poin: '),
         Expanded(child: NamaPelangganWidget(idPelanggan: widget.idPelanggan)),
       ],
     );
@@ -6197,6 +6167,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     );
     final daftarHadiah = ref.watch(paketProvider);
     return dataAsync.when(
+      skipLoadingOnReload: true,
       loading: () => Scaffold(
         appBar: AppBar(title: _judulAppBar),
         body: const Center(child: CircularProgressIndicator()),
@@ -6221,22 +6192,23 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           },
           contentView: _menuAktif == OpsiMenuPoin.penukaran
               ? daftarHadiah.when(
+                  skipLoadingOnReload: true,
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
                   error: (err, stack) => Center(child: Text('Error: $err')),
-                  data: (state) => _bangunDaftarHadiah(
+                  data: (state) => _buildDaftarHadiah(
                     state.daftarPaketPublik,
                     dataHalaman.totalPoin,
                   ),
                 )
-              : _bangunRiwayatPoin(),
+              : _buildRiwayatPoin(),
           bottomWidget: widget.tampilkanIklan ? const BannerAdsWidget() : null,
         );
       },
     );
   }
 
-  Widget _bangunDaftarHadiah(List<PaketModel> daftarHadiah, int totalPoin) {
+  Widget _buildDaftarHadiah(List<PaketModel> daftarHadiah, int totalPoin) {
     Log.info('Building reward list.');
     if (daftarHadiah.isEmpty) {
       return const Center(child: Text('Belum ada hadiah yang tersedia'));
@@ -6302,7 +6274,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     );
   }
 
-  Widget _bangunRiwayatPoin() {
+  Widget _buildRiwayatPoin() {
     Log.info('Building points history.');
     final riwayatAsync = ref.watch(
       riwayatTransaksiPelangganProvider(widget.idPelanggan),
@@ -6637,6 +6609,19 @@ class UiHalamanPoin extends StatelessWidget {
     );
   }
 }
+
+
+// File: lib/fitur/poin/poin.dart
+// path: lib/fitur/poin/poin.dart
+
+export 'package:wifi/fitur/poin/operasi/firebase_points_data_source.dart';
+export 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
+export 'package:wifi/fitur/poin/page/halaman_poin.dart';
+export 'package:wifi/fitur/poin/provider/poin_provider.dart';
+export 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
+export 'package:wifi/fitur/poin/service/poin_transaction_service.dart';
+export 'package:wifi/fitur/poin/widget/kartu_total_poin.dart';
+export 'package:wifi/fitur/poin/widget/ui_halaman_poin.dart';
 
 
 // File: lib/fitur/poin/provider/points_page_data_source.dart
@@ -9376,14 +9361,14 @@ class _PackageFormState extends ConsumerState<FormPaket> {
   final _durasiController = TextEditingController();
   final _poinHadiahcontroller = TextEditingController();
   final _poinPenukaranController = TextEditingController();
-  final _namsFocusNode = FocusNode();
+  final _namaFocusNode = FocusNode();
   final _hargaFocusNode = FocusNode();
   final _durasiFocusNode = FocusNode();
   final _poinHadiahFocusNode = FocusNode();
   final _poinPenukaranFocusNode = FocusNode();
 
   TipeDurasiPaket _selectedType = TipeDurasiPaket.days;
-
+  bool _poin = false;
   bool get _modeEdit => widget.paket != null;
   bool _publik = false;
 
@@ -9398,6 +9383,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
       _poinPenukaranController.text = widget.paket!.poinPenukaran.toString();
       _selectedType = widget.paket!.tipe;
       _publik = widget.paket!.statusPublik;
+      _poin = widget.paket!.poinHadiah > 0 || widget.paket!.poinPenukaran > 0;
     }
   }
 
@@ -9414,8 +9400,10 @@ class _PackageFormState extends ConsumerState<FormPaket> {
             0,
         durasi: int.tryParse(_durasiController.text) ?? 0,
         tipe: _selectedType,
-        poinHadiah: int.tryParse(_poinHadiahcontroller.text) ?? 0,
-        poinPenukaran: int.tryParse(_poinPenukaranController.text) ?? 0,
+        poinHadiah: _poin ? (int.tryParse(_poinHadiahcontroller.text) ?? 0) : 0,
+        poinPenukaran: _poin
+            ? (int.tryParse(_poinPenukaranController.text) ?? 0)
+            : 0,
         statusPublik: _publik,
         diperbaruiPada: DateTime.now(),
       );
@@ -9491,7 +9479,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
               children: [
                 InputTeks(
                   controller: _namaController,
-                  focusNode: _namsFocusNode,
+                  focusNode: _namaFocusNode,
                   nextFocusNode: _hargaFocusNode,
                   label: 'Nama Paket',
                 ),
@@ -9511,22 +9499,31 @@ class _PackageFormState extends ConsumerState<FormPaket> {
                   nextFocusNode: _poinHadiahFocusNode,
                 ),
                 gapH12,
-                InputAngka(
-                  controller: _poinHadiahcontroller,
-                  focusNode: _poinHadiahFocusNode,
-                  nextFocusNode: _poinPenukaranFocusNode,
-                  label: 'Poin Hadiah',
+                SwitchListTile(
+                  title: const Text('Aktifkan Poin'),
+                  value: _poin,
+                  onChanged: (v) {
+                    setState(() {
+                      _poin = v;
+                    });
+                  },
                 ),
-
                 gapH12,
-                InputAngka(
-                  controller: _poinPenukaranController,
-                  focusNode: _poinPenukaranFocusNode,
-                  nextFocusNode: _poinPenukaranFocusNode,
-                  label: 'Poin Hadiah',
-                  textInputAction: TextInputAction.done,
-                ),
-
+                if (_poin) ...[
+                  InputAngka(
+                    controller: _poinHadiahcontroller,
+                    focusNode: _poinHadiahFocusNode,
+                    nextFocusNode: _poinPenukaranFocusNode,
+                    label: 'Poin Hadiah',
+                  ),
+                  gapH12,
+                  InputAngka(
+                    controller: _poinPenukaranController,
+                    focusNode: _poinPenukaranFocusNode,
+                    label: 'Poin Penukaran',
+                    textInputAction: TextInputAction.done,
+                  ),
+                ],
                 gapH16,
                 DropdownButtonFormField<TipeDurasiPaket>(
                   initialValue: _selectedType,
@@ -9539,7 +9536,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
                       child: Text(type.displayName),
                     );
                   }).toList(),
-                  onChanged: (final TipeDurasiPaket? newValue) {
+                  onChanged: (TipeDurasiPaket? newValue) {
                     if (newValue != null) {
                       setState(() {
                         _selectedType = newValue;
@@ -9588,7 +9585,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
     _durasiController.dispose();
     _poinHadiahcontroller.dispose();
     _poinPenukaranController.dispose();
-    _namsFocusNode.dispose();
+    _namaFocusNode.dispose();
     _hargaFocusNode.dispose();
     _durasiFocusNode.dispose();
     _poinHadiahFocusNode.dispose();
@@ -16170,9 +16167,9 @@ import 'package:wifi/fitur/dompet/page/form_dompet.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/fitur/transaksi/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -16272,7 +16269,6 @@ class DetailDompet extends ConsumerWidget {
     List<TransaksiModel> daftarTransaksi,
   ) {
     final transaksiPerTanggal = kelompokkanTransaksiPerTanggal(daftarTransaksi);
-    final transaksi = ref.read(transaksiProvider.notifier);
     return ListView.builder(
       itemCount: transaksiPerTanggal.length,
       itemBuilder: (context, index) {
@@ -16300,7 +16296,7 @@ class DetailDompet extends ConsumerWidget {
                 },
                 onDelete: () async {
                   Log.info('Hapus transaksi: ${transaction.id}');
-                  await transaksi.softDelete(transaction.id);
+                  await ref.read(transaksiOpGlobalProvider).softDelete(transaction.id);
                   ref.invalidate(detailDompetProvider(dompet.id));
                 },
               ),
@@ -16802,7 +16798,7 @@ final class DompetProvider extends $AsyncNotifierProvider<Dompet, DompetState> {
   Dompet create() => Dompet();
 }
 
-String _$dompetHash() => r'92db81efa71166f62c2642d04b107547808a2f2d';
+String _$dompetHash() => r'3eac7a52a9dde5193a72d2b6f734ec2509e8390c';
 
 abstract class _$Dompet extends $AsyncNotifier<DompetState> {
   FutureOr<DompetState> build();
@@ -17597,9 +17593,13 @@ class Dompet extends _$Dompet {
     state = await AsyncValue.guard(_loadData);
   }
 
-  void invalidateDompet() {
+  void invalidateDompetProvider(String? idDompet) {
     ref.invalidateSelf();
-    ref.invalidate(detailDompetProvider);
+    if (idDompet != null) {
+      ref.invalidate(detailDompetProvider(idDompet));
+    } else {
+      ref.invalidate(detailDompetProvider);
+    }
   }
 }
 
@@ -19720,6 +19720,1971 @@ as DateTime?,
 }
 
 // dart format on
+
+
+// File: lib/fitur/chating/dummy_chatting.dart
+// path: lib/fitur/chating/dummy_chatting.dart
+
+import 'dart:math';
+import 'package:wifi/fitur/chating/enum/status_pesan_enum.dart';
+import 'package:wifi/fitur/chating/model/chating_model.dart';
+import 'package:wifi/fitur/chating/model/lampiran.dart';
+import 'package:wifi/fitur/chating/model/percakapan.dart';
+
+/// Dummy data untuk fitur chating.
+/// Gunakan ini untuk pengujian UI sebelum menghubungkan ke backend nyata.
+
+/// Contoh pengguna dummy (id, nama, avatarUrl)
+const Map<String, Map<String, String>> dummyUsers = {
+  'u1': {'nama': 'Admin Support', 'avatar': ''},
+  'u2': {'nama': 'Budi', 'avatar': ''},
+  'u3': {'nama': 'Siti', 'avatar': ''},
+  'u4': {'nama': 'Toko Indah', 'avatar': ''},
+};
+
+/// Daftar percakapan dummy
+const List<Percakapan> sampleConversations = [
+  Percakapan(
+    id: 'c1',
+    idPartisipan: ['u1', 'u2'],
+    judul: 'Budi',
+    pratinjauPesanTerakhir: 'Terima kasih, kami akan cek dan segera merespon.',
+    jumlahBelumDibaca: 1,
+  ),
+  Percakapan(
+    id: 'c2',
+    idPartisipan: ['u1', 'u3'],
+    judul: 'Siti',
+    pratinjauPesanTerakhir: 'Pembayaran diterima',
+  ),
+  Percakapan(
+    id: 'c3',
+    idPartisipan: ['u1', 'u4'],
+    judul: 'Toko Indah',
+    pratinjauPesanTerakhir: 'Ada promo baru minggu ini',
+    jumlahBelumDibaca: 2,
+  ),
+];
+
+/// Pesan dummy statis untuk percakapan tertentu
+List<Pesan> sampleMessagesForConversation(String conversationId) {
+  final now = DateTime.now();
+  if (conversationId == 'c1') {
+    return [
+      Pesan(
+        id: 'm1',
+        idPercakapan: 'c1',
+        idPengirim: 'u1',
+        teks: 'Halo, ada yang bisa dibantu?',
+        dibuatPada: now.subtract(const Duration(minutes: 10)),
+        status: StatusPesan.dibaca,
+      ),
+      Pesan(
+        id: 'm2',
+        idPercakapan: 'c1',
+        idPengirim: 'u2',
+        teks: 'Saya mau tanya soal paket internet.',
+        dibuatPada: now.subtract(const Duration(minutes: 9)),
+        status: StatusPesan.dibaca,
+      ),
+      Pesan(
+        id: 'm3',
+        idPercakapan: 'c1',
+        idPengirim: 'u1',
+        teks: 'Silakan, sebutkan kendalanya.',
+        dibuatPada: now.subtract(const Duration(minutes: 8)),
+        status: StatusPesan.dibaca,
+      ),
+      Pesan(
+        id: 'm4',
+        idPercakapan: 'c1',
+        idPengirim: 'u2',
+        teks: 'Koneksi sering putus malam hari.',
+        dibuatPada: now.subtract(const Duration(minutes: 7)),
+      ),
+      Pesan(
+        id: 'm5',
+        idPercakapan: 'c1',
+        idPengirim: 'u1',
+        teks: 'Terima kasih, kami akan cek dan segera merespon.',
+        dibuatPada: now.subtract(const Duration(minutes: 6)),
+      ),
+    ];
+  } else if (conversationId == 'c2') {
+    return [
+      Pesan(
+        id: 'm10',
+        idPercakapan: 'c2',
+        idPengirim: 'u3',
+        teks: 'Apakah paket 10GB masih tersedia?',
+        dibuatPada: now.subtract(const Duration(days: 1, hours: 2)),
+        status: StatusPesan.diterima,
+      ),
+      Pesan(
+        id: 'm11',
+        idPercakapan: 'c2',
+        idPengirim: 'u1',
+        teks: 'Iya, masih tersedia. Mau saya aktifkan?',
+        dibuatPada: now.subtract(
+          const Duration(days: 1, hours: 1, minutes: 50),
+        ),
+        status: StatusPesan.dibaca,
+      ),
+    ];
+  } else if (conversationId == 'c3') {
+    return [
+      Pesan(
+        id: 'm20',
+        idPercakapan: 'c3',
+        idPengirim: 'u4',
+        teks: 'Ada promo baru minggu ini: diskon 20%',
+        dibuatPada: now.subtract(const Duration(days: 2)),
+      ),
+      Pesan(
+        id: 'm21',
+        idPercakapan: 'c3',
+        idPengirim: 'u1',
+        teks: 'Terima kasih informasinya.',
+        dibuatPada: now.subtract(const Duration(days: 2, minutes: 10)),
+      ),
+    ];
+  } else {
+    return [];
+  }
+}
+
+/// Generator pesan dummy acak untuk pengujian UI (pagination / load more)
+List<Pesan> generateDummyMessages({
+  required String conversationId,
+  required String myUserId,
+  int count = 20,
+}) {
+  final rnd = Random();
+  final now = DateTime.now();
+  final samples = <String>[
+    'Halo, ada yang bisa dibantu?',
+    'Terima kasih, kami akan cek dan segera merespon.',
+    'Saya mau tanya soal paket internet.',
+    'Koneksi sering putus malam hari.',
+    'Silakan, sebutkan kendalanya.',
+    'Pembayaran diterima.',
+    'Mohon tunggu sebentar.',
+    'Sudah saya proses.',
+    'Bisa kirimkan bukti pembayaran?',
+    'Promo berlaku sampai akhir bulan.',
+  ];
+
+  return List.generate(count, (i) {
+    final isMine = rnd.nextBool();
+    final teks = samples[rnd.nextInt(samples.length)];
+    return Pesan(
+      id: '${conversationId}_gen_${i}_${now.millisecondsSinceEpoch}',
+      idPercakapan: conversationId,
+      idPengirim: isMine ? myUserId : 'u${(rnd.nextInt(3) + 1)}',
+      teks: teks,
+      dibuatPada: now.subtract(Duration(minutes: (count - i) * 3)),
+      status: StatusPesan.values[rnd.nextInt(StatusPesan.values.length)],
+      lampiran: rnd.nextBool()
+          ? [
+              Lampiran(
+                id: 'att_$i',
+                url: 'https://example.com/file_$i.jpg',
+                tipe: 'gambar', // disesuaikan dengan model baru
+                nama: 'file_$i.jpg',
+                ukuran: 1024 + rnd.nextInt(20000),
+              ),
+            ]
+          : const [],
+      reaksi: rnd.nextBool() ? {'👍': rnd.nextInt(5) + 1} : const {},
+    );
+  });
+}
+
+
+// File: lib/fitur/chating/chating_dashboard.dart
+// path: lib/fitur/chating/chating_dashboard.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/chating/chating.dart';
+import 'package:wifi/fitur/chating/dummy_chatting.dart';
+import 'package:wifi/fitur/chating/model/percakapan.dart';
+
+class ChatingDashboard extends ConsumerWidget {
+  const ChatingDashboard({super.key});
+
+  String _formatWaktu(DateTime t) {
+    final now = DateTime.now();
+    final diff = now.difference(t);
+    if (diff.inDays == 0) {
+      final hh = t.hour.toString().padLeft(2, '0');
+      final mm = t.minute.toString().padLeft(2, '0');
+      return '$hh:$mm';
+    } else if (diff.inDays == 1) {
+      return 'Kemarin';
+    } else if (diff.inDays < 7) {
+      return '${diff.inDays} hari lalu';
+    } else {
+      return '${t.day}/${t.month}/${t.year}';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Gunakan dummy conversations dari dummy_chatting.dart
+    const chats = sampleConversations;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Pesan'),
+        centerTitle: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            tooltip: 'Cari percakapan',
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: _ChatSearchDelegate(chats),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            tooltip: 'Lainnya',
+            onPressed: () {
+              // buka menu atau pengaturan chat
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          _buildHeader(context),
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: chats.length,
+              separatorBuilder: (_, _) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                final conv = chats[index];
+                // Ambil pesan dummy untuk percakapan ini
+                final msgs = sampleMessagesForConversation(conv.id);
+                final lastMsg = msgs.isNotEmpty ? msgs.last : null;
+
+                // Pratinjau: gunakan pratinjau dari percakapan atau teks pesan terakhir
+                final preview =
+                    conv.pratinjauPesanTerakhir ?? lastMsg?.teks ?? '-';
+
+                // Waktu: gunakan waktuPesanTerakhir atau dibuatPada dari pesan terakhir
+                final waktu = conv.waktuPesanTerakhir ?? lastMsg?.dibuatPada;
+                final waktuTampil = waktu != null ? _formatWaktu(waktu) : '';
+
+                // Judul: gunakan tampilkanJudul getter
+                final judul = conv.tampilkanJudul;
+
+                return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  leading: CircleAvatar(
+                    radius: 24,
+                    child: Text(
+                      judul.isNotEmpty ? judul[0].toUpperCase() : '?',
+                    ),
+                  ),
+                  title: Text(
+                    judul,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: Text(
+                    preview,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        waktuTampil,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      if (conv.jumlahBelumDibaca > 0)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            conv.jumlahBelumDibaca.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  onTap: () {
+                    // Konversi Pesan dari dummy ke data yang bisa dipakai Chating
+                    final pesanAwal =
+                        msgs; // sampleMessagesForConversation sudah List<Pesan>
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (context) => Chating(
+                          idPercakapan: conv.id,
+                          namaLawanbicara: judul,
+                          pesanAwal: pesanAwal,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Mulai percakapan baru',
+        child: const Icon(Icons.chat),
+        onPressed: () {
+          // buka layar buat chat baru
+        },
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'Percakapan',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            tooltip: 'Filter',
+            onPressed: () {
+              // buka filter percakapan
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChatSearchDelegate extends SearchDelegate<String> {
+  final List<Percakapan> conversations;
+  _ChatSearchDelegate(List<Percakapan> chats) : conversations = chats;
+
+  @override
+  String get searchFieldLabel => 'Cari nama atau pesan';
+
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    return [
+      if (query.isNotEmpty)
+        IconButton(icon: const Icon(Icons.clear), onPressed: () => query = ''),
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () => close(context, ''),
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    final results = conversations.where((c) {
+      final q = query.toLowerCase();
+      final judul = c.tampilkanJudul.toLowerCase();
+      final msgs = sampleMessagesForConversation(c.id);
+      final preview =
+          c.pratinjauPesanTerakhir ??
+          (msgs.isNotEmpty ? msgs.last.teks ?? '' : '');
+      return judul.contains(q) || preview.toLowerCase().contains(q);
+    }).toList();
+
+    if (results.isEmpty) {
+      return const Center(child: Text('Tidak ada hasil'));
+    }
+
+    return ListView.separated(
+      itemCount: results.length,
+      separatorBuilder: (_, _) => const Divider(height: 1),
+      itemBuilder: (context, index) {
+        final conv = results[index];
+        final judul = conv.tampilkanJudul;
+        final msgs = sampleMessagesForConversation(conv.id);
+        final preview =
+            conv.pratinjauPesanTerakhir ??
+            (msgs.isNotEmpty ? msgs.last.teks ?? '' : '');
+        return ListTile(
+          leading: CircleAvatar(
+            child: Text(judul.isNotEmpty ? judul[0].toUpperCase() : '?'),
+          ),
+          title: Text(judul),
+          subtitle: Text(preview, maxLines: 1, overflow: TextOverflow.ellipsis),
+          onTap: () {
+            close(context, conv.id);
+            Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => Chating(
+                  idPercakapan: conv.id,
+                  namaLawanbicara: judul,
+                  pesanAwal: msgs,
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggestions = query.isEmpty
+        ? conversations
+        : conversations.where((c) {
+            final q = query.toLowerCase();
+            final judul = c.tampilkanJudul.toLowerCase();
+            final msgs = sampleMessagesForConversation(c.id);
+            final preview =
+                c.pratinjauPesanTerakhir ??
+                (msgs.isNotEmpty ? msgs.last.teks ?? '' : '');
+            return judul.contains(q) || preview.toLowerCase().contains(q);
+          }).toList();
+
+    return ListView.builder(
+      itemCount: suggestions.length,
+      itemBuilder: (context, index) {
+        final conv = suggestions[index];
+        final judul = conv.tampilkanJudul;
+        final msgs = sampleMessagesForConversation(conv.id);
+        final preview =
+            conv.pratinjauPesanTerakhir ??
+            (msgs.isNotEmpty ? msgs.last.teks ?? '' : '');
+        return ListTile(
+          leading: CircleAvatar(
+            child: Text(judul.isNotEmpty ? judul[0].toUpperCase() : '?'),
+          ),
+          title: Text(judul),
+          subtitle: Text(preview, maxLines: 1, overflow: TextOverflow.ellipsis),
+          onTap: () {
+            query = judul;
+            showResults(context);
+          },
+        );
+      },
+    );
+  }
+}
+
+
+// File: lib/fitur/chating/provider/chating_provider.dart
+
+
+// File: lib/fitur/chating/operasi/chating_op_supabase.dart
+
+
+// File: lib/fitur/chating/chating.dart
+// file: lib/fitur/chating/chating.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/chating/enum/status_pesan_enum.dart';
+import 'package:wifi/fitur/chating/model/chating_model.dart';
+
+class Chating extends ConsumerStatefulWidget {
+  final String idPercakapan;
+  final String namaLawanbicara;
+  final List<Pesan>? pesanAwal;
+  final String idPenggunaSaatIni; // ID pengguna yang sedang login
+
+  const Chating({
+    super.key,
+    required this.idPercakapan,
+    required this.namaLawanbicara,
+    this.pesanAwal,
+    this.idPenggunaSaatIni = 'u1', // sementara hardcode, nanti dari auth
+  });
+
+  @override
+  ConsumerState<Chating> createState() => _ChatingState();
+}
+
+class _ChatingState extends ConsumerState<Chating> {
+  late final List<Pesan> _pesan;
+  final TextEditingController _pengontrol = TextEditingController();
+  final ScrollController _penggulir = ScrollController();
+  bool _sedangMengirim = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // gunakan pesan awal jika ada, atau daftar kosong
+    _pesan = List<Pesan>.from(widget.pesanAwal ?? []);
+  }
+
+  @override
+  void dispose() {
+    _pengontrol.dispose();
+    _penggulir.dispose();
+    super.dispose();
+  }
+
+  Future<void> _kirimPesan({bool popAfterSend = false}) async {
+    final teks = _pengontrol.text.trim();
+    if (teks.isEmpty) return;
+
+    final pesanBaru = Pesan(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      idPercakapan: widget.idPercakapan,
+      idPengirim: widget.idPenggunaSaatIni,
+      teks: teks,
+      dibuatPada: DateTime.now(),
+      status: StatusPesan.mengirim,
+    );
+
+    setState(() {
+      _sedangMengirim = true;
+      _pesan.add(pesanBaru);
+      _pengontrol.clear();
+    });
+    _gulirKeBawah();
+
+    // Simulasi pengiriman (ganti dengan backend call)
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+
+    // Perbarui status menjadi terkirim
+    setState(() {
+      _pesan[_pesan.length - 1] = pesanBaru.copyWith(
+        status: StatusPesan.terkirim,
+      );
+      _sedangMengirim = false;
+    });
+
+    if (popAfterSend) {
+      if (mounted) {
+        Navigator.pop(context, pesanBaru);
+      }
+    }
+  }
+
+  void _tutupDanKembalikanHasil() {
+    final hasil = {
+      'idPercakapan': widget.idPercakapan,
+      'jumlahPesan': _pesan.length,
+      'pesanTerakhir': _pesan.isNotEmpty ? _pesan.last : null,
+    };
+    Navigator.pop(context, hasil);
+  }
+
+  void _gulirKeBawah() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_penggulir.hasClients) return;
+      _penggulir.animateTo(
+        _penggulir.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: _tutupDanKembalikanHasil,
+        ),
+        title: Row(
+          children: [
+            const CircleAvatar(radius: 16, child: Icon(Icons.person, size: 18)),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.namaLawanbicara,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Text(
+                  'Online',
+                  style: TextStyle(fontSize: 12, color: Colors.white70),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
+        ],
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                controller: _penggulir,
+                padding: const EdgeInsets.only(top: 12, bottom: 12),
+                itemCount: _pesan.length,
+                itemBuilder: (context, index) {
+                  final m = _pesan[index];
+                  final isMine = m.idPengirim == widget.idPenggunaSaatIni;
+                  return Align(
+                    alignment: isMine
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
+                    child: _bangunBubblePesan(m, isMine),
+                  );
+                },
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(20),
+                    blurRadius: 6,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline),
+                    onPressed: () {
+                      // TODO: lampiran
+                    },
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: _pengontrol,
+                      textCapitalization: TextCapitalization.sentences,
+                      minLines: 1,
+                      maxLines: 5,
+                      decoration: const InputDecoration(
+                        hintText: 'Ketik pesan...',
+                        border: OutlineInputBorder(borderSide: BorderSide.none),
+                        isDense: true,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        filled: true,
+                        fillColor: Color(0xFFF2F3F5),
+                      ),
+                      onSubmitted: (_) => _kirimPesan(),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _sedangMengirim
+                      ? const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : IconButton(
+                          icon: const Icon(Icons.send),
+                          color: Theme.of(context).colorScheme.primary,
+                          onPressed: _kirimPesan,
+                        ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _bangunBubblePesan(Pesan m, bool isMine) {
+    final alignment = isMine
+        ? CrossAxisAlignment.end
+        : CrossAxisAlignment.start;
+    final bgColor = isMine ? Colors.blue.shade600 : Colors.grey.shade200;
+    final textColor = isMine ? Colors.white : Colors.black87;
+    final radius = BorderRadius.only(
+      topLeft: const Radius.circular(12),
+      topRight: const Radius.circular(12),
+      bottomLeft: Radius.circular(isMine ? 12 : 0),
+      bottomRight: Radius.circular(isMine ? 0 : 12),
+    );
+
+    // Tampilkan teks dan mungkin lampiran (disederhanakan dulu)
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Column(
+        crossAxisAlignment: alignment,
+        children: [
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.75,
+            ),
+            child: Container(
+              decoration: BoxDecoration(color: bgColor, borderRadius: radius),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Text(
+                m.teks ?? '',
+                style: TextStyle(color: textColor, fontSize: 15),
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _formatWaktu(m.dibuatPada),
+            style: const TextStyle(fontSize: 11, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatWaktu(DateTime t) {
+    final now = DateTime.now();
+    if (now.difference(t).inDays == 0) {
+      final hh = t.hour.toString().padLeft(2, '0');
+      final mm = t.minute.toString().padLeft(2, '0');
+      return '$hh:$mm';
+    } else {
+      return '${t.day}/${t.month}/${t.year}';
+    }
+  }
+}
+
+
+// File: lib/fitur/chating/enum/status_pesan_enum.dart
+// path lib/fitur/chating/enum/status_pesan_enum.dart
+enum StatusPesan { mengirim, terkirim, diterima, dibaca, gagal }
+
+
+// File: lib/fitur/chating/model/percakapan.dart
+// lib/fitur/chating/model/percakapan.dart
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:wifi/fitur/chating/model/chating_model.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart';
+
+part 'percakapan.freezed.dart';
+
+@freezed
+abstract class Percakapan with _$Percakapan implements HasId {
+  const Percakapan._();
+
+  const factory Percakapan({
+    required String id,
+    @Default([]) List<String> idPartisipan,
+    String? judul,
+    Pesan? pesanTerakhir,
+    String? pratinjauPesanTerakhir,
+    DateTime? waktuPesanTerakhir,
+    @Default(0) int jumlahBelumDibaca,
+  }) = _Percakapan;
+
+  /// Getter untuk tampilan judul (mengatasi error undefined getter)
+  String get tampilkanJudul => judul ?? 'Tanpa Judul';
+
+  /// Membuat [Percakapan] dari SQLite map.
+  factory Percakapan.fromSqlite(Map<String, dynamic> map) {
+    Log.info('Creating Percakapan from SQLite: ${map['id']}');
+    return Percakapan(
+      id: map['id'] as String? ?? '',
+      idPartisipan:
+          (map['id_partisipan'] as String?)
+              ?.split(',')
+              .where((s) => s.isNotEmpty)
+              .toList() ??
+          [],
+      judul: map['judul'] as String?,
+      pratinjauPesanTerakhir: map['pratinjau_pesan_terakhir'] as String?,
+      waktuPesanTerakhir: ParserUtil.parseDateTime(map['waktu_pesan_terakhir']),
+      jumlahBelumDibaca:
+          int.tryParse(map['jumlah_belum_dibaca']?.toString() ?? '') ?? 0,
+    );
+  }
+
+  /// Mengonversi [Percakapan] ke map untuk SQLite.
+  Map<String, dynamic> toSqlite() {
+    return {
+      'id': id,
+      'id_partisipan': idPartisipan.join(','),
+      'judul': judul,
+      'pratinjau_pesan_terakhir': pratinjauPesanTerakhir,
+      'waktu_pesan_terakhir': waktuPesanTerakhir?.millisecondsSinceEpoch,
+      'jumlah_belum_dibaca': jumlahBelumDibaca,
+    };
+  }
+
+  /// Membuat [Percakapan] dari Supabase document.
+  factory Percakapan.fromSupabase(
+    final String id,
+    final Map<String, dynamic> data,
+  ) {
+    Log.info('Creating Percakapan from Supabase: $id');
+    return Percakapan(
+      id: id,
+      idPartisipan:
+          (data['id_partisipan'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
+      judul: data['judul'] as String?,
+      pratinjauPesanTerakhir: data['pratinjau_pesan_terakhir'] as String?,
+      waktuPesanTerakhir: ParserUtil.parseDateTime(
+        data['waktu_pesan_terakhir'],
+      ),
+      jumlahBelumDibaca:
+          int.tryParse(data['jumlah_belum_dibaca']?.toString() ?? '') ?? 0,
+    );
+  }
+
+  /// Mengonversi [Percakapan] ke map untuk Supabase.
+  Map<String, dynamic> toSupabase() {
+    return {
+      'id': id,
+      'id_partisipan': idPartisipan,
+      'judul': judul,
+      'pratinjau_pesan_terakhir': pratinjauPesanTerakhir,
+      'waktu_pesan_terakhir': waktuPesanTerakhir?.toIso8601String(),
+      'jumlah_belum_dibaca': jumlahBelumDibaca,
+    };
+  }
+}
+
+
+// File: lib/fitur/chating/model/lampiran.freezed.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'lampiran.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$Lampiran {
+
+ String get id; String get url; String get tipe; String? get nama; int? get ukuran;
+/// Create a copy of Lampiran
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$LampiranCopyWith<Lampiran> get copyWith => _$LampiranCopyWithImpl<Lampiran>(this as Lampiran, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Lampiran&&(identical(other.id, id) || other.id == id)&&(identical(other.url, url) || other.url == url)&&(identical(other.tipe, tipe) || other.tipe == tipe)&&(identical(other.nama, nama) || other.nama == nama)&&(identical(other.ukuran, ukuran) || other.ukuran == ukuran));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,url,tipe,nama,ukuran);
+
+@override
+String toString() {
+  return 'Lampiran(id: $id, url: $url, tipe: $tipe, nama: $nama, ukuran: $ukuran)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $LampiranCopyWith<$Res>  {
+  factory $LampiranCopyWith(Lampiran value, $Res Function(Lampiran) _then) = _$LampiranCopyWithImpl;
+@useResult
+$Res call({
+ String id, String url, String tipe, String? nama, int? ukuran
+});
+
+
+
+
+}
+/// @nodoc
+class _$LampiranCopyWithImpl<$Res>
+    implements $LampiranCopyWith<$Res> {
+  _$LampiranCopyWithImpl(this._self, this._then);
+
+  final Lampiran _self;
+  final $Res Function(Lampiran) _then;
+
+/// Create a copy of Lampiran
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? url = null,Object? tipe = null,Object? nama = freezed,Object? ukuran = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
+as String,tipe: null == tipe ? _self.tipe : tipe // ignore: cast_nullable_to_non_nullable
+as String,nama: freezed == nama ? _self.nama : nama // ignore: cast_nullable_to_non_nullable
+as String?,ukuran: freezed == ukuran ? _self.ukuran : ukuran // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [Lampiran].
+extension LampiranPatterns on Lampiran {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _Lampiran value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _Lampiran() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _Lampiran value)  $default,){
+final _that = this;
+switch (_that) {
+case _Lampiran():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _Lampiran value)?  $default,){
+final _that = this;
+switch (_that) {
+case _Lampiran() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String url,  String tipe,  String? nama,  int? ukuran)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _Lampiran() when $default != null:
+return $default(_that.id,_that.url,_that.tipe,_that.nama,_that.ukuran);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String url,  String tipe,  String? nama,  int? ukuran)  $default,) {final _that = this;
+switch (_that) {
+case _Lampiran():
+return $default(_that.id,_that.url,_that.tipe,_that.nama,_that.ukuran);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String url,  String tipe,  String? nama,  int? ukuran)?  $default,) {final _that = this;
+switch (_that) {
+case _Lampiran() when $default != null:
+return $default(_that.id,_that.url,_that.tipe,_that.nama,_that.ukuran);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _Lampiran implements Lampiran {
+  const _Lampiran({required this.id, required this.url, required this.tipe, this.nama, this.ukuran});
+  
+
+@override final  String id;
+@override final  String url;
+@override final  String tipe;
+@override final  String? nama;
+@override final  int? ukuran;
+
+/// Create a copy of Lampiran
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$LampiranCopyWith<_Lampiran> get copyWith => __$LampiranCopyWithImpl<_Lampiran>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Lampiran&&(identical(other.id, id) || other.id == id)&&(identical(other.url, url) || other.url == url)&&(identical(other.tipe, tipe) || other.tipe == tipe)&&(identical(other.nama, nama) || other.nama == nama)&&(identical(other.ukuran, ukuran) || other.ukuran == ukuran));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,url,tipe,nama,ukuran);
+
+@override
+String toString() {
+  return 'Lampiran(id: $id, url: $url, tipe: $tipe, nama: $nama, ukuran: $ukuran)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$LampiranCopyWith<$Res> implements $LampiranCopyWith<$Res> {
+  factory _$LampiranCopyWith(_Lampiran value, $Res Function(_Lampiran) _then) = __$LampiranCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String url, String tipe, String? nama, int? ukuran
+});
+
+
+
+
+}
+/// @nodoc
+class __$LampiranCopyWithImpl<$Res>
+    implements _$LampiranCopyWith<$Res> {
+  __$LampiranCopyWithImpl(this._self, this._then);
+
+  final _Lampiran _self;
+  final $Res Function(_Lampiran) _then;
+
+/// Create a copy of Lampiran
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? url = null,Object? tipe = null,Object? nama = freezed,Object? ukuran = freezed,}) {
+  return _then(_Lampiran(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
+as String,tipe: null == tipe ? _self.tipe : tipe // ignore: cast_nullable_to_non_nullable
+as String,nama: freezed == nama ? _self.nama : nama // ignore: cast_nullable_to_non_nullable
+as String?,ukuran: freezed == ukuran ? _self.ukuran : ukuran // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+
+
+}
+
+// dart format on
+
+
+// File: lib/fitur/chating/model/chating_model.freezed.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'chating_model.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$Pesan {
+
+ String get id; String get idPercakapan; String get idPengirim; String? get teks; DateTime get dibuatPada; DateTime? get dieditPada; StatusPesan get status; List<Lampiran> get lampiran; String? get balasanUntuk; Map<String, int> get reaksi; Map<String, dynamic>? get metadata; bool get dihapus; DateTime? get diarsipkanPada;
+/// Create a copy of Pesan
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PesanCopyWith<Pesan> get copyWith => _$PesanCopyWithImpl<Pesan>(this as Pesan, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Pesan&&(identical(other.id, id) || other.id == id)&&(identical(other.idPercakapan, idPercakapan) || other.idPercakapan == idPercakapan)&&(identical(other.idPengirim, idPengirim) || other.idPengirim == idPengirim)&&(identical(other.teks, teks) || other.teks == teks)&&(identical(other.dibuatPada, dibuatPada) || other.dibuatPada == dibuatPada)&&(identical(other.dieditPada, dieditPada) || other.dieditPada == dieditPada)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.lampiran, lampiran)&&(identical(other.balasanUntuk, balasanUntuk) || other.balasanUntuk == balasanUntuk)&&const DeepCollectionEquality().equals(other.reaksi, reaksi)&&const DeepCollectionEquality().equals(other.metadata, metadata)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,idPercakapan,idPengirim,teks,dibuatPada,dieditPada,status,const DeepCollectionEquality().hash(lampiran),balasanUntuk,const DeepCollectionEquality().hash(reaksi),const DeepCollectionEquality().hash(metadata),dihapus,diarsipkanPada);
+
+@override
+String toString() {
+  return 'Pesan(id: $id, idPercakapan: $idPercakapan, idPengirim: $idPengirim, teks: $teks, dibuatPada: $dibuatPada, dieditPada: $dieditPada, status: $status, lampiran: $lampiran, balasanUntuk: $balasanUntuk, reaksi: $reaksi, metadata: $metadata, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PesanCopyWith<$Res>  {
+  factory $PesanCopyWith(Pesan value, $Res Function(Pesan) _then) = _$PesanCopyWithImpl;
+@useResult
+$Res call({
+ String id, String idPercakapan, String idPengirim, String? teks, DateTime dibuatPada, DateTime? dieditPada, StatusPesan status, List<Lampiran> lampiran, String? balasanUntuk, Map<String, int> reaksi, Map<String, dynamic>? metadata, bool dihapus, DateTime? diarsipkanPada
+});
+
+
+
+
+}
+/// @nodoc
+class _$PesanCopyWithImpl<$Res>
+    implements $PesanCopyWith<$Res> {
+  _$PesanCopyWithImpl(this._self, this._then);
+
+  final Pesan _self;
+  final $Res Function(Pesan) _then;
+
+/// Create a copy of Pesan
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? idPercakapan = null,Object? idPengirim = null,Object? teks = freezed,Object? dibuatPada = null,Object? dieditPada = freezed,Object? status = null,Object? lampiran = null,Object? balasanUntuk = freezed,Object? reaksi = null,Object? metadata = freezed,Object? dihapus = null,Object? diarsipkanPada = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,idPercakapan: null == idPercakapan ? _self.idPercakapan : idPercakapan // ignore: cast_nullable_to_non_nullable
+as String,idPengirim: null == idPengirim ? _self.idPengirim : idPengirim // ignore: cast_nullable_to_non_nullable
+as String,teks: freezed == teks ? _self.teks : teks // ignore: cast_nullable_to_non_nullable
+as String?,dibuatPada: null == dibuatPada ? _self.dibuatPada : dibuatPada // ignore: cast_nullable_to_non_nullable
+as DateTime,dieditPada: freezed == dieditPada ? _self.dieditPada : dieditPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as StatusPesan,lampiran: null == lampiran ? _self.lampiran : lampiran // ignore: cast_nullable_to_non_nullable
+as List<Lampiran>,balasanUntuk: freezed == balasanUntuk ? _self.balasanUntuk : balasanUntuk // ignore: cast_nullable_to_non_nullable
+as String?,reaksi: null == reaksi ? _self.reaksi : reaksi // ignore: cast_nullable_to_non_nullable
+as Map<String, int>,metadata: freezed == metadata ? _self.metadata : metadata // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
+as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [Pesan].
+extension PesanPatterns on Pesan {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _Pesan value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _Pesan() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _Pesan value)  $default,){
+final _that = this;
+switch (_that) {
+case _Pesan():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _Pesan value)?  $default,){
+final _that = this;
+switch (_that) {
+case _Pesan() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String idPercakapan,  String idPengirim,  String? teks,  DateTime dibuatPada,  DateTime? dieditPada,  StatusPesan status,  List<Lampiran> lampiran,  String? balasanUntuk,  Map<String, int> reaksi,  Map<String, dynamic>? metadata,  bool dihapus,  DateTime? diarsipkanPada)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _Pesan() when $default != null:
+return $default(_that.id,_that.idPercakapan,_that.idPengirim,_that.teks,_that.dibuatPada,_that.dieditPada,_that.status,_that.lampiran,_that.balasanUntuk,_that.reaksi,_that.metadata,_that.dihapus,_that.diarsipkanPada);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String idPercakapan,  String idPengirim,  String? teks,  DateTime dibuatPada,  DateTime? dieditPada,  StatusPesan status,  List<Lampiran> lampiran,  String? balasanUntuk,  Map<String, int> reaksi,  Map<String, dynamic>? metadata,  bool dihapus,  DateTime? diarsipkanPada)  $default,) {final _that = this;
+switch (_that) {
+case _Pesan():
+return $default(_that.id,_that.idPercakapan,_that.idPengirim,_that.teks,_that.dibuatPada,_that.dieditPada,_that.status,_that.lampiran,_that.balasanUntuk,_that.reaksi,_that.metadata,_that.dihapus,_that.diarsipkanPada);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String idPercakapan,  String idPengirim,  String? teks,  DateTime dibuatPada,  DateTime? dieditPada,  StatusPesan status,  List<Lampiran> lampiran,  String? balasanUntuk,  Map<String, int> reaksi,  Map<String, dynamic>? metadata,  bool dihapus,  DateTime? diarsipkanPada)?  $default,) {final _that = this;
+switch (_that) {
+case _Pesan() when $default != null:
+return $default(_that.id,_that.idPercakapan,_that.idPengirim,_that.teks,_that.dibuatPada,_that.dieditPada,_that.status,_that.lampiran,_that.balasanUntuk,_that.reaksi,_that.metadata,_that.dihapus,_that.diarsipkanPada);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _Pesan implements Pesan {
+  const _Pesan({required this.id, required this.idPercakapan, required this.idPengirim, this.teks, required this.dibuatPada, this.dieditPada, this.status = StatusPesan.terkirim, final  List<Lampiran> lampiran = const [], this.balasanUntuk, final  Map<String, int> reaksi = const {}, final  Map<String, dynamic>? metadata, this.dihapus = false, this.diarsipkanPada}): _lampiran = lampiran,_reaksi = reaksi,_metadata = metadata;
+  
+
+@override final  String id;
+@override final  String idPercakapan;
+@override final  String idPengirim;
+@override final  String? teks;
+@override final  DateTime dibuatPada;
+@override final  DateTime? dieditPada;
+@override@JsonKey() final  StatusPesan status;
+ final  List<Lampiran> _lampiran;
+@override@JsonKey() List<Lampiran> get lampiran {
+  if (_lampiran is EqualUnmodifiableListView) return _lampiran;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_lampiran);
+}
+
+@override final  String? balasanUntuk;
+ final  Map<String, int> _reaksi;
+@override@JsonKey() Map<String, int> get reaksi {
+  if (_reaksi is EqualUnmodifiableMapView) return _reaksi;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_reaksi);
+}
+
+ final  Map<String, dynamic>? _metadata;
+@override Map<String, dynamic>? get metadata {
+  final value = _metadata;
+  if (value == null) return null;
+  if (_metadata is EqualUnmodifiableMapView) return _metadata;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(value);
+}
+
+@override@JsonKey() final  bool dihapus;
+@override final  DateTime? diarsipkanPada;
+
+/// Create a copy of Pesan
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PesanCopyWith<_Pesan> get copyWith => __$PesanCopyWithImpl<_Pesan>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Pesan&&(identical(other.id, id) || other.id == id)&&(identical(other.idPercakapan, idPercakapan) || other.idPercakapan == idPercakapan)&&(identical(other.idPengirim, idPengirim) || other.idPengirim == idPengirim)&&(identical(other.teks, teks) || other.teks == teks)&&(identical(other.dibuatPada, dibuatPada) || other.dibuatPada == dibuatPada)&&(identical(other.dieditPada, dieditPada) || other.dieditPada == dieditPada)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._lampiran, _lampiran)&&(identical(other.balasanUntuk, balasanUntuk) || other.balasanUntuk == balasanUntuk)&&const DeepCollectionEquality().equals(other._reaksi, _reaksi)&&const DeepCollectionEquality().equals(other._metadata, _metadata)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,idPercakapan,idPengirim,teks,dibuatPada,dieditPada,status,const DeepCollectionEquality().hash(_lampiran),balasanUntuk,const DeepCollectionEquality().hash(_reaksi),const DeepCollectionEquality().hash(_metadata),dihapus,diarsipkanPada);
+
+@override
+String toString() {
+  return 'Pesan(id: $id, idPercakapan: $idPercakapan, idPengirim: $idPengirim, teks: $teks, dibuatPada: $dibuatPada, dieditPada: $dieditPada, status: $status, lampiran: $lampiran, balasanUntuk: $balasanUntuk, reaksi: $reaksi, metadata: $metadata, dihapus: $dihapus, diarsipkanPada: $diarsipkanPada)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PesanCopyWith<$Res> implements $PesanCopyWith<$Res> {
+  factory _$PesanCopyWith(_Pesan value, $Res Function(_Pesan) _then) = __$PesanCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String idPercakapan, String idPengirim, String? teks, DateTime dibuatPada, DateTime? dieditPada, StatusPesan status, List<Lampiran> lampiran, String? balasanUntuk, Map<String, int> reaksi, Map<String, dynamic>? metadata, bool dihapus, DateTime? diarsipkanPada
+});
+
+
+
+
+}
+/// @nodoc
+class __$PesanCopyWithImpl<$Res>
+    implements _$PesanCopyWith<$Res> {
+  __$PesanCopyWithImpl(this._self, this._then);
+
+  final _Pesan _self;
+  final $Res Function(_Pesan) _then;
+
+/// Create a copy of Pesan
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? idPercakapan = null,Object? idPengirim = null,Object? teks = freezed,Object? dibuatPada = null,Object? dieditPada = freezed,Object? status = null,Object? lampiran = null,Object? balasanUntuk = freezed,Object? reaksi = null,Object? metadata = freezed,Object? dihapus = null,Object? diarsipkanPada = freezed,}) {
+  return _then(_Pesan(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,idPercakapan: null == idPercakapan ? _self.idPercakapan : idPercakapan // ignore: cast_nullable_to_non_nullable
+as String,idPengirim: null == idPengirim ? _self.idPengirim : idPengirim // ignore: cast_nullable_to_non_nullable
+as String,teks: freezed == teks ? _self.teks : teks // ignore: cast_nullable_to_non_nullable
+as String?,dibuatPada: null == dibuatPada ? _self.dibuatPada : dibuatPada // ignore: cast_nullable_to_non_nullable
+as DateTime,dieditPada: freezed == dieditPada ? _self.dieditPada : dieditPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as StatusPesan,lampiran: null == lampiran ? _self._lampiran : lampiran // ignore: cast_nullable_to_non_nullable
+as List<Lampiran>,balasanUntuk: freezed == balasanUntuk ? _self.balasanUntuk : balasanUntuk // ignore: cast_nullable_to_non_nullable
+as String?,reaksi: null == reaksi ? _self._reaksi : reaksi // ignore: cast_nullable_to_non_nullable
+as Map<String, int>,metadata: freezed == metadata ? _self._metadata : metadata // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
+as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+
+}
+
+// dart format on
+
+
+// File: lib/fitur/chating/model/chating_model.dart
+// lib/fitur/chating/model/chating_model.dart
+
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:wifi/fitur/chating/enum/status_pesan_enum.dart';
+import 'package:wifi/fitur/chating/model/lampiran.dart';
+import 'package:wifi/shared/utils/parser_util.dart'; // tambahkan import
+
+part 'chating_model.freezed.dart';
+
+@freezed
+abstract class Pesan with _$Pesan {
+  const factory Pesan({
+    required String id,
+    required String idPercakapan,
+    required String idPengirim,
+    String? teks,
+    required DateTime dibuatPada,
+    DateTime? dieditPada,
+    @Default(StatusPesan.terkirim) StatusPesan status,
+    @Default([]) List<Lampiran> lampiran,
+    String? balasanUntuk,
+    @Default({}) Map<String, int> reaksi,
+    Map<String, dynamic>? metadata,
+    @Default(false) bool dihapus,
+    DateTime? diarsipkanPada,
+  }) = _Pesan;
+
+  factory Pesan.fromSupabase(String id, Map<String, dynamic> data) {
+    List<Lampiran> parseLampiran(dynamic v) {
+      if (v == null) return [];
+      if (v is List) {
+        try {
+          return v.cast<Map<String, dynamic>>().map(Lampiran.fromMap).toList();
+        } catch (_) {
+          return v
+              .whereType<Map<String, dynamic>>()
+              .map(Lampiran.fromMap)
+              .toList();
+        }
+      }
+      return [];
+    }
+
+    // Reaksi tetap manual
+    Map<String, int> parseReaksi(dynamic v) {
+      if (v == null) return {};
+      if (v is Map) {
+        return v.map(
+          (key, value) => MapEntry(
+            key.toString(),
+            (value is int) ? value : int.tryParse(value?.toString() ?? '') ?? 0,
+          ),
+        );
+      }
+      return {};
+    }
+
+    final meta = data['metadata'];
+
+    return Pesan(
+      id: id,
+      idPercakapan:
+          data['id_percakapan'] as String? ??
+          data['idPercakapan'] as String? ??
+          '',
+      idPengirim:
+          data['id_pengirim'] as String? ?? data['idPengirim'] as String? ?? '',
+      teks: data['teks'] as String?,
+      dibuatPada:
+          ParserUtil.parseDateTime(data['dibuat_pada'] ?? data['dibuatPada']) ??
+          DateTime.now(),
+      dieditPada: ParserUtil.parseDateTime(
+        data['diedit_pada'] ?? data['dieditPada'],
+      ),
+      status:
+          ParserUtil.safeParseEnum(
+            StatusPesan.values,
+            data['status']?.toString(),
+          ) ??
+          StatusPesan.terkirim,
+      lampiran: parseLampiran(data['lampiran'] ?? data['attachments']),
+      balasanUntuk:
+          data['balasan_untuk'] as String? ?? data['balasanUntuk'] as String?,
+      reaksi: parseReaksi(data['reaksi'] ?? data['reactions']),
+      metadata: meta is Map ? Map<String, dynamic>.from(meta) : null,
+      dihapus: ParserUtil.parseBool(data['dihapus']),
+      diarsipkanPada: ParserUtil.parseDateTime(
+        data['diarsipkan_pada'] ?? data['diarsipkanPada'],
+      ),
+    );
+  }
+
+  Map<String, dynamic> toSupabase() {
+    // tidak berubah
+    return {
+      'id': id,
+      'id_percakapan': idPercakapan,
+      'id_pengirim': idPengirim,
+      'teks': teks,
+      'dibuat_pada': dibuatPada.toIso8601String(),
+      'diedit_pada': dieditPada?.toIso8601String(),
+      'status': status.toString().split('.').last,
+      'lampiran': lampiran.map((l) => l.toMap()).toList(),
+      'balasan_untuk': balasanUntuk,
+      'reaksi': reaksi,
+      'metadata': metadata,
+      'dihapus': dihapus,
+      'diarsipkan_pada': diarsipkanPada?.toIso8601String(),
+    };
+  }
+}
+
+
+// File: lib/fitur/chating/model/percakapan.freezed.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'percakapan.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$Percakapan {
+
+ String get id; List<String> get idPartisipan; String? get judul; Pesan? get pesanTerakhir; String? get pratinjauPesanTerakhir; DateTime? get waktuPesanTerakhir; int get jumlahBelumDibaca;
+/// Create a copy of Percakapan
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PercakapanCopyWith<Percakapan> get copyWith => _$PercakapanCopyWithImpl<Percakapan>(this as Percakapan, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Percakapan&&(identical(other.id, id) || other.id == id)&&const DeepCollectionEquality().equals(other.idPartisipan, idPartisipan)&&(identical(other.judul, judul) || other.judul == judul)&&(identical(other.pesanTerakhir, pesanTerakhir) || other.pesanTerakhir == pesanTerakhir)&&(identical(other.pratinjauPesanTerakhir, pratinjauPesanTerakhir) || other.pratinjauPesanTerakhir == pratinjauPesanTerakhir)&&(identical(other.waktuPesanTerakhir, waktuPesanTerakhir) || other.waktuPesanTerakhir == waktuPesanTerakhir)&&(identical(other.jumlahBelumDibaca, jumlahBelumDibaca) || other.jumlahBelumDibaca == jumlahBelumDibaca));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,const DeepCollectionEquality().hash(idPartisipan),judul,pesanTerakhir,pratinjauPesanTerakhir,waktuPesanTerakhir,jumlahBelumDibaca);
+
+@override
+String toString() {
+  return 'Percakapan(id: $id, idPartisipan: $idPartisipan, judul: $judul, pesanTerakhir: $pesanTerakhir, pratinjauPesanTerakhir: $pratinjauPesanTerakhir, waktuPesanTerakhir: $waktuPesanTerakhir, jumlahBelumDibaca: $jumlahBelumDibaca)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PercakapanCopyWith<$Res>  {
+  factory $PercakapanCopyWith(Percakapan value, $Res Function(Percakapan) _then) = _$PercakapanCopyWithImpl;
+@useResult
+$Res call({
+ String id, List<String> idPartisipan, String? judul, Pesan? pesanTerakhir, String? pratinjauPesanTerakhir, DateTime? waktuPesanTerakhir, int jumlahBelumDibaca
+});
+
+
+$PesanCopyWith<$Res>? get pesanTerakhir;
+
+}
+/// @nodoc
+class _$PercakapanCopyWithImpl<$Res>
+    implements $PercakapanCopyWith<$Res> {
+  _$PercakapanCopyWithImpl(this._self, this._then);
+
+  final Percakapan _self;
+  final $Res Function(Percakapan) _then;
+
+/// Create a copy of Percakapan
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? idPartisipan = null,Object? judul = freezed,Object? pesanTerakhir = freezed,Object? pratinjauPesanTerakhir = freezed,Object? waktuPesanTerakhir = freezed,Object? jumlahBelumDibaca = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,idPartisipan: null == idPartisipan ? _self.idPartisipan : idPartisipan // ignore: cast_nullable_to_non_nullable
+as List<String>,judul: freezed == judul ? _self.judul : judul // ignore: cast_nullable_to_non_nullable
+as String?,pesanTerakhir: freezed == pesanTerakhir ? _self.pesanTerakhir : pesanTerakhir // ignore: cast_nullable_to_non_nullable
+as Pesan?,pratinjauPesanTerakhir: freezed == pratinjauPesanTerakhir ? _self.pratinjauPesanTerakhir : pratinjauPesanTerakhir // ignore: cast_nullable_to_non_nullable
+as String?,waktuPesanTerakhir: freezed == waktuPesanTerakhir ? _self.waktuPesanTerakhir : waktuPesanTerakhir // ignore: cast_nullable_to_non_nullable
+as DateTime?,jumlahBelumDibaca: null == jumlahBelumDibaca ? _self.jumlahBelumDibaca : jumlahBelumDibaca // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+/// Create a copy of Percakapan
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PesanCopyWith<$Res>? get pesanTerakhir {
+    if (_self.pesanTerakhir == null) {
+    return null;
+  }
+
+  return $PesanCopyWith<$Res>(_self.pesanTerakhir!, (value) {
+    return _then(_self.copyWith(pesanTerakhir: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [Percakapan].
+extension PercakapanPatterns on Percakapan {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _Percakapan value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _Percakapan() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _Percakapan value)  $default,){
+final _that = this;
+switch (_that) {
+case _Percakapan():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _Percakapan value)?  $default,){
+final _that = this;
+switch (_that) {
+case _Percakapan() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  List<String> idPartisipan,  String? judul,  Pesan? pesanTerakhir,  String? pratinjauPesanTerakhir,  DateTime? waktuPesanTerakhir,  int jumlahBelumDibaca)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _Percakapan() when $default != null:
+return $default(_that.id,_that.idPartisipan,_that.judul,_that.pesanTerakhir,_that.pratinjauPesanTerakhir,_that.waktuPesanTerakhir,_that.jumlahBelumDibaca);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  List<String> idPartisipan,  String? judul,  Pesan? pesanTerakhir,  String? pratinjauPesanTerakhir,  DateTime? waktuPesanTerakhir,  int jumlahBelumDibaca)  $default,) {final _that = this;
+switch (_that) {
+case _Percakapan():
+return $default(_that.id,_that.idPartisipan,_that.judul,_that.pesanTerakhir,_that.pratinjauPesanTerakhir,_that.waktuPesanTerakhir,_that.jumlahBelumDibaca);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  List<String> idPartisipan,  String? judul,  Pesan? pesanTerakhir,  String? pratinjauPesanTerakhir,  DateTime? waktuPesanTerakhir,  int jumlahBelumDibaca)?  $default,) {final _that = this;
+switch (_that) {
+case _Percakapan() when $default != null:
+return $default(_that.id,_that.idPartisipan,_that.judul,_that.pesanTerakhir,_that.pratinjauPesanTerakhir,_that.waktuPesanTerakhir,_that.jumlahBelumDibaca);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _Percakapan extends Percakapan {
+  const _Percakapan({required this.id, final  List<String> idPartisipan = const [], this.judul, this.pesanTerakhir, this.pratinjauPesanTerakhir, this.waktuPesanTerakhir, this.jumlahBelumDibaca = 0}): _idPartisipan = idPartisipan,super._();
+  
+
+@override final  String id;
+ final  List<String> _idPartisipan;
+@override@JsonKey() List<String> get idPartisipan {
+  if (_idPartisipan is EqualUnmodifiableListView) return _idPartisipan;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_idPartisipan);
+}
+
+@override final  String? judul;
+@override final  Pesan? pesanTerakhir;
+@override final  String? pratinjauPesanTerakhir;
+@override final  DateTime? waktuPesanTerakhir;
+@override@JsonKey() final  int jumlahBelumDibaca;
+
+/// Create a copy of Percakapan
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PercakapanCopyWith<_Percakapan> get copyWith => __$PercakapanCopyWithImpl<_Percakapan>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Percakapan&&(identical(other.id, id) || other.id == id)&&const DeepCollectionEquality().equals(other._idPartisipan, _idPartisipan)&&(identical(other.judul, judul) || other.judul == judul)&&(identical(other.pesanTerakhir, pesanTerakhir) || other.pesanTerakhir == pesanTerakhir)&&(identical(other.pratinjauPesanTerakhir, pratinjauPesanTerakhir) || other.pratinjauPesanTerakhir == pratinjauPesanTerakhir)&&(identical(other.waktuPesanTerakhir, waktuPesanTerakhir) || other.waktuPesanTerakhir == waktuPesanTerakhir)&&(identical(other.jumlahBelumDibaca, jumlahBelumDibaca) || other.jumlahBelumDibaca == jumlahBelumDibaca));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,const DeepCollectionEquality().hash(_idPartisipan),judul,pesanTerakhir,pratinjauPesanTerakhir,waktuPesanTerakhir,jumlahBelumDibaca);
+
+@override
+String toString() {
+  return 'Percakapan(id: $id, idPartisipan: $idPartisipan, judul: $judul, pesanTerakhir: $pesanTerakhir, pratinjauPesanTerakhir: $pratinjauPesanTerakhir, waktuPesanTerakhir: $waktuPesanTerakhir, jumlahBelumDibaca: $jumlahBelumDibaca)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PercakapanCopyWith<$Res> implements $PercakapanCopyWith<$Res> {
+  factory _$PercakapanCopyWith(_Percakapan value, $Res Function(_Percakapan) _then) = __$PercakapanCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, List<String> idPartisipan, String? judul, Pesan? pesanTerakhir, String? pratinjauPesanTerakhir, DateTime? waktuPesanTerakhir, int jumlahBelumDibaca
+});
+
+
+@override $PesanCopyWith<$Res>? get pesanTerakhir;
+
+}
+/// @nodoc
+class __$PercakapanCopyWithImpl<$Res>
+    implements _$PercakapanCopyWith<$Res> {
+  __$PercakapanCopyWithImpl(this._self, this._then);
+
+  final _Percakapan _self;
+  final $Res Function(_Percakapan) _then;
+
+/// Create a copy of Percakapan
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? idPartisipan = null,Object? judul = freezed,Object? pesanTerakhir = freezed,Object? pratinjauPesanTerakhir = freezed,Object? waktuPesanTerakhir = freezed,Object? jumlahBelumDibaca = null,}) {
+  return _then(_Percakapan(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,idPartisipan: null == idPartisipan ? _self._idPartisipan : idPartisipan // ignore: cast_nullable_to_non_nullable
+as List<String>,judul: freezed == judul ? _self.judul : judul // ignore: cast_nullable_to_non_nullable
+as String?,pesanTerakhir: freezed == pesanTerakhir ? _self.pesanTerakhir : pesanTerakhir // ignore: cast_nullable_to_non_nullable
+as Pesan?,pratinjauPesanTerakhir: freezed == pratinjauPesanTerakhir ? _self.pratinjauPesanTerakhir : pratinjauPesanTerakhir // ignore: cast_nullable_to_non_nullable
+as String?,waktuPesanTerakhir: freezed == waktuPesanTerakhir ? _self.waktuPesanTerakhir : waktuPesanTerakhir // ignore: cast_nullable_to_non_nullable
+as DateTime?,jumlahBelumDibaca: null == jumlahBelumDibaca ? _self.jumlahBelumDibaca : jumlahBelumDibaca // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+/// Create a copy of Percakapan
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PesanCopyWith<$Res>? get pesanTerakhir {
+    if (_self.pesanTerakhir == null) {
+    return null;
+  }
+
+  return $PesanCopyWith<$Res>(_self.pesanTerakhir!, (value) {
+    return _then(_self.copyWith(pesanTerakhir: value));
+  });
+}
+}
+
+// dart format on
+
+
+// File: lib/fitur/chating/model/lampiran.dart
+// lib/fitur/chating/model/lampiran.dart
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'lampiran.freezed.dart';
+
+@freezed
+abstract class Lampiran with _$Lampiran {
+  const factory Lampiran({
+    required String id,
+    required String url,
+    required String tipe, // 'gambar', 'file', 'audio'
+    String? nama,
+    int? ukuran, // dalam byte
+  }) = _Lampiran;
+
+  // helper untuk membuat dari Map (Supabase / JSON)
+  factory Lampiran.fromMap(Map<String, dynamic> map) {
+    return Lampiran(
+      id: map['id'] as String? ?? '',
+      url: map['url'] as String? ?? '',
+      tipe: map['tipe'] as String? ?? '',
+      nama: map['nama'] as String?,
+      ukuran: (map['ukuran'] is int)
+          ? map['ukuran'] as int
+          : int.tryParse(map['ukuran']?.toString() ?? ''),
+    );
+  }
+
+  // alias jika kamu ingin nama khusus Supabase
+  factory Lampiran.fromSupabase(Map<String, dynamic> map) =>
+      Lampiran.fromMap(map);
+
+  // konversi ke Map untuk disimpan ke Supabase / JSON
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'url': url,
+      'tipe': tipe,
+      if (nama != null) 'nama': nama,
+      if (ukuran != null) 'ukuran': ukuran,
+    };
+  }
+
+  // alias toSupabase
+  Map<String, dynamic> toSupabase() => toMap();
+}
 
 
 // File: lib/fitur/versi_apk/page/detail_versi_apk.dart
@@ -22668,7 +24633,6 @@ class _FeedbackDetailState extends ConsumerState<FeedbackDetail> {
   @override
   Widget build(BuildContext context) {
     Log.info('Membangun UI halaman detail feedback.');
-
     final detailFeedbackAsync = ref.watch(detailFeedbackProvider(widget.id));
     return detailFeedbackAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -22813,7 +24777,6 @@ class _FormFeedbackState extends ConsumerState<FormFeedback> {
   Future<void> _simpanForm() async {
     final userId = ref.watch(userIdProvider).value ?? '';
     final feedbackOp = ref.read(feedbackOpGlobalProvider);
-
     if (ref.isUser && userId.isEmpty) {
       ToastUtil.warning(context, 'Silakan login terlebih dahulu');
       return;
@@ -23072,7 +25035,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
               padding: const EdgeInsets.all(8.0),
               itemCount: _hasilFilter.length,
               itemBuilder: (context, index) {
-                final item = _hasilFilter[index];
+                final feedback = _hasilFilter[index];
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   child: InkWell(
@@ -23081,21 +25044,21 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute<void>(
-                            builder: (context) => FeedbackDetail(id: item.id),
+                            builder: (context) => FeedbackDetail(id: feedback.id),
                           ),
                         ),
                       );
                     },
-                    onLongPress: () => _hapusFeedback(item),
+                    onLongPress: () => _hapusFeedback(feedback),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          NamaPelangganWidget(idPelanggan: item.userId),
+                          NamaPelangganWidget(idPelanggan: feedback.userId),
                           gapH12,
                           Text(
-                            item.pesan,
+                            feedback.pesan,
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -23103,9 +25066,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: Text(
-                              item.tanggal != null
+                              feedback.tanggal != null
                                   ? FormatWaktuLengkap.formatSingkat(
-                                      item.tanggal!,
+                                      feedback.tanggal!,
                                     )
                                   : 'Tanggal tidak tersedia',
                               style: TextStyle(
@@ -24628,7 +26591,7 @@ import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -24725,7 +26688,7 @@ class _FormRiwayatAktivasiState extends ConsumerState<FormRiwayatAktivasi> {
     }
     if (!mounted) return;
     Log.info('Menyimpan perubahan untuk transaksi ID: ${widget.transaksi.id}');
-    final transaksiOpSqlite = ref.read(transaksiProvider.notifier);
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
     final layananNotifikasi = ref.read(layananNotifikasiProvider);
 
     try {
@@ -24735,7 +26698,7 @@ class _FormRiwayatAktivasiState extends ConsumerState<FormRiwayatAktivasi> {
         statusPembayaran: _statusPembayaran,
         diperbaruiPada: DateTime.now(),
       );
-      await transaksiOpSqlite.updateTransaksi(updateTransaksi);
+      await transaksiOp.perbaruiTransaksi(updateTransaksi);
       Log.info('Transaksi berhasil diperbarui di database.');
       await _handleExpiryNotification(
         layananNotifikasi: layananNotifikasi,
@@ -24892,8 +26855,8 @@ import 'package:wifi/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_prov
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -25022,7 +26985,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
           TextButton(
             onPressed: () async {
               await ref
-                  .read(transaksiProvider.notifier)
+                  .read(transaksiOpGlobalProvider)
                   .softDelete(transaksi.id);
               unawaited(
                 ref
@@ -25245,10 +27208,10 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/riwayat_aktivasi/provider/detail_langganan_provider.dart';
 import 'package:wifi/fitur/paket/page/detail_paket.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
+import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/form_riwayat_aktivasi.dart';
+import 'package:wifi/fitur/riwayat_aktivasi/provider/detail_langganan_provider.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -27437,7 +29400,6 @@ import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -27512,32 +29474,28 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
         builder: (context) => FormTransaksi(transaksi: _currentTransaction),
       ),
     );
-      try {
-        final transaksiOpSqlite = ref.read(transaksiOpGlobalProvider);
-        final transaksi = await transaksiOpSqlite.ambilBerdasarkanId(
-          _currentTransaction.id,
+    try {
+      final transaksiOpSqlite = ref.read(transaksiOpGlobalProvider);
+      final transaksi = await transaksiOpSqlite.ambilBerdasarkanId(
+        _currentTransaction.id,
+      );
+      if (transaksi != null) {
+        Log.info('Berhasil memuat data transaksi terbaru. Memperbarui UI.');
+        setState(() {
+          _currentTransaction = transaksi;
+        });
+      } else {
+        Log.warning(
+          'Gagal memuat ulang transaksi: data tidak ditemukan setelah update.',
         );
-        if (transaksi != null) {
-          Log.info('Berhasil memuat data transaksi terbaru. Memperbarui UI.');
-          setState(() {
-            _currentTransaction = transaksi;
-          });
-        } else {
-          Log.warning(
-            'Gagal memuat ulang transaksi: data tidak ditemukan setelah update.',
-          );
-          if (mounted) Navigator.pop(context);
-        }
-      } catch (e, s) {
-        Log.error(
-          'Gagal memuat ulang data transaksi setelah edit.',
-          e: e,
-          s: s,
-        );
-        if (mounted) {
-          ToastUtil.error(context, 'Gagal memuat data terbaru.');
-        }
+        if (mounted) Navigator.pop(context);
       }
+    } catch (e, s) {
+      Log.error('Gagal memuat ulang data transaksi setelah edit.', e: e, s: s);
+      if (mounted) {
+        ToastUtil.error(context, 'Gagal memuat data terbaru.');
+      }
+    }
   }
 
   Future<void> _softDeleteTransaksi() async {
@@ -27584,7 +29542,7 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
     );
     try {
       await ref
-          .read(transaksiProvider.notifier)
+          .read(transaksiOpGlobalProvider)
           .softDelete(_currentTransaction.id);
       unawaited(
         ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
@@ -27870,7 +29828,7 @@ import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -28111,16 +30069,16 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
       );
 
       Log.info('Model Transaksi yang akan disimpan: ${transaksi.toSqlite()}');
-      final transaksiNotifier = ref.read(transaksiProvider.notifier);
+      final transaksiOp = ref.read(transaksiOpGlobalProvider);
       try {
         if (_modeEdit) {
           Log.info(
             'Menjalankan operasi UPDATE untuk transaksi ID: ${transaksi.id}',
           );
-          await transaksiNotifier.updateTransaksi(transaksi);
+          await transaksiOp.perbaruiTransaksi( transaksi);
         } else {
           Log.info('Menjalankan operasi CREATE untuk transaksi baru.');
-          await transaksiNotifier.tambahTransaksi(transaksi);
+          await transaksiOp.tambahTransaksi(transaksi);
         }
         if (!mounted) return;
         Log.info(
@@ -28367,6 +30325,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/helper/pengurut_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
@@ -28509,7 +30468,7 @@ Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
 
   if ((konfirmasi ?? false) && context.mounted) {
     try {
-      await ref.read(transaksiProvider.notifier).softDeleteAll();
+      await ref.read(transaksiOpGlobalProvider).softDeleteAll();
       if (context.mounted) {
         ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
       }
@@ -28634,7 +30593,7 @@ class _TransactionListViewState extends ConsumerState<_TransactionListView> {
                 onEdit: () =>
                     _navigasiKeFormTransaksi(context, transaksi: transaksi),
                 onDelete: () => ref
-                    .read(transaksiProvider.notifier)
+                    .read(transaksiOpGlobalProvider)
                     .softDelete(transaksi.id),
               ),
             ),
@@ -29425,7 +31384,6 @@ import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
@@ -29510,25 +31468,25 @@ class Transaksi extends _$Transaksi {
     return await Future.wait(futures);
   }
 
-  Future<void> tambahTransaksi(TransaksiModel transaksi) async {
-    await _transaksiOp.tambahTransaksi(transaksi);
-    invalidateSistemTerkait();
-  }
+  // Future<void> tambahTransaksi(TransaksiModel transaksi) async {
+  //   await _transaksiOp.tambahTransaksi(transaksi);
+  //   invalidateProviderTransaksi();
+  // }
 
-  Future<void> updateTransaksi(TransaksiModel transaksi) async {
-    await _transaksiOp.perbaruiTransaksi(transaksi.id, transaksi);
-    invalidateSistemTerkait();
-  }
+  // Future<void> updateTransaksi(TransaksiModel transaksi) async {
+  //   await _transaksiOp.perbaruiTransaksi(transaksi.id, transaksi);
+  //   invalidateProviderTransaksi();
+  // }
 
-  Future<void> softDelete(String id) async {
-    await _transaksiOp.softDelete(id);
-    invalidateSistemTerkait();
-  }
+  // Future<void> softDelete(String id) async {
+  //   await _transaksiOp.softDelete(id);
+  //   invalidateProviderTransaksi();
+  // }
 
-  Future<void> softDeleteAll() async {
-    await _transaksiOp.softDeleteAll();
-    invalidateSistemTerkait();
-  }
+  // Future<void> softDeleteAll() async {
+  //   await _transaksiOp.softDeleteAll();
+  //   invalidateProviderTransaksi();
+  // }
 
   Future<void> refresh() async {
     state = const AsyncLoading();
@@ -29555,9 +31513,8 @@ class Transaksi extends _$Transaksi {
     }
   }
 
-  void invalidateSistemTerkait() {
+  void invalidateProviderTransaksi() {
     ref.invalidateSelf();
-    ref.read(dompetProvider.notifier).invalidateDompet();
     ref.invalidate(riwayatTransaksiPelangganProvider);
   }
 }
@@ -29622,7 +31579,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'90c643f1be56f9479e02819f0c33507709783a09';
+String _$transaksiHash() => r'07baf9da3bf9b7239d528627c68e00c3c2341086';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -29731,6 +31688,7 @@ final class RiwayatTransaksiPelangganFamily extends $Family
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
@@ -29749,8 +31707,9 @@ class TransaksiOpGlobal {
   TransaksiOpFirebase get _transaksiOpFirebase =>
       ref.read(transaksiOpFirebaseProvider);
 
-  void _invalidate() {
-    ref.read(transaksiProvider.notifier).invalidateSistemTerkait();
+  void _invalidate(String? idDompet) {
+    ref.read(transaksiProvider.notifier).invalidateProviderTransaksi();
+    ref.read(dompetProvider.notifier).invalidateDompetProvider(idDompet);
   }
 
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
@@ -29760,6 +31719,72 @@ class TransaksiOpGlobal {
     } else {
       await _transaksiOpFirebase.tambahTransaksi(transaksi);
     }
+    _invalidate(null);
+  }
+
+  Future<void> perbaruiTransaksi(
+    TransaksiModel transaksi, {
+    bool dariServer = false,
+  }) async {
+    if (RoleUtil.isAdmin(ref)) {
+      await _transaksiOpSqlite.perbaruiTransaksi(
+        transaksi,
+        dariServer: dariServer,
+      );
+    } else {
+      await _transaksiOpFirebase.perbaruiTransaksi(transaksi);
+    }
+    _invalidate(null);
+  }
+
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
+    Log.info('Menghapus transaksi ID: $id');
+    if (RoleUtil.isAdmin(ref)) {
+      await _transaksiOpSqlite.softDelete(id, dariServer: dariServer);
+    } else {
+      await _transaksiOpFirebase.softDeleteTransaksi(id);
+    }
+    _invalidate(null);
+  }
+
+  Future<void> softDeleteAll({bool dariServer = false}) async {
+    Log.info('Menghapus semua transaksi');
+    if (RoleUtil.isAdmin(ref)) {
+      await _transaksiOpSqlite.softDeleteAll(dariServer: dariServer);
+    } else {
+      final userId = await ref.read(userIdProvider.future);
+      if (userId == null || userId.isEmpty) {
+        Log.warning('User ID tidak ditemukan, tidak ada yang dihapus');
+        return;
+      }
+      final transaksi = await _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(
+        userId,
+      );
+      for (final t in transaksi) {
+        await _transaksiOpFirebase.softDeleteTransaksi(t.id);
+      }
+    }
+    _invalidate(null);
+  }
+
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<TransaksiModel> items, {
+    bool dariServer = false,
+  }) async {
+    if (items.isEmpty) {
+      Log.info('Batch transaksi: daftar kosong, operasi dibatalkan.');
+      return;
+    }
+    Log.info('Memulai batch insert/update untuk ${items.length} transaksi');
+    if (RoleUtil.isAdmin(ref)) {
+      await _transaksiOpSqlite.sisipkanAtauPerbaruiBatch(
+        items,
+        dariServer: dariServer,
+      );
+    } else {
+      await _transaksiOpFirebase.sisipkanAtauPerbaruiBatch(items);
+    }
+    _invalidate(null);
   }
 
   Future<List<TransaksiModel>> ambilSemua() async {
@@ -29944,71 +31969,6 @@ class TransaksiOpGlobal {
     }
   }
 
-  Future<void> perbaruiTransaksi(
-    String id,
-    TransaksiModel transaksi, {
-    bool dariServer = false,
-  }) async {
-    Log.info('Memperbarui transaksi ID: $id');
-    if (RoleUtil.isAdmin(ref)) {
-      await _transaksiOpSqlite.perbaruiTransaksi(
-        id,
-        transaksi,
-        dariServer: dariServer,
-      );
-    } else {
-      await _transaksiOpFirebase.softDeleteTransaksi(id);
-    }
-  }
-
-  Future<void> softDelete(String id, {bool dariServer = false}) async {
-    Log.info('Menghapus transaksi ID: $id');
-    if (RoleUtil.isAdmin(ref)) {
-      await _transaksiOpSqlite.softDelete(id, dariServer: dariServer);
-    } else {
-      await _transaksiOpFirebase.softDeleteTransaksi(id);
-    }
-  }
-
-  Future<int> softDeleteAll({bool dariServer = false}) async {
-    Log.info('Menghapus semua transaksi');
-    if (RoleUtil.isAdmin(ref)) {
-      return await _transaksiOpSqlite.softDeleteAll(dariServer: dariServer);
-    } else {
-      final userId = await ref.read(userIdProvider.future);
-      if (userId == null || userId.isEmpty) {
-        Log.warning('User ID tidak ditemukan, tidak ada yang dihapus');
-        return 0;
-      }
-      final transaksi = await _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(
-        userId,
-      );
-      for (final t in transaksi) {
-        await _transaksiOpFirebase.softDeleteTransaksi(t.id);
-      }
-      return transaksi.length;
-    }
-  }
-
-  Future<void> sisipkanAtauPerbaruiBatch(
-    List<TransaksiModel> items, {
-    bool dariServer = false,
-  }) async {
-    if (items.isEmpty) {
-      Log.info('Batch transaksi: daftar kosong, operasi dibatalkan.');
-      return;
-    }
-    Log.info('Memulai batch insert/update untuk ${items.length} transaksi');
-    if (RoleUtil.isAdmin(ref)) {
-      await _transaksiOpSqlite.sisipkanAtauPerbaruiBatch(
-        items,
-        dariServer: dariServer,
-      );
-    } else {
-      await _transaksiOpFirebase.sisipkanAtauPerbaruiBatch(items);
-    }
-  }
-
   Future<int> ambilTotalPoinSemuaPelanggan() async {
     Log.info('Menghitung total poin semua pelanggan');
     if (RoleUtil.isAdmin(ref)) {
@@ -30188,17 +32148,16 @@ class TransaksiOpSqlite {
 
   /// Memperbarui data transaksi yang ada dan menghitung ulang saldo dompet yang terpengaruh.
   Future<void> perbaruiTransaksi(
-    String id,
     TransaksiModel transaksi, {
     bool dariServer = false,
   }) async {
     try {
       await baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
-        Log.info('Memulai update transaksi database ID: $id');
+        Log.info('Memulai update transaksi database ID: $transaksi.id');
         final maps = await txn.query(
           _tabelTransaksi,
           where: '${NamaKolom.id} = ?',
-          whereArgs: [id],
+          whereArgs: [transaksi.id],
         );
 
         if (maps.isNotEmpty) {
@@ -30208,7 +32167,7 @@ class TransaksiOpSqlite {
             _tabelTransaksi,
             updateData.toSqlite(),
             where: '${NamaKolom.id} = ?',
-            whereArgs: [id],
+            whereArgs: [transaksi.id],
           );
           Log.info('Data transaksi $transaksiLama ke  $updateData diperbarui');
           final dompetTerpengaruh = <String>{};
@@ -30228,12 +32187,14 @@ class TransaksiOpSqlite {
             await _hitungUlangDanPerbaruiSaldoDompet(idDompet, txn);
           }
         } else {
-          Log.warning('Update gagal: Transaksi ID $id tidak ditemukan');
+          Log.warning(
+            'Update gagal: Transaksi ID $transaksi.id tidak ditemukan',
+          );
         }
       }, dariServer: dariServer);
-      Log.info('Proses updateTransaction ID: $id selesai');
+      Log.info('Proses updateTransaction ID: $transaksi.id selesai');
     } on Exception catch (e, st) {
-      Log.error('Gagal update transaksi ID: $id', e: e, s: st);
+      Log.error('Gagal update transaksi ID: $transaksi.id', e: e, s: st);
       rethrow;
     }
   }
@@ -30834,6 +32795,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
     Log.info('TransactionOpFirebase diinisialisasi.');
   }
   CollectionReference get _koleksi => firestore.collection(NamaTabel.transaksi);
+
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     Log.info('Menambahkan transaksi baru: ${transaksi.id}');
     try {
@@ -30841,6 +32803,30 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       Log.info('Berhasil menambahkan transaksi: ${transaksi.id}');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal menambahkan transaksi: ${transaksi.id}', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Memperbarui seluruh data transaksi (merge) berdasarkan objek TransaksiModel.
+  /// Jika Anda ingin hanya memperbarui beberapa field, gunakan updateTransaksiFields.
+  Future<void> perbaruiTransaksi(TransaksiModel transaksi) async {
+    Log.info('Memulai update transaksi di Firestore: ${transaksi.id}');
+    try {
+      final docRef = _koleksi.doc(transaksi.id);
+      final data = transaksi.toFirebase();
+      // set merge agar tidak menimpa seluruh dokumen jika ada field server-side lain
+      data[NamaKolom.diperbaruiPada] = FieldValue.serverTimestamp();
+      await docRef.set(data, SetOptions(merge: true));
+      Log.info('Update transaksi berhasil: ${transaksi.id}');
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal mengupdate transaksi: ${transaksi.id}', e: e, s: s);
+      rethrow;
+    } on Exception catch (e, s) {
+      Log.error(
+        'Error umum saat mengupdate transaksi: ${transaksi.id}',
+        e: e,
+        s: s,
+      );
       rethrow;
     }
   }
@@ -31771,148 +33757,241 @@ as bool,
 // dart format on
 
 
-// File: lib/fitur/pelanggan/page/user/detail_pelanggan_u.dart
-// path: lib/fitur/pelanggan/page/user/detail_pelanggan_u.dart
+// File: lib/fitur/pelanggan/page/user/detail_pelanggan.dart
+// file: lib/fitur/pelanggan/page/admin/detail_pelanggan.dart
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
-import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/poin/page/halaman_poin.dart';
+import 'package:wifi/fitur/poin/widget/kartu_total_poin.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/user/providers/ad_providers.dart';
-import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
+import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
-class _DataDetailPelanggan {
-  final PelangganModel pelanggan;
-  final int totalPoin;
+class DetailPelanggan extends ConsumerStatefulWidget {
+  final String idPelanggan;
 
-  _DataDetailPelanggan({required this.pelanggan, required this.totalPoin});
-}
-
-/// Halaman untuk menampilkan detail profil pengguna.
-class DetailPelangganU extends ConsumerStatefulWidget {
-  final String userId;
-  const DetailPelangganU({super.key, required this.userId});
+  const DetailPelanggan({super.key, required this.idPelanggan});
 
   @override
-  ConsumerState<DetailPelangganU> createState() => _DetailPelangganUState();
+  ConsumerState<DetailPelanggan> createState() => _DetailPelangganState();
 }
 
-class _DetailPelangganUState extends ConsumerState<DetailPelangganU> {
-  Future<_DataDetailPelanggan>? _dataFuture;
+class _DetailPelangganState extends ConsumerState<DetailPelanggan> {
+  Future<void> _salinInformasi(String label, String data) async {
+    if (!mounted) return;
 
-  @override
-  void initState() {
-    super.initState();
-    Log.info(
-      'Memulai initState pada UserCustomerDetailPage untuk userId: ${widget.userId}',
-    );
-    _dataFuture = _loadData();
+    if (data.isEmpty) {
+      Log.warning('Tidak ada data untuk disalin pada label: $label');
+      ToastUtil.warning(context, 'Tidak ada data untuk disalin.');
+      return;
+    }
+    Log.info('Menyalin data untuk label: $label');
+    await Clipboard.setData(ClipboardData(text: data));
+    if (!mounted) return;
+    ToastUtil.success(context, '$label berhasil disalin');
   }
 
-  Future<_DataDetailPelanggan> _loadData() async {
-    try {
-      Log.info('Mengambil data pelanggan dari Firestore...');
-      final pelangganOp = ref.read(pelangganOpGlobalProvider);
-      final transaksiOpFirebase = ref.read(transaksiOpFirebaseProvider);
-      final pelanggan = await pelangganOp.ambilBerdasarkanId(widget.userId);
-      if (pelanggan == null) {
-        throw Exception(
-          'Pelanggan dengan ID ${widget.userId} tidak ditemukan.',
-        );
-      }
-      Log.info(
-        'Pelanggan ditemukan: ${pelanggan.nama}. Mengambil riwayat transaksi...',
-      );
-      final totalPoin = await transaksiOpFirebase.ambilTotalPoin(pelanggan.id);
-      Log.info('Perhitungan poin selesai. Total Poin: $totalPoin');
-      return _DataDetailPelanggan(pelanggan: pelanggan, totalPoin: totalPoin);
-    } catch (e, s) {
-      Log.error('Gagal memuat data profil lengkap dari Firestore.', e: e, s: s);
-      rethrow;
+  Future<void> _salinSemuaInfo(
+    BuildContext context,
+    PelangganModel customer,
+    int totalPoin,
+  ) async {
+    Log.info('Menyalin info pelanggan: ${customer.nama}');
+    final info =
+        '''
+Nama : ${customer.nama}
+No HP : ${customer.telepon}
+Alamat : ${customer.alamat}
+Password : ${customer.kataSandi}
+MAC : ${customer.macAddress}
+Poin: $totalPoin
+'''
+            .trim();
+
+    await Clipboard.setData(ClipboardData(text: info));
+    if (context.mounted) {
+      ToastUtil.success(context, 'Informasi pelanggan berhasil disalin.');
     }
   }
 
-  /// Navigasi ke halaman edit profil, lalu menampilkan iklan saat kembali.
-  Future<void> _bukaFormEdit(PelangganModel pelanggan) async {
-    await ref.read(interstitialAdServiceProvider).show();
-    if (!mounted) return;
-    await Navigator.push<bool>(
-      context,
-      MaterialPageRoute<bool>(
-        builder: (context) => FormPelanggan(pelanggan: pelanggan),
-      ),
-    );
-    await ref.read(interstitialAdServiceProvider).show();
-  }
-
-  Future<void> _navigasiKePoin(String idPelanggan) async {
-    await ref.read(interstitialAdServiceProvider).show();
-    if (!mounted) return;
-    await Navigator.push<bool>(
-      context,
-      MaterialPageRoute<bool>(
-        builder: (context) => HalamanPoin(
-          idPelanggan: idPelanggan,
-          tampilkanIklan:
-              true, // Tampilkan iklan di halaman poin untuk pengguna
+  void _editPelanggan(BuildContext context, PelangganModel pelanggan) {
+    Log.info('Navigasi ke form edit pelanggan: ${pelanggan.nama}');
+    unawaited(
+      Navigator.push<void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (context) => FormPelanggan(pelanggan: pelanggan),
         ),
       ),
     );
-    await ref.read(interstitialAdServiceProvider).show();
+  }
+
+  Future<void> _navigasiKePoin(
+    BuildContext context,
+    PelangganModel pelanggan,
+  ) async {
+    Log.info('Navigasi ke halaman poin pelanggan: ${pelanggan.nama}');
+    unawaited(
+      Navigator.push<void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (context) => HalamanPoin(idPelanggan: pelanggan.id),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopScope<bool>(
-      canPop: false,
-      onPopInvokedWithResult: (bool didPop, bool? hasil) {
-        if (didPop) {
-          return;
-        }
-        Navigator.pop(context);
-      },
-      child: FutureBuilder<_DataDetailPelanggan>(
-        future: _dataFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Scaffold(
-              appBar: AppBar(title: const Text('Memuat Profil...')),
-              body: const Center(child: CircularProgressIndicator()),
-            );
-          }
+    final detailAsync = ref.watch(pelangganDetailProvider(widget.idPelanggan));
 
-          if (snapshot.hasError || !snapshot.hasData) {
-            return Scaffold(
-              appBar: AppBar(title: const Text('Error')),
-              body: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'Gagal memuat data: ${snapshot.error}',
-                    textAlign: TextAlign.center,
-                  ),
+    // AppBar selalu tampil, body berubah sesuai state AsyncValue
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profil Pelanggan'),
+        actions: [
+          // Tombol edit tetap tampil hanya jika data tersedia nanti,
+          // tapi kita bisa menampilkan tombol yang memanggil fungsi edit
+          // setelah data tersedia. Untuk menghindari tombol aktif tanpa data,
+          // kita cek detailAsync saat ditekan.
+          IconButton(
+            icon: const Icon(TIcons.edit),
+            tooltip: 'Edit Profil',
+            onPressed: () async {
+              final data = detailAsync.asData?.value;
+              if (data == null) return;
+              final (pelanggan, _) = data;
+              if (pelanggan == null) return;
+              _editPelanggan(context, pelanggan);
+            },
+          ),
+        ],
+      ),
+      body: detailAsync.when(
+        skipLoadingOnReload: true,
+        loading: () => const Center(child: SizedBox.shrink()),
+        error: (e, s) {
+          Log.error(
+            'Gagal mengambil data pelanggan ID: ${widget.idPelanggan}.',
+            e: e,
+            s: s,
+          );
+          return Center(child: Text('Gagal memuat data: $e'));
+        },
+        data: (data) {
+          final (pelanggan, totalPoin) = data;
+          if (pelanggan == null) {
+            return const Center(child: Text('Pelanggan tidak ditemukan'));
+          }
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                KartuTotalPoin(
+                  poin: totalPoin,
+                  onTap: () => _navigasiKePoin(context, pelanggan),
                 ),
-              ),
-            );
-          }
-
-          final data = snapshot.data!;
-
-          return Scaffold(
-            body: DetailPelangganUI(
-              pelanggan: data.pelanggan,
-              totalPoin: data.totalPoin,
-              navigasiKeEdit: () => _bukaFormEdit(data.pelanggan),
-              navigasiKePoin: () => _navigasiKePoin(data.pelanggan.id),
+                gapH24,
+                _buildBagianInformasiPelanggan(pelanggan),
+                gapH24,
+                if (ref.isAdmin)
+                  ElevatedButton.icon(
+                    onPressed: () =>
+                        _salinSemuaInfo(context, pelanggan, totalPoin),
+                    icon: const Icon(Icons.copy_all),
+                    label: const Text('Salin Semua Info'),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 45),
+                    ),
+                  ),
+              ],
             ),
-            bottomNavigationBar: const BannerAdsWidget(),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildBagianInformasiPelanggan(PelangganModel pelanggan) {
+    return Column(
+      children: [
+        _buildBarisDetail(
+          'Nama',
+          pelanggan.nama,
+          () => _salinInformasi('Nama', pelanggan.nama),
+        ),
+        _buildBarisDetail(
+          'Telepon',
+          pelanggan.telepon,
+          () => _salinInformasi('No Telepon', pelanggan.telepon),
+        ),
+        _buildBarisDetail(
+          'Alamat',
+          pelanggan.alamat,
+          () => _salinInformasi('Alamat', pelanggan.alamat),
+        ),
+        if (ref.isAdmin)
+          _buildBarisDetail(
+            'Password',
+            pelanggan.kataSandi,
+            () => _salinInformasi('Password', pelanggan.kataSandi),
+          ),
+        _buildBarisDetail(
+          'MAC Address',
+          pelanggan.macAddress,
+          () => _salinInformasi('MAC Address', pelanggan.macAddress),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBarisDetail(
+    String judul,
+    String isiInformasi,
+    Future<void> Function() salinInformasi,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            judul,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: Colors.blueGrey,
+            ),
+          ),
+          gapH4,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  isiInformasi.isEmpty ? '-' : isiInformasi,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+              IconButton(
+                onPressed: () async {
+                  await salinInformasi();
+                },
+                icon: const Icon(Icons.content_copy, size: 20),
+                color: Colors.grey,
+                tooltip: 'Salin $judul',
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -31928,8 +34007,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/helper/pengurut_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
+import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -32214,7 +34294,7 @@ class _PelangganState extends ConsumerState<PelangganPage> {
 
   Future<void> _softdelete(String id) async {
     try {
-      await ref.read(pelangganProvider.notifier).softDelete(id);
+      await ref.read(pelangganOpGlobalProvider).softDelete(id);
       if (!mounted) return;
       ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
     } on Exception catch (e, s) {
@@ -32237,7 +34317,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -32323,7 +34403,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         return;
       }
     }
-    final pelangganOp = ref.read(pelangganProvider.notifier);
+    final pelangganOp = ref.read(pelangganOpGlobalProvider);
     Log.info('Tombol "Simpan" ditekan.');
     if (!_formKey.currentState!.validate()) {
       Log.warning('Form tidak valid. Proses penyimpanan dibatalkan.');
@@ -32361,12 +34441,12 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       if (mounted) {
         Navigator.pop(context);
       }
-      if (ref.isAdmin) {
-        Log.info('jalankan sinkroniasi');
-        unawaited(
-          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
-        );
-      }
+      unawaited(() {
+        if (ref.isAdmin) {
+          Log.info('jalankan sinkroniasi');
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
+        }
+      }());
     } catch (e, s) {
       Log.error('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
       if (mounted) {
@@ -32468,119 +34548,122 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
 
 
 // File: lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
-// path lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
+// // path lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
 
-import 'dart:async';
+// import 'dart:async';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
-import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
-import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
-import 'package:wifi/fitur/poin/page/halaman_poin.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/utils/toast_util.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter/services.dart';
+// import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+// import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
+// import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
+// import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
+// import 'package:wifi/fitur/poin/page/halaman_poin.dart';
+// import 'package:wifi/shared/debug/log.dart';
+// import 'package:wifi/shared/utils/toast_util.dart';
 
-class DetailPelanggan extends ConsumerWidget {
-  final String idPelanggan;
+// class DetailPelanggan extends ConsumerWidget {
+//   final String idPelanggan;
 
-  const DetailPelanggan({super.key, required this.idPelanggan});
+//   const DetailPelanggan({super.key, required this.idPelanggan});
 
-  Future<void> _editPelanggan(
-    BuildContext context,
-    PelangganModel? pelanggan,
-  ) async {
-    if (pelanggan == null) return;
-    Log.info('Navigasi ke form edit pelanggan: ${pelanggan.nama}');
-    unawaited(
-      Navigator.push<bool>(
-        context,
-        MaterialPageRoute<bool>(
-          builder: (context) => FormPelanggan(pelanggan: pelanggan),
-        ),
-      ),
-    );
-  }
+//   Future<void> _editPelanggan(
+//     BuildContext context,
+//     PelangganModel? pelanggan,
+//   ) async {
+//     if (pelanggan == null) return;
+//     Log.info('Navigasi ke form edit pelanggan: ${pelanggan.nama}');
+//     unawaited(
+//       Navigator.push<bool>(
+//         context,
+//         MaterialPageRoute<bool>(
+//           builder: (context) => FormPelanggan(pelanggan: pelanggan),
+//         ),
+//       ),
+//     );
+//   }
 
-  Future<void> _salinSemuaInfo(
-    BuildContext context,
-    PelangganModel customer,
-  ) async {
-    Log.info('Menyalin info pelanggan: ${customer.nama}');
-    final info =
-        '''
-Nama : ${customer.nama}
-No HP : ${customer.telepon}
-Alamat : ${customer.alamat}
-Password : ${customer.kataSandi}
-MAC : ${customer.macAddress}
-'''
-            .trim();
+//   Future<void> _salinSemuaInfo(
+//     BuildContext context,
+//     PelangganModel customer,
+//     int totalPoin,
+//   ) async {
+//     Log.info('Menyalin info pelanggan: ${customer.nama}');
+//     final info =
+//         '''
+// Nama : ${customer.nama}
+// No HP : ${customer.telepon}
+// Alamat : ${customer.alamat}
+// Password : ${customer.kataSandi}
+// MAC : ${customer.macAddress}
+// Poin: $totalPoin
+// '''
+//             .trim();
 
-    await Clipboard.setData(ClipboardData(text: info));
-    if (context.mounted) {
-      ToastUtil.success(context, 'Informasi pelanggan berhasil disalin.');
-    }
-  }
+//     await Clipboard.setData(ClipboardData(text: info));
+//     if (context.mounted) {
+//       ToastUtil.success(context, 'Informasi pelanggan berhasil disalin.');
+//     }
+//   }
 
-  Future<void> _navigasiKePoin(
-    BuildContext context,
-    PelangganModel? pelanggan,
-  ) async {
-    if (pelanggan == null) return;
-    Log.info('Navigasi ke halaman poin pelanggan: ${pelanggan.nama}');
+//   Future<void> _navigasiKePoin(
+//     BuildContext context,
+//     PelangganModel? pelanggan,
+//   ) async {
+//     if (pelanggan == null) return;
+//     Log.info('Navigasi ke halaman poin pelanggan: ${pelanggan.nama}');
 
-    unawaited(
-      Navigator.push<void>(
-        context,
-        MaterialPageRoute<void>(
-          builder: (context) => HalamanPoin(idPelanggan: pelanggan.id),
-        ),
-      ),
-    );
-  }
+//     unawaited(
+//       Navigator.push<void>(
+//         context,
+//         MaterialPageRoute<void>(
+//           builder: (context) => HalamanPoin(idPelanggan: pelanggan.id),
+//         ),
+//       ),
+//     );
+//   }
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final detailAsync = ref.watch(pelangganDetailProvider(idPelanggan));
-    return detailAsync.when(
-      skipLoadingOnReload: true,
-      loading: () => Scaffold(
-        appBar: AppBar(title: const Text('Memuat Detail...')),
-        body: const Center(child: CircularProgressIndicator()),
-      ),
-      error: (e, s) {
-        Log.error(
-          'Gagal mengambil data pelanggan ID: $idPelanggan.',
-          e: e,
-          s: s,
-        );
-        return Scaffold(
-          appBar: AppBar(title: const Text('Detail Pelanggan')),
-          body: Center(child: Text('Gagal memuat data: $e')),
-        );
-      },
-      data: (data) {
-        final (pelanggan, totalPoin) = data;
-        if (pelanggan == null) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Detail Pelanggan')),
-            body: const Center(child: Text('Pelanggan tidak ditemukan')),
-          );
-        }
-        return DetailPelangganUI(
-          pelanggan: pelanggan,
-          totalPoin: totalPoin,
-          navigasiKeEdit: () => _editPelanggan(context, pelanggan),
-          navigasiKePoin: () => _navigasiKePoin(context, pelanggan),
-          onCopyAll: () => _salinSemuaInfo(context, pelanggan),
-        );
-      },
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     final detailAsync = ref.watch(pelangganDetailProvider(idPelanggan));
+//     return detailAsync.when(
+//       skipLoadingOnReload: true,
+//       loading: () => Scaffold(
+//         appBar: AppBar(title: const Text('Memuat Detail...')),
+//         body: const Center(child: CircularProgressIndicator()),
+//       ),
+//       error: (e, s) {
+//         Log.error(
+//           'Gagal mengambil data pelanggan ID: $idPelanggan.',
+//           e: e,
+//           s: s,
+//         );
+//         return Scaffold(
+//           appBar: AppBar(title: const Text('Detail Pelanggan')),
+//           body: Center(child: Text('Gagal memuat data: $e')),
+//         );
+//       },
+//       data: (data) {
+//         final (pelanggan, totalPoin) = data;
+//         if (pelanggan == null) {
+//           return Scaffold(
+//             appBar: AppBar(title: const Text('Detail Pelanggan')),
+//             body: const Center(child: Text('Pelanggan tidak ditemukan')),
+//           );
+//         }
+//         return DetailPelangganUI(
+//           pelanggan: pelanggan,
+//           totalPoin: totalPoin,
+//           navigasiKeEdit: () => _editPelanggan(context, pelanggan),
+//           navigasiKePoin: () => _navigasiKePoin(context, pelanggan),
+          
+//           onCopyAll: () => _salinSemuaInfo(context, pelanggan, totalPoin),
+//         );
+//       },
+//     );
+//   }
+// }
 
 
 // File: lib/fitur/pelanggan/widget/detail_pelanggan_ui.dart
@@ -32588,13 +34671,15 @@ MAC : ${customer.macAddress}
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/poin/widget/kartu_total_poin.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-class DetailPelangganUI extends StatefulWidget {
+class DetailPelangganUI extends ConsumerStatefulWidget {
   final PelangganModel pelanggan;
   final int totalPoin;
   final VoidCallback? navigasiKeEdit;
@@ -32611,10 +34696,10 @@ class DetailPelangganUI extends StatefulWidget {
   });
 
   @override
-  State<DetailPelangganUI> createState() => _DetailPelangganUIState();
+  ConsumerState<DetailPelangganUI> createState() => _DetailPelangganUIState();
 }
 
-class _DetailPelangganUIState extends State<DetailPelangganUI> {
+class _DetailPelangganUIState extends ConsumerState<DetailPelangganUI> {
   Future<void> _salinInformasi(String label, String data) async {
     if (!mounted) return;
 
@@ -32658,7 +34743,8 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
             gapH24,
             _buildBagianInformasiPelanggan(),
             gapH24,
-            if (widget.onCopyAll != null) _buildTombolSalinSemua(),
+            if (widget.onCopyAll != null && ref.isAdmin)
+              _buildTombolSalinSemua(),
           ],
         ),
       ),
@@ -33037,7 +35123,7 @@ final class PelangganProvider
   Pelanggan create() => Pelanggan();
 }
 
-String _$pelangganHash() => r'c7988f66552b51ac7f3a57c654c1ae815e171adc';
+String _$pelangganHash() => r'd03ea97aa57ea26238adbca9dda3bd9dd93d6756';
 
 abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   FutureOr<PelangganState> build();
@@ -33295,7 +35381,7 @@ final class PelangganDetailProvider
   }
 }
 
-String _$pelangganDetailHash() => r'f035ec5051457c1093e90687ba33b06fe986510c';
+String _$pelangganDetailHash() => r'c416415c0d014d3e761bbfb96bc45cfdc084ce5d';
 
 final class PelangganDetailFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<(PelangganModel?, int)>, String> {
@@ -33321,10 +35407,9 @@ final class PelangganDetailFamily extends $Family
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
-import 'package:wifi/shared/export/operation.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 
 part 'pelanggan_provider.g.dart';
 part 'pelanggan_provider.freezed.dart';
@@ -33340,12 +35425,8 @@ abstract class PelangganState with _$PelangganState {
 
 @Riverpod(keepAlive: true)
 class Pelanggan extends _$Pelanggan {
-  PelangganOpSqlite get _pelangganOpSqlite =>
-      ref.read(pelangganOpSqliteProvider);
   PelangganOpGlobal get _pelangganOp => ref.read(pelangganOpGlobalProvider);
-
-  TransaksiOpSqlite get _transaksiOpSqlite =>
-      ref.read(transaksiOpSqliteProvider);
+  TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
 
   @override
   FutureOr<PelangganState> build() {
@@ -33353,9 +35434,9 @@ class Pelanggan extends _$Pelanggan {
   }
 
   Future<PelangganState> _ambilData() async {
-    final hasil = await _pelangganOpSqlite.ambilSemua();
+    final hasil = await _pelangganOp.ambilSemua();
     final hitungPoinFutures = hasil.map(
-      (pelanggan) => _transaksiOpSqlite.ambilTotalPoin(pelanggan.id),
+      (pelanggan) => _transaksiOp.ambilTotalPoin(pelanggan.id),
     );
     final daftarPoin = await Future.wait(hitungPoinFutures);
     final totalPoinSistem = daftarPoin.fold<int>(0, (sum, poin) => sum + poin);
@@ -33366,40 +35447,16 @@ class Pelanggan extends _$Pelanggan {
     );
   }
 
-  Future<void> tambahPelanggan(PelangganModel pelanggan) async {
-    try {
-      await _pelangganOpSqlite.tambahPelanggan(pelanggan);
-      ref.invalidateSelf();
-    } catch (e, s) {
-      state = AsyncValue.error(e, s);
-      rethrow;
+  void invalidateDetailPelanggan(String? idPelanggan) {
+    ref.invalidateSelf();
+    if (idPelanggan != null) {
+      ref.invalidate(pelangganDetailProvider(idPelanggan));
+    } else {
+      ref.invalidate(pelangganDetailProvider);
     }
-  }
-
-  Future<void> updatePelanggan(PelangganModel pelanggan) async {
-    try {
-      await _pelangganOp.updatePelanggan(pelanggan);
-      _invalidateDetailPelanggan(pelanggan.id);
-      ref.invalidateSelf();
-    } catch (e, s) {
-      state = AsyncValue.error(e, s);
-      rethrow;
-    }
-  }
-
-  Future<void> softDelete(String id) async {
-    try {
-      await _pelangganOpSqlite.softDelete(id);
-      ref.invalidateSelf();
-      _invalidateDetailPelanggan(id);
-    } catch (e, s) {
-      state = AsyncValue.error(e, s);
-      rethrow;
-    }
-  }
-
-  void _invalidateDetailPelanggan(String id) {
-    ref.invalidate(pelangganDetailProvider(id));
+    ref.invalidate(isSearchingPelangganProvider);
+    ref.invalidate(searchQueryPelangganProvider);
+    ref.invalidate(namaPelangganProvider);
   }
 
   Future<void> refresh() async {
@@ -33437,10 +35494,10 @@ Future<String?> namaPelanggan(Ref ref, String idPelanggan) async {
 
 @riverpod
 Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
-  final pelangganOpSqlte = ref.watch(pelangganOpSqliteProvider);
-  final transaksiOpSqlite = ref.watch(transaksiOpSqliteProvider);
-  final pelanggan = await pelangganOpSqlte.ambilBerdasarkanId(id);
-  final poin = await transaksiOpSqlite.ambilTotalPoin(id);
+  final pelangganOp = ref.watch(pelangganOpGlobalProvider);
+  final transaksiOp = ref.watch(transaksiOpGlobalProvider);
+  final pelanggan = await pelangganOp.ambilBerdasarkanId(id);
+  final poin = await transaksiOp.ambilTotalPoin(id);
   return (pelanggan, poin);
 }
 
@@ -33802,6 +35859,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
 class PelangganOpGlobal {
@@ -33815,6 +35873,10 @@ class PelangganOpGlobal {
   PelangganOpFirebase get _pelangganOpFirebase =>
       ref.read(pelangganOpFirebaseProvider);
 
+  void _invalidateProviderTerkait(String? idPelanggan) {
+    ref.read(pelangganProvider.notifier).invalidateDetailPelanggan(idPelanggan);
+  }
+
   /// Menambahkan pelanggan dengan logika berdasarkan role
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
     if (RoleUtil.isAdmin(ref)) {
@@ -33822,10 +35884,31 @@ class PelangganOpGlobal {
     } else {
       await _pelangganOpFirebase.tambahPelanggan(pelanggan);
     }
+    _invalidateProviderTerkait(pelanggan.id);
+  }
+
+  /// Mengupdate pelanggan
+  Future<void> updatePelanggan(PelangganModel pelanggan) async {
+    if (RoleUtil.isAdmin(ref)) {
+      await _pelangganOpSqlite.perbaruiPelanggan(pelanggan);
+    } else {
+      await _pelangganOpFirebase.perbaruiPelanggan(pelanggan);
+    }
+    _invalidateProviderTerkait(pelanggan.id);
+  }
+
+  /// Menghapus pelanggan (soft delete)
+  Future<void> softDelete(String id) async {
+    if (RoleUtil.isAdmin(ref)) {
+      await _pelangganOpSqlite.softDelete(id);
+    } else {
+      await _pelangganOpFirebase.softDelete(id);
+    }
+    _invalidateProviderTerkait(id);
   }
 
   /// Mengambil daftar pelanggan berdasarkan role
-  Future<List<PelangganModel>> ambilSemuaPelanggan() async {
+  Future<List<PelangganModel>> ambilSemua() async {
     if (RoleUtil.isAdmin(ref)) {
       return await _pelangganOpSqlite.ambilSemua();
     } else {
@@ -33839,24 +35922,6 @@ class PelangganOpGlobal {
       return await _pelangganOpSqlite.ambilBerdasarkanId(id);
     } else {
       return await _pelangganOpFirebase.ambilBerdasarkanId(id);
-    }
-  }
-
-  /// Mengupdate pelanggan
-  Future<void> updatePelanggan(PelangganModel pelanggan) async {
-    if (RoleUtil.isAdmin(ref)) {
-      await _pelangganOpSqlite.perbaruiPelanggan(pelanggan);
-    } else {
-      await _pelangganOpFirebase.perbaruiPelanggan(pelanggan);
-    }
-  }
-
-  /// Menghapus pelanggan (soft delete)
-  Future<void> hapusPelanggan(String id) async {
-    if (RoleUtil.isAdmin(ref)) {
-      await _pelangganOpSqlite.softDelete(id);
-    } else {
-      await _pelangganOpFirebase.softDelete(id);
     }
   }
 }
@@ -38786,7 +40851,7 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
-import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan_u.dart';
+import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan.dart';
 import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
@@ -39064,7 +41129,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       await Navigator.push<bool>(
         context,
         MaterialPageRoute<bool>(
-          builder: (context) => DetailPelangganU(userId: userId),
+          builder: (context) => DetailPelanggan(idPelanggan: userId),
         ),
       );
       await ref.read(interstitialAdServiceProvider).show();
@@ -39194,6 +41259,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39260,69 +41326,80 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     try {
       Log.info('Memulai inisialisasi dari Splash Screen...');
       await _inisialisasiLayananOffline();
+
       _terhubung = await ref.read(koneksiInternetServiceProvider).cekInternet();
-      if (_terhubung == true) {
-        final eventInfo = await _cekEvent();
-        if (eventInfo != null) {
-          if (mounted) {
-            Log.info('menuju ke halaman event');
-            await Navigator.of(context).push<void>(
-              MaterialPageRoute(
-                builder: (context) => EventPageU(event: eventInfo),
-              ),
-            );
-          }
-        }
-        await _continueInitialization();
-      } else {
+      if (_terhubung == false) {
         if (mounted) {
           ToastUtil.info(context, 'Anda sedang offline.');
         }
+        FlutterNativeSplash.remove();
         await _navigasiKeHalamanBerikutnya();
+        return;
       }
-    } catch (e, st) {
-      Log.error('Error kritis saat inisialisasi', e: e, s: st);
-      if (mounted) {
-        ToastUtil.error(context, 'Gagal terhubung ke server.');
-      }
-      await _navigasiKeHalamanBerikutnya();
-    }
-  }
 
-  Future<void> _continueInitialization() async {
-    final pengaturanPemeliharaan = await _periksaModePemeliharaan();
-    if (pengaturanPemeliharaan != null) {
+      // 1. Ambil seluruh data dari server secara paralel (bersamaan)
+      final hasilInisialisasi = await Future.wait([
+        _periksaModePemeliharaan(),
+        _periksaPembaruanAplikasi(),
+        _cekEvent(),
+      ]);
+
+      final pengaturanPemeliharaan = hasilInisialisasi[0] as SettingsModel?;
+      final infoPembaruan = hasilInisialisasi[1] as InfoPembaruanRecord?;
+      final eventInfo = hasilInisialisasi[2] as EventModel?;
       if (!mounted) return;
-      unawaited(
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
+
+      // 2. Tampilkan Event Terlebih Dahulu (Jika Ada)
+      if (eventInfo != null) {
+        Log.info('Menuju ke halaman event (Pelapis Splash Screen)');
+        // Menunggu sampai masa countdown event selesai atau di-skip oleh user
+        await Navigator.of(context).push<void>(
+          MaterialPageRoute(builder: (context) => EventPageU(event: eventInfo)),
+        );
+      } else {
+        // Keselamatan Visual: Jika event kosong, hapus Native Splash sekarang!
+        FlutterNativeSplash.remove();
+      }
+
+      if (!mounted) return;
+
+      // 3. Validasi Sistem (Maintenance & Force Update) setelah Event ditutup
+      if (pengaturanPemeliharaan != null) {
+        await Navigator.of(context).pushReplacement(
+          MaterialPageRoute<void>(
             builder: (context) => MaintenancePage(
               infoMaintenance: pengaturanPemeliharaan.infoMaintenance,
               onRefresh: _inisialisasiAplikasi,
               onExit: SystemNavigator.pop,
             ),
           ),
-        ),
-      );
-      return;
-    }
-    final infoPembaruan = await _periksaPembaruanAplikasi();
-    if (infoPembaruan != null) {
-      if (!mounted) return;
-      unawaited(
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
+        );
+        return;
+      }
+
+      if (infoPembaruan != null) {
+        await Navigator.of(context).pushReplacement(
+          MaterialPageRoute<void>(
             builder: (context) => UpdateApkPage(
               infoApk: infoPembaruan.apkInfo!,
               infoPaket: infoPembaruan.packageInfo!,
               arsitektur: infoPembaruan.architecture!,
             ),
           ),
-        ),
-      );
-      return;
+        );
+        return;
+      }
+
+      // 4. Masuk ke aplikasi utama jika semua aman
+      await _navigasiKeHalamanBerikutnya();
+    } catch (e, st) {
+      Log.error('Error kritis saat inisialisasi', e: e, s: st);
+      FlutterNativeSplash.remove(); // Atasi penahanan layar jika terjadi kendala/error
+      if (mounted) {
+        ToastUtil.error(context, 'Gagal terhubung ke server.');
+      }
+      await _navigasiKeHalamanBerikutnya();
     }
-    await _navigasiKeHalamanBerikutnya();
   }
 
   Future<void> _inisialisasiLayananOffline() async {
@@ -39335,8 +41412,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
 
   Future<EventModel?> _cekEvent() async {
     final eventOpSupabase = ref.read(eventOpSupabaseProvider);
-    final infoEvent = await eventOpSupabase.ambilEventAktif();
-    return infoEvent;
+    return await eventOpSupabase.ambilEventAktif();
   }
 
   Future<InfoPembaruanRecord?> _periksaPembaruanAplikasi() async {
@@ -39376,25 +41452,24 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     if (!mounted) return;
     final pengelolaAkun = await ref.read(pengelolaAkunProvider.future);
     final akunAktif = pengelolaAkun.akunSaatIni;
+
     if (akunAktif != null) {
       if (_terhubung == true) {
-        final layananAktivitasUser = await ref.read(
-          layananAktivitasUserProvider.future,
-        );
-        unawaited(layananAktivitasUser.pingAktivitas(akunAktif.id));
+        unawaited(() async {
+          final layananAktivitasUser = await ref.read(
+            layananAktivitasUserProvider.future,
+          );
+          await layananAktivitasUser.pingAktivitas(akunAktif.id);
+        }());
       }
       if (!mounted) return;
-      unawaited(
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const MainPage()),
-        ),
+      await Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (context) => const MainPage()),
       );
     } else {
       if (!mounted) return;
-      unawaited(
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-        ),
+      await Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (context) => const LoginPage()),
       );
     }
   }
@@ -39422,9 +41497,11 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/chating/chating_dashboard.dart';
 import 'package:wifi/fitur/notifikasi/pengingat_paket_belum_lunas.dart';
 import 'package:wifi/fitur/notifikasi/penjadwal_notifikasi.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';
@@ -39475,7 +41552,7 @@ class _MainPageState extends ConsumerState<MainPage> {
       const ProfilePage(),
       const TransaksiU(),
       const OrderPage(),
-      const HalamanUjiKecepatan(),
+      kDebugMode ? const ChatingDashboard() : const HalamanUjiKecepatan(),
       const SettingsPageU(),
     ];
     _reaktorSiklusHidup = AppLifecycleReactor(
@@ -40192,6 +42269,7 @@ class IdBannerAds {
 // File: lib/user/widget/ads/banner/banner_ads_widget.dart
 // path: lib/user/widget/ads/banner/banner_ads_widget.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -40199,9 +42277,7 @@ import 'package:wifi/user/widget/ads/banner/id_banner_ads.dart';
 
 /// Widget yang memuat satu unit iklan banner berdasarkan ID yang diberikan.
 class BannerAdsWidget extends StatefulWidget {
-  const BannerAdsWidget({
-    super.key,
-  });
+  const BannerAdsWidget({super.key});
   @override
   State<BannerAdsWidget> createState() => _BannerAdsWidgetState();
 }
@@ -40251,8 +42327,8 @@ class _BannerAdsWidgetState extends State<BannerAdsWidget> {
   }
 
   @override
-  Widget build(final BuildContext context) {
-    if (_bannerAd != null && _isAdLoaded) {
+  Widget build(BuildContext context) {
+    if (_bannerAd != null && _isAdLoaded && !kDebugMode) {
       return SafeArea(
         child: SizedBox(
           width: _bannerAd!.size.width.toDouble(),
@@ -42652,7 +44728,6 @@ class FormatNomor {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 
@@ -42676,9 +44751,17 @@ class NamaPelangganWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (idPelanggan.isEmpty) {
+      return Text(
+        emptyText,
+        style:
+            style?.copyWith(color: Colors.grey, fontStyle: FontStyle.italic) ??
+            const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+      );
+    }
     final namaAsync = ref.watch(namaPelangganProvider(idPelanggan));
-
     return namaAsync.when(
+      skipLoadingOnReload: true,
       loading: () {
         if (showLoadingIndicator) {
           return const SizedBox(
@@ -42723,54 +44806,6 @@ class NamaPelangganWidget extends ConsumerWidget {
           );
         }
         return Text(nama, style: style, overflow: TextOverflow.ellipsis);
-      },
-    );
-  }
-}
-
-/// Widget yang mengembalikan data pelanggan lengkap
-class PelangganDetailWidget extends ConsumerWidget {
-  final String idPelanggan;
-  final Widget Function(PelangganModel pelanggan) builder;
-  final Widget? loadingWidget;
-  final Widget? errorWidget;
-  final Widget? emptyWidget;
-
-  const PelangganDetailWidget({
-    super.key,
-    required this.idPelanggan,
-    required this.builder,
-    this.loadingWidget,
-    this.errorWidget,
-    this.emptyWidget,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final pelangganAsync = ref.watch(pelangganDetailProvider(idPelanggan));
-
-    return pelangganAsync.when(
-      loading: () =>
-          loadingWidget ??
-          const SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-      error: (error, stack) {
-        Log.error(
-          'Gagal memuat pelanggan ID: $idPelanggan',
-          e: error,
-          s: stack,
-        );
-        return errorWidget ??
-            Text(
-              'Error',
-              style: TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
-            );
-      },
-      data: (pelanggan) {
-        return builder(pelanggan as PelangganModel);
       },
     );
   }
@@ -44841,7 +46876,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
@@ -50773,6 +52807,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
     final notifikasiServis = ref.read(layananNotifikasiProvider);
     final koneksiInternetService = ref.read(koneksiInternetServiceProvider);
     final sqliteDb = ref.read(sqliteDatabaseProvider);
+
     try {
       // 1. Inisialisasi layanan latar belakang dan notifikasi
       await LayananLatarBelakang.inisialisasi();
@@ -50801,39 +52836,40 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
       // 4. Buka database dan arsipkan data kedaluwarsa
       await sqliteDb.database;
-      try {
-        final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
-        await pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
-      } catch (e) {
-        Log.error('gagal menghapus data yang status nya diarsipkan');
-      }
-
-      // 5. Jika online, jalankan unduhan awal & pembersihan data arsip
       final isOnline = await koneksiInternetService.cekInternet();
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
-        final unduhanAwalService = ref.read(layananUnduhanAwalProvider);
-        try {
-          await unduhanAwalService.jalankanUnduhanAwal().timeout(
-            const Duration(seconds: 30),
-          );
-          Log.info('Initial download berhasil diselesaikan.');
-        } catch (e) {
-          Log.warning(
-            'Initial download memakan waktu terlalu lama (timeout). Melanjutkan inisialisasi... $e',
-          );
-        }
-        final dataPengaturan = await ref
-            .read(settingsOpSqliteProvider)
-            .ambilSettings();
-        final waktuPenjadwalanHapusDataArsip =
-            dataPengaturan.waktuOtomatisHapusDataArsip;
-        final pembersihanDataOperasi = ref.read(pembersihanDataOperasiProvider);
-        await pembersihanDataOperasi
-            .hapusPermanentDataYangDiarsip(
+        unawaited(() async {
+          try {
+            final pelangganAktifOpSqlite = ref.read(
+              pelangganAktifOpSqliteProvider,
+            );
+            await pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
+            final unduhanAwalService = ref.read(layananUnduhanAwalProvider);
+            await unduhanAwalService.jalankanUnduhanAwal().timeout(
+              const Duration(seconds: 30),
+            );
+
+            final dataPengaturan = await ref
+                .read(settingsOpSqliteProvider)
+                .ambilSettings();
+            final waktuPenjadwalanHapusDataArsip =
+                dataPengaturan.waktuOtomatisHapusDataArsip;
+
+            final pembersihanDataOperasi = ref.read(
+              pembersihanDataOperasiProvider,
+            );
+            await pembersihanDataOperasi.hapusPermanentDataYangDiarsip(
               waktuPenjadwalanHapusDataArsip: waktuPenjadwalanHapusDataArsip,
-            )
-            .timeout(const Duration(seconds: 5));
+            );
+          } catch (e, s) {
+            Log.error(
+              'Gagal menjalankan proses sinkronisasi background',
+              e: e,
+              s: s,
+            );
+          }
+        }());
       } else {
         Log.warning(
           'Perangkat offline, melewati proses unduhan data awal dan pembersihan.',
@@ -51469,8 +53505,8 @@ import 'package:wifi/fitur/info_perangkat/page/tentang_aplikasi.dart';
 import 'package:wifi/fitur/kategori/page/kategori.dart';
 import 'package:wifi/fitur/paket/page/paket.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
-import 'package:wifi/fitur/settings/page/settings_page_a.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/riwayat_aktivasi_paket.dart';
+import 'package:wifi/fitur/settings/page/settings_page_a.dart';
 import 'package:wifi/fitur/versi_apk/page/versi_apk_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -52097,6 +54133,23 @@ lib
 │   │   ├── alarm_utils.dart
 │   │   ├── layanan_latar_belakang.dart
 │   │   └── layanan_peluncuran.dart
+│   ├── chating
+│   │   ├── chating.dart
+│   │   ├── chating_dashboard.dart
+│   │   ├── dummy_chatting.dart
+│   │   ├── enum
+│   │   │   └── status_pesan_enum.dart
+│   │   ├── model
+│   │   │   ├── chating_model.dart
+│   │   │   ├── chating_model.freezed.dart
+│   │   │   ├── lampiran.dart
+│   │   │   ├── lampiran.freezed.dart
+│   │   │   ├── percakapan.dart
+│   │   │   └── percakapan.freezed.dart
+│   │   ├── operasi
+│   │   │   └── chating_op_supabase.dart
+│   │   └── provider
+│   │       └── chating_provider.dart
 │   ├── database
 │   │   └── provider
 │   │       ├── operasi_sqlite_provider.dart
@@ -52235,7 +54288,7 @@ lib
 │   │   │   │   ├── form_pelanggan.dart
 │   │   │   │   └── pelanggan_page.dart
 │   │   │   └── user
-│   │   │       └── detail_pelanggan_u.dart
+│   │   │       └── detail_pelanggan.dart
 │   │   ├── provider
 │   │   │   ├── pelanggan_provider.dart
 │   │   │   ├── pelanggan_provider.freezed.dart
@@ -52267,6 +54320,7 @@ lib
 │   │   │   └── sqlite_points_data_source.dart
 │   │   ├── page
 │   │   │   └── halaman_poin.dart
+│   │   ├── poin.dart
 │   │   ├── provider
 │   │   │   ├── poin_provider.dart
 │   │   │   └── points_page_data_source.dart
@@ -52704,7 +54758,7 @@ test
         ├── perhitungan_util_test.dart
         └── toast_util_test.dart
 
-226 directories, 430 files
+231 directories, 443 files
 tree is not installed, but available in the following packages, pick one to run it, Ctrl+C to cancel.
 
 
