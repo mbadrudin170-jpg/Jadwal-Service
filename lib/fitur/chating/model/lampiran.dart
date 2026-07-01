@@ -1,48 +1,19 @@
 // lib/fitur/chating/model/lampiran.dart
-class Lampiran {
-  final String id;
-  final String url;
-  final String tipe;
-  final String? nama;
-  final int? ukuran;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const Lampiran({
-    required this.id,
-    required this.url,
-    required this.tipe,
-    this.nama,
-    this.ukuran,
-  });
+part 'lampiran.freezed.dart';
+part 'lampiran.g.dart';
 
-  Lampiran copyWith({
-    String? id,
-    String? url,
-    String? tipe,
+@freezed
+class Lampiran with _$Lampiran {
+  const factory Lampiran({
+    required String id,
+    required String url,
+    required String tipe, // 'gambar', 'file', 'audio'
     String? nama,
-    int? ukuran,
-  }) {
-    return Lampiran(
-      id: id ?? this.id,
-      url: url ?? this.url,
-      tipe: tipe ?? this.tipe,
-      nama: nama ?? this.nama,
-      ukuran: ukuran ?? this.ukuran,
-    );
-  }
+    int? ukuran, // dalam byte
+  }) = _Lampiran;
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'url': url,
-        'tipe': tipe,
-        'nama': nama,
-        'ukuran': ukuran,
-      };
-
-  factory Lampiran.fromJson(Map<String, dynamic> json) => Lampiran(
-        id: json['id'] as String,
-        url: json['url'] as String,
-        tipe: json['tipe'] as String,
-        nama: json['nama'] as String?,
-        ukuran: json['ukuran'] as int?,
-      );
+  factory Lampiran.fromJson(Map<String, dynamic> json) =>
+      _$LampiranFromJson(json);
 }
