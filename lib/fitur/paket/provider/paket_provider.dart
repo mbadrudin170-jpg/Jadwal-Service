@@ -15,8 +15,8 @@ part 'paket_provider.freezed.dart';
 @freezed
 abstract class PaketState with _$PaketState {
   const factory PaketState({
-    @Default([]) List<PaketModel> daftarPaket,
-    @Default([]) List<PaketModel> daftarPaketPublik,
+    @Default([]) List<PaketModel?> daftarPaket,
+    @Default([]) List<PaketModel?> daftarPaketPublik,
     @Default(0) int jumlahPaket,
   }) = _PaketState;
 }
@@ -113,6 +113,7 @@ Future<PaketModel> detailPaket(Ref ref, String id) async {
 Future<String?> namaPaket(Ref ref, String idPaket) async {
   if (idPaket.isEmpty) return null;
   final paketState = await ref.watch(paketProvider.future);
-  final paket = paketState.daftarPaket.firstWhere((p) => p.id == idPaket);
+  final paket = paketState.daftarPaket.firstWhere((p) => p!.id == idPaket);
+  if (paket == null) return null;
   return paket.nama;
 }

@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PaketState {
 
- List<PaketModel> get daftarPaket; List<PaketModel> get daftarPaketPublik; int get jumlahPaket;
+ List<PaketModel?> get daftarPaket; List<PaketModel?> get daftarPaketPublik; int get jumlahPaket;
 /// Create a copy of PaketState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -45,7 +45,7 @@ abstract mixin class $PaketStateCopyWith<$Res>  {
   factory $PaketStateCopyWith(PaketState value, $Res Function(PaketState) _then) = _$PaketStateCopyWithImpl;
 @useResult
 $Res call({
- List<PaketModel> daftarPaket, List<PaketModel> daftarPaketPublik, int jumlahPaket
+ List<PaketModel?> daftarPaket, List<PaketModel?> daftarPaketPublik, int jumlahPaket
 });
 
 
@@ -65,8 +65,8 @@ class _$PaketStateCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? daftarPaket = null,Object? daftarPaketPublik = null,Object? jumlahPaket = null,}) {
   return _then(_self.copyWith(
 daftarPaket: null == daftarPaket ? _self.daftarPaket : daftarPaket // ignore: cast_nullable_to_non_nullable
-as List<PaketModel>,daftarPaketPublik: null == daftarPaketPublik ? _self.daftarPaketPublik : daftarPaketPublik // ignore: cast_nullable_to_non_nullable
-as List<PaketModel>,jumlahPaket: null == jumlahPaket ? _self.jumlahPaket : jumlahPaket // ignore: cast_nullable_to_non_nullable
+as List<PaketModel?>,daftarPaketPublik: null == daftarPaketPublik ? _self.daftarPaketPublik : daftarPaketPublik // ignore: cast_nullable_to_non_nullable
+as List<PaketModel?>,jumlahPaket: null == jumlahPaket ? _self.jumlahPaket : jumlahPaket // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -152,7 +152,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<PaketModel> daftarPaket,  List<PaketModel> daftarPaketPublik,  int jumlahPaket)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<PaketModel?> daftarPaket,  List<PaketModel?> daftarPaketPublik,  int jumlahPaket)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PaketState() when $default != null:
 return $default(_that.daftarPaket,_that.daftarPaketPublik,_that.jumlahPaket);case _:
@@ -173,7 +173,7 @@ return $default(_that.daftarPaket,_that.daftarPaketPublik,_that.jumlahPaket);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<PaketModel> daftarPaket,  List<PaketModel> daftarPaketPublik,  int jumlahPaket)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<PaketModel?> daftarPaket,  List<PaketModel?> daftarPaketPublik,  int jumlahPaket)  $default,) {final _that = this;
 switch (_that) {
 case _PaketState():
 return $default(_that.daftarPaket,_that.daftarPaketPublik,_that.jumlahPaket);case _:
@@ -193,7 +193,7 @@ return $default(_that.daftarPaket,_that.daftarPaketPublik,_that.jumlahPaket);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<PaketModel> daftarPaket,  List<PaketModel> daftarPaketPublik,  int jumlahPaket)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<PaketModel?> daftarPaket,  List<PaketModel?> daftarPaketPublik,  int jumlahPaket)?  $default,) {final _that = this;
 switch (_that) {
 case _PaketState() when $default != null:
 return $default(_that.daftarPaket,_that.daftarPaketPublik,_that.jumlahPaket);case _:
@@ -208,18 +208,18 @@ return $default(_that.daftarPaket,_that.daftarPaketPublik,_that.jumlahPaket);cas
 
 
 class _PaketState implements PaketState {
-  const _PaketState({final  List<PaketModel> daftarPaket = const [], final  List<PaketModel> daftarPaketPublik = const [], this.jumlahPaket = 0}): _daftarPaket = daftarPaket,_daftarPaketPublik = daftarPaketPublik;
+  const _PaketState({final  List<PaketModel?> daftarPaket = const [], final  List<PaketModel?> daftarPaketPublik = const [], this.jumlahPaket = 0}): _daftarPaket = daftarPaket,_daftarPaketPublik = daftarPaketPublik;
   
 
- final  List<PaketModel> _daftarPaket;
-@override@JsonKey() List<PaketModel> get daftarPaket {
+ final  List<PaketModel?> _daftarPaket;
+@override@JsonKey() List<PaketModel?> get daftarPaket {
   if (_daftarPaket is EqualUnmodifiableListView) return _daftarPaket;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_daftarPaket);
 }
 
- final  List<PaketModel> _daftarPaketPublik;
-@override@JsonKey() List<PaketModel> get daftarPaketPublik {
+ final  List<PaketModel?> _daftarPaketPublik;
+@override@JsonKey() List<PaketModel?> get daftarPaketPublik {
   if (_daftarPaketPublik is EqualUnmodifiableListView) return _daftarPaketPublik;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_daftarPaketPublik);
@@ -257,7 +257,7 @@ abstract mixin class _$PaketStateCopyWith<$Res> implements $PaketStateCopyWith<$
   factory _$PaketStateCopyWith(_PaketState value, $Res Function(_PaketState) _then) = __$PaketStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<PaketModel> daftarPaket, List<PaketModel> daftarPaketPublik, int jumlahPaket
+ List<PaketModel?> daftarPaket, List<PaketModel?> daftarPaketPublik, int jumlahPaket
 });
 
 
@@ -277,8 +277,8 @@ class __$PaketStateCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? daftarPaket = null,Object? daftarPaketPublik = null,Object? jumlahPaket = null,}) {
   return _then(_PaketState(
 daftarPaket: null == daftarPaket ? _self._daftarPaket : daftarPaket // ignore: cast_nullable_to_non_nullable
-as List<PaketModel>,daftarPaketPublik: null == daftarPaketPublik ? _self._daftarPaketPublik : daftarPaketPublik // ignore: cast_nullable_to_non_nullable
-as List<PaketModel>,jumlahPaket: null == jumlahPaket ? _self.jumlahPaket : jumlahPaket // ignore: cast_nullable_to_non_nullable
+as List<PaketModel?>,daftarPaketPublik: null == daftarPaketPublik ? _self._daftarPaketPublik : daftarPaketPublik // ignore: cast_nullable_to_non_nullable
+as List<PaketModel?>,jumlahPaket: null == jumlahPaket ? _self.jumlahPaket : jumlahPaket // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }

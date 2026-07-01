@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
@@ -24,11 +25,29 @@ abstract class OrderState with _$OrderState {
 class Order extends _$Order {
   @override
   FutureOr<OrderState> build() async {
-    final daftarPesanan = await ref.watch(daftarPesananProvider.future);
-    return OrderState(
-      daftarOrder: daftarPesanan,
-      totalDaftar: daftarPesanan.length,
-    );
+    return _loadData();
+  }
+
+  Future<OrderState> _loadData() async {
+    try {
+      final daftarPesanan = await ref.watch(daftarPesananProvider.future);
+      return OrderState(
+        daftarOrder: daftarPesanan,
+        totalDaftar: daftarPesanan.length,
+      );
+    } on Exception catch (e, s) {
+      Log.error('Error di _loadData: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> refresh() async {
+    try {
+      state = await AsyncValue.guard(_loadData);
+    } on Exception catch (e, s) {
+      Log.error('Error direfresh: $e', e: e, s: s);
+      rethrow;
+    }
   }
 
   void invalidateOrderProvider() {
@@ -43,7 +62,7 @@ Future<List<OrderModel>> daftarPesanan(Ref ref) async {
     final orderOpSqlite = ref.read(orderOpSqliteProvider);
     return await orderOpSqlite.ambilSemua();
   } else {
-    final userId = ref.watch(userIdProvider).value;
+    final userId = await ref.watch(userIdProvider.future);
     final orderOpFirebase = ref.read(orderOpFirebaseProvider);
     if (userId != null) {
       return await orderOpFirebase.ambilBerdasarkanIdPelanggan(userId).first;

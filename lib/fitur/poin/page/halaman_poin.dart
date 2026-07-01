@@ -277,7 +277,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     );
   }
 
-  Widget _buildDaftarHadiah(List<PaketModel> daftarHadiah, int totalPoin) {
+  Widget _buildDaftarHadiah(List<PaketModel?> daftarHadiah, int totalPoin) {
     Log.info('Building reward list.');
     if (daftarHadiah.isEmpty) {
       return const Center(child: Text('Belum ada hadiah yang tersedia'));
@@ -286,7 +286,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       itemCount: daftarHadiah.length,
       itemBuilder: (context, index) {
         final hadiah = daftarHadiah[index];
-        final poinCukup = totalPoin >= hadiah.poinPenukaran;
+        final poinCukup = totalPoin >= hadiah!.poinPenukaran;
         final progress = hadiah.poinPenukaran > 0
             ? (totalPoin / hadiah.poinPenukaran).clamp(0.0, 1.0)
             : 1.0;
