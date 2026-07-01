@@ -33,7 +33,7 @@ final class PelangganProvider
   Pelanggan create() => Pelanggan();
 }
 
-String _$pelangganHash() => r'c7988f66552b51ac7f3a57c654c1ae815e171adc';
+String _$pelangganHash() => r'd03ea97aa57ea26238adbca9dda3bd9dd93d6756';
 
 abstract class _$Pelanggan extends $AsyncNotifier<PelangganState> {
   FutureOr<PelangganState> build();
@@ -291,7 +291,7 @@ final class PelangganDetailProvider
   }
 }
 
-String _$pelangganDetailHash() => r'f035ec5051457c1093e90687ba33b06fe986510c';
+String _$pelangganDetailHash() => r'c416415c0d014d3e761bbfb96bc45cfdc084ce5d';
 
 final class PelangganDetailFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<(PelangganModel?, int)>, String> {

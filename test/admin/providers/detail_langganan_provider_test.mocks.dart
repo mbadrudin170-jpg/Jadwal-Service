@@ -405,14 +405,13 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i9.TransaksiOpSqlite {
 
   @override
   _i6.Future<void> perbaruiTransaksi(
-    String? id,
     _i10.TransaksiModel? transaksi, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #perbaruiTransaksi,
-              [id, transaksi],
+              [transaksi],
               {#dariServer: dariServer},
             ),
             returnValue: _i6.Future<void>.value(),

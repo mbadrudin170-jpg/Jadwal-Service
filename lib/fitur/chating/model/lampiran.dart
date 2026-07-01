@@ -5,7 +5,7 @@ part 'lampiran.freezed.dart';
 part 'lampiran.g.dart';
 
 @freezed
-class Lampiran with _$Lampiran {
+abstract class Lampiran with _$Lampiran {
   const factory Lampiran({
     required String id,
     required String url,

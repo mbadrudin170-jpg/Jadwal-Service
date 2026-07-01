@@ -178,6 +178,15 @@ class MockTransaksiOpFirebase extends _i1.Mock
           as _i3.Future<void>);
 
   @override
+  _i3.Future<void> perbaruiTransaksi(_i7.TransaksiModel? transaksi) =>
+      (super.noSuchMethod(
+            Invocation.method(#perbaruiTransaksi, [transaksi]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
+
+  @override
   _i3.Future<_i7.TransaksiModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBerdasarkanId, [id]),

@@ -32,7 +32,7 @@ final class DompetProvider extends $AsyncNotifierProvider<Dompet, DompetState> {
   Dompet create() => Dompet();
 }
 
-String _$dompetHash() => r'92db81efa71166f62c2642d04b107547808a2f2d';
+String _$dompetHash() => r'3eac7a52a9dde5193a72d2b6f734ec2509e8390c';
 
 abstract class _$Dompet extends $AsyncNotifier<DompetState> {
   FutureOr<DompetState> build();
