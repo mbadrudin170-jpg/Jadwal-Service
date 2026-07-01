@@ -11,6 +11,7 @@ import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_paket_widget.dart';
@@ -222,7 +223,10 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     Log.info('OrderPage build dipanggil, filterAktif: $_filterAktif');
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Pesanan Saya')),
+      appBar: AppBar(
+        title: const Text('Pesanan Saya'),
+        actions: [IconButton(onPressed: () {}, icon: Icon(TIcons.delete))],
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Column(
