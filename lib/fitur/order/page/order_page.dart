@@ -12,7 +12,6 @@ import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_paket_widget.dart';
 
@@ -70,7 +69,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
   Future<void> _softDeleteAll(String id) async {
     await ref.read(orderOpGlobalProvider).softDelete(id);
-    
   }
 
   /// ✅ PERBAIKAN 2: Fungsi ubah status sekarang pakai await dengan benar
@@ -420,8 +418,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           itemCount: orderDifilter.length,
           itemBuilder: (context, index) {
             final order = orderDifilter[index];
-            final paketOpFirebase = ref.watch(paketOpFirebaseProvider);
-
             Log.info(
               '_daftarPesanan: membangun item ke-$index dengan orderId: ${order.id}',
             );
@@ -443,9 +439,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
               title: Row(
                 children: [
                   const Text('Paket: '),
-                  NamaPaketWidget(
-                    idPaket: paketOpFirebase.ambilBerdasarkanId(order.idPaket),
-                  ),
+                  NamaPaketWidget(idPaket: order.idPaket),
                 ],
               ),
               subtitle: Text('Status: ${order.status.name}'),

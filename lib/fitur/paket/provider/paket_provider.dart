@@ -108,3 +108,12 @@ Future<PaketModel> detailPaket(Ref ref, String id) async {
   }
   return paket;
 }
+
+@riverpod
+Future<String?> namaPaket(Ref ref, String idPaket) async {
+  if (idPaket.isEmpty) return null;
+  final pelangganOp = ref.watch(paketOpGlobalProvider);
+  final paket = await pelangganOp.ambilBerdasarkanId(idPaket);
+  return paket?.nama;
+}
+

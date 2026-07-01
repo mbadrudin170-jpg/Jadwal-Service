@@ -177,3 +177,72 @@ final class DetailPaketFamily extends $Family
   @override
   String toString() => r'detailPaketProvider';
 }
+
+@ProviderFor(namaPaket)
+final namaPaketProvider = NamaPaketFamily._();
+
+final class NamaPaketProvider
+    extends $FunctionalProvider<AsyncValue<String?>, String?, FutureOr<String?>>
+    with $FutureModifier<String?>, $FutureProvider<String?> {
+  NamaPaketProvider._({
+    required NamaPaketFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'namaPaketProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$namaPaketHash();
+
+  @override
+  String toString() {
+    return r'namaPaketProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String?> create(Ref ref) {
+    final argument = this.argument as String;
+    return namaPaket(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is NamaPaketProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$namaPaketHash() => r'479e0017ade2356a872263503482308360251e91';
+
+final class NamaPaketFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<String?>, String> {
+  NamaPaketFamily._()
+    : super(
+        retry: null,
+        name: r'namaPaketProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  NamaPaketProvider call(String idPaket) =>
+      NamaPaketProvider._(argument: idPaket, from: this);
+
+  @override
+  String toString() => r'namaPaketProvider';
+}
