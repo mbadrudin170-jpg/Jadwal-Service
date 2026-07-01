@@ -70,3 +70,14 @@ Future<List<OrderModel>> daftarPesanan(Ref ref) async {
   }
   return [];
 }
+
+@riverpod
+Future<List<OrderModel>> daftar(Ref ref) async {
+  try {
+    final order = await ref.watch(orderProvider.future);
+    return order.daftarOrder;
+  } on Exception catch (e, s) {
+    Log.error('Error didaftar: $e', e: e, s: s);
+    rethrow;
+  }
+}

@@ -32,7 +32,7 @@ final class OrderProvider extends $AsyncNotifierProvider<Order, OrderState> {
   Order create() => Order();
 }
 
-String _$orderHash() => r'5aefaa58768561d0af317a2d0cb3b2008bbd5ea7';
+String _$orderHash() => r'38d1329e22adc3c60c2f94864373ddbcdb0130f0';
 
 abstract class _$Order extends $AsyncNotifier<OrderState> {
   FutureOr<OrderState> build();
@@ -89,4 +89,43 @@ final class DaftarPesananProvider
   }
 }
 
-String _$daftarPesananHash() => r'9d650571c28b5c1b23bdef7cbd312befde5eba16';
+String _$daftarPesananHash() => r'b123136a10fee76f439e4812bdff19a61dedb5f0';
+
+@ProviderFor(daftar)
+final daftarProvider = DaftarProvider._();
+
+final class DaftarProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<OrderModel>>,
+          List<OrderModel>,
+          FutureOr<List<OrderModel>>
+        >
+    with $FutureModifier<List<OrderModel>>, $FutureProvider<List<OrderModel>> {
+  DaftarProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'daftarProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$daftarHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<OrderModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<OrderModel>> create(Ref ref) {
+    return daftar(ref);
+  }
+}
+
+String _$daftarHash() => r'6b5986a7560616a1b04dfe92c572ce506b82ca45';
