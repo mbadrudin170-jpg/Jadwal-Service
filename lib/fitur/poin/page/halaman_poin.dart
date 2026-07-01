@@ -29,13 +29,8 @@ import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dar
 
 class HalamanPoin extends ConsumerStatefulWidget {
   final String idPelanggan;
-  final bool tampilkanIklan;
 
-  const HalamanPoin({
-    super.key,
-    required this.idPelanggan,
-    this.tampilkanIklan = false,
-  });
+  const HalamanPoin({super.key, required this.idPelanggan});
 
   @override
   ConsumerState<HalamanPoin> createState() => _HalamanPoinState();
@@ -251,7 +246,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             Log.info('Points menu changed to: $selection');
             setState(() => _menuAktif = selection);
 
-            if (selection == OpsiMenuPoin.riwayat && widget.tampilkanIklan) {
+            if (selection == OpsiMenuPoin.riwayat && ref.isUser) {
               await _layananIklanInterstisial.show();
             }
           },
@@ -267,7 +262,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
                   ),
                 )
               : _buildRiwayatPoin(),
-          bottomWidget: widget.tampilkanIklan ? const BannerAdsWidget() : null,
+          bottomWidget: ref.isUser ? const BannerAdsWidget() : null,
         );
       },
     );

@@ -304,7 +304,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         context,
         MaterialPageRoute<bool>(
           builder: (context) =>
-              HalamanPoin(idPelanggan: idPelanggan, tampilkanIklan: true),
+              HalamanPoin(idPelanggan: idPelanggan),
         ),
       );
       await ref.read(interstitialAdServiceProvider).show();
