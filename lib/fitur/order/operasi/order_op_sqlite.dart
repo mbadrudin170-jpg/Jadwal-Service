@@ -146,7 +146,7 @@ class OrderOpSqlite {
     }
   }
 
-  Future<int> softDeleteAllOrder({final bool fromServer = false}) async {
+  Future<int> softDeleteAll({final bool fromServer = false}) async {
     Log.info('Memulai soft delete untuk semua pesanan');
     try {
       final count = await baseOpSqlite.softDeleteAll(

@@ -221,7 +221,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
   void _invalidateProviderTerkait(String? idDompet, String? idPelanggan) {
     ref.read(transaksiOpGlobalProvider).invalidate(idDompet);
-    ref.read(orderProvider.notifier).invalidateOrderProvider();
+    ref.read(orderProvider.notifier).refresh();
     if (ref.isAdmin) {
       ref.read(pelangganAktifProvider.notifier).invalidatePelangganAktif();
     }

@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
+import 'package:wifi/fitur/order/operasi/order_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/user/providers/user_provider.dart';
@@ -21,19 +22,21 @@ abstract class OrderState with _$OrderState {
   }) = _OrderState;
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Order extends _$Order {
   @override
   FutureOr<OrderState> build() async {
+    Log.info('build orderProvider');
     return _loadData();
   }
 
   Future<OrderState> _loadData() async {
     try {
-      final daftarPesanan = await ref.watch(daftarPesananProvider.future);
+      Log.info('Fungsi _loadData di jalankan');
+      final daftarOrder = await ref.watch(orderOpGlobalProvider).ambilSemua();
       return OrderState(
-        daftarOrder: daftarPesanan,
-        totalDaftar: daftarPesanan.length,
+        daftarOrder: daftarOrder,
+        totalDaftar: daftarOrder.length,
       );
     } on Exception catch (e, s) {
       Log.error('Error di _loadData: $e', e: e, s: s);
@@ -41,12 +44,28 @@ class Order extends _$Order {
     }
   }
 
-  Future<void> tambah() async {
+  Future<void> tambah(OrderModel order) async {
     try {
-      // Logika asinkron
+      await ref.read(orderOpGlobalProvider).tambah(order);
+      await refresh();
     } on Exception catch (e, s) {
       Log.error('Error ditambah: $e', e: e, s: s);
+      await refresh();
       rethrow;
+    }
+  }
+
+  Future<List<OrderModel>> ambilBerdasarkanIdPelanggan(String id) async {
+    try {
+      List<OrderModel> daftarBaru = [];
+      final daftar = state.asData?.value.daftarOrder;
+      if (daftar != null) {
+        daftarBaru = daftar.where((o) => o.idPelanggan == id).toList();
+      }
+      return daftarBaru;
+    } on Exception catch (e, s) {
+      Log.error('Error diambilBerdasarkanIdPelanggan: $e', e: e, s: s);
+      return [];
     }
   }
 

@@ -6174,7 +6174,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
   void _invalidateProviderTerkait(String? idDompet, String? idPelanggan) {
     ref.read(transaksiOpGlobalProvider).invalidate(idDompet);
-    ref.read(orderProvider.notifier).invalidateOrderProvider();
+    ref.read(orderProvider.notifier).refresh();
     if (ref.isAdmin) {
       ref.read(pelangganAktifProvider.notifier).invalidatePelangganAktif();
     }
@@ -12021,6 +12021,7 @@ Semoga harimu menyenangkan!
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
@@ -12086,8 +12087,8 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     );
   }
 
-  Future<void> _softDeleteAll(String id) async {
-    await ref.read(orderOpGlobalProvider).softDelete(id);
+  Future<void> _softDeleteAll() async {
+    await ref.read(orderOpGlobalProvider).softDeleteAll();
   }
 
   /// ✅ PERBAIKAN 2: Fungsi ubah status sekarang pakai await dengan benar
@@ -12247,7 +12248,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pesanan Saya'),
-        actions: [IconButton(onPressed: () {}, icon: Icon(TIcons.delete))],
+        actions: [
+          if(kDebugMode)
+          IconButton(onPressed: _softDeleteAll, icon: Icon(TIcons.delete))],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -12852,7 +12855,7 @@ final class OrderProvider extends $AsyncNotifierProvider<Order, OrderState> {
   Order create() => Order();
 }
 
-String _$orderHash() => r'38d1329e22adc3c60c2f94864373ddbcdb0130f0';
+String _$orderHash() => r'7c4baf321e79c67b986998f757bea663ad7191e9';
 
 abstract class _$Order extends $AsyncNotifier<OrderState> {
   FutureOr<OrderState> build();
@@ -12995,6 +12998,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
+import 'package:wifi/fitur/order/operasi/order_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/user/providers/user_provider.dart';
@@ -13019,10 +13023,10 @@ class Order extends _$Order {
 
   Future<OrderState> _loadData() async {
     try {
-      final daftarPesanan = await ref.watch(daftarPesananProvider.future);
+      final daftarOrder = await ref.watch(orderOpGlobalProvider).ambilSemua();
       return OrderState(
-        daftarOrder: daftarPesanan,
-        totalDaftar: daftarPesanan.length,
+        daftarOrder: daftarOrder,
+        totalDaftar: daftarOrder.length,
       );
     } on Exception catch (e, s) {
       Log.error('Error di _loadData: $e', e: e, s: s);
@@ -13030,11 +13034,13 @@ class Order extends _$Order {
     }
   }
 
-  Future<void> tambah() async {
+  Future<void> tambah(OrderModel order) async {
     try {
-      // Logika asinkron
+      await ref.read(orderOpGlobalProvider).tambah(order);
+      await refresh();
     } on Exception catch (e, s) {
       Log.error('Error ditambah: $e', e: e, s: s);
+      await refresh();
       rethrow;
     }
   }
@@ -13231,7 +13237,7 @@ class OrderOpSqlite {
     }
   }
 
-  Future<int> softDeleteAllOrder({final bool fromServer = false}) async {
+  Future<int> softDeleteAll({final bool fromServer = false}) async {
     Log.info('Memulai soft delete untuk semua pesanan');
     try {
       final count = await baseOpSqlite.softDeleteAll(
@@ -13312,12 +13318,15 @@ class OrderOpSqlite {
 // File: lib/fitur/order/operasi/order_op_global.dart
 // path lib/fitur/order/operasi/order_op_global.dart
 
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
 import 'package:wifi/fitur/order/operasi/order_op_sqlite.dart';
+import 'package:wifi/fitur/order/provider/order_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
@@ -13351,7 +13360,7 @@ class OrderOpGlobal {
         await _orderOpFirebase.perbarui(order);
       }
     } on Exception catch (e, s) {
-      Log.error('Error ditambah: $e', e: e, s: s);
+      Log.error('Error diperbarui: $e', e: e, s: s);
       // Error handling opsional
       rethrow;
     }
@@ -13365,8 +13374,35 @@ class OrderOpGlobal {
         await _orderOpFirebase.softDeleteOrder(id);
       }
     } on Exception catch (e, s) {
-      Log.error('Error ditambah: $e', e: e, s: s);
+      Log.error('Error di softDelete: $e', e: e, s: s);
       // Error handling opsional
+      rethrow;
+    }
+  }
+
+  Future<void> softDeleteAll() async {
+    try {
+      if (RoleUtil.isAdmin(ref)) {
+        await _orderOpSqlite.softDeleteAll();
+      } else {
+        await _orderOpFirebase.softDeleteAll();
+      }
+      unawaited(ref.read(orderProvider.notifier).refresh());
+    } on Exception catch (e, s) {
+      Log.error('Error di softDeleteAll: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<List<OrderModel>> ambilSemua() async {
+    try {
+      if (RoleUtil.isAdmin(ref)) {
+        return await _orderOpSqlite.ambilSemua();
+      } else {
+        return await _orderOpFirebase.ambilSemua();
+      }
+    } on Exception catch (e, s) {
+      Log.error('Error diambilSemua: $e', e: e, s: s);
       rethrow;
     }
   }
@@ -13398,8 +13434,8 @@ class OrderOpFirebase {
   OrderOpFirebase({
     required FirebaseFirestore firestore,
     required BaseOpFirebase baseOp,
-  }) : _firestore = firestore,
-       _baseOp = baseOp {
+  })  : _firestore = firestore,
+        _baseOp = baseOp {
     Log.info('OrderOpFirebase diinisialisasi.');
   }
 
@@ -13421,24 +13457,58 @@ class OrderOpFirebase {
     await _baseOp.softDelete(_namaKoleksi, orderId);
   }
 
+  Future<void> softDeleteAll() async {
+    Log.info('Melakukan soft delete untuk semua pesanan.');
+    try {
+      final snapshot = await _firestore
+          .collection(_namaKoleksi)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        Log.info('Tidak ada pesanan untuk dihapus.');
+        return;
+      }
+
+      final batch = _firestore.batch();
+      for (final doc in snapshot.docs) {
+        batch.update(doc.reference, {NamaKolom.dihapus: true});
+      }
+
+      await batch.commit();
+      Log.info('Berhasil soft delete ${snapshot.docs.length} pesanan.');
+    } on Exception catch (e, s) {
+      Log.error('Gagal melakukan soft delete semua pesanan.', e: e, s: s);
+      rethrow;
+    }
+  }
+
   /// 4. Mendapatkan stream semua pesanan
 
-  Stream<List<OrderModel>> getAllOrdersStream() {
-    Log.info('Mendapatkan stream semua pesanan');
-    return _firestore
-        .collection(_namaKoleksi)
-        .where(NamaKolom.dihapus, isEqualTo: false)
-        .orderBy(NamaKolom.diperbaruiPada, descending: true)
-        .snapshots()
-        .map(
-          (snapshot) => snapshot.docs
-              .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
-              .toList(),
-        )
-        .handleError((Object e, StackTrace st) {
-          Log.error('Error mendapatkan stream pesanan', e: e, s: st);
-          return <OrderModel>[];
-        });
+  Future<List<OrderModel>> ambilSemua() async {
+    Log.info('Mengambil data pertama dari stream pesanan');
+    try {
+      final stream = _firestore
+          .collection(_namaKoleksi)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.diperbaruiPada, descending: true)
+          .snapshots()
+          .map(
+            (snapshot) => snapshot.docs
+                .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
+                .toList(),
+          )
+          .handleError((Object e, StackTrace st) {
+            Log.error('Error mendapatkan stream pesanan', e: e, s: st);
+            return <OrderModel>[];
+          });
+
+      // Ambil data pertama dari stream
+      return await stream.first;
+    } on Exception catch (e, st) {
+      Log.error('Gagal mengambil data pertama dari stream', e: e, s: st);
+      return [];
+    }
   }
 
   /// 5. Mendapatkan satu pesanan berdasarkan ID

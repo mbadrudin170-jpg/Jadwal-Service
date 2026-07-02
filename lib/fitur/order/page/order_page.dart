@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
@@ -67,8 +68,8 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     );
   }
 
-  Future<void> _softDeleteAll(String id) async {
-    await ref.read(orderOpGlobalProvider).softDelete(id);
+  Future<void> _softDeleteAll() async {
+    await ref.read(orderOpGlobalProvider).softDeleteAll();
   }
 
   /// ✅ PERBAIKAN 2: Fungsi ubah status sekarang pakai await dengan benar
@@ -228,7 +229,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pesanan Saya'),
-        actions: [IconButton(onPressed: () {}, icon: Icon(TIcons.delete))],
+        actions: [
+          if(kDebugMode)
+          IconButton(onPressed: _softDeleteAll, icon: Icon(TIcons.delete))],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),

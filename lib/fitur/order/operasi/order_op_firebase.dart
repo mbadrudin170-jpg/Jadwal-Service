@@ -13,7 +13,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 class OrderOpFirebase {
   final BaseOpFirebase _baseOp;
   final FirebaseFirestore _firestore;
-  final String _namaKoleksi = NamaTabel.pesananPelanggan;
+  final String _koleksiOrder = NamaTabel.pesananPelanggan;
 
   OrderOpFirebase({
     required FirebaseFirestore firestore,
@@ -26,46 +26,78 @@ class OrderOpFirebase {
   /// 1. Menambahkan pesanan baru
   Future<void> tambahOrder(OrderModel order) async {
     Log.info('Menambahkan pesanan baru: ${order.id}');
-    await _baseOp.sisipkan(_namaKoleksi, order.id, order.toFirebase());
+    await _baseOp.sisipkan(_koleksiOrder, order.id, order.toFirebase());
   }
 
   /// 2. Memperbarui pesanan yang ada
   Future<void> perbarui(OrderModel order) async {
     Log.info('Memperbarui pesanan: ${order.id}');
-    await _baseOp.update(_namaKoleksi, order.id, order.toFirebase());
+    await _baseOp.update(_koleksiOrder, order.id, order.toFirebase());
   }
 
   /// 3. Menghapus pesanan (soft delete)
   Future<void> softDeleteOrder(String orderId) async {
     Log.info('Menghapus pesanan: $orderId');
-    await _baseOp.softDelete(_namaKoleksi, orderId);
+    await _baseOp.softDelete(_koleksiOrder, orderId);
+  }
+
+  Future<void> softDeleteAll() async {
+    Log.info('Melakukan soft delete untuk semua pesanan.');
+    try {
+      final snapshot = await _firestore
+          .collection(_koleksiOrder)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        Log.info('Tidak ada pesanan untuk dihapus.');
+        return;
+      }
+
+      final batch = _firestore.batch();
+      for (final doc in snapshot.docs) {
+        batch.update(doc.reference, {NamaKolom.dihapus: true});
+      }
+
+      await batch.commit();
+      Log.info('Berhasil soft delete ${snapshot.docs.length} pesanan.');
+    } on Exception catch (e, s) {
+      Log.error('Gagal melakukan soft delete semua pesanan.', e: e, s: s);
+      rethrow;
+    }
   }
 
   /// 4. Mendapatkan stream semua pesanan
 
-  Stream<List<OrderModel>> getAllOrdersStream() {
-    Log.info('Mendapatkan stream semua pesanan');
-    return _firestore
-        .collection(_namaKoleksi)
-        .where(NamaKolom.dihapus, isEqualTo: false)
-        .orderBy(NamaKolom.diperbaruiPada, descending: true)
-        .snapshots()
-        .map(
-          (snapshot) => snapshot.docs
-              .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
-              .toList(),
-        )
-        .handleError((Object e, StackTrace st) {
-          Log.error('Error mendapatkan stream pesanan', e: e, s: st);
-          return <OrderModel>[];
-        });
+  Future<List<OrderModel>> ambilSemua() async {
+    Log.info('Mengambil data pertama dari stream pesanan');
+    try {
+      final stream = _firestore
+          .collection(_koleksiOrder)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.diperbaruiPada, descending: true)
+          .snapshots()
+          .map(
+            (snapshot) => snapshot.docs
+                .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
+                .toList(),
+          )
+          .handleError((Object e, StackTrace st) {
+            Log.error('Error mendapatkan stream pesanan', e: e, s: st);
+            return <OrderModel>[];
+          });
+      return await stream.first;
+    } on Exception catch (e, st) {
+      Log.error('Gagal mengambil data pertama dari stream', e: e, s: st);
+      return [];
+    }
   }
 
   /// 5. Mendapatkan satu pesanan berdasarkan ID
   Future<OrderModel?> ambilBerdasarkanId(String id) async {
     Log.info('Mendapatkan pesanan by ID: $id');
     try {
-      final doc = await _firestore.collection(_namaKoleksi).doc(id).get();
+      final doc = await _firestore.collection(_koleksiOrder).doc(id).get();
       if (doc.exists) {
         return OrderModel.fromFirebase(doc.id, doc.data()!);
       }
@@ -85,7 +117,7 @@ class OrderOpFirebase {
   Stream<List<OrderModel>> ambilBerdasarkanIdPelanggan(String idPelanggan) {
     try {
       return _firestore
-          .collection(_namaKoleksi)
+          .collection(_koleksiOrder)
           .where(NamaKolom.dihapus, isEqualTo: false)
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           .snapshots()
@@ -110,7 +142,7 @@ class OrderOpFirebase {
     StatusOrderEnum status,
   ) {
     return _firestore
-        .collection(_namaKoleksi)
+        .collection(_koleksiOrder)
         .where(NamaKolom.status, isEqualTo: status.name)
         .where(NamaKolom.dihapus, isEqualTo: false)
         .orderBy(NamaKolom.diperbaruiPada, descending: true)
@@ -136,7 +168,7 @@ class OrderOpFirebase {
     Log.info('Mendapatkan pesanan sekali panggil by status: ${status.name}');
     try {
       final snapshot = await _firestore
-          .collection(_namaKoleksi)
+          .collection(_koleksiOrder)
           .where(NamaKolom.status, isEqualTo: status.name)
           .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.diperbaruiPada, descending: true)
@@ -162,7 +194,7 @@ class OrderOpFirebase {
     );
     try {
       Query query = _firestore
-          .collection(_namaKoleksi)
+          .collection(_koleksiOrder)
           .where(NamaKolom.status, isEqualTo: status.name)
           .where(NamaKolom.dihapus, isEqualTo: false);
 
