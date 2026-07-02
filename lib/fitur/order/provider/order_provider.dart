@@ -76,7 +76,7 @@ class Order extends _$Order {
     }
   }
 
-  void invalidateOrderProvider() {
+  void invalidate() {
     ref.invalidateSelf();
   }
 }

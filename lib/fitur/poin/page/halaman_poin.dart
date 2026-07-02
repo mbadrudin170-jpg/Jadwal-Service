@@ -148,7 +148,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           paket: hadiah,
           poinSaatIni: poinSaatIni,
         );
-        await _invalidateProviderTerkait(null, widget.idPelanggan);
+        _invalidateProviderTerkait(null, widget.idPelanggan);
         if (mounted) {
           ToastUtil.success(
             context,
@@ -219,12 +219,9 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     }
   }
 
-  Future<void> _invalidateProviderTerkait(
-    String? idDompet,
-    String? idPelanggan,
-  ) async {
+  void _invalidateProviderTerkait(String? idDompet, String? idPelanggan) {
     ref.read(transaksiOpGlobalProvider).invalidate(idDompet);
-    await ref.read(orderProvider.notifier).refresh();
+    ref.read(orderProvider.notifier).invalidate();
     if (ref.isAdmin) {
       ref.read(pelangganAktifProvider.notifier).invalidatePelangganAktif();
     }
