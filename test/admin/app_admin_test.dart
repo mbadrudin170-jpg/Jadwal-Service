@@ -109,7 +109,7 @@ void main() {
       mockSqliteDatabase.database,
     ).thenAnswer((_) async => throw UnimplementedError());
     when(
-      mockPelangganAktifOpSqlite.hapusPermanenDataSoftDelete(),
+      mockPelangganAktifOpSqlite.arsipkanLanggananKadaluarsa(),
     ).thenAnswer((_) async => 1);
     when(
       mockKoneksiInternetService.cekInternet(),
@@ -290,7 +290,7 @@ void main() {
     testWidgets('04. inisialisasi gagal dengan exception', (tester) async {
       final exception = Exception('Error Kritis');
       when(
-        mockPelangganAktifOpSqlite.hapusPermanenDataSoftDelete(),
+        mockPelangganAktifOpSqlite.arsipkanLanggananKadaluarsa(),
       ).thenThrow(exception);
 
       final container = makeProviderContainer(

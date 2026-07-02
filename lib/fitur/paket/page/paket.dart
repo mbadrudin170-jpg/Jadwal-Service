@@ -55,9 +55,9 @@ class PackagePage extends ConsumerWidget {
       body: paketAsync.when(
         skipLoadingOnReload: true,
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) {
-          Log.error('Terjadi error saat memuat data paket', e: err, s: stack);
-          return Center(child: Text('Error: $err'));
+        error: (e, s) {
+          Log.error('Terjadi error saat memuat data paket', e: e, s: s);
+          return Center(child: Text('Error: $e'));
         },
         data: (paketList) {
           if (paketList.daftarPaket.isEmpty) {
@@ -70,11 +70,13 @@ class PackagePage extends ConsumerWidget {
             itemBuilder: (context, index) {
               final paket = sortedList[index];
               return InkWell(
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (context) => DetailPaketPage(paket: paket),
+                onTap: () {
+                  unawaited(
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (context) => DetailPaketPage(paket: paket),
+                      ),
                     ),
                   );
                 },
@@ -102,10 +104,12 @@ class PackagePage extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute<void>(builder: (context) => const FormPaket()),
+        onPressed: () {
+          unawaited(
+            Navigator.push(
+              context,
+              MaterialPageRoute<void>(builder: (context) => const FormPaket()),
+            ),
           );
         },
         tooltip: 'Tambah Paket',
@@ -220,12 +224,14 @@ Future<void> _tampilkanDialogHapusEdit(
             onPressed: () async {
               Navigator.pop(dialogContext);
               if (!context.mounted) return;
-               unawaited(Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (context) => FormPaket(paket: paket),
+              unawaited(
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (context) => FormPaket(paket: paket),
+                  ),
                 ),
-              ));
+              );
             },
             child: const Text('Edit'),
           ),
