@@ -180,7 +180,7 @@ class SettingsAdminPage extends ConsumerWidget {
                   onPressed: () {
                     Navigator.push<void>(
                       context,
-                      MaterialPageRoute(builder: ((context) => FormSettings())),
+                      MaterialPageRoute(builder: ((context) => const FormSettings())),
                     );
                   },
                   style: ElevatedButton.styleFrom(

@@ -82,7 +82,7 @@ class DetailDompet extends ConsumerWidget {
                     dompet: detailDompet.dompet ?? dompet,
                   );
                 },
-                icon: Icon(TIcons.edit),
+                icon: const Icon(TIcons.edit),
               ),
             ],
           ),

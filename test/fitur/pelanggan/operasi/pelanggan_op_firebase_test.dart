@@ -37,7 +37,7 @@ void main() {
     );
   });
 
-  final pelangganModel = PelangganModel(
+  final pelangganModel = const PelangganModel(
     id: '1',
     nama: 'Pelanggan Uji',
     telepon: '08123',

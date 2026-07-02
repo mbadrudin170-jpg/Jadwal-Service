@@ -349,7 +349,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
 
     if (spots.isEmpty) {
       return LineChartData(
-        gridData: FlGridData(show: false),
+        gridData: const FlGridData(show: false),
         titlesData: FlTitlesData(
           rightTitles: const AxisTitles(),
           topTitles: const AxisTitles(),

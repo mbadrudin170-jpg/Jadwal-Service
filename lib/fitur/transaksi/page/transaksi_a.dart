@@ -67,7 +67,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
     return AppBar(
       title: const Text('Transaksi'),
       actions: [
-        IconButton(onPressed: () {}, icon: Icon(TIcons.search)),
+        IconButton(onPressed: () {}, icon: const Icon(TIcons.search)),
         IconButton(
           onPressed: () => _tampilkanDialogUrutan(context, ref, currentSortBy),
           icon: const Icon(TIcons.filter),

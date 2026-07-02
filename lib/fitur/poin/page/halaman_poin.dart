@@ -132,7 +132,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           showDialog<void>(
             context: context,
             barrierDismissible: false,
-            builder: (context) => SizedBox(
+            builder: (context) => const SizedBox(
               width: 25,
               height: 25,
               child: Center(child: CircularProgressIndicator()),

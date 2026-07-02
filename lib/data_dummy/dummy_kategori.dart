@@ -23,17 +23,17 @@ class DummyKategori {
 
   static List<KategoriModel> get daftarKategori => [
     // Kategori Pemasukan
-    KategoriModel(
+    const KategoriModel(
       id: idKategoriPemasukan,
       nama: 'Pemasukan',
       tipe: TipeKategori.income,
       idSubKategori: [
-        const SubKategoriModel(
+        SubKategoriModel(
           id: idSubKategoriGaji,
           nama: 'Gaji',
           idKategori: idKategoriPemasukan,
         ),
-        const SubKategoriModel(
+        SubKategoriModel(
           id: idSubKategoriBonus,
           nama: 'Bonus',
           idKategori: idKategoriPemasukan,
@@ -41,32 +41,32 @@ class DummyKategori {
       ],
     ),
     // Kategori Pengeluaran
-    KategoriModel(
+    const KategoriModel(
       id: idKategoriPengeluaran,
       nama: 'Pengeluaran',
       tipe: TipeKategori.expense,
       idSubKategori: [
-        const SubKategoriModel(
+        SubKategoriModel(
           id: idSubKategoriMakanan,
           nama: 'Makanan',
           idKategori: idKategoriPengeluaran,
         ),
-        const SubKategoriModel(
+        SubKategoriModel(
           id: idSubKategoriTransport,
           nama: 'Transportasi',
           idKategori: idKategoriPengeluaran,
         ),
-        const SubKategoriModel(
+        SubKategoriModel(
           id: idSubKategoriInternet,
           nama: 'Internet',
           idKategori: idKategoriPengeluaran,
         ),
-        const SubKategoriModel(
+        SubKategoriModel(
           id: idSubKategoriListrik,
           nama: 'Listrik',
           idKategori: idKategoriPengeluaran,
         ),
-        const SubKategoriModel(
+        SubKategoriModel(
           id: idSubKategoriAir,
           nama: 'Air',
           idKategori: idKategoriPengeluaran,
@@ -74,13 +74,13 @@ class DummyKategori {
       ],
     ),
     // Kategori Transfer
-    KategoriModel(
+    const KategoriModel(
       id: idKategoriTransfer,
       nama: 'Transfer',
       tipe: TipeKategori.transfer,
     ),
     // Kategori Lainnya
-    KategoriModel(
+    const KategoriModel(
       id: idKategoriLainnya,
       nama: 'Lainnya',
       tipe: TipeKategori.expense,

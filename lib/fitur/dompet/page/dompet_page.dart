@@ -31,7 +31,7 @@ class DompetPage extends ConsumerWidget {
             onPressed: () {
               ToastUtil.info(context, 'Fitur dalam pengembangan');
             },
-            icon: Icon(TIcons.sort),
+            icon: const Icon(TIcons.sort),
           ),
           IconButton(
             icon: const Icon(TIcons.delete),

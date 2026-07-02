@@ -184,7 +184,7 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
         actions: [
           IconButton(
             onPressed: _softDeleteTransaksi,
-            icon: Icon(TIcons.delete),
+            icon: const Icon(TIcons.delete),
           ),
           IconButton(
             icon: const Icon(TIcons.edit),
