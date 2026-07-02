@@ -78,30 +78,3 @@ class Order extends _$Order {
     ref.invalidateSelf();
   }
 }
-
-// @riverpod
-// Future<List<OrderModel>> daftarPesanan(Ref ref) async {
-//   if (RoleUtil.isAdmin(ref)) {
-//     final orderOpSqlite = ref.read(orderOpSqliteProvider);
-//     return await orderOpSqlite.ambilSemua();
-//   } else {
-//     final userId = await ref.watch(userIdProvider.future);
-//     final orderOpFirebase = ref.read(orderOpFirebaseProvider);
-//     if (userId != null) {
-//       return await orderOpFirebase.ambilBerdasarkanIdPelanggan(userId).first;
-//     }
-//   }
-//   return [];
-// }
-
-// @riverpod
-// Future<List<OrderModel>> daftar(Ref ref, String id) async {
-//   try {
-//     final order = await ref.watch(orderProvider.future);
-//     final daftarO = order.daftarOrder;
-//     return daftarO.where((o) => o.idPelanggan == id).toList();
-//   } on Exception catch (e, s) {
-//     Log.error('Error didaftar: $e', e: e, s: s);
-//     rethrow;
-//   }
-// }
