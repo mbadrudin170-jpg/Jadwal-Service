@@ -32,7 +32,7 @@ class LainnyaPage extends StatefulWidget {
 class _LainnyaPageState extends State<LainnyaPage> {
   /// Menampilkan dialog konfirmasi sebelum keluar dari aplikasi.
   Future<void> _showLogoutConfirmationDialog() async {
-    info('Menampilkan dialog konfirmasi keluar.');
+    Log.info('Menampilkan dialog konfirmasi keluar.');
     final bool? shouldLogout = await showDialog<bool>(
       context: context,
       builder: (final BuildContext context) {
@@ -43,14 +43,14 @@ class _LainnyaPageState extends State<LainnyaPage> {
             TextButton(
               child: const Text('Batal'),
               onPressed: () {
-                info('Pengguna membatalkan aksi keluar.');
+                Log.info('Pengguna membatalkan aksi keluar.');
                 Navigator.of(context).pop(false);
               },
             ),
             TextButton(
               child: const Text('Keluar'),
               onPressed: () {
-                info('Pengguna mengkonfirmasi aksi keluar.');
+                Log.info('Pengguna mengkonfirmasi aksi keluar.');
                 Navigator.of(context).pop(true);
               },
             ),
@@ -60,21 +60,21 @@ class _LainnyaPageState extends State<LainnyaPage> {
     );
 
     if (shouldLogout ?? false) {
-      info('Keluar dari aplikasi.');
+      Log.info('Keluar dari aplikasi.');
       await SystemNavigator.pop();
     }
   }
 
   Future<void> _navigateTo(final Widget page, final String pageName) async {
-    info('Tombol $pageName ditekan');
+    Log.info('Tombol $pageName ditekan');
     try {
       await Navigator.push<void>(
         context,
         MaterialPageRoute<void>(builder: (final context) => page),
       );
-      info('Kembali dari halaman $pageName.');
+      Log.info('Kembali dari halaman $pageName.');
     } on Exception catch (e, st) {
-      error('Gagal navigasi ke halaman $pageName.', e: e, s: st);
+      Log.error('Gagal navigasi ke halaman $pageName.', e: e, s: st);
       if (mounted) {
         ToastUtil.error(context, 'Gagal membuka halaman $pageName.');
       }
@@ -83,7 +83,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
 
   @override
   Widget build(final BuildContext context) {
-    info('Membangun halaman Lainnya untuk admin.');
+    Log.info('Membangun halaman Lainnya untuk admin.');
     return Scaffold(
       appBar: AppBar(title: const Text('Menu Lainnya')),
       body: ListView(

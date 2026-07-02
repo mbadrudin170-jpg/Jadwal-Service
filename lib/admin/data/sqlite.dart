@@ -24,7 +24,7 @@ class SqliteDatabase {
   static Database? _database;
   static const int _databaseVersion = 54;
   SqliteDatabase._internal() {
-    info('DatabaseHelper instance dibuat (singleton _internal).');
+    Log.info('DatabaseHelper instance dibuat (singleton _internal).');
   }
   void debugSetDatabaseNull() {
     if (Platform.environment.containsKey('FLUTTER_TEST')) {
@@ -33,27 +33,27 @@ class SqliteDatabase {
   }
 
   Future<Database> get database async {
-    info('Memulai proses akses properti database getter.');
+    Log.info('Memulai proses akses properti database getter.');
     if (_database != null) {
-      info('Instance database sudah ada di memori, mengembalikan...');
+      Log.info('Instance database sudah ada di memori, mengembalikan...');
       return _database!;
     }
-    info('Instance database belum ada, memanggil _initDB().');
+    Log.info('Instance database belum ada, memanggil _initDB().');
     try {
       _database = await _initDB();
-      info('Database berhasil diinisialisasi dan di-cache.');
+      Log.info('Database berhasil diinisialisasi dan di-cache.');
       return _database!;
     } on Exception catch (e, st) {
-      gagal('Gagal total mendapatkan instance database.', e: e, s: st);
+      Log.error('Gagal total mendapatkan instance database.', e: e, s: st);
       rethrow;
     }
   }
 
   Future<Database> _initDB() async {
-    info('Memulai inisialisasi database (_initDB).');
+    Log.info('Memulai inisialisasi database (_initDB).');
     try {
       if (Platform.environment.containsKey('FLUTTER_TEST')) {
-        info('Mode TEST terdeteksi. Menggunakan database in-memory.');
+        Log.info('Mode TEST terdeteksi. Menggunakan database in-memory.');
         return databaseFactory.openDatabase(
           inMemoryDatabasePath,
           options: OpenDatabaseOptions(
@@ -64,13 +64,13 @@ class SqliteDatabase {
         );
       }
 
-      info('Mode PRODUKSI/DEBUG. Menggunakan database fisik.');
+      Log.info('Mode PRODUKSI/DEBUG. Menggunakan database fisik.');
       final Directory documentsDirectory =
           await getApplicationDocumentsDirectory();
       final String path = join(documentsDirectory.path, 'mydatabase.db');
-      info('Path database: $path');
+      Log.info('Path database: $path');
 
-      info('Membuka database dengan versi $_databaseVersion...');
+      Log.info('Membuka database dengan versi $_databaseVersion...');
       return openDatabase(
         path,
         version: _databaseVersion,
@@ -78,7 +78,7 @@ class SqliteDatabase {
         onUpgrade: _onUpgrade,
       );
     } on Exception catch (e, st) {
-      error('Gagal membuka atau membuat database.', e: e, s: st);
+      Log.error('Gagal membuka atau membuat database.', e: e, s: st);
       rethrow;
     }
   }
@@ -88,83 +88,87 @@ class SqliteDatabase {
     final int oldVersion,
     final int newVersion,
   ) async {
-    info('========================================');
-    info('MEMULAI PROSES UPGRADE DATABASE (IDEMPOTEN)');
-    info('Versi database lama: $oldVersion');
-    info('Versi database baru: $newVersion');
-    info('========================================');
+    Log.info('========================================');
+    Log.info('MEMULAI PROSES UPGRADE DATABASE (IDEMPOTEN)');
+    Log.info('Versi database lama: $oldVersion');
+    Log.info('Versi database baru: $newVersion');
+    Log.info('========================================');
 
     if (oldVersion < 45) {
-      info('[MIGRASI v45] Menjalankan migrasi untuk versi < 45.');
+      Log.info('[MIGRASI v45] Menjalankan migrasi untuk versi < 45.');
       await _migrateToV45(db);
     }
 
     if (oldVersion < 47) {
-      info('[MIGRASI v47] Memulai migrasi skema destruktif.');
+      Log.info('[MIGRASI v47] Memulai migrasi skema destruktif.');
       await _migrateToV47(db);
     }
 
     if (oldVersion < 48) {
-      info(
+      Log.info(
         '[MIGRASI v48] Menambahkan kolom `diperbarui` ke `status_aplikasi`.',
       );
       await _migrateToV48(db);
     }
 
     if (oldVersion < 49) {
-      info('[MIGRASI v49] Rename semua kolom ke snake_case Inggris.');
+      Log.info('[MIGRASI v49] Rename semua kolom ke snake_case Inggris.');
       await _migrateToV49(db);
     }
 
     if (oldVersion < 50) {
-      info('[MIGRASI v50] Rename semua nama tabel ke snake_case Inggris.');
+      Log.info('[MIGRASI v50] Rename semua nama tabel ke snake_case Inggris.');
       await _migrateToV50(db);
     }
 
     if (oldVersion < 51) {
-      info(
+      Log.info(
         '[MIGRASI v51] Menambahkan kolom `${NamaKolom.terkahirAktif}` ke tabel `${NamaTabel.pelanggan}`.',
       );
       await _migrateToV51(db);
     }
 
     if (oldVersion < 52) {
-      info('[MIGRASI v52] Membuat tabel `${NamaTabel.notifikasi}`.');
+      Log.info('[MIGRASI v52] Membuat tabel `${NamaTabel.notifikasi}`.');
       await _migrateToV52(db);
     }
 
     if (oldVersion < 53) {
-      info('[MIGRASI v53] Menambahkan kolom durasi bonus ke tabel transaksi.');
+      Log.info(
+        '[MIGRASI v53] Menambahkan kolom durasi bonus ke tabel transaksi.',
+      );
       await _migrateToV53(db);
     }
     if (oldVersion < 54) {
-      info('[MIGRASI v54] Menyesuaikan tabel notifikasi dengan model.');
+      Log.info('[MIGRASI v54] Menyesuaikan tabel notifikasi dengan model.');
       await _migrateToV54(db);
     }
-    info('========================================');
-    info('PROSES UPGRADE DATABASE SELESAI');
-    info(
+    Log.info('========================================');
+    Log.info('PROSES UPGRADE DATABASE SELESAI');
+    Log.info(
       'Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.',
     );
-    info('========================================');
+    Log.info('========================================');
   }
 
   Future<void> _migrateToV51(final Database db) async {
-    info('[MIGRASI v51] Menambahkan kolom ${NamaKolom.terkahirAktif}...');
+    Log.info('[MIGRASI v51] Menambahkan kolom ${NamaKolom.terkahirAktif}...');
     await db.execute(
       'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN ${NamaKolom.terkahirAktif} INTEGER',
     );
-    info('[MIGRASI v51] Penambahan kolom ${NamaKolom.terkahirAktif} selesai.');
+    Log.info(
+      '[MIGRASI v51] Penambahan kolom ${NamaKolom.terkahirAktif} selesai.',
+    );
   }
 
   Future<void> _migrateToV52(final Database db) async {
-    info('[MIGRASI v52] Membuat tabel notification...');
+    Log.info('[MIGRASI v52] Membuat tabel notification...');
     await db.execute(_tabelNotification);
-    info('[MIGRASI v52] Tabel notification berhasil dibuat.');
+    Log.info('[MIGRASI v52] Tabel notification berhasil dibuat.');
   }
 
   Future<void> _migrateToV53(final Database db) async {
-    info(
+    Log.info(
       '[MIGRASI v53] Menambahkan kolom durasi_bonus dan durasi_bonus_type...',
     );
 
@@ -186,7 +190,7 @@ class SqliteDatabase {
         'ALTER TABLE "$tableName" ADD COLUMN ${NamaKolom.tipeDurasiBonus} TEXT',
       );
     }
-    info('[MIGRASI v53] Penambahan kolom selesai.');
+    Log.info('[MIGRASI v53] Penambahan kolom selesai.');
   }
 
   Future<void> _migrateToV54(final Database db) async {
@@ -214,7 +218,7 @@ class SqliteDatabase {
         await db.execute(
           'ALTER TABLE "$tableName" ADD COLUMN ${entry.key} ${entry.value}',
         );
-        info('[MIGRASI v54] Kolom ${entry.key} ditambahkan ke $tableName.');
+        Log.info('[MIGRASI v54] Kolom ${entry.key} ditambahkan ke $tableName.');
       }
     }
 
@@ -223,31 +227,31 @@ class SqliteDatabase {
       // SQLite tidak mendukung DROP COLUMN langsung, jadi kita perlu membuat ulang tabel.
       // Namun, karena tabel notifikasi masih baru dan kemungkinan tidak ada data penting,
       // lebih aman untuk menghapus dan membuat ulang tabel.
-      warning(
+      Log.warning(
         '[MIGRASI v54] Menghapus dan membuat ulang tabel notifikasi untuk membersihkan kolom usang.',
       );
       await db.execute('DROP TABLE IF EXISTS "$tableName"');
       await db.execute(_tabelNotification);
-      info(
+      Log.info(
         '[MIGRASI v54] Tabel notifikasi dibuat ulang dengan struktur terbaru.',
       );
     } else {
       // Jika tidak ada kolom usang, kita hanya menambahkan yang hilang.
-      info(
+      Log.info(
         '[MIGRASI v54] Tabel notifikasi sudah sesuai, hanya menambahkan kolom yang hilang.',
       );
     }
   }
 
   Future<void> _migrateToV45(final Database db) async {
-    info('[MIGRASI v45] Menangani tabel "pengaturan".');
+    Log.info('[MIGRASI v45] Menangani tabel "pengaturan".');
     await db.execute('DROP TABLE IF EXISTS pengaturan');
     await db.execute(_tabelPengaturanV45);
-    info('[MIGRASI v45] Tabel `pengaturan` berhasil dibuat ulang.');
+    Log.info('[MIGRASI v45] Tabel `pengaturan` berhasil dibuat ulang.');
   }
 
   Future<void> _migrateToV47(final Database db) async {
-    info('[MIGRASI v47] Migrasi skema destruktif.');
+    Log.info('[MIGRASI v47] Migrasi skema destruktif.');
     final batch = db.batch();
     final List<String> daftarTabel = [
       'kategori',
@@ -271,7 +275,7 @@ class SqliteDatabase {
     }
     _createAllTablesV47(batch);
     await batch.commit(noResult: true);
-    info('[MIGRASI v47] Selesai.');
+    Log.info('[MIGRASI v47] Selesai.');
   }
 
   Future<void> _migrateToV48(final Database db) async {
@@ -281,7 +285,7 @@ class SqliteDatabase {
   }
 
   Future<void> _migrateToV49(final Database db) async {
-    info('[MIGRASI v49] Rename kolom ke snake_case...');
+    Log.info('[MIGRASI v49] Rename kolom ke snake_case...');
 
     await db.execute('ALTER TABLE dompet RENAME COLUMN namaDompet TO name');
     await db.execute('ALTER TABLE dompet RENAME COLUMN saldo TO balance');
@@ -497,12 +501,12 @@ class SqliteDatabase {
     await db.execute('ALTER TABLE pesan RENAME COLUMN isi TO content');
     await db.execute('ALTER TABLE pesan RENAME COLUMN tanggal TO date');
 
-    info('[MIGRASI v49] Semua rename kolom selesai.');
+    Log.info('[MIGRASI v49] Semua rename kolom selesai.');
   }
 
   Future<void> _migrateToV50(final Database db) async {
-    info('[MIGRASI v50] Rename tabel ke snake_case...');
-    warning('[MIGRASI v50] Data tetap AMAN. Hanya nama tabel diubah.');
+    Log.info('[MIGRASI v50] Rename tabel ke snake_case...');
+    Log.warning('[MIGRASI v50] Data tetap AMAN. Hanya nama tabel diubah.');
 
     await db.execute('ALTER TABLE dompet RENAME TO ${NamaTabel.dompet}');
     await db.execute('ALTER TABLE kategori RENAME TO ${NamaTabel.kategori}');
@@ -536,21 +540,23 @@ class SqliteDatabase {
     );
     await db.execute('ALTER TABLE pesan RENAME TO ${NamaTabel.pesan}');
 
-    info('[MIGRASI v50] Semua rename tabel selesai.');
+    Log.info('[MIGRASI v50] Semua rename tabel selesai.');
   }
 
   /// Membuat tabel-tabel database (untuk database baru).
   Future<void> membuatTabel(Database db, int version) async {
-    info('========================================');
-    info('MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version');
-    info('========================================');
+    Log.info('========================================');
+    Log.info(
+      'MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version',
+    );
+    Log.info('========================================');
     final batch = db.batch();
     _membuatSemuaTabel(batch);
     try {
       await batch.commit(noResult: true);
-      info('PROSES PEMBUATAN TABEL & INDEX SELESAI');
+      Log.info('PROSES PEMBUATAN TABEL & INDEX SELESAI');
     } on Exception catch (e, st) {
-      error('Gagal total saat membuat tabel atau index.', e: e, s: st);
+      Log.error('Gagal total saat membuat tabel atau index.', e: e, s: st);
       rethrow;
     }
   }
@@ -572,7 +578,7 @@ class SqliteDatabase {
     batch.execute(
       _tabelNotification,
     ); // 2. Tambahkan pembuatan tabel notifikasi
-    info('Semua 14 definisi tabel (v52) ditambahkan ke batch.');
+    Log.info('Semua 14 definisi tabel (v52) ditambahkan ke batch.');
 
     // diperbaiki: Index ditargetkan menggunakan escaping keyword "transaction" otomatis dari TableNameValue
     const String trxTable = '"${NamaTabel.transaksi}"';
@@ -585,7 +591,7 @@ class SqliteDatabase {
     batch.execute(
       'CREATE INDEX IF NOT EXISTS idx_transaction_is_deleted ON $trxTable(${NamaKolom.dihapus})',
     );
-    info('Semua 3 definisi index (v51) ditambahkan ke batch.');
+    Log.info('Semua 3 definisi index (v51) ditambahkan ke batch.');
   }
 
   void _createAllTablesV47(Batch batch) {

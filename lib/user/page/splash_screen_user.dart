@@ -69,7 +69,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
 
   Future<void> _inisialisasiAplikasi() async {
     try {
-      info('Memulai inisialisasi dari Splash Screen...');
+      Log.info('Memulai inisialisasi dari Splash Screen...');
       await _inisialisasiLayananOffline();
 
       _terhubung = await ref.read(koneksiInternetServiceProvider).cekInternet();
@@ -96,7 +96,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
 
       // 2. Tampilkan Event Terlebih Dahulu (Jika Ada)
       if (eventInfo != null) {
-        info('Menuju ke halaman event (Pelapis Splash Screen)');
+        Log.info('Menuju ke halaman event (Pelapis Splash Screen)');
         // Menunggu sampai masa countdown event selesai atau di-skip oleh user
         await Navigator.of(context).push<void>(
           MaterialPageRoute(builder: (context) => EventPageU(event: eventInfo)),
@@ -138,7 +138,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       // 4. Masuk ke aplikasi utama jika semua aman
       await _navigasiKeHalamanBerikutnya();
     } catch (e, st) {
-      gagal('Error kritis saat inisialisasi', e: e, s: st);
+      Log.error('Error kritis saat inisialisasi', e: e, s: st);
       FlutterNativeSplash.remove(); // Atasi penahanan layar jika terjadi kendala/error
       if (mounted) {
         ToastUtil.error(context, 'Gagal terhubung ke server.');
@@ -188,7 +188,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       }
       return null;
     } catch (e, st) {
-      gagal('Gagal memeriksa mode pemeliharaan', e: e, s: st);
+      Log.error('Gagal memeriksa mode pemeliharaan', e: e, s: st);
       return null;
     }
   }

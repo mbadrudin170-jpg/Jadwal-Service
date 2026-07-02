@@ -252,7 +252,7 @@ class WalletCard extends StatelessWidget {
         leading: const Icon(
           TIcons.wallet,
           size: 40,
-          color: primaryColor,
+          color: TColors.primaryColor,
         ),
         title: TeksJudulSedang(dompet.nama),
         subtitle: TeksIsiSedang(

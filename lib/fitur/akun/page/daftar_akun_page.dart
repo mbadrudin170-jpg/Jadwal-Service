@@ -75,7 +75,7 @@ class DaftarAkunPage extends ConsumerWidget {
               child: ElevatedButton(
                 onPressed: () => _tampilkanDialogKeluar(context, ref),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: errorColor.withAlpha(200),
+                  backgroundColor: TColors.errorColor.withAlpha(200),
                   foregroundColor: Colors.white,
                   elevation: 2,
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -117,7 +117,7 @@ class DaftarAkunPage extends ConsumerWidget {
       final activityService = await ref.read(
         layananAktivitasUserProvider.future,
       );
-      info('Mulai memilih akun', {
+      Log.info('Mulai memilih akun', {
         'customer_id': pelanggan.id,
         'nama': pelanggan.nama,
       });
@@ -128,7 +128,7 @@ class DaftarAkunPage extends ConsumerWidget {
         (route) => false,
       );
     } on Exception catch (e, st) {
-      gagal(
+      Log.error(
         'Gagal menyimpan akun yang dipilih',
         e: e,
         s: st,
@@ -165,7 +165,7 @@ class DaftarAkunPage extends ConsumerWidget {
                 if (akunLogin == customer.id) {
                   await _tanganiHapusAkunAktif(context, ref, customer);
                 } else {
-                  info('Menghapus akun tersimpan', {
+                  Log.info('Menghapus akun tersimpan', {
                     'customer_id': customer.id,
                     'nama': customer.nama,
                   });
@@ -176,7 +176,7 @@ class DaftarAkunPage extends ConsumerWidget {
                   ToastUtil.success(context, 'Akun berhasil dihapus');
                 }
               } catch (e, st) {
-                gagal(
+                Log.error(
                   'Gagal menghapus akun',
                   e: e,
                   s: st,
@@ -202,7 +202,7 @@ class DaftarAkunPage extends ConsumerWidget {
     WidgetRef ref,
     PelangganModel pelanggan,
   ) async {
-    info('akun yang di hapus ternyata akun yang sedang login', {
+    Log.info('akun yang di hapus ternyata akun yang sedang login', {
       'customer_id': pelanggan.id,
       'nama': pelanggan.nama,
     });
@@ -233,7 +233,7 @@ class DaftarAkunPage extends ConsumerWidget {
                 final penyimpananLokal = await ref.read(
                   layananPenyimpananLokalProvider.future,
                 );
-                info('Keluar & hapus akun yang sedang digunakan');
+                Log.info('Keluar & hapus akun yang sedang digunakan');
                 final akun = await penyimpananLokal.ambilAkunLogin();
                 if (akun != null) {
                   await ref
@@ -256,7 +256,7 @@ class DaftarAkunPage extends ConsumerWidget {
                   (route) => false,
                 );
               } on Exception catch (e, st) {
-                gagal('Gagal keluar & hapus akun', e: e, s: st);
+                Log.error('Gagal keluar & hapus akun', e: e, s: st);
                 if (context.mounted) {
                   ToastUtil.error(
                     context,
@@ -267,15 +267,15 @@ class DaftarAkunPage extends ConsumerWidget {
               }
             },
             style: TextButton.styleFrom(
-              backgroundColor: errorColor,
-              foregroundColor: textOnDark,
+              backgroundColor: TColors.errorColor,
+              foregroundColor: TColors.textOnDark,
             ),
             child: const Text('Keluar & Hapus Akun'),
           ),
           TextButton(
             style: TextButton.styleFrom(
-              backgroundColor: errorColor,
-              foregroundColor: textOnDark,
+              backgroundColor: TColors.errorColor,
+              foregroundColor: TColors.textOnDark,
             ),
             onPressed: () async {
               final navigator = Navigator.of(context);
@@ -298,7 +298,7 @@ class DaftarAkunPage extends ConsumerWidget {
                   (route) => false,
                 );
               } catch (e, st) {
-                gagal('Gagal menghapus token login', e: e, s: st);
+                Log.error('Gagal menghapus token login', e: e, s: st);
                 if (context.mounted) {
                   ToastUtil.error(
                     context,

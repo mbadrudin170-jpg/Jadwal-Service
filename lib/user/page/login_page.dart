@@ -121,10 +121,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         );
         unawaited(layananAktivitasUser.pingAktivitas(pelanggan.id, paksa: true));
       } catch (e, s) {
-        gagal('Gagal ping activity', e: e, s: s);
+        Log.error('Gagal ping activity', e: e, s: s);
       }
     } catch (e, s) {
-      gagal('Login error', e: e, s: s);
+      Log.error('Login error', e: e, s: s);
       if (mounted) {
         await _showErrorAlert('Terjadi kesalahan. Silakan coba lagi.');
       }
@@ -199,13 +199,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ElevatedButton(
                 onPressed: _sedangLogin ? null : _prosesLogin,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
+                  backgroundColor: TColors.primaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  disabledBackgroundColor: primaryColor.withValues(
+                  disabledBackgroundColor: TColors.primaryColor.withValues(
                     alpha: 0.5,
                   ),
                 ),

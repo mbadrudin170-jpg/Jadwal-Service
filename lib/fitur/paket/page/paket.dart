@@ -175,7 +175,7 @@ Future<void> _tampilkanDialogUrutkan(
               horizontal: TSizes.p4,
             ),
             decoration: BoxDecoration(
-              color: urutanTerpilih ? pointBackground : null,
+              color: urutanTerpilih ? TColors.pointBackground : null,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(text, textAlign: TextAlign.center),

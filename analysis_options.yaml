@@ -44,7 +44,6 @@ linter:
     lines_longer_than_80_chars: false
     avoid_init_to_null: true
     prefer_contains: true
-    avoid_classes_with_only_static_members: true
 
 
 

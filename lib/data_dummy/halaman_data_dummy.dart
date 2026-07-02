@@ -242,7 +242,7 @@ class HalamanDataDummy extends ConsumerWidget {
     }
 
     try {
-      info('Memulai proses penambahan data $modelName dummy');
+      Log.info('Memulai proses penambahan data $modelName dummy');
       await batchFunction(dataList, dariServer: false);
 
       if (context.mounted) {
@@ -252,7 +252,7 @@ class HalamanDataDummy extends ConsumerWidget {
         );
       }
     } catch (e, s) {
-      error('Gagal menambahkan data $modelName dummy', e: e, s: s);
+      Log.error('Gagal menambahkan data $modelName dummy', e: e, s: s);
       if (context.mounted) {
         ToastUtil.error(
           context,
@@ -265,7 +265,7 @@ class HalamanDataDummy extends ConsumerWidget {
   /// Menambahkan data pengaturan dummy.
   Future<void> _tambahPengaturan(BuildContext context, WidgetRef ref) async {
     try {
-      info('Memulai proses penambahan data Pengaturan dummy');
+      Log.info('Memulai proses penambahan data Pengaturan dummy');
       final settingsOperation = ref.read(settingsOpSqliteProvider);
       // Settings default
       await settingsOperation.simpanAtauPerbaruiSettings(const SettingsModel());
@@ -277,7 +277,7 @@ class HalamanDataDummy extends ConsumerWidget {
         );
       }
     } catch (e, s) {
-      error('Gagal menambahkan data Pengaturan dummy', e: e, s: s);
+      Log.error('Gagal menambahkan data Pengaturan dummy', e: e, s: s);
       if (context.mounted) {
         ToastUtil.error(
           context,
@@ -290,31 +290,31 @@ class HalamanDataDummy extends ConsumerWidget {
   /// Menambahkan semua data dummy sekaligus.
   Future<void> _tambahSemuaData(BuildContext context, WidgetRef ref) async {
     try {
-      info('Memulai proses penambahan SEMUA data dummy');
+      Log.info('Memulai proses penambahan SEMUA data dummy');
 
       // 1. Tambahkan Pelanggan
       await ref
           .read(pelangganOpSqliteProvider)
           .sisipkanAtauPerbaruiBatch(daftarPelanggan);
-      info('✅ Pelanggan: ${daftarPelanggan.length} data');
+      Log.info('✅ Pelanggan: ${daftarPelanggan.length} data');
 
       // 2. Tambahkan Dompet
       await ref
           .read(dompetOpSqliteProvider)
           .sisipkanAtauPerbaruiBatch(DummyDompet.daftarDompet);
-      info('✅ Dompet: ${DummyDompet.daftarDompet.length} data');
+      Log.info('✅ Dompet: ${DummyDompet.daftarDompet.length} data');
 
       // 3. Tambahkan Kategori
       await ref
           .read(kategoriOpSqliteProvider)
           .sisipkanAtauPerbaruiBatch(DummyKategori.daftarKategori);
-      info('✅ Kategori: ${DummyKategori.daftarKategori.length} data');
+      Log.info('✅ Kategori: ${DummyKategori.daftarKategori.length} data');
 
       // 4. Tambahkan Sub Kategori
       await ref
           .read(subKategoriOpSqliteProvider)
           .sisipkanAtauPerbaruiBatch(DummySubKategori.daftarSubKategori);
-      info(
+      Log.info(
         '✅ Sub Kategori: ${DummySubKategori.daftarSubKategori.length} data',
       );
 
@@ -322,19 +322,19 @@ class HalamanDataDummy extends ConsumerWidget {
       await ref
           .read(paketOpSqliteProvider)
           .sisipkanAtauPerbaruiBatch(DummyPaket.daftarPaket);
-      info('✅ Paket: ${DummyPaket.daftarPaket.length} data');
+      Log.info('✅ Paket: ${DummyPaket.daftarPaket.length} data');
 
       // 6. Tambahkan Transaksi
       await ref
           .read(transaksiOpGlobalProvider)
           .sisipkanAtauPerbaruiBatch(daftarTransaksi);
-      info('✅ Transaksi: ${daftarTransaksi.length} data');
+      Log.info('✅ Transaksi: ${daftarTransaksi.length} data');
 
       // 7. Tambahkan Pengaturan
       await ref
           .read(settingsOpSqliteProvider)
           .simpanAtauPerbaruiSettings(const SettingsModel());
-      info('✅ Pengaturan: 1 data');
+      Log.info('✅ Pengaturan: 1 data');
 
       // Invalidate semua provider
       ref.invalidate(pelangganOpSqliteProvider);
@@ -381,7 +381,7 @@ class HalamanDataDummy extends ConsumerWidget {
         );
       }
     } catch (e, s) {
-      error('Gagal menambahkan semua data dummy', e: e, s: s);
+      Log.error('Gagal menambahkan semua data dummy', e: e, s: s);
       if (context.mounted) {
         ToastUtil.error(
           context,

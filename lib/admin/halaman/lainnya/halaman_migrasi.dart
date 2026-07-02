@@ -51,9 +51,9 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
   /// permintaan. Menampilkan dialog progres [_MigrationProgressDialog] yang
   /// akan menangani pembaruan status dan log secara real-time.
   Future<void> _runMigration() async {
-    info('Tombol "Jalankan Migrasi Data" ditekan oleh pengguna.');
+    Log.info('Tombol "Jalankan Migrasi Data" ditekan oleh pengguna.');
     if (_isMigrating) {
-      warning('Migrasi sudah berjalan, tindakan dicegah.');
+      Log.warning('Migrasi sudah berjalan, tindakan dicegah.');
       ToastUtil.warning(context, 'Migrasi sedang berjalan, harap tunggu.');
       return;
     }
@@ -69,7 +69,7 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
         return _MigrationProgressDialog(
           migrationService: _migrationService,
           onComplete: (bool hasError) {
-            info(
+            Log.info(
               'Migrasi selesai, dialog ditutup. Status error: $hasError',
             );
             if (mounted) {
@@ -94,7 +94,7 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
 
   @override
   Widget build(final BuildContext context) {
-    info('Membangun UI HalamanMigrasi.');
+    Log.info('Membangun UI HalamanMigrasi.');
 
     // Tombol dinonaktifkan jika migrasi sedang berjalan atau sudah berhasil.
     final bool isButtonDisabled =
@@ -190,7 +190,7 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
   @override
   void initState() {
     super.initState();
-    info('Dialog progress migrasi dibuka, memulai proses asinkron.');
+    Log.info('Dialog progress migrasi dibuka, memulai proses asinkron.');
     unawaited(_startMigration());
   }
 
@@ -208,9 +208,9 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
         _isDone = true;
         _hasError = false;
       });
-      info('Migrasi selesai tanpa error. Total log: ${logs.length}');
+      Log.info('Migrasi selesai tanpa error. Total log: ${logs.length}');
     } on Exception catch (e, st) {
-      error('Migrasi gagal total', e: e, s: st);
+      Log.error('Migrasi gagal total', e: e, s: st);
       setState(() {
         _currentStatus = '❌ Gagal melakukan migrasi: $e';
         _isDone = true;
@@ -225,7 +225,7 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
   ///
   /// [message] berisi deskripsi langkah yang sedang dikerjakan.
   void _onProgress(String message) {
-    info('Progress migrasi: $message');
+    Log.info('Progress migrasi: $message');
     setState(() {
       _currentStatus = message;
       _logs.add('[INFO] $message');
