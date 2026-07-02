@@ -308,9 +308,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
                       onPressed: sedangMemprosesRewardIni
                           ? null
                           : () => _tukarPoin(hadiah, totalPoin),
-                      child: sedangMemprosesRewardIni
-                          ? const CircularProgressIndicator()
-                          : const Text('Tukar'),
+                      child: const Text('Tukar'),
                     ),
                   ],
                 ),

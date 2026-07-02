@@ -3,10 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -20,6 +20,8 @@ import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
 enum SortMode {
+  tanggalTerbaru,
+  tanggalTerlama,
   tanggalBerakhirTerbaru,
   tanggalBerakhirTerlama,
   lunas,
@@ -37,14 +39,12 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
   final TransaksiOpFirebase _transaksiOpFirebase = TransaksiOpFirebase();
   final ScrollController _pengendaliScroll = ScrollController();
 
-  SortMode _modeUrutan = SortMode.tanggalBerakhirTerbaru;
+  SortMode _modeUrutan = SortMode.tanggalTerbaru;
 
   List<TransaksiModel> _semuaTransaksi = [];
   List<TransaksiModel> _transaksiTampil = [];
   int _jumlahTampil = 20;
-  bool _sedangMemuatAwal = true;
   bool _sedangMemuatLebih = false;
-  Object? _errorAwal;
 
   @override
   void initState() {
@@ -64,11 +64,6 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
   }
 
   Future<void> _muatDataAwal() async {
-    setState(() {
-      _sedangMemuatAwal = true;
-      _errorAwal = null;
-    });
-
     try {
       final userId = await ref.read(userIdProvider.future);
 
@@ -76,7 +71,6 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
         setState(() {
           _semuaTransaksi = [];
           _transaksiTampil = [];
-          _sedangMemuatAwal = false;
         });
         return;
       }
@@ -87,7 +81,6 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
         setState(() {
           _semuaTransaksi = [];
           _transaksiTampil = [];
-          _sedangMemuatAwal = false;
         });
         return;
       }
@@ -99,19 +92,25 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
       setState(() {
         _semuaTransaksi = hasil;
         _perbaruiTransaksiTampil(aturUlang: true);
-        _sedangMemuatAwal = false;
       });
     } on Object catch (e, st) {
       Log.error('Gagal memuat riwayat transaksi', e: e, s: st);
-      setState(() {
-        _errorAwal = e;
-        _sedangMemuatAwal = false;
-      });
     }
   }
 
   List<TransaksiModel> _sortHistory(List<TransaksiModel> history) {
     switch (_modeUrutan) {
+      case SortMode.tanggalTerbaru:
+        history.sort((a, b) {
+          return b.tanggal.compareTo(a.tanggal);
+        });
+        break;
+      case SortMode.tanggalTerlama:
+        history.sort((a, b) {
+          return b.tanggal.compareTo(a.tanggal);
+        });
+        break;
+
       case SortMode.tanggalBerakhirTerbaru:
         history.sort((a, b) {
           if (a.tanggalBerakhir == null && b.tanggalBerakhir == null) return 0;
@@ -209,10 +208,10 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
 
   @override
   Widget build(BuildContext context) {
+    final transaksi = ref.watch(transaksiProvider);
     final paketOpFirebase = ref.read(paketOpFirebaseProvider);
     final pelangganOp = ref.read(pelangganOpGlobalProvider);
     final userId = ref.watch(userIdProvider);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Langganan'),
@@ -225,136 +224,145 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
               });
             },
             itemBuilder: (BuildContext context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
+                value: SortMode.tanggalTerbaru,
+                textStyle: TextStyle(
+                  color: _modeUrutan == SortMode.tanggalTerlama
+                      ? Theme.of(context).colorScheme.primary.withAlpha(30)
+                      : null,
+                ),
+                child: const TeksIsiSedang('Tanggal (Terbaru)'),
+              ),
+              PopupMenuItem(
+                textStyle: TextStyle(
+                  color: _modeUrutan == SortMode.tanggalTerlama
+                      ? Theme.of(context).colorScheme.primary.withAlpha(30)
+                      : null,
+                ),
+                value: SortMode.tanggalTerlama,
+                child: const TeksIsiSedang('Tanggal (Terlama)'),
+              ),
+              PopupMenuItem(
+                textStyle: TextStyle(
+                  color: _modeUrutan == SortMode.tanggalBerakhirTerbaru
+                      ? Theme.of(context).colorScheme.primary.withAlpha(30)
+                      : null,
+                ),
                 value: SortMode.tanggalBerakhirTerbaru,
-                child: TeksIsiSedang('Tanggal Berakhir (Terbaru)'),
+                child: const TeksIsiSedang('Tanggal Berakhir (Terbaru)'),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: SortMode.tanggalBerakhirTerlama,
-                child: TeksIsiSedang('Tanggal Berakhir (Terlama)'),
+                textStyle: TextStyle(
+                  color: _modeUrutan == SortMode.tanggalBerakhirTerlama
+                      ? Theme.of(context).colorScheme.primary.withAlpha(30)
+                      : null,
+                ),
+                child: const TeksIsiSedang('Tanggal Berakhir (Terlama)'),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: SortMode.lunas,
-                child: TeksIsiSedang('Status: Lunas'),
+                textStyle: TextStyle(
+                  color: _modeUrutan == SortMode.lunas
+                      ? Theme.of(context).colorScheme.primary.withAlpha(30)
+                      : null,
+                ),
+                child: const TeksIsiSedang('Status: Lunas'),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: SortMode.belumLunas,
-                child: TeksIsiSedang('Status: Belum Lunas'),
+                textStyle: TextStyle(
+                  color: _modeUrutan == SortMode.belumLunas
+                      ? Theme.of(context).colorScheme.primary.withAlpha(30)
+                      : null,
+                ),
+                child: const TeksIsiSedang('Status: Belum Lunas'),
               ),
             ],
             icon: const Icon(TIcons.sort),
           ),
         ],
       ),
-      body: FutureBuilder<PelangganModel?>(
-        future: userId.when(
-          data: (id) =>
-              id != null ? pelangganOp.ambilBerdasarkanId(id) : Future.value(),
-          error: (_, _) => Future.value(),
-          loading: Future.value,
-        ),
-        builder: (context, customerSnapshot) {
-          if (customerSnapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (customerSnapshot.hasError) {
-            return Center(
-              child: TeksIsiSedang('Error: ${customerSnapshot.error}'),
-            );
-          }
-          if (!customerSnapshot.hasData || customerSnapshot.data == null) {
-            return const Center(
-              child: TeksIsiSedang('Data pelanggan tidak ditemukan.'),
-            );
-          }
+      body: Column(
+        children: [
+          Expanded(
+            child: transaksi.when(
+              data: (TransaksiState data) {
+                return RefreshIndicator(
+                  onRefresh: _refreshRiwayat,
+                  child: ListView.builder(
+                    controller: _pengendaliScroll,
+                    itemCount:
+                        _transaksiTampil.length + (_sedangMemuatLebih ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == _transaksiTampil.length) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      }
 
-          return Column(
-            children: [
-              Expanded(
-                child: _sedangMemuatAwal
-                    ? const Center(child: CircularProgressIndicator())
-                    : _errorAwal != null
-                    ? Center(child: TeksIsiSedang('Gagal memuat: $_errorAwal'))
-                    : _transaksiTampil.isEmpty
-                    ? const Center(child: TeksIsiSedang('Tidak ada riwayat.'))
-                    : RefreshIndicator(
-                        onRefresh: _refreshRiwayat,
-                        child: ListView.builder(
-                          controller: _pengendaliScroll,
-                          itemCount:
-                              _transaksiTampil.length +
-                              (_sedangMemuatLebih ? 1 : 0),
-                          itemBuilder: (context, index) {
-                            if (index == _transaksiTampil.length) {
-                              return const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: CircularProgressIndicator(),
-                                ),
-                              );
-                            }
+                      final tx = _transaksiTampil[index];
+                      final paketFuture = tx.idPaket != null
+                          ? paketOpFirebase.ambilBerdasarkanId(tx.idPaket!)
+                          : Future<PaketModel?>.value();
+                      final teksAktif = tx.tanggalBerakhir != null
+                          ? PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
+                              tx.tanggalBerakhir!,
+                            )
+                          : '--';
+                      final warnaAktif = tx.tanggalBerakhir != null
+                          ? PerhitunganUtil.ambilWarnaSisaMasaAktif(
+                              tx.tanggalBerakhir!,
+                            )
+                          : Colors.grey;
 
-                            final tx = _transaksiTampil[index];
-                            final paketFuture = tx.idPaket != null
-                                ? paketOpFirebase.ambilBerdasarkanId(
-                                    tx.idPaket!,
-                                  )
-                                : Future<PaketModel?>.value();
-                            final teksAktif = tx.tanggalBerakhir != null
-                                ? PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
-                                    tx.tanggalBerakhir!,
-                                  )
-                                : '--';
-                            final warnaAktif = tx.tanggalBerakhir != null
-                                ? PerhitunganUtil.ambilWarnaSisaMasaAktif(
-                                    tx.tanggalBerakhir!,
-                                  )
-                                : Colors.grey;
-
-                            return Card(
-                              key: ValueKey(tx.id),
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              child: ListTile(
-                                leading: const Icon(TIcons.receiptLong),
-                                title: NamaPaketWidget(
-                                  idPaket: tx.idPaket ?? '',
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (tx.tanggalBerakhir != null)
-                                      TeksIsiSedang(
-                                        'Berakhir - ${FormatWaktuLengkap.formatSingkat(tx.tanggalBerakhir!)}',
-                                      ),
-                                    TeksIsiSedang(
-                                      'Status: ${tx.statusPembayaran.displayName}',
-                                      warna:
-                                          tx.statusPembayaran ==
-                                              StatusPembayaran.paid
-                                          ? Colors.green
-                                          : Colors.red,
-                                    ),
-                                    TeksIsiSedang(
-                                      'Masa Aktif: $teksAktif',
-                                      warna: warnaAktif,
-                                    ),
-                                  ],
-                                ),
-                                trailing: const Icon(TIcons.chevronRight),
-                                onTap: () =>
-                                    _navigasiKeDetailTransaksi(tx, paketFuture),
-                              ),
-                            );
-                          },
+                      return Card(
+                        key: ValueKey(tx.id),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
                         ),
-                      ),
-              ),
-            ],
-          );
-        },
+                        child: ListTile(
+                          leading: const Icon(TIcons.receiptLong),
+                          title: NamaPaketWidget(idPaket: tx.idPaket ?? ''),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (tx.tanggalBerakhir != null)
+                                TeksIsiSedang(
+                                  'Berakhir - ${FormatWaktuLengkap.formatSingkat(tx.tanggalBerakhir!)}',
+                                ),
+                              TeksIsiSedang(
+                                'Status: ${tx.statusPembayaran.displayName}',
+                                warna:
+                                    tx.statusPembayaran == StatusPembayaran.paid
+                                    ? Colors.green
+                                    : Colors.red,
+                              ),
+                              TeksIsiSedang(
+                                'Masa Aktif: $teksAktif',
+                                warna: warnaAktif,
+                              ),
+                            ],
+                          ),
+                          trailing: const Icon(TIcons.chevronRight),
+                          onTap: () =>
+                              _navigasiKeDetailTransaksi(tx, paketFuture),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+              error: (Object error, StackTrace stackTrace) =>
+                  Text('$error $stackTrace'),
+              loading: () => const CircularProgressIndicator(),
+            ),
+          ),
+        ],
       ),
     );
   }
