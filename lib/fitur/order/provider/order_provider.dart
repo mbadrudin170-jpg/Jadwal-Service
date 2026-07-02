@@ -20,6 +20,8 @@ abstract class OrderState with _$OrderState {
 
 @Riverpod(keepAlive: true)
 class Order extends _$Order {
+  OrderOpGlobal get _orderOp => ref.read(orderOpGlobalProvider);
+
   @override
   FutureOr<OrderState> build() async {
     Log.info('build orderProvider');
@@ -29,7 +31,7 @@ class Order extends _$Order {
   Future<OrderState> _loadData() async {
     try {
       Log.info('Fungsi _loadData di jalankan');
-      final daftarOrder = await ref.read(orderOpGlobalProvider).ambilSemua();
+      final daftarOrder = await _orderOp.ambilSemua();
       return OrderState(
         daftarOrder: daftarOrder,
         totalDaftar: daftarOrder.length,
@@ -42,7 +44,7 @@ class Order extends _$Order {
 
   Future<void> tambah(OrderModel order) async {
     try {
-      await ref.read(orderOpGlobalProvider).tambah(order);
+      await _orderOp.tambah(order);
       await refresh();
     } on Exception catch (e, s) {
       Log.error('Error ditambah: $e', e: e, s: s);
