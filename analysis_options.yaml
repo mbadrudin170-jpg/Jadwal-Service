@@ -10,8 +10,19 @@ linter:
     cancel_subscriptions: true
     close_sinks: true
     avoid_void_async: true
+    avoid_print: true               # 🆕 Baru: Cegah kebocoran log data di aplikasi rilis
+    discarded_futures: false         # 🆕 Baru: Cegah fungsi async berjalan di dalam UI build
 
-    # KEBERSIHAN & PERFORMA
+    # OPTIMASI PERFORMA FLUTTER
+    prefer_const_constructors: true # 🆕 Baru: Hemat CPU & Baterai HP via widget const
+    prefer_const_literals_to_create_immutables: true # 🆕 Baru: Optimasi List statis
+    sized_box_for_whitespace: true  # 🆕 Baru: Gunakan SizedBox dibanding Container kosong
+    use_decorated_box: true
+    use_colored_box: true
+
+    # KEBERSIHAN & FORMAT KODE UI
+    require_trailing_commas: true    # 🆕 Baru: Format kode otomatis tersusun rapi ke bawah
+    sort_child_properties_last: true # 🆕 Baru: Child widget selalu di posisi paling bawah
     always_use_package_imports: true
     directives_ordering: true
     prefer_final_fields: true
@@ -25,11 +36,10 @@ linter:
     omit_local_variable_types: true
     avoid_types_on_closure_parameters: true
 
+    # GAYA PENULISAN MODERN
     prefer_single_quotes: true
     prefer_final_locals: true
     prefer_final_in_for_each: true
-    use_decorated_box: true
-    use_colored_box: true
     unnecessary_string_interpolations: true
     implicit_call_tearoffs: true
     prefer_interpolation_to_compose_strings: true
@@ -42,20 +52,19 @@ linter:
     unnecessary_getters_setters: true
     use_super_parameters: true
     use_build_context_synchronously: true
-    
-
-
 
 analyzer:
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
   
-  # Bagian ini bisa Anda aktifkan (uncomment) jika ingin memaksa warning menjadi error yang membatalkan proses build.
-  # errors:
-  #   use_build_context_synchronously: error
-  #   unawaited_futures: error
-  #   avoid_dynamic_calls: error
+  # 🔴 Mengubah warning menjadi hard error agar wajib diperbaiki sebelum build aplikasi
+  errors:
+    use_build_context_synchronously: error
+    unawaited_futures: error
+    avoid_dynamic_calls: error
+    avoid_print: error
+    discarded_futures: error
 
   language:
     strict-casts: true
