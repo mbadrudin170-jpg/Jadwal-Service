@@ -41,6 +41,15 @@ class Order extends _$Order {
     }
   }
 
+  Future<void> tambah() async {
+    try {
+      // Logika asinkron
+    } on Exception catch (e, s) {
+      Log.error('Error ditambah: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
   Future<void> refresh() async {
     try {
       state = await AsyncValue.guard(_loadData);

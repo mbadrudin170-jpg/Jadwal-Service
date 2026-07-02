@@ -92,7 +92,7 @@ final class DaftarPesananProvider
 String _$daftarPesananHash() => r'b123136a10fee76f439e4812bdff19a61dedb5f0';
 
 @ProviderFor(daftar)
-final daftarProvider = DaftarProvider._();
+final daftarProvider = DaftarFamily._();
 
 final class DaftarProvider
     extends
@@ -102,19 +102,26 @@ final class DaftarProvider
           FutureOr<List<OrderModel>>
         >
     with $FutureModifier<List<OrderModel>>, $FutureProvider<List<OrderModel>> {
-  DaftarProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'daftarProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
+  DaftarProvider._({
+    required DaftarFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'daftarProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
   String debugGetCreateSourceHash() => _$daftarHash();
+
+  @override
+  String toString() {
+    return r'daftarProvider'
+        ''
+        '($argument)';
+  }
 
   @$internal
   @override
@@ -124,8 +131,36 @@ final class DaftarProvider
 
   @override
   FutureOr<List<OrderModel>> create(Ref ref) {
-    return daftar(ref);
+    final argument = this.argument as String;
+    return daftar(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DaftarProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
   }
 }
 
-String _$daftarHash() => r'6b5986a7560616a1b04dfe92c572ce506b82ca45';
+String _$daftarHash() => r'18aaa9753b4c3464630f41bc6069cf45d43bc472';
+
+final class DaftarFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<OrderModel>>, String> {
+  DaftarFamily._()
+    : super(
+        retry: null,
+        name: r'daftarProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  DaftarProvider call(String id) => DaftarProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'daftarProvider';
+}

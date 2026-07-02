@@ -6230,7 +6230,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     );
   }
 
-  Widget _buildDaftarHadiah(List<PaketModel> daftarHadiah, int totalPoin) {
+  Widget _buildDaftarHadiah(List<PaketModel?> daftarHadiah, int totalPoin) {
     Log.info('Building reward list.');
     if (daftarHadiah.isEmpty) {
       return const Center(child: Text('Belum ada hadiah yang tersedia'));
@@ -6239,7 +6239,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       itemCount: daftarHadiah.length,
       itemBuilder: (context, index) {
         final hadiah = daftarHadiah[index];
-        final poinCukup = totalPoin >= hadiah.poinPenukaran;
+        final poinCukup = totalPoin >= hadiah!.poinPenukaran;
         final progress = hadiah.poinPenukaran > 0
             ? (totalPoin / hadiah.poinPenukaran).clamp(0.0, 1.0)
             : 1.0;
@@ -10302,6 +10302,75 @@ final class DetailPaketFamily extends $Family
   String toString() => r'detailPaketProvider';
 }
 
+@ProviderFor(namaPaket)
+final namaPaketProvider = NamaPaketFamily._();
+
+final class NamaPaketProvider
+    extends $FunctionalProvider<AsyncValue<String?>, String?, FutureOr<String?>>
+    with $FutureModifier<String?>, $FutureProvider<String?> {
+  NamaPaketProvider._({
+    required NamaPaketFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'namaPaketProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$namaPaketHash();
+
+  @override
+  String toString() {
+    return r'namaPaketProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String?> create(Ref ref) {
+    final argument = this.argument as String;
+    return namaPaket(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is NamaPaketProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$namaPaketHash() => r'366675c6d635e239a201e15c2dfa4693e7c67374';
+
+final class NamaPaketFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<String?>, String> {
+  NamaPaketFamily._()
+    : super(
+        retry: null,
+        name: r'namaPaketProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  NamaPaketProvider call(String idPaket) =>
+      NamaPaketProvider._(argument: idPaket, from: this);
+
+  @override
+  String toString() => r'namaPaketProvider';
+}
+
 
 // File: lib/fitur/paket/provider/paket_provider.dart
 // path: lib/fitur/paket/provider/paket_provider.dart
@@ -10321,8 +10390,8 @@ part 'paket_provider.freezed.dart';
 @freezed
 abstract class PaketState with _$PaketState {
   const factory PaketState({
-    @Default([]) List<PaketModel> daftarPaket,
-    @Default([]) List<PaketModel> daftarPaketPublik,
+    @Default([]) List<PaketModel?> daftarPaket,
+    @Default([]) List<PaketModel?> daftarPaketPublik,
     @Default(0) int jumlahPaket,
   }) = _PaketState;
 }
@@ -10415,6 +10484,15 @@ Future<PaketModel> detailPaket(Ref ref, String id) async {
   return paket;
 }
 
+@riverpod
+Future<String?> namaPaket(Ref ref, String idPaket) async {
+  if (idPaket.isEmpty) return null;
+  final paketState = await ref.watch(paketProvider.future);
+  final paket = paketState.daftarPaket.firstWhere((p) => p!.id == idPaket);
+  if (paket == null) return null;
+  return paket.nama;
+}
+
 
 // File: lib/fitur/paket/provider/paket_provider.freezed.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
@@ -10433,7 +10511,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PaketState {
 
- List<PaketModel> get daftarPaket; List<PaketModel> get daftarPaketPublik; int get jumlahPaket;
+ List<PaketModel?> get daftarPaket; List<PaketModel?> get daftarPaketPublik; int get jumlahPaket;
 /// Create a copy of PaketState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -10464,7 +10542,7 @@ abstract mixin class $PaketStateCopyWith<$Res>  {
   factory $PaketStateCopyWith(PaketState value, $Res Function(PaketState) _then) = _$PaketStateCopyWithImpl;
 @useResult
 $Res call({
- List<PaketModel> daftarPaket, List<PaketModel> daftarPaketPublik, int jumlahPaket
+ List<PaketModel?> daftarPaket, List<PaketModel?> daftarPaketPublik, int jumlahPaket
 });
 
 
@@ -10484,8 +10562,8 @@ class _$PaketStateCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? daftarPaket = null,Object? daftarPaketPublik = null,Object? jumlahPaket = null,}) {
   return _then(_self.copyWith(
 daftarPaket: null == daftarPaket ? _self.daftarPaket : daftarPaket // ignore: cast_nullable_to_non_nullable
-as List<PaketModel>,daftarPaketPublik: null == daftarPaketPublik ? _self.daftarPaketPublik : daftarPaketPublik // ignore: cast_nullable_to_non_nullable
-as List<PaketModel>,jumlahPaket: null == jumlahPaket ? _self.jumlahPaket : jumlahPaket // ignore: cast_nullable_to_non_nullable
+as List<PaketModel?>,daftarPaketPublik: null == daftarPaketPublik ? _self.daftarPaketPublik : daftarPaketPublik // ignore: cast_nullable_to_non_nullable
+as List<PaketModel?>,jumlahPaket: null == jumlahPaket ? _self.jumlahPaket : jumlahPaket // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -10571,7 +10649,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<PaketModel> daftarPaket,  List<PaketModel> daftarPaketPublik,  int jumlahPaket)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<PaketModel?> daftarPaket,  List<PaketModel?> daftarPaketPublik,  int jumlahPaket)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PaketState() when $default != null:
 return $default(_that.daftarPaket,_that.daftarPaketPublik,_that.jumlahPaket);case _:
@@ -10592,7 +10670,7 @@ return $default(_that.daftarPaket,_that.daftarPaketPublik,_that.jumlahPaket);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<PaketModel> daftarPaket,  List<PaketModel> daftarPaketPublik,  int jumlahPaket)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<PaketModel?> daftarPaket,  List<PaketModel?> daftarPaketPublik,  int jumlahPaket)  $default,) {final _that = this;
 switch (_that) {
 case _PaketState():
 return $default(_that.daftarPaket,_that.daftarPaketPublik,_that.jumlahPaket);case _:
@@ -10612,7 +10690,7 @@ return $default(_that.daftarPaket,_that.daftarPaketPublik,_that.jumlahPaket);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<PaketModel> daftarPaket,  List<PaketModel> daftarPaketPublik,  int jumlahPaket)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<PaketModel?> daftarPaket,  List<PaketModel?> daftarPaketPublik,  int jumlahPaket)?  $default,) {final _that = this;
 switch (_that) {
 case _PaketState() when $default != null:
 return $default(_that.daftarPaket,_that.daftarPaketPublik,_that.jumlahPaket);case _:
@@ -10627,18 +10705,18 @@ return $default(_that.daftarPaket,_that.daftarPaketPublik,_that.jumlahPaket);cas
 
 
 class _PaketState implements PaketState {
-  const _PaketState({final  List<PaketModel> daftarPaket = const [], final  List<PaketModel> daftarPaketPublik = const [], this.jumlahPaket = 0}): _daftarPaket = daftarPaket,_daftarPaketPublik = daftarPaketPublik;
+  const _PaketState({final  List<PaketModel?> daftarPaket = const [], final  List<PaketModel?> daftarPaketPublik = const [], this.jumlahPaket = 0}): _daftarPaket = daftarPaket,_daftarPaketPublik = daftarPaketPublik;
   
 
- final  List<PaketModel> _daftarPaket;
-@override@JsonKey() List<PaketModel> get daftarPaket {
+ final  List<PaketModel?> _daftarPaket;
+@override@JsonKey() List<PaketModel?> get daftarPaket {
   if (_daftarPaket is EqualUnmodifiableListView) return _daftarPaket;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_daftarPaket);
 }
 
- final  List<PaketModel> _daftarPaketPublik;
-@override@JsonKey() List<PaketModel> get daftarPaketPublik {
+ final  List<PaketModel?> _daftarPaketPublik;
+@override@JsonKey() List<PaketModel?> get daftarPaketPublik {
   if (_daftarPaketPublik is EqualUnmodifiableListView) return _daftarPaketPublik;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_daftarPaketPublik);
@@ -10676,7 +10754,7 @@ abstract mixin class _$PaketStateCopyWith<$Res> implements $PaketStateCopyWith<$
   factory _$PaketStateCopyWith(_PaketState value, $Res Function(_PaketState) _then) = __$PaketStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<PaketModel> daftarPaket, List<PaketModel> daftarPaketPublik, int jumlahPaket
+ List<PaketModel?> daftarPaket, List<PaketModel?> daftarPaketPublik, int jumlahPaket
 });
 
 
@@ -10696,8 +10774,8 @@ class __$PaketStateCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? daftarPaket = null,Object? daftarPaketPublik = null,Object? jumlahPaket = null,}) {
   return _then(_PaketState(
 daftarPaket: null == daftarPaket ? _self._daftarPaket : daftarPaket // ignore: cast_nullable_to_non_nullable
-as List<PaketModel>,daftarPaketPublik: null == daftarPaketPublik ? _self._daftarPaketPublik : daftarPaketPublik // ignore: cast_nullable_to_non_nullable
-as List<PaketModel>,jumlahPaket: null == jumlahPaket ? _self.jumlahPaket : jumlahPaket // ignore: cast_nullable_to_non_nullable
+as List<PaketModel?>,daftarPaketPublik: null == daftarPaketPublik ? _self._daftarPaketPublik : daftarPaketPublik // ignore: cast_nullable_to_non_nullable
+as List<PaketModel?>,jumlahPaket: null == jumlahPaket ? _self.jumlahPaket : jumlahPaket // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -11953,7 +12031,6 @@ import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_paket_widget.dart';
 
@@ -12011,7 +12088,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
   Future<void> _softDeleteAll(String id) async {
     await ref.read(orderOpGlobalProvider).softDelete(id);
-    
   }
 
   /// ✅ PERBAIKAN 2: Fungsi ubah status sekarang pakai await dengan benar
@@ -12361,8 +12437,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           itemCount: orderDifilter.length,
           itemBuilder: (context, index) {
             final order = orderDifilter[index];
-            final paketOpFirebase = ref.watch(paketOpFirebaseProvider);
-
             Log.info(
               '_daftarPesanan: membangun item ke-$index dengan orderId: ${order.id}',
             );
@@ -12384,9 +12458,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
               title: Row(
                 children: [
                   const Text('Paket: '),
-                  NamaPaketWidget(
-                    idPaket: paketOpFirebase.ambilBerdasarkanId(order.idPaket),
-                  ),
+                  NamaPaketWidget(idPaket: order.idPaket),
                 ],
               ),
               subtitle: Text('Status: ${order.status.name}'),
@@ -12780,7 +12852,7 @@ final class OrderProvider extends $AsyncNotifierProvider<Order, OrderState> {
   Order create() => Order();
 }
 
-String _$orderHash() => r'3f706d5c4f2ad40cbc1ab8c1cd218825ee33d73c';
+String _$orderHash() => r'38d1329e22adc3c60c2f94864373ddbcdb0130f0';
 
 abstract class _$Order extends $AsyncNotifier<OrderState> {
   FutureOr<OrderState> build();
@@ -12837,7 +12909,81 @@ final class DaftarPesananProvider
   }
 }
 
-String _$daftarPesananHash() => r'9d650571c28b5c1b23bdef7cbd312befde5eba16';
+String _$daftarPesananHash() => r'b123136a10fee76f439e4812bdff19a61dedb5f0';
+
+@ProviderFor(daftar)
+final daftarProvider = DaftarFamily._();
+
+final class DaftarProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<OrderModel>>,
+          List<OrderModel>,
+          FutureOr<List<OrderModel>>
+        >
+    with $FutureModifier<List<OrderModel>>, $FutureProvider<List<OrderModel>> {
+  DaftarProvider._({
+    required DaftarFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'daftarProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$daftarHash();
+
+  @override
+  String toString() {
+    return r'daftarProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<OrderModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<OrderModel>> create(Ref ref) {
+    final argument = this.argument as String;
+    return daftar(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DaftarProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$daftarHash() => r'18aaa9753b4c3464630f41bc6069cf45d43bc472';
+
+final class DaftarFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<OrderModel>>, String> {
+  DaftarFamily._()
+    : super(
+        retry: null,
+        name: r'daftarProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  DaftarProvider call(String id) => DaftarProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'daftarProvider';
+}
 
 
 // File: lib/fitur/order/provider/order_provider.dart
@@ -12849,6 +12995,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
@@ -12867,11 +13014,38 @@ abstract class OrderState with _$OrderState {
 class Order extends _$Order {
   @override
   FutureOr<OrderState> build() async {
-    final daftarPesanan = await ref.watch(daftarPesananProvider.future);
-    return OrderState(
-      daftarOrder: daftarPesanan,
-      totalDaftar: daftarPesanan.length,
-    );
+    return _loadData();
+  }
+
+  Future<OrderState> _loadData() async {
+    try {
+      final daftarPesanan = await ref.watch(daftarPesananProvider.future);
+      return OrderState(
+        daftarOrder: daftarPesanan,
+        totalDaftar: daftarPesanan.length,
+      );
+    } on Exception catch (e, s) {
+      Log.error('Error di _loadData: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> tambah() async {
+    try {
+      // Logika asinkron
+    } on Exception catch (e, s) {
+      Log.error('Error ditambah: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> refresh() async {
+    try {
+      state = await AsyncValue.guard(_loadData);
+    } on Exception catch (e, s) {
+      Log.error('Error direfresh: $e', e: e, s: s);
+      rethrow;
+    }
   }
 
   void invalidateOrderProvider() {
@@ -12886,13 +13060,25 @@ Future<List<OrderModel>> daftarPesanan(Ref ref) async {
     final orderOpSqlite = ref.read(orderOpSqliteProvider);
     return await orderOpSqlite.ambilSemua();
   } else {
-    final userId = ref.watch(userIdProvider).value;
+    final userId = await ref.watch(userIdProvider.future);
     final orderOpFirebase = ref.read(orderOpFirebaseProvider);
     if (userId != null) {
       return await orderOpFirebase.ambilBerdasarkanIdPelanggan(userId).first;
     }
   }
   return [];
+}
+
+@riverpod
+Future<List<OrderModel>> daftar(Ref ref, String id) async {
+  try {
+    final order = await ref.watch(orderProvider.future);
+    final daftarO = order.daftarOrder;
+    return daftarO.where((o) => o.idPelanggan == id).toList();
+  } on Exception catch (e, s) {
+    Log.error('Error didaftar: $e', e: e, s: s);
+    rethrow;
+  }
 }
 
 
@@ -26829,7 +27015,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/detail_riwayat_aktivasi.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/provider/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
@@ -26986,7 +27171,6 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
   @override
   Widget build(BuildContext context) {
     final historyAsync = ref.watch(riwayatAktivasiPaketProvider);
-    final paketOpSqlite = ref.watch(paketOpGlobalProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -27106,9 +27290,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       NamaPaketWidget(
-                        idPaket: paketOpSqlite.ambilBerdasarkanId(
-                          transaksi.idPaket ?? '',
-                        ),
+                        idPaket: transaksi.idPaket ?? '',
                         style: TextStyle(color: warnaStatusPembayaran),
                       ),
                       gapH4,
@@ -29323,7 +29505,9 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                               ),
                               child: ListTile(
                                 leading: const Icon(TIcons.receiptLong),
-                                title: NamaPaketWidget(idPaket: paketFuture),
+                                title: NamaPaketWidget(
+                                  idPaket: tx.idPaket ?? '',
+                                ),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -31538,7 +31722,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'6edc2e16912803b946920322513f6e24309f6126';
+String _$transaksiHash() => r'b7b159b2dd63bc4f7e34f86ad7d74b0dfb471716';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -40891,16 +41075,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
-import 'package:wifi/fitur/paket/provider/paket_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
-import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -40934,7 +41112,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget build(BuildContext context) {
     final userId = ref.watch(userIdProvider).value ?? '';
     final transaksiAsync = ref.watch(transaksiProvider);
-    final pelangganAsync = ref.watch(pelangganDetailProvider(userId));
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profil Pelanggan')),
@@ -40942,14 +41119,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, s) => Center(child: Text('Error: $e')),
         data: (daftarTransaksi) {
-          final totalPoin = daftarTransaksi.transaksi.where(
-            (t) => (t.poinDidapat - t.poinDigunakan).toInt(),
+          final transaksiUser = daftarTransaksi.transaksi.where(
+            (t) => t.idPelanggan == userId,
           );
-          final totalTagihan = daftarTransaksi
+
+          final totalPoin = transaksiUser.fold<int>(
+            0,
+            (sum, t) => sum + t.poinDidapat - t.poinDigunakan,
+          );
+          final totalTagihan = transaksiUser
               .where((t) => t.statusPembayaran == StatusPembayaran.unpaid)
               .fold<double>(0, (sum, t) => sum + t.jumlah);
           final sekarang = DateTime.now();
-          final transaksiAktif = daftarTransaksi
+          final transaksiAktif = transaksiUser
               .where(
                 (t) =>
                     t.tanggalBerakhir != null &&
@@ -41022,7 +41204,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             ? _paketOpFirebase.ambilBerdasarkanId(
                                 paketAktif.idPaket!,
                               )
-                            : Future.value(null),
+                            : Future.value(),
                         builder: (context, snapshot) {
                           final paket = snapshot.data;
                           return _buildDetailPaketAktif(
@@ -45420,42 +45602,84 @@ class MacAddressFormatter extends TextInputFormatter {
 
 
 // File: lib/shared/widget/nama_paket_widget.dart
+// path lib/shared/widget/nama_paket_widget.dart
+
 import 'package:flutter/material.dart';
-import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-class NamaPaketWidget extends StatelessWidget {
-  final Future<PaketModel?> idPaket;
+class NamaPaketWidget extends ConsumerWidget {
+  final String idPaket;
   final TextStyle? style;
+  final bool showLoadingIndicator;
+  final String loadingText;
+  final String errorText;
+  final String emptyText;
 
-  const NamaPaketWidget({super.key, required this.idPaket, this.style});
+  const NamaPaketWidget({
+    super.key,
+    required this.idPaket,
+    this.style,
+    this.showLoadingIndicator = false,
+    this.loadingText = '',
+    this.errorText = 'Error memuat data',
+    this.emptyText = 'Paket tidak ditemukan',
+  });
 
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<PaketModel?>(
-      future: idPaket,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text('');
-        }
-        if (snapshot.hasError) {
-          Log.error(
-            'Error di PackageNameWidget saat memuat paket',
-            e: snapshot.error,
-            s: snapshot.stackTrace,
-          );
-          return Text(
-            'Error',
-            style: style?.copyWith(
-              color: Colors.red,
-              fontStyle: FontStyle.italic,
-            ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (idPaket.isEmpty) {
+      return Text(
+        emptyText,
+        style:
+            style?.copyWith(color: Colors.grey, fontStyle: FontStyle.italic) ??
+            const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+      );
+    }
+    final namaAsync = ref.watch(namaPaketProvider(idPaket));
+    return namaAsync.when(
+      skipLoadingOnReload: true,
+      loading: () {
+        if (showLoadingIndicator) {
+          return const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
           );
         }
         return Text(
-          snapshot.data?.nama ?? 'Paket tidak tersedia',
-          style: style,
+          loadingText,
+          style:
+              style?.copyWith(color: Colors.grey.shade400) ??
+              const TextStyle(color: Colors.grey),
         );
+      },
+      error: (error, stack) {
+        Log.error('Gagal memuat pelanggan ID: $idPaket', e: error, s: stack);
+        return Text(
+          errorText,
+          style:
+              style?.copyWith(color: Colors.red, fontStyle: FontStyle.italic) ??
+              const TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
+        );
+      },
+      data: (nama) {
+        if (nama == null || nama.isEmpty) {
+          return Text(
+            emptyText,
+            style:
+                style?.copyWith(
+                  color: Colors.grey,
+                  fontStyle: FontStyle.italic,
+                ) ??
+                const TextStyle(
+                  color: Colors.grey,
+                  fontStyle: FontStyle.italic,
+                ),
+          );
+        }
+        return Text(nama, style: style, overflow: TextOverflow.ellipsis);
       },
     );
   }
