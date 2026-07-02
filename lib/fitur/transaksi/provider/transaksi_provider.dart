@@ -70,7 +70,7 @@ class Transaksi extends _$Transaksi {
 
   // ✅ Method untuk ambil poin banyak pelanggan (paralel)
   Future<Map<String, int>> getTotalPoinBanyakPelanggan(List<String> ids) async {
-    final Map<String, int> hasil = {};
+    final hasil = <String, int>{};
     for (final id in ids) {
       hasil[id] = await _transaksiOp.ambilTotalPoin(id);
     }
@@ -80,7 +80,7 @@ class Transaksi extends _$Transaksi {
   Future<List<int>> getTotalPoinBanyakPelangganParallel(
     List<String> ids,
   ) async {
-    final List<Future<int>> futures = ids
+    final futures = ids
         .map((id) => _transaksiOp.ambilTotalPoin(id))
         .toList();
     return await Future.wait(futures);

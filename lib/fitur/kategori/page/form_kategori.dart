@@ -155,7 +155,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
     _namaController.dispose();
     _namaFocusNode.dispose();
 
-    for (int i = 0; i < _subKategoriControllers.length; i++) {
+    for (var i = 0; i < _subKategoriControllers.length; i++) {
       Log.info('  Mendispose sub-kategori controller ke-${i + 1}');
       _subKategoriControllers[i].dispose();
     }
@@ -232,7 +232,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
 
       try {
         if (_modeEdit && widget.subKategori != null) {
-          final String parentCategoryId = widget.subKategori!.idKategori;
+          final parentCategoryId = widget.subKategori!.idKategori;
 
           Log.info('Data sub-kategori sebelum update:');
           Log.info('  - ID: ${widget.subKategori!.id}');
@@ -302,8 +302,8 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           Log.info('========================================');
 
           Log.info('Memproses daftar sub-kategori untuk update...');
-          final List<SubKategoriModel> newSubCategoryList = [];
-          for (int i = 0; i < _subKategoriControllers.length; i++) {
+          final newSubCategoryList = <SubKategoriModel>[];
+          for (var i = 0; i < _subKategoriControllers.length; i++) {
             final controller = _subKategoriControllers[i];
             final originalModel = _subKategoriModels[i];
 
@@ -339,17 +339,17 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
 
           Log.info('Update kategori utama BERHASIL.');
         } else {
-          final String kategoriId = const Uuid().v4();
+          final kategoriId = const Uuid().v4();
           Log.info('UUID berhasil digenerate: $kategoriId');
 
           Log.info(
             'Memproses ${_subKategoriControllers.length} field input sub-kategori.',
           );
 
-          int subKategoriKosong = 0;
-          int subKategoriTerisi = 0;
+          var subKategoriKosong = 0;
+          var subKategoriTerisi = 0;
 
-          final List<SubKategoriModel> subKategoriList = _subKategoriControllers
+          final subKategoriList = _subKategoriControllers
               .where((final controller) {
                 final isEmpty = controller.text.isEmpty;
                 if (isEmpty) {
@@ -453,7 +453,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
 
   @override
   Widget build(final BuildContext context) {
-    String judul = 'Form Kategori';
+    var judul = 'Form Kategori';
     if (_modeEdit && widget.kategori != null) judul = 'Edit Kategori';
     if (_modeEdit && widget.subKategori != null) judul = 'Edit Sub-Kategori';
     if (!_modeEdit && widget.idKategoriInduk != null) {
@@ -542,18 +542,18 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
                               type == TipeKategori.income ||
                               type == TipeKategori.expense,
                         )
-                        .map((final TipeKategori category) {
+                        .map((kategori) {
                           Log.info(
-                            'Membuat DropdownMenuItem untuk: ${category.displayName}',
+                            'Membuat DropdownMenuItem untuk: ${kategori.displayName}',
                           );
 
                           return DropdownMenuItem<TipeKategori>(
-                            value: category,
-                            child: Text(category.displayName),
+                            value: kategori,
+                            child: Text(kategori.displayName),
                           );
                         })
                         .toList(),
-                    onChanged: (final TipeKategori? newValue) {
+                    onChanged: (final newValue) {
                       if (newValue != null) {
                         Log.info('DROPDOWN: Tipe kategori diubah.');
                         Log.info('  - Tipe Lama: $_tipe');

@@ -44,7 +44,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     Log.info('_konfirmasiOpsi dipanggil');
     return await showDialog<bool>(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Konfirmasi'),
           content: const Text('Apakah Anda yakin ingin melanjutkan?'),
@@ -73,9 +73,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     if (_sedangMenghapus) return;
 
     // ✅ 1. Tampilkan dialog konfirmasi
-    final bool? konfirmasi = await showDialog<bool>(
+    final konfirmasi = await showDialog<bool>(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Konfirmasi Hapus Semua'),
           content: const Text(
@@ -221,7 +221,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     try {
       return await showDialog<bool>(
         context: context,
-        builder: (BuildContext dialogContext) {
+        builder: (dialogContext) {
           return Dialog(
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -250,7 +250,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                         '_showDialog: pengguna memilih Hapus untuk orderId: ${order.id}',
                       );
                       Navigator.of(dialogContext).pop();
-                      final bool? dikonfirmasi = await _konfirmasiOpsi(context);
+                      final dikonfirmasi = await _konfirmasiOpsi(context);
                       if (context.mounted) {
                         if (dikonfirmasi == true) {
                           Log.info(
@@ -550,7 +550,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           '_tombolOpsiUbahStatus: tombol $label ditekan untuk orderId: ${order.id}',
         );
         Navigator.of(dialogContext).pop();
-        final bool? dikonfirmasi = await _konfirmasiOpsi(pageContext);
+        final dikonfirmasi = await _konfirmasiOpsi(pageContext);
         if (dikonfirmasi == true) {
           try {
             final updatedOrder = order.copyWith(status: status);

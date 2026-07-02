@@ -31,7 +31,7 @@ class PelangganOpFirebase {
     String? excludeId,
   }) async {
     try {
-      Query query = _koleksiPelanggan
+      var query = _koleksiPelanggan
           .where(NamaKolom.telepon, isEqualTo: telepon)
           .where(NamaKolom.kataSandi, isEqualTo: kataSandi)
           .where(NamaKolom.dihapus, isEqualTo: false);

@@ -307,7 +307,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         _pilihJam!.hour,
         _pilihJam!.minute,
       );
-      int durasiBonus = 0;
+      var durasiBonus = 0;
       if (_bonus) {
         durasiBonus =
             int.tryParse(_durasiBonusController.text.replaceAll('.', '')) ?? 0;
@@ -319,7 +319,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           return false;
         }
       }
-      final DateTime tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
+      final tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
         tanggalMulai,
         _paketDipilih!,
         durasiBonus: durasiBonus,
@@ -388,7 +388,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final tanggalNotifikasiSetengahJalan = tanggalMulai.add(
         durasiSetengahJalan,
       );
-      final List<NotifikasiModel> daftarNotifikasi = [
+      final daftarNotifikasi = <NotifikasiModel>[
         NotifikasiModel(
           id: const Uuid().v4(),
           tanggalMulai: tanggalMulai,
@@ -783,10 +783,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                   _pilihJam!.hour,
                   _pilihJam!.minute,
                 );
-                final int nilaiBonus = _bonus
+                final nilaiBonus = _bonus
                     ? (int.tryParse(_durasiBonusController.text) ?? 0)
                     : 0;
-                final DateTime endDate = PerhitunganUtil.hitungTanggalBerakhir(
+                final endDate = PerhitunganUtil.hitungTanggalBerakhir(
                   startDate,
                   _paketDipilih!,
                   durasiBonus: nilaiBonus,
@@ -879,7 +879,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                   _menyimpan = true;
                 });
                 Log.info('Tombol Simpan ditekan');
-                final bool berhasil = await _simpanData();
+                final berhasil = await _simpanData();
                 if (!mounted) {
                   setState(() {
                     _menyimpan = false;

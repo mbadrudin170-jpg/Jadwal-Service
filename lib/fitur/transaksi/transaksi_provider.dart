@@ -42,26 +42,26 @@ class Transaksi extends _$Transaksi {
     Log.info('[TransaksiProvider] 🔄 Memuat satu data utama via ambilSemua()');
 
     // 1. Single Source of Truth: Hanya panggil 1 fungsi async ke database
-    final List<TransaksiModel> semuaTransaksi = await _transaksiOp.ambilSemua();
+    final semuaTransaksi = await _transaksiOp.ambilSemua();
     final sekarang = DateTime.now();
 
     // 2. Kalkulasi statistik pemasukan & pengeluaran secara sinkron di memori HP
-    final double totalPemasukan = semuaTransaksi
+    final totalPemasukan = semuaTransaksi
         .where(
           (t) =>
               t.tipe == TipeTransaksi.income &&
               t.statusPembayaran == StatusPembayaran.paid,
         )
         .fold(0.0, (sum, t) => sum + t.jumlah);
-    final double totalPengeluaran = semuaTransaksi
+    final totalPengeluaran = semuaTransaksi
         .where((t) => t.tipe == TipeTransaksi.expense)
         .fold(0.0, (sum, t) => sum + t.jumlah);
-    final double netTotal = totalPemasukan - totalPengeluaran;
-    final int totalPoinSemua = semuaTransaksi.fold(
+    final netTotal = totalPemasukan - totalPengeluaran;
+    final totalPoinSemua = semuaTransaksi.fold(
       0,
       (sum, t) => sum + (t.poinDidapat - t.poinDigunakan),
     );
-    final double pendapatanBulanIni = semuaTransaksi
+    final pendapatanBulanIni = semuaTransaksi
         .where(
           (t) =>
               t.tipe == TipeTransaksi.income &&
@@ -87,7 +87,7 @@ class Transaksi extends _$Transaksi {
   // --- HELPER METODE UNTUK MEMPROSES GRAFIK & STATISTIK ---
 
   List<String> _hitungPaketTerlaris(List<TransaksiModel> list) {
-    final Map<String, int> jumlahPerPaket = {};
+    final jumlahPerPaket = <String, int>{};
 
     for (final t in list) {
       if (t.idPaket != null && t.statusPembayaran == StatusPembayaran.paid) {
@@ -105,7 +105,7 @@ class Transaksi extends _$Transaksi {
     final hasil = List<double>.filled(7, 0.0);
     final sekarang = DateTime.now();
 
-    for (int i = 0; i < 7; i++) {
+    for (var i = 0; i < 7; i++) {
       final targetTanggal = sekarang.subtract(Duration(days: i));
 
       final totalHariItu = list
@@ -128,7 +128,7 @@ class Transaksi extends _$Transaksi {
     final hasil = List<double>.filled(4, 0.0);
     final sekarang = DateTime.now();
 
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       final batasBawah = sekarang.subtract(Duration(days: (i + 1) * 7));
       final batasAtas = sekarang.subtract(Duration(days: i * 7));
 
@@ -153,9 +153,9 @@ class Transaksi extends _$Transaksi {
     final hasil = List<double>.filled(5, 0.0);
     final sekarang = DateTime.now();
 
-    for (int i = 0; i < 5; i++) {
-      int targetBulan = sekarang.month - i;
-      int targetTahun = sekarang.year;
+    for (var i = 0; i < 5; i++) {
+      var targetBulan = sekarang.month - i;
+      var targetTahun = sekarang.year;
 
       while (targetBulan <= 0) {
         targetBulan += 12;
@@ -185,7 +185,7 @@ class Transaksi extends _$Transaksi {
   }
 
   Future<Map<String, int>> getTotalPoinBanyakPelanggan(List<String> ids) async {
-    final Map<String, int> hasil = {};
+    final hasil = <String, int>{};
     for (final id in ids) {
       hasil[id] = await _transaksiOp.ambilTotalPoin(id);
     }
@@ -195,7 +195,7 @@ class Transaksi extends _$Transaksi {
   Future<List<int>> getTotalPoinBanyakPelangganParallel(
     List<String> ids,
   ) async {
-    final List<Future<int>> futures = ids
+    final futures = ids
         .map((id) => _transaksiOp.ambilTotalPoin(id))
         .toList();
     return await Future.wait(futures);

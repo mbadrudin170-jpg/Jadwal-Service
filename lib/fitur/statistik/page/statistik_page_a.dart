@@ -449,7 +449,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     // Validasi indeks
     if (index < 0) return const SizedBox.shrink();
 
-    String label = '';
+    var label = '';
 
     switch (_selectedRange) {
       case ChartRange.harian:

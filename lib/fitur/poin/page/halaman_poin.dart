@@ -94,7 +94,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       }
 
       // 3. Validasi Poin
-      final bool poinCukup = poinSaatIni >= hadiah.poinPenukaran;
+      final poinCukup = poinSaatIni >= hadiah.poinPenukaran;
       if (!kDebugMode && !poinCukup) {
         ToastUtil.warning(
           context,
@@ -104,7 +104,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       }
 
       // 4. Konfirmasi User
-      final bool? dikonfirmasi = await showDialog<bool>(
+      final dikonfirmasi = await showDialog<bool>(
         context: context,
         builder: (dialogContext) => AlertDialog(
           title: const Text('Konfirmasi Penukaran'),
@@ -291,7 +291,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             ? (totalPoin / hadiah.poinPenukaran).clamp(0.0, 1.0)
             : 1.0;
         final selisihPoin = totalPoin - hadiah.poinPenukaran;
-        final bool sedangMemprosesRewardIni =
+        final sedangMemprosesRewardIni =
             _sedangTukarPoin && _idRewardYangDiproses == hadiah.id;
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -367,7 +367,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
                 ? transaksi.poinDidapat
                 : transaksi.poinDigunakan;
             final teksPoin = apakahPenambahan ? '+$nilaiPoin' : '-$nilaiPoin';
-            final bool apakahBelumBayar =
+            final apakahBelumBayar =
                 transaksi.statusPembayaran == StatusPembayaran.unpaid;
             final Color warnaPoin = apakahBelumBayar
                 ? Colors.grey

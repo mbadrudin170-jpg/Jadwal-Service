@@ -160,7 +160,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       future: _initialization,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          final bool isOffline = !(snapshot.data ?? false);
+          final isOffline = !(snapshot.data ?? false);
           if (snapshot.hasError) {
             Log.error(
               'Error pada FutureBuilder inisialisasi',

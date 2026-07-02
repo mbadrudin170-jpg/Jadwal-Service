@@ -156,13 +156,13 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
         title: const Text('Riwayat Langganan'),
         actions: [
           PopupMenuButton<SortMode>(
-            onSelected: (SortMode hasil) {
+            onSelected: (hasil) {
               setState(() {
                 _modeUrutan = hasil;
                 _jumlahTampil = 20;
               });
             },
-            itemBuilder: (BuildContext context) => [
+            itemBuilder: (context) => [
               CheckedPopupMenuItem(
                 value: SortMode.tanggalTerbaru,
                 checked: _modeUrutan == SortMode.tanggalTerbaru,
@@ -202,7 +202,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
         children: [
           Expanded(
             child: transaksi.when(
-              data: (TransaksiState data) {
+              data: (data) {
                 if (userId == null || userId.isEmpty) {
                   return const Center(
                     child: Text('Silakan login terlebih dahulu'),
@@ -286,8 +286,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                   ),
                 );
               },
-              error: (Object error, StackTrace stackTrace) =>
-                  Text('$error $stackTrace'),
+              error: (error, stackTrace) => Text('$error $stackTrace'),
               loading: () => const CircularProgressIndicator(),
             ),
           ),

@@ -131,7 +131,7 @@ class DompetOpSqlite {
         'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tabelDompet WHERE ${NamaKolom.dihapus} = 0',
       );
 
-      double total = 0.0;
+      var total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
       }
@@ -154,7 +154,7 @@ class DompetOpSqlite {
         'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tabelDompet WHERE ${NamaKolom.saldo} > 0 AND ${NamaKolom.dihapus} = 0',
       );
 
-      double total = 0.0;
+      var total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
       }
@@ -177,7 +177,7 @@ class DompetOpSqlite {
         'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tabelDompet WHERE ${NamaKolom.saldo} < 0 AND ${NamaKolom.dihapus} = 0',
       );
 
-      double total = 0.0;
+      var total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
       }

@@ -50,7 +50,7 @@ class LayananUnggahData {
       'Semua fungsi akan dijalankan secara paralel menggunakan Future.wait.',
     );
 
-    final List<Future<void>> daftarTabel = [
+    final daftarTabel = <Future<void>>[
       unggahDataDompet(),
       unggahDataKategori(),
       unggahDataFeedback(),
@@ -161,7 +161,8 @@ class LayananUnggahData {
       'Memulai proses unggah data kritik_saran. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final terkahirUpload = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
+      final terkahirUpload = await _syncManager
+          .ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk kritik_saran: ${terkahirUpload.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -464,7 +465,7 @@ class LayananUnggahData {
       final db = await _sqliteDb.database;
       Log.info('Instance database berhasil didapatkan.');
 
-      List<Map<String, dynamic>> dataUntukDiunggah = [];
+      var dataUntukDiunggah = <Map<String, dynamic>>[];
 
       if (namaTabel == NamaTabel.versiApkUser) {
         Log.info(
@@ -501,9 +502,9 @@ class LayananUnggahData {
       );
       final batchFirestore = _firestore.batch();
       Log.info('Firestore batch berhasil dibuat.');
-      int jumlahSukses = 0;
-      final List<Map<String, dynamic>> failedData = [];
-      for (int i = 0; i < dataUntukDiunggah.length; i++) {
+      var jumlahSukses = 0;
+      final failedData = <Map<String, dynamic>>[];
+      for (var i = 0; i < dataUntukDiunggah.length; i++) {
         final map = dataUntukDiunggah[i];
         Log.info(
           'Memproses data ke-${i + 1}/${dataUntukDiunggah.length} dari tabel $namaTabel.',
@@ -512,7 +513,7 @@ class LayananUnggahData {
           Log.info(
             'Mengkonversi data SQLite menjadi model $T menggunakan fungsi fromSqlite.',
           );
-          final T data = fromSqlite(map);
+          final data = fromSqlite(map);
           if (data.id.isEmpty) {
             Log.warning(
               'Melewati data ke-${i + 1} dari tabel $namaTabel karena ID kosong. Data: $map',

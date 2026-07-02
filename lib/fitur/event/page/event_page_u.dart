@@ -54,7 +54,7 @@ class _EventPageUState extends ConsumerState<EventPageU> {
 
   @override
   Widget build(final BuildContext context) {
-    final EventModel data = widget.event;
+    final data = widget.event;
 
     return Scaffold(
       body: Stack(

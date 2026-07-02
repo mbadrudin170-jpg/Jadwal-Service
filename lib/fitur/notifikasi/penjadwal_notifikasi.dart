@@ -20,7 +20,7 @@ class PenjadwalNotifikasi {
     final idNotifikasiAkhir = userId.hashCode;
     final idNotifikasiTengah = '${userId}_midpoint'.hashCode;
 
-    final int idAlarm = idNotifikasiAkhir;
+    final idAlarm = idNotifikasiAkhir;
 
     try {
       final transaksiOpFirebase = transaksiOp ?? TransaksiOpFirebase();

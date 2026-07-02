@@ -28,7 +28,7 @@ import 'package:wifi/shared/enum/app_role_enum.dart';
 /// 5. Menginisialisasi Google Mobile Ads SDK.
 /// 6. Menjalankan aplikasi dengan [ProviderScope] dan melewatkan role admin.
 void main() async {
-  final WidgetsBinding widgetsBinding =
+  final widgetsBinding =
       WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 

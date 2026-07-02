@@ -76,7 +76,7 @@ class UjiKecepatan extends _$UjiKecepatan {
           );
         },
         onProgress: (persentase, dataUji) {
-          double kecepatanDalamMbps = dataUji.transferRate;
+          var kecepatanDalamMbps = dataUji.transferRate;
           if (dataUji.unit == SpeedUnit.kbps) kecepatanDalamMbps /= 1000;
 
           if (dataUji.type == TestType.download) {
@@ -95,9 +95,9 @@ class UjiKecepatan extends _$UjiKecepatan {
           _timer?.cancel(); // Batalkan timer
           if (_isFinished) return;
           _isFinished = true;
-          double hasilUnduhDalamMbps = unduh.transferRate;
+          var hasilUnduhDalamMbps = unduh.transferRate;
           if (unduh.unit == SpeedUnit.kbps) hasilUnduhDalamMbps /= 1000;
-          double hasilUnggahDalamMbps = unggah.transferRate;
+          var hasilUnggahDalamMbps = unggah.transferRate;
           if (unggah.unit == SpeedUnit.kbps) hasilUnggahDalamMbps /= 1000;
           state = state.copyWith(
             kecepatanUnduh: hasilUnduhDalamMbps,

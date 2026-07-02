@@ -356,7 +356,7 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
                   SwitchListTile(
                     title: const Text('Wajib Update'),
                     value: _perluUpdate,
-                    onChanged: (bool value) {
+                    onChanged: (value) {
                       Log.info('Switch Wajib Update diubah ke: $value');
                       setState(() => _perluUpdate = value);
                     },

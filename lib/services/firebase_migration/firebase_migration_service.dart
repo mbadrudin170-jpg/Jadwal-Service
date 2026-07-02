@@ -211,7 +211,7 @@ class FirebaseMigrationService {
 
     updateData.addAll(oldData);
 
-    final Map<String, int> renamedCount = {};
+    final renamedCount = <String, int>{};
 
     for (final entry in columnMapping.entries) {
       final oldField = entry.key;
@@ -268,8 +268,8 @@ class FirebaseMigrationService {
       return;
     }
 
-    int migratedCount = 0;
-    final Map<String, int> renamedCount = {};
+    var migratedCount = 0;
+    final renamedCount = <String, int>{};
 
     for (final doc in snapshot.docs) {
       final oldData = doc.data() as Map<String, dynamic>;
@@ -323,11 +323,11 @@ class FirebaseMigrationService {
     final QuerySnapshot snapshot = await _firestore
         .collection(collectionName)
         .get();
-    int migratedCount = 0;
+    var migratedCount = 0;
     for (final doc in snapshot.docs) {
       final data = doc.data() as Map<String, dynamic>;
       if (data.containsKey('isDeleted') && data['isDeleted'] is int) {
-        final bool newValue = (data['isDeleted'] as int) == 1;
+        final newValue = (data['isDeleted'] as int) == 1;
         batch.update(doc.reference, {'isDeleted': newValue});
         migratedCount++;
       }
@@ -351,11 +351,11 @@ class FirebaseMigrationService {
     final allDocs = await collectionRef.get();
     if (allDocs.docs.isEmpty) return;
 
-    final Map<String, int> renamedCountPerColumn = {};
+    final renamedCountPerColumn = <String, int>{};
 
     for (final doc in allDocs.docs) {
       final data = doc.data();
-      final Map<String, dynamic> updatePayload = {};
+      final updatePayload = <String, dynamic>{};
 
       for (final entry in columnMapping.entries) {
         final oldColumnName = entry.key;
@@ -389,7 +389,7 @@ class FirebaseMigrationService {
   ) async {
     const collectionName = NamaTabel.paket;
     final snapshot = await _firestore.collection(collectionName).get();
-    int count = 0;
+    var count = 0;
     for (final doc in snapshot.docs) {
       final data = doc.data();
       if (data.containsKey('isPublic')) {
@@ -414,19 +414,19 @@ class FirebaseMigrationService {
   ) async {
     const collectionName = NamaTabel.versiApkUser;
     final snapshot = await _firestore.collection(collectionName).get();
-    int buildCount = 0;
-    int linkCount = 0;
-    int bothCount = 0;
+    var buildCount = 0;
+    var linkCount = 0;
+    var bothCount = 0;
     for (final doc in snapshot.docs) {
       final data = doc.data();
       final update = <String, dynamic>{};
-      bool buildNeed = false;
-      bool linkNeed = false;
+      var buildNeed = false;
+      var linkNeed = false;
       final oldBuild = data[NamaKolom.nomorBuildTerakhir];
       final oldLink = data[NamaKolom.linkDownload];
       if (oldBuild != null && oldBuild is! Map) {
         buildNeed = true;
-        int val = 0;
+        var val = 0;
         if (oldBuild is int) {
           val = oldBuild;
         } else if (oldBuild is String) {
@@ -440,7 +440,7 @@ class FirebaseMigrationService {
       }
       if (oldLink != null && oldLink is! Map) {
         linkNeed = true;
-        String link = '';
+        var link = '';
         if (oldLink is String) {
           link = oldLink;
         }
@@ -481,7 +481,7 @@ class FirebaseMigrationService {
   ) async {
     const collectionName = NamaTabel.statusUnggah;
     final snapshot = await _firestore.collection(collectionName).get();
-    int count = 0;
+    var count = 0;
     for (final doc in snapshot.docs) {
       final data = doc.data();
       if (data.containsKey(NamaKolom.value)) {
@@ -521,7 +521,7 @@ class FirebaseMigrationService {
     try {
       final snapshot = await _firestore.collection(collectionName).get();
       final deleteBatch = _firestore.batch();
-      int docCount = 0;
+      var docCount = 0;
 
       for (final doc in snapshot.docs) {
         deleteBatch.delete(doc.reference);
@@ -555,7 +555,7 @@ class FirebaseMigrationService {
     final batch = _firestore.batch();
     final logs = <String>[];
 
-    final Map<String, String> legacyToNew = {
+    final legacyToNew = <String, String>{
       'dompet': NamaTabel.dompet,
       'kategori': NamaTabel.kategori,
       'sub_kategori': NamaTabel.subKategori,

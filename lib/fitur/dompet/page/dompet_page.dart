@@ -136,7 +136,7 @@ class DompetPage extends ConsumerWidget {
     }
     await showDialog<void>(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Konfirmasi'),
           content: const Text(
@@ -184,7 +184,7 @@ class DompetPage extends ConsumerWidget {
   ) async {
     await showDialog<void>(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Konfirmasi Hapus'),
           content: Text(

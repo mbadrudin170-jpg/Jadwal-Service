@@ -97,7 +97,8 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
     return KategoriModel(
       id: map[NamaKolom.id] as String? ?? const Uuid().v4(),
       nama: map[NamaKolom.nama] as String? ?? '',
-      tipe: _safeParseEnum(TipeKategori.values, map[NamaKolom.tipe]) ??
+      tipe:
+          _safeParseEnum(TipeKategori.values, map[NamaKolom.tipe]) ??
           TipeKategori.expense,
       idSubKategori: parseSubCategories(map[NamaKolom.idSubKategori]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
@@ -132,9 +133,9 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
     List<SubKategoriModel> parseSubCategories(final dynamic subCategoryData) {
       if (subCategoryData is List) {
         return subCategoryData
-            .map((final item) {
+            .map((item) {
               if (item is Map<String, dynamic>) {
-                final String subId =
+                final subId =
                     item[NamaKolom.id] as String? ?? const Uuid().v4();
                 return SubKategoriModel.fromFirebase(subId, item);
               }
@@ -149,7 +150,8 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
     return KategoriModel(
       id: id,
       nama: data[NamaKolom.nama] as String? ?? '',
-      tipe: _safeParseEnum(TipeKategori.values, data[NamaKolom.tipe]) ??
+      tipe:
+          _safeParseEnum(TipeKategori.values, data[NamaKolom.tipe]) ??
           TipeKategori.expense,
       idSubKategori: parseSubCategories(data[NamaKolom.idSubKategori]),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
@@ -163,11 +165,13 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
       NamaKolom.id: id,
       NamaKolom.nama: nama,
       NamaKolom.tipe: tipe.name,
-      NamaKolom.idSubKategori:
-          idSubKategori.map((sub) => sub.toFirebase()).toList(),
+      NamaKolom.idSubKategori: idSubKategori
+          .map((sub) => sub.toFirebase())
+          .toList(),
       NamaKolom.dihapus: diHapus,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()).toUtc(),
+      ),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,

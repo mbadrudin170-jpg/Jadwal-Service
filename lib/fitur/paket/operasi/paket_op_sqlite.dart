@@ -1,7 +1,6 @@
 // path: lib/fitur/paket/operasi/paket_op_sqlite.dart
 
 import 'package:meta/meta.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -169,8 +168,8 @@ class PaketOpSqlite {
   Future<void> hapusSemua({bool dariServer = false}) async {
     Log.info('Memulai proses penghapusan semua data paket');
     try {
-      await basOpSqlite.operasiKompleks<void>((Transaction txn) async {
-        final int count = await txn.delete(_tabel);
+      await basOpSqlite.operasiKompleks<void>((txn) async {
+        final count = await txn.delete(_tabel);
         Log.info('Berhasil menghapus semua data paket. Total terhapus: $count');
       }, dariServer: dariServer);
     } catch (e, s) {

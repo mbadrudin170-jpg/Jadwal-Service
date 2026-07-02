@@ -298,7 +298,7 @@ double getTotalPengeluaran() {
 
 /// Mendapatkan total poin per pelanggan
 Map<String, int> getTotalPoinPerPelanggan() {
-  final Map<String, int> poinMap = {};
+  final poinMap = <String, int>{};
   for (final t in daftarTransaksi) {
     if (t.idPelanggan != null && t.idPelanggan!.isNotEmpty) {
       final id = t.idPelanggan!;

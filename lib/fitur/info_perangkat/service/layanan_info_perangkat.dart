@@ -23,7 +23,7 @@ class LayananInfoPerangkat {
       if (defaultTargetPlatform == TargetPlatform.android) {
         Log.info(
             'Platform terdeteksi: Android. Mengambil AndroidDeviceInfo...');
-        final AndroidDeviceInfo infoAndroid = await infoPerangkat.androidInfo;
+        final infoAndroid = await infoPerangkat.androidInfo;
         final hasilArsitektur = {
           'supportedAbis': infoAndroid.supportedAbis,
           'isPhysicalDevice': infoAndroid.isPhysicalDevice,
@@ -32,7 +32,7 @@ class LayananInfoPerangkat {
         return hasilArsitektur;
       } else if (defaultTargetPlatform == TargetPlatform.iOS) {
         Log.info('Platform terdeteksi: iOS. Mengambil IosDeviceInfo...');
-        final IosDeviceInfo infoIos = await infoPerangkat.iosInfo;
+        final infoIos = await infoPerangkat.iosInfo;
         final result = {
           'utsname.machine': infoIos.utsname.machine,
           'isPhysicalDevice': infoIos.isPhysicalDevice,

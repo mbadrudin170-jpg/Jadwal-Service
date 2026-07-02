@@ -212,7 +212,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
           .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.tanggal, descending: true)
           .get();
-      final List<TransaksiModel> hasil = [];
+      final hasil = <TransaksiModel>[];
       for (final doc in querySnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
         hasil.add(TransaksiModel.fromFirebase(doc.id, data));
@@ -247,7 +247,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
             isEqualTo: StatusPembayaran.paid.name,
           )
           .get();
-      int totalPoin = 0;
+      var totalPoin = 0;
       for (final doc in querySnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
         totalPoin += (data[NamaKolom.poinDidapat] as int? ?? 0);
@@ -281,7 +281,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
     try {
       Log.info('Mulai mengambil paket aktif untuk pelanggan: $idPelanggan');
       // Ambil waktu saat ini
-      final DateTime now = DateTime.now();
+      final now = DateTime.now();
 
       final querySnapshot = await _koleksi
           // 1. Cari transaksi milik pelanggan yang benar

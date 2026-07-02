@@ -113,7 +113,7 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
   }
 
   Future<void> _softDeleteTransaksi() async {
-    final bool? konfirmasi = await showDialog<bool>(
+    final konfirmasi = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Konfirmasi Hapus'),

@@ -78,9 +78,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     if (!state.hasValue) return;
     final currentState = state.value!;
     if (currentState.sortBy == newSort) return;
-    final List<TransaksiDenganPelanggan> sortedList = List.from(
-      currentState.items,
-    );
+    final sortedList = List<TransaksiDenganPelanggan>.from(currentState.items);
     _performSort(sortedList, newSort);
     state = AsyncValue.data(
       currentState.copyWith(items: sortedList, sortBy: newSort),

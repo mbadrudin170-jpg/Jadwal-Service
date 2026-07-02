@@ -91,10 +91,8 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (final context) => CategoryForm(
-          subKategori: subCategory,
-          idKategoriInduk: categoryId,
-        ),
+        builder: (final context) =>
+            CategoryForm(subKategori: subCategory, idKategoriInduk: categoryId),
       ),
     );
     if (result ?? false) {
@@ -104,10 +102,12 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
   }
 
   Future<bool> _showConfirmDialog(
-      final String title, final String content) async {
+    final String title,
+    final String content,
+  ) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (final BuildContext context) {
+      builder: (context) {
         return AlertDialog(
           title: Text(title),
           content: Text(content),
@@ -138,7 +138,9 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
       await _kategoriOpSqlite.softDeleteKategori(category.id);
       if (!mounted) return;
       ToastUtil.success(
-          context, 'Kategori "${category.nama}" berhasil diarsipkan.');
+        context,
+        'Kategori "${category.nama}" berhasil diarsipkan.',
+      );
       _loadData();
     } on Exception catch (e, st) {
       if (!mounted) return;
@@ -148,7 +150,8 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
   }
 
   Future<void> _softDeleteSubCategory(
-      final SubKategoriModel subCategory) async {
+    final SubKategoriModel subCategory,
+  ) async {
     final confirm = await _showConfirmDialog(
       'Arsipkan Sub-Kategori',
       'Anda yakin ingin mengarsipkan sub-kategori "${subCategory.nama}"?',
@@ -159,13 +162,18 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
       await _subKategoriOpSqlite.softDelete(subCategory.id);
       if (!mounted) return;
       ToastUtil.success(
-          context, 'Sub-kategori "${subCategory.nama}" berhasil diarsipkan.');
+        context,
+        'Sub-kategori "${subCategory.nama}" berhasil diarsipkan.',
+      );
       _loadData();
     } on Exception catch (e, st) {
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal mengarsipkan sub-kategori: $e');
-      Log.error('Gagal soft delete sub-kategori ID: ${subCategory.id}',
-          e: e, s: st);
+      Log.error(
+        'Gagal soft delete sub-kategori ID: ${subCategory.id}',
+        e: e,
+        s: st,
+      );
     }
   }
 
@@ -257,12 +265,15 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
                 }
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(
-                      child: Text('Tidak ada kategori ditemukan.'));
+                    child: Text('Tidak ada kategori ditemukan.'),
+                  );
                 }
 
                 final filteredKategori = snapshot.data!
-                    .where((final k) =>
-                        k.tipe == _selectedType && k.diarsipkanPada == null)
+                    .where(
+                      (final k) =>
+                          k.tipe == _selectedType && k.diarsipkanPada == null,
+                    )
                     .toList();
 
                 return ListView.builder(
@@ -280,32 +291,35 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
                                     _navigasiKeEditKategori(kategori),
                               )
                             : _isArchiveMode
-                                ? IconButton(
-                                    icon: const Icon(TIcons.archive),
-                                    onPressed: () =>
-                                        _softDeleteCategory(kategori),
-                                  )
-                                : null,
+                            ? IconButton(
+                                icon: const Icon(TIcons.archive),
+                                onPressed: () => _softDeleteCategory(kategori),
+                              )
+                            : null,
                         children: kategori.idSubKategori
                             .where((final sub) => sub.diarsipkanPada == null)
                             .map((final sub) {
-                          return ListTile(
-                            title: Text(sub.nama),
-                            trailing: _isEdit
-                                ? IconButton(
-                                    icon: const Icon(TIcons.edit),
-                                    onPressed: () => _navigateToEditSubCategory(
-                                        sub, kategori.id),
-                                  )
-                                : _isArchiveMode
+                              return ListTile(
+                                title: Text(sub.nama),
+                                trailing: _isEdit
+                                    ? IconButton(
+                                        icon: const Icon(TIcons.edit),
+                                        onPressed: () =>
+                                            _navigateToEditSubCategory(
+                                              sub,
+                                              kategori.id,
+                                            ),
+                                      )
+                                    : _isArchiveMode
                                     ? IconButton(
                                         icon: const Icon(TIcons.archive),
                                         onPressed: () =>
                                             _softDeleteSubCategory(sub),
                                       )
                                     : null,
-                          );
-                        }).toList(),
+                              );
+                            })
+                            .toList(),
                       ),
                     );
                   },

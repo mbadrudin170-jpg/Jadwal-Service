@@ -329,7 +329,7 @@ class LayananUnduhData {
           'Ditemukan ${hasilSnapshot.docs.length} dokumen baru/diperbarui di [$namaKoleksi].',
         );
 
-        final List<T> daftarData = [];
+        final daftarData = <T>[];
         for (final doc in hasilSnapshot.docs) {
           try {
             daftarData.add(dariFirebase(doc.id, doc.data()));

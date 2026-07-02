@@ -102,8 +102,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
         );
         Navigator.pop(context);
       } on DatabaseException catch (e, s) {
-        String pesanError =
-            'Gagal menyimpan paket. Terjadi kesalahan database.';
+        var pesanError = 'Gagal menyimpan paket. Terjadi kesalahan database.';
         if (e.isUniqueConstraintError()) {
           pesanError = 'Nama paket sudah ada. Harap gunakan nama lain.';
         } else {
@@ -203,15 +202,13 @@ class _PackageFormState extends ConsumerState<FormPaket> {
                 DropdownButtonFormField<TipeDurasiPaket>(
                   initialValue: _selectedType,
                   decoration: const InputDecoration(labelText: 'Tipe Durasi'),
-                  items: TipeDurasiPaket.values.map((
-                    final TipeDurasiPaket type,
-                  ) {
+                  items: TipeDurasiPaket.values.map((tipeDurasi) {
                     return DropdownMenuItem<TipeDurasiPaket>(
-                      value: type,
-                      child: Text(type.displayName),
+                      value: tipeDurasi,
+                      child: Text(tipeDurasi.displayName),
                     );
                   }).toList(),
-                  onChanged: (TipeDurasiPaket? newValue) {
+                  onChanged: (newValue) {
                     if (newValue != null) {
                       setState(() {
                         _selectedType = newValue;

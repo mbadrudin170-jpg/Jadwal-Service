@@ -174,7 +174,7 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
     return SwitchListTile(
       title: const Text('Mode Pemeliharaan'),
       value: _modePemeliharaan,
-      onChanged: (bool value) {
+      onChanged: (value) {
         setState(() {
           _modePemeliharaan = value;
           Log.info('Mode pemeliharaan diubah menjadi: $value');

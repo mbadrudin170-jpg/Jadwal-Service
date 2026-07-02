@@ -42,7 +42,7 @@ class PelangganAktifOpSqlite {
   Future<void> jadwalkanUlangSemuaNotifikasi() async {
     Log.info('MEMULAI PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI...');
     try {
-      final List<PelangganAktifModel> pelangganAktif = await ambilSemua();
+      final pelangganAktif = await ambilSemua();
 
       if (pelangganAktif.isEmpty) {
         Log.info('Tidak ada pelanggan aktif untuk dijadwalkan ulang.');
@@ -120,7 +120,7 @@ class PelangganAktifOpSqlite {
     try {
       final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
 
-      await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((txn) async {
         final data = customerToSave.toSqlite();
         await txn.insert(
           _tabelPelangganAktif,
@@ -196,7 +196,7 @@ class PelangganAktifOpSqlite {
     try {
       final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
       Log.info('Memperbarui active customer ID: ${customerToSave.id}');
-      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((txn) async {
         final data = customerToSave.toSqlite();
         await txn.update(
           _tabelPelangganAktif,
@@ -330,7 +330,7 @@ class PelangganAktifOpSqlite {
         return;
       }
 
-      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((txn) async {
         final pelangganAktifArsip = pelangganAktif.copyWith(
           diperbaruiPada: _nowUtc,
           diHapus: true,
@@ -375,7 +375,7 @@ class PelangganAktifOpSqlite {
         Log.info('Transaksi dengan ID $idTransaksi tidak ditemukan');
       }
     }
-    await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
+    await _baseOpSqlite.operasiKompleks<void>((txn) async {
       final pelangganAktifArsip = pelangganAktif.copyWith(
         diperbaruiPada: _nowUtc,
         diHapus: true,
@@ -467,7 +467,7 @@ class PelangganAktifOpSqlite {
 
       final dataUntukDiarsip = pelangganAktif.map((p) => p.id).toList();
 
-      await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((final txn) async {
         await txn.update(
           _tabelPelangganAktif,
           {

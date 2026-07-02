@@ -67,7 +67,7 @@ class UiHalamanPoin extends StatelessWidget {
       final String label,
       final IconData icon,
     ) {
-      final bool isSelected = menuPilihan == menu;
+      final isSelected = menuPilihan == menu;
       return Expanded(
         child: InkWell(
           onTap: () => onSelectionChanged({menu}),

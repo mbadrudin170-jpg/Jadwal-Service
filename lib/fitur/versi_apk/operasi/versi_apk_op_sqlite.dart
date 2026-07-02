@@ -183,8 +183,8 @@ class VersiApkOpSqlite {
         (i) => VersiApkModel.fromSqlite(maps[i]),
       );
 
-      int jumlahAktif = 0;
-      int jumlahArsip = 0;
+      var jumlahAktif = 0;
+      var jumlahArsip = 0;
       for (final model in hasil) {
         if (model.diHapus) {
           jumlahArsip++;
@@ -230,7 +230,7 @@ class VersiApkOpSqlite {
 
       Log.info('Berhasil mengambil ${hasil.length} versi APK aktif');
 
-      for (int i = 0; i < (hasil.length < 3 ? hasil.length : 3); i++) {
+      for (var i = 0; i < (hasil.length < 3 ? hasil.length : 3); i++) {
         final v = hasil[i];
         Log.info(
           '  ${i + 1}. ID: ${v.id}, Versi: ${v.versiTerkahir}, Build Universal: ${v.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0}',

@@ -91,7 +91,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
   Future<void> _dialogOpsi(TransaksiModel transaksi) async {
     final aksiDipilih = await showDialog<String>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return SimpleDialog(
           title: const Text('Pilih Aksi'),
           children: <Widget>[
@@ -313,9 +313,9 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
     WidgetRef ref,
     OpsiUrutan currentSort,
   ) async {
-    final OpsiUrutan? selected = await showDialog<OpsiUrutan>(
+    final dipilih = await showDialog<OpsiUrutan>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         Widget buildOption(String text, OpsiUrutan value) {
           return SimpleDialogOption(
             onPressed: () => Navigator.pop(context, value),
@@ -347,8 +347,8 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
       },
     );
 
-    if (selected != null) {
-      ref.read(riwayatAktivasiPaketProvider.notifier).changeSort(selected);
+    if (dipilih != null) {
+      ref.read(riwayatAktivasiPaketProvider.notifier).changeSort(dipilih);
     }
   }
 }

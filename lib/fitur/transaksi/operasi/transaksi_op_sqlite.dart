@@ -103,9 +103,7 @@ class TransaksiOpSqlite {
     final bool fromServer = false,
   }) async {
     try {
-      final id = await baseOpSqlite.operasiKompleks<int>((
-        final Transaction txn,
-      ) async {
+      final id = await baseOpSqlite.operasiKompleks<int>((txn) async {
         Log.info('Memulai transaksi database untuk addTransaction');
         final data = transaction.copyWith(diperbaruiPada: _nowUtc);
 
@@ -165,7 +163,7 @@ class TransaksiOpSqlite {
     bool dariServer = false,
   }) async {
     try {
-      await baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
+      await baseOpSqlite.operasiKompleks<void>((txn) async {
         Log.info('Memulai update transaksi database ID: $transaksi.id');
         final maps = await txn.query(
           _tabelTransaksi,
@@ -309,7 +307,7 @@ class TransaksiOpSqlite {
   /// Menandai transaksi sebagai dihapus (soft delete) dan menghitung ulang saldo dompet.
   Future<void> softDelete(String id, {bool dariServer = false}) async {
     try {
-      await baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
+      await baseOpSqlite.operasiKompleks<void>((txn) async {
         Log.info('Memulai soft delete atomik untuk ID: $id');
         final maps = await txn.query(
           _tabelTransaksi,
@@ -355,9 +353,7 @@ class TransaksiOpSqlite {
   /// Menandai semua transaksi sebagai dihapus dan mereset saldo semua dompet menjadi 0.
   Future<int> softDeleteAll({bool dariServer = false}) async {
     try {
-      final count = await baseOpSqlite.operasiKompleks<int>((
-        final Transaction txn,
-      ) async {
+      final count = await baseOpSqlite.operasiKompleks<int>((final txn) async {
         Log.warning('Memulai soft delete semua transaksi secara atomik');
 
         final rowsAffected = await txn.update(
@@ -395,7 +391,7 @@ class TransaksiOpSqlite {
       final result = await db.rawQuery(
         "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabelTransaksi WHERE ${NamaKolom.tipe} = 'income' AND ${NamaKolom.dihapus} = 0",
       );
-      double total = 0.0;
+      var total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
       }
@@ -415,7 +411,7 @@ class TransaksiOpSqlite {
       final result = await db.rawQuery(
         "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabelTransaksi WHERE ${NamaKolom.tipe} = 'expense' AND ${NamaKolom.dihapus} = 0",
       );
-      double total = 0.0;
+      var total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
       }
@@ -477,7 +473,7 @@ class TransaksiOpSqlite {
       final now = DateTime.now();
       final results = <double>[];
 
-      for (int i = 6; i >= 0; i--) {
+      for (var i = 6; i >= 0; i--) {
         final date = now.subtract(Duration(days: i));
         final startOfDay = DateTime(date.year, date.month, date.day);
         final endOfDay = startOfDay.add(const Duration(days: 1));
@@ -518,7 +514,7 @@ class TransaksiOpSqlite {
       final now = DateTime.now();
       final results = <double>[];
 
-      for (int i = 3; i >= 0; i--) {
+      for (var i = 3; i >= 0; i--) {
         final startOfWeek = now.subtract(
           Duration(days: i * 7 + now.weekday - 1),
         );
@@ -565,7 +561,7 @@ class TransaksiOpSqlite {
       final now = DateTime.now();
       final results = <double>[];
 
-      for (int i = 4; i >= 0; i--) {
+      for (var i = 4; i >= 0; i--) {
         final month = now.month - i;
         final year = now.year - (month <= 0 ? 1 : 0);
         final actualMonth = month <= 0 ? month + 12 : month;
@@ -696,10 +692,10 @@ class TransaksiOpSqlite {
       Log.warning('Batch dibatalkan karena daftar transaksi kosong');
       return;
     }
-    final Set<String> dompetTerpengaruh = {};
+    final dompetTerpengaruh = <String>{};
 
     try {
-      await baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
+      await baseOpSqlite.operasiKompleks<void>((final txn) async {
         Log.info(
           'Memulai proses Batch insert/update untuk ${transaksi.length} item',
         );

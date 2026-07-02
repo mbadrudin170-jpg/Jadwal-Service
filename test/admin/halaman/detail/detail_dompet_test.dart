@@ -28,7 +28,7 @@ void main() {
     saldo: 1000.0,
     diperbaruiPada: DateTime.now(),
   );
-  final List<TransaksiModel> daftarTransaksi = [
+  final daftarTransaksi = <TransaksiModel>[
     TransaksiModel(
       id: 't1',
       deskripsi: 'Gaji',

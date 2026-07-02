@@ -169,7 +169,7 @@ class TransaksiOpGlobal {
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.ambilBerdasarkanIds(ids);
     } else {
-      final List<TransaksiModel> hasil = [];
+      final hasil = <TransaksiModel>[];
       for (final id in ids) {
         final transaksi = await _transaksiOpFirebase.ambilBerdasarkanId(id);
         if (transaksi != null) {

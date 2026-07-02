@@ -37,7 +37,7 @@ class PelangganOpSqlite {
         'excludeId': excludeId,
       });
 
-      String sql =
+      var sql =
           '''
       SELECT COUNT(*) as count
       FROM ${NamaTabel.pelanggan}
@@ -68,7 +68,7 @@ class PelangganOpSqlite {
     PelangganModel pelanggan, {
     bool dariServer = false,
   }) async {
-    final bool isDuplicate = await _ambilBerdasarkanTeleponDanKataSandi(
+    final isDuplicate = await _ambilBerdasarkanTeleponDanKataSandi(
       pelanggan.telepon,
       pelanggan.kataSandi,
     );
@@ -83,9 +83,7 @@ class PelangganOpSqlite {
     }
     Log.info('Memulai pembuatan customer dengan ID: ${pelanggan.id}');
     try {
-      final pelangganBaru = pelanggan.copyWith(
-        diperbaruiPada: DateTime.now(),
-      );
+      final pelangganBaru = pelanggan.copyWith(diperbaruiPada: DateTime.now());
       final data = pelangganBaru.toSqlite();
       await _baseOpSqlite.sisipkan(_tabel, data, dariServer: dariServer);
       Log.info(
@@ -151,7 +149,7 @@ class PelangganOpSqlite {
     PelangganModel pelanggan, {
     bool dariServer = false,
   }) async {
-    final bool isDuplicate = await _ambilBerdasarkanTeleponDanKataSandi(
+    final isDuplicate = await _ambilBerdasarkanTeleponDanKataSandi(
       pelanggan.telepon,
       pelanggan.kataSandi,
       excludeId: pelanggan.id,

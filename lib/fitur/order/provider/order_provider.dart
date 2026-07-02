@@ -61,7 +61,7 @@ class Order extends _$Order {
 
   Future<List<OrderModel>> ambilBerdasarkanIdPelanggan(String id) async {
     try {
-      List<OrderModel> daftarBaru = [];
+      var daftarBaru = <OrderModel>[];
       final daftar = state.asData?.value.daftarOrder;
       if (daftar != null) {
         daftarBaru = daftar.where((o) => o.idPelanggan == id).toList();

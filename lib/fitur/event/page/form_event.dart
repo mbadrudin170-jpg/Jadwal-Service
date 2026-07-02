@@ -65,15 +65,13 @@ class _FormEventState extends ConsumerState<FormEvent> {
     final operator = ref.read(eventOpSupabaseProvider);
     try {
       final announcements = await operator.ambilSemuaEvent();
-      final EventModel? activeAnnouncement = announcements
-          .cast<EventModel?>()
-          .firstWhere(
-            (ann) => ann?.statusAktif ?? false,
-            orElse: () {
-              Log.info('Tidak ada pengumuman aktif ditemukan untuk dimuat.');
-              return null;
-            },
-          );
+      final activeAnnouncement = announcements.cast<EventModel?>().firstWhere(
+        (ann) => ann?.statusAktif ?? false,
+        orElse: () {
+          Log.info('Tidak ada pengumuman aktif ditemukan untuk dimuat.');
+          return null;
+        },
+      );
 
       setState(() {
         _selectedAnnouncement = activeAnnouncement;
@@ -91,7 +89,7 @@ class _FormEventState extends ConsumerState<FormEvent> {
 
   Future<void> _pickImage() async {
     try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      final image = await _picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
         setState(() {
           _selectedImage = File(image.path);
@@ -105,7 +103,7 @@ class _FormEventState extends ConsumerState<FormEvent> {
   }
 
   Future<void> _selectDate(bool isStartDate) async {
-    DateTime initialDate = DateTime.now();
+    var initialDate = DateTime.now();
     if (isStartDate) {
       if (_selectedStartDate != null) {
         initialDate = _selectedStartDate!;
@@ -151,10 +149,8 @@ class _FormEventState extends ConsumerState<FormEvent> {
   }
 
   Future<void> _selectTime(bool isStartTime) async {
-    TimeOfDay initialTime = TimeOfDay.now();
-    final DateTime? currentDateTime = isStartTime
-        ? _selectedStartDate
-        : _selectedEndDate;
+    var initialTime = TimeOfDay.now();
+    final currentDateTime = isStartTime ? _selectedStartDate : _selectedEndDate;
     if (currentDateTime != null) {
       initialTime = TimeOfDay(
         hour: currentDateTime.hour,
@@ -168,7 +164,7 @@ class _FormEventState extends ConsumerState<FormEvent> {
       pickedTime = await showTimePicker(
         context: context,
         initialTime: initialTime,
-        builder: (BuildContext context, Widget? child) {
+        builder: (context, child) {
           return MediaQuery(
             data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
             child: child!,
@@ -183,10 +179,10 @@ class _FormEventState extends ConsumerState<FormEvent> {
 
     if (pickedTime != null) {
       setState(() {
-        final DateTime? dateToUpdate = isStartTime
+        final dateToUpdate = isStartTime
             ? _selectedStartDate
             : _selectedEndDate;
-        final DateTime datePart = dateToUpdate ?? DateTime.now();
+        final datePart = dateToUpdate ?? DateTime.now();
 
         final newDateTime = DateTime(
           datePart.year,
@@ -231,13 +227,13 @@ class _FormEventState extends ConsumerState<FormEvent> {
       _isUploading = true;
     });
 
-    String imageUrl = _imageUrlController.text.trim();
+    var imageUrl = _imageUrlController.text.trim();
 
     // 2. Proses upload gambar ke storage jika admin memilih file gambar baru
     if (_selectedImage != null) {
       final storageService = ref.read(layananPenyimpananGambarProvider);
       try {
-        final String uploadUrl = await storageService.unggahGambar(
+        final uploadUrl = await storageService.unggahGambar(
           _selectedImage!,
           NamaTabel.event,
         );
@@ -257,12 +253,12 @@ class _FormEventState extends ConsumerState<FormEvent> {
     }
 
     final eventOpSupabase = ref.read(eventOpSupabaseProvider);
-    final bool isActive = _isSwitched;
-    final DateTime now = DateTime.now();
+    final isActive = _isSwitched;
+    final now = DateTime.now();
 
     // 3. REFAKTORISASI STRUKTUR OBJEK: Dipisahkan tegas antara Edit data vs Buat baru
     // Menjamin kolom 'not null' di Supabase selalu terisi dengan data terbaru dari UI
-    final EventModel announcementToSave = _isEditMode
+    final announcementToSave = _isEditMode
         ? _selectedAnnouncement!.copyWith(
             linkGambar: imageUrl,
             statusAktif: isActive,
@@ -466,7 +462,7 @@ class _FormEventState extends ConsumerState<FormEvent> {
                 ),
                 value: _isSwitched,
                 secondary: const Icon(TIcons.toggleOn),
-                onChanged: (bool value) {
+                onChanged: (value) {
                   setState(() {
                     _isSwitched = value;
                   });

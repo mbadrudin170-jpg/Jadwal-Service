@@ -88,7 +88,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
     final idPelangganAktif = pelanggan.pelangganAktif.id;
     final namaPelanggan = pelanggan.namaPelanggan;
     final idTransaksi = pelanggan.pelangganAktif.idTransaksi;
-    final bool? konfirmasi = await showDialog<bool>(
+    final konfirmasi = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Konfirmasi Arsipkan'),
@@ -207,7 +207,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
 
   Future<void> _opsiLanjutan() async {
     Log.info('Membuka opsi lanjutan');
-    final OpsiLanjutan? selected = await showDialog<OpsiLanjutan>(
+    final selected = await showDialog<OpsiLanjutan>(
       context: context,
       builder: (ctx) => SimpleDialog(
         title: const Text('Opsi Lanjutan'),
@@ -236,7 +236,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
     switch (selected) {
       case OpsiLanjutan.softDeleteAll:
         Log.warning('Opsi arsipkan semua dipilih');
-        final bool? konfirmasi = await showDialog<bool>(
+        final konfirmasi = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Konfirmasi Arsipkan Semua'),

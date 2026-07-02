@@ -65,10 +65,10 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return _MigrationProgressDialog(
           migrationService: _migrationService,
-          onComplete: (bool hasError) {
+          onComplete: (hasError) {
             Log.info(
               'Migrasi selesai, dialog ditutup. Status error: $hasError',
             );
@@ -97,8 +97,7 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
     Log.info('Membangun UI HalamanMigrasi.');
 
     // Tombol dinonaktifkan jika migrasi sedang berjalan atau sudah berhasil.
-    final bool isButtonDisabled =
-        _isMigrating || _migrationCompletedSuccessfully;
+    final isButtonDisabled = _isMigrating || _migrationCompletedSuccessfully;
 
     Widget buttonIcon;
     String buttonText;

@@ -33,9 +33,9 @@ class _LainnyaPageState extends State<LainnyaPage> {
   /// Menampilkan dialog konfirmasi sebelum keluar dari aplikasi.
   Future<void> _showLogoutConfirmationDialog() async {
     Log.info('Menampilkan dialog konfirmasi keluar.');
-    final bool? shouldLogout = await showDialog<bool>(
+    final shouldLogout = await showDialog<bool>(
       context: context,
-      builder: (final BuildContext context) {
+      builder: ( context) {
         return AlertDialog(
           title: const Text('Konfirmasi Keluar'),
           content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),

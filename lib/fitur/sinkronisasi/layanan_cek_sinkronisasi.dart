@@ -53,7 +53,7 @@ class LayananCekSinkronisasi {
     }
     _berjalan = true;
     try {
-      final bool sudahUnggahData = await _periksaDanJalankanUnggah();
+      final sudahUnggahData = await _periksaDanJalankanUnggah();
       if (sudahUnggahData) {
         Log.info(
           'Pemicu sinkronisasi: Ada data baru yang berhasil diunggah ke server.',
@@ -70,9 +70,9 @@ class LayananCekSinkronisasi {
   }
 
   Future<bool> _periksaDanJalankanUnggah() async {
-    final DateTime sekarang = DateTime.now();
+    final sekarang = DateTime.now();
     try {
-      final bool adaDataUntukUnggah = await _pengecekanDataBaru
+      final adaDataUntukUnggah = await _pengecekanDataBaru
           .apakahSqliteAdaDataBaru();
       if (adaDataUntukUnggah) {
         await _layananUnggah.unggahSemuaData();
@@ -110,14 +110,14 @@ class LayananCekSinkronisasi {
 
   Future<void> _periksaDanJalankanUnduh() async {
     try {
-      final bool adaDataBaruDiServer = await _pengecekanDataBaru
+      final adaDataBaruDiServer = await _pengecekanDataBaru
           .apakahFirebaseAdaDataBaru(
             namaKoleksi: NamaTabel.statusGlobal,
             idDokumen: globalStatusId,
           );
       if (adaDataBaruDiServer) {
         await _layananUnduh.unduhSemuaData();
-        final DateTime sekarang = DateTime.now();
+        final sekarang = DateTime.now();
         await _pengelolaSinkronisasi.simpanWaktuTerakhirUnduhPreferensi(sekarang);
         Log.info('Sinkronisasi masuk selesai: $sekarang.');
       } else {

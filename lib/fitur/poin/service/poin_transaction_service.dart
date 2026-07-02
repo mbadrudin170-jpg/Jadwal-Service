@@ -86,7 +86,7 @@ class PoinTransactionService {
             )
             .get();
 
-        int totalPoin = 0;
+        var totalPoin = 0;
         for (final doc in transaksiSnapshot.docs) {
           final data = doc.data();
           totalPoin += (data[NamaKolom.poinDidapat] as int? ?? 0);

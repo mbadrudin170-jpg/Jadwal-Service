@@ -97,7 +97,7 @@ class PaketOpGlobal {
       Log.info(
         '[PaketOpGlobal] User mengambil ${ids.length} paket dari Firebase',
       );
-      final List<PaketModel> hasil = [];
+      final hasil = <PaketModel>[];
       for (final id in ids) {
         final paket = await _paketOpFirebase.ambilBerdasarkanId(id);
         if (paket != null) {

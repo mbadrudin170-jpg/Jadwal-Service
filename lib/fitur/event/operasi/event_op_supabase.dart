@@ -19,7 +19,7 @@ class EventOpSupabase {
       Log.info('1️⃣ Membangun query...');
       final query = _supabase.from(_tabelEvent).select();
       Log.info('2️⃣ Eksekusi query ke Supabase...');
-      final List<Map<String, dynamic>> response = await query;
+      final response = await query;
       Log.info('3️⃣ Response diterima, jumlah data: ${response.length}');
 
       return response.map((data) {
@@ -46,7 +46,7 @@ class EventOpSupabase {
         .handleError((Object e, StackTrace s) {
           Log.error('❌ Error di dalam stream: $e', e: e, s: s);
         })
-        .map((List<Map<String, dynamic>> response) {
+        .map((response) {
           Log.info(
             '⚡ Realtime: Menerima ${response.length} data pengumuman terbaru',
           );
@@ -63,7 +63,7 @@ class EventOpSupabase {
     /// Mengambil pengumuman yang sedang aktif.
     Log.info('EventOpSupabase: Mengambil pengumuman aktif');
     try {
-      final List<Map<String, dynamic>> respon = await _supabase
+      final respon = await _supabase
           .from(_tabelEvent)
           .select()
           .eq(NamaKolom.statusAktif, true)
@@ -90,7 +90,7 @@ class EventOpSupabase {
     /// Mengambil pengumuman berdasarkan ID.
     Log.info('EventOpSupabase: Mengambil pengumuman berdasarkan id: $id');
     try {
-      final List<Map<String, dynamic>> respon = await _supabase
+      final respon = await _supabase
           .from(_tabelEvent)
           .select()
           .eq(NamaKolom.id, id)
@@ -116,7 +116,7 @@ class EventOpSupabase {
   Future<void> tambahEvent(EventModel event) async {
     Log.info('EventOpSupabase: Membuat pengumuman baru ${event.id}');
     try {
-      final Map<String, dynamic> dataPayload = event.toSupabase();
+      final dataPayload = event.toSupabase();
       await _supabase.from(_tabelEvent).insert(dataPayload);
     } catch (e, s) {
       Log.error('Gagal membuat pengumuman di Supabase', e: e, s: s);
@@ -128,7 +128,7 @@ class EventOpSupabase {
   Future<void> perbaruiEvent(EventModel event) async {
     Log.info('EventOpSupabase: Memperbarui pengumuman ${event.id}');
     try {
-      final Map<String, dynamic> dataPayload = event.toSupabase();
+      final dataPayload = event.toSupabase();
       await _supabase
           .from(_tabelEvent)
           .update(dataPayload)

@@ -77,7 +77,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
   }
 
   Future<void> _unduhPembaruan() async {
-    final String? urlUnduh =
+    final urlUnduh =
         widget.infoApk.linkDownload[widget.arsitektur] ??
         widget.infoApk.linkDownload[ArsitekturApk.universal];
 

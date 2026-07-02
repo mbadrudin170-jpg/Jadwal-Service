@@ -142,7 +142,7 @@ class PaketOpFirebase {
 
     try {
       Log.info('Mengambil ${ids.length} paket berdasarkan ID');
-      final List<PaketModel> hasil = [];
+      final hasil = <PaketModel>[];
 
       for (final id in ids) {
         final paket = await ambilBerdasarkanId(id);

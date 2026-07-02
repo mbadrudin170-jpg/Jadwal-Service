@@ -83,13 +83,13 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
   }
 
   Future<void> _bukaWhatsApp(String phone) async {
-    String formatNomor = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    var formatNomor = phone.replaceAll(RegExp(r'[^0-9]'), '');
     if (formatNomor.startsWith('0')) {
       formatNomor = '62${formatNomor.substring(1)}';
     } else if (!formatNomor.startsWith('62')) {
       formatNomor = '62$formatNomor';
     }
-    final Uri whatsappUri = Uri.parse('https://wa.me/$formatNomor');
+    final whatsappUri = Uri.parse('https://wa.me/$formatNomor');
     try {
       Log.info('Mencoba membuka WhatsApp: $formatNomor');
       if (await canLaunchUrl(whatsappUri)) {

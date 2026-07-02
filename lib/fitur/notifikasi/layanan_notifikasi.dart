@@ -23,7 +23,7 @@ import 'package:wifi/shared/debug/log.dart';
 void onDidReceiveBackgroundNotificationResponse(
   final NotificationResponse response,
 ) {
-  final String? payload = response.payload;
+  final payload = response.payload;
   if (response.payload != null) {
     debugPrint('notification payload: $payload');
   }
@@ -101,7 +101,7 @@ class LayananNotifikasi {
     try {
       Log.info('Memulai inisialisasi data zona waktu...');
       tz.initializeTimeZones();
-      String zonaWaktuLokal =
+      var zonaWaktuLokal =
           (await FlutterTimezone.getLocalTimezone()).identifier;
       Log.info('Zona waktu terdeteksi dari perangkat: $zonaWaktuLokal');
       if (zonaWaktuLokal == 'GMT') {
@@ -288,13 +288,12 @@ class LayananNotifikasi {
         Log.warning('Permintaan izin tidak berlaku untuk platform web.');
         return;
       }
-      final AndroidFlutterLocalNotificationsPlugin? androidPlugin = plugin
+      final androidPlugin = plugin
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
           >();
       if (androidPlugin != null) {
-        final bool? granted = await androidPlugin
-            .requestNotificationsPermission();
+        final granted = await androidPlugin.requestNotificationsPermission();
         Log.info(
           'Izin notifikasi diberikan oleh pengguna: ${granted ?? false}',
         );
@@ -344,7 +343,7 @@ class LayananNotifikasi {
     }
     Log.info('Channel notifikasi ditemukan: ${channelNotifikasiPenting!.id}');
 
-    final int id = payload?.hashCode ?? _random.nextInt(pow(2, 31).toInt());
+    final id = payload?.hashCode ?? _random.nextInt(pow(2, 31).toInt());
     Log.info('Mengirim notifikasi langsung (ID: $id, Judul: $title)');
     final androidDetails = AndroidNotificationDetails(
       channelNotifikasiPenting!.id,
@@ -390,7 +389,7 @@ class LayananNotifikasi {
       Log.info('ID: ${notif.id}, Title: ${notif.title}, Scheduled: $notif');
     }
 
-    final bool hasPermission = await mengecekIzinExactAlarm();
+    final hasPermission = await mengecekIzinExactAlarm();
     if (!hasPermission) {
       Log.error(
         'Gagal menjadwalkan notifikasi karena izin exact alarm ditolak.',
@@ -407,10 +406,7 @@ class LayananNotifikasi {
     );
     final detailNotifikasi = NotificationDetails(android: androidDetails);
     try {
-      final tz.TZDateTime waktuTerjadwalTZ = tz.TZDateTime.from(
-        jadwal,
-        tz.local,
-      );
+      final waktuTerjadwalTZ = tz.TZDateTime.from(jadwal, tz.local);
       Log.info(
         'Waktu notifikasi dikonversi ke zona waktu lokal (${tz.local.name}): $waktuTerjadwalTZ',
       );

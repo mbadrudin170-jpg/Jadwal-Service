@@ -251,7 +251,7 @@ Future<void> _tampilkanDialogKonfirmasiHapus(
 
   await showDialog<void>(
     context: context,
-    builder: (BuildContext dialogContext) {
+    builder: (dialogContext) {
       return AlertDialog(
         title: const Text('Konfirmasi Hapus'),
         content: Text('Anda yakin ingin menghapus paket ${paket.nama}?'),
@@ -295,7 +295,7 @@ Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
   final paketOpSqlite = ref.read(paketOpSqliteProvider);
   await showDialog<void>(
     context: context,
-    builder: (BuildContext dialogContext) {
+    builder: (dialogContext) {
       return AlertDialog(
         title: const Text('Konfirmasi Hapus Semua'),
         content: const Text('Yakin ingin menghapus SEMUA paket?'),

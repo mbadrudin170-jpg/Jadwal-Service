@@ -65,9 +65,8 @@ class SqliteDatabase {
       }
 
       Log.info('Mode PRODUKSI/DEBUG. Menggunakan database fisik.');
-      final Directory documentsDirectory =
-          await getApplicationDocumentsDirectory();
-      final String path = join(documentsDirectory.path, 'mydatabase.db');
+      final documentsDirectory = await getApplicationDocumentsDirectory();
+      final path = join(documentsDirectory.path, 'mydatabase.db');
       Log.info('Path database: $path');
 
       Log.info('Membuka database dengan versi $_databaseVersion...');
@@ -172,7 +171,7 @@ class SqliteDatabase {
       '[MIGRASI v53] Menambahkan kolom durasi_bonus dan durasi_bonus_type...',
     );
 
-    const String tableName = NamaTabel.transaksi;
+    const tableName = NamaTabel.transaksi;
     final results = await db.rawQuery('PRAGMA table_info("$tableName")');
     final existingColumns = results
         .map((row) => row['name'] as String)
@@ -194,7 +193,7 @@ class SqliteDatabase {
   }
 
   Future<void> _migrateToV54(final Database db) async {
-    const String tableName = NamaTabel.notifikasi;
+    const tableName = NamaTabel.notifikasi;
     final results = await db.rawQuery('PRAGMA table_info("$tableName")');
     final existingColumns = results
         .map((row) => row['name'] as String)
@@ -253,7 +252,7 @@ class SqliteDatabase {
   Future<void> _migrateToV47(final Database db) async {
     Log.info('[MIGRASI v47] Migrasi skema destruktif.');
     final batch = db.batch();
-    final List<String> daftarTabel = [
+    final daftarTabel = <String>[
       'kategori',
       'sub_kategori',
       'paket',
@@ -581,7 +580,7 @@ class SqliteDatabase {
     Log.info('Semua 14 definisi tabel (v52) ditambahkan ke batch.');
 
     // diperbaiki: Index ditargetkan menggunakan escaping keyword "transaction" otomatis dari TableNameValue
-    const String trxTable = '"${NamaTabel.transaksi}"';
+    const trxTable = '"${NamaTabel.transaksi}"';
     batch.execute(
       'CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id ON $trxTable(${NamaKolom.idDompet})',
     );

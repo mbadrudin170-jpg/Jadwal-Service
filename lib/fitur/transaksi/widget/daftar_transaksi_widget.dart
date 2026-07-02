@@ -17,7 +17,7 @@ import 'package:wifi/shared/utils/format_util.dart';
 Map<DateTime, List<TransaksiModel>> kelompokkanTransaksiPerTanggal(
   final List<TransaksiModel> transaksi,
 ) {
-  final Map<DateTime, List<TransaksiModel>> kelompok = {};
+  final kelompok = <DateTime, List<TransaksiModel>>{};
   for (final transaksi in transaksi) {
     final tanggal = DateTime(
       transaksi.tanggal.year,

@@ -1,6 +1,5 @@
 // path: lib/fitur/feedback/operasi/feedback_op_sqlite.dart
 
-import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -235,8 +234,8 @@ class FeedbackOpSqlite {
       'PERINGATAN: Memulai deleteAllFeedback. Ini adalah operasi destruktif.',
     );
     try {
-      await baseOpSqlite.operasiKompleks<int>((final Transaction txn) async {
-        final int count = await txn.delete(_namaTabel);
+      await baseOpSqlite.operasiKompleks<int>(( txn) async {
+        final count = await txn.delete(_namaTabel);
         Log.info(
           'Berhasil deleteAllFeedback. Total baris yang dihapus: $count',
         );

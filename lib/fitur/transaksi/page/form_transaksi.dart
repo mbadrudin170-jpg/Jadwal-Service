@@ -230,14 +230,14 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     try {
       Log.info('Form valid. Memulai proses penyimpanan.');
       setState(() => _menyimpan = true);
-      final DateTime combinedDateTime = DateTime(
+      final combinedDateTime = DateTime(
         _tanggalDipilih!.year,
         _tanggalDipilih!.month,
         _tanggalDipilih!.day,
         _jamDipilih!.hour,
         _jamDipilih!.minute,
       );
-      final double jumlah = InputRupiah.parse(_jumlahController.text).abs();
+      final jumlah = InputRupiah.parse(_jumlahController.text).abs();
       final transaksi = TransaksiModel(
         id: _modeEdit ? widget.transaksi!.id : const Uuid().v4(),
         deskripsi: _keteranganController.text,
@@ -310,7 +310,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
             children: [
               Row(
                 children: TipeTransaksi.values.map((tipe) {
-                  final bool isSelected = _tipe == tipe;
+                  final isSelected = _tipe == tipe;
                   Color getColor() {
                     switch (tipe) {
                       case TipeTransaksi.income:

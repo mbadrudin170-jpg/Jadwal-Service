@@ -45,7 +45,7 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
         'PackageInfo berhasil diambil - Nama: ${infoPerangkat.appName}, Versi: ${infoPerangkat.version}, Build: ${infoPerangkat.buildNumber}, Package: ${infoPerangkat.packageName}',
       );
 
-      String deviceArch = 'Unknown';
+      var deviceArch = 'Unknown';
 
       if (Platform.isAndroid) {
         Log.info('Platform terdeteksi: Android, mengambil DeviceInfo');
