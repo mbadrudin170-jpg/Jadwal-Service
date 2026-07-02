@@ -220,12 +220,12 @@ Future<void> _tampilkanDialogHapusEdit(
             onPressed: () async {
               Navigator.pop(dialogContext);
               if (!context.mounted) return;
-              await Navigator.push(
+               unawaited(Navigator.push(
                 context,
                 MaterialPageRoute<void>(
                   builder: (context) => FormPaket(paket: paket),
                 ),
-              );
+              ));
             },
             child: const Text('Edit'),
           ),

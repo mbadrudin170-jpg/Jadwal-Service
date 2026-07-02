@@ -89,7 +89,7 @@ class PaketOpSqlite {
     Log.info('Memulai proses pengambilan semua data paket publik');
     try {
       final db = await sqliteDb.database;
-      final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      final maps = await db.rawQuery('''
         SELECT *,
           CASE ${NamaKolom.tipe}
             WHEN 'jam' THEN ${NamaKolom.durasi}
@@ -118,7 +118,7 @@ class PaketOpSqlite {
     Log.info('Memulai pencarian paket berdasarkan ID: $id');
     try {
       final db = await sqliteDb.database;
-      final List<Map<String, dynamic>> maps = await db.query(
+      final maps = await db.query(
         _tabel,
         where: '${NamaKolom.id} = ?',
         whereArgs: [id],
