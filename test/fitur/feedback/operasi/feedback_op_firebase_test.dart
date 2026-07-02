@@ -1,5 +1,4 @@
 // path: test/fitur/feedback/operasi/feedback_op_firebase_test.dart
-
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -52,9 +51,9 @@ void main() {
     when(
       mockQuery.orderBy(any, descending: anyNamed('descending')),
     ).thenReturn(mockQuery);
-    when(
-      mockQuery.snapshots(),
-    ).thenAnswer((_) => Stream.value(mockQuerySnapshot));
+
+    // Changed from snapshots() to get()
+    when(mockQuery.get()).thenAnswer((_) async => mockQuerySnapshot);
   });
 
   final feedbackModel = FeedbackModel(
@@ -83,18 +82,28 @@ void main() {
       '02. perbaruiFeedback harus memanggil _baseOpFirebase.update',
       () async {
         // Arrange
-        const docId = 'feedback1';
-        const newContent = 'Updated feedback';
+        final feedbackToUpdate = FeedbackModel(
+          id: 'feedback1',
+          pesan: 'Updated feedback',
+          userId: 'user123',
+          tanggal: DateTime.now(),
+        );
+
         when(
           mockBaseOpFirebase.update(any, any, any),
         ).thenAnswer((_) async => Future.value());
 
         // Act
-        await feedbackOpFirebase.perbarui(docId, newContent);
+        await feedbackOpFirebase.perbarui(feedbackToUpdate);
 
         // Assert
         verify(
-          mockBaseOpFirebase.update(any, docId, {NamaKolom.pesan: newContent}),
+          mockBaseOpFirebase.update(
+            any,
+            'feedback1',
+            argThat(isA<Map<String, dynamic>>().having(
+                (map) => map[NamaKolom.pesan], 'pesan', 'Updated feedback')),
+          ),
         ).called(1);
       },
     );
@@ -131,8 +140,8 @@ void main() {
     );
 
     test(
-      '05. ambilBerdasarkanUser harus mengembalikan stream list feedback',
-      () {
+      '05. ambilBerdasarkanUser harus mengembalikan list feedback',
+      () async {
         // Arrange
         const userId = 'user123';
         final mockDocSnapshot =
@@ -143,17 +152,13 @@ void main() {
         when(mockDocSnapshot.data()).thenReturn(feedbackModel.toFirebase());
 
         // Act
-        final stream = feedbackOpFirebase.ambilBerdasarkanUser(userId);
+        final list = await feedbackOpFirebase.ambilBerdasarkanUser(userId);
 
         // Assert
-        expect(stream, isA<Stream<List<FeedbackModel>>>());
-        stream.listen(
-          expectAsync1((list) {
-            expect(list.length, 1);
-            expect(list.first.id, 'feedback1');
-            expect(list.first.userId, userId);
-          }),
-        );
+        expect(list, isA<List<FeedbackModel>>());
+        expect(list.length, 1);
+        expect(list.first.id, 'feedback1');
+        expect(list.first.userId, userId);
       },
     );
 
@@ -161,13 +166,13 @@ void main() {
       // Arrange
       const userId = 'user123';
       final error = Exception('Firestore error');
-      when(mockQuery.snapshots()).thenAnswer((_) => Stream.error(error));
+      when(mockQuery.get()).thenThrow(error);
 
-      // Act
-      final stream = feedbackOpFirebase.ambilBerdasarkanUser(userId);
-
-      // Assert
-      expect(stream, emitsError(isA<Exception>()));
+      // Act & Assert
+      expect(
+        () => feedbackOpFirebase.ambilBerdasarkanUser(userId),
+        throwsA(isA<Exception>()),
+      );
     });
   });
 }

@@ -6,16 +6,17 @@ import 'package:wifi/shared/data/services/layanan_preferensi.dart';
 void main() {
   group('LayananPreferensi', () {
     const kunciTerakhirUnduh = 'terakhir_unduh';
+    late LayananPreferensi layananPreferensi;
 
     setUp(() async {
-      // Inisialisasi dengan nilai kosong sebelum setiap tes
       SharedPreferences.setMockInitialValues({});
+      layananPreferensi = LayananPreferensi();
     });
 
     test(
       '01. ambilWaktuTerakhirUnduh harus mengembalikan null jika tidak ada data',
       () async {
-        final waktu = await LayananPreferensi().ambilWaktuTerakhirUnduh();
+        final waktu = await layananPreferensi.ambilWaktuTerakhirUnduh();
         expect(waktu, isNull);
       },
     );
@@ -24,11 +25,10 @@ void main() {
       '02. simpan dan ambilWaktuTerakhirUnduh harus mengembalikan waktu yang benar',
       () async {
         final waktuSimpan = DateTime.now();
-        await LayananPreferensi.simpanWaktuTerakhirUnduh(waktuSimpan);
+        await layananPreferensi.simpanWaktuTerakhirUnduh(waktuSimpan);
 
-        final waktuAmbil = await LayananPreferensi.ambilWaktuTerakhirUnduh();
+        final waktuAmbil = await layananPreferensi.ambilWaktuTerakhirUnduh();
 
-        // Compare milliseconds since epoch to avoid precision issues
         expect(
           waktuAmbil?.millisecondsSinceEpoch,
           waktuSimpan.toUtc().millisecondsSinceEpoch,
@@ -39,7 +39,7 @@ void main() {
     test(
       '03. ambilWaktuTerakhirUnggah harus mengembalikan null jika tidak ada data',
       () async {
-        final waktu = await LayananPreferensi.ambilWaktuTerakhirUnggah();
+        final waktu = await layananPreferensi.ambilWaktuTerakhirUnggah();
         expect(waktu, isNull);
       },
     );
@@ -48,9 +48,9 @@ void main() {
       '04. simpan dan ambilWaktuTerakhirUnggah harus mengembalikan waktu yang benar',
       () async {
         final waktuSimpan = DateTime.now();
-        await LayananPreferensi.simpanWaktuTerakhirUnggah(waktuSimpan);
+        await layananPreferensi.simpanWaktuTerakhirUnggah(waktuSimpan);
 
-        final waktuAmbil = await LayananPreferensi.ambilWaktuTerakhirUnggah();
+        final waktuAmbil = await layananPreferensi.ambilWaktuTerakhirUnggah();
 
         expect(
           waktuAmbil?.millisecondsSinceEpoch,
@@ -63,37 +63,35 @@ void main() {
       '05. resetWaktuSinkronisasi harus menghapus kedua timestamp',
       () async {
         final waktuSekarang = DateTime.now();
-        await LayananPreferensi.simpanWaktuTerakhirUnduh(waktuSekarang);
-        await LayananPreferensi.simpanWaktuTerakhirUnggah(waktuSekarang);
+        await layananPreferensi.simpanWaktuTerakhirUnduh(waktuSekarang);
+        await layananPreferensi.simpanWaktuTerakhirUnggah(waktuSekarang);
 
-        // Pastikan data tersimpan
-        expect(await LayananPreferensi.ambilWaktuTerakhirUnduh(), isNotNull);
-        expect(await LayananPreferensi.ambilWaktuTerakhirUnggah(), isNotNull);
+        expect(await layananPreferensi.ambilWaktuTerakhirUnduh(), isNotNull);
+        expect(await layananPreferensi.ambilWaktuTerakhirUnggah(), isNotNull);
 
-        // Reset waktu
-        await LayananPreferensi.resetWaktuSinkronisasi();
+        await layananPreferensi.resetWaktuSinkronisasi();
 
-        // Pastikan data sudah null
-        expect(await LayananPreferensi.ambilWaktuTerakhirUnduh(), isNull);
-        expect(await LayananPreferensi.ambilWaktuTerakhirUnggah(), isNull);
+        expect(await layananPreferensi.ambilWaktuTerakhirUnduh(), isNull);
+        expect(await layananPreferensi.ambilWaktuTerakhirUnggah(), isNull);
       },
     );
 
-    test('06. _ambilTimestamp harus mengembalikan null jika nilai 0', () async {
+    test('06. ambilWaktuTerakhirUnduh harus mengembalikan null jika nilai 0',
+        () async {
       SharedPreferences.setMockInitialValues({kunciTerakhirUnduh: 0});
 
-      final waktu = await LayananPreferensi.ambilWaktuTerakhirUnduh();
+      final waktu = await layananPreferensi.ambilWaktuTerakhirUnduh();
       expect(waktu, isNull);
     });
 
-    test('07. _simpanTimestamp menyimpan nilai dalam format UTC', () async {
-      final waktuLokal = DateTime(2023, 1, 1, 10); // Waktu lokal
-      await LayananPreferensi.simpanWaktuTerakhirUnduh(waktuLokal);
+    test('07. simpanWaktuTerakhirUnduh menyimpan nilai dalam format UTC',
+        () async {
+      final waktuLokal = DateTime(2023, 1, 1, 10);
+      await layananPreferensi.simpanWaktuTerakhirUnduh(waktuLokal);
 
       final prefs = await SharedPreferences.getInstance();
       final timestamp = prefs.getInt(kunciTerakhirUnduh);
 
-      // Harusnya sama dengan versi UTC nya
       expect(timestamp, waktuLokal.toUtc().millisecondsSinceEpoch);
     });
   });

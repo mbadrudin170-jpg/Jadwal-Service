@@ -243,7 +243,7 @@ void main() {
       final pushedRoute =
           verify(mockNavigatorObserver.didPush(captureAny, any)).captured.last
               as Route<dynamic>;
-      expect(pushedRoute, isA<MaterialPageRoute>());
+      expect(pushedRoute, isA<MaterialPageRoute<dynamic>>());
     });
   });
 }
