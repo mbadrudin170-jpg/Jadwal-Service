@@ -136,7 +136,9 @@ class DetailDompet extends ConsumerWidget {
                 },
                 onDelete: () async {
                   Log.info('Hapus transaksi: ${transaction.id}');
-                  await ref.read(transaksiOpGlobalProvider).softDelete(transaction.id);
+                  await ref
+                      .read(transaksiOpGlobalProvider)
+                      .softDelete(transaction.id);
                   ref.invalidate(detailDompetProvider(dompet.id));
                 },
               ),

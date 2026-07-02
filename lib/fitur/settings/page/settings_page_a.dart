@@ -42,7 +42,7 @@ class SettingsAdminPage extends ConsumerWidget {
     );
     if ((konfirmasi == true) && context.mounted) {
       try {
-        await ref.read(pengelolaSinkronisasiProvider).resetWaktuSinkronisasi();
+        await ref.read(pengelolaSinkronisasiProvider).resetWaktuSinkronisasiPreferensi();
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
         );

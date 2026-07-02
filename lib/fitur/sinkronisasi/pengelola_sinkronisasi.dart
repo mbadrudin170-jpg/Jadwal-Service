@@ -1,7 +1,5 @@
-// path lib/fitur/sinkronisasi/pengelola_sinkronisasi.dart
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/shared/data/services/layanan_preferensi.dart';
+import 'package:wifi/shared/data/services/layanan_preferensi.dart'; // ← import
 import 'package:wifi/shared/debug/log.dart';
 
 final pengelolaSinkronisasiProvider = Provider<PengelolaSinkronisasi>((ref) {
@@ -10,39 +8,40 @@ final pengelolaSinkronisasiProvider = Provider<PengelolaSinkronisasi>((ref) {
 });
 
 class PengelolaSinkronisasi {
-  Future<DateTime> ambilWaktuTerakhirUnduh() async {
+  // Method dengan nama berbeda agar tidak bentrok
+  Future<DateTime> ambilWaktuTerakhirUnduhPreferensi() async {
     Log.info('Meminta timestamp terakhir unduh dari PreferenceService');
-    final hasil = await LayananPreferensi.ambilWaktuTerakhirUnduh();
+    final hasil = await ambilWaktuTerakhirUnduh(); // ← fungsi top-level
     final waktuTerakhir =
         hasil ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
     Log.info('Timestamp terakhir unduh yang digunakan: $waktuTerakhir');
     return waktuTerakhir;
   }
 
-  Future<void> simpanWaktuTerakhirUnduh(DateTime waktu) async {
+  Future<void> simpanWaktuTerakhirUnduhPreferensi(DateTime waktu) async {
     Log.info('Menyimpan timestamp terakhir unduh: $waktu');
-    await LayananPreferensi.simpanWaktuTerakhirUnduh(waktu);
+    await simpanWaktuTerakhirUnduh(waktu); // ← fungsi top-level
     Log.info('Timestamp terakhir unduh berhasil disimpan');
   }
 
-  Future<DateTime> ambilWaktuTerakhirUnggah() async {
+  Future<DateTime> ambilWaktuTerakhirUnggahPreferensi() async {
     Log.info('Meminta timestamp terakhir unggah dari PreferenceService');
-    final hasil = await LayananPreferensi.ambilWaktuTerakhirUnggah();
+    final hasil = await ambilWaktuTerakhirUnggah(); // ← fungsi top-level
     final waktuTerakhir =
         hasil ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
     Log.info('Timestamp terakhir unggah yang digunakan: $waktuTerakhir');
     return waktuTerakhir;
   }
 
-  Future<void> simpanWaktuTerakhirUnggah(DateTime waktu) async {
+  Future<void> simpanWaktuTerakhirUnggahPreferensi(DateTime waktu) async {
     Log.info('Menyimpan timestamp terakhir unggah: $waktu');
-    await LayananPreferensi.simpanWaktuTerakhirUnggah(waktu);
+    await simpanWaktuTerakhirUnggah(waktu); // ← fungsi top-level
     Log.info('Timestamp terakhir unggah berhasil disimpan');
   }
 
-  Future<void> resetWaktuSinkronisasi() async {
+  Future<void> resetWaktuSinkronisasiPreferensi() async {
     Log.warning('MERESET WAKTU SINKRONISASI (UNDUH & UNGGAH)');
-    await LayananPreferensi.resetWaktuSinkronisasi();
+    await resetWaktuSinkronisasi(); // ← fungsi top-level
     Log.info('Waktu sinkronisasi (unduh dan unggah) berhasil di-reset.');
   }
 }

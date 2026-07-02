@@ -50,13 +50,13 @@ class HalamanDataDummy extends ConsumerWidget {
                 context,
                 ref,
                 'Pelanggan',
-                DummyPelanggan.daftarPelanggan,
+                daftarPelanggan,
                 ref.read(pelangganOpSqliteProvider).sisipkanAtauPerbaruiBatch,
               );
               ref.invalidate(pelangganOpSqliteProvider);
             },
             label:
-                'Tambah Pelanggan Dummy (${DummyPelanggan.daftarPelanggan.length})',
+                'Tambah Pelanggan Dummy (${daftarPelanggan.length})',
             icon: TIcons.customers,
           ),
           _tombolFitur(
@@ -128,13 +128,13 @@ class HalamanDataDummy extends ConsumerWidget {
                 context,
                 ref,
                 'Transaksi',
-                DummyTransaksi.daftarTransaksi,
+               daftarTransaksi,
                 ref.read(transaksiOpGlobalProvider).sisipkanAtauPerbaruiBatch,
               );
               ref.invalidate(transaksiOpSqliteProvider);
             },
             label:
-                'Tambah Transaksi Dummy (${DummyTransaksi.daftarTransaksi.length})',
+                'Tambah Transaksi Dummy (${daftarTransaksi.length})',
             icon: TIcons.receiptLong,
           ),
           _tombolFitur(
@@ -295,8 +295,8 @@ class HalamanDataDummy extends ConsumerWidget {
       // 1. Tambahkan Pelanggan
       await ref
           .read(pelangganOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DummyPelanggan.daftarPelanggan);
-      Log.info('✅ Pelanggan: ${DummyPelanggan.daftarPelanggan.length} data');
+          .sisipkanAtauPerbaruiBatch(daftarPelanggan);
+      Log.info('✅ Pelanggan: ${daftarPelanggan.length} data');
 
       // 2. Tambahkan Dompet
       await ref
@@ -327,8 +327,8 @@ class HalamanDataDummy extends ConsumerWidget {
       // 6. Tambahkan Transaksi
       await ref
           .read(transaksiOpGlobalProvider)
-          .sisipkanAtauPerbaruiBatch(DummyTransaksi.daftarTransaksi);
-      Log.info('✅ Transaksi: ${DummyTransaksi.daftarTransaksi.length} data');
+          .sisipkanAtauPerbaruiBatch(daftarTransaksi);
+      Log.info('✅ Transaksi: ${daftarTransaksi.length} data');
 
       // 7. Tambahkan Pengaturan
       await ref
@@ -360,14 +360,14 @@ class HalamanDataDummy extends ConsumerWidget {
               children: [
                 const Text('Semua data dummy berhasil ditambahkan:'),
                 gapH8,
-                Text('• ${DummyPelanggan.daftarPelanggan.length} Pelanggan'),
+                Text('• ${daftarPelanggan.length} Pelanggan'),
                 Text('• ${DummyDompet.daftarDompet.length} Dompet'),
                 Text('• ${DummyKategori.daftarKategori.length} Kategori'),
                 Text(
                   '• ${DummySubKategori.daftarSubKategori.length} Sub Kategori',
                 ),
                 Text('• ${DummyPaket.daftarPaket.length} Paket'),
-                Text('• ${DummyTransaksi.daftarTransaksi.length} Transaksi'),
+                Text('• ${daftarTransaksi.length} Transaksi'),
                 const Text('• 1 Pengaturan'),
               ],
             ),

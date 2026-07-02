@@ -76,7 +76,7 @@ class LayananCekSinkronisasi {
           .apakahSqliteAdaDataBaru();
       if (adaDataUntukUnggah) {
         await _layananUnggah.unggahSemuaData();
-        await _pengelolaSinkronisasi.simpanWaktuTerakhirUnggah(sekarang);
+        await _pengelolaSinkronisasi.simpanWaktuTerakhirUnggahPreferensi(sekarang);
         await _pengecekanDataBaru.resetButuhUpload();
         Log.info('Metadata sinkronisasi berhasil diperbarui: $sekarang.');
         return true;
@@ -118,7 +118,7 @@ class LayananCekSinkronisasi {
       if (adaDataBaruDiServer) {
         await _layananUnduh.unduhSemuaData();
         final DateTime sekarang = DateTime.now();
-        await _pengelolaSinkronisasi.simpanWaktuTerakhirUnduh(sekarang);
+        await _pengelolaSinkronisasi.simpanWaktuTerakhirUnduhPreferensi(sekarang);
         Log.info('Sinkronisasi masuk selesai: $sekarang.');
       } else {
         Log.info('Cloud tidak memiliki pembaruan data.');

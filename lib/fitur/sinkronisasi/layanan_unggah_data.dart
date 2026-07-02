@@ -99,7 +99,7 @@ class LayananUnggahData {
       'Memulai proses unggah data dompet. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk dompet: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -130,7 +130,7 @@ class LayananUnggahData {
       'Memulai proses unggah data kategori. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk kategori: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -161,7 +161,7 @@ class LayananUnggahData {
       'Memulai proses unggah data kritik_saran. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final terkahirUpload = await _syncManager.ambilWaktuTerakhirUnggah();
+      final terkahirUpload = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk kritik_saran: ${terkahirUpload.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -192,7 +192,7 @@ class LayananUnggahData {
       'Memulai proses unggah data paket. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk paket: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -223,7 +223,7 @@ class LayananUnggahData {
       'Memulai proses unggah data pelanggan_aktif. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk pelanggan_aktif: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -254,7 +254,7 @@ class LayananUnggahData {
       'Memulai proses unggah data pelanggan. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk pelanggan: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -285,7 +285,7 @@ class LayananUnggahData {
       'Memulai proses unggah data pesanan. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk pesanan: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -316,7 +316,7 @@ class LayananUnggahData {
       'Memulai proses unggah data transaksi. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk transaksi: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -347,7 +347,7 @@ class LayananUnggahData {
       'Memulai proses unggah data sub_kategori. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk sub_kategori: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -378,7 +378,7 @@ class LayananUnggahData {
       'Memulai proses unggah data pengaturan. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk pengaturan: ${waktu.toIso8601String()}. '
         'Data pengaturan akan selalu diunggah, jadi waktu ini akan diabaikan pada level query.',
@@ -409,7 +409,7 @@ class LayananUnggahData {
       'Memulai proses unggah data versi_apk_user. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk versi_apk_user: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',

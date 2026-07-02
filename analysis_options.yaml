@@ -40,6 +40,14 @@ linter:
     depend_on_referenced_packages: true
     secure_pubspec_urls: true
 
+
+    lines_longer_than_80_chars: false
+    avoid_init_to_null: true
+    prefer_contains: true
+    avoid_classes_with_only_static_members: true
+
+
+
 analyzer:
   exclude:
     - "**/*.g.dart"

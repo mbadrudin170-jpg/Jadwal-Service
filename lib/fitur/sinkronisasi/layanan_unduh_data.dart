@@ -133,7 +133,7 @@ class LayananUnduhData {
     Log.info('Memulai sinkronisasi untuk koleksi: [PENGATURAN]');
     try {
       final lastDownloadTime = await _pengelolaSinkronisasi
-          .ambilWaktuTerakhirUnduh();
+          .ambilWaktuTerakhirUnduhPreferensi();
       const namaKoleksi = NamaTabel.settings;
       final docRef = _firestore.collection(namaKoleksi).doc(idGlobalSetting);
       final doc = await docRef.get(const GetOptions(source: Source.server));
@@ -181,7 +181,7 @@ class LayananUnduhData {
   Future<void> unduhDataDompet() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [DOMPET]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<DompetModel>(
       namaKoleksi: NamaTabel.dompet,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -194,7 +194,7 @@ class LayananUnduhData {
   Future<void> unduhDataKategori() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [KATEGORI]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<KategoriModel>(
       namaKoleksi: NamaTabel.kategori,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -207,7 +207,7 @@ class LayananUnduhData {
   Future<void> unduhDataPaket() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PAKET]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<PaketModel>(
       namaKoleksi: NamaTabel.paket,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -220,7 +220,7 @@ class LayananUnduhData {
   Future<void> unduhDataPelanggan() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PELANGGAN]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<PelangganModel>(
       namaKoleksi: NamaTabel.pelanggan,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -233,7 +233,7 @@ class LayananUnduhData {
   Future<void> unduhDataPelangganAktif() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PELANGGAN AKTIF]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<PelangganAktifModel>(
       namaKoleksi: NamaTabel.pelangganAktif,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -246,7 +246,7 @@ class LayananUnduhData {
   Future<void> unduhDataTransaksi() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [TRANSAKSI]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<TransaksiModel>(
       namaKoleksi: NamaTabel.transaksi,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -259,7 +259,7 @@ class LayananUnduhData {
   Future<void> unduhDataUmpanBalik() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [UMPAN BALIK]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<FeedbackModel>(
       namaKoleksi: NamaTabel.feedback,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -272,7 +272,7 @@ class LayananUnduhData {
   Future<void> unduhDataPesanan() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PESANAN]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<OrderModel>(
       namaKoleksi: NamaTabel.pesananPelanggan,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -285,7 +285,7 @@ class LayananUnduhData {
   Future<void> unduhDataSubKategori() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [SUB KATEGORI]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<SubKategoriModel>(
       namaKoleksi: NamaTabel.subKategori,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -298,7 +298,7 @@ class LayananUnduhData {
   Future<void> unduhDataVersiApk() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [VERSI APK]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<VersiApkModel>(
       namaKoleksi: NamaTabel.versiApkUser,
       waktuTerakhirUnduh: lastDownloadTime,

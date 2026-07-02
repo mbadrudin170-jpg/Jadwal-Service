@@ -77,7 +77,7 @@ class LayananPengecekanDataBaru {
         'Mengambil metadata waktu unduhan terakhir dari penyimpanan preferensi lokal melalui SyncManager.',
       );
       final DateTime tanggalTerakhirDownload =
-          await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
+          await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduhPreferensi();
       Log.info(
         'Timestamp unduhan lokal terakhir yang tercatat adalah: $tanggalTerakhirDownload',
       );
