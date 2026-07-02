@@ -25,13 +25,19 @@ class Order extends _$Order {
   @override
   FutureOr<OrderState> build() async {
     Log.info('build orderProvider');
-    return _loadData();
+    final daftarOrder = await _orderOp.ambilSemua();
+    Log.info('Mengambil data dari database');
+    return OrderState(
+      daftarOrder: daftarOrder,
+      totalDaftar: daftarOrder.length,
+    );
   }
 
   Future<OrderState> _loadData() async {
     try {
       Log.info('Fungsi _loadData di jalankan');
       final daftarOrder = await _orderOp.ambilSemua();
+      Log.info('Mengambil data dari database');
       return OrderState(
         daftarOrder: daftarOrder,
         totalDaftar: daftarOrder.length,
