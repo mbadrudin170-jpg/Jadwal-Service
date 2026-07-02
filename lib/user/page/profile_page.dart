@@ -53,7 +53,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           final transaksiUser = daftarTransaksi.transaksi.where(
             (t) => t.idPelanggan == userId,
           );
-
           final totalPoin = transaksiUser.fold<int>(
             0,
             (sum, t) => sum + t.poinDidapat - t.poinDigunakan,
