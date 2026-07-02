@@ -298,9 +298,9 @@ class BaseOpSqlite {
     try {
       await _operasiInti((final txn) async {
         final batch = txn.batch();
-        int valid = 0;
+        var valid = 0;
 
-        for (int i = 0; i < dataList.length; i++) {
+        for (var i = 0; i < dataList.length; i++) {
           final data = dataList[i];
           if (data.isNotEmpty) {
             batch.insert(

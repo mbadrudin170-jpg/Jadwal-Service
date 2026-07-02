@@ -246,7 +246,7 @@ void main() {
     });
 
     test('04. migrasi v53 harus menambahkan kolom jika belum ada', () async {
-      const String trxTable = NamaTabel.transaksi;
+      const trxTable = NamaTabel.transaksi;
       when(mockDatabase.rawQuery('PRAGMA table_info("$trxTable")')).thenAnswer(
         (_) async => [
           {'name': 'id'},

@@ -32,7 +32,7 @@ class LayananPengecekanDataBaru {
       Log.info(
         'Mengakses UploadStatusOperation untuk membaca nilai dari kolom need_upload di database internal. Ini adalah indikator utama apakah aplikasi memiliki payload baru.',
       );
-      final bool hasil = await _statusUploadOpSqlite.ambilButuhUpload();
+      final hasil = await _statusUploadOpSqlite.ambilButuhUpload();
 
       if (hasil) {
         Log.info(
@@ -76,7 +76,7 @@ class LayananPengecekanDataBaru {
       Log.info(
         'Mengambil metadata waktu unduhan terakhir dari penyimpanan preferensi lokal melalui SyncManager.',
       );
-      final DateTime tanggalTerakhirDownload =
+      final tanggalTerakhirDownload =
           await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduhPreferensi();
       Log.info(
         'Timestamp unduhan lokal terakhir yang tercatat adalah: $tanggalTerakhirDownload',
@@ -87,7 +87,7 @@ class LayananPengecekanDataBaru {
       );
       final DocumentReference referensiDokumen =
           _firestore.collection(namaKoleksi).doc(idDokumen);
-      final DocumentSnapshot snapshotDokumen = await referensiDokumen.get(
+      final snapshotDokumen = await referensiDokumen.get(
         const GetOptions(source: Source.server),
       );
 
@@ -101,7 +101,7 @@ class LayananPengecekanDataBaru {
           Log.info(
             'Field "${NamaKolom.diperbaruiPada}" ditemukan. Mem-parsing nilai: ${data[NamaKolom.diperbaruiPada]}',
           );
-          final DateTime? diperbaruiPada = ParserUtil.parseDateTime(
+          final diperbaruiPada = ParserUtil.parseDateTime(
             data[NamaKolom.diperbaruiPada],
           );
 
@@ -116,7 +116,7 @@ class LayananPengecekanDataBaru {
 
           Log.info('Waktu pembaruan di server adalah: $diperbaruiPada');
 
-          final bool apakahLebihBaru = diperbaruiPada.isAfter(
+          final apakahLebihBaru = diperbaruiPada.isAfter(
             tanggalTerakhirDownload,
           );
           if (apakahLebihBaru) {

@@ -172,10 +172,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         value: 'Data tidak lengkap.',
       );
     }
-    final String teksMasaAktif = PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
+    final teksMasaAktif = PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
       transaksi.tanggalBerakhir!,
     );
-    final Color warnaMasaAktif = PerhitunganUtil.ambilWarnaSisaMasaAktif(
+    final warnaMasaAktif = PerhitunganUtil.ambilWarnaSisaMasaAktif(
       transaksi.tanggalBerakhir!,
     );
     final Color warnaStatuspembayaran =

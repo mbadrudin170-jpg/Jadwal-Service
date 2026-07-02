@@ -17,7 +17,7 @@ class PerhitunganUtil {
     Log.info('FUNGSI GLOBAL: hitungTanggalBerakhir() dipanggil.');
     Log.info('  - Tanggal Mulai: ${tanggalMulai.toIso8601String()}');
     Log.info('  - Nama Paket: ${paket.nama}');
-    DateTime hasil = DurasiUtil.tambahDurasi(
+    var hasil = DurasiUtil.tambahDurasi(
       tanggalMulai,
       paket.tipe,
       paket.durasi,

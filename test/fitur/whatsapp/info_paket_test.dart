@@ -24,11 +24,11 @@ void main() {
   late MockPelangganOpSqlite mockPelangganOpSqlite;
   late MockPaketOpSqlite mockPaketOpSqlite;
 
-  const MethodChannel channel = MethodChannel(
+  const channel = MethodChannel(
     'plugins.flutter.io/url_launcher',
   );
   String? launchedUrl;
-  bool canLaunchReturnValue = true;
+  var canLaunchReturnValue = true;
 
   setUp(() {
     mockPelangganOpSqlite = MockPelangganOpSqlite();

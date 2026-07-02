@@ -12,18 +12,18 @@ class MacAddressFormatter extends TextInputFormatter {
       return nilaiBaru;
     }
 
-    final bool sedangMenghapus =
+    final sedangMenghapus =
         nilaiBaru.text.length < nilaiLama.text.length; // isDeleting diubah
 
     // 1. Bersihkan teks, sisakan karakter heksadesimal saja
-    String teksBersih = nilaiBaru.text.toUpperCase().replaceAll(
+    var teksBersih = nilaiBaru.text.toUpperCase().replaceAll(
       // cleaned diubah
       RegExp(r'[^0-9A-F]'),
       '',
     );
 
     // 2. Hitung ada berapa karakter sebelum posisi kursor
-    int karakterBersihSebelumKursor = nilaiBaru
+    var karakterBersihSebelumKursor = nilaiBaru
         .text // cleanCharsBeforeCursor diubah
         .substring(0, nilaiBaru.selection.baseOffset)
         .replaceAll(RegExp(r'[^0-9A-Fa-f]'), '')
@@ -46,18 +46,18 @@ class MacAddressFormatter extends TextInputFormatter {
 
     // 5. Rangkai ulang teksnya dan tambahkan ':'
     final penampung = StringBuffer(); // buffer diubah
-    for (int i = 0; i < teksBersih.length; i++) {
+    for (var i = 0; i < teksBersih.length; i++) {
       penampung.write(teksBersih[i]);
       if ((i + 1) % 2 == 0 && (i + 1) < 12) {
         penampung.write(':');
       }
     }
-    final String teksTerformat = penampung.toString(); // formatted diubah
+    final teksTerformat = penampung.toString(); // formatted diubah
 
     // 6. Sesuaikan posisi kursor
-    int posisiKursor = 0; // cursorIndex diubah
-    int jumlahBersih = 0; // cleanCount diubah
-    for (int i = 0; i < teksTerformat.length; i++) {
+    var posisiKursor = 0; // cursorIndex diubah
+    var jumlahBersih = 0; // cleanCount diubah
+    for (var i = 0; i < teksTerformat.length; i++) {
       if (jumlahBersih == karakterBersihSebelumKursor) {
         break;
       }

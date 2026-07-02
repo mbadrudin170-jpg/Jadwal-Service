@@ -353,12 +353,12 @@ class _SortDialogState extends State<_SortDialog> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Urutkan Berdasarkan'),
       content: RadioGroup<UrutanSortir>(
         groupValue: _selectedSort,
-        onChanged: (final UrutanSortir? value) {
+        onChanged: (value) {
           if (value != null) {
             setState(() {
               _selectedSort = value;

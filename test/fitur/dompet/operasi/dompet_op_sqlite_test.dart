@@ -140,7 +140,7 @@ void main() {
     });
 
     test('10. sisipkanAtauPerbaruiBatch harus memanggil _baseOperation.sisipkanAtauPerbaruiBatch', () async {
-      final List<DompetModel> listDompet = [dompetModel, dompetModel.copyWith(id: '2')];
+      final listDompet = <DompetModel>[dompetModel, dompetModel.copyWith(id: '2')];
       
       when(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(any, any, dariServer: anyNamed('dariServer')))
           .thenAnswer((_) async => Future.value());

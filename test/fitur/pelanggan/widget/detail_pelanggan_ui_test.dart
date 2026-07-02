@@ -93,9 +93,9 @@ void main() {
     });
 
     testWidgets('06. harus memanggil callback saat tombol ditekan', (tester) async {
-      bool editDitekan = false;
-      bool poinDitekan = false;
-      bool salinSemuaDitekan = false;
+      var editDitekan = false;
+      var poinDitekan = false;
+      var salinSemuaDitekan = false;
 
       await tester.pumpWidget(buildTestableWidget(
         DetailPelangganUI(

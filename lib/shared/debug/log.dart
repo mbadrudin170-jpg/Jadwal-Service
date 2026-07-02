@@ -17,7 +17,7 @@ class Log {
   static final Random _random = Random();
 
   static String _buatKodeUnik() {
-    const String chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     return String.fromCharCodes(
       Iterable.generate(
         6,
@@ -97,7 +97,7 @@ class Log {
     final Map<String, dynamic> data, {
     required final String method,
   }) {
-    final String id = _buatKodeUnik();
+    final id = _buatKodeUnik();
     _logCustom(
       message: '[$method][$id] $path${_formatData(data)}',
       name: '🌐',
@@ -117,10 +117,10 @@ class Log {
     if (!kDebugMode) return;
 
     final trace = StackTrace.current.toString().split('\n');
-    final String callerRow = trace.length > 2 ? trace[2] : 'Unknown';
+    final callerRow = trace.length > 2 ? trace[2] : 'Unknown';
     final match = RegExp(r'#2\s+(.+)\s+\((.+)\)').firstMatch(callerRow);
 
-    String location = '';
+    var location = '';
     if (match != null) {
       final methodCaller = match.group(1);
       final fileInfo = match.group(2);

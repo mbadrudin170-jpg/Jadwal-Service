@@ -34,8 +34,8 @@ void main() {
     when(mockSqliteDb.database).thenAnswer((_) async => mockDb);
   });
 
-  const String namaTabel = NamaTabel.settings;
-  const String id = idGlobalSetting;
+  const namaTabel = NamaTabel.settings;
+  const id = idGlobalSetting;
 
   final settingsModel = SettingsModel(
     waktuOtomatisSinkronisasi: 48,
@@ -45,7 +45,7 @@ void main() {
   group('ambilSettings', () {
     test('01. harus mengembalikan SettingsModel dari DB jika ada', () async {
       // Arrange
-      final Map<String, dynamic> dbData = {
+      final dbData = <String, dynamic>{
         NamaKolom.id: id,
         NamaKolom.waktuOtomatisSinkronisasi: 48,
         NamaKolom.diperbaruiPada: DateTime(2023).millisecondsSinceEpoch,
@@ -150,7 +150,7 @@ void main() {
           mockBaseOpSqlite.sisipkan(namaTabel, captureAny),
         ).captured;
 
-        final Map<String, dynamic> capturedData =
+        final capturedData =
             captured.first as Map<String, dynamic>;
         expect(capturedData[NamaKolom.id], id);
         expect(capturedData[NamaKolom.waktuOtomatisSinkronisasi], 48);
@@ -201,7 +201,7 @@ void main() {
           mockBaseOpSqlite.update(namaTabel, captureAny, id),
         ).captured;
 
-        final Map<String, dynamic> capturedData =
+        final capturedData =
             captured.first as Map<String, dynamic>;
         expect(capturedData[NamaKolom.modeMaintenance], true);
         expect(capturedData.containsKey(NamaKolom.diperbaruiPada), isTrue);
@@ -253,7 +253,7 @@ void main() {
           mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(namaTabel, captureAny),
         ).captured;
 
-        final List<Map<String, dynamic>> capturedList =
+        final capturedList =
             captured.first as List<Map<String, dynamic>>;
         expect(capturedList.length, 1);
         expect(capturedList[0][NamaKolom.id], id);

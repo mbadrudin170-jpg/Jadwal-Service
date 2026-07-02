@@ -68,9 +68,9 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
   }
 
   Future<void> _tampilkanNotifikasi() async {
-    final String title = _titleController.text.trim();
-    final String body = _bodyController.text.trim();
-    final String payload = _payloadController.text.trim();
+    final title = _titleController.text.trim();
+    final body = _bodyController.text.trim();
+    final payload = _payloadController.text.trim();
 
     if (title.isEmpty || body.isEmpty) {
       _tampilkanSnackbar('Judul dan isi notifikasi tidak boleh kosong!');

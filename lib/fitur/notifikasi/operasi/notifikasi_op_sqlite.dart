@@ -1,7 +1,6 @@
 // path lib/fitur/notfikasi/operasi/notifikasi_op_sqlite.dart
 // path: lib/fitur/notfikasi/operasi/notifikasi_op_sqlite.dart
 
-import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/notifikasi/model/notifikasi_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -316,7 +315,7 @@ class NotifikasiOpSqlite {
   }) async {
     Log.info('Menghapus notifikasi berdasarkan ID Tujuan: $idTujuan');
     try {
-      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((txn) async {
         await txn.delete(
           _namaTabel,
           where: '${NamaKolom.idTujuan} = ?',

@@ -42,13 +42,13 @@ class ThemeMenuWidget extends StatelessWidget {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     Log.info('[Build UI] Membangun widget ThemeMenuWidget.');
 
     return PopupMenuButton<ThemeMode>(
       icon: Icon(_getCurrentIcon(currentThemeMode)),
       onSelected: onThemeSelected, // Langsung gunakan callback dari props
-      itemBuilder: (final BuildContext context) {
+      itemBuilder: (context) {
         Log.info('[Build UI] Membangun item-item untuk PopupMenuButton.');
         return <PopupMenuEntry<ThemeMode>>[
           const PopupMenuItem<ThemeMode>(

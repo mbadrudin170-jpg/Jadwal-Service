@@ -16,7 +16,7 @@ class DurasiUtil {
     int? durasiBonus,
     TipeDurasiPaket? tipeBonus,
   }) {
-    int totalMenit = _konversiKeMenit(paket.tipe, paket.durasi);
+    var totalMenit = _konversiKeMenit(paket.tipe, paket.durasi);
     
     if (durasiBonus != null && durasiBonus > 0 && tipeBonus != null) {
       totalMenit += _konversiKeMenit(tipeBonus, durasiBonus);

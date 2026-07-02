@@ -16,8 +16,8 @@ class UpdateService {
     final void Function(double)? onProgress,
   }) async {
     try {
-      final Directory temporaryDirectory = await getTemporaryDirectory();
-      final String apkFilePath = '${temporaryDirectory.path}/$namaFile';
+      final temporaryDirectory = await getTemporaryDirectory();
+      final apkFilePath = '${temporaryDirectory.path}/$namaFile';
       Log.info('Mulai mengunduh dari: $url ke: $apkFilePath');
 
       await _dio.download(
@@ -25,17 +25,18 @@ class UpdateService {
         apkFilePath,
         onReceiveProgress: (received, total) {
           if (total != -1 && onProgress != null) {
-            final double progressValue = received / total;
+            final progressValue = received / total;
             onProgress(progressValue);
-            Log.info('Progres unduhan: ${progressValue * 100}%',
-                {'data: $progressValue'});
+            Log.info('Progres unduhan: ${progressValue * 100}%', {
+              'data: $progressValue',
+            });
           }
         },
       );
 
       Log.info('Unduhan selesai: $apkFilePath');
 
-      final File apkFile = File(apkFilePath);
+      final apkFile = File(apkFilePath);
       if (!apkFile.existsSync()) {
         throw Exception('File APK tidak ditemukan setelah diunduh.');
       }
@@ -49,7 +50,8 @@ class UpdateService {
     } catch (e, s) {
       Log.error('Error saat mengunduh (Dio)', e: e, s: s);
       throw Exception(
-          'Gagal mengunduh pembaruan. Periksa koneksi internet Anda.');
+        'Gagal mengunduh pembaruan. Periksa koneksi internet Anda.',
+      );
     }
   }
 }

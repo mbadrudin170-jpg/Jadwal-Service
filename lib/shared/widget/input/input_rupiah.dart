@@ -30,7 +30,7 @@ class InputRupiah extends StatelessWidget {
 
   static double parse(String formatted) {
     // Hapus "Rp", spasi, titik (pemisah ribuan)
-    String cleaned = formatted.replaceAll(RegExp(r'[Rp.\s]'), '');
+    var cleaned = formatted.replaceAll(RegExp(r'[Rp.\s]'), '');
     // Ganti koma desimal (jika ada) ke titik
     cleaned = cleaned.replaceAll(',', '.');
     return double.tryParse(cleaned) ?? 0.0;

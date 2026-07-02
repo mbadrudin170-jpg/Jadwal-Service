@@ -40,10 +40,10 @@ class PesanInfoPaket {
       Log.info(
         'Mengambil data pelanggan dengan ID: ${pelangganAktif.idPelanggan}',
       );
-      final PelangganModel? pelanggan = await _pelangganOpSqlite
+      final pelanggan = await _pelangganOpSqlite
           .ambilBerdasarkanId(pelangganAktif.idPelanggan);
       Log.info('Mengambil data paket dengan ID: ${pelangganAktif.idPaket}');
-      final PaketModel? paket = await _paketOpSqlite.ambilBerdasarkanId(
+      final paket = await _paketOpSqlite.ambilBerdasarkanId(
         pelangganAktif.idPaket,
       );
 
@@ -60,8 +60,8 @@ class PesanInfoPaket {
         return;
       }
 
-      final String statusPembayaran = pelangganAktif.status.name;
-      final String pesan = _buildMessage(
+      final statusPembayaran = pelangganAktif.status.name;
+      final pesan = _buildMessage(
         pelanggan,
         paket,
         pelangganAktif,
@@ -127,7 +127,7 @@ Semoga harimu menyenangkan!
 
   Future<void> _kirimViaWatsapp(String telepon, String pesan) async {
     Log.info('Memformat nomor telepon: $telepon');
-    String formatNomor = telepon.replaceAll(RegExp(r'[^0-9]'), '');
+    var formatNomor = telepon.replaceAll(RegExp(r'[^0-9]'), '');
     if (formatNomor.startsWith('0')) {
       formatNomor = '62${formatNomor.substring(1)}';
     } else if (!formatNomor.startsWith('62')) {

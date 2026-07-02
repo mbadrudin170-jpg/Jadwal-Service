@@ -49,6 +49,7 @@ linter:
     omit_local_variable_types: true
     avoid_types_on_closure_parameters: true
     type_init_formals: true
+    avoid_return_types_on_setters: true
 
 
 

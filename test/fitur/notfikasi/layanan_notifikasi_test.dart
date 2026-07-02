@@ -28,11 +28,11 @@ void main() {
   late LayananNotifikasi layananNotifikasi;
 
   // Mock for timezone
-  const MethodChannel timezoneChannel = MethodChannel(
+  const timezoneChannel = MethodChannel(
     'plugins.flutter.io/flutter_timezone',
   );
   // Mock for permission handler
-  const MethodChannel permissionChannel = MethodChannel(
+  const permissionChannel = MethodChannel(
     'flutter.baseflow.com/permissions/methods',
   );
 

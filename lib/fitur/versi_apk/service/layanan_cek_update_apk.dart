@@ -91,7 +91,7 @@ class LayananCekUpdateApk {
         'arsitektur': arsitektur.name,
       });
 
-      final bool perluUpdate = nomorBuildTerbaru > nomorBuildSekarang;
+      final perluUpdate = nomorBuildTerbaru > nomorBuildSekarang;
       return (
         perluUpdate: perluUpdate,
         infoApk: perluUpdate ? apkTerbaru : null,

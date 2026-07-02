@@ -13,9 +13,9 @@ class LayananPenyimpananGambar {
       : _klienSupabase = klienSupabase ?? Supabase.instance.client;
 
   Future<String> unggahGambar(File file, String bucket) async {
-    final String fileName =
+    final fileName =
         '${DateTime.now().millisecondsSinceEpoch}${p.extension(file.path)}';
-    final String path = fileName;
+    final path = fileName;
 
     Log.info(
         'Memulai proses unggah gambar ke Supabase Storage. Bucket: $bucket, Path: $path');
@@ -26,7 +26,7 @@ class LayananPenyimpananGambar {
             file,
           );
 
-      final String urlPublik =
+      final urlPublik =
           _klienSupabase.storage.from(bucket).getPublicUrl(path);
 
       Log.info('Berhasil mengunggah gambar ke Supabase. URL: $urlPublik');
@@ -50,7 +50,7 @@ class LayananPenyimpananGambar {
   Future<String?> buatUrlTertanda(String bucket, String path,
       {int expiresIn = 60}) async {
     try {
-      final String urlTertanda = await _klienSupabase.storage
+      final urlTertanda = await _klienSupabase.storage
           .from(bucket)
           .createSignedUrl(path, expiresIn);
       Log.info('Berhasil membuat signed URL untuk $bucket/$path');
@@ -78,7 +78,7 @@ class LayananPenyimpananGambar {
     try {
       final hasilDaftar =
           await _klienSupabase.storage.from(bucket).list(path: folder ?? '');
-      final String namaFolder = folder ?? 'root';
+      final namaFolder = folder ?? 'root';
       Log.info('Berhasil mengambil daftar file dari $bucket/$namaFolder');
       return hasilDaftar;
     } catch (e, st) {

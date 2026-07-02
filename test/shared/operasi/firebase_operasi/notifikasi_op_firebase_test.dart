@@ -28,7 +28,7 @@ void main() {
   });
 
   final now = DateTime.now();
-  final NotifikasiModel notif1 = NotifikasiModel(
+  final notif1 = NotifikasiModel(
       id: '1',
       tipe: TipeNotifikasiEnum.info,
       judul: 'Judul 1',
@@ -41,7 +41,7 @@ void main() {
       userId: 'user1',
       targetRole: AppRole.user);
 
-  final NotifikasiModel notif2 = NotifikasiModel(
+  final notif2 = NotifikasiModel(
       id: '2',
       userId: 'user123',
       tipe: TipeNotifikasiEnum.order,

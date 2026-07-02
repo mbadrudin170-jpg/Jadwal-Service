@@ -25,7 +25,7 @@ class PembersihanDataOperasi {
     Log.info(
       'Memulai proses pembersihan data arsip yang lebih tua dari $waktuPenjadwalanHapusDataArsip hari (SQLite & Firestore).',
     );
-    int totalDataDihapus = 0;
+    var totalDataDihapus = 0;
     final timeLimit = DateTime.now().toUtc().subtract(
       Duration(days: waktuPenjadwalanHapusDataArsip),
     );
@@ -35,7 +35,7 @@ class PembersihanDataOperasi {
     );
 
     // Daftar nama tabel untuk SQLite dan koleksi untuk Firestore
-    final List<String> daftarTabelDanKoleksi = [
+    final daftarTabelDanKoleksi = <String>[
       NamaTabel.pelanggan,
       NamaTabel.pelangganAktif,
       NamaTabel.paket,
@@ -50,14 +50,14 @@ class PembersihanDataOperasi {
     ];
 
     // --- Langkah 1: Hapus dari Database Lokal (SQLite) ---
-    final int hapusDataSqlite = await _hapusDataSqlite(
+    final hapusDataSqlite = await _hapusDataSqlite(
       daftarTabelDanKoleksi,
       timeLimitEpoch,
     );
     totalDataDihapus += hapusDataSqlite;
 
     // --- Langkah 2: Hapus dari Database Remote (Firestore) ---
-    final int hapusDataFirebase = await _hapusDataFirebase(
+    final hapusDataFirebase = await _hapusDataFirebase(
       daftarTabelDanKoleksi,
       timeLimit,
     );
@@ -71,7 +71,7 @@ class PembersihanDataOperasi {
 
   /// Membersihkan data kadaluarsa dari database lokal SQLite.
   Future<int> _hapusDataSqlite(List<String> tables, int timeLimitEpoch) async {
-    int totalDihapus = 0;
+    var totalDihapus = 0;
     try {
       final db = await _sqliteDb.database;
       for (final table in tables) {
@@ -99,7 +99,7 @@ class PembersihanDataOperasi {
     List<String> koleksi,
     DateTime timeLimit,
   ) async {
-    int totalDihapus = 0;
+    var totalDihapus = 0;
     try {
       Log.info('Memulai proses pembersihan data untuk Firestore...');
 
@@ -119,9 +119,9 @@ class PembersihanDataOperasi {
       final snapshots = await Future.wait(futures);
 
       final batch = _firestore.batch();
-      int dokumenDitemukan = 0;
+      var dokumenDitemukan = 0;
 
-      for (int i = 0; i < snapshots.length; i++) {
+      for (var i = 0; i < snapshots.length; i++) {
         final snapshot = snapshots[i];
         if (snapshot.docs.isNotEmpty) {
           final namaKoleksi = koleksi[i];

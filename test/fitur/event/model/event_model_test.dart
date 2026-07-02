@@ -29,7 +29,7 @@ void main() {
       test(
         '02. harus mengembalikan objek EventModel yang valid dari data Supabase',
         () {
-          final Map<String, dynamic> supabaseData = {
+          final supabaseData = <String, dynamic>{
             NamaKolom.linkGambar: 'https://example.com/image.png',
             NamaKolom.statusAktif: true,
             NamaKolom.tanggalDibuat: tDateTime.toIso8601String(),

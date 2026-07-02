@@ -26,9 +26,7 @@ class _StatistikUjiCobaPageState extends State<StatistikUjiCobaPage> {
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Halaman Statistik Uji Coba'),
-      ),
+      appBar: AppBar(title: const Text('Halaman Statistik Uji Coba')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -102,12 +100,7 @@ class _StatistikUjiCobaPageState extends State<StatistikUjiCobaPage> {
                       getTooltipColor: (final _) => Colors.transparent,
                       tooltipPadding: EdgeInsets.zero,
                       tooltipMargin: 8,
-                      getTooltipItem: (
-                        final BarChartGroupData group,
-                        final int groupIndex,
-                        final BarChartRodData rod,
-                        final int rodIndex,
-                      ) {
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         return BarTooltipItem(
                           rod.toY.round().toString(),
                           const TextStyle(
@@ -130,22 +123,32 @@ class _StatistikUjiCobaPageState extends State<StatistikUjiCobaPage> {
                     topTitles: AxisTitles(),
                     rightTitles: AxisTitles(),
                   ),
-                  borderData: FlBorderData(
-                    show: false,
-                  ),
+                  borderData: FlBorderData(show: false),
                   barGroups: [
-                    BarChartGroupData(x: 0, barRods: [
-                      BarChartRodData(toY: 8, color: Colors.lightBlueAccent)
-                    ]),
-                    BarChartGroupData(x: 1, barRods: [
-                      BarChartRodData(toY: 10, color: Colors.lightBlueAccent)
-                    ]),
-                    BarChartGroupData(x: 2, barRods: [
-                      BarChartRodData(toY: 14, color: Colors.lightBlueAccent)
-                    ]),
-                    BarChartGroupData(x: 3, barRods: [
-                      BarChartRodData(toY: 15, color: Colors.lightBlueAccent)
-                    ]),
+                    BarChartGroupData(
+                      x: 0,
+                      barRods: [
+                        BarChartRodData(toY: 8, color: Colors.lightBlueAccent),
+                      ],
+                    ),
+                    BarChartGroupData(
+                      x: 1,
+                      barRods: [
+                        BarChartRodData(toY: 10, color: Colors.lightBlueAccent),
+                      ],
+                    ),
+                    BarChartGroupData(
+                      x: 2,
+                      barRods: [
+                        BarChartRodData(toY: 14, color: Colors.lightBlueAccent),
+                      ],
+                    ),
+                    BarChartGroupData(
+                      x: 3,
+                      barRods: [
+                        BarChartRodData(toY: 15, color: Colors.lightBlueAccent),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -190,14 +193,13 @@ class _StatistikUjiCobaPageState extends State<StatistikUjiCobaPage> {
         break;
     }
 
-    return SideTitleWidget(
-      meta: meta,
-      child: text,
-    );
+    return SideTitleWidget(meta: meta, child: text);
   }
 
   static Widget bottomMonthTitleWidgets(
-      final double value, final TitleMeta meta) {
+    final double value,
+    final TitleMeta meta,
+  ) {
     final style = TextStyle(
       color: Colors.grey[600],
       fontWeight: FontWeight.bold,
