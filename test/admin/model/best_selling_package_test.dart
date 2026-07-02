@@ -7,7 +7,7 @@ import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 void main() {
   group('PaketTerlarisModel', () {
     // Dummy PaketModel for testing
-    final paket = PaketModel(
+    final paket = const PaketModel(
       id: 'p1',
       nama: 'Paket Test',
       harga: 50000,

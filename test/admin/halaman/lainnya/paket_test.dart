@@ -26,7 +26,7 @@ void main() {
   });
 
   final paketList = [
-    PaketModel(
+    const PaketModel(
       id: '1',
       nama: 'Paket A',
       harga: 10000,
@@ -34,7 +34,7 @@ void main() {
       tipe: TipeDurasiPaket.days,
       poinHadiah: 10,
     ),
-    PaketModel(
+    const PaketModel(
       id: '2',
       nama: 'Paket B',
       harga: 20000,

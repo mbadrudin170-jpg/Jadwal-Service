@@ -148,6 +148,6 @@ void main() {
         expect(find.text('Batal'), findsOneWidget);
         expect(find.text('Hapus'), findsOneWidget);
       },
-    );
+    });
   });
 }

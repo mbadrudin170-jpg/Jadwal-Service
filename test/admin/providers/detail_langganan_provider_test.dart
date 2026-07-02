@@ -89,7 +89,7 @@ void main() {
     });
 
     test('03. harus mengembalikan pelanggan dan paket jika ada', () async {
-      final mockPelanggan = PelangganModel(
+      final mockPelanggan = const PelangganModel(
         id: 'cust1',
         nama: 'Pelanggan Test',
         telepon: '08123456789',
@@ -97,7 +97,7 @@ void main() {
         kataSandi: 'password',
         macAddress: '00:00:00:00:00:00',
       );
-      final mockPaket = PaketModel(
+      final mockPaket = const PaketModel(
         id: 'pkg1',
         nama: 'Paket Test',
         harga: 100000,

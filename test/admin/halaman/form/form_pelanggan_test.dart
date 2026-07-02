@@ -33,7 +33,7 @@ void main() {
     mockNavigatorObserver = MockNavigatorObserver();
   });
 
-  final pelangganModel = PelangganModel(
+  final pelangganModel = const PelangganModel(
     id: '1',
     nama: 'John Doe',
     telepon: '08123456789',
