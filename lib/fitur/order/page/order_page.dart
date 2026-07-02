@@ -475,7 +475,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
       data: (orderState) {
         final semuaOrder = orderState.daftarOrder;
         Log.info('_daftarPesanan: total semua order: ${semuaOrder.length}');
-
         final orderDifilter = semuaOrder.where((order) {
           if (_filterAktif == StatusOrderEnum.selesai.name) {
             return order.status == StatusOrderEnum.selesai;
@@ -531,7 +530,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                   NamaPaketWidget(idPaket: order.idPaket),
                 ],
               ),
-              subtitle: Text('Status: ${order.status.name}'),
+              subtitle: Text('Status: ${order.status.displayName}'),
             );
           },
         );
