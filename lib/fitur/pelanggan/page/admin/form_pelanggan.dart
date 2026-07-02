@@ -48,11 +48,11 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
   @override
   void initState() {
     super.initState();
-    Log.info(
+     info(
       'Membuka form_pelanggan dalam mode: ${_modeEdit ? "Edit" : "Tambah"}.',
     );
     if (_modeEdit) {
-      Log.info(
+       info(
         'Mode Edit: Mempopulasikan form dengan data pelanggan ID: ${widget.pelanggan!.id}',
       );
       _namaController.text = widget.pelanggan!.nama;
@@ -65,7 +65,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
 
   @override
   void dispose() {
-    Log.info(
+     info(
       'Menjalankan dispose di CustomerForm. Membersihkan semua controllers dan focus nodes.',
     );
     _namaController.dispose();
@@ -94,13 +94,13 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       }
     }
     final pelangganOp = ref.read(pelangganOpGlobalProvider);
-    Log.info('Tombol "Simpan" ditekan.');
+     info('Tombol "Simpan" ditekan.');
     if (!_formKey.currentState!.validate()) {
-      Log.warning('Form tidak valid. Proses penyimpanan dibatalkan.');
+       warning('Form tidak valid. Proses penyimpanan dibatalkan.');
       return;
     }
     try {
-      Log.info('Form valid. Memulai proses penyimpanan.');
+       info('Form valid. Memulai proses penyimpanan.');
       setState(() => _menyimpan = true);
       final pelangganBaru = PelangganModel(
         id: _modeEdit ? widget.pelanggan!.id : const Uuid().v4(),
@@ -110,17 +110,17 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         kataSandi: _passwordController.text,
         macAddress: _macAddressController.text.trim().toUpperCase(),
       );
-      Log.info(
+       info(
         'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}',
       );
 
       if (_modeEdit) {
-        Log.info(
+         info(
           'Menjalankan operasi UPDATE untuk pelanggan ID: ${pelangganBaru.id}',
         );
         await pelangganOp.updatePelanggan(pelangganBaru);
       } else {
-        Log.info(
+         info(
           'Menjalankan operasi CREATE untuk pelanggan baru: ${pelangganBaru.nama}',
         );
         await pelangganOp.tambahPelanggan(pelangganBaru);
@@ -133,12 +133,12 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       }
       unawaited(() {
         if (ref.isAdmin) {
-          Log.info('jalankan sinkroniasi');
+           info('jalankan sinkroniasi');
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
         }
       }());
     } catch (e, s) {
-      Log.error('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
+       gagal('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
       if (mounted) {
         ToastUtil.error(context, 'Nomor telepon dan password sudah digunakan.');
       }
@@ -146,20 +146,20 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
     } finally {
       if (mounted) {
         setState(() => _menyimpan = false);
-        Log.info('Proses penyimpanan selesai. isSaving diatur ke false.');
+         info('Proses penyimpanan selesai. isSaving diatur ke false.');
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    Log.info('Membangun UI CustomerForm. isSaving: $_menyimpan');
+     info('Membangun UI CustomerForm. isSaving: $_menyimpan');
     return Scaffold(
       appBar: AppBar(
         title: Text(_modeEdit ? 'Edit Pelanggan' : 'Tambah Pelanggan'),
         leading: BackButton(
           onPressed: () {
-            Log.info('Tombol "Back" ditekan. Kembali tanpa menyimpan.');
+             info('Tombol "Back" ditekan. Kembali tanpa menyimpan.');
             Navigator.pop(context, false);
           },
         ),

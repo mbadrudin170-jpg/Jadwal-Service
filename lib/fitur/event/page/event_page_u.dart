@@ -77,7 +77,7 @@ class _EventPageUState extends ConsumerState<EventPageU> {
               style: ElevatedButton.styleFrom(
                 shape: const CircleBorder(),
                 padding: const EdgeInsets.all(8),
-                backgroundColor: TColors.darkBackground.withValues(alpha: 0.7),
+                backgroundColor: darkBackground.withValues(alpha: 0.7),
               ),
               child: Text(
                 _countdown > 0 ? '$_countdown' : 'X',

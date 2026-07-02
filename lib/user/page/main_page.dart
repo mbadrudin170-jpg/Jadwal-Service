@@ -68,7 +68,7 @@ class _MainPageState extends ConsumerState<MainPage> {
   }
 
   void _ketikaItemDiketuk(int index) {
-    Log.info('Item navigasi diketuk: index $index');
+    info('Item navigasi diketuk: index $index');
     if (_indeksTerpilih == index) {
       return;
     }
@@ -79,7 +79,7 @@ class _MainPageState extends ConsumerState<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    Log.info('Membangun MainPage untuk indeks halaman: $_indeksTerpilih');
+    info('Membangun MainPage untuk indeks halaman: $_indeksTerpilih');
     return Scaffold(
       body: Column(
         children: [

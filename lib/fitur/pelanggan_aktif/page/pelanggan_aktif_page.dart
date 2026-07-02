@@ -140,7 +140,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
 
   Future<void> _tampilkanDialogUrutan() async {
     final currentSort = ref.read(urutanPelangganAktifStateProvider);
-    await showDialog<UrutanPelangganAktif>(
+    await showDialog<UrutanPelangganAktifEnum>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Urutkan Berdasarkan'),
@@ -155,7 +155,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: UrutanPelangganAktif.values.map((o) {
+                  children: UrutanPelangganAktifEnum.values.map((o) {
                     final diPilih = currentSort == o;
                     return ListTile(
                       dense: true,
@@ -164,7 +164,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
                         horizontal: TSizes.p24,
                       ),
                       title: Text(
-                        PengurutPelangganAktif.ambilTeksUrutan(o),
+                        ambilTeksUrutanPelangganAktif(o),
                         style: TextStyle(
                           fontSize: TSizes.p16,
                           fontWeight: diPilih
@@ -361,12 +361,12 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
           },
           data: (state) {
             final sortBy = ref.watch(urutanPelangganAktifStateProvider);
-            final urutkanPelangganAktif = PengurutPelangganAktif.urutkan(
+            final urutkan = urutkanPelangganAktif(
               state.daftarPelangganAktif,
               sortBy,
             );
             final query = _searchController.text.toLowerCase();
-            final displayedCustomers = urutkanPelangganAktif
+            final displayedCustomers = urutkan
                 .where((c) => c.namaPelanggan.toLowerCase().contains(query))
                 .toList();
             if (displayedCustomers.isEmpty) {

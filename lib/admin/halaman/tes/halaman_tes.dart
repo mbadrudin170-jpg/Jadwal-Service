@@ -17,7 +17,7 @@ class HalamanTes extends StatefulWidget {
 
 class _HalamanTesState extends State<HalamanTes> {
   final LayananIklanInterstisial _adService = LayananIklanInterstisial();
-  final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
+  final adUnitId = interstitialAdUnitIds[0];
 
   @override
   void initState() {

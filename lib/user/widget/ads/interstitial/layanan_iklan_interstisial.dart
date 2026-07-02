@@ -9,35 +9,35 @@ class LayananIklanInterstisial {
   InterstitialAd? _interstitialAd;
   bool _isPreloading = false;
   bool _isAdLoaded = false;
-  final _idIklan = IdInterstitialAds.interstitialAdUnitIdMediasi;
+  final _idIklan = interstitialAdUnitIdMediasi;
 
   Future<void> preloadAd() async {
     if (kDebugMode) {
-      Log.info('[InterstitialAd] Debug mode: Melewati preload iklan.');
+      info('[InterstitialAd] Debug mode: Melewati preload iklan.');
       return;
     }
     if (_isAdLoaded || _isPreloading) {
-      Log.info(
+      info(
         '[InterstitialAd] Pemuatan dibatalkan (iklan sudah siap atau sedang dimuat).',
       );
       return;
     }
 
     _isPreloading = true;
-    Log.info('[InterstitialAd] Memulai memuat iklan...');
+    info('[InterstitialAd] Memulai memuat iklan...');
 
     await InterstitialAd.load(
       adUnitId: _idIklan,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
-          Log.info('[InterstitialAd] Iklan BERHASIL dimuat.');
+          info('[InterstitialAd] Iklan BERHASIL dimuat.');
           _interstitialAd = ad;
           _isAdLoaded = true;
           _isPreloading = false;
         },
         onAdFailedToLoad: (e) {
-          Log.error(
+          gagal(
             '[InterstitialAd] Iklan GAGAL dimuat.',
             e: e,
             data: {'adUnitId': _idIklan},
@@ -52,25 +52,25 @@ class LayananIklanInterstisial {
 
   Future<void> show() async {
     if (kDebugMode) {
-      Log.info('[InterstitialAd] Debug mode: Melewati menampilkan iklan.');
+      info('[InterstitialAd] Debug mode: Melewati menampilkan iklan.');
       return;
     }
     if (_interstitialAd != null && _isAdLoaded) {
-      Log.info('[InterstitialAd] Iklan sudah siap, mencoba menampilkan...');
+      info('[InterstitialAd] Iklan sudah siap, mencoba menampilkan...');
 
       _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdShowedFullScreenContent: (ad) {
-          Log.info('[InterstitialAd] Iklan berhasil ditampilkan.');
+          info('[InterstitialAd] Iklan berhasil ditampilkan.');
         },
         onAdDismissedFullScreenContent: (ad) {
-          Log.info('[InterstitialAd] Iklan ditutup, memuat yang baru.');
+          info('[InterstitialAd] Iklan ditutup, memuat yang baru.');
           ad.dispose();
           _interstitialAd = null;
           _isAdLoaded = false;
           unawaited(preloadAd());
         },
         onAdFailedToShowFullScreenContent: (ad, error) {
-          Log.error('[InterstitialAd] Gagal menampilkan iklan.', e: error);
+          gagal('[InterstitialAd] Gagal menampilkan iklan.', e: error);
           ad.dispose();
           _interstitialAd = null;
           _isAdLoaded = false;
@@ -79,13 +79,13 @@ class LayananIklanInterstisial {
       );
       await _interstitialAd!.show();
     } else {
-      Log.warning('[InterstitialAd] Gagal menampilkan: Iklan belum siap.');
+      warning('[InterstitialAd] Gagal menampilkan: Iklan belum siap.');
       unawaited(preloadAd());
     }
   }
 
   void dispose() {
-    Log.info('[InterstitialAd] Service di-dispose, membuang iklan.');
+    info('[InterstitialAd] Service di-dispose, membuang iklan.');
     _interstitialAd?.dispose();
     _interstitialAd = null;
   }

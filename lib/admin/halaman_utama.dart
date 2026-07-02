@@ -44,7 +44,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
-      Log.info('Aplikasi kembali ke foreground, memicu sinkronisasi.');
+      info('Aplikasi kembali ke foreground, memicu sinkronisasi.');
       unawaited(_syncJikaOnline());
     }
   }
@@ -53,7 +53,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   void initState() {
     super.initState();
     FlutterNativeSplash.remove();
-    Log.info('HalamanUtama initState. Offline: ${widget.isOffline}');
+    info('HalamanUtama initState. Offline: ${widget.isOffline}');
 
     _syncService = ref.read(layananCekSinkronisasiProvider);
     WidgetsBinding.instance.addObserver(this);
@@ -70,20 +70,20 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     await _jadwalkanSinkron();
     if (!mounted) return;
     _cekDanTampilkanPesanOffline();
-    Log.info('Menjalankan pengecekan langganan kadaluarsa.');
+    info('Menjalankan pengecekan langganan kadaluarsa.');
 
     try {
       final expiredService = ref.read(arsipLanggananKadaluarsaServiceProvider);
       await expiredService.prosesArsipLanggananKadaluarsa();
       await _syncJikaOnline().timeout(const Duration(seconds: 5));
     } catch (e, s) {
-      Log.info('gagal arsip langganan kadaluarsa $e $s');
+      info('gagal arsip langganan kadaluarsa $e $s');
     }
   }
 
   @override
   void dispose() {
-    Log.info('Menutup HalamanUtama');
+    info('Menutup HalamanUtama');
     WidgetsBinding.instance.removeObserver(this);
     unawaited(_langgananKoneksi.cancel());
     super.dispose();
@@ -102,7 +102,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
       frequency: const Duration(minutes: 15),
       constraints: Constraints(networkType: NetworkType.connected),
     );
-    Log.info('Tugas sinkronisasi periodik dijadwalkan.');
+    info('Tugas sinkronisasi periodik dijadwalkan.');
   }
 
   Future<void> _koneksiBerubah() async {
@@ -110,22 +110,22 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
         .read(koneksiInternetServiceProvider)
         .cekInternet();
     if (isOnline) {
-      Log.info('Koneksi kembali online. Memicu sinkronisasi.');
+      info('Koneksi kembali online. Memicu sinkronisasi.');
       await _syncJikaOnline();
     } else {
-      Log.warning('Koneksi terputus.');
+      warning('Koneksi terputus.');
     }
   }
 
   Future<void> _syncJikaOnline() async {
     if (_sedangSync) return;
-    Log.info('Memulai sinkronisasi data.');
+    info('Memulai sinkronisasi data.');
     if (mounted) setState(() => _sedangSync = true);
     try {
       await _syncService.jalankanCekSinkronisasi();
-      Log.info('Sinkronisasi data selesai.');
+      info('Sinkronisasi data selesai.');
     } catch (e, s) {
-      Log.error('Gagal sinkronisasi data.', e: e, s: s);
+      error('Gagal sinkronisasi data.', e: e, s: s);
     } finally {
       if (mounted) setState(() => _sedangSync = false);
     }
@@ -133,7 +133,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
 
   void _cekDanTampilkanPesanOffline() {
     if (widget.isOffline) {
-      Log.warning('Aplikasi dalam mode offline. Menampilkan pesan.');
+      warning('Aplikasi dalam mode offline. Menampilkan pesan.');
       ToastUtil.warning(
         context,
         'Anda dalam mode offline. Data mungkin tidak terbaru.',
@@ -146,7 +146,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     final payload = prefs.getString('initial_notification_payload');
     if (payload != null && payload.isNotEmpty) {
       await prefs.remove('initial_notification_payload');
-      Log.info('Aplikasi dibuka dari notifikasi dengan payload: $payload');
+      info('Aplikasi dibuka dari notifikasi dengan payload: $payload');
       if (mounted) {
         ToastUtil.info(context, 'Dibuka dari notifikasi: $payload');
       }

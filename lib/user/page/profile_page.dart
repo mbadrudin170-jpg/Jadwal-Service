@@ -237,7 +237,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       );
       await ref.read(interstitialAdServiceProvider).show();
     } on Exception catch (e, st) {
-      Log.error('Gagal navigasi ke detail pelanggan.', e: e, s: st);
+      gagal('Gagal navigasi ke detail pelanggan.', e: e, s: st);
       if (mounted) ToastUtil.error(context, 'Gagal membuka halaman detail.');
     }
   }
@@ -254,7 +254,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       );
       await ref.read(interstitialAdServiceProvider).show();
     } on Exception catch (e, st) {
-      Log.error('Gagal navigasi ke halaman poin.', e: e, s: st);
+      gagal('Gagal navigasi ke halaman poin.', e: e, s: st);
       if (mounted) ToastUtil.error(context, 'Gagal membuka halaman poin.');
     }
   }

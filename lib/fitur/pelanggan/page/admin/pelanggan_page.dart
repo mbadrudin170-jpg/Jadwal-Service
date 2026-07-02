@@ -121,7 +121,7 @@ class _PelangganState extends ConsumerState<PelangganPage> {
       skipLoadingOnReload: true,
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, s) {
-        Log.error('Gagal memuat daftar customer', e: e, s: s);
+         gagal('Gagal memuat daftar customer', e: e, s: s);
         return Center(child: Text('Gagal memuat data: $e'));
       },
       data: (listPelanggan) {
@@ -189,7 +189,7 @@ class _PelangganState extends ConsumerState<PelangganPage> {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
               decoration: BoxDecoration(
-                color: sedangDipilih ? TColors.pointBackground : null,
+                color: sedangDipilih ? pointBackground : null,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -297,7 +297,7 @@ class _PelangganState extends ConsumerState<PelangganPage> {
       if (!mounted) return;
       ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
     } on Exception catch (e, s) {
-      Log.error('Gagal mengarsipkan pelanggan', e: e, s: s);
+       gagal('Gagal mengarsipkan pelanggan', e: e, s: s);
       if (context.mounted) {
         ToastUtil.error(context, 'Gagal mengarsipkan customer.');
       }

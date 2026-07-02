@@ -112,13 +112,13 @@ class AppTheme {
   static final ThemeData modeTerang = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
-    primaryColor: TColors.primaryColor,
-    scaffoldBackgroundColor: TColors.lightBackground,
-    colorScheme: ColorScheme.fromSeed(seedColor: TColors.primaryColor),
+    primaryColor: primaryColor,
+    scaffoldBackgroundColor: lightBackground,
+    colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
     textTheme:
         _teksModeTerang, // Menggunakan TextTheme terang yang sudah diisolasi
     appBarTheme: AppBarTheme(
-      backgroundColor: TColors.primaryColor,
+      backgroundColor: primaryColor,
       foregroundColor: Colors.white,
       titleTextStyle: _teksModeTerang.headlineSmall?.copyWith(
         color: Colors.white,
@@ -131,7 +131,7 @@ class AppTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
-        backgroundColor: TColors.primaryColor,
+        backgroundColor: primaryColor,
         textStyle: _teksModeTerang.labelLarge, // Ditambahkan
       ),
     ),
@@ -140,31 +140,31 @@ class AppTheme {
   static final ThemeData modeGelap = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    primaryColor: TColors.primaryColor,
-    scaffoldBackgroundColor: TColors.darkBackground,
-    canvasColor: TColors.darkBackground,
+    primaryColor: primaryColor,
+    scaffoldBackgroundColor: darkBackground,
+    canvasColor: darkBackground,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: TColors.primaryColor,
+      seedColor: primaryColor,
       brightness: Brightness.dark,
-      surface: TColors.darkSurface,
+      surface: darkSurface,
     ),
     textTheme:
         _teksModeGelap, // Menggunakan TextTheme gelap yang sudah diisolasi
     appBarTheme: AppBarTheme(
-      backgroundColor: TColors.darkSurface,
+      backgroundColor: darkSurface,
       foregroundColor: Colors.white,
       titleTextStyle: _teksModeGelap.headlineSmall?.copyWith(
         fontWeight: FontWeight.bold,
       ),
     ),
-    cardTheme: const CardThemeData(color: TColors.darkSurface),
+    cardTheme: const CardThemeData(color: darkSurface),
     listTileTheme: ListTileThemeData(
       subtitleTextStyle: _teksModeGelap.bodyMedium,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        foregroundColor: TColors.lightBackground,
-        backgroundColor: TColors.darkBackground,
+        foregroundColor: lightBackground,
+        backgroundColor: darkBackground,
         textStyle: _teksModeGelap.labelLarge, // Ditambahkan
       ),
     ),

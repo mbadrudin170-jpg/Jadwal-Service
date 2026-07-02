@@ -14,7 +14,7 @@ class KartuTotalPoin extends StatelessWidget {
     super.key,
     required this.poin,
     this.icon = TIcons.points,
-    this.warna = TColors.pointColor,
+    this.warna = pointColor,
     this.onTap,
   });
 
