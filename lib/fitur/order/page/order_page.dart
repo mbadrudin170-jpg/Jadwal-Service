@@ -25,6 +25,7 @@ class OrderPage extends ConsumerStatefulWidget {
 
 class _OrderPageState extends ConsumerState<OrderPage> {
   String _filterAktif = StatusOrderEnum.baru.name;
+  bool _sedangMenghapus = false;
 
   @override
   void initState() {
@@ -69,7 +70,92 @@ class _OrderPageState extends ConsumerState<OrderPage> {
   }
 
   Future<void> _softDeleteAll() async {
-    await ref.read(orderOpGlobalProvider).softDeleteAll();
+    if (_sedangMenghapus) return;
+
+    // ✅ 1. Tampilkan dialog konfirmasi
+    final bool? konfirmasi = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Konfirmasi Hapus Semua'),
+          content: const Text(
+            'Apakah Anda yakin ingin menghapus SEMUA pesanan? '
+            'Tindakan ini tidak dapat dibatalkan.',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Hapus Semua'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (konfirmasi != true) {
+      Log.info('Penghapusan semua pesanan dibatalkan oleh pengguna');
+      return;
+    }
+
+    // Baca provider sebelum masuk ke bagian async
+    final orderOp = ref.read(orderOpGlobalProvider);
+
+    if (!mounted) return;
+
+    // ✅ 2. Tampilkan loading
+    setState(() {
+      _sedangMenghapus = true;
+    });
+
+    try {
+      Log.info('Memulai proses penghapusan semua pesanan');
+
+      // ✅ 3. Tampilkan dialog loading
+      unawaited(
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Menghapus semua pesanan...'),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      // ✅ 4. Eksekusi penghapusan
+      await orderOp.softDeleteAll();
+
+      if (!mounted) return;
+
+      // ✅ 6. Tutup loading dialog dan tampilkan sukses
+      Navigator.pop(context); // Tutup loading dialog
+      ToastUtil.success(context, 'Semua pesanan berhasil dihapus');
+    } on Exception catch (e, s) {
+      Log.error('Gagal menghapus semua pesanan', e: e, s: s);
+
+      if (!mounted) return;
+
+      // ✅ 7. Tutup loading dialog dan tampilkan error
+      Navigator.pop(context); // Tutup loading dialog
+      ToastUtil.error(context, 'Gagal menghapus semua pesanan: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _sedangMenghapus = false;
+        });
+      }
+    }
   }
 
   /// ✅ PERBAIKAN 2: Fungsi ubah status sekarang pakai await dengan benar
@@ -177,7 +263,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                             Log.info(
                               '_showDialog: order berhasil dihapus orderId: ${order.id}',
                             );
-                            ref.invalidate(daftarPesananProvider);
                             ref.invalidate(orderProvider);
 
                             if (dialogContext.mounted) {
@@ -230,8 +315,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
       appBar: AppBar(
         title: const Text('Pesanan Saya'),
         actions: [
-          if(kDebugMode)
-          IconButton(onPressed: _softDeleteAll, icon: Icon(TIcons.delete))],
+          if (kDebugMode)
+            IconButton(onPressed: _softDeleteAll, icon: Icon(TIcons.delete)),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -474,7 +560,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
             Log.info(
               '_tombolOpsiUbahStatus: status berhasil diubah untuk orderId: ${order.id}',
             );
-            ref.invalidate(daftarPesananProvider);
             ref.invalidate(orderProvider);
             Log.info('_tombolOpsiUbahStatus: orderProvider di-invalidate');
 

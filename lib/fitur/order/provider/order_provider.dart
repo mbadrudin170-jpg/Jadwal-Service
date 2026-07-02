@@ -3,13 +3,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/app_role/role_util.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/operasi/order_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/user/providers/user_provider.dart';
 
 part 'order_provider.g.dart';
 part 'order_provider.freezed.dart';
@@ -33,7 +29,7 @@ class Order extends _$Order {
   Future<OrderState> _loadData() async {
     try {
       Log.info('Fungsi _loadData di jalankan');
-      final daftarOrder = await ref.watch(orderOpGlobalProvider).ambilSemua();
+      final daftarOrder = await ref.read(orderOpGlobalProvider).ambilSemua();
       return OrderState(
         daftarOrder: daftarOrder,
         totalDaftar: daftarOrder.length,
@@ -79,34 +75,33 @@ class Order extends _$Order {
   }
 
   void invalidateOrderProvider() {
-    ref.invalidate(daftarPesananProvider);
     ref.invalidateSelf();
   }
 }
 
-@riverpod
-Future<List<OrderModel>> daftarPesanan(Ref ref) async {
-  if (RoleUtil.isAdmin(ref)) {
-    final orderOpSqlite = ref.read(orderOpSqliteProvider);
-    return await orderOpSqlite.ambilSemua();
-  } else {
-    final userId = await ref.watch(userIdProvider.future);
-    final orderOpFirebase = ref.read(orderOpFirebaseProvider);
-    if (userId != null) {
-      return await orderOpFirebase.ambilBerdasarkanIdPelanggan(userId).first;
-    }
-  }
-  return [];
-}
+// @riverpod
+// Future<List<OrderModel>> daftarPesanan(Ref ref) async {
+//   if (RoleUtil.isAdmin(ref)) {
+//     final orderOpSqlite = ref.read(orderOpSqliteProvider);
+//     return await orderOpSqlite.ambilSemua();
+//   } else {
+//     final userId = await ref.watch(userIdProvider.future);
+//     final orderOpFirebase = ref.read(orderOpFirebaseProvider);
+//     if (userId != null) {
+//       return await orderOpFirebase.ambilBerdasarkanIdPelanggan(userId).first;
+//     }
+//   }
+//   return [];
+// }
 
-@riverpod
-Future<List<OrderModel>> daftar(Ref ref, String id) async {
-  try {
-    final order = await ref.watch(orderProvider.future);
-    final daftarO = order.daftarOrder;
-    return daftarO.where((o) => o.idPelanggan == id).toList();
-  } on Exception catch (e, s) {
-    Log.error('Error didaftar: $e', e: e, s: s);
-    rethrow;
-  }
-}
+// @riverpod
+// Future<List<OrderModel>> daftar(Ref ref, String id) async {
+//   try {
+//     final order = await ref.watch(orderProvider.future);
+//     final daftarO = order.daftarOrder;
+//     return daftarO.where((o) => o.idPelanggan == id).toList();
+//   } on Exception catch (e, s) {
+//     Log.error('Error didaftar: $e', e: e, s: s);
+//     rethrow;
+//   }
+// }

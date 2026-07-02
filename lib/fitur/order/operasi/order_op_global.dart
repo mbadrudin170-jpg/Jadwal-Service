@@ -69,7 +69,7 @@ class OrderOpGlobal {
       } else {
         await _orderOpFirebase.softDeleteAll();
       }
-      unawaited(ref.read(orderProvider.notifier).refresh());
+      ref.invalidate(orderProvider);
     } on Exception catch (e, s) {
       Log.error('Error di softDeleteAll: $e', e: e, s: s);
       rethrow;

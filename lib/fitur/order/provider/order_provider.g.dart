@@ -32,7 +32,7 @@ final class OrderProvider extends $AsyncNotifierProvider<Order, OrderState> {
   Order create() => Order();
 }
 
-String _$orderHash() => r'4848a27630470a5c578e9a8172d148316217f09a';
+String _$orderHash() => r'fdefa1c83c916bfc12db2438a42910a89ac06c6d';
 
 abstract class _$Order extends $AsyncNotifier<OrderState> {
   FutureOr<OrderState> build();
@@ -50,117 +50,4 @@ abstract class _$Order extends $AsyncNotifier<OrderState> {
             >;
     return element.handleCreate(ref, build);
   }
-}
-
-@ProviderFor(daftarPesanan)
-final daftarPesananProvider = DaftarPesananProvider._();
-
-final class DaftarPesananProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<OrderModel>>,
-          List<OrderModel>,
-          FutureOr<List<OrderModel>>
-        >
-    with $FutureModifier<List<OrderModel>>, $FutureProvider<List<OrderModel>> {
-  DaftarPesananProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'daftarPesananProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$daftarPesananHash();
-
-  @$internal
-  @override
-  $FutureProviderElement<List<OrderModel>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<List<OrderModel>> create(Ref ref) {
-    return daftarPesanan(ref);
-  }
-}
-
-String _$daftarPesananHash() => r'b123136a10fee76f439e4812bdff19a61dedb5f0';
-
-@ProviderFor(daftar)
-final daftarProvider = DaftarFamily._();
-
-final class DaftarProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<OrderModel>>,
-          List<OrderModel>,
-          FutureOr<List<OrderModel>>
-        >
-    with $FutureModifier<List<OrderModel>>, $FutureProvider<List<OrderModel>> {
-  DaftarProvider._({
-    required DaftarFamily super.from,
-    required String super.argument,
-  }) : super(
-         retry: null,
-         name: r'daftarProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$daftarHash();
-
-  @override
-  String toString() {
-    return r'daftarProvider'
-        ''
-        '($argument)';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<List<OrderModel>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<List<OrderModel>> create(Ref ref) {
-    final argument = this.argument as String;
-    return daftar(ref, argument);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is DaftarProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$daftarHash() => r'18aaa9753b4c3464630f41bc6069cf45d43bc472';
-
-final class DaftarFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<List<OrderModel>>, String> {
-  DaftarFamily._()
-    : super(
-        retry: null,
-        name: r'daftarProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  DaftarProvider call(String id) => DaftarProvider._(argument: id, from: this);
-
-  @override
-  String toString() => r'daftarProvider';
 }

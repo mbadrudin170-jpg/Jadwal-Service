@@ -12044,6 +12044,7 @@ class OrderPage extends ConsumerStatefulWidget {
 
 class _OrderPageState extends ConsumerState<OrderPage> {
   String _filterAktif = StatusOrderEnum.baru.name;
+  bool _sedangMenghapus = false;
 
   @override
   void initState() {
@@ -12088,7 +12089,92 @@ class _OrderPageState extends ConsumerState<OrderPage> {
   }
 
   Future<void> _softDeleteAll() async {
-    await ref.read(orderOpGlobalProvider).softDeleteAll();
+    if (_sedangMenghapus) return;
+
+    // ✅ 1. Tampilkan dialog konfirmasi
+    final bool? konfirmasi = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Konfirmasi Hapus Semua'),
+          content: const Text(
+            'Apakah Anda yakin ingin menghapus SEMUA pesanan? '
+            'Tindakan ini tidak dapat dibatalkan.',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Hapus Semua'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (konfirmasi != true) {
+      Log.info('Penghapusan semua pesanan dibatalkan oleh pengguna');
+      return;
+    }
+
+    if (!mounted) return;
+
+    // ✅ 2. Tampilkan loading
+    setState(() {
+      _sedangMenghapus = true;
+    });
+
+    try {
+      Log.info('Memulai proses penghapusan semua pesanan');
+
+      // ✅ 3. Tampilkan dialog loading
+      unawaited(
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Menghapus semua pesanan...'),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      // ✅ 4. Eksekusi penghapusan
+      await ref.read(orderOpGlobalProvider).softDeleteAll();
+
+      // ✅ 5. Refresh data
+      await ref.read(orderProvider.notifier).refresh();
+
+      if (!mounted) return;
+
+      // ✅ 6. Tutup loading dialog dan tampilkan sukses
+      Navigator.pop(context); // Tutup loading dialog
+      ToastUtil.success(context, 'Semua pesanan berhasil dihapus');
+    } on Exception catch (e, s) {
+      Log.error('Gagal menghapus semua pesanan', e: e, s: s);
+
+      if (!mounted) return;
+
+      // ✅ 7. Tutup loading dialog dan tampilkan error
+      Navigator.pop(context); // Tutup loading dialog
+      ToastUtil.error(context, 'Gagal menghapus semua pesanan: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _sedangMenghapus = false;
+        });
+      }
+    }
   }
 
   /// ✅ PERBAIKAN 2: Fungsi ubah status sekarang pakai await dengan benar
@@ -12249,8 +12335,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
       appBar: AppBar(
         title: const Text('Pesanan Saya'),
         actions: [
-          if(kDebugMode)
-          IconButton(onPressed: _softDeleteAll, icon: Icon(TIcons.delete))],
+          if (kDebugMode)
+            IconButton(onPressed: _softDeleteAll, icon: Icon(TIcons.delete)),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -12842,7 +12929,7 @@ final class OrderProvider extends $AsyncNotifierProvider<Order, OrderState> {
         argument: null,
         retry: null,
         name: r'orderProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -12855,7 +12942,7 @@ final class OrderProvider extends $AsyncNotifierProvider<Order, OrderState> {
   Order create() => Order();
 }
 
-String _$orderHash() => r'7c4baf321e79c67b986998f757bea663ad7191e9';
+String _$orderHash() => r'4848a27630470a5c578e9a8172d148316217f09a';
 
 abstract class _$Order extends $AsyncNotifier<OrderState> {
   FutureOr<OrderState> build();
@@ -13014,15 +13101,17 @@ abstract class OrderState with _$OrderState {
   }) = _OrderState;
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Order extends _$Order {
   @override
   FutureOr<OrderState> build() async {
+    Log.info('build orderProvider');
     return _loadData();
   }
 
   Future<OrderState> _loadData() async {
     try {
+      Log.info('Fungsi _loadData di jalankan');
       final daftarOrder = await ref.watch(orderOpGlobalProvider).ambilSemua();
       return OrderState(
         daftarOrder: daftarOrder,
@@ -13042,6 +13131,20 @@ class Order extends _$Order {
       Log.error('Error ditambah: $e', e: e, s: s);
       await refresh();
       rethrow;
+    }
+  }
+
+  Future<List<OrderModel>> ambilBerdasarkanIdPelanggan(String id) async {
+    try {
+      List<OrderModel> daftarBaru = [];
+      final daftar = state.asData?.value.daftarOrder;
+      if (daftar != null) {
+        daftarBaru = daftar.where((o) => o.idPelanggan == id).toList();
+      }
+      return daftarBaru;
+    } on Exception catch (e, s) {
+      Log.error('Error diambilBerdasarkanIdPelanggan: $e', e: e, s: s);
+      return [];
     }
   }
 
@@ -13396,6 +13499,7 @@ class OrderOpGlobal {
 
   Future<List<OrderModel>> ambilSemua() async {
     try {
+      Log.info('fungsi ambil semua dijalankan');
       if (RoleUtil.isAdmin(ref)) {
         return await _orderOpSqlite.ambilSemua();
       } else {
@@ -13429,39 +13533,39 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 class OrderOpFirebase {
   final BaseOpFirebase _baseOp;
   final FirebaseFirestore _firestore;
-  final String _namaKoleksi = NamaTabel.pesananPelanggan;
+  final String _koleksiOrder = NamaTabel.pesananPelanggan;
 
   OrderOpFirebase({
     required FirebaseFirestore firestore,
     required BaseOpFirebase baseOp,
-  })  : _firestore = firestore,
-        _baseOp = baseOp {
+  }) : _firestore = firestore,
+       _baseOp = baseOp {
     Log.info('OrderOpFirebase diinisialisasi.');
   }
 
   /// 1. Menambahkan pesanan baru
   Future<void> tambahOrder(OrderModel order) async {
     Log.info('Menambahkan pesanan baru: ${order.id}');
-    await _baseOp.sisipkan(_namaKoleksi, order.id, order.toFirebase());
+    await _baseOp.sisipkan(_koleksiOrder, order.id, order.toFirebase());
   }
 
   /// 2. Memperbarui pesanan yang ada
   Future<void> perbarui(OrderModel order) async {
     Log.info('Memperbarui pesanan: ${order.id}');
-    await _baseOp.update(_namaKoleksi, order.id, order.toFirebase());
+    await _baseOp.update(_koleksiOrder, order.id, order.toFirebase());
   }
 
   /// 3. Menghapus pesanan (soft delete)
   Future<void> softDeleteOrder(String orderId) async {
     Log.info('Menghapus pesanan: $orderId');
-    await _baseOp.softDelete(_namaKoleksi, orderId);
+    await _baseOp.softDelete(_koleksiOrder, orderId);
   }
 
   Future<void> softDeleteAll() async {
     Log.info('Melakukan soft delete untuk semua pesanan.');
     try {
       final snapshot = await _firestore
-          .collection(_namaKoleksi)
+          .collection(_koleksiOrder)
           .where(NamaKolom.dihapus, isEqualTo: false)
           .get();
 
@@ -13489,7 +13593,7 @@ class OrderOpFirebase {
     Log.info('Mengambil data pertama dari stream pesanan');
     try {
       final stream = _firestore
-          .collection(_namaKoleksi)
+          .collection(_koleksiOrder)
           .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.diperbaruiPada, descending: true)
           .snapshots()
@@ -13502,8 +13606,6 @@ class OrderOpFirebase {
             Log.error('Error mendapatkan stream pesanan', e: e, s: st);
             return <OrderModel>[];
           });
-
-      // Ambil data pertama dari stream
       return await stream.first;
     } on Exception catch (e, st) {
       Log.error('Gagal mengambil data pertama dari stream', e: e, s: st);
@@ -13515,7 +13617,7 @@ class OrderOpFirebase {
   Future<OrderModel?> ambilBerdasarkanId(String id) async {
     Log.info('Mendapatkan pesanan by ID: $id');
     try {
-      final doc = await _firestore.collection(_namaKoleksi).doc(id).get();
+      final doc = await _firestore.collection(_koleksiOrder).doc(id).get();
       if (doc.exists) {
         return OrderModel.fromFirebase(doc.id, doc.data()!);
       }
@@ -13535,7 +13637,7 @@ class OrderOpFirebase {
   Stream<List<OrderModel>> ambilBerdasarkanIdPelanggan(String idPelanggan) {
     try {
       return _firestore
-          .collection(_namaKoleksi)
+          .collection(_koleksiOrder)
           .where(NamaKolom.dihapus, isEqualTo: false)
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           .snapshots()
@@ -13560,7 +13662,7 @@ class OrderOpFirebase {
     StatusOrderEnum status,
   ) {
     return _firestore
-        .collection(_namaKoleksi)
+        .collection(_koleksiOrder)
         .where(NamaKolom.status, isEqualTo: status.name)
         .where(NamaKolom.dihapus, isEqualTo: false)
         .orderBy(NamaKolom.diperbaruiPada, descending: true)
@@ -13586,7 +13688,7 @@ class OrderOpFirebase {
     Log.info('Mendapatkan pesanan sekali panggil by status: ${status.name}');
     try {
       final snapshot = await _firestore
-          .collection(_namaKoleksi)
+          .collection(_koleksiOrder)
           .where(NamaKolom.status, isEqualTo: status.name)
           .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.diperbaruiPada, descending: true)
@@ -13612,7 +13714,7 @@ class OrderOpFirebase {
     );
     try {
       Query query = _firestore
-          .collection(_namaKoleksi)
+          .collection(_koleksiOrder)
           .where(NamaKolom.status, isEqualTo: status.name)
           .where(NamaKolom.dihapus, isEqualTo: false);
 
