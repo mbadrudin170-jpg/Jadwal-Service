@@ -3,14 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/shared/export/op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -36,13 +33,9 @@ class TransaksiU extends ConsumerStatefulWidget {
 }
 
 class _TransaksiUState extends ConsumerState<TransaksiU> {
-  final TransaksiOpFirebase _transaksiOpFirebase = TransaksiOpFirebase();
   final ScrollController _pengendaliScroll = ScrollController();
 
   SortMode _modeUrutan = SortMode.tanggalTerbaru;
-
-  List<TransaksiModel> _semuaTransaksi = [];
-  List<TransaksiModel> _transaksiTampil = [];
   int _jumlahTampil = 20;
   bool _sedangMemuatLebih = false;
 
@@ -50,10 +43,6 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
   void initState() {
     super.initState();
     _pengendaliScroll.addListener(_deteksiScroll);
-    // Jalankan pemuatan awal setelah frame pertama dirender
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _muatDataAwal();
-    });
   }
 
   @override
@@ -63,54 +52,14 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
     super.dispose();
   }
 
-  Future<void> _muatDataAwal() async {
-    try {
-      final userId = await ref.read(userIdProvider.future);
-
-      if (userId == null) {
-        setState(() {
-          _semuaTransaksi = [];
-          _transaksiTampil = [];
-        });
-        return;
-      }
-
-      final pelangganOp = ref.read(pelangganOpGlobalProvider);
-      final pelanggan = await pelangganOp.ambilBerdasarkanId(userId);
-      if (pelanggan == null) {
-        setState(() {
-          _semuaTransaksi = [];
-          _transaksiTampil = [];
-        });
-        return;
-      }
-
-      final hasil = await _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(
-        pelanggan.id,
-      );
-
-      setState(() {
-        _semuaTransaksi = hasil;
-        _perbaruiTransaksiTampil(aturUlang: true);
-      });
-    } on Object catch (e, st) {
-      Log.error('Gagal memuat riwayat transaksi', e: e, s: st);
-    }
-  }
-
   List<TransaksiModel> _sortHistory(List<TransaksiModel> history) {
     switch (_modeUrutan) {
       case SortMode.tanggalTerbaru:
-        history.sort((a, b) {
-          return b.tanggal.compareTo(a.tanggal);
-        });
+        history.sort((a, b) => b.tanggal.compareTo(a.tanggal));
         break;
       case SortMode.tanggalTerlama:
-        history.sort((a, b) {
-          return b.tanggal.compareTo(a.tanggal);
-        });
+        history.sort((a, b) => a.tanggal.compareTo(b.tanggal));
         break;
-
       case SortMode.tanggalBerakhirTerbaru:
         history.sort((a, b) {
           if (a.tanggalBerakhir == null && b.tanggalBerakhir == null) return 0;
@@ -146,48 +95,38 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
   }
 
   void _deteksiScroll() {
+    final state = ref.read(transaksiProvider).value;
+    if (state == null) return;
+
+    final userId = ref.read(userIdProvider).value;
+    if (userId == null) return;
+
+    final semua = state.transaksi
+        .where((e) => e.idPelanggan == userId)
+        .toList();
+    final total = semua.length;
+
     if (_pengendaliScroll.position.pixels >=
         _pengendaliScroll.position.maxScrollExtent - 200) {
-      if (!_sedangMemuatLebih &&
-          _transaksiTampil.length < _semuaTransaksi.length) {
+      if (!_sedangMemuatLebih && _jumlahTampil < total) {
         _muatLebihBanyak();
       }
     }
   }
 
   Future<void> _muatLebihBanyak() async {
-    Log.info('Memulai memuat lebih banyak riwayat transaksi');
     setState(() {
       _sedangMemuatLebih = true;
-    });
-
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-
-    setState(() {
       _jumlahTampil += 20;
-      _perbaruiTransaksiTampil();
       _sedangMemuatLebih = false;
-    });
-
-    Log.info(
-      'Berhasil memuat lebih banyak transaksi, total tampil: $_jumlahTampil',
-    );
-  }
-
-  void _perbaruiTransaksiTampil({bool aturUlang = false}) {
-    if (aturUlang) {
-      _jumlahTampil = 20;
-    }
-
-    final riwayatUrut = _sortHistory(List.from(_semuaTransaksi));
-
-    setState(() {
-      _transaksiTampil = riwayatUrut.take(_jumlahTampil).toList();
     });
   }
 
   Future<void> _refreshRiwayat() async {
-    await _muatDataAwal();
+    setState(() {
+      _jumlahTampil = 20; // Reset pagination
+    });
+    final _ = ref.refresh(transaksiProvider); // Paksa muat ulang data
   }
 
   Future<void> _navigasiKeDetailTransaksi(
@@ -210,8 +149,8 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
   Widget build(BuildContext context) {
     final transaksi = ref.watch(transaksiProvider);
     final paketOpFirebase = ref.read(paketOpFirebaseProvider);
-    final pelangganOp = ref.read(pelangganOpGlobalProvider);
-    final userId = ref.watch(userIdProvider);
+    final userId = ref.watch(userIdProvider).value;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Langganan'),
@@ -220,62 +159,38 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
             onSelected: (SortMode hasil) {
               setState(() {
                 _modeUrutan = hasil;
-                _perbaruiTransaksiTampil(aturUlang: true);
+                _jumlahTampil = 20;
               });
             },
             itemBuilder: (BuildContext context) => [
-              PopupMenuItem(
+              CheckedPopupMenuItem(
                 value: SortMode.tanggalTerbaru,
-                textStyle: TextStyle(
-                  color: _modeUrutan == SortMode.tanggalTerlama
-                      ? Theme.of(context).colorScheme.primary.withAlpha(30)
-                      : null,
-                ),
+                checked: _modeUrutan == SortMode.tanggalTerbaru,
                 child: const TeksIsiSedang('Tanggal (Terbaru)'),
               ),
-              PopupMenuItem(
-                textStyle: TextStyle(
-                  color: _modeUrutan == SortMode.tanggalTerlama
-                      ? Theme.of(context).colorScheme.primary.withAlpha(30)
-                      : null,
-                ),
+              CheckedPopupMenuItem(
                 value: SortMode.tanggalTerlama,
+                checked: _modeUrutan == SortMode.tanggalTerlama,
                 child: const TeksIsiSedang('Tanggal (Terlama)'),
               ),
-              PopupMenuItem(
-                textStyle: TextStyle(
-                  color: _modeUrutan == SortMode.tanggalBerakhirTerbaru
-                      ? Theme.of(context).colorScheme.primary.withAlpha(30)
-                      : null,
-                ),
+              CheckedPopupMenuItem(
                 value: SortMode.tanggalBerakhirTerbaru,
+                checked: _modeUrutan == SortMode.tanggalBerakhirTerbaru,
                 child: const TeksIsiSedang('Tanggal Berakhir (Terbaru)'),
               ),
-              PopupMenuItem(
+              CheckedPopupMenuItem(
                 value: SortMode.tanggalBerakhirTerlama,
-                textStyle: TextStyle(
-                  color: _modeUrutan == SortMode.tanggalBerakhirTerlama
-                      ? Theme.of(context).colorScheme.primary.withAlpha(30)
-                      : null,
-                ),
+                checked: _modeUrutan == SortMode.tanggalBerakhirTerlama,
                 child: const TeksIsiSedang('Tanggal Berakhir (Terlama)'),
               ),
-              PopupMenuItem(
+              CheckedPopupMenuItem(
                 value: SortMode.lunas,
-                textStyle: TextStyle(
-                  color: _modeUrutan == SortMode.lunas
-                      ? Theme.of(context).colorScheme.primary.withAlpha(30)
-                      : null,
-                ),
+                checked: _modeUrutan == SortMode.lunas,
                 child: const TeksIsiSedang('Status: Lunas'),
               ),
-              PopupMenuItem(
+              CheckedPopupMenuItem(
                 value: SortMode.belumLunas,
-                textStyle: TextStyle(
-                  color: _modeUrutan == SortMode.belumLunas
-                      ? Theme.of(context).colorScheme.primary.withAlpha(30)
-                      : null,
-                ),
+                checked: _modeUrutan == SortMode.belumLunas,
                 child: const TeksIsiSedang('Status: Belum Lunas'),
               ),
             ],
@@ -288,14 +203,28 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
           Expanded(
             child: transaksi.when(
               data: (TransaksiState data) {
+                if (userId == null || userId.isEmpty) {
+                  return const Center(
+                    child: Text('Silakan login terlebih dahulu'),
+                  );
+                }
+
+                final semuaTransaksi = data.transaksi
+                    .where((e) => e.idPelanggan == userId)
+                    .toList();
+                final riwayatUrut = _sortHistory(List.from(semuaTransaksi));
+                final transaksiTampil = riwayatUrut
+                    .take(_jumlahTampil)
+                    .toList();
+                final showLoadMore = _jumlahTampil < riwayatUrut.length;
+
                 return RefreshIndicator(
                   onRefresh: _refreshRiwayat,
                   child: ListView.builder(
                     controller: _pengendaliScroll,
-                    itemCount:
-                        _transaksiTampil.length + (_sedangMemuatLebih ? 1 : 0),
+                    itemCount: transaksiTampil.length + (showLoadMore ? 1 : 0),
                     itemBuilder: (context, index) {
-                      if (index == _transaksiTampil.length) {
+                      if (index == transaksiTampil.length) {
                         return const Center(
                           child: Padding(
                             padding: EdgeInsets.all(8.0),
@@ -304,7 +233,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                         );
                       }
 
-                      final tx = _transaksiTampil[index];
+                      final tx = transaksiTampil[index];
                       final paketFuture = tx.idPaket != null
                           ? paketOpFirebase.ambilBerdasarkanId(tx.idPaket!)
                           : Future<PaketModel?>.value();
