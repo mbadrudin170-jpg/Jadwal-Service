@@ -42,7 +42,7 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('flutter_native_splash'),
-      (MethodCall methodCall) async {
+      (methodCall) async {
         if (methodCall.method == 'remove') {
           return null;
         }

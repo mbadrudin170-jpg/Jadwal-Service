@@ -42,7 +42,7 @@ void main() {
     );
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+        .setMockMethodCallHandler(channel, (methodCall) async {
       if (methodCall.method == 'canLaunch') {
         return canLaunchReturnValue;
       }

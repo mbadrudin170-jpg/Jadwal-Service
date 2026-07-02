@@ -138,7 +138,7 @@ void main() {
       verify(mockPelangganOpSqlite.perbaruiPelanggan(any));
     });
 
-     testWidgets('06. should show CircularProgressIndicator while saving', (WidgetTester tester) async {
+     testWidgets('06. should show CircularProgressIndicator while saving', (tester) async {
       when(mockPelangganOpSqlite.tambahPelanggan(any)).thenAnswer((_) async {
         await Future<void>.delayed(const Duration(seconds: 1));
       });
@@ -160,7 +160,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('07. should pop navigator on back button press', (WidgetTester tester) async {
+    testWidgets('07. should pop navigator on back button press', (tester) async {
       await tester.pumpWidget(createWidget());
       
       final backButton = find.byType(BackButton);

@@ -6,7 +6,7 @@ import 'package:wifi/data_dummy/halaman_data_dummy.dart';
 
 void main() {
   group('HalamanDataDummy', () {
-    testWidgets('01. harus menampilkan judul dan tombol', (WidgetTester tester) async {
+    testWidgets('01. harus menampilkan judul dan tombol', (tester) async {
       await tester.pumpWidget(const MaterialApp(home: HalamanDataDummy()));
 
       expect(find.text('Halaman Data Dummy'), findsOneWidget);

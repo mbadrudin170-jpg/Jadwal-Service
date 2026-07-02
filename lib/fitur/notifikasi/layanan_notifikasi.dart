@@ -385,7 +385,7 @@ class LayananNotifikasi {
     Log.info('Channel notifikasi ditemukan: ${channelNotifikasiPenting!.id}');
     final pending = await plugin.pendingNotificationRequests();
     Log.info('=== DAFTAR NOTIFIKASI TERJADWAL (${pending.length}) ===');
-    for (var notif in pending) {
+    for (final notif in pending) {
       Log.info('ID: ${notif.id}, Title: ${notif.title}, Scheduled: $notif');
     }
 

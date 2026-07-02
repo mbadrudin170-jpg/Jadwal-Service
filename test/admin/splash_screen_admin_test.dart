@@ -8,7 +8,7 @@ import 'package:wifi/admin/splash_screen_admin.dart';
 void main() {
   group('SplashScreen', () {
     testWidgets('01. harus menavigasi ke AppAdmin setelah 2 detik',
-        (WidgetTester tester) async {
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: SplashScreen(),

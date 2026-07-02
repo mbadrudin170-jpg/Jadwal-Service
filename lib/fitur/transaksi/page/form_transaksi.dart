@@ -323,7 +323,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                   }
 
                   return Expanded(
-                    child: Container(
+                    child: DecoratedBox(
                       // Memberikan border hanya di bagian bawah
                       decoration: BoxDecoration(
                         border: Border(

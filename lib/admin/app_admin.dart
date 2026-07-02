@@ -184,10 +184,10 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 /// Menerima parameter [isOffline] untuk diteruskan ke [HalamanUtama]
 /// sehingga UI dapat menyesuaikan diri dengan status koneksi.
 class AppMaterial extends ConsumerWidget {
+  const AppMaterial({super.key, required this.isOffline});
+
   /// Apakah perangkat sedang offline.
   final bool isOffline;
-
-  const AppMaterial({super.key, required this.isOffline});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

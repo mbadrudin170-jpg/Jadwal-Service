@@ -4,6 +4,15 @@ import 'package:wifi/shared/export/theme.dart';
 
 /// Sebuah widget untuk menampilkan informasi dalam sebuah kotak.
 class BoxInfo extends StatelessWidget {
+
+  /// Membuat sebuah widget [BoxInfo].
+  const BoxInfo({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
   /// Judul dari kotak informasi.
   final String title;
 
@@ -15,15 +24,6 @@ class BoxInfo extends StatelessWidget {
 
   /// Warna dari kotak dan ikon.
   final Color color;
-
-  /// Membuat sebuah widget [BoxInfo].
-  const BoxInfo({
-    super.key,
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
 
   @override
   Widget build(final BuildContext context) {

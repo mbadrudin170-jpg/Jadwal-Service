@@ -29,7 +29,7 @@ void main() {
       statusAktif: true,
     );
 
-    testWidgets('01. renders event details correctly', (WidgetTester tester) async {
+    testWidgets('01. renders event details correctly', (tester) async {
       when(mockEventOpSupabase.ambilBerdasarkanId('1')).thenAnswer((_) async => event);
 
       await tester.pumpWidget(
@@ -49,7 +49,7 @@ void main() {
       expect(find.byType(Image), findsOneWidget);
     });
 
-    testWidgets('02. shows loading indicator when event is loading', (WidgetTester tester) async {
+    testWidgets('02. shows loading indicator when event is loading', (tester) async {
       when(mockEventOpSupabase.ambilBerdasarkanId('1')).thenAnswer((_) async => null);
 
       await tester.pumpWidget(

@@ -3,12 +3,6 @@ import 'package:flutter/material.dart';
 
 /// Sebuah widget tombol dengan ikon dan label.
 class TombolAksi extends StatelessWidget {
-  /// Label dari tombol.
-  final String label;
-  /// Ikon yang akan ditampilkan di tombol.
-  final IconData icon;
-  /// Fungsi yang akan dipanggil saat tombol ditekan.
-  final VoidCallback onPressed;
 
   /// Membuat sebuah widget [TombolAksi].
   const TombolAksi({
@@ -17,6 +11,12 @@ class TombolAksi extends StatelessWidget {
     required this.icon,
     required this.onPressed,
   });
+  /// Label dari tombol.
+  final String label;
+  /// Ikon yang akan ditampilkan di tombol.
+  final IconData icon;
+  /// Fungsi yang akan dipanggil saat tombol ditekan.
+  final VoidCallback onPressed;
 
   @override
   Widget build(final BuildContext context) {

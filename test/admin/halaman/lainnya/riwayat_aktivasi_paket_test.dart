@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('RiwayatAktivasiPaket', () {
-    testWidgets('01. should display activation history', (WidgetTester tester) async {
+    testWidgets('01. should display activation history', (tester) async {
       // TODO: Implement test
     });
   });

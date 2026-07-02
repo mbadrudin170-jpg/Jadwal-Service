@@ -6,7 +6,7 @@ export 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 export 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 export 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 export 'package:wifi/fitur/kategori/operasi/sub_kategori_op_sqlite.dart';
-export "package:wifi/fitur/order/operasi/order_op_sqlite.dart";
+export 'package:wifi/fitur/order/operasi/order_op_sqlite.dart';
 export 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 export 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 export 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';

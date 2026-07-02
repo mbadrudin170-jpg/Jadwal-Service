@@ -63,7 +63,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
     final transaksi = await transaksiOp.ambilBerdasarkanStatusAktivasi();
     final pealnggan = await pelangganOpSqlite.ambilSemua();
-    final customerMap = {for (var c in pealnggan) c.id: c};
+    final customerMap = {for (final c in pealnggan) c.id: c};
     final combinedList = transaksi.map((trans) {
       return TransaksiDenganPelanggan(
         transaksi: trans,

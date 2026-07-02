@@ -64,7 +64,7 @@ class _UjiFiturHomePageState extends State<UjiFiturHomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (final BuildContext context) =>
+                      builder: (final context) =>
                           const StatistikUjiCobaPage(),
                     ),
                   ),

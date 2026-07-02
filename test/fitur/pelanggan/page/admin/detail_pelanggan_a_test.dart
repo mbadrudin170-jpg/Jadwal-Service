@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
 import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
@@ -34,7 +33,7 @@ void main() {
 
   group('DetailPelanggan Widget Tests', () {
     testWidgets('01. harus menampilkan CircularProgressIndicator saat loading',
-        (WidgetTester tester) async {
+        (tester) async {
       // Arrange
       await tester.pumpWidget(
         createWidgetUnderTest('id-123', [
@@ -48,7 +47,7 @@ void main() {
     });
 
     testWidgets('02. harus menampilkan pesan error saat terjadi kesalahan',
-        (WidgetTester tester) async {
+        (tester) async {
       // Arrange
       await tester.pumpWidget(
         createWidgetUnderTest('id-123', [
@@ -63,7 +62,7 @@ void main() {
     });
 
     testWidgets('03. harus menampilkan pesan saat pelanggan tidak ditemukan',
-        (WidgetTester tester) async {
+        (tester) async {
       // Arrange
       await tester.pumpWidget(
         createWidgetUnderTest('id-123', [
@@ -78,7 +77,7 @@ void main() {
     });
 
     testWidgets('04. harus menampilkan DetailPelangganUI dengan data yang benar',
-        (WidgetTester tester) async {
+        (tester) async {
       // Arrange
       await tester.pumpWidget(
         createWidgetUnderTest('id-123', [
@@ -96,7 +95,7 @@ void main() {
     });
 
     testWidgets('05. harus memiliki tombol edit di AppBar',
-        (WidgetTester tester) async {
+        (tester) async {
       // Arrange
       await tester.pumpWidget(
         createWidgetUnderTest('id-123', [

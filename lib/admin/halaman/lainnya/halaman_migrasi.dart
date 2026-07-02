@@ -154,6 +154,12 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
 /// Pengguna hanya dapat menutupnya setelah migrasi selesai atau gagal.
 /// Log progres ditampilkan dalam area yang dapat digulir.
 class _MigrationProgressDialog extends StatefulWidget {
+
+  /// Membuat [_MigrationProgressDialog].
+  const _MigrationProgressDialog({
+    required this.migrationService,
+    required this.onComplete,
+  });
   /// Layanan migrasi yang akan menjalankan proses.
   final FirebaseMigrationService migrationService;
 
@@ -161,12 +167,6 @@ class _MigrationProgressDialog extends StatefulWidget {
   ///
   /// Parameter [hasError] bernilai `true` jika terjadi kesalahan selama proses.
   final void Function(bool hasError) onComplete;
-
-  /// Membuat [_MigrationProgressDialog].
-  const _MigrationProgressDialog({
-    required this.migrationService,
-    required this.onComplete,
-  });
 
   @override
   State<_MigrationProgressDialog> createState() =>

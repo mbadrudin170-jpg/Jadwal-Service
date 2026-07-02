@@ -220,10 +220,10 @@ void main() {
           mockDb.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace),
         ).thenAnswer((_) async => 1);
 
-        await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: false);
+        await baseOpSqlite.sisipkan(tableName, modelMap);
 
         verify(
-          mockStatusUpload.tandaiButuhUpload(true, transaction: null),
+          mockStatusUpload.tandaiButuhUpload(true),
         ).called(1);
       },
     );
@@ -238,7 +238,7 @@ void main() {
         await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: true);
 
         verifyNever(
-          mockStatusUpload.tandaiButuhUpload(true, transaction: null),
+          mockStatusUpload.tandaiButuhUpload(true),
         );
       },
     );
@@ -255,10 +255,10 @@ void main() {
           ),
         ).thenAnswer((_) async => 1);
 
-        await baseOpSqlite.update(tableName, modelMap, '1', dariServer: false);
+        await baseOpSqlite.update(tableName, modelMap, '1');
 
         verify(
-          mockStatusUpload.tandaiButuhUpload(true, transaction: null),
+          mockStatusUpload.tandaiButuhUpload(true),
         ).called(1);
       },
     );
@@ -278,7 +278,7 @@ void main() {
         await baseOpSqlite.update(tableName, modelMap, '1', dariServer: true);
 
         verifyNever(
-          mockStatusUpload.tandaiButuhUpload(true, transaction: null),
+          mockStatusUpload.tandaiButuhUpload(true),
         );
       },
     );
@@ -314,7 +314,7 @@ void main() {
       await baseOpSqlite.operasiKompleks((txn) async {
         await txn.insert('test', {'id': '1'});
         return 'done';
-      }, dariServer: false);
+      });
 
       verify(
         mockStatusUpload.tandaiButuhUpload(true, transaction: any),

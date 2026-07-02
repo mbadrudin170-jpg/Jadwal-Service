@@ -188,8 +188,8 @@ class ChatingDashboard extends ConsumerWidget {
 }
 
 class _ChatSearchDelegate extends SearchDelegate<String> {
-  final List<Percakapan> conversations;
   _ChatSearchDelegate(List<Percakapan> chats) : conversations = chats;
+  final List<Percakapan> conversations;
 
   @override
   String get searchFieldLabel => 'Cari nama atau pesan';

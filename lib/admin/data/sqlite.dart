@@ -20,12 +20,12 @@ final sqliteProvider = FutureProvider((ref) async {
 });
 
 class SqliteDatabase {
-  static final SqliteDatabase instance = SqliteDatabase._internal();
-  static Database? _database;
-  static const int _databaseVersion = 54;
   SqliteDatabase._internal() {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
   }
+  static final SqliteDatabase instance = SqliteDatabase._internal();
+  static Database? _database;
+  static const int _databaseVersion = 54;
   void debugSetDatabaseNull() {
     if (Platform.environment.containsKey('FLUTTER_TEST')) {
       _database = null;

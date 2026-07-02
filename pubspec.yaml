@@ -73,6 +73,9 @@ dev_dependencies:
   workmanager_platform_interface: ^0.9.1+1
   url_launcher_platform_interface: ^2.3.2 
 
+  cloud_firestore_platform_interface: any
+  flutter_local_notifications_platform_interface: any
+  sqflite_common: any
 flutter_native_splash:
   color: "#FFFFFF"
   color_dark: "#FFFFFF"

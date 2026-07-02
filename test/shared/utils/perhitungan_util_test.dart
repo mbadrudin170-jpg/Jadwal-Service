@@ -8,7 +8,7 @@ import 'package:wifi/shared/utils/perhitungan_util.dart';
 void main() {
   group('PerhitunganUtil', () {
     test('01. hitungTanggalBerakhir harus menambahkan hari dengan benar', () {
-      final tanggalMulai = DateTime(2023, 1, 1);
+      final tanggalMulai = DateTime(2023);
       final paket = PaketModel(
         id: '1',
         nama: 'Paket Test',
@@ -44,7 +44,7 @@ void main() {
     });
 
     test('03. hitungTanggalBerakhir harus menangani bonus', () {
-      final tanggalMulai = DateTime(2023, 1, 1);
+      final tanggalMulai = DateTime(2023);
       final paket = PaketModel(
         id: '1',
         nama: 'Paket Test',

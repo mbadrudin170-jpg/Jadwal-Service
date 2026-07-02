@@ -53,7 +53,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           .ambilSemua();
       if (mounted) {
         setState(() {
-          _mapNamaUser = {for (var p in pelangganList) p.id: p.nama};
+          _mapNamaUser = {for (final p in pelangganList) p.id: p.nama};
         });
       }
     } catch (e) {

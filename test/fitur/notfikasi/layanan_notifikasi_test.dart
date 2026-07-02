@@ -46,7 +46,7 @@ void main() {
     // Mock for FlutterTimezone
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(timezoneChannel, (
-          MethodCall methodCall,
+          methodCall,
         ) async {
           if (methodCall.method == 'getLocalTimezone') {
             return 'America/Detroit';
@@ -57,7 +57,7 @@ void main() {
     // Mock for Permission Handler
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(permissionChannel, (
-          MethodCall methodCall,
+          methodCall,
         ) async {
           if (methodCall.method == 'checkPermissionStatus') {
             return PermissionStatus.granted.index;
@@ -150,7 +150,7 @@ void main() {
       () async {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(timezoneChannel, (
-              MethodCall methodCall,
+              methodCall,
             ) async {
               if (methodCall.method == 'getLocalTimezone') {
                 return 'GMT';
@@ -165,7 +165,7 @@ void main() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(
               timezoneChannel,
-              (MethodCall methodCall) async => 'America/Detroit',
+              (methodCall) async => 'America/Detroit',
             );
         tz.setLocalLocation(tz.getLocation('America/Detroit'));
       },

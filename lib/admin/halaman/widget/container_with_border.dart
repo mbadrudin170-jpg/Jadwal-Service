@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 
 /// Sebuah widget container dengan border.
 class ContainerWithBorder extends StatelessWidget {
-  /// Widget yang akan ditampilkan di dalam container.
-  final Widget child;
 
   /// Membuat sebuah widget [ContainerWithBorder].
   const ContainerWithBorder({super.key, required this.child});
+  /// Widget yang akan ditampilkan di dalam container.
+  final Widget child;
 
   @override
   Widget build(final BuildContext context) {

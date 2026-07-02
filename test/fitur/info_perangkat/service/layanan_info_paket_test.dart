@@ -37,7 +37,7 @@ void main() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(
           channel,
-          (MethodCall methodCall) async {
+          (methodCall) async {
             throw PlatformException(
               code: 'ERROR',
               message: 'Gagal mengambil info paket',

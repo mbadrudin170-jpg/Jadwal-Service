@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('HalamanMigrasi', () {
-    testWidgets('01. should display migration page', (WidgetTester tester) async {
+    testWidgets('01. should display migration page', (tester) async {
       // TODO: Implement test
     });
   });

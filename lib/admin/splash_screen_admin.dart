@@ -9,11 +9,8 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 
 /// A stateless widget that displays a splash screen.
 class SplashScreen extends StatelessWidget {
-  /// The message to display while loading.
-  final String loadingMessage;
-
-  /// Creates a [SplashScreen].
   const SplashScreen({super.key, this.loadingMessage = 'Memuat...'});
+  final String loadingMessage;
 
   @override
   Widget build(final BuildContext context) {

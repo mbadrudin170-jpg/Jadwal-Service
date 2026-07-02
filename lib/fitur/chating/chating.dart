@@ -4,11 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/chating/enum/status_pesan_enum.dart';
 import 'package:wifi/fitur/chating/model/chating_model.dart';
 
-class Chating extends ConsumerStatefulWidget {
-  final String idPercakapan;
-  final String namaLawanbicara;
-  final List<Pesan>? pesanAwal;
-  final String idPenggunaSaatIni; // ID pengguna yang sedang login
+class Chating extends ConsumerStatefulWidget { // ID pengguna yang sedang login
 
   const Chating({
     super.key,
@@ -17,6 +13,10 @@ class Chating extends ConsumerStatefulWidget {
     this.pesanAwal,
     this.idPenggunaSaatIni = 'u1', // sementara hardcode, nanti dari auth
   });
+  final String idPercakapan;
+  final String namaLawanbicara;
+  final List<Pesan>? pesanAwal;
+  final String idPenggunaSaatIni;
 
   @override
   ConsumerState<Chating> createState() => _ChatingState();

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('NamaPaketWidget', () {
-    testWidgets('01. should display package name', (WidgetTester tester) async {
+    testWidgets('01. should display package name', (tester) async {
       // TODO: Implement test
     });
   });

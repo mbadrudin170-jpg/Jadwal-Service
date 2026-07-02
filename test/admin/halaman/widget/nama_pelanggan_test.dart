@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('NamaPelanggan', () {
-    testWidgets('01. should display customer name', (WidgetTester tester) async {
+    testWidgets('01. should display customer name', (tester) async {
       // TODO: Implement test
     });
   });

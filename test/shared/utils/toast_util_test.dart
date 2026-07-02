@@ -6,7 +6,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 
 void main() {
   group('ToastUtil Tests', () {
-    testWidgets('01. success() harus berjalan tanpa error', (WidgetTester tester) async {
+    testWidgets('01. success() harus berjalan tanpa error', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -29,7 +29,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('02. error() harus berjalan tanpa error', (WidgetTester tester) async {
+    testWidgets('02. error() harus berjalan tanpa error', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -52,7 +52,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('03. warning() harus berjalan tanpa error', (WidgetTester tester) async {
+    testWidgets('03. warning() harus berjalan tanpa error', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

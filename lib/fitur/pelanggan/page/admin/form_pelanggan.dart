@@ -157,12 +157,6 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_modeEdit ? 'Edit Pelanggan' : 'Tambah Pelanggan'),
-        leading: BackButton(
-          onPressed: () {
-            Log.info('Tombol "Back" ditekan. Kembali tanpa menyimpan.');
-            Navigator.pop(context, false);
-          },
-        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(TSizes.p16),

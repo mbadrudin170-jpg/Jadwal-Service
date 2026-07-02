@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Lainnya', () {
-    testWidgets('01. should display other menu', (WidgetTester tester) async {
+    testWidgets('01. should display other menu', (tester) async {
       // TODO: Implement test
     });
   });

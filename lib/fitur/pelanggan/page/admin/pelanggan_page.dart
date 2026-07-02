@@ -240,16 +240,12 @@ class _PelangganState extends ConsumerState<PelangganPage> {
               title: const Text('Edit Pelanggan'),
               onTap: () async {
                 Navigator.of(dialogContext).pop();
-                final result = await Navigator.push<bool>(
+                  unawaited(Navigator.push<void>(
                   context,
                   MaterialPageRoute(
                     builder: (context) => FormPelanggan(pelanggan: pelanggan),
                   ),
-                );
-                if (result ?? false) {
-                  if (!mounted) return;
-                  ToastUtil.success(context, 'Pelanggan berhasil diperbarui.');
-                }
+                ));
               },
             ),
             ListTile(

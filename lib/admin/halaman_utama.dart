@@ -22,9 +22,9 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:workmanager/workmanager.dart';
 
 class HalamanUtama extends ConsumerStatefulWidget {
-  final bool isOffline;
-
   const HalamanUtama({super.key, this.isOffline = false});
+
+  final bool isOffline;
 
   @override
   ConsumerState<HalamanUtama> createState() => _HalamanUtamaState();
