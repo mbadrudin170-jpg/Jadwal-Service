@@ -9,7 +9,7 @@ void main() {
   group('PerhitunganUtil', () {
     test('01. hitungTanggalBerakhir harus menambahkan hari dengan benar', () {
       final tanggalMulai = DateTime(2023);
-      final paket = PaketModel(
+      final paket = const PaketModel(
         id: '1',
         nama: 'Paket Test',
         harga: 10000,
@@ -27,7 +27,7 @@ void main() {
 
     test('02. hitungTanggalBerakhir harus menambahkan bulan dengan benar', () {
       final tanggalMulai = DateTime(2023, 1, 15);
-      final paket = PaketModel(
+      final paket = const PaketModel(
         id: '1',
         nama: 'Paket Test',
         harga: 10000,
@@ -45,7 +45,7 @@ void main() {
 
     test('03. hitungTanggalBerakhir harus menangani bonus', () {
       final tanggalMulai = DateTime(2023);
-      final paket = PaketModel(
+      final paket = const PaketModel(
         id: '1',
         nama: 'Paket Test',
         harga: 10000,

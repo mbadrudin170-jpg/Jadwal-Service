@@ -10,7 +10,7 @@ void main() {
     test(
       '01. hitungDurasiDalamMenit harus mengembalikan durasi dalam menit',
       () {
-        final paket = PaketModel(
+        final paket = const PaketModel(
           id: '1',
           nama: 'Paket Test',
           harga: 10000,
@@ -44,7 +44,7 @@ void main() {
     });
 
     test('03. hitungTotalDurasiDalamMenit harus menghitung paket + bonus', () {
-      final paket = PaketModel(
+      final paket = const PaketModel(
         id: '1',
         nama: 'Paket Test',
         harga: 10000,
