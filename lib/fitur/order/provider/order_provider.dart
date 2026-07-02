@@ -18,7 +18,7 @@ abstract class OrderState with _$OrderState {
   }) = _OrderState;
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 class Order extends _$Order {
   OrderOpGlobal get _orderOp => ref.read(orderOpGlobalProvider);
 
