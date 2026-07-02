@@ -6174,7 +6174,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
   void _invalidateProviderTerkait(String? idDompet, String? idPelanggan) {
     ref.read(transaksiOpGlobalProvider).invalidate(idDompet);
-    ref.read(orderProvider.notifier).refresh();
+    ref.read(orderProvider.notifier).invalidate();
     if (ref.isAdmin) {
       ref.read(pelangganAktifProvider.notifier).invalidatePelangganAktif();
     }
@@ -12121,6 +12121,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
       return;
     }
 
+    // Baca provider sebelum masuk ke bagian async
+    final orderOp = ref.read(orderOpGlobalProvider);
+
     if (!mounted) return;
 
     // ✅ 2. Tampilkan loading
@@ -12150,10 +12153,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
       );
 
       // ✅ 4. Eksekusi penghapusan
-      await ref.read(orderOpGlobalProvider).softDeleteAll();
-
-      // ✅ 5. Refresh data
-      await ref.read(orderProvider.notifier).refresh();
+      await orderOp.softDeleteAll();
 
       if (!mounted) return;
 
@@ -12282,7 +12282,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                             Log.info(
                               '_showDialog: order berhasil dihapus orderId: ${order.id}',
                             );
-                            ref.invalidate(daftarPesananProvider);
                             ref.invalidate(orderProvider);
 
                             if (dialogContext.mounted) {
@@ -12481,7 +12480,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
   Widget _daftarPesanan() {
     final orderAsync = ref.watch(orderProvider);
     Log.info('_daftarPesanan dipanggil, filterAktif: $_filterAktif');
-
     return orderAsync.when(
       skipLoadingOnReload: true,
       loading: () {
@@ -12495,7 +12493,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
       data: (orderState) {
         final semuaOrder = orderState.daftarOrder;
         Log.info('_daftarPesanan: total semua order: ${semuaOrder.length}');
-
         final orderDifilter = semuaOrder.where((order) {
           if (_filterAktif == StatusOrderEnum.selesai.name) {
             return order.status == StatusOrderEnum.selesai;
@@ -12551,7 +12548,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                   NamaPaketWidget(idPaket: order.idPaket),
                 ],
               ),
-              subtitle: Text('Status: ${order.status.name}'),
+              subtitle: Text('Status: ${order.status.displayName}'),
             );
           },
         );
@@ -12580,7 +12577,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
             Log.info(
               '_tombolOpsiUbahStatus: status berhasil diubah untuk orderId: ${order.id}',
             );
-            ref.invalidate(daftarPesananProvider);
             ref.invalidate(orderProvider);
             Log.info('_tombolOpsiUbahStatus: orderProvider di-invalidate');
 
@@ -12929,7 +12925,7 @@ final class OrderProvider extends $AsyncNotifierProvider<Order, OrderState> {
         argument: null,
         retry: null,
         name: r'orderProvider',
-        isAutoDispose: false,
+        isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -12942,7 +12938,7 @@ final class OrderProvider extends $AsyncNotifierProvider<Order, OrderState> {
   Order create() => Order();
 }
 
-String _$orderHash() => r'4848a27630470a5c578e9a8172d148316217f09a';
+String _$orderHash() => r'd2d9ccfc14656a9a34328f427cd3de06f4d32d7a';
 
 abstract class _$Order extends $AsyncNotifier<OrderState> {
   FutureOr<OrderState> build();
@@ -12962,119 +12958,6 @@ abstract class _$Order extends $AsyncNotifier<OrderState> {
   }
 }
 
-@ProviderFor(daftarPesanan)
-final daftarPesananProvider = DaftarPesananProvider._();
-
-final class DaftarPesananProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<OrderModel>>,
-          List<OrderModel>,
-          FutureOr<List<OrderModel>>
-        >
-    with $FutureModifier<List<OrderModel>>, $FutureProvider<List<OrderModel>> {
-  DaftarPesananProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'daftarPesananProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$daftarPesananHash();
-
-  @$internal
-  @override
-  $FutureProviderElement<List<OrderModel>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<List<OrderModel>> create(Ref ref) {
-    return daftarPesanan(ref);
-  }
-}
-
-String _$daftarPesananHash() => r'b123136a10fee76f439e4812bdff19a61dedb5f0';
-
-@ProviderFor(daftar)
-final daftarProvider = DaftarFamily._();
-
-final class DaftarProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<OrderModel>>,
-          List<OrderModel>,
-          FutureOr<List<OrderModel>>
-        >
-    with $FutureModifier<List<OrderModel>>, $FutureProvider<List<OrderModel>> {
-  DaftarProvider._({
-    required DaftarFamily super.from,
-    required String super.argument,
-  }) : super(
-         retry: null,
-         name: r'daftarProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$daftarHash();
-
-  @override
-  String toString() {
-    return r'daftarProvider'
-        ''
-        '($argument)';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<List<OrderModel>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<List<OrderModel>> create(Ref ref) {
-    final argument = this.argument as String;
-    return daftar(ref, argument);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is DaftarProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$daftarHash() => r'18aaa9753b4c3464630f41bc6069cf45d43bc472';
-
-final class DaftarFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<List<OrderModel>>, String> {
-  DaftarFamily._()
-    : super(
-        retry: null,
-        name: r'daftarProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  DaftarProvider call(String id) => DaftarProvider._(argument: id, from: this);
-
-  @override
-  String toString() => r'daftarProvider';
-}
-
 
 // File: lib/fitur/order/provider/order_provider.dart
 // path: lib/fitur/order/provider/order_provider.dart
@@ -13082,13 +12965,9 @@ final class DaftarFamily extends $Family
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/app_role/role_util.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/operasi/order_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/user/providers/user_provider.dart';
 
 part 'order_provider.g.dart';
 part 'order_provider.freezed.dart';
@@ -13101,18 +12980,26 @@ abstract class OrderState with _$OrderState {
   }) = _OrderState;
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 class Order extends _$Order {
+  OrderOpGlobal get _orderOp => ref.read(orderOpGlobalProvider);
+
   @override
   FutureOr<OrderState> build() async {
     Log.info('build orderProvider');
-    return _loadData();
+    final daftarOrder = await _orderOp.ambilSemua();
+    Log.info('Mengambil data dari database');
+    return OrderState(
+      daftarOrder: daftarOrder,
+      totalDaftar: daftarOrder.length,
+    );
   }
 
   Future<OrderState> _loadData() async {
     try {
       Log.info('Fungsi _loadData di jalankan');
-      final daftarOrder = await ref.watch(orderOpGlobalProvider).ambilSemua();
+      final daftarOrder = await _orderOp.ambilSemua();
+      Log.info('Mengambil data dari database');
       return OrderState(
         daftarOrder: daftarOrder,
         totalDaftar: daftarOrder.length,
@@ -13125,7 +13012,7 @@ class Order extends _$Order {
 
   Future<void> tambah(OrderModel order) async {
     try {
-      await ref.read(orderOpGlobalProvider).tambah(order);
+      await _orderOp.tambah(order);
       await refresh();
     } on Exception catch (e, s) {
       Log.error('Error ditambah: $e', e: e, s: s);
@@ -13157,36 +13044,8 @@ class Order extends _$Order {
     }
   }
 
-  void invalidateOrderProvider() {
-    ref.invalidate(daftarPesananProvider);
+  void invalidate() {
     ref.invalidateSelf();
-  }
-}
-
-@riverpod
-Future<List<OrderModel>> daftarPesanan(Ref ref) async {
-  if (RoleUtil.isAdmin(ref)) {
-    final orderOpSqlite = ref.read(orderOpSqliteProvider);
-    return await orderOpSqlite.ambilSemua();
-  } else {
-    final userId = await ref.watch(userIdProvider.future);
-    final orderOpFirebase = ref.read(orderOpFirebaseProvider);
-    if (userId != null) {
-      return await orderOpFirebase.ambilBerdasarkanIdPelanggan(userId).first;
-    }
-  }
-  return [];
-}
-
-@riverpod
-Future<List<OrderModel>> daftar(Ref ref, String id) async {
-  try {
-    final order = await ref.watch(orderProvider.future);
-    final daftarO = order.daftarOrder;
-    return daftarO.where((o) => o.idPelanggan == id).toList();
-  } on Exception catch (e, s) {
-    Log.error('Error didaftar: $e', e: e, s: s);
-    rethrow;
   }
 }
 
@@ -13490,7 +13349,7 @@ class OrderOpGlobal {
       } else {
         await _orderOpFirebase.softDeleteAll();
       }
-      unawaited(ref.read(orderProvider.notifier).refresh());
+      ref.invalidate(orderProvider);
     } on Exception catch (e, s) {
       Log.error('Error di softDeleteAll: $e', e: e, s: s);
       rethrow;

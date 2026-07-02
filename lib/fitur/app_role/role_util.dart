@@ -15,15 +15,15 @@ AppRole appRole(Ref ref) {
 
 class RoleUtil {
   static bool isAdmin(Ref ref) {
-    return ref.read(appRoleProvider) == AppRole.admin;
+    return ref.watch(appRoleProvider) == AppRole.admin;
   }
 
   static bool isUser(Ref ref) {
-    return ref.read(appRoleProvider) == AppRole.user;
+    return ref.watch(appRoleProvider) == AppRole.user;
   }
 
   static bool hasRole(Ref ref, AppRole role) {
-    return ref.read(appRoleProvider) == role;
+    return ref.watch(appRoleProvider) == role;
   }
 
   static Future<bool> isAdminAsync(Ref ref) async {
@@ -42,7 +42,7 @@ class RoleUtil {
   }
 
   static String getRoleName(Ref ref) {
-    return ref.read(appRoleProvider).name;
+    return ref.watch(appRoleProvider).name;
   }
 
   static Future<String> getRoleNameAsync(Ref ref) async {
@@ -53,14 +53,14 @@ class RoleUtil {
 
 extension RoleExtension on WidgetRef {
   /// Mengecek apakah pengguna saat ini adalah admin.
-  bool get isAdmin => read(appRoleProvider) == AppRole.admin;
+  bool get isAdmin => watch(appRoleProvider) == AppRole.admin;
 
   /// Mengecek apakah pengguna saat ini adalah user.
-  bool get isUser => read(appRoleProvider) == AppRole.user;
+  bool get isUser => watch(appRoleProvider) == AppRole.user;
 
   /// Mengecek apakah pengguna saat ini memiliki role yang sama dengan [role].
-  bool hasRole(AppRole role) => read(appRoleProvider) == role;
+  bool hasRole(AppRole role) => watch(appRoleProvider) == role;
 
   /// Mendapatkan role saat ini.
-  AppRole get currentRole => read(appRoleProvider);
+  AppRole get currentRole => watch(appRoleProvider);
 }

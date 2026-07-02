@@ -67,28 +67,20 @@ class OrderOpFirebase {
     }
   }
 
-  /// 4. Mendapatkan stream semua pesanan
-
   Future<List<OrderModel>> ambilSemua() async {
-    Log.info('Mengambil data pertama dari stream pesanan');
+    Log.info('Mengambil semua data pesanan dari Firebase');
     try {
-      final stream = _firestore
+      final querySnapshot = await _firestore
           .collection(_koleksiOrder)
           .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.diperbaruiPada, descending: true)
-          .snapshots()
-          .map(
-            (snapshot) => snapshot.docs
-                .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
-                .toList(),
-          )
-          .handleError((Object e, StackTrace st) {
-            Log.error('Error mendapatkan stream pesanan', e: e, s: st);
-            return <OrderModel>[];
-          });
-      return await stream.first;
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
+          .toList();
     } on Exception catch (e, st) {
-      Log.error('Gagal mengambil data pertama dari stream', e: e, s: st);
+      Log.error('Gagal mengambil semua data pesanan', e: e, s: st);
       return [];
     }
   }
