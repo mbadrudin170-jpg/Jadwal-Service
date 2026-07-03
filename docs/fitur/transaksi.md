@@ -2,21 +2,21 @@
 
 ## Daftar file
 
-lib/fitur/transaksi/enum/status_pembayaran.dart
-lib/fitur/transaksi/enum/tipe_transaksi.dart
-lib/fitur/transaksi/helper/pengurut_transaksi.dart
-lib/fitur/transaksi/model/transaksi_model.dart
-lib/fitur/transaksi/operasi/transaksi_op_firebase.dart
-lib/fitur/transaksi/operasi/transaksi_op_global.dart
-lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart
-lib/fitur/transaksi/page/detail_transaksi_a.dart
-lib/fitur/transaksi/page/detail_transaksi_u.dart
-lib/fitur/transaksi/page/form_transaksi.dart
-lib/fitur/transaksi/page/transaksi_a.dart
-lib/fitur/transaksi/page/transaksi_u.dart
-lib/fitur/transaksi/provider/transaksi_provider.dart
-lib/fitur/transaksi/transaksi_provider.dart
-lib/fitur/transaksi/widget/daftar_transaksi_widget.dart
+- [lib/fitur/transaksi/enum/status_pembayaran.dart](lib/fitur/transaksi/enum/status_pembayaran.dart)
+- [lib/fitur/transaksi/enum/tipe_transaksi.dart](lib/fitur/transaksi/enum/tipe_transaksi.dart)
+- [lib/fitur/transaksi/helper/pengurut_transaksi.dart](lib/fitur/transaksi/helper/pengurut_transaksi.dart)
+- [lib/fitur/transaksi/model/transaksi_model.dart](lib/fitur/transaksi/model/transaksi_model.dart)
+- [lib/fitur/transaksi/operasi/transaksi_op_firebase.dart](lib/fitur/transaksi/operasi/transaksi_op_firebase.dart)
+- [lib/fitur/transaksi/operasi/transaksi_op_global.dart](lib/fitur/transaksi/operasi/transaksi_op_global.dart)
+- [lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart](lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart)
+- [lib/fitur/transaksi/page/detail_transaksi_a.dart](lib/fitur/transaksi/page/detail_transaksi_a.dart)
+- [lib/fitur/transaksi/page/detail_transaksi_u.dart](lib/fitur/transaksi/page/detail_transaksi_u.dart)
+- [lib/fitur/transaksi/page/form_transaksi.dart](lib/fitur/transaksi/page/form_transaksi.dart)
+- [lib/fitur/transaksi/page/transaksi_a.dart](lib/fitur/transaksi/page/transaksi_a.dart)
+- [lib/fitur/transaksi/page/transaksi_u.dart](lib/fitur/transaksi/page/transaksi_u.dart)
+- [lib/fitur/transaksi/provider/transaksi_provider.dart](lib/fitur/transaksi/provider/transaksi_provider.dart)
+- [lib/fitur/transaksi/transaksi_provider.dart](lib/fitur/transaksi/transaksi_provider.dart)
+- [lib/fitur/transaksi/widget/daftar_transaksi_widget.dart](lib/fitur/transaksi/widget/daftar_transaksi_widget.dart)
 
 ## Isi file
 

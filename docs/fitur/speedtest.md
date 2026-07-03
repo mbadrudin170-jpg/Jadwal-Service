@@ -2,9 +2,9 @@
 
 ## Daftar file
 
-lib/fitur/speedtest/page/uji_kecepatan_page.dart
-lib/fitur/speedtest/provider/ping_provider.dart
-lib/fitur/speedtest/provider/uji_kecepatan_provider.dart
+- [lib/fitur/speedtest/page/uji_kecepatan_page.dart](lib/fitur/speedtest/page/uji_kecepatan_page.dart)
+- [lib/fitur/speedtest/provider/ping_provider.dart](lib/fitur/speedtest/provider/ping_provider.dart)
+- [lib/fitur/speedtest/provider/uji_kecepatan_provider.dart](lib/fitur/speedtest/provider/uji_kecepatan_provider.dart)
 
 ## Isi file
 

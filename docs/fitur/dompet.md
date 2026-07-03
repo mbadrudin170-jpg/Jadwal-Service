@@ -2,12 +2,12 @@
 
 ## Daftar file
 
-lib/fitur/dompet/model/dompet_model.dart
-lib/fitur/dompet/operasi/dompet_op_sqlite.dart
-lib/fitur/dompet/page/detail_dompet.dart
-lib/fitur/dompet/page/dompet_page.dart
-lib/fitur/dompet/page/form_dompet.dart
-lib/fitur/dompet/provider/dompet_provider.dart
+- [lib/fitur/dompet/model/dompet_model.dart](lib/fitur/dompet/model/dompet_model.dart)
+- [lib/fitur/dompet/operasi/dompet_op_sqlite.dart](lib/fitur/dompet/operasi/dompet_op_sqlite.dart)
+- [lib/fitur/dompet/page/detail_dompet.dart](lib/fitur/dompet/page/detail_dompet.dart)
+- [lib/fitur/dompet/page/dompet_page.dart](lib/fitur/dompet/page/dompet_page.dart)
+- [lib/fitur/dompet/page/form_dompet.dart](lib/fitur/dompet/page/form_dompet.dart)
+- [lib/fitur/dompet/provider/dompet_provider.dart](lib/fitur/dompet/provider/dompet_provider.dart)
 
 ## Isi file
 

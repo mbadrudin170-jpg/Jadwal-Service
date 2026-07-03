@@ -2,13 +2,13 @@
 
 ## Daftar file
 
-lib/fitur/kategori/enum/tipe_kategori.dart
-lib/fitur/kategori/model/kategori_model.dart
-lib/fitur/kategori/model/sub_kategori_model.dart
-lib/fitur/kategori/operasi/kategori_op_sqlite.dart
-lib/fitur/kategori/operasi/sub_kategori_op_sqlite.dart
-lib/fitur/kategori/page/form_kategori.dart
-lib/fitur/kategori/page/kategori.dart
+- [lib/fitur/kategori/enum/tipe_kategori.dart](lib/fitur/kategori/enum/tipe_kategori.dart)
+- [lib/fitur/kategori/model/kategori_model.dart](lib/fitur/kategori/model/kategori_model.dart)
+- [lib/fitur/kategori/model/sub_kategori_model.dart](lib/fitur/kategori/model/sub_kategori_model.dart)
+- [lib/fitur/kategori/operasi/kategori_op_sqlite.dart](lib/fitur/kategori/operasi/kategori_op_sqlite.dart)
+- [lib/fitur/kategori/operasi/sub_kategori_op_sqlite.dart](lib/fitur/kategori/operasi/sub_kategori_op_sqlite.dart)
+- [lib/fitur/kategori/page/form_kategori.dart](lib/fitur/kategori/page/form_kategori.dart)
+- [lib/fitur/kategori/page/kategori.dart](lib/fitur/kategori/page/kategori.dart)
 
 ## Isi file
 

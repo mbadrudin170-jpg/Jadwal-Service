@@ -2,12 +2,12 @@
 
 ## Daftar file
 
-lib/fitur/info_perangkat/enum/arsitektur_apk.dart
-lib/fitur/info_perangkat/model/info_perangkat_model.dart
-lib/fitur/info_perangkat/page/info_apk_page_user.dart
-lib/fitur/info_perangkat/page/tentang_aplikasi.dart
-lib/fitur/info_perangkat/service/layanan_info_paket.dart
-lib/fitur/info_perangkat/service/layanan_info_perangkat.dart
+- [lib/fitur/info_perangkat/enum/arsitektur_apk.dart](lib/fitur/info_perangkat/enum/arsitektur_apk.dart)
+- [lib/fitur/info_perangkat/model/info_perangkat_model.dart](lib/fitur/info_perangkat/model/info_perangkat_model.dart)
+- [lib/fitur/info_perangkat/page/info_apk_page_user.dart](lib/fitur/info_perangkat/page/info_apk_page_user.dart)
+- [lib/fitur/info_perangkat/page/tentang_aplikasi.dart](lib/fitur/info_perangkat/page/tentang_aplikasi.dart)
+- [lib/fitur/info_perangkat/service/layanan_info_paket.dart](lib/fitur/info_perangkat/service/layanan_info_paket.dart)
+- [lib/fitur/info_perangkat/service/layanan_info_perangkat.dart](lib/fitur/info_perangkat/service/layanan_info_perangkat.dart)
 
 ## Isi file
 

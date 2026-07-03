@@ -2,18 +2,18 @@
 
 ## Daftar file
 
-lib/fitur/pelanggan/core/layanan_aktivitas_user.dart
-lib/fitur/pelanggan/helper/pengurut_pelanggan.dart
-lib/fitur/pelanggan/model/pelanggan_model.dart
-lib/fitur/pelanggan/operasi/pelanggan_op_firebase.dart
-lib/fitur/pelanggan/operasi/pelanggan_op_global.dart
-lib/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart
-lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
-lib/fitur/pelanggan/page/admin/form_pelanggan.dart
-lib/fitur/pelanggan/page/admin/pelanggan_page.dart
-lib/fitur/pelanggan/page/user/detail_pelanggan.dart
-lib/fitur/pelanggan/provider/pelanggan_provider.dart
-lib/fitur/pelanggan/widget/detail_pelanggan_ui.dart
+- [lib/fitur/pelanggan/core/layanan_aktivitas_user.dart](lib/fitur/pelanggan/core/layanan_aktivitas_user.dart)
+- [lib/fitur/pelanggan/helper/pengurut_pelanggan.dart](lib/fitur/pelanggan/helper/pengurut_pelanggan.dart)
+- [lib/fitur/pelanggan/model/pelanggan_model.dart](lib/fitur/pelanggan/model/pelanggan_model.dart)
+- [lib/fitur/pelanggan/operasi/pelanggan_op_firebase.dart](lib/fitur/pelanggan/operasi/pelanggan_op_firebase.dart)
+- [lib/fitur/pelanggan/operasi/pelanggan_op_global.dart](lib/fitur/pelanggan/operasi/pelanggan_op_global.dart)
+- [lib/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart](lib/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart)
+- [lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart](lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart)
+- [lib/fitur/pelanggan/page/admin/form_pelanggan.dart](lib/fitur/pelanggan/page/admin/form_pelanggan.dart)
+- [lib/fitur/pelanggan/page/admin/pelanggan_page.dart](lib/fitur/pelanggan/page/admin/pelanggan_page.dart)
+- [lib/fitur/pelanggan/page/user/detail_pelanggan.dart](lib/fitur/pelanggan/page/user/detail_pelanggan.dart)
+- [lib/fitur/pelanggan/provider/pelanggan_provider.dart](lib/fitur/pelanggan/provider/pelanggan_provider.dart)
+- [lib/fitur/pelanggan/widget/detail_pelanggan_ui.dart](lib/fitur/pelanggan/widget/detail_pelanggan_ui.dart)
 
 ## Isi file
 
