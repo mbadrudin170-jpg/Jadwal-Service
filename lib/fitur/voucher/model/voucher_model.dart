@@ -11,7 +11,6 @@ part 'voucher_model.freezed.dart';
 @freezed
 abstract class VoucherModel with _$VoucherModel implements HasId {
   const VoucherModel._();
-
   const factory VoucherModel({
     required String id,
     required String voucher,
