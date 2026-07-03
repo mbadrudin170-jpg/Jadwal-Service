@@ -1,4 +1,4 @@
-// path lib/fitur/voucher/voucher_provider.dart
+// path lib/fitur/voucher/provider/voucher_provider.dart
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
