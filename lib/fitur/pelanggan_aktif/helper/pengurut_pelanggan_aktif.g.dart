@@ -13,7 +13,8 @@ part of 'pengurut_pelanggan_aktif.dart';
 final urutanPelangganAktifStateProvider = UrutanPelangganAktifStateProvider._();
 
 final class UrutanPelangganAktifStateProvider
-    extends $NotifierProvider<UrutanPelangganAktifState, UrutanPelangganAktif> {
+    extends
+        $NotifierProvider<UrutanPelangganAktifState, UrutanPelangganAktifEnum> {
   UrutanPelangganAktifStateProvider._()
     : super(
         from: null,
@@ -33,29 +34,30 @@ final class UrutanPelangganAktifStateProvider
   UrutanPelangganAktifState create() => UrutanPelangganAktifState();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(UrutanPelangganAktif value) {
+  Override overrideWithValue(UrutanPelangganAktifEnum value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<UrutanPelangganAktif>(value),
+      providerOverride: $SyncValueProvider<UrutanPelangganAktifEnum>(value),
     );
   }
 }
 
 String _$urutanPelangganAktifStateHash() =>
-    r'ff5d87fe62843686f05dbda5cfd2c0690460b4e1';
+    r'1ea8a3a6127ca23823647c094e0cb9158bb6aaf0';
 
 abstract class _$UrutanPelangganAktifState
-    extends $Notifier<UrutanPelangganAktif> {
-  UrutanPelangganAktif build();
+    extends $Notifier<UrutanPelangganAktifEnum> {
+  UrutanPelangganAktifEnum build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref = this.ref as $Ref<UrutanPelangganAktif, UrutanPelangganAktif>;
+    final ref =
+        this.ref as $Ref<UrutanPelangganAktifEnum, UrutanPelangganAktifEnum>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<UrutanPelangganAktif, UrutanPelangganAktif>,
-              UrutanPelangganAktif,
+              AnyNotifier<UrutanPelangganAktifEnum, UrutanPelangganAktifEnum>,
+              UrutanPelangganAktifEnum,
               Object?,
               Object?
             >;

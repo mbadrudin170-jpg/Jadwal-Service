@@ -32,7 +32,7 @@ final class OrderProvider extends $AsyncNotifierProvider<Order, OrderState> {
   Order create() => Order();
 }
 
-String _$orderHash() => r'd2d9ccfc14656a9a34328f427cd3de06f4d32d7a';
+String _$orderHash() => r'4b627a25dc8b36b06f0aa5271df707ec596a451c';
 
 abstract class _$Order extends $AsyncNotifier<OrderState> {
   FutureOr<OrderState> build();

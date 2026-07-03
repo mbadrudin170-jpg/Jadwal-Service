@@ -42,53 +42,53 @@ class MockPengelolaSinkronisasi extends _i1.Mock
   }
 
   @override
-  _i3.Future<DateTime> ambilWaktuTerakhirUnduh() =>
+  _i3.Future<DateTime> ambilWaktuTerakhirUnduhPreferensi() =>
       (super.noSuchMethod(
-            Invocation.method(#ambilWaktuTerakhirUnduh, []),
+            Invocation.method(#ambilWaktuTerakhirUnduhPreferensi, []),
             returnValue: _i3.Future<DateTime>.value(
               _FakeDateTime_0(
                 this,
-                Invocation.method(#ambilWaktuTerakhirUnduh, []),
+                Invocation.method(#ambilWaktuTerakhirUnduhPreferensi, []),
               ),
             ),
           )
           as _i3.Future<DateTime>);
 
   @override
-  _i3.Future<void> simpanWaktuTerakhirUnduh(DateTime? waktu) =>
+  _i3.Future<void> simpanWaktuTerakhirUnduhPreferensi(DateTime? waktu) =>
       (super.noSuchMethod(
-            Invocation.method(#simpanWaktuTerakhirUnduh, [waktu]),
+            Invocation.method(#simpanWaktuTerakhirUnduhPreferensi, [waktu]),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
 
   @override
-  _i3.Future<DateTime> ambilWaktuTerakhirUnggah() =>
+  _i3.Future<DateTime> ambilWaktuTerakhirUnggahPreferensi() =>
       (super.noSuchMethod(
-            Invocation.method(#ambilWaktuTerakhirUnggah, []),
+            Invocation.method(#ambilWaktuTerakhirUnggahPreferensi, []),
             returnValue: _i3.Future<DateTime>.value(
               _FakeDateTime_0(
                 this,
-                Invocation.method(#ambilWaktuTerakhirUnggah, []),
+                Invocation.method(#ambilWaktuTerakhirUnggahPreferensi, []),
               ),
             ),
           )
           as _i3.Future<DateTime>);
 
   @override
-  _i3.Future<void> simpanWaktuTerakhirUnggah(DateTime? waktu) =>
+  _i3.Future<void> simpanWaktuTerakhirUnggahPreferensi(DateTime? waktu) =>
       (super.noSuchMethod(
-            Invocation.method(#simpanWaktuTerakhirUnggah, [waktu]),
+            Invocation.method(#simpanWaktuTerakhirUnggahPreferensi, [waktu]),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
 
   @override
-  _i3.Future<void> resetWaktuSinkronisasi() =>
+  _i3.Future<void> resetWaktuSinkronisasiPreferensi() =>
       (super.noSuchMethod(
-            Invocation.method(#resetWaktuSinkronisasi, []),
+            Invocation.method(#resetWaktuSinkronisasiPreferensi, []),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
