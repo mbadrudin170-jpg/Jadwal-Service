@@ -1615,6 +1615,7 @@ Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
@@ -1727,7 +1728,9 @@ Future<PaketModel> detailPaket(Ref ref, String id) async {
 Future<String?> namaPaket(Ref ref, String idPaket) async {
   if (idPaket.isEmpty) return null;
   final paketState = await ref.watch(paketProvider.future);
-  final paket = paketState.daftarPaket.firstWhere((p) => p!.id == idPaket);
+  final paket = paketState.daftarPaket.firstWhereOrNull(
+    (p) => p!.id == idPaket,
+  );
   if (paket == null) return null;
   return paket.nama;
 }

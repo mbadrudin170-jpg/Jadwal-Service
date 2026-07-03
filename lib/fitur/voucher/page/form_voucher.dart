@@ -30,7 +30,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
   @override
   void initState() {
     super.initState();
-    // Jika mode edit, isi data setelah frame pertama
   }
 
   @override
