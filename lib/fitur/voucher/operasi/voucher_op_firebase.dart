@@ -23,6 +23,17 @@ class VoucherOpFirebase {
       rethrow;
     }
   }
+
+  Future<VoucherModel> tambah({required VoucherModel voucher}) async {
+    try {
+      final data = voucher.toFirebase();
+      final docRef = await _firestore.collection(_koleksiVoucher).add(data);
+      return voucher.copyWith(id: docRef.id);
+    } on Exception catch (e, s) {
+      Log.error('Error di tambah: $e', e: e, s: s);
+      rethrow;
+    }
+  }
 }
 
 final voucherOpFirebaseProvider = Provider<VoucherOpFirebase>((ref) {

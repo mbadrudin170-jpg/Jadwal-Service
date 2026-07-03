@@ -33,13 +33,26 @@ class Voucher extends _$Voucher {
     }
   }
 
-  Future<void> tambah() async {
+  Future<void> tambah(VoucherModel voucherBaru) async {
     try {
-      // Logika asinkron
+      final tersimpan = await ref
+          .read(voucherOpFirebaseProvider)
+          .tambah(voucher: voucherBaru);
+      final currentState = state.value;
+      if (currentState == null) {
+        state = await AsyncValue.guard(_loadData);
+        return;
+      }
+      final updatedList = [...currentState.voucher, tersimpan];
+      state = AsyncData(currentState.copyWith(voucher: updatedList));
     } on Exception catch (e, s) {
       Log.error('Error ditambah: $e', e: e, s: s);
       await _loadData();
       rethrow;
     }
+  }
+
+  Future<void> refresh() async {
+    state = await AsyncValue.guard(_loadData);
   }
 }
