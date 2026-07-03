@@ -1,5 +1,6 @@
 // path: lib/fitur/voucher/page/detail_voucher.dart
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart'; // tambahkan ini
@@ -37,14 +38,12 @@ class DetailVoucher extends ConsumerWidget {
       ),
       body: voucherAsync.when(
         data: (state) {
-          final voucher = state.voucher.firstWhere(
+          final voucher = state.voucher.firstWhereOrNull(
             (v) => v.id == idVoucher,
-            orElse: () => const VoucherModel(id: '', voucher: '', idPaket: ''),
           );
-          if (voucher.id.isEmpty) {
+          if (voucher == null) {
             return const Center(child: Text('Voucher tidak ditemukan'));
           }
-
           return _buildDetail(context, voucher);
         },
         error: (error, _) => Center(child: Text('Error: $error')),

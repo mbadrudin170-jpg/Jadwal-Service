@@ -147,6 +147,7 @@ final voucherOpFirebaseProvider = Provider<VoucherOpFirebase>((ref) {
 ```dart
 // path: lib/fitur/voucher/page/detail_voucher.dart
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart'; // tambahkan ini
@@ -184,14 +185,12 @@ class DetailVoucher extends ConsumerWidget {
       ),
       body: voucherAsync.when(
         data: (state) {
-          final voucher = state.voucher.firstWhere(
+          final voucher = state.voucher.firstWhereOrNull(
             (v) => v.id == idVoucher,
-            orElse: () => const VoucherModel(id: '', voucher: '', idPaket: ''),
           );
-          if (voucher.id.isEmpty) {
+          if (voucher == null) {
             return const Center(child: Text('Voucher tidak ditemukan'));
           }
-
           return _buildDetail(context, voucher);
         },
         error: (error, _) => Center(child: Text('Error: $error')),
@@ -258,6 +257,7 @@ class DetailVoucher extends ConsumerWidget {
 ### File: `lib/fitur/voucher/page/form_voucher.dart`
 ```dart
 // lib/fitur/voucher/page/form_voucher.dart
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -289,22 +289,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
   void initState() {
     super.initState();
     // Jika mode edit, isi data setelah frame pertama
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.idVoucher != null) {
-        final voucherState = ref.read(voucherProvider).value;
-        if (voucherState != null) {
-          final existing = voucherState.voucher.firstWhere(
-            (v) => v.id == widget.idVoucher,
-            orElse: () => const VoucherModel(id: '', voucher: '', idPaket: ''),
-          );
-          if (existing.id.isEmpty) return; // atau tampilkan pesan, lalu pop
-          _voucherController.text = existing.voucher;
-          setState(() {
-            _selectedPaketId = existing.idPaket;
-          });
-        }
-      }
-    });
   }
 
   @override
@@ -325,7 +309,7 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
       if (isEdit) {
         // Mode edit - ambil data existing untuk mempertahankan id
         final currentState = ref.read(voucherProvider).value;
-        final existing = currentState?.voucher.firstWhere(
+        final existing = currentState?.voucher.firstWhereOrNull(
           (v) => v.id == widget.idVoucher,
         );
         if (existing == null) {
@@ -371,7 +355,18 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
   Widget build(BuildContext context) {
     // Ambil data paket dari provider
     final paketAsync = ref.watch(paketProvider);
-
+    if (widget.idVoucher != null) {
+      final voucherState = ref.watch(voucherProvider).value;
+      if (voucherState != null && _voucherController.text.isEmpty) {
+        final existing = voucherState.voucher.firstWhereOrNull(
+          (v) => v.id == widget.idVoucher,
+        );
+        if (existing != null) {
+          _voucherController.text = existing.voucher;
+          _selectedPaketId = existing.idPaket;
+        }
+      }
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -416,8 +411,9 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
                     onChanged: (value) {
                       setState(() => _selectedPaketId = value);
                     },
-                    validator: (value) =>
-                        value == null ? 'Paket wajib dipilih!' : null,
+                    validator: (value) => (value == null || value.isEmpty)
+                        ? 'Paket wajib dipilih!'
+                        : null,
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
@@ -425,7 +421,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
               ),
 
               const SizedBox(height: 24),
-
               // Tombol Simpan
               ElevatedButton(
                 onPressed: _menyimpan ? null : _simpanForm,

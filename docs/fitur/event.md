@@ -603,17 +603,6 @@ class EventPageA extends ConsumerWidget {
     );
   }
 }
-
-extension IterableExtension<T> on Iterable<T> {
-  T? firstWhereOrNull(bool Function(T element) test) {
-    for (final element in this) {
-      if (test(element)) {
-        return element;
-      }
-    }
-    return null;
-  }
-}
 ```
 
 ### File: `lib/fitur/event/page/event_page_u.dart`
