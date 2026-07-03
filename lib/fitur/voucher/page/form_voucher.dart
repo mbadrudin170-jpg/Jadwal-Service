@@ -25,7 +25,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
   final _formKey = GlobalKey<FormState>();
   bool _menyimpan = false;
   bool _sudahInisialisasi = false;
-  // Simpan ID paket yang dipilih (bukan nama paket)
   String? _selectedPaketId;
 
   @override
@@ -51,7 +50,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
         kode,
         kecualiId: isEdit ? widget.idVoucher : null,
       );
-
       if (sudahAda) {
         if (mounted) {
           ToastUtil.error(
@@ -61,7 +59,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
         }
         return;
       }
-
       if (isEdit) {
         // Mode edit - ambil data existing untuk mempertahankan id
         final currentState = ref.read(voucherProvider).value;
@@ -87,7 +84,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
         );
         await ref.read(voucherProvider.notifier).tambah(voucherBaru);
       }
-
       if (mounted) {
         ToastUtil.success(
           context,
@@ -119,7 +115,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
         );
         if (existing != null) {
           _voucherController.text = existing.voucher;
-          // Jika idPaket kosong, set null agar dropdown menunjukkan placeholder
           _selectedPaketId = existing.idPaket.isEmpty ? null : existing.idPaket;
           _sudahInisialisasi = true;
         }
