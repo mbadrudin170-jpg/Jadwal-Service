@@ -20,7 +20,6 @@ class Voucher extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final voucherAsync = ref.watch(voucherProvider);
-
     return Scaffold(
       appBar: AppBar(title: const Text('Voucher')),
       body: voucherAsync.when(
