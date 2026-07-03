@@ -1,0 +1,24 @@
+{
+	"Freezed Model Boilerplate": {
+		"prefix": "/freezedModel",
+		"body": [
+			"import 'package:freezed_annotation/freezed_annotation.dart';",
+			"",
+			"part '${TM_FILENAME_BASE}.freezed.dart';",
+			"part '${TM_FILENAME_BASE}.g.dart';",
+			"",
+			"@freezed",
+			"class ${1:ModelName} with _\\$${1:ModelName} {",
+			"  const ${1:ModelName}._();",
+			"",
+			"  const factory ${1:ModelName}({",
+			"    ${2:required String id,}",
+			"    $0",
+			"  }) = _${1:ModelName};",
+			"",
+			"  factory ${1:ModelName}.fromJson(Map<String, dynamic> json) => _\\$${1:ModelName}FromJson(json);",
+			"}"
+		],
+		"description": "Membuat template dasar untuk Freezed Model"
+	}
+}

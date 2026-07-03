@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +15,7 @@ import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/statistik/page/statistik_page_a.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_a.dart';
+import 'package:wifi/fitur/voucher/page/voucher.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -158,7 +160,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     const DompetPage(),
     const TransaksiA(),
     const StatistikPageA(),
-    const OrderPage(),
+    if (kDebugMode) const Voucher() else const OrderPage(),
     const LainnyaPage(),
   ];
 
