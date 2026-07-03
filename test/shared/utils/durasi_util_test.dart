@@ -17,7 +17,6 @@ void main() {
           durasi: 2,
           tipe: TipeDurasiPaket.days,
         );
-
         final hasil = DurasiUtil.hitungDurasiDalamMenit(paket);
         expect(hasil, 2 * 24 * 60); // 2 hari = 2880 menit
       },
