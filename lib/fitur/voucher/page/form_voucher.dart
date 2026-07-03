@@ -5,10 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/fitur/voucher/enum/tipe_voucher.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart';
 import 'package:wifi/fitur/voucher/operasi/voucher_op_firebase.dart';
 import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
-import 'package:wifi/fitur/voucher/enum/tipe_voucher.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_teks.dart';
@@ -143,7 +143,11 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
           child: ListView(
             children: [
               // Input Kode Voucher
-              InputTeks(controller: _voucherController, label: 'Voucher'),
+              InputTeks(
+                controller: _voucherController,
+                label: 'Voucher',
+                textInputAction: TextInputAction.done,
+              ),
               const SizedBox(height: 16),
               paketAsync.when(
                 data: (paketState) {
