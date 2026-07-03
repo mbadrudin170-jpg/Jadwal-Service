@@ -213,7 +213,7 @@ return $default(_that.id,_that.voucher,_that.idPaket,_that.terpakai,_that.dihapu
 
 
 class _VoucherModel extends VoucherModel {
-  const _VoucherModel({required this.id, required this.voucher, required this.idPaket, this.terpakai = false, this.dihapus = false, this.tipeVoucher = 'satu', this.diperbaruiPada, this.diarsipkanPada}): super._();
+  const _VoucherModel({required this.id, required this.voucher, required this.idPaket, this.terpakai = false, this.dihapus = false, required this.tipeVoucher, this.diperbaruiPada, this.diarsipkanPada}): super._();
   
 
 @override final  String id;
@@ -221,7 +221,7 @@ class _VoucherModel extends VoucherModel {
 @override final  String idPaket;
 @override@JsonKey() final  bool terpakai;
 @override@JsonKey() final  bool dihapus;
-@override@JsonKey() final  String tipeVoucher;
+@override final  String tipeVoucher;
 @override final  DateTime? diperbaruiPada;
 @override final  DateTime? diarsipkanPada;
 

@@ -32,9 +32,9 @@ abstract class VoucherModel with _$VoucherModel implements HasId {
     required String id,
     required String voucher,
     required String idPaket,
+    required String tipeVoucher,
     @Default(false) bool terpakai,
     @Default(false) bool dihapus,
-    @Default(TipeVoucher.satu) String tipeVoucher,
     DateTime? diperbaruiPada,
     DateTime? diarsipkanPada,
   }) = _VoucherModel;
