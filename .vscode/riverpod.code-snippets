@@ -129,9 +129,12 @@
 		],
 		"description": "Template ConsumerWidget dengan ref.watch"
 	},
-	"ConsumerStatefulWidget (stateful) + initState + loading": {
+	"ConsumerStatefulWidget (stateful) + initState + dispose": {
 		"prefix": "/riv_ConsumerStatefulWidget",
 		"body": [
+			"import 'package:flutter/material.dart';",
+			"import 'package:flutter_riverpod/flutter_riverpod.dart';",
+			"",
 			"class ${1:MyPage} extends ConsumerStatefulWidget {",
 			"  const ${1:MyPage}({super.key});",
 			"",
@@ -140,23 +143,21 @@
 			"}",
 			"",
 			"class _${1:MyPage}State extends ConsumerState<${1:MyPage}> {",
-			"  late final ${2:Repository} _repository;",
-			"  bool _isLoading = true;",
 			"",
 			"  @override",
 			"  void initState() {",
 			"    super.initState();",
-			"    _repository = ref.read(${3:repositoryProvider});",
-			"    _loadData();",
+			"  }",
+			"",
+			"  @override",
+			"  void dispose() {",
+			"    // Bersihkan resource di sini jika diperlukan.",
+			"    // Contoh: _repository.dispose(); atau _subscription.cancel();",
+			"    super.dispose();",
 			"  }",
 			"",
 			"  @override",
 			"  Widget build(BuildContext context) {",
-			"    if (_isLoading) {",
-			"      return const Scaffold(",
-			"        body: Center(child: CircularProgressIndicator()),",
-			"      );",
-			"    }",
 			"    return Scaffold(",
 			"      appBar: AppBar(title: const Text('${1:MyPage}')),",
 			"      body: Container(),",
@@ -164,5 +165,6 @@
 			"  }",
 			"}"
 		],
-		"description": "Template lengkap ConsumerStatefulWidget dengan initState dan loading"
-	}}
+		"description": "Template ConsumerStatefulWidget dengan initState dan dispose serta import yang diperlukan"
+	}
+}
