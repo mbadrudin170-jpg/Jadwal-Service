@@ -603,6 +603,10 @@ class _VoucherState extends ConsumerState<Voucher> {
   Widget build(BuildContext context) {
     final voucherAsync = ref.watch(voucherProvider);
     final paketAsync = ref.watch(paketProvider);
+
+    // Ambil daftar voucher (jika tersedia) untuk menghitung badge
+    final daftarVoucher = voucherAsync.value?.voucher ?? [];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Voucher'),
@@ -652,10 +656,10 @@ class _VoucherState extends ConsumerState<Voucher> {
       ),
       body: Column(
         children: [
-          // Filter chips
+          // Filter chips dengan badge jumlah voucher
           paketAsync.when(
             data: (paketState) =>
-                _buildDaftarTombolPaket(paketState.daftarPaket),
+                _buildDaftarTombolPaket(paketState.daftarPaket, daftarVoucher),
             loading: () => const SizedBox.shrink(),
             error: (e, _) => const SizedBox.shrink(),
           ),
@@ -710,8 +714,19 @@ class _VoucherState extends ConsumerState<Voucher> {
     );
   }
 
-  Widget _buildDaftarTombolPaket(List<PaketModel?> daftarPaket) {
+  Widget _buildDaftarTombolPaket(
+    List<PaketModel?> daftarPaket,
+    List<VoucherModel> daftarVoucher,
+  ) {
     final paketValid = daftarPaket.whereType<PaketModel>().toList();
+    final totalSemua = daftarVoucher.length;
+
+    // Hitung jumlah voucher per paket
+    final countMap = <String, int>{};
+    for (final v in daftarVoucher) {
+      countMap[v.idPaket] = (countMap[v.idPaket] ?? 0) + 1;
+    }
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -719,15 +734,28 @@ class _VoucherState extends ConsumerState<Voucher> {
         spacing: 8,
         children: [
           FilterChip(
-            avatar: const Icon(TIcons.wifi),
+            avatar: CircleAvatar(
+              radius: 10,
+              backgroundColor: _filterPaketId == null
+                  ? Colors.white
+                  : Theme.of(context).colorScheme.primaryContainer,
+              child: Text('$totalSemua', style: const TextStyle(fontSize: 10)),
+            ),
             showCheckmark: false,
             selected: _filterPaketId == null,
             label: const Text('Semua'),
             onSelected: (_) => setState(() => _filterPaketId = null),
           ),
           ...paketValid.map((paket) {
+            final count = countMap[paket.id] ?? 0;
             return FilterChip(
-              avatar: const Icon(TIcons.wifi),
+              avatar: CircleAvatar(
+                radius: 10,
+                backgroundColor: _filterPaketId == paket.id
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.primaryContainer,
+                child: Text('$count', style: const TextStyle(fontSize: 10)),
+              ),
               showCheckmark: false,
               selected: _filterPaketId == paket.id,
               label: Text(paket.nama),
