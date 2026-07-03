@@ -315,6 +315,9 @@ lib
 │   │   │   ├── transaksi_provider.dart
 │   │   │   ├── transaksi_provider.freezed.dart
 │   │   │   └── transaksi_provider.g.dart
+│   │   ├── transaksi_provider.dart
+│   │   ├── transaksi_provider.freezed.dart
+│   │   ├── transaksi_provider.g.dart
 │   │   └── widget
 │   │       └── daftar_transaksi_widget.dart
 │   ├── versi_apk
@@ -332,6 +335,20 @@ lib
 │   │   └── service
 │   │       ├── layanan_cek_update_apk.dart
 │   │       └── update_service.dart
+│   ├── voucher
+│   │   ├── model
+│   │   │   ├── voucher_model.dart
+│   │   │   └── voucher_model.freezed.dart
+│   │   ├── operasi
+│   │   │   └── voucher_op_firebase.dart
+│   │   ├── page
+│   │   │   ├── detail_voucher.dart
+│   │   │   ├── form_voucher.dart
+│   │   │   └── voucher.dart
+│   │   └── provider
+│   │       ├── voucher_provider.dart
+│   │       ├── voucher_provider.freezed.dart
+│   │       └── voucher_provider.g.dart
 │   └── whatsapp
 │       └── info_paket.dart
 ├── main
@@ -674,5 +691,5 @@ test
         ├── perhitungan_util_test.dart
         └── toast_util_test.dart
 
-231 directories, 442 files
+236 directories, 454 files
 tree is not installed, but available in the following packages, pick one to run it, Ctrl+C to cancel.

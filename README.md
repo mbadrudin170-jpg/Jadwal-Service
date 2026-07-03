@@ -75,6 +75,9 @@ dev_dependencies:
   workmanager_platform_interface: ^0.9.1+1
   url_launcher_platform_interface: ^2.3.2 
 
+  cloud_firestore_platform_interface: any
+  flutter_local_notifications_platform_interface: any
+  sqflite_common: any
 flutter_native_splash:
   color: "#FFFFFF"
   color_dark: "#FFFFFF"
@@ -117,74 +120,116 @@ include: package:flutter_lints/flutter.yaml
 
 linter:
   rules:
-    # GAYA KODE
-    use_super_parameters: true
-
-    # FLUTTER SPECIFIC
-    use_build_context_synchronously: true
-
-    # PENCEGAHAN BUG
+    # PENCEGAHAN BUG (Ekstra Ketat)
     unawaited_futures: true
-    hash_and_equals: true
     avoid_dynamic_calls: true
     only_throw_errors: true
     throw_in_finally: true
     cancel_subscriptions: true
     close_sinks: true
     avoid_void_async: true
+    avoid_print: true               # 🆕 Baru: Cegah kebocoran log data di aplikasi rilis
+    discarded_futures: false         # 🆕 Baru: Cegah fungsi async berjalan di dalam UI build
 
-    # KEBERSIHAN & PERFORMA
+    # OPTIMASI PERFORMA FLUTTER
+    prefer_const_constructors: true # 🆕 Baru: Hemat CPU & Baterai HP via widget const
+    prefer_const_literals_to_create_immutables: true # 🆕 Baru: Optimasi List statis
+    sized_box_for_whitespace: true  # 🆕 Baru: Gunakan SizedBox dibanding Container kosong
+    use_decorated_box: true
+    use_colored_box: true
+
+    # KEBERSIHAN & FORMAT KODE UI
+    require_trailing_commas: true    # 🆕 Baru: Format kode otomatis tersusun rapi ke bawah
+    sort_child_properties_last: true # 🆕 Baru: Child widget selalu di posisi paling bawah
     always_use_package_imports: true
     directives_ordering: true
     prefer_final_fields: true
-    prefer_final_locals: true
-
     avoid_redundant_argument_values: true
     unnecessary_lambdas: true
     unnecessary_overrides: true
+    use_full_hex_values_for_flutter_colors: true
 
-    sort_child_properties_last: true
-    use_key_in_widget_constructors: true
-    prefer_if_null_operators: true
+    # KETETAPAN TIPE (Type System)
+    type_annotate_public_apis: true
+    omit_local_variable_types: true
+    avoid_types_on_closure_parameters: true
+
+    # GAYA PENULISAN MODERN
+    prefer_single_quotes: true
+    prefer_final_locals: true
+    prefer_final_in_for_each: true
+    unnecessary_string_interpolations: true
+    implicit_call_tearoffs: true
+    prefer_interpolation_to_compose_strings: true
+    no_duplicate_case_values: true
+    prefer_conditional_assignment: true
+    null_closures: true
+    prefer_contains: true
+    prefer_for_elements_to_map_fromIterable: true
+    unnecessary_const: true
+    unnecessary_getters_setters: true
+    use_super_parameters: true
+    use_build_context_synchronously: true
+    await_only_futures: true
+    avoid_single_cascade_in_expression_statements: true
     prefer_is_empty: true
     prefer_is_not_empty: true
+    prefer_is_not_operator: true
+    prefer_iterable_whereType: true
+    prefer_null_aware_operators: true
+    prefer_spread_collections: true
+    use_key_in_widget_constructors: true
+    use_function_type_syntax_for_parameters: true
+    unrelated_type_equality_checks: true
+    unnecessary_underscores: true
+    unnecessary_to_list_in_spreads: true
+    unnecessary_this: true
+    unnecessary_string_escapes: true
+    unnecessary_nullable_for_final_variable_declarations: true
+    unnecessary_null_in_if_null_operators: true
+    unnecessary_null_aware_assignments: true
+    unnecessary_new: true
+    unnecessary_late: true
+    unnecessary_constructor_name: true
+    unnecessary_brace_in_string_interps: true
+    type_literal_in_constant_pattern: true
+    type_init_formals: true
+    strict_top_level_inference: true
+    prefer_typing_uninitialized_variables: true
+    avoid_returning_null_for_void: true
+    avoid_return_types_on_setters: true
+    exhaustive_cases: true
+    non_constant_identifier_names: true
+    null_check_on_nullable_type_parameter: true
 
-    prefer_const_literals_to_create_immutables: true
-    prefer_const_declarations: true
+    # CORE 
+    avoid_empty_else: true
+    curly_braces_in_flow_control_structures: true
+    empty_catches: true
+    hash_and_equals: true
+    prefer_generic_function_type_aliases: true
 
-    depend_on_referenced_packages: true
-    secure_pubspec_urls: true
+    #FLUTTER
+
 
 analyzer:
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
   
-  # errors:
-  #   # Kritis (Blocking build)
-  #   use_build_context_synchronously: error
-  #   unawaited_futures: error
-  #   hash_and_equals: error
-  #   avoid_dynamic_calls: error
-  #   only_throw_errors: error
-  #   throw_in_finally: error
-  #   cancel_subscriptions: error
-  #   close_sinks: error
-  #   avoid_void_async: error
-
-  #   prefer_const_constructors: error
-  #   prefer_const_constructors_in_immutables: error
-  #   use_super_parameters: error
-  #   always_use_package_imports: error
-  #   prefer_final_locals: error
-  #   prefer_final_fields: error
-  #   # directives_ordering: error
-
+  # 🔴 Mengubah warning menjadi hard error agar wajib diperbaiki sebelum build aplikasi
+  errors:
+    use_build_context_synchronously: error
+    unawaited_futures: error
+    avoid_dynamic_calls: error
+    avoid_print: error
+    discarded_futures: error
 
   language:
     strict-casts: true
     strict-inference: true
     strict-raw-types: true
+
 
 // File: lib/tes_fitur/tes_iklan.dart
 // path: lib/tes_fitur/tes_iklan.dart
@@ -257,9 +302,9 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
   }
 
   Future<void> _tampilkanNotifikasi() async {
-    final String title = _titleController.text.trim();
-    final String body = _bodyController.text.trim();
-    final String payload = _payloadController.text.trim();
+    final title = _titleController.text.trim();
+    final body = _bodyController.text.trim();
+    final payload = _payloadController.text.trim();
 
     if (title.isEmpty || body.isEmpty) {
       _tampilkanSnackbar('Judul dan isi notifikasi tidak boleh kosong!');
@@ -1750,7 +1795,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         _pilihJam!.hour,
         _pilihJam!.minute,
       );
-      int durasiBonus = 0;
+      var durasiBonus = 0;
       if (_bonus) {
         durasiBonus =
             int.tryParse(_durasiBonusController.text.replaceAll('.', '')) ?? 0;
@@ -1762,7 +1807,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           return false;
         }
       }
-      final DateTime tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
+      final tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
         tanggalMulai,
         _paketDipilih!,
         durasiBonus: durasiBonus,
@@ -1831,7 +1876,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final tanggalNotifikasiSetengahJalan = tanggalMulai.add(
         durasiSetengahJalan,
       );
-      final List<NotifikasiModel> daftarNotifikasi = [
+      final daftarNotifikasi = <NotifikasiModel>[
         NotifikasiModel(
           id: const Uuid().v4(),
           tanggalMulai: tanggalMulai,
@@ -2226,10 +2271,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                   _pilihJam!.hour,
                   _pilihJam!.minute,
                 );
-                final int nilaiBonus = _bonus
+                final nilaiBonus = _bonus
                     ? (int.tryParse(_durasiBonusController.text) ?? 0)
                     : 0;
-                final DateTime endDate = PerhitunganUtil.hitungTanggalBerakhir(
+                final endDate = PerhitunganUtil.hitungTanggalBerakhir(
                   startDate,
                   _paketDipilih!,
                   durasiBonus: nilaiBonus,
@@ -2322,7 +2367,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                   _menyimpan = true;
                 });
                 Log.info('Tombol Simpan ditekan');
-                final bool berhasil = await _simpanData();
+                final berhasil = await _simpanData();
                 if (!mounted) {
                   setState(() {
                     _menyimpan = false;
@@ -2444,13 +2489,13 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
   }
 
   Future<void> _bukaWhatsApp(String phone) async {
-    String formatNomor = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    var formatNomor = phone.replaceAll(RegExp(r'[^0-9]'), '');
     if (formatNomor.startsWith('0')) {
       formatNomor = '62${formatNomor.substring(1)}';
     } else if (!formatNomor.startsWith('62')) {
       formatNomor = '62$formatNomor';
     }
-    final Uri whatsappUri = Uri.parse('https://wa.me/$formatNomor');
+    final whatsappUri = Uri.parse('https://wa.me/$formatNomor');
     try {
       Log.info('Mencoba membuka WhatsApp: $formatNomor');
       if (await canLaunchUrl(whatsappUri)) {
@@ -2842,7 +2887,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
     final idPelangganAktif = pelanggan.pelangganAktif.id;
     final namaPelanggan = pelanggan.namaPelanggan;
     final idTransaksi = pelanggan.pelangganAktif.idTransaksi;
-    final bool? konfirmasi = await showDialog<bool>(
+    final konfirmasi = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Konfirmasi Arsipkan'),
@@ -2894,7 +2939,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
 
   Future<void> _tampilkanDialogUrutan() async {
     final currentSort = ref.read(urutanPelangganAktifStateProvider);
-    await showDialog<UrutanPelangganAktif>(
+    await showDialog<UrutanPelangganAktifEnum>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Urutkan Berdasarkan'),
@@ -2909,7 +2954,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: UrutanPelangganAktif.values.map((o) {
+                  children: UrutanPelangganAktifEnum.values.map((o) {
                     final diPilih = currentSort == o;
                     return ListTile(
                       dense: true,
@@ -2918,7 +2963,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
                         horizontal: TSizes.p24,
                       ),
                       title: Text(
-                        PengurutPelangganAktif.ambilTeksUrutan(o),
+                        ambilTeksUrutanPelangganAktif(o),
                         style: TextStyle(
                           fontSize: TSizes.p16,
                           fontWeight: diPilih
@@ -2961,7 +3006,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
 
   Future<void> _opsiLanjutan() async {
     Log.info('Membuka opsi lanjutan');
-    final OpsiLanjutan? selected = await showDialog<OpsiLanjutan>(
+    final selected = await showDialog<OpsiLanjutan>(
       context: context,
       builder: (ctx) => SimpleDialog(
         title: const Text('Opsi Lanjutan'),
@@ -2990,7 +3035,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
     switch (selected) {
       case OpsiLanjutan.softDeleteAll:
         Log.warning('Opsi arsipkan semua dipilih');
-        final bool? konfirmasi = await showDialog<bool>(
+        final konfirmasi = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Konfirmasi Arsipkan Semua'),
@@ -3115,12 +3160,12 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
           },
           data: (state) {
             final sortBy = ref.watch(urutanPelangganAktifStateProvider);
-            final urutkanPelangganAktif = PengurutPelangganAktif.urutkan(
+            final urutkan = urutkanPelangganAktif(
               state.daftarPelangganAktif,
               sortBy,
             );
             final query = _searchController.text.toLowerCase();
-            final displayedCustomers = urutkanPelangganAktif
+            final displayedCustomers = urutkan
                 .where((c) => c.namaPelanggan.toLowerCase().contains(query))
                 .toList();
             if (displayedCustomers.isEmpty) {
@@ -3225,7 +3270,8 @@ part of 'pengurut_pelanggan_aktif.dart';
 final urutanPelangganAktifStateProvider = UrutanPelangganAktifStateProvider._();
 
 final class UrutanPelangganAktifStateProvider
-    extends $NotifierProvider<UrutanPelangganAktifState, UrutanPelangganAktif> {
+    extends
+        $NotifierProvider<UrutanPelangganAktifState, UrutanPelangganAktifEnum> {
   UrutanPelangganAktifStateProvider._()
     : super(
         from: null,
@@ -3245,29 +3291,30 @@ final class UrutanPelangganAktifStateProvider
   UrutanPelangganAktifState create() => UrutanPelangganAktifState();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(UrutanPelangganAktif value) {
+  Override overrideWithValue(UrutanPelangganAktifEnum value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<UrutanPelangganAktif>(value),
+      providerOverride: $SyncValueProvider<UrutanPelangganAktifEnum>(value),
     );
   }
 }
 
 String _$urutanPelangganAktifStateHash() =>
-    r'ff5d87fe62843686f05dbda5cfd2c0690460b4e1';
+    r'1ea8a3a6127ca23823647c094e0cb9158bb6aaf0';
 
 abstract class _$UrutanPelangganAktifState
-    extends $Notifier<UrutanPelangganAktif> {
-  UrutanPelangganAktif build();
+    extends $Notifier<UrutanPelangganAktifEnum> {
+  UrutanPelangganAktifEnum build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref = this.ref as $Ref<UrutanPelangganAktif, UrutanPelangganAktif>;
+    final ref =
+        this.ref as $Ref<UrutanPelangganAktifEnum, UrutanPelangganAktifEnum>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<UrutanPelangganAktif, UrutanPelangganAktif>,
-              UrutanPelangganAktif,
+              AnyNotifier<UrutanPelangganAktifEnum, UrutanPelangganAktifEnum>,
+              UrutanPelangganAktifEnum,
               Object?,
               Object?
             >;
@@ -3284,7 +3331,7 @@ import 'package:wifi/shared/export/model.dart';
 
 part 'pengurut_pelanggan_aktif.g.dart';
 
-enum UrutanPelangganAktif {
+enum UrutanPelangganAktifEnum {
   berakhirHariIni('Berakhir Hari Ini'),
   terbaru('Terbaru'),
   terlama('Terlama'),
@@ -3295,110 +3342,105 @@ enum UrutanPelangganAktif {
   namaAZ('Nama A-Z'),
   namaZA('Nama Z-A');
 
-  const UrutanPelangganAktif(this.teks);
+  const UrutanPelangganAktifEnum(this.teks);
   final String teks;
 }
 
 @riverpod
 class UrutanPelangganAktifState extends _$UrutanPelangganAktifState {
   @override
-  UrutanPelangganAktif build() {
-    return UrutanPelangganAktif.berakhirHariIni;
+  UrutanPelangganAktifEnum build() {
+    return UrutanPelangganAktifEnum.berakhirHariIni;
   }
 
-  void ubahUrutan(UrutanPelangganAktif urutanBaru) {
+  void ubahUrutan(UrutanPelangganAktifEnum urutanBaru) {
     state = urutanBaru;
   }
 }
 
-class PengurutPelangganAktif {
-  static int _compareNullableDates(
-    DateTime? a,
-    DateTime? b, {
-    bool ascending = true,
-  }) {
-    if (a == null && b == null) return 0;
-    if (a == null) return 1; // null dianggap paling besar/lama
-    if (b == null) return -1; // non-null dianggap lebih kecil/baru
-    return ascending ? a.compareTo(b) : b.compareTo(a);
-  }
-
-  static List<DetailPelangganAktifModel> urutkan(
-    List<DetailPelangganAktifModel> data,
-    UrutanPelangganAktif sortBy,
-  ) {
-    final sorted = List<DetailPelangganAktifModel>.from(data);
-    final sekarang = DateTime.now();
-
-    sorted.sort((a, b) {
-      switch (sortBy) {
-        case UrutanPelangganAktif.berakhirHariIni:
-          final sisaHariA = a.pelangganAktif.tanggalBerakhir
-              .difference(sekarang)
-              .inMilliseconds;
-          final sisaHariB = b.pelangganAktif.tanggalBerakhir
-              .difference(sekarang)
-              .inMilliseconds;
-
-          final lewatA = sisaHariA < 0;
-          final lewatB = sisaHariB < 0;
-
-          if (!lewatA && lewatB) return -1;
-          if (lewatA && !lewatB) return 1;
-          if (!lewatA) {
-            return sisaHariA.compareTo(sisaHariB);
-          }
-          return sisaHariB.compareTo(sisaHariA);
-
-        case UrutanPelangganAktif.terbaru:
-          return _compareNullableDates(
-            a.pelangganAktif.diperbaruiPada,
-            b.pelangganAktif.diperbaruiPada,
-            ascending: false,
-          );
-
-        case UrutanPelangganAktif.terlama:
-          return _compareNullableDates(
-            a.pelangganAktif.diperbaruiPada,
-            b.pelangganAktif.diperbaruiPada,
-          );
-
-        case UrutanPelangganAktif.tanggalMulai:
-          return a.pelangganAktif.tanggalMulai.compareTo(
-            b.pelangganAktif.tanggalMulai,
-          );
-
-        case UrutanPelangganAktif.tanggalBerakhir:
-          return b.pelangganAktif.tanggalBerakhir.compareTo(
-            a.pelangganAktif.tanggalBerakhir,
-          );
-
-        case UrutanPelangganAktif.lunas:
-          return a.pelangganAktif.status.index.compareTo(
-            b.pelangganAktif.status.index,
-          );
-
-        case UrutanPelangganAktif.belumLunas:
-          return b.pelangganAktif.status.index.compareTo(
-            a.pelangganAktif.status.index,
-          );
-
-        case UrutanPelangganAktif.namaAZ:
-          return a.namaPelanggan.toLowerCase().compareTo(
-            b.namaPelanggan.toLowerCase(),
-          );
-
-        case UrutanPelangganAktif.namaZA:
-          return b.namaPelanggan.toLowerCase().compareTo(
-            a.namaPelanggan.toLowerCase(),
-          );
-      }
-    });
-    return sorted;
-  }
-
-  static String ambilTeksUrutan(UrutanPelangganAktif option) => option.teks;
+int _compareNullableDates(DateTime? a, DateTime? b, {bool ascending = true}) {
+  if (a == null && b == null) return 0;
+  if (a == null) return 1; // null dianggap paling besar/lama
+  if (b == null) return -1; // non-null dianggap lebih kecil/baru
+  return ascending ? a.compareTo(b) : b.compareTo(a);
 }
+
+List<DetailPelangganAktifModel> urutkanPelangganAktif(
+  List<DetailPelangganAktifModel> data,
+  UrutanPelangganAktifEnum sortBy,
+) {
+  final sorted = List<DetailPelangganAktifModel>.from(data);
+  final sekarang = DateTime.now();
+
+  sorted.sort((a, b) {
+    switch (sortBy) {
+      case UrutanPelangganAktifEnum.berakhirHariIni:
+        final sisaHariA = a.pelangganAktif.tanggalBerakhir
+            .difference(sekarang)
+            .inMilliseconds;
+        final sisaHariB = b.pelangganAktif.tanggalBerakhir
+            .difference(sekarang)
+            .inMilliseconds;
+
+        final lewatA = sisaHariA < 0;
+        final lewatB = sisaHariB < 0;
+
+        if (!lewatA && lewatB) return -1;
+        if (lewatA && !lewatB) return 1;
+        if (!lewatA) {
+          return sisaHariA.compareTo(sisaHariB);
+        }
+        return sisaHariB.compareTo(sisaHariA);
+
+      case UrutanPelangganAktifEnum.terbaru:
+        return _compareNullableDates(
+          a.pelangganAktif.diperbaruiPada,
+          b.pelangganAktif.diperbaruiPada,
+          ascending: false,
+        );
+
+      case UrutanPelangganAktifEnum.terlama:
+        return _compareNullableDates(
+          a.pelangganAktif.diperbaruiPada,
+          b.pelangganAktif.diperbaruiPada,
+        );
+
+      case UrutanPelangganAktifEnum.tanggalMulai:
+        return a.pelangganAktif.tanggalMulai.compareTo(
+          b.pelangganAktif.tanggalMulai,
+        );
+
+      case UrutanPelangganAktifEnum.tanggalBerakhir:
+        return b.pelangganAktif.tanggalBerakhir.compareTo(
+          a.pelangganAktif.tanggalBerakhir,
+        );
+
+      case UrutanPelangganAktifEnum.lunas:
+        return a.pelangganAktif.status.index.compareTo(
+          b.pelangganAktif.status.index,
+        );
+
+      case UrutanPelangganAktifEnum.belumLunas:
+        return b.pelangganAktif.status.index.compareTo(
+          a.pelangganAktif.status.index,
+        );
+
+      case UrutanPelangganAktifEnum.namaAZ:
+        return a.namaPelanggan.toLowerCase().compareTo(
+          b.namaPelanggan.toLowerCase(),
+        );
+
+      case UrutanPelangganAktifEnum.namaZA:
+        return b.namaPelanggan.toLowerCase().compareTo(
+          a.namaPelanggan.toLowerCase(),
+        );
+    }
+  });
+  return sorted;
+}
+
+String ambilTeksUrutanPelangganAktif(UrutanPelangganAktifEnum option) =>
+    option.teks;
 
 
 // File: lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.g.dart
@@ -4304,7 +4346,7 @@ class PelangganAktifOpSqlite {
   Future<void> jadwalkanUlangSemuaNotifikasi() async {
     Log.info('MEMULAI PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI...');
     try {
-      final List<PelangganAktifModel> pelangganAktif = await ambilSemua();
+      final pelangganAktif = await ambilSemua();
 
       if (pelangganAktif.isEmpty) {
         Log.info('Tidak ada pelanggan aktif untuk dijadwalkan ulang.');
@@ -4382,7 +4424,7 @@ class PelangganAktifOpSqlite {
     try {
       final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
 
-      await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((txn) async {
         final data = customerToSave.toSqlite();
         await txn.insert(
           _tabelPelangganAktif,
@@ -4458,7 +4500,7 @@ class PelangganAktifOpSqlite {
     try {
       final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
       Log.info('Memperbarui active customer ID: ${customerToSave.id}');
-      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((txn) async {
         final data = customerToSave.toSqlite();
         await txn.update(
           _tabelPelangganAktif,
@@ -4592,7 +4634,7 @@ class PelangganAktifOpSqlite {
         return;
       }
 
-      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((txn) async {
         final pelangganAktifArsip = pelangganAktif.copyWith(
           diperbaruiPada: _nowUtc,
           diHapus: true,
@@ -4637,7 +4679,7 @@ class PelangganAktifOpSqlite {
         Log.info('Transaksi dengan ID $idTransaksi tidak ditemukan');
       }
     }
-    await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
+    await _baseOpSqlite.operasiKompleks<void>((txn) async {
       final pelangganAktifArsip = pelangganAktif.copyWith(
         diperbaruiPada: _nowUtc,
         diHapus: true,
@@ -4729,7 +4771,7 @@ class PelangganAktifOpSqlite {
 
       final dataUntukDiarsip = pelangganAktif.map((p) => p.id).toList();
 
-      await _baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((final txn) async {
         await txn.update(
           _tabelPelangganAktif,
           {
@@ -5397,7 +5439,7 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
         'PackageInfo berhasil diambil - Nama: ${infoPerangkat.appName}, Versi: ${infoPerangkat.version}, Build: ${infoPerangkat.buildNumber}, Package: ${infoPerangkat.packageName}',
       );
 
-      String deviceArch = 'Unknown';
+      var deviceArch = 'Unknown';
 
       if (Platform.isAndroid) {
         Log.info('Platform terdeteksi: Android, mengambil DeviceInfo');
@@ -5536,13 +5578,7 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
 // File: lib/fitur/info_perangkat/enum/arsitektur_apk.dart
 // path: lib/fitur/info_perangkat/enum/arsitektur_apk.dart
 
-enum ArsitekturApk {
-  bit32,
-  bit64,
-  universal,
-  x86_64,
-  arm64,
-}
+enum ArsitekturApk { bit32, bit64, universal, x86_64, arm64 }
 
 
 // File: lib/fitur/info_perangkat/model/info_perangkat_model.freezed.dart
@@ -5907,15 +5943,14 @@ class LayananInfoPerangkat {
     Log.info('Memulai pengambilan informasi arsitektur perangkat.');
     if (kIsWeb) {
       Log.warning('Tidak dapat mendeteksi arsitektur di platform web.');
-      return {
-        'error': 'Tidak dapat mendeteksi arsitektur di web.',
-      };
+      return {'error': 'Tidak dapat mendeteksi arsitektur di web.'};
     }
     try {
       if (defaultTargetPlatform == TargetPlatform.android) {
         Log.info(
-            'Platform terdeteksi: Android. Mengambil AndroidDeviceInfo...');
-        final AndroidDeviceInfo infoAndroid = await infoPerangkat.androidInfo;
+          'Platform terdeteksi: Android. Mengambil AndroidDeviceInfo...',
+        );
+        final infoAndroid = await infoPerangkat.androidInfo;
         final hasilArsitektur = {
           'supportedAbis': infoAndroid.supportedAbis,
           'isPhysicalDevice': infoAndroid.isPhysicalDevice,
@@ -5924,7 +5959,7 @@ class LayananInfoPerangkat {
         return hasilArsitektur;
       } else if (defaultTargetPlatform == TargetPlatform.iOS) {
         Log.info('Platform terdeteksi: iOS. Mengambil IosDeviceInfo...');
-        final IosDeviceInfo infoIos = await infoPerangkat.iosInfo;
+        final infoIos = await infoPerangkat.iosInfo;
         final result = {
           'utsname.machine': infoIos.utsname.machine,
           'isPhysicalDevice': infoIos.isPhysicalDevice,
@@ -5933,19 +5968,11 @@ class LayananInfoPerangkat {
         return result;
       }
     } catch (e, s) {
-      Log.error(
-        'Gagal mendapatkan info perangkat.',
-        e: e,
-        s: s,
-      );
-      return {
-        'error': 'Gagal mendapatkan info perangkat: $e',
-      };
+      Log.error('Gagal mendapatkan info perangkat.', e: e, s: s);
+      return {'error': 'Gagal mendapatkan info perangkat: $e'};
     }
     Log.warning('Platform tidak didukung oleh DeviceInfoService.');
-    return {
-      'error': 'Platform tidak didukung',
-    };
+    return {'error': 'Platform tidak didukung'};
   }
 }
 
@@ -6047,7 +6074,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       }
 
       // 3. Validasi Poin
-      final bool poinCukup = poinSaatIni >= hadiah.poinPenukaran;
+      final poinCukup = poinSaatIni >= hadiah.poinPenukaran;
       if (!kDebugMode && !poinCukup) {
         ToastUtil.warning(
           context,
@@ -6057,7 +6084,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
       }
 
       // 4. Konfirmasi User
-      final bool? dikonfirmasi = await showDialog<bool>(
+      final dikonfirmasi = await showDialog<bool>(
         context: context,
         builder: (dialogContext) => AlertDialog(
           title: const Text('Konfirmasi Penukaran'),
@@ -6085,7 +6112,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           showDialog<void>(
             context: context,
             barrierDismissible: false,
-            builder: (context) => SizedBox(
+            builder: (context) => const SizedBox(
               width: 25,
               height: 25,
               child: Center(child: CircularProgressIndicator()),
@@ -6244,7 +6271,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
             ? (totalPoin / hadiah.poinPenukaran).clamp(0.0, 1.0)
             : 1.0;
         final selisihPoin = totalPoin - hadiah.poinPenukaran;
-        final bool sedangMemprosesRewardIni =
+        final sedangMemprosesRewardIni =
             _sedangTukarPoin && _idRewardYangDiproses == hadiah.id;
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -6320,7 +6347,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
                 ? transaksi.poinDidapat
                 : transaksi.poinDigunakan;
             final teksPoin = apakahPenambahan ? '+$nilaiPoin' : '-$nilaiPoin';
-            final bool apakahBelumBayar =
+            final apakahBelumBayar =
                 transaksi.statusPembayaran == StatusPembayaran.unpaid;
             final Color warnaPoin = apakahBelumBayar
                 ? Colors.grey
@@ -6539,7 +6566,7 @@ class UiHalamanPoin extends StatelessWidget {
       final String label,
       final IconData icon,
     ) {
-      final bool isSelected = menuPilihan == menu;
+      final isSelected = menuPilihan == menu;
       return Expanded(
         child: InkWell(
           onTap: () => onSelectionChanged({menu}),
@@ -6681,8 +6708,8 @@ class FirebasePointsDataSource implements PointsPageDataSource {
   FirebasePointsDataSource({
     required TransaksiOpFirebase transactionOpFirebase,
     required PaketOpFirebase packageOpFirebase,
-  })  : _transactionOpFirebase = transactionOpFirebase,
-        _packageOpFirebase = packageOpFirebase;
+  }) : _transactionOpFirebase = transactionOpFirebase,
+       _packageOpFirebase = packageOpFirebase;
 
   @override
   Future<int> ambilTotalPoin(String customerId) {
@@ -6696,8 +6723,9 @@ class FirebasePointsDataSource implements PointsPageDataSource {
 
   @override
   Future<List<TransaksiModel>> getPointsTransactions(String customerId) async {
-    final history =
-        await _transactionOpFirebase.ambilBerdasarkanIdPelanggan(customerId);
+    final history = await _transactionOpFirebase.ambilBerdasarkanIdPelanggan(
+      customerId,
+    );
     return history
         .where((t) => t.poinDidapat > 0 || t.poinDigunakan > 0)
         .toList();
@@ -6712,8 +6740,9 @@ class FirebasePointsDataSource implements PointsPageDataSource {
   bool get isFirebase => true;
 }
 
-final firebasePointsDataSourceProvider =
-    Provider<FirebasePointsDataSource>((ref) {
+final firebasePointsDataSourceProvider = Provider<FirebasePointsDataSource>((
+  ref,
+) {
   return FirebasePointsDataSource(
     transactionOpFirebase: ref.watch(transaksiOpFirebaseProvider),
     packageOpFirebase: ref.watch(paketOpFirebaseProvider),
@@ -6870,7 +6899,7 @@ class PoinTransactionService {
             )
             .get();
 
-        int totalPoin = 0;
+        var totalPoin = 0;
         for (final doc in transaksiSnapshot.docs) {
           final data = doc.data();
           totalPoin += (data[NamaKolom.poinDidapat] as int? ?? 0);
@@ -7072,7 +7101,9 @@ class SettingsAdminPage extends ConsumerWidget {
     );
     if ((konfirmasi == true) && context.mounted) {
       try {
-        await ref.read(pengelolaSinkronisasiProvider).resetWaktuSinkronisasi();
+        await ref
+            .read(pengelolaSinkronisasiProvider)
+            .resetWaktuSinkronisasiPreferensi();
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
         );
@@ -7210,7 +7241,9 @@ class SettingsAdminPage extends ConsumerWidget {
                   onPressed: () {
                     Navigator.push<void>(
                       context,
-                      MaterialPageRoute(builder: ((context) => FormSettings())),
+                      MaterialPageRoute(
+                        builder: ((context) => const FormSettings()),
+                      ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -7585,7 +7618,7 @@ class _FormSettingsState extends ConsumerState<FormSettings> {
     return SwitchListTile(
       title: const Text('Mode Pemeliharaan'),
       value: _modePemeliharaan,
-      onChanged: (bool value) {
+      onChanged: (value) {
         setState(() {
           _modePemeliharaan = value;
           Log.info('Mode pemeliharaan diubah menjadi: $value');
@@ -8151,7 +8184,7 @@ class SettingsOpFirebase {
   final FirebaseFirestore _db;
 
   SettingsOpFirebase({FirebaseFirestore? firestore})
-      : _db = firestore ?? FirebaseFirestore.instance {
+    : _db = firestore ?? FirebaseFirestore.instance {
     Log.info('SettingsOpFirebase diinisialisasi.');
   }
 
@@ -8778,7 +8811,7 @@ class UjiKecepatan extends _$UjiKecepatan {
           );
         },
         onProgress: (persentase, dataUji) {
-          double kecepatanDalamMbps = dataUji.transferRate;
+          var kecepatanDalamMbps = dataUji.transferRate;
           if (dataUji.unit == SpeedUnit.kbps) kecepatanDalamMbps /= 1000;
 
           if (dataUji.type == TestType.download) {
@@ -8797,9 +8830,9 @@ class UjiKecepatan extends _$UjiKecepatan {
           _timer?.cancel(); // Batalkan timer
           if (_isFinished) return;
           _isFinished = true;
-          double hasilUnduhDalamMbps = unduh.transferRate;
+          var hasilUnduhDalamMbps = unduh.transferRate;
           if (unduh.unit == SpeedUnit.kbps) hasilUnduhDalamMbps /= 1000;
-          double hasilUnggahDalamMbps = unggah.transferRate;
+          var hasilUnggahDalamMbps = unggah.transferRate;
           if (unggah.unit == SpeedUnit.kbps) hasilUnggahDalamMbps /= 1000;
           state = state.copyWith(
             kecepatanUnduh: hasilUnduhDalamMbps,
@@ -8907,7 +8940,7 @@ final class UjiKecepatanProvider
   }
 }
 
-String _$ujiKecepatanHash() => r'312d14f6a445c9e34906efe81335409be921895f';
+String _$ujiKecepatanHash() => r'3557ce0f4323aae02fd826f7e817212b38a2d123';
 
 abstract class _$UjiKecepatan extends $Notifier<UjiKecepatanState> {
   UjiKecepatanState build();
@@ -9402,8 +9435,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
         );
         Navigator.pop(context);
       } on DatabaseException catch (e, s) {
-        String pesanError =
-            'Gagal menyimpan paket. Terjadi kesalahan database.';
+        var pesanError = 'Gagal menyimpan paket. Terjadi kesalahan database.';
         if (e.isUniqueConstraintError()) {
           pesanError = 'Nama paket sudah ada. Harap gunakan nama lain.';
         } else {
@@ -9434,7 +9466,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(_modeEdit ? 'Edit Paket' : 'Tambah Paket'),
@@ -9503,15 +9535,13 @@ class _PackageFormState extends ConsumerState<FormPaket> {
                 DropdownButtonFormField<TipeDurasiPaket>(
                   initialValue: _selectedType,
                   decoration: const InputDecoration(labelText: 'Tipe Durasi'),
-                  items: TipeDurasiPaket.values.map((
-                    final TipeDurasiPaket type,
-                  ) {
+                  items: TipeDurasiPaket.values.map((tipeDurasi) {
                     return DropdownMenuItem<TipeDurasiPaket>(
-                      value: type,
-                      child: Text(type.displayName),
+                      value: tipeDurasi,
+                      child: Text(tipeDurasi.displayName),
                     );
                   }).toList(),
-                  onChanged: (TipeDurasiPaket? newValue) {
+                  onChanged: (newValue) {
                     if (newValue != null) {
                       setState(() {
                         _selectedType = newValue;
@@ -9628,9 +9658,9 @@ class PackagePage extends ConsumerWidget {
       body: paketAsync.when(
         skipLoadingOnReload: true,
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) {
-          Log.error('Terjadi error saat memuat data paket', e: err, s: stack);
-          return Center(child: Text('Error: $err'));
+        error: (e, s) {
+          Log.error('Terjadi error saat memuat data paket', e: e, s: s);
+          return Center(child: Text('Error: $e'));
         },
         data: (paketList) {
           if (paketList.daftarPaket.isEmpty) {
@@ -9643,11 +9673,13 @@ class PackagePage extends ConsumerWidget {
             itemBuilder: (context, index) {
               final paket = sortedList[index];
               return InkWell(
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (context) => DetailPaketPage(paket: paket),
+                onTap: () {
+                  unawaited(
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (context) => DetailPaketPage(paket: paket),
+                      ),
                     ),
                   );
                 },
@@ -9675,10 +9707,12 @@ class PackagePage extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute<void>(builder: (context) => const FormPaket()),
+        onPressed: () {
+          unawaited(
+            Navigator.push(
+              context,
+              MaterialPageRoute<void>(builder: (context) => const FormPaket()),
+            ),
           );
         },
         tooltip: 'Tambah Paket',
@@ -9793,10 +9827,12 @@ Future<void> _tampilkanDialogHapusEdit(
             onPressed: () async {
               Navigator.pop(dialogContext);
               if (!context.mounted) return;
-              await Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (context) => FormPaket(paket: paket),
+              unawaited(
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (context) => FormPaket(paket: paket),
+                  ),
                 ),
               );
             },
@@ -9824,7 +9860,7 @@ Future<void> _tampilkanDialogKonfirmasiHapus(
 
   await showDialog<void>(
     context: context,
-    builder: (BuildContext dialogContext) {
+    builder: (dialogContext) {
       return AlertDialog(
         title: const Text('Konfirmasi Hapus'),
         content: Text('Anda yakin ingin menghapus paket ${paket.nama}?'),
@@ -9868,7 +9904,7 @@ Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
   final paketOpSqlite = ref.read(paketOpSqliteProvider);
   await showDialog<void>(
     context: context,
-    builder: (BuildContext dialogContext) {
+    builder: (dialogContext) {
       return AlertDialog(
         title: const Text('Konfirmasi Hapus Semua'),
         content: const Text('Yakin ingin menghapus SEMUA paket?'),
@@ -10397,6 +10433,7 @@ abstract class PaketState with _$PaketState {
 @Riverpod(keepAlive: true)
 class Paket extends _$Paket {
   PaketOpGlobal get _paketOp => ref.read(paketOpGlobalProvider);
+
   @override
   FutureOr<PaketState> build() async {
     return _ambilData();
@@ -10953,7 +10990,7 @@ class PaketOpFirebase {
 
     try {
       Log.info('Mengambil ${ids.length} paket berdasarkan ID');
-      final List<PaketModel> hasil = [];
+      final hasil = <PaketModel>[];
 
       for (final id in ids) {
         final paket = await ambilBerdasarkanId(id);
@@ -11021,7 +11058,6 @@ class PaketOpFirebase {
 // path: lib/fitur/paket/operasi/paket_op_sqlite.dart
 
 import 'package:meta/meta.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -11110,7 +11146,7 @@ class PaketOpSqlite {
     Log.info('Memulai proses pengambilan semua data paket publik');
     try {
       final db = await sqliteDb.database;
-      final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      final maps = await db.rawQuery('''
         SELECT *,
           CASE ${NamaKolom.tipe}
             WHEN 'jam' THEN ${NamaKolom.durasi}
@@ -11139,7 +11175,7 @@ class PaketOpSqlite {
     Log.info('Memulai pencarian paket berdasarkan ID: $id');
     try {
       final db = await sqliteDb.database;
-      final List<Map<String, dynamic>> maps = await db.query(
+      final maps = await db.query(
         _tabel,
         where: '${NamaKolom.id} = ?',
         whereArgs: [id],
@@ -11189,8 +11225,8 @@ class PaketOpSqlite {
   Future<void> hapusSemua({bool dariServer = false}) async {
     Log.info('Memulai proses penghapusan semua data paket');
     try {
-      await basOpSqlite.operasiKompleks<void>((Transaction txn) async {
-        final int count = await txn.delete(_tabel);
+      await basOpSqlite.operasiKompleks<void>((txn) async {
+        final count = await txn.delete(_tabel);
         Log.info('Berhasil menghapus semua data paket. Total terhapus: $count');
       }, dariServer: dariServer);
     } catch (e, s) {
@@ -11370,7 +11406,7 @@ class PaketOpGlobal {
       Log.info(
         '[PaketOpGlobal] User mengambil ${ids.length} paket dari Firebase',
       );
-      final List<PaketModel> hasil = [];
+      final hasil = <PaketModel>[];
       for (final id in ids) {
         final paket = await _paketOpFirebase.ambilBerdasarkanId(id);
         if (paket != null) {
@@ -11878,8 +11914,8 @@ class PesanInfoPaket {
   PesanInfoPaket({
     required PelangganOpSqlite pelangganOpSqlite,
     required PaketOpSqlite paketOpSqlite,
-  })  : _pelangganOpSqlite = pelangganOpSqlite,
-        _paketOpSqlite = paketOpSqlite;
+  }) : _pelangganOpSqlite = pelangganOpSqlite,
+       _paketOpSqlite = paketOpSqlite;
 
   /// Mengambil detail pelanggan dan paket, membuat pesan,
   /// lalu mengirimkannya melalui WhatsApp.
@@ -11892,10 +11928,11 @@ class PesanInfoPaket {
       Log.info(
         'Mengambil data pelanggan dengan ID: ${pelangganAktif.idPelanggan}',
       );
-      final PelangganModel? pelanggan = await _pelangganOpSqlite
-          .ambilBerdasarkanId(pelangganAktif.idPelanggan);
+      final pelanggan = await _pelangganOpSqlite.ambilBerdasarkanId(
+        pelangganAktif.idPelanggan,
+      );
       Log.info('Mengambil data paket dengan ID: ${pelangganAktif.idPaket}');
-      final PaketModel? paket = await _paketOpSqlite.ambilBerdasarkanId(
+      final paket = await _paketOpSqlite.ambilBerdasarkanId(
         pelangganAktif.idPaket,
       );
 
@@ -11912,8 +11949,8 @@ class PesanInfoPaket {
         return;
       }
 
-      final String statusPembayaran = pelangganAktif.status.name;
-      final String pesan = _buildMessage(
+      final statusPembayaran = pelangganAktif.status.name;
+      final pesan = _buildMessage(
         pelanggan,
         paket,
         pelangganAktif,
@@ -11979,7 +12016,7 @@ Semoga harimu menyenangkan!
 
   Future<void> _kirimViaWatsapp(String telepon, String pesan) async {
     Log.info('Memformat nomor telepon: $telepon');
-    String formatNomor = telepon.replaceAll(RegExp(r'[^0-9]'), '');
+    var formatNomor = telepon.replaceAll(RegExp(r'[^0-9]'), '');
     if (formatNomor.startsWith('0')) {
       formatNomor = '62${formatNomor.substring(1)}';
     } else if (!formatNomor.startsWith('62')) {
@@ -12061,7 +12098,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     Log.info('_konfirmasiOpsi dipanggil');
     return await showDialog<bool>(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Konfirmasi'),
           content: const Text('Apakah Anda yakin ingin melanjutkan?'),
@@ -12090,9 +12127,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     if (_sedangMenghapus) return;
 
     // ✅ 1. Tampilkan dialog konfirmasi
-    final bool? konfirmasi = await showDialog<bool>(
+    final konfirmasi = await showDialog<bool>(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Konfirmasi Hapus Semua'),
           content: const Text(
@@ -12238,7 +12275,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     try {
       return await showDialog<bool>(
         context: context,
-        builder: (BuildContext dialogContext) {
+        builder: (dialogContext) {
           return Dialog(
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -12267,7 +12304,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                         '_showDialog: pengguna memilih Hapus untuk orderId: ${order.id}',
                       );
                       Navigator.of(dialogContext).pop();
-                      final bool? dikonfirmasi = await _konfirmasiOpsi(context);
+                      final dikonfirmasi = await _konfirmasiOpsi(context);
                       if (context.mounted) {
                         if (dikonfirmasi == true) {
                           Log.info(
@@ -12333,7 +12370,10 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         title: const Text('Pesanan Saya'),
         actions: [
           if (kDebugMode)
-            IconButton(onPressed: _softDeleteAll, icon: Icon(TIcons.delete)),
+            IconButton(
+              onPressed: _softDeleteAll,
+              icon: const Icon(TIcons.delete),
+            ),
         ],
       ),
       body: Padding(
@@ -12567,7 +12607,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           '_tombolOpsiUbahStatus: tombol $label ditekan untuk orderId: ${order.id}',
         );
         Navigator.of(dialogContext).pop();
-        final bool? dikonfirmasi = await _konfirmasiOpsi(pageContext);
+        final dikonfirmasi = await _konfirmasiOpsi(pageContext);
         if (dikonfirmasi == true) {
           try {
             final updatedOrder = order.copyWith(status: status);
@@ -12936,7 +12976,7 @@ final class OrderProvider extends $AsyncNotifierProvider<Order, OrderState> {
   Order create() => Order();
 }
 
-String _$orderHash() => r'd2d9ccfc14656a9a34328f427cd3de06f4d32d7a';
+String _$orderHash() => r'4b627a25dc8b36b06f0aa5271df707ec596a451c';
 
 abstract class _$Order extends $AsyncNotifier<OrderState> {
   FutureOr<OrderState> build();
@@ -13021,7 +13061,7 @@ class Order extends _$Order {
 
   Future<List<OrderModel>> ambilBerdasarkanIdPelanggan(String id) async {
     try {
-      List<OrderModel> daftarBaru = [];
+      var daftarBaru = <OrderModel>[];
       final daftar = state.asData?.value.daftarOrder;
       if (daftar != null) {
         daftarBaru = daftar.where((o) => o.idPelanggan == id).toList();
@@ -14015,6 +14055,1113 @@ as DateTime?,
 // dart format on
 
 
+// File: lib/fitur/voucher/page/form_voucher.dart
+// lib/fitur/voucher/page/form_voucher.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/fitur/voucher/model/voucher_model.dart';
+import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/input/input_teks.dart';
+
+class FormVoucher extends ConsumerStatefulWidget {
+  const FormVoucher({super.key});
+
+  @override
+  ConsumerState<FormVoucher> createState() => _FormVoucherState();
+}
+
+class _FormVoucherState extends ConsumerState<FormVoucher> {
+  final TextEditingController _voucherController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  bool _menyimpan = false;
+
+  // Simpan ID paket yang dipilih (bukan nama paket)
+  String? _selectedPaketId;
+
+  @override
+  void dispose() {
+    _voucherController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _simpanForm() async {
+    if (_menyimpan) return;
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      setState(() => _menyimpan = true);
+
+      // Buat voucher baru (id kosong, nanti diisi Firestore)
+      final voucherBaru = VoucherModel(
+        id: const Uuid().v4(),
+        voucher: _voucherController.text.trim(),
+        idPaket: _selectedPaketId!,
+        diperbaruiPada: DateTime.now(),
+      );
+
+      // Simpan via provider
+      await ref.read(voucherProvider.notifier).tambah(voucherBaru);
+
+      if (mounted) {
+        ToastUtil.success(context, 'Voucher berhasil disimpan');
+        Navigator.pop(context);
+      }
+    } on Exception catch (e, s) {
+      Log.error('Error di simpanForm: $e', e: e, s: s);
+      if (mounted) {
+        ToastUtil.error(context, 'Gagal menyimpan data');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _menyimpan = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Ambil data paket dari provider
+    final paketAsync = ref.watch(paketProvider);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Tambah Voucher')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              // Input Kode Voucher
+              InputTeks(controller: _voucherController, label: 'Voucher'),
+              const SizedBox(height: 16),
+              paketAsync.when(
+                data: (paketState) {
+                  final daftarPaket = paketState.daftarPaket
+                      .whereType<PaketModel>()
+                      .toList();
+
+                  if (daftarPaket.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Tidak ada paket tersedia'),
+                    );
+                  }
+
+                  return DropdownButtonFormField<String>(
+                    value: _selectedPaketId,
+                    decoration: const InputDecoration(
+                      labelText: 'Pilih Paket',
+                      border: OutlineInputBorder(),
+                    ),
+                    hint: const Text('Pilih paket'),
+                    items: daftarPaket.map((paket) {
+                      return DropdownMenuItem<String>(
+                        value: paket.id,
+                        child: Text(paket.nama),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => _selectedPaketId = value);
+                    },
+                    validator: (value) =>
+                        value == null ? 'Paket wajib dipilih!' : null,
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, _) => Text('Gagal memuat paket: $e'),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Tombol Simpan
+              ElevatedButton(
+                onPressed: _menyimpan ? null : _simpanForm,
+                child: _menyimpan
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Simpan'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+// File: lib/fitur/voucher/page/detail_voucher.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/voucher/model/voucher_model.dart'; // tambahkan ini
+import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
+import 'package:wifi/shared/widget/nama_paket_widget.dart';
+
+class DetailVoucher extends ConsumerWidget {
+  final String idVoucher;
+  const DetailVoucher({super.key, required this.idVoucher});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final voucherAsync = ref.watch(voucherProvider);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Detail Voucher')),
+      body: voucherAsync.when(
+        data: (state) {
+          final voucher = state.voucher.firstWhere(
+            (v) => v.id == idVoucher,
+            orElse: () => throw Exception('Voucher tidak ditemukan'),
+          );
+
+          return _buildDetail(context, voucher);
+        },
+        error: (error, _) => Center(child: Text('Error: $error')),
+        loading: () => const Center(child: CircularProgressIndicator()),
+      ),
+    );
+  }
+
+  // ⬇️ Perubahan: dynamic → VoucherModel
+  Widget _buildDetail(BuildContext context, VoucherModel voucher) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            voucher.voucher,
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Text('Paket: '),
+              NamaPaketWidget(idPaket: voucher.idPaket),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Text('Status: '),
+              Icon(
+                voucher.terpakai ? Icons.check_circle : Icons.cancel,
+                color: voucher.terpakai ? Colors.green : Colors.red,
+                size: 20,
+              ),
+              const SizedBox(width: 4),
+              Text(voucher.terpakai ? 'Terpakai' : 'Belum Terpakai'),
+            ],
+          ),
+          const SizedBox(height: 8),
+          if (voucher.diperbaruiPada != null)
+            Text(
+              'Terakhir diperbarui: ${_formatDateTime(voucher.diperbaruiPada!)}',
+              style: const TextStyle(color: Colors.grey),
+            ),
+          if (voucher.diarsipkanPada != null)
+            Text(
+              'Diarsipkan pada: ${_formatDateTime(voucher.diarsipkanPada!)}',
+              style: const TextStyle(color: Colors.grey),
+            ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              ElevatedButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.edit),
+                label: const Text('Edit'),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.delete),
+                label: const Text('Hapus'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}';
+  }
+}
+
+
+// File: lib/fitur/voucher/page/voucher.dart
+// path lib/fitur/voucher/page/voucher.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/voucher/page/form_voucher.dart';
+import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
+import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/widget/nama_paket_widget.dart';
+
+class Voucher extends ConsumerWidget {
+  const Voucher({super.key});
+
+  void _naviagasiKeDetail(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(builder: (context) => const FormVoucher()),
+    );
+  }
+
+  void _naviagasiKeForm(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(builder: (context) => const FormVoucher()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final voucherAsync = ref.watch(voucherProvider);
+    return Scaffold(
+      appBar: AppBar(title: const Text('Voucher')),
+      body: voucherAsync.when(
+        data: (state) {
+          if (state.voucher.isEmpty) {
+            return const Center(child: Text('Tidak ada data'));
+          }
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: state.voucher.length,
+                  itemBuilder: (context, index) {
+                    final voucher = state.voucher[index];
+                    return ListTile(
+                      onTap: () => _naviagasiKeForm(context),
+                      title: Text(voucher.voucher),
+                      subtitle: NamaPaketWidget(idPaket: voucher.idPaket),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+        error: (error, stackTrace) => Text('$error'),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        skipLoadingOnReload: true,
+      ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'tambah_voucher',
+        onPressed: () => _naviagasiKeForm(context),
+        child: const Icon(TIcons.add),
+      ),
+    );
+  }
+}
+
+
+// File: lib/fitur/voucher/provider/voucher_provider.g.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'voucher_provider.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(Voucher)
+final voucherProvider = VoucherProvider._();
+
+final class VoucherProvider
+    extends $AsyncNotifierProvider<Voucher, VoucherState> {
+  VoucherProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'voucherProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$voucherHash();
+
+  @$internal
+  @override
+  Voucher create() => Voucher();
+}
+
+String _$voucherHash() => r'834ea2494d087acd32076b1def08c970c03b9b0a';
+
+abstract class _$Voucher extends $AsyncNotifier<VoucherState> {
+  FutureOr<VoucherState> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<VoucherState>, VoucherState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<VoucherState>, VoucherState>,
+              AsyncValue<VoucherState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+
+// File: lib/fitur/voucher/provider/voucher_provider.dart
+// path lib/fitur/voucher/provider/voucher_provider.dart
+
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/voucher/model/voucher_model.dart';
+import 'package:wifi/fitur/voucher/operasi/voucher_op_firebase.dart';
+import 'package:wifi/shared/debug/log.dart';
+
+part 'voucher_provider.g.dart';
+part 'voucher_provider.freezed.dart';
+
+@freezed
+abstract class VoucherState with _$VoucherState {
+  const factory VoucherState({required List<VoucherModel> voucher}) =
+      _VoucherState;
+}
+
+@riverpod
+class Voucher extends _$Voucher {
+  @override
+  FutureOr<VoucherState> build() async {
+    return _loadData();
+  }
+
+  Future<VoucherState> _loadData() async {
+    try {
+      final voucher = ref.read(voucherOpFirebaseProvider);
+      final daftar = await voucher.ambilSemua();
+      return VoucherState(voucher: daftar);
+    } on Exception catch (e, s) {
+      Log.error('Error di loadData: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> tambah(VoucherModel voucherBaru) async {
+    try {
+      final tersimpan = await ref
+          .read(voucherOpFirebaseProvider)
+          .tambah(voucher: voucherBaru);
+      final currentState = state.value;
+      if (currentState == null) {
+        state = await AsyncValue.guard(_loadData);
+        return;
+      }
+      final updatedList = [...currentState.voucher, tersimpan];
+      state = AsyncData(currentState.copyWith(voucher: updatedList));
+    } on Exception catch (e, s) {
+      Log.error('Error ditambah: $e', e: e, s: s);
+      await _loadData();
+      rethrow;
+    }
+  }
+
+  Future<void> refresh() async {
+    state = await AsyncValue.guard(_loadData);
+  }
+}
+
+
+// File: lib/fitur/voucher/provider/voucher_provider.freezed.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'voucher_provider.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$VoucherState {
+
+ List<VoucherModel> get voucher;
+/// Create a copy of VoucherState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$VoucherStateCopyWith<VoucherState> get copyWith => _$VoucherStateCopyWithImpl<VoucherState>(this as VoucherState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is VoucherState&&const DeepCollectionEquality().equals(other.voucher, voucher));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(voucher));
+
+@override
+String toString() {
+  return 'VoucherState(voucher: $voucher)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $VoucherStateCopyWith<$Res>  {
+  factory $VoucherStateCopyWith(VoucherState value, $Res Function(VoucherState) _then) = _$VoucherStateCopyWithImpl;
+@useResult
+$Res call({
+ List<VoucherModel> voucher
+});
+
+
+
+
+}
+/// @nodoc
+class _$VoucherStateCopyWithImpl<$Res>
+    implements $VoucherStateCopyWith<$Res> {
+  _$VoucherStateCopyWithImpl(this._self, this._then);
+
+  final VoucherState _self;
+  final $Res Function(VoucherState) _then;
+
+/// Create a copy of VoucherState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? voucher = null,}) {
+  return _then(_self.copyWith(
+voucher: null == voucher ? _self.voucher : voucher // ignore: cast_nullable_to_non_nullable
+as List<VoucherModel>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [VoucherState].
+extension VoucherStatePatterns on VoucherState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _VoucherState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _VoucherState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _VoucherState value)  $default,){
+final _that = this;
+switch (_that) {
+case _VoucherState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _VoucherState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _VoucherState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<VoucherModel> voucher)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _VoucherState() when $default != null:
+return $default(_that.voucher);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<VoucherModel> voucher)  $default,) {final _that = this;
+switch (_that) {
+case _VoucherState():
+return $default(_that.voucher);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<VoucherModel> voucher)?  $default,) {final _that = this;
+switch (_that) {
+case _VoucherState() when $default != null:
+return $default(_that.voucher);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _VoucherState implements VoucherState {
+  const _VoucherState({required final  List<VoucherModel> voucher}): _voucher = voucher;
+  
+
+ final  List<VoucherModel> _voucher;
+@override List<VoucherModel> get voucher {
+  if (_voucher is EqualUnmodifiableListView) return _voucher;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_voucher);
+}
+
+
+/// Create a copy of VoucherState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$VoucherStateCopyWith<_VoucherState> get copyWith => __$VoucherStateCopyWithImpl<_VoucherState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VoucherState&&const DeepCollectionEquality().equals(other._voucher, _voucher));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_voucher));
+
+@override
+String toString() {
+  return 'VoucherState(voucher: $voucher)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$VoucherStateCopyWith<$Res> implements $VoucherStateCopyWith<$Res> {
+  factory _$VoucherStateCopyWith(_VoucherState value, $Res Function(_VoucherState) _then) = __$VoucherStateCopyWithImpl;
+@override @useResult
+$Res call({
+ List<VoucherModel> voucher
+});
+
+
+
+
+}
+/// @nodoc
+class __$VoucherStateCopyWithImpl<$Res>
+    implements _$VoucherStateCopyWith<$Res> {
+  __$VoucherStateCopyWithImpl(this._self, this._then);
+
+  final _VoucherState _self;
+  final $Res Function(_VoucherState) _then;
+
+/// Create a copy of VoucherState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? voucher = null,}) {
+  return _then(_VoucherState(
+voucher: null == voucher ? _self._voucher : voucher // ignore: cast_nullable_to_non_nullable
+as List<VoucherModel>,
+  ));
+}
+
+
+}
+
+// dart format on
+
+
+// File: lib/fitur/voucher/operasi/voucher_op_firebase.dart
+// lib/fitur/voucher/operasi/voucher_op_firebase.dart
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/voucher/model/voucher_model.dart';
+import 'package:wifi/shared/debug/log.dart';
+
+class VoucherOpFirebase {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final String _koleksiVoucher = 'voucher'; // ganti sesuai nama koleksimu
+
+  /// Mengambil semua dokumen voucher dari Firestore.
+  /// Perhatian: jika data sangat banyak, pertimbangkan pagination.
+  Future<List<VoucherModel>> ambilSemua() async {
+    try {
+      final snapshot = await _firestore.collection(_koleksiVoucher).get();
+      final vouchers = snapshot.docs.map((doc) {
+        return VoucherModel.fromFirebase(doc.id, doc.data());
+      }).toList();
+      return vouchers;
+    } on Exception catch (e, s) {
+      Log.error('Error di ambilSemua: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<VoucherModel> tambah({required VoucherModel voucher}) async {
+    try {
+      final data = voucher.toFirebase();
+      final docRef = await _firestore.collection(_koleksiVoucher).add(data);
+      return voucher.copyWith(id: docRef.id);
+    } on Exception catch (e, s) {
+      Log.error('Error di tambah: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+}
+
+final voucherOpFirebaseProvider = Provider<VoucherOpFirebase>((ref) {
+  return VoucherOpFirebase();
+});
+
+
+// File: lib/fitur/voucher/model/voucher_model.freezed.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'voucher_model.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$VoucherModel {
+
+ String get id; String get voucher; String get idPaket; bool get terpakai; bool get dihapus; DateTime? get diperbaruiPada; DateTime? get diarsipkanPada;
+/// Create a copy of VoucherModel
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$VoucherModelCopyWith<VoucherModel> get copyWith => _$VoucherModelCopyWithImpl<VoucherModel>(this as VoucherModel, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is VoucherModel&&(identical(other.id, id) || other.id == id)&&(identical(other.voucher, voucher) || other.voucher == voucher)&&(identical(other.idPaket, idPaket) || other.idPaket == idPaket)&&(identical(other.terpakai, terpakai) || other.terpakai == terpakai)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,voucher,idPaket,terpakai,dihapus,diperbaruiPada,diarsipkanPada);
+
+@override
+String toString() {
+  return 'VoucherModel(id: $id, voucher: $voucher, idPaket: $idPaket, terpakai: $terpakai, dihapus: $dihapus, diperbaruiPada: $diperbaruiPada, diarsipkanPada: $diarsipkanPada)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $VoucherModelCopyWith<$Res>  {
+  factory $VoucherModelCopyWith(VoucherModel value, $Res Function(VoucherModel) _then) = _$VoucherModelCopyWithImpl;
+@useResult
+$Res call({
+ String id, String voucher, String idPaket, bool terpakai, bool dihapus, DateTime? diperbaruiPada, DateTime? diarsipkanPada
+});
+
+
+
+
+}
+/// @nodoc
+class _$VoucherModelCopyWithImpl<$Res>
+    implements $VoucherModelCopyWith<$Res> {
+  _$VoucherModelCopyWithImpl(this._self, this._then);
+
+  final VoucherModel _self;
+  final $Res Function(VoucherModel) _then;
+
+/// Create a copy of VoucherModel
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? voucher = null,Object? idPaket = null,Object? terpakai = null,Object? dihapus = null,Object? diperbaruiPada = freezed,Object? diarsipkanPada = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,voucher: null == voucher ? _self.voucher : voucher // ignore: cast_nullable_to_non_nullable
+as String,idPaket: null == idPaket ? _self.idPaket : idPaket // ignore: cast_nullable_to_non_nullable
+as String,terpakai: null == terpakai ? _self.terpakai : terpakai // ignore: cast_nullable_to_non_nullable
+as bool,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
+as bool,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [VoucherModel].
+extension VoucherModelPatterns on VoucherModel {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _VoucherModel value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _VoucherModel() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _VoucherModel value)  $default,){
+final _that = this;
+switch (_that) {
+case _VoucherModel():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _VoucherModel value)?  $default,){
+final _that = this;
+switch (_that) {
+case _VoucherModel() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String voucher,  String idPaket,  bool terpakai,  bool dihapus,  DateTime? diperbaruiPada,  DateTime? diarsipkanPada)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _VoucherModel() when $default != null:
+return $default(_that.id,_that.voucher,_that.idPaket,_that.terpakai,_that.dihapus,_that.diperbaruiPada,_that.diarsipkanPada);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String voucher,  String idPaket,  bool terpakai,  bool dihapus,  DateTime? diperbaruiPada,  DateTime? diarsipkanPada)  $default,) {final _that = this;
+switch (_that) {
+case _VoucherModel():
+return $default(_that.id,_that.voucher,_that.idPaket,_that.terpakai,_that.dihapus,_that.diperbaruiPada,_that.diarsipkanPada);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String voucher,  String idPaket,  bool terpakai,  bool dihapus,  DateTime? diperbaruiPada,  DateTime? diarsipkanPada)?  $default,) {final _that = this;
+switch (_that) {
+case _VoucherModel() when $default != null:
+return $default(_that.id,_that.voucher,_that.idPaket,_that.terpakai,_that.dihapus,_that.diperbaruiPada,_that.diarsipkanPada);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _VoucherModel extends VoucherModel {
+  const _VoucherModel({required this.id, required this.voucher, required this.idPaket, this.terpakai = false, this.dihapus = false, this.diperbaruiPada, this.diarsipkanPada}): super._();
+  
+
+@override final  String id;
+@override final  String voucher;
+@override final  String idPaket;
+@override@JsonKey() final  bool terpakai;
+@override@JsonKey() final  bool dihapus;
+@override final  DateTime? diperbaruiPada;
+@override final  DateTime? diarsipkanPada;
+
+/// Create a copy of VoucherModel
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$VoucherModelCopyWith<_VoucherModel> get copyWith => __$VoucherModelCopyWithImpl<_VoucherModel>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VoucherModel&&(identical(other.id, id) || other.id == id)&&(identical(other.voucher, voucher) || other.voucher == voucher)&&(identical(other.idPaket, idPaket) || other.idPaket == idPaket)&&(identical(other.terpakai, terpakai) || other.terpakai == terpakai)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,voucher,idPaket,terpakai,dihapus,diperbaruiPada,diarsipkanPada);
+
+@override
+String toString() {
+  return 'VoucherModel(id: $id, voucher: $voucher, idPaket: $idPaket, terpakai: $terpakai, dihapus: $dihapus, diperbaruiPada: $diperbaruiPada, diarsipkanPada: $diarsipkanPada)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$VoucherModelCopyWith<$Res> implements $VoucherModelCopyWith<$Res> {
+  factory _$VoucherModelCopyWith(_VoucherModel value, $Res Function(_VoucherModel) _then) = __$VoucherModelCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String voucher, String idPaket, bool terpakai, bool dihapus, DateTime? diperbaruiPada, DateTime? diarsipkanPada
+});
+
+
+
+
+}
+/// @nodoc
+class __$VoucherModelCopyWithImpl<$Res>
+    implements _$VoucherModelCopyWith<$Res> {
+  __$VoucherModelCopyWithImpl(this._self, this._then);
+
+  final _VoucherModel _self;
+  final $Res Function(_VoucherModel) _then;
+
+/// Create a copy of VoucherModel
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? voucher = null,Object? idPaket = null,Object? terpakai = null,Object? dihapus = null,Object? diperbaruiPada = freezed,Object? diarsipkanPada = freezed,}) {
+  return _then(_VoucherModel(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,voucher: null == voucher ? _self.voucher : voucher // ignore: cast_nullable_to_non_nullable
+as String,idPaket: null == idPaket ? _self.idPaket : idPaket // ignore: cast_nullable_to_non_nullable
+as String,terpakai: null == terpakai ? _self.terpakai : terpakai // ignore: cast_nullable_to_non_nullable
+as bool,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
+as bool,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+
+}
+
+// dart format on
+
+
+// File: lib/fitur/voucher/model/voucher_model.dart
+// path lib/fitur/voucher/model/voucher_model.dart
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart';
+
+part 'voucher_model.freezed.dart';
+
+@freezed
+abstract class VoucherModel with _$VoucherModel implements HasId {
+  const VoucherModel._();
+  const factory VoucherModel({
+    required String id,
+    required String voucher,
+    required String idPaket,
+    @Default(false) bool terpakai,
+    @Default(false) bool dihapus,
+    DateTime? diperbaruiPada,
+    DateTime? diarsipkanPada,
+  }) = _VoucherModel;
+
+  factory VoucherModel.fromFirebase(String id, Map<String, dynamic> data) {
+    return VoucherModel(
+      id: id,
+      voucher: data[NamaKolom.voucher] as String? ?? '',
+      idPaket: data[NamaKolom.idPaket] as String? ?? '',
+      terpakai: ParserUtil.parseBool(data[NamaKolom.terpakai]),
+      dihapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
+      diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
+      diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
+    );
+  }
+
+  Map<String, dynamic> toFirebase() {
+    return {
+      NamaKolom.id: id,
+      NamaKolom.voucher: voucher,
+      NamaKolom.idPaket: idPaket,
+      NamaKolom.terpakai: terpakai,
+      NamaKolom.dihapus: dihapus,
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()),
+      ),
+      NamaKolom.diarsipkanPada: diarsipkanPada != null
+          ? Timestamp.fromDate(diarsipkanPada!)
+          : null,
+    };
+  }
+}
+
+
 // File: lib/fitur/kategori/page/form_kategori.dart
 // path lib/fitur/kategori/page/form_kategori.dart
 
@@ -14173,7 +15320,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
     _namaController.dispose();
     _namaFocusNode.dispose();
 
-    for (int i = 0; i < _subKategoriControllers.length; i++) {
+    for (var i = 0; i < _subKategoriControllers.length; i++) {
       Log.info('  Mendispose sub-kategori controller ke-${i + 1}');
       _subKategoriControllers[i].dispose();
     }
@@ -14250,7 +15397,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
 
       try {
         if (_modeEdit && widget.subKategori != null) {
-          final String parentCategoryId = widget.subKategori!.idKategori;
+          final parentCategoryId = widget.subKategori!.idKategori;
 
           Log.info('Data sub-kategori sebelum update:');
           Log.info('  - ID: ${widget.subKategori!.id}');
@@ -14320,8 +15467,8 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           Log.info('========================================');
 
           Log.info('Memproses daftar sub-kategori untuk update...');
-          final List<SubKategoriModel> newSubCategoryList = [];
-          for (int i = 0; i < _subKategoriControllers.length; i++) {
+          final newSubCategoryList = <SubKategoriModel>[];
+          for (var i = 0; i < _subKategoriControllers.length; i++) {
             final controller = _subKategoriControllers[i];
             final originalModel = _subKategoriModels[i];
 
@@ -14357,17 +15504,17 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
 
           Log.info('Update kategori utama BERHASIL.');
         } else {
-          final String kategoriId = const Uuid().v4();
+          final kategoriId = const Uuid().v4();
           Log.info('UUID berhasil digenerate: $kategoriId');
 
           Log.info(
             'Memproses ${_subKategoriControllers.length} field input sub-kategori.',
           );
 
-          int subKategoriKosong = 0;
-          int subKategoriTerisi = 0;
+          var subKategoriKosong = 0;
+          var subKategoriTerisi = 0;
 
-          final List<SubKategoriModel> subKategoriList = _subKategoriControllers
+          final subKategoriList = _subKategoriControllers
               .where((final controller) {
                 final isEmpty = controller.text.isEmpty;
                 if (isEmpty) {
@@ -14471,7 +15618,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
 
   @override
   Widget build(final BuildContext context) {
-    String judul = 'Form Kategori';
+    var judul = 'Form Kategori';
     if (_modeEdit && widget.kategori != null) judul = 'Edit Kategori';
     if (_modeEdit && widget.subKategori != null) judul = 'Edit Sub-Kategori';
     if (!_modeEdit && widget.idKategoriInduk != null) {
@@ -14560,18 +15707,18 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
                               type == TipeKategori.income ||
                               type == TipeKategori.expense,
                         )
-                        .map((final TipeKategori category) {
+                        .map((kategori) {
                           Log.info(
-                            'Membuat DropdownMenuItem untuk: ${category.displayName}',
+                            'Membuat DropdownMenuItem untuk: ${kategori.displayName}',
                           );
 
                           return DropdownMenuItem<TipeKategori>(
-                            value: category,
-                            child: Text(category.displayName),
+                            value: kategori,
+                            child: Text(kategori.displayName),
                           );
                         })
                         .toList(),
-                    onChanged: (final TipeKategori? newValue) {
+                    onChanged: (final newValue) {
                       if (newValue != null) {
                         Log.info('DROPDOWN: Tipe kategori diubah.');
                         Log.info('  - Tipe Lama: $_tipe');
@@ -14763,10 +15910,8 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (final context) => CategoryForm(
-          subKategori: subCategory,
-          idKategoriInduk: categoryId,
-        ),
+        builder: (final context) =>
+            CategoryForm(subKategori: subCategory, idKategoriInduk: categoryId),
       ),
     );
     if (result ?? false) {
@@ -14776,10 +15921,12 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
   }
 
   Future<bool> _showConfirmDialog(
-      final String title, final String content) async {
+    final String title,
+    final String content,
+  ) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (final BuildContext context) {
+      builder: (context) {
         return AlertDialog(
           title: Text(title),
           content: Text(content),
@@ -14810,7 +15957,9 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
       await _kategoriOpSqlite.softDeleteKategori(category.id);
       if (!mounted) return;
       ToastUtil.success(
-          context, 'Kategori "${category.nama}" berhasil diarsipkan.');
+        context,
+        'Kategori "${category.nama}" berhasil diarsipkan.',
+      );
       _loadData();
     } on Exception catch (e, st) {
       if (!mounted) return;
@@ -14820,7 +15969,8 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
   }
 
   Future<void> _softDeleteSubCategory(
-      final SubKategoriModel subCategory) async {
+    final SubKategoriModel subCategory,
+  ) async {
     final confirm = await _showConfirmDialog(
       'Arsipkan Sub-Kategori',
       'Anda yakin ingin mengarsipkan sub-kategori "${subCategory.nama}"?',
@@ -14831,13 +15981,18 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
       await _subKategoriOpSqlite.softDelete(subCategory.id);
       if (!mounted) return;
       ToastUtil.success(
-          context, 'Sub-kategori "${subCategory.nama}" berhasil diarsipkan.');
+        context,
+        'Sub-kategori "${subCategory.nama}" berhasil diarsipkan.',
+      );
       _loadData();
     } on Exception catch (e, st) {
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal mengarsipkan sub-kategori: $e');
-      Log.error('Gagal soft delete sub-kategori ID: ${subCategory.id}',
-          e: e, s: st);
+      Log.error(
+        'Gagal soft delete sub-kategori ID: ${subCategory.id}',
+        e: e,
+        s: st,
+      );
     }
   }
 
@@ -14929,12 +16084,15 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
                 }
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(
-                      child: Text('Tidak ada kategori ditemukan.'));
+                    child: Text('Tidak ada kategori ditemukan.'),
+                  );
                 }
 
                 final filteredKategori = snapshot.data!
-                    .where((final k) =>
-                        k.tipe == _selectedType && k.diarsipkanPada == null)
+                    .where(
+                      (final k) =>
+                          k.tipe == _selectedType && k.diarsipkanPada == null,
+                    )
                     .toList();
 
                 return ListView.builder(
@@ -14952,32 +16110,35 @@ class _KategoriPageState extends ConsumerState<KategoriPage> {
                                     _navigasiKeEditKategori(kategori),
                               )
                             : _isArchiveMode
-                                ? IconButton(
-                                    icon: const Icon(TIcons.archive),
-                                    onPressed: () =>
-                                        _softDeleteCategory(kategori),
-                                  )
-                                : null,
+                            ? IconButton(
+                                icon: const Icon(TIcons.archive),
+                                onPressed: () => _softDeleteCategory(kategori),
+                              )
+                            : null,
                         children: kategori.idSubKategori
                             .where((final sub) => sub.diarsipkanPada == null)
                             .map((final sub) {
-                          return ListTile(
-                            title: Text(sub.nama),
-                            trailing: _isEdit
-                                ? IconButton(
-                                    icon: const Icon(TIcons.edit),
-                                    onPressed: () => _navigateToEditSubCategory(
-                                        sub, kategori.id),
-                                  )
-                                : _isArchiveMode
+                              return ListTile(
+                                title: Text(sub.nama),
+                                trailing: _isEdit
+                                    ? IconButton(
+                                        icon: const Icon(TIcons.edit),
+                                        onPressed: () =>
+                                            _navigateToEditSubCategory(
+                                              sub,
+                                              kategori.id,
+                                            ),
+                                      )
+                                    : _isArchiveMode
                                     ? IconButton(
                                         icon: const Icon(TIcons.archive),
                                         onPressed: () =>
                                             _softDeleteSubCategory(sub),
                                       )
                                     : null,
-                          );
-                        }).toList(),
+                              );
+                            })
+                            .toList(),
                       ),
                     );
                   },
@@ -15016,10 +16177,7 @@ class SubKategoriOpSqlite {
 
   final String _tableName = NamaTabel.subKategori;
 
-  SubKategoriOpSqlite({
-    required this.sqliteDb,
-    required this.baseOpSqlite,
-  });
+  SubKategoriOpSqlite({required this.sqliteDb, required this.baseOpSqlite});
 
   /// Menyimpan [SubKategoriModel] baru ke dalam database.
   Future<void> createSubCategory(
@@ -15031,11 +16189,7 @@ class SubKategoriOpSqlite {
       final data = subKategori
           .copyWith(diperbaruiPada: DateTime.now().toUtc())
           .toSqlite();
-      await baseOpSqlite.sisipkan(
-        _tableName,
-        data,
-        dariServer: fromServer,
-      );
+      await baseOpSqlite.sisipkan(_tableName, data, dariServer: fromServer);
       Log.info('Berhasil membuat sub-kategori ID: ${subKategori.id}');
     } on Exception catch (e, s) {
       Log.error('Gagal membuat sub-kategori.', e: e, s: s);
@@ -15060,8 +16214,11 @@ class SubKategoriOpSqlite {
         return SubKategoriModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, s) {
-      Log.error('Gagal mengambil sub-kategori berdasarkan kategori ID.',
-          e: e, s: s);
+      Log.error(
+        'Gagal mengambil sub-kategori berdasarkan kategori ID.',
+        e: e,
+        s: s,
+      );
       rethrow;
     }
   }
@@ -15116,11 +16273,7 @@ class SubKategoriOpSqlite {
   Future<void> delete(final String id, {final bool fromServer = false}) async {
     Log.warning('PERINGATAN: Menghapus sub-kategori ID: $id secara permanen');
     try {
-      await baseOpSqlite.delete(
-        _tableName,
-        id,
-        dariServer: fromServer,
-      );
+      await baseOpSqlite.delete(_tableName, id, dariServer: fromServer);
       Log.warning('Berhasil melakukan hard delete sub-kategori ID: $id');
     } on Exception catch (e, s) {
       Log.error('Gagal menghapus sub-kategori secara permanen.', e: e, s: s);
@@ -15135,11 +16288,7 @@ class SubKategoriOpSqlite {
   }) async {
     Log.info('Memulai soft delete untuk sub-kategori ID: $id');
     try {
-      await baseOpSqlite.softDelete(
-        _tableName,
-        id,
-        dariServer: dariServer,
-      );
+      await baseOpSqlite.softDelete(_tableName, id, dariServer: dariServer);
       Log.info('Berhasil soft delete sub-kategori ID: $id.');
     } on Exception catch (e, st) {
       Log.error('Gagal saat soft delete sub-kategori ID: $id', e: e, s: st);
@@ -15148,9 +16297,7 @@ class SubKategoriOpSqlite {
   }
 
   /// Melakukan soft delete pada semua sub-kategori.
-  Future<int> softDeleteAll({
-    final bool fromServer = false,
-  }) async {
+  Future<int> softDeleteAll({final bool fromServer = false}) async {
     Log.info('Memulai soft delete untuk semua sub-kategori');
     try {
       final count = await baseOpSqlite.softDeleteAll(
@@ -15170,9 +16317,7 @@ class SubKategoriOpSqlite {
     final List<SubKategoriModel> items, {
     final bool dariServer = false,
   }) async {
-    Log.info(
-      'Memulai batch insert/update untuk ${items.length} sub-kategori.',
-    );
+    Log.info('Memulai batch insert/update untuk ${items.length} sub-kategori.');
     if (items.isEmpty) {
       Log.warning('List item kosong, membatalkan proses operasi batch.');
       return;
@@ -15219,8 +16364,11 @@ class SubKategoriOpSqlite {
         return SubKategoriModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, s) {
-      Log.error('Gagal mengambil sub-kategori berdasarkan list ID.',
-          e: e, s: s);
+      Log.error(
+        'Gagal mengambil sub-kategori berdasarkan list ID.',
+        e: e,
+        s: s,
+      );
       rethrow;
     }
   }
@@ -15442,7 +16590,9 @@ class KategoriOpSqlite {
     }
   }
 
-  Future<List<KategoriModel>> ambilKategoriBerdasarkanIds(final List<String> ids) async {
+  Future<List<KategoriModel>> ambilKategoriBerdasarkanIds(
+    final List<String> ids,
+  ) async {
     Log.info('Memulai getCategoriesByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning(
@@ -15603,7 +16753,8 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
     return KategoriModel(
       id: map[NamaKolom.id] as String? ?? const Uuid().v4(),
       nama: map[NamaKolom.nama] as String? ?? '',
-      tipe: _safeParseEnum(TipeKategori.values, map[NamaKolom.tipe]) ??
+      tipe:
+          _safeParseEnum(TipeKategori.values, map[NamaKolom.tipe]) ??
           TipeKategori.expense,
       idSubKategori: parseSubCategories(map[NamaKolom.idSubKategori]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
@@ -15638,9 +16789,9 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
     List<SubKategoriModel> parseSubCategories(final dynamic subCategoryData) {
       if (subCategoryData is List) {
         return subCategoryData
-            .map((final item) {
+            .map((item) {
               if (item is Map<String, dynamic>) {
-                final String subId =
+                final subId =
                     item[NamaKolom.id] as String? ?? const Uuid().v4();
                 return SubKategoriModel.fromFirebase(subId, item);
               }
@@ -15655,7 +16806,8 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
     return KategoriModel(
       id: id,
       nama: data[NamaKolom.nama] as String? ?? '',
-      tipe: _safeParseEnum(TipeKategori.values, data[NamaKolom.tipe]) ??
+      tipe:
+          _safeParseEnum(TipeKategori.values, data[NamaKolom.tipe]) ??
           TipeKategori.expense,
       idSubKategori: parseSubCategories(data[NamaKolom.idSubKategori]),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
@@ -15669,11 +16821,13 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
       NamaKolom.id: id,
       NamaKolom.nama: nama,
       NamaKolom.tipe: tipe.name,
-      NamaKolom.idSubKategori:
-          idSubKategori.map((sub) => sub.toFirebase()).toList(),
+      NamaKolom.idSubKategori: idSubKategori
+          .map((sub) => sub.toFirebase())
+          .toList(),
       NamaKolom.dihapus: diHapus,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()).toUtc(),
+      ),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,
@@ -16316,7 +17470,9 @@ abstract class SubKategoriModel with _$SubKategoriModel implements HasId {
   }
 
   factory SubKategoriModel.fromFirebase(
-      final String id, final Map<String, dynamic> data) {
+    final String id,
+    final Map<String, dynamic> data,
+  ) {
     return SubKategoriModel(
       id: id,
       nama: data[NamaKolom.nama] as String? ?? '',
@@ -16332,8 +17488,9 @@ abstract class SubKategoriModel with _$SubKategoriModel implements HasId {
       NamaKolom.id: id,
       NamaKolom.nama: nama,
       NamaKolom.idKategori: idKategori,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()).toUtc(),
+      ),
       NamaKolom.dihapus: diHapus,
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
@@ -16428,7 +17585,7 @@ class DetailDompet extends ConsumerWidget {
                     dompet: detailDompet.dompet ?? dompet,
                   );
                 },
-                icon: Icon(TIcons.edit),
+                icon: const Icon(TIcons.edit),
               ),
             ],
           ),
@@ -16482,7 +17639,9 @@ class DetailDompet extends ConsumerWidget {
                 },
                 onDelete: () async {
                   Log.info('Hapus transaksi: ${transaction.id}');
-                  await ref.read(transaksiOpGlobalProvider).softDelete(transaction.id);
+                  await ref
+                      .read(transaksiOpGlobalProvider)
+                      .softDelete(transaction.id);
                   ref.invalidate(detailDompetProvider(dompet.id));
                 },
               ),
@@ -16529,7 +17688,7 @@ class DompetPage extends ConsumerWidget {
             onPressed: () {
               ToastUtil.info(context, 'Fitur dalam pengembangan');
             },
-            icon: Icon(TIcons.sort),
+            icon: const Icon(TIcons.sort),
           ),
           IconButton(
             icon: const Icon(TIcons.delete),
@@ -16634,7 +17793,7 @@ class DompetPage extends ConsumerWidget {
     }
     await showDialog<void>(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Konfirmasi'),
           content: const Text(
@@ -16682,7 +17841,7 @@ class DompetPage extends ConsumerWidget {
   ) async {
     await showDialog<void>(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Konfirmasi Hapus'),
           content: Text(
@@ -17961,7 +19120,7 @@ class DompetOpSqlite {
         'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tabelDompet WHERE ${NamaKolom.dihapus} = 0',
       );
 
-      double total = 0.0;
+      var total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
       }
@@ -17984,7 +19143,7 @@ class DompetOpSqlite {
         'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tabelDompet WHERE ${NamaKolom.saldo} > 0 AND ${NamaKolom.dihapus} = 0',
       );
 
-      double total = 0.0;
+      var total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
       }
@@ -18007,7 +19166,7 @@ class DompetOpSqlite {
         'SELECT SUM(${NamaKolom.saldo}) as total FROM $_tabelDompet WHERE ${NamaKolom.saldo} < 0 AND ${NamaKolom.dihapus} = 0',
       );
 
-      double total = 0.0;
+      var total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
       }
@@ -18621,15 +19780,13 @@ class _FormEventState extends ConsumerState<FormEvent> {
     final operator = ref.read(eventOpSupabaseProvider);
     try {
       final announcements = await operator.ambilSemuaEvent();
-      final EventModel? activeAnnouncement = announcements
-          .cast<EventModel?>()
-          .firstWhere(
-            (ann) => ann?.statusAktif ?? false,
-            orElse: () {
-              Log.info('Tidak ada pengumuman aktif ditemukan untuk dimuat.');
-              return null;
-            },
-          );
+      final activeAnnouncement = announcements.cast<EventModel?>().firstWhere(
+        (ann) => ann?.statusAktif ?? false,
+        orElse: () {
+          Log.info('Tidak ada pengumuman aktif ditemukan untuk dimuat.');
+          return null;
+        },
+      );
 
       setState(() {
         _selectedAnnouncement = activeAnnouncement;
@@ -18647,7 +19804,7 @@ class _FormEventState extends ConsumerState<FormEvent> {
 
   Future<void> _pickImage() async {
     try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      final image = await _picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
         setState(() {
           _selectedImage = File(image.path);
@@ -18661,7 +19818,7 @@ class _FormEventState extends ConsumerState<FormEvent> {
   }
 
   Future<void> _selectDate(bool isStartDate) async {
-    DateTime initialDate = DateTime.now();
+    var initialDate = DateTime.now();
     if (isStartDate) {
       if (_selectedStartDate != null) {
         initialDate = _selectedStartDate!;
@@ -18707,10 +19864,8 @@ class _FormEventState extends ConsumerState<FormEvent> {
   }
 
   Future<void> _selectTime(bool isStartTime) async {
-    TimeOfDay initialTime = TimeOfDay.now();
-    final DateTime? currentDateTime = isStartTime
-        ? _selectedStartDate
-        : _selectedEndDate;
+    var initialTime = TimeOfDay.now();
+    final currentDateTime = isStartTime ? _selectedStartDate : _selectedEndDate;
     if (currentDateTime != null) {
       initialTime = TimeOfDay(
         hour: currentDateTime.hour,
@@ -18724,7 +19879,7 @@ class _FormEventState extends ConsumerState<FormEvent> {
       pickedTime = await showTimePicker(
         context: context,
         initialTime: initialTime,
-        builder: (BuildContext context, Widget? child) {
+        builder: (context, child) {
           return MediaQuery(
             data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
             child: child!,
@@ -18739,10 +19894,10 @@ class _FormEventState extends ConsumerState<FormEvent> {
 
     if (pickedTime != null) {
       setState(() {
-        final DateTime? dateToUpdate = isStartTime
+        final dateToUpdate = isStartTime
             ? _selectedStartDate
             : _selectedEndDate;
-        final DateTime datePart = dateToUpdate ?? DateTime.now();
+        final datePart = dateToUpdate ?? DateTime.now();
 
         final newDateTime = DateTime(
           datePart.year,
@@ -18787,13 +19942,13 @@ class _FormEventState extends ConsumerState<FormEvent> {
       _isUploading = true;
     });
 
-    String imageUrl = _imageUrlController.text.trim();
+    var imageUrl = _imageUrlController.text.trim();
 
     // 2. Proses upload gambar ke storage jika admin memilih file gambar baru
     if (_selectedImage != null) {
       final storageService = ref.read(layananPenyimpananGambarProvider);
       try {
-        final String uploadUrl = await storageService.unggahGambar(
+        final uploadUrl = await storageService.unggahGambar(
           _selectedImage!,
           NamaTabel.event,
         );
@@ -18813,12 +19968,12 @@ class _FormEventState extends ConsumerState<FormEvent> {
     }
 
     final eventOpSupabase = ref.read(eventOpSupabaseProvider);
-    final bool isActive = _isSwitched;
-    final DateTime now = DateTime.now();
+    final isActive = _isSwitched;
+    final now = DateTime.now();
 
     // 3. REFAKTORISASI STRUKTUR OBJEK: Dipisahkan tegas antara Edit data vs Buat baru
     // Menjamin kolom 'not null' di Supabase selalu terisi dengan data terbaru dari UI
-    final EventModel announcementToSave = _isEditMode
+    final announcementToSave = _isEditMode
         ? _selectedAnnouncement!.copyWith(
             linkGambar: imageUrl,
             statusAktif: isActive,
@@ -19022,7 +20177,7 @@ class _FormEventState extends ConsumerState<FormEvent> {
                 ),
                 value: _isSwitched,
                 secondary: const Icon(TIcons.toggleOn),
-                onChanged: (bool value) {
+                onChanged: (value) {
                   setState(() {
                     _isSwitched = value;
                   });
@@ -19110,7 +20265,7 @@ class _EventPageUState extends ConsumerState<EventPageU> {
 
   @override
   Widget build(final BuildContext context) {
-    final EventModel data = widget.event;
+    final data = widget.event;
 
     return Scaffold(
       body: Stack(
@@ -19381,7 +20536,7 @@ class EventOpSupabase {
       Log.info('1️⃣ Membangun query...');
       final query = _supabase.from(_tabelEvent).select();
       Log.info('2️⃣ Eksekusi query ke Supabase...');
-      final List<Map<String, dynamic>> response = await query;
+      final response = await query;
       Log.info('3️⃣ Response diterima, jumlah data: ${response.length}');
 
       return response.map((data) {
@@ -19408,7 +20563,7 @@ class EventOpSupabase {
         .handleError((Object e, StackTrace s) {
           Log.error('❌ Error di dalam stream: $e', e: e, s: s);
         })
-        .map((List<Map<String, dynamic>> response) {
+        .map((response) {
           Log.info(
             '⚡ Realtime: Menerima ${response.length} data pengumuman terbaru',
           );
@@ -19425,7 +20580,7 @@ class EventOpSupabase {
     /// Mengambil pengumuman yang sedang aktif.
     Log.info('EventOpSupabase: Mengambil pengumuman aktif');
     try {
-      final List<Map<String, dynamic>> respon = await _supabase
+      final respon = await _supabase
           .from(_tabelEvent)
           .select()
           .eq(NamaKolom.statusAktif, true)
@@ -19452,7 +20607,7 @@ class EventOpSupabase {
     /// Mengambil pengumuman berdasarkan ID.
     Log.info('EventOpSupabase: Mengambil pengumuman berdasarkan id: $id');
     try {
-      final List<Map<String, dynamic>> respon = await _supabase
+      final respon = await _supabase
           .from(_tabelEvent)
           .select()
           .eq(NamaKolom.id, id)
@@ -19478,7 +20633,7 @@ class EventOpSupabase {
   Future<void> tambahEvent(EventModel event) async {
     Log.info('EventOpSupabase: Membuat pengumuman baru ${event.id}');
     try {
-      final Map<String, dynamic> dataPayload = event.toSupabase();
+      final dataPayload = event.toSupabase();
       await _supabase.from(_tabelEvent).insert(dataPayload);
     } catch (e, s) {
       Log.error('Gagal membuat pengumuman di Supabase', e: e, s: s);
@@ -19490,7 +20645,7 @@ class EventOpSupabase {
   Future<void> perbaruiEvent(EventModel event) async {
     Log.info('EventOpSupabase: Memperbarui pengumuman ${event.id}');
     try {
-      final Map<String, dynamic> dataPayload = event.toSupabase();
+      final dataPayload = event.toSupabase();
       await _supabase
           .from(_tabelEvent)
           .update(dataPayload)
@@ -20278,8 +21433,8 @@ class ChatingDashboard extends ConsumerWidget {
 }
 
 class _ChatSearchDelegate extends SearchDelegate<String> {
-  final List<Percakapan> conversations;
   _ChatSearchDelegate(List<Percakapan> chats) : conversations = chats;
+  final List<Percakapan> conversations;
 
   @override
   String get searchFieldLabel => 'Cari nama atau pesan';
@@ -20393,7 +21548,9 @@ class _ChatSearchDelegate extends SearchDelegate<String> {
 // File: lib/fitur/chating/provider/chating_provider.dart
 
 
+
 // File: lib/fitur/chating/operasi/chating_op_supabase.dart
+
 
 
 // File: lib/fitur/chating/chating.dart
@@ -20404,10 +21561,7 @@ import 'package:wifi/fitur/chating/enum/status_pesan_enum.dart';
 import 'package:wifi/fitur/chating/model/chating_model.dart';
 
 class Chating extends ConsumerStatefulWidget {
-  final String idPercakapan;
-  final String namaLawanbicara;
-  final List<Pesan>? pesanAwal;
-  final String idPenggunaSaatIni; // ID pengguna yang sedang login
+  // ID pengguna yang sedang login
 
   const Chating({
     super.key,
@@ -20416,6 +21570,10 @@ class Chating extends ConsumerStatefulWidget {
     this.pesanAwal,
     this.idPenggunaSaatIni = 'u1', // sementara hardcode, nanti dari auth
   });
+  final String idPercakapan;
+  final String namaLawanbicara;
+  final List<Pesan>? pesanAwal;
+  final String idPenggunaSaatIni;
 
   @override
   ConsumerState<Chating> createState() => _ChatingState();
@@ -22112,7 +23270,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
   }
 
   Future<void> _unduhPembaruan() async {
-    final String? urlUnduh =
+    final urlUnduh =
         widget.infoApk.linkDownload[widget.arsitektur] ??
         widget.infoApk.linkDownload[ArsitekturApk.universal];
 
@@ -23053,12 +24211,12 @@ class _SortDialogState extends State<_SortDialog> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Urutkan Berdasarkan'),
       content: RadioGroup<UrutanSortir>(
         groupValue: _selectedSort,
-        onChanged: (final UrutanSortir? value) {
+        onChanged: (value) {
           if (value != null) {
             setState(() {
               _selectedSort = value;
@@ -23275,11 +24433,13 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
   Future<void> _saveForm() async {
     final apkVersionOperasi = ref.read(versiApkOpSqliteProvider);
     if (!_formKey.currentState!.validate()) {
-      unawaited(_scrollController.animateTo(
-        0.0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      ));
+      unawaited(
+        _scrollController.animateTo(
+          0.0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        ),
+      );
       return;
     }
 
@@ -23360,9 +24520,9 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
           Log.info('Menjalankan perintah tambah data baru...');
           await apkVersionOperasi.tambahVersiApk(dataToSave);
         }
-          unawaited(
-            ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
-          );
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
         Log.info('Proses penyimpanan berhasil diselesaikan');
         if (!mounted) return;
         Navigator.of(context).pop(true);
@@ -23479,7 +24639,7 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
                   SwitchListTile(
                     title: const Text('Wajib Update'),
                     value: _perluUpdate,
-                    onChanged: (bool value) {
+                    onChanged: (value) {
                       Log.info('Switch Wajib Update diubah ke: $value');
                       setState(() => _perluUpdate = value);
                     },
@@ -23780,8 +24940,8 @@ class VersiApkOpSqlite {
         (i) => VersiApkModel.fromSqlite(maps[i]),
       );
 
-      int jumlahAktif = 0;
-      int jumlahArsip = 0;
+      var jumlahAktif = 0;
+      var jumlahArsip = 0;
       for (final model in hasil) {
         if (model.diHapus) {
           jumlahArsip++;
@@ -23827,7 +24987,7 @@ class VersiApkOpSqlite {
 
       Log.info('Berhasil mengambil ${hasil.length} versi APK aktif');
 
-      for (int i = 0; i < (hasil.length < 3 ? hasil.length : 3); i++) {
+      for (var i = 0; i < (hasil.length < 3 ? hasil.length : 3); i++) {
         final v = hasil[i];
         Log.info(
           '  ${i + 1}. ID: ${v.id}, Versi: ${v.versiTerkahir}, Build Universal: ${v.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0}',
@@ -23924,7 +25084,6 @@ class VersiApkOpSqlite {
 // File: lib/fitur/versi_apk/operasi/versi_apk_op_firebase.dart
 // path: lib/fitur/versi_apk/operasi/versi_apk_op_firebase.dart
 
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -23962,7 +25121,7 @@ class VersiApkOpFirebase {
       }
       Log.warning('Tidak ada versi APK aktif yang ditemukan');
       return null;
-    }  catch (e, st) {
+    } catch (e, st) {
       Log.error('Error saat mengambil versi APK', e: e, s: st);
       rethrow;
     }
@@ -24487,8 +25646,8 @@ class UpdateService {
     final void Function(double)? onProgress,
   }) async {
     try {
-      final Directory temporaryDirectory = await getTemporaryDirectory();
-      final String apkFilePath = '${temporaryDirectory.path}/$namaFile';
+      final temporaryDirectory = await getTemporaryDirectory();
+      final apkFilePath = '${temporaryDirectory.path}/$namaFile';
       Log.info('Mulai mengunduh dari: $url ke: $apkFilePath');
 
       await _dio.download(
@@ -24496,17 +25655,18 @@ class UpdateService {
         apkFilePath,
         onReceiveProgress: (received, total) {
           if (total != -1 && onProgress != null) {
-            final double progressValue = received / total;
+            final progressValue = received / total;
             onProgress(progressValue);
-            Log.info('Progres unduhan: ${progressValue * 100}%',
-                {'data: $progressValue'});
+            Log.info('Progres unduhan: ${progressValue * 100}%', {
+              'data: $progressValue',
+            });
           }
         },
       );
 
       Log.info('Unduhan selesai: $apkFilePath');
 
-      final File apkFile = File(apkFilePath);
+      final apkFile = File(apkFilePath);
       if (!apkFile.existsSync()) {
         throw Exception('File APK tidak ditemukan setelah diunduh.');
       }
@@ -24520,7 +25680,8 @@ class UpdateService {
     } catch (e, s) {
       Log.error('Error saat mengunduh (Dio)', e: e, s: s);
       throw Exception(
-          'Gagal mengunduh pembaruan. Periksa koneksi internet Anda.');
+        'Gagal mengunduh pembaruan. Periksa koneksi internet Anda.',
+      );
     }
   }
 }
@@ -24620,7 +25781,7 @@ class LayananCekUpdateApk {
         'arsitektur': arsitektur.name,
       });
 
-      final bool perluUpdate = nomorBuildTerbaru > nomorBuildSekarang;
+      final perluUpdate = nomorBuildTerbaru > nomorBuildSekarang;
       return (
         perluUpdate: perluUpdate,
         infoApk: perluUpdate ? apkTerbaru : null,
@@ -25128,7 +26289,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           .ambilSemua();
       if (mounted) {
         setState(() {
-          _mapNamaUser = {for (var p in pelangganList) p.id: p.nama};
+          _mapNamaUser = {for (final p in pelangganList) p.id: p.nama};
         });
       }
     } catch (e) {
@@ -25231,7 +26392,8 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute<void>(
-                            builder: (context) => FeedbackDetail(id: feedback.id),
+                            builder: (context) =>
+                                FeedbackDetail(id: feedback.id),
                           ),
                         ),
                       );
@@ -25873,7 +27035,6 @@ Future<FeedbackModel?> detailFeedback(Ref ref, String id) async {
 // File: lib/fitur/feedback/operasi/feedback_op_sqlite.dart
 // path: lib/fitur/feedback/operasi/feedback_op_sqlite.dart
 
-import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -26108,8 +27269,8 @@ class FeedbackOpSqlite {
       'PERINGATAN: Memulai deleteAllFeedback. Ini adalah operasi destruktif.',
     );
     try {
-      await baseOpSqlite.operasiKompleks<int>((final Transaction txn) async {
-        final int count = await txn.delete(_namaTabel);
+      await baseOpSqlite.operasiKompleks<int>((txn) async {
+        final count = await txn.delete(_namaTabel);
         Log.info(
           'Berhasil deleteAllFeedback. Total baris yang dihapus: $count',
         );
@@ -26443,7 +27604,9 @@ abstract class FeedbackModel with _$FeedbackModel implements HasId {
   }
 
   factory FeedbackModel.fromFirebase(
-      final String id, final Map<String, dynamic> data) {
+    final String id,
+    final Map<String, dynamic> data,
+  ) {
     Log.info('Creating FeedbackModel from Firebase: $id');
     return FeedbackModel(
       id: id,
@@ -26465,8 +27628,9 @@ abstract class FeedbackModel with _$FeedbackModel implements HasId {
           ? Timestamp.fromDate(tanggal!.toUtc())
           : DateTime.now().toUtc(),
       NamaKolom.dihapus: dihapus,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()).toUtc(),
+      ),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,
@@ -27123,7 +28287,7 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
   Future<void> _dialogOpsi(TransaksiModel transaksi) async {
     final aksiDipilih = await showDialog<String>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return SimpleDialog(
           title: const Text('Pilih Aksi'),
           children: <Widget>[
@@ -27345,9 +28509,9 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
     WidgetRef ref,
     OpsiUrutan currentSort,
   ) async {
-    final OpsiUrutan? selected = await showDialog<OpsiUrutan>(
+    final dipilih = await showDialog<OpsiUrutan>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         Widget buildOption(String text, OpsiUrutan value) {
           return SimpleDialogOption(
             onPressed: () => Navigator.pop(context, value),
@@ -27379,8 +28543,8 @@ class _RiwayatAktivasiPaketState extends ConsumerState<RiwayatAktivasiPaket> {
       },
     );
 
-    if (selected != null) {
-      ref.read(riwayatAktivasiPaketProvider.notifier).changeSort(selected);
+    if (dipilih != null) {
+      ref.read(riwayatAktivasiPaketProvider.notifier).changeSort(dipilih);
     }
   }
 }
@@ -27770,7 +28934,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
     final transaksi = await transaksiOp.ambilBerdasarkanStatusAktivasi();
     final pealnggan = await pelangganOpSqlite.ambilSemua();
-    final customerMap = {for (var c in pealnggan) c.id: c};
+    final customerMap = {for (final c in pealnggan) c.id: c};
     final combinedList = transaksi.map((trans) {
       return TransaksiDenganPelanggan(
         transaksi: trans,
@@ -27785,9 +28949,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     if (!state.hasValue) return;
     final currentState = state.value!;
     if (currentState.sortBy == newSort) return;
-    final List<TransaksiDenganPelanggan> sortedList = List.from(
-      currentState.items,
-    );
+    final sortedList = List<TransaksiDenganPelanggan>.from(currentState.items);
     _performSort(sortedList, newSort);
     state = AsyncValue.data(
       currentState.copyWith(items: sortedList, sortBy: newSort),
@@ -28353,7 +29515,7 @@ final class RiwayatAktivasiPaketProvider
 }
 
 String _$riwayatAktivasiPaketHash() =>
-    r'843e477154979997a18f9c110615d08bc475d890';
+    r'97b820d94363aec163676157f25f68959320b18a';
 
 abstract class _$RiwayatAktivasiPaket
     extends $AsyncNotifier<RiwayatAktivasiPaketState> {
@@ -29210,14 +30372,11 @@ String _$notifikasiOpSqliteHash() =>
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/shared/export/op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -29243,13 +30402,9 @@ class TransaksiU extends ConsumerStatefulWidget {
 }
 
 class _TransaksiUState extends ConsumerState<TransaksiU> {
-  final TransaksiOpFirebase _transaksiOpFirebase = TransaksiOpFirebase();
   final ScrollController _pengendaliScroll = ScrollController();
 
   SortMode _modeUrutan = SortMode.tanggalTerbaru;
-
-  List<TransaksiModel> _semuaTransaksi = [];
-  List<TransaksiModel> _transaksiTampil = [];
   int _jumlahTampil = 20;
   bool _sedangMemuatLebih = false;
 
@@ -29257,10 +30412,6 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
   void initState() {
     super.initState();
     _pengendaliScroll.addListener(_deteksiScroll);
-    // Jalankan pemuatan awal setelah frame pertama dirender
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _muatDataAwal();
-    });
   }
 
   @override
@@ -29270,55 +30421,14 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
     super.dispose();
   }
 
-  Future<void> _muatDataAwal() async {
-    try {
-      final userId = await ref.read(userIdProvider.future);
-
-      if (userId == null) {
-        setState(() {
-          _semuaTransaksi = [];
-          _transaksiTampil = [];
-        });
-        return;
-      }
-
-      final pelangganOp = ref.read(pelangganOpGlobalProvider);
-      final pelanggan = await pelangganOp.ambilBerdasarkanId(userId);
-      if (pelanggan == null) {
-        setState(() {
-          _semuaTransaksi = [];
-          _transaksiTampil = [];
-        });
-        return;
-      }
-
-      final hasil = ref.watch(transaksiProvider).value?.transaksi;
-      // final hasil = await _transaksiOpFirebase.ambilBerdasarkanIdPelanggan(
-      //   pelanggan.id,
-      // );
-
-      setState(() {
-        _semuaTransaksi = hasil!;
-        _perbaruiTransaksiTampil(aturUlang: true);
-      });
-    } on Object catch (e, st) {
-      Log.error('Gagal memuat riwayat transaksi', e: e, s: st);
-    }
-  }
-
   List<TransaksiModel> _sortHistory(List<TransaksiModel> history) {
     switch (_modeUrutan) {
       case SortMode.tanggalTerbaru:
-        history.sort((a, b) {
-          return b.tanggal.compareTo(a.tanggal);
-        });
+        history.sort((a, b) => b.tanggal.compareTo(a.tanggal));
         break;
       case SortMode.tanggalTerlama:
-        history.sort((a, b) {
-          return a.tanggal.compareTo(b.tanggal);
-        });
+        history.sort((a, b) => a.tanggal.compareTo(b.tanggal));
         break;
-
       case SortMode.tanggalBerakhirTerbaru:
         history.sort((a, b) {
           if (a.tanggalBerakhir == null && b.tanggalBerakhir == null) return 0;
@@ -29354,48 +30464,38 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
   }
 
   void _deteksiScroll() {
+    final state = ref.read(transaksiProvider).value;
+    if (state == null) return;
+
+    final userId = ref.read(userIdProvider).value;
+    if (userId == null) return;
+
+    final semua = state.transaksi
+        .where((e) => e.idPelanggan == userId)
+        .toList();
+    final total = semua.length;
+
     if (_pengendaliScroll.position.pixels >=
         _pengendaliScroll.position.maxScrollExtent - 200) {
-      if (!_sedangMemuatLebih &&
-          _transaksiTampil.length < _semuaTransaksi.length) {
+      if (!_sedangMemuatLebih && _jumlahTampil < total) {
         _muatLebihBanyak();
       }
     }
   }
 
   Future<void> _muatLebihBanyak() async {
-    Log.info('Memulai memuat lebih banyak riwayat transaksi');
     setState(() {
       _sedangMemuatLebih = true;
-    });
-
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-
-    setState(() {
       _jumlahTampil += 20;
-      _perbaruiTransaksiTampil();
       _sedangMemuatLebih = false;
-    });
-
-    Log.info(
-      'Berhasil memuat lebih banyak transaksi, total tampil: $_jumlahTampil',
-    );
-  }
-
-  void _perbaruiTransaksiTampil({bool aturUlang = false}) {
-    if (aturUlang) {
-      _jumlahTampil = 20;
-    }
-
-    final riwayatUrut = _sortHistory(List.from(_semuaTransaksi));
-
-    setState(() {
-      _transaksiTampil = riwayatUrut.take(_jumlahTampil).toList();
     });
   }
 
   Future<void> _refreshRiwayat() async {
-    await _muatDataAwal();
+    setState(() {
+      _jumlahTampil = 20; // Reset pagination
+    });
+    final _ = ref.refresh(transaksiProvider); // Paksa muat ulang data
   }
 
   Future<void> _navigasiKeDetailTransaksi(
@@ -29418,18 +30518,20 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
   Widget build(BuildContext context) {
     final transaksi = ref.watch(transaksiProvider);
     final paketOpFirebase = ref.read(paketOpFirebaseProvider);
+    final userId = ref.watch(userIdProvider).value;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Langganan'),
         actions: [
           PopupMenuButton<SortMode>(
-            onSelected: (SortMode hasil) {
+            onSelected: (hasil) {
               setState(() {
                 _modeUrutan = hasil;
-                _perbaruiTransaksiTampil(aturUlang: true);
+                _jumlahTampil = 20;
               });
             },
-            itemBuilder: (BuildContext context) => [
+            itemBuilder: (context) => [
               CheckedPopupMenuItem(
                 value: SortMode.tanggalTerbaru,
                 checked: _modeUrutan == SortMode.tanggalTerbaru,
@@ -29469,15 +30571,29 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
         children: [
           Expanded(
             child: transaksi.when(
-              data: (TransaksiState data) {
+              data: (data) {
+                if (userId == null || userId.isEmpty) {
+                  return const Center(
+                    child: Text('Silakan login terlebih dahulu'),
+                  );
+                }
+
+                final semuaTransaksi = data.transaksi
+                    .where((e) => e.idPelanggan == userId)
+                    .toList();
+                final riwayatUrut = _sortHistory(List.from(semuaTransaksi));
+                final transaksiTampil = riwayatUrut
+                    .take(_jumlahTampil)
+                    .toList();
+                final showLoadMore = _jumlahTampil < riwayatUrut.length;
+
                 return RefreshIndicator(
                   onRefresh: _refreshRiwayat,
                   child: ListView.builder(
                     controller: _pengendaliScroll,
-                    itemCount:
-                        _transaksiTampil.length + (_sedangMemuatLebih ? 1 : 0),
+                    itemCount: transaksiTampil.length + (showLoadMore ? 1 : 0),
                     itemBuilder: (context, index) {
-                      if (index == _transaksiTampil.length) {
+                      if (index == transaksiTampil.length) {
                         return const Center(
                           child: Padding(
                             padding: EdgeInsets.all(8.0),
@@ -29486,7 +30602,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                         );
                       }
 
-                      final tx = _transaksiTampil[index];
+                      final tx = transaksiTampil[index];
                       final paketFuture = tx.idPaket != null
                           ? paketOpFirebase.ambilBerdasarkanId(tx.idPaket!)
                           : Future<PaketModel?>.value();
@@ -29539,8 +30655,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                   ),
                 );
               },
-              error: (Object error, StackTrace stackTrace) =>
-                  Text('$error $stackTrace'),
+              error: (error, stackTrace) => Text('$error $stackTrace'),
               loading: () => const CircularProgressIndicator(),
             ),
           ),
@@ -29667,7 +30782,7 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
   }
 
   Future<void> _softDeleteTransaksi() async {
-    final bool? konfirmasi = await showDialog<bool>(
+    final konfirmasi = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Konfirmasi Hapus'),
@@ -29738,7 +30853,7 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
         actions: [
           IconButton(
             onPressed: _softDeleteTransaksi,
-            icon: Icon(TIcons.delete),
+            icon: const Icon(TIcons.delete),
           ),
           IconButton(
             icon: const Icon(TIcons.edit),
@@ -30210,14 +31325,14 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     try {
       Log.info('Form valid. Memulai proses penyimpanan.');
       setState(() => _menyimpan = true);
-      final DateTime combinedDateTime = DateTime(
+      final combinedDateTime = DateTime(
         _tanggalDipilih!.year,
         _tanggalDipilih!.month,
         _tanggalDipilih!.day,
         _jamDipilih!.hour,
         _jamDipilih!.minute,
       );
-      final double jumlah = InputRupiah.parse(_jumlahController.text).abs();
+      final jumlah = InputRupiah.parse(_jumlahController.text).abs();
       final transaksi = TransaksiModel(
         id: _modeEdit ? widget.transaksi!.id : const Uuid().v4(),
         deskripsi: _keteranganController.text,
@@ -30243,7 +31358,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
           Log.info(
             'Menjalankan operasi UPDATE untuk transaksi ID: ${transaksi.id}',
           );
-          await transaksiOp.perbaruiTransaksi( transaksi);
+          await transaksiOp.perbaruiTransaksi(transaksi);
         } else {
           Log.info('Menjalankan operasi CREATE untuk transaksi baru.');
           await transaksiOp.tambahTransaksi(transaksi);
@@ -30290,7 +31405,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
             children: [
               Row(
                 children: TipeTransaksi.values.map((tipe) {
-                  final bool isSelected = _tipe == tipe;
+                  final isSelected = _tipe == tipe;
                   Color getColor() {
                     switch (tipe) {
                       case TipeTransaksi.income:
@@ -30303,7 +31418,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                   }
 
                   return Expanded(
-                    child: Container(
+                    child: DecoratedBox(
                       // Memberikan border hanya di bagian bawah
                       decoration: BoxDecoration(
                         border: Border(
@@ -30555,7 +31670,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
     return AppBar(
       title: const Text('Transaksi'),
       actions: [
-        IconButton(onPressed: () {}, icon: Icon(TIcons.search)),
+        IconButton(onPressed: () {}, icon: const Icon(TIcons.search)),
         IconButton(
           onPressed: () => _tampilkanDialogUrutan(context, ref, currentSortBy),
           icon: const Icon(TIcons.filter),
@@ -30797,6 +31912,337 @@ class _TransactionListViewState extends ConsumerState<_TransactionListView> {
 }
 
 
+// File: lib/fitur/transaksi/transaksi_provider.freezed.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'transaksi_provider.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$TransaksiState {
+
+ List<TransaksiModel> get transaksi; double get totalPemasukan; double get totalPengeluaran; double get total; int get totalPoinSemuaPelanggan; List<String> get paketTerlaris; List<double> get pendapatanHarian; List<double> get pendapatanMingguan; List<double> get pendapatanBulanan; double get pendapatanBulanIni;
+/// Create a copy of TransaksiState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TransaksiStateCopyWith<TransaksiState> get copyWith => _$TransaksiStateCopyWithImpl<TransaksiState>(this as TransaksiState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransaksiState&&const DeepCollectionEquality().equals(other.transaksi, transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total)&&(identical(other.totalPoinSemuaPelanggan, totalPoinSemuaPelanggan) || other.totalPoinSemuaPelanggan == totalPoinSemuaPelanggan)&&const DeepCollectionEquality().equals(other.paketTerlaris, paketTerlaris)&&const DeepCollectionEquality().equals(other.pendapatanHarian, pendapatanHarian)&&const DeepCollectionEquality().equals(other.pendapatanMingguan, pendapatanMingguan)&&const DeepCollectionEquality().equals(other.pendapatanBulanan, pendapatanBulanan)&&(identical(other.pendapatanBulanIni, pendapatanBulanIni) || other.pendapatanBulanIni == pendapatanBulanIni));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(transaksi),totalPemasukan,totalPengeluaran,total,totalPoinSemuaPelanggan,const DeepCollectionEquality().hash(paketTerlaris),const DeepCollectionEquality().hash(pendapatanHarian),const DeepCollectionEquality().hash(pendapatanMingguan),const DeepCollectionEquality().hash(pendapatanBulanan),pendapatanBulanIni);
+
+@override
+String toString() {
+  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total, totalPoinSemuaPelanggan: $totalPoinSemuaPelanggan, paketTerlaris: $paketTerlaris, pendapatanHarian: $pendapatanHarian, pendapatanMingguan: $pendapatanMingguan, pendapatanBulanan: $pendapatanBulanan, pendapatanBulanIni: $pendapatanBulanIni)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $TransaksiStateCopyWith<$Res>  {
+  factory $TransaksiStateCopyWith(TransaksiState value, $Res Function(TransaksiState) _then) = _$TransaksiStateCopyWithImpl;
+@useResult
+$Res call({
+ List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total, int totalPoinSemuaPelanggan, List<String> paketTerlaris, List<double> pendapatanHarian, List<double> pendapatanMingguan, List<double> pendapatanBulanan, double pendapatanBulanIni
+});
+
+
+
+
+}
+/// @nodoc
+class _$TransaksiStateCopyWithImpl<$Res>
+    implements $TransaksiStateCopyWith<$Res> {
+  _$TransaksiStateCopyWithImpl(this._self, this._then);
+
+  final TransaksiState _self;
+  final $Res Function(TransaksiState) _then;
+
+/// Create a copy of TransaksiState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,Object? totalPoinSemuaPelanggan = null,Object? paketTerlaris = null,Object? pendapatanHarian = null,Object? pendapatanMingguan = null,Object? pendapatanBulanan = null,Object? pendapatanBulanIni = null,}) {
+  return _then(_self.copyWith(
+transaksi: null == transaksi ? _self.transaksi : transaksi // ignore: cast_nullable_to_non_nullable
+as List<TransaksiModel>,totalPemasukan: null == totalPemasukan ? _self.totalPemasukan : totalPemasukan // ignore: cast_nullable_to_non_nullable
+as double,totalPengeluaran: null == totalPengeluaran ? _self.totalPengeluaran : totalPengeluaran // ignore: cast_nullable_to_non_nullable
+as double,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as double,totalPoinSemuaPelanggan: null == totalPoinSemuaPelanggan ? _self.totalPoinSemuaPelanggan : totalPoinSemuaPelanggan // ignore: cast_nullable_to_non_nullable
+as int,paketTerlaris: null == paketTerlaris ? _self.paketTerlaris : paketTerlaris // ignore: cast_nullable_to_non_nullable
+as List<String>,pendapatanHarian: null == pendapatanHarian ? _self.pendapatanHarian : pendapatanHarian // ignore: cast_nullable_to_non_nullable
+as List<double>,pendapatanMingguan: null == pendapatanMingguan ? _self.pendapatanMingguan : pendapatanMingguan // ignore: cast_nullable_to_non_nullable
+as List<double>,pendapatanBulanan: null == pendapatanBulanan ? _self.pendapatanBulanan : pendapatanBulanan // ignore: cast_nullable_to_non_nullable
+as List<double>,pendapatanBulanIni: null == pendapatanBulanIni ? _self.pendapatanBulanIni : pendapatanBulanIni // ignore: cast_nullable_to_non_nullable
+as double,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [TransaksiState].
+extension TransaksiStatePatterns on TransaksiState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _TransaksiState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _TransaksiState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _TransaksiState value)  $default,){
+final _that = this;
+switch (_that) {
+case _TransaksiState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _TransaksiState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _TransaksiState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan,  List<String> paketTerlaris,  List<double> pendapatanHarian,  List<double> pendapatanMingguan,  List<double> pendapatanBulanan,  double pendapatanBulanIni)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _TransaksiState() when $default != null:
+return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan,_that.paketTerlaris,_that.pendapatanHarian,_that.pendapatanMingguan,_that.pendapatanBulanan,_that.pendapatanBulanIni);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan,  List<String> paketTerlaris,  List<double> pendapatanHarian,  List<double> pendapatanMingguan,  List<double> pendapatanBulanan,  double pendapatanBulanIni)  $default,) {final _that = this;
+switch (_that) {
+case _TransaksiState():
+return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan,_that.paketTerlaris,_that.pendapatanHarian,_that.pendapatanMingguan,_that.pendapatanBulanan,_that.pendapatanBulanIni);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<TransaksiModel> transaksi,  double totalPemasukan,  double totalPengeluaran,  double total,  int totalPoinSemuaPelanggan,  List<String> paketTerlaris,  List<double> pendapatanHarian,  List<double> pendapatanMingguan,  List<double> pendapatanBulanan,  double pendapatanBulanIni)?  $default,) {final _that = this;
+switch (_that) {
+case _TransaksiState() when $default != null:
+return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_that.total,_that.totalPoinSemuaPelanggan,_that.paketTerlaris,_that.pendapatanHarian,_that.pendapatanMingguan,_that.pendapatanBulanan,_that.pendapatanBulanIni);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _TransaksiState implements TransaksiState {
+  const _TransaksiState({final  List<TransaksiModel> transaksi = const [], this.totalPemasukan = 0.0, this.totalPengeluaran = 0.0, this.total = 0.0, this.totalPoinSemuaPelanggan = 0, required final  List<String> paketTerlaris, required final  List<double> pendapatanHarian, required final  List<double> pendapatanMingguan, required final  List<double> pendapatanBulanan, required this.pendapatanBulanIni}): _transaksi = transaksi,_paketTerlaris = paketTerlaris,_pendapatanHarian = pendapatanHarian,_pendapatanMingguan = pendapatanMingguan,_pendapatanBulanan = pendapatanBulanan;
+  
+
+ final  List<TransaksiModel> _transaksi;
+@override@JsonKey() List<TransaksiModel> get transaksi {
+  if (_transaksi is EqualUnmodifiableListView) return _transaksi;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_transaksi);
+}
+
+@override@JsonKey() final  double totalPemasukan;
+@override@JsonKey() final  double totalPengeluaran;
+@override@JsonKey() final  double total;
+@override@JsonKey() final  int totalPoinSemuaPelanggan;
+ final  List<String> _paketTerlaris;
+@override List<String> get paketTerlaris {
+  if (_paketTerlaris is EqualUnmodifiableListView) return _paketTerlaris;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_paketTerlaris);
+}
+
+ final  List<double> _pendapatanHarian;
+@override List<double> get pendapatanHarian {
+  if (_pendapatanHarian is EqualUnmodifiableListView) return _pendapatanHarian;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_pendapatanHarian);
+}
+
+ final  List<double> _pendapatanMingguan;
+@override List<double> get pendapatanMingguan {
+  if (_pendapatanMingguan is EqualUnmodifiableListView) return _pendapatanMingguan;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_pendapatanMingguan);
+}
+
+ final  List<double> _pendapatanBulanan;
+@override List<double> get pendapatanBulanan {
+  if (_pendapatanBulanan is EqualUnmodifiableListView) return _pendapatanBulanan;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_pendapatanBulanan);
+}
+
+@override final  double pendapatanBulanIni;
+
+/// Create a copy of TransaksiState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$TransaksiStateCopyWith<_TransaksiState> get copyWith => __$TransaksiStateCopyWithImpl<_TransaksiState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransaksiState&&const DeepCollectionEquality().equals(other._transaksi, _transaksi)&&(identical(other.totalPemasukan, totalPemasukan) || other.totalPemasukan == totalPemasukan)&&(identical(other.totalPengeluaran, totalPengeluaran) || other.totalPengeluaran == totalPengeluaran)&&(identical(other.total, total) || other.total == total)&&(identical(other.totalPoinSemuaPelanggan, totalPoinSemuaPelanggan) || other.totalPoinSemuaPelanggan == totalPoinSemuaPelanggan)&&const DeepCollectionEquality().equals(other._paketTerlaris, _paketTerlaris)&&const DeepCollectionEquality().equals(other._pendapatanHarian, _pendapatanHarian)&&const DeepCollectionEquality().equals(other._pendapatanMingguan, _pendapatanMingguan)&&const DeepCollectionEquality().equals(other._pendapatanBulanan, _pendapatanBulanan)&&(identical(other.pendapatanBulanIni, pendapatanBulanIni) || other.pendapatanBulanIni == pendapatanBulanIni));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_transaksi),totalPemasukan,totalPengeluaran,total,totalPoinSemuaPelanggan,const DeepCollectionEquality().hash(_paketTerlaris),const DeepCollectionEquality().hash(_pendapatanHarian),const DeepCollectionEquality().hash(_pendapatanMingguan),const DeepCollectionEquality().hash(_pendapatanBulanan),pendapatanBulanIni);
+
+@override
+String toString() {
+  return 'TransaksiState(transaksi: $transaksi, totalPemasukan: $totalPemasukan, totalPengeluaran: $totalPengeluaran, total: $total, totalPoinSemuaPelanggan: $totalPoinSemuaPelanggan, paketTerlaris: $paketTerlaris, pendapatanHarian: $pendapatanHarian, pendapatanMingguan: $pendapatanMingguan, pendapatanBulanan: $pendapatanBulanan, pendapatanBulanIni: $pendapatanBulanIni)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$TransaksiStateCopyWith<$Res> implements $TransaksiStateCopyWith<$Res> {
+  factory _$TransaksiStateCopyWith(_TransaksiState value, $Res Function(_TransaksiState) _then) = __$TransaksiStateCopyWithImpl;
+@override @useResult
+$Res call({
+ List<TransaksiModel> transaksi, double totalPemasukan, double totalPengeluaran, double total, int totalPoinSemuaPelanggan, List<String> paketTerlaris, List<double> pendapatanHarian, List<double> pendapatanMingguan, List<double> pendapatanBulanan, double pendapatanBulanIni
+});
+
+
+
+
+}
+/// @nodoc
+class __$TransaksiStateCopyWithImpl<$Res>
+    implements _$TransaksiStateCopyWith<$Res> {
+  __$TransaksiStateCopyWithImpl(this._self, this._then);
+
+  final _TransaksiState _self;
+  final $Res Function(_TransaksiState) _then;
+
+/// Create a copy of TransaksiState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? transaksi = null,Object? totalPemasukan = null,Object? totalPengeluaran = null,Object? total = null,Object? totalPoinSemuaPelanggan = null,Object? paketTerlaris = null,Object? pendapatanHarian = null,Object? pendapatanMingguan = null,Object? pendapatanBulanan = null,Object? pendapatanBulanIni = null,}) {
+  return _then(_TransaksiState(
+transaksi: null == transaksi ? _self._transaksi : transaksi // ignore: cast_nullable_to_non_nullable
+as List<TransaksiModel>,totalPemasukan: null == totalPemasukan ? _self.totalPemasukan : totalPemasukan // ignore: cast_nullable_to_non_nullable
+as double,totalPengeluaran: null == totalPengeluaran ? _self.totalPengeluaran : totalPengeluaran // ignore: cast_nullable_to_non_nullable
+as double,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as double,totalPoinSemuaPelanggan: null == totalPoinSemuaPelanggan ? _self.totalPoinSemuaPelanggan : totalPoinSemuaPelanggan // ignore: cast_nullable_to_non_nullable
+as int,paketTerlaris: null == paketTerlaris ? _self._paketTerlaris : paketTerlaris // ignore: cast_nullable_to_non_nullable
+as List<String>,pendapatanHarian: null == pendapatanHarian ? _self._pendapatanHarian : pendapatanHarian // ignore: cast_nullable_to_non_nullable
+as List<double>,pendapatanMingguan: null == pendapatanMingguan ? _self._pendapatanMingguan : pendapatanMingguan // ignore: cast_nullable_to_non_nullable
+as List<double>,pendapatanBulanan: null == pendapatanBulanan ? _self._pendapatanBulanan : pendapatanBulanan // ignore: cast_nullable_to_non_nullable
+as List<double>,pendapatanBulanIni: null == pendapatanBulanIni ? _self.pendapatanBulanIni : pendapatanBulanIni // ignore: cast_nullable_to_non_nullable
+as double,
+  ));
+}
+
+
+}
+
+// dart format on
+
+
 // File: lib/fitur/transaksi/widget/daftar_transaksi_widget.dart
 // path lib/fitur/transaksi/widget/daftar_transaksi_widget.dart
 
@@ -30817,7 +32263,7 @@ import 'package:wifi/shared/utils/format_util.dart';
 Map<DateTime, List<TransaksiModel>> kelompokkanTransaksiPerTanggal(
   final List<TransaksiModel> transaksi,
 ) {
-  final Map<DateTime, List<TransaksiModel>> kelompok = {};
+  final kelompok = <DateTime, List<TransaksiModel>>{};
   for (final transaksi in transaksi) {
     final tanggal = DateTime(
       transaksi.tanggal.year,
@@ -31052,6 +32498,264 @@ Widget bangunItemTransaksi(
 }
 
 
+// File: lib/fitur/transaksi/transaksi_provider.dart
+// path: lib/fitur/transaksi/provider/transaksi_provider.dart
+
+import 'dart:async';
+
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+import 'package:wifi/shared/debug/log.dart';
+
+part 'transaksi_provider.freezed.dart';
+part 'transaksi_provider.g.dart';
+
+@freezed
+abstract class TransaksiState with _$TransaksiState {
+  const factory TransaksiState({
+    @Default([]) List<TransaksiModel> transaksi,
+    @Default(0.0) double totalPemasukan,
+    @Default(0.0) double totalPengeluaran,
+    @Default(0.0) double total,
+    @Default(0) int totalPoinSemuaPelanggan,
+    required List<String> paketTerlaris,
+    required List<double> pendapatanHarian,
+    required List<double> pendapatanMingguan,
+    required List<double> pendapatanBulanan,
+    required double pendapatanBulanIni,
+  }) = _TransaksiState;
+}
+
+@riverpod
+class Transaksi extends _$Transaksi {
+  TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
+
+  @override
+  FutureOr<TransaksiState> build() {
+    return _loadData();
+  }
+
+  Future<TransaksiState> _loadData() async {
+    Log.info('[TransaksiProvider] 🔄 Memuat satu data utama via ambilSemua()');
+
+    // 1. Single Source of Truth: Hanya panggil 1 fungsi async ke database
+    final semuaTransaksi = await _transaksiOp.ambilSemua();
+    final sekarang = DateTime.now();
+
+    // 2. Kalkulasi statistik pemasukan & pengeluaran secara sinkron di memori HP
+    final totalPemasukan = semuaTransaksi
+        .where(
+          (t) =>
+              t.tipe == TipeTransaksi.income &&
+              t.statusPembayaran == StatusPembayaran.paid,
+        )
+        .fold(0.0, (sum, t) => sum + t.jumlah);
+    final totalPengeluaran = semuaTransaksi
+        .where((t) => t.tipe == TipeTransaksi.expense)
+        .fold(0.0, (sum, t) => sum + t.jumlah);
+    final netTotal = totalPemasukan - totalPengeluaran;
+    final totalPoinSemua = semuaTransaksi.fold(
+      0,
+      (sum, t) => sum + (t.poinDidapat - t.poinDigunakan),
+    );
+    final pendapatanBulanIni = semuaTransaksi
+        .where(
+          (t) =>
+              t.tipe == TipeTransaksi.income &&
+              t.statusPembayaran == StatusPembayaran.paid &&
+              t.tanggal.month == sekarang.month &&
+              t.tanggal.year == sekarang.year,
+        )
+        .fold(0.0, (sum, t) => sum + t.jumlah);
+    return TransaksiState(
+      transaksi: semuaTransaksi,
+      totalPemasukan: totalPemasukan,
+      totalPengeluaran: totalPengeluaran,
+      total: netTotal,
+      totalPoinSemuaPelanggan: totalPoinSemua,
+      pendapatanBulanIni: pendapatanBulanIni,
+      paketTerlaris: _hitungPaketTerlaris(semuaTransaksi),
+      pendapatanHarian: _hitungPendapatanHarian(semuaTransaksi),
+      pendapatanMingguan: _hitungPendapatanMingguan(semuaTransaksi),
+      pendapatanBulanan: _hitungPendapatanBulanan(semuaTransaksi),
+    );
+  }
+
+  // --- HELPER METODE UNTUK MEMPROSES GRAFIK & STATISTIK ---
+
+  List<String> _hitungPaketTerlaris(List<TransaksiModel> list) {
+    final jumlahPerPaket = <String, int>{};
+
+    for (final t in list) {
+      if (t.idPaket != null && t.statusPembayaran == StatusPembayaran.paid) {
+        jumlahPerPaket[t.idPaket!] = (jumlahPerPaket[t.idPaket!] ?? 0) + 1;
+      }
+    }
+
+    final sortedEntries = jumlahPerPaket.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return sortedEntries.take(5).map((e) => e.key).toList();
+  }
+
+  List<double> _hitungPendapatanHarian(List<TransaksiModel> list) {
+    final hasil = List<double>.filled(7, 0.0);
+    final sekarang = DateTime.now();
+
+    for (var i = 0; i < 7; i++) {
+      final targetTanggal = sekarang.subtract(Duration(days: i));
+
+      final totalHariItu = list
+          .where(
+            (t) =>
+                t.tipe == TipeTransaksi.income &&
+                t.statusPembayaran == StatusPembayaran.paid &&
+                t.tanggal.day == targetTanggal.day &&
+                t.tanggal.month == targetTanggal.month &&
+                t.tanggal.year == targetTanggal.year,
+          )
+          .fold(0.0, (sum, t) => sum + t.jumlah);
+
+      hasil[6 - i] = totalHariItu; // Mengurutkan dari hari terlama ke hari ini
+    }
+    return hasil;
+  }
+
+  List<double> _hitungPendapatanMingguan(List<TransaksiModel> list) {
+    final hasil = List<double>.filled(4, 0.0);
+    final sekarang = DateTime.now();
+
+    for (var i = 0; i < 4; i++) {
+      final batasBawah = sekarang.subtract(Duration(days: (i + 1) * 7));
+      final batasAtas = sekarang.subtract(Duration(days: i * 7));
+
+      final totalMingguItu = list
+          .where((t) {
+            if (t.tipe != TipeTransaksi.income ||
+                t.statusPembayaran != StatusPembayaran.paid) {
+              return false;
+            }
+            return t.tanggal.isAfter(batasBawah) &&
+                t.tanggal.isBefore(batasAtas.add(const Duration(days: 1)));
+          })
+          .fold(0.0, (sum, t) => sum + t.jumlah);
+
+      hasil[3 - i] =
+          totalMingguItu; // Mengurutkan dari 4 minggu lalu ke minggu ini
+    }
+    return hasil;
+  }
+
+  List<double> _hitungPendapatanBulanan(List<TransaksiModel> list) {
+    final hasil = List<double>.filled(5, 0.0);
+    final sekarang = DateTime.now();
+
+    for (var i = 0; i < 5; i++) {
+      var targetBulan = sekarang.month - i;
+      var targetTahun = sekarang.year;
+
+      while (targetBulan <= 0) {
+        targetBulan += 12;
+        targetTahun -= 1;
+      }
+
+      final totalBulanItu = list
+          .where(
+            (t) =>
+                t.tipe == TipeTransaksi.income &&
+                t.statusPembayaran == StatusPembayaran.paid &&
+                t.tanggal.month == targetBulan &&
+                t.tanggal.year == targetTahun,
+          )
+          .fold(0.0, (sum, t) => sum + t.jumlah);
+
+      hasil[4 - i] =
+          totalBulanItu; // Mengurutkan dari 5 bulan lalu ke bulan ini
+    }
+    return hasil;
+  }
+
+  // --- METODE LAINNYA ---
+
+  Future<int> getTotalPoinPelanggan(String idPelanggan) async {
+    return await _transaksiOp.ambilTotalPoin(idPelanggan);
+  }
+
+  Future<Map<String, int>> getTotalPoinBanyakPelanggan(List<String> ids) async {
+    final hasil = <String, int>{};
+    for (final id in ids) {
+      hasil[id] = await _transaksiOp.ambilTotalPoin(id);
+    }
+    return hasil;
+  }
+
+  Future<List<int>> getTotalPoinBanyakPelangganParallel(
+    List<String> ids,
+  ) async {
+    final futures = ids.map((id) => _transaksiOp.ambilTotalPoin(id)).toList();
+    return await Future.wait(futures);
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(_loadData);
+  }
+
+  void invalidateProviderTransaksi() {
+    ref.invalidateSelf();
+    ref.invalidate(riwayatTransaksiPelangganProvider);
+  }
+}
+
+@Riverpod(keepAlive: true)
+Future<({List<TransaksiModel> transaksi, int totalPoin})>
+riwayatTransaksiPelanggan(Ref ref, String idPelanggan) async {
+  Log.info(
+    '[RiwayatTransaksi] 🔍 Mengambil riwayat transaksi untuk pelanggan: $idPelanggan',
+  );
+  try {
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
+    final results = await Future.wait([
+      transaksiOp.ambilBerdasarkanIdPelanggan(idPelanggan),
+      transaksiOp.ambilTotalPoin(idPelanggan),
+    ]);
+    final semuaTransaksi = results[0] as List<TransaksiModel>;
+    final totalPoinUser = results[1] as int;
+    Log.info('[RiwayatTransaksi] 📊 Total transaksi: ${semuaTransaksi.length}');
+    Log.info('[RiwayatTransaksi] 🎯 Total poin: $totalPoinUser');
+    return (transaksi: semuaTransaksi, totalPoin: totalPoinUser);
+  } catch (e, s) {
+    Log.error('[RiwayatTransaksi] ❌ ERROR: $e', e: e, s: s);
+    rethrow;
+  }
+}
+
+@riverpod
+Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
+  Ref ref,
+  String idPelanggan,
+) async {
+  Log.info(
+    '[RiwayatPoin] 🔍 Mengambil riwayat poin untuk pelanggan: $idPelanggan',
+  );
+  try {
+    final transaksiOp = ref.read(transaksiOpGlobalProvider);
+    final semuaTransaksi = await transaksiOp.ambilBerdasarkanIdPelanggan(
+      idPelanggan,
+    );
+    Log.info('[RiwayatPoin] 📊 Total transaksi: ${semuaTransaksi.length}');
+    return semuaTransaksi;
+  } catch (e, s) {
+    Log.error('[RiwayatPoin] ❌ ERROR: $e', e: e, s: s);
+    rethrow;
+  }
+}
+
+
 // File: lib/fitur/transaksi/helper/pengurut_transaksi.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
@@ -31211,6 +32915,225 @@ Future<List<TransaksiModel>> sortedTransaksi(Ref ref) async {
   final transaksiState = await ref.watch(transaksiProvider.future);
   final urutanAktif = ref.watch(urutanTransaksiStateProvider);
   return transaksiState.transaksi.urutkan(urutanAktif);
+}
+
+
+// File: lib/fitur/transaksi/transaksi_provider.g.dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'transaksi_provider.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(Transaksi)
+final transaksiProvider = TransaksiProvider._();
+
+final class TransaksiProvider
+    extends $AsyncNotifierProvider<Transaksi, TransaksiState> {
+  TransaksiProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'transaksiProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$transaksiHash();
+
+  @$internal
+  @override
+  Transaksi create() => Transaksi();
+}
+
+String _$transaksiHash() => r'd51b686582e43a3e05ad8d91e043d86ac65f0412';
+
+abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
+  FutureOr<TransaksiState> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<TransaksiState>, TransaksiState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<TransaksiState>, TransaksiState>,
+              AsyncValue<TransaksiState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+@ProviderFor(riwayatTransaksiPelanggan)
+final riwayatTransaksiPelangganProvider = RiwayatTransaksiPelangganFamily._();
+
+final class RiwayatTransaksiPelangganProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<({int totalPoin, List<TransaksiModel> transaksi})>,
+          ({int totalPoin, List<TransaksiModel> transaksi}),
+          FutureOr<({int totalPoin, List<TransaksiModel> transaksi})>
+        >
+    with
+        $FutureModifier<({int totalPoin, List<TransaksiModel> transaksi})>,
+        $FutureProvider<({int totalPoin, List<TransaksiModel> transaksi})> {
+  RiwayatTransaksiPelangganProvider._({
+    required RiwayatTransaksiPelangganFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'riwayatTransaksiPelangganProvider',
+         isAutoDispose: false,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$riwayatTransaksiPelangganHash();
+
+  @override
+  String toString() {
+    return r'riwayatTransaksiPelangganProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<({int totalPoin, List<TransaksiModel> transaksi})>
+  $createElement($ProviderPointer pointer) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<({int totalPoin, List<TransaksiModel> transaksi})> create(Ref ref) {
+    final argument = this.argument as String;
+    return riwayatTransaksiPelanggan(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is RiwayatTransaksiPelangganProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$riwayatTransaksiPelangganHash() =>
+    r'354b7749528ce46b936fd12b1123ecaaf6bda1ae';
+
+final class RiwayatTransaksiPelangganFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<({int totalPoin, List<TransaksiModel> transaksi})>,
+          String
+        > {
+  RiwayatTransaksiPelangganFamily._()
+    : super(
+        retry: null,
+        name: r'riwayatTransaksiPelangganProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: false,
+      );
+
+  RiwayatTransaksiPelangganProvider call(String idPelanggan) =>
+      RiwayatTransaksiPelangganProvider._(argument: idPelanggan, from: this);
+
+  @override
+  String toString() => r'riwayatTransaksiPelangganProvider';
+}
+
+@ProviderFor(ambilBerdasarkanIdPelanggan)
+final ambilBerdasarkanIdPelangganProvider =
+    AmbilBerdasarkanIdPelangganFamily._();
+
+final class AmbilBerdasarkanIdPelangganProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<TransaksiModel>>,
+          List<TransaksiModel>,
+          FutureOr<List<TransaksiModel>>
+        >
+    with
+        $FutureModifier<List<TransaksiModel>>,
+        $FutureProvider<List<TransaksiModel>> {
+  AmbilBerdasarkanIdPelangganProvider._({
+    required AmbilBerdasarkanIdPelangganFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'ambilBerdasarkanIdPelangganProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$ambilBerdasarkanIdPelangganHash();
+
+  @override
+  String toString() {
+    return r'ambilBerdasarkanIdPelangganProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<TransaksiModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<TransaksiModel>> create(Ref ref) {
+    final argument = this.argument as String;
+    return ambilBerdasarkanIdPelanggan(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is AmbilBerdasarkanIdPelangganProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$ambilBerdasarkanIdPelangganHash() =>
+    r'1c8553214c1e46644e83fae77251cef6ec393e09';
+
+final class AmbilBerdasarkanIdPelangganFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<TransaksiModel>>, String> {
+  AmbilBerdasarkanIdPelangganFamily._()
+    : super(
+        retry: null,
+        name: r'ambilBerdasarkanIdPelangganProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  AmbilBerdasarkanIdPelangganProvider call(String idPelanggan) =>
+      AmbilBerdasarkanIdPelangganProvider._(argument: idPelanggan, from: this);
+
+  @override
+  String toString() => r'ambilBerdasarkanIdPelangganProvider';
 }
 
 
@@ -31618,7 +33541,7 @@ class Transaksi extends _$Transaksi {
 
   // ✅ Method untuk ambil poin banyak pelanggan (paralel)
   Future<Map<String, int>> getTotalPoinBanyakPelanggan(List<String> ids) async {
-    final Map<String, int> hasil = {};
+    final hasil = <String, int>{};
     for (final id in ids) {
       hasil[id] = await _transaksiOp.ambilTotalPoin(id);
     }
@@ -31628,9 +33551,7 @@ class Transaksi extends _$Transaksi {
   Future<List<int>> getTotalPoinBanyakPelangganParallel(
     List<String> ids,
   ) async {
-    final List<Future<int>> futures = ids
-        .map((id) => _transaksiOp.ambilTotalPoin(id))
-        .toList();
+    final futures = ids.map((id) => _transaksiOp.ambilTotalPoin(id)).toList();
     return await Future.wait(futures);
   }
 
@@ -31726,7 +33647,7 @@ final class TransaksiProvider
   Transaksi create() => Transaksi();
 }
 
-String _$transaksiHash() => r'b7b159b2dd63bc4f7e34f86ad7d74b0dfb471716';
+String _$transaksiHash() => r'c4506dab5b4e4629df4cf4279607a80cab6163db';
 
 abstract class _$Transaksi extends $AsyncNotifier<TransaksiState> {
   FutureOr<TransaksiState> build();
@@ -32081,7 +34002,7 @@ class TransaksiOpGlobal {
     if (RoleUtil.isAdmin(ref)) {
       return await _transaksiOpSqlite.ambilBerdasarkanIds(ids);
     } else {
-      final List<TransaksiModel> hasil = [];
+      final hasil = <TransaksiModel>[];
       for (final id in ids) {
         final transaksi = await _transaksiOpFirebase.ambilBerdasarkanId(id);
         if (transaksi != null) {
@@ -32317,9 +34238,7 @@ class TransaksiOpSqlite {
     final bool fromServer = false,
   }) async {
     try {
-      final id = await baseOpSqlite.operasiKompleks<int>((
-        final Transaction txn,
-      ) async {
+      final id = await baseOpSqlite.operasiKompleks<int>((txn) async {
         Log.info('Memulai transaksi database untuk addTransaction');
         final data = transaction.copyWith(diperbaruiPada: _nowUtc);
 
@@ -32379,7 +34298,7 @@ class TransaksiOpSqlite {
     bool dariServer = false,
   }) async {
     try {
-      await baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
+      await baseOpSqlite.operasiKompleks<void>((txn) async {
         Log.info('Memulai update transaksi database ID: $transaksi.id');
         final maps = await txn.query(
           _tabelTransaksi,
@@ -32523,7 +34442,7 @@ class TransaksiOpSqlite {
   /// Menandai transaksi sebagai dihapus (soft delete) dan menghitung ulang saldo dompet.
   Future<void> softDelete(String id, {bool dariServer = false}) async {
     try {
-      await baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
+      await baseOpSqlite.operasiKompleks<void>((txn) async {
         Log.info('Memulai soft delete atomik untuk ID: $id');
         final maps = await txn.query(
           _tabelTransaksi,
@@ -32569,9 +34488,7 @@ class TransaksiOpSqlite {
   /// Menandai semua transaksi sebagai dihapus dan mereset saldo semua dompet menjadi 0.
   Future<int> softDeleteAll({bool dariServer = false}) async {
     try {
-      final count = await baseOpSqlite.operasiKompleks<int>((
-        final Transaction txn,
-      ) async {
+      final count = await baseOpSqlite.operasiKompleks<int>((final txn) async {
         Log.warning('Memulai soft delete semua transaksi secara atomik');
 
         final rowsAffected = await txn.update(
@@ -32609,7 +34526,7 @@ class TransaksiOpSqlite {
       final result = await db.rawQuery(
         "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabelTransaksi WHERE ${NamaKolom.tipe} = 'income' AND ${NamaKolom.dihapus} = 0",
       );
-      double total = 0.0;
+      var total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
       }
@@ -32629,7 +34546,7 @@ class TransaksiOpSqlite {
       final result = await db.rawQuery(
         "SELECT SUM(${NamaKolom.jumlah}) as total FROM $_tabelTransaksi WHERE ${NamaKolom.tipe} = 'expense' AND ${NamaKolom.dihapus} = 0",
       );
-      double total = 0.0;
+      var total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
       }
@@ -32691,7 +34608,7 @@ class TransaksiOpSqlite {
       final now = DateTime.now();
       final results = <double>[];
 
-      for (int i = 6; i >= 0; i--) {
+      for (var i = 6; i >= 0; i--) {
         final date = now.subtract(Duration(days: i));
         final startOfDay = DateTime(date.year, date.month, date.day);
         final endOfDay = startOfDay.add(const Duration(days: 1));
@@ -32732,7 +34649,7 @@ class TransaksiOpSqlite {
       final now = DateTime.now();
       final results = <double>[];
 
-      for (int i = 3; i >= 0; i--) {
+      for (var i = 3; i >= 0; i--) {
         final startOfWeek = now.subtract(
           Duration(days: i * 7 + now.weekday - 1),
         );
@@ -32779,7 +34696,7 @@ class TransaksiOpSqlite {
       final now = DateTime.now();
       final results = <double>[];
 
-      for (int i = 4; i >= 0; i--) {
+      for (var i = 4; i >= 0; i--) {
         final month = now.month - i;
         final year = now.year - (month <= 0 ? 1 : 0);
         final actualMonth = month <= 0 ? month + 12 : month;
@@ -32910,10 +34827,10 @@ class TransaksiOpSqlite {
       Log.warning('Batch dibatalkan karena daftar transaksi kosong');
       return;
     }
-    final Set<String> dompetTerpengaruh = {};
+    final dompetTerpengaruh = <String>{};
 
     try {
-      await baseOpSqlite.operasiKompleks<void>((final Transaction txn) async {
+      await baseOpSqlite.operasiKompleks<void>((final txn) async {
         Log.info(
           'Memulai proses Batch insert/update untuk ${transaksi.length} item',
         );
@@ -33221,7 +35138,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
           .where(NamaKolom.dihapus, isEqualTo: false)
           .orderBy(NamaKolom.tanggal, descending: true)
           .get();
-      final List<TransaksiModel> hasil = [];
+      final hasil = <TransaksiModel>[];
       for (final doc in querySnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
         hasil.add(TransaksiModel.fromFirebase(doc.id, data));
@@ -33256,7 +35173,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
             isEqualTo: StatusPembayaran.paid.name,
           )
           .get();
-      int totalPoin = 0;
+      var totalPoin = 0;
       for (final doc in querySnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
         totalPoin += (data[NamaKolom.poinDidapat] as int? ?? 0);
@@ -33290,7 +35207,7 @@ class TransaksiOpFirebase extends BaseOpFirebase {
     try {
       Log.info('Mulai mengambil paket aktif untuk pelanggan: $idPelanggan');
       // Ambil waktu saat ini
-      final DateTime now = DateTime.now();
+      final now = DateTime.now();
 
       final querySnapshot = await _koleksi
           // 1. Cari transaksi milik pelanggan yang benar
@@ -34468,16 +36385,14 @@ class _PelangganState extends ConsumerState<PelangganPage> {
               title: const Text('Edit Pelanggan'),
               onTap: () async {
                 Navigator.of(dialogContext).pop();
-                final result = await Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FormPelanggan(pelanggan: pelanggan),
+                unawaited(
+                  Navigator.push<void>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FormPelanggan(pelanggan: pelanggan),
+                    ),
                   ),
                 );
-                if (result ?? false) {
-                  if (!mounted) return;
-                  ToastUtil.success(context, 'Pelanggan berhasil diperbarui.');
-                }
               },
             ),
             ListTile(
@@ -34694,12 +36609,6 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_modeEdit ? 'Edit Pelanggan' : 'Tambah Pelanggan'),
-        leading: BackButton(
-          onPressed: () {
-            Log.info('Tombol "Back" ditekan. Kembali tanpa menyimpan.');
-            Navigator.pop(context, false);
-          },
-        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(TSizes.p16),
@@ -34884,7 +36793,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
 //           totalPoin: totalPoin,
 //           navigasiKeEdit: () => _editPelanggan(context, pelanggan),
 //           navigasiKePoin: () => _navigasiKePoin(context, pelanggan),
-          
+
 //           onCopyAll: () => _salinSemuaInfo(context, pelanggan, totalPoin),
 //         );
 //       },
@@ -36196,7 +38105,7 @@ class PelangganOpFirebase {
     String? excludeId,
   }) async {
     try {
-      Query query = _koleksiPelanggan
+      var query = _koleksiPelanggan
           .where(NamaKolom.telepon, isEqualTo: telepon)
           .where(NamaKolom.kataSandi, isEqualTo: kataSandi)
           .where(NamaKolom.dihapus, isEqualTo: false);
@@ -36388,7 +38297,7 @@ class PelangganOpSqlite {
         'excludeId': excludeId,
       });
 
-      String sql =
+      var sql =
           '''
       SELECT COUNT(*) as count
       FROM ${NamaTabel.pelanggan}
@@ -36419,7 +38328,7 @@ class PelangganOpSqlite {
     PelangganModel pelanggan, {
     bool dariServer = false,
   }) async {
-    final bool isDuplicate = await _ambilBerdasarkanTeleponDanKataSandi(
+    final isDuplicate = await _ambilBerdasarkanTeleponDanKataSandi(
       pelanggan.telepon,
       pelanggan.kataSandi,
     );
@@ -36434,9 +38343,7 @@ class PelangganOpSqlite {
     }
     Log.info('Memulai pembuatan customer dengan ID: ${pelanggan.id}');
     try {
-      final pelangganBaru = pelanggan.copyWith(
-        diperbaruiPada: DateTime.now(),
-      );
+      final pelangganBaru = pelanggan.copyWith(diperbaruiPada: DateTime.now());
       final data = pelangganBaru.toSqlite();
       await _baseOpSqlite.sisipkan(_tabel, data, dariServer: dariServer);
       Log.info(
@@ -36502,7 +38409,7 @@ class PelangganOpSqlite {
     PelangganModel pelanggan, {
     bool dariServer = false,
   }) async {
-    final bool isDuplicate = await _ambilBerdasarkanTeleponDanKataSandi(
+    final isDuplicate = await _ambilBerdasarkanTeleponDanKataSandi(
       pelanggan.telepon,
       pelanggan.kataSandi,
       excludeId: pelanggan.id,
@@ -37034,8 +38941,9 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.kataSandi: kataSandi,
       NamaKolom.macAddress: macAddress,
       NamaKolom.dihapus: diHapus,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()).toUtc(),
+      ),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,
@@ -37621,7 +39529,7 @@ class LayananUnduhData {
     Log.info('Memulai sinkronisasi untuk koleksi: [PENGATURAN]');
     try {
       final lastDownloadTime = await _pengelolaSinkronisasi
-          .ambilWaktuTerakhirUnduh();
+          .ambilWaktuTerakhirUnduhPreferensi();
       const namaKoleksi = NamaTabel.settings;
       final docRef = _firestore.collection(namaKoleksi).doc(idGlobalSetting);
       final doc = await docRef.get(const GetOptions(source: Source.server));
@@ -37669,7 +39577,7 @@ class LayananUnduhData {
   Future<void> unduhDataDompet() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [DOMPET]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<DompetModel>(
       namaKoleksi: NamaTabel.dompet,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -37682,7 +39590,7 @@ class LayananUnduhData {
   Future<void> unduhDataKategori() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [KATEGORI]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<KategoriModel>(
       namaKoleksi: NamaTabel.kategori,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -37695,7 +39603,7 @@ class LayananUnduhData {
   Future<void> unduhDataPaket() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PAKET]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<PaketModel>(
       namaKoleksi: NamaTabel.paket,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -37708,7 +39616,7 @@ class LayananUnduhData {
   Future<void> unduhDataPelanggan() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PELANGGAN]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<PelangganModel>(
       namaKoleksi: NamaTabel.pelanggan,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -37721,7 +39629,7 @@ class LayananUnduhData {
   Future<void> unduhDataPelangganAktif() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PELANGGAN AKTIF]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<PelangganAktifModel>(
       namaKoleksi: NamaTabel.pelangganAktif,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -37734,7 +39642,7 @@ class LayananUnduhData {
   Future<void> unduhDataTransaksi() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [TRANSAKSI]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<TransaksiModel>(
       namaKoleksi: NamaTabel.transaksi,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -37747,7 +39655,7 @@ class LayananUnduhData {
   Future<void> unduhDataUmpanBalik() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [UMPAN BALIK]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<FeedbackModel>(
       namaKoleksi: NamaTabel.feedback,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -37760,7 +39668,7 @@ class LayananUnduhData {
   Future<void> unduhDataPesanan() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PESANAN]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<OrderModel>(
       namaKoleksi: NamaTabel.pesananPelanggan,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -37773,7 +39681,7 @@ class LayananUnduhData {
   Future<void> unduhDataSubKategori() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [SUB KATEGORI]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<SubKategoriModel>(
       namaKoleksi: NamaTabel.subKategori,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -37786,7 +39694,7 @@ class LayananUnduhData {
   Future<void> unduhDataVersiApk() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [VERSI APK]');
     final lastDownloadTime = await _pengelolaSinkronisasi
-        .ambilWaktuTerakhirUnduh();
+        .ambilWaktuTerakhirUnduhPreferensi();
     await sinkronkanKoleksi<VersiApkModel>(
       namaKoleksi: NamaTabel.versiApkUser,
       waktuTerakhirUnduh: lastDownloadTime,
@@ -37817,7 +39725,7 @@ class LayananUnduhData {
           'Ditemukan ${hasilSnapshot.docs.length} dokumen baru/diperbarui di [$namaKoleksi].',
         );
 
-        final List<T> daftarData = [];
+        final daftarData = <T>[];
         for (final doc in hasilSnapshot.docs) {
           try {
             daftarData.add(dariFirebase(doc.id, doc.data()));
@@ -37924,7 +39832,7 @@ class LayananUnggahData {
       'Semua fungsi akan dijalankan secara paralel menggunakan Future.wait.',
     );
 
-    final List<Future<void>> daftarTabel = [
+    final daftarTabel = <Future<void>>[
       unggahDataDompet(),
       unggahDataKategori(),
       unggahDataFeedback(),
@@ -37973,7 +39881,7 @@ class LayananUnggahData {
       'Memulai proses unggah data dompet. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk dompet: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -38004,7 +39912,7 @@ class LayananUnggahData {
       'Memulai proses unggah data kategori. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk kategori: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -38035,7 +39943,8 @@ class LayananUnggahData {
       'Memulai proses unggah data kritik_saran. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final terkahirUpload = await _syncManager.ambilWaktuTerakhirUnggah();
+      final terkahirUpload = await _syncManager
+          .ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk kritik_saran: ${terkahirUpload.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -38066,7 +39975,7 @@ class LayananUnggahData {
       'Memulai proses unggah data paket. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk paket: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -38097,7 +40006,7 @@ class LayananUnggahData {
       'Memulai proses unggah data pelanggan_aktif. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk pelanggan_aktif: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -38128,7 +40037,7 @@ class LayananUnggahData {
       'Memulai proses unggah data pelanggan. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk pelanggan: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -38159,7 +40068,7 @@ class LayananUnggahData {
       'Memulai proses unggah data pesanan. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk pesanan: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -38190,7 +40099,7 @@ class LayananUnggahData {
       'Memulai proses unggah data transaksi. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk transaksi: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -38221,7 +40130,7 @@ class LayananUnggahData {
       'Memulai proses unggah data sub_kategori. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk sub_kategori: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -38252,7 +40161,7 @@ class LayananUnggahData {
       'Memulai proses unggah data pengaturan. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk pengaturan: ${waktu.toIso8601String()}. '
         'Data pengaturan akan selalu diunggah, jadi waktu ini akan diabaikan pada level query.',
@@ -38283,7 +40192,7 @@ class LayananUnggahData {
       'Memulai proses unggah data versi_apk_user. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final waktu = await _syncManager.ambilWaktuTerakhirUnggah();
+      final waktu = await _syncManager.ambilWaktuTerakhirUnggahPreferensi();
       Log.info(
         'Waktu sinkronisasi terakhir untuk versi_apk_user: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
@@ -38338,7 +40247,7 @@ class LayananUnggahData {
       final db = await _sqliteDb.database;
       Log.info('Instance database berhasil didapatkan.');
 
-      List<Map<String, dynamic>> dataUntukDiunggah = [];
+      var dataUntukDiunggah = <Map<String, dynamic>>[];
 
       if (namaTabel == NamaTabel.versiApkUser) {
         Log.info(
@@ -38375,9 +40284,9 @@ class LayananUnggahData {
       );
       final batchFirestore = _firestore.batch();
       Log.info('Firestore batch berhasil dibuat.');
-      int jumlahSukses = 0;
-      final List<Map<String, dynamic>> failedData = [];
-      for (int i = 0; i < dataUntukDiunggah.length; i++) {
+      var jumlahSukses = 0;
+      final failedData = <Map<String, dynamic>>[];
+      for (var i = 0; i < dataUntukDiunggah.length; i++) {
         final map = dataUntukDiunggah[i];
         Log.info(
           'Memproses data ke-${i + 1}/${dataUntukDiunggah.length} dari tabel $namaTabel.',
@@ -38386,7 +40295,7 @@ class LayananUnggahData {
           Log.info(
             'Mengkonversi data SQLite menjadi model $T menggunakan fungsi fromSqlite.',
           );
-          final T data = fromSqlite(map);
+          final data = fromSqlite(map);
           if (data.id.isEmpty) {
             Log.warning(
               'Melewati data ke-${i + 1} dari tabel $namaTabel karena ID kosong. Data: $map',
@@ -38538,7 +40447,7 @@ class LayananCekSinkronisasi {
     }
     _berjalan = true;
     try {
-      final bool sudahUnggahData = await _periksaDanJalankanUnggah();
+      final sudahUnggahData = await _periksaDanJalankanUnggah();
       if (sudahUnggahData) {
         Log.info(
           'Pemicu sinkronisasi: Ada data baru yang berhasil diunggah ke server.',
@@ -38555,13 +40464,15 @@ class LayananCekSinkronisasi {
   }
 
   Future<bool> _periksaDanJalankanUnggah() async {
-    final DateTime sekarang = DateTime.now();
+    final sekarang = DateTime.now();
     try {
-      final bool adaDataUntukUnggah = await _pengecekanDataBaru
+      final adaDataUntukUnggah = await _pengecekanDataBaru
           .apakahSqliteAdaDataBaru();
       if (adaDataUntukUnggah) {
         await _layananUnggah.unggahSemuaData();
-        await _pengelolaSinkronisasi.simpanWaktuTerakhirUnggah(sekarang);
+        await _pengelolaSinkronisasi.simpanWaktuTerakhirUnggahPreferensi(
+          sekarang,
+        );
         await _pengecekanDataBaru.resetButuhUpload();
         Log.info('Metadata sinkronisasi berhasil diperbarui: $sekarang.');
         return true;
@@ -38595,15 +40506,17 @@ class LayananCekSinkronisasi {
 
   Future<void> _periksaDanJalankanUnduh() async {
     try {
-      final bool adaDataBaruDiServer = await _pengecekanDataBaru
+      final adaDataBaruDiServer = await _pengecekanDataBaru
           .apakahFirebaseAdaDataBaru(
             namaKoleksi: NamaTabel.statusGlobal,
             idDokumen: globalStatusId,
           );
       if (adaDataBaruDiServer) {
         await _layananUnduh.unduhSemuaData();
-        final DateTime sekarang = DateTime.now();
-        await _pengelolaSinkronisasi.simpanWaktuTerakhirUnduh(sekarang);
+        final sekarang = DateTime.now();
+        await _pengelolaSinkronisasi.simpanWaktuTerakhirUnduhPreferensi(
+          sekarang,
+        );
         Log.info('Sinkronisasi masuk selesai: $sekarang.');
       } else {
         Log.info('Cloud tidak memiliki pembaruan data.');
@@ -38632,10 +40545,8 @@ final layananCekSinkronisasiProvider = Provider<LayananCekSinkronisasi>((ref) {
 
 
 // File: lib/fitur/sinkronisasi/pengelola_sinkronisasi.dart
-// path lib/fitur/sinkronisasi/pengelola_sinkronisasi.dart
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/shared/data/services/layanan_preferensi.dart';
+import 'package:wifi/shared/data/services/layanan_preferensi.dart'; // ← import
 import 'package:wifi/shared/debug/log.dart';
 
 final pengelolaSinkronisasiProvider = Provider<PengelolaSinkronisasi>((ref) {
@@ -38644,39 +40555,44 @@ final pengelolaSinkronisasiProvider = Provider<PengelolaSinkronisasi>((ref) {
 });
 
 class PengelolaSinkronisasi {
-  Future<DateTime> ambilWaktuTerakhirUnduh() async {
+  LayananPreferensi get _layananPrefs => LayananPreferensi();
+
+  // Method dengan nama berbeda agar tidak bentrok
+  Future<DateTime> ambilWaktuTerakhirUnduhPreferensi() async {
     Log.info('Meminta timestamp terakhir unduh dari PreferenceService');
-    final hasil = await LayananPreferensi.ambilWaktuTerakhirUnduh();
+    final hasil = await _layananPrefs
+        .ambilWaktuTerakhirUnduh(); // ← fungsi top-level
     final waktuTerakhir =
         hasil ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
     Log.info('Timestamp terakhir unduh yang digunakan: $waktuTerakhir');
     return waktuTerakhir;
   }
 
-  Future<void> simpanWaktuTerakhirUnduh(DateTime waktu) async {
+  Future<void> simpanWaktuTerakhirUnduhPreferensi(DateTime waktu) async {
     Log.info('Menyimpan timestamp terakhir unduh: $waktu');
-    await LayananPreferensi.simpanWaktuTerakhirUnduh(waktu);
+    await _layananPrefs.simpanWaktuTerakhirUnduh(waktu); // ← fungsi top-level
     Log.info('Timestamp terakhir unduh berhasil disimpan');
   }
 
-  Future<DateTime> ambilWaktuTerakhirUnggah() async {
+  Future<DateTime> ambilWaktuTerakhirUnggahPreferensi() async {
     Log.info('Meminta timestamp terakhir unggah dari PreferenceService');
-    final hasil = await LayananPreferensi.ambilWaktuTerakhirUnggah();
+    final hasil = await _layananPrefs
+        .ambilWaktuTerakhirUnggah(); // ← fungsi top-level
     final waktuTerakhir =
         hasil ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
     Log.info('Timestamp terakhir unggah yang digunakan: $waktuTerakhir');
     return waktuTerakhir;
   }
 
-  Future<void> simpanWaktuTerakhirUnggah(DateTime waktu) async {
+  Future<void> simpanWaktuTerakhirUnggahPreferensi(DateTime waktu) async {
     Log.info('Menyimpan timestamp terakhir unggah: $waktu');
-    await LayananPreferensi.simpanWaktuTerakhirUnggah(waktu);
+    await _layananPrefs.simpanWaktuTerakhirUnggah(waktu); // ← fungsi top-level
     Log.info('Timestamp terakhir unggah berhasil disimpan');
   }
 
-  Future<void> resetWaktuSinkronisasi() async {
+  Future<void> resetWaktuSinkronisasiPreferensi() async {
     Log.warning('MERESET WAKTU SINKRONISASI (UNDUH & UNGGAH)');
-    await LayananPreferensi.resetWaktuSinkronisasi();
+    await _layananPrefs.resetWaktuSinkronisasi(); // ← fungsi top-level
     Log.info('Waktu sinkronisasi (unduh dan unggah) berhasil di-reset.');
   }
 }
@@ -39034,7 +40950,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
 
     if (spots.isEmpty) {
       return LineChartData(
-        gridData: FlGridData(show: false),
+        gridData: const FlGridData(show: false),
         titlesData: FlTitlesData(
           rightTitles: const AxisTitles(),
           topTitles: const AxisTitles(),
@@ -39134,7 +41050,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     // Validasi indeks
     if (index < 0) return const SizedBox.shrink();
 
-    String label = '';
+    var label = '';
 
     switch (_selectedRange) {
       case ChartRange.harian:
@@ -39381,7 +41297,7 @@ import 'package:wifi/shared/debug/log.dart';
 void onDidReceiveBackgroundNotificationResponse(
   final NotificationResponse response,
 ) {
-  final String? payload = response.payload;
+  final payload = response.payload;
   if (response.payload != null) {
     debugPrint('notification payload: $payload');
   }
@@ -39459,7 +41375,7 @@ class LayananNotifikasi {
     try {
       Log.info('Memulai inisialisasi data zona waktu...');
       tz.initializeTimeZones();
-      String zonaWaktuLokal =
+      var zonaWaktuLokal =
           (await FlutterTimezone.getLocalTimezone()).identifier;
       Log.info('Zona waktu terdeteksi dari perangkat: $zonaWaktuLokal');
       if (zonaWaktuLokal == 'GMT') {
@@ -39646,13 +41562,12 @@ class LayananNotifikasi {
         Log.warning('Permintaan izin tidak berlaku untuk platform web.');
         return;
       }
-      final AndroidFlutterLocalNotificationsPlugin? androidPlugin = plugin
+      final androidPlugin = plugin
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
           >();
       if (androidPlugin != null) {
-        final bool? granted = await androidPlugin
-            .requestNotificationsPermission();
+        final granted = await androidPlugin.requestNotificationsPermission();
         Log.info(
           'Izin notifikasi diberikan oleh pengguna: ${granted ?? false}',
         );
@@ -39702,7 +41617,7 @@ class LayananNotifikasi {
     }
     Log.info('Channel notifikasi ditemukan: ${channelNotifikasiPenting!.id}');
 
-    final int id = payload?.hashCode ?? _random.nextInt(pow(2, 31).toInt());
+    final id = payload?.hashCode ?? _random.nextInt(pow(2, 31).toInt());
     Log.info('Mengirim notifikasi langsung (ID: $id, Judul: $title)');
     final androidDetails = AndroidNotificationDetails(
       channelNotifikasiPenting!.id,
@@ -39744,11 +41659,11 @@ class LayananNotifikasi {
     Log.info('Channel notifikasi ditemukan: ${channelNotifikasiPenting!.id}');
     final pending = await plugin.pendingNotificationRequests();
     Log.info('=== DAFTAR NOTIFIKASI TERJADWAL (${pending.length}) ===');
-    for (var notif in pending) {
+    for (final notif in pending) {
       Log.info('ID: ${notif.id}, Title: ${notif.title}, Scheduled: $notif');
     }
 
-    final bool hasPermission = await mengecekIzinExactAlarm();
+    final hasPermission = await mengecekIzinExactAlarm();
     if (!hasPermission) {
       Log.error(
         'Gagal menjadwalkan notifikasi karena izin exact alarm ditolak.',
@@ -39765,10 +41680,7 @@ class LayananNotifikasi {
     );
     final detailNotifikasi = NotificationDetails(android: androidDetails);
     try {
-      final tz.TZDateTime waktuTerjadwalTZ = tz.TZDateTime.from(
-        jadwal,
-        tz.local,
-      );
+      final waktuTerjadwalTZ = tz.TZDateTime.from(jadwal, tz.local);
       Log.info(
         'Waktu notifikasi dikonversi ke zona waktu lokal (${tz.local.name}): $waktuTerjadwalTZ',
       );
@@ -39971,7 +41883,7 @@ class PenjadwalNotifikasi {
     final idNotifikasiAkhir = userId.hashCode;
     final idNotifikasiTengah = '${userId}_midpoint'.hashCode;
 
-    final int idAlarm = idNotifikasiAkhir;
+    final idAlarm = idNotifikasiAkhir;
 
     try {
       final transaksiOpFirebase = transaksiOp ?? TransaksiOpFirebase();
@@ -40082,7 +41994,6 @@ Future<void> _callbackAlarm() async {
 // path lib/fitur/notfikasi/operasi/notifikasi_op_sqlite.dart
 // path: lib/fitur/notfikasi/operasi/notifikasi_op_sqlite.dart
 
-import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/notifikasi/model/notifikasi_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -40397,7 +42308,7 @@ class NotifikasiOpSqlite {
   }) async {
     Log.info('Menghapus notifikasi berdasarkan ID Tujuan: $idTujuan');
     try {
-      await _baseOpSqlite.operasiKompleks<void>((Transaction txn) async {
+      await _baseOpSqlite.operasiKompleks<void>((txn) async {
         await txn.delete(
           _namaTabel,
           where: '${NamaKolom.idTujuan} = ?',
@@ -41126,7 +43037,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           final transaksiUser = daftarTransaksi.transaksi.where(
             (t) => t.idPelanggan == userId,
           );
-
           final totalPoin = transaksiUser.fold<int>(
             0,
             (sum, t) => sum + t.poinDidapat - t.poinDigunakan,
@@ -41246,10 +43156,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         value: 'Data tidak lengkap.',
       );
     }
-    final String teksMasaAktif = PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
+    final teksMasaAktif = PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(
       transaksi.tanggalBerakhir!,
     );
-    final Color warnaMasaAktif = PerhitunganUtil.ambilWarnaSisaMasaAktif(
+    final warnaMasaAktif = PerhitunganUtil.ambilWarnaSisaMasaAktif(
       transaksi.tanggalBerakhir!,
     );
     final Color warnaStatuspembayaran =
@@ -41491,7 +43401,7 @@ class SplashScreenUser extends ConsumerStatefulWidget {
 
 class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   final SettingsOpFirebase _settingsOp = SettingsOpFirebase();
-  final idUnitIklan = IdInterstitialAds.interstitialAdUnitIds[0];
+  final idUnitIklan = interstitialAdUnitIds[0];
 
   bool _terhubung = false;
 
@@ -41910,7 +43820,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         final layananAktivitasUser = await ref.read(
           layananAktivitasUserProvider.future,
         );
-        unawaited(layananAktivitasUser.pingAktivitas(pelanggan.id, paksa: true));
+        unawaited(
+          layananAktivitasUser.pingAktivitas(pelanggan.id, paksa: true),
+        );
       } catch (e, s) {
         Log.error('Gagal ping activity', e: e, s: s);
       }
@@ -42281,13 +44193,13 @@ class ThemeMenuWidget extends StatelessWidget {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     Log.info('[Build UI] Membangun widget ThemeMenuWidget.');
 
     return PopupMenuButton<ThemeMode>(
       icon: Icon(_getCurrentIcon(currentThemeMode)),
       onSelected: onThemeSelected, // Langsung gunakan callback dari props
-      itemBuilder: (final BuildContext context) {
+      itemBuilder: (context) {
         Log.info('[Build UI] Membangun item-item untuk PopupMenuButton.');
         return <PopupMenuEntry<ThemeMode>>[
           const PopupMenuItem<ThemeMode>(
@@ -42346,11 +44258,7 @@ class ErrorMessage extends StatelessWidget {
   ///
   /// [message] adalah pesan error yang akan ditampilkan ke pengguna.
   /// [onRetry] adalah fungsi yang dipanggil saat pengguna menekan tombol retry.
-  const ErrorMessage({
-    super.key,
-    required this.message,
-    required this.onRetry,
-  });
+  const ErrorMessage({super.key, required this.message, required this.onRetry});
 
   @override
   Widget build(final BuildContext context) {
@@ -42360,17 +44268,13 @@ class ErrorMessage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              color: Colors.red,
-              size: 60,
-            ),
+            const Icon(Icons.error_outline, color: Colors.red, size: 60),
             const SizedBox(height: 16),
             Text(
               'Oops! Terjadi Kesalahan',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Colors.red,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(color: Colors.red),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
@@ -42384,9 +44288,7 @@ class ErrorMessage extends StatelessWidget {
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
               label: const Text('Coba Lagi'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             ),
           ],
         ),
@@ -42692,10 +44594,12 @@ class AppLifecycleReactor {
     // Coba tampilkan iklan saat aplikasi kembali ke foreground.
     if (appState == AppState.foreground) {
       Log.info(
-          '[AppLifecycle] Menunggu 1.5 detik sebelum mencoba menampilkan iklan...');
+        '[AppLifecycle] Menunggu 1.5 detik sebelum mencoba menampilkan iklan...',
+      );
       Future.delayed(const Duration(milliseconds: 1500), () {
         Log.info(
-            '[AppLifecycle] Jeda selesai, mencoba menampilkan iklan sekarang.');
+          '[AppLifecycle] Jeda selesai, mencoba menampilkan iklan sekarang.',
+        );
         // showAdIfAvailable mengembalikan Future, jadi gunakan unawaited.
         unawaited(appOpenAdService.tampilkanIklan());
       });
@@ -42716,7 +44620,7 @@ class LayananIklanInterstisial {
   InterstitialAd? _interstitialAd;
   bool _isPreloading = false;
   bool _isAdLoaded = false;
-  final _idIklan = IdInterstitialAds.interstitialAdUnitIdMediasi;
+  final _idIklan = interstitialAdUnitIdMediasi;
 
   Future<void> preloadAd() async {
     if (kDebugMode) {
@@ -42804,44 +44708,37 @@ class LayananIklanInterstisial {
 import 'package:flutter/foundation.dart';
 
 /// Class khusus untuk mengelola ID unit iklan yang berhubungan dengan Interstitial.
-class IdInterstitialAds {
-  // --- ID Iklan Interstitial Produksi ---
-  static const String _prodInterstitialAdMediasi =
-      'ca-app-pub-9773465799516929/4325033636';
-  static const String _prodInterstitial1 =
-      'ca-app-pub-9773465799516929/2200295108';
-  static const String _prodInterstitial2 =
-      'ca-app-pub-9773465799516929/6082636738';
+// --- ID Iklan Interstitial Produksi ---
+const String _prodInterstitialAdMediasi =
+    'ca-app-pub-9773465799516929/4325033636';
+const String _prodInterstitial1 = 'ca-app-pub-9773465799516929/2200295108';
+const String _prodInterstitial2 = 'ca-app-pub-9773465799516929/6082636738';
 
-  // --- ID Iklan Interstitial Tes ---
-  static const String _testInterstitialAd =
-      'ca-app-pub-3940256099942544/1033173712';
+// --- ID Iklan Interstitial Tes ---
+const String _testInterstitialAd = 'ca-app-pub-3940256099942544/1033173712';
 
-  /// Daftar ID unit iklan Interstitial untuk waterfall.
-  static List<String> get interstitialAdUnitIds {
-    if (kDebugMode) {
-      return [
-        _testInterstitialAd,
-      ];
-    }
-    return [_prodInterstitialAdMediasi, _prodInterstitial1, _prodInterstitial2];
+/// Daftar ID unit iklan Interstitial untuk waterfall.
+List<String> get interstitialAdUnitIds {
+  if (kDebugMode) {
+    return [_testInterstitialAd];
   }
+  return [_prodInterstitialAdMediasi, _prodInterstitial1, _prodInterstitial2];
+}
 
-  /// ID unit iklan untuk Interstitial (Mediasi).
-  static String get interstitialAdUnitIdMediasi {
-    if (kDebugMode) {
-      return _testInterstitialAd;
-    }
-    return _prodInterstitialAdMediasi;
+/// ID unit iklan untuk Interstitial (Mediasi).
+String get interstitialAdUnitIdMediasi {
+  if (kDebugMode) {
+    return _testInterstitialAd;
   }
+  return _prodInterstitialAdMediasi;
+}
 
-  /// ID unit iklan untuk Interstitial (Ad Unit 1).
-  static String get interstitialAdUnitId1 {
-    if (kDebugMode) {
-      return _testInterstitialAd;
-    }
-    return _prodInterstitial1;
+/// ID unit iklan untuk Interstitial (Ad Unit 1).
+String get interstitialAdUnitId1 {
+  if (kDebugMode) {
+    return _testInterstitialAd;
   }
+  return _prodInterstitial1;
 }
 
 
@@ -42876,23 +44773,27 @@ class BonusedMediatorAdService {
       return;
     }
 
-    unawaited(RewardedAd.load(
-      adUnitId: IdBonusedMediatorAds.bonusedMediatorAdUnitId,
-      request: const AdRequest(),
-      rewardedAdLoadCallback: RewardedAdLoadCallback(
-        onAdLoaded: (final ad) {
-          Log.info('Bonused Mediator ad loaded successfully.');
-          _rewardedAd = ad;
-          onAdLoaded?.call();
-        },
-        onAdFailedToLoad: (final error) {
-          _rewardedAd = null;
-          Log.error('Failed to load Bonused Mediator ad',
-              data: {'error': error.message, 'code': error.code});
-          onAdFailedToLoad?.call(error);
-        },
+    unawaited(
+      RewardedAd.load(
+        adUnitId: IdBonusedMediatorAds.bonusedMediatorAdUnitId,
+        request: const AdRequest(),
+        rewardedAdLoadCallback: RewardedAdLoadCallback(
+          onAdLoaded: (final ad) {
+            Log.info('Bonused Mediator ad loaded successfully.');
+            _rewardedAd = ad;
+            onAdLoaded?.call();
+          },
+          onAdFailedToLoad: (final error) {
+            _rewardedAd = null;
+            Log.error(
+              'Failed to load Bonused Mediator ad',
+              data: {'error': error.message, 'code': error.code},
+            );
+            onAdFailedToLoad?.call(error);
+          },
+        ),
       ),
-    ));
+    );
   }
 
   /// Shows the ad if it is ready and gives a reward upon completion.
@@ -42904,7 +44805,8 @@ class BonusedMediatorAdService {
   }) async {
     if (!isAdLoaded) {
       Log.warning(
-          'Tried to show Bonused Mediator ad, but it is not ready yet.');
+        'Tried to show Bonused Mediator ad, but it is not ready yet.',
+      );
       // If the ad is not ready, call onAdDismissed so that the flow is not interrupted.
       onAdDismissed?.call();
       // Try loading again for the next opportunity.
@@ -43010,16 +44912,9 @@ class DataNotFound extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.warning,
-            size: 60,
-            color: Colors.orange,
-          ),
+          const Icon(Icons.warning, size: 60, color: Colors.orange),
           const SizedBox(height: 16),
-          Text(
-            'Whoops!',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
+          Text('Whoops!', style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(
             message,
@@ -43087,9 +44982,12 @@ class LayananPenyimpananLokal {
       '[Simpan Akun] Menyimpan atau memperbarui akun: ${pelanggan.nama}.',
     );
     final daftarAkunJson = prefs.getString(_kunciDaftarAkun);
-    final List<dynamic> daftarAkun = daftarAkunJson != null
-        ? jsonDecode(daftarAkunJson) as List<dynamic>
-        : [];
+    final List<dynamic> daftarAkun;
+    if (daftarAkunJson != null) {
+      daftarAkun = jsonDecode(daftarAkunJson) as List<dynamic>;
+    } else {
+      daftarAkun = [];
+    }
 
     final indeksAkunYangAda = daftarAkun
         .cast<Map<String, dynamic>>()
@@ -43127,8 +45025,7 @@ class LayananPenyimpananLokal {
       Log.warning('[Ambil Daftar Akun] Tidak ada daftar akun ditemukan.');
       return [];
     }
-    final List<dynamic> daftarAkun =
-        jsonDecode(daftarAkunJson) as List<dynamic>;
+    final daftarAkun = jsonDecode(daftarAkunJson) as List<dynamic>;
     final listAkun = daftarAkun
         .cast<Map<String, dynamic>>()
         .map(PelangganModel.fromSqlite)
@@ -43147,13 +45044,12 @@ class LayananPenyimpananLokal {
       return;
     }
 
-    final List<dynamic> daftarAkun =
-        jsonDecode(daftarAkunJson) as List<dynamic>;
-    final int hitungSebelum = daftarAkun.length;
+    final daftarAkun = jsonDecode(daftarAkunJson) as List<dynamic>;
+    final hitungSebelum = daftarAkun.length;
     daftarAkun.removeWhere(
       (p) => (p as Map<String, dynamic>)['id'] == idPengguna,
     );
-    final int hitungSesudah = daftarAkun.length;
+    final hitungSesudah = daftarAkun.length;
     if (hitungSebelum > hitungSesudah) {
       await prefs.setString(_kunciDaftarAkun, jsonEncode(daftarAkun));
       Log.info('[Hapus Akun] Akun dengan ID $idPengguna berhasil dihapus.');
@@ -43196,12 +45092,12 @@ class LayananPenyimpananLokal {
       return null;
     }
 
-    final List<dynamic> daftarAkun =
-        jsonDecode(daftarAkunJson) as List<dynamic>;
+    final daftarAkun = jsonDecode(daftarAkunJson) as List<dynamic>;
     try {
-      final Map<String, dynamic> akunJson = daftarAkun
-          .cast<Map<String, dynamic>>()
-          .firstWhere((p) => p['id'] == idPengguna, orElse: () => {});
+      final akunJson = daftarAkun.cast<Map<String, dynamic>>().firstWhere(
+        (p) => p['id'] == idPengguna,
+        orElse: () => {},
+      );
       if (akunJson.isEmpty) {
         Log.warning(
           '[Ambil Akun Saat Ini] Akun dengan ID $idPengguna tidak ada di daftar riwayat lokal.',
@@ -43810,9 +45706,9 @@ class LayananPengecekanDataBaru {
     required FirebaseFirestore firestore,
     required PengelolaSinkronisasi syncManager,
     required StatusUploadOpSqlite uploadStatusOperation,
-  })  : _firestore = firestore,
-        _pengelolaSinkronisasi = syncManager,
-        _statusUploadOpSqlite = uploadStatusOperation {
+  }) : _firestore = firestore,
+       _pengelolaSinkronisasi = syncManager,
+       _statusUploadOpSqlite = uploadStatusOperation {
     Log.info('NewDataCheckService diinisialisasi dengan dependency injection.');
   }
 
@@ -43825,7 +45721,7 @@ class LayananPengecekanDataBaru {
       Log.info(
         'Mengakses UploadStatusOperation untuk membaca nilai dari kolom need_upload di database internal. Ini adalah indikator utama apakah aplikasi memiliki payload baru.',
       );
-      final bool hasil = await _statusUploadOpSqlite.ambilButuhUpload();
+      final hasil = await _statusUploadOpSqlite.ambilButuhUpload();
 
       if (hasil) {
         Log.info(
@@ -43869,8 +45765,8 @@ class LayananPengecekanDataBaru {
       Log.info(
         'Mengambil metadata waktu unduhan terakhir dari penyimpanan preferensi lokal melalui SyncManager.',
       );
-      final DateTime tanggalTerakhirDownload =
-          await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduh();
+      final tanggalTerakhirDownload = await _pengelolaSinkronisasi
+          .ambilWaktuTerakhirUnduhPreferensi();
       Log.info(
         'Timestamp unduhan lokal terakhir yang tercatat adalah: $tanggalTerakhirDownload',
       );
@@ -43878,9 +45774,10 @@ class LayananPengecekanDataBaru {
       Log.info(
         'Membangun referensi dokumen Firestore dan memulai permintaan pengambilan data langsung dari server cloud (Source.server).',
       );
-      final DocumentReference referensiDokumen =
-          _firestore.collection(namaKoleksi).doc(idDokumen);
-      final DocumentSnapshot snapshotDokumen = await referensiDokumen.get(
+      final DocumentReference referensiDokumen = _firestore
+          .collection(namaKoleksi)
+          .doc(idDokumen);
+      final snapshotDokumen = await referensiDokumen.get(
         const GetOptions(source: Source.server),
       );
 
@@ -43894,7 +45791,7 @@ class LayananPengecekanDataBaru {
           Log.info(
             'Field "${NamaKolom.diperbaruiPada}" ditemukan. Mem-parsing nilai: ${data[NamaKolom.diperbaruiPada]}',
           );
-          final DateTime? diperbaruiPada = ParserUtil.parseDateTime(
+          final diperbaruiPada = ParserUtil.parseDateTime(
             data[NamaKolom.diperbaruiPada],
           );
 
@@ -43909,7 +45806,7 @@ class LayananPengecekanDataBaru {
 
           Log.info('Waktu pembaruan di server adalah: $diperbaruiPada');
 
-          final bool apakahLebihBaru = diperbaruiPada.isAfter(
+          final apakahLebihBaru = diperbaruiPada.isAfter(
             tanggalTerakhirDownload,
           );
           if (apakahLebihBaru) {
@@ -43945,17 +45842,15 @@ class LayananPengecekanDataBaru {
   }
 }
 
-final pengecekanDataBaruServiceProvider = Provider<LayananPengecekanDataBaru>(
-  (
-    ref,
-  ) {
-    return LayananPengecekanDataBaru(
-      firestore: FirebaseFirestore.instance,
-      syncManager: ref.read(pengelolaSinkronisasiProvider),
-      uploadStatusOperation: ref.read(statusUploadOpSlite),
-    );
-  },
-);
+final pengecekanDataBaruServiceProvider = Provider<LayananPengecekanDataBaru>((
+  ref,
+) {
+  return LayananPengecekanDataBaru(
+    firestore: FirebaseFirestore.instance,
+    syncManager: ref.read(pengelolaSinkronisasiProvider),
+    uploadStatusOperation: ref.read(statusUploadOpSlite),
+  );
+});
 
 
 // File: lib/shared/data/services/layanan_navigasi.dart
@@ -43985,13 +45880,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 class LayananPreferensi {
-  static final Future<SharedPreferences> _prefs =
-      SharedPreferences.getInstance();
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-  static const String _kunciTerakhirUnduh = 'terakhir_unduh';
-  static const String _kunciTerakhirUnggah = 'terakhir_unggah';
+  final String _kunciTerakhirUnduh = 'terakhir_unduh';
+  final String _kunciTerakhirUnggah = 'terakhir_unggah';
 
-  static Future<DateTime?> ambilWaktuTerakhirUnduh() async {
+  Future<DateTime?> ambilWaktuTerakhirUnduh() async {
     Log.info(
       'Mengambil timestamp terakhir unduh dengan key: $_kunciTerakhirUnduh',
     );
@@ -44000,7 +45894,7 @@ class LayananPreferensi {
     return result;
   }
 
-  static Future<void> simpanWaktuTerakhirUnduh(DateTime waktu) async {
+  Future<void> simpanWaktuTerakhirUnduh(DateTime waktu) async {
     Log.info(
       'Menyiapkan penyimpanan timestamp terakhir unduh: $waktu $_kunciTerakhirUnduh',
     );
@@ -44008,7 +45902,7 @@ class LayananPreferensi {
     Log.info('Timestamp terakhir unduh berhasil disimpan');
   }
 
-  static Future<DateTime?> ambilWaktuTerakhirUnggah() async {
+  Future<DateTime?> ambilWaktuTerakhirUnggah() async {
     Log.info(
       'Mengambil timestamp terakhir unggah dengan key: $_kunciTerakhirUnggah',
     );
@@ -44017,7 +45911,7 @@ class LayananPreferensi {
     return result;
   }
 
-  static Future<void> simpanWaktuTerakhirUnggah(DateTime waktu) async {
+  Future<void> simpanWaktuTerakhirUnggah(DateTime waktu) async {
     Log.info(
       'Menyiapkan penyimpanan timestamp terakhir unggah: $waktu $_kunciTerakhirUnggah',
     );
@@ -44025,7 +45919,7 @@ class LayananPreferensi {
     Log.info('Timestamp terakhir unggah berhasil disimpan');
   }
 
-  static Future<DateTime?> _ambilTimestamp(String key, String label) async {
+  Future<DateTime?> _ambilTimestamp(String key, String label) async {
     Log.info('Membaca timestamp $label dari SharedPreferences | Key: $key');
     final prefs = await _prefs;
     final timestamp = prefs.getInt(key);
@@ -44042,7 +45936,7 @@ class LayananPreferensi {
     return date;
   }
 
-  static Future<void> _simpanTimestamp(
+  Future<void> _simpanTimestamp(
     final String key,
     final DateTime waktu,
     final String label,
@@ -44052,7 +45946,7 @@ class LayananPreferensi {
     );
     try {
       final prefs = await _prefs;
-      final int tanggal = waktu.toUtc().millisecondsSinceEpoch;
+      final tanggal = waktu.toUtc().millisecondsSinceEpoch;
       await prefs.setInt(key, tanggal);
       Log.info('✨ Timestamp $label berhasil disimpan | UTC: $waktu');
     } on Exception catch (e, s) {
@@ -44060,7 +45954,7 @@ class LayananPreferensi {
     }
   }
 
-  static Future<void> resetWaktuSinkronisasi() async {
+  Future<void> resetWaktuSinkronisasi() async {
     final prefs = await _prefs;
     Log.warning('Menghapus timestamp terakhir unduh ($_kunciTerakhirUnduh)');
     await prefs.remove(_kunciTerakhirUnduh);
@@ -44358,7 +46252,7 @@ class Log {
   static final Random _random = Random();
 
   static String _buatKodeUnik() {
-    const String chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     return String.fromCharCodes(
       Iterable.generate(
         6,
@@ -44438,7 +46332,7 @@ class Log {
     final Map<String, dynamic> data, {
     required final String method,
   }) {
-    final String id = _buatKodeUnik();
+    final id = _buatKodeUnik();
     _logCustom(
       message: '[$method][$id] $path${_formatData(data)}',
       name: '🌐',
@@ -44458,10 +46352,10 @@ class Log {
     if (!kDebugMode) return;
 
     final trace = StackTrace.current.toString().split('\n');
-    final String callerRow = trace.length > 2 ? trace[2] : 'Unknown';
+    final callerRow = trace.length > 2 ? trace[2] : 'Unknown';
     final match = RegExp(r'#2\s+(.+)\s+\((.+)\)').firstMatch(callerRow);
 
-    String location = '';
+    var location = '';
     if (match != null) {
       final methodCaller = match.group(1);
       final fileInfo = match.group(2);
@@ -44684,11 +46578,7 @@ class PerhitunganUtil {
     Log.info('FUNGSI GLOBAL: hitungTanggalBerakhir() dipanggil.');
     Log.info('  - Tanggal Mulai: ${tanggalMulai.toIso8601String()}');
     Log.info('  - Nama Paket: ${paket.nama}');
-    DateTime hasil = DurasiUtil.tambahDurasi(
-      tanggalMulai,
-      paket.tipe,
-      paket.durasi,
-    );
+    var hasil = DurasiUtil.tambahDurasi(tanggalMulai, paket.tipe, paket.durasi);
     if (durasiBonus != null && durasiBonus > 0 && tipeDurasiBonus != null) {
       Log.info('  - Menambahkan Bonus: $durasiBonus ${tipeDurasiBonus.name}');
       hasil = DurasiUtil.tambahDurasi(hasil, tipeDurasiBonus, durasiBonus);
@@ -44791,12 +46681,12 @@ class DurasiUtil {
     int? durasiBonus,
     TipeDurasiPaket? tipeBonus,
   }) {
-    int totalMenit = _konversiKeMenit(paket.tipe, paket.durasi);
-    
+    var totalMenit = _konversiKeMenit(paket.tipe, paket.durasi);
+
     if (durasiBonus != null && durasiBonus > 0 && tipeBonus != null) {
       totalMenit += _konversiKeMenit(tipeBonus, durasiBonus);
     }
-    
+
     return totalMenit;
   }
 
@@ -44830,6 +46720,7 @@ class DurasiUtil {
     }
   }
 }
+
 
 // File: lib/shared/utils/format_util.dart
 // File: lib/shared/utils/format_util.dart
@@ -45026,7 +46917,7 @@ class InputRupiah extends StatelessWidget {
 
   static double parse(String formatted) {
     // Hapus "Rp", spasi, titik (pemisah ribuan)
-    String cleaned = formatted.replaceAll(RegExp(r'[Rp.\s]'), '');
+    var cleaned = formatted.replaceAll(RegExp(r'[Rp.\s]'), '');
     // Ganti koma desimal (jika ada) ke titik
     cleaned = cleaned.replaceAll(',', '.');
     return double.tryParse(cleaned) ?? 0.0;
@@ -45138,7 +47029,7 @@ class _InputPasswordState extends State<InputPassword> {
         if (widget.onSubmitted != null) {
           widget.onSubmitted!(v);
         }
-    },
+      },
       onTapOutside: (event) => FocusScope.of(context).unfocus(),
       enabled: widget.enabled,
       validator:
@@ -45537,18 +47428,18 @@ class MacAddressFormatter extends TextInputFormatter {
       return nilaiBaru;
     }
 
-    final bool sedangMenghapus =
+    final sedangMenghapus =
         nilaiBaru.text.length < nilaiLama.text.length; // isDeleting diubah
 
     // 1. Bersihkan teks, sisakan karakter heksadesimal saja
-    String teksBersih = nilaiBaru.text.toUpperCase().replaceAll(
+    var teksBersih = nilaiBaru.text.toUpperCase().replaceAll(
       // cleaned diubah
       RegExp(r'[^0-9A-F]'),
       '',
     );
 
     // 2. Hitung ada berapa karakter sebelum posisi kursor
-    int karakterBersihSebelumKursor = nilaiBaru
+    var karakterBersihSebelumKursor = nilaiBaru
         .text // cleanCharsBeforeCursor diubah
         .substring(0, nilaiBaru.selection.baseOffset)
         .replaceAll(RegExp(r'[^0-9A-Fa-f]'), '')
@@ -45571,18 +47462,18 @@ class MacAddressFormatter extends TextInputFormatter {
 
     // 5. Rangkai ulang teksnya dan tambahkan ':'
     final penampung = StringBuffer(); // buffer diubah
-    for (int i = 0; i < teksBersih.length; i++) {
+    for (var i = 0; i < teksBersih.length; i++) {
       penampung.write(teksBersih[i]);
       if ((i + 1) % 2 == 0 && (i + 1) < 12) {
         penampung.write(':');
       }
     }
-    final String teksTerformat = penampung.toString(); // formatted diubah
+    final teksTerformat = penampung.toString(); // formatted diubah
 
     // 6. Sesuaikan posisi kursor
-    int posisiKursor = 0; // cursorIndex diubah
-    int jumlahBersih = 0; // cleanCount diubah
-    for (int i = 0; i < teksTerformat.length; i++) {
+    var posisiKursor = 0; // cursorIndex diubah
+    var jumlahBersih = 0; // cleanCount diubah
+    for (var i = 0; i < teksTerformat.length; i++) {
       if (jumlahBersih == karakterBersihSebelumKursor) {
         break;
       }
@@ -45911,11 +47802,11 @@ class PemilihTanggalWaktuWidget extends StatelessWidget {
 
 
 // File: lib/shared/export/enum.dart
-
 // path: lib/shared/export/enum.dart
 export '../../fitur/notifikasi/enum/tipe_notifikasi_enum.dart';
 export '../../fitur/order/enum/status_order_enum.dart';
 export '../enum/app_role_enum.dart';
+
 
 // File: lib/shared/export/op_firebase.dart
 // path: lib/shared/export/op_firebase.dart
@@ -45956,7 +47847,7 @@ export 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 export 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
 export 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 export 'package:wifi/fitur/kategori/operasi/sub_kategori_op_sqlite.dart';
-export "package:wifi/fitur/order/operasi/order_op_sqlite.dart";
+export 'package:wifi/fitur/order/operasi/order_op_sqlite.dart';
 export 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
 export 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 export 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
@@ -46640,7 +48531,6 @@ class TSizes {
   static const double p48 = 48.0;
   static const double p64 = 64.0;
   static const double p80 = 80.0;
-
 }
 
 /// Celah vertikal (Vertical gaps)
@@ -46673,7 +48563,6 @@ const gapW64 = SizedBox(width: TSizes.p64);
 // File: lib/shared/services/arsipkan_langganan_kadaluarsa_service.dart
 // path: lib/shared/services/arsipkan_langganan_kadaluarsa_service.dart
 
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
@@ -46688,7 +48577,8 @@ class ArsipLanggananKadaluarsaService {
     required PelangganAktifOpSqlite pelangganAktifOpSqlite,
   }) : _pelangganAktifOpSqlite = pelangganAktifOpSqlite {
     Log.info(
-        'ExpiredSubscriptionCheckService diinisialisasi dengan dependency injection.');
+      'ExpiredSubscriptionCheckService diinisialisasi dengan dependency injection.',
+    );
   }
 
   /// Memproses semua pelanggan aktif, menemukan yang kedaluwarsa,
@@ -46696,11 +48586,12 @@ class ArsipLanggananKadaluarsaService {
   Future<void> prosesArsipLanggananKadaluarsa() async {
     Log.info('Memulai siklus pengecekan langganan yang kadaluwarsa...');
     try {
-      final jumlahDiarsipkan =
-          await _pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
+      final jumlahDiarsipkan = await _pelangganAktifOpSqlite
+          .arsipkanLanggananKadaluarsa();
       if (jumlahDiarsipkan > 0) {
         Log.info(
-            'Berhasil mengarsipkan $jumlahDiarsipkan langganan kadaluwarsa.');
+          'Berhasil mengarsipkan $jumlahDiarsipkan langganan kadaluwarsa.',
+        );
       } else {
         Log.info('Tidak ada langganan kadaluwarsa.');
       }
@@ -46712,10 +48603,10 @@ class ArsipLanggananKadaluarsaService {
 
 final arsipLanggananKadaluarsaServiceProvider =
     Provider<ArsipLanggananKadaluarsaService>((ref) {
-  return ArsipLanggananKadaluarsaService(
-    pelangganAktifOpSqlite: ref.read(pelangganAktifOpSqliteProvider),
-  );
-});
+      return ArsipLanggananKadaluarsaService(
+        pelangganAktifOpSqlite: ref.read(pelangganAktifOpSqliteProvider),
+      );
+    });
 
 
 // File: lib/shared/services/layanan_penyimpanan_gambar.dart
@@ -46731,32 +48622,30 @@ class LayananPenyimpananGambar {
   final SupabaseClient _klienSupabase;
 
   LayananPenyimpananGambar({SupabaseClient? klienSupabase})
-      : _klienSupabase = klienSupabase ?? Supabase.instance.client;
+    : _klienSupabase = klienSupabase ?? Supabase.instance.client;
 
   Future<String> unggahGambar(File file, String bucket) async {
-    final String fileName =
+    final fileName =
         '${DateTime.now().millisecondsSinceEpoch}${p.extension(file.path)}';
-    final String path = fileName;
+    final path = fileName;
 
     Log.info(
-        'Memulai proses unggah gambar ke Supabase Storage. Bucket: $bucket, Path: $path');
+      'Memulai proses unggah gambar ke Supabase Storage. Bucket: $bucket, Path: $path',
+    );
 
     try {
-      await _klienSupabase.storage.from(bucket).upload(
-            path,
-            file,
-          );
+      await _klienSupabase.storage.from(bucket).upload(path, file);
 
-      final String urlPublik =
-          _klienSupabase.storage.from(bucket).getPublicUrl(path);
+      final urlPublik = _klienSupabase.storage.from(bucket).getPublicUrl(path);
 
       Log.info('Berhasil mengunggah gambar ke Supabase. URL: $urlPublik');
       return urlPublik;
     } on StorageException catch (e, st) {
       Log.error(
-          'Terjadi kesalahan spesifik Supabase Storage saat mengunggah gambar',
-          e: e,
-          s: st);
+        'Terjadi kesalahan spesifik Supabase Storage saat mengunggah gambar',
+        e: e,
+        s: st,
+      );
       rethrow;
     } catch (e, st) {
       Log.error('Terjadi kesalahan umum saat mengunggah gambar', e: e, s: st);
@@ -46768,10 +48657,13 @@ class LayananPenyimpananGambar {
     return _klienSupabase.storage.from(bucket).getPublicUrl(path);
   }
 
-  Future<String?> buatUrlTertanda(String bucket, String path,
-      {int expiresIn = 60}) async {
+  Future<String?> buatUrlTertanda(
+    String bucket,
+    String path, {
+    int expiresIn = 60,
+  }) async {
     try {
-      final String urlTertanda = await _klienSupabase.storage
+      final urlTertanda = await _klienSupabase.storage
           .from(bucket)
           .createSignedUrl(path, expiresIn);
       Log.info('Berhasil membuat signed URL untuk $bucket/$path');
@@ -46784,10 +48676,12 @@ class LayananPenyimpananGambar {
 
   Future<List<int>?> unduhGambar(String bucket, String path) async {
     try {
-      final bytesGambar =
-          await _klienSupabase.storage.from(bucket).download(path);
+      final bytesGambar = await _klienSupabase.storage
+          .from(bucket)
+          .download(path);
       Log.info(
-          'Berhasil mengunduh gambar $bucket/$path (${bytesGambar.length} bytes)');
+        'Berhasil mengunduh gambar $bucket/$path (${bytesGambar.length} bytes)',
+      );
       return bytesGambar;
     } catch (e, st) {
       Log.error('Gagal mengunduh gambar', e: e, s: st);
@@ -46797,9 +48691,10 @@ class LayananPenyimpananGambar {
 
   Future<List<FileObject>?> daftarFile(String bucket, {String? folder}) async {
     try {
-      final hasilDaftar =
-          await _klienSupabase.storage.from(bucket).list(path: folder ?? '');
-      final String namaFolder = folder ?? 'root';
+      final hasilDaftar = await _klienSupabase.storage
+          .from(bucket)
+          .list(path: folder ?? '');
+      final namaFolder = folder ?? 'root';
       Log.info('Berhasil mengambil daftar file dari $bucket/$namaFolder');
       return hasilDaftar;
     } catch (e, st) {
@@ -46820,8 +48715,9 @@ class LayananPenyimpananGambar {
   }
 }
 
-final layananPenyimpananGambarProvider =
-    Provider((ref) => LayananPenyimpananGambar());
+final layananPenyimpananGambarProvider = Provider(
+  (ref) => LayananPenyimpananGambar(),
+);
 
 
 // File: lib/shared/services/koneksi_internet_service.dart
@@ -48479,9 +50375,9 @@ class BaseOpSqlite {
     try {
       await _operasiInti((final txn) async {
         final batch = txn.batch();
-        int valid = 0;
+        var valid = 0;
 
-        for (int i = 0; i < dataList.length; i++) {
+        for (var i = 0; i < dataList.length; i++) {
           final data = dataList[i];
           if (data.isNotEmpty) {
             batch.insert(
@@ -48537,7 +50433,7 @@ class PembersihanDataOperasi {
     Log.info(
       'Memulai proses pembersihan data arsip yang lebih tua dari $waktuPenjadwalanHapusDataArsip hari (SQLite & Firestore).',
     );
-    int totalDataDihapus = 0;
+    var totalDataDihapus = 0;
     final timeLimit = DateTime.now().toUtc().subtract(
       Duration(days: waktuPenjadwalanHapusDataArsip),
     );
@@ -48547,7 +50443,7 @@ class PembersihanDataOperasi {
     );
 
     // Daftar nama tabel untuk SQLite dan koleksi untuk Firestore
-    final List<String> daftarTabelDanKoleksi = [
+    final daftarTabelDanKoleksi = <String>[
       NamaTabel.pelanggan,
       NamaTabel.pelangganAktif,
       NamaTabel.paket,
@@ -48562,14 +50458,14 @@ class PembersihanDataOperasi {
     ];
 
     // --- Langkah 1: Hapus dari Database Lokal (SQLite) ---
-    final int hapusDataSqlite = await _hapusDataSqlite(
+    final hapusDataSqlite = await _hapusDataSqlite(
       daftarTabelDanKoleksi,
       timeLimitEpoch,
     );
     totalDataDihapus += hapusDataSqlite;
 
     // --- Langkah 2: Hapus dari Database Remote (Firestore) ---
-    final int hapusDataFirebase = await _hapusDataFirebase(
+    final hapusDataFirebase = await _hapusDataFirebase(
       daftarTabelDanKoleksi,
       timeLimit,
     );
@@ -48583,7 +50479,7 @@ class PembersihanDataOperasi {
 
   /// Membersihkan data kadaluarsa dari database lokal SQLite.
   Future<int> _hapusDataSqlite(List<String> tables, int timeLimitEpoch) async {
-    int totalDihapus = 0;
+    var totalDihapus = 0;
     try {
       final db = await _sqliteDb.database;
       for (final table in tables) {
@@ -48611,7 +50507,7 @@ class PembersihanDataOperasi {
     List<String> koleksi,
     DateTime timeLimit,
   ) async {
-    int totalDihapus = 0;
+    var totalDihapus = 0;
     try {
       Log.info('Memulai proses pembersihan data untuk Firestore...');
 
@@ -48631,9 +50527,9 @@ class PembersihanDataOperasi {
       final snapshots = await Future.wait(futures);
 
       final batch = _firestore.batch();
-      int dokumenDitemukan = 0;
+      var dokumenDitemukan = 0;
 
-      for (int i = 0; i < snapshots.length; i++) {
+      for (var i = 0; i < snapshots.length; i++) {
         final snapshot = snapshots[i];
         if (snapshot.docs.isNotEmpty) {
           final namaKoleksi = koleksi[i];
@@ -48678,7 +50574,6 @@ class PembersihanDataOperasi {
 // File: lib/shared/enum/app_role_enum.dart
 // path: lib/shared/enum/app_role_enum.dart
 
-
 /// Mendefinisikan peran pengguna dalam aplikasi.
 enum AppRole {
   /// Peran administrator dengan hak akses penuh.
@@ -48692,10 +50587,7 @@ enum AppRole {
 // File: lib/shared/enum/url_supabase_enum.dart
 // path: lib/shared/enum/url_supabase_enum.dart
 
-enum UrlSupabaseEnum {
-  urLSupabase,
-  anonKeySupabase,
-}
+enum UrlSupabaseEnum { urLSupabase, anonKeySupabase }
 
 
 // File: lib/shared/constant/app_constants.dart
@@ -48773,6 +50665,9 @@ abstract final class NamaKolom {
   static const String durasiBonus = 'durasi_bonus';
   static const String tipeDurasiBonus = 'durasi_bonus_type';
   static const String targetRole = 'target_role';
+
+  static const String voucher = 'voucher';
+  static const String terpakai = 'used';
 }
 
 
@@ -49409,7 +51304,8 @@ abstract class StatusUnggahModel with _$StatusUnggahModel {
     );
 
     Log.info(
-        'Konversi ke UploadStatusModel berhasil: id=${model.id}, needUpload=${model.butuhUnggah}');
+      'Konversi ke UploadStatusModel berhasil: id=${model.id}, needUpload=${model.butuhUnggah}',
+    );
     return model;
   }
 
@@ -49455,14 +51351,11 @@ abstract class StatusModel with _$StatusModel implements HasId {
     DateTime? diperbaruiPada,
   }) = _StatusModel;
 
-  factory StatusModel.fromSqlite(
-    final Map<String, dynamic> map,
-  ) {
+  factory StatusModel.fromSqlite(final Map<String, dynamic> map) {
     return StatusModel(
       id: map[NamaKolom.id] as String? ?? globalStatusId,
-      diperbaruiPada: ParserUtil.parseDateTime(
-            map[NamaKolom.diperbaruiPada],
-          ) ??
+      diperbaruiPada:
+          ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]) ??
           DateTime.now(),
     );
   }
@@ -49705,7 +51598,7 @@ class FirebaseMigrationService {
 
     updateData.addAll(oldData);
 
-    final Map<String, int> renamedCount = {};
+    final renamedCount = <String, int>{};
 
     for (final entry in columnMapping.entries) {
       final oldField = entry.key;
@@ -49762,8 +51655,8 @@ class FirebaseMigrationService {
       return;
     }
 
-    int migratedCount = 0;
-    final Map<String, int> renamedCount = {};
+    var migratedCount = 0;
+    final renamedCount = <String, int>{};
 
     for (final doc in snapshot.docs) {
       final oldData = doc.data() as Map<String, dynamic>;
@@ -49817,11 +51710,11 @@ class FirebaseMigrationService {
     final QuerySnapshot snapshot = await _firestore
         .collection(collectionName)
         .get();
-    int migratedCount = 0;
+    var migratedCount = 0;
     for (final doc in snapshot.docs) {
       final data = doc.data() as Map<String, dynamic>;
       if (data.containsKey('isDeleted') && data['isDeleted'] is int) {
-        final bool newValue = (data['isDeleted'] as int) == 1;
+        final newValue = (data['isDeleted'] as int) == 1;
         batch.update(doc.reference, {'isDeleted': newValue});
         migratedCount++;
       }
@@ -49845,11 +51738,11 @@ class FirebaseMigrationService {
     final allDocs = await collectionRef.get();
     if (allDocs.docs.isEmpty) return;
 
-    final Map<String, int> renamedCountPerColumn = {};
+    final renamedCountPerColumn = <String, int>{};
 
     for (final doc in allDocs.docs) {
       final data = doc.data();
-      final Map<String, dynamic> updatePayload = {};
+      final updatePayload = <String, dynamic>{};
 
       for (final entry in columnMapping.entries) {
         final oldColumnName = entry.key;
@@ -49883,7 +51776,7 @@ class FirebaseMigrationService {
   ) async {
     const collectionName = NamaTabel.paket;
     final snapshot = await _firestore.collection(collectionName).get();
-    int count = 0;
+    var count = 0;
     for (final doc in snapshot.docs) {
       final data = doc.data();
       if (data.containsKey('isPublic')) {
@@ -49908,19 +51801,19 @@ class FirebaseMigrationService {
   ) async {
     const collectionName = NamaTabel.versiApkUser;
     final snapshot = await _firestore.collection(collectionName).get();
-    int buildCount = 0;
-    int linkCount = 0;
-    int bothCount = 0;
+    var buildCount = 0;
+    var linkCount = 0;
+    var bothCount = 0;
     for (final doc in snapshot.docs) {
       final data = doc.data();
       final update = <String, dynamic>{};
-      bool buildNeed = false;
-      bool linkNeed = false;
+      var buildNeed = false;
+      var linkNeed = false;
       final oldBuild = data[NamaKolom.nomorBuildTerakhir];
       final oldLink = data[NamaKolom.linkDownload];
       if (oldBuild != null && oldBuild is! Map) {
         buildNeed = true;
-        int val = 0;
+        var val = 0;
         if (oldBuild is int) {
           val = oldBuild;
         } else if (oldBuild is String) {
@@ -49934,7 +51827,7 @@ class FirebaseMigrationService {
       }
       if (oldLink != null && oldLink is! Map) {
         linkNeed = true;
-        String link = '';
+        var link = '';
         if (oldLink is String) {
           link = oldLink;
         }
@@ -49975,7 +51868,7 @@ class FirebaseMigrationService {
   ) async {
     const collectionName = NamaTabel.statusUnggah;
     final snapshot = await _firestore.collection(collectionName).get();
-    int count = 0;
+    var count = 0;
     for (final doc in snapshot.docs) {
       final data = doc.data();
       if (data.containsKey(NamaKolom.value)) {
@@ -50015,7 +51908,7 @@ class FirebaseMigrationService {
     try {
       final snapshot = await _firestore.collection(collectionName).get();
       final deleteBatch = _firestore.batch();
-      int docCount = 0;
+      var docCount = 0;
 
       for (final doc in snapshot.docs) {
         deleteBatch.delete(doc.reference);
@@ -50049,7 +51942,7 @@ class FirebaseMigrationService {
     final batch = _firestore.batch();
     final logs = <String>[];
 
-    final Map<String, String> legacyToNew = {
+    final legacyToNew = <String, String>{
       'dompet': NamaTabel.dompet,
       'kategori': NamaTabel.kategori,
       'sub_kategori': NamaTabel.subKategori,
@@ -50159,8 +52052,8 @@ export 'dummy_dompet.dart';
 export 'dummy_kategori.dart';
 export 'dummy_paket.dart';
 export 'dummy_pelanggan.dart';
-export 'dummy_sub_kategori.dart';  // ← Tambahkan ini
-export 'dummy_transaksi.dart';
+export 'dummy_sub_kategori.dart'; // ← Tambahkan ini
+
 
 // File: lib/data_dummy/dummy_pelanggan.dart
 // path lib/data_dummy/dummy_pelanggan.dart
@@ -50168,143 +52061,142 @@ export 'dummy_transaksi.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 
 /// Data dummy untuk pelanggan
-class DummyPelanggan {
-  // ID tetap untuk memudahkan testing
-  static const String idBudi = 'Budi-Santoso-id';
-  static const String idSiti = 'Siti-Aminah-id';
-  static const String idAgus = 'Agus-Setiawan-id';
-  static const String idDewi = 'Dewi-Purnama-id';
-  static const String idAndi = 'Andi-Pratama-id';
-  static const String idRina = 'Rina-Wahyuni-id';
-  static const String idJoko = 'Joko-Widodo-id';
-  static const String idMaya = 'Maya-Sari-id';
-  static const String idRudi = 'Rudi-Hartono-id';
-  static const String idLisa = 'Lisa-Anggraini-id';
 
-  /// Daftar pelanggan dummy
-  static List<PelangganModel> get daftarPelanggan => [
-    const PelangganModel(
-      id: idBudi,
-      nama: 'Budi Santoso',
-      telepon: '081234567890',
-      kataSandi: 'budi123',
-      alamat: 'Jl. Merdeka No. 10, Jakarta',
-      macAddress: '00:1B:44:11:3A:B7',
-    ),
-    const PelangganModel(
-      id: idSiti,
-      nama: 'Siti Aminah',
-      telepon: '081298765432',
-      kataSandi: 'siti123',
-      alamat: 'Jl. Pahlawan No. 25, Surabaya',
-      macAddress: '00:1B:44:11:3A:B8',
-    ),
-    const PelangganModel(
-      id: idAgus,
-      nama: 'Agus Setiawan',
-      telepon: '081355577788',
-      kataSandi: 'agus123',
-      alamat: 'Jl. Kemerdekaan No. 5, Bandung',
-      macAddress: '00:1B:44:11:3A:B9',
-    ),
-    const PelangganModel(
-      id: idDewi,
-      nama: 'Dewi Purnama',
-      telepon: '081278901234',
-      kataSandi: 'dewi123',
-      alamat: 'Jl. Diponegoro No. 12, Yogyakarta',
-      macAddress: '00:1B:44:11:3A:C0',
-    ),
-    const PelangganModel(
-      id: idAndi,
-      nama: 'Andi Pratama',
-      telepon: '081289012345',
-      kataSandi: 'andi123',
-      alamat: 'Jl. Sudirman No. 8, Makassar',
-      macAddress: '00:1B:44:11:3A:C1',
-    ),
-    const PelangganModel(
-      id: idRina,
-      nama: 'Rina Wahyuni',
-      telepon: '081390123456',
-      kataSandi: 'rina123',
-      alamat: 'Jl. Gatot Subroto No. 15, Medan',
-      macAddress: '00:1B:44:11:3A:C2',
-    ),
-    const PelangganModel(
-      id: idJoko,
-      nama: 'Joko Widodo',
-      telepon: '081401234567',
-      kataSandi: 'joko123',
-      alamat: 'Jl. MH Thamrin No. 20, Jakarta',
-      macAddress: '00:1B:44:11:3A:C3',
-    ),
-    const PelangganModel(
-      id: idMaya,
-      nama: 'Maya Sari',
-      telepon: '081412345678',
-      kataSandi: 'maya123',
-      alamat: 'Jl. Asia Afrika No. 30, Bandung',
-      macAddress: '00:1B:44:11:3A:C4',
-    ),
-    const PelangganModel(
-      id: idRudi,
-      nama: 'Rudi Hartono',
-      telepon: '081423456789',
-      kataSandi: 'rudi123',
-      alamat: 'Jl. Pemuda No. 7, Semarang',
-      macAddress: '00:1B:44:11:3A:C5',
-    ),
-    const PelangganModel(
-      id: idLisa,
-      nama: 'Lisa Anggraini',
-      telepon: '081434567890',
-      kataSandi: 'lisa123',
-      alamat: 'Jl. Kartini No. 3, Bali',
-      macAddress: '00:1B:44:11:3A:C6',
-    ),
-  ];
+// ID tetap untuk memudahkan testing
+const String idBudi = 'Budi-Santoso-id';
+const String idSiti = 'Siti-Aminah-id';
+const String idAgus = 'Agus-Setiawan-id';
+const String idDewi = 'Dewi-Purnama-id';
+const String idAndi = 'Andi-Pratama-id';
+const String idRina = 'Rina-Wahyuni-id';
+const String idJoko = 'Joko-Widodo-id';
+const String idMaya = 'Maya-Sari-id';
+const String idRudi = 'Rudi-Hartono-id';
+const String idLisa = 'Lisa-Anggraini-id';
 
-  /// Mendapatkan pelanggan berdasarkan ID
-  static PelangganModel? getById(String id) {
-    try {
-      return daftarPelanggan.firstWhere((p) => p.id == id);
-    } catch (e) {
-      return null;
-    }
+/// Daftar pelanggan dummy
+List<PelangganModel> get daftarPelanggan => [
+  const PelangganModel(
+    id: idBudi,
+    nama: 'Budi Santoso',
+    telepon: '081234567890',
+    kataSandi: 'budi123',
+    alamat: 'Jl. Merdeka No. 10, Jakarta',
+    macAddress: '00:1B:44:11:3A:B7',
+  ),
+  const PelangganModel(
+    id: idSiti,
+    nama: 'Siti Aminah',
+    telepon: '081298765432',
+    kataSandi: 'siti123',
+    alamat: 'Jl. Pahlawan No. 25, Surabaya',
+    macAddress: '00:1B:44:11:3A:B8',
+  ),
+  const PelangganModel(
+    id: idAgus,
+    nama: 'Agus Setiawan',
+    telepon: '081355577788',
+    kataSandi: 'agus123',
+    alamat: 'Jl. Kemerdekaan No. 5, Bandung',
+    macAddress: '00:1B:44:11:3A:B9',
+  ),
+  const PelangganModel(
+    id: idDewi,
+    nama: 'Dewi Purnama',
+    telepon: '081278901234',
+    kataSandi: 'dewi123',
+    alamat: 'Jl. Diponegoro No. 12, Yogyakarta',
+    macAddress: '00:1B:44:11:3A:C0',
+  ),
+  const PelangganModel(
+    id: idAndi,
+    nama: 'Andi Pratama',
+    telepon: '081289012345',
+    kataSandi: 'andi123',
+    alamat: 'Jl. Sudirman No. 8, Makassar',
+    macAddress: '00:1B:44:11:3A:C1',
+  ),
+  const PelangganModel(
+    id: idRina,
+    nama: 'Rina Wahyuni',
+    telepon: '081390123456',
+    kataSandi: 'rina123',
+    alamat: 'Jl. Gatot Subroto No. 15, Medan',
+    macAddress: '00:1B:44:11:3A:C2',
+  ),
+  const PelangganModel(
+    id: idJoko,
+    nama: 'Joko Widodo',
+    telepon: '081401234567',
+    kataSandi: 'joko123',
+    alamat: 'Jl. MH Thamrin No. 20, Jakarta',
+    macAddress: '00:1B:44:11:3A:C3',
+  ),
+  const PelangganModel(
+    id: idMaya,
+    nama: 'Maya Sari',
+    telepon: '081412345678',
+    kataSandi: 'maya123',
+    alamat: 'Jl. Asia Afrika No. 30, Bandung',
+    macAddress: '00:1B:44:11:3A:C4',
+  ),
+  const PelangganModel(
+    id: idRudi,
+    nama: 'Rudi Hartono',
+    telepon: '081423456789',
+    kataSandi: 'rudi123',
+    alamat: 'Jl. Pemuda No. 7, Semarang',
+    macAddress: '00:1B:44:11:3A:C5',
+  ),
+  const PelangganModel(
+    id: idLisa,
+    nama: 'Lisa Anggraini',
+    telepon: '081434567890',
+    kataSandi: 'lisa123',
+    alamat: 'Jl. Kartini No. 3, Bali',
+    macAddress: '00:1B:44:11:3A:C6',
+  ),
+];
+
+/// Mendapatkan pelanggan berdasarkan ID
+PelangganModel? getById(String id) {
+  try {
+    return daftarPelanggan.firstWhere((p) => p.id == id);
+  } catch (e) {
+    return null;
   }
+}
 
-  /// Mendapatkan pelanggan berdasarkan nama
-  static PelangganModel? getByName(String nama) {
-    try {
-      return daftarPelanggan.firstWhere(
-        (p) => p.nama.toLowerCase() == nama.toLowerCase(),
-      );
-    } catch (e) {
-      return null;
-    }
+/// Mendapatkan pelanggan berdasarkan nama
+PelangganModel? getByName(String nama) {
+  try {
+    return daftarPelanggan.firstWhere(
+      (p) => p.nama.toLowerCase() == nama.toLowerCase(),
+    );
+  } catch (e) {
+    return null;
   }
+}
 
-  /// Mendapatkan pelanggan dengan total poin (simulasi)
-  static Map<String, int> get totalPoin {
-    return {
-      idBudi: 150,
-      idSiti: 200,
-      idAgus: 75,
-      idDewi: 300,
-      idAndi: 50,
-      idRina: 120,
-      idJoko: 500,
-      idMaya: 80,
-      idRudi: 250,
-      idLisa: 100,
-    };
-  }
+/// Mendapatkan pelanggan dengan total poin (simulasi)
+Map<String, int> get totalPoin {
+  return {
+    idBudi: 150,
+    idSiti: 200,
+    idAgus: 75,
+    idDewi: 300,
+    idAndi: 50,
+    idRina: 120,
+    idJoko: 500,
+    idMaya: 80,
+    idRudi: 250,
+    idLisa: 100,
+  };
+}
 
-  /// Mendapatkan poin pelanggan berdasarkan ID
-  static int getPoinById(String id) {
-    return totalPoin[id] ?? 0;
-  }
+/// Mendapatkan poin pelanggan berdasarkan ID
+int getPoinById(String id) {
+  return totalPoin[id] ?? 0;
 }
 
 
@@ -50430,17 +52322,17 @@ class DummyKategori {
 
   static List<KategoriModel> get daftarKategori => [
     // Kategori Pemasukan
-    KategoriModel(
+    const KategoriModel(
       id: idKategoriPemasukan,
       nama: 'Pemasukan',
       tipe: TipeKategori.income,
       idSubKategori: [
-        const SubKategoriModel(
+        SubKategoriModel(
           id: idSubKategoriGaji,
           nama: 'Gaji',
           idKategori: idKategoriPemasukan,
         ),
-        const SubKategoriModel(
+        SubKategoriModel(
           id: idSubKategoriBonus,
           nama: 'Bonus',
           idKategori: idKategoriPemasukan,
@@ -50448,32 +52340,32 @@ class DummyKategori {
       ],
     ),
     // Kategori Pengeluaran
-    KategoriModel(
+    const KategoriModel(
       id: idKategoriPengeluaran,
       nama: 'Pengeluaran',
       tipe: TipeKategori.expense,
       idSubKategori: [
-        const SubKategoriModel(
+        SubKategoriModel(
           id: idSubKategoriMakanan,
           nama: 'Makanan',
           idKategori: idKategoriPengeluaran,
         ),
-        const SubKategoriModel(
+        SubKategoriModel(
           id: idSubKategoriTransport,
           nama: 'Transportasi',
           idKategori: idKategoriPengeluaran,
         ),
-        const SubKategoriModel(
+        SubKategoriModel(
           id: idSubKategoriInternet,
           nama: 'Internet',
           idKategori: idKategoriPengeluaran,
         ),
-        const SubKategoriModel(
+        SubKategoriModel(
           id: idSubKategoriListrik,
           nama: 'Listrik',
           idKategori: idKategoriPengeluaran,
         ),
-        const SubKategoriModel(
+        SubKategoriModel(
           id: idSubKategoriAir,
           nama: 'Air',
           idKategori: idKategoriPengeluaran,
@@ -50481,13 +52373,13 @@ class DummyKategori {
       ],
     ),
     // Kategori Transfer
-    KategoriModel(
+    const KategoriModel(
       id: idKategoriTransfer,
       nama: 'Transfer',
       tipe: TipeKategori.transfer,
     ),
     // Kategori Lainnya
-    KategoriModel(
+    const KategoriModel(
       id: idKategoriLainnya,
       nama: 'Lainnya',
       tipe: TipeKategori.expense,
@@ -50518,6 +52410,7 @@ class DummyKategori {
   }
 }
 
+
 // File: lib/data_dummy/dummy_transaksi.dart
 // path: lib/data_dummy/dummy_transaksi.dart
 
@@ -50531,307 +52424,302 @@ import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 
 /// Data dummy untuk transaksi
-class DummyTransaksi {
-  static const String idTransaksi1 = 'trans-001';
-  static const String idTransaksi2 = 'trans-002';
-  static const String idTransaksi3 = 'trans-003';
-  static const String idTransaksi4 = 'trans-004';
-  static const String idTransaksi5 = 'trans-005';
-  static const String idTransaksi6 = 'trans-006';
-  static const String idTransaksi7 = 'trans-007';
-  static const String idTransaksi8 = 'trans-008';
-  static const String idTransaksi9 = 'trans-009';
-  static const String idTransaksi10 = 'trans-010';
-  static const String idTransaksi11 = 'trans-011';
-  static const String idTransaksi12 = 'trans-012';
 
-  static List<TransaksiModel> get daftarTransaksi {
-    final now = DateTime.now();
-    final satuHariLalu = now.subtract(const Duration(days: 1));
-    const tigaHariLalu = Duration(days: 3);
-    const limaHariLalu = Duration(days: 5);
-    const tujuhHariLalu = Duration(days: 7);
-    const sepuluhHariLalu = Duration(days: 10);
-    const empatBelasHariLalu = Duration(days: 14);
-    const duaPuluhHariLalu = Duration(days: 20);
-    const tigaPuluhHariLalu = Duration(days: 30);
+const String idTransaksi1 = 'trans-001';
+const String idTransaksi2 = 'trans-002';
+const String idTransaksi3 = 'trans-003';
+const String idTransaksi4 = 'trans-004';
+const String idTransaksi5 = 'trans-005';
+const String idTransaksi6 = 'trans-006';
+const String idTransaksi7 = 'trans-007';
+const String idTransaksi8 = 'trans-008';
+const String idTransaksi9 = 'trans-009';
+const String idTransaksi10 = 'trans-010';
+const String idTransaksi11 = 'trans-011';
+const String idTransaksi12 = 'trans-012';
 
-    return [
-      // 1. Transaksi Pemasukan - Gaji Budi
-      TransaksiModel(
-        id: idTransaksi1,
-        tanggal: now,
-        deskripsi: 'Gaji Bulan Juni',
-        jumlah: 5000000,
-        tipe: TipeTransaksi.income,
-        idDompet: DummyDompet.idDompetUtama,
-        idKategori: DummyKategori.idKategoriPemasukan,
-        idSubKategori: DummyKategori.idSubKategoriGaji,
-        idPelanggan: DummyPelanggan.idBudi,
-        idPaket: null,
-        tanggalMulai: null,
-        tanggalBerakhir: null,
-      ),
-      // 2. Transaksi Pemasukan - Bonus Budi
-      TransaksiModel(
-        id: idTransaksi2,
-        tanggal: satuHariLalu,
-        deskripsi: 'Bonus Kinerja',
-        jumlah: 1000000,
-        tipe: TipeTransaksi.income,
-        idDompet: DummyDompet.idDompetUtama,
-        idKategori: DummyKategori.idKategoriPemasukan,
-        idSubKategori: DummyKategori.idSubKategoriBonus,
-        idPelanggan: DummyPelanggan.idBudi,
-        idPaket: null,
-        tanggalMulai: null,
-        tanggalBerakhir: null,
-      ),
-      // 3. Transaksi Pengeluaran - Makanan Budi
-      TransaksiModel(
-        id: idTransaksi3,
-        tanggal: now.subtract(tigaHariLalu),
-        deskripsi: 'Belanja Makanan',
-        jumlah: 500000,
-        tipe: TipeTransaksi.expense,
-        idDompet: DummyDompet.idDompetUtama,
-        idKategori: DummyKategori.idKategoriPengeluaran,
-        idSubKategori: DummyKategori.idSubKategoriMakanan,
-        idPelanggan: DummyPelanggan.idBudi,
-        idPaket: null,
-        tanggalMulai: null,
-        tanggalBerakhir: null,
-      ),
-      // 4. Transaksi Aktivasi Paket Hemat - Budi
-      TransaksiModel(
-        id: idTransaksi4,
-        tanggal: now.subtract(tigaHariLalu),
-        deskripsi: 'Aktivasi Paket Hemat',
-        jumlah: 150000,
-        tipe: TipeTransaksi.expense,
-        idDompet: DummyDompet.idDompetUtama,
-        idKategori: DummyKategori.idKategoriPengeluaran,
-        idSubKategori: DummyKategori.idSubKategoriInternet,
-        idPelanggan: DummyPelanggan.idBudi,
-        idPaket: DummyPaket.idPaketHemat,
-        poinDidapat: 50,
-        durasiPaket: 30,
-        tipeDurasiPaket: TipeDurasiPaket.days,
-        tanggalMulai: now.subtract(tigaHariLalu),
-        tanggalBerakhir: now
-            .subtract(tigaHariLalu)
-            .add(const Duration(days: 30)),
-        statusAktivasi: true,
-      ),
-      // 5. Transaksi Aktivasi Paket Bisnis - Siti
-      TransaksiModel(
-        id: idTransaksi5,
-        tanggal: now.subtract(limaHariLalu),
-        deskripsi: 'Aktivasi Paket Bisnis',
-        jumlah: 250000,
-        tipe: TipeTransaksi.expense,
-        idDompet: DummyDompet.idDompetCadangan,
-        idKategori: DummyKategori.idKategoriPengeluaran,
-        idSubKategori: DummyKategori.idSubKategoriInternet,
-        idPelanggan: DummyPelanggan.idSiti,
-        idPaket: DummyPaket.idPaketBisnis,
-        poinDidapat: 100,
-        durasiPaket: 30,
-        tipeDurasiPaket: TipeDurasiPaket.days,
-        tanggalMulai: now.subtract(limaHariLalu),
-        tanggalBerakhir: now
-            .subtract(limaHariLalu)
-            .add(const Duration(days: 30)),
-        statusAktivasi: true,
-      ),
-      // 6. Transaksi Aktivasi Paket Premium - Agus (Belum Lunas)
-      TransaksiModel(
-        id: idTransaksi6,
-        tanggal: now.subtract(tujuhHariLalu),
-        deskripsi: 'Aktivasi Paket Premium',
-        jumlah: 350000,
-        tipe: TipeTransaksi.expense,
-        idDompet: DummyDompet.idDompetBisnis,
-        idKategori: DummyKategori.idKategoriPengeluaran,
-        idSubKategori: DummyKategori.idSubKategoriInternet,
-        idPelanggan: DummyPelanggan.idAgus,
-        idPaket: DummyPaket.idPaketPremium,
-        statusPembayaran: StatusPembayaran.unpaid,
-        durasiPaket: 30,
-        tipeDurasiPaket: TipeDurasiPaket.days,
-        tanggalMulai: now.subtract(tujuhHariLalu),
-        tanggalBerakhir: now
-            .subtract(tujuhHariLalu)
-            .add(const Duration(days: 30)),
-        statusAktivasi: true,
-      ),
-      // 7. Transaksi Aktivasi Paket Gamer - Dewi
-      TransaksiModel(
-        id: idTransaksi7,
-        tanggal: now.subtract(sepuluhHariLalu),
-        deskripsi: 'Aktivasi Paket Gamer',
-        jumlah: 500000,
-        tipe: TipeTransaksi.expense,
-        idDompet: DummyDompet.idDompetInvestasi,
-        idKategori: DummyKategori.idKategoriPengeluaran,
-        idSubKategori: DummyKategori.idSubKategoriInternet,
-        idPelanggan: DummyPelanggan.idDewi,
-        idPaket: DummyPaket.idPaketGamer,
-        poinDidapat: 200,
-        durasiPaket: 30,
-        tipeDurasiPaket: TipeDurasiPaket.days,
-        tanggalMulai: now.subtract(sepuluhHariLalu),
-        tanggalBerakhir: now
-            .subtract(sepuluhHariLalu)
-            .add(const Duration(days: 30)),
-        statusAktivasi: true,
-      ),
-      // 8. Transaksi Aktivasi Paket Edukasi - Andi
-      TransaksiModel(
-        id: idTransaksi8,
-        tanggal: now.subtract(empatBelasHariLalu),
-        deskripsi: 'Aktivasi Paket Edukasi',
-        jumlah: 100000,
-        tipe: TipeTransaksi.expense,
-        idDompet: DummyDompet.idDompetUtama,
-        idKategori: DummyKategori.idKategoriPengeluaran,
-        idSubKategori: DummyKategori.idSubKategoriInternet,
-        idPelanggan: DummyPelanggan.idAndi,
-        idPaket: DummyPaket.idPaketEdukasi,
-        poinDidapat: 30,
-        durasiPaket: 15,
-        tipeDurasiPaket: TipeDurasiPaket.days,
-        tanggalMulai: now.subtract(empatBelasHariLalu),
-        tanggalBerakhir: now
-            .subtract(empatBelasHariLalu)
-            .add(const Duration(days: 15)),
-        statusAktivasi: true,
-      ),
-      // 9. Transaksi Aktivasi Paket Ultimate - Joko
-      TransaksiModel(
-        id: idTransaksi9,
-        tanggal: now.subtract(duaPuluhHariLalu),
-        deskripsi: 'Aktivasi Paket Ultimate',
-        jumlah: 750000,
-        tipe: TipeTransaksi.expense,
-        idDompet: DummyDompet.idDompetBisnis,
-        idKategori: DummyKategori.idKategoriPengeluaran,
-        idSubKategori: DummyKategori.idSubKategoriInternet,
-        idPelanggan: DummyPelanggan.idJoko,
-        idPaket: DummyPaket.idPaketUltimate,
-        poinDidapat: 300,
-        durasiPaket: 60,
-        tipeDurasiPaket: TipeDurasiPaket.days,
-        tanggalMulai: now.subtract(duaPuluhHariLalu),
-        tanggalBerakhir: now
-            .subtract(duaPuluhHariLalu)
-            .add(const Duration(days: 60)),
-        statusAktivasi: true,
-      ),
-      // 10. Transaksi Pengeluaran - Transportasi Rina
-      TransaksiModel(
-        id: idTransaksi10,
-        tanggal: now.subtract(tigaPuluhHariLalu),
-        deskripsi: 'Transportasi Bulanan',
-        jumlah: 300000,
-        tipe: TipeTransaksi.expense,
-        idDompet: DummyDompet.idDompetCadangan,
-        idKategori: DummyKategori.idKategoriPengeluaran,
-        idSubKategori: DummyKategori.idSubKategoriTransport,
-        idPelanggan: DummyPelanggan.idRina,
-        idPaket: null,
-        tanggalMulai: null,
-        tanggalBerakhir: null,
-      ),
-      // 11. Transaksi Pengeluaran - Listrik Maya
-      TransaksiModel(
-        id: idTransaksi11,
-        tanggal: now.subtract(duaPuluhHariLalu),
-        deskripsi: 'Pembayaran Listrik',
-        jumlah: 200000,
-        tipe: TipeTransaksi.expense,
-        idDompet: DummyDompet.idDompetUtama,
-        idKategori: DummyKategori.idKategoriPengeluaran,
-        idSubKategori: DummyKategori.idSubKategoriListrik,
-        idPelanggan: DummyPelanggan.idMaya,
-        idPaket: null,
-        tanggalMulai: null,
-        tanggalBerakhir: null,
-      ),
-      // 12. Transaksi Transfer - Rudi ke Lisa
-      TransaksiModel(
-        id: idTransaksi12,
-        tanggal: satuHariLalu,
-        deskripsi: 'Transfer ke Lisa',
-        jumlah: 500000,
-        tipe: TipeTransaksi.transfer,
-        idDompet: DummyDompet.idDompetUtama,
-        idDompetTujuan: DummyDompet.idDompetCadangan,
-        idKategori: DummyKategori.idKategoriTransfer,
-        idPelanggan: DummyPelanggan.idRudi,
-        idPaket: null,
-        tanggalMulai: null,
-        tanggalBerakhir: null,
-      ),
-    ];
+List<TransaksiModel> get daftarTransaksi {
+  final now = DateTime.now();
+  final satuHariLalu = now.subtract(const Duration(days: 1));
+  const tigaHariLalu = Duration(days: 3);
+  const limaHariLalu = Duration(days: 5);
+  const tujuhHariLalu = Duration(days: 7);
+  const sepuluhHariLalu = Duration(days: 10);
+  const empatBelasHariLalu = Duration(days: 14);
+  const duaPuluhHariLalu = Duration(days: 20);
+  const tigaPuluhHariLalu = Duration(days: 30);
+
+  return [
+    // 1. Transaksi Pemasukan - Gaji Budi
+    TransaksiModel(
+      id: idTransaksi1,
+      tanggal: now,
+      deskripsi: 'Gaji Bulan Juni',
+      jumlah: 5000000,
+      tipe: TipeTransaksi.income,
+      idDompet: DummyDompet.idDompetUtama,
+      idKategori: DummyKategori.idKategoriPemasukan,
+      idSubKategori: DummyKategori.idSubKategoriGaji,
+      idPelanggan: idBudi,
+      idPaket: null,
+      tanggalMulai: null,
+      tanggalBerakhir: null,
+    ),
+    // 2. Transaksi Pemasukan - Bonus Budi
+    TransaksiModel(
+      id: idTransaksi2,
+      tanggal: satuHariLalu,
+      deskripsi: 'Bonus Kinerja',
+      jumlah: 1000000,
+      tipe: TipeTransaksi.income,
+      idDompet: DummyDompet.idDompetUtama,
+      idKategori: DummyKategori.idKategoriPemasukan,
+      idSubKategori: DummyKategori.idSubKategoriBonus,
+      idPelanggan: idBudi,
+      idPaket: null,
+      tanggalMulai: null,
+      tanggalBerakhir: null,
+    ),
+    // 3. Transaksi Pengeluaran - Makanan Budi
+    TransaksiModel(
+      id: idTransaksi3,
+      tanggal: now.subtract(tigaHariLalu),
+      deskripsi: 'Belanja Makanan',
+      jumlah: 500000,
+      tipe: TipeTransaksi.expense,
+      idDompet: DummyDompet.idDompetUtama,
+      idKategori: DummyKategori.idKategoriPengeluaran,
+      idSubKategori: DummyKategori.idSubKategoriMakanan,
+      idPelanggan: idBudi,
+      idPaket: null,
+      tanggalMulai: null,
+      tanggalBerakhir: null,
+    ),
+    // 4. Transaksi Aktivasi Paket Hemat - Budi
+    TransaksiModel(
+      id: idTransaksi4,
+      tanggal: now.subtract(tigaHariLalu),
+      deskripsi: 'Aktivasi Paket Hemat',
+      jumlah: 150000,
+      tipe: TipeTransaksi.expense,
+      idDompet: DummyDompet.idDompetUtama,
+      idKategori: DummyKategori.idKategoriPengeluaran,
+      idSubKategori: DummyKategori.idSubKategoriInternet,
+      idPelanggan: idBudi,
+      idPaket: DummyPaket.idPaketHemat,
+      poinDidapat: 50,
+      durasiPaket: 30,
+      tipeDurasiPaket: TipeDurasiPaket.days,
+      tanggalMulai: now.subtract(tigaHariLalu),
+      tanggalBerakhir: now.subtract(tigaHariLalu).add(const Duration(days: 30)),
+      statusAktivasi: true,
+    ),
+    // 5. Transaksi Aktivasi Paket Bisnis - Siti
+    TransaksiModel(
+      id: idTransaksi5,
+      tanggal: now.subtract(limaHariLalu),
+      deskripsi: 'Aktivasi Paket Bisnis',
+      jumlah: 250000,
+      tipe: TipeTransaksi.expense,
+      idDompet: DummyDompet.idDompetCadangan,
+      idKategori: DummyKategori.idKategoriPengeluaran,
+      idSubKategori: DummyKategori.idSubKategoriInternet,
+      idPelanggan: idSiti,
+      idPaket: DummyPaket.idPaketBisnis,
+      poinDidapat: 100,
+      durasiPaket: 30,
+      tipeDurasiPaket: TipeDurasiPaket.days,
+      tanggalMulai: now.subtract(limaHariLalu),
+      tanggalBerakhir: now.subtract(limaHariLalu).add(const Duration(days: 30)),
+      statusAktivasi: true,
+    ),
+    // 6. Transaksi Aktivasi Paket Premium - Agus (Belum Lunas)
+    TransaksiModel(
+      id: idTransaksi6,
+      tanggal: now.subtract(tujuhHariLalu),
+      deskripsi: 'Aktivasi Paket Premium',
+      jumlah: 350000,
+      tipe: TipeTransaksi.expense,
+      idDompet: DummyDompet.idDompetBisnis,
+      idKategori: DummyKategori.idKategoriPengeluaran,
+      idSubKategori: DummyKategori.idSubKategoriInternet,
+      idPelanggan: idAgus,
+      idPaket: DummyPaket.idPaketPremium,
+      statusPembayaran: StatusPembayaran.unpaid,
+      durasiPaket: 30,
+      tipeDurasiPaket: TipeDurasiPaket.days,
+      tanggalMulai: now.subtract(tujuhHariLalu),
+      tanggalBerakhir: now
+          .subtract(tujuhHariLalu)
+          .add(const Duration(days: 30)),
+      statusAktivasi: true,
+    ),
+    // 7. Transaksi Aktivasi Paket Gamer - Dewi
+    TransaksiModel(
+      id: idTransaksi7,
+      tanggal: now.subtract(sepuluhHariLalu),
+      deskripsi: 'Aktivasi Paket Gamer',
+      jumlah: 500000,
+      tipe: TipeTransaksi.expense,
+      idDompet: DummyDompet.idDompetInvestasi,
+      idKategori: DummyKategori.idKategoriPengeluaran,
+      idSubKategori: DummyKategori.idSubKategoriInternet,
+      idPelanggan: idDewi,
+      idPaket: DummyPaket.idPaketGamer,
+      poinDidapat: 200,
+      durasiPaket: 30,
+      tipeDurasiPaket: TipeDurasiPaket.days,
+      tanggalMulai: now.subtract(sepuluhHariLalu),
+      tanggalBerakhir: now
+          .subtract(sepuluhHariLalu)
+          .add(const Duration(days: 30)),
+      statusAktivasi: true,
+    ),
+    // 8. Transaksi Aktivasi Paket Edukasi - Andi
+    TransaksiModel(
+      id: idTransaksi8,
+      tanggal: now.subtract(empatBelasHariLalu),
+      deskripsi: 'Aktivasi Paket Edukasi',
+      jumlah: 100000,
+      tipe: TipeTransaksi.expense,
+      idDompet: DummyDompet.idDompetUtama,
+      idKategori: DummyKategori.idKategoriPengeluaran,
+      idSubKategori: DummyKategori.idSubKategoriInternet,
+      idPelanggan: idAndi,
+      idPaket: DummyPaket.idPaketEdukasi,
+      poinDidapat: 30,
+      durasiPaket: 15,
+      tipeDurasiPaket: TipeDurasiPaket.days,
+      tanggalMulai: now.subtract(empatBelasHariLalu),
+      tanggalBerakhir: now
+          .subtract(empatBelasHariLalu)
+          .add(const Duration(days: 15)),
+      statusAktivasi: true,
+    ),
+    // 9. Transaksi Aktivasi Paket Ultimate - Joko
+    TransaksiModel(
+      id: idTransaksi9,
+      tanggal: now.subtract(duaPuluhHariLalu),
+      deskripsi: 'Aktivasi Paket Ultimate',
+      jumlah: 750000,
+      tipe: TipeTransaksi.expense,
+      idDompet: DummyDompet.idDompetBisnis,
+      idKategori: DummyKategori.idKategoriPengeluaran,
+      idSubKategori: DummyKategori.idSubKategoriInternet,
+      idPelanggan: idJoko,
+      idPaket: DummyPaket.idPaketUltimate,
+      poinDidapat: 300,
+      durasiPaket: 60,
+      tipeDurasiPaket: TipeDurasiPaket.days,
+      tanggalMulai: now.subtract(duaPuluhHariLalu),
+      tanggalBerakhir: now
+          .subtract(duaPuluhHariLalu)
+          .add(const Duration(days: 60)),
+      statusAktivasi: true,
+    ),
+    // 10. Transaksi Pengeluaran - Transportasi Rina
+    TransaksiModel(
+      id: idTransaksi10,
+      tanggal: now.subtract(tigaPuluhHariLalu),
+      deskripsi: 'Transportasi Bulanan',
+      jumlah: 300000,
+      tipe: TipeTransaksi.expense,
+      idDompet: DummyDompet.idDompetCadangan,
+      idKategori: DummyKategori.idKategoriPengeluaran,
+      idSubKategori: DummyKategori.idSubKategoriTransport,
+      idPelanggan: idRina,
+      idPaket: null,
+      tanggalMulai: null,
+      tanggalBerakhir: null,
+    ),
+    // 11. Transaksi Pengeluaran - Listrik Maya
+    TransaksiModel(
+      id: idTransaksi11,
+      tanggal: now.subtract(duaPuluhHariLalu),
+      deskripsi: 'Pembayaran Listrik',
+      jumlah: 200000,
+      tipe: TipeTransaksi.expense,
+      idDompet: DummyDompet.idDompetUtama,
+      idKategori: DummyKategori.idKategoriPengeluaran,
+      idSubKategori: DummyKategori.idSubKategoriListrik,
+      idPelanggan: idMaya,
+      idPaket: null,
+      tanggalMulai: null,
+      tanggalBerakhir: null,
+    ),
+    // 12. Transaksi Transfer - Rudi ke Lisa
+    TransaksiModel(
+      id: idTransaksi12,
+      tanggal: satuHariLalu,
+      deskripsi: 'Transfer ke Lisa',
+      jumlah: 500000,
+      tipe: TipeTransaksi.transfer,
+      idDompet: DummyDompet.idDompetUtama,
+      idDompetTujuan: DummyDompet.idDompetCadangan,
+      idKategori: DummyKategori.idKategoriTransfer,
+      idPelanggan: idRudi,
+      idPaket: null,
+      tanggalMulai: null,
+      tanggalBerakhir: null,
+    ),
+  ];
+}
+
+/// Mendapatkan transaksi berdasarkan ID
+TransaksiModel? getById(String id) {
+  try {
+    return daftarTransaksi.firstWhere((t) => t.id == id);
+  } catch (e) {
+    return null;
   }
+}
 
-  /// Mendapatkan transaksi berdasarkan ID
-  static TransaksiModel? getById(String id) {
-    try {
-      return daftarTransaksi.firstWhere((t) => t.id == id);
-    } catch (e) {
-      return null;
+/// Mendapatkan transaksi berdasarkan ID pelanggan
+List<TransaksiModel> getByCustomerId(String idPelanggan) {
+  return daftarTransaksi.where((t) => t.idPelanggan == idPelanggan).toList();
+}
+
+/// Mendapatkan transaksi berdasarkan tipe
+List<TransaksiModel> getByTipe(TipeTransaksi tipe) {
+  return daftarTransaksi.where((t) => t.tipe == tipe).toList();
+}
+
+/// Mendapatkan transaksi aktivasi paket
+List<TransaksiModel> getTransaksiAktivasi() {
+  return daftarTransaksi.where((t) => t.statusAktivasi == true).toList();
+}
+
+/// Mendapatkan transaksi dengan poin
+List<TransaksiModel> getTransaksiDenganPoin() {
+  return daftarTransaksi
+      .where((t) => t.poinDidapat > 0 || t.poinDigunakan > 0)
+      .toList();
+}
+
+/// Mendapatkan total pemasukan
+double getTotalPemasukan() {
+  return daftarTransaksi
+      .where((t) => t.tipe == TipeTransaksi.income)
+      .fold<double>(0, (sum, t) => sum + t.jumlah);
+}
+
+/// Mendapatkan total pengeluaran
+double getTotalPengeluaran() {
+  return daftarTransaksi
+      .where((t) => t.tipe == TipeTransaksi.expense)
+      .fold<double>(0, (sum, t) => sum + t.jumlah);
+}
+
+/// Mendapatkan total poin per pelanggan
+Map<String, int> getTotalPoinPerPelanggan() {
+  final poinMap = <String, int>{};
+  for (final t in daftarTransaksi) {
+    if (t.idPelanggan != null && t.idPelanggan!.isNotEmpty) {
+      final id = t.idPelanggan!;
+      poinMap[id] = (poinMap[id] ?? 0) + t.poinDidapat - t.poinDigunakan;
     }
   }
-
-  /// Mendapatkan transaksi berdasarkan ID pelanggan
-  static List<TransaksiModel> getByCustomerId(String idPelanggan) {
-    return daftarTransaksi.where((t) => t.idPelanggan == idPelanggan).toList();
-  }
-
-  /// Mendapatkan transaksi berdasarkan tipe
-  static List<TransaksiModel> getByTipe(TipeTransaksi tipe) {
-    return daftarTransaksi.where((t) => t.tipe == tipe).toList();
-  }
-
-  /// Mendapatkan transaksi aktivasi paket
-  static List<TransaksiModel> getTransaksiAktivasi() {
-    return daftarTransaksi.where((t) => t.statusAktivasi == true).toList();
-  }
-
-  /// Mendapatkan transaksi dengan poin
-  static List<TransaksiModel> getTransaksiDenganPoin() {
-    return daftarTransaksi
-        .where((t) => t.poinDidapat > 0 || t.poinDigunakan > 0)
-        .toList();
-  }
-
-  /// Mendapatkan total pemasukan
-  static double getTotalPemasukan() {
-    return daftarTransaksi
-        .where((t) => t.tipe == TipeTransaksi.income)
-        .fold<double>(0, (sum, t) => sum + t.jumlah);
-  }
-
-  /// Mendapatkan total pengeluaran
-  static double getTotalPengeluaran() {
-    return daftarTransaksi
-        .where((t) => t.tipe == TipeTransaksi.expense)
-        .fold<double>(0, (sum, t) => sum + t.jumlah);
-  }
-
-  /// Mendapatkan total poin per pelanggan
-  static Map<String, int> getTotalPoinPerPelanggan() {
-    final Map<String, int> poinMap = {};
-    for (final t in daftarTransaksi) {
-      if (t.idPelanggan != null && t.idPelanggan!.isNotEmpty) {
-        final id = t.idPelanggan!;
-        poinMap[id] = (poinMap[id] ?? 0) + t.poinDidapat - t.poinDigunakan;
-      }
-    }
-    return poinMap;
-  }
+  return poinMap;
 }
 
 
@@ -50888,13 +52776,12 @@ class HalamanDataDummy extends ConsumerWidget {
                 context,
                 ref,
                 'Pelanggan',
-                DummyPelanggan.daftarPelanggan,
+                daftarPelanggan,
                 ref.read(pelangganOpSqliteProvider).sisipkanAtauPerbaruiBatch,
               );
               ref.invalidate(pelangganOpSqliteProvider);
             },
-            label:
-                'Tambah Pelanggan Dummy (${DummyPelanggan.daftarPelanggan.length})',
+            label: 'Tambah Pelanggan Dummy (${daftarPelanggan.length})',
             icon: TIcons.customers,
           ),
           _tombolFitur(
@@ -50966,13 +52853,12 @@ class HalamanDataDummy extends ConsumerWidget {
                 context,
                 ref,
                 'Transaksi',
-                DummyTransaksi.daftarTransaksi,
+                daftarTransaksi,
                 ref.read(transaksiOpGlobalProvider).sisipkanAtauPerbaruiBatch,
               );
               ref.invalidate(transaksiOpSqliteProvider);
             },
-            label:
-                'Tambah Transaksi Dummy (${DummyTransaksi.daftarTransaksi.length})',
+            label: 'Tambah Transaksi Dummy (${daftarTransaksi.length})',
             icon: TIcons.receiptLong,
           ),
           _tombolFitur(
@@ -51133,8 +53019,8 @@ class HalamanDataDummy extends ConsumerWidget {
       // 1. Tambahkan Pelanggan
       await ref
           .read(pelangganOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DummyPelanggan.daftarPelanggan);
-      Log.info('✅ Pelanggan: ${DummyPelanggan.daftarPelanggan.length} data');
+          .sisipkanAtauPerbaruiBatch(daftarPelanggan);
+      Log.info('✅ Pelanggan: ${daftarPelanggan.length} data');
 
       // 2. Tambahkan Dompet
       await ref
@@ -51165,8 +53051,8 @@ class HalamanDataDummy extends ConsumerWidget {
       // 6. Tambahkan Transaksi
       await ref
           .read(transaksiOpGlobalProvider)
-          .sisipkanAtauPerbaruiBatch(DummyTransaksi.daftarTransaksi);
-      Log.info('✅ Transaksi: ${DummyTransaksi.daftarTransaksi.length} data');
+          .sisipkanAtauPerbaruiBatch(daftarTransaksi);
+      Log.info('✅ Transaksi: ${daftarTransaksi.length} data');
 
       // 7. Tambahkan Pengaturan
       await ref
@@ -51198,14 +53084,14 @@ class HalamanDataDummy extends ConsumerWidget {
               children: [
                 const Text('Semua data dummy berhasil ditambahkan:'),
                 gapH8,
-                Text('• ${DummyPelanggan.daftarPelanggan.length} Pelanggan'),
+                Text('• ${daftarPelanggan.length} Pelanggan'),
                 Text('• ${DummyDompet.daftarDompet.length} Dompet'),
                 Text('• ${DummyKategori.daftarKategori.length} Kategori'),
                 Text(
                   '• ${DummySubKategori.daftarSubKategori.length} Sub Kategori',
                 ),
                 Text('• ${DummyPaket.daftarPaket.length} Paket'),
-                Text('• ${DummyTransaksi.daftarTransaksi.length} Transaksi'),
+                Text('• ${daftarTransaksi.length} Transaksi'),
                 const Text('• 1 Pengaturan'),
               ],
             ),
@@ -51648,8 +53534,7 @@ import 'package:wifi/shared/enum/app_role_enum.dart';
 /// 5. Menginisialisasi Google Mobile Ads SDK.
 /// 6. Menjalankan aplikasi dengan [ProviderScope] dan melewatkan role admin.
 void main() async {
-  final WidgetsBinding widgetsBinding =
-      WidgetsFlutterBinding.ensureInitialized();
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   // Muat variabel lingkungan dari file .env
@@ -51727,8 +53612,7 @@ import 'package:wifi/shared/enum/app_role_enum.dart';
 
 /// Fungsi utama untuk menjalankan aplikasi admin dalam mode pengembangan (dev).
 void main() async {
-  final WidgetsBinding widgetsBinding =
-      WidgetsFlutterBinding.ensureInitialized();
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   // Muat variabel lingkungan dari file .env
@@ -51812,12 +53696,12 @@ final sqliteProvider = FutureProvider((ref) async {
 });
 
 class SqliteDatabase {
-  static final SqliteDatabase instance = SqliteDatabase._internal();
-  static Database? _database;
-  static const int _databaseVersion = 54;
   SqliteDatabase._internal() {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
   }
+  static final SqliteDatabase instance = SqliteDatabase._internal();
+  static Database? _database;
+  static const int _databaseVersion = 54;
   void debugSetDatabaseNull() {
     if (Platform.environment.containsKey('FLUTTER_TEST')) {
       _database = null;
@@ -51857,9 +53741,8 @@ class SqliteDatabase {
       }
 
       Log.info('Mode PRODUKSI/DEBUG. Menggunakan database fisik.');
-      final Directory documentsDirectory =
-          await getApplicationDocumentsDirectory();
-      final String path = join(documentsDirectory.path, 'mydatabase.db');
+      final documentsDirectory = await getApplicationDocumentsDirectory();
+      final path = join(documentsDirectory.path, 'mydatabase.db');
       Log.info('Path database: $path');
 
       Log.info('Membuka database dengan versi $_databaseVersion...');
@@ -51964,7 +53847,7 @@ class SqliteDatabase {
       '[MIGRASI v53] Menambahkan kolom durasi_bonus dan durasi_bonus_type...',
     );
 
-    const String tableName = NamaTabel.transaksi;
+    const tableName = NamaTabel.transaksi;
     final results = await db.rawQuery('PRAGMA table_info("$tableName")');
     final existingColumns = results
         .map((row) => row['name'] as String)
@@ -51986,7 +53869,7 @@ class SqliteDatabase {
   }
 
   Future<void> _migrateToV54(final Database db) async {
-    const String tableName = NamaTabel.notifikasi;
+    const tableName = NamaTabel.notifikasi;
     final results = await db.rawQuery('PRAGMA table_info("$tableName")');
     final existingColumns = results
         .map((row) => row['name'] as String)
@@ -52045,7 +53928,7 @@ class SqliteDatabase {
   Future<void> _migrateToV47(final Database db) async {
     Log.info('[MIGRASI v47] Migrasi skema destruktif.');
     final batch = db.batch();
-    final List<String> daftarTabel = [
+    final daftarTabel = <String>[
       'kategori',
       'sub_kategori',
       'paket',
@@ -52373,7 +54256,7 @@ class SqliteDatabase {
     Log.info('Semua 14 definisi tabel (v52) ditambahkan ke batch.');
 
     // diperbaiki: Index ditargetkan menggunakan escaping keyword "transaction" otomatis dari TableNameValue
-    const String trxTable = '"${NamaTabel.transaksi}"';
+    const trxTable = '"${NamaTabel.transaksi}"';
     batch.execute(
       'CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id ON $trxTable(${NamaKolom.idDompet})',
     );
@@ -52899,11 +54782,8 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 
 /// A stateless widget that displays a splash screen.
 class SplashScreen extends StatelessWidget {
-  /// The message to display while loading.
-  final String loadingMessage;
-
-  /// Creates a [SplashScreen].
   const SplashScreen({super.key, this.loadingMessage = 'Memuat...'});
+  final String loadingMessage;
 
   @override
   Widget build(final BuildContext context) {
@@ -52917,28 +54797,25 @@ class SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/image/ikon_apk.png',
-              width: 150,
-            ),
+            Image.asset('assets/image/ikon_apk.png', width: 150),
             gapH12,
             Text(
               'Admin WiFi',
               style: theme.textTheme.headlineMedium?.copyWith(
                 color: theme
-                    .colorScheme.onSurface, // diubah: Menggunakan onSurface
+                    .colorScheme
+                    .onSurface, // diubah: Menggunakan onSurface
               ),
             ),
             gapH48,
-            CircularProgressIndicator(
-              color: theme.colorScheme.primary,
-            ),
+            CircularProgressIndicator(color: theme.colorScheme.primary),
             gapH20,
             Text(
               loadingMessage,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme
-                    .colorScheme.onSurface, // diubah: Menggunakan onSurface
+                    .colorScheme
+                    .onSurface, // diubah: Menggunakan onSurface
               ),
             ),
           ],
@@ -53112,7 +54989,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       future: _initialization,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          final bool isOffline = !(snapshot.data ?? false);
+          final isOffline = !(snapshot.data ?? false);
           if (snapshot.hasError) {
             Log.error(
               'Error pada FutureBuilder inisialisasi',
@@ -53136,10 +55013,10 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 /// Menerima parameter [isOffline] untuk diteruskan ke [HalamanUtama]
 /// sehingga UI dapat menyesuaikan diri dengan status koneksi.
 class AppMaterial extends ConsumerWidget {
+  const AppMaterial({super.key, required this.isOffline});
+
   /// Apakah perangkat sedang offline.
   final bool isOffline;
-
-  const AppMaterial({super.key, required this.isOffline});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53236,10 +55113,10 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return _MigrationProgressDialog(
           migrationService: _migrationService,
-          onComplete: (bool hasError) {
+          onComplete: (hasError) {
             Log.info(
               'Migrasi selesai, dialog ditutup. Status error: $hasError',
             );
@@ -53268,8 +55145,7 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
     Log.info('Membangun UI HalamanMigrasi.');
 
     // Tombol dinonaktifkan jika migrasi sedang berjalan atau sudah berhasil.
-    final bool isButtonDisabled =
-        _isMigrating || _migrationCompletedSuccessfully;
+    final isButtonDisabled = _isMigrating || _migrationCompletedSuccessfully;
 
     Widget buttonIcon;
     String buttonText;
@@ -53326,6 +55202,12 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
 /// Pengguna hanya dapat menutupnya setelah migrasi selesai atau gagal.
 /// Log progres ditampilkan dalam area yang dapat digulir.
 class _MigrationProgressDialog extends StatefulWidget {
+  /// Membuat [_MigrationProgressDialog].
+  const _MigrationProgressDialog({
+    required this.migrationService,
+    required this.onComplete,
+  });
+
   /// Layanan migrasi yang akan menjalankan proses.
   final FirebaseMigrationService migrationService;
 
@@ -53333,12 +55215,6 @@ class _MigrationProgressDialog extends StatefulWidget {
   ///
   /// Parameter [hasError] bernilai `true` jika terjadi kesalahan selama proses.
   final void Function(bool hasError) onComplete;
-
-  /// Membuat [_MigrationProgressDialog].
-  const _MigrationProgressDialog({
-    required this.migrationService,
-    required this.onComplete,
-  });
 
   @override
   State<_MigrationProgressDialog> createState() =>
@@ -53489,7 +55365,7 @@ class HalamanTes extends StatefulWidget {
 
 class _HalamanTesState extends State<HalamanTes> {
   final LayananIklanInterstisial _adService = LayananIklanInterstisial();
-  final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
+  final adUnitId = interstitialAdUnitIds[0];
 
   @override
   void initState() {
@@ -53588,13 +55464,6 @@ import 'package:flutter/material.dart';
 
 /// Sebuah widget tombol dengan ikon dan label.
 class TombolAksi extends StatelessWidget {
-  /// Label dari tombol.
-  final String label;
-  /// Ikon yang akan ditampilkan di tombol.
-  final IconData icon;
-  /// Fungsi yang akan dipanggil saat tombol ditekan.
-  final VoidCallback onPressed;
-
   /// Membuat sebuah widget [TombolAksi].
   const TombolAksi({
     super.key,
@@ -53602,6 +55471,15 @@ class TombolAksi extends StatelessWidget {
     required this.icon,
     required this.onPressed,
   });
+
+  /// Label dari tombol.
+  final String label;
+
+  /// Ikon yang akan ditampilkan di tombol.
+  final IconData icon;
+
+  /// Fungsi yang akan dipanggil saat tombol ditekan.
+  final VoidCallback onPressed;
 
   @override
   Widget build(final BuildContext context) {
@@ -53624,20 +55502,18 @@ import 'package:flutter/material.dart';
 
 /// Sebuah widget container dengan border.
 class ContainerWithBorder extends StatelessWidget {
-  /// Widget yang akan ditampilkan di dalam container.
-  final Widget child;
-
   /// Membuat sebuah widget [ContainerWithBorder].
   const ContainerWithBorder({super.key, required this.child});
+
+  /// Widget yang akan ditampilkan di dalam container.
+  final Widget child;
 
   @override
   Widget build(final BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.grey.shade300,
-        ),
+        border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(10),
       ),
       child: child,
@@ -53653,6 +55529,15 @@ import 'package:wifi/shared/export/theme.dart';
 
 /// Sebuah widget untuk menampilkan informasi dalam sebuah kotak.
 class BoxInfo extends StatelessWidget {
+  /// Membuat sebuah widget [BoxInfo].
+  const BoxInfo({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+
   /// Judul dari kotak informasi.
   final String title;
 
@@ -53664,15 +55549,6 @@ class BoxInfo extends StatelessWidget {
 
   /// Warna dari kotak dan ikon.
   final Color color;
-
-  /// Membuat sebuah widget [BoxInfo].
-  const BoxInfo({
-    super.key,
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
 
   @override
   Widget build(final BuildContext context) {
@@ -53748,9 +55624,9 @@ class _LainnyaPageState extends State<LainnyaPage> {
   /// Menampilkan dialog konfirmasi sebelum keluar dari aplikasi.
   Future<void> _showLogoutConfirmationDialog() async {
     Log.info('Menampilkan dialog konfirmasi keluar.');
-    final bool? shouldLogout = await showDialog<bool>(
+    final shouldLogout = await showDialog<bool>(
       context: context,
-      builder: (final BuildContext context) {
+      builder: (context) {
         return AlertDialog(
           title: const Text('Konfirmasi Keluar'),
           content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
@@ -54013,6 +55889,7 @@ abstract class _$CustomerNotifier extends $AsyncNotifier<List<PelangganModel>> {
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54025,6 +55902,7 @@ import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/statistik/page/statistik_page_a.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_a.dart';
+import 'package:wifi/fitur/voucher/page/voucher.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -54033,9 +55911,9 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:workmanager/workmanager.dart';
 
 class HalamanUtama extends ConsumerStatefulWidget {
-  final bool isOffline;
-
   const HalamanUtama({super.key, this.isOffline = false});
+
+  final bool isOffline;
 
   @override
   ConsumerState<HalamanUtama> createState() => _HalamanUtamaState();
@@ -54169,7 +56047,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     const DompetPage(),
     const TransaksiA(),
     const StatistikPageA(),
-    const OrderPage(),
+    if (kDebugMode) const Voucher() else const OrderPage(),
     const LainnyaPage(),
   ];
 
@@ -54621,6 +56499,9 @@ lib
 │   │   │   ├── transaksi_provider.dart
 │   │   │   ├── transaksi_provider.freezed.dart
 │   │   │   └── transaksi_provider.g.dart
+│   │   ├── transaksi_provider.dart
+│   │   ├── transaksi_provider.freezed.dart
+│   │   ├── transaksi_provider.g.dart
 │   │   └── widget
 │   │       └── daftar_transaksi_widget.dart
 │   ├── versi_apk
@@ -54638,6 +56519,20 @@ lib
 │   │   └── service
 │   │       ├── layanan_cek_update_apk.dart
 │   │       └── update_service.dart
+│   ├── voucher
+│   │   ├── model
+│   │   │   ├── voucher_model.dart
+│   │   │   └── voucher_model.freezed.dart
+│   │   ├── operasi
+│   │   │   └── voucher_op_firebase.dart
+│   │   ├── page
+│   │   │   ├── detail_voucher.dart
+│   │   │   ├── form_voucher.dart
+│   │   │   └── voucher.dart
+│   │   └── provider
+│   │       ├── voucher_provider.dart
+│   │       ├── voucher_provider.freezed.dart
+│   │       └── voucher_provider.g.dart
 │   └── whatsapp
 │       └── info_paket.dart
 ├── main
@@ -54980,7 +56875,7 @@ test
         ├── perhitungan_util_test.dart
         └── toast_util_test.dart
 
-231 directories, 442 files
+236 directories, 454 files
 tree is not installed, but available in the following packages, pick one to run it, Ctrl+C to cancel.
 
 
@@ -55645,9 +57540,12 @@ jangan pernah menulis komentar dokumen di dalam file kode karean itu sangat bera
 		],
 		"description": "Template ConsumerWidget dengan ref.watch"
 	},
-	"ConsumerStatefulWidget (stateful) + initState + loading": {
+	"ConsumerStatefulWidget (stateful) + initState + dispose": {
 		"prefix": "/riv_ConsumerStatefulWidget",
 		"body": [
+			"import 'package:flutter/material.dart';",
+			"import 'package:flutter_riverpod/flutter_riverpod.dart';",
+			"",
 			"class ${1:MyPage} extends ConsumerStatefulWidget {",
 			"  const ${1:MyPage}({super.key});",
 			"",
@@ -55656,37 +57554,21 @@ jangan pernah menulis komentar dokumen di dalam file kode karean itu sangat bera
 			"}",
 			"",
 			"class _${1:MyPage}State extends ConsumerState<${1:MyPage}> {",
-			"  late final ${2:Repository} _repository;",
-			"  bool _isLoading = true;",
 			"",
 			"  @override",
 			"  void initState() {",
 			"    super.initState();",
-			"    _repository = ref.read(${3:repositoryProvider});",
-			"    _loadData();",
 			"  }",
 			"",
-			"  Future<void> _loadData() async {",
-			"    setState(() => _isLoading = true);",
-			"    try {",
-			"      // panggil repository",
-			"      if (mounted) setState(() => _isLoading = false);",
-			"    } on Exception catch (e, st) {",
-			"      Log.error('Error', e: e, st: st);",
-			"      if (mounted) {",
-			"        setState(() => _isLoading = false);",
-			"        ToastUtil.error(context, 'Gagal memuat data');",
-			"      }",
-			"    }",
+			"  @override",
+			"  void dispose() {",
+			"    // Bersihkan resource di sini jika diperlukan.",
+			"    // Contoh: _repository.dispose(); atau _subscription.cancel();",
+			"    super.dispose();",
 			"  }",
 			"",
 			"  @override",
 			"  Widget build(BuildContext context) {",
-			"    if (_isLoading) {",
-			"      return const Scaffold(",
-			"        body: Center(child: CircularProgressIndicator()),",
-			"      );",
-			"    }",
 			"    return Scaffold(",
 			"      appBar: AppBar(title: const Text('${1:MyPage}')),",
 			"      body: Container(),",
@@ -55694,8 +57576,9 @@ jangan pernah menulis komentar dokumen di dalam file kode karean itu sangat bera
 			"  }",
 			"}"
 		],
-		"description": "Template lengkap ConsumerStatefulWidget dengan initState dan loading"
-	}}
+		"description": "Template ConsumerStatefulWidget dengan initState dan dispose serta import yang diperlukan"
+	}
+}
 
 // File: .vscode/komentar_path.code-snippets
 {
@@ -55755,5 +57638,31 @@ jangan pernah menulis komentar dokumen di dalam file kode karean itu sangat bera
 			"}"
 		],
 		"description": "Snippet method Future universal dengan try-catch"
+	}
+}
+
+// File: .vscode/freezed.code-snippets
+{
+	"Freezed Model Boilerplate": {
+		"prefix": "/freezedModel",
+		"body": [
+			"import 'package:freezed_annotation/freezed_annotation.dart';",
+			"",
+			"part '${TM_FILENAME_BASE}.freezed.dart';",
+			"part '${TM_FILENAME_BASE}.g.dart';",
+			"",
+			"@freezed",
+			"class ${1:ModelName} with _\\$${1:ModelName} {",
+			"  const ${1:ModelName}._();",
+			"",
+			"  const factory ${1:ModelName}({",
+			"    ${2:required String id,}",
+			"    $0",
+			"  }) = _${1:ModelName};",
+			"",
+			"  factory ${1:ModelName}.fromJson(Map<String, dynamic> json) => _\\$${1:ModelName}FromJson(json);",
+			"}"
+		],
+		"description": "Membuat template dasar untuk Freezed Model"
 	}
 }
