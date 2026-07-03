@@ -2,15 +2,22 @@
 
 ## Daftar file
 
+- [lib/fitur/voucher/enum/tipe_voucher.dart](../../lib/fitur/voucher/enum/tipe_voucher.dart)
 - [lib/fitur/voucher/model/voucher_model.dart](../../lib/fitur/voucher/model/voucher_model.dart)
 - [lib/fitur/voucher/operasi/voucher_op_firebase.dart](../../lib/fitur/voucher/operasi/voucher_op_firebase.dart)
 - [lib/fitur/voucher/page/detail_voucher.dart](../../lib/fitur/voucher/page/detail_voucher.dart)
 - [lib/fitur/voucher/page/form_voucher.dart](../../lib/fitur/voucher/page/form_voucher.dart)
 - [lib/fitur/voucher/page/voucher.dart](../../lib/fitur/voucher/page/voucher.dart)
 - [lib/fitur/voucher/provider/voucher_provider.dart](../../lib/fitur/voucher/provider/voucher_provider.dart)
-- [lib/fitur/voucher/tipe_voucher.dart](../../lib/fitur/voucher/tipe_voucher.dart)
 
 ## Isi file
+
+### File: `lib/fitur/voucher/enum/tipe_voucher.dart`
+```dart
+// path: lib/fitur/voucher/enum/tipe_voucher.dart
+
+enum TipeVoucher { satu, beberapa }
+```
 
 ### File: `lib/fitur/voucher/model/voucher_model.dart`
 ```dart
@@ -18,7 +25,6 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:wifi/fitur/voucher/tipe_voucher.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart';
@@ -46,8 +52,7 @@ abstract class VoucherModel with _$VoucherModel implements HasId {
       idPaket: data[NamaKolom.idPaket] as String? ?? '',
       terpakai: ParserUtil.parseBool(data[NamaKolom.terpakai]),
       dihapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
-      tipeVoucher:
-          data[NamaKolom.tipeVoucher] as String? ?? TipeVoucher.satu.name,
+      tipeVoucher: data[NamaKolom.tipeVoucher] as String? ?? '',
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
@@ -180,6 +185,7 @@ final voucherOpFirebaseProvider = Provider<VoucherOpFirebase>((ref) {
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/voucher/enum/tipe_voucher.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart'; // tambahkan ini
 import 'package:wifi/fitur/voucher/page/form_voucher.dart';
 import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
@@ -267,6 +273,22 @@ class DetailVoucher extends ConsumerWidget {
                   : Colors.red.shade100,
             ),
             const SizedBox(height: 12),
+            if (voucher.tipeVoucher.isNotEmpty)
+              Chip(
+                avatar: Icon(
+                  voucher.tipeVoucher == TipeVoucher.satu.name
+                      ? Icons.phone_android
+                      : Icons.devices,
+                  size: 18,
+                ),
+                label: Text(
+                  voucher.tipeVoucher == TipeVoucher.satu.name
+                      ? 'Satu Perangkat'
+                      : 'Beberapa Perangkat',
+                ),
+                backgroundColor: Colors.blue.shade50,
+              ),
+            const SizedBox(height: 12),
             if (voucher.diperbaruiPada != null)
               Row(
                 children: [
@@ -311,7 +333,7 @@ import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart';
 import 'package:wifi/fitur/voucher/operasi/voucher_op_firebase.dart';
 import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
-import 'package:wifi/fitur/voucher/tipe_voucher.dart';
+import 'package:wifi/fitur/voucher/enum/tipe_voucher.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_teks.dart';
@@ -926,9 +948,4 @@ Future<void> softDelete(String id) async {
   }
 }
 ```
-
-### File: `lib/fitur/voucher/tipe_voucher.dart`
-```dart
-// lib/fitur/voucher/model/tipe_voucher.dart
-enum TipeVoucher { satu, beberapa }```
 
