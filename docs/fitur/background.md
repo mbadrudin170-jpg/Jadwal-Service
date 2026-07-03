@@ -1,0 +1,311 @@
+# Dokumentasi Fitur: background
+
+## Daftar file
+
+lib/fitur/background/alarm_utils.dart
+lib/fitur/background/layanan_latar_belakang.dart
+lib/fitur/background/layanan_peluncuran.dart
+
+## Isi file
+
+### File: `lib/fitur/background/alarm_utils.dart`
+```dart
+// path: lib/fitur/background/alarm_utils.dart
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
+
+/// Callback untuk alarm yang dieksekusi di background isolate.
+@pragma('vm:entry-point')
+Future<void> alarmCallback() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  Log.info('ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...');
+  final container = ProviderContainer();
+  try {
+    final service = container.read(arsipLanggananKadaluarsaServiceProvider);
+    await service.prosesArsipLanggananKadaluarsa();
+  } finally {
+    container.dispose();
+  }
+  Log.info('ALARM SELESAI: Proses pengecekan langganan kedaluwarsa selesai.');
+}
+```
+
+### File: `lib/fitur/background/layanan_latar_belakang.dart`
+```dart
+// path: lib/fitur/background/background_service.dart
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/notifikasi/pengingat_paket_belum_lunas.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:workmanager/workmanager.dart';
+
+const String namaTugasSinkronisasi = 'syncDataTask';
+const String namaTugasJadwalUlangNotifikasi = 'rescheduleNotificationsTask';
+const String namaTugasPengingatTagihan = 'reminder_unpaid_packages';
+
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((tugas, dataMasukan) async {
+    Log.info('Background task dimulai: $tugas');
+
+    await _inisialisasiIsolatLatarBelakang();
+
+    final container = ProviderContainer();
+
+    try {
+      switch (tugas) {
+        case namaTugasSinkronisasi:
+          try {
+            final layananCekSinkronisasi = container.read(
+              layananCekSinkronisasiProvider,
+            );
+            await layananCekSinkronisasi.jalankanCekSinkronisasi();
+            Log.info('Background task "$tugas" selesai dengan sukses.');
+            return true;
+          } catch (e, st) {
+            Log.error(
+              'Error saat menjalankan background task "$tugas"',
+              e: e,
+              s: st,
+            );
+            return false;
+          }
+        case namaTugasJadwalUlangNotifikasi:
+          try {
+            final pelangganAktifOpSqlite = container.read(
+              pelangganAktifOpSqliteProvider,
+            );
+            await pelangganAktifOpSqlite.jadwalkanUlangSemuaNotifikasi();
+            Log.info(
+              'Background task "$tugas" (reschedule) selesai dengan sukses.',
+            );
+            return true;
+          } on Object catch (e, st) {
+            Log.error(
+              'Error saat menjalankan background task "$tugas" (reschedule)',
+              e: e,
+              s: st,
+            );
+            return false;
+          }
+
+        case namaTugasPengingatTagihan:
+          final pengingatService = container.read(pengingatServiceProvider);
+          await pengingatService.cekDanTampilkanPengingatTagihan();
+          Log.info('Background task "$tugas" selesai dengan sukses.');
+          return true;
+
+        default:
+          Log.warning('Task tidak dikenal: $tugas');
+          return false;
+      }
+    } finally {
+      container.dispose();
+      Log.info(
+        'ProviderContainer berhasil di-dispose untuk mencegah kebocoran memori.',
+      );
+    }
+  });
+}
+
+/// Helper untuk inisialisasi di dalam background isolate.
+Future<void> _inisialisasiIsolatLatarBelakang() async {
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp();
+      Log.info('Firebase berhasil diinisialisasi di background isolate.');
+    }
+  } catch (e) {
+    Log.warning('Gagal menginisialisasi background isolate: $e');
+  }
+}
+
+class LayananLatarBelakang {
+  static Future<void> inisialisasi() async {
+    try {
+      await Workmanager().initialize(callbackDispatcher);
+      Log.info('Workmanager berhasil diinisialisasi.');
+
+      await daftarTugasSinkronisasiPeriodik();
+      await daftarTugasJadwalUlangPeriodik();
+      await daftarTugasPengingatTagihanPeriodik();
+    } on Exception catch (e, st) {
+      Log.error('Gagal menginisialisasi background services.', e: e, s: st);
+    }
+  }
+
+  @pragma('vm:entry-point')
+  static Future<void> periksaDanArsipkanPelangganKedaluwarsa() async {
+    Log.info(
+      'Alarm terpicu: Memulai pemeriksaan dan pengarsipan pelanggan kedaluwarsa.',
+    );
+    await _inisialisasiIsolatLatarBelakang();
+    final container = ProviderContainer();
+    try {
+      final pelangganAktifOpsqlite = container.read(
+        pelangganAktifOpSqliteProvider,
+      );
+      final jumlah = await pelangganAktifOpsqlite.arsipkanLanggananKadaluarsa();
+      Log.info(
+        'Proses pengarsipan selesai. $jumlah pelanggan kedaluwarsa telah diarsipkan.',
+      );
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal menjalankan periksaDanArsipkanPelangganKedaluwarsa di background',
+        e: e,
+        s: st,
+      );
+    } finally {
+      container.dispose();
+      Log.info('ProviderContainer (Alarm) berhasil di-dispose.');
+    }
+  }
+
+  static Future<void> daftarTugasSinkronisasiPeriodik() async {
+    try {
+      await Workmanager().registerPeriodicTask(
+        namaTugasSinkronisasi,
+        namaTugasSinkronisasi,
+        frequency: const Duration(minutes: 15),
+        existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
+        initialDelay: const Duration(minutes: 1),
+        constraints: Constraints(networkType: NetworkType.connected),
+      );
+      Log.info(
+        'Tugas sinkronisasi periodik ($namaTugasSinkronisasi) berhasil didaftarkan.',
+      );
+    } on Exception catch (e, st) {
+      Log.error('Gagal mendaftarkan tugas periodik sync.', e: e, s: st);
+    }
+  }
+
+  static Future<void> daftarTugasJadwalUlangPeriodik() async {
+    try {
+      await Workmanager().registerPeriodicTask(
+        namaTugasJadwalUlangNotifikasi,
+        namaTugasJadwalUlangNotifikasi,
+        frequency: const Duration(hours: 24),
+        existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
+        initialDelay: const Duration(minutes: 5),
+        constraints: Constraints(networkType: NetworkType.notRequired),
+      );
+      Log.info(
+        'Tugas penjadwalan ulang notifikasi ($namaTugasJadwalUlangNotifikasi) berhasil didaftarkan.',
+      );
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal mendaftarkan tugas penjadwalan ulang notifikasi.',
+        e: e,
+        s: st,
+      );
+    }
+  }
+
+  static Future<void> daftarTugasPengingatTagihanPeriodik() async {
+    try {
+      await Workmanager().registerPeriodicTask(
+        namaTugasPengingatTagihan,
+        namaTugasPengingatTagihan,
+        frequency: const Duration(hours: 24),
+        initialDelay: const Duration(hours: 1),
+        constraints: Constraints(networkType: NetworkType.notRequired),
+      );
+    } on Exception catch (e, s) {
+      Log.error('Gagal medaftarkan tugas pengingat tagihan', e: e, s: s);
+    }
+  }
+
+  static Future<void> batalkanSemuaTugas() async {
+    await Workmanager().cancelAll();
+    Log.info('Semua background tasks telah dibatalkan.');
+  }
+}
+```
+
+### File: `lib/fitur/background/layanan_peluncuran.dart`
+```dart
+// path: lib/fitur/background/boot_service.dart
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/alarm/penjadwal_alarm_android.dart';
+import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/shared/debug/log.dart';
+
+const int idArsipKadaluarsaPeriodik = 999;
+const int idArsipKadaluarsaSekaliJalan = 998;
+
+class LayananPeluncuran {
+  Future<void> jadwalkanTugasArsipPeriodik(ProviderContainer container) async {
+    final penjadwalAlarm = container.read(penjadwalAlarmProvider);
+
+    await penjadwalAlarm.jadwalkanPeriodik(
+      const Duration(hours: 1),
+      idArsipKadaluarsaPeriodik,
+      LayananLatarBelakang.periksaDanArsipkanPelangganKedaluwarsa,
+      mulaiPada: DateTime.now().add(const Duration(seconds: 10)),
+      tepatWaktu: true,
+      bangunkan: true,
+      jadwalkanUlangSaatBoot: true,
+    );
+  }
+
+  Future<void> jadwalkanUlangTugasArsip(ProviderContainer container) async {
+    Log.info('Memulai penjadwalan ulang tugas pengarsipan...');
+    final penjadwalAlarm = container.read(penjadwalAlarmProvider);
+    final pelangganAktifOpSqlite = container.read(
+      pelangganAktifOpSqliteProvider,
+    );
+
+    try {
+      final daftarPelangganAktif = await pelangganAktifOpSqlite
+          .ambilSemuaPelangganAktifDenganDetail();
+
+      await penjadwalAlarm.batalkan(idArsipKadaluarsaSekaliJalan);
+      Log.info(
+        'Alarm sekali jalan (ID: $idArsipKadaluarsaSekaliJalan) berhasil dibatalkan.',
+      );
+
+      if (daftarPelangganAktif.isEmpty) {
+        Log.warning('Tidak ada pelanggan aktif, tidak ada penjadwalan ulang.');
+        return;
+      }
+
+      daftarPelangganAktif.sort(
+        (a, b) => a.pelangganAktif.tanggalBerakhir.compareTo(
+          b.pelangganAktif.tanggalBerakhir,
+        ),
+      );
+
+      final tanggalKadaluarsaTerdekat =
+          daftarPelangganAktif.first.pelangganAktif.tanggalBerakhir;
+
+      await penjadwalAlarm.jadwalkanSekaliPada(
+        tanggalKadaluarsaTerdekat,
+        idArsipKadaluarsaSekaliJalan,
+        LayananLatarBelakang.periksaDanArsipkanPelangganKedaluwarsa,
+        tepatWaktu: true,
+        bangunkan: true,
+        jadwalkanUlangSaatBoot: true,
+      );
+
+      Log.info(
+        'Penjadwalan ulang berhasil. Alarm sekali jalan diatur untuk: $tanggalKadaluarsaTerdekat',
+      );
+    } on Exception catch (e, st) {
+      Log.error('Gagal menjadwalkan ulang tugas pengarsipan', e: e, s: st);
+    }
+  }
+}
+```
+
