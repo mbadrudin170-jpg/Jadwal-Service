@@ -524,7 +524,7 @@ class _VoucherState extends ConsumerState<Voucher> {
     if (_filterPaketId != null) {
       hasil = hasil.where((v) => v.idPaket == _filterPaketId).toList();
     }
-    var sorted = List<VoucherModel>.from(daftar);
+    var sorted = List<VoucherModel>.from(hasil);
     switch (_sortBy) {
       case SortVoucherBy.kode:
         sorted.sort((a, b) => a.voucher.compareTo(b.voucher));
@@ -665,20 +665,22 @@ class _VoucherState extends ConsumerState<Voucher> {
       ),
       body: Column(
         children: [
+          // Filter chips
           paketAsync.when(
             data: (paketState) =>
                 _buildDaftarTombolPaket(paketState.daftarPaket),
             loading: () => const SizedBox.shrink(),
-            error: (e, _) => Text('Gagal memuat paket: $e'),
+            error: (e, _) => const SizedBox.shrink(),
           ),
-          voucherAsync.when(
-            data: (state) {
-              final urut = _urutkanVoucher(state.voucher);
-              if (urut.isEmpty) {
-                return const Center(child: Text('Tidak ada data'));
-              }
-              return Expanded(
-                child: ListView.builder(
+          // Daftar voucher
+          Expanded(
+            child: voucherAsync.when(
+              data: (state) {
+                final urut = _urutkanVoucher(state.voucher);
+                if (urut.isEmpty) {
+                  return const Center(child: Text('Tidak ada data'));
+                }
+                return ListView.builder(
                   itemCount: urut.length,
                   itemBuilder: (context, index) {
                     final voucher = urut[index];
@@ -704,12 +706,12 @@ class _VoucherState extends ConsumerState<Voucher> {
                       ),
                     );
                   },
-                ),
-              );
-            },
-            error: (error, stackTrace) => Text('$error'),
-            loading: () => const Center(child: CircularProgressIndicator()),
-            skipLoadingOnReload: true,
+                );
+              },
+              error: (error, stackTrace) => Text('$error'),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              skipLoadingOnReload: true,
+            ),
           ),
         ],
       ),
@@ -722,6 +724,7 @@ class _VoucherState extends ConsumerState<Voucher> {
   }
 
   Widget _buildDaftarTombolPaket(List<PaketModel?> daftarPaket) {
+    final paketValid = daftarPaket.whereType<PaketModel>().toList();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -729,19 +732,21 @@ class _VoucherState extends ConsumerState<Voucher> {
         spacing: 8,
         children: [
           FilterChip(
+            avatar: const Icon(TIcons.wifi),
+            showCheckmark: false,
             selected: _filterPaketId == null,
             label: const Text('Semua'),
-            onSelected: (_) {
-              setState(() => _filterPaketId = null);
-            },
+            onSelected: (_) => setState(() => _filterPaketId = null),
           ),
-          ...daftarPaket.map((paket) {
+          ...paketValid.map((paket) {
             return FilterChip(
-              selected: _filterPaketId == paket?.id,
-              label: Text(paket?.nama ?? 'Paket Tidak Ditemukan'),
+              avatar: const Icon(TIcons.wifi),
+              showCheckmark: false,
+              selected: _filterPaketId == paket.id,
+              label: Text(paket.nama),
               onSelected: (selected) {
                 setState(() {
-                  _filterPaketId = selected ? paket?.id : null;
+                  _filterPaketId = selected ? paket.id : null;
                 });
               },
             );
