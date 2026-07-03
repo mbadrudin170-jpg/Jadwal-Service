@@ -223,51 +223,66 @@ class DetailVoucher extends ConsumerWidget {
     );
   }
 
-  // ⬇️ Perubahan: dynamic → VoucherModel
   Widget _buildDetail(BuildContext context, VoucherModel voucher) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            voucher.voucher,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              const Text('Paket: '),
-              NamaPaketWidget(idPaket: voucher.idPaket),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Text('Status: '),
-              Icon(
-                voucher.terpakai ? Icons.check_circle : Icons.cancel,
-                color: voucher.terpakai ? Colors.green : Colors.red,
-                size: 20,
+    return Card(
+      margin: const EdgeInsets.all(16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.card_giftcard, color: Colors.purple),
+                const SizedBox(width: 8),
+                Text(
+                  voucher.voucher,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const Divider(),
+            Row(
+              children: [
+                const Icon(Icons.shopping_bag, color: Colors.blue),
+                const SizedBox(width: 8),
+                NamaPaketWidget(idPaket: voucher.idPaket),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Chip(
+              label: Text(voucher.terpakai ? 'Terpakai' : 'Belum Terpakai'),
+              backgroundColor: voucher.terpakai
+                  ? Colors.green.shade100
+                  : Colors.red.shade100,
+            ),
+            const SizedBox(height: 12),
+            if (voucher.diperbaruiPada != null)
+              Row(
+                children: [
+                  const Icon(Icons.update, size: 18, color: Colors.grey),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Terakhir diperbarui: ${_formatDateTime(voucher.diperbaruiPada!)}',
+                  ),
+                ],
               ),
-              const SizedBox(width: 4),
-              Text(voucher.terpakai ? 'Terpakai' : 'Belum Terpakai'),
-            ],
-          ),
-          const SizedBox(height: 8),
-          if (voucher.diperbaruiPada != null)
-            Text(
-              'Terakhir diperbarui: ${_formatDateTime(voucher.diperbaruiPada!)}',
-              style: const TextStyle(color: Colors.grey),
-            ),
-          if (voucher.diarsipkanPada != null)
-            Text(
-              'Diarsipkan pada: ${_formatDateTime(voucher.diarsipkanPada!)}',
-              style: const TextStyle(color: Colors.grey),
-            ),
-        ],
+            if (voucher.diarsipkanPada != null)
+              Row(
+                children: [
+                  const Icon(Icons.archive, size: 18, color: Colors.grey),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Diarsipkan pada: ${_formatDateTime(voucher.diarsipkanPada!)}',
+                  ),
+                ],
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -480,6 +495,7 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/voucher/model/voucher_model.dart';
 import 'package:wifi/fitur/voucher/page/detail_voucher.dart';
 import 'package:wifi/fitur/voucher/page/form_voucher.dart';
 import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
@@ -487,8 +503,35 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_paket_widget.dart';
 
+enum SortVoucherBy { kode, status, paket }
+
 class Voucher extends ConsumerWidget {
-  const Voucher({super.key});
+  Voucher({super.key});
+  SortVoucherBy _sortBy = SortVoucherBy.kode; // default
+  bool _ascending = true;
+
+  List<VoucherModel> _urutkanVoucher(List<VoucherModel> daftar) {
+    var sorted = List<VoucherModel>.from(daftar);
+    switch (_sortBy) {
+      case SortVoucherBy.kode:
+        sorted.sort((a, b) => a.voucher.compareTo(b.voucher));
+        break;
+      case SortVoucherBy.status:
+        sorted.sort(
+          (a, b) => a.terpakai.toString().compareTo(b.terpakai.toString()),
+        );
+        break;
+      case SortVoucherBy.paket:
+        // Karena idPaket perlu nama paket, untuk sorting sederhana kita bisa bandingkan idPaket.
+        // Kalau ingin menampilkan nama, nanti bisa diintegrasikan dengan provider paket.
+        sorted.sort((a, b) => a.idPaket.compareTo(b.idPaket));
+        break;
+    }
+    if (!_ascending) {
+      sorted = sorted.reversed.toList();
+    }
+    return sorted;
+  }
 
   void _navigasiKeDetail(BuildContext context, String idVoucher) {
     Navigator.push(
@@ -513,7 +556,7 @@ class Voucher extends ConsumerWidget {
     String idVoucher,
     String kodeVoucher,
   ) async {
-     confirmed = await showDialog<bool>(
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Hapus Voucher'),
@@ -550,7 +593,27 @@ class Voucher extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final voucherAsync = ref.watch(voucherProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Voucher')),
+      appBar: AppBar(
+        title: const Text('Voucher'),
+        actions: [
+          PopupMenuButton<SortVoucherBy>(
+            onSelected: (value) {
+              if (_sortBy == value) {
+                _ascending = !_ascending;
+              } else {
+                _sortBy = value;
+                _ascending = true;
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: SortVoucherBy.kode,
+                child: Text('Kode Voucher'),
+              ),
+            ],
+          ),
+        ],
+      ),
       body: voucherAsync.when(
         data: (state) {
           if (state.voucher.isEmpty) {
@@ -563,16 +626,26 @@ class Voucher extends ConsumerWidget {
                   itemCount: state.voucher.length,
                   itemBuilder: (context, index) {
                     final voucher = state.voucher[index];
-                    return ListTile(
-                      onTap: () => _navigasiKeDetail(context, voucher.id),
-                      onLongPress: () => _konfirmasiHapus(
-                        context,
-                        ref,
-                        voucher.id,
-                        voucher.voucher,
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
                       ),
-                      title: Text(voucher.voucher),
-                      subtitle: NamaPaketWidget(idPaket: voucher.idPaket),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadiusGeometry.circular(12),
+                      ),
+                      elevation: 2,
+                      child: ListTile(
+                        onTap: () => _navigasiKeDetail(context, voucher.id),
+                        onLongPress: () => _konfirmasiHapus(
+                          context,
+                          ref,
+                          voucher.id,
+                          voucher.voucher,
+                        ),
+                        title: Text(voucher.voucher),
+                        subtitle: NamaPaketWidget(idPaket: voucher.idPaket),
+                      ),
                     );
                   },
                 ),

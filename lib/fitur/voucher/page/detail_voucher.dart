@@ -52,51 +52,66 @@ class DetailVoucher extends ConsumerWidget {
     );
   }
 
-  // ⬇️ Perubahan: dynamic → VoucherModel
   Widget _buildDetail(BuildContext context, VoucherModel voucher) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            voucher.voucher,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              const Text('Paket: '),
-              NamaPaketWidget(idPaket: voucher.idPaket),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Text('Status: '),
-              Icon(
-                voucher.terpakai ? Icons.check_circle : Icons.cancel,
-                color: voucher.terpakai ? Colors.green : Colors.red,
-                size: 20,
+    return Card(
+      margin: const EdgeInsets.all(16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.card_giftcard, color: Colors.purple),
+                const SizedBox(width: 8),
+                Text(
+                  voucher.voucher,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const Divider(),
+            Row(
+              children: [
+                const Icon(Icons.shopping_bag, color: Colors.blue),
+                const SizedBox(width: 8),
+                NamaPaketWidget(idPaket: voucher.idPaket),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Chip(
+              label: Text(voucher.terpakai ? 'Terpakai' : 'Belum Terpakai'),
+              backgroundColor: voucher.terpakai
+                  ? Colors.green.shade100
+                  : Colors.red.shade100,
+            ),
+            const SizedBox(height: 12),
+            if (voucher.diperbaruiPada != null)
+              Row(
+                children: [
+                  const Icon(Icons.update, size: 18, color: Colors.grey),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Terakhir diperbarui: ${_formatDateTime(voucher.diperbaruiPada!)}',
+                  ),
+                ],
               ),
-              const SizedBox(width: 4),
-              Text(voucher.terpakai ? 'Terpakai' : 'Belum Terpakai'),
-            ],
-          ),
-          const SizedBox(height: 8),
-          if (voucher.diperbaruiPada != null)
-            Text(
-              'Terakhir diperbarui: ${_formatDateTime(voucher.diperbaruiPada!)}',
-              style: const TextStyle(color: Colors.grey),
-            ),
-          if (voucher.diarsipkanPada != null)
-            Text(
-              'Diarsipkan pada: ${_formatDateTime(voucher.diarsipkanPada!)}',
-              style: const TextStyle(color: Colors.grey),
-            ),
-        ],
+            if (voucher.diarsipkanPada != null)
+              Row(
+                children: [
+                  const Icon(Icons.archive, size: 18, color: Colors.grey),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Diarsipkan pada: ${_formatDateTime(voucher.diarsipkanPada!)}',
+                  ),
+                ],
+              ),
+          ],
+        ),
       ),
     );
   }
