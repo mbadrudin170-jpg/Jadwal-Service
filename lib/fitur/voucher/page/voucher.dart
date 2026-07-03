@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart';
 import 'package:wifi/fitur/voucher/page/detail_voucher.dart';
 import 'package:wifi/fitur/voucher/page/form_voucher.dart';
@@ -22,9 +24,14 @@ class Voucher extends ConsumerStatefulWidget {
 class _VoucherState extends ConsumerState<Voucher> {
   SortVoucherBy _sortBy = SortVoucherBy.kode;
   bool _ascending = true;
+  String? _filterPaketId; // null berarti tampilkan semua
 
   List<VoucherModel> _urutkanVoucher(List<VoucherModel> daftar) {
-    var sorted = List<VoucherModel>.from(daftar);
+    var hasil = daftar;
+    if (_filterPaketId != null) {
+      hasil = hasil.where((v) => v.idPaket == _filterPaketId).toList();
+    }
+    var sorted = List<VoucherModel>.from(hasil);
     switch (_sortBy) {
       case SortVoucherBy.kode:
         sorted.sort((a, b) => a.voucher.compareTo(b.voucher));
@@ -102,6 +109,7 @@ class _VoucherState extends ConsumerState<Voucher> {
   @override
   Widget build(BuildContext context) {
     final voucherAsync = ref.watch(voucherProvider);
+    final paketAsync = ref.watch(paketProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Voucher'),
@@ -162,15 +170,21 @@ class _VoucherState extends ConsumerState<Voucher> {
           ),
         ],
       ),
-      body: voucherAsync.when(
-        data: (state) {
-          final urut = _urutkanVoucher(state.voucher);
-          if (urut.isEmpty) {
-            return const Center(child: Text('Tidak ada data'));
-          }
-          return Column(
-            children: [
-              Expanded(
+      body: Column(
+        children: [
+          paketAsync.when(
+            data: (paketState) =>
+                _buildDaftarTombolPaket(paketState.daftarPaket),
+            loading: () => const SizedBox.shrink(),
+            error: (e, _) => Text('Gagal memuat paket: $e'),
+          ),
+          voucherAsync.when(
+            data: (state) {
+              final urut = _urutkanVoucher(state.voucher);
+              if (urut.isEmpty) {
+                return const Center(child: Text('Tidak ada data'));
+              }
+              return Expanded(
                 child: ListView.builder(
                   itemCount: urut.length,
                   itemBuilder: (context, index) {
@@ -198,18 +212,52 @@ class _VoucherState extends ConsumerState<Voucher> {
                     );
                   },
                 ),
-              ),
-            ],
-          );
-        },
-        error: (error, stackTrace) => Text('$error'),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        skipLoadingOnReload: true,
+              );
+            },
+            error: (error, stackTrace) => Text('$error'),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            skipLoadingOnReload: true,
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'tambah_voucher',
         onPressed: () => _navigasiKeForm(context),
         child: const Icon(TIcons.add),
+      ),
+    );
+  }
+
+  Widget _buildDaftarTombolPaket(List<PaketModel?> daftarPaket) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        spacing: 8,
+        children: [
+          FilterChip(
+            avatar: const Icon(TIcons.wifi),
+            showCheckmark: false,
+            selected: _filterPaketId == null,
+            label: const Text('Semua'),
+            onSelected: (_) {
+              setState(() => _filterPaketId = null);
+            },
+          ),
+          ...daftarPaket.map((paket) {
+            return FilterChip(
+              avatar: const Icon(TIcons.wifi),
+              showCheckmark: false,
+              selected: _filterPaketId == paket?.id,
+              label: Text(paket?.nama ?? 'Paket Tidak Ditemukan'),
+              onSelected: (selected) {
+                setState(() {
+                  _filterPaketId = selected ? paket?.id : null;
+                });
+              },
+            );
+          }),
+        ],
       ),
     );
   }
