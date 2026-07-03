@@ -6,6 +6,7 @@ import 'package:wifi/fitur/voucher/page/detail_voucher.dart';
 import 'package:wifi/fitur/voucher/page/form_voucher.dart';
 import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_paket_widget.dart';
 
 class Voucher extends ConsumerWidget {
@@ -27,6 +28,46 @@ class Voucher extends ConsumerWidget {
     );
   }
 
+  /// Menampilkan dialog konfirmasi sebelum menghapus voucher
+  Future<void> _konfirmasiHapus(
+    BuildContext context,
+    WidgetRef ref,
+    String idVoucher,
+    String kodeVoucher,
+  ) async {
+     confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Hapus Voucher'),
+        content: Text('Yakin ingin menghapus voucher "$kodeVoucher"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await ref.read(voucherProvider.notifier).softDelete(idVoucher);
+        if (context.mounted) {
+          ToastUtil.success(context, 'Voucher berhasil dihapus');
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ToastUtil.error(context, 'Gagal menghapus voucher');
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final voucherAsync = ref.watch(voucherProvider);
@@ -46,6 +87,12 @@ class Voucher extends ConsumerWidget {
                     final voucher = state.voucher[index];
                     return ListTile(
                       onTap: () => _navigasiKeDetail(context, voucher.id),
+                      onLongPress: () => _konfirmasiHapus(
+                        context,
+                        ref,
+                        voucher.id,
+                        voucher.voucher,
+                      ),
                       title: Text(voucher.voucher),
                       subtitle: NamaPaketWidget(idPaket: voucher.idPaket),
                     );

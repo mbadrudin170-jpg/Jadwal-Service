@@ -307,7 +307,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
   final _formKey = GlobalKey<FormState>();
   bool _menyimpan = false;
   bool _sudahInisialisasi = false;
-  // Simpan ID paket yang dipilih (bukan nama paket)
   String? _selectedPaketId;
 
   @override
@@ -333,7 +332,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
         kode,
         kecualiId: isEdit ? widget.idVoucher : null,
       );
-
       if (sudahAda) {
         if (mounted) {
           ToastUtil.error(
@@ -343,7 +341,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
         }
         return;
       }
-
       if (isEdit) {
         // Mode edit - ambil data existing untuk mempertahankan id
         final currentState = ref.read(voucherProvider).value;
@@ -369,7 +366,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
         );
         await ref.read(voucherProvider.notifier).tambah(voucherBaru);
       }
-
       if (mounted) {
         ToastUtil.success(
           context,
@@ -401,7 +397,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
         );
         if (existing != null) {
           _voucherController.text = existing.voucher;
-          // Jika idPaket kosong, set null agar dropdown menunjukkan placeholder
           _selectedPaketId = existing.idPaket.isEmpty ? null : existing.idPaket;
           _sudahInisialisasi = true;
         }
@@ -489,6 +484,7 @@ import 'package:wifi/fitur/voucher/page/detail_voucher.dart';
 import 'package:wifi/fitur/voucher/page/form_voucher.dart';
 import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/nama_paket_widget.dart';
 
 class Voucher extends ConsumerWidget {
@@ -510,6 +506,46 @@ class Voucher extends ConsumerWidget {
     );
   }
 
+  /// Menampilkan dialog konfirmasi sebelum menghapus voucher
+  Future<void> _konfirmasiHapus(
+    BuildContext context,
+    WidgetRef ref,
+    String idVoucher,
+    String kodeVoucher,
+  ) async {
+     confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Hapus Voucher'),
+        content: Text('Yakin ingin menghapus voucher "$kodeVoucher"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await ref.read(voucherProvider.notifier).softDelete(idVoucher);
+        if (context.mounted) {
+          ToastUtil.success(context, 'Voucher berhasil dihapus');
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ToastUtil.error(context, 'Gagal menghapus voucher');
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final voucherAsync = ref.watch(voucherProvider);
@@ -529,6 +565,12 @@ class Voucher extends ConsumerWidget {
                     final voucher = state.voucher[index];
                     return ListTile(
                       onTap: () => _navigasiKeDetail(context, voucher.id),
+                      onLongPress: () => _konfirmasiHapus(
+                        context,
+                        ref,
+                        voucher.id,
+                        voucher.voucher,
+                      ),
                       title: Text(voucher.voucher),
                       subtitle: NamaPaketWidget(idPaket: voucher.idPaket),
                     );
@@ -627,7 +669,6 @@ class Voucher extends _$Voucher {
 Future<void> softDelete(String id) async {
   try {
     await ref.read(voucherOpFirebaseProvider).softDelete(id);
-    // Jika hanya menampilkan yang belum dihapus, hapus dari state
     final current = state.value;
     if (current != null) {
       final updatedList = current.voucher.where((v) => v.id != id).toList();

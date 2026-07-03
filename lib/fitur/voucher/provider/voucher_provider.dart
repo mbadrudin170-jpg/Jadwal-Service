@@ -71,7 +71,6 @@ class Voucher extends _$Voucher {
 Future<void> softDelete(String id) async {
   try {
     await ref.read(voucherOpFirebaseProvider).softDelete(id);
-    // Jika hanya menampilkan yang belum dihapus, hapus dari state
     final current = state.value;
     if (current != null) {
       final updatedList = current.voucher.where((v) => v.id != id).toList();
