@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$VoucherModel {
 
- String get id; String get voucher; String get idPaket; bool get terpakai; bool get dihapus; DateTime? get diperbaruiPada; DateTime? get diarsipkanPada;
+ String get id; String get voucher; String get idPaket; bool get terpakai; bool get dihapus; String get tipeVoucher; DateTime? get diperbaruiPada; DateTime? get diarsipkanPada;
 /// Create a copy of VoucherModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $VoucherModelCopyWith<VoucherModel> get copyWith => _$VoucherModelCopyWithImpl<V
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is VoucherModel&&(identical(other.id, id) || other.id == id)&&(identical(other.voucher, voucher) || other.voucher == voucher)&&(identical(other.idPaket, idPaket) || other.idPaket == idPaket)&&(identical(other.terpakai, terpakai) || other.terpakai == terpakai)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is VoucherModel&&(identical(other.id, id) || other.id == id)&&(identical(other.voucher, voucher) || other.voucher == voucher)&&(identical(other.idPaket, idPaket) || other.idPaket == idPaket)&&(identical(other.terpakai, terpakai) || other.terpakai == terpakai)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.tipeVoucher, tipeVoucher) || other.tipeVoucher == tipeVoucher)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,voucher,idPaket,terpakai,dihapus,diperbaruiPada,diarsipkanPada);
+int get hashCode => Object.hash(runtimeType,id,voucher,idPaket,terpakai,dihapus,tipeVoucher,diperbaruiPada,diarsipkanPada);
 
 @override
 String toString() {
-  return 'VoucherModel(id: $id, voucher: $voucher, idPaket: $idPaket, terpakai: $terpakai, dihapus: $dihapus, diperbaruiPada: $diperbaruiPada, diarsipkanPada: $diarsipkanPada)';
+  return 'VoucherModel(id: $id, voucher: $voucher, idPaket: $idPaket, terpakai: $terpakai, dihapus: $dihapus, tipeVoucher: $tipeVoucher, diperbaruiPada: $diperbaruiPada, diarsipkanPada: $diarsipkanPada)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $VoucherModelCopyWith<$Res>  {
   factory $VoucherModelCopyWith(VoucherModel value, $Res Function(VoucherModel) _then) = _$VoucherModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String voucher, String idPaket, bool terpakai, bool dihapus, DateTime? diperbaruiPada, DateTime? diarsipkanPada
+ String id, String voucher, String idPaket, bool terpakai, bool dihapus, String tipeVoucher, DateTime? diperbaruiPada, DateTime? diarsipkanPada
 });
 
 
@@ -62,14 +62,15 @@ class _$VoucherModelCopyWithImpl<$Res>
 
 /// Create a copy of VoucherModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? voucher = null,Object? idPaket = null,Object? terpakai = null,Object? dihapus = null,Object? diperbaruiPada = freezed,Object? diarsipkanPada = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? voucher = null,Object? idPaket = null,Object? terpakai = null,Object? dihapus = null,Object? tipeVoucher = null,Object? diperbaruiPada = freezed,Object? diarsipkanPada = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,voucher: null == voucher ? _self.voucher : voucher // ignore: cast_nullable_to_non_nullable
 as String,idPaket: null == idPaket ? _self.idPaket : idPaket // ignore: cast_nullable_to_non_nullable
 as String,terpakai: null == terpakai ? _self.terpakai : terpakai // ignore: cast_nullable_to_non_nullable
 as bool,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
-as bool,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as bool,tipeVoucher: null == tipeVoucher ? _self.tipeVoucher : tipeVoucher // ignore: cast_nullable_to_non_nullable
+as String,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
 as DateTime?,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
@@ -156,10 +157,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String voucher,  String idPaket,  bool terpakai,  bool dihapus,  DateTime? diperbaruiPada,  DateTime? diarsipkanPada)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String voucher,  String idPaket,  bool terpakai,  bool dihapus,  String tipeVoucher,  DateTime? diperbaruiPada,  DateTime? diarsipkanPada)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _VoucherModel() when $default != null:
-return $default(_that.id,_that.voucher,_that.idPaket,_that.terpakai,_that.dihapus,_that.diperbaruiPada,_that.diarsipkanPada);case _:
+return $default(_that.id,_that.voucher,_that.idPaket,_that.terpakai,_that.dihapus,_that.tipeVoucher,_that.diperbaruiPada,_that.diarsipkanPada);case _:
   return orElse();
 
 }
@@ -177,10 +178,10 @@ return $default(_that.id,_that.voucher,_that.idPaket,_that.terpakai,_that.dihapu
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String voucher,  String idPaket,  bool terpakai,  bool dihapus,  DateTime? diperbaruiPada,  DateTime? diarsipkanPada)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String voucher,  String idPaket,  bool terpakai,  bool dihapus,  String tipeVoucher,  DateTime? diperbaruiPada,  DateTime? diarsipkanPada)  $default,) {final _that = this;
 switch (_that) {
 case _VoucherModel():
-return $default(_that.id,_that.voucher,_that.idPaket,_that.terpakai,_that.dihapus,_that.diperbaruiPada,_that.diarsipkanPada);case _:
+return $default(_that.id,_that.voucher,_that.idPaket,_that.terpakai,_that.dihapus,_that.tipeVoucher,_that.diperbaruiPada,_that.diarsipkanPada);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +198,10 @@ return $default(_that.id,_that.voucher,_that.idPaket,_that.terpakai,_that.dihapu
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String voucher,  String idPaket,  bool terpakai,  bool dihapus,  DateTime? diperbaruiPada,  DateTime? diarsipkanPada)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String voucher,  String idPaket,  bool terpakai,  bool dihapus,  String tipeVoucher,  DateTime? diperbaruiPada,  DateTime? diarsipkanPada)?  $default,) {final _that = this;
 switch (_that) {
 case _VoucherModel() when $default != null:
-return $default(_that.id,_that.voucher,_that.idPaket,_that.terpakai,_that.dihapus,_that.diperbaruiPada,_that.diarsipkanPada);case _:
+return $default(_that.id,_that.voucher,_that.idPaket,_that.terpakai,_that.dihapus,_that.tipeVoucher,_that.diperbaruiPada,_that.diarsipkanPada);case _:
   return null;
 
 }
@@ -212,7 +213,7 @@ return $default(_that.id,_that.voucher,_that.idPaket,_that.terpakai,_that.dihapu
 
 
 class _VoucherModel extends VoucherModel {
-  const _VoucherModel({required this.id, required this.voucher, required this.idPaket, this.terpakai = false, this.dihapus = false, this.diperbaruiPada, this.diarsipkanPada}): super._();
+  const _VoucherModel({required this.id, required this.voucher, required this.idPaket, this.terpakai = false, this.dihapus = false, this.tipeVoucher = TipeVoucher.satu, this.diperbaruiPada, this.diarsipkanPada}): super._();
   
 
 @override final  String id;
@@ -220,6 +221,7 @@ class _VoucherModel extends VoucherModel {
 @override final  String idPaket;
 @override@JsonKey() final  bool terpakai;
 @override@JsonKey() final  bool dihapus;
+@override@JsonKey() final  String tipeVoucher;
 @override final  DateTime? diperbaruiPada;
 @override final  DateTime? diarsipkanPada;
 
@@ -233,16 +235,16 @@ _$VoucherModelCopyWith<_VoucherModel> get copyWith => __$VoucherModelCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VoucherModel&&(identical(other.id, id) || other.id == id)&&(identical(other.voucher, voucher) || other.voucher == voucher)&&(identical(other.idPaket, idPaket) || other.idPaket == idPaket)&&(identical(other.terpakai, terpakai) || other.terpakai == terpakai)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VoucherModel&&(identical(other.id, id) || other.id == id)&&(identical(other.voucher, voucher) || other.voucher == voucher)&&(identical(other.idPaket, idPaket) || other.idPaket == idPaket)&&(identical(other.terpakai, terpakai) || other.terpakai == terpakai)&&(identical(other.dihapus, dihapus) || other.dihapus == dihapus)&&(identical(other.tipeVoucher, tipeVoucher) || other.tipeVoucher == tipeVoucher)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,voucher,idPaket,terpakai,dihapus,diperbaruiPada,diarsipkanPada);
+int get hashCode => Object.hash(runtimeType,id,voucher,idPaket,terpakai,dihapus,tipeVoucher,diperbaruiPada,diarsipkanPada);
 
 @override
 String toString() {
-  return 'VoucherModel(id: $id, voucher: $voucher, idPaket: $idPaket, terpakai: $terpakai, dihapus: $dihapus, diperbaruiPada: $diperbaruiPada, diarsipkanPada: $diarsipkanPada)';
+  return 'VoucherModel(id: $id, voucher: $voucher, idPaket: $idPaket, terpakai: $terpakai, dihapus: $dihapus, tipeVoucher: $tipeVoucher, diperbaruiPada: $diperbaruiPada, diarsipkanPada: $diarsipkanPada)';
 }
 
 
@@ -253,7 +255,7 @@ abstract mixin class _$VoucherModelCopyWith<$Res> implements $VoucherModelCopyWi
   factory _$VoucherModelCopyWith(_VoucherModel value, $Res Function(_VoucherModel) _then) = __$VoucherModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String voucher, String idPaket, bool terpakai, bool dihapus, DateTime? diperbaruiPada, DateTime? diarsipkanPada
+ String id, String voucher, String idPaket, bool terpakai, bool dihapus, String tipeVoucher, DateTime? diperbaruiPada, DateTime? diarsipkanPada
 });
 
 
@@ -270,14 +272,15 @@ class __$VoucherModelCopyWithImpl<$Res>
 
 /// Create a copy of VoucherModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? voucher = null,Object? idPaket = null,Object? terpakai = null,Object? dihapus = null,Object? diperbaruiPada = freezed,Object? diarsipkanPada = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? voucher = null,Object? idPaket = null,Object? terpakai = null,Object? dihapus = null,Object? tipeVoucher = null,Object? diperbaruiPada = freezed,Object? diarsipkanPada = freezed,}) {
   return _then(_VoucherModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,voucher: null == voucher ? _self.voucher : voucher // ignore: cast_nullable_to_non_nullable
 as String,idPaket: null == idPaket ? _self.idPaket : idPaket // ignore: cast_nullable_to_non_nullable
 as String,terpakai: null == terpakai ? _self.terpakai : terpakai // ignore: cast_nullable_to_non_nullable
 as bool,dihapus: null == dihapus ? _self.dihapus : dihapus // ignore: cast_nullable_to_non_nullable
-as bool,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as bool,tipeVoucher: null == tipeVoucher ? _self.tipeVoucher : tipeVoucher // ignore: cast_nullable_to_non_nullable
+as String,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
 as DateTime?,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));

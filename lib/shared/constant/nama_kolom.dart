@@ -65,4 +65,5 @@ abstract final class NamaKolom {
 
   static const String voucher = 'voucher';
   static const String terpakai = 'used';
+  static const String tipeVoucher = 'tipeVoucher';
 }

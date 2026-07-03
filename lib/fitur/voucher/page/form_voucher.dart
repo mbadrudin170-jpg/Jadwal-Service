@@ -74,6 +74,9 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
         final updatedVoucher = existing.copyWith(
           voucher: _voucherController.text.trim(),
           idPaket: _selectedPaketId!,
+          tipeVoucher: _tipeVoucher == TipeVoucher.satu
+              ? TipeVoucher.satu.name
+              : TipeVoucher.beberapa.name,
           diperbaruiPada: DateTime.now(),
         );
         await ref.read(voucherProvider.notifier).perbarui(updatedVoucher);
@@ -83,6 +86,9 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
           id: const Uuid().v4(),
           voucher: _voucherController.text.trim(),
           idPaket: _selectedPaketId!,
+          tipeVoucher: _tipeVoucher == TipeVoucher.satu
+              ? TipeVoucher.satu.name
+              : TipeVoucher.beberapa.name,
           diperbaruiPada: DateTime.now(),
         );
         await ref.read(voucherProvider.notifier).tambah(voucherBaru);
@@ -108,7 +114,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
 
   @override
   Widget build(BuildContext context) {
-    // Ambil data paket dari provider
     final paketAsync = ref.watch(paketProvider);
     if (widget.idVoucher != null && !_sudahInisialisasi) {
       final voucherState = ref.watch(voucherProvider).value;
@@ -119,6 +124,9 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
         if (existing != null) {
           _voucherController.text = existing.voucher;
           _selectedPaketId = existing.idPaket.isEmpty ? null : existing.idPaket;
+          _tipeVoucher = existing.tipeVoucher == TipeVoucher.satu.name
+              ? TipeVoucher.beberapa
+              : TipeVoucher.satu;
           _sudahInisialisasi = true;
         }
       }
@@ -186,7 +194,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
                       }
                     },
                   ),
-                  const SizedBox(width: 8),
                   ChoiceChip(
                     label: const Text('Beberapa Perangkat'),
                     selected: _tipeVoucher == TipeVoucher.beberapa,

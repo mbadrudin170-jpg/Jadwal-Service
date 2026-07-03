@@ -309,6 +309,8 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_teks.dart';
 
+enum TipeVoucher { satu, beberapa }
+
 class FormVoucher extends ConsumerStatefulWidget {
   final String? idVoucher;
   const FormVoucher({super.key, this.idVoucher});
@@ -323,6 +325,7 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
   bool _menyimpan = false;
   bool _sudahInisialisasi = false;
   String? _selectedPaketId;
+  TipeVoucher _tipeVoucher = TipeVoucher.satu;
 
   @override
   void initState() {
@@ -468,15 +471,26 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
                 error: (e, _) => Text('Gagal memuat paket: $e'),
               ),
 
-              Row(
+              Wrap(
+                spacing: 8,
                 children: [
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text('Satu Perangkat'),
+                  ChoiceChip(
+                    label: const Text('Satu Perangkat'),
+                    selected: _tipeVoucher == TipeVoucher.satu,
+                    onSelected: (selected) {
+                      if (selected) {
+                        setState(() => _tipeVoucher = TipeVoucher.satu);
+                      }
+                    },
                   ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text('Beberapa Perangkat'),
+                  ChoiceChip(
+                    label: const Text('Beberapa Perangkat'),
+                    selected: _tipeVoucher == TipeVoucher.beberapa,
+                    onSelected: (selected) {
+                      if (selected) {
+                        setState(() => _tipeVoucher = TipeVoucher.beberapa);
+                      }
+                    },
                   ),
                 ],
               ),
