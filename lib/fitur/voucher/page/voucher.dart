@@ -11,7 +11,7 @@ import 'package:wifi/shared/widget/nama_paket_widget.dart';
 class Voucher extends ConsumerWidget {
   const Voucher({super.key});
 
-  void _naviagasiKeDetail(BuildContext context, String idVoucher) {
+  void _navigasiKeDetail(BuildContext context, String idVoucher) {
     Navigator.push(
       context,
       MaterialPageRoute<void>(
@@ -20,7 +20,7 @@ class Voucher extends ConsumerWidget {
     );
   }
 
-  void _naviagasiKeForm(BuildContext context) {
+  void _navigasiKeForm(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute<void>(builder: (context) => const FormVoucher()),
@@ -45,7 +45,7 @@ class Voucher extends ConsumerWidget {
                   itemBuilder: (context, index) {
                     final voucher = state.voucher[index];
                     return ListTile(
-                      onTap: () => _naviagasiKeDetail(context, voucher.id),
+                      onTap: () => _navigasiKeDetail(context, voucher.id),
                       title: Text(voucher.voucher),
                       subtitle: NamaPaketWidget(idPaket: voucher.idPaket),
                     );
@@ -61,7 +61,7 @@ class Voucher extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'tambah_voucher',
-        onPressed: () => _naviagasiKeForm(context),
+        onPressed: () => _navigasiKeForm(context),
         child: const Icon(TIcons.add),
       ),
     );

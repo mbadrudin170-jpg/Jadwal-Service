@@ -92,26 +92,6 @@ class DetailVoucher extends ConsumerWidget {
               'Diarsipkan pada: ${_formatDateTime(voucher.diarsipkanPada!)}',
               style: const TextStyle(color: Colors.grey),
             ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.edit),
-                label: const Text('Edit'),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.delete),
-                label: const Text('Hapus'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
