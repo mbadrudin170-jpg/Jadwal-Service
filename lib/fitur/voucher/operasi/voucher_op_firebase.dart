@@ -66,6 +66,30 @@ class VoucherOpFirebase {
       rethrow;
     }
   }
+
+  /// Mengecek apakah kode voucher sudah ada di Firestore.
+  /// [kode] adalah kode voucher yang ingin dicek.
+  /// [kecualiId] adalah id voucher yang dikecualikan (untuk mode edit).
+  Future<bool> cekKodeVoucherSudahAda(String kode, {String? kecualiId}) async {
+    try {
+      // Query mencari dokumen dengan voucher == kode dan dihapus == false
+      final query = _firestore
+          .collection(_koleksiVoucher)
+          .where(NamaKolom.voucher, isEqualTo: kode)
+          .where(NamaKolom.dihapus, isEqualTo: false);
+
+      // Jika ada ID yang dikecualikan, kita filter di sisi client
+      // karena Firestore tidak mendukung "!=" dalam query secara langsung
+      // atau kita bisa ambil semua lalu filter.
+      final snapshot = await query.get();
+
+      // Kalau ada dokumen yang id-nya bukan kecualiId, berarti sudah ada
+      return snapshot.docs.any((doc) => doc.id != kecualiId);
+    } on Exception catch (e, s) {
+      Log.error('Error di cekKodeVoucherSudahAda: $e', e: e, s: s);
+      rethrow;
+    }
+  }
 }
 
 final voucherOpFirebaseProvider = Provider<VoucherOpFirebase>((ref) {

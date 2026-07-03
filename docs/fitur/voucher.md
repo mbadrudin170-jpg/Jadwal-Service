@@ -136,6 +136,30 @@ class VoucherOpFirebase {
       rethrow;
     }
   }
+
+  /// Mengecek apakah kode voucher sudah ada di Firestore.
+  /// [kode] adalah kode voucher yang ingin dicek.
+  /// [kecualiId] adalah id voucher yang dikecualikan (untuk mode edit).
+  Future<bool> cekKodeVoucherSudahAda(String kode, {String? kecualiId}) async {
+    try {
+      // Query mencari dokumen dengan voucher == kode dan dihapus == false
+      final query = _firestore
+          .collection(_koleksiVoucher)
+          .where(NamaKolom.voucher, isEqualTo: kode)
+          .where(NamaKolom.dihapus, isEqualTo: false);
+
+      // Jika ada ID yang dikecualikan, kita filter di sisi client
+      // karena Firestore tidak mendukung "!=" dalam query secara langsung
+      // atau kita bisa ambil semua lalu filter.
+      final snapshot = await query.get();
+
+      // Kalau ada dokumen yang id-nya bukan kecualiId, berarti sudah ada
+      return snapshot.docs.any((doc) => doc.id != kecualiId);
+    } on Exception catch (e, s) {
+      Log.error('Error di cekKodeVoucherSudahAda: $e', e: e, s: s);
+      rethrow;
+    }
+  }
 }
 
 final voucherOpFirebaseProvider = Provider<VoucherOpFirebase>((ref) {
@@ -264,6 +288,7 @@ import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart';
+import 'package:wifi/fitur/voucher/operasi/voucher_op_firebase.dart';
 import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -299,11 +324,25 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
   Future<void> _simpanForm() async {
     if (_menyimpan) return;
     if (!_formKey.currentState!.validate()) return;
-
+    final kode = _voucherController.text.trim();
+    final isEdit = widget.idVoucher != null;
     try {
       setState(() => _menyimpan = true);
+      final voucherOp = ref.read(voucherOpFirebaseProvider);
+      final sudahAda = await voucherOp.cekKodeVoucherSudahAda(
+        kode,
+        kecualiId: isEdit ? widget.idVoucher : null,
+      );
 
-      final isEdit = widget.idVoucher != null;
+      if (sudahAda) {
+        if (mounted) {
+          ToastUtil.error(
+            context,
+            'Kode voucher "$kode" sudah digunakan. Silakan masukkan kode lain.',
+          );
+        }
+        return;
+      }
 
       if (isEdit) {
         // Mode edit - ambil data existing untuk mempertahankan id
@@ -388,16 +427,14 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
                   final daftarPaket = paketState.daftarPaket
                       .whereType<PaketModel>()
                       .toList();
-
                   if (daftarPaket.isEmpty) {
                     return const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text('Tidak ada paket tersedia'),
                     );
                   }
-
                   return DropdownButtonFormField<String>(
-                    value: _selectedPaketId,
+                    initialValue: _selectedPaketId,
                     decoration: const InputDecoration(
                       labelText: 'Pilih Paket',
                       border: OutlineInputBorder(),

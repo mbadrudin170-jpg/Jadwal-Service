@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart';
+import 'package:wifi/fitur/voucher/operasi/voucher_op_firebase.dart';
 import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -41,11 +42,25 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
   Future<void> _simpanForm() async {
     if (_menyimpan) return;
     if (!_formKey.currentState!.validate()) return;
-
+    final kode = _voucherController.text.trim();
+    final isEdit = widget.idVoucher != null;
     try {
       setState(() => _menyimpan = true);
+      final voucherOp = ref.read(voucherOpFirebaseProvider);
+      final sudahAda = await voucherOp.cekKodeVoucherSudahAda(
+        kode,
+        kecualiId: isEdit ? widget.idVoucher : null,
+      );
 
-      final isEdit = widget.idVoucher != null;
+      if (sudahAda) {
+        if (mounted) {
+          ToastUtil.error(
+            context,
+            'Kode voucher "$kode" sudah digunakan. Silakan masukkan kode lain.',
+          );
+        }
+        return;
+      }
 
       if (isEdit) {
         // Mode edit - ambil data existing untuk mempertahankan id
@@ -130,16 +145,14 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
                   final daftarPaket = paketState.daftarPaket
                       .whereType<PaketModel>()
                       .toList();
-
                   if (daftarPaket.isEmpty) {
                     return const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text('Tidak ada paket tersedia'),
                     );
                   }
-
                   return DropdownButtonFormField<String>(
-                    value: _selectedPaketId,
+                    initialValue: _selectedPaketId,
                     decoration: const InputDecoration(
                       labelText: 'Pilih Paket',
                       border: OutlineInputBorder(),
