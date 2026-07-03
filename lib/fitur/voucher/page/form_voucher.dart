@@ -1,7 +1,10 @@
-// path lib/fitur/voucher/page/form_voucher.dart
-
+// lib/fitur/voucher/page/form_voucher.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/fitur/voucher/model/voucher_model.dart';
+import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_teks.dart';
@@ -18,16 +21,8 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
   final _formKey = GlobalKey<FormState>();
   bool _menyimpan = false;
 
-  // 1. PERBAIKAN: Deklarasikan variabel state di sini
-  String? _selectedValue;
-
-  // Contoh daftar paket, silakan sesuaikan isinya nanti
-  final List<String> _daftarPaket = [
-    'Paket 1 Jam',
-    'Paket 1 Hari',
-    'Paket 1 Minggu',
-    'Paket 1 Bulan',
-  ];
+  // Simpan ID paket yang dipilih (bukan nama paket)
+  String? _selectedPaketId;
 
   @override
   void dispose() {
@@ -38,12 +33,25 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
   Future<void> _simpanForm() async {
     if (_menyimpan) return;
     if (!_formKey.currentState!.validate()) return;
-    try {
-      setState(() {
-        _menyimpan = true;
-      });
 
-      // Logika asinkron simpan data ke Firebase/API ditaruh di sini nanti
+    try {
+      setState(() => _menyimpan = true);
+
+      // Buat voucher baru (id kosong, nanti diisi Firestore)
+      final voucherBaru = VoucherModel(
+        id: '',
+        voucher: _voucherController.text.trim(),
+        idPaket: _selectedPaketId!,
+        diperbaruiPada: DateTime.now(),
+      );
+
+      // Simpan via provider
+      await ref.read(voucherProvider.notifier).tambah(voucherBaru);
+
+      if (mounted) {
+        ToastUtil.success(context, 'Voucher berhasil disimpan');
+        Navigator.pop(context);
+      }
     } on Exception catch (e, s) {
       Log.error('Error di simpanForm: $e', e: e, s: s);
       if (mounted) {
@@ -51,55 +59,69 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _menyimpan = false;
-        });
+        setState(() => _menyimpan = false);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Ambil data paket dari provider
+    final paketAsync = ref.watch(paketProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Tambah Voucher')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0), // Memberikan ruang di tepi layar
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: ListView(
-            // Menggunakan ListView agar aman dari overflow saat keyboard muncul
             children: [
+              // Input Kode Voucher
               InputTeks(controller: _voucherController, label: 'Voucher'),
+              const SizedBox(height: 16),
 
-              const SizedBox(
-                height: 16,
-              ), // Memberikan jarak vertikal antar-inputan
+              // Dropdown Paket (menunggu data dari provider)
+              paketAsync.when(
+                data: (paketState) {
+                  final daftarPaket = paketState.daftarPaket
+                      .whereType<PaketModel>()
+                      .toList();
 
-              DropdownButtonFormField<String>(
-                value: _selectedValue,
-                decoration: const InputDecoration(
-                  labelText: 'Pilih Paket',
-                  border:
-                      OutlineInputBorder(), // Membuat border kotak yang rapi
-                ),
-                hint: const Text('Pilih paket'),
-                items: _daftarPaket.map((value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
+                  if (daftarPaket.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Tidak ada paket tersedia'),
+                    );
+                  }
+
+                  return DropdownButtonFormField<String>(
+                    value: _selectedPaketId,
+                    decoration: const InputDecoration(
+                      labelText: 'Pilih Paket',
+                      border: OutlineInputBorder(),
+                    ),
+                    hint: const Text('Pilih paket'),
+                    items: daftarPaket.map((paket) {
+                      return DropdownMenuItem<String>(
+                        value: paket.id,
+                        child: Text(paket.nama),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => _selectedPaketId = value);
+                    },
+                    validator: (value) =>
+                        value == null ? 'Paket wajib dipilih!' : null,
                   );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedValue = value;
-                  });
                 },
-                validator: (value) =>
-                    value == null ? 'Paket wajib dipilih!' : null,
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, _) => Text('Gagal memuat paket: $e'),
               ),
 
-              const SizedBox(height: 24), // Jarak sebelum tombol simpan
+              const SizedBox(height: 24),
 
+              // Tombol Simpan
               ElevatedButton(
                 onPressed: _menyimpan ? null : _simpanForm,
                 child: _menyimpan
