@@ -2,13 +2,13 @@
 
 ## Daftar file
 
-- [lib/fitur/settings/model/settings_model.dart](lib/fitur/settings/model/settings_model.dart)
-- [lib/fitur/settings/operasi/settings_op_firebase.dart](lib/fitur/settings/operasi/settings_op_firebase.dart)
-- [lib/fitur/settings/operasi/settings_op_sqlite.dart](lib/fitur/settings/operasi/settings_op_sqlite.dart)
-- [lib/fitur/settings/page/form_settings.dart](lib/fitur/settings/page/form_settings.dart)
-- [lib/fitur/settings/page/settings_page_a.dart](lib/fitur/settings/page/settings_page_a.dart)
-- [lib/fitur/settings/page/settings_page_u.dart](lib/fitur/settings/page/settings_page_u.dart)
-- [lib/fitur/settings/provider/settings_provider.dart](lib/fitur/settings/provider/settings_provider.dart)
+- [lib/fitur/settings/model/settings_model.dart](../../lib/fitur/settings/model/settings_model.dart)
+- [lib/fitur/settings/operasi/settings_op_firebase.dart](../../lib/fitur/settings/operasi/settings_op_firebase.dart)
+- [lib/fitur/settings/operasi/settings_op_sqlite.dart](../../lib/fitur/settings/operasi/settings_op_sqlite.dart)
+- [lib/fitur/settings/page/form_settings.dart](../../lib/fitur/settings/page/form_settings.dart)
+- [lib/fitur/settings/page/settings_page_a.dart](../../lib/fitur/settings/page/settings_page_a.dart)
+- [lib/fitur/settings/page/settings_page_u.dart](../../lib/fitur/settings/page/settings_page_u.dart)
+- [lib/fitur/settings/provider/settings_provider.dart](../../lib/fitur/settings/provider/settings_provider.dart)
 
 ## Isi file
 

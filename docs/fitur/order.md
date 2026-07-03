@@ -2,13 +2,13 @@
 
 ## Daftar file
 
-- [lib/fitur/order/enum/status_order_enum.dart](lib/fitur/order/enum/status_order_enum.dart)
-- [lib/fitur/order/model/order_model.dart](lib/fitur/order/model/order_model.dart)
-- [lib/fitur/order/operasi/order_op_firebase.dart](lib/fitur/order/operasi/order_op_firebase.dart)
-- [lib/fitur/order/operasi/order_op_global.dart](lib/fitur/order/operasi/order_op_global.dart)
-- [lib/fitur/order/operasi/order_op_sqlite.dart](lib/fitur/order/operasi/order_op_sqlite.dart)
-- [lib/fitur/order/page/order_page.dart](lib/fitur/order/page/order_page.dart)
-- [lib/fitur/order/provider/order_provider.dart](lib/fitur/order/provider/order_provider.dart)
+- [lib/fitur/order/enum/status_order_enum.dart](../../lib/fitur/order/enum/status_order_enum.dart)
+- [lib/fitur/order/model/order_model.dart](../../lib/fitur/order/model/order_model.dart)
+- [lib/fitur/order/operasi/order_op_firebase.dart](../../lib/fitur/order/operasi/order_op_firebase.dart)
+- [lib/fitur/order/operasi/order_op_global.dart](../../lib/fitur/order/operasi/order_op_global.dart)
+- [lib/fitur/order/operasi/order_op_sqlite.dart](../../lib/fitur/order/operasi/order_op_sqlite.dart)
+- [lib/fitur/order/page/order_page.dart](../../lib/fitur/order/page/order_page.dart)
+- [lib/fitur/order/provider/order_provider.dart](../../lib/fitur/order/provider/order_provider.dart)
 
 ## Isi file
 

@@ -2,14 +2,14 @@
 
 ## Daftar file
 
-- [lib/fitur/poin/operasi/firebase_points_data_source.dart](lib/fitur/poin/operasi/firebase_points_data_source.dart)
-- [lib/fitur/poin/operasi/sqlite_points_data_source.dart](lib/fitur/poin/operasi/sqlite_points_data_source.dart)
-- [lib/fitur/poin/page/halaman_poin.dart](lib/fitur/poin/page/halaman_poin.dart)
-- [lib/fitur/poin/poin.dart](lib/fitur/poin/poin.dart)
-- [lib/fitur/poin/provider/points_page_data_source.dart](lib/fitur/poin/provider/points_page_data_source.dart)
-- [lib/fitur/poin/service/poin_transaction_service.dart](lib/fitur/poin/service/poin_transaction_service.dart)
-- [lib/fitur/poin/widget/kartu_total_poin.dart](lib/fitur/poin/widget/kartu_total_poin.dart)
-- [lib/fitur/poin/widget/ui_halaman_poin.dart](lib/fitur/poin/widget/ui_halaman_poin.dart)
+- [lib/fitur/poin/operasi/firebase_points_data_source.dart](../../lib/fitur/poin/operasi/firebase_points_data_source.dart)
+- [lib/fitur/poin/operasi/sqlite_points_data_source.dart](../../lib/fitur/poin/operasi/sqlite_points_data_source.dart)
+- [lib/fitur/poin/page/halaman_poin.dart](../../lib/fitur/poin/page/halaman_poin.dart)
+- [lib/fitur/poin/poin.dart](../../lib/fitur/poin/poin.dart)
+- [lib/fitur/poin/provider/points_page_data_source.dart](../../lib/fitur/poin/provider/points_page_data_source.dart)
+- [lib/fitur/poin/service/poin_transaction_service.dart](../../lib/fitur/poin/service/poin_transaction_service.dart)
+- [lib/fitur/poin/widget/kartu_total_poin.dart](../../lib/fitur/poin/widget/kartu_total_poin.dart)
+- [lib/fitur/poin/widget/ui_halaman_poin.dart](../../lib/fitur/poin/widget/ui_halaman_poin.dart)
 
 ## Isi file
 

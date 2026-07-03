@@ -2,8 +2,8 @@
 
 ## Daftar file
 
-- [lib/fitur/akun/page/daftar_akun_page.dart](lib/fitur/akun/page/daftar_akun_page.dart)
-- [lib/fitur/akun/provider/akun_provider.dart](lib/fitur/akun/provider/akun_provider.dart)
+- [lib/fitur/akun/page/daftar_akun_page.dart](../../lib/fitur/akun/page/daftar_akun_page.dart)
+- [lib/fitur/akun/provider/akun_provider.dart](../../lib/fitur/akun/provider/akun_provider.dart)
 
 ## Isi file
 

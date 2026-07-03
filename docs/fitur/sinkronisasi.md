@@ -2,11 +2,11 @@
 
 ## Daftar file
 
-- [lib/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart](lib/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart)
-- [lib/fitur/sinkronisasi/layanan_unduhan_awal.dart](lib/fitur/sinkronisasi/layanan_unduhan_awal.dart)
-- [lib/fitur/sinkronisasi/layanan_unduh_data.dart](lib/fitur/sinkronisasi/layanan_unduh_data.dart)
-- [lib/fitur/sinkronisasi/layanan_unggah_data.dart](lib/fitur/sinkronisasi/layanan_unggah_data.dart)
-- [lib/fitur/sinkronisasi/pengelola_sinkronisasi.dart](lib/fitur/sinkronisasi/pengelola_sinkronisasi.dart)
+- [lib/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart](../../lib/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart)
+- [lib/fitur/sinkronisasi/layanan_unduhan_awal.dart](../../lib/fitur/sinkronisasi/layanan_unduhan_awal.dart)
+- [lib/fitur/sinkronisasi/layanan_unduh_data.dart](../../lib/fitur/sinkronisasi/layanan_unduh_data.dart)
+- [lib/fitur/sinkronisasi/layanan_unggah_data.dart](../../lib/fitur/sinkronisasi/layanan_unggah_data.dart)
+- [lib/fitur/sinkronisasi/pengelola_sinkronisasi.dart](../../lib/fitur/sinkronisasi/pengelola_sinkronisasi.dart)
 
 ## Isi file
 

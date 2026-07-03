@@ -2,8 +2,8 @@
 
 ## Daftar file
 
-- [lib/fitur/statistik/model/paket_terlaris_model.dart](lib/fitur/statistik/model/paket_terlaris_model.dart)
-- [lib/fitur/statistik/page/statistik_page_a.dart](lib/fitur/statistik/page/statistik_page_a.dart)
+- [lib/fitur/statistik/model/paket_terlaris_model.dart](../../lib/fitur/statistik/model/paket_terlaris_model.dart)
+- [lib/fitur/statistik/page/statistik_page_a.dart](../../lib/fitur/statistik/page/statistik_page_a.dart)
 
 ## Isi file
 

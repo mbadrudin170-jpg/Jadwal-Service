@@ -2,14 +2,14 @@
 
 ## Daftar file
 
-- [lib/fitur/feedback/model/feedback_model.dart](lib/fitur/feedback/model/feedback_model.dart)
-- [lib/fitur/feedback/operasi/feedback_op_firebase.dart](lib/fitur/feedback/operasi/feedback_op_firebase.dart)
-- [lib/fitur/feedback/operasi/feedback_op_global.dart](lib/fitur/feedback/operasi/feedback_op_global.dart)
-- [lib/fitur/feedback/operasi/feedback_op_sqlite.dart](lib/fitur/feedback/operasi/feedback_op_sqlite.dart)
-- [lib/fitur/feedback/page/feedback_detail.dart](lib/fitur/feedback/page/feedback_detail.dart)
-- [lib/fitur/feedback/page/feedback_page.dart](lib/fitur/feedback/page/feedback_page.dart)
-- [lib/fitur/feedback/page/form_feedback.dart](lib/fitur/feedback/page/form_feedback.dart)
-- [lib/fitur/feedback/provider/feedback_provider.dart](lib/fitur/feedback/provider/feedback_provider.dart)
+- [lib/fitur/feedback/model/feedback_model.dart](../../lib/fitur/feedback/model/feedback_model.dart)
+- [lib/fitur/feedback/operasi/feedback_op_firebase.dart](../../lib/fitur/feedback/operasi/feedback_op_firebase.dart)
+- [lib/fitur/feedback/operasi/feedback_op_global.dart](../../lib/fitur/feedback/operasi/feedback_op_global.dart)
+- [lib/fitur/feedback/operasi/feedback_op_sqlite.dart](../../lib/fitur/feedback/operasi/feedback_op_sqlite.dart)
+- [lib/fitur/feedback/page/feedback_detail.dart](../../lib/fitur/feedback/page/feedback_detail.dart)
+- [lib/fitur/feedback/page/feedback_page.dart](../../lib/fitur/feedback/page/feedback_page.dart)
+- [lib/fitur/feedback/page/form_feedback.dart](../../lib/fitur/feedback/page/form_feedback.dart)
+- [lib/fitur/feedback/provider/feedback_provider.dart](../../lib/fitur/feedback/provider/feedback_provider.dart)
 
 ## Isi file
 

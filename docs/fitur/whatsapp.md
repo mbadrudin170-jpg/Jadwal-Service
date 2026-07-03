@@ -2,7 +2,7 @@
 
 ## Daftar file
 
-- [lib/fitur/whatsapp/info_paket.dart](lib/fitur/whatsapp/info_paket.dart)
+- [lib/fitur/whatsapp/info_paket.dart](../../lib/fitur/whatsapp/info_paket.dart)
 
 ## Isi file
 

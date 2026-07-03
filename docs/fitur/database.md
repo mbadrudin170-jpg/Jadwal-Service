@@ -2,7 +2,7 @@
 
 ## Daftar file
 
-- [lib/fitur/database/provider/operasi_sqlite_provider.dart](lib/fitur/database/provider/operasi_sqlite_provider.dart)
+- [lib/fitur/database/provider/operasi_sqlite_provider.dart](../../lib/fitur/database/provider/operasi_sqlite_provider.dart)
 
 ## Isi file
 

@@ -2,16 +2,16 @@
 
 ## Daftar file
 
-- [lib/fitur/paket/core/perhitungan_paket.dart](lib/fitur/paket/core/perhitungan_paket.dart)
-- [lib/fitur/paket/enum/tipe_durasi_paket.dart](lib/fitur/paket/enum/tipe_durasi_paket.dart)
-- [lib/fitur/paket/model/paket_model.dart](lib/fitur/paket/model/paket_model.dart)
-- [lib/fitur/paket/operasi/paket_op_firebase.dart](lib/fitur/paket/operasi/paket_op_firebase.dart)
-- [lib/fitur/paket/operasi/paket_op_global.dart](lib/fitur/paket/operasi/paket_op_global.dart)
-- [lib/fitur/paket/operasi/paket_op_sqlite.dart](lib/fitur/paket/operasi/paket_op_sqlite.dart)
-- [lib/fitur/paket/page/detail_paket.dart](lib/fitur/paket/page/detail_paket.dart)
-- [lib/fitur/paket/page/form_paket.dart](lib/fitur/paket/page/form_paket.dart)
-- [lib/fitur/paket/page/paket.dart](lib/fitur/paket/page/paket.dart)
-- [lib/fitur/paket/provider/paket_provider.dart](lib/fitur/paket/provider/paket_provider.dart)
+- [lib/fitur/paket/core/perhitungan_paket.dart](../../lib/fitur/paket/core/perhitungan_paket.dart)
+- [lib/fitur/paket/enum/tipe_durasi_paket.dart](../../lib/fitur/paket/enum/tipe_durasi_paket.dart)
+- [lib/fitur/paket/model/paket_model.dart](../../lib/fitur/paket/model/paket_model.dart)
+- [lib/fitur/paket/operasi/paket_op_firebase.dart](../../lib/fitur/paket/operasi/paket_op_firebase.dart)
+- [lib/fitur/paket/operasi/paket_op_global.dart](../../lib/fitur/paket/operasi/paket_op_global.dart)
+- [lib/fitur/paket/operasi/paket_op_sqlite.dart](../../lib/fitur/paket/operasi/paket_op_sqlite.dart)
+- [lib/fitur/paket/page/detail_paket.dart](../../lib/fitur/paket/page/detail_paket.dart)
+- [lib/fitur/paket/page/form_paket.dart](../../lib/fitur/paket/page/form_paket.dart)
+- [lib/fitur/paket/page/paket.dart](../../lib/fitur/paket/page/paket.dart)
+- [lib/fitur/paket/provider/paket_provider.dart](../../lib/fitur/paket/provider/paket_provider.dart)
 
 ## Isi file
 

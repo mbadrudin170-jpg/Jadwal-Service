@@ -2,12 +2,12 @@
 
 ## Daftar file
 
-- [lib/fitur/event/model/event_model.dart](lib/fitur/event/model/event_model.dart)
-- [lib/fitur/event/operasi/event_op_supabase.dart](lib/fitur/event/operasi/event_op_supabase.dart)
-- [lib/fitur/event/page/detail_event_a.dart](lib/fitur/event/page/detail_event_a.dart)
-- [lib/fitur/event/page/event_page_a.dart](lib/fitur/event/page/event_page_a.dart)
-- [lib/fitur/event/page/event_page_u.dart](lib/fitur/event/page/event_page_u.dart)
-- [lib/fitur/event/page/form_event.dart](lib/fitur/event/page/form_event.dart)
+- [lib/fitur/event/model/event_model.dart](../../lib/fitur/event/model/event_model.dart)
+- [lib/fitur/event/operasi/event_op_supabase.dart](../../lib/fitur/event/operasi/event_op_supabase.dart)
+- [lib/fitur/event/page/detail_event_a.dart](../../lib/fitur/event/page/detail_event_a.dart)
+- [lib/fitur/event/page/event_page_a.dart](../../lib/fitur/event/page/event_page_a.dart)
+- [lib/fitur/event/page/event_page_u.dart](../../lib/fitur/event/page/event_page_u.dart)
+- [lib/fitur/event/page/form_event.dart](../../lib/fitur/event/page/form_event.dart)
 
 ## Isi file
 

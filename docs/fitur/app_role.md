@@ -2,7 +2,7 @@
 
 ## Daftar file
 
-- [lib/fitur/app_role/role_util.dart](lib/fitur/app_role/role_util.dart)
+- [lib/fitur/app_role/role_util.dart](../../lib/fitur/app_role/role_util.dart)
 
 ## Isi file
 

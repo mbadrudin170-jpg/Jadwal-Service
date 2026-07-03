@@ -2,15 +2,15 @@
 
 ## Daftar file
 
-- [lib/fitur/chating/chating.dart](lib/fitur/chating/chating.dart)
-- [lib/fitur/chating/chating_dashboard.dart](lib/fitur/chating/chating_dashboard.dart)
-- [lib/fitur/chating/dummy_chatting.dart](lib/fitur/chating/dummy_chatting.dart)
-- [lib/fitur/chating/enum/status_pesan_enum.dart](lib/fitur/chating/enum/status_pesan_enum.dart)
-- [lib/fitur/chating/model/chating_model.dart](lib/fitur/chating/model/chating_model.dart)
-- [lib/fitur/chating/model/lampiran.dart](lib/fitur/chating/model/lampiran.dart)
-- [lib/fitur/chating/model/percakapan.dart](lib/fitur/chating/model/percakapan.dart)
-- [lib/fitur/chating/operasi/chating_op_supabase.dart](lib/fitur/chating/operasi/chating_op_supabase.dart)
-- [lib/fitur/chating/provider/chating_provider.dart](lib/fitur/chating/provider/chating_provider.dart)
+- [lib/fitur/chating/chating.dart](../../lib/fitur/chating/chating.dart)
+- [lib/fitur/chating/chating_dashboard.dart](../../lib/fitur/chating/chating_dashboard.dart)
+- [lib/fitur/chating/dummy_chatting.dart](../../lib/fitur/chating/dummy_chatting.dart)
+- [lib/fitur/chating/enum/status_pesan_enum.dart](../../lib/fitur/chating/enum/status_pesan_enum.dart)
+- [lib/fitur/chating/model/chating_model.dart](../../lib/fitur/chating/model/chating_model.dart)
+- [lib/fitur/chating/model/lampiran.dart](../../lib/fitur/chating/model/lampiran.dart)
+- [lib/fitur/chating/model/percakapan.dart](../../lib/fitur/chating/model/percakapan.dart)
+- [lib/fitur/chating/operasi/chating_op_supabase.dart](../../lib/fitur/chating/operasi/chating_op_supabase.dart)
+- [lib/fitur/chating/provider/chating_provider.dart](../../lib/fitur/chating/provider/chating_provider.dart)
 
 ## Isi file
 
