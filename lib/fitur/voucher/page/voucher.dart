@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/fitur/voucher/enum/tipe_voucher.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart';
 import 'package:wifi/fitur/voucher/page/detail_voucher.dart';
 import 'package:wifi/fitur/voucher/page/form_voucher.dart';
@@ -200,7 +201,17 @@ class _VoucherState extends ConsumerState<Voucher> {
                           voucher.voucher,
                         ),
                         title: Text(voucher.voucher),
-                        subtitle: NamaPaketWidget(idPaket: voucher.idPaket),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            NamaPaketWidget(idPaket: voucher.idPaket),
+                            Text(
+                              voucher.tipeVoucher == TipeVoucher.satu.name
+                                  ? 'Satu Perangkat'
+                                  : 'Beberapa Perangkat',
+                            ),
+                          ],
+                        ),
                         trailing: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
