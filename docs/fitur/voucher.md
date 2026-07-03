@@ -145,6 +145,8 @@ final voucherOpFirebaseProvider = Provider<VoucherOpFirebase>((ref) {
 
 ### File: `lib/fitur/voucher/page/detail_voucher.dart`
 ```dart
+// path: lib/fitur/voucher/page/detail_voucher.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart'; // tambahkan ini
@@ -157,7 +159,7 @@ class DetailVoucher extends ConsumerWidget {
   final String idVoucher;
   const DetailVoucher({super.key, required this.idVoucher});
 
-  void _naviagasiKeForm(BuildContext context) {
+  void _navigasiKeForm(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute<void>(
@@ -175,7 +177,7 @@ class DetailVoucher extends ConsumerWidget {
         title: const Text('Detail Voucher'),
         actions: [
           IconButton(
-            onPressed: () => _naviagasiKeForm(context),
+            onPressed: () => _navigasiKeForm(context),
             icon: const Icon(TIcons.edit),
           ),
         ],
@@ -281,6 +283,27 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
   String? _selectedPaketId;
 
   @override
+  void initState() {
+    super.initState();
+    // Jika mode edit, isi data setelah frame pertama
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.idVoucher != null) {
+        final voucherState = ref.read(voucherProvider).value;
+        if (voucherState != null) {
+          final existing = voucherState.voucher.firstWhere(
+            (v) => v.id == widget.idVoucher,
+            orElse: () => throw Exception('Voucher tidak ditemukan'),
+          );
+          _voucherController.text = existing.voucher;
+          setState(() {
+            _selectedPaketId = existing.idPaket;
+          });
+        }
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _voucherController.dispose();
     super.dispose();
@@ -293,22 +316,42 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
     try {
       setState(() => _menyimpan = true);
 
-      // Buat voucher baru (id kosong, nanti diisi Firestore)
-      final voucherBaru = VoucherModel(
-        id: const Uuid().v4(),
-        voucher: _voucherController.text.trim(),
-        idPaket: _selectedPaketId!,
-        diperbaruiPada: DateTime.now(),
-      );
+      final isEdit = widget.idVoucher != null;
 
-      // Simpan via provider
-      await ref.read(voucherProvider.notifier).tambah(voucherBaru);
+      if (isEdit) {
+        // Mode edit - ambil data existing untuk mempertahankan id
+        final currentState = ref.read(voucherProvider).value;
+        final existing = currentState?.voucher.firstWhere(
+          (v) => v.id == widget.idVoucher,
+        );
+        if (existing == null) {
+          throw Exception('Data voucher tidak ditemukan untuk diedit');
+        }
+        final updatedVoucher = existing.copyWith(
+          voucher: _voucherController.text.trim(),
+          idPaket: _selectedPaketId!,
+          diperbaruiPada: DateTime.now(),
+        );
+        await ref.read(voucherProvider.notifier).perbarui(updatedVoucher);
+      } else {
+        // Mode tambah
+        final voucherBaru = VoucherModel(
+          id: const Uuid().v4(),
+          voucher: _voucherController.text.trim(),
+          idPaket: _selectedPaketId!,
+          diperbaruiPada: DateTime.now(),
+        );
+        await ref.read(voucherProvider.notifier).tambah(voucherBaru);
+      }
 
       if (mounted) {
-        ToastUtil.success(context, 'Voucher berhasil disimpan');
+        ToastUtil.success(
+          context,
+          isEdit ? 'Voucher berhasil diperbarui' : 'Voucher berhasil disimpan',
+        );
         Navigator.pop(context);
       }
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error('Error di simpanForm: $e', e: e, s: s);
       if (mounted) {
         ToastUtil.error(context, 'Gagal menyimpan data');
@@ -326,7 +369,11 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
     final paketAsync = ref.watch(paketProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Tambah Voucher')),
+      appBar: AppBar(
+        title: Text(
+          widget.idVoucher != null ? 'Edit Voucher' : 'Tambah Voucher',
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

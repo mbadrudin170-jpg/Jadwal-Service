@@ -1,3 +1,5 @@
+// path: lib/fitur/voucher/page/detail_voucher.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart'; // tambahkan ini
@@ -10,7 +12,7 @@ class DetailVoucher extends ConsumerWidget {
   final String idVoucher;
   const DetailVoucher({super.key, required this.idVoucher});
 
-  void _naviagasiKeForm(BuildContext context) {
+  void _navigasiKeForm(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute<void>(
@@ -28,7 +30,7 @@ class DetailVoucher extends ConsumerWidget {
         title: const Text('Detail Voucher'),
         actions: [
           IconButton(
-            onPressed: () => _naviagasiKeForm(context),
+            onPressed: () => _navigasiKeForm(context),
             icon: const Icon(TIcons.edit),
           ),
         ],
