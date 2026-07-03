@@ -1,19 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart'; // tambahkan ini
+import 'package:wifi/fitur/voucher/page/form_voucher.dart';
 import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/widget/nama_paket_widget.dart';
 
 class DetailVoucher extends ConsumerWidget {
   final String idVoucher;
   const DetailVoucher({super.key, required this.idVoucher});
 
+  void _naviagasiKeForm(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (contex) => FormVoucher(idVoucher: idVoucher),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final voucherAsync = ref.watch(voucherProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Detail Voucher')),
+      appBar: AppBar(
+        title: const Text('Detail Voucher'),
+        actions: [
+          IconButton(
+            onPressed: () => _naviagasiKeForm(context),
+            icon: const Icon(TIcons.edit),
+          ),
+        ],
+      ),
       body: voucherAsync.when(
         data: (state) {
           final voucher = state.voucher.firstWhere(

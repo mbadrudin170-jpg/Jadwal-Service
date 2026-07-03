@@ -11,7 +11,8 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_teks.dart';
 
 class FormVoucher extends ConsumerStatefulWidget {
-  const FormVoucher({super.key});
+  final String? idVoucher;
+  const FormVoucher({super.key, this.idVoucher});
 
   @override
   ConsumerState<FormVoucher> createState() => _FormVoucherState();
