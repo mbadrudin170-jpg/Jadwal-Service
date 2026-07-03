@@ -505,9 +505,15 @@ import 'package:wifi/shared/widget/nama_paket_widget.dart';
 
 enum SortVoucherBy { kode, status, paket }
 
-class Voucher extends ConsumerWidget {
-  Voucher({super.key});
-  SortVoucherBy _sortBy = SortVoucherBy.kode; // default
+class Voucher extends ConsumerStatefulWidget {
+  const Voucher({super.key});
+
+  @override
+  ConsumerState<Voucher> createState() => _VoucherState();
+}
+
+class _VoucherState extends ConsumerState<Voucher> {
+  SortVoucherBy _sortBy = SortVoucherBy.kode;
   bool _ascending = true;
 
   List<VoucherModel> _urutkanVoucher(List<VoucherModel> daftar) {
@@ -522,8 +528,6 @@ class Voucher extends ConsumerWidget {
         );
         break;
       case SortVoucherBy.paket:
-        // Karena idPaket perlu nama paket, untuk sorting sederhana kita bisa bandingkan idPaket.
-        // Kalau ingin menampilkan nama, nanti bisa diintegrasikan dengan provider paket.
         sorted.sort((a, b) => a.idPaket.compareTo(b.idPaket));
         break;
     }
@@ -549,7 +553,6 @@ class Voucher extends ConsumerWidget {
     );
   }
 
-  /// Menampilkan dialog konfirmasi sebelum menghapus voucher
   Future<void> _konfirmasiHapus(
     BuildContext context,
     WidgetRef ref,
@@ -590,25 +593,63 @@ class Voucher extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final voucherAsync = ref.watch(voucherProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Voucher'),
         actions: [
           PopupMenuButton<SortVoucherBy>(
+            icon: const Icon(Icons.sort),
             onSelected: (value) {
-              if (_sortBy == value) {
-                _ascending = !_ascending;
-              } else {
-                _sortBy = value;
-                _ascending = true;
-              }
+              setState(() {
+                if (_sortBy == value) {
+                  _ascending = !_ascending;
+                } else {
+                  _sortBy = value;
+                  _ascending = true;
+                }
+              });
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: SortVoucherBy.kode,
-                child: Text('Kode Voucher'),
+                child: Row(
+                  children: [
+                    const Text('Kode Voucher'),
+                    if (_sortBy == SortVoucherBy.kode)
+                      Icon(
+                        _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                        size: 16,
+                      ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: SortVoucherBy.status,
+                child: Row(
+                  children: [
+                    const Text('Status'),
+                    if (_sortBy == SortVoucherBy.status)
+                      Icon(
+                        _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                        size: 16,
+                      ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: SortVoucherBy.paket,
+                child: Row(
+                  children: [
+                    const Text('Paket'),
+                    if (_sortBy == SortVoucherBy.paket)
+                      Icon(
+                        _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                        size: 16,
+                      ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -616,23 +657,24 @@ class Voucher extends ConsumerWidget {
       ),
       body: voucherAsync.when(
         data: (state) {
-          if (state.voucher.isEmpty) {
+          final urut = _urutkanVoucher(state.voucher);
+          if (urut.isEmpty) {
             return const Center(child: Text('Tidak ada data'));
           }
           return Column(
             children: [
               Expanded(
                 child: ListView.builder(
-                  itemCount: state.voucher.length,
+                  itemCount: urut.length,
                   itemBuilder: (context, index) {
-                    final voucher = state.voucher[index];
+                    final voucher = urut[index];
                     return Card(
                       margin: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 4,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.circular(12),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       elevation: 2,
                       child: ListTile(
