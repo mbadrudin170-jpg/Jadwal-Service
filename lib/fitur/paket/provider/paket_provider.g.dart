@@ -227,7 +227,7 @@ final class NamaPaketProvider
   }
 }
 
-String _$namaPaketHash() => r'366675c6d635e239a201e15c2dfa4693e7c67374';
+String _$namaPaketHash() => r'55ae4051b700264e207e1c0e5ad2add3e9f0b010';
 
 final class NamaPaketFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<String?>, String> {

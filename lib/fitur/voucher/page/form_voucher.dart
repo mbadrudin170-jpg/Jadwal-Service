@@ -23,7 +23,7 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
   final TextEditingController _voucherController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _menyimpan = false;
-
+  bool _sudahInisialisasi = false;
   // Simpan ID paket yang dipilih (bukan nama paket)
   String? _selectedPaketId;
 
@@ -96,15 +96,17 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
   Widget build(BuildContext context) {
     // Ambil data paket dari provider
     final paketAsync = ref.watch(paketProvider);
-    if (widget.idVoucher != null) {
+    if (widget.idVoucher != null && !_sudahInisialisasi) {
       final voucherState = ref.watch(voucherProvider).value;
-      if (voucherState != null && _voucherController.text.isEmpty) {
+      if (voucherState != null) {
         final existing = voucherState.voucher.firstWhereOrNull(
           (v) => v.id == widget.idVoucher,
         );
         if (existing != null) {
           _voucherController.text = existing.voucher;
-          _selectedPaketId = existing.idPaket;
+          // Jika idPaket kosong, set null agar dropdown menunjukkan placeholder
+          _selectedPaketId = existing.idPaket.isEmpty ? null : existing.idPaket;
+          _sudahInisialisasi = true;
         }
       }
     }
