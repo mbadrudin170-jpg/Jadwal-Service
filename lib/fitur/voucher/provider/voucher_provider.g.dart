@@ -33,7 +33,7 @@ final class VoucherProvider
   Voucher create() => Voucher();
 }
 
-String _$voucherHash() => r'a39ea1e9babd3658bb98d50be30497fa749a62ef';
+String _$voucherHash() => r'834ea2494d087acd32076b1def08c970c03b9b0a';
 
 abstract class _$Voucher extends $AsyncNotifier<VoucherState> {
   FutureOr<VoucherState> build();

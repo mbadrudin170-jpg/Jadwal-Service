@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/voucher/page/form_voucher.dart';
-import 'package:wifi/fitur/voucher/voucher_provider.dart';
+import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/widget/nama_paket_widget.dart';
 
 class Voucher extends ConsumerWidget {
   const Voucher({super.key});
@@ -20,7 +20,6 @@ class Voucher extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final voucherAsync = ref.watch(voucherProvider);
-    final daftarPaket = ref.watch(paketProvider).value?.daftarPaket ?? [];
 
     return Scaffold(
       appBar: AppBar(title: const Text('Voucher')),
@@ -36,16 +35,10 @@ class Voucher extends ConsumerWidget {
                   itemCount: state.voucher.length,
                   itemBuilder: (context, index) {
                     final voucher = state.voucher[index];
-                    final namaPaket =
-                        daftarPaket
-                            .where((p) => p?.id == voucher.idPaket)
-                            .map((p) => p?.nama)
-                            .firstOrNull ??
-                        'Paket tidak dtemukan';
                     return ListTile(
                       onTap: () => _naviagasiKeForm(context),
                       title: Text(voucher.voucher),
-                      subtitle: Text(namaPaket),
+                      subtitle: NamaPaketWidget(idPaket: voucher.idPaket),
                     );
                   },
                 ),

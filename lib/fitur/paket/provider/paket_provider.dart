@@ -24,7 +24,7 @@ abstract class PaketState with _$PaketState {
 @Riverpod(keepAlive: true)
 class Paket extends _$Paket {
   PaketOpGlobal get _paketOp => ref.read(paketOpGlobalProvider);
-  
+
   @override
   FutureOr<PaketState> build() async {
     return _ambilData();
