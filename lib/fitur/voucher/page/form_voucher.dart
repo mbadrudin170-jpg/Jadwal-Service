@@ -8,11 +8,10 @@ import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart';
 import 'package:wifi/fitur/voucher/operasi/voucher_op_firebase.dart';
 import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
+import 'package:wifi/fitur/voucher/tipe_voucher.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_teks.dart';
-
-enum TipeVoucher { satu, beberapa }
 
 class FormVoucher extends ConsumerStatefulWidget {
   final String? idVoucher;
@@ -125,8 +124,8 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
           _voucherController.text = existing.voucher;
           _selectedPaketId = existing.idPaket.isEmpty ? null : existing.idPaket;
           _tipeVoucher = existing.tipeVoucher == TipeVoucher.satu.name
-              ? TipeVoucher.beberapa
-              : TipeVoucher.satu;
+              ? TipeVoucher.satu
+              : TipeVoucher.beberapa;
           _sudahInisialisasi = true;
         }
       }

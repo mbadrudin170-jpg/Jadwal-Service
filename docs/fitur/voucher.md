@@ -8,6 +8,7 @@
 - [lib/fitur/voucher/page/form_voucher.dart](../../lib/fitur/voucher/page/form_voucher.dart)
 - [lib/fitur/voucher/page/voucher.dart](../../lib/fitur/voucher/page/voucher.dart)
 - [lib/fitur/voucher/provider/voucher_provider.dart](../../lib/fitur/voucher/provider/voucher_provider.dart)
+- [lib/fitur/voucher/tipe_voucher.dart](../../lib/fitur/voucher/tipe_voucher.dart)
 
 ## Isi file
 
@@ -17,7 +18,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:wifi/fitur/voucher/page/form_voucher.dart';
+import 'package:wifi/fitur/voucher/tipe_voucher.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart';
@@ -46,7 +47,7 @@ abstract class VoucherModel with _$VoucherModel implements HasId {
       terpakai: ParserUtil.parseBool(data[NamaKolom.terpakai]),
       dihapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       tipeVoucher:
-          data[NamaKolom.tipeVoucher] as String? ?? TipeVoucher.satu.name, //
+          data[NamaKolom.tipeVoucher] as String? ?? TipeVoucher.satu.name,
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
@@ -59,7 +60,7 @@ abstract class VoucherModel with _$VoucherModel implements HasId {
       NamaKolom.idPaket: idPaket,
       NamaKolom.terpakai: terpakai,
       NamaKolom.dihapus: dihapus,
-      NamaKolom.tipeVoucher:tipeVoucher,
+      NamaKolom.tipeVoucher: tipeVoucher,
       NamaKolom.diperbaruiPada: Timestamp.fromDate(
         (diperbaruiPada ?? DateTime.now()),
       ),
@@ -310,11 +311,10 @@ import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart';
 import 'package:wifi/fitur/voucher/operasi/voucher_op_firebase.dart';
 import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
+import 'package:wifi/fitur/voucher/tipe_voucher.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_teks.dart';
-
-enum TipeVoucher { satu, beberapa }
 
 class FormVoucher extends ConsumerStatefulWidget {
   final String? idVoucher;
@@ -427,8 +427,8 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
           _voucherController.text = existing.voucher;
           _selectedPaketId = existing.idPaket.isEmpty ? null : existing.idPaket;
           _tipeVoucher = existing.tipeVoucher == TipeVoucher.satu.name
-              ? TipeVoucher.beberapa
-              : TipeVoucher.satu;
+              ? TipeVoucher.satu
+              : TipeVoucher.beberapa;
           _sudahInisialisasi = true;
         }
       }
@@ -926,4 +926,9 @@ Future<void> softDelete(String id) async {
   }
 }
 ```
+
+### File: `lib/fitur/voucher/tipe_voucher.dart`
+```dart
+// lib/fitur/voucher/model/tipe_voucher.dart
+enum TipeVoucher { satu, beberapa }```
 

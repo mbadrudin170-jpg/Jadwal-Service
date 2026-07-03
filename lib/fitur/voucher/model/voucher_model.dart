@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:wifi/fitur/voucher/page/form_voucher.dart';
+import 'package:wifi/fitur/voucher/tipe_voucher.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart';
@@ -18,7 +18,7 @@ abstract class VoucherModel with _$VoucherModel implements HasId {
     required String idPaket,
     @Default(false) bool terpakai,
     @Default(false) bool dihapus,
-    @Default(TipeVoucher.satu) String tipeVoucher,
+    @Default('satu') String tipeVoucher,
     DateTime? diperbaruiPada,
     DateTime? diarsipkanPada,
   }) = _VoucherModel;
@@ -31,7 +31,7 @@ abstract class VoucherModel with _$VoucherModel implements HasId {
       terpakai: ParserUtil.parseBool(data[NamaKolom.terpakai]),
       dihapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       tipeVoucher:
-          data[NamaKolom.tipeVoucher] as String? ?? TipeVoucher.satu.name, //
+          data[NamaKolom.tipeVoucher] as String? ?? TipeVoucher.satu.name,
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
@@ -44,7 +44,7 @@ abstract class VoucherModel with _$VoucherModel implements HasId {
       NamaKolom.idPaket: idPaket,
       NamaKolom.terpakai: terpakai,
       NamaKolom.dihapus: dihapus,
-      NamaKolom.tipeVoucher:tipeVoucher,
+      NamaKolom.tipeVoucher: tipeVoucher,
       NamaKolom.diperbaruiPada: Timestamp.fromDate(
         (diperbaruiPada ?? DateTime.now()),
       ),
