@@ -186,8 +186,11 @@ class DetailVoucher extends ConsumerWidget {
         data: (state) {
           final voucher = state.voucher.firstWhere(
             (v) => v.id == idVoucher,
-            orElse: () => throw Exception('Voucher tidak ditemukan'),
+            orElse: () => const VoucherModel(id: '', voucher: '', idPaket: ''),
           );
+          if (voucher.id.isEmpty) {
+            return const Center(child: Text('Voucher tidak ditemukan'));
+          }
 
           return _buildDetail(context, voucher);
         },
@@ -292,8 +295,9 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
         if (voucherState != null) {
           final existing = voucherState.voucher.firstWhere(
             (v) => v.id == widget.idVoucher,
-            orElse: () => throw Exception('Voucher tidak ditemukan'),
+            orElse: () => const VoucherModel(id: '', voucher: '', idPaket: ''),
           );
+          if (existing.id.isEmpty) return; // atau tampilkan pesan, lalu pop
           _voucherController.text = existing.voucher;
           setState(() {
             _selectedPaketId = existing.idPaket;

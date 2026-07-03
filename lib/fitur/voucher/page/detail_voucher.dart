@@ -39,8 +39,11 @@ class DetailVoucher extends ConsumerWidget {
         data: (state) {
           final voucher = state.voucher.firstWhere(
             (v) => v.id == idVoucher,
-            orElse: () => throw Exception('Voucher tidak ditemukan'),
+            orElse: () => const VoucherModel(id: '', voucher: '', idPaket: ''),
           );
+          if (voucher.id.isEmpty) {
+            return const Center(child: Text('Voucher tidak ditemukan'));
+          }
 
           return _buildDetail(context, voucher);
         },

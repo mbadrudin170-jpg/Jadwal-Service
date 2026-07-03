@@ -36,8 +36,9 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
         if (voucherState != null) {
           final existing = voucherState.voucher.firstWhere(
             (v) => v.id == widget.idVoucher,
-            orElse: () => throw Exception('Voucher tidak ditemukan'),
+            orElse: () => const VoucherModel(id: '', voucher: '', idPaket: ''),
           );
+          if (existing.id.isEmpty) return; // atau tampilkan pesan, lalu pop
           _voucherController.text = existing.voucher;
           setState(() {
             _selectedPaketId = existing.idPaket;
