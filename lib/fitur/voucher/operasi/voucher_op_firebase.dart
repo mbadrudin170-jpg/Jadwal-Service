@@ -55,7 +55,7 @@ class VoucherOpFirebase {
     }
   }
 
-  Future<void> hapus(String idVoucher) async {
+  Future<void> softDelete(String idVoucher) async {
     try {
       await _firestore.collection(_koleksiVoucher).doc(idVoucher).update({
         NamaKolom.dihapus: true,
