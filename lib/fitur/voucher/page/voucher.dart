@@ -115,7 +115,7 @@ class _VoucherState extends ConsumerState<Voucher> {
         title: const Text('Voucher'),
         actions: [
           PopupMenuButton<SortVoucherBy>(
-            icon: const Icon(Icons.sort),
+            icon: const Icon(TIcons.sort),
             onSelected: (value) {
               setState(() {
                 if (_sortBy == value) {
@@ -146,19 +146,6 @@ class _VoucherState extends ConsumerState<Voucher> {
                   children: [
                     const Text('Status'),
                     if (_sortBy == SortVoucherBy.status)
-                      Icon(
-                        _ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                        size: 16,
-                      ),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: SortVoucherBy.paket,
-                child: Row(
-                  children: [
-                    const Text('Paket'),
-                    if (_sortBy == SortVoucherBy.paket)
                       Icon(
                         _ascending ? Icons.arrow_upward : Icons.arrow_downward,
                         size: 16,
