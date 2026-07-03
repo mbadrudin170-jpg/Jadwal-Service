@@ -201,6 +201,26 @@ class _VoucherState extends ConsumerState<Voucher> {
                         ),
                         title: Text(voucher.voucher),
                         subtitle: NamaPaketWidget(idPaket: voucher.idPaket),
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: voucher.terpakai
+                                ? Colors.green.shade50
+                                : Colors.red.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: voucher.terpakai
+                                  ? Colors.green.shade200
+                                  : Colors.red.shade200,
+                            ),
+                          ),
+                          child: Text(
+                            voucher.terpakai ? 'Terpakai' : 'Belum Terpakai',
+                          ),
+                        ),
                       ),
                     );
                   },
