@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart';
 
@@ -24,24 +25,26 @@ abstract class VoucherModel with _$VoucherModel implements HasId {
   factory VoucherModel.fromFirebase(String id, Map<String, dynamic> data) {
     return VoucherModel(
       id: id,
-      voucher: data['voucher'] as String? ?? '',
-      idPaket: data['idPaket'] as String? ?? '',
-      terpakai: ParserUtil.parseBool(data['terpakai']),
-      dihapus: ParserUtil.parseBool(data['dihapus']),
-      diperbaruiPada: ParserUtil.parseDateTime(data['diperbaruiPada']),
-      diarsipkanPada: ParserUtil.parseDateTime(data['diarsipkanPada']),
+      voucher: data[NamaKolom.voucher] as String? ?? '',
+      idPaket: data[NamaKolom.idPaket] as String? ?? '',
+      terpakai: ParserUtil.parseBool(data[NamaKolom.terpakai]),
+      dihapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
+      diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
+      diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
   }
 
   Map<String, dynamic> toFirebase() {
     return {
-      'id': id,
-      'voucher': voucher,
-      'idPaket': idPaket,
-      'terpakai': terpakai,
-      'dihapus': dihapus,
-      'diperbaruiPada': Timestamp.fromDate((diperbaruiPada ?? DateTime.now())),
-      'diarsipkanPada': diarsipkanPada != null
+      NamaKolom.id: id,
+      NamaKolom.voucher: voucher,
+      NamaKolom.idPaket: idPaket,
+      NamaKolom.terpakai: terpakai,
+      NamaKolom.dihapus: dihapus,
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()),
+      ),
+      NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!)
           : null,
     };

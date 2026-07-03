@@ -51,7 +51,9 @@ abstract class FeedbackModel with _$FeedbackModel implements HasId {
   }
 
   factory FeedbackModel.fromFirebase(
-      final String id, final Map<String, dynamic> data) {
+    final String id,
+    final Map<String, dynamic> data,
+  ) {
     Log.info('Creating FeedbackModel from Firebase: $id');
     return FeedbackModel(
       id: id,
@@ -73,8 +75,9 @@ abstract class FeedbackModel with _$FeedbackModel implements HasId {
           ? Timestamp.fromDate(tanggal!.toUtc())
           : DateTime.now().toUtc(),
       NamaKolom.dihapus: dihapus,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()).toUtc(),
+      ),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,

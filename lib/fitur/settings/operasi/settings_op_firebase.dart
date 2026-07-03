@@ -8,7 +8,7 @@ class SettingsOpFirebase {
   final FirebaseFirestore _db;
 
   SettingsOpFirebase({FirebaseFirestore? firestore})
-      : _db = firestore ?? FirebaseFirestore.instance {
+    : _db = firestore ?? FirebaseFirestore.instance {
     Log.info('SettingsOpFirebase diinisialisasi.');
   }
 

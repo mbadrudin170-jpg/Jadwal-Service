@@ -240,12 +240,14 @@ class _PelangganState extends ConsumerState<PelangganPage> {
               title: const Text('Edit Pelanggan'),
               onTap: () async {
                 Navigator.of(dialogContext).pop();
-                  unawaited(Navigator.push<void>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FormPelanggan(pelanggan: pelanggan),
+                unawaited(
+                  Navigator.push<void>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FormPelanggan(pelanggan: pelanggan),
+                    ),
                   ),
-                ));
+                );
               },
             ),
             ListTile(

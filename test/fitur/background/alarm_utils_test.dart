@@ -27,10 +27,14 @@ void main() {
       // Arrange
       final container = ProviderContainer(
         overrides: [
-          arsipLanggananKadaluarsaServiceProvider.overrideWithValue(mockService),
+          arsipLanggananKadaluarsaServiceProvider.overrideWithValue(
+            mockService,
+          ),
         ],
       );
-      when(mockService.prosesArsipLanggananKadaluarsa()).thenAnswer((_) async {});
+      when(
+        mockService.prosesArsipLanggananKadaluarsa(),
+      ).thenAnswer((_) async {});
 
       // Act
       await alarmCallback();

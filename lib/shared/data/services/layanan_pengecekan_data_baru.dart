@@ -17,9 +17,9 @@ class LayananPengecekanDataBaru {
     required FirebaseFirestore firestore,
     required PengelolaSinkronisasi syncManager,
     required StatusUploadOpSqlite uploadStatusOperation,
-  })  : _firestore = firestore,
-        _pengelolaSinkronisasi = syncManager,
-        _statusUploadOpSqlite = uploadStatusOperation {
+  }) : _firestore = firestore,
+       _pengelolaSinkronisasi = syncManager,
+       _statusUploadOpSqlite = uploadStatusOperation {
     Log.info('NewDataCheckService diinisialisasi dengan dependency injection.');
   }
 
@@ -76,8 +76,8 @@ class LayananPengecekanDataBaru {
       Log.info(
         'Mengambil metadata waktu unduhan terakhir dari penyimpanan preferensi lokal melalui SyncManager.',
       );
-      final tanggalTerakhirDownload =
-          await _pengelolaSinkronisasi.ambilWaktuTerakhirUnduhPreferensi();
+      final tanggalTerakhirDownload = await _pengelolaSinkronisasi
+          .ambilWaktuTerakhirUnduhPreferensi();
       Log.info(
         'Timestamp unduhan lokal terakhir yang tercatat adalah: $tanggalTerakhirDownload',
       );
@@ -85,8 +85,9 @@ class LayananPengecekanDataBaru {
       Log.info(
         'Membangun referensi dokumen Firestore dan memulai permintaan pengambilan data langsung dari server cloud (Source.server).',
       );
-      final DocumentReference referensiDokumen =
-          _firestore.collection(namaKoleksi).doc(idDokumen);
+      final DocumentReference referensiDokumen = _firestore
+          .collection(namaKoleksi)
+          .doc(idDokumen);
       final snapshotDokumen = await referensiDokumen.get(
         const GetOptions(source: Source.server),
       );
@@ -152,14 +153,12 @@ class LayananPengecekanDataBaru {
   }
 }
 
-final pengecekanDataBaruServiceProvider = Provider<LayananPengecekanDataBaru>(
-  (
-    ref,
-  ) {
-    return LayananPengecekanDataBaru(
-      firestore: FirebaseFirestore.instance,
-      syncManager: ref.read(pengelolaSinkronisasiProvider),
-      uploadStatusOperation: ref.read(statusUploadOpSlite),
-    );
-  },
-);
+final pengecekanDataBaruServiceProvider = Provider<LayananPengecekanDataBaru>((
+  ref,
+) {
+  return LayananPengecekanDataBaru(
+    firestore: FirebaseFirestore.instance,
+    syncManager: ref.read(pengelolaSinkronisasiProvider),
+    uploadStatusOperation: ref.read(statusUploadOpSlite),
+  );
+});

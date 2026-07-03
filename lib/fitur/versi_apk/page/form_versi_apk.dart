@@ -152,11 +152,13 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
   Future<void> _saveForm() async {
     final apkVersionOperasi = ref.read(versiApkOpSqliteProvider);
     if (!_formKey.currentState!.validate()) {
-      unawaited(_scrollController.animateTo(
-        0.0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      ));
+      unawaited(
+        _scrollController.animateTo(
+          0.0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        ),
+      );
       return;
     }
 
@@ -237,9 +239,9 @@ class _FormVersiApkState extends ConsumerState<FormVersiApk> {
           Log.info('Menjalankan perintah tambah data baru...');
           await apkVersionOperasi.tambahVersiApk(dataToSave);
         }
-          unawaited(
-            ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
-          );
+        unawaited(
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
+        );
         Log.info('Proses penyimpanan berhasil diselesaikan');
         if (!mounted) return;
         Navigator.of(context).pop(true);

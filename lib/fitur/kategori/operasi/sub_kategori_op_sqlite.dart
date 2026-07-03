@@ -17,10 +17,7 @@ class SubKategoriOpSqlite {
 
   final String _tableName = NamaTabel.subKategori;
 
-  SubKategoriOpSqlite({
-    required this.sqliteDb,
-    required this.baseOpSqlite,
-  });
+  SubKategoriOpSqlite({required this.sqliteDb, required this.baseOpSqlite});
 
   /// Menyimpan [SubKategoriModel] baru ke dalam database.
   Future<void> createSubCategory(
@@ -32,11 +29,7 @@ class SubKategoriOpSqlite {
       final data = subKategori
           .copyWith(diperbaruiPada: DateTime.now().toUtc())
           .toSqlite();
-      await baseOpSqlite.sisipkan(
-        _tableName,
-        data,
-        dariServer: fromServer,
-      );
+      await baseOpSqlite.sisipkan(_tableName, data, dariServer: fromServer);
       Log.info('Berhasil membuat sub-kategori ID: ${subKategori.id}');
     } on Exception catch (e, s) {
       Log.error('Gagal membuat sub-kategori.', e: e, s: s);
@@ -61,8 +54,11 @@ class SubKategoriOpSqlite {
         return SubKategoriModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, s) {
-      Log.error('Gagal mengambil sub-kategori berdasarkan kategori ID.',
-          e: e, s: s);
+      Log.error(
+        'Gagal mengambil sub-kategori berdasarkan kategori ID.',
+        e: e,
+        s: s,
+      );
       rethrow;
     }
   }
@@ -117,11 +113,7 @@ class SubKategoriOpSqlite {
   Future<void> delete(final String id, {final bool fromServer = false}) async {
     Log.warning('PERINGATAN: Menghapus sub-kategori ID: $id secara permanen');
     try {
-      await baseOpSqlite.delete(
-        _tableName,
-        id,
-        dariServer: fromServer,
-      );
+      await baseOpSqlite.delete(_tableName, id, dariServer: fromServer);
       Log.warning('Berhasil melakukan hard delete sub-kategori ID: $id');
     } on Exception catch (e, s) {
       Log.error('Gagal menghapus sub-kategori secara permanen.', e: e, s: s);
@@ -136,11 +128,7 @@ class SubKategoriOpSqlite {
   }) async {
     Log.info('Memulai soft delete untuk sub-kategori ID: $id');
     try {
-      await baseOpSqlite.softDelete(
-        _tableName,
-        id,
-        dariServer: dariServer,
-      );
+      await baseOpSqlite.softDelete(_tableName, id, dariServer: dariServer);
       Log.info('Berhasil soft delete sub-kategori ID: $id.');
     } on Exception catch (e, st) {
       Log.error('Gagal saat soft delete sub-kategori ID: $id', e: e, s: st);
@@ -149,9 +137,7 @@ class SubKategoriOpSqlite {
   }
 
   /// Melakukan soft delete pada semua sub-kategori.
-  Future<int> softDeleteAll({
-    final bool fromServer = false,
-  }) async {
+  Future<int> softDeleteAll({final bool fromServer = false}) async {
     Log.info('Memulai soft delete untuk semua sub-kategori');
     try {
       final count = await baseOpSqlite.softDeleteAll(
@@ -171,9 +157,7 @@ class SubKategoriOpSqlite {
     final List<SubKategoriModel> items, {
     final bool dariServer = false,
   }) async {
-    Log.info(
-      'Memulai batch insert/update untuk ${items.length} sub-kategori.',
-    );
+    Log.info('Memulai batch insert/update untuk ${items.length} sub-kategori.');
     if (items.isEmpty) {
       Log.warning('List item kosong, membatalkan proses operasi batch.');
       return;
@@ -220,8 +204,11 @@ class SubKategoriOpSqlite {
         return SubKategoriModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, s) {
-      Log.error('Gagal mengambil sub-kategori berdasarkan list ID.',
-          e: e, s: s);
+      Log.error(
+        'Gagal mengambil sub-kategori berdasarkan list ID.',
+        e: e,
+        s: s,
+      );
       rethrow;
     }
   }

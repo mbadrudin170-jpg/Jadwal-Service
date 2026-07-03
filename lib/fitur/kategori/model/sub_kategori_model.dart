@@ -44,7 +44,9 @@ abstract class SubKategoriModel with _$SubKategoriModel implements HasId {
   }
 
   factory SubKategoriModel.fromFirebase(
-      final String id, final Map<String, dynamic> data) {
+    final String id,
+    final Map<String, dynamic> data,
+  ) {
     return SubKategoriModel(
       id: id,
       nama: data[NamaKolom.nama] as String? ?? '',
@@ -60,8 +62,9 @@ abstract class SubKategoriModel with _$SubKategoriModel implements HasId {
       NamaKolom.id: id,
       NamaKolom.nama: nama,
       NamaKolom.idKategori: idKategori,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()).toUtc(),
+      ),
       NamaKolom.dihapus: diHapus,
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())

@@ -63,13 +63,16 @@ void main() {
       expect(tanggalBerakhir, DateTime(2023, 1, 1, 3));
     });
 
-    test('04. cobaAmbilTeksSisaMasaAktif harus mengembalikan "Berakhir" jika sudah lewat', () {
-      final pastDate = DateTime.now().subtract(const Duration(days: 1));
-      expect(
-        PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(pastDate),
-        'Berakhir',
-      );
-    });
+    test(
+      '04. cobaAmbilTeksSisaMasaAktif harus mengembalikan "Berakhir" jika sudah lewat',
+      () {
+        final pastDate = DateTime.now().subtract(const Duration(days: 1));
+        expect(
+          PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(pastDate),
+          'Berakhir',
+        );
+      },
+    );
 
     test('05. cobaAmbilTeksSisaMasaAktif harus mengembalikan sisa waktu', () {
       final futureDate = DateTime.now().add(const Duration(days: 5));
@@ -77,44 +80,47 @@ void main() {
       expect(result, contains('5'));
     });
 
-    test('06. ambilWarnaSisaMasaAktif harus mengembalikan hijau jika > 7 hari', () {
-      final futureDate = DateTime.now().add(const Duration(days: 10));
-      expect(
-        PerhitunganUtil.ambilWarnaSisaMasaAktif(futureDate),
-        Colors.green,
-      );
-    });
+    test(
+      '06. ambilWarnaSisaMasaAktif harus mengembalikan hijau jika > 7 hari',
+      () {
+        final futureDate = DateTime.now().add(const Duration(days: 10));
+        expect(
+          PerhitunganUtil.ambilWarnaSisaMasaAktif(futureDate),
+          Colors.green,
+        );
+      },
+    );
 
-    test('07. ambilWarnaSisaMasaAktif harus mengembalikan orange jika <= 7 hari', () {
-      final futureDate = DateTime.now().add(const Duration(days: 3));
-      expect(
-        PerhitunganUtil.ambilWarnaSisaMasaAktif(futureDate),
-        Colors.orange,
-      );
-    });
+    test(
+      '07. ambilWarnaSisaMasaAktif harus mengembalikan orange jika <= 7 hari',
+      () {
+        final futureDate = DateTime.now().add(const Duration(days: 3));
+        expect(
+          PerhitunganUtil.ambilWarnaSisaMasaAktif(futureDate),
+          Colors.orange,
+        );
+      },
+    );
 
-    test('08. ambilWarnaSisaMasaAktif harus mengembalikan merah jika sudah lewat', () {
-      final pastDate = DateTime.now().subtract(const Duration(days: 1));
-      expect(
-        PerhitunganUtil.ambilWarnaSisaMasaAktif(pastDate),
-        Colors.red,
-      );
-    });
+    test(
+      '08. ambilWarnaSisaMasaAktif harus mengembalikan merah jika sudah lewat',
+      () {
+        final pastDate = DateTime.now().subtract(const Duration(days: 1));
+        expect(PerhitunganUtil.ambilWarnaSisaMasaAktif(pastDate), Colors.red);
+      },
+    );
 
     test('09. poinKadaluarsa harus mengembalikan "Hangus" jika > 30 hari', () {
       final oldDate = DateTime.now().subtract(const Duration(days: 31));
-      expect(
-        PerhitunganUtil.poinKadaluarsa(tanggalMulai: oldDate),
-        'Hangus',
-      );
+      expect(PerhitunganUtil.poinKadaluarsa(tanggalMulai: oldDate), 'Hangus');
     });
 
-    test('10. poinKadaluarsa harus mengembalikan string kosong jika <= 30 hari', () {
-      final recentDate = DateTime.now().subtract(const Duration(days: 20));
-      expect(
-        PerhitunganUtil.poinKadaluarsa(tanggalMulai: recentDate),
-        '',
-      );
-    });
+    test(
+      '10. poinKadaluarsa harus mengembalikan string kosong jika <= 30 hari',
+      () {
+        final recentDate = DateTime.now().subtract(const Duration(days: 20));
+        expect(PerhitunganUtil.poinKadaluarsa(tanggalMulai: recentDate), '');
+      },
+    );
   });
 }

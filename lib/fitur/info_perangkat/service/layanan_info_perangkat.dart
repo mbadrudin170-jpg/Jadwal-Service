@@ -15,14 +15,13 @@ class LayananInfoPerangkat {
     Log.info('Memulai pengambilan informasi arsitektur perangkat.');
     if (kIsWeb) {
       Log.warning('Tidak dapat mendeteksi arsitektur di platform web.');
-      return {
-        'error': 'Tidak dapat mendeteksi arsitektur di web.',
-      };
+      return {'error': 'Tidak dapat mendeteksi arsitektur di web.'};
     }
     try {
       if (defaultTargetPlatform == TargetPlatform.android) {
         Log.info(
-            'Platform terdeteksi: Android. Mengambil AndroidDeviceInfo...');
+          'Platform terdeteksi: Android. Mengambil AndroidDeviceInfo...',
+        );
         final infoAndroid = await infoPerangkat.androidInfo;
         final hasilArsitektur = {
           'supportedAbis': infoAndroid.supportedAbis,
@@ -41,18 +40,10 @@ class LayananInfoPerangkat {
         return result;
       }
     } catch (e, s) {
-      Log.error(
-        'Gagal mendapatkan info perangkat.',
-        e: e,
-        s: s,
-      );
-      return {
-        'error': 'Gagal mendapatkan info perangkat: $e',
-      };
+      Log.error('Gagal mendapatkan info perangkat.', e: e, s: s);
+      return {'error': 'Gagal mendapatkan info perangkat: $e'};
     }
     Log.warning('Platform tidak didukung oleh DeviceInfoService.');
-    return {
-      'error': 'Platform tidak didukung',
-    };
+    return {'error': 'Platform tidak didukung'};
   }
 }

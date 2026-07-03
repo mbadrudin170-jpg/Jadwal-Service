@@ -64,7 +64,6 @@ class FakeLayananPenyimpananLokal extends Fake
   MockSpec<FirebaseFirestore>(),
 ])
 void main() {
-
   setUpAll(() async {
     await Firebase.initializeApp();
   });

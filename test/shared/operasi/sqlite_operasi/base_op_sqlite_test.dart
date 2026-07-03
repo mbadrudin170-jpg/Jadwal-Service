@@ -222,9 +222,7 @@ void main() {
 
         await baseOpSqlite.sisipkan(tableName, modelMap);
 
-        verify(
-          mockStatusUpload.tandaiButuhUpload(true),
-        ).called(1);
+        verify(mockStatusUpload.tandaiButuhUpload(true)).called(1);
       },
     );
 
@@ -237,9 +235,7 @@ void main() {
 
         await baseOpSqlite.sisipkan(tableName, modelMap, dariServer: true);
 
-        verifyNever(
-          mockStatusUpload.tandaiButuhUpload(true),
-        );
+        verifyNever(mockStatusUpload.tandaiButuhUpload(true));
       },
     );
 
@@ -257,9 +253,7 @@ void main() {
 
         await baseOpSqlite.update(tableName, modelMap, '1');
 
-        verify(
-          mockStatusUpload.tandaiButuhUpload(true),
-        ).called(1);
+        verify(mockStatusUpload.tandaiButuhUpload(true)).called(1);
       },
     );
 
@@ -277,9 +271,7 @@ void main() {
 
         await baseOpSqlite.update(tableName, modelMap, '1', dariServer: true);
 
-        verifyNever(
-          mockStatusUpload.tandaiButuhUpload(true),
-        );
+        verifyNever(mockStatusUpload.tandaiButuhUpload(true));
       },
     );
   });

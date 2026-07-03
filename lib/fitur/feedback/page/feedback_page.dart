@@ -156,7 +156,8 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute<void>(
-                            builder: (context) => FeedbackDetail(id: feedback.id),
+                            builder: (context) =>
+                                FeedbackDetail(id: feedback.id),
                           ),
                         ),
                       );

@@ -1,6 +1,5 @@
 // path: lib/fitur/versi_apk/operasi/versi_apk_op_firebase.dart
 
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -38,7 +37,7 @@ class VersiApkOpFirebase {
       }
       Log.warning('Tidak ada versi APK aktif yang ditemukan');
       return null;
-    }  catch (e, st) {
+    } catch (e, st) {
       Log.error('Error saat mengambil versi APK', e: e, s: st);
       rethrow;
     }

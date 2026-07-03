@@ -16,9 +16,7 @@ class UjiFiturApp extends StatelessWidget {
   Widget build(final BuildContext context) {
     return MaterialApp(
       title: 'Uji Fitur',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: const UjiFiturHomePage(),
     );
   }
@@ -47,16 +45,12 @@ class _UjiFiturHomePageState extends State<UjiFiturHomePage> {
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Uji Fitur'),
-      ),
+      appBar: AppBar(title: const Text('Uji Fitur')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Selamat datang di Halaman Uji Fitur!',
-            ),
+            const Text('Selamat datang di Halaman Uji Fitur!'),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
@@ -64,8 +58,7 @@ class _UjiFiturHomePageState extends State<UjiFiturHomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (final context) =>
-                          const StatistikUjiCobaPage(),
+                      builder: (final context) => const StatistikUjiCobaPage(),
                     ),
                   ),
                 );

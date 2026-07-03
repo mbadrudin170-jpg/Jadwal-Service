@@ -1,4 +1,3 @@
-
 // path: test/fitur/event/page/detail_event_a_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,16 +29,16 @@ void main() {
     );
 
     testWidgets('01. renders event details correctly', (tester) async {
-      when(mockEventOpSupabase.ambilBerdasarkanId('1')).thenAnswer((_) async => event);
+      when(
+        mockEventOpSupabase.ambilBerdasarkanId('1'),
+      ).thenAnswer((_) async => event);
 
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
             eventOpSupabaseProvider.overrideWithValue(mockEventOpSupabase),
           ],
-          child: MaterialApp(
-            home: DetailEventA(event: event),
-          ),
+          child: MaterialApp(home: DetailEventA(event: event)),
         ),
       );
 
@@ -49,17 +48,19 @@ void main() {
       expect(find.byType(Image), findsOneWidget);
     });
 
-    testWidgets('02. shows loading indicator when event is loading', (tester) async {
-      when(mockEventOpSupabase.ambilBerdasarkanId('1')).thenAnswer((_) async => null);
+    testWidgets('02. shows loading indicator when event is loading', (
+      tester,
+    ) async {
+      when(
+        mockEventOpSupabase.ambilBerdasarkanId('1'),
+      ).thenAnswer((_) async => null);
 
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
             eventOpSupabaseProvider.overrideWithValue(mockEventOpSupabase),
           ],
-          child: MaterialApp(
-            home: DetailEventA(event: event),
-          ),
+          child: MaterialApp(home: DetailEventA(event: event)),
         ),
       );
 

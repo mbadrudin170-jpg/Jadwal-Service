@@ -55,8 +55,7 @@ class HalamanDataDummy extends ConsumerWidget {
               );
               ref.invalidate(pelangganOpSqliteProvider);
             },
-            label:
-                'Tambah Pelanggan Dummy (${daftarPelanggan.length})',
+            label: 'Tambah Pelanggan Dummy (${daftarPelanggan.length})',
             icon: TIcons.customers,
           ),
           _tombolFitur(
@@ -128,13 +127,12 @@ class HalamanDataDummy extends ConsumerWidget {
                 context,
                 ref,
                 'Transaksi',
-               daftarTransaksi,
+                daftarTransaksi,
                 ref.read(transaksiOpGlobalProvider).sisipkanAtauPerbaruiBatch,
               );
               ref.invalidate(transaksiOpSqliteProvider);
             },
-            label:
-                'Tambah Transaksi Dummy (${daftarTransaksi.length})',
+            label: 'Tambah Transaksi Dummy (${daftarTransaksi.length})',
             icon: TIcons.receiptLong,
           ),
           _tombolFitur(

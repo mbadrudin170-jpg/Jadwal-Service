@@ -76,23 +76,27 @@ void main() {
       },
     );
 
-    test('06. ambilWaktuTerakhirUnduh harus mengembalikan null jika nilai 0',
-        () async {
-      SharedPreferences.setMockInitialValues({kunciTerakhirUnduh: 0});
+    test(
+      '06. ambilWaktuTerakhirUnduh harus mengembalikan null jika nilai 0',
+      () async {
+        SharedPreferences.setMockInitialValues({kunciTerakhirUnduh: 0});
 
-      final waktu = await layananPreferensi.ambilWaktuTerakhirUnduh();
-      expect(waktu, isNull);
-    });
+        final waktu = await layananPreferensi.ambilWaktuTerakhirUnduh();
+        expect(waktu, isNull);
+      },
+    );
 
-    test('07. simpanWaktuTerakhirUnduh menyimpan nilai dalam format UTC',
-        () async {
-      final waktuLokal = DateTime(2023, 1, 1, 10);
-      await layananPreferensi.simpanWaktuTerakhirUnduh(waktuLokal);
+    test(
+      '07. simpanWaktuTerakhirUnduh menyimpan nilai dalam format UTC',
+      () async {
+        final waktuLokal = DateTime(2023, 1, 1, 10);
+        await layananPreferensi.simpanWaktuTerakhirUnduh(waktuLokal);
 
-      final prefs = await SharedPreferences.getInstance();
-      final timestamp = prefs.getInt(kunciTerakhirUnduh);
+        final prefs = await SharedPreferences.getInstance();
+        final timestamp = prefs.getInt(kunciTerakhirUnduh);
 
-      expect(timestamp, waktuLokal.toUtc().millisecondsSinceEpoch);
-    });
+        expect(timestamp, waktuLokal.toUtc().millisecondsSinceEpoch);
+      },
+    );
   });
 }

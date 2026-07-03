@@ -263,7 +263,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
           Log.info(
             'Menjalankan operasi UPDATE untuk transaksi ID: ${transaksi.id}',
           );
-          await transaksiOp.perbaruiTransaksi( transaksi);
+          await transaksiOp.perbaruiTransaksi(transaksi);
         } else {
           Log.info('Menjalankan operasi CREATE untuk transaksi baru.');
           await transaksiOp.tambahTransaksi(transaksi);

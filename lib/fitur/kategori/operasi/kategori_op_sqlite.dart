@@ -212,7 +212,9 @@ class KategoriOpSqlite {
     }
   }
 
-  Future<List<KategoriModel>> ambilKategoriBerdasarkanIds(final List<String> ids) async {
+  Future<List<KategoriModel>> ambilKategoriBerdasarkanIds(
+    final List<String> ids,
+  ) async {
     Log.info('Memulai getCategoriesByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning(

@@ -16,11 +16,7 @@ class ErrorMessage extends StatelessWidget {
   ///
   /// [message] adalah pesan error yang akan ditampilkan ke pengguna.
   /// [onRetry] adalah fungsi yang dipanggil saat pengguna menekan tombol retry.
-  const ErrorMessage({
-    super.key,
-    required this.message,
-    required this.onRetry,
-  });
+  const ErrorMessage({super.key, required this.message, required this.onRetry});
 
   @override
   Widget build(final BuildContext context) {
@@ -30,17 +26,13 @@ class ErrorMessage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              color: Colors.red,
-              size: 60,
-            ),
+            const Icon(Icons.error_outline, color: Colors.red, size: 60),
             const SizedBox(height: 16),
             Text(
               'Oops! Terjadi Kesalahan',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Colors.red,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(color: Colors.red),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
@@ -54,9 +46,7 @@ class ErrorMessage extends StatelessWidget {
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
               label: const Text('Coba Lagi'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             ),
           ],
         ),

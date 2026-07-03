@@ -26,8 +26,8 @@ class PesanInfoPaket {
   PesanInfoPaket({
     required PelangganOpSqlite pelangganOpSqlite,
     required PaketOpSqlite paketOpSqlite,
-  })  : _pelangganOpSqlite = pelangganOpSqlite,
-        _paketOpSqlite = paketOpSqlite;
+  }) : _pelangganOpSqlite = pelangganOpSqlite,
+       _paketOpSqlite = paketOpSqlite;
 
   /// Mengambil detail pelanggan dan paket, membuat pesan,
   /// lalu mengirimkannya melalui WhatsApp.
@@ -40,8 +40,9 @@ class PesanInfoPaket {
       Log.info(
         'Mengambil data pelanggan dengan ID: ${pelangganAktif.idPelanggan}',
       );
-      final pelanggan = await _pelangganOpSqlite
-          .ambilBerdasarkanId(pelangganAktif.idPelanggan);
+      final pelanggan = await _pelangganOpSqlite.ambilBerdasarkanId(
+        pelangganAktif.idPelanggan,
+      );
       Log.info('Mengambil data paket dengan ID: ${pelangganAktif.idPaket}');
       final paket = await _paketOpSqlite.ambilBerdasarkanId(
         pelangganAktif.idPaket,

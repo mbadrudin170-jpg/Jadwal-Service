@@ -25,29 +25,31 @@ void main() {
   Widget createWidgetUnderTest(String idPelanggan, List<Override> overrides) {
     return ProviderScope(
       overrides: overrides,
-      child: MaterialApp(
-        home: DetailPelanggan(idPelanggan: idPelanggan),
-      ),
+      child: MaterialApp(home: DetailPelanggan(idPelanggan: idPelanggan)),
     );
   }
 
   group('DetailPelanggan Widget Tests', () {
-    testWidgets('01. harus menampilkan CircularProgressIndicator saat loading',
-        (tester) async {
-      // Arrange
-      await tester.pumpWidget(
-        createWidgetUnderTest('id-123', [
-          pelangganDetailProvider('id-123')
-              .overrideWith((ref) => Completer<(PelangganModel?, int)>().future),
-        ]),
-      );
+    testWidgets(
+      '01. harus menampilkan CircularProgressIndicator saat loading',
+      (tester) async {
+        // Arrange
+        await tester.pumpWidget(
+          createWidgetUnderTest('id-123', [
+            pelangganDetailProvider(
+              'id-123',
+            ).overrideWith((ref) => Completer<(PelangganModel?, int)>().future),
+          ]),
+        );
 
-      // Assert
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    });
+        // Assert
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      },
+    );
 
-    testWidgets('02. harus menampilkan pesan error saat terjadi kesalahan',
-        (tester) async {
+    testWidgets('02. harus menampilkan pesan error saat terjadi kesalahan', (
+      tester,
+    ) async {
       // Arrange
       await tester.pumpWidget(
         createWidgetUnderTest('id-123', [
@@ -61,14 +63,13 @@ void main() {
       expect(find.text('Gagal memuat data: Gagal memuat'), findsOneWidget);
     });
 
-    testWidgets('03. harus menampilkan pesan saat pelanggan tidak ditemukan',
-        (tester) async {
+    testWidgets('03. harus menampilkan pesan saat pelanggan tidak ditemukan', (
+      tester,
+    ) async {
       // Arrange
       await tester.pumpWidget(
         createWidgetUnderTest('id-123', [
-          pelangganDetailProvider('id-123').overrideWith(
-            (ref) => (null, 0),
-          ),
+          pelangganDetailProvider('id-123').overrideWith((ref) => (null, 0)),
         ]),
       );
 
@@ -76,31 +77,33 @@ void main() {
       expect(find.text('Pelanggan tidak ditemukan'), findsOneWidget);
     });
 
-    testWidgets('04. harus menampilkan DetailPelangganUI dengan data yang benar',
-        (tester) async {
+    testWidgets(
+      '04. harus menampilkan DetailPelangganUI dengan data yang benar',
+      (tester) async {
+        // Arrange
+        await tester.pumpWidget(
+          createWidgetUnderTest('id-123', [
+            pelangganDetailProvider(
+              'id-123',
+            ).overrideWith((ref) => (mockPelanggan, 100)),
+          ]),
+        );
+
+        // Assert
+        expect(find.byType(DetailPelangganUI), findsOneWidget);
+        expect(find.text('John Doe'), findsOneWidget);
+        expect(find.text('081234567890'), findsOneWidget);
+        expect(find.text('100'), findsOneWidget); // Poin
+      },
+    );
+
+    testWidgets('05. harus memiliki tombol edit di AppBar', (tester) async {
       // Arrange
       await tester.pumpWidget(
         createWidgetUnderTest('id-123', [
-          pelangganDetailProvider('id-123').overrideWith(
-            (ref) => (mockPelanggan, 100),
-          ),
-        ]),
-      );
-
-      // Assert
-      expect(find.byType(DetailPelangganUI), findsOneWidget);
-      expect(find.text('John Doe'), findsOneWidget);
-      expect(find.text('081234567890'), findsOneWidget);
-      expect(find.text('100'), findsOneWidget); // Poin
-    });
-
-    testWidgets('05. harus memiliki tombol edit di AppBar',
-        (tester) async {
-      // Arrange
-      await tester.pumpWidget(
-        createWidgetUnderTest('id-123', [
-          pelangganDetailProvider('id-123')
-              .overrideWith((ref) => (mockPelanggan, 100)),
+          pelangganDetailProvider(
+            'id-123',
+          ).overrideWith((ref) => (mockPelanggan, 100)),
         ]),
       );
 

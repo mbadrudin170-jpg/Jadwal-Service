@@ -10,7 +10,7 @@ class LayananPenyimpananGambar {
   final SupabaseClient _klienSupabase;
 
   LayananPenyimpananGambar({SupabaseClient? klienSupabase})
-      : _klienSupabase = klienSupabase ?? Supabase.instance.client;
+    : _klienSupabase = klienSupabase ?? Supabase.instance.client;
 
   Future<String> unggahGambar(File file, String bucket) async {
     final fileName =
@@ -18,24 +18,22 @@ class LayananPenyimpananGambar {
     final path = fileName;
 
     Log.info(
-        'Memulai proses unggah gambar ke Supabase Storage. Bucket: $bucket, Path: $path');
+      'Memulai proses unggah gambar ke Supabase Storage. Bucket: $bucket, Path: $path',
+    );
 
     try {
-      await _klienSupabase.storage.from(bucket).upload(
-            path,
-            file,
-          );
+      await _klienSupabase.storage.from(bucket).upload(path, file);
 
-      final urlPublik =
-          _klienSupabase.storage.from(bucket).getPublicUrl(path);
+      final urlPublik = _klienSupabase.storage.from(bucket).getPublicUrl(path);
 
       Log.info('Berhasil mengunggah gambar ke Supabase. URL: $urlPublik');
       return urlPublik;
     } on StorageException catch (e, st) {
       Log.error(
-          'Terjadi kesalahan spesifik Supabase Storage saat mengunggah gambar',
-          e: e,
-          s: st);
+        'Terjadi kesalahan spesifik Supabase Storage saat mengunggah gambar',
+        e: e,
+        s: st,
+      );
       rethrow;
     } catch (e, st) {
       Log.error('Terjadi kesalahan umum saat mengunggah gambar', e: e, s: st);
@@ -47,8 +45,11 @@ class LayananPenyimpananGambar {
     return _klienSupabase.storage.from(bucket).getPublicUrl(path);
   }
 
-  Future<String?> buatUrlTertanda(String bucket, String path,
-      {int expiresIn = 60}) async {
+  Future<String?> buatUrlTertanda(
+    String bucket,
+    String path, {
+    int expiresIn = 60,
+  }) async {
     try {
       final urlTertanda = await _klienSupabase.storage
           .from(bucket)
@@ -63,10 +64,12 @@ class LayananPenyimpananGambar {
 
   Future<List<int>?> unduhGambar(String bucket, String path) async {
     try {
-      final bytesGambar =
-          await _klienSupabase.storage.from(bucket).download(path);
+      final bytesGambar = await _klienSupabase.storage
+          .from(bucket)
+          .download(path);
       Log.info(
-          'Berhasil mengunduh gambar $bucket/$path (${bytesGambar.length} bytes)');
+        'Berhasil mengunduh gambar $bucket/$path (${bytesGambar.length} bytes)',
+      );
       return bytesGambar;
     } catch (e, st) {
       Log.error('Gagal mengunduh gambar', e: e, s: st);
@@ -76,8 +79,9 @@ class LayananPenyimpananGambar {
 
   Future<List<FileObject>?> daftarFile(String bucket, {String? folder}) async {
     try {
-      final hasilDaftar =
-          await _klienSupabase.storage.from(bucket).list(path: folder ?? '');
+      final hasilDaftar = await _klienSupabase.storage
+          .from(bucket)
+          .list(path: folder ?? '');
       final namaFolder = folder ?? 'root';
       Log.info('Berhasil mengambil daftar file dari $bucket/$namaFolder');
       return hasilDaftar;
@@ -99,5 +103,6 @@ class LayananPenyimpananGambar {
   }
 }
 
-final layananPenyimpananGambarProvider =
-    Provider((ref) => LayananPenyimpananGambar());
+final layananPenyimpananGambarProvider = Provider(
+  (ref) => LayananPenyimpananGambar(),
+);

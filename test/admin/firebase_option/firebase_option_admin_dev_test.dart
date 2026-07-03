@@ -1,4 +1,3 @@
-
 // path: test/admin/firebase_option/firebase_option_admin_dev_test.dart
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -15,12 +14,17 @@ void main() {
       expect(DefaultFirebaseOptions.web, isA<FirebaseOptions>());
     });
 
-    test('02. harus mengembalikan opsi android saat platform adalah Android', () {
-      debugDefaultTargetPlatformOverride = TargetPlatform.android;
-      expect(DefaultFirebaseOptions.currentPlatform,
-          equals(DefaultFirebaseOptions.android));
-      debugDefaultTargetPlatformOverride = null; // Reset
-    });
+    test(
+      '02. harus mengembalikan opsi android saat platform adalah Android',
+      () {
+        debugDefaultTargetPlatformOverride = TargetPlatform.android;
+        expect(
+          DefaultFirebaseOptions.currentPlatform,
+          equals(DefaultFirebaseOptions.android),
+        );
+        debugDefaultTargetPlatformOverride = null; // Reset
+      },
+    );
 
     test('03. harus melempar UnsupportedError untuk iOS', () {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
@@ -58,14 +62,17 @@ void main() {
       debugDefaultTargetPlatformOverride = null; // Reset
     });
 
-    test('07. harus melempar UnsupportedError untuk platform default (Fuchsia)', () {
-      debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
-      expect(
-        () => DefaultFirebaseOptions.currentPlatform,
-        throwsA(isA<UnsupportedError>()),
-      );
-      debugDefaultTargetPlatformOverride = null; // Reset
-    });
+    test(
+      '07. harus melempar UnsupportedError untuk platform default (Fuchsia)',
+      () {
+        debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+        expect(
+          () => DefaultFirebaseOptions.currentPlatform,
+          throwsA(isA<UnsupportedError>()),
+        );
+        debugDefaultTargetPlatformOverride = null; // Reset
+      },
+    );
 
     test('08. properti opsi web harus benar', () {
       const webOptions = DefaultFirebaseOptions.web;
@@ -73,16 +80,25 @@ void main() {
       expect(webOptions.appId, '1:71302938947:web:b84c919c4abadcfe2baff6');
       expect(webOptions.messagingSenderId, '71302938947');
       expect(webOptions.projectId, 'flutter-coding-9f081');
-      expect(webOptions.storageBucket, 'flutter-coding-9f081.firebasestorage.app');
+      expect(
+        webOptions.storageBucket,
+        'flutter-coding-9f081.firebasestorage.app',
+      );
     });
 
     test('09. properti opsi android harus benar', () {
       const androidOptions = DefaultFirebaseOptions.android;
       expect(androidOptions.apiKey, 'AIzaSyAlOBmxKwtcDQQgO1PTHqAaeL60YBFDPNU');
-      expect(androidOptions.appId, '1:71302938947:android:efeeb5c56fcafe772baff6');
+      expect(
+        androidOptions.appId,
+        '1:71302938947:android:efeeb5c56fcafe772baff6',
+      );
       expect(androidOptions.messagingSenderId, '71302938947');
       expect(androidOptions.projectId, 'flutter-coding-9f081');
-      expect(androidOptions.storageBucket, 'flutter-coding-9f081.firebasestorage.app');
+      expect(
+        androidOptions.storageBucket,
+        'flutter-coding-9f081.firebasestorage.app',
+      );
     });
   });
 }

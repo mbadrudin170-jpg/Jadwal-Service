@@ -1,4 +1,3 @@
-
 // path: test/image_mock_http_client.dart
 import 'dart:convert';
 import 'dart:io';
@@ -15,9 +14,7 @@ class MockImageHttpClient extends Mock implements http.Client {
     return http.Response(
       base64Encode(kTransparentImage),
       200,
-      headers: {
-        HttpHeaders.contentTypeHeader: 'image/png',
-      },
+      headers: {HttpHeaders.contentTypeHeader: 'image/png'},
     );
   }
 }

@@ -24,9 +24,7 @@ void main() {
   late MockPelangganOpSqlite mockPelangganOpSqlite;
   late MockPaketOpSqlite mockPaketOpSqlite;
 
-  const channel = MethodChannel(
-    'plugins.flutter.io/url_launcher',
-  );
+  const channel = MethodChannel('plugins.flutter.io/url_launcher');
   String? launchedUrl;
   var canLaunchReturnValue = true;
 
@@ -43,16 +41,17 @@ void main() {
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (methodCall) async {
-      if (methodCall.method == 'canLaunch') {
-        return canLaunchReturnValue;
-      }
-      if (methodCall.method == 'launch') {
-        launchedUrl =
-            (methodCall.arguments as Map<String, dynamic>)['url'] as String?;
-        return true;
-      }
-      return null;
-    });
+          if (methodCall.method == 'canLaunch') {
+            return canLaunchReturnValue;
+          }
+          if (methodCall.method == 'launch') {
+            launchedUrl =
+                (methodCall.arguments as Map<String, dynamic>)['url']
+                    as String?;
+            return true;
+          }
+          return null;
+        });
   });
 
   tearDown(() {

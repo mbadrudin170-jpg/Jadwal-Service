@@ -39,20 +39,23 @@ void main() {
       expect(result, equals(data));
     });
 
-    test('02. harus mengembalikan data default jika dokumen tidak ada',
-        () async {
-      // Act
-      final result = await settingsOpFirebase.ambilPengaturan();
+    test(
+      '02. harus mengembalikan data default jika dokumen tidak ada',
+      () async {
+        // Act
+        final result = await settingsOpFirebase.ambilPengaturan();
 
-      // Assert
-      expect(
+        // Assert
+        expect(
           result,
           equals({
             NamaKolom.modeMaintenance: false,
             NamaKolom.infoMaintenance:
                 'Aplikasi sedang dalam pemeliharaan. Silakan coba lagi nanti.',
-          }));
-    });
+          }),
+        );
+      },
+    );
 
     test('03. harus mengembalikan data default jika terjadi error', () async {
       // Arrange
@@ -64,12 +67,13 @@ void main() {
 
       // Assert
       expect(
-          result,
-          equals({
-            NamaKolom.modeMaintenance: false,
-            NamaKolom.infoMaintenance:
-                'Gagal memuat pengaturan. Menggunakan default.',
-          }));
+        result,
+        equals({
+          NamaKolom.modeMaintenance: false,
+          NamaKolom.infoMaintenance:
+              'Gagal memuat pengaturan. Menggunakan default.',
+        }),
+      );
     });
   });
 }

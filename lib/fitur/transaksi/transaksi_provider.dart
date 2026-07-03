@@ -195,9 +195,7 @@ class Transaksi extends _$Transaksi {
   Future<List<int>> getTotalPoinBanyakPelangganParallel(
     List<String> ids,
   ) async {
-    final futures = ids
-        .map((id) => _transaksiOp.ambilTotalPoin(id))
-        .toList();
+    final futures = ids.map((id) => _transaksiOp.ambilTotalPoin(id)).toList();
     return await Future.wait(futures);
   }
 

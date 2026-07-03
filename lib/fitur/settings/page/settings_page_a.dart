@@ -42,7 +42,9 @@ class SettingsAdminPage extends ConsumerWidget {
     );
     if ((konfirmasi == true) && context.mounted) {
       try {
-        await ref.read(pengelolaSinkronisasiProvider).resetWaktuSinkronisasiPreferensi();
+        await ref
+            .read(pengelolaSinkronisasiProvider)
+            .resetWaktuSinkronisasiPreferensi();
         unawaited(
           ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
         );
@@ -180,7 +182,9 @@ class SettingsAdminPage extends ConsumerWidget {
                   onPressed: () {
                     Navigator.push<void>(
                       context,
-                      MaterialPageRoute(builder: ((context) => const FormSettings())),
+                      MaterialPageRoute(
+                        builder: ((context) => const FormSettings()),
+                      ),
                     );
                   },
                   style: ElevatedButton.styleFrom(

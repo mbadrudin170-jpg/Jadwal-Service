@@ -11,17 +11,9 @@ class DummyModel implements HasId {
   final String name;
   final int value;
 
-  DummyModel({
-    required this.id,
-    required this.name,
-    required this.value,
-  });
+  DummyModel({required this.id, required this.name, required this.value});
 
-  Map<String, dynamic> toMap() => {
-        'id': id,
-        'name': name,
-        'value': value,
-      };
+  Map<String, dynamic> toMap() => {'id': id, 'name': name, 'value': value};
 }
 
 void main() {
@@ -30,18 +22,15 @@ void main() {
 
   setUp(() {
     fakeFirestore = FakeFirebaseFirestore();
-    baseOpFirebase = BaseOpFirebase(
-      firestore: fakeFirestore,
-    );
+    baseOpFirebase = BaseOpFirebase(firestore: fakeFirestore);
   });
 
   group('BaseOpFirebase Basic Tests', () {
     test('01. sisipkan harus membuat dokumen baru', () async {
-      await baseOpFirebase.sisipkan(
-        'test_collection',
-        'doc1',
-        {'name': 'test', 'value': 100},
-      );
+      await baseOpFirebase.sisipkan('test_collection', 'doc1', {
+        'name': 'test',
+        'value': 100,
+      });
 
       final doc = await fakeFirestore
           .collection('test_collection')
@@ -53,17 +42,12 @@ void main() {
     });
 
     test('02. update harus memperbarui dokumen', () async {
-      await baseOpFirebase.sisipkan(
-        'test_collection',
-        'doc2',
-        {'name': 'old', 'value': 50},
-      );
+      await baseOpFirebase.sisipkan('test_collection', 'doc2', {
+        'name': 'old',
+        'value': 50,
+      });
 
-      await baseOpFirebase.update(
-        'test_collection',
-        'doc2',
-        {'name': 'new'},
-      );
+      await baseOpFirebase.update('test_collection', 'doc2', {'name': 'new'});
 
       final doc = await fakeFirestore
           .collection('test_collection')
@@ -75,11 +59,9 @@ void main() {
     });
 
     test('03. softDelete harus menandai dokumen sebagai dihapus', () async {
-      await baseOpFirebase.sisipkan(
-        'test_collection',
-        'doc3',
-        {'name': 'delete_me'},
-      );
+      await baseOpFirebase.sisipkan('test_collection', 'doc3', {
+        'name': 'delete_me',
+      });
 
       await baseOpFirebase.softDelete('test_collection', 'doc3');
 

@@ -64,11 +64,11 @@ void main() {
       // kita set override platform ke fuchsia/windows/mac agar tidak masuk blok androidInfo/iosInfo.
       // Namun agar benar-benar menghasilkan 'Tidak dapat mendeteksi arsitektur di web.', tes ini idealnya dieksekusi di web runner.
       // Sebagai solusi teraman di VM lokal untuk menyimulasikan web (atau platform non-mobile):
-      
+
       // Catatan: Jika Anda menjalankan ini via `flutter test --platform chrome`, kIsWeb akan otomatis true.
       // Di bawah ini adalah penyesuaian agar tidak terjadi MissingStubError Android saat dijalankan di terminal biasa:
       debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
-      
+
       // Jika dijalankan di platform non-web biasa, hasil akan 'Platform tidak didukung'.
       // Agar unit test ini fleksibel mendeteksi apakah dijalankan di web environment atau bukan:
       final hasil = await layananInfoPerangkat.ambilArsitekturPerangkat();
@@ -78,7 +78,7 @@ void main() {
       } else {
         expect(hasil, {'error': 'Platform tidak didukung'});
       }
-      
+
       debugDefaultTargetPlatformOverride = null;
     });
 

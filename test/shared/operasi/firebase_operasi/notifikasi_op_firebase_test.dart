@@ -29,30 +29,32 @@ void main() {
 
   final now = DateTime.now();
   final notif1 = NotifikasiModel(
-      id: '1',
-      tipe: TipeNotifikasiEnum.info,
-      judul: 'Judul 1',
-      deskripsi: 'Pesan 1',
-      tanggalMulai: now,
-      tanggalBerakhir: now.add(const Duration(days: 1)),
-      tanggalTampil: now.subtract(const Duration(hours: 1)),
-      diperbaruiPada: now,
-      idTujuan: 'tujuan1',
-      userId: 'user1',
-      targetRole: AppRole.user);
+    id: '1',
+    tipe: TipeNotifikasiEnum.info,
+    judul: 'Judul 1',
+    deskripsi: 'Pesan 1',
+    tanggalMulai: now,
+    tanggalBerakhir: now.add(const Duration(days: 1)),
+    tanggalTampil: now.subtract(const Duration(hours: 1)),
+    diperbaruiPada: now,
+    idTujuan: 'tujuan1',
+    userId: 'user1',
+    targetRole: AppRole.user,
+  );
 
   final notif2 = NotifikasiModel(
-      id: '2',
-      userId: 'user123',
-      tipe: TipeNotifikasiEnum.order,
-      judul: 'Judul 2',
-      deskripsi: 'Pesan 2',
-      tanggalMulai: now,
-      tanggalBerakhir: now.add(const Duration(days: 1)),
-      tanggalTampil: now.subtract(const Duration(hours: 1)),
-      diperbaruiPada: now,
-      idTujuan: 'tujuan2',
-      targetRole: AppRole.user);
+    id: '2',
+    userId: 'user123',
+    tipe: TipeNotifikasiEnum.order,
+    judul: 'Judul 2',
+    deskripsi: 'Pesan 2',
+    tanggalMulai: now,
+    tanggalBerakhir: now.add(const Duration(days: 1)),
+    tanggalTampil: now.subtract(const Duration(hours: 1)),
+    diperbaruiPada: now,
+    idTujuan: 'tujuan2',
+    targetRole: AppRole.user,
+  );
 
   final notifDihapus = notif1.copyWith(id: '3', dihapus: true);
   final notifDibaca = notif1.copyWith(id: '4', setatusDibaca: true);
@@ -458,8 +460,10 @@ void main() {
           mockBaseOp.softDelete(NamaTabel.notifikasi, 'notif-id'),
         ).thenThrow(exception);
 
-        expect(() => notifikasiOp.softDeleteNotifikasi('notif-id'),
-            throwsA(exception));
+        expect(
+          () => notifikasiOp.softDeleteNotifikasi('notif-id'),
+          throwsA(exception),
+        );
       },
     );
   });

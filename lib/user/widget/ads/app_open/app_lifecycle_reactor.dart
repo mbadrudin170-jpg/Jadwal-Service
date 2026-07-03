@@ -31,10 +31,12 @@ class AppLifecycleReactor {
     // Coba tampilkan iklan saat aplikasi kembali ke foreground.
     if (appState == AppState.foreground) {
       Log.info(
-          '[AppLifecycle] Menunggu 1.5 detik sebelum mencoba menampilkan iklan...');
+        '[AppLifecycle] Menunggu 1.5 detik sebelum mencoba menampilkan iklan...',
+      );
       Future.delayed(const Duration(milliseconds: 1500), () {
         Log.info(
-            '[AppLifecycle] Jeda selesai, mencoba menampilkan iklan sekarang.');
+          '[AppLifecycle] Jeda selesai, mencoba menampilkan iklan sekarang.',
+        );
         // showAdIfAvailable mengembalikan Future, jadi gunakan unawaited.
         unawaited(appOpenAdService.tampilkanIklan());
       });

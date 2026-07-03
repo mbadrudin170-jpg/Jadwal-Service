@@ -4,7 +4,6 @@ import 'package:wifi/shared/export/theme.dart';
 
 /// Sebuah widget untuk menampilkan informasi dalam sebuah kotak.
 class BoxInfo extends StatelessWidget {
-
   /// Membuat sebuah widget [BoxInfo].
   const BoxInfo({
     super.key,
@@ -13,6 +12,7 @@ class BoxInfo extends StatelessWidget {
     required this.icon,
     required this.color,
   });
+
   /// Judul dari kotak informasi.
   final String title;
 

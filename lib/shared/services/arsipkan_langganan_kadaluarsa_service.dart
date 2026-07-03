@@ -1,6 +1,5 @@
 // path: lib/shared/services/arsipkan_langganan_kadaluarsa_service.dart
 
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
@@ -15,7 +14,8 @@ class ArsipLanggananKadaluarsaService {
     required PelangganAktifOpSqlite pelangganAktifOpSqlite,
   }) : _pelangganAktifOpSqlite = pelangganAktifOpSqlite {
     Log.info(
-        'ExpiredSubscriptionCheckService diinisialisasi dengan dependency injection.');
+      'ExpiredSubscriptionCheckService diinisialisasi dengan dependency injection.',
+    );
   }
 
   /// Memproses semua pelanggan aktif, menemukan yang kedaluwarsa,
@@ -23,11 +23,12 @@ class ArsipLanggananKadaluarsaService {
   Future<void> prosesArsipLanggananKadaluarsa() async {
     Log.info('Memulai siklus pengecekan langganan yang kadaluwarsa...');
     try {
-      final jumlahDiarsipkan =
-          await _pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
+      final jumlahDiarsipkan = await _pelangganAktifOpSqlite
+          .arsipkanLanggananKadaluarsa();
       if (jumlahDiarsipkan > 0) {
         Log.info(
-            'Berhasil mengarsipkan $jumlahDiarsipkan langganan kadaluwarsa.');
+          'Berhasil mengarsipkan $jumlahDiarsipkan langganan kadaluwarsa.',
+        );
       } else {
         Log.info('Tidak ada langganan kadaluwarsa.');
       }
@@ -39,7 +40,7 @@ class ArsipLanggananKadaluarsaService {
 
 final arsipLanggananKadaluarsaServiceProvider =
     Provider<ArsipLanggananKadaluarsaService>((ref) {
-  return ArsipLanggananKadaluarsaService(
-    pelangganAktifOpSqlite: ref.read(pelangganAktifOpSqliteProvider),
-  );
-});
+      return ArsipLanggananKadaluarsaService(
+        pelangganAktifOpSqlite: ref.read(pelangganAktifOpSqliteProvider),
+      );
+    });

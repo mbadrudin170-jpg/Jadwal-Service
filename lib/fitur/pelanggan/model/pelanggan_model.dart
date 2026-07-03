@@ -84,8 +84,9 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.kataSandi: kataSandi,
       NamaKolom.macAddress: macAddress,
       NamaKolom.dihapus: diHapus,
-      NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()).toUtc(),
+      ),
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,

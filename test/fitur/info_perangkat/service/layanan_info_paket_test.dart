@@ -35,15 +35,12 @@ void main() {
       '01. harus mengembalikan null ketika terjadi PlatformException',
       () async {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(
-          channel,
-          (methodCall) async {
-            throw PlatformException(
-              code: 'ERROR',
-              message: 'Gagal mengambil info paket',
-            );
-          },
-        );
+            .setMockMethodCallHandler(channel, (methodCall) async {
+              throw PlatformException(
+                code: 'ERROR',
+                message: 'Gagal mengambil info paket',
+              );
+            });
 
         final hasil = await layananInfoPaket.ambilInfoPaket();
 

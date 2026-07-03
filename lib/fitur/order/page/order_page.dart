@@ -316,7 +316,10 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         title: const Text('Pesanan Saya'),
         actions: [
           if (kDebugMode)
-            IconButton(onPressed: _softDeleteAll, icon: const Icon(TIcons.delete)),
+            IconButton(
+              onPressed: _softDeleteAll,
+              icon: const Icon(TIcons.delete),
+            ),
         ],
       ),
       body: Padding(

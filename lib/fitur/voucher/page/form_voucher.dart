@@ -1,6 +1,7 @@
 // lib/fitur/voucher/page/form_voucher.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart';
@@ -39,7 +40,7 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
 
       // Buat voucher baru (id kosong, nanti diisi Firestore)
       final voucherBaru = VoucherModel(
-        id: '',
+        id: const Uuid().v4(),
         voucher: _voucherController.text.trim(),
         idPaket: _selectedPaketId!,
         diperbaruiPada: DateTime.now(),
@@ -80,8 +81,6 @@ class _FormVoucherState extends ConsumerState<FormVoucher> {
               // Input Kode Voucher
               InputTeks(controller: _voucherController, label: 'Voucher'),
               const SizedBox(height: 16),
-
-              // Dropdown Paket (menunggu data dari provider)
               paketAsync.when(
                 data: (paketState) {
                   final daftarPaket = paketState.daftarPaket

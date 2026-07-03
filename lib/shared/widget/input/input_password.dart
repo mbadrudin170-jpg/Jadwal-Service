@@ -54,7 +54,7 @@ class _InputPasswordState extends State<InputPassword> {
         if (widget.onSubmitted != null) {
           widget.onSubmitted!(v);
         }
-    },
+      },
       onTapOutside: (event) => FocusScope.of(context).unfocus(),
       enabled: widget.enabled,
       validator:

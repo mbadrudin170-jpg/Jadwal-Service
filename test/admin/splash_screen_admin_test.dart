@@ -1,4 +1,3 @@
-
 // path: test/admin/splash_screen_admin_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,13 +6,10 @@ import 'package:wifi/admin/splash_screen_admin.dart';
 
 void main() {
   group('SplashScreen', () {
-    testWidgets('01. harus menavigasi ke AppAdmin setelah 2 detik',
-        (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SplashScreen(),
-        ),
-      );
+    testWidgets('01. harus menavigasi ke AppAdmin setelah 2 detik', (
+      tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SplashScreen()));
 
       // Verifikasi bahwa splash screen menampilkan CircularProgressIndicator.
       expect(find.byType(CircularProgressIndicator), findsOneWidget);

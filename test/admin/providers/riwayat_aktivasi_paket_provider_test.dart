@@ -95,12 +95,11 @@ void main() {
       '01. build harus memuat data transaksi aktivasi dengan status pembayaran yang benar',
       () async {
         // PERBAIKAN: Gunakan ambilBerdasarkanStatusAktivasi
-        when(mockTransaksiOp.ambilBerdasarkanStatusAktivasi())
-            .thenAnswer((_) async => listTransaksi);
+        when(
+          mockTransaksiOp.ambilBerdasarkanStatusAktivasi(),
+        ).thenAnswer((_) async => listTransaksi);
 
-        final state = await container.read(
-          riwayatAktivasiPaketProvider.future,
-        );
+        final state = await container.read(riwayatAktivasiPaketProvider.future);
 
         expect(state.items.length, 2);
         // Pastikan data pelanggan termuat
@@ -110,16 +109,15 @@ void main() {
     );
 
     test('02. changeSort harus mengubah urutan data', () async {
-      when(mockTransaksiOp.ambilBerdasarkanStatusAktivasi())
-          .thenAnswer((_) async => listTransaksi);
+      when(
+        mockTransaksiOp.ambilBerdasarkanStatusAktivasi(),
+      ).thenAnswer((_) async => listTransaksi);
 
       // Tunggu build selesai
       await container.read(riwayatAktivasiPaketProvider.future);
 
       // Ubah urutan ke namaAZ
-      final notifier = container.read(
-        riwayatAktivasiPaketProvider.notifier,
-      );
+      final notifier = container.read(riwayatAktivasiPaketProvider.notifier);
       notifier.changeSort(OpsiUrutan.namaAZ);
 
       final state = container.read(riwayatAktivasiPaketProvider).value;
@@ -127,16 +125,18 @@ void main() {
       expect(state?.sortBy, OpsiUrutan.namaAZ);
     });
 
-    test('03. harus mengembalikan list kosong jika tidak ada transaksi aktivasi', () async {
-      when(mockTransaksiOp.ambilBerdasarkanStatusAktivasi())
-          .thenAnswer((_) async => []);
+    test(
+      '03. harus mengembalikan list kosong jika tidak ada transaksi aktivasi',
+      () async {
+        when(
+          mockTransaksiOp.ambilBerdasarkanStatusAktivasi(),
+        ).thenAnswer((_) async => []);
 
-      final state = await container.read(
-        riwayatAktivasiPaketProvider.future,
-      );
+        final state = await container.read(riwayatAktivasiPaketProvider.future);
 
-      expect(state.items, isEmpty);
-    });
+        expect(state.items, isEmpty);
+      },
+    );
 
     test('04. harus menangani data pelanggan yang tidak ditemukan', () async {
       // Simulasi transaksi dengan idPelanggan yang tidak ada di daftar pelanggan
@@ -156,12 +156,11 @@ void main() {
         ),
       ];
 
-      when(mockTransaksiOp.ambilBerdasarkanStatusAktivasi())
-          .thenAnswer((_) async => transaksiTanpaPelanggan);
+      when(
+        mockTransaksiOp.ambilBerdasarkanStatusAktivasi(),
+      ).thenAnswer((_) async => transaksiTanpaPelanggan);
 
-      final state = await container.read(
-        riwayatAktivasiPaketProvider.future,
-      );
+      final state = await container.read(riwayatAktivasiPaketProvider.future);
 
       expect(state.items.length, 1);
       expect(state.items.first.namaPelanggan, 'Tidak diketahui');

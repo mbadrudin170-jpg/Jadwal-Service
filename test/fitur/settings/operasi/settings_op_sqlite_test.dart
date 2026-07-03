@@ -150,8 +150,7 @@ void main() {
           mockBaseOpSqlite.sisipkan(namaTabel, captureAny),
         ).captured;
 
-        final capturedData =
-            captured.first as Map<String, dynamic>;
+        final capturedData = captured.first as Map<String, dynamic>;
         expect(capturedData[NamaKolom.id], id);
         expect(capturedData[NamaKolom.waktuOtomatisSinkronisasi], 48);
       },
@@ -201,8 +200,7 @@ void main() {
           mockBaseOpSqlite.update(namaTabel, captureAny, id),
         ).captured;
 
-        final capturedData =
-            captured.first as Map<String, dynamic>;
+        final capturedData = captured.first as Map<String, dynamic>;
         expect(capturedData[NamaKolom.modeMaintenance], true);
         expect(capturedData.containsKey(NamaKolom.diperbaruiPada), isTrue);
       },
@@ -253,8 +251,7 @@ void main() {
           mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(namaTabel, captureAny),
         ).captured;
 
-        final capturedList =
-            captured.first as List<Map<String, dynamic>>;
+        final capturedList = captured.first as List<Map<String, dynamic>>;
         expect(capturedList.length, 1);
         expect(capturedList[0][NamaKolom.id], id);
         expect(capturedList[0][NamaKolom.waktuOtomatisSinkronisasi], 48);

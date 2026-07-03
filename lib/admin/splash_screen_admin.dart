@@ -24,28 +24,25 @@ class SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/image/ikon_apk.png',
-              width: 150,
-            ),
+            Image.asset('assets/image/ikon_apk.png', width: 150),
             gapH12,
             Text(
               'Admin WiFi',
               style: theme.textTheme.headlineMedium?.copyWith(
                 color: theme
-                    .colorScheme.onSurface, // diubah: Menggunakan onSurface
+                    .colorScheme
+                    .onSurface, // diubah: Menggunakan onSurface
               ),
             ),
             gapH48,
-            CircularProgressIndicator(
-              color: theme.colorScheme.primary,
-            ),
+            CircularProgressIndicator(color: theme.colorScheme.primary),
             gapH20,
             Text(
               loadingMessage,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme
-                    .colorScheme.onSurface, // diubah: Menggunakan onSurface
+                    .colorScheme
+                    .onSurface, // diubah: Menggunakan onSurface
               ),
             ),
           ],

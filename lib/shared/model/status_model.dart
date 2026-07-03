@@ -19,14 +19,11 @@ abstract class StatusModel with _$StatusModel implements HasId {
     DateTime? diperbaruiPada,
   }) = _StatusModel;
 
-  factory StatusModel.fromSqlite(
-    final Map<String, dynamic> map,
-  ) {
+  factory StatusModel.fromSqlite(final Map<String, dynamic> map) {
     return StatusModel(
       id: map[NamaKolom.id] as String? ?? globalStatusId,
-      diperbaruiPada: ParserUtil.parseDateTime(
-            map[NamaKolom.diperbaruiPada],
-          ) ??
+      diperbaruiPada:
+          ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]) ??
           DateTime.now(),
     );
   }

@@ -234,7 +234,7 @@ class FeedbackOpSqlite {
       'PERINGATAN: Memulai deleteAllFeedback. Ini adalah operasi destruktif.',
     );
     try {
-      await baseOpSqlite.operasiKompleks<int>(( txn) async {
+      await baseOpSqlite.operasiKompleks<int>((txn) async {
         final count = await txn.delete(_namaTabel);
         Log.info(
           'Berhasil deleteAllFeedback. Total baris yang dihapus: $count',

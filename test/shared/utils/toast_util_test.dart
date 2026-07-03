@@ -14,7 +14,10 @@ void main() {
               child: Builder(
                 builder: (context) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    expect(() => ToastUtil.success(context, 'Berhasil'), returnsNormally);
+                    expect(
+                      () => ToastUtil.success(context, 'Berhasil'),
+                      returnsNormally,
+                    );
                   });
                   return const SizedBox.shrink();
                 },
@@ -37,7 +40,10 @@ void main() {
               child: Builder(
                 builder: (context) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    expect(() => ToastUtil.error(context, 'Gagal memuat'), returnsNormally);
+                    expect(
+                      () => ToastUtil.error(context, 'Gagal memuat'),
+                      returnsNormally,
+                    );
                   });
                   return const SizedBox.shrink();
                 },
@@ -60,7 +66,10 @@ void main() {
               child: Builder(
                 builder: (context) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    expect(() => ToastUtil.warning(context, 'Peringatan'), returnsNormally);
+                    expect(
+                      () => ToastUtil.warning(context, 'Peringatan'),
+                      returnsNormally,
+                    );
                   });
                   return const SizedBox.shrink();
                 },

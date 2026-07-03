@@ -17,11 +17,7 @@ import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
 import 'detail_langganan_provider_test.mocks.dart';
 
-@GenerateMocks([
-  PelangganOpSqlite,
-  PaketOpSqlite,
-  TransaksiOpSqlite,
-])
+@GenerateMocks([PelangganOpSqlite, PaketOpSqlite, TransaksiOpSqlite])
 void main() {
   late MockPelangganOpSqlite mockPelangganOp;
   late MockPaketOpSqlite mockPaketOp;
@@ -61,32 +57,42 @@ void main() {
   });
 
   group('ambilDetailLanggananProvider', () {
-    test('01. harus mengembalikan DetailLanggananState jika transaksi ditemukan', () async {
-      when(mockTransaksiOp.ambilBerdasarkanId('trx1'))
-          .thenAnswer((_) async => transaksi);
-      when(mockPelangganOp.ambilBerdasarkanId('cust1'))
-          .thenAnswer((_) async => null);
-      when(mockPaketOp.ambilBerdasarkanId('pkg1'))
-          .thenAnswer((_) async => null);
+    test(
+      '01. harus mengembalikan DetailLanggananState jika transaksi ditemukan',
+      () async {
+        when(
+          mockTransaksiOp.ambilBerdasarkanId('trx1'),
+        ).thenAnswer((_) async => transaksi);
+        when(
+          mockPelangganOp.ambilBerdasarkanId('cust1'),
+        ).thenAnswer((_) async => null);
+        when(
+          mockPaketOp.ambilBerdasarkanId('pkg1'),
+        ).thenAnswer((_) async => null);
 
-      final result = await container.read(
-        ambilDetailLanggananProvider('trx1').future,
-      );
+        final result = await container.read(
+          ambilDetailLanggananProvider('trx1').future,
+        );
 
-      expect(result, isNotNull);
-      expect(result?.transaksi?.id, 'trx1');
-    });
+        expect(result, isNotNull);
+        expect(result?.transaksi?.id, 'trx1');
+      },
+    );
 
-    test('02. harus mengembalikan null jika transaksi tidak ditemukan', () async {
-      when(mockTransaksiOp.ambilBerdasarkanId('trx99'))
-          .thenAnswer((_) async => null);
+    test(
+      '02. harus mengembalikan null jika transaksi tidak ditemukan',
+      () async {
+        when(
+          mockTransaksiOp.ambilBerdasarkanId('trx99'),
+        ).thenAnswer((_) async => null);
 
-      final result = await container.read(
-        ambilDetailLanggananProvider('trx99').future,
-      );
+        final result = await container.read(
+          ambilDetailLanggananProvider('trx99').future,
+        );
 
-      expect(result, isNull);
-    });
+        expect(result, isNull);
+      },
+    );
 
     test('03. harus mengembalikan pelanggan dan paket jika ada', () async {
       final mockPelanggan = const PelangganModel(
@@ -105,12 +111,15 @@ void main() {
         tipe: TipeDurasiPaket.days,
       );
 
-      when(mockTransaksiOp.ambilBerdasarkanId('trx1'))
-          .thenAnswer((_) async => transaksi);
-      when(mockPelangganOp.ambilBerdasarkanId('cust1'))
-          .thenAnswer((_) async => mockPelanggan);
-      when(mockPaketOp.ambilBerdasarkanId('pkg1'))
-          .thenAnswer((_) async => mockPaket);
+      when(
+        mockTransaksiOp.ambilBerdasarkanId('trx1'),
+      ).thenAnswer((_) async => transaksi);
+      when(
+        mockPelangganOp.ambilBerdasarkanId('cust1'),
+      ).thenAnswer((_) async => mockPelanggan);
+      when(
+        mockPaketOp.ambilBerdasarkanId('pkg1'),
+      ).thenAnswer((_) async => mockPaket);
 
       final result = await container.read(
         ambilDetailLanggananProvider('trx1').future,

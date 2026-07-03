@@ -51,6 +51,7 @@ class Voucher extends ConsumerWidget {
         skipLoadingOnReload: true,
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'tambah_voucher',
         onPressed: () => _naviagasiKeForm(context),
         child: const Icon(TIcons.add),
       ),

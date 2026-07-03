@@ -31,7 +31,8 @@ abstract class StatusUnggahModel with _$StatusUnggahModel {
     );
 
     Log.info(
-        'Konversi ke UploadStatusModel berhasil: id=${model.id}, needUpload=${model.butuhUnggah}');
+      'Konversi ke UploadStatusModel berhasil: id=${model.id}, needUpload=${model.butuhUnggah}',
+    );
     return model;
   }
 

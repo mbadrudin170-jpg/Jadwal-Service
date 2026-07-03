@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/chating/enum/status_pesan_enum.dart';
 import 'package:wifi/fitur/chating/model/chating_model.dart';
 
-class Chating extends ConsumerStatefulWidget { // ID pengguna yang sedang login
+class Chating extends ConsumerStatefulWidget {
+  // ID pengguna yang sedang login
 
   const Chating({
     super.key,

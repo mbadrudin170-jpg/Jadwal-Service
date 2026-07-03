@@ -8,8 +8,9 @@ void main() {
     group('parseDateTime', () {
       // Buat tanggal uji yang presisinya hanya sampai milidetik untuk konsistensi
       final now = DateTime.now();
-      final testDate =
-          DateTime.fromMillisecondsSinceEpoch(now.millisecondsSinceEpoch);
+      final testDate = DateTime.fromMillisecondsSinceEpoch(
+        now.millisecondsSinceEpoch,
+      );
       final timestamp = Timestamp.fromDate(testDate);
 
       test('01. harus mengembalikan null jika value null', () {
@@ -25,13 +26,17 @@ void main() {
       });
 
       test('04. harus mengonversi int (epoch) ke DateTime', () {
-        expect(ParserUtil.parseDateTime(testDate.millisecondsSinceEpoch),
-            equals(testDate));
+        expect(
+          ParserUtil.parseDateTime(testDate.millisecondsSinceEpoch),
+          equals(testDate),
+        );
       });
 
       test('05. harus mengonversi String ISO 8601 ke DateTime', () {
-        expect(ParserUtil.parseDateTime(testDate.toIso8601String()),
-            equals(testDate));
+        expect(
+          ParserUtil.parseDateTime(testDate.toIso8601String()),
+          equals(testDate),
+        );
       });
 
       test('06. harus mengembalikan null untuk format yang tidak dikenal', () {

@@ -16,8 +16,8 @@ class FirebasePointsDataSource implements PointsPageDataSource {
   FirebasePointsDataSource({
     required TransaksiOpFirebase transactionOpFirebase,
     required PaketOpFirebase packageOpFirebase,
-  })  : _transactionOpFirebase = transactionOpFirebase,
-        _packageOpFirebase = packageOpFirebase;
+  }) : _transactionOpFirebase = transactionOpFirebase,
+       _packageOpFirebase = packageOpFirebase;
 
   @override
   Future<int> ambilTotalPoin(String customerId) {
@@ -31,8 +31,9 @@ class FirebasePointsDataSource implements PointsPageDataSource {
 
   @override
   Future<List<TransaksiModel>> getPointsTransactions(String customerId) async {
-    final history =
-        await _transactionOpFirebase.ambilBerdasarkanIdPelanggan(customerId);
+    final history = await _transactionOpFirebase.ambilBerdasarkanIdPelanggan(
+      customerId,
+    );
     return history
         .where((t) => t.poinDidapat > 0 || t.poinDigunakan > 0)
         .toList();
@@ -47,8 +48,9 @@ class FirebasePointsDataSource implements PointsPageDataSource {
   bool get isFirebase => true;
 }
 
-final firebasePointsDataSourceProvider =
-    Provider<FirebasePointsDataSource>((ref) {
+final firebasePointsDataSourceProvider = Provider<FirebasePointsDataSource>((
+  ref,
+) {
   return FirebasePointsDataSource(
     transactionOpFirebase: ref.watch(transaksiOpFirebaseProvider),
     packageOpFirebase: ref.watch(paketOpFirebaseProvider),

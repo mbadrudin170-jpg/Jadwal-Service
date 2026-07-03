@@ -1,4 +1,3 @@
-
 // path: test/fitur/pelanggan/widget/detail_pelanggan_ui_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,19 +15,18 @@ void main() {
   );
 
   Widget buildTestableWidget(Widget widget) {
-    return MaterialApp(
-      home: widget,
-    );
+    return MaterialApp(home: widget);
   }
 
   group('DetailPelangganUI', () {
-    testWidgets('01. harus menampilkan semua informasi pelanggan', (tester) async {
-      await tester.pumpWidget(buildTestableWidget(
-        DetailPelangganUI(
-          pelanggan: pelanggan,
-          totalPoin: 100,
+    testWidgets('01. harus menampilkan semua informasi pelanggan', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestableWidget(
+          DetailPelangganUI(pelanggan: pelanggan, totalPoin: 100),
         ),
-      ));
+      );
 
       expect(find.text('Profil Pelanggan'), findsOneWidget);
       expect(find.text('Pelanggan Uji'), findsOneWidget);
@@ -39,73 +37,84 @@ void main() {
       expect(find.text('100'), findsOneWidget);
     });
 
-    testWidgets('02. harus menampilkan tombol edit jika navigasiKeEdit diberikan',
-        (tester) async {
-      await tester.pumpWidget(buildTestableWidget(
-        DetailPelangganUI(
-          pelanggan: pelanggan,
-          totalPoin: 100,
-          navigasiKeEdit: () {},
-        ),
-      ));
+    testWidgets(
+      '02. harus menampilkan tombol edit jika navigasiKeEdit diberikan',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(
+            DetailPelangganUI(
+              pelanggan: pelanggan,
+              totalPoin: 100,
+              navigasiKeEdit: () {},
+            ),
+          ),
+        );
 
-      expect(find.byIcon(Icons.edit), findsOneWidget);
-    });
+        expect(find.byIcon(Icons.edit), findsOneWidget);
+      },
+    );
 
     testWidgets(
-        '03. tidak boleh menampilkan tombol edit jika navigasiKeEdit null',
-        (tester) async {
-      await tester.pumpWidget(buildTestableWidget(
-        DetailPelangganUI(
-          pelanggan: pelanggan,
-          totalPoin: 100,
-        ),
-      ));
+      '03. tidak boleh menampilkan tombol edit jika navigasiKeEdit null',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(
+            DetailPelangganUI(pelanggan: pelanggan, totalPoin: 100),
+          ),
+        );
 
-      expect(find.byIcon(Icons.edit), findsNothing);
-    });
-
-    testWidgets(
-        '04. harus menampilkan tombol salin semua jika onCopyAll diberikan',
-        (tester) async {
-      await tester.pumpWidget(buildTestableWidget(
-        DetailPelangganUI(
-          pelanggan: pelanggan,
-          totalPoin: 100,
-          onCopyAll: () {},
-        ),
-      ));
-
-      expect(find.byIcon(Icons.copy_all), findsOneWidget);
-    });
+        expect(find.byIcon(Icons.edit), findsNothing);
+      },
+    );
 
     testWidgets(
-        '05. tidak boleh menampilkan tombol salin semua jika onCopyAll null',
-        (tester) async {
-      await tester.pumpWidget(buildTestableWidget(
-        DetailPelangganUI(
-          pelanggan: pelanggan,
-          totalPoin: 100,
-        ),
-      ));
+      '04. harus menampilkan tombol salin semua jika onCopyAll diberikan',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(
+            DetailPelangganUI(
+              pelanggan: pelanggan,
+              totalPoin: 100,
+              onCopyAll: () {},
+            ),
+          ),
+        );
 
-      expect(find.byIcon(Icons.copy_all), findsNothing);
-    });
+        expect(find.byIcon(Icons.copy_all), findsOneWidget);
+      },
+    );
 
-    testWidgets('06. harus memanggil callback saat tombol ditekan', (tester) async {
+    testWidgets(
+      '05. tidak boleh menampilkan tombol salin semua jika onCopyAll null',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(
+            DetailPelangganUI(pelanggan: pelanggan, totalPoin: 100),
+          ),
+        );
+
+        expect(find.byIcon(Icons.copy_all), findsNothing);
+      },
+    );
+
+    testWidgets('06. harus memanggil callback saat tombol ditekan', (
+      tester,
+    ) async {
       var editDitekan = false;
       var poinDitekan = false;
       var salinSemuaDitekan = false;
 
-      await tester.pumpWidget(buildTestableWidget(
-        DetailPelangganUI(
-          pelanggan: pelanggan,
-          totalPoin: 100,
-          navigasiKeEdit: () => editDitekan = true,
-          navigasiKePoin: () => poinDitekan = true,
-          onCopyAll: () => salinSemuaDitekan = true,
+      await tester.pumpWidget(
+        buildTestableWidget(
+          DetailPelangganUI(
+            pelanggan: pelanggan,
+            totalPoin: 100,
+            navigasiKeEdit: () => editDitekan = true,
+            navigasiKePoin: () => poinDitekan = true,
+            onCopyAll: () => salinSemuaDitekan = true,
+          ),
         ),
-      ));
+      );
 
       await tester.tap(find.byIcon(Icons.edit));
       await tester.tap(find.text('100'));

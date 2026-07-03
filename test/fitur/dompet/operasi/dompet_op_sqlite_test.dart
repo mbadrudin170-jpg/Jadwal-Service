@@ -1,4 +1,3 @@
-
 // path: test/fitur/dompet/operasi/dompet_op_sqlite_test.dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -39,21 +38,20 @@ void main() {
 
   group('DompetOpSqlite', () {
     test('01. tambahDompet harus memanggil _baseOperation.sisipkan', () async {
-      when(mockBaseOpSqlite.sisipkan(any, any))
-          .thenAnswer((_) async => Future.value());
+      when(
+        mockBaseOpSqlite.sisipkan(any, any),
+      ).thenAnswer((_) async => Future.value());
 
       await dompetOpSqlite.tambahDompet(dompetModel);
 
-      verify(mockBaseOpSqlite.sisipkan(
-        NamaTabel.dompet,
-        any,
-      )).called(1);
+      verify(mockBaseOpSqlite.sisipkan(NamaTabel.dompet, any)).called(1);
     });
 
     test('02. ambilSemua harus mengembalikan list dompet', () async {
       final maps = [dompetModel.toSqlite()];
-      when(mockDatabase.query(NamaTabel.dompet, where: anyNamed('where')))
-          .thenAnswer((_) async => maps);
+      when(
+        mockDatabase.query(NamaTabel.dompet, where: anyNamed('where')),
+      ).thenAnswer((_) async => maps);
 
       final result = await dompetOpSqlite.ambilSemua();
 
@@ -64,11 +62,13 @@ void main() {
 
     test('03. ambilBerdasarkanId harus mengembalikan dompet', () async {
       final maps = [dompetModel.toSqlite()];
-      when(mockDatabase.query(
-        NamaTabel.dompet,
-        where: anyNamed('where'),
-        whereArgs: anyNamed('whereArgs'),
-      )).thenAnswer((_) async => maps);
+      when(
+        mockDatabase.query(
+          NamaTabel.dompet,
+          where: anyNamed('where'),
+          whereArgs: anyNamed('whereArgs'),
+        ),
+      ).thenAnswer((_) async => maps);
 
       final result = await dompetOpSqlite.ambilBerdasarkanId('1');
 
@@ -77,80 +77,107 @@ void main() {
     });
 
     test('04. updateDompet harus memanggil _baseOperation.update', () async {
-      when(mockBaseOpSqlite.update(any, any, any))
-          .thenAnswer((_) async => Future.value());
+      when(
+        mockBaseOpSqlite.update(any, any, any),
+      ).thenAnswer((_) async => Future.value());
 
       await dompetOpSqlite.updateDompet(dompetModel);
 
-      verify(mockBaseOpSqlite.update(
-        NamaTabel.dompet,
-        any,
-        dompetModel.id,
-      )).called(1);
+      verify(
+        mockBaseOpSqlite.update(NamaTabel.dompet, any, dompetModel.id),
+      ).called(1);
     });
 
     test('05. softDelete harus memanggil _baseOperation.softDelete', () async {
-      when(mockBaseOpSqlite.softDelete(any, any))
-          .thenAnswer((_) async => Future.value());
+      when(
+        mockBaseOpSqlite.softDelete(any, any),
+      ).thenAnswer((_) async => Future.value());
 
       await dompetOpSqlite.softDelete('1');
 
-      verify(mockBaseOpSqlite.softDelete(
-        NamaTabel.dompet,
-        '1',
-      )).called(1);
+      verify(mockBaseOpSqlite.softDelete(NamaTabel.dompet, '1')).called(1);
     });
-    
-    test('06. softDeleteAll harus memanggil _baseOperation.softDeleteAll', () async {
-      when(mockBaseOpSqlite.softDeleteAll(any, dariServer: anyNamed('dariServer')))
-          .thenAnswer((_) async => 1);
 
-      await dompetOpSqlite.softDeleteAll();
+    test(
+      '06. softDeleteAll harus memanggil _baseOperation.softDeleteAll',
+      () async {
+        when(
+          mockBaseOpSqlite.softDeleteAll(
+            any,
+            dariServer: anyNamed('dariServer'),
+          ),
+        ).thenAnswer((_) async => 1);
 
-      verify(mockBaseOpSqlite.softDeleteAll(
-        NamaTabel.dompet,
-      )).called(1);
-    });
+        await dompetOpSqlite.softDeleteAll();
+
+        verify(mockBaseOpSqlite.softDeleteAll(NamaTabel.dompet)).called(1);
+      },
+    );
 
     test('07. ambilTotalsaldo harus mengembalikan total saldo', () async {
-      when(mockDatabase.rawQuery(any))
-          .thenAnswer((_) async => [{'total': 150000}]);
+      when(mockDatabase.rawQuery(any)).thenAnswer(
+        (_) async => [
+          {'total': 150000},
+        ],
+      );
 
       final result = await dompetOpSqlite.ambilTotalsaldo();
 
       expect(result, 150000);
     });
-    
-    test('08. ambilSaldoPositif harus mengembalikan total saldo positif', () async {
-      when(mockDatabase.rawQuery(any))
-          .thenAnswer((_) async => [{'total': 200000}]);
 
-      final result = await dompetOpSqlite.ambilSaldoPositif();
+    test(
+      '08. ambilSaldoPositif harus mengembalikan total saldo positif',
+      () async {
+        when(mockDatabase.rawQuery(any)).thenAnswer(
+          (_) async => [
+            {'total': 200000},
+          ],
+        );
 
-      expect(result, 200000);
-    });
+        final result = await dompetOpSqlite.ambilSaldoPositif();
 
-    test('09. ambilSaldoNegatif harus mengembalikan total saldo negatif', () async {
-       when(mockDatabase.rawQuery(any))
-          .thenAnswer((_) async => [{'total': -50000}]);
+        expect(result, 200000);
+      },
+    );
 
-      final result = await dompetOpSqlite.ambilSaldoNegatif();
+    test(
+      '09. ambilSaldoNegatif harus mengembalikan total saldo negatif',
+      () async {
+        when(mockDatabase.rawQuery(any)).thenAnswer(
+          (_) async => [
+            {'total': -50000},
+          ],
+        );
 
-      expect(result, -50000);
-    });
+        final result = await dompetOpSqlite.ambilSaldoNegatif();
 
-    test('10. sisipkanAtauPerbaruiBatch harus memanggil _baseOperation.sisipkanAtauPerbaruiBatch', () async {
-      final listDompet = <DompetModel>[dompetModel, dompetModel.copyWith(id: '2')];
-      
-      when(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(any, any, dariServer: anyNamed('dariServer')))
-          .thenAnswer((_) async => Future.value());
+        expect(result, -50000);
+      },
+    );
 
-      await dompetOpSqlite.sisipkanAtauPerbaruiBatch(listDompet);
+    test(
+      '10. sisipkanAtauPerbaruiBatch harus memanggil _baseOperation.sisipkanAtauPerbaruiBatch',
+      () async {
+        final listDompet = <DompetModel>[
+          dompetModel,
+          dompetModel.copyWith(id: '2'),
+        ];
 
-      verify(mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
-        NamaTabel.dompet,
-        any,
-      )).called(1);
-    });
+        when(
+          mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(
+            any,
+            any,
+            dariServer: anyNamed('dariServer'),
+          ),
+        ).thenAnswer((_) async => Future.value());
+
+        await dompetOpSqlite.sisipkanAtauPerbaruiBatch(listDompet);
+
+        verify(
+          mockBaseOpSqlite.sisipkanAtauPerbaruiBatch(NamaTabel.dompet, any),
+        ).called(1);
+      },
+    );
   });
 }

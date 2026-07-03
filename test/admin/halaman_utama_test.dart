@@ -24,7 +24,7 @@ import 'halaman_utama_test.mocks.dart';
   LayananCekSinkronisasi,
   ArsipLanggananKadaluarsaService,
   Workmanager,
-  Connectivity
+  Connectivity,
 ])
 void main() {
   late MockLayananCekSinkronisasi mockSyncService;
@@ -41,14 +41,14 @@ void main() {
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('flutter_native_splash'),
-      (methodCall) async {
-        if (methodCall.method == 'remove') {
-          return null;
-        }
-        return null;
-      },
-    );
+          const MethodChannel('flutter_native_splash'),
+          (methodCall) async {
+            if (methodCall.method == 'remove') {
+              return null;
+            }
+            return null;
+          },
+        );
     addTearDown(() {
       // restore original
     });
@@ -64,16 +64,20 @@ void main() {
         StreamController<List<ConnectivityResult>>.broadcast();
 
     when(mockSyncService.jalankanCekSinkronisasi()).thenAnswer((_) async {});
-    when(mockExpiredService.prosesArsipLanggananKadaluarsa())
-        .thenAnswer((_) async {});
-    when(mockWorkmanager.registerPeriodicTask(
-      any,
-      any,
-      frequency: anyNamed('frequency'),
-      constraints: anyNamed('constraints'),
-    )).thenAnswer((_) async {});
-    when(mockConnectivity.onConnectivityChanged)
-        .thenAnswer((_) => connectivityStreamController.stream);
+    when(
+      mockExpiredService.prosesArsipLanggananKadaluarsa(),
+    ).thenAnswer((_) async {});
+    when(
+      mockWorkmanager.registerPeriodicTask(
+        any,
+        any,
+        frequency: anyNamed('frequency'),
+        constraints: anyNamed('constraints'),
+      ),
+    ).thenAnswer((_) async {});
+    when(
+      mockConnectivity.onConnectivityChanged,
+    ).thenAnswer((_) => connectivityStreamController.stream);
   });
 
   tearDown(() {
@@ -84,20 +88,20 @@ void main() {
     return ProviderScope(
       overrides: [
         layananCekSinkronisasiProvider.overrideWithValue(mockSyncService),
-        arsipLanggananKadaluarsaServiceProvider
-            .overrideWithValue(mockExpiredService),
+        arsipLanggananKadaluarsaServiceProvider.overrideWithValue(
+          mockExpiredService,
+        ),
         // We can't easily mock the connectivity provider as it creates its own instance.
         // Instead, we inject the mock via stream listening in initState.
       ],
-      child: MaterialApp(
-        home: HalamanUtama(isOffline: isOffline),
-      ),
+      child: MaterialApp(home: HalamanUtama(isOffline: isOffline)),
     );
   }
 
   group('01. HalamanUtama Initialization and UI', () {
-    testWidgets('01. harus menampilkan UI dengan benar dan tab pertama aktif',
-        (tester) async {
+    testWidgets('01. harus menampilkan UI dengan benar dan tab pertama aktif', (
+      tester,
+    ) async {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
@@ -112,37 +116,44 @@ void main() {
       expect(bottomNavBar.currentIndex, 0);
     });
 
-    testWidgets('02. harus menampilkan toast saat isOffline true',
-        (tester) async {
+    testWidgets('02. harus menampilkan toast saat isOffline true', (
+      tester,
+    ) async {
       await tester.pumpWidget(createWidget(isOffline: true));
       await tester.pump(); // for addPostFrameCallback
       await tester.pump(); // for the toast
 
-      expect(find.text('Anda dalam mode offline. Data mungkin tidak terbaru.'),
-          findsOneWidget);
+      expect(
+        find.text('Anda dalam mode offline. Data mungkin tidak terbaru.'),
+        findsOneWidget,
+      );
 
       await tester.pumpAndSettle(const Duration(seconds: 4)); // Clear toast
     });
   });
 
   group('02. Logic and Service Calls', () {
-    testWidgets('01. harus memanggil service yang diperlukan saat initState',
-        (tester) async {
+    testWidgets('01. harus memanggil service yang diperlukan saat initState', (
+      tester,
+    ) async {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
       verify(mockExpiredService.prosesArsipLanggananKadaluarsa()).called(1);
       verify(mockSyncService.jalankanCekSinkronisasi()).called(1);
-      verify(mockWorkmanager.registerPeriodicTask(
-        '1',
-        namaTugasSinkronisasi,
-        frequency: const Duration(minutes: 15),
-        constraints: anyNamed('constraints'),
-      )).called(1);
+      verify(
+        mockWorkmanager.registerPeriodicTask(
+          '1',
+          namaTugasSinkronisasi,
+          frequency: const Duration(minutes: 15),
+          constraints: anyNamed('constraints'),
+        ),
+      ).called(1);
     });
 
-    testWidgets('02. harus memproses notifikasi awal jika ada payload',
-        (tester) async {
+    testWidgets('02. harus memproses notifikasi awal jika ada payload', (
+      tester,
+    ) async {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('initial_notification_payload', 'test_payload');
 
@@ -158,24 +169,26 @@ void main() {
     });
 
     testWidgets(
-        '03. harus menjalankan sinkronisasi saat koneksi kembali online',
-        (tester) async {
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
+      '03. harus menjalankan sinkronisasi saat koneksi kembali online',
+      (tester) async {
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
 
-      // Initial sync
-      verify(mockSyncService.jalankanCekSinkronisasi()).called(1);
+        // Initial sync
+        verify(mockSyncService.jalankanCekSinkronisasi()).called(1);
 
-      // Simulate connectivity change to online
-      connectivityStreamController.add([ConnectivityResult.wifi]);
-      await tester.pump();
+        // Simulate connectivity change to online
+        connectivityStreamController.add([ConnectivityResult.wifi]);
+        await tester.pump();
 
-      // Verify sync is called again
-      verify(mockSyncService.jalankanCekSinkronisasi()).called(1);
-    });
+        // Verify sync is called again
+        verify(mockSyncService.jalankanCekSinkronisasi()).called(1);
+      },
+    );
 
-    testWidgets('04. harus menjalankan sinkronisasi saat aplikasi resumed',
-        (tester) async {
+    testWidgets('04. harus menjalankan sinkronisasi saat aplikasi resumed', (
+      tester,
+    ) async {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 

@@ -21,8 +21,9 @@ void main() {
       void callback() {}
 
       await expectLater(
-          scheduler.jadwalkanSekali(time, id, callback),
-          completes);
+        scheduler.jadwalkanSekali(time, id, callback),
+        completes,
+      );
     });
 
     test('03. schedulePeriodic should not throw', () async {
@@ -31,9 +32,16 @@ void main() {
       void callback() {}
 
       await expectLater(
-          scheduler.jadwalkanPeriodik(duration, id, callback,
-              tepatWaktu: true, bangunkan: true, jadwalkanUlangSaatBoot: true),
-          completes);
+        scheduler.jadwalkanPeriodik(
+          duration,
+          id,
+          callback,
+          tepatWaktu: true,
+          bangunkan: true,
+          jadwalkanUlangSaatBoot: true,
+        ),
+        completes,
+      );
     });
 
     test('04. cancel should not throw', () async {

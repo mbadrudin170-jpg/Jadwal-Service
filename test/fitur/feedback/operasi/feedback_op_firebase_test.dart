@@ -99,8 +99,13 @@ void main() {
           mockBaseOpFirebase.update(
             any,
             'feedback1',
-            argThat(isA<Map<String, dynamic>>().having(
-                (map) => map[NamaKolom.pesan], 'pesan', 'Updated feedback')),
+            argThat(
+              isA<Map<String, dynamic>>().having(
+                (map) => map[NamaKolom.pesan],
+                'pesan',
+                'Updated feedback',
+              ),
+            ),
           ),
         ).called(1);
       },

@@ -28,23 +28,27 @@ class BonusedMediatorAdService {
       return;
     }
 
-    unawaited(RewardedAd.load(
-      adUnitId: IdBonusedMediatorAds.bonusedMediatorAdUnitId,
-      request: const AdRequest(),
-      rewardedAdLoadCallback: RewardedAdLoadCallback(
-        onAdLoaded: (final ad) {
-          Log.info('Bonused Mediator ad loaded successfully.');
-          _rewardedAd = ad;
-          onAdLoaded?.call();
-        },
-        onAdFailedToLoad: (final error) {
-          _rewardedAd = null;
-          Log.error('Failed to load Bonused Mediator ad',
-              data: {'error': error.message, 'code': error.code});
-          onAdFailedToLoad?.call(error);
-        },
+    unawaited(
+      RewardedAd.load(
+        adUnitId: IdBonusedMediatorAds.bonusedMediatorAdUnitId,
+        request: const AdRequest(),
+        rewardedAdLoadCallback: RewardedAdLoadCallback(
+          onAdLoaded: (final ad) {
+            Log.info('Bonused Mediator ad loaded successfully.');
+            _rewardedAd = ad;
+            onAdLoaded?.call();
+          },
+          onAdFailedToLoad: (final error) {
+            _rewardedAd = null;
+            Log.error(
+              'Failed to load Bonused Mediator ad',
+              data: {'error': error.message, 'code': error.code},
+            );
+            onAdFailedToLoad?.call(error);
+          },
+        ),
       ),
-    ));
+    );
   }
 
   /// Shows the ad if it is ready and gives a reward upon completion.
@@ -56,7 +60,8 @@ class BonusedMediatorAdService {
   }) async {
     if (!isAdLoaded) {
       Log.warning(
-          'Tried to show Bonused Mediator ad, but it is not ready yet.');
+        'Tried to show Bonused Mediator ad, but it is not ready yet.',
+      );
       // If the ad is not ready, call onAdDismissed so that the flow is not interrupted.
       onAdDismissed?.call();
       // Try loading again for the next opportunity.

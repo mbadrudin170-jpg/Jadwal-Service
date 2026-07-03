@@ -28,9 +28,7 @@ void main() {
   late LayananNotifikasi layananNotifikasi;
 
   // Mock for timezone
-  const timezoneChannel = MethodChannel(
-    'plugins.flutter.io/flutter_timezone',
-  );
+  const timezoneChannel = MethodChannel('plugins.flutter.io/flutter_timezone');
   // Mock for permission handler
   const permissionChannel = MethodChannel(
     'flutter.baseflow.com/permissions/methods',
@@ -45,9 +43,7 @@ void main() {
 
     // Mock for FlutterTimezone
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(timezoneChannel, (
-          methodCall,
-        ) async {
+        .setMockMethodCallHandler(timezoneChannel, (methodCall) async {
           if (methodCall.method == 'getLocalTimezone') {
             return 'America/Detroit';
           }
@@ -56,9 +52,7 @@ void main() {
 
     // Mock for Permission Handler
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(permissionChannel, (
-          methodCall,
-        ) async {
+        .setMockMethodCallHandler(permissionChannel, (methodCall) async {
           if (methodCall.method == 'checkPermissionStatus') {
             return PermissionStatus.granted.index;
           }
@@ -149,9 +143,7 @@ void main() {
       '02. _inisialisasiZonaWaktu menangani zona waktu GMT sebagai fallback',
       () async {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(timezoneChannel, (
-              methodCall,
-            ) async {
+            .setMockMethodCallHandler(timezoneChannel, (methodCall) async {
               if (methodCall.method == 'getLocalTimezone') {
                 return 'GMT';
               }

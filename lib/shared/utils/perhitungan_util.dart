@@ -17,11 +17,7 @@ class PerhitunganUtil {
     Log.info('FUNGSI GLOBAL: hitungTanggalBerakhir() dipanggil.');
     Log.info('  - Tanggal Mulai: ${tanggalMulai.toIso8601String()}');
     Log.info('  - Nama Paket: ${paket.nama}');
-    var hasil = DurasiUtil.tambahDurasi(
-      tanggalMulai,
-      paket.tipe,
-      paket.durasi,
-    );
+    var hasil = DurasiUtil.tambahDurasi(tanggalMulai, paket.tipe, paket.durasi);
     if (durasiBonus != null && durasiBonus > 0 && tipeDurasiBonus != null) {
       Log.info('  - Menambahkan Bonus: $durasiBonus ${tipeDurasiBonus.name}');
       hasil = DurasiUtil.tambahDurasi(hasil, tipeDurasiBonus, durasiBonus);
