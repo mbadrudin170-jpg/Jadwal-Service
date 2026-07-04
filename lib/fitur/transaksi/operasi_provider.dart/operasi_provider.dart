@@ -69,7 +69,7 @@ class OperasiProvider extends _$OperasiProvider {
     }
   }
 
-  Future<void> hapusSemua() async {
+  Future<void> softDeleteAll() async {
     try {
       if (!state.hasValue) return;
       await _transaksiOp.softDeleteAll();

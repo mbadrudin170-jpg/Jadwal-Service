@@ -6,6 +6,7 @@ import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/helper/pengurut_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/operasi_provider.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
@@ -151,7 +152,7 @@ Future<void> _softDeleteAllTransaksi(
 
   if ((konfirmasi == true) && context.mounted) {
     try {
-      await ref.read(transaksiOpGlobalProvider).softDeleteAll();
+      await ref.read(operasiProviderProvider.notifier).softDeleteAll();
       if (context.mounted) {
         ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
       }

@@ -115,7 +115,6 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                         children: [
                           _buildStatCardWrapper(
                             width: cardWidth,
-
                             onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute<void>(
