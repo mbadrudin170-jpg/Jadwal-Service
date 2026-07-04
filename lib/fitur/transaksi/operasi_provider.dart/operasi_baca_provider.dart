@@ -5,11 +5,17 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/transaksi_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/operasi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 part 'operasi_baca_provider.g.dart';
 part 'operasi_baca_provider.freezed.dart';
+
+class PaketTerlarisMentah {
+  final String id;
+  final int totalTerjual;
+  const PaketTerlarisMentah(this.id, this.totalTerjual);
+}
 
 @freezed
 abstract class OperasiBacaState with _$OperasiBacaState {
@@ -35,7 +41,7 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
 
   Future<OperasiBacaState> _loadData() async {
     try {
-      final state = ref.watch(transaksiProvider).value;
+      final state = ref.watch(operasiProviderProvider).value;
       final list = state?.transaksi ?? [];
       final totalPemasukan = list
           .where(

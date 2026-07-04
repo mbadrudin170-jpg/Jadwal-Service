@@ -16,7 +16,7 @@ import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/operasi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -257,16 +257,16 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
       );
 
       Log.info('Model Transaksi yang akan disimpan: ${transaksi.toSqlite()}');
-      final transaksiOp = ref.read(transaksiOpGlobalProvider);
+      final transaksiOp = ref.read(operasiProviderProvider.notifier);
       try {
         if (_modeEdit) {
           Log.info(
             'Menjalankan operasi UPDATE untuk transaksi ID: ${transaksi.id}',
           );
-          await transaksiOp.perbaruiTransaksi(transaksi);
+          await transaksiOp.perbarui(transaksi);
         } else {
           Log.info('Menjalankan operasi CREATE untuk transaksi baru.');
-          await transaksiOp.tambahTransaksi(transaksi);
+          await transaksiOp.tambah(transaksi);
         }
         if (!mounted) return;
         Log.info(
