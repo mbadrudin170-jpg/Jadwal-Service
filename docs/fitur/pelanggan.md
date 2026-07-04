@@ -89,7 +89,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
-import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart';
 
 part 'pengurut_pelanggan.g.dart';
 
