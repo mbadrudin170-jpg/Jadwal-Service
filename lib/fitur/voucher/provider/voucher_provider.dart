@@ -51,39 +51,42 @@ class Voucher extends _$Voucher {
       rethrow;
     }
   }
-  Future<void> perbarui(VoucherModel voucher) async {
-  try {
-    await ref.read(voucherOpFirebaseProvider).perbarui(voucher: voucher);
-    final current = state.value;
-    if (current == null) {
-      state = await AsyncValue.guard(_loadData);
-      return;
-    }
-    final updatedList = current.voucher.map((v) => v.id == voucher.id ? voucher : v).toList();
-    state = AsyncData(current.copyWith(voucher: updatedList));
-  } catch (e, s) {
-    Log.error('Gagal perbarui', e: e, s: s);
-    await _loadData();
-    rethrow;
-  }
-}
 
-Future<void> softDelete(String id) async {
-  try {
-    await ref.read(voucherOpFirebaseProvider).softDelete(id);
-    final current = state.value;
-    if (current != null) {
-      final updatedList = current.voucher.where((v) => v.id != id).toList();
+  Future<void> perbarui(VoucherModel voucher) async {
+    try {
+      await ref.read(voucherOpFirebaseProvider).perbarui(voucher: voucher);
+      final current = state.value;
+      if (current == null) {
+        state = await AsyncValue.guard(_loadData);
+        return;
+      }
+      final updatedList = current.voucher
+          .map((v) => v.id == voucher.id ? voucher : v)
+          .toList();
       state = AsyncData(current.copyWith(voucher: updatedList));
-    } else {
+    } catch (e, s) {
+      Log.error('Gagal perbarui', e: e, s: s);
       await _loadData();
+      rethrow;
     }
-  } catch (e, s) {
-    Log.error('Gagal hapus', e: e, s: s);
-    await _loadData();
-    rethrow;
   }
-}
+
+  Future<void> softDelete(String id) async {
+    try {
+      await ref.read(voucherOpFirebaseProvider).softDelete(id);
+      final current = state.value;
+      if (current != null) {
+        final updatedList = current.voucher.where((v) => v.id != id).toList();
+        state = AsyncData(current.copyWith(voucher: updatedList));
+      } else {
+        await _loadData();
+      }
+    } catch (e, s) {
+      Log.error('Gagal hapus', e: e, s: s);
+      await _loadData();
+      rethrow;
+    }
+  }
 
   Future<void> refresh() async {
     state = await AsyncValue.guard(_loadData);
