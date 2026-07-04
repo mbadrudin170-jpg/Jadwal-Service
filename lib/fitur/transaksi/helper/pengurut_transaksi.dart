@@ -2,7 +2,7 @@
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/operasi_provider.dart';
 
 part 'pengurut_transaksi.g.dart';
 
@@ -46,7 +46,7 @@ extension PengurutTransaksiX on List<TransaksiModel> {
 
 @riverpod
 Future<List<TransaksiModel>> sortedTransaksi(Ref ref) async {
-  final transaksiState = await ref.watch(transaksiProvider.future);
+  final transaksiState = await ref.watch(operasiProviderProvider.future);
   final urutanAktif = ref.watch(urutanTransaksiStateProvider);
   return transaksiState.transaksi.urutkan(urutanAktif);
 }
