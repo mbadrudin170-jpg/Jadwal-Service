@@ -8,9 +8,8 @@ import 'dart:async' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart' as _i4;
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart' as _i10;
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart' as _i9;
-import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart' as _i8;
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart' as _i9;
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart' as _i8;
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart' as _i7;
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart' as _i5;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart' as _i3;
@@ -216,18 +215,6 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i5.TransaksiOpSqlite {
           as _i6.Future<double>);
 
   @override
-  _i6.Future<List<_i8.PaketTerlarisModel>> ambilPaketTerlaris({
-    int? limit = 5,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(#ambilPaketTerlaris, [], {#limit: limit}),
-            returnValue: _i6.Future<List<_i8.PaketTerlarisModel>>.value(
-              <_i8.PaketTerlarisModel>[],
-            ),
-          )
-          as _i6.Future<List<_i8.PaketTerlarisModel>>);
-
-  @override
   _i6.Future<List<double>> ambilPendapatanHarian() =>
       (super.noSuchMethod(
             Invocation.method(#ambilPendapatanHarian, []),
@@ -321,7 +308,7 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i5.TransaksiOpSqlite {
 /// A class which mocks [PelangganOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPelangganOpSqlite extends _i1.Mock implements _i9.PelangganOpSqlite {
+class MockPelangganOpSqlite extends _i1.Mock implements _i8.PelangganOpSqlite {
   MockPelangganOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
@@ -339,7 +326,7 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i9.PelangganOpSqlite {
 
   @override
   _i6.Future<void> tambahPelanggan(
-    _i10.PelangganModel? pelanggan, {
+    _i9.PelangganModel? pelanggan, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -354,30 +341,30 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i9.PelangganOpSqlite {
           as _i6.Future<void>);
 
   @override
-  _i6.Future<List<_i10.PelangganModel>> ambilSemua({
+  _i6.Future<List<_i9.PelangganModel>> ambilSemua({
     bool? tampilkanYangDiarsip = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#ambilSemua, [], {
               #tampilkanYangDiarsip: tampilkanYangDiarsip,
             }),
-            returnValue: _i6.Future<List<_i10.PelangganModel>>.value(
-              <_i10.PelangganModel>[],
+            returnValue: _i6.Future<List<_i9.PelangganModel>>.value(
+              <_i9.PelangganModel>[],
             ),
           )
-          as _i6.Future<List<_i10.PelangganModel>>);
+          as _i6.Future<List<_i9.PelangganModel>>);
 
   @override
-  _i6.Future<_i10.PelangganModel?> ambilBerdasarkanId(String? id) =>
+  _i6.Future<_i9.PelangganModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBerdasarkanId, [id]),
-            returnValue: _i6.Future<_i10.PelangganModel?>.value(),
+            returnValue: _i6.Future<_i9.PelangganModel?>.value(),
           )
-          as _i6.Future<_i10.PelangganModel?>);
+          as _i6.Future<_i9.PelangganModel?>);
 
   @override
   _i6.Future<void> perbaruiPelanggan(
-    _i10.PelangganModel? pelanggan, {
+    _i9.PelangganModel? pelanggan, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -409,18 +396,18 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i9.PelangganOpSqlite {
           as _i6.Future<int>);
 
   @override
-  _i6.Future<List<_i10.PelangganModel>> ambilPerubahanSejak(DateTime? sejak) =>
+  _i6.Future<List<_i9.PelangganModel>> ambilPerubahanSejak(DateTime? sejak) =>
       (super.noSuchMethod(
             Invocation.method(#ambilPerubahanSejak, [sejak]),
-            returnValue: _i6.Future<List<_i10.PelangganModel>>.value(
-              <_i10.PelangganModel>[],
+            returnValue: _i6.Future<List<_i9.PelangganModel>>.value(
+              <_i9.PelangganModel>[],
             ),
           )
-          as _i6.Future<List<_i10.PelangganModel>>);
+          as _i6.Future<List<_i9.PelangganModel>>);
 
   @override
   _i6.Future<void> sisipkanAtauPerbaruiBatch(
-    List<_i10.PelangganModel>? pelanggan, {
+    List<_i9.PelangganModel>? pelanggan, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -435,14 +422,14 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i9.PelangganOpSqlite {
           as _i6.Future<void>);
 
   @override
-  _i6.Future<List<_i10.PelangganModel>> ambilPelangganBerdasarkanId(
+  _i6.Future<List<_i9.PelangganModel>> ambilPelangganBerdasarkanId(
     List<String>? ids,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#ambilPelangganBerdasarkanId, [ids]),
-            returnValue: _i6.Future<List<_i10.PelangganModel>>.value(
-              <_i10.PelangganModel>[],
+            returnValue: _i6.Future<List<_i9.PelangganModel>>.value(
+              <_i9.PelangganModel>[],
             ),
           )
-          as _i6.Future<List<_i10.PelangganModel>>);
+          as _i6.Future<List<_i9.PelangganModel>>);
 }

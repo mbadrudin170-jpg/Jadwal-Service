@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
-import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
@@ -248,14 +247,14 @@ class TransaksiOpGlobal {
     }
   }
 
-  Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
-    Log.info('Mengambil paket terlaris, limit: $limit');
-    if (RoleUtil.isAdmin(ref)) {
-      return await _transaksiOpSqlite.ambilPaketTerlaris(limit: limit);
-    } else {
-      return [];
-    }
-  }
+  // Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
+  //   Log.info('Mengambil paket terlaris, limit: $limit');
+  //   if (RoleUtil.isAdmin(ref)) {
+  //     return await _transaksiOpSqlite.ambilPaketTerlaris(limit: limit);
+  //   } else {
+  //     return [];
+  //   }
+  // }
 
   Future<List<double>> ambilPendapatanHarian() async {
     Log.info('Mengambil pendapatan harian 7 hari terakhir');

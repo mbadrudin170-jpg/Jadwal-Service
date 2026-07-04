@@ -11,10 +11,8 @@
 ```dart
 // path: lib/fitur/statistik/model/paket_terlaris_model.dart
 
-import 'package:wifi/fitur/paket/model/paket_model.dart';
-
 class PaketTerlarisModel {
-  final PaketModel paket;
+  final String paket;
   final int totalTerjual;
 
   PaketTerlarisModel({required this.paket, required this.totalTerjual});
@@ -37,7 +35,7 @@ import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_a.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/fitur/transaksi/transaksi_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
@@ -182,10 +180,10 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                             ),
                             title: 'Pendapatan Bulan Ini',
                             value: FormatUang.formatMataUang(
-                              data.totalPendapatanPerbulan,
+                              data.pendapatanBulanIni,
                             ),
                             icon: TIcons.money,
-                            color: data.totalPendapatanPerbulan < 0
+                            color: data.pendapatanBulanIni < 0
                                 ? Colors.red
                                 : Colors.orange,
                           ),
@@ -335,11 +333,8 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     );
   }
 
-  Widget _buildPaketTerlaris(
-    ThemeData theme,
-    List<PaketTerlarisModel> packages,
-  ) {
-    if (packages.isEmpty) {
+  Widget _buildPaketTerlaris(ThemeData theme, List<PaketTerlarisMentah> paket) {
+    if (paket.isEmpty) {
       return const Card(
         elevation: 2,
         child: ListTile(title: Text('Belum ada data penjualan paket.')),
@@ -349,8 +344,8 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Column(
-        children: List.generate(packages.length, (index) {
-          final item = packages[index];
+        children: List.generate(paket.length, (index) {
+          final item = paket[index];
           return ListTile(
             leading: CircleAvatar(child: Text('#${index + 1}')),
             title: Text(item.paket.nama),

@@ -15,7 +15,7 @@ import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/widget/nama_paket_widget.dart';
+import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 
 class RiwayatAktivasiPaket extends ConsumerStatefulWidget {
   const RiwayatAktivasiPaket({super.key});

@@ -5,13 +5,12 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i6;
 
-import 'package:flutter/src/widgets/navigator.dart' as _i11;
+import 'package:flutter/src/widgets/navigator.dart' as _i10;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
 import 'package:wifi/fitur/dompet/model/dompet_model.dart' as _i7;
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart' as _i5;
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart' as _i4;
-import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart' as _i10;
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart' as _i9;
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart' as _i8;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart' as _i3;
@@ -341,18 +340,6 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i8.TransaksiOpSqlite {
           as _i6.Future<double>);
 
   @override
-  _i6.Future<List<_i10.PaketTerlarisModel>> ambilPaketTerlaris({
-    int? limit = 5,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(#ambilPaketTerlaris, [], {#limit: limit}),
-            returnValue: _i6.Future<List<_i10.PaketTerlarisModel>>.value(
-              <_i10.PaketTerlarisModel>[],
-            ),
-          )
-          as _i6.Future<List<_i10.PaketTerlarisModel>>);
-
-  @override
   _i6.Future<List<double>> ambilPendapatanHarian() =>
       (super.noSuchMethod(
             Invocation.method(#ambilPendapatanHarian, []),
@@ -446,22 +433,22 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i8.TransaksiOpSqlite {
 /// A class which mocks [NavigatorObserver].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockNavigatorObserver extends _i1.Mock implements _i11.NavigatorObserver {
+class MockNavigatorObserver extends _i1.Mock implements _i10.NavigatorObserver {
   MockNavigatorObserver() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
   void didPush(
-    _i11.Route<dynamic>? route,
-    _i11.Route<dynamic>? previousRoute,
+    _i10.Route<dynamic>? route,
+    _i10.Route<dynamic>? previousRoute,
   ) => super.noSuchMethod(
     Invocation.method(#didPush, [route, previousRoute]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void didPop(_i11.Route<dynamic>? route, _i11.Route<dynamic>? previousRoute) =>
+  void didPop(_i10.Route<dynamic>? route, _i10.Route<dynamic>? previousRoute) =>
       super.noSuchMethod(
         Invocation.method(#didPop, [route, previousRoute]),
         returnValueForMissingStub: null,
@@ -469,8 +456,8 @@ class MockNavigatorObserver extends _i1.Mock implements _i11.NavigatorObserver {
 
   @override
   void didRemove(
-    _i11.Route<dynamic>? route,
-    _i11.Route<dynamic>? previousRoute,
+    _i10.Route<dynamic>? route,
+    _i10.Route<dynamic>? previousRoute,
   ) => super.noSuchMethod(
     Invocation.method(#didRemove, [route, previousRoute]),
     returnValueForMissingStub: null,
@@ -478,8 +465,8 @@ class MockNavigatorObserver extends _i1.Mock implements _i11.NavigatorObserver {
 
   @override
   void didReplace({
-    _i11.Route<dynamic>? newRoute,
-    _i11.Route<dynamic>? oldRoute,
+    _i10.Route<dynamic>? newRoute,
+    _i10.Route<dynamic>? oldRoute,
   }) => super.noSuchMethod(
     Invocation.method(#didReplace, [], {
       #newRoute: newRoute,
@@ -490,8 +477,8 @@ class MockNavigatorObserver extends _i1.Mock implements _i11.NavigatorObserver {
 
   @override
   void didChangeTop(
-    _i11.Route<dynamic>? topRoute,
-    _i11.Route<dynamic>? previousTopRoute,
+    _i10.Route<dynamic>? topRoute,
+    _i10.Route<dynamic>? previousTopRoute,
   ) => super.noSuchMethod(
     Invocation.method(#didChangeTop, [topRoute, previousTopRoute]),
     returnValueForMissingStub: null,
@@ -499,8 +486,8 @@ class MockNavigatorObserver extends _i1.Mock implements _i11.NavigatorObserver {
 
   @override
   void didStartUserGesture(
-    _i11.Route<dynamic>? route,
-    _i11.Route<dynamic>? previousRoute,
+    _i10.Route<dynamic>? route,
+    _i10.Route<dynamic>? previousRoute,
   ) => super.noSuchMethod(
     Invocation.method(#didStartUserGesture, [route, previousRoute]),
     returnValueForMissingStub: null,

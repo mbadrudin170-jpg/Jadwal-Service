@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -20,7 +19,7 @@ abstract class TransaksiState with _$TransaksiState {
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
     @Default(0) int totalPoinSemuaPelanggan,
-    required List<PaketTerlarisModel> paketTerlaris,
+    // required List<PaketTerlarisModel> paketTerlaris,
     required List<double> pendapatanHarian,
     required List<double> pendapatanMingguan,
     required List<double> pendapatanBulanan,
@@ -43,7 +42,7 @@ class Transaksi extends _$Transaksi {
       _transaksiOp.ambilTotalPengeluaran(), // [2]
       _transaksiOp.getNetTotal(), // [3]
       _transaksiOp.ambilTotalPoinSemuaPelanggan(), // [4]
-      _transaksiOp.ambilPaketTerlaris(), // [5] ✅ TAMBAHKAN
+      // _transaksiOp.ambilPaketTerlaris(), // [5] ✅ TAMBAHKAN
       _transaksiOp.ambilPendapatanHarian(), // [6]
       _transaksiOp.ambilPendapatanMingguan(), // [7]
       _transaksiOp.ambilPendapatanBulanan(), // [8]
@@ -56,7 +55,7 @@ class Transaksi extends _$Transaksi {
       totalPengeluaran: hasil[2] as double,
       total: hasil[3] as double,
       totalPoinSemuaPelanggan: hasil[4] as int,
-      paketTerlaris: hasil[5] as List<PaketTerlarisModel>,
+      // paketTerlaris: hasil[5] as List<PaketTerlarisModel>,
       pendapatanHarian: hasil[6] as List<double>,
       pendapatanMingguan: hasil[7] as List<double>,
       pendapatanBulanan: hasil[8] as List<double>,

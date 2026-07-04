@@ -13,6 +13,13 @@ import 'package:wifi/shared/debug/log.dart';
 part 'transaksi_provider.freezed.dart';
 part 'transaksi_provider.g.dart';
 
+/// Data mentah paket terlaris sebelum di-resolve detailnya.
+class PaketTerlarisMentah {
+  final String id;
+  final int totalTerjual;
+  const PaketTerlarisMentah(this.id, this.totalTerjual);
+}
+
 @freezed
 abstract class TransaksiState with _$TransaksiState {
   const factory TransaksiState({
@@ -21,7 +28,7 @@ abstract class TransaksiState with _$TransaksiState {
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
     @Default(0) int totalPoinSemuaPelanggan,
-    required List<String> paketTerlaris,
+    required List<PaketTerlarisMentah> paketTerlaris,
     required List<double> pendapatanHarian,
     required List<double> pendapatanMingguan,
     required List<double> pendapatanBulanan,
@@ -85,8 +92,7 @@ class Transaksi extends _$Transaksi {
   }
 
   // --- HELPER METODE UNTUK MEMPROSES GRAFIK & STATISTIK ---
-
-  List<String> _hitungPaketTerlaris(List<TransaksiModel> list) {
+  List<PaketTerlarisMentah> _hitungPaketTerlaris(List<TransaksiModel> list) {
     final jumlahPerPaket = <String, int>{};
 
     for (final t in list) {
@@ -98,7 +104,10 @@ class Transaksi extends _$Transaksi {
     final sortedEntries = jumlahPerPaket.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    return sortedEntries.take(5).map((e) => e.key).toList();
+    return sortedEntries
+        .take(5)
+        .map((e) => PaketTerlarisMentah(e.key, e.value))
+        .toList();
   }
 
   List<double> _hitungPendapatanHarian(List<TransaksiModel> list) {

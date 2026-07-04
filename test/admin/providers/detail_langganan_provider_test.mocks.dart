@@ -11,7 +11,6 @@ import 'package:wifi/fitur/paket/model/paket_model.dart' as _i8;
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart' as _i4;
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart' as _i7;
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart' as _i5;
-import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart' as _i11;
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart' as _i10;
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart' as _i9;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart' as _i3;
@@ -501,18 +500,6 @@ class MockTransaksiOpSqlite extends _i1.Mock implements _i9.TransaksiOpSqlite {
             returnValue: _i6.Future<double>.value(0.0),
           )
           as _i6.Future<double>);
-
-  @override
-  _i6.Future<List<_i11.PaketTerlarisModel>> ambilPaketTerlaris({
-    int? limit = 5,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(#ambilPaketTerlaris, [], {#limit: limit}),
-            returnValue: _i6.Future<List<_i11.PaketTerlarisModel>>.value(
-              <_i11.PaketTerlarisModel>[],
-            ),
-          )
-          as _i6.Future<List<_i11.PaketTerlarisModel>>);
 
   @override
   _i6.Future<List<double>> ambilPendapatanHarian() =>

@@ -1,4 +1,4 @@
-// path lib/shared/widget/nama_paket_widget.dart
+// path: lib/fitur/paket/widget/nama_paket_widget.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

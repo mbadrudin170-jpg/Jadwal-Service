@@ -1,11 +1,9 @@
 // path: lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart
 
-import 'package:collection/collection.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
-import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -433,38 +431,38 @@ class TransaksiOpSqlite {
     return net;
   }
 
-  Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
-    Log.info('Mulai menghitung paket terlaris.');
-    try {
-      final daftarPaket = await paketOpsqlite.ambilSemua();
-      final daftartransaksi = await ambilSemua();
-      if (daftartransaksi.isEmpty) {
-        Log.warning('Tidak ada transaksi, mengembalikan list paket kosong.');
-        return [];
-      }
-      final jumlahPenjualan = groupBy(
-        daftartransaksi.where((t) => t.idPaket != null).toList(),
-        (t) => t.idPaket!,
-      ).map((key, value) => MapEntry(key, value.length));
-      final paketTerlaris = daftarPaket.map((paket) {
-        return PaketTerlarisModel(
-          paket: paket,
-          totalTerjual: jumlahPenjualan[paket.id] ?? 0,
-        );
-      }).toList();
-      paketTerlaris.sort((a, b) => b.totalTerjual.compareTo(a.totalTerjual));
+  // Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
+  //   Log.info('Mulai menghitung paket terlaris.');
+  //   try {
+  //     final daftarPaket = await paketOpsqlite.ambilSemua();
+  //     final daftartransaksi = await ambilSemua();
+  //     if (daftartransaksi.isEmpty) {
+  //       Log.warning('Tidak ada transaksi, mengembalikan list paket kosong.');
+  //       return [];
+  //     }
+  //     final jumlahPenjualan = groupBy(
+  //       daftartransaksi.where((t) => t.idPaket != null).toList(),
+  //       (t) => t.idPaket!,
+  //     ).map((key, value) => MapEntry(key, value.length));
+  //     final paketTerlaris = daftarPaket.map((paket) {
+  //       return PaketTerlarisModel(
+  //         paket: paket,
+  //         totalTerjual: jumlahPenjualan[paket.id] ?? 0,
+  //       );
+  //     }).toList();
+  //     paketTerlaris.sort((a, b) => b.totalTerjual.compareTo(a.totalTerjual));
 
-      final hasil = paketTerlaris.take(limit).toList();
-      Log.info(
-        'Berhasil menghitung ${hasil.length} paket terlaris: ${hasil.map((p) => '${p.paket.nama} (${p.totalTerjual})').toList()}',
-      );
+  //     final hasil = paketTerlaris.take(limit).toList();
+  //     Log.info(
+  //       'Berhasil menghitung ${hasil.length} paket terlaris: ${hasil.map((p) => '${p.paket.nama} (${p.totalTerjual})').toList()}',
+  //     );
 
-      return hasil;
-    } catch (e, st) {
-      Log.error('Gagal menghitung paket terlaris.', e: e, s: st);
-      rethrow;
-    }
-  }
+  //     return hasil;
+  //   } catch (e, st) {
+  //     Log.error('Gagal menghitung paket terlaris.', e: e, s: st);
+  //     rethrow;
+  //   }
+  // }
 
   /// Mengambil data pendapatan harian dalam 7 hari terakhir
   Future<List<double>> ambilPendapatanHarian() async {
