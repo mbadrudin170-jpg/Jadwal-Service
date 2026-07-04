@@ -74,7 +74,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
           tooltip: 'Urutkan',
         ),
         IconButton(
-          onPressed: () => _deleteAllTransactions(context, ref),
+          onPressed: () => _softDeleteAllTransaksi(context, ref),
           icon: const Icon(TIcons.delete),
           tooltip: 'Hapus Semua Transaksi',
         ),
@@ -124,7 +124,10 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
 // ============================================================
 // Dialog Hapus Semua (tidak berubah)
 // ============================================================
-Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
+Future<void> _softDeleteAllTransaksi(
+  BuildContext context,
+  WidgetRef ref,
+) async {
   final konfirmasi = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
@@ -146,7 +149,7 @@ Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
     ),
   );
 
-  if ((konfirmasi ?? false) && context.mounted) {
+  if ((konfirmasi == true) && context.mounted) {
     try {
       await ref.read(transaksiOpGlobalProvider).softDeleteAll();
       if (context.mounted) {
