@@ -164,7 +164,7 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
+import 'package:wifi/fitur/pelanggan/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dart';

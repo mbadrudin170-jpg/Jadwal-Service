@@ -641,7 +641,7 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
+import 'package:wifi/fitur/pelanggan/widget/nama_pelanggan_widget.dart';
 
 class FeedbackDetail extends ConsumerStatefulWidget {
   final String id;
@@ -869,7 +869,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
+import 'package:wifi/fitur/pelanggan/widget/nama_pelanggan_widget.dart';
 
 class FeedbackPage extends ConsumerStatefulWidget {
   const FeedbackPage({super.key});
