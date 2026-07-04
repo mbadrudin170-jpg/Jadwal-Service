@@ -181,7 +181,8 @@ lib
 │   │   ├── page
 │   │   │   ├── detail_paket.dart
 │   │   │   ├── form_paket.dart
-│   │   │   └── paket.dart
+│   │   │   ├── paket.dart
+│   │   │   └── paket_publik.dart
 │   │   └── provider
 │   │       ├── paket_provider.dart
 │   │       ├── paket_provider.freezed.dart
@@ -336,6 +337,8 @@ lib
 │   │       ├── layanan_cek_update_apk.dart
 │   │       └── update_service.dart
 │   ├── voucher
+│   │   ├── enum
+│   │   │   └── tipe_voucher.dart
 │   │   ├── model
 │   │   │   ├── voucher_model.dart
 │   │   │   └── voucher_model.freezed.dart
@@ -354,8 +357,10 @@ lib
 ├── main
 │   ├── main_admin
 │   │   ├── admin_dev.dart
-│   │   └── admin_prod.dart
+│   │   ├── admin_prod.dart
+│   │   └── bootstrap_admin.dart
 │   └── main_user
+│       ├── bootstrap_user.dart
 │       ├── user_dev.dart
 │       └── user_prod.dart
 ├── services
@@ -691,5 +696,5 @@ test
         ├── perhitungan_util_test.dart
         └── toast_util_test.dart
 
-236 directories, 454 files
+237 directories, 458 files
 tree is not installed, but available in the following packages, pick one to run it, Ctrl+C to cancel.
