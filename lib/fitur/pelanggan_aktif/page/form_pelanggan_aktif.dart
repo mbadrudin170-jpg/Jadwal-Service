@@ -22,6 +22,7 @@ import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -278,7 +279,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
     final notifikasiOpSqlite = ref.read(notifikasiOpSqliteProvider);
     final pelangganAktif = ref.read(pelangganAktifProvider.notifier);
-    final transaksiOp = ref.read(transaksiOpGlobalProvider);
+    final transaksiOp = ref.read(transaksiOpProvider.notifier);
 
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Validasi form gagal');
@@ -369,7 +370,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       if (_modeEdit) {
         await Future.wait([
           pelangganAktif.updatePelangganAktif(pelangganAktifData),
-          transaksiOp.perbaruiTransaksi(transaksiData),
+          transaksiOp.perbarui(transaksiData),
         ]);
         unawaited(notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi));
         Log.info(
@@ -378,7 +379,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       } else {
         await Future.wait([
           pelangganAktif.tambahPelangganAktif(pelangganAktifData),
-          transaksiOp.tambahTransaksi(transaksiData),
+          transaksiOp.tambah(transaksiData),
         ]);
       }
       final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
