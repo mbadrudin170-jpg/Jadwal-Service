@@ -38,6 +38,7 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
       final state = ref.watch(transaksiProvider).value;
       final list = state?.transaksi ?? [];
 
+      // Hitung semua statistik secara manual
       final totalPemasukan = list
           .where(
             (t) =>
@@ -52,10 +53,27 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
 
       final total = totalPemasukan - totalPengeluaran;
 
+      final totalPoinSemuaPelanggan = list.fold<int>(
+        0,
+        (sum, t) => sum + (t.poinDidapat - t.poinDigunakan),
+      );
+
+      final paketTerlaris = _hitungPaketTerlaris(list);
+      final pendapatanHarian = _hitungPendapatanHarian(list);
+      final pendapatanMingguan = _hitungPendapatanMingguan(list);
+      final pendapatanBulanan = _hitungPendapatanBulanan(list);
+      final pendapatanBulanIni = _hitungPendapatanBulanIni(list);
+
       return OperasiBacaState(
         totalPemasukan: totalPemasukan,
         totalPengeluaran: totalPengeluaran,
         total: total,
+        totalPoinSemuaPelanggan: totalPoinSemuaPelanggan,
+        paketTerlaris: paketTerlaris,
+        pendapatanHarian: pendapatanHarian,
+        pendapatanMingguan: pendapatanMingguan,
+        pendapatanBulanan: pendapatanBulanan,
+        pendapatanBulanIni: pendapatanBulanIni,
       );
     } on Exception catch (e, s) {
       Log.error('Error di Load_loadData(: $e', e: e, s: s);
@@ -64,18 +82,16 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
   }
 
   // --- HELPER METODE UNTUK MEMPROSES GRAFIK & STATISTIK ---
+
   List<PaketTerlarisMentah> _hitungPaketTerlaris(List<TransaksiModel> list) {
     final jumlahPerPaket = <String, int>{};
-
     for (final t in list) {
       if (t.idPaket != null && t.statusPembayaran == StatusPembayaran.paid) {
         jumlahPerPaket[t.idPaket!] = (jumlahPerPaket[t.idPaket!] ?? 0) + 1;
       }
     }
-
     final sortedEntries = jumlahPerPaket.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-
     return sortedEntries
         .take(5)
         .map((e) => PaketTerlarisMentah(e.key, e.value))
@@ -85,10 +101,8 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
   List<double> _hitungPendapatanHarian(List<TransaksiModel> list) {
     final hasil = List<double>.filled(7, 0.0);
     final sekarang = DateTime.now();
-
     for (var i = 0; i < 7; i++) {
       final targetTanggal = sekarang.subtract(Duration(days: i));
-
       final totalHariItu = list
           .where(
             (t) =>
@@ -99,8 +113,7 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
                 t.tanggal.year == targetTanggal.year,
           )
           .fold(0.0, (sum, t) => sum + t.jumlah);
-
-      hasil[6 - i] = totalHariItu; // Mengurutkan dari hari terlama ke hari ini
+      hasil[6 - i] = totalHariItu;
     }
     return hasil;
   }
@@ -124,8 +137,7 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
           })
           .fold(0.0, (sum, t) => sum + t.jumlah);
 
-      hasil[3 - i] =
-          totalMingguItu; // Mengurutkan dari 4 minggu lalu ke minggu ini
+      hasil[3 - i] = totalMingguItu;
     }
     return hasil;
   }
@@ -133,7 +145,6 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
   List<double> _hitungPendapatanBulanan(List<TransaksiModel> list) {
     final hasil = List<double>.filled(5, 0.0);
     final sekarang = DateTime.now();
-
     for (var i = 0; i < 5; i++) {
       var targetBulan = sekarang.month - i;
       var targetTahun = sekarang.year;
@@ -142,7 +153,6 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
         targetBulan += 12;
         targetTahun -= 1;
       }
-
       final totalBulanItu = list
           .where(
             (t) =>
@@ -152,9 +162,21 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
                 t.tanggal.year == targetTahun,
           )
           .fold(0.0, (sum, t) => sum + t.jumlah);
-
       hasil[4 - i] = totalBulanItu;
     }
     return hasil;
+  }
+
+  double _hitungPendapatanBulanIni(List<TransaksiModel> list) {
+    final sekarang = DateTime.now();
+    return list
+        .where(
+          (t) =>
+              t.tipe == TipeTransaksi.income &&
+              t.statusPembayaran == StatusPembayaran.paid &&
+              t.tanggal.month == sekarang.month &&
+              t.tanggal.year == sekarang.year,
+        )
+        .fold(0.0, (sum, t) => sum + t.jumlah);
   }
 }
