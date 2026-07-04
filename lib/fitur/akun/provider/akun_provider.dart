@@ -29,6 +29,7 @@ class PengelolaAkun extends _$PengelolaAkun {
   }
 
   Future<void> login(PelangganModel akun) async {
+    if (!state.hasValue) return;
     final penyimpananLokal = await ref.read(
       layananPenyimpananLokalProvider.future,
     );
@@ -52,6 +53,8 @@ class PengelolaAkun extends _$PengelolaAkun {
   }
 
   Future<void> hapusAkun(String id) async {
+    if (!state.hasValue) return;
+
     final penyimpananLokal = await ref.read(
       layananPenyimpananLokalProvider.future,
     );
@@ -64,6 +67,8 @@ class PengelolaAkun extends _$PengelolaAkun {
   }
 
   Future<void> hapusTokenLogin() async {
+    if (!state.hasValue) return;
+
     final penyimpananLokal = await ref.read(
       layananPenyimpananLokalProvider.future,
     );
@@ -79,6 +84,8 @@ class PengelolaAkun extends _$PengelolaAkun {
   }
 
   Future<void> refresh() async {
+    if (!state.hasValue) return;
+
     final penyimpananLokal = await ref.read(
       layananPenyimpananLokalProvider.future,
     );
