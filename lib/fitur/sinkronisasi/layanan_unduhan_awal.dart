@@ -34,7 +34,6 @@ class LayananUnduhanAwal {
     await _unduhTransaksiJikaKosong();
     await _unduhUmpanBalikJikaKosong();
     await _unduhPesananJikaKosong();
-
     pengukurWaktu.stop();
     Log.info(
       'Proses unduhan awal selesai dalam ${pengukurWaktu.elapsed.inSeconds} detik.',
