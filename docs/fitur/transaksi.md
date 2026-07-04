@@ -12,6 +12,7 @@
 - [lib/fitur/transaksi/operasi/transaksi_op_global.dart](../../lib/fitur/transaksi/operasi/transaksi_op_global.dart)
 - [lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart](../../lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart)
 - [lib/fitur/transaksi/page/detail_transaksi_a.dart](../../lib/fitur/transaksi/page/detail_transaksi_a.dart)
+- [lib/fitur/transaksi/page/detail_transaksi_u.dart](../../lib/fitur/transaksi/page/detail_transaksi_u.dart)
 - [lib/fitur/transaksi/page/form_transaksi.dart](../../lib/fitur/transaksi/page/form_transaksi.dart)
 - [lib/fitur/transaksi/page/transaksi_a.dart](../../lib/fitur/transaksi/page/transaksi_a.dart)
 - [lib/fitur/transaksi/page/transaksi_u.dart](../../lib/fitur/transaksi/page/transaksi_u.dart)

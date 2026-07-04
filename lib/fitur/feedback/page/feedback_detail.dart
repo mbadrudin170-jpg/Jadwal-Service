@@ -8,12 +8,12 @@ import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
 import 'package:wifi/fitur/feedback/page/form_feedback.dart';
 import 'package:wifi/fitur/feedback/provider/feedback_provider.dart';
+import 'package:wifi/fitur/pelanggan/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/fitur/pelanggan/widget/nama_pelanggan_widget.dart';
 
 class FeedbackDetail extends ConsumerStatefulWidget {
   final String id;

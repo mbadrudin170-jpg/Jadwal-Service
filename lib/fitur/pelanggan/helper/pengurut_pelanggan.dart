@@ -3,7 +3,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
-import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 
 part 'pengurut_pelanggan.g.dart';
 
@@ -26,19 +26,16 @@ class UrutanPelangganState extends _$UrutanPelangganState {
   void ubahUrutan(UrutanPelanggan urutanBaru) => state = urutanBaru;
 }
 
-/// Menghubungkan data pelanggan dengan perolehan total poinnya secara paralel
 @riverpod
 Future<List<(PelangganModel, int)>> pelangganDenganPoin(Ref ref) async {
   final pelangganState = await ref.watch(pelangganProvider.future);
-  final transaksiNotifier = ref.watch(transaksiProvider.notifier);
+  final transaksiState = await ref.watch(transaksiOpProvider.future);
   final daftarPelanggan = pelangganState.daftarPelanggan;
-  final semuaPoin = await transaksiNotifier.getTotalPoinBanyakPelangganParallel(
-    daftarPelanggan.map((p) => p.id).toList(),
-  );
-  return List.generate(
-    daftarPelanggan.length,
-    (i) => (daftarPelanggan[i], semuaPoin[i]),
-  );
+
+  return daftarPelanggan.map((p) {
+    final poin = transaksiState.riwayatPelanggan(p.id).totalPoin;
+    return (p, poin);
+  }).toList();
 }
 
 @riverpod
