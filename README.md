@@ -3420,10 +3420,10 @@ class Transaksi extends _$Transaksi {
       total: hasil[3] as double,
       totalPoinSemuaPelanggan: hasil[4] as int,
       // paketTerlaris: hasil[5] as List<PaketTerlarisModel>,
-      pendapatanHarian: hasil[6] as List<double>,
-      pendapatanMingguan: hasil[7] as List<double>,
-      pendapatanBulanan: hasil[8] as List<double>,
-      totalPendapatanPerbulan: hasil[9] as double,
+      pendapatanHarian: hasil[5] as List<double>,
+      pendapatanMingguan: hasil[6] as List<double>,
+      pendapatanBulanan: hasil[7] as List<double>,
+      totalPendapatanPerbulan: hasil[8] as double,
     );
   }
 
