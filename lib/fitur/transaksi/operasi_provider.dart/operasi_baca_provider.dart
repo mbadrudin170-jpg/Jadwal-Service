@@ -26,12 +26,11 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
 
   Future<OperasiBacaState> _loadData() async {
     try {
-      final transaksi = ref.watch(transaksiProvider);
-      final data = transaksi.value;
+      final transaksi = ref.watch(transaksiProvider).value;
       return OperasiBacaState(
-        totalPemasukan: data?.totalPemasukan ?? 0,
-        totalPengeluaran: data?.totalPengeluaran ?? 0,
-        total: data?.total ?? 0,
+        totalPemasukan: transaksi?.totalPemasukan ?? 0,
+        totalPengeluaran: transaksi?.totalPengeluaran ?? 0,
+        total: transaksi?.total ?? 0,
       );
     } on Exception catch (e, s) {
       Log.error('Error di Load_loadData(: $e', e: e, s: s);
