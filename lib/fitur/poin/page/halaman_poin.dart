@@ -15,13 +15,12 @@ import 'package:wifi/fitur/pelanggan/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/poin/poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
-import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider_usang.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -232,9 +231,7 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   @override
   Widget build(BuildContext context) {
     Log.info('Building PointsPage UI, selected menu: $_menuAktif');
-    final dataAsync = ref
-        .watch(transaksiProvider.notifier)
-        .riwayatTransaksiPelanggan(widget.idPelanggan);
+    final dataAsync = ref.watch(transaksiOpProvider);
     final daftarHadiah = ref.watch(paketProvider);
     return dataAsync.when(
       skipLoadingOnReload: true,
@@ -246,10 +243,13 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
         appBar: AppBar(title: _judulAppBar),
         body: Center(child: Text('Error: $e')),
       ),
-      data: (dataHalaman) {
+      data: (transaksiState) {
+        final riwayat = transaksiState.riwayatPelanggan(widget.idPelanggan);
+        final totalPoin = riwayat.totalPoin;
+        final transaksiUser = riwayat.transaksi;
         return UiHalamanPoin(
           appBarTitle: _judulAppBar,
-          totalPoin: dataHalaman.totalPoin,
+          totalPoin: riwayat.totalPoin,
           menuPilihan: _menuAktif,
           onSelectionChanged: (newSelection) async {
             final selection = newSelection.first;
@@ -266,12 +266,10 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
                   error: (err, stack) => Center(child: Text('Error: $err')),
-                  data: (state) => _buildDaftarHadiah(
-                    state.daftarPaketPublik,
-                    dataHalaman.totalPoin,
-                  ),
+                  data: (state) =>
+                      _buildDaftarHadiah(state.daftarPaketPublik, totalPoin),
                 )
-              : _buildRiwayatPoin(),
+              : _buildRiwayatPoin(transaksiUser),
           bottomWidget: ref.isUser ? const BannerAdsWidget() : null,
         );
       },
@@ -342,57 +340,55 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
     );
   }
 
-  Widget _buildRiwayatPoin() {
+  Widget _buildRiwayatPoin(List<TransaksiModel> riwayatPoin) {
     Log.info('Building points history.');
-    final riwayatAsync = ref
-        .watch(transaksiProvider.notifier)
-        .riwayatTransaksiPelanggan(widget.idPelanggan);
-    return 
-         ListView.builder(
-          itemCount: riwayatAsync.,
-          itemBuilder: (context, index) {
-            final transaksi = riwayatPoin[index];
-            final apakahPenambahan = transaksi.poinDidapat > 0;
-            final nilaiPoin = apakahPenambahan
-                ? transaksi.poinDidapat
-                : transaksi.poinDigunakan;
-            final teksPoin = apakahPenambahan ? '+$nilaiPoin' : '-$nilaiPoin';
-            final apakahBelumBayar =
-                transaksi.statusPembayaran == StatusPembayaran.unpaid;
-            final Color warnaPoin = apakahBelumBayar
-                ? Colors.grey
-                : apakahPenambahan
-                ? Colors.green
-                : Colors.red;
-            return InkWell(
-              onTap: () => _navigasiKeDetailTransaksi(transaksi),
-              child: Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                child: ListTile(
-                  leading: Icon(
-                    apakahBelumBayar
-                        ? TIcons.hourglass
-                        : apakahPenambahan
-                        ? TIcons.arrowUp
-                        : TIcons.arrowDown,
-                    color: warnaPoin,
-                  ),
-                  title: Text(transaksi.deskripsi),
-                  subtitle: Text(FormatTanggal.formatDasar(transaksi.tanggal)),
-                  trailing: Text(
-                    teksPoin,
-                    style: TextStyle(
-                      color: warnaPoin,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
+    if (riwayatPoin.isEmpty) {
+      return const Center(child: Text('Belum ada riwayat poin'));
+    }
+
+    return ListView.builder(
+      itemCount: riwayatPoin.length,
+      itemBuilder: (context, index) {
+        final transaksi = riwayatPoin[index];
+        final apakahPenambahan = transaksi.poinDidapat > 0;
+        final nilaiPoin = apakahPenambahan
+            ? transaksi.poinDidapat
+            : transaksi.poinDigunakan;
+        final teksPoin = apakahPenambahan ? '+$nilaiPoin' : '-$nilaiPoin';
+        final apakahBelumBayar =
+            transaksi.statusPembayaran == StatusPembayaran.unpaid;
+        final Color warnaPoin = apakahBelumBayar
+            ? Colors.grey
+            : apakahPenambahan
+            ? Colors.green
+            : Colors.red;
+        return InkWell(
+          onTap: () => _navigasiKeDetailTransaksi(transaksi),
+          child: Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: ListTile(
+              leading: Icon(
+                apakahBelumBayar
+                    ? TIcons.hourglass
+                    : apakahPenambahan
+                    ? TIcons.arrowUp
+                    : TIcons.arrowDown,
+                color: warnaPoin,
+              ),
+              title: Text(transaksi.deskripsi),
+              subtitle: Text(FormatTanggal.formatDasar(transaksi.tanggal)),
+              trailing: Text(
+                teksPoin,
+                style: TextStyle(
+                  color: warnaPoin,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
               ),
-            );
-          },
+            ),
+          ),
         );
       },
-    
+    );
   }
 }

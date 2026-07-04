@@ -46,7 +46,7 @@ extension PengurutTransaksiX on List<TransaksiModel> {
 
 @riverpod
 Future<List<TransaksiModel>> sortedTransaksi(Ref ref) async {
-  final transaksiState = await ref.watch(operasiProviderProvider.future);
+  final transaksiState = await ref.watch(transaksiOpProvider.future);
   final urutanAktif = ref.watch(urutanTransaksiStateProvider);
   return transaksiState.transaksi.urutkan(urutanAktif);
 }

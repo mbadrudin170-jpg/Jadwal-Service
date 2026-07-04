@@ -6,8 +6,8 @@
 - [lib/fitur/transaksi/enum/tipe_transaksi.dart](../../lib/fitur/transaksi/enum/tipe_transaksi.dart)
 - [lib/fitur/transaksi/helper/pengurut_transaksi.dart](../../lib/fitur/transaksi/helper/pengurut_transaksi.dart)
 - [lib/fitur/transaksi/model/transaksi_model.dart](../../lib/fitur/transaksi/model/transaksi_model.dart)
-- [lib/fitur/transaksi/operasi_provider.dart/operasi_baca_provider.dart](../../lib/fitur/transaksi/operasi_provider.dart/operasi_baca_provider.dart)
-- [lib/fitur/transaksi/operasi_provider.dart/operasi_provider.dart](../../lib/fitur/transaksi/operasi_provider.dart/operasi_provider.dart)
+- [lib/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart](../../lib/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart)
+- [lib/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart](../../lib/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart)
 - [lib/fitur/transaksi/operasi/transaksi_op_firebase.dart](../../lib/fitur/transaksi/operasi/transaksi_op_firebase.dart)
 - [lib/fitur/transaksi/operasi/transaksi_op_global.dart](../../lib/fitur/transaksi/operasi/transaksi_op_global.dart)
 - [lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart](../../lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart)
@@ -16,8 +16,8 @@
 - [lib/fitur/transaksi/page/form_transaksi.dart](../../lib/fitur/transaksi/page/form_transaksi.dart)
 - [lib/fitur/transaksi/page/transaksi_a.dart](../../lib/fitur/transaksi/page/transaksi_a.dart)
 - [lib/fitur/transaksi/page/transaksi_u.dart](../../lib/fitur/transaksi/page/transaksi_u.dart)
-- [lib/fitur/transaksi/provider/transaksi_provider.dart](../../lib/fitur/transaksi/provider/transaksi_provider.dart)
-- [lib/fitur/transaksi/transaksi_provider.dart](../../lib/fitur/transaksi/transaksi_provider.dart)
+- [lib/fitur/transaksi/provider/transaksi_provider_usang.dart](../../lib/fitur/transaksi/provider/transaksi_provider_usang.dart)
+- [lib/fitur/transaksi/transaksi_provider_usang.dart](../../lib/fitur/transaksi/transaksi_provider_usang.dart)
 - [lib/fitur/transaksi/widget/daftar_transaksi_widget.dart](../../lib/fitur/transaksi/widget/daftar_transaksi_widget.dart)
 
 ## Isi file
@@ -82,7 +82,7 @@ enum TipeTransaksi {
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi_provider.dart/operasi_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 
 part 'pengurut_transaksi.g.dart';
 
@@ -126,7 +126,7 @@ extension PengurutTransaksiX on List<TransaksiModel> {
 
 @riverpod
 Future<List<TransaksiModel>> sortedTransaksi(Ref ref) async {
-  final transaksiState = await ref.watch(operasiProviderProvider.future);
+  final transaksiState = await ref.watch(transaksiOpProvider.future);
   final urutanAktif = ref.watch(urutanTransaksiStateProvider);
   return transaksiState.transaksi.urutkan(urutanAktif);
 }
@@ -344,20 +344,125 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
 }
 ```
 
-### File: `lib/fitur/transaksi/operasi_provider.dart/operasi_baca_provider.dart`
+### File: `lib/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart`
 ```dart
-// path: lib/fitur/transaksi/operasi_provider.dart/operasi_baca_provider.dart
+// path: lib/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart
+
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+import 'package:wifi/shared/debug/log.dart';
+
+part 'transaksi_op_provider.freezed.dart';
+part 'transaksi_op_provider.g.dart';
+
+@freezed
+abstract class TransaksiNotifierState with _$TransaksiNotifierState {
+  const TransaksiNotifierState._();
+  const factory TransaksiNotifierState({
+    @Default([]) List<TransaksiModel> transaksi,
+  }) = _TransaksiNotifierState;
+
+  ({List<TransaksiModel> transaksi, int totalPoin}) riwayatPelanggan(
+    String idPelanggan,
+  ) {
+    final miliknya = transaksi
+        .where((t) => t.idPelanggan == idPelanggan)
+        .toList();
+    final poin = miliknya
+        .where((t) => t.statusPembayaran == StatusPembayaran.paid)
+        .fold<int>(0, (sum, t) => sum + (t.poinDidapat - t.poinDigunakan));
+    return (transaksi: miliknya, totalPoin: poin);
+  }
+}
+
+@riverpod
+class TransaksiOp extends _$TransaksiOp {
+  TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
+  @override
+  FutureOr<TransaksiNotifierState> build() async {
+    final transaksi = await ref.read(transaksiOpGlobalProvider).ambilSemua();
+    return TransaksiNotifierState(transaksi: transaksi);
+  }
+
+  Future<void> tambah(TransaksiModel transaksi) async {
+    try {
+      if (!state.hasValue) return;
+      await _transaksiOp.tambahTransaksi(transaksi);
+      final currentData = state.requireValue;
+      state = AsyncData(
+        currentData.copyWith(transaksi: [...currentData.transaksi, transaksi]),
+      );
+    } on Exception catch (e, s) {
+      Log.error('Error ditambah: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> perbarui(TransaksiModel transaksi) async {
+    try {
+      if (!state.hasValue) return;
+      await _transaksiOp.perbaruiTransaksi(transaksi);
+      final currentData = state.requireValue;
+      final updatedList = currentData.transaksi.map((t) {
+        return t.id == transaksi.id ? transaksi : t;
+      }).toList();
+      state = AsyncData(currentData.copyWith(transaksi: updatedList));
+    } on Exception catch (e, s) {
+      Log.error('Error perbarui: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> hapus(String idTransaksi) async {
+    try {
+      if (!state.hasValue) return;
+      await _transaksiOp.softDelete(idTransaksi);
+      final currentData = state.requireValue;
+      final updatedList = currentData.transaksi
+          .where((t) => t.id != idTransaksi)
+          .toList();
+      state = AsyncData(currentData.copyWith(transaksi: updatedList));
+    } on Exception catch (e, s) {
+      Log.error('Error hapus: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> softDeleteAll() async {
+    try {
+      if (!state.hasValue) return;
+      await _transaksiOp.softDeleteAll();
+      final currentData = state.requireValue;
+      state = AsyncData(currentData.copyWith(transaksi: []));
+    } on Exception catch (e, s) {
+      Log.error('Error hapus semua: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  void invalidate() {
+    ref.invalidateSelf();
+  }
+}
+```
+
+### File: `lib/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart`
+```dart
+// path: lib/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi_provider.dart/operasi_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-part 'operasi_baca_provider.g.dart';
-part 'operasi_baca_provider.freezed.dart';
+part 'transaksi_provider.g.dart';
+part 'transaksi_provider.freezed.dart';
 
 class PaketTerlarisMentah {
   final String id;
@@ -366,8 +471,9 @@ class PaketTerlarisMentah {
 }
 
 @freezed
-abstract class OperasiBacaState with _$OperasiBacaState {
-  const factory OperasiBacaState({
+abstract class TransaksiState with _$TransaksiState {
+  const TransaksiState._();
+  const factory TransaksiState({
     @Default(0.0) double totalPemasukan,
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
@@ -377,19 +483,19 @@ abstract class OperasiBacaState with _$OperasiBacaState {
     @Default([]) List<double> pendapatanMingguan,
     @Default([]) List<double> pendapatanBulanan,
     @Default(0.0) double pendapatanBulanIni,
-  }) = _OperasiBacaState;
+  }) = _TransaksiState;
 }
 
 @riverpod
-class OperasiBacaProvider extends _$OperasiBacaProvider {
+class Transaksi extends _$Transaksi {
   @override
-  FutureOr<OperasiBacaState> build() {
+  FutureOr<TransaksiState> build() {
     return _loadData();
   }
 
-  Future<OperasiBacaState> _loadData() async {
+  Future<TransaksiState> _loadData() async {
     try {
-      final state = ref.watch(operasiProviderProvider).value;
+      final state = ref.watch(transaksiOpProvider).value;
       final list = state?.transaksi ?? [];
       final totalPemasukan = list
           .where(
@@ -411,7 +517,7 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
       final pendapatanMingguan = _hitungPendapatanMingguan(list);
       final pendapatanBulanan = _hitungPendapatanBulanan(list);
       final pendapatanBulanIni = _hitungPendapatanBulanIni(list);
-      return OperasiBacaState(
+      return TransaksiState(
         totalPemasukan: totalPemasukan,
         totalPengeluaran: totalPengeluaran,
         total: total,
@@ -526,96 +632,28 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
         )
         .fold(0.0, (sum, t) => sum + t.jumlah);
   }
-}
-```
 
-### File: `lib/fitur/transaksi/operasi_provider.dart/operasi_provider.dart`
-```dart
-// path: lib/fitur/transaksi/operasi_provider.dart/operasi_provider.dart
-
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
-import 'package:wifi/shared/debug/log.dart';
-
-part 'operasi_provider.freezed.dart';
-part 'operasi_provider.g.dart';
-
-@freezed
-abstract class TransaksiTesState with _$TransaksiTesState {
-  const factory TransaksiTesState({
-    @Default([]) List<TransaksiModel> transaksi,
-  }) = _TransaksiTesState;
-}
-
-@riverpod
-class OperasiProvider extends _$OperasiProvider {
-  TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
-  @override
-  FutureOr<TransaksiTesState> build() async {
-    final transaksi = await ref.read(transaksiOpGlobalProvider).ambilSemua();
-    return TransaksiTesState(transaksi: transaksi);
-  }
-
-  Future<void> tambah(TransaksiModel transaksi) async {
+  Future<({List<TransaksiModel> transaksi, int totalPoin})>
+  riwayatTransaksiPelanggan(String idPelanggan) async {
+    Log.info(
+      '[RiwayatTransaksi] 🔍 Mengambil riwayat transaksi untuk pelanggan: $idPelanggan',
+    );
     try {
-      if (!state.hasValue) return;
-      await _transaksiOp.tambahTransaksi(transaksi);
-      final currentData = state.requireValue;
-      state = AsyncData(
-        currentData.copyWith(transaksi: [...currentData.transaksi, transaksi]),
-      );
-    } on Exception catch (e, s) {
-      Log.error('Error ditambah: $e', e: e, s: s);
-      rethrow;
-    }
-  }
+      // Dapatkan state terbaru dari TransaksiOp (AsyncNotifier)
+      final notifierState = await ref.watch(transaksiOpProvider.future);
 
-  Future<void> perbarui(TransaksiModel transaksi) async {
-    try {
-      if (!state.hasValue) return;
-      await _transaksiOp.perbaruiTransaksi(transaksi);
-      final currentData = state.requireValue;
-      final updatedList = currentData.transaksi.map((t) {
-        return t.id == transaksi.id ? transaksi : t;
-      }).toList();
-      state = AsyncData(currentData.copyWith(transaksi: updatedList));
-    } on Exception catch (e, s) {
-      Log.error('Error perbarui: $e', e: e, s: s);
-      rethrow;
-    }
-  }
-
-  Future<void> hapus(String idTransaksi) async {
-    try {
-      if (!state.hasValue) return;
-      await _transaksiOp.softDelete(idTransaksi);
-      final currentData = state.requireValue;
-      final updatedList = currentData.transaksi
-          .where((t) => t.id != idTransaksi)
+      // Filter transaksi yang dimiliki pelanggan ini
+      final semuaTransaksi = notifierState.transaksi
+          .where((t) => t.idPelanggan == idPelanggan)
           .toList();
-      state = AsyncData(currentData.copyWith(transaksi: updatedList));
-    } on Exception catch (e, s) {
-      Log.error('Error hapus: $e', e: e, s: s);
+      final totalPoinUser = semuaTransaksi
+          .where((t) => t.statusPembayaran == StatusPembayaran.paid)
+          .fold<int>(0, (sum, t) => sum + (t.poinDidapat - t.poinDigunakan));
+      return (transaksi: semuaTransaksi, totalPoin: totalPoinUser);
+    } catch (e, s) {
+      Log.error('[RiwayatTransaksi] ❌ ERROR: $e', e: e, s: s);
       rethrow;
     }
-  }
-
-  Future<void> softDeleteAll() async {
-    try {
-      if (!state.hasValue) return;
-      await _transaksiOp.softDeleteAll();
-      final currentData = state.requireValue;
-      state = AsyncData(currentData.copyWith(transaksi: []));
-    } on Exception catch (e, s) {
-      Log.error('Error hapus semua: $e', e: e, s: s);
-      rethrow;
-    }
-  }
-
-  void invalidate() {
-    ref.invalidateSelf();
   }
 }
 ```
@@ -1004,7 +1042,6 @@ import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/user/providers/user_provider.dart';
@@ -1019,7 +1056,6 @@ class TransaksiOpGlobal {
       ref.read(transaksiOpFirebaseProvider);
 
   void invalidate(String? idDompet) {
-    ref.read(transaksiProvider.notifier).invalidateProviderTransaksi();
     ref.read(dompetProvider.notifier).invalidateDompetProvider(idDompet);
   }
 
@@ -2533,7 +2569,7 @@ import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi_provider.dart/operasi_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -2774,7 +2810,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
       );
 
       Log.info('Model Transaksi yang akan disimpan: ${transaksi.toSqlite()}');
-      final transaksiOp = ref.read(operasiProviderProvider.notifier);
+      final transaksiOp = ref.read(transaksiOpProvider.notifier);
       try {
         if (_modeEdit) {
           Log.info(
@@ -3032,10 +3068,10 @@ import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/helper/pengurut_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
-import 'package:wifi/fitur/transaksi/operasi_provider.dart/operasi_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/fitur/transaksi/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -3050,14 +3086,19 @@ class TransaksiA extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncState = ref.watch(transaksiProvider);
+    final transaksiListAsync = ref.watch(transaksiOpProvider);
 
     return Scaffold(
       appBar: const _TransactionAppBar(),
-      body: asyncState.when(
+      body: transaksiListAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
-        data: (state) => _TransactionBody(state: state),
+        data: (state) {
+          if (!transaksiListAsync.hasValue) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return _TransactionBody(transaksiState: state);
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -3178,7 +3219,7 @@ Future<void> _softDeleteAllTransaksi(
 
   if ((konfirmasi == true) && context.mounted) {
     try {
-      await ref.read(operasiProviderProvider.notifier).softDeleteAll();
+      await ref.read(transaksiOpProvider.notifier).softDeleteAll();
       if (context.mounted) {
         ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
       }
@@ -3195,34 +3236,41 @@ Future<void> _softDeleteAllTransaksi(
 // Body (dengan sorting)
 // ============================================================
 class _TransactionBody extends ConsumerWidget {
-  final TransaksiState state;
-  const _TransactionBody({required this.state});
+  final TransaksiNotifierState transaksiState;
+  const _TransactionBody({required this.transaksiState});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sortBy = ref.watch(urutanTransaksiStateProvider);
-    final sortedTransactions = state.transaksi.urutkan(sortBy);
-    return RefreshIndicator(
-      onRefresh: () => ref.read(transaksiProvider.notifier).refresh(),
-      child: Column(
-        children: [
-          RingkasanKeuanganWidget(
-            pemasukan: state.totalPemasukan,
-            pengeluaran: state.totalPengeluaran,
-            total: state.total,
-          ),
-          Expanded(
-            // ✅ Perbaikan 5: Gunakan sortedTransactions
-            child: sortedTransactions.isEmpty
-                ? const Center(child: Text('Tidak ada transaksi'))
-                : _TransactionListView(transaksi: sortedTransactions),
-          ),
-        ],
+    final sortedTransactions = transaksiState.transaksi.urutkan(sortBy);
+    
+    // Ambil statistik dari transaksiProvider
+    final statAsync = ref.watch(transaksiProvider);
+    
+    return statAsync.when(
+      data: (stat) => RefreshIndicator(
+        onRefresh: () async =>
+            ref.read(transaksiOpProvider.notifier).invalidate(),
+        child: Column(
+          children: [
+            RingkasanKeuanganWidget(
+              pemasukan: stat.totalPemasukan,
+              pengeluaran: stat.totalPengeluaran,
+              total: stat.total,
+            ),
+            Expanded(
+              child: sortedTransactions.isEmpty
+                  ? const Center(child: Text('Tidak ada transaksi'))
+                  : _TransactionListView(transaksi: sortedTransactions),
+            ),
+          ],
+        ),
       ),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, s) => Center(child: Text('Error: $e')),
     );
   }
 }
-
 // ============================================================
 // ListView (tidak berubah)
 // ============================================================
@@ -3346,16 +3394,16 @@ class _TransactionListViewState extends ConsumerState<_TransactionListView> {
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
-import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
-import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
@@ -3438,7 +3486,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
   }
 
   void _deteksiScroll() {
-    final state = ref.read(transaksiProvider).value;
+    final state = ref.read(transaksiOpProvider).value;
     if (state == null) return;
 
     final userId = ref.read(userIdProvider).value;
@@ -3469,7 +3517,6 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
     setState(() {
       _jumlahTampil = 20; // Reset pagination
     });
-    final _ = ref.refresh(transaksiProvider); // Paksa muat ulang data
   }
 
   Future<void> _navigasiKeDetailTransaksi(
@@ -3490,7 +3537,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
 
   @override
   Widget build(BuildContext context) {
-    final transaksi = ref.watch(transaksiProvider);
+    final transaksi = ref.watch(transaksiOpProvider);
     final paketOpFirebase = ref.read(paketOpFirebaseProvider);
     final userId = ref.watch(userIdProvider).value;
 
@@ -3640,150 +3687,150 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
 }
 ```
 
-### File: `lib/fitur/transaksi/provider/transaksi_provider.dart`
+### File: `lib/fitur/transaksi/provider/transaksi_provider_usang.dart`
 ```dart
-// path: lib/fitur/transaksi/provider/transaksi_provider.dart
+// // path: lib/fitur/transaksi/provider/transaksi_provider.dart
 
-import 'dart:async';
+// import 'dart:async';
 
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
-import 'package:wifi/shared/debug/log.dart';
+// import 'package:freezed_annotation/freezed_annotation.dart';
+// import 'package:riverpod_annotation/riverpod_annotation.dart';
+// import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+// import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+// import 'package:wifi/shared/debug/log.dart';
 
-part 'transaksi_provider.freezed.dart';
-part 'transaksi_provider.g.dart';
+// part 'transaksi_provider.freezed.dart';
+// part 'transaksi_provider.g.dart';
 
-@freezed
-abstract class TransaksiState with _$TransaksiState {
-  const factory TransaksiState({
-    @Default([]) List<TransaksiModel> transaksi,
-    @Default(0.0) double totalPemasukan,
-    @Default(0.0) double totalPengeluaran,
-    @Default(0.0) double total,
-    @Default(0) int totalPoinSemuaPelanggan,
-    // required List<PaketTerlarisModel> paketTerlaris,
-    required List<double> pendapatanHarian,
-    required List<double> pendapatanMingguan,
-    required List<double> pendapatanBulanan,
-    required double totalPendapatanPerbulan,
-  }) = _TransaksiState;
-}
+// @freezed
+// abstract class TransaksiState with _$TransaksiState {
+//   const factory TransaksiState({
+//     @Default([]) List<TransaksiModel> transaksi,
+//     @Default(0.0) double totalPemasukan,
+//     @Default(0.0) double totalPengeluaran,
+//     @Default(0.0) double total,
+//     @Default(0) int totalPoinSemuaPelanggan,
+//     // required List<PaketTerlarisModel> paketTerlaris,
+//     required List<double> pendapatanHarian,
+//     required List<double> pendapatanMingguan,
+//     required List<double> pendapatanBulanan,
+//     required double totalPendapatanPerbulan,
+//   }) = _TransaksiState;
+// }
 
-@riverpod
-class Transaksi extends _$Transaksi {
-  TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
-  @override
-  FutureOr<TransaksiState> build() {
-    return _loadData();
-  }
+// @riverpod
+// class Transaksi extends _$Transaksi {
+//   TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
+//   @override
+//   FutureOr<TransaksiState> build() {
+//     return _loadData();
+//   }
 
-  Future<TransaksiState> _loadData() async {
-    final hasil = await Future.wait([
-      _transaksiOp.ambilSemua(), // [0]
-      _transaksiOp.ambilTotalPemasukan(), // [1]
-      _transaksiOp.ambilTotalPengeluaran(), // [2]
-      _transaksiOp.getNetTotal(), // [3]
-      _transaksiOp.ambilTotalPoinSemuaPelanggan(), // [4]
-      // _transaksiOp.ambilPaketTerlaris(), // [5] ✅ TAMBAHKAN
-      _transaksiOp.ambilPendapatanHarian(), // [6]
-      _transaksiOp.ambilPendapatanMingguan(), // [7]
-      _transaksiOp.ambilPendapatanBulanan(), // [8]
-      _transaksiOp.ambilTotalPendapatanPerbulan(), //[9]
-    ]);
+//   Future<TransaksiState> _loadData() async {
+//     final hasil = await Future.wait([
+//       _transaksiOp.ambilSemua(), // [0]
+//       _transaksiOp.ambilTotalPemasukan(), // [1]
+//       _transaksiOp.ambilTotalPengeluaran(), // [2]
+//       _transaksiOp.getNetTotal(), // [3]
+//       _transaksiOp.ambilTotalPoinSemuaPelanggan(), // [4]
+//       // _transaksiOp.ambilPaketTerlaris(), // [5] ✅ TAMBAHKAN
+//       _transaksiOp.ambilPendapatanHarian(), // [6]
+//       _transaksiOp.ambilPendapatanMingguan(), // [7]
+//       _transaksiOp.ambilPendapatanBulanan(), // [8]
+//       _transaksiOp.ambilTotalPendapatanPerbulan(), //[9]
+//     ]);
 
-    return TransaksiState(
-      transaksi: hasil[0] as List<TransaksiModel>,
-      totalPemasukan: hasil[1] as double,
-      totalPengeluaran: hasil[2] as double,
-      total: hasil[3] as double,
-      totalPoinSemuaPelanggan: hasil[4] as int,
-      // paketTerlaris: hasil[5] as List<PaketTerlarisModel>,
-      pendapatanHarian: hasil[5] as List<double>,
-      pendapatanMingguan: hasil[6] as List<double>,
-      pendapatanBulanan: hasil[7] as List<double>,
-      totalPendapatanPerbulan: hasil[8] as double,
-    );
-  }
+//     return TransaksiState(
+//       transaksi: hasil[0] as List<TransaksiModel>,
+//       totalPemasukan: hasil[1] as double,
+//       totalPengeluaran: hasil[2] as double,
+//       total: hasil[3] as double,
+//       totalPoinSemuaPelanggan: hasil[4] as int,
+//       // paketTerlaris: hasil[5] as List<PaketTerlarisModel>,
+//       pendapatanHarian: hasil[5] as List<double>,
+//       pendapatanMingguan: hasil[6] as List<double>,
+//       pendapatanBulanan: hasil[7] as List<double>,
+//       totalPendapatanPerbulan: hasil[8] as double,
+//     );
+//   }
 
-  Future<int> getTotalPoinPelanggan(String idPelanggan) async {
-    return await _transaksiOp.ambilTotalPoin(idPelanggan);
-  }
+//   Future<int> getTotalPoinPelanggan(String idPelanggan) async {
+//     return await _transaksiOp.ambilTotalPoin(idPelanggan);
+//   }
 
-  // ✅ Method untuk ambil poin banyak pelanggan (paralel)
-  Future<Map<String, int>> getTotalPoinBanyakPelanggan(List<String> ids) async {
-    final hasil = <String, int>{};
-    for (final id in ids) {
-      hasil[id] = await _transaksiOp.ambilTotalPoin(id);
-    }
-    return hasil;
-  }
+//   // ✅ Method untuk ambil poin banyak pelanggan (paralel)
+//   Future<Map<String, int>> getTotalPoinBanyakPelanggan(List<String> ids) async {
+//     final hasil = <String, int>{};
+//     for (final id in ids) {
+//       hasil[id] = await _transaksiOp.ambilTotalPoin(id);
+//     }
+//     return hasil;
+//   }
 
-  Future<List<int>> getTotalPoinBanyakPelangganParallel(
-    List<String> ids,
-  ) async {
-    final futures = ids.map((id) => _transaksiOp.ambilTotalPoin(id)).toList();
-    return await Future.wait(futures);
-  }
+//   Future<List<int>> getTotalPoinBanyakPelangganParallel(
+//     List<String> ids,
+//   ) async {
+//     final futures = ids.map((id) => _transaksiOp.ambilTotalPoin(id)).toList();
+//     return await Future.wait(futures);
+//   }
 
-  Future<void> refresh() async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(_loadData);
-  }
+//   Future<void> refresh() async {
+//     state = const AsyncLoading();
+//     state = await AsyncValue.guard(_loadData);
+//   }
 
-  void invalidateProviderTransaksi() {
-    ref.invalidateSelf();
-    ref.invalidate(riwayatTransaksiPelangganProvider);
-  }
-}
+//   void invalidateProviderTransaksi() {
+//     ref.invalidateSelf();
+//     ref.invalidate(riwayatTransaksiPelangganProvider);
+//   }
+// }
 
-@Riverpod(keepAlive: true)
-Future<({List<TransaksiModel> transaksi, int totalPoin})>
-riwayatTransaksiPelanggan(Ref ref, String idPelanggan) async {
-  Log.info(
-    '[RiwayatTransaksi] 🔍 Mengambil riwayat transaksi untuk pelanggan: $idPelanggan',
-  );
-  try {
-    final transaksiOp = ref.read(transaksiOpGlobalProvider);
-    final results = await Future.wait([
-      transaksiOp.ambilBerdasarkanIdPelanggan(idPelanggan),
-      transaksiOp.ambilTotalPoin(idPelanggan),
-    ]);
-    final semuaTransaksi = results[0] as List<TransaksiModel>;
-    final totalPoinUser = results[1] as int;
-    Log.info('[RiwayatTransaksi] 📊 Total transaksi: ${semuaTransaksi.length}');
-    Log.info('[RiwayatTransaksi] 🎯 Total poin: $totalPoinUser');
-    return (transaksi: semuaTransaksi, totalPoin: totalPoinUser);
-  } catch (e, s) {
-    Log.error('[RiwayatTransaksi] ❌ ERROR: $e', e: e, s: s);
-    rethrow;
-  }
-}
+// @Riverpod(keepAlive: true)
+// Future<({List<TransaksiModel> transaksi, int totalPoin})>
+// riwayatTransaksiPelanggan(Ref ref, String idPelanggan) async {
+//   Log.info(
+//     '[RiwayatTransaksi] 🔍 Mengambil riwayat transaksi untuk pelanggan: $idPelanggan',
+//   );
+//   try {
+//     final transaksiOp = ref.read(transaksiOpGlobalProvider);
+//     final results = await Future.wait([
+//       transaksiOp.ambilBerdasarkanIdPelanggan(idPelanggan),
+//       transaksiOp.ambilTotalPoin(idPelanggan),
+//     ]);
+//     final semuaTransaksi = results[0] as List<TransaksiModel>;
+//     final totalPoinUser = results[1] as int;
+//     Log.info('[RiwayatTransaksi] 📊 Total transaksi: ${semuaTransaksi.length}');
+//     Log.info('[RiwayatTransaksi] 🎯 Total poin: $totalPoinUser');
+//     return (transaksi: semuaTransaksi, totalPoin: totalPoinUser);
+//   } catch (e, s) {
+//     Log.error('[RiwayatTransaksi] ❌ ERROR: $e', e: e, s: s);
+//     rethrow;
+//   }
+// }
 
-@riverpod
-Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
-  Ref ref,
-  String idPelanggan,
-) async {
-  Log.info(
-    '[RiwayatPoin] 🔍 Mengambil riwayat poin untuk pelanggan: $idPelanggan',
-  );
-  try {
-    final transaksiOp = ref.read(transaksiOpGlobalProvider);
-    final semuaTransaksi = await transaksiOp.ambilBerdasarkanIdPelanggan(
-      idPelanggan,
-    );
-    Log.info('[RiwayatPoin] 📊 Total transaksi: ${semuaTransaksi.length}');
-    return semuaTransaksi;
-  } catch (e, s) {
-    Log.error('[RiwayatPoin] ❌ ERROR: $e', e: e, s: s);
-    rethrow;
-  }
-}
+// @riverpod
+// Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
+//   Ref ref,
+//   String idPelanggan,
+// ) async {
+//   Log.info(
+//     '[RiwayatPoin] 🔍 Mengambil riwayat poin untuk pelanggan: $idPelanggan',
+//   );
+//   try {
+//     final transaksiOp = ref.read(transaksiOpGlobalProvider);
+//     final semuaTransaksi = await transaksiOp.ambilBerdasarkanIdPelanggan(
+//       idPelanggan,
+//     );
+//     Log.info('[RiwayatPoin] 📊 Total transaksi: ${semuaTransaksi.length}');
+//     return semuaTransaksi;
+//   } catch (e, s) {
+//     Log.error('[RiwayatPoin] ❌ ERROR: $e', e: e, s: s);
+//     rethrow;
+//   }
+// }
 ```
 
-### File: `lib/fitur/transaksi/transaksi_provider.dart`
+### File: `lib/fitur/transaksi/transaksi_provider_usang.dart`
 ```dart
 // // path: lib/fitur/transaksi/provider/transaksi_provider.dart
 

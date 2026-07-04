@@ -1,7 +1,7 @@
 // path lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 
 part 'pengurut_pelanggan_aktif.g.dart';
 

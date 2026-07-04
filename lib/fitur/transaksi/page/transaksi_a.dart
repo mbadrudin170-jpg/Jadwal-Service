@@ -7,9 +7,9 @@ import 'package:wifi/fitur/transaksi/helper/pengurut_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider_usang.dart';
 import 'package:wifi/fitur/transaksi/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -24,14 +24,19 @@ class TransaksiA extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncState = ref.watch(transaksiProvider);
+    final transaksiListAsync = ref.watch(transaksiOpProvider);
 
     return Scaffold(
       appBar: const _TransactionAppBar(),
-      body: asyncState.when(
+      body: transaksiListAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
-        data: (state) => _TransactionBody(state: state),
+        data: (state) {
+          if (!transaksiListAsync.hasValue) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return _TransactionBody(transaksiState: state);
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -152,7 +157,7 @@ Future<void> _softDeleteAllTransaksi(
 
   if ((konfirmasi == true) && context.mounted) {
     try {
-      await ref.read(operasiProviderProvider.notifier).softDeleteAll();
+      await ref.read(transaksiOpProvider.notifier).softDeleteAll();
       if (context.mounted) {
         ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
       }
@@ -169,34 +174,41 @@ Future<void> _softDeleteAllTransaksi(
 // Body (dengan sorting)
 // ============================================================
 class _TransactionBody extends ConsumerWidget {
-  final TransaksiState state;
-  const _TransactionBody({required this.state});
+  final TransaksiNotifierState transaksiState;
+  const _TransactionBody({required this.transaksiState});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sortBy = ref.watch(urutanTransaksiStateProvider);
-    final sortedTransactions = state.transaksi.urutkan(sortBy);
-    return RefreshIndicator(
-      onRefresh: () => ref.read(transaksiProvider.notifier).refresh(),
-      child: Column(
-        children: [
-          RingkasanKeuanganWidget(
-            pemasukan: state.totalPemasukan,
-            pengeluaran: state.totalPengeluaran,
-            total: state.total,
-          ),
-          Expanded(
-            // ✅ Perbaikan 5: Gunakan sortedTransactions
-            child: sortedTransactions.isEmpty
-                ? const Center(child: Text('Tidak ada transaksi'))
-                : _TransactionListView(transaksi: sortedTransactions),
-          ),
-        ],
+    final sortedTransactions = transaksiState.transaksi.urutkan(sortBy);
+    
+    // Ambil statistik dari transaksiProvider
+    final statAsync = ref.watch(transaksiProvider);
+    
+    return statAsync.when(
+      data: (stat) => RefreshIndicator(
+        onRefresh: () async =>
+            ref.read(transaksiOpProvider.notifier).invalidate(),
+        child: Column(
+          children: [
+            RingkasanKeuanganWidget(
+              pemasukan: stat.totalPemasukan,
+              pengeluaran: stat.totalPengeluaran,
+              total: stat.total,
+            ),
+            Expanded(
+              child: sortedTransactions.isEmpty
+                  ? const Center(child: Text('Tidak ada transaksi'))
+                  : _TransactionListView(transaksi: sortedTransactions),
+            ),
+          ],
+        ),
       ),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, s) => Center(child: Text('Error: $e')),
     );
   }
 }
-
 // ============================================================
 // ListView (tidak berubah)
 // ============================================================

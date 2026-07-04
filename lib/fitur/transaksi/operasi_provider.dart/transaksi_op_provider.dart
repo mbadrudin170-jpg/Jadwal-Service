@@ -2,6 +2,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -11,9 +12,22 @@ part 'transaksi_op_provider.g.dart';
 
 @freezed
 abstract class TransaksiNotifierState with _$TransaksiNotifierState {
+  const TransaksiNotifierState._();
   const factory TransaksiNotifierState({
     @Default([]) List<TransaksiModel> transaksi,
   }) = _TransaksiNotifierState;
+
+  ({List<TransaksiModel> transaksi, int totalPoin}) riwayatPelanggan(
+    String idPelanggan,
+  ) {
+    final miliknya = transaksi
+        .where((t) => t.idPelanggan == idPelanggan)
+        .toList();
+    final poin = miliknya
+        .where((t) => t.statusPembayaran == StatusPembayaran.paid)
+        .fold<int>(0, (sum, t) => sum + (t.poinDidapat - t.poinDigunakan));
+    return (transaksi: miliknya, totalPoin: poin);
+  }
 }
 
 @riverpod

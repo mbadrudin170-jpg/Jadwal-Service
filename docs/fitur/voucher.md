@@ -187,12 +187,12 @@ final voucherOpFirebaseProvider = Provider<VoucherOpFirebase>((ref) {
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 import 'package:wifi/fitur/voucher/enum/tipe_voucher.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart'; // tambahkan ini
 import 'package:wifi/fitur/voucher/page/form_voucher.dart';
 import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 
 class DetailVoucher extends ConsumerWidget {
   final String idVoucher;
@@ -564,6 +564,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 import 'package:wifi/fitur/voucher/enum/tipe_voucher.dart';
 import 'package:wifi/fitur/voucher/model/voucher_model.dart';
 import 'package:wifi/fitur/voucher/page/detail_voucher.dart';
@@ -571,7 +572,6 @@ import 'package:wifi/fitur/voucher/page/form_voucher.dart';
 import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 
 enum SortVoucherBy { kode, status, paket }
 

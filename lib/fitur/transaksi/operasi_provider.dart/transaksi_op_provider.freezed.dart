@@ -205,8 +205,8 @@ return $default(_that.transaksi);case _:
 /// @nodoc
 
 
-class _TransaksiNotifierState implements TransaksiNotifierState {
-  const _TransaksiNotifierState({final  List<TransaksiModel> transaksi = const []}): _transaksi = transaksi;
+class _TransaksiNotifierState extends TransaksiNotifierState {
+  const _TransaksiNotifierState({final  List<TransaksiModel> transaksi = const []}): _transaksi = transaksi,super._();
   
 
  final  List<TransaksiModel> _transaksi;

@@ -34,7 +34,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     }).toList();
   }
 
-  List<FlSpot> _getCurrentSpots(OperasiBacaState data) {
+  List<FlSpot> _getCurrentSpots(TransaksiState data) {
     switch (_selectedRange) {
       case ChartRange.harian:
         return _buatSpots(data.pendapatanHarian);
@@ -45,7 +45,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     }
   }
 
-  double _getMaxX(OperasiBacaState data) {
+  double _getMaxX(TransaksiState data) {
     switch (_selectedRange) {
       case ChartRange.harian:
         return (data.pendapatanHarian.length - 1).toDouble();
@@ -56,14 +56,14 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     }
   }
 
-  double _getMaxY(OperasiBacaState data) {
+  double _getMaxY(TransaksiState data) {
     final spots = _getCurrentSpots(data);
     if (spots.isEmpty) return 1.0;
     final maxValue = spots.map((s) => s.y).reduce((a, b) => a > b ? a : b);
     return (maxValue * 1.2).clamp(1.0, double.infinity);
   }
 
-  double _getMinY(OperasiBacaState data) {
+  double _getMinY(TransaksiState data) {
     final spots = _getCurrentSpots(data);
     if (spots.isEmpty) return 0.0;
     final minValue = spots.map((s) => s.y).reduce((a, b) => a < b ? a : b);
@@ -82,7 +82,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final feedback = ref.watch(feedbackProvider);
-    final transaksi = ref.watch(operasiBacaProviderProvider);
+    final transaksi = ref.watch(transaksiProvider);
     final pelangganAktif = ref.watch(pelangganAktifProvider);
     final pelanggan = ref.watch(pelangganProvider);
     return Scaffold(
@@ -295,7 +295,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     );
   }
 
-  Widget _buildLineChartCard(OperasiBacaState data) {
+  Widget _buildLineChartCard(TransaksiState data) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -336,7 +336,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     );
   }
 
-  LineChartData _mainLineChartData(OperasiBacaState data) {
+  LineChartData _mainLineChartData(TransaksiState data) {
     final spots = _getCurrentSpots(data);
     final maxX = _getMaxX(data);
     final maxY = _getMaxY(data);
@@ -436,7 +436,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
   Widget _bottomTitleWidgets(
     double value,
     TitleMeta meta,
-    OperasiBacaState data,
+    TransaksiState data,
   ) {
     const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 12);
     final index = value.toInt();

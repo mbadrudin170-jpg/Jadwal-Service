@@ -3,17 +3,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider_usang.dart';
 import 'package:wifi/shared/common/teks.dart';
-import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
-import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
@@ -96,7 +95,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
   }
 
   void _deteksiScroll() {
-    final state = ref.read(transaksiProvider).value;
+    final state = ref.read(transaksiOpProvider).value;
     if (state == null) return;
 
     final userId = ref.read(userIdProvider).value;
@@ -127,7 +126,6 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
     setState(() {
       _jumlahTampil = 20; // Reset pagination
     });
-    final _ = ref.refresh(transaksip); // Paksa muat ulang data
   }
 
   Future<void> _navigasiKeDetailTransaksi(
@@ -148,7 +146,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
 
   @override
   Widget build(BuildContext context) {
-    final transaksi = ref.watch(transaksiProvider);
+    final transaksi = ref.watch(transaksiOpProvider);
     final paketOpFirebase = ref.read(paketOpFirebaseProvider);
     final userId = ref.watch(userIdProvider).value;
 
