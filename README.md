@@ -8,6 +8,7 @@
 - [lib/fitur/transaksi/enum/tipe_transaksi.dart](./lib/fitur/transaksi/enum/tipe_transaksi.dart)
 - [lib/fitur/transaksi/helper/pengurut_transaksi.dart](./lib/fitur/transaksi/helper/pengurut_transaksi.dart)
 - [lib/fitur/transaksi/model/transaksi_model.dart](./lib/fitur/transaksi/model/transaksi_model.dart)
+- [lib/fitur/transaksi/operasi_provider.dart/operasi_provider.dart](./lib/fitur/transaksi/operasi_provider.dart/operasi_provider.dart)
 - [lib/fitur/transaksi/operasi/transaksi_op_firebase.dart](./lib/fitur/transaksi/operasi/transaksi_op_firebase.dart)
 - [lib/fitur/transaksi/operasi/transaksi_op_global.dart](./lib/fitur/transaksi/operasi/transaksi_op_global.dart)
 - [lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart](./lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart)
@@ -340,6 +341,28 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
           : null,
       NamaKolom.statusAktivasi: statusAktivasi,
     };
+  }
+}
+```
+
+#### File: `lib/fitur/transaksi/operasi_provider.dart/operasi_provider.dart`
+```dart
+// path: lib/fitur/transaksi/operasi_provider.dart/operasi_provider.dart
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/transaksi/transaksi_provider.dart';
+import 'package:wifi/shared/debug/log.dart';
+
+class OperasiProvider {
+  late Ref ref;
+  Future<TransaksiState> ambilPaketTerlaris() async {
+    try {
+      final transaksi = ref.watch(transaksiProvider).value?.transaksi ?? [];
+      return TransaksiState(transaksi: transaksi);
+    } on Exception catch (e, s) {
+      Log.error('Error diambilPaketTerlaris(): $e', e: e, s: s);
+      // Error handling opsional
+    }
   }
 }
 ```
@@ -2824,7 +2847,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
           tooltip: 'Urutkan',
         ),
         IconButton(
-          onPressed: () => _deleteAllTransactions(context, ref),
+          onPressed: () => _softDeleteAllTransaksi(context, ref),
           icon: const Icon(TIcons.delete),
           tooltip: 'Hapus Semua Transaksi',
         ),
@@ -2874,7 +2897,10 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
 // ============================================================
 // Dialog Hapus Semua (tidak berubah)
 // ============================================================
-Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
+Future<void> _softDeleteAllTransaksi(
+  BuildContext context,
+  WidgetRef ref,
+) async {
   final konfirmasi = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
@@ -2896,7 +2922,7 @@ Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
     ),
   );
 
-  if ((konfirmasi ?? false) && context.mounted) {
+  if ((konfirmasi == true) && context.mounted) {
     try {
       await ref.read(transaksiOpGlobalProvider).softDeleteAll();
       if (context.mounted) {
@@ -3535,11 +3561,11 @@ abstract class TransaksiState with _$TransaksiState {
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
     @Default(0) int totalPoinSemuaPelanggan,
-    required List<PaketTerlarisMentah> paketTerlaris,
-    required List<double> pendapatanHarian,
-    required List<double> pendapatanMingguan,
-    required List<double> pendapatanBulanan,
-    required double pendapatanBulanIni,
+    @Default([]) List<PaketTerlarisMentah> paketTerlaris,
+    @Default([]) List<double> pendapatanHarian,
+    @Default([]) List<double> pendapatanMingguan,
+    @Default([]) List<double> pendapatanBulanan,
+    @Default([]) double pendapatanBulanIni,
   }) = _TransaksiState;
 }
 
@@ -3548,8 +3574,9 @@ class Transaksi extends _$Transaksi {
   TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
 
   @override
-  FutureOr<TransaksiState> build() {
-    return _loadData();
+  Future<TransaksiState> build() async {
+    final transaksi = await _transaksiOp.ambilSemua();
+    return TransaksiState(transaksi: transaksi);
   }
 
   Future<TransaksiState> _loadData() async {
@@ -3694,23 +3721,13 @@ class Transaksi extends _$Transaksi {
     return hasil;
   }
 
-  Future<int> getTotalPoinPelanggan(String idPelanggan) async {
-    return await _transaksiOp.ambilTotalPoin(idPelanggan);
-  }
-
-  Future<Map<String, int>> getTotalPoinBanyakPelanggan(List<String> ids) async {
-    final hasil = <String, int>{};
-    for (final id in ids) {
-      hasil[id] = await _transaksiOp.ambilTotalPoin(id);
+  Future<void> tambah(TransaksiModel transaksi) async {
+    try {
+      await _transaksiOp.tambahTransaksi(transaksi);
+    } on Exception catch (e, s) {
+      Log.error('Error ditambah: $e', e: e, s: s);
+      rethrow;
     }
-    return hasil;
-  }
-
-  Future<List<int>> getTotalPoinBanyakPelangganParallel(
-    List<String> ids,
-  ) async {
-    final futures = ids.map((id) => _transaksiOp.ambilTotalPoin(id)).toList();
-    return await Future.wait(futures);
   }
 
   Future<void> refresh() async {

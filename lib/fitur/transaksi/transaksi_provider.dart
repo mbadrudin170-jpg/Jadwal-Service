@@ -28,11 +28,11 @@ abstract class TransaksiState with _$TransaksiState {
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
     @Default(0) int totalPoinSemuaPelanggan,
-    required List<PaketTerlarisMentah> paketTerlaris,
-    required List<double> pendapatanHarian,
-    required List<double> pendapatanMingguan,
-    required List<double> pendapatanBulanan,
-    required double pendapatanBulanIni,
+    @Default([]) List<PaketTerlarisMentah> paketTerlaris,
+    @Default([]) List<double> pendapatanHarian,
+    @Default([]) List<double> pendapatanMingguan,
+    @Default([]) List<double> pendapatanBulanan,
+    @Default([]) double pendapatanBulanIni,
   }) = _TransaksiState;
 }
 
@@ -41,8 +41,9 @@ class Transaksi extends _$Transaksi {
   TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
 
   @override
-  FutureOr<TransaksiState> build() {
-    return _loadData();
+  Future<TransaksiState> build() async {
+    final transaksi = await _transaksiOp.ambilSemua();
+    return TransaksiState(transaksi: transaksi);
   }
 
   Future<TransaksiState> _loadData() async {
@@ -187,23 +188,13 @@ class Transaksi extends _$Transaksi {
     return hasil;
   }
 
-  Future<int> getTotalPoinPelanggan(String idPelanggan) async {
-    return await _transaksiOp.ambilTotalPoin(idPelanggan);
-  }
-
-  Future<Map<String, int>> getTotalPoinBanyakPelanggan(List<String> ids) async {
-    final hasil = <String, int>{};
-    for (final id in ids) {
-      hasil[id] = await _transaksiOp.ambilTotalPoin(id);
+  Future<void> tambah(TransaksiModel transaksi) async {
+    try {
+      await _transaksiOp.tambahTransaksi(transaksi);
+    } on Exception catch (e, s) {
+      Log.error('Error ditambah: $e', e: e, s: s);
+      rethrow;
     }
-    return hasil;
-  }
-
-  Future<List<int>> getTotalPoinBanyakPelangganParallel(
-    List<String> ids,
-  ) async {
-    final futures = ids.map((id) => _transaksiOp.ambilTotalPoin(id)).toList();
-    return await Future.wait(futures);
   }
 
   Future<void> refresh() async {

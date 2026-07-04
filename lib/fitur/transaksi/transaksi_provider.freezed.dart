@@ -215,7 +215,7 @@ return $default(_that.transaksi,_that.totalPemasukan,_that.totalPengeluaran,_tha
 
 
 class _TransaksiState implements TransaksiState {
-  const _TransaksiState({final  List<TransaksiModel> transaksi = const [], this.totalPemasukan = 0.0, this.totalPengeluaran = 0.0, this.total = 0.0, this.totalPoinSemuaPelanggan = 0, required final  List<PaketTerlarisMentah> paketTerlaris, required final  List<double> pendapatanHarian, required final  List<double> pendapatanMingguan, required final  List<double> pendapatanBulanan, required this.pendapatanBulanIni}): _transaksi = transaksi,_paketTerlaris = paketTerlaris,_pendapatanHarian = pendapatanHarian,_pendapatanMingguan = pendapatanMingguan,_pendapatanBulanan = pendapatanBulanan;
+  const _TransaksiState({final  List<TransaksiModel> transaksi = const [], this.totalPemasukan = 0.0, this.totalPengeluaran = 0.0, this.total = 0.0, this.totalPoinSemuaPelanggan = 0, final  List<PaketTerlarisMentah> paketTerlaris = const [], final  List<double> pendapatanHarian = const [], final  List<double> pendapatanMingguan = const [], final  List<double> pendapatanBulanan = const [], this.pendapatanBulanIni = const []}): _transaksi = transaksi,_paketTerlaris = paketTerlaris,_pendapatanHarian = pendapatanHarian,_pendapatanMingguan = pendapatanMingguan,_pendapatanBulanan = pendapatanBulanan;
   
 
  final  List<TransaksiModel> _transaksi;
@@ -230,34 +230,34 @@ class _TransaksiState implements TransaksiState {
 @override@JsonKey() final  double total;
 @override@JsonKey() final  int totalPoinSemuaPelanggan;
  final  List<PaketTerlarisMentah> _paketTerlaris;
-@override List<PaketTerlarisMentah> get paketTerlaris {
+@override@JsonKey() List<PaketTerlarisMentah> get paketTerlaris {
   if (_paketTerlaris is EqualUnmodifiableListView) return _paketTerlaris;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_paketTerlaris);
 }
 
  final  List<double> _pendapatanHarian;
-@override List<double> get pendapatanHarian {
+@override@JsonKey() List<double> get pendapatanHarian {
   if (_pendapatanHarian is EqualUnmodifiableListView) return _pendapatanHarian;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_pendapatanHarian);
 }
 
  final  List<double> _pendapatanMingguan;
-@override List<double> get pendapatanMingguan {
+@override@JsonKey() List<double> get pendapatanMingguan {
   if (_pendapatanMingguan is EqualUnmodifiableListView) return _pendapatanMingguan;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_pendapatanMingguan);
 }
 
  final  List<double> _pendapatanBulanan;
-@override List<double> get pendapatanBulanan {
+@override@JsonKey() List<double> get pendapatanBulanan {
   if (_pendapatanBulanan is EqualUnmodifiableListView) return _pendapatanBulanan;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_pendapatanBulanan);
 }
 
-@override final  double pendapatanBulanIni;
+@override@JsonKey() final  double pendapatanBulanIni;
 
 /// Create a copy of TransaksiState
 /// with the given fields replaced by the non-null parameter values.
