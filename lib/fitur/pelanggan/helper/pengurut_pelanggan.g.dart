@@ -62,12 +62,8 @@ abstract class _$UrutanPelangganState extends $Notifier<UrutanPelanggan> {
   }
 }
 
-/// Menghubungkan data pelanggan dengan perolehan total poinnya secara paralel
-
 @ProviderFor(pelangganDenganPoin)
 final pelangganDenganPoinProvider = PelangganDenganPoinProvider._();
-
-/// Menghubungkan data pelanggan dengan perolehan total poinnya secara paralel
 
 final class PelangganDenganPoinProvider
     extends
@@ -79,7 +75,6 @@ final class PelangganDenganPoinProvider
     with
         $FutureModifier<List<(PelangganModel, int)>>,
         $FutureProvider<List<(PelangganModel, int)>> {
-  /// Menghubungkan data pelanggan dengan perolehan total poinnya secara paralel
   PelangganDenganPoinProvider._()
     : super(
         from: null,
@@ -107,7 +102,7 @@ final class PelangganDenganPoinProvider
 }
 
 String _$pelangganDenganPoinHash() =>
-    r'3fdca9f2d12494cb61825a89cee606d4c4935602';
+    r'19d437da6f721525032ece1911741ead2cd63e27';
 
 @ProviderFor(filteredCustomers)
 final filteredCustomersProvider = FilteredCustomersProvider._();

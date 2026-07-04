@@ -212,8 +212,8 @@ return $default(_that.daftarOrder,_that.totalDaftar);case _:
 /// @nodoc
 
 
-class _OrderState with DiagnosticableTreeMixin implements OrderState {
-  const _OrderState({final  List<OrderModel> daftarOrder = const [], this.totalDaftar = 0}): _daftarOrder = daftarOrder;
+class _OrderState extends OrderState with DiagnosticableTreeMixin {
+  const _OrderState({final  List<OrderModel> daftarOrder = const [], this.totalDaftar = 0}): _daftarOrder = daftarOrder,super._();
   
 
  final  List<OrderModel> _daftarOrder;

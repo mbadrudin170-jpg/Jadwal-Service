@@ -101,4 +101,4 @@ final class SortedTransaksiProvider
   }
 }
 
-String _$sortedTransaksiHash() => r'1c5f2074be7f991300c120f4ce89a45d22bca307';
+String _$sortedTransaksiHash() => r'75c773384e589ff0e63d22d9fef0b584b5942c67';
