@@ -34,7 +34,7 @@ final class OperasiBacaProviderProvider
 }
 
 String _$operasiBacaProviderHash() =>
-    r'9af726be7e4045eee2cd3dc6524c86183cffb6ed';
+    r'f3d9dd3a9ca078730a9699a84f8fecbb95482f08';
 
 abstract class _$OperasiBacaProvider extends $AsyncNotifier<OperasiBacaState> {
   FutureOr<OperasiBacaState> build();
