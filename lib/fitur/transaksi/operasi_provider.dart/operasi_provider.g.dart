@@ -33,7 +33,7 @@ final class OperasiProviderProvider
   OperasiProvider create() => OperasiProvider();
 }
 
-String _$operasiProviderHash() => r'42b5a017c693e1c30077baaf9c6aa490bc72a71f';
+String _$operasiProviderHash() => r'5a2a7e12f0ea2e00615622c5eeba26472a5e0024';
 
 abstract class _$OperasiProvider extends $AsyncNotifier<TransaksiTesState> {
   FutureOr<TransaksiTesState> build();

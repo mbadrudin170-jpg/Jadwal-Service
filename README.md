@@ -8,6 +8,7 @@
 - [lib/fitur/transaksi/enum/tipe_transaksi.dart](./lib/fitur/transaksi/enum/tipe_transaksi.dart)
 - [lib/fitur/transaksi/helper/pengurut_transaksi.dart](./lib/fitur/transaksi/helper/pengurut_transaksi.dart)
 - [lib/fitur/transaksi/model/transaksi_model.dart](./lib/fitur/transaksi/model/transaksi_model.dart)
+- [lib/fitur/transaksi/operasi_provider.dart/operasi_baca_provider.dart](./lib/fitur/transaksi/operasi_provider.dart/operasi_baca_provider.dart)
 - [lib/fitur/transaksi/operasi_provider.dart/operasi_provider.dart](./lib/fitur/transaksi/operasi_provider.dart/operasi_provider.dart)
 - [lib/fitur/transaksi/operasi/transaksi_op_firebase.dart](./lib/fitur/transaksi/operasi/transaksi_op_firebase.dart)
 - [lib/fitur/transaksi/operasi/transaksi_op_global.dart](./lib/fitur/transaksi/operasi/transaksi_op_global.dart)
@@ -345,24 +346,76 @@ abstract class TransaksiModel with _$TransaksiModel implements HasId {
 }
 ```
 
+#### File: `lib/fitur/transaksi/operasi_provider.dart/operasi_baca_provider.dart`
+```dart
+// path: lib/fitur/transaksi/operasi_provider.dart/operasi_baca_provider.dart
+
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/shared/debug/log.dart';
+
+part 'operasi_baca_provider.g.dart';
+part 'operasi_baca_provider.freezed.dart';
+
+@freezed
+abstract class OperasiBacaState with _$OperasiBacaState {
+  const factory OperasiBacaState({
+    @Default(0.0) double totalPemasukan,
+    @Default(0.0) double totalPengeluaran,
+    @Default(0.0) double total,
+  }) = _OperasiBacaState;
+}
+
+@riverpod
+class OperasiBacaProvider extends _$OperasiBacaProvider {
+  @override
+  FutureOr<OperasiBacaState> build() {
+    return _loadData();
+  }
+
+  Future<OperasiBacaState> _loadData() async {
+    try {
+      final transaksi = ref.watch(transaksiProvider);
+      final data = transaksi.value;
+      return OperasiBacaState(
+        totalPemasukan: data?.totalPemasukan ?? 0,
+        totalPengeluaran: data?.totalPengeluaran ?? 0,
+        total: data?.total ?? 0,
+      );
+    } on Exception catch (e, s) {
+      Log.error('Error di Load_loadData(: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+}
+```
+
 #### File: `lib/fitur/transaksi/operasi_provider.dart/operasi_provider.dart`
 ```dart
 // path: lib/fitur/transaksi/operasi_provider.dart/operasi_provider.dart
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/transaksi/transaksi_provider.dart';
-import 'package:wifi/shared/debug/log.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 
-class OperasiProvider {
-  late Ref ref;
-  Future<TransaksiState> ambilPaketTerlaris() async {
-    try {
-      final transaksi = ref.watch(transaksiProvider).value?.transaksi ?? [];
-      return TransaksiState(transaksi: transaksi);
-    } on Exception catch (e, s) {
-      Log.error('Error diambilPaketTerlaris(): $e', e: e, s: s);
-      // Error handling opsional
-    }
+part 'operasi_provider.freezed.dart';
+part 'operasi_provider.g.dart';
+
+@freezed
+abstract class TransaksiTesState with _$TransaksiTesState {
+  const factory TransaksiTesState({
+    @Default([]) List<TransaksiModel> transaksi,
+  }) = _TransaksiTesState;
+}
+
+@riverpod
+class OperasiProvider extends _$OperasiProvider {
+  @override
+  FutureOr<TransaksiTesState> build() async {
+    final transaksi = await ref.read(transaksiOpGlobalProvider).ambilSemua();
+    return TransaksiTesState(transaksi: transaksi);
   }
 }
 ```
