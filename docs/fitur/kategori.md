@@ -96,23 +96,6 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
     );
   }
 
-  // Helper untuk parsing enum dengan aman
-  static T? _safeParseEnum<T extends Enum>(
-    final List<T> values,
-    final dynamic name,
-  ) {
-    if (name == null || name is! String) {
-      return null;
-    }
-    for (final value in values) {
-      if (value.name == name) {
-        return value;
-      }
-    }
-    Log.warning('Failed to parse enum for type $T', name);
-    return null;
-  }
-
   // =========================
   // SQLITE
   // =========================
@@ -144,7 +127,7 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
       id: map[NamaKolom.id] as String? ?? const Uuid().v4(),
       nama: map[NamaKolom.nama] as String? ?? '',
       tipe:
-          _safeParseEnum(TipeKategori.values, map[NamaKolom.tipe]) ??
+          ParserUtil.safeParseEnum(TipeKategori.values, map[NamaKolom.tipe]) ??
           TipeKategori.expense,
       idSubKategori: parseSubCategories(map[NamaKolom.idSubKategori]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
@@ -197,7 +180,7 @@ abstract class KategoriModel with _$KategoriModel implements HasId {
       id: id,
       nama: data[NamaKolom.nama] as String? ?? '',
       tipe:
-          _safeParseEnum(TipeKategori.values, data[NamaKolom.tipe]) ??
+          ParserUtil.safeParseEnum(TipeKategori.values, data[NamaKolom.tipe]) ??
           TipeKategori.expense,
       idSubKategori: parseSubCategories(data[NamaKolom.idSubKategori]),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),

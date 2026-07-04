@@ -579,22 +579,6 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
     required AppRole targetRole,
   }) = _NotifikasiModel;
 
-  static T? _safeParseEnum<T extends Enum>(
-    final List<T> values,
-    final dynamic name,
-  ) {
-    if (name == null || name is! String) {
-      return null;
-    }
-    for (final value in values) {
-      if (value.name == name) {
-        return value;
-      }
-    }
-    Log.warning('Failed to parse enum for type $T', name);
-    return null;
-  }
-
   factory NotifikasiModel.fromSqlite(Map<String, dynamic> map) {
     Log.info('Creating NotifikasiModel from SQLite: ${map[NamaKolom.id]}');
     return NotifikasiModel(
@@ -609,14 +593,17 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
       deskripsi: map[NamaKolom.deskripsi] as String? ?? '',
       setatusDibaca: ParserUtil.parseBool(map[NamaKolom.setatusDibaca]),
       tipe:
-          _safeParseEnum(TipeNotifikasiEnum.values, map[NamaKolom.tipe]) ??
+          ParserUtil.safeParseEnum(
+            TipeNotifikasiEnum.values,
+            map[NamaKolom.tipe],
+          ) ??
           TipeNotifikasiEnum.transaksi,
       diperbaruiPada:
           ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]) ??
           DateTime.now(),
       idTujuan: map[NamaKolom.idTujuan] as String? ?? '',
       targetRole:
-          _safeParseEnum(AppRole.values, map[NamaKolom.targetRole]) ??
+          ParserUtil.safeParseEnum(AppRole.values, map[NamaKolom.targetRole]) ??
           AppRole.user,
       userId: map[NamaKolom.userId] as String? ?? '',
       dihapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
@@ -666,14 +653,20 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
       deskripsi: data[NamaKolom.deskripsi] as String? ?? '',
       setatusDibaca: ParserUtil.parseBool(data[NamaKolom.setatusDibaca]),
       tipe:
-          _safeParseEnum(TipeNotifikasiEnum.values, data[NamaKolom.tipe]) ??
+          ParserUtil.safeParseEnum(
+            TipeNotifikasiEnum.values,
+            data[NamaKolom.tipe],
+          ) ??
           TipeNotifikasiEnum.transaksi,
       diperbaruiPada:
           ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]) ??
           DateTime.now(),
       idTujuan: data[NamaKolom.idTujuan] as String? ?? '',
       targetRole:
-          _safeParseEnum(AppRole.values, data[NamaKolom.targetRole]) ??
+          ParserUtil.safeParseEnum(
+            AppRole.values,
+            data[NamaKolom.targetRole],
+          ) ??
           AppRole.user,
       userId: data[NamaKolom.userId] as String? ?? '',
       dihapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
