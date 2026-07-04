@@ -1,15 +1,15 @@
-// path: lib/fitur/transaksi/operasi_provider.dart/operasi_baca_provider.dart
+// path: lib/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi_provider.dart/operasi_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-part 'operasi_baca_provider.g.dart';
-part 'operasi_baca_provider.freezed.dart';
+part 'transaksi_provider.g.dart';
+part 'transaksi_provider.freezed.dart';
 
 class PaketTerlarisMentah {
   final String id;
@@ -18,8 +18,9 @@ class PaketTerlarisMentah {
 }
 
 @freezed
-abstract class OperasiBacaState with _$OperasiBacaState {
-  const factory OperasiBacaState({
+abstract class TransaksiState with _$TransaksiState {
+  const TransaksiState._();
+  const factory TransaksiState({
     @Default(0.0) double totalPemasukan,
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
@@ -29,19 +30,19 @@ abstract class OperasiBacaState with _$OperasiBacaState {
     @Default([]) List<double> pendapatanMingguan,
     @Default([]) List<double> pendapatanBulanan,
     @Default(0.0) double pendapatanBulanIni,
-  }) = _OperasiBacaState;
+  }) = _TransaksiState;
 }
 
 @riverpod
-class OperasiBacaProvider extends _$OperasiBacaProvider {
+class Transaksi extends _$Transaksi {
   @override
-  FutureOr<OperasiBacaState> build() {
+  FutureOr<TransaksiState> build() {
     return _loadData();
   }
 
-  Future<OperasiBacaState> _loadData() async {
+  Future<TransaksiState> _loadData() async {
     try {
-      final state = ref.watch(operasiProviderProvider).value;
+      final state = ref.watch(transaksiOpProvider).value;
       final list = state?.transaksi ?? [];
       final totalPemasukan = list
           .where(
@@ -63,7 +64,7 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
       final pendapatanMingguan = _hitungPendapatanMingguan(list);
       final pendapatanBulanan = _hitungPendapatanBulanan(list);
       final pendapatanBulanIni = _hitungPendapatanBulanIni(list);
-      return OperasiBacaState(
+      return TransaksiState(
         totalPemasukan: totalPemasukan,
         totalPengeluaran: totalPengeluaran,
         total: total,
@@ -177,5 +178,28 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
               t.tanggal.year == sekarang.year,
         )
         .fold(0.0, (sum, t) => sum + t.jumlah);
+  }
+
+  Future<({List<TransaksiModel> transaksi, int totalPoin})>
+  riwayatTransaksiPelanggan(String idPelanggan) async {
+    Log.info(
+      '[RiwayatTransaksi] 🔍 Mengambil riwayat transaksi untuk pelanggan: $idPelanggan',
+    );
+    try {
+      // Dapatkan state terbaru dari TransaksiOp (AsyncNotifier)
+      final notifierState = await ref.watch(transaksiOpProvider.future);
+
+      // Filter transaksi yang dimiliki pelanggan ini
+      final semuaTransaksi = notifierState.transaksi
+          .where((t) => t.idPelanggan == idPelanggan)
+          .toList();
+      final totalPoinUser = semuaTransaksi
+          .where((t) => t.statusPembayaran == StatusPembayaran.paid)
+          .fold<int>(0, (sum, t) => sum + (t.poinDidapat - t.poinDigunakan));
+      return (transaksi: semuaTransaksi, totalPoin: totalPoinUser);
+    } catch (e, s) {
+      Log.error('[RiwayatTransaksi] ❌ ERROR: $e', e: e, s: s);
+      rethrow;
+    }
   }
 }

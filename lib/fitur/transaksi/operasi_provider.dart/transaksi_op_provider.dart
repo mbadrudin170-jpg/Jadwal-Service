@@ -1,4 +1,4 @@
-// path: lib/fitur/transaksi/operasi_provider.dart/operasi_provider.dart
+// path: lib/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -6,23 +6,23 @@ import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-part 'operasi_provider.freezed.dart';
-part 'operasi_provider.g.dart';
+part 'transaksi_op_provider.freezed.dart';
+part 'transaksi_op_provider.g.dart';
 
 @freezed
-abstract class TransaksiTesState with _$TransaksiTesState {
-  const factory TransaksiTesState({
+abstract class TransaksiNotifierState with _$TransaksiNotifierState {
+  const factory TransaksiNotifierState({
     @Default([]) List<TransaksiModel> transaksi,
-  }) = _TransaksiTesState;
+  }) = _TransaksiNotifierState;
 }
 
 @riverpod
-class OperasiProvider extends _$OperasiProvider {
+class TransaksiOp extends _$TransaksiOp {
   TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
   @override
-  FutureOr<TransaksiTesState> build() async {
+  FutureOr<TransaksiNotifierState> build() async {
     final transaksi = await ref.read(transaksiOpGlobalProvider).ambilSemua();
-    return TransaksiTesState(transaksi: transaksi);
+    return TransaksiNotifierState(transaksi: transaksi);
   }
 
   Future<void> tambah(TransaksiModel transaksi) async {

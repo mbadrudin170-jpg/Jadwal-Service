@@ -11,7 +11,7 @@ import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
-import 'package:wifi/fitur/transaksi/operasi_provider.dart/operasi_baca_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_a.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';

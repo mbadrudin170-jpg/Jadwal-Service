@@ -7,7 +7,6 @@ import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/user/providers/user_provider.dart';
@@ -22,7 +21,6 @@ class TransaksiOpGlobal {
       ref.read(transaksiOpFirebaseProvider);
 
   void invalidate(String? idDompet) {
-    ref.read(transaksiProvider.notifier).invalidateProviderTransaksi();
     ref.read(dompetProvider.notifier).invalidateDompetProvider(idDompet);
   }
 

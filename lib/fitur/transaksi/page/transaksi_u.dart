@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider_usang.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
@@ -126,7 +127,7 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
     setState(() {
       _jumlahTampil = 20; // Reset pagination
     });
-    final _ = ref.refresh(transaksiProvider); // Paksa muat ulang data
+    final _ = ref.refresh(transaksip); // Paksa muat ulang data
   }
 
   Future<void> _navigasiKeDetailTransaksi(

@@ -2,7 +2,7 @@
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi_provider.dart/operasi_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 
 part 'pengurut_transaksi.g.dart';
 

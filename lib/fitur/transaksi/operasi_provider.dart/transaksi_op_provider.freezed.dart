@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'operasi_provider.dart';
+part of 'transaksi_op_provider.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -12,20 +12,20 @@ part of 'operasi_provider.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$TransaksiTesState {
+mixin _$TransaksiNotifierState {
 
  List<TransaksiModel> get transaksi;
-/// Create a copy of TransaksiTesState
+/// Create a copy of TransaksiNotifierState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$TransaksiTesStateCopyWith<TransaksiTesState> get copyWith => _$TransaksiTesStateCopyWithImpl<TransaksiTesState>(this as TransaksiTesState, _$identity);
+$TransaksiNotifierStateCopyWith<TransaksiNotifierState> get copyWith => _$TransaksiNotifierStateCopyWithImpl<TransaksiNotifierState>(this as TransaksiNotifierState, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransaksiTesState&&const DeepCollectionEquality().equals(other.transaksi, transaksi));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransaksiNotifierState&&const DeepCollectionEquality().equals(other.transaksi, transaksi));
 }
 
 
@@ -34,15 +34,15 @@ int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(
 
 @override
 String toString() {
-  return 'TransaksiTesState(transaksi: $transaksi)';
+  return 'TransaksiNotifierState(transaksi: $transaksi)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $TransaksiTesStateCopyWith<$Res>  {
-  factory $TransaksiTesStateCopyWith(TransaksiTesState value, $Res Function(TransaksiTesState) _then) = _$TransaksiTesStateCopyWithImpl;
+abstract mixin class $TransaksiNotifierStateCopyWith<$Res>  {
+  factory $TransaksiNotifierStateCopyWith(TransaksiNotifierState value, $Res Function(TransaksiNotifierState) _then) = _$TransaksiNotifierStateCopyWithImpl;
 @useResult
 $Res call({
  List<TransaksiModel> transaksi
@@ -53,14 +53,14 @@ $Res call({
 
 }
 /// @nodoc
-class _$TransaksiTesStateCopyWithImpl<$Res>
-    implements $TransaksiTesStateCopyWith<$Res> {
-  _$TransaksiTesStateCopyWithImpl(this._self, this._then);
+class _$TransaksiNotifierStateCopyWithImpl<$Res>
+    implements $TransaksiNotifierStateCopyWith<$Res> {
+  _$TransaksiNotifierStateCopyWithImpl(this._self, this._then);
 
-  final TransaksiTesState _self;
-  final $Res Function(TransaksiTesState) _then;
+  final TransaksiNotifierState _self;
+  final $Res Function(TransaksiNotifierState) _then;
 
-/// Create a copy of TransaksiTesState
+/// Create a copy of TransaksiNotifierState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? transaksi = null,}) {
   return _then(_self.copyWith(
@@ -72,8 +72,8 @@ as List<TransaksiModel>,
 }
 
 
-/// Adds pattern-matching-related methods to [TransaksiTesState].
-extension TransaksiTesStatePatterns on TransaksiTesState {
+/// Adds pattern-matching-related methods to [TransaksiNotifierState].
+extension TransaksiNotifierStatePatterns on TransaksiNotifierState {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -86,10 +86,10 @@ extension TransaksiTesStatePatterns on TransaksiTesState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _TransaksiTesState value)?  $default,{required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _TransaksiNotifierState value)?  $default,{required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _TransaksiTesState() when $default != null:
+case _TransaksiNotifierState() when $default != null:
 return $default(_that);case _:
   return orElse();
 
@@ -108,10 +108,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _TransaksiTesState value)  $default,){
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _TransaksiNotifierState value)  $default,){
 final _that = this;
 switch (_that) {
-case _TransaksiTesState():
+case _TransaksiNotifierState():
 return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -129,10 +129,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _TransaksiTesState value)?  $default,){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _TransaksiNotifierState value)?  $default,){
 final _that = this;
 switch (_that) {
-case _TransaksiTesState() when $default != null:
+case _TransaksiNotifierState() when $default != null:
 return $default(_that);case _:
   return null;
 
@@ -152,7 +152,7 @@ return $default(_that);case _:
 
 @optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _TransaksiTesState() when $default != null:
+case _TransaksiNotifierState() when $default != null:
 return $default(_that.transaksi);case _:
   return orElse();
 
@@ -173,7 +173,7 @@ return $default(_that.transaksi);case _:
 
 @optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<TransaksiModel> transaksi)  $default,) {final _that = this;
 switch (_that) {
-case _TransaksiTesState():
+case _TransaksiNotifierState():
 return $default(_that.transaksi);case _:
   throw StateError('Unexpected subclass');
 
@@ -193,7 +193,7 @@ return $default(_that.transaksi);case _:
 
 @optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<TransaksiModel> transaksi)?  $default,) {final _that = this;
 switch (_that) {
-case _TransaksiTesState() when $default != null:
+case _TransaksiNotifierState() when $default != null:
 return $default(_that.transaksi);case _:
   return null;
 
@@ -205,8 +205,8 @@ return $default(_that.transaksi);case _:
 /// @nodoc
 
 
-class _TransaksiTesState implements TransaksiTesState {
-  const _TransaksiTesState({final  List<TransaksiModel> transaksi = const []}): _transaksi = transaksi;
+class _TransaksiNotifierState implements TransaksiNotifierState {
+  const _TransaksiNotifierState({final  List<TransaksiModel> transaksi = const []}): _transaksi = transaksi;
   
 
  final  List<TransaksiModel> _transaksi;
@@ -217,17 +217,17 @@ class _TransaksiTesState implements TransaksiTesState {
 }
 
 
-/// Create a copy of TransaksiTesState
+/// Create a copy of TransaksiNotifierState
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$TransaksiTesStateCopyWith<_TransaksiTesState> get copyWith => __$TransaksiTesStateCopyWithImpl<_TransaksiTesState>(this, _$identity);
+_$TransaksiNotifierStateCopyWith<_TransaksiNotifierState> get copyWith => __$TransaksiNotifierStateCopyWithImpl<_TransaksiNotifierState>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransaksiTesState&&const DeepCollectionEquality().equals(other._transaksi, _transaksi));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransaksiNotifierState&&const DeepCollectionEquality().equals(other._transaksi, _transaksi));
 }
 
 
@@ -236,15 +236,15 @@ int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(
 
 @override
 String toString() {
-  return 'TransaksiTesState(transaksi: $transaksi)';
+  return 'TransaksiNotifierState(transaksi: $transaksi)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$TransaksiTesStateCopyWith<$Res> implements $TransaksiTesStateCopyWith<$Res> {
-  factory _$TransaksiTesStateCopyWith(_TransaksiTesState value, $Res Function(_TransaksiTesState) _then) = __$TransaksiTesStateCopyWithImpl;
+abstract mixin class _$TransaksiNotifierStateCopyWith<$Res> implements $TransaksiNotifierStateCopyWith<$Res> {
+  factory _$TransaksiNotifierStateCopyWith(_TransaksiNotifierState value, $Res Function(_TransaksiNotifierState) _then) = __$TransaksiNotifierStateCopyWithImpl;
 @override @useResult
 $Res call({
  List<TransaksiModel> transaksi
@@ -255,17 +255,17 @@ $Res call({
 
 }
 /// @nodoc
-class __$TransaksiTesStateCopyWithImpl<$Res>
-    implements _$TransaksiTesStateCopyWith<$Res> {
-  __$TransaksiTesStateCopyWithImpl(this._self, this._then);
+class __$TransaksiNotifierStateCopyWithImpl<$Res>
+    implements _$TransaksiNotifierStateCopyWith<$Res> {
+  __$TransaksiNotifierStateCopyWithImpl(this._self, this._then);
 
-  final _TransaksiTesState _self;
-  final $Res Function(_TransaksiTesState) _then;
+  final _TransaksiNotifierState _self;
+  final $Res Function(_TransaksiNotifierState) _then;
 
-/// Create a copy of TransaksiTesState
+/// Create a copy of TransaksiNotifierState
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? transaksi = null,}) {
-  return _then(_TransaksiTesState(
+  return _then(_TransaksiNotifierState(
 transaksi: null == transaksi ? _self._transaksi : transaksi // ignore: cast_nullable_to_non_nullable
 as List<TransaksiModel>,
   ));

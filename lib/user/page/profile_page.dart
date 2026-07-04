@@ -8,9 +8,11 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
 import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
+import 'package:wifi/fitur/pelanggan/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/fitur/poin/page/halaman_poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -18,7 +20,6 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/fitur/pelanggan/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
@@ -42,7 +43,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final userId = ref.watch(userIdProvider).value ?? '';
-    final transaksiAsync = ref.watch(transaksiProvider);
+    final transaksiAsync = ref.watch(transaksiOpProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profil Pelanggan')),

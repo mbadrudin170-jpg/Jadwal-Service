@@ -11,20 +11,21 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
+import 'package:wifi/fitur/pelanggan/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/poin/poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/page/detail_transaksi_u.dart';
-import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider_usang.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/fitur/pelanggan/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 import 'package:wifi/user/widget/ads/interstitial/layanan_iklan_interstisial.dart';
@@ -231,9 +232,9 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   @override
   Widget build(BuildContext context) {
     Log.info('Building PointsPage UI, selected menu: $_menuAktif');
-    final dataAsync = ref.watch(
-      riwayatTransaksiPelangganProvider(widget.idPelanggan),
-    );
+    final dataAsync = ref
+        .watch(transaksiProvider.notifier)
+        .riwayatTransaksiPelanggan(widget.idPelanggan);
     final daftarHadiah = ref.watch(paketProvider);
     return dataAsync.when(
       skipLoadingOnReload: true,
@@ -343,23 +344,12 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
 
   Widget _buildRiwayatPoin() {
     Log.info('Building points history.');
-    final riwayatAsync = ref.watch(
-      riwayatTransaksiPelangganProvider(widget.idPelanggan),
-    );
-    return riwayatAsync.when(
-      skipLoadingOnReload: true,
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) => Center(child: Text('Error: $err')),
-      data: (data) {
-        final semuaTransaksi = data.transaksi;
-        final riwayatPoin = semuaTransaksi
-            .where((t) => t.poinDidapat > 0 || t.poinDigunakan > 0)
-            .toList();
-        if (riwayatPoin.isEmpty) {
-          return const Center(child: Text('Belum ada riwayat poin'));
-        }
-        return ListView.builder(
-          itemCount: riwayatPoin.length,
+    final riwayatAsync = ref
+        .watch(transaksiProvider.notifier)
+        .riwayatTransaksiPelanggan(widget.idPelanggan);
+    return 
+         ListView.builder(
+          itemCount: riwayatAsync.,
           itemBuilder: (context, index) {
             final transaksi = riwayatPoin[index];
             final apakahPenambahan = transaksi.poinDidapat > 0;
@@ -403,6 +393,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
           },
         );
       },
-    );
+    
   }
 }

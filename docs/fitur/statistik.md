@@ -34,8 +34,8 @@ import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/operasi_baca_provider.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_a.dart';
-import 'package:wifi/fitur/transaksi/transaksi_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
@@ -57,7 +57,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     }).toList();
   }
 
-  List<FlSpot> _getCurrentSpots(TransaksiState data) {
+  List<FlSpot> _getCurrentSpots(OperasiBacaState data) {
     switch (_selectedRange) {
       case ChartRange.harian:
         return _buatSpots(data.pendapatanHarian);
@@ -68,7 +68,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     }
   }
 
-  double _getMaxX(TransaksiState data) {
+  double _getMaxX(OperasiBacaState data) {
     switch (_selectedRange) {
       case ChartRange.harian:
         return (data.pendapatanHarian.length - 1).toDouble();
@@ -79,14 +79,14 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     }
   }
 
-  double _getMaxY(TransaksiState data) {
+  double _getMaxY(OperasiBacaState data) {
     final spots = _getCurrentSpots(data);
     if (spots.isEmpty) return 1.0;
     final maxValue = spots.map((s) => s.y).reduce((a, b) => a > b ? a : b);
     return (maxValue * 1.2).clamp(1.0, double.infinity);
   }
 
-  double _getMinY(TransaksiState data) {
+  double _getMinY(OperasiBacaState data) {
     final spots = _getCurrentSpots(data);
     if (spots.isEmpty) return 0.0;
     final minValue = spots.map((s) => s.y).reduce((a, b) => a < b ? a : b);
@@ -96,7 +96,6 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
   Future<void> _invalidateProvider() {
     ref
       ..invalidate(pelangganProvider)
-      ..invalidate(transaksiProvider)
       ..invalidate(pelangganAktifProvider)
       ..invalidate(feedbackProvider);
     return Future.value();
@@ -106,7 +105,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final feedback = ref.watch(feedbackProvider);
-    final transaksi = ref.watch(transaksiProvider);
+    final transaksi = ref.watch(operasiBacaProviderProvider);
     final pelangganAktif = ref.watch(pelangganAktifProvider);
     final pelanggan = ref.watch(pelangganProvider);
     return Scaffold(
@@ -139,7 +138,6 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                         children: [
                           _buildStatCardWrapper(
                             width: cardWidth,
-
                             onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute<void>(
@@ -320,7 +318,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     );
   }
 
-  Widget _buildLineChartCard(TransaksiState data) {
+  Widget _buildLineChartCard(OperasiBacaState data) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -361,7 +359,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     );
   }
 
-  LineChartData _mainLineChartData(TransaksiState data) {
+  LineChartData _mainLineChartData(OperasiBacaState data) {
     final spots = _getCurrentSpots(data);
     final maxX = _getMaxX(data);
     final maxY = _getMaxY(data);
@@ -461,7 +459,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
   Widget _bottomTitleWidgets(
     double value,
     TitleMeta meta,
-    TransaksiState data,
+    OperasiBacaState data,
   ) {
     const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 12);
     final index = value.toInt();
