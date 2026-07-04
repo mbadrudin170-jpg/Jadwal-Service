@@ -25,8 +25,7 @@ class Voucher extends ConsumerStatefulWidget {
 class _VoucherState extends ConsumerState<Voucher> {
   SortVoucherBy _sortBy = SortVoucherBy.kode;
   bool _ascending = true;
-  String? _filterPaketId; // null berarti tampilkan semua
-
+  String? _filterPaketId;
   List<VoucherModel> _urutkanVoucher(List<VoucherModel> daftar) {
     var hasil = daftar;
     if (_filterPaketId != null) {

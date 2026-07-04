@@ -8,7 +8,6 @@ import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 class PaketPublik extends ConsumerWidget {
-  
   const PaketPublik({super.key});
 
   @override
