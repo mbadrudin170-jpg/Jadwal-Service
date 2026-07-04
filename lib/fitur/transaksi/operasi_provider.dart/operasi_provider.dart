@@ -27,6 +27,7 @@ class OperasiProvider extends _$OperasiProvider {
 
   Future<void> tambah(TransaksiModel transaksi) async {
     try {
+      if (!state.hasValue) return;
       await _transaksiOp.tambahTransaksi(transaksi);
       final currentData = state.requireValue;
       state = AsyncData(
@@ -36,5 +37,51 @@ class OperasiProvider extends _$OperasiProvider {
       Log.error('Error ditambah: $e', e: e, s: s);
       rethrow;
     }
+  }
+
+  Future<void> perbarui(TransaksiModel transaksi) async {
+    try {
+      if (!state.hasValue) return;
+      await _transaksiOp.perbaruiTransaksi(transaksi);
+      final currentData = state.requireValue;
+      final updatedList = currentData.transaksi.map((t) {
+        return t.id == transaksi.id ? transaksi : t;
+      }).toList();
+      state = AsyncData(currentData.copyWith(transaksi: updatedList));
+    } on Exception catch (e, s) {
+      Log.error('Error perbarui: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> hapus(String idTransaksi) async {
+    try {
+      if (!state.hasValue) return;
+      await _transaksiOp.softDelete(idTransaksi);
+      final currentData = state.requireValue;
+      final updatedList = currentData.transaksi
+          .where((t) => t.id != idTransaksi)
+          .toList();
+      state = AsyncData(currentData.copyWith(transaksi: updatedList));
+    } on Exception catch (e, s) {
+      Log.error('Error hapus: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> hapusSemua() async {
+    try {
+      if (!state.hasValue) return;
+      await _transaksiOp.softDeleteAll();
+      final currentData = state.requireValue;
+      state = AsyncData(currentData.copyWith(transaksi: []));
+    } on Exception catch (e, s) {
+      Log.error('Error hapus semua: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  void invalidate() {
+    ref.invalidateSelf();
   }
 }
