@@ -707,7 +707,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/nama_paket_widget.dart';
+import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 
 class OrderPage extends ConsumerStatefulWidget {
   const OrderPage({super.key});

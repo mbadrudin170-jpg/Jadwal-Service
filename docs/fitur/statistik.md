@@ -33,11 +33,11 @@ import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
-import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_a.dart';
 import 'package:wifi/fitur/transaksi/transaksi_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 
 enum ChartRange { harian, mingguan, bulanan }
 
@@ -348,7 +348,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
           final item = paket[index];
           return ListTile(
             leading: CircleAvatar(child: Text('#${index + 1}')),
-            title: Text(item.paket.nama),
+            title: NamaPaketWidget(idPaket: item.id),
             trailing: Text(
               '${item.totalTerjual} terjual',
               style: theme.textTheme.bodyMedium?.copyWith(

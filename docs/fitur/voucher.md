@@ -192,7 +192,7 @@ import 'package:wifi/fitur/voucher/model/voucher_model.dart'; // tambahkan ini
 import 'package:wifi/fitur/voucher/page/form_voucher.dart';
 import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/widget/nama_paket_widget.dart';
+import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 
 class DetailVoucher extends ConsumerWidget {
   final String idVoucher;
@@ -571,7 +571,7 @@ import 'package:wifi/fitur/voucher/page/form_voucher.dart';
 import 'package:wifi/fitur/voucher/provider/voucher_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/nama_paket_widget.dart';
+import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 
 enum SortVoucherBy { kode, status, paket }
 

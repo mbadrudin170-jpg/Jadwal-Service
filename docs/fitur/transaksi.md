@@ -723,7 +723,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
-import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
@@ -967,14 +966,14 @@ class TransaksiOpGlobal {
     }
   }
 
-  Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
-    Log.info('Mengambil paket terlaris, limit: $limit');
-    if (RoleUtil.isAdmin(ref)) {
-      return await _transaksiOpSqlite.ambilPaketTerlaris(limit: limit);
-    } else {
-      return [];
-    }
-  }
+  // Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
+  //   Log.info('Mengambil paket terlaris, limit: $limit');
+  //   if (RoleUtil.isAdmin(ref)) {
+  //     return await _transaksiOpSqlite.ambilPaketTerlaris(limit: limit);
+  //   } else {
+  //     return [];
+  //   }
+  // }
 
   Future<List<double>> ambilPendapatanHarian() async {
     Log.info('Mengambil pendapatan harian 7 hari terakhir');
@@ -1022,12 +1021,10 @@ final transaksiOpGlobalProvider = Provider<TransaksiOpGlobal>((ref) {
 ```dart
 // path: lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart
 
-import 'package:collection/collection.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_sqlite.dart';
-import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -1455,38 +1452,38 @@ class TransaksiOpSqlite {
     return net;
   }
 
-  Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
-    Log.info('Mulai menghitung paket terlaris.');
-    try {
-      final daftarPaket = await paketOpsqlite.ambilSemua();
-      final daftartransaksi = await ambilSemua();
-      if (daftartransaksi.isEmpty) {
-        Log.warning('Tidak ada transaksi, mengembalikan list paket kosong.');
-        return [];
-      }
-      final jumlahPenjualan = groupBy(
-        daftartransaksi.where((t) => t.idPaket != null).toList(),
-        (t) => t.idPaket!,
-      ).map((key, value) => MapEntry(key, value.length));
-      final paketTerlaris = daftarPaket.map((paket) {
-        return PaketTerlarisModel(
-          paket: paket,
-          totalTerjual: jumlahPenjualan[paket.id] ?? 0,
-        );
-      }).toList();
-      paketTerlaris.sort((a, b) => b.totalTerjual.compareTo(a.totalTerjual));
+  // Future<List<PaketTerlarisModel>> ambilPaketTerlaris({int limit = 5}) async {
+  //   Log.info('Mulai menghitung paket terlaris.');
+  //   try {
+  //     final daftarPaket = await paketOpsqlite.ambilSemua();
+  //     final daftartransaksi = await ambilSemua();
+  //     if (daftartransaksi.isEmpty) {
+  //       Log.warning('Tidak ada transaksi, mengembalikan list paket kosong.');
+  //       return [];
+  //     }
+  //     final jumlahPenjualan = groupBy(
+  //       daftartransaksi.where((t) => t.idPaket != null).toList(),
+  //       (t) => t.idPaket!,
+  //     ).map((key, value) => MapEntry(key, value.length));
+  //     final paketTerlaris = daftarPaket.map((paket) {
+  //       return PaketTerlarisModel(
+  //         paket: paket,
+  //         totalTerjual: jumlahPenjualan[paket.id] ?? 0,
+  //       );
+  //     }).toList();
+  //     paketTerlaris.sort((a, b) => b.totalTerjual.compareTo(a.totalTerjual));
 
-      final hasil = paketTerlaris.take(limit).toList();
-      Log.info(
-        'Berhasil menghitung ${hasil.length} paket terlaris: ${hasil.map((p) => '${p.paket.nama} (${p.totalTerjual})').toList()}',
-      );
+  //     final hasil = paketTerlaris.take(limit).toList();
+  //     Log.info(
+  //       'Berhasil menghitung ${hasil.length} paket terlaris: ${hasil.map((p) => '${p.paket.nama} (${p.totalTerjual})').toList()}',
+  //     );
 
-      return hasil;
-    } catch (e, st) {
-      Log.error('Gagal menghitung paket terlaris.', e: e, s: st);
-      rethrow;
-    }
-  }
+  //     return hasil;
+  //   } catch (e, st) {
+  //     Log.error('Gagal menghitung paket terlaris.', e: e, s: st);
+  //     rethrow;
+  //   }
+  // }
 
   /// Mengambil data pendapatan harian dalam 7 hari terakhir
   Future<List<double>> ambilPendapatanHarian() async {
@@ -3076,7 +3073,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
-import 'package:wifi/shared/widget/nama_paket_widget.dart';
+import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
@@ -3369,7 +3366,6 @@ import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/statistik/model/paket_terlaris_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -3385,7 +3381,7 @@ abstract class TransaksiState with _$TransaksiState {
     @Default(0.0) double totalPengeluaran,
     @Default(0.0) double total,
     @Default(0) int totalPoinSemuaPelanggan,
-    required List<PaketTerlarisModel> paketTerlaris,
+    // required List<PaketTerlarisModel> paketTerlaris,
     required List<double> pendapatanHarian,
     required List<double> pendapatanMingguan,
     required List<double> pendapatanBulanan,
@@ -3408,7 +3404,7 @@ class Transaksi extends _$Transaksi {
       _transaksiOp.ambilTotalPengeluaran(), // [2]
       _transaksiOp.getNetTotal(), // [3]
       _transaksiOp.ambilTotalPoinSemuaPelanggan(), // [4]
-      _transaksiOp.ambilPaketTerlaris(), // [5] ✅ TAMBAHKAN
+      // _transaksiOp.ambilPaketTerlaris(), // [5] ✅ TAMBAHKAN
       _transaksiOp.ambilPendapatanHarian(), // [6]
       _transaksiOp.ambilPendapatanMingguan(), // [7]
       _transaksiOp.ambilPendapatanBulanan(), // [8]
@@ -3421,7 +3417,7 @@ class Transaksi extends _$Transaksi {
       totalPengeluaran: hasil[2] as double,
       total: hasil[3] as double,
       totalPoinSemuaPelanggan: hasil[4] as int,
-      paketTerlaris: hasil[5] as List<PaketTerlarisModel>,
+      // paketTerlaris: hasil[5] as List<PaketTerlarisModel>,
       pendapatanHarian: hasil[6] as List<double>,
       pendapatanMingguan: hasil[7] as List<double>,
       pendapatanBulanan: hasil[8] as List<double>,
