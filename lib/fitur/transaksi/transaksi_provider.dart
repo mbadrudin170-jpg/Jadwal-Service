@@ -178,8 +178,6 @@ class Transaksi extends _$Transaksi {
     return hasil;
   }
 
-  // --- METODE LAINNYA ---
-
   Future<int> getTotalPoinPelanggan(String idPelanggan) async {
     return await _transaksiOp.ambilTotalPoin(idPelanggan);
   }
