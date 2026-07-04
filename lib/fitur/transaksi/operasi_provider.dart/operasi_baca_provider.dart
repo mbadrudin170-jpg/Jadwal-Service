@@ -37,8 +37,6 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
     try {
       final state = ref.watch(transaksiProvider).value;
       final list = state?.transaksi ?? [];
-
-      // Hitung semua statistik secara manual
       final totalPemasukan = list
           .where(
             (t) =>
@@ -46,24 +44,19 @@ class OperasiBacaProvider extends _$OperasiBacaProvider {
                 t.statusPembayaran == StatusPembayaran.paid,
           )
           .fold(0.0, (sum, t) => sum + t.jumlah);
-
       final totalPengeluaran = list
           .where((t) => t.tipe == TipeTransaksi.expense)
           .fold(0.0, (sum, t) => sum + t.jumlah);
-
       final total = totalPemasukan - totalPengeluaran;
-
       final totalPoinSemuaPelanggan = list.fold<int>(
         0,
         (sum, t) => sum + (t.poinDidapat - t.poinDigunakan),
       );
-
       final paketTerlaris = _hitungPaketTerlaris(list);
       final pendapatanHarian = _hitungPendapatanHarian(list);
       final pendapatanMingguan = _hitungPendapatanMingguan(list);
       final pendapatanBulanan = _hitungPendapatanBulanan(list);
       final pendapatanBulanIni = _hitungPendapatanBulanIni(list);
-
       return OperasiBacaState(
         totalPemasukan: totalPemasukan,
         totalPengeluaran: totalPengeluaran,
