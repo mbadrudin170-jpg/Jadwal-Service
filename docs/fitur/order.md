@@ -1301,6 +1301,7 @@ part 'order_provider.freezed.dart';
 
 @freezed
 abstract class OrderState with _$OrderState {
+  const OrderState._();
   const factory OrderState({
     @Default([]) List<OrderModel> daftarOrder,
     @Default(0) int totalDaftar,
@@ -1339,26 +1340,45 @@ class Order extends _$Order {
 
   Future<void> tambah(OrderModel order) async {
     try {
+      if (!state.hasValue) return;
       await _orderOp.tambah(order);
-      await refresh();
+      final currentData = state.requireValue;
+      state = AsyncData(
+        currentData.copyWith(daftarOrder: [...currentData.daftarOrder, order]),
+      );
     } on Exception catch (e, s) {
       Log.error('Error ditambah: $e', e: e, s: s);
-      await refresh();
       rethrow;
     }
   }
 
-  Future<List<OrderModel>> ambilBerdasarkanIdPelanggan(String id) async {
+  Future<void> perbarui(OrderModel order) async {
     try {
-      var daftarBaru = <OrderModel>[];
-      final daftar = state.asData?.value.daftarOrder;
-      if (daftar != null) {
-        daftarBaru = daftar.where((o) => o.idPelanggan == id).toList();
-      }
-      return daftarBaru;
+      if (!state.hasValue) return;
+      await _orderOp.perbarui(order);
+      final currentData = state.requireValue;
+      final updatedList = currentData.daftarOrder.map((t) {
+        return t.id == order.id ? order : t;
+      }).toList();
+      state = AsyncData(currentData.copyWith(daftarOrder: updatedList));
     } on Exception catch (e, s) {
-      Log.error('Error diambilBerdasarkanIdPelanggan: $e', e: e, s: s);
-      return [];
+      Log.error('Error perbarui: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> softDelete(String idOrder) async {
+    try {
+      if (!state.hasValue) return;
+      await _orderOp.softDelete(idOrder);
+      final currentData = state.requireValue;
+      final updatedList = currentData.daftarOrder
+          .where((t) => t.id != idOrder)
+          .toList();
+      state = AsyncData(currentData.copyWith(daftarOrder: updatedList));
+    } on Exception catch (e, s) {
+      Log.error('Error hapus: $e', e: e, s: s);
+      rethrow;
     }
   }
 
