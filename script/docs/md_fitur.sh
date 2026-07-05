@@ -1,8 +1,5 @@
 #!/bin/bash
-
-# Naik ke root project (script/docs/ → myapp)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-cd "$SCRIPT_DIR"
+# // path: script/docs/md_fitur.sh
 
 # Fungsi internal untuk memproses satu fitur
 _proses_fitur() {

@@ -5,7 +5,7 @@ output="README.md"
 # alias => s
 # Daftar file yang ingin ditimpa (definisikan di sini)
 file_list=(
-    'lib/data_dummy/data_dummy.dart'
+    
     # Tambahkan file lain di bawah ini sesuai kebutuhan
 )
 
