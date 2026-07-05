@@ -947,10 +947,19 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                   _menyimpan = false;
                 });
                 if (berhasil) {
-                  ToastUtil.success(context, 'Data berhasil disimpan');
-                  Navigator.pop(context);
+                  // Tunda toast dan pop agar tidak bentrok dengan rebuild provider
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      ToastUtil.success(context, 'Data berhasil disimpan');
+                      Navigator.pop(context);
+                    }
+                  });
                 } else {
-                  ToastUtil.error(context, 'Data tidak terimpan');
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      ToastUtil.error(context, 'Data tidak tersimpan');
+                    }
+                  });
                 }
               },
         style: ElevatedButton.styleFrom(

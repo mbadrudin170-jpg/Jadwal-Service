@@ -1,6 +1,881 @@
 
-// File: lib/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart
+// File: docs/fitur/pelanggan_aktif.md
 
+# Dokumentasi Fitur: pelanggan_aktif
+
+## Daftar file
+
+- [lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart](../../lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart)
+- [lib/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart](../../lib/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart)
+- [lib/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart](../../lib/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart)
+- [lib/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_firebase.dart](../../lib/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_firebase.dart)
+- [lib/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart](../../lib/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart)
+- [lib/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart](../../lib/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart)
+- [lib/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart](../../lib/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart)
+- [lib/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart](../../lib/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart)
+- [lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart](../../lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart)
+
+## Isi file
+
+### File: `lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart`
+```dart
+// path lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart
+
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
+
+part 'pengurut_pelanggan_aktif.g.dart';
+
+enum UrutanPelangganAktifEnum {
+  berakhirHariIni('Berakhir Hari Ini'),
+  terbaru('Terbaru'),
+  terlama('Terlama'),
+  tanggalMulai('Tanggal Mulai'),
+  tanggalBerakhir('Tanggal Berakhir'),
+  lunas('Lunas'),
+  belumLunas('Belum Lunas'),
+  namaAZ('Nama A-Z'),
+  namaZA('Nama Z-A');
+
+  const UrutanPelangganAktifEnum(this.teks);
+  final String teks;
+}
+
+@riverpod
+class UrutanPelangganAktifState extends _$UrutanPelangganAktifState {
+  @override
+  UrutanPelangganAktifEnum build() {
+    return UrutanPelangganAktifEnum.berakhirHariIni;
+  }
+
+  void ubahUrutan(UrutanPelangganAktifEnum urutanBaru) {
+    state = urutanBaru;
+  }
+}
+
+int _compareNullableDates(DateTime? a, DateTime? b, {bool ascending = true}) {
+  if (a == null && b == null) return 0;
+  if (a == null) return 1; // null dianggap paling besar/lama
+  if (b == null) return -1; // non-null dianggap lebih kecil/baru
+  return ascending ? a.compareTo(b) : b.compareTo(a);
+}
+
+List<DetailPelangganAktifModel> urutkanPelangganAktif(
+  List<DetailPelangganAktifModel> data,
+  UrutanPelangganAktifEnum sortBy,
+) {
+  final sorted = List<DetailPelangganAktifModel>.from(data);
+  final sekarang = DateTime.now();
+
+  sorted.sort((a, b) {
+    switch (sortBy) {
+      case UrutanPelangganAktifEnum.berakhirHariIni:
+        final sisaHariA = a.pelangganAktif.tanggalBerakhir
+            .difference(sekarang)
+            .inMilliseconds;
+        final sisaHariB = b.pelangganAktif.tanggalBerakhir
+            .difference(sekarang)
+            .inMilliseconds;
+
+        final lewatA = sisaHariA < 0;
+        final lewatB = sisaHariB < 0;
+
+        if (!lewatA && lewatB) return -1;
+        if (lewatA && !lewatB) return 1;
+        if (!lewatA) {
+          return sisaHariA.compareTo(sisaHariB);
+        }
+        return sisaHariB.compareTo(sisaHariA);
+
+      case UrutanPelangganAktifEnum.terbaru:
+        return _compareNullableDates(
+          a.pelangganAktif.diperbaruiPada,
+          b.pelangganAktif.diperbaruiPada,
+          ascending: false,
+        );
+
+      case UrutanPelangganAktifEnum.terlama:
+        return _compareNullableDates(
+          a.pelangganAktif.diperbaruiPada,
+          b.pelangganAktif.diperbaruiPada,
+        );
+
+      case UrutanPelangganAktifEnum.tanggalMulai:
+        return a.pelangganAktif.tanggalMulai.compareTo(
+          b.pelangganAktif.tanggalMulai,
+        );
+
+      case UrutanPelangganAktifEnum.tanggalBerakhir:
+        return b.pelangganAktif.tanggalBerakhir.compareTo(
+          a.pelangganAktif.tanggalBerakhir,
+        );
+
+      case UrutanPelangganAktifEnum.lunas:
+        return a.pelangganAktif.status.index.compareTo(
+          b.pelangganAktif.status.index,
+        );
+
+      case UrutanPelangganAktifEnum.belumLunas:
+        return b.pelangganAktif.status.index.compareTo(
+          a.pelangganAktif.status.index,
+        );
+
+      case UrutanPelangganAktifEnum.namaAZ:
+        return a.namaPelanggan.toLowerCase().compareTo(
+          b.namaPelanggan.toLowerCase(),
+        );
+
+      case UrutanPelangganAktifEnum.namaZA:
+        return b.namaPelanggan.toLowerCase().compareTo(
+          a.namaPelanggan.toLowerCase(),
+        );
+    }
+  });
+  return sorted;
+}
+
+String ambilTeksUrutanPelangganAktif(UrutanPelangganAktifEnum option) =>
+    option.teks;
+```
+
+### File: `lib/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart`
+```dart
+// path lib/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart
+
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+
+class DetailPelangganAktifModel {
+  final PelangganAktifModel pelangganAktif;
+
+  final String namaPelanggan;
+
+  final String namaPaket;
+
+  DetailPelangganAktifModel({
+    required this.pelangganAktif,
+    required this.namaPelanggan,
+    required this.namaPaket,
+  });
+}
+```
+
+### File: `lib/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart`
+```dart
+// path: lib/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart';
+
+part 'pelanggan_aktif_model.freezed.dart';
+
+@freezed
+abstract class PelangganAktifModel with _$PelangganAktifModel implements HasId {
+  const PelangganAktifModel._();
+  const factory PelangganAktifModel({
+    required String id,
+    required String idPelanggan,
+    required String idPaket,
+    required String idTransaksi,
+    required DateTime tanggalMulai,
+    required DateTime tanggalBerakhir,
+    required StatusPembayaran status,
+    required DateTime? diperbaruiPada,
+    @Default(false) bool diHapus,
+    DateTime? diarsipkanPada,
+  }) = _PelangganAktifModel;
+
+  factory PelangganAktifModel.fromSqlite(Map<String, dynamic> map) {
+    try {
+      final tanggalMulai = ParserUtil.parseDateTime(
+        map[NamaKolom.tanggalMulai],
+      );
+      final tanggalBerakhir = ParserUtil.parseDateTime(
+        map[NamaKolom.tanggalBerakhir],
+      );
+
+      if (tanggalMulai == null) {
+        throw ArgumentError.notNull('startDate from SQLite');
+      }
+      if (tanggalBerakhir == null) {
+        throw ArgumentError.notNull('endDate from SQLite');
+      }
+      final model = PelangganAktifModel(
+        id: map[NamaKolom.id] as String,
+        idPelanggan: map[NamaKolom.idPelanggan] as String? ?? '',
+        idPaket: map[NamaKolom.idPaket] as String? ?? '',
+        idTransaksi: map[NamaKolom.idTransaksi] as String? ?? '',
+        tanggalMulai: tanggalMulai,
+        tanggalBerakhir: tanggalBerakhir,
+        status:
+            ParserUtil.safeParseEnum(
+              StatusPembayaran.values,
+              map[NamaKolom.status],
+            ) ??
+            StatusPembayaran.paid,
+        diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
+        diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
+        diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
+      );
+      Log.info('PelangganAktifModel loaded from SQLite: ${model.id}');
+      return model;
+    } catch (e, s) {
+      Log.error('Failed to parse from SQLite: $map', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Map<String, dynamic> toSqlite() {
+    return {
+      NamaKolom.id: id,
+      NamaKolom.idPelanggan: idPelanggan,
+      NamaKolom.idPaket: idPaket,
+      NamaKolom.idTransaksi: idTransaksi,
+      NamaKolom.tanggalMulai: tanggalMulai.millisecondsSinceEpoch,
+      NamaKolom.tanggalBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
+      NamaKolom.status: status.name,
+      NamaKolom.diperbaruiPada:
+          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.dihapus: diHapus ? 1 : 0,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
+    };
+  }
+
+  factory PelangganAktifModel.fromFirebase(
+    String id,
+    Map<String, dynamic> data,
+  ) {
+    try {
+      final tanggalMulai = ParserUtil.parseDateTime(
+        data[NamaKolom.tanggalMulai],
+      );
+      final tanggalBerakhir = ParserUtil.parseDateTime(
+        data[NamaKolom.tanggalBerakhir],
+      );
+
+      if (tanggalMulai == null) {
+        throw ArgumentError.notNull('startDate from Firebase');
+      }
+      if (tanggalBerakhir == null) {
+        throw ArgumentError.notNull('endDate from Firebase');
+      }
+
+      final model = PelangganAktifModel(
+        id: id,
+        idPelanggan: data[NamaKolom.idPelanggan] as String? ?? '',
+        idPaket: data[NamaKolom.idPaket] as String? ?? '',
+        idTransaksi: data[NamaKolom.idTransaksi] as String? ?? '',
+        tanggalMulai: tanggalMulai,
+        tanggalBerakhir: tanggalBerakhir,
+        status:
+            ParserUtil.safeParseEnum(
+              StatusPembayaran.values,
+              data[NamaKolom.status],
+            ) ??
+            StatusPembayaran.paid,
+        diperbaruiPada: ParserUtil.parseDateTime(
+          data[NamaKolom.diperbaruiPada],
+        ),
+        diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
+        diarsipkanPada: ParserUtil.parseDateTime(
+          data[NamaKolom.diarsipkanPada],
+        ),
+      );
+      Log.info('PelangganAktifModel loaded from Firebase: ${model.id}');
+      return model;
+    } catch (e, stack) {
+      Log.error('Failed to parse from Firebase: $data', e: e, s: stack);
+      rethrow;
+    }
+  }
+
+  Map<String, dynamic> toFirebase() {
+    Log.info('Preparing toFirebase for PelangganAktifModel $id');
+    return {
+      NamaKolom.id: id,
+      NamaKolom.idPelanggan: idPelanggan,
+      NamaKolom.idPaket: idPaket,
+      NamaKolom.idTransaksi: idTransaksi,
+      NamaKolom.tanggalMulai: Timestamp.fromDate(tanggalMulai),
+      NamaKolom.tanggalBerakhir: Timestamp.fromDate(tanggalBerakhir),
+      NamaKolom.status: status.name,
+      NamaKolom.dihapus: diHapus,
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        (diperbaruiPada ?? DateTime.now()),
+      ),
+      NamaKolom.diarsipkanPada: diarsipkanPada != null
+          ? Timestamp.fromDate(diarsipkanPada!)
+          : null,
+    };
+  }
+}
+```
+
+### File: `lib/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_firebase.dart`
+```dart
+// path lib/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_firebase.dart
+
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
+
+class PelangganAktifOpFirebase extends BaseOpFirebase {
+  final BaseOpFirebase _baseOp;
+  final String _namaKoleksi = NamaTabel.pelangganAktif;
+
+  PelangganAktifOpFirebase({required BaseOpFirebase baseOp})
+    : _baseOp = baseOp {
+    Log.info('OrderOpFirebase diinisialisasi.');
+  }
+
+  /// 1. Menambahkan pesanan baru
+  Future<void> tambahPelangganAktif(PelangganAktifModel pelangganAktif) async {
+    Log.info('Menambahkan pesanan baru: ${pelangganAktif.id}');
+    await _baseOp.sisipkan(
+      _namaKoleksi,
+      pelangganAktif.id,
+      pelangganAktif.toFirebase(),
+    );
+  }
+}
+```
+
+### File: `lib/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart`
+```dart
+// path: lib/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart
+
+import 'package:sqflite/sqflite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
+
+class PelangganAktifOpSqlite {
+  final SqliteDatabase sqliteDb;
+  final BaseOpSqlite _baseOpSqlite;
+  final LayananNotifikasi _layananNotifikasi;
+  final PelangganOpSqlite _pelangganOpSqlite;
+  final TransaksiOpSqlite _transaksiOpSqlite;
+  final String _tabelPelangganAktif = NamaTabel.pelangganAktif;
+  final String _tabelPelanggan = NamaTabel.pelanggan;
+  final String _tabelPaket = NamaTabel.paket;
+
+  DateTime get _nowUtc => DateTime.now().toUtc();
+
+  PelangganAktifOpSqlite({
+    required this.sqliteDb,
+    required BaseOpSqlite baseOpSqlite,
+    required PelangganOpSqlite pelangganOpSqlite,
+    required LayananNotifikasi layananNotifikasi,
+    required TransaksiOpSqlite transaksiOpSqlite,
+  }) : _baseOpSqlite = baseOpSqlite,
+       _pelangganOpSqlite = pelangganOpSqlite,
+       _layananNotifikasi = layananNotifikasi,
+       _transaksiOpSqlite = transaksiOpSqlite {
+    Log.info(
+      'PelangganAktifOperation diinisialisasi - Tabel: $_tabelPelangganAktif',
+    );
+  }
+
+  Future<void> jadwalkanUlangSemuaNotifikasi() async {
+    Log.info('MEMULAI PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI...');
+    try {
+      final pelangganAktif = await ambilSemua();
+
+      if (pelangganAktif.isEmpty) {
+        Log.info('Tidak ada pelanggan aktif untuk dijadwalkan ulang.');
+        return;
+      }
+
+      Log.info(
+        'Ditemukan ${pelangganAktif.length} pelanggan aktif. Menjadwalkan ulang satu per satu...',
+      );
+
+      for (final pelangganAktif in pelangganAktif) {
+        await jadwalkanNotifikasi(pelangganAktif);
+      }
+
+      Log.info('PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI SELESAI.');
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal total saat proses penjadwalan ulang semua notifikasi',
+        e: e,
+        s: st,
+      );
+    }
+  }
+
+  Future<List<DetailPelangganAktifModel>>
+  ambilSemuaPelangganAktifDenganDetail() async {
+    final db = await sqliteDb.database;
+    Log.info(
+      'Mengambil semua pelanggan aktif dengan detail yang belum berakhir (JOIN)',
+    );
+
+    final query =
+        '''
+      SELECT
+        ac.*,
+        c.${NamaKolom.nama} as customer_name,
+        p.${NamaKolom.nama} as package_name
+      FROM $_tabelPelangganAktif ac
+      LEFT JOIN $_tabelPelanggan c ON ac.${NamaKolom.idPelanggan} = c.${NamaKolom.id}
+      LEFT JOIN $_tabelPaket p ON ac.${NamaKolom.idPaket} = p.${NamaKolom.id}
+      WHERE ac.${NamaKolom.dihapus} = 0
+        AND ac.${NamaKolom.tanggalBerakhir} >= ?
+    ''';
+
+    try {
+      final List<Map<String, dynamic>> maps = await db.rawQuery(query, [
+        _nowUtc.millisecondsSinceEpoch,
+      ]);
+      Log.info(
+        'Berhasil mengambil ${maps.length} pelanggan aktif yang belum berakhir dengan detail.',
+      );
+
+      return List.generate(maps.length, (final i) {
+        final map = maps[i];
+        return DetailPelangganAktifModel(
+          pelangganAktif: PelangganAktifModel.fromSqlite(map),
+          namaPelanggan: map['customer_name'] as String? ?? 'Tanpa Nama',
+          namaPaket: map['package_name'] as String? ?? 'Tanpa Paket',
+        );
+      });
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal melakukan query JOIN untuk pelanggan aktif yang belum berakhir',
+        e: e,
+        s: st,
+      );
+      rethrow;
+    }
+  }
+
+  Future<PelangganAktifModel> tambahPelangganAktif(
+    final PelangganAktifModel pelangganAktif, {
+    final bool fromServer = false,
+  }) async {
+    try {
+      final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
+
+      await _baseOpSqlite.operasiKompleks<void>((txn) async {
+        final data = customerToSave.toSqlite();
+        await txn.insert(
+          _tabelPelangganAktif,
+          data,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }, dariServer: fromServer);
+
+      await jadwalkanNotifikasi(customerToSave);
+
+      return customerToSave;
+    } on Exception catch (e, st) {
+      Log.error('Gagal membuat active customer', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  Future<List<PelangganAktifModel>> ambilSemua() async {
+    try {
+      final db = await sqliteDb.database;
+      Log.info(
+        'Mengambil semua active customer dari tabel $_tabelPelangganAktif',
+      );
+
+      final List<Map<String, dynamic>> maps = await db.query(
+        _tabelPelangganAktif,
+        where: '${NamaKolom.dihapus} = ?',
+        whereArgs: [0],
+      );
+
+      Log.info('Berhasil mengambil ${maps.length} active customer');
+      return List.generate(
+        maps.length,
+        (i) => PelangganAktifModel.fromSqlite(maps[i]),
+      );
+    } on Exception catch (e, st) {
+      Log.error('Gagal mengambil semua active customer', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  Future<PelangganAktifModel?> ambilBerdasarkanid(final String id) async {
+    try {
+      final db = await sqliteDb.database;
+      Log.info(
+        'Mencari active customer dengan ID: $id di tabel $_tabelPelangganAktif',
+      );
+
+      final List<Map<String, dynamic>> maps = await db.query(
+        _tabelPelangganAktif,
+        where: '${NamaKolom.id} = ?',
+        whereArgs: [id],
+      );
+
+      if (maps.isNotEmpty) {
+        final pelangganAktif = PelangganAktifModel.fromSqlite(maps.first);
+        Log.info('Active customer ID: $id ditemukan');
+        return pelangganAktif;
+      }
+
+      Log.info('Active customer ID: $id tidak ditemukan');
+      return null;
+    } on Exception catch (e, st) {
+      Log.error('Gagal mengambil active customer ID: $id', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  Future<PelangganAktifModel> updatePelangganAktif(
+    final PelangganAktifModel pelangganAktif, {
+    final bool fromServer = false,
+  }) async {
+    try {
+      final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
+      Log.info('Memperbarui active customer ID: ${customerToSave.id}');
+      await _baseOpSqlite.operasiKompleks<void>((txn) async {
+        final data = customerToSave.toSqlite();
+        await txn.update(
+          _tabelPelangganAktif,
+          data,
+          where: '${NamaKolom.id} = ?',
+          whereArgs: [customerToSave.id],
+        );
+      }, dariServer: fromServer);
+      await jadwalkanNotifikasi(customerToSave);
+      Log.info('Active customer ID: ${customerToSave.id} berhasil diperbarui');
+      return customerToSave;
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal memperbarui active customer ID: ${pelangganAktif.id}',
+        e: e,
+        s: st,
+      );
+      rethrow;
+    }
+  }
+
+  Future<void> jadwalkanNotifikasi(PelangganAktifModel pelangganAktif) async {
+    try {
+      Log.info(
+        '(RE)SCHEDULING: Menjadwalkan notifikasi untuk active customer ID: ${pelangganAktif.id}',
+      );
+
+      final pelanggan = await _pelangganOpSqlite.ambilBerdasarkanId(
+        pelangganAktif.idPelanggan,
+      );
+      final customerName = pelanggan?.nama ?? 'Tanpa Nama';
+
+      await _layananNotifikasi.batalkanNotifikasi(pelangganAktif.id.hashCode);
+      await _layananNotifikasi.batalkanNotifikasi(
+        (pelangganAktif.id.hashCode + 1),
+      );
+      await _layananNotifikasi.batalkanNotifikasi(
+        (pelangganAktif.id.hashCode + 2),
+      );
+      Log.info(
+        'Membatalkan notifikasi yang ada sebelum menjadwalkan ulang notifiaksi',
+      );
+
+      final tanggalBerakhir = pelangganAktif.tanggalBerakhir;
+      if (tanggalBerakhir.isAfter(DateTime.now())) {
+        await _layananNotifikasi.jadwalNotifikasi(
+          id: (pelangganAktif.id.hashCode + 2),
+          judul: 'Masa Aktif Habis!',
+          pesan: 'Paket WiFi untuk $customerName telah berakhir sekarang.',
+          jadwal: tanggalBerakhir,
+        );
+      }
+
+      final jadwalH1 = pelangganAktif.tanggalBerakhir.subtract(
+        const Duration(days: 1),
+      );
+      if (jadwalH1.isAfter(DateTime.now())) {
+        await _layananNotifikasi.jadwalNotifikasi(
+          id: pelangganAktif.id.hashCode,
+          judul: 'Paket Akan Segera Berakhir',
+          pesan: 'Paket untuk pelanggan $customerName akan berakhir besok.',
+          jadwal: jadwalH1,
+        );
+      }
+
+      final jadwalH3 = pelangganAktif.tanggalBerakhir.subtract(
+        const Duration(days: 3),
+      );
+      if (jadwalH3.isAfter(DateTime.now())) {
+        await _layananNotifikasi.jadwalNotifikasi(
+          id: (pelangganAktif.id.hashCode + 1),
+          judul: 'Pengingat Paket',
+          pesan:
+              'Paket untuk pelanggan $customerName akan berakhir dalam 3 hari.',
+          jadwal: jadwalH3,
+        );
+      }
+
+      Log.info(
+        'Penjadwalan notifikasi selesai untuk ID: ${pelangganAktif.id}',
+        {'h3': jadwalH3, 'h1': jadwalH1, 'h0': tanggalBerakhir},
+      );
+    } catch (e, st) {
+      Log.error(
+        'Gagal menjadwalkan notifikasi untuk ID: ${pelangganAktif.id}',
+        e: e,
+        s: st,
+      );
+    }
+  }
+
+  Future<void> sisipkanAtauPerbaruiBatch(
+    final List<PelangganAktifModel> daftarPelangganAktif, {
+    final bool dariServer = false,
+  }) async {
+    try {
+      Log.info(
+        'Memproses batch ${daftarPelangganAktif.length} active customer di $_tabelPelangganAktif',
+      );
+
+      final data = daftarPelangganAktif
+          .map((item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite())
+          .toList();
+
+      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
+        _tabelPelangganAktif,
+        data,
+        dariServer: dariServer,
+      );
+
+      Log.info(
+        'Batch ${daftarPelangganAktif.length} active customer berhasil diproses',
+      );
+    } catch (e, st) {
+      Log.error(
+        'Gagal memproses batch ${daftarPelangganAktif.length} active customer',
+        e: e,
+        s: st,
+      );
+      rethrow;
+    }
+  }
+
+  Future<void> softDelete(String id, {bool dariServer = false}) async {
+    try {
+      Log.info('Mengarsipkan active customer ID: $id');
+
+      final pelangganAktif = await ambilBerdasarkanid(id);
+      if (pelangganAktif == null) {
+        Log.info('Active customer ID: $id tidak ditemukan');
+        return;
+      }
+
+      await _baseOpSqlite.operasiKompleks<void>((txn) async {
+        final pelangganAktifArsip = pelangganAktif.copyWith(
+          diperbaruiPada: _nowUtc,
+          diHapus: true,
+          diarsipkanPada: _nowUtc,
+        );
+
+        await txn.update(
+          _tabelPelangganAktif,
+          pelangganAktifArsip.toSqlite(),
+          where: '${NamaKolom.id} = ?',
+          whereArgs: [id],
+        );
+
+        await _layananNotifikasi.batalkanNotifikasi(id.hashCode);
+        await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 1));
+        await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 2));
+
+        Log.info('Notifikasi telah di batalkan pada fungsi softDelete');
+      }, dariServer: dariServer);
+
+      Log.info('Active customer ID: $id berhasil diarsipkan');
+    } catch (e, st) {
+      Log.error('Gagal mengarsipkan active customer ID: $id', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  Future<void> softDeletePelangganAktifDanTransaksi(
+    String idPelangganAKtif,
+    String? idTransaksi, {
+    bool dariServer = false,
+  }) async {
+    final pelangganAktif = await ambilBerdasarkanid(idPelangganAKtif);
+    if (pelangganAktif == null) {
+      Log.info('Pelanggan aktif dengan ID $idPelangganAKtif tidak ditemukan');
+      return;
+    }
+    TransaksiModel? transaksi;
+    if (idTransaksi != null) {
+      transaksi = await _transaksiOpSqlite.ambilBerdasarkanId(idTransaksi);
+      if (transaksi == null) {
+        Log.info('Transaksi dengan ID $idTransaksi tidak ditemukan');
+      }
+    }
+    await _baseOpSqlite.operasiKompleks<void>((txn) async {
+      final pelangganAktifArsip = pelangganAktif.copyWith(
+        diperbaruiPada: _nowUtc,
+        diHapus: true,
+        diarsipkanPada: _nowUtc,
+      );
+
+      await txn.update(
+        _tabelPelangganAktif,
+        pelangganAktifArsip.toSqlite(),
+        where: '${NamaKolom.id} = ?',
+        whereArgs: [idPelangganAKtif],
+      );
+      if (idTransaksi != null && transaksi != null) {
+        final transkasiArsip = transaksi.copyWith(
+          diperbaruiPada: _nowUtc,
+          diHapus: true,
+          diarsipkanPada: _nowUtc,
+        );
+
+        await txn.update(
+          NamaTabel.transaksi,
+          transkasiArsip.toSqlite(),
+          where: '${NamaKolom.id} = ?',
+          whereArgs: [idTransaksi],
+        );
+      }
+    });
+  }
+
+  Future<int> arsipkanLanggananKadaluarsa({bool dariServer = false}) async {
+    try {
+      Log.info('Memeriksa active customer kadaluarsa');
+      final db = await sqliteDb.database;
+
+      final List<Map<String, dynamic>> expiredCustomers = await db.query(
+        _tabelPelangganAktif,
+        where: '${NamaKolom.tanggalBerakhir} < ? AND ${NamaKolom.dihapus} = 0',
+        whereArgs: [_nowUtc.millisecondsSinceEpoch],
+      );
+
+      if (expiredCustomers.isEmpty) {
+        Log.info('Tidak ada active customer kadaluarsa');
+        return 0;
+      }
+
+      final idsToArchive = expiredCustomers
+          .map((final p) => p[NamaKolom.id] as String)
+          .toList();
+
+      await _baseOpSqlite.operasiKompleks<void>((txn) async {
+        await txn.update(
+          _tabelPelangganAktif,
+          {
+            NamaKolom.dihapus: 1,
+            NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
+            NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
+          },
+          where:
+              '${NamaKolom.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
+          whereArgs: idsToArchive,
+        );
+
+        for (final id in idsToArchive) {
+          await _layananNotifikasi.batalkanNotifikasi(id.hashCode);
+          await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 1));
+          await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 2));
+        }
+      }, dariServer: dariServer);
+
+      Log.info(
+        '${idsToArchive.length} active customer kadaluarsa telah diarsipkan',
+      );
+      return idsToArchive.length;
+    } catch (e, st) {
+      Log.error('Gagal mengarsipkan active customer kadaluarsa', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  Future<int> softDeleteAll({bool dariServer = false}) async {
+    try {
+      Log.info('Mengarsipkan SEMUA active customer');
+      final pelangganAktif = await ambilSemua();
+
+      if (pelangganAktif.isEmpty) {
+        Log.info('Tidak ada active customer untuk diarsipkan');
+        return 0;
+      }
+
+      final dataUntukDiarsip = pelangganAktif.map((p) => p.id).toList();
+
+      await _baseOpSqlite.operasiKompleks<void>((final txn) async {
+        await txn.update(
+          _tabelPelangganAktif,
+          {
+            NamaKolom.dihapus: 1,
+            NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
+            NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
+          },
+          where:
+              '${NamaKolom.id} IN (${List.filled(dataUntukDiarsip.length, '?').join(',')})',
+          whereArgs: dataUntukDiarsip,
+        );
+
+        for (final id in dataUntukDiarsip) {
+          await _layananNotifikasi.batalkanNotifikasi(id.hashCode);
+          await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 1));
+          await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 2));
+        }
+      }, dariServer: dariServer);
+
+      Log.info('${dataUntukDiarsip.length} active customer telah diarsipkan');
+      return dataUntukDiarsip.length;
+    } catch (e, st) {
+      Log.error('Gagal mengarsipkan semua active customer', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  Future<List<PelangganAktifModel>> ambilBerdasarkanIds(
+    List<String> ids,
+  ) async {
+    try {
+      if (ids.isEmpty) {
+        Log.info('getPelangganAktifsByIds dipanggil dengan list ID kosong');
+        return [];
+      }
+
+      final db = await sqliteDb.database;
+      final placeholders = List.filled(ids.length, '?').join(',');
+      final List<Map<String, dynamic>> maps = await db.query(
+        _tabelPelangganAktif,
+        where: '${NamaKolom.id} IN ($placeholders)',
+        whereArgs: ids,
+      );
+
+      Log.info('Ditemukan ${maps.length} dari ${ids.length} active customer');
+      return List.generate(maps.length, (i) {
+        return PelangganAktifModel.fromSqlite(maps[i]);
+      });
+    } catch (e, st) {
+      Log.error('Gagal mengambil active customer berdasarkan IDs', e: e, s: st);
+      rethrow;
+    }
+  }
+}
+```
+
+### File: `lib/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart`
+```dart
 // path lib/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart
 
 import 'dart:async';
@@ -409,9 +1284,10 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
     );
   }
 }
+```
 
-// File: lib/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart
-
+### File: `lib/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart`
+```dart
 // path: lib/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart
 
 import 'dart:async';
@@ -1384,62 +2260,556 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     );
   }
 }
+```
 
-// File: lib/shared/widget/pemilih_tanggal_waktu_widget.dart
+### File: `lib/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart`
+```dart
+// path: lib/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart
 
-// path: lib/shared/widget/pemilih_tanggal_waktu_widget.dart
+import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:wifi/shared/export/theme.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart';
+import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
+import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
+import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/operation.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
-class PemilihTanggalWaktuWidget extends StatelessWidget {
-  final DateTime? tanggalTerpilih;
-  final TimeOfDay? waktuTerpilih;
-  final VoidCallback? onPilihTanggal;
-  final VoidCallback? onPilihWaktu;
-  final String teksLabel;
+enum OpsiLanjutan { softDeleteAll, arsipkanKadaluarsa, batal }
 
-  const PemilihTanggalWaktuWidget({
-    super.key,
-    required this.tanggalTerpilih,
-    required this.waktuTerpilih,
-    this.onPilihTanggal,
-    this.onPilihWaktu,
-    this.teksLabel = 'Pilih Tanggal & Waktu',
-  });
+class PelangganAktifPage extends ConsumerStatefulWidget {
+  const PelangganAktifPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(teksLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
-        gapH8,
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  ConsumerState<PelangganAktifPage> createState() => _PelangganAktifPageState();
+}
+
+class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
+  final TextEditingController _searchController = TextEditingController();
+  bool _mencari = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Log.info('ActiveCustomerPage initState');
+    _searchController.addListener(_onSearchChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        unawaited(_inisialisasiAwal());
+      }
+    });
+  }
+
+  Future<void> _inisialisasiAwal() async {
+    try {
+      await _pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
+    } catch (e) {
+      Log.error('Gagal menjalankan arsip otomatis saat aplikasi dibuka', e: e);
+    }
+    if (mounted) {
+      await ref.read(pelangganAktifProvider.notifier).perbaruiData();
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  PelangganAktifOpSqlite get _pelangganAktifOpSqlite =>
+      ref.read(pelangganAktifOpSqliteProvider);
+  TransaksiOpSqlite get _transaksiOpsqlite =>
+      ref.read(transaksiOpSqliteProvider);
+
+  void _onSearchChanged() {
+    setState(() {});
+  }
+
+  Future<void> refreshData() async {
+    try {
+      await _pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
+    } catch (e) {
+      Log.error('Gagal arsip otomatis saat refresh', e: e);
+    }
+    await ref.read(pelangganAktifProvider.notifier).perbaruiData();
+  }
+
+  Future<void> _softDeletePelangganAktif(
+    final DetailPelangganAktifModel pelanggan,
+  ) async {
+    final idPelangganAktif = pelanggan.pelangganAktif.id;
+    final namaPelanggan = pelanggan.namaPelanggan;
+    final idTransaksi = pelanggan.pelangganAktif.idTransaksi;
+    final konfirmasi = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Konfirmasi Arsipkan'),
+        content: Text('Yakin ingin mengarsipkan pelanggan "$namaPelanggan"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('hapus', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (konfirmasi == true) {
+      try {
+        await _pelangganAktifOpSqlite.softDeletePelangganAktifDanTransaksi(
+          idPelangganAktif,
+          idTransaksi,
+        );
+        Log.info('Berhasil soft delete pelanggan ID: $idPelangganAktif');
+        if (mounted) {
+          ToastUtil.success(
+            context,
+            'Pelanggan "$namaPelanggan" berhasil diarsipkan.',
+          );
+        }
+        await ref.read(pelangganAktifProvider.notifier).perbaruiData();
+      } on Exception catch (e, s) {
+        Log.error(
+          'Gagal soft delete pelanggan ID: $idPelangganAktif',
+          e: e,
+          s: s,
+        );
+        if (mounted) {
+          ToastUtil.error(context, 'Gagal mengarsipkan pelanggan: $e');
+        }
+      }
+    } else {
+      Log.info(
+        'Soft delete pelanggan ID: $idPelangganAktif dibatalkan oleh user',
+      );
+    }
+  }
+
+  Future<void> _tampilkanDialogUrutan() async {
+    final currentSort = ref.read(urutanPelangganAktifStateProvider);
+    await showDialog<UrutanPelangganAktifEnum>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Urutkan Berdasarkan'),
+        contentPadding: const EdgeInsets.only(
+          top: TSizes.p12,
+          bottom: TSizes.p12,
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            TextButton.icon(
-              onPressed: onPilihTanggal,
-              icon: const Icon(TIcons.calendar),
-              label: Text(
-                tanggalTerpilih == null
-                    ? 'Pilih Tanggal'
-                    : FormatTanggal.formatDasar(tanggalTerpilih!),
-              ),
-            ),
-            TextButton.icon(
-              onPressed: onPilihWaktu,
-              icon: const Icon(TIcons.clock),
-              label: Text(
-                waktuTerpilih == null
-                    ? 'Pilih Jam'
-                    : '${waktuTerpilih!.hour.toString().padLeft(2, '0')}:'
-                          '${waktuTerpilih!.minute.toString().padLeft(2, '0')}',
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: UrutanPelangganAktifEnum.values.map((o) {
+                    final diPilih = currentSort == o;
+                    return ListTile(
+                      dense: true,
+                      visualDensity: const VisualDensity(vertical: -2),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: TSizes.p24,
+                      ),
+                      title: Text(
+                        ambilTeksUrutanPelangganAktif(o),
+                        style: TextStyle(
+                          fontSize: TSizes.p16,
+                          fontWeight: diPilih
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: diPilih
+                              ? Theme.of(context).primaryColor
+                              : null,
+                        ),
+                      ),
+                      trailing: diPilih
+                          ? Icon(
+                              TIcons.check,
+                              color: Theme.of(context).primaryColor,
+                              size: 18,
+                            )
+                          : null,
+                      onTap: () {
+                        ref
+                            .read(urutanPelangganAktifStateProvider.notifier)
+                            .ubahUrutan(o);
+                        Navigator.pop(ctx);
+                      },
+                    );
+                  }).toList(),
+                ),
               ),
             ),
           ],
         ),
-      ],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Batal'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _opsiLanjutan() async {
+    Log.info('Membuka opsi lanjutan');
+    final selected = await showDialog<OpsiLanjutan>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text('Opsi Lanjutan'),
+        children: [
+          SimpleDialogOption(
+            onPressed: () =>
+                Navigator.pop(ctx, OpsiLanjutan.arsipkanKadaluarsa),
+            child: const Text('Arsipkan pelanggan kadaluarsa'),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, OpsiLanjutan.softDeleteAll),
+            child: const Text(
+              'Hapus Semua',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, OpsiLanjutan.batal),
+            child: const Text('Batal'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return;
+    switch (selected) {
+      case OpsiLanjutan.softDeleteAll:
+        Log.warning('Opsi arsipkan semua dipilih');
+        final konfirmasi = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Konfirmasi Arsipkan Semua'),
+            content: const Text(
+              'Yakin ingin mengarsipkan SEMUA pelanggan aktif?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Batal'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('Arsipkan Semua'),
+              ),
+            ],
+          ),
+        );
+        if (konfirmasi == true) {
+          try {
+            Log.warning('Eksekusi arsipkan semua pelanggan aktif');
+            await _pelangganAktifOpSqlite.softDeleteAll();
+            await _transaksiOpsqlite.softDeleteAll();
+            if (mounted) {
+              ToastUtil.success(context, 'Berhasil mengarsipkan  pelanggan.');
+            }
+            unawaited(
+              ref
+                  .read(layananCekSinkronisasiProvider)
+                  .jalankanCekSinkronisasi(),
+            );
+            await ref.read(pelangganAktifProvider.notifier).perbaruiData();
+          } catch (e, s) {
+            Log.error('Gagal mengarsipkan semua pelanggan aktif', e: e, s: s);
+            if (mounted) {
+              ToastUtil.error(
+                context,
+                'Gagal mengarsipkan semua pelanggan: $e',
+              );
+            }
+          }
+        }
+        break;
+      case OpsiLanjutan.arsipkanKadaluarsa:
+        try {
+          Log.info('Mulai arsipkan pelanggan kadaluarsa');
+          final count = await _pelangganAktifOpSqlite
+              .arsipkanLanggananKadaluarsa();
+          Log.info('Selesai arsipkan kadaluarsa, jumlah=$count');
+          if (mounted) {
+            ToastUtil.success(
+              context,
+              '$count pelanggan kadaluarsa diarsipkan.',
+            );
+          }
+          await ref.read(pelangganAktifProvider.notifier).perbaruiData();
+        } catch (e, s) {
+          Log.error('Gagal mengarsipkan pelanggan kadaluarsa', e: e, s: s);
+          if (mounted) {
+            ToastUtil.error(
+              context,
+              'Gagal mengarsipkan pelanggan kadaluarsa: $e',
+            );
+          }
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pelangganAktifAsync = ref.watch(pelangganAktifProvider);
+    return Scaffold(
+      appBar: AppBar(
+        title: _mencari
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'Cari data...',
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(color: Colors.white70),
+                ),
+                style: const TextStyle(color: Colors.white),
+              )
+            : const Text('Pelanggan Aktif'),
+        actions: _mencari
+            ? [
+                IconButton(
+                  icon: const Icon(TIcons.close),
+                  onPressed: () {
+                    setState(() => _mencari = false);
+                    _searchController.clear();
+                  },
+                ),
+              ]
+            : [
+                IconButton(
+                  icon: const Icon(TIcons.search),
+                  onPressed: () => setState(() => _mencari = true),
+                ),
+                IconButton(
+                  icon: const Icon(TIcons.filter),
+                  onPressed: _tampilkanDialogUrutan,
+                ),
+                IconButton(
+                  icon: const Icon(TIcons.delete),
+                  onPressed: _opsiLanjutan,
+                ),
+              ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: refreshData,
+        child: pelangganAktifAsync.when(
+          skipLoadingOnReload: true,
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) {
+            Log.error('Error UI Pelanggan Aktif', e: error, s: stack);
+            return Center(child: Text('Terjadi kesalahan: $error'));
+          },
+          data: (state) {
+            final sortBy = ref.watch(urutanPelangganAktifStateProvider);
+            final urutkan = urutkanPelangganAktif(
+              state.daftarPelangganAktif,
+              sortBy,
+            );
+            final query = _searchController.text.toLowerCase();
+            final displayedCustomers = urutkan
+                .where((c) => c.namaPelanggan.toLowerCase().contains(query))
+                .toList();
+            if (displayedCustomers.isEmpty) {
+              return Center(
+                child: Text(
+                  query.isNotEmpty
+                      ? 'Pelanggan tidak ditemukan.'
+                      : 'Tidak ada pelanggan aktif.',
+                ),
+              );
+            }
+
+            return ListView.builder(
+              itemCount: displayedCustomers.length,
+              itemBuilder: (_, i) {
+                final detail = displayedCustomers[i];
+                final c = detail.pelangganAktif;
+                return Card(
+                  margin: const EdgeInsets.only(
+                    left: TSizes.p16,
+                    right: TSizes.p16,
+                    bottom: TSizes.p12,
+                  ),
+                  child: InkWell(
+                    onLongPress: () => _softDeletePelangganAktif(detail),
+                    onTap: () async {
+                      await Navigator.push<void>(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (_) =>
+                              DetailPelangganAktif(pelangganAktif: c),
+                        ),
+                      );
+                    },
+                    child: ListTile(
+                      title: Text(
+                        detail.namaPelanggan,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(detail.namaPaket),
+                          Text(
+                            'Pembayaran: ${c.status.displayName}',
+                            style: TextStyle(
+                              color: c.status == StatusPembayaran.paid
+                                  ? Colors.green
+                                  : Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'Status: ${PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(c.tanggalBerakhir)}',
+                            style: TextStyle(
+                              color: PerhitunganUtil.ambilWarnaSisaMasaAktif(
+                                c.tanggalBerakhir,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            'Berakhir: ${FormatTanggal.formatDasar(c.tanggalBerakhir)} ${FormatJam.formatJamMenit(c.tanggalBerakhir)}',
+                          ),
+                        ],
+                      ),
+                      trailing: const Icon(TIcons.chevronRight),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'fab_active_customer',
+        onPressed: () => Navigator.push<void>(
+          context,
+          MaterialPageRoute<void>(builder: (_) => const FormPelangganAktif()),
+        ),
+        child: const Icon(TIcons.add),
+      ),
     );
   }
 }
+```
+
+### File: `lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart`
+```dart
+// path: lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart
+
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart';
+
+part 'pelanggan_aktif_provider.g.dart';
+part 'pelanggan_aktif_provider.freezed.dart';
+
+@freezed
+abstract class PelangganAktifState with _$PelangganAktifState {
+  const factory PelangganAktifState({
+    @Default([]) List<DetailPelangganAktifModel> daftarPelangganAktif,
+    @Default(0) int jumlahPelangganAktif,
+  }) = _PelangganAktifState;
+}
+
+@Riverpod(keepAlive: true)
+class PelangganAktif extends _$PelangganAktif {
+  PelangganAktifOpSqlite get pelangganAktifOpSqlite =>
+      ref.watch(pelangganAktifOpSqliteProvider);
+
+  @override
+  FutureOr<PelangganAktifState> build() {
+    return _ambilData();
+  }
+
+  Future<PelangganAktifState> _ambilData() async {
+    final operasi = ref.read(pelangganAktifOpSqliteProvider);
+    final hasil = await operasi.ambilSemuaPelangganAktifDenganDetail();
+    return PelangganAktifState(
+      daftarPelangganAktif: hasil,
+      jumlahPelangganAktif: hasil.length,
+    );
+  }
+
+  Future<void> tambahPelangganAktif(PelangganAktifModel pelangganAktif) async {
+    await pelangganAktifOpSqlite.tambahPelangganAktif(pelangganAktif);
+    invalidatePelangganAktif();
+  }
+
+  Future<void> updatePelangganAktif(PelangganAktifModel pelangganAktif) async {
+    await pelangganAktifOpSqlite.updatePelangganAktif(pelangganAktif);
+    invalidatePelangganAktif();
+  }
+
+  Future<void> perbaruiData() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final data = await pelangganAktifOpSqlite
+          .ambilSemuaPelangganAktifDenganDetail();
+      return PelangganAktifState(
+        daftarPelangganAktif: data,
+        jumlahPelangganAktif: data.length,
+      );
+    });
+  }
+
+  void invalidatePelangganAktif() {
+    ref.invalidateSelf();
+    ref.invalidate(transaksiProvider);
+  }
+}
+
+@freezed
+abstract class DetailPelangganAktifState with _$DetailPelangganAktifState {
+  const factory DetailPelangganAktifState({
+    required PelangganAktifModel pelangganAktif,
+    required PelangganModel pelanggan,
+    required TransaksiModel transaksi,
+    required PaketModel paket,
+  }) = _DetailPelangganAktifState;
+}
+
+@riverpod
+Future<void> detailPelangganAktif(Ref ref) async {
+  final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
+  await pelangganAktifOpSqlite.ambilSemuaPelangganAktifDenganDetail();
+  return;
+}
+```
+

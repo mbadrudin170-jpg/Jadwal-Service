@@ -181,10 +181,18 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
                             )
                           : null,
                       onTap: () {
-                        ref
-                            .read(urutanPelangganAktifStateProvider.notifier)
-                            .ubahUrutan(o);
-                        Navigator.pop(ctx);
+                        Navigator.pop(ctx); // tutup dialog
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          // tunda perubahan state
+                          if (mounted) {
+                            // pastikan widget masih hidup
+                            ref
+                                .read(
+                                  urutanPelangganAktifStateProvider.notifier,
+                                )
+                                .ubahUrutan(o);
+                          }
+                        });
                       },
                     );
                   }).toList(),
