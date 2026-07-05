@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
@@ -117,6 +118,7 @@ class DaftarAkunPage extends ConsumerWidget {
       final activityService = await ref.read(
         layananAktivitasUserProvider.future,
       );
+       ref.invalidate(transaksiOpProvider);
       Log.info('Mulai memilih akun', {
         'customer_id': pelanggan.id,
         'nama': pelanggan.nama,

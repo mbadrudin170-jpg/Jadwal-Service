@@ -3,10 +3,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/notifikasi/pengingat_paket_belum_lunas.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:workmanager/workmanager.dart';
 
 const String namaTugasSinkronisasi = 'syncDataTask';
@@ -17,11 +19,10 @@ const String namaTugasPengingatTagihan = 'reminder_unpaid_packages';
 void callbackDispatcher() {
   Workmanager().executeTask((tugas, dataMasukan) async {
     Log.info('Background task dimulai: $tugas');
-
     await _inisialisasiIsolatLatarBelakang();
-
-    final container = ProviderContainer();
-
+    final container = ProviderContainer(
+      overrides: [appRoleProvider.overrideWithValue(AppRole.user)],
+    );
     try {
       switch (tugas) {
         case namaTugasSinkronisasi:
@@ -111,7 +112,11 @@ class LayananLatarBelakang {
       'Alarm terpicu: Memulai pemeriksaan dan pengarsipan pelanggan kedaluwarsa.',
     );
     await _inisialisasiIsolatLatarBelakang();
-    final container = ProviderContainer();
+    final container = ProviderContainer(
+      overrides: [
+        appRoleProvider.overrideWithValue(AppRole.user),
+      ], // tambahkan ini
+    );
     try {
       final pelangganAktifOpsqlite = container.read(
         pelangganAktifOpSqliteProvider,
