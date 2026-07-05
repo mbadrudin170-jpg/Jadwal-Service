@@ -7,6 +7,7 @@ output="README.md"
 file_list=(
 'lib/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart'
     'lib/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart'
+    'lib/shared/widget/pemilih_tanggal_waktu_widget.dart'
     # Tambahkan file lain di bawah ini sesuai kebutuhan
 )
 

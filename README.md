@@ -53,7 +53,7 @@ final detailPleangganAktifProvider =
       final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
       final paketOpSqlite = ref.watch(paketOpSqliteProvider);
       final transaksiOpsqlite = ref.watch(transaksiOpGlobalProvider);
-      final hasil = await loadAll([
+      final hasil = await futureWait([
         pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.idPelanggan),
         pelangganAktif.idPaket.isNotEmpty
             ? paketOpSqlite.ambilBerdasarkanId(pelangganAktif.idPaket)
@@ -539,7 +539,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final transaksiTerkaitFuture = pa?.idTransaksi != null
           ? transaksiOperasi.ambilBerdasarkanId(pa!.idTransaksi)
           : Future<TransaksiModel?>.value();
-      final hasil = await loadAll([
+      final hasil = await futureWait([
         pelangganOpSqlite.ambilSemua(),
         paketOpsqlite.ambilSemua(),
         dompetOpSqlite.ambilSemua(),
@@ -825,15 +825,20 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       Log.info(
         'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$idTransaksi',
       );
-      if (_modeEdit) {
-        await loadAll([
+      if (_modePerpanjang) {
+        // Perpanjang: update pelangganAktif yang sudah ada, transaksi BARU
+        await pelangganAktif.updatePelangganAktif(pelangganAktifData);
+        await transaksiOp.tambah(transaksiData);
+        // Hapus notifikasi dari transaksi sebelumnya (ID transaksi lama)
+        await notifikasiOpSqlite.hapusBerdasarkanIdTujuan(
+          widget.pelangganAktif!.idTransaksi,
+        );
+      } else if (_modeEdit) {
+        await futureWait([
           pelangganAktif.updatePelangganAktif(pelangganAktifData),
           transaksiOp.perbarui(transaksiData),
         ]);
         unawaited(notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi));
-        Log.info(
-          'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
-        );
       } else {
         await Future.wait([
           pelangganAktif.tambahPelangganAktif(pelangganAktifData),
@@ -905,7 +910,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           diperbaruiPada: sekarang,
         ),
       ];
-      await loadAll(
+      await futureWait(
         daftarNotifikasi.map(notifikasiOpSqlite.tambahNotifikasi).toList(),
       );
       unawaited(
@@ -959,8 +964,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                       PemilihTanggalWaktuWidget(
                         tanggalTerpilih: _pilihTanggal,
                         waktuTerpilih: _pilihJam,
-                        onPilihTanggal: () => _memilihTanggal(context),
-                        onPilihWaktu: () => _memilihJam(context),
+                        onPilihTanggal: _modePerpanjang
+                            ? null
+                            : () => _memilihTanggal(context),
+                        onPilihWaktu: _modePerpanjang
+                            ? null
+                            : () => _memilihJam(context),
                       ),
                       gapH8,
                       _buildStatusPembayaranButtons(),
@@ -1372,6 +1381,65 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
               )
             : const Text('Simpan'),
       ),
+    );
+  }
+}
+
+// File: lib/shared/widget/pemilih_tanggal_waktu_widget.dart
+
+// path: lib/shared/widget/pemilih_tanggal_waktu_widget.dart
+
+import 'package:flutter/material.dart';
+import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/format_util.dart';
+
+class PemilihTanggalWaktuWidget extends StatelessWidget {
+  final DateTime? tanggalTerpilih;
+  final TimeOfDay? waktuTerpilih;
+  final VoidCallback onPilihTanggal;
+  final VoidCallback onPilihWaktu;
+  final String teksLabel;
+
+  const PemilihTanggalWaktuWidget({
+    super.key,
+    required this.tanggalTerpilih,
+    required this.waktuTerpilih,
+    required this.onPilihTanggal,
+    required this.onPilihWaktu,
+    this.teksLabel = 'Pilih Tanggal & Waktu',
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(teksLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
+        gapH8,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            TextButton.icon(
+              onPressed: onPilihTanggal,
+              icon: const Icon(TIcons.calendar),
+              label: Text(
+                tanggalTerpilih == null
+                    ? 'Pilih Tanggal'
+                    : FormatTanggal.formatDasar(tanggalTerpilih!),
+              ),
+            ),
+            TextButton.icon(
+              onPressed: onPilihWaktu,
+              icon: const Icon(TIcons.clock),
+              label: Text(
+                waktuTerpilih == null
+                    ? 'Pilih Jam'
+                    : '${waktuTerpilih!.hour.toString().padLeft(2, '0')}:'
+                          '${waktuTerpilih!.minute.toString().padLeft(2, '0')}',
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

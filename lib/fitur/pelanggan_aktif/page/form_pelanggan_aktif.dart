@@ -550,8 +550,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                       PemilihTanggalWaktuWidget(
                         tanggalTerpilih: _pilihTanggal,
                         waktuTerpilih: _pilihJam,
-                        onPilihTanggal: () => _memilihTanggal(context),
-                        onPilihWaktu: () => _memilihJam(context),
+                        onPilihTanggal: _modePerpanjang
+                            ? null
+                            : () => _memilihTanggal(context),
+                        onPilihWaktu: _modePerpanjang
+                            ? null
+                            : () => _memilihJam(context),
                       ),
                       gapH8,
                       _buildStatusPembayaranButtons(),
