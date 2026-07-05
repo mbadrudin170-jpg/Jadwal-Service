@@ -5,7 +5,9 @@ output="README.md"
 # alias => s
 # Daftar file yang ingin ditimpa (definisikan di sini)
 file_list=(
-    docs/fitur/pelanggan_aktif.md
+    'lib/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart'
+    'lib/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart'
+   'lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart'
     # Tambahkan file lain di bawah ini sesuai kebutuhan
 )
 

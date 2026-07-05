@@ -78,7 +78,6 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
     } catch (e) {
       Log.error('Gagal arsip otomatis saat refresh', e: e);
     }
-    await ref.read(pelangganAktifProvider.notifier).perbaruiData();
   }
 
   Future<void> _softDeletePelangganAktif(
@@ -118,7 +117,6 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
             'Pelanggan "$namaPelanggan" berhasil diarsipkan.',
           );
         }
-        await ref.read(pelangganAktifProvider.notifier).perbaruiData();
       } on Exception catch (e, s) {
         Log.error(
           'Gagal soft delete pelanggan ID: $idPelangganAktif',

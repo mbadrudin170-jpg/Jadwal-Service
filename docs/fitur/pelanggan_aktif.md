@@ -1700,7 +1700,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       );
       if (_modePerpanjang) {
         // Perpanjang: update pelangganAktif yang sudah ada, transaksi BARU
-        await pelangganAktif.updatePelangganAktif(pelangganAktifData);
+        await pelangganAktif.perbarui(pelangganAktifData);
         await transaksiOp.tambah(transaksiData);
         // Hapus notifikasi dari transaksi sebelumnya (ID transaksi lama)
         await notifikasiOpSqlite.hapusBerdasarkanIdTujuan(
@@ -1708,13 +1708,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         );
       } else if (_modeEdit) {
         await futureWait([
-          pelangganAktif.updatePelangganAktif(pelangganAktifData),
+          pelangganAktif.perbarui(pelangganAktifData),
           transaksiOp.perbarui(transaksiData),
         ]);
         unawaited(notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi));
       } else {
         await Future.wait([
-          pelangganAktif.tambahPelangganAktif(pelangganAktifData),
+          pelangganAktif.tambah(pelangganAktifData),
           transaksiOp.tambah(transaksiData),
         ]);
       }
@@ -2350,7 +2350,6 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
     } catch (e) {
       Log.error('Gagal arsip otomatis saat refresh', e: e);
     }
-    await ref.read(pelangganAktifProvider.notifier).perbaruiData();
   }
 
   Future<void> _softDeletePelangganAktif(
@@ -2390,7 +2389,6 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
             'Pelanggan "$namaPelanggan" berhasil diarsipkan.',
           );
         }
-        await ref.read(pelangganAktifProvider.notifier).perbaruiData();
       } on Exception catch (e, s) {
         Log.error(
           'Gagal soft delete pelanggan ID: $idPelangganAktif',
@@ -2745,11 +2743,10 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 part 'pelanggan_aktif_provider.g.dart';
 part 'pelanggan_aktif_provider.freezed.dart';
@@ -2757,7 +2754,7 @@ part 'pelanggan_aktif_provider.freezed.dart';
 @freezed
 abstract class PelangganAktifState with _$PelangganAktifState {
   const factory PelangganAktifState({
-    @Default([]) List<DetailPelangganAktifModel> daftarPelangganAktif,
+    @Default([]) List<PelangganAktifModel> daftarPelangganAktif,
     @Default(0) int jumlahPelangganAktif,
   }) = _PelangganAktifState;
 }
@@ -2765,7 +2762,7 @@ abstract class PelangganAktifState with _$PelangganAktifState {
 @Riverpod(keepAlive: true)
 class PelangganAktif extends _$PelangganAktif {
   PelangganAktifOpSqlite get pelangganAktifOpSqlite =>
-      ref.watch(pelangganAktifOpSqliteProvider);
+      ref.read(pelangganAktifOpSqliteProvider);
 
   @override
   FutureOr<PelangganAktifState> build() {
@@ -2774,38 +2771,76 @@ class PelangganAktif extends _$PelangganAktif {
 
   Future<PelangganAktifState> _ambilData() async {
     final operasi = ref.read(pelangganAktifOpSqliteProvider);
-    final hasil = await operasi.ambilSemuaPelangganAktifDenganDetail();
+    final hasil = await operasi.ambilSemua();
     return PelangganAktifState(
       daftarPelangganAktif: hasil,
       jumlahPelangganAktif: hasil.length,
     );
   }
 
-  Future<void> tambahPelangganAktif(PelangganAktifModel pelangganAktif) async {
-    await pelangganAktifOpSqlite.tambahPelangganAktif(pelangganAktif);
-    invalidatePelangganAktif();
-  }
-
-  Future<void> updatePelangganAktif(PelangganAktifModel pelangganAktif) async {
-    await pelangganAktifOpSqlite.updatePelangganAktif(pelangganAktif);
-    invalidatePelangganAktif();
-  }
-
-  Future<void> perbaruiData() async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final data = await pelangganAktifOpSqlite
-          .ambilSemuaPelangganAktifDenganDetail();
-      return PelangganAktifState(
-        daftarPelangganAktif: data,
-        jumlahPelangganAktif: data.length,
+  Future<void> tambah(PelangganAktifModel pelangganAktif) async {
+    try {
+      if (!state.hasValue) return;
+      await pelangganAktifOpSqlite.tambahPelangganAktif(pelangganAktif);
+      final currentData = state.requireValue;
+      state = AsyncData(
+        currentData.copyWith(
+          daftarPelangganAktif: [
+            ...currentData.daftarPelangganAktif,
+            pelangganAktif,
+          ],
+        ),
       );
-    });
+    } on Exception catch (e, s) {
+      Log.error('Error ditambah: $e', e: e, s: s);
+      rethrow;
+    }
   }
 
-  void invalidatePelangganAktif() {
-    ref.invalidateSelf();
-    ref.invalidate(transaksiProvider);
+  Future<void> perbarui(PelangganAktifModel pelangganAktif) async {
+    try {
+      if (!state.hasValue) return;
+      await pelangganAktifOpSqlite.updatePelangganAktif(pelangganAktif);
+      final currentData = state.requireValue;
+      final updatedList = currentData.daftarPelangganAktif.map((t) {
+        return t.id == pelangganAktif.id ? pelangganAktif : t;
+      }).toList();
+      state = AsyncData(
+        currentData.copyWith(daftarPelangganAktif: updatedList),
+      );
+    } on Exception catch (e, s) {
+      Log.error('Error perbarui: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> hapus(String idPelangganAktif) async {
+    try {
+      if (!state.hasValue) return;
+      await pelangganAktifOpSqlite.softDelete(idPelangganAktif);
+      final currentData = state.requireValue;
+      final updatedList = currentData.daftarPelangganAktif
+          .where((t) => t.id != idPelangganAktif)
+          .toList();
+      state = AsyncData(
+        currentData.copyWith(daftarPelangganAktif: updatedList),
+      );
+    } on Exception catch (e, s) {
+      Log.error('Error hapus: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> softDeleteAll() async {
+    try {
+      if (!state.hasValue) return;
+      await pelangganAktifOpSqlite.softDeleteAll();
+      final currentData = state.requireValue;
+      state = AsyncData(currentData.copyWith(daftarPelangganAktif: []));
+    } on Exception catch (e, s) {
+      Log.error('Error hapus semua: $e', e: e, s: s);
+      rethrow;
+    }
   }
 }
 
