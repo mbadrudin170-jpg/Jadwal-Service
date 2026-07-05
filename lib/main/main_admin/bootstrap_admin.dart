@@ -5,6 +5,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
@@ -34,6 +35,9 @@ Future<void> bootstrapAdmin({
   final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey] ?? '';
   final supabasePublishableKey =
       dotenv.env[AppConstants.supabasePublishableKey] ?? '';
+
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('app_role', AppRole.admin.name);
 
   await Supabase.initialize(
     url: supabaseUrl,

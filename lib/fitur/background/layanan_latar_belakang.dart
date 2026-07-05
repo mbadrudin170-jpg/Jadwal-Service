@@ -3,6 +3,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/notifikasi/pengingat_paket_belum_lunas.dart';
@@ -20,8 +21,15 @@ void callbackDispatcher() {
   Workmanager().executeTask((tugas, dataMasukan) async {
     Log.info('Background task dimulai: $tugas');
     await _inisialisasiIsolatLatarBelakang();
+    final prefs = await SharedPreferences.getInstance();
+    final roleName = prefs.getString('app_role') ?? AppRole.user.name;
+    final role = AppRole.values.firstWhere(
+      (e) => e.name == roleName,
+      orElse: () => AppRole.user,
+    );
+
     final container = ProviderContainer(
-      overrides: [appRoleProvider.overrideWithValue(AppRole.user)],
+      overrides: [appRoleProvider.overrideWithValue(role)],
     );
     try {
       switch (tugas) {
@@ -112,10 +120,15 @@ class LayananLatarBelakang {
       'Alarm terpicu: Memulai pemeriksaan dan pengarsipan pelanggan kedaluwarsa.',
     );
     await _inisialisasiIsolatLatarBelakang();
+    final prefs = await SharedPreferences.getInstance();
+    final roleName = prefs.getString('app_role') ?? AppRole.user.name;
+    final role = AppRole.values.firstWhere(
+      (e) => e.name == roleName,
+      orElse: () => AppRole.user,
+    );
+
     final container = ProviderContainer(
-      overrides: [
-        appRoleProvider.overrideWithValue(AppRole.user),
-      ], // tambahkan ini
+      overrides: [appRoleProvider.overrideWithValue(role)],
     );
     try {
       final pelangganAktifOpsqlite = container.read(

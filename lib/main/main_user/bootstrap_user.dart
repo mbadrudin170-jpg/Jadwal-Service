@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gma_mediation_unity/gma_mediation_unity.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
@@ -29,7 +30,10 @@ Future<void> bootstrapUser({
 
   Log.info('Menginisialisasi Firebase...');
   await Firebase.initializeApp(options: firebaseOptions);
+
   Log.info('Inisialisasi Firebase selesai.');
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('app_role', AppRole.user.name);
 
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
