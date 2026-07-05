@@ -416,16 +416,13 @@ class PelangganAktifOpSqlite {
         where: '${NamaKolom.tanggalBerakhir} < ? AND ${NamaKolom.dihapus} = 0',
         whereArgs: [_nowUtc.millisecondsSinceEpoch],
       );
-
       if (expiredCustomers.isEmpty) {
         Log.info('Tidak ada active customer kadaluarsa');
         return 0;
       }
-
       final idsToArchive = expiredCustomers
           .map((final p) => p[NamaKolom.id] as String)
           .toList();
-
       await _baseOpSqlite.operasiKompleks<void>((txn) async {
         await txn.update(
           _tabelPelangganAktif,
