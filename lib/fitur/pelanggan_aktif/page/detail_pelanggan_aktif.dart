@@ -308,6 +308,23 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                           ),
                         ),
                       ),
+                      // Di dalam AppBar actions atau di body Card
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.update),
+                        label: const Text('Perpanjang Masa Aktif'),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) => FormPelangganAktif(
+                                pelangganAktif: data.pelangganAktif,
+                                modePerpanjang:
+                                    true, // kirim flag mode perpanjang
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),

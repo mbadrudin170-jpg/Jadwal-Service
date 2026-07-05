@@ -37,9 +37,12 @@ import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
 
 class FormPelangganAktif extends ConsumerStatefulWidget {
   final PelangganAktifModel? pelangganAktif;
-
-  const FormPelangganAktif({super.key, this.pelangganAktif});
-
+  final bool modePerpanjang; // baru
+  const FormPelangganAktif({
+    super.key,
+    this.pelangganAktif,
+    this.modePerpanjang = false,
+  });
   @override
   ConsumerState<FormPelangganAktif> createState() => _FormPelangganAktifState();
 }
@@ -243,7 +246,30 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           _kategoriPemasukanList.first;
     }
   }
+Future<void> _mapPerpanjangData() async {
+  final pa = widget.pelangganAktif!;
+  _pelangganDipilih = _daftarPelanggan.firstWhereOrNull((p) => p.id == pa.idPelanggan);
+  _paketDipilih = _daftarPaket.firstWhereOrNull((p) => p.id == pa.idPaket);
 
+  // Untuk perpanjang, tanggal mulai diisi dengan tanggal berakhir saat ini
+  _pilihTanggal = pa.tanggalBerakhir;
+  _pilihJam = TimeOfDay.fromDateTime(pa.tanggalBerakhir);
+
+  // Dompet dan kategori diisi default (bisa diubah user)
+  _dompetDipilih = _dompetList.isNotEmpty ? _dompetList.first : null;
+  _kategoriDipilih = _kategoriPemasukanList.firstWhereOrNull(
+    (k) => k.nama.toLowerCase() == 'perpanjangan paket',
+  ) ?? _kategoriPemasukanList.first;
+
+  _statusPembayaran = StatusPembayaran.paid; // default lunas
+
+  // Ambil saldo poin seperti biasa
+  if (_pelangganDipilih != null) {
+    final transaksiOperasi = ref.read(transaksiOpGlobalProvider);
+    final poin = await transaksiOperasi.ambilTotalPoin(_pelangganDipilih!.id);
+    if (mounted) setState(() => _saldoPoinPelanggan = poin);
+  }
+}
   Future<void> _memilihTanggal(BuildContext context) async {
     Log.info('Memilih tanggal, saat ini: $_pilihTanggal');
     final terpilih = await showDatePicker(
