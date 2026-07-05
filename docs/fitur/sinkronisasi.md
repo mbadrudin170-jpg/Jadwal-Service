@@ -456,7 +456,7 @@ class LayananUnduhData {
     final stopwatch = Stopwatch()..start();
 
     try {
-      await loadAll([
+      await futureWait([
         unduhDataPelangganAktif(),
         unduhDataPengaturan(),
         unduhDataDompet(),
@@ -807,7 +807,7 @@ class LayananUnggahData {
       Log.info(
         'Semua proses unggah akan berjalan bersamaan untuk efisiensi waktu.',
       );
-      await loadAll(daftarTabel);
+      await futureWait(daftarTabel);
       Log.info('========================================');
       Log.info('PROSES UNGGAH SEMUA DATA SELESAI DENGAN SUKSES');
       Log.info(

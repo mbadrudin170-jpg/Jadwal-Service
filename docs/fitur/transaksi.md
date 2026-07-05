@@ -1974,7 +1974,7 @@ class TransaksiOpSqlite {
 
   Future<int> ambilTotalPoin(String idPelanggan) async {
     Log.info('Menghitung saldo poin akhir Customer: $idPelanggan');
-    final hasil = await loadAll([
+    final hasil = await futureWait([
       ambilPoinDidapat(idPelanggan),
       ambilPoinDigunakan(idPelanggan),
     ]);
