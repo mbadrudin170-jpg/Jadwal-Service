@@ -1530,6 +1530,7 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_angka.dart';
@@ -1621,16 +1622,15 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final transaksiTerkaitFuture = pa?.idTransaksi != null
           ? transaksiOperasi.ambilBerdasarkanId(pa!.idTransaksi)
           : Future<TransaksiModel?>.value();
-      final hasil = await Future.wait<Object?>([
+      final hasil = await loadAll([
         pelangganOpSqlite.ambilSemua(),
         paketOpsqlite.ambilSemua(),
         dompetOpSqlite.ambilSemua(),
         kategoriOpSqlite.ambilSemua(),
         transaksiTerkaitFuture,
       ]);
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
+
       final daftarPelanggan = (hasil[0] as List<PelangganModel>)
         ..sort((a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
       final daftarPaket = (hasil[1] as List<PaketModel>)
@@ -1869,7 +1869,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$idTransaksi',
       );
       if (_modeEdit) {
-        await Future.wait([
+        await loadAll([
           pelangganAktif.updatePelangganAktif(pelangganAktifData),
           transaksiOp.perbarui(transaksiData),
         ]);
@@ -1878,7 +1878,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
         );
       } else {
-        await Future.wait([
+        await loadAll([
           pelangganAktif.tambahPelangganAktif(pelangganAktifData),
           transaksiOp.tambah(transaksiData),
         ]);
@@ -1948,8 +1948,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           diperbaruiPada: sekarang,
         ),
       ];
-      await Future.wait(
-        daftarNotifikasi.map(notifikasiOpSqlite.tambahNotifikasi),
+      await loadAll(
+        daftarNotifikasi.map(notifikasiOpSqlite.tambahNotifikasi).toList(),
       );
       unawaited(
         ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
@@ -2442,6 +2442,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -2469,12 +2470,12 @@ final detailPleangganAktifProvider =
       final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
       final paketOpSqlite = ref.watch(paketOpSqliteProvider);
       final transaksiOpsqlite = ref.watch(transaksiOpGlobalProvider);
-      final hasil = await Future.wait<Object?>([
+      final hasil = await loadAll([
         pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.idPelanggan),
         pelangganAktif.idPaket.isNotEmpty
             ? paketOpSqlite.ambilBerdasarkanId(pelangganAktif.idPaket)
             : Future<PaketModel?>.value(),
-        (pelangganAktif.idTransaksi.isNotEmpty)
+        pelangganAktif.idTransaksi.isNotEmpty
             ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.idTransaksi)
             : Future<TransaksiModel?>.value(),
       ]);
@@ -29467,7 +29468,7 @@ final class AmbilDetailLanggananProvider
 }
 
 String _$ambilDetailLanggananHash() =>
-    r'cb1a8692e90a7e2730006d6bb274c80720436c79';
+    r'7d73d9d87afc48806448e53cd9a831c7f61be46d';
 
 final class AmbilDetailLanggananFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<DetailLanggananState?>, String> {
@@ -30050,6 +30051,7 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 
 part 'detail_langganan_provider.g.dart';
 part 'detail_langganan_provider.freezed.dart';
@@ -30077,15 +30079,14 @@ Future<DetailLanggananState?> ambilDetailLangganan(
   if (transaksi == null) return null;
 
   // 2. Ambil data relasi secara paralel untuk menghemat waktu pemuatan
-  final hasil = await Future.wait<Object?>([
-    transaksi.idPelanggan != null
-        ? pelangganOpSqlite.ambilBerdasarkanId(transaksi.idPelanggan!)
-        : Future<PelangganModel?>.value(),
-    transaksi.idPaket != null
-        ? paketOpSqlite.ambilBerdasarkanId(transaksi.idPaket!)
-        : Future<PaketModel?>.value(),
-  ]);
-
+final hasil = await loadAll([
+  transaksi.idPelanggan != null
+      ? pelangganOpSqlite.ambilBerdasarkanId(transaksi.idPelanggan!)
+      : Future<PelangganModel?>.value(),
+  transaksi.idPaket != null
+      ? paketOpSqlite.ambilBerdasarkanId(transaksi.idPaket!)
+      : Future<PaketModel?>.value(),
+]);
   return DetailLanggananState(
     transaksi: transaksi,
     pelanggan: hasil[0] as PelangganModel?,
@@ -35350,148 +35351,6 @@ final class AmbilBerdasarkanIdPelangganFamily extends $Family
 }
 
 
-// File: lib/fitur/transaksi/provider/transaksi_provider_usang.dart
-// // path: lib/fitur/transaksi/provider/transaksi_provider.dart
-
-// import 'dart:async';
-
-// import 'package:freezed_annotation/freezed_annotation.dart';
-// import 'package:riverpod_annotation/riverpod_annotation.dart';
-// import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-// import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
-// import 'package:wifi/shared/debug/log.dart';
-
-// part 'transaksi_provider.freezed.dart';
-// part 'transaksi_provider.g.dart';
-
-// @freezed
-// abstract class TransaksiState with _$TransaksiState {
-//   const factory TransaksiState({
-//     @Default([]) List<TransaksiModel> transaksi,
-//     @Default(0.0) double totalPemasukan,
-//     @Default(0.0) double totalPengeluaran,
-//     @Default(0.0) double total,
-//     @Default(0) int totalPoinSemuaPelanggan,
-//     // required List<PaketTerlarisModel> paketTerlaris,
-//     required List<double> pendapatanHarian,
-//     required List<double> pendapatanMingguan,
-//     required List<double> pendapatanBulanan,
-//     required double totalPendapatanPerbulan,
-//   }) = _TransaksiState;
-// }
-
-// @riverpod
-// class Transaksi extends _$Transaksi {
-//   TransaksiOpGlobal get _transaksiOp => ref.read(transaksiOpGlobalProvider);
-//   @override
-//   FutureOr<TransaksiState> build() {
-//     return _loadData();
-//   }
-
-//   Future<TransaksiState> _loadData() async {
-//     final hasil = await Future.wait([
-//       _transaksiOp.ambilSemua(), // [0]
-//       _transaksiOp.ambilTotalPemasukan(), // [1]
-//       _transaksiOp.ambilTotalPengeluaran(), // [2]
-//       _transaksiOp.getNetTotal(), // [3]
-//       _transaksiOp.ambilTotalPoinSemuaPelanggan(), // [4]
-//       // _transaksiOp.ambilPaketTerlaris(), // [5] ✅ TAMBAHKAN
-//       _transaksiOp.ambilPendapatanHarian(), // [6]
-//       _transaksiOp.ambilPendapatanMingguan(), // [7]
-//       _transaksiOp.ambilPendapatanBulanan(), // [8]
-//       _transaksiOp.ambilTotalPendapatanPerbulan(), //[9]
-//     ]);
-
-//     return TransaksiState(
-//       transaksi: hasil[0] as List<TransaksiModel>,
-//       totalPemasukan: hasil[1] as double,
-//       totalPengeluaran: hasil[2] as double,
-//       total: hasil[3] as double,
-//       totalPoinSemuaPelanggan: hasil[4] as int,
-//       // paketTerlaris: hasil[5] as List<PaketTerlarisModel>,
-//       pendapatanHarian: hasil[5] as List<double>,
-//       pendapatanMingguan: hasil[6] as List<double>,
-//       pendapatanBulanan: hasil[7] as List<double>,
-//       totalPendapatanPerbulan: hasil[8] as double,
-//     );
-//   }
-
-//   Future<int> getTotalPoinPelanggan(String idPelanggan) async {
-//     return await _transaksiOp.ambilTotalPoin(idPelanggan);
-//   }
-
-//   // ✅ Method untuk ambil poin banyak pelanggan (paralel)
-//   Future<Map<String, int>> getTotalPoinBanyakPelanggan(List<String> ids) async {
-//     final hasil = <String, int>{};
-//     for (final id in ids) {
-//       hasil[id] = await _transaksiOp.ambilTotalPoin(id);
-//     }
-//     return hasil;
-//   }
-
-//   Future<List<int>> getTotalPoinBanyakPelangganParallel(
-//     List<String> ids,
-//   ) async {
-//     final futures = ids.map((id) => _transaksiOp.ambilTotalPoin(id)).toList();
-//     return await Future.wait(futures);
-//   }
-
-//   Future<void> refresh() async {
-//     state = const AsyncLoading();
-//     state = await AsyncValue.guard(_loadData);
-//   }
-
-//   void invalidateProviderTransaksi() {
-//     ref.invalidateSelf();
-//     ref.invalidate(riwayatTransaksiPelangganProvider);
-//   }
-// }
-
-// @Riverpod(keepAlive: true)
-// Future<({List<TransaksiModel> transaksi, int totalPoin})>
-// riwayatTransaksiPelanggan(Ref ref, String idPelanggan) async {
-//   Log.info(
-//     '[RiwayatTransaksi] 🔍 Mengambil riwayat transaksi untuk pelanggan: $idPelanggan',
-//   );
-//   try {
-//     final transaksiOp = ref.read(transaksiOpGlobalProvider);
-//     final results = await Future.wait([
-//       transaksiOp.ambilBerdasarkanIdPelanggan(idPelanggan),
-//       transaksiOp.ambilTotalPoin(idPelanggan),
-//     ]);
-//     final semuaTransaksi = results[0] as List<TransaksiModel>;
-//     final totalPoinUser = results[1] as int;
-//     Log.info('[RiwayatTransaksi] 📊 Total transaksi: ${semuaTransaksi.length}');
-//     Log.info('[RiwayatTransaksi] 🎯 Total poin: $totalPoinUser');
-//     return (transaksi: semuaTransaksi, totalPoin: totalPoinUser);
-//   } catch (e, s) {
-//     Log.error('[RiwayatTransaksi] ❌ ERROR: $e', e: e, s: s);
-//     rethrow;
-//   }
-// }
-
-// @riverpod
-// Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
-//   Ref ref,
-//   String idPelanggan,
-// ) async {
-//   Log.info(
-//     '[RiwayatPoin] 🔍 Mengambil riwayat poin untuk pelanggan: $idPelanggan',
-//   );
-//   try {
-//     final transaksiOp = ref.read(transaksiOpGlobalProvider);
-//     final semuaTransaksi = await transaksiOp.ambilBerdasarkanIdPelanggan(
-//       idPelanggan,
-//     );
-//     Log.info('[RiwayatPoin] 📊 Total transaksi: ${semuaTransaksi.length}');
-//     return semuaTransaksi;
-//   } catch (e, s) {
-//     Log.error('[RiwayatPoin] ❌ ERROR: $e', e: e, s: s);
-//     rethrow;
-//   }
-// }
-
-
 // File: lib/fitur/transaksi/operasi/transaksi_op_global.dart
 // path: lib/fitur/transaksi/operasi/transaksi_op_global.dart
 
@@ -35805,6 +35664,7 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 
 /// Kelas untuk operasi terkait data transaksi di database lokal.
 class TransaksiOpSqlite {
@@ -36433,12 +36293,12 @@ class TransaksiOpSqlite {
 
   Future<int> ambilTotalPoin(String idPelanggan) async {
     Log.info('Menghitung saldo poin akhir Customer: $idPelanggan');
-    final hasil = await Future.wait([
+    final hasil = await loadAll([
       ambilPoinDidapat(idPelanggan),
       ambilPoinDigunakan(idPelanggan),
     ]);
-    final poinDidapat = hasil[0];
-    final poinDigunakan = hasil[1];
+    final poinDidapat = (hasil[0] as int?) ?? 0;
+    final poinDigunakan = (hasil[1] as int?) ?? 0;
     final total = poinDidapat - poinDigunakan;
     Log.info(
       'Saldo poin akhir Customer $idPelanggan: $total (earned=$poinDidapat, used=$poinDigunakan)',
@@ -41172,6 +41032,7 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 
 class LayananUnduhData {
   final FirebaseFirestore _firestore;
@@ -41255,20 +41116,19 @@ class LayananUnduhData {
     final stopwatch = Stopwatch()..start();
 
     try {
-      await Future.wait([
-        unduhDataPelangganAktif(),
-        unduhDataPengaturan(),
-        unduhDataDompet(),
-        unduhDataKategori(),
-        unduhDataPaket(),
-        unduhDataPelanggan(),
-        unduhDataTransaksi(),
-        unduhDataUmpanBalik(),
-        unduhDataPesanan(),
-        unduhDataSubKategori(),
-        unduhDataVersiApk(),
-      ]);
-
+await loadAll([
+  unduhDataPelangganAktif(),
+  unduhDataPengaturan(),
+  unduhDataDompet(),
+  unduhDataKategori(),
+  unduhDataPaket(),
+  unduhDataPelanggan(),
+  unduhDataTransaksi(),
+  unduhDataUmpanBalik(),
+  unduhDataPesanan(),
+  unduhDataSubKategori(),
+  unduhDataVersiApk(),
+]);
       stopwatch.stop();
       Log.info(
         'Prosedur unduh data massal selesai sepenuhnya. Total durasi: ${stopwatch.elapsed.inMilliseconds} ms.',
@@ -41556,6 +41416,7 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 
 class LayananUnggahData {
   final SqliteDatabase _sqliteDb;
@@ -41583,7 +41444,6 @@ class LayananUnggahData {
 
     Log.info(
       'Menyiapkan daftar Future untuk semua fungsi unggah spesifik. '
-      'Semua fungsi akan dijalankan secara paralel menggunakan Future.wait.',
     );
 
     final daftarTabel = <Future<void>>[
@@ -41606,10 +41466,9 @@ class LayananUnggahData {
 
     try {
       Log.info(
-        'Menjalankan semua fungsi unggah secara paralel menggunakan Future.wait. '
         'Semua proses unggah akan berjalan bersamaan untuk efisiensi waktu.',
       );
-      await Future.wait(daftarTabel);
+      await loadAll(daftarTabel);
       Log.info('========================================');
       Log.info('PROSES UNGGAH SEMUA DATA SELESAI DENGAN SUKSES');
       Log.info(
@@ -45110,6 +44969,7 @@ import 'package:wifi/fitur/versi_apk/service/layanan_cek_update_apk.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/maintenance_page.dart';
 import 'package:wifi/user/page/login_page.dart';
@@ -45170,12 +45030,11 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       }
 
       // 1. Ambil seluruh data dari server secara paralel (bersamaan)
-      final hasilInisialisasi = await Future.wait([
+      final hasilInisialisasi = await loadAll([
         _periksaModePemeliharaan(),
         _periksaPembaruanAplikasi(),
         _cekEvent(),
       ]);
-
       final pengaturanPemeliharaan = hasilInisialisasi[0] as SettingsModel?;
       final infoPembaruan = hasilInisialisasi[1] as InfoPembaruanRecord?;
       final eventInfo = hasilInisialisasi[2] as EventModel?;
@@ -48459,6 +48318,59 @@ class DurasiUtil {
       case TipeDurasiPaket.months:
         return jumlah * 30 * 24 * 60;
     }
+  }
+}
+
+
+// File: lib/shared/utils/future_util.dart
+// path: lib/shared/utils/future_util.dart
+
+import 'package:wifi/shared/debug/log.dart';
+
+/// Helper untuk menjalankan multiple Future secara paralel dengan penanganan error terpusat.
+///
+/// Contoh penggunaan:
+/// ```dart
+/// final hasil = await loadAll([
+///   pelangganOp.ambilSemua(),
+///   paketOp.ambilSemua(),
+///   dompetOp.ambilSemua(),
+/// ]);
+/// ```
+Future<List<Object?>> loadAll(List<Future<Object?>> futures) async {
+  try {
+    return await Future.wait(futures);
+  } catch (e, st) {
+    Log.error('Gagal memuat data paralel', e: e, s: st);
+    rethrow;
+  }
+}
+
+/// Versi dengan label untuk logging yang lebih baik.
+///
+/// Contoh:
+/// ```dart
+/// final hasil = await loadAllWithLabel([
+///   ('pelanggan', pelangganOp.ambilSemua()),
+///   ('paket', paketOp.ambilSemua()),
+/// ]);
+/// ```
+Future<List<Object?>> loadAllWithLabel(List<(String label, Future<Object?> future)> items) async {
+  try {
+    final futures = items.map((e) => e.$2).toList();
+    return await Future.wait(futures);
+  } catch (e, st) {
+    String? labelError;
+    for (final item in items) {
+      try {
+        await item.$2.timeout(Duration.zero);
+      } catch (_) {
+        labelError = item.$1;
+        break;
+      }
+    }
+    Log.error('Gagal memuat data paralel: ${labelError ?? 'unknown'}', e: e, s: st);
+    rethrow;
   }
 }
 
@@ -51971,6 +51883,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 
 /// Kelas untuk operasi pembersihan data di database lokal (SQLite) dan remote (Firestore).
 class PembersihanDataOperasi {
@@ -52079,16 +51992,13 @@ class PembersihanDataOperasi {
             .where(NamaKolom.diarsipkanPada, isLessThanOrEqualTo: timeLimit)
             .get();
       }).toList();
-
-      // Menjalankan semua query secara paralel
-      final snapshots = await Future.wait(futures);
-
+      final snapshots = await loadAll(futures);
       final batch = _firestore.batch();
       var dokumenDitemukan = 0;
 
       for (var i = 0; i < snapshots.length; i++) {
-        final snapshot = snapshots[i];
-        if (snapshot.docs.isNotEmpty) {
+        final snapshot = snapshots[i] as QuerySnapshot?;
+        if (snapshot != null && snapshot.docs.isNotEmpty) {
           final namaKoleksi = koleksi[i];
           Log.info(
             '[Firestore - $namaKoleksi] Ditemukan ${snapshot.docs.length} dokumen kadaluarsa (isDeleted:true) untuk dihapus.',
@@ -52099,7 +52009,6 @@ class PembersihanDataOperasi {
           }
         }
       }
-
       if (dokumenDitemukan > 0) {
         Log.info(
           'Melakukan commit batch pembersihan data untuk Firestore ($dokumenDitemukan dokumen)...',
@@ -57969,8 +57878,7 @@ lib
 │   │   │   └── transaksi_u.dart
 │   │   ├── provider
 │   │   │   ├── transaksi_provider.freezed.dart
-│   │   │   ├── transaksi_provider.g.dart
-│   │   │   └── transaksi_provider_usang.dart
+│   │   │   └── transaksi_provider.g.dart
 │   │   ├── transaksi_provider.freezed.dart
 │   │   ├── transaksi_provider.g.dart
 │   │   ├── transaksi_provider_usang.dart
@@ -58078,6 +57986,7 @@ lib
 │   ├── utils
 │   │   ├── durasi_util.dart
 │   │   ├── format_util.dart
+│   │   ├── future_util.dart
 │   │   ├── parser_util.dart
 │   │   ├── perhitungan_util.dart
 │   │   └── toast_util.dart

@@ -324,8 +324,7 @@ lib
 │   │   │   └── transaksi_u.dart
 │   │   ├── provider
 │   │   │   ├── transaksi_provider.freezed.dart
-│   │   │   ├── transaksi_provider.g.dart
-│   │   │   └── transaksi_provider_usang.dart
+│   │   │   └── transaksi_provider.g.dart
 │   │   ├── transaksi_provider.freezed.dart
 │   │   ├── transaksi_provider.g.dart
 │   │   ├── transaksi_provider_usang.dart
@@ -433,6 +432,7 @@ lib
 │   ├── utils
 │   │   ├── durasi_util.dart
 │   │   ├── format_util.dart
+│   │   ├── future_util.dart
 │   │   ├── parser_util.dart
 │   │   ├── perhitungan_util.dart
 │   │   └── toast_util.dart
