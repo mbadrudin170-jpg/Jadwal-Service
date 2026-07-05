@@ -22,6 +22,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -49,12 +50,12 @@ final detailPleangganAktifProvider =
       final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
       final paketOpSqlite = ref.watch(paketOpSqliteProvider);
       final transaksiOpsqlite = ref.watch(transaksiOpGlobalProvider);
-      final hasil = await Future.wait<Object?>([
+      final hasil = await loadAll([
         pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.idPelanggan),
         pelangganAktif.idPaket.isNotEmpty
             ? paketOpSqlite.ambilBerdasarkanId(pelangganAktif.idPaket)
             : Future<PaketModel?>.value(),
-        (pelangganAktif.idTransaksi.isNotEmpty)
+        pelangganAktif.idTransaksi.isNotEmpty
             ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.idTransaksi)
             : Future<TransaksiModel?>.value(),
       ]);

@@ -19,6 +19,7 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 
 class LayananUnggahData {
   final SqliteDatabase _sqliteDb;
@@ -46,7 +47,6 @@ class LayananUnggahData {
 
     Log.info(
       'Menyiapkan daftar Future untuk semua fungsi unggah spesifik. '
-      'Semua fungsi akan dijalankan secara paralel menggunakan Future.wait.',
     );
 
     final daftarTabel = <Future<void>>[
@@ -69,10 +69,9 @@ class LayananUnggahData {
 
     try {
       Log.info(
-        'Menjalankan semua fungsi unggah secara paralel menggunakan Future.wait. '
         'Semua proses unggah akan berjalan bersamaan untuk efisiensi waktu.',
       );
-      await Future.wait(daftarTabel);
+      await loadAll(daftarTabel);
       Log.info('========================================');
       Log.info('PROSES UNGGAH SEMUA DATA SELESAI DENGAN SUKSES');
       Log.info(

@@ -6,6 +6,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 
 /// Kelas untuk operasi pembersihan data di database lokal (SQLite) dan remote (Firestore).
 class PembersihanDataOperasi {
@@ -114,16 +115,13 @@ class PembersihanDataOperasi {
             .where(NamaKolom.diarsipkanPada, isLessThanOrEqualTo: timeLimit)
             .get();
       }).toList();
-
-      // Menjalankan semua query secara paralel
-      final snapshots = await Future.wait(futures);
-
+      final snapshots = await loadAll(futures);
       final batch = _firestore.batch();
       var dokumenDitemukan = 0;
 
       for (var i = 0; i < snapshots.length; i++) {
-        final snapshot = snapshots[i];
-        if (snapshot.docs.isNotEmpty) {
+        final snapshot = snapshots[i] as QuerySnapshot?;
+        if (snapshot != null && snapshot.docs.isNotEmpty) {
           final namaKoleksi = koleksi[i];
           Log.info(
             '[Firestore - $namaKoleksi] Ditemukan ${snapshot.docs.length} dokumen kadaluarsa (isDeleted:true) untuk dihapus.',
@@ -134,7 +132,6 @@ class PembersihanDataOperasi {
           }
         }
       }
-
       if (dokumenDitemukan > 0) {
         Log.info(
           'Melakukan commit batch pembersihan data untuk Firestore ($dokumenDitemukan dokumen)...',

@@ -8,6 +8,7 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 
 part 'detail_langganan_provider.g.dart';
 part 'detail_langganan_provider.freezed.dart';
@@ -35,15 +36,14 @@ Future<DetailLanggananState?> ambilDetailLangganan(
   if (transaksi == null) return null;
 
   // 2. Ambil data relasi secara paralel untuk menghemat waktu pemuatan
-  final hasil = await Future.wait<Object?>([
-    transaksi.idPelanggan != null
-        ? pelangganOpSqlite.ambilBerdasarkanId(transaksi.idPelanggan!)
-        : Future<PelangganModel?>.value(),
-    transaksi.idPaket != null
-        ? paketOpSqlite.ambilBerdasarkanId(transaksi.idPaket!)
-        : Future<PaketModel?>.value(),
-  ]);
-
+final hasil = await loadAll([
+  transaksi.idPelanggan != null
+      ? pelangganOpSqlite.ambilBerdasarkanId(transaksi.idPelanggan!)
+      : Future<PelangganModel?>.value(),
+  transaksi.idPaket != null
+      ? paketOpSqlite.ambilBerdasarkanId(transaksi.idPaket!)
+      : Future<PaketModel?>.value(),
+]);
   return DetailLanggananState(
     transaksi: transaksi,
     pelanggan: hasil[0] as PelangganModel?,

@@ -11,6 +11,7 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 
 /// Kelas untuk operasi terkait data transaksi di database lokal.
 class TransaksiOpSqlite {
@@ -639,12 +640,12 @@ class TransaksiOpSqlite {
 
   Future<int> ambilTotalPoin(String idPelanggan) async {
     Log.info('Menghitung saldo poin akhir Customer: $idPelanggan');
-    final hasil = await Future.wait([
+    final hasil = await loadAll([
       ambilPoinDidapat(idPelanggan),
       ambilPoinDigunakan(idPelanggan),
     ]);
-    final poinDidapat = hasil[0];
-    final poinDigunakan = hasil[1];
+    final poinDidapat = (hasil[0] as int?) ?? 0;
+    final poinDigunakan = (hasil[1] as int?) ?? 0;
     final total = poinDidapat - poinDigunakan;
     Log.info(
       'Saldo poin akhir Customer $idPelanggan: $total (earned=$poinDidapat, used=$poinDigunakan)',

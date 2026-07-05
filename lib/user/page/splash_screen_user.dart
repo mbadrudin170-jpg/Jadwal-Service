@@ -23,6 +23,7 @@ import 'package:wifi/fitur/versi_apk/service/layanan_cek_update_apk.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/maintenance_page.dart';
 import 'package:wifi/user/page/login_page.dart';
@@ -83,12 +84,11 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       }
 
       // 1. Ambil seluruh data dari server secara paralel (bersamaan)
-      final hasilInisialisasi = await Future.wait([
+      final hasilInisialisasi = await loadAll([
         _periksaModePemeliharaan(),
         _periksaPembaruanAplikasi(),
         _cekEvent(),
       ]);
-
       final pengaturanPemeliharaan = hasilInisialisasi[0] as SettingsModel?;
       final infoPembaruan = hasilInisialisasi[1] as InfoPembaruanRecord?;
       final eventInfo = hasilInisialisasi[2] as EventModel?;

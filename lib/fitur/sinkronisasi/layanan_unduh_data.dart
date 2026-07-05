@@ -21,6 +21,7 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 
 class LayananUnduhData {
   final FirebaseFirestore _firestore;
@@ -104,20 +105,19 @@ class LayananUnduhData {
     final stopwatch = Stopwatch()..start();
 
     try {
-      await Future.wait([
-        unduhDataPelangganAktif(),
-        unduhDataPengaturan(),
-        unduhDataDompet(),
-        unduhDataKategori(),
-        unduhDataPaket(),
-        unduhDataPelanggan(),
-        unduhDataTransaksi(),
-        unduhDataUmpanBalik(),
-        unduhDataPesanan(),
-        unduhDataSubKategori(),
-        unduhDataVersiApk(),
-      ]);
-
+await loadAll([
+  unduhDataPelangganAktif(),
+  unduhDataPengaturan(),
+  unduhDataDompet(),
+  unduhDataKategori(),
+  unduhDataPaket(),
+  unduhDataPelanggan(),
+  unduhDataTransaksi(),
+  unduhDataUmpanBalik(),
+  unduhDataPesanan(),
+  unduhDataSubKategori(),
+  unduhDataVersiApk(),
+]);
       stopwatch.stop();
       Log.info(
         'Prosedur unduh data massal selesai sepenuhnya. Total durasi: ${stopwatch.elapsed.inMilliseconds} ms.',

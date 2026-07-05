@@ -29,6 +29,7 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_angka.dart';
@@ -120,16 +121,15 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final transaksiTerkaitFuture = pa?.idTransaksi != null
           ? transaksiOperasi.ambilBerdasarkanId(pa!.idTransaksi)
           : Future<TransaksiModel?>.value();
-      final hasil = await Future.wait<Object?>([
+      final hasil = await loadAll([
         pelangganOpSqlite.ambilSemua(),
         paketOpsqlite.ambilSemua(),
         dompetOpSqlite.ambilSemua(),
         kategoriOpSqlite.ambilSemua(),
         transaksiTerkaitFuture,
       ]);
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
+
       final daftarPelanggan = (hasil[0] as List<PelangganModel>)
         ..sort((a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
       final daftarPaket = (hasil[1] as List<PaketModel>)
@@ -368,7 +368,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$idTransaksi',
       );
       if (_modeEdit) {
-        await Future.wait([
+        await loadAll([
           pelangganAktif.updatePelangganAktif(pelangganAktifData),
           transaksiOp.perbarui(transaksiData),
         ]);
@@ -377,7 +377,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
         );
       } else {
-        await Future.wait([
+        await loadAll([
           pelangganAktif.tambahPelangganAktif(pelangganAktifData),
           transaksiOp.tambah(transaksiData),
         ]);
@@ -447,8 +447,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           diperbaruiPada: sekarang,
         ),
       ];
-      await Future.wait(
-        daftarNotifikasi.map(notifikasiOpSqlite.tambahNotifikasi),
+      await loadAll(
+        daftarNotifikasi.map(notifikasiOpSqlite.tambahNotifikasi).toList(),
       );
       unawaited(
         ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
