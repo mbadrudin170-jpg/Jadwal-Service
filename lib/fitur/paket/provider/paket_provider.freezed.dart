@@ -207,8 +207,8 @@ return $default(_that.daftarPaket,_that.daftarPaketPublik,_that.jumlahPaket);cas
 /// @nodoc
 
 
-class _PaketState implements PaketState {
-  const _PaketState({final  List<PaketModel?> daftarPaket = const [], final  List<PaketModel?> daftarPaketPublik = const [], this.jumlahPaket = 0}): _daftarPaket = daftarPaket,_daftarPaketPublik = daftarPaketPublik;
+class _PaketState extends PaketState {
+  const _PaketState({final  List<PaketModel?> daftarPaket = const [], final  List<PaketModel?> daftarPaketPublik = const [], this.jumlahPaket = 0}): _daftarPaket = daftarPaket,_daftarPaketPublik = daftarPaketPublik,super._();
   
 
  final  List<PaketModel?> _daftarPaket;

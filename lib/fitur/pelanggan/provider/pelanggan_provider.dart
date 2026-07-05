@@ -1,5 +1,6 @@
 // path lib/fitur/pelanggan/provider/pelanggan_provider.dart
 
+import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
@@ -11,11 +12,17 @@ part 'pelanggan_provider.freezed.dart';
 
 @freezed
 abstract class PelangganState with _$PelangganState {
+  const PelangganState._();
   const factory PelangganState({
     @Default([]) List<PelangganModel> daftarPelanggan,
     @Default(0) int jumlahPelanggan,
     @Default(0) int totalPoin,
   }) = _PelangganState;
+  // di dalam PelangganState (freezed)
+  PelangganModel? ambilBerdasarkanId(String idPelanggan) {
+    // pastikan import 'package:collection/collection.dart';
+    return daftarPelanggan.firstWhereOrNull((p) => p.id == idPelanggan);
+  }
 }
 
 @Riverpod(keepAlive: true)

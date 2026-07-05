@@ -12,11 +12,13 @@ class NamaPelangganWidget extends ConsumerWidget {
   final String loadingText;
   final String errorText;
   final String emptyText;
+  final TextAlign? textAlign;
 
   const NamaPelangganWidget({
     super.key,
     required this.idPelanggan,
     this.style,
+    this.textAlign,
     this.showLoadingIndicator = false,
     this.loadingText = '',
     this.errorText = 'Error memuat data',
@@ -49,6 +51,7 @@ class NamaPelangganWidget extends ConsumerWidget {
           style:
               style?.copyWith(color: Colors.grey.shade400) ??
               const TextStyle(color: Colors.grey),
+          textAlign: textAlign,
         );
       },
       error: (error, stack) {

@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -18,10 +19,17 @@ part 'pelanggan_aktif_provider.freezed.dart';
 
 @freezed
 abstract class PelangganAktifState with _$PelangganAktifState {
+  const PelangganAktifState._();
   const factory PelangganAktifState({
     @Default([]) List<PelangganAktifModel> daftarPelangganAktif,
     @Default(0) int jumlahPelangganAktif,
   }) = _PelangganAktifState;
+  
+  PelangganAktifModel? ambilBerdasarkanId(String idPelangganAktif) {
+    return daftarPelangganAktif.firstWhereOrNull(
+      (p) => p.id == idPelangganAktif,
+    );
+  }
 }
 
 @Riverpod(keepAlive: true)
@@ -104,6 +112,15 @@ class PelangganAktif extends _$PelangganAktif {
       state = AsyncData(currentData.copyWith(daftarPelangganAktif: []));
     } on Exception catch (e, s) {
       Log.error('Error hapus semua: $e', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  Future<void> perbaruiData() async {
+    try {
+      await _ambilData();
+    } on Exception catch (e, s) {
+      Log.error('Error diperbaruiData: $e', e: e, s: s);
       rethrow;
     }
   }

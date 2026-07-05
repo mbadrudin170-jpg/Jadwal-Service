@@ -212,8 +212,8 @@ return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
 /// @nodoc
 
 
-class _PelangganAktifState with DiagnosticableTreeMixin implements PelangganAktifState {
-  const _PelangganAktifState({final  List<PelangganAktifModel> daftarPelangganAktif = const [], this.jumlahPelangganAktif = 0}): _daftarPelangganAktif = daftarPelangganAktif;
+class _PelangganAktifState extends PelangganAktifState with DiagnosticableTreeMixin {
+  const _PelangganAktifState({final  List<PelangganAktifModel> daftarPelangganAktif = const [], this.jumlahPelangganAktif = 0}): _daftarPelangganAktif = daftarPelangganAktif,super._();
   
 
  final  List<PelangganAktifModel> _daftarPelangganAktif;

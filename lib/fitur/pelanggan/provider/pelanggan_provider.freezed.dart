@@ -207,8 +207,8 @@ return $default(_that.daftarPelanggan,_that.jumlahPelanggan,_that.totalPoin);cas
 /// @nodoc
 
 
-class _PelangganState implements PelangganState {
-  const _PelangganState({final  List<PelangganModel> daftarPelanggan = const [], this.jumlahPelanggan = 0, this.totalPoin = 0}): _daftarPelanggan = daftarPelanggan;
+class _PelangganState extends PelangganState {
+  const _PelangganState({final  List<PelangganModel> daftarPelanggan = const [], this.jumlahPelanggan = 0, this.totalPoin = 0}): _daftarPelanggan = daftarPelanggan,super._();
   
 
  final  List<PelangganModel> _daftarPelanggan;

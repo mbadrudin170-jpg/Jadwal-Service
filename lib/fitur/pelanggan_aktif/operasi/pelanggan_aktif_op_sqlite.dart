@@ -442,7 +442,6 @@ class PelangganAktifOpSqlite {
           await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 2));
         }
       }, dariServer: dariServer);
-
       Log.info(
         '${idsToArchive.length} active customer kadaluarsa telah diarsipkan',
       );

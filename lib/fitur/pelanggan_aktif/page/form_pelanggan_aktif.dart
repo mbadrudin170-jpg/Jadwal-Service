@@ -36,11 +36,11 @@ import 'package:wifi/shared/widget/input/input_angka.dart';
 import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
 
 class FormPelangganAktif extends ConsumerStatefulWidget {
-  final PelangganAktifModel? pelangganAktif;
+  final String? idPelangganAktif;
   final bool modePerpanjang; // baru
   const FormPelangganAktif({
     super.key,
-    this.pelangganAktif,
+    this.idPelangganAktif,
     this.modePerpanjang = false,
   });
   @override
@@ -71,7 +71,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   DateTime? _pilihTanggal;
   TimeOfDay? _pilihJam;
   StatusPembayaran _statusPembayaran = StatusPembayaran.paid;
-  bool get _modeEdit => widget.pelangganAktif != null && !widget.modePerpanjang;
+  bool get _modeEdit =>
+      widget.idPelangganAktif != null && !widget.modePerpanjang;
   bool get _modePerpanjang => widget.modePerpanjang;
   int hitungPoinEfektif() {
     if (_paketDipilih == null) {
@@ -96,7 +97,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       if (mounted) {
         ToastUtil.error(context, 'Gagal memuat data. Silakan coba lagi.');
         setState(() => _isLoading = false);
-        if (widget.pelangganAktif?.status == StatusPembayaran.unpaid) {
+        final pelangganAktifState = ref.watch(pelangganAktifProvider);
+        final pelangganAktif = pelangganAktifState.whenOrNull(
+          data: (state) =>
+              state.ambilBerdasarkanId(widget.idPelangganAktif ?? ''),
+        );
+        if (pelangganAktif?.status == StatusPembayaran.unpaid) {
           setState(() {
             _statusPembayaranNotif = 1;
           });
@@ -115,13 +121,17 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   Future<void> _loadAllData() async {
     setState(() => _isLoading = true);
     Log.info('Memulai memuat semua data untuk FormPelangganAktif');
+    final pelangganAktifState = ref.watch(pelangganAktifProvider);
+    final pelangganAktif = pelangganAktifState.whenOrNull(
+      data: (state) => state.ambilBerdasarkanId(widget.idPelangganAktif ?? ''),
+    );
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
     final paketOpsqlite = ref.read(paketOpSqliteProvider);
     final transaksiOperasi = ref.read(transaksiOpGlobalProvider);
     final dompetOpSqlite = ref.read(dompetOpSqliteProvider);
     final kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
     try {
-      final pa = widget.pelangganAktif;
+      final pa = pelangganAktif;
       final transaksiTerkaitFuture = pa?.idTransaksi != null
           ? transaksiOperasi.ambilBerdasarkanId(pa!.idTransaksi)
           : Future<TransaksiModel?>.value();
@@ -185,8 +195,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Future<void> _mapEditData(TransaksiModel? transaksi) async {
+    final pelangganAktifState = ref.watch(pelangganAktifProvider);
+    final pelangganAktif = pelangganAktifState.whenOrNull(
+      data: (state) => state.ambilBerdasarkanId(widget.idPelangganAktif ?? ''),
+    );
+
     final transaksiOperasi = ref.read(transaksiOpGlobalProvider);
-    final pa = widget.pelangganAktif!;
+
+    final pa = pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
     _pelangganDipilih = _daftarPelanggan.firstWhereOrNull(
       (p) => p.id == pa.idPelanggan,
@@ -251,7 +267,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Future<void> _mapPerpanjangData() async {
-    final pa = widget.pelangganAktif!;
+    final pelangganAktifState = ref.watch(pelangganAktifProvider);
+    final pelangganAktif = pelangganAktifState.whenOrNull(
+      data: (state) => state.ambilBerdasarkanId(widget.idPelangganAktif ?? ''),
+    );
+
+    final pa = pelangganAktif!;
     _pelangganDipilih = _daftarPelanggan.firstWhereOrNull(
       (p) => p.id == pa.idPelanggan,
     );
@@ -312,19 +333,22 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
   Future<bool> _simpanData() async {
     Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
+    final pelangganAktifState = ref.watch(pelangganAktifProvider);
+    final pelangganAktif = pelangganAktifState.whenOrNull(
+      data: (state) => state.ambilBerdasarkanId(widget.idPelangganAktif ?? ''),
+    );
     final notifikasiOpSqlite = ref.read(notifikasiOpSqliteProvider);
-    final pelangganAktif = ref.read(pelangganAktifProvider.notifier);
     final transaksiOp = ref.read(transaksiOpProvider.notifier);
 
     final String idPelangganAktif;
     final String idTransaksi;
 
     if (_modePerpanjang) {
-      idPelangganAktif = widget.pelangganAktif!.id;
+      idPelangganAktif = pelangganAktif!.id;
       idTransaksi = const Uuid().v4();
     } else if (_modeEdit) {
-      idPelangganAktif = widget.pelangganAktif!.id;
-      idTransaksi = widget.pelangganAktif!.idTransaksi;
+      idPelangganAktif = pelangganAktif!.id;
+      idTransaksi = pelangganAktif.idTransaksi;
     } else {
       idPelangganAktif = const Uuid().v4();
       idTransaksi = const Uuid().v4();
@@ -413,21 +437,25 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       );
       if (_modePerpanjang) {
         // Perpanjang: update pelangganAktif yang sudah ada, transaksi BARU
-        await pelangganAktif.perbarui(pelangganAktifData);
+        await ref
+            .read(pelangganAktifProvider.notifier)
+            .perbarui(pelangganAktifData);
         await transaksiOp.tambah(transaksiData);
         // Hapus notifikasi dari transaksi sebelumnya (ID transaksi lama)
         await notifikasiOpSqlite.hapusBerdasarkanIdTujuan(
-          widget.pelangganAktif!.idTransaksi,
+          pelangganAktif!.idTransaksi,
         );
       } else if (_modeEdit) {
         await futureWait([
-          pelangganAktif.perbarui(pelangganAktifData),
+          ref
+              .read(pelangganAktifProvider.notifier)
+              .perbarui(pelangganAktifData),
           transaksiOp.perbarui(transaksiData),
         ]);
         unawaited(notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi));
       } else {
         await Future.wait([
-          pelangganAktif.tambah(pelangganAktifData),
+          ref.read(pelangganAktifProvider.notifier).tambah(pelangganAktifData),
           transaksiOp.tambah(transaksiData),
         ]);
       }

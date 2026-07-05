@@ -1,5 +1,6 @@
 // path: lib/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart
 
+import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
@@ -16,7 +17,6 @@ abstract class TransaksiNotifierState with _$TransaksiNotifierState {
   const factory TransaksiNotifierState({
     @Default([]) List<TransaksiModel> transaksi,
   }) = _TransaksiNotifierState;
-
   ({List<TransaksiModel> transaksi, int totalPoin}) riwayatPelanggan(
     String idPelanggan,
   ) {
@@ -27,6 +27,10 @@ abstract class TransaksiNotifierState with _$TransaksiNotifierState {
         .where((t) => t.statusPembayaran == StatusPembayaran.paid)
         .fold<int>(0, (sum, t) => sum + (t.poinDidapat - t.poinDigunakan));
     return (transaksi: miliknya, totalPoin: poin);
+  }
+
+  TransaksiModel? ambilBerdasarkanIdTransaksi(String idTransaksi) {
+    return transaksi.firstWhereOrNull((t) => t.id == idTransaksi);
   }
 }
 

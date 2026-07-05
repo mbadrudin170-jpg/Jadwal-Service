@@ -15,11 +15,15 @@ part 'paket_provider.freezed.dart';
 
 @freezed
 abstract class PaketState with _$PaketState {
+   const PaketState._();
   const factory PaketState({
     @Default([]) List<PaketModel?> daftarPaket,
     @Default([]) List<PaketModel?> daftarPaketPublik,
     @Default(0) int jumlahPaket,
   }) = _PaketState;
+   PaketModel? ambilBerdasarkanId(String idPaket) {
+    return daftarPaket.firstWhereOrNull((p) => p?.id == idPaket);
+  }
 }
 
 @Riverpod(keepAlive: true)

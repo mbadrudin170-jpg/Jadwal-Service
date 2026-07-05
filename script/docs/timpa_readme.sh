@@ -8,6 +8,12 @@ file_list=(
     'lib/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart'
     'lib/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart'
    'lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart'
+  'lib/fitur/pelanggan/provider/pelanggan_provider.dart'
+  'lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart'
+  'lib/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart'
+  'lib/fitur/paket/provider/paket_provider.dart'
+  'lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart'
+  'lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart'
     # Tambahkan file lain di bawah ini sesuai kebutuhan
 )
 
