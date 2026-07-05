@@ -12,6 +12,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
 
 part 'role_util.g.dart';
@@ -25,7 +26,9 @@ AppRole appRole(Ref ref) {
 
 class RoleUtil {
   static bool isAdmin(Ref ref) {
-    return ref.watch(appRoleProvider) == AppRole.admin;
+    final role = ref.watch(appRoleProvider);
+    Log.info('Role saat ini: ${role.name}'); // ← lihat log ini
+    return role == AppRole.admin;
   }
 
   static bool isUser(Ref ref) {
