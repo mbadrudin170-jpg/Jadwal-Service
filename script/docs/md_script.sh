@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# alias => dscript
 output_file="docs/script.md"
 
 {
