@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PelangganAktifState implements DiagnosticableTreeMixin {
 
- List<DetailPelangganAktifModel> get daftarPelangganAktif; int get jumlahPelangganAktif;
+ List<PelangganAktifModel> get daftarPelangganAktif; int get jumlahPelangganAktif;
 /// Create a copy of PelangganAktifState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -51,7 +51,7 @@ abstract mixin class $PelangganAktifStateCopyWith<$Res>  {
   factory $PelangganAktifStateCopyWith(PelangganAktifState value, $Res Function(PelangganAktifState) _then) = _$PelangganAktifStateCopyWithImpl;
 @useResult
 $Res call({
- List<DetailPelangganAktifModel> daftarPelangganAktif, int jumlahPelangganAktif
+ List<PelangganAktifModel> daftarPelangganAktif, int jumlahPelangganAktif
 });
 
 
@@ -71,7 +71,7 @@ class _$PelangganAktifStateCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? daftarPelangganAktif = null,Object? jumlahPelangganAktif = null,}) {
   return _then(_self.copyWith(
 daftarPelangganAktif: null == daftarPelangganAktif ? _self.daftarPelangganAktif : daftarPelangganAktif // ignore: cast_nullable_to_non_nullable
-as List<DetailPelangganAktifModel>,jumlahPelangganAktif: null == jumlahPelangganAktif ? _self.jumlahPelangganAktif : jumlahPelangganAktif // ignore: cast_nullable_to_non_nullable
+as List<PelangganAktifModel>,jumlahPelangganAktif: null == jumlahPelangganAktif ? _self.jumlahPelangganAktif : jumlahPelangganAktif // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -157,7 +157,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif,  int jumlahPelangganAktif)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<PelangganAktifModel> daftarPelangganAktif,  int jumlahPelangganAktif)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PelangganAktifState() when $default != null:
 return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
@@ -178,7 +178,7 @@ return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<DetailPelangganAktifModel> daftarPelangganAktif,  int jumlahPelangganAktif)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<PelangganAktifModel> daftarPelangganAktif,  int jumlahPelangganAktif)  $default,) {final _that = this;
 switch (_that) {
 case _PelangganAktifState():
 return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
@@ -198,7 +198,7 @@ return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<DetailPelangganAktifModel> daftarPelangganAktif,  int jumlahPelangganAktif)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<PelangganAktifModel> daftarPelangganAktif,  int jumlahPelangganAktif)?  $default,) {final _that = this;
 switch (_that) {
 case _PelangganAktifState() when $default != null:
 return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
@@ -213,11 +213,11 @@ return $default(_that.daftarPelangganAktif,_that.jumlahPelangganAktif);case _:
 
 
 class _PelangganAktifState with DiagnosticableTreeMixin implements PelangganAktifState {
-  const _PelangganAktifState({final  List<DetailPelangganAktifModel> daftarPelangganAktif = const [], this.jumlahPelangganAktif = 0}): _daftarPelangganAktif = daftarPelangganAktif;
+  const _PelangganAktifState({final  List<PelangganAktifModel> daftarPelangganAktif = const [], this.jumlahPelangganAktif = 0}): _daftarPelangganAktif = daftarPelangganAktif;
   
 
- final  List<DetailPelangganAktifModel> _daftarPelangganAktif;
-@override@JsonKey() List<DetailPelangganAktifModel> get daftarPelangganAktif {
+ final  List<PelangganAktifModel> _daftarPelangganAktif;
+@override@JsonKey() List<PelangganAktifModel> get daftarPelangganAktif {
   if (_daftarPelangganAktif is EqualUnmodifiableListView) return _daftarPelangganAktif;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_daftarPelangganAktif);
@@ -261,7 +261,7 @@ abstract mixin class _$PelangganAktifStateCopyWith<$Res> implements $PelangganAk
   factory _$PelangganAktifStateCopyWith(_PelangganAktifState value, $Res Function(_PelangganAktifState) _then) = __$PelangganAktifStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<DetailPelangganAktifModel> daftarPelangganAktif, int jumlahPelangganAktif
+ List<PelangganAktifModel> daftarPelangganAktif, int jumlahPelangganAktif
 });
 
 
@@ -281,7 +281,7 @@ class __$PelangganAktifStateCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? daftarPelangganAktif = null,Object? jumlahPelangganAktif = null,}) {
   return _then(_PelangganAktifState(
 daftarPelangganAktif: null == daftarPelangganAktif ? _self._daftarPelangganAktif : daftarPelangganAktif // ignore: cast_nullable_to_non_nullable
-as List<DetailPelangganAktifModel>,jumlahPelangganAktif: null == jumlahPelangganAktif ? _self.jumlahPelangganAktif : jumlahPelangganAktif // ignore: cast_nullable_to_non_nullable
+as List<PelangganAktifModel>,jumlahPelangganAktif: null == jumlahPelangganAktif ? _self.jumlahPelangganAktif : jumlahPelangganAktif // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }

@@ -618,13 +618,12 @@ class MockLayananUnduhanAwal extends _i1.Mock
   }
 
   @override
-  _i8.Future<void> jalankanUnduhanAwal() =>
+  _i8.Future<bool> jalankanUnduhanAwal() =>
       (super.noSuchMethod(
             Invocation.method(#jalankanUnduhanAwal, []),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i8.Future<bool>.value(false),
           )
-          as _i8.Future<void>);
+          as _i8.Future<bool>);
 }
 
 /// A class which mocks [SettingsOpSqlite].
