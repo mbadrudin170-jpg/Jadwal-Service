@@ -70,9 +70,8 @@ class LayananUnduhanAwal {
       }),
     ];
 
-    final results = await loadAll(futures) as List<bool>;
+    final results = await Future.wait(futures);
     final adaDataBaru = results.any((r) => r == true);
-
     pengukurWaktu.stop();
     Log.info(
       'Proses unduhan awal selesai dalam ${pengukurWaktu.elapsed.inSeconds} detik. '
