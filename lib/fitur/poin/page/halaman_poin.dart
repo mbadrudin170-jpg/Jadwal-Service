@@ -12,7 +12,6 @@ import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/pelanggan/widget/nama_pelanggan_widget.dart';
-import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/poin/poin.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -221,9 +220,6 @@ class _HalamanPoinState extends ConsumerState<HalamanPoin> {
   void _invalidateProviderTerkait(String? idDompet, String? idPelanggan) {
     ref.invalidate(transaksiOpProvider);
     ref.read(orderProvider.notifier).invalidate();
-    if (ref.isAdmin) {
-      ref.read(pelangganAktifProvider.notifier).invalidatePelangganAktif();
-    }
     ref.read(pelangganProvider.notifier).invalidateDetailPelanggan(idPelanggan);
   }
 
