@@ -66,19 +66,48 @@ mkdir -p prompt
 find lib test > prompt/struktur_proyek.md
 
 {
+    # Struktur direktori (hanya nama file)
     find lib test
+
+    # File pubspec.yaml
     echo -e "// File: pubspec.yaml\n"
     cat pubspec.yaml
+
+    # File analysis_options.yaml
     echo -e "\n\n// File: analysis_options.yaml\n"
     cat analysis_options.yaml
-    find lib -type f -name "*.dart" -exec sh -c "echo -e \"\n\n// File: {}\"; cat \"{}\"" \;
-    find prompt -type f -name "*.md" -exec sh -c "echo -e \"\n\n// File: {}\"; cat \"{}\"" \;
+
+    # Semua file .dart di lib/ dengan blok kode Dart
+    find lib -type f -name "*.dart" -exec sh -c '
+        echo -e "\n\n// File: $1"
+        echo "\`\`\`dart"
+        cat "$1"
+        echo "\`\`\`"
+    ' _ {} \;
+
+    # File .md di prompt/
+    find prompt -type f -name "*.md" -exec sh -c '
+        echo -e "\n\n// File: $1"
+        cat "$1"
+    ' _ {} \;
+
+    # Snippet VS Code
     echo -e "\n\n// ============================================================"
     echo -e "// SNIPPET VS CODE"
     echo -e "// ============================================================\n"
-    find .vscode -type f -name "*.code-snippets" -exec sh -c "echo -e \"\n\n// File: {}\"; cat \"{}\"" \;
+    find .vscode -type f -name "*.code-snippets" -exec sh -c '
+        echo -e "\n\n// File: $1"
+        cat "$1"
+    ' _ {} \;
+
+    # Jika include_test, tambahkan file .dart di test/ dengan blok kode
     if [ "$include_test" = "include_test" ]; then
-        find test -type f -name "*.dart" -exec sh -c "echo -e \"\n\n// File: {}\"; cat \"{}\"" \;
+        find test -type f -name "*.dart" -exec sh -c '
+            echo -e "\n\n// File: $1"
+            echo "\`\`\`dart"
+            cat "$1"
+            echo "\`\`\`"
+        ' _ {} \;
     fi
 } > "$output_file"
 
@@ -142,27 +171,28 @@ fi
 
 // File: script/docs/md_readme.sh
 #!/bin/bash
+# // path: script/docs/md_fitur_gabung.sh
 
-# Fungsi internal (sebelumnya _proses_fitur_readme)
-_proses_fitur_readme() {
+# Fungsi internal untuk memproses satu fitur dan menambahkannya ke outfile
+_proses_fitur() {
     local dir="$1"
     local outfile="$2"
     local feature=$(basename "$dir")
     local link_prefix="./"
 
     {
-        echo "## Fitur: $feature"
+        echo "# Dokumentasi Fitur: $feature"
         echo ""
-        echo "### Daftar file"
+        echo "## Daftar file"
         echo ""
         find "$dir" -name "*.dart" -type f ! -name "*.freezed.dart" ! -name "*.g.dart" | sort | while read -r file; do
             echo "- [${file}](${link_prefix}${file})"
         done
         echo ""
-        echo "### Isi file"
+        echo "## Isi file"
         echo ""
         find "$dir" -name "*.dart" -type f ! -name "*.freezed.dart" ! -name "*.g.dart" | sort | while read -r file; do
-            echo "#### File: \`$file\`"
+            echo "### File: \`$file\`"
             echo '```dart'
             cat "$file"
             echo '```'
@@ -170,27 +200,27 @@ _proses_fitur_readme() {
         done
     } >> "$outfile"
 }
-# alias =>  r
-# Daftar fitur default (jika tidak ada argumen)
-default_features=(
 
-    
-    )   # <-- UBAH SESUAI KEBUTUHAN
+# --- KONFIGURASI ---
+output="README.md"               # ganti sesuai keinginan
+# -------------------
 
 # Tentukan array fitur yang akan diproses
 if [[ $# -eq 0 ]]; then
-    features=("${default_features[@]}")
+    # Jika tanpa argumen, proses semua fitur di lib/fitur/
+    echo "📦 Memproses SEMUA fitur..."
+    features=()
+    for dir in lib/fitur/*/; do
+        features+=("$(basename "$dir")")
+    done
 else
     features=("$@")
 fi
 
-output="README.md"
+# Buat file sementara
 temp_file=$(mktemp)
 
-# Tulis header utama
-echo "# Dokumentasi Fitur" > "$temp_file"
-echo "" >> "$temp_file"
-
+# Proses setiap fitur
 for target in "${features[@]}"; do
     dir=$(find lib/fitur -maxdepth 1 -type d -iname "*${target}*" | head -1)
     if [[ -z "$dir" ]]; then
@@ -199,10 +229,11 @@ for target in "${features[@]}"; do
     fi
     feature=$(basename "$dir")
     echo "📄 Memproses fitur: $feature" >&2
-    _proses_fitur_readme "$dir" "$temp_file"
+    _proses_fitur "$dir" "$temp_file"
     echo "" >> "$temp_file"
 done
 
+# Pindahkan ke file output akhir
 mv "$temp_file" "$output"
 echo "✅ Dokumentasi gabungan selesai → $output"
 
@@ -298,35 +329,34 @@ alias md_fitur='/home/user/myapp/script/docs/md_fitur.sh'
 alias md_readme='/home/user/myapp/script/docs/md_readme.sh'
 alias timpa_readme='/home/user/myapp/script/docs/timpa_readme.sh'
 alias md_script='/home/user/myapp/script/docs/md_script.sh'
-# build_runner
+
+# -----------build_runner-----------
 alias fbuild='flutter pub run build_runner build --delete-conflicting-outputs'
 alias fwatch='dart run build_runner watch --delete-conflicting-outputs'
 alias emulator='lsof +L1'
 
-# bash
+#-------------- bash ------------
 alias simpan='source ~/.bashrc'
 alias bukabash='code ~/.bash_aliases'
 
 alias cekfileterbesar='du -sh ~/* ~/.* 2>/dev/null | sort -rh | head -n 10'
 alias stopdaemon='cd android && chmod +x gradlew && ./gradlew --stop'
-alias gemini='find prompt -name "*.md" -exec cat {} + > GEMINI.md'
-alias readme='find lib -name "*.dart" -exec cat {} + > README.md'
 
 alias f='dart format lib/'
+
 # Alias gabungan (untuk reset total dependency)
-alias freset='flutter clean && flutter pub get && df -h'
 alias cekpakettidakterpakai='dart pub global activate dart_depcheck && dart_depcheck'
 alias hapuspaket='flutter pub remove'
-# Alias yang menggunakan fungsi
-alias r='cd_root build_docs README.md'
-alias l='cd_root build_docs dokumen_lengkap.md include_test'
-alias lr='l r' 
 
+#----------- clean -----------
 alias fullclean='cd_root full_clean'
+alias freset='flutter clean && flutter pub get && df -h'
 
-## Dokumen
+
+## ----------- Dokumen --------------
 alias s='timpa_readme'
 alias md='cd_root md_fitur'
-alias m='cd_root md_fitur all'
 alias g='md_readme' 
 alias dscript='md_script'
+alias r='cd_root build_docs README.md'
+alias l='cd_root build_docs README.md include_test'

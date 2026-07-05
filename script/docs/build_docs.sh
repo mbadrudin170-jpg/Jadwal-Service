@@ -17,19 +17,48 @@ mkdir -p prompt
 find lib test > prompt/struktur_proyek.md
 
 {
+    # Struktur direktori (hanya nama file)
     find lib test
+
+    # File pubspec.yaml
     echo -e "// File: pubspec.yaml\n"
     cat pubspec.yaml
+
+    # File analysis_options.yaml
     echo -e "\n\n// File: analysis_options.yaml\n"
     cat analysis_options.yaml
-    find lib -type f -name "*.dart" -exec sh -c "echo -e \"\n\n// File: {}\"; cat \"{}\"" \;
-    find prompt -type f -name "*.md" -exec sh -c "echo -e \"\n\n// File: {}\"; cat \"{}\"" \;
+
+    # Semua file .dart di lib/ dengan blok kode Dart
+    find lib -type f -name "*.dart" -exec sh -c '
+        echo -e "\n\n// File: $1"
+        echo "\`\`\`dart"
+        cat "$1"
+        echo "\`\`\`"
+    ' _ {} \;
+
+    # File .md di prompt/
+    find prompt -type f -name "*.md" -exec sh -c '
+        echo -e "\n\n// File: $1"
+        cat "$1"
+    ' _ {} \;
+
+    # Snippet VS Code
     echo -e "\n\n// ============================================================"
     echo -e "// SNIPPET VS CODE"
     echo -e "// ============================================================\n"
-    find .vscode -type f -name "*.code-snippets" -exec sh -c "echo -e \"\n\n// File: {}\"; cat \"{}\"" \;
+    find .vscode -type f -name "*.code-snippets" -exec sh -c '
+        echo -e "\n\n// File: $1"
+        cat "$1"
+    ' _ {} \;
+
+    # Jika include_test, tambahkan file .dart di test/ dengan blok kode
     if [ "$include_test" = "include_test" ]; then
-        find test -type f -name "*.dart" -exec sh -c "echo -e \"\n\n// File: {}\"; cat \"{}\"" \;
+        find test -type f -name "*.dart" -exec sh -c '
+            echo -e "\n\n// File: $1"
+            echo "\`\`\`dart"
+            cat "$1"
+            echo "\`\`\`"
+        ' _ {} \;
     fi
 } > "$output_file"
 
