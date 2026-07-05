@@ -30,9 +30,8 @@ _proses_fitur_readme() {
 # alias =>  r
 # Daftar fitur default (jika tidak ada argumen)
 default_features=(
-    "voucher"
-     "paket"
-      "transaksi"
+
+    
     )   # <-- UBAH SESUAI KEBUTUHAN
 
 # Tentukan array fitur yang akan diproses
