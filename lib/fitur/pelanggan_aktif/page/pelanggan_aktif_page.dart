@@ -66,7 +66,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
 
   PelangganAktifOpSqlite get _pelangganAktifOpSqlite =>
       ref.read(pelangganAktifOpSqliteProvider);
-      
+
   void _onSearchChanged() {
     setState(() {});
   }
