@@ -590,6 +590,7 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
 
 part 'role_util.g.dart';
@@ -603,7 +604,9 @@ AppRole appRole(Ref ref) {
 
 class RoleUtil {
   static bool isAdmin(Ref ref) {
-    return ref.watch(appRoleProvider) == AppRole.admin;
+    final role = ref.watch(appRoleProvider);
+    Log.info('Role saat ini: ${role.name}'); // ← lihat log ini
+    return role == AppRole.admin;
   }
 
   static bool isUser(Ref ref) {
@@ -717,6 +720,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
@@ -828,6 +832,7 @@ class DaftarAkunPage extends ConsumerWidget {
       final activityService = await ref.read(
         layananAktivitasUserProvider.future,
       );
+       ref.invalidate(transaksiOpProvider);
       Log.info('Mulai memilih akun', {
         'customer_id': pelanggan.id,
         'nama': pelanggan.nama,
@@ -1064,7 +1069,7 @@ final class PengelolaAkunProvider
   PengelolaAkun create() => PengelolaAkun();
 }
 
-String _$pengelolaAkunHash() => r'5af58521b83a2865f01b9f1bee90c0b7b9376357';
+String _$pengelolaAkunHash() => r'2853eae0dec9db882de600d2002db537a1a35157';
 
 abstract class _$PengelolaAkun extends $AsyncNotifier<AkunState> {
   FutureOr<AkunState> build();
@@ -40694,10 +40699,13 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/notifikasi/pengingat_paket_belum_lunas.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:workmanager/workmanager.dart';
 
 const String namaTugasSinkronisasi = 'syncDataTask';
@@ -40708,11 +40716,17 @@ const String namaTugasPengingatTagihan = 'reminder_unpaid_packages';
 void callbackDispatcher() {
   Workmanager().executeTask((tugas, dataMasukan) async {
     Log.info('Background task dimulai: $tugas');
-
     await _inisialisasiIsolatLatarBelakang();
+    final prefs = await SharedPreferences.getInstance();
+    final roleName = prefs.getString('app_role') ?? AppRole.user.name;
+    final role = AppRole.values.firstWhere(
+      (e) => e.name == roleName,
+      orElse: () => AppRole.user,
+    );
 
-    final container = ProviderContainer();
-
+    final container = ProviderContainer(
+      overrides: [appRoleProvider.overrideWithValue(role)],
+    );
     try {
       switch (tugas) {
         case namaTugasSinkronisasi:
@@ -40802,7 +40816,16 @@ class LayananLatarBelakang {
       'Alarm terpicu: Memulai pemeriksaan dan pengarsipan pelanggan kedaluwarsa.',
     );
     await _inisialisasiIsolatLatarBelakang();
-    final container = ProviderContainer();
+    final prefs = await SharedPreferences.getInstance();
+    final roleName = prefs.getString('app_role') ?? AppRole.user.name;
+    final role = AppRole.values.firstWhere(
+      (e) => e.name == roleName,
+      orElse: () => AppRole.user,
+    );
+
+    final container = ProviderContainer(
+      overrides: [appRoleProvider.overrideWithValue(role)],
+    );
     try {
       final pelangganAktifOpsqlite = container.read(
         pelangganAktifOpSqliteProvider,
@@ -54899,6 +54922,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gma_mediation_unity/gma_mediation_unity.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
@@ -54921,7 +54945,10 @@ Future<void> bootstrapUser({
 
   Log.info('Menginisialisasi Firebase...');
   await Firebase.initializeApp(options: firebaseOptions);
+
   Log.info('Inisialisasi Firebase selesai.');
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('app_role', AppRole.user.name);
 
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
@@ -55012,6 +55039,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
@@ -55041,6 +55069,9 @@ Future<void> bootstrapAdmin({
   final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey] ?? '';
   final supabasePublishableKey =
       dotenv.env[AppConstants.supabasePublishableKey] ?? '';
+
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('app_role', AppRole.admin.name);
 
   await Supabase.initialize(
     url: supabaseUrl,
