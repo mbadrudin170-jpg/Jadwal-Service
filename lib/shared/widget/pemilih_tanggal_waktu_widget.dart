@@ -7,8 +7,8 @@ import 'package:wifi/shared/utils/format_util.dart';
 class PemilihTanggalWaktuWidget extends StatelessWidget {
   final DateTime? tanggalTerpilih;
   final TimeOfDay? waktuTerpilih;
-  final VoidCallback onPilihTanggal;
-  final VoidCallback onPilihWaktu;
+  final VoidCallback? onPilihTanggal;
+  final VoidCallback? onPilihWaktu;
   final String teksLabel;
 
   const PemilihTanggalWaktuWidget({
