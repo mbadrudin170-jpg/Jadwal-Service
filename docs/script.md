@@ -1,6 +1,6 @@
 
 
-// File: script/docs/docs_script.sh
+// File: script/docs/md_script.sh
 #!/bin/bash
 
 output_file="docs/script.md"
