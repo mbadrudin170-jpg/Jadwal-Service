@@ -10,7 +10,11 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
+import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_unduhan_awal.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_provider.dart';
 import 'package:wifi/shared/data/services/layanan_navigasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -117,10 +121,15 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
             );
             await pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
             final unduhanAwalService = ref.read(layananUnduhanAwalProvider);
-            await unduhanAwalService.jalankanUnduhanAwal().timeout(
-              const Duration(seconds: 30),
-            );
+            final adaDataBaru = await unduhanAwalService.jalankanUnduhanAwal();
 
+            if (adaDataBaru) {
+              ref.invalidate(pelangganProvider);
+              ref.invalidate(paketProvider);
+              ref.invalidate(transaksiProvider);
+              ref.invalidate(dompetProvider);
+              Log.info('Provider di-invalidate karena ada data baru.');
+            }
             final dataPengaturan = await ref
                 .read(settingsOpSqliteProvider)
                 .ambilSettings();

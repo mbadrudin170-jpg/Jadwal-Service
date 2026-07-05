@@ -6,6 +6,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_unduh_data.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/utils/future_util.dart';
 
 class LayananUnduhanAwal {
   final SqliteDatabase _databaseSqlite;
@@ -18,26 +19,67 @@ class LayananUnduhanAwal {
        _layananUnduhData = layananUnduhData {
     Log.info('LayananUnduhanAwal diinisialisasi dengan dependency injection.');
   }
-
-  Future<void> jalankanUnduhanAwal() async {
+  Future<bool> jalankanUnduhanAwal() async {
     Log.info('Memulai sinkronisasi awal: Mengecek tabel lokal yang kosong...');
     final pengukurWaktu = Stopwatch()..start();
 
-    await _unduhPaketJikaKosong();
-    await _unduhKategoriJikaKosong();
-    await _unduhSubKategoriJikaKosong();
-    await _unduhDompetJikaKosong();
-    await _unduhPelangganJikaKosong();
-    await _unduhVersiApkJikaKosong();
-    await _unduhPengaturanJikaKosong();
-    await _unduhPelangganAktifJikaKosong();
-    await _unduhTransaksiJikaKosong();
-    await _unduhUmpanBalikJikaKosong();
-    await _unduhPesananJikaKosong();
+    final futures = [
+      _unduhPaketJikaKosong().catchError((Object e) {
+        Log.error('Gagal unduh paket', e: e);
+        return false;
+      }),
+      _unduhKategoriJikaKosong().catchError((Object e) {
+        Log.error('Gagal unduh kategori', e: e);
+        return false;
+      }),
+      _unduhSubKategoriJikaKosong().catchError((Object e) {
+        Log.error('Gagal unduh sub kategori', e: e);
+        return false;
+      }),
+      _unduhDompetJikaKosong().catchError((Object e) {
+        Log.error('Gagal unduh dompet', e: e);
+        return false;
+      }),
+      _unduhPelangganJikaKosong().catchError((Object e) {
+        Log.error('Gagal unduh pelanggan', e: e);
+        return false;
+      }),
+      _unduhVersiApkJikaKosong().catchError((Object e) {
+        Log.error('Gagal unduh versi APK', e: e);
+        return false;
+      }),
+      _unduhPengaturanJikaKosong().catchError((Object e) {
+        Log.error('Gagal unduh pengaturan', e: e);
+        return false;
+      }),
+      _unduhPelangganAktifJikaKosong().catchError((Object e) {
+        Log.error('Gagal unduh pelanggan aktif', e: e);
+        return false;
+      }),
+      _unduhTransaksiJikaKosong().catchError((Object e) {
+        Log.error('Gagal unduh transaksi', e: e);
+        return false;
+      }),
+      _unduhUmpanBalikJikaKosong().catchError((Object e) {
+        Log.error('Gagal unduh umpan balik', e: e);
+        return false;
+      }),
+      _unduhPesananJikaKosong().catchError((Object e) {
+        Log.error('Gagal unduh pesanan', e: e);
+        return false;
+      }),
+    ];
+
+    final results = await loadAll(futures) as List<bool>;
+    final adaDataBaru = results.any((r) => r == true);
+
     pengukurWaktu.stop();
     Log.info(
-      'Proses unduhan awal selesai dalam ${pengukurWaktu.elapsed.inSeconds} detik.',
+      'Proses unduhan awal selesai dalam ${pengukurWaktu.elapsed.inSeconds} detik. '
+      'Ada data baru: $adaDataBaru',
     );
+
+    return adaDataBaru;
   }
 
   Future<bool> _apakahTabelKosong(String namaTabel) async {
@@ -55,7 +97,7 @@ class LayananUnduhanAwal {
     }
   }
 
-  Future<void> _unduhJikaKosong({
+  Future<bool> _unduhJikaKosong({
     required String namaTabel,
     required Future<void> Function() fungsiUnduh,
   }) async {
@@ -64,65 +106,68 @@ class LayananUnduhanAwal {
         Log.info("Memulai unduh data untuk '$namaTabel'...");
         await fungsiUnduh();
         Log.info("Data '$namaTabel' berhasil disimpan ke lokal.");
+        return true; // ✅ Berhasil mengunduh
       } else {
         Log.info("Lewati '$namaTabel' (Sudah ada data).");
+        return false; // ❌ Tidak perlu unduh
       }
     } on Exception catch (e, s) {
       Log.error("ERROR saat mengunduh '$namaTabel'", e: e, s: s);
+      return false; // ❌ Gagal
     }
   }
 
-  Future<void> _unduhPaketJikaKosong() => _unduhJikaKosong(
+  Future<bool> _unduhPaketJikaKosong() => _unduhJikaKosong(
     namaTabel: NamaTabel.paket,
     fungsiUnduh: _layananUnduhData.unduhDataPaket,
   );
 
-  Future<void> _unduhKategoriJikaKosong() => _unduhJikaKosong(
+  Future<bool> _unduhKategoriJikaKosong() => _unduhJikaKosong(
     namaTabel: NamaTabel.kategori,
     fungsiUnduh: _layananUnduhData.unduhDataKategori,
   );
 
-  Future<void> _unduhSubKategoriJikaKosong() => _unduhJikaKosong(
+  Future<bool> _unduhSubKategoriJikaKosong() => _unduhJikaKosong(
     namaTabel: NamaTabel.subKategori,
     fungsiUnduh: _layananUnduhData.unduhDataSubKategori,
   );
 
-  Future<void> _unduhDompetJikaKosong() => _unduhJikaKosong(
+  Future<bool> _unduhDompetJikaKosong() => _unduhJikaKosong(
     namaTabel: NamaTabel.dompet,
     fungsiUnduh: _layananUnduhData.unduhDataDompet,
   );
 
-  Future<void> _unduhPelangganJikaKosong() => _unduhJikaKosong(
+  Future<bool> _unduhPelangganJikaKosong() => _unduhJikaKosong(
     namaTabel: NamaTabel.pelanggan,
     fungsiUnduh: _layananUnduhData.unduhDataPelanggan,
   );
 
-  Future<void> _unduhVersiApkJikaKosong() => _unduhJikaKosong(
+  Future<bool> _unduhVersiApkJikaKosong() => _unduhJikaKosong(
     namaTabel: NamaTabel.versiApkUser,
     fungsiUnduh: _layananUnduhData.unduhDataVersiApk,
   );
 
-  Future<void> _unduhPengaturanJikaKosong() => _unduhJikaKosong(
+  Future<bool> _unduhPengaturanJikaKosong() => _unduhJikaKosong(
     namaTabel: NamaTabel.settings,
     fungsiUnduh: _layananUnduhData.unduhDataPengaturan,
   );
 
-  Future<void> _unduhPelangganAktifJikaKosong() => _unduhJikaKosong(
+  Future<bool> _unduhPelangganAktifJikaKosong() => _unduhJikaKosong(
     namaTabel: NamaTabel.pelangganAktif,
     fungsiUnduh: _layananUnduhData.unduhDataPelangganAktif,
   );
 
-  Future<void> _unduhTransaksiJikaKosong() => _unduhJikaKosong(
+  Future<bool> _unduhTransaksiJikaKosong() => _unduhJikaKosong(
     namaTabel: NamaTabel.transaksi,
     fungsiUnduh: _layananUnduhData.unduhDataTransaksi,
   );
 
-  Future<void> _unduhUmpanBalikJikaKosong() => _unduhJikaKosong(
+  Future<bool> _unduhUmpanBalikJikaKosong() => _unduhJikaKosong(
     namaTabel: NamaTabel.feedback,
     fungsiUnduh: _layananUnduhData.unduhDataUmpanBalik,
   );
 
-  Future<void> _unduhPesananJikaKosong() => _unduhJikaKosong(
+  Future<bool> _unduhPesananJikaKosong() => _unduhJikaKosong(
     namaTabel: NamaTabel.pesananPelanggan,
     fungsiUnduh: _layananUnduhData.unduhDataPesanan,
   );
