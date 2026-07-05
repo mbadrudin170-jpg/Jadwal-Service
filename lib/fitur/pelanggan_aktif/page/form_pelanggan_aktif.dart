@@ -413,7 +413,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       );
       if (_modePerpanjang) {
         // Perpanjang: update pelangganAktif yang sudah ada, transaksi BARU
-        await pelangganAktif.updatePelangganAktif(pelangganAktifData);
+        await pelangganAktif.perbarui(pelangganAktifData);
         await transaksiOp.tambah(transaksiData);
         // Hapus notifikasi dari transaksi sebelumnya (ID transaksi lama)
         await notifikasiOpSqlite.hapusBerdasarkanIdTujuan(
@@ -421,13 +421,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         );
       } else if (_modeEdit) {
         await futureWait([
-          pelangganAktif.updatePelangganAktif(pelangganAktifData),
+          pelangganAktif.perbarui(pelangganAktifData),
           transaksiOp.perbarui(transaksiData),
         ]);
         unawaited(notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi));
       } else {
         await Future.wait([
-          pelangganAktif.tambahPelangganAktif(pelangganAktifData),
+          pelangganAktif.tambah(pelangganAktifData),
           transaksiOp.tambah(transaksiData),
         ]);
       }
