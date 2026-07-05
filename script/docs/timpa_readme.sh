@@ -13,8 +13,7 @@ file_list=(
   'lib/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart'
   'lib/fitur/paket/provider/paket_provider.dart'
   'lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart'
-  'lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart'
-    # Tambahkan file lain di bawah ini sesuai kebutuhan
+  'lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart'  # Tambahkan file lain di bawah ini sesuai kebutuhan
 )
 
 # Kosongkan file output
