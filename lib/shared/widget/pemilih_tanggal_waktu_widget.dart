@@ -15,8 +15,8 @@ class PemilihTanggalWaktuWidget extends StatelessWidget {
     super.key,
     required this.tanggalTerpilih,
     required this.waktuTerpilih,
-    required this.onPilihTanggal,
-    required this.onPilihWaktu,
+    this.onPilihTanggal,
+    this.onPilihWaktu,
     this.teksLabel = 'Pilih Tanggal & Waktu',
   });
 
