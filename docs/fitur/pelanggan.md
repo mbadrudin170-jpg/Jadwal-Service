@@ -1749,6 +1749,7 @@ Poin: $totalPoin
 ```dart
 // path lib/fitur/pelanggan/provider/pelanggan_provider.dart
 
+import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
@@ -1760,11 +1761,17 @@ part 'pelanggan_provider.freezed.dart';
 
 @freezed
 abstract class PelangganState with _$PelangganState {
+  const PelangganState._();
   const factory PelangganState({
     @Default([]) List<PelangganModel> daftarPelanggan,
     @Default(0) int jumlahPelanggan,
     @Default(0) int totalPoin,
   }) = _PelangganState;
+  // di dalam PelangganState (freezed)
+  PelangganModel? ambilBerdasarkanId(String idPelanggan) {
+    // pastikan import 'package:collection/collection.dart';
+    return daftarPelanggan.firstWhereOrNull((p) => p.id == idPelanggan);
+  }
 }
 
 @Riverpod(keepAlive: true)
@@ -2041,11 +2048,13 @@ class NamaPelangganWidget extends ConsumerWidget {
   final String loadingText;
   final String errorText;
   final String emptyText;
+  final TextAlign? textAlign;
 
   const NamaPelangganWidget({
     super.key,
     required this.idPelanggan,
     this.style,
+    this.textAlign,
     this.showLoadingIndicator = false,
     this.loadingText = '',
     this.errorText = 'Error memuat data',
@@ -2078,6 +2087,7 @@ class NamaPelangganWidget extends ConsumerWidget {
           style:
               style?.copyWith(color: Colors.grey.shade400) ??
               const TextStyle(color: Colors.grey),
+          textAlign: textAlign,
         );
       },
       error: (error, stack) {

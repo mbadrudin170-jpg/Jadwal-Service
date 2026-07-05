@@ -636,6 +636,7 @@ import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -689,9 +690,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
 
   PelangganAktifOpSqlite get _pelangganAktifOpSqlite =>
       ref.read(pelangganAktifOpSqliteProvider);
-  TransaksiOpSqlite get _transaksiOpsqlite =>
-      ref.read(transaksiOpSqliteProvider);
-
+      
   void _onSearchChanged() {
     setState(() {});
   }
@@ -867,10 +866,8 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
         final konfirmasi = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('Konfirmasi Arsipkan Semua'),
-            content: const Text(
-              'Yakin ingin mengarsipkan SEMUA pelanggan aktif?',
-            ),
+            title: const Text('Konfirmasi Hapus Semua'),
+            content: const Text('Yakin ingin menghapus SEMUA pelanggan aktif?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
@@ -878,7 +875,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(ctx, true),
-                child: const Text('Arsipkan Semua'),
+                child: const Text('Hapus Semua'),
               ),
             ],
           ),
@@ -886,8 +883,8 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
         if (konfirmasi == true) {
           try {
             Log.warning('Eksekusi arsipkan semua pelanggan aktif');
-            await _pelangganAktifOpSqlite.softDeleteAll();
-            await _transaksiOpsqlite.softDeleteAll();
+            await ref.read(pelangganAktifProvider.notifier).softDeleteAll();
+            await ref.read(transaksiOpProvider.notifier).softDeleteAll();
             if (mounted) {
               ToastUtil.success(context, 'Berhasil mengarsipkan  pelanggan.');
             }

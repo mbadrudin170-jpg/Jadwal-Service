@@ -762,16 +762,13 @@ class PelangganAktifOpSqlite {
         where: '${NamaKolom.tanggalBerakhir} < ? AND ${NamaKolom.dihapus} = 0',
         whereArgs: [_nowUtc.millisecondsSinceEpoch],
       );
-
       if (expiredCustomers.isEmpty) {
         Log.info('Tidak ada active customer kadaluarsa');
         return 0;
       }
-
       final idsToArchive = expiredCustomers
           .map((final p) => p[NamaKolom.id] as String)
           .toList();
-
       await _baseOpSqlite.operasiKompleks<void>((txn) async {
         await txn.update(
           _tabelPelangganAktif,
@@ -791,7 +788,6 @@ class PelangganAktifOpSqlite {
           await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 2));
         }
       }, dariServer: dariServer);
-
       Log.info(
         '${idsToArchive.length} active customer kadaluarsa telah diarsipkan',
       );
@@ -877,74 +873,28 @@ class PelangganAktifOpSqlite {
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/page/detail_paket.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan.dart';
-import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 import 'package:wifi/fitur/whatsapp/info_paket.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/future_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-final detailPleangganAktifProvider =
-    FutureProvider.family<
-      ({
-        PelangganModel? pelanggan,
-        PaketModel? paket,
-        TransaksiModel? transaksi,
-        PelangganAktifModel pelangganAktif,
-      }),
-      String
-    >((ref, id) async {
-      final pelangganAktifState = await ref.watch(
-        pelangganAktifProvider.future,
-      );
-      final daftarPelangganAktif = pelangganAktifState.daftarPelangganAktif;
-      final detailPelangganAktif = daftarPelangganAktif.firstWhereOrNull(
-        (detail) => detail.pelangganAktif.id == id,
-      );
-      if (detailPelangganAktif == null) {
-        throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
-      }
-      final pelangganAktif = detailPelangganAktif.pelangganAktif;
-      final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
-      final paketOpSqlite = ref.watch(paketOpSqliteProvider);
-      final transaksiOpsqlite = ref.watch(transaksiOpGlobalProvider);
-      final hasil = await futureWait([
-        pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.idPelanggan),
-        pelangganAktif.idPaket.isNotEmpty
-            ? paketOpSqlite.ambilBerdasarkanId(pelangganAktif.idPaket)
-            : Future<PaketModel?>.value(),
-        pelangganAktif.idTransaksi.isNotEmpty
-            ? transaksiOpsqlite.ambilBerdasarkanId(pelangganAktif.idTransaksi)
-            : Future<TransaksiModel?>.value(),
-      ]);
-      return (
-        pelanggan: hasil[0] as PelangganModel?,
-        paket: hasil[1] as PaketModel?,
-        transaksi: hasil[2] as TransaksiModel?,
-        pelangganAktif: pelangganAktif,
-      );
-    });
-
 class DetailPelangganAktif extends ConsumerStatefulWidget {
-  final PelangganAktifModel pelangganAktif;
-  const DetailPelangganAktif({super.key, required this.pelangganAktif});
+  final String idPelangganAktif;
+  const DetailPelangganAktif({super.key, required this.idPelangganAktif});
   @override
   ConsumerState<DetailPelangganAktif> createState() =>
       _DetailPelangganAktifState();
@@ -955,7 +905,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
   void initState() {
     super.initState();
     Log.info('Membuka halaman Detail Pelanggan Aktif');
-    Log.info('  - ID Pelanggan Aktif: ${widget.pelangganAktif.id}');
+    Log.info('  - ID Pelanggan Aktif: ${widget.idPelangganAktif}');
   }
 
   Future<void> _bukaWhatsApp(String phone) async {
@@ -984,14 +934,14 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
     }
   }
 
-  void _bukaFormEdit(PelangganAktifModel pelangganaktif) {
-    Log.info('Navigasi ke form edit pelanggan aktif ID: ${pelangganaktif.id}');
+  void _bukaFormEdit(String idPelangganaktif) {
+    Log.info('Navigasi ke form edit pelanggan aktif ID: $idPelangganaktif');
     unawaited(
       Navigator.push<void>(
         context,
         MaterialPageRoute(
           builder: (context) =>
-              FormPelangganAktif(pelangganAktif: pelangganaktif),
+              FormPelangganAktif(idPelangganAktif: idPelangganaktif),
         ),
       ),
     );
@@ -1000,41 +950,36 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
   @override
   Widget build(BuildContext context) {
     Log.info(
-      'Membangun UI detail pelanggan aktif untuk ID: ${widget.pelangganAktif.id}.',
+      'Membangun UI detail pelanggan aktif untuk ID: ${widget.idPelangganAktif}.',
     );
-    final detailAsync = ref.watch(
-      detailPleangganAktifProvider(widget.pelangganAktif.id),
-    );
-    return detailAsync.when(
-      skipLoadingOnReload: true,
-      data: (data) => _buildScaffold(context, data),
-      loading: () => const Scaffold(body: Center(child: Text(''))),
-      error: (e, s) =>
-          Scaffold(body: Center(child: Text('Terjadi kesalahan: $e'))),
-    );
+    return _buildScaffold(context);
   }
 
-  Widget _buildScaffold(
-    BuildContext context,
-    ({
-      PelangganModel? pelanggan,
-      PaketModel? paket,
-      TransaksiModel? transaksi,
-      PelangganAktifModel pelangganAktif,
-    })
-    data,
-  ) {
-    final pelangganAktif = data.pelangganAktif;
-    final pelanggan = data.pelanggan;
-    final paket = data.paket;
-    final transaksi = data.transaksi;
+  Widget _buildScaffold(BuildContext context) {
+    final pelangganAktifState = ref.watch(pelangganAktifProvider);
+    final pelangganAktif = pelangganAktifState.whenOrNull(
+      data: (state) => state.ambilBerdasarkanId(widget.idPelangganAktif),
+    );
+    final pelangganState = ref.watch(pelangganProvider);
+    final pelanggan = pelangganState.whenOrNull(
+      data: (state) => state.ambilBerdasarkanId(pelangganAktif!.idPelanggan),
+    );
+    final paketState = ref.watch(paketProvider);
+    final paket = paketState.whenOrNull(
+      data: (state) => state.ambilBerdasarkanId(pelangganAktif!.idPaket),
+    );
+    final transaksiState = ref.watch(transaksiOpProvider);
+    final transaksi = transaksiState.whenOrNull(
+      data: (state) =>
+          state.ambilBerdasarkanIdTransaksi(pelangganAktif!.idTransaksi),
+    );
     return Scaffold(
       appBar: AppBar(
         title: Text(pelanggan?.nama ?? 'Detail Pelanggan'),
         actions: [
           IconButton(
             icon: const Icon(TIcons.edit),
-            onPressed: () => _bukaFormEdit(pelangganAktif),
+            onPressed: () => _bukaFormEdit(pelangganAktif?.id ?? ''),
           ),
         ],
       ),
@@ -1066,7 +1011,8 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => DetailPelanggan(
-                                      idPelanggan: pelanggan.id,
+                                      idPelanggan:
+                                          pelangganAktif?.idPelanggan ?? '',
                                     ),
                                   ),
                                 ),
@@ -1074,7 +1020,9 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                             }
                           },
                           child: Text(
-                            pelanggan?.nama ?? pelangganAktif.idPelanggan,
+                            pelanggan?.nama ??
+                                pelangganAktif?.idPelanggan ??
+                                '',
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.headlineSmall
                                 ?.copyWith(color: Colors.blue),
@@ -1106,13 +1054,14 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                         child: _buildInfoRow(
                           context,
                           'Paket',
-                          paket?.nama ?? ' (ID: ${pelangganAktif.idPaket})',
+                          paket?.nama ??
+                              ' (ID: ${pelangganAktif?.idPaket ?? ''})',
                         ),
                       ),
                       _buildInfoRow(
                         context,
                         'Status',
-                        pelangganAktif.status.displayName,
+                        pelangganAktif?.status.displayName ?? '',
                       ),
                       if (transaksi != null) ...[
                         if (transaksi.poinDidapat > 0)
@@ -1138,7 +1087,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                         context,
                         'Mulai',
                         FormatWaktuLengkap.formatSingkat(
-                          pelangganAktif.tanggalMulai,
+                          pelangganAktif!.tanggalMulai,
                         ),
                       ),
                       _buildInfoRow(
@@ -1192,7 +1141,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                             context,
                             MaterialPageRoute<void>(
                               builder: (_) => FormPelangganAktif(
-                                pelangganAktif: data.pelangganAktif,
+                                idPelangganAktif: widget.idPelangganAktif,
                                 modePerpanjang:
                                     true, // kirim flag mode perpanjang
                               ),
@@ -1323,11 +1272,11 @@ import 'package:wifi/shared/widget/input/input_angka.dart';
 import 'package:wifi/shared/widget/pemilih_tanggal_waktu_widget.dart';
 
 class FormPelangganAktif extends ConsumerStatefulWidget {
-  final PelangganAktifModel? pelangganAktif;
+  final String? idPelangganAktif;
   final bool modePerpanjang; // baru
   const FormPelangganAktif({
     super.key,
-    this.pelangganAktif,
+    this.idPelangganAktif,
     this.modePerpanjang = false,
   });
   @override
@@ -1358,7 +1307,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   DateTime? _pilihTanggal;
   TimeOfDay? _pilihJam;
   StatusPembayaran _statusPembayaran = StatusPembayaran.paid;
-  bool get _modeEdit => widget.pelangganAktif != null && !widget.modePerpanjang;
+  bool get _modeEdit =>
+      widget.idPelangganAktif != null && !widget.modePerpanjang;
   bool get _modePerpanjang => widget.modePerpanjang;
   int hitungPoinEfektif() {
     if (_paketDipilih == null) {
@@ -1383,7 +1333,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       if (mounted) {
         ToastUtil.error(context, 'Gagal memuat data. Silakan coba lagi.');
         setState(() => _isLoading = false);
-        if (widget.pelangganAktif?.status == StatusPembayaran.unpaid) {
+        final pelangganAktifState = ref.watch(pelangganAktifProvider);
+        final pelangganAktif = pelangganAktifState.whenOrNull(
+          data: (state) =>
+              state.ambilBerdasarkanId(widget.idPelangganAktif ?? ''),
+        );
+        if (pelangganAktif?.status == StatusPembayaran.unpaid) {
           setState(() {
             _statusPembayaranNotif = 1;
           });
@@ -1402,13 +1357,17 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   Future<void> _loadAllData() async {
     setState(() => _isLoading = true);
     Log.info('Memulai memuat semua data untuk FormPelangganAktif');
+    final pelangganAktifState = ref.watch(pelangganAktifProvider);
+    final pelangganAktif = pelangganAktifState.whenOrNull(
+      data: (state) => state.ambilBerdasarkanId(widget.idPelangganAktif ?? ''),
+    );
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
     final paketOpsqlite = ref.read(paketOpSqliteProvider);
     final transaksiOperasi = ref.read(transaksiOpGlobalProvider);
     final dompetOpSqlite = ref.read(dompetOpSqliteProvider);
     final kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
     try {
-      final pa = widget.pelangganAktif;
+      final pa = pelangganAktif;
       final transaksiTerkaitFuture = pa?.idTransaksi != null
           ? transaksiOperasi.ambilBerdasarkanId(pa!.idTransaksi)
           : Future<TransaksiModel?>.value();
@@ -1472,8 +1431,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Future<void> _mapEditData(TransaksiModel? transaksi) async {
+    final pelangganAktifState = ref.watch(pelangganAktifProvider);
+    final pelangganAktif = pelangganAktifState.whenOrNull(
+      data: (state) => state.ambilBerdasarkanId(widget.idPelangganAktif ?? ''),
+    );
+
     final transaksiOperasi = ref.read(transaksiOpGlobalProvider);
-    final pa = widget.pelangganAktif!;
+
+    final pa = pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
     _pelangganDipilih = _daftarPelanggan.firstWhereOrNull(
       (p) => p.id == pa.idPelanggan,
@@ -1538,7 +1503,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Future<void> _mapPerpanjangData() async {
-    final pa = widget.pelangganAktif!;
+    final pelangganAktifState = ref.watch(pelangganAktifProvider);
+    final pelangganAktif = pelangganAktifState.whenOrNull(
+      data: (state) => state.ambilBerdasarkanId(widget.idPelangganAktif ?? ''),
+    );
+
+    final pa = pelangganAktif!;
     _pelangganDipilih = _daftarPelanggan.firstWhereOrNull(
       (p) => p.id == pa.idPelanggan,
     );
@@ -1599,19 +1569,22 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
   Future<bool> _simpanData() async {
     Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
+    final pelangganAktifState = ref.watch(pelangganAktifProvider);
+    final pelangganAktif = pelangganAktifState.whenOrNull(
+      data: (state) => state.ambilBerdasarkanId(widget.idPelangganAktif ?? ''),
+    );
     final notifikasiOpSqlite = ref.read(notifikasiOpSqliteProvider);
-    final pelangganAktif = ref.read(pelangganAktifProvider.notifier);
     final transaksiOp = ref.read(transaksiOpProvider.notifier);
 
     final String idPelangganAktif;
     final String idTransaksi;
 
     if (_modePerpanjang) {
-      idPelangganAktif = widget.pelangganAktif!.id;
+      idPelangganAktif = pelangganAktif!.id;
       idTransaksi = const Uuid().v4();
     } else if (_modeEdit) {
-      idPelangganAktif = widget.pelangganAktif!.id;
-      idTransaksi = widget.pelangganAktif!.idTransaksi;
+      idPelangganAktif = pelangganAktif!.id;
+      idTransaksi = pelangganAktif.idTransaksi;
     } else {
       idPelangganAktif = const Uuid().v4();
       idTransaksi = const Uuid().v4();
@@ -1700,21 +1673,25 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       );
       if (_modePerpanjang) {
         // Perpanjang: update pelangganAktif yang sudah ada, transaksi BARU
-        await pelangganAktif.perbarui(pelangganAktifData);
+        await ref
+            .read(pelangganAktifProvider.notifier)
+            .perbarui(pelangganAktifData);
         await transaksiOp.tambah(transaksiData);
         // Hapus notifikasi dari transaksi sebelumnya (ID transaksi lama)
         await notifikasiOpSqlite.hapusBerdasarkanIdTujuan(
-          widget.pelangganAktif!.idTransaksi,
+          pelangganAktif!.idTransaksi,
         );
       } else if (_modeEdit) {
         await futureWait([
-          pelangganAktif.perbarui(pelangganAktifData),
+          ref
+              .read(pelangganAktifProvider.notifier)
+              .perbarui(pelangganAktifData),
           transaksiOp.perbarui(transaksiData),
         ]);
         unawaited(notifikasiOpSqlite.hapusBerdasarkanIdTujuan(idTransaksi));
       } else {
         await Future.wait([
-          pelangganAktif.tambah(pelangganAktifData),
+          ref.read(pelangganAktifProvider.notifier).tambah(pelangganAktifData),
           transaksiOp.tambah(transaksiData),
         ]);
       }
@@ -2284,6 +2261,7 @@ import 'package:wifi/fitur/pelanggan_aktif/page/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/enum/status_pembayaran.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -2337,9 +2315,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
 
   PelangganAktifOpSqlite get _pelangganAktifOpSqlite =>
       ref.read(pelangganAktifOpSqliteProvider);
-  TransaksiOpSqlite get _transaksiOpsqlite =>
-      ref.read(transaksiOpSqliteProvider);
-
+      
   void _onSearchChanged() {
     setState(() {});
   }
@@ -2515,10 +2491,8 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
         final konfirmasi = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('Konfirmasi Arsipkan Semua'),
-            content: const Text(
-              'Yakin ingin mengarsipkan SEMUA pelanggan aktif?',
-            ),
+            title: const Text('Konfirmasi Hapus Semua'),
+            content: const Text('Yakin ingin menghapus SEMUA pelanggan aktif?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
@@ -2526,7 +2500,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(ctx, true),
-                child: const Text('Arsipkan Semua'),
+                child: const Text('Hapus Semua'),
               ),
             ],
           ),
@@ -2534,8 +2508,8 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
         if (konfirmasi == true) {
           try {
             Log.warning('Eksekusi arsipkan semua pelanggan aktif');
-            await _pelangganAktifOpSqlite.softDeleteAll();
-            await _transaksiOpsqlite.softDeleteAll();
+            await ref.read(pelangganAktifProvider.notifier).softDeleteAll();
+            await ref.read(transaksiOpProvider.notifier).softDeleteAll();
             if (mounted) {
               ToastUtil.success(context, 'Berhasil mengarsipkan  pelanggan.');
             }
@@ -2636,82 +2610,88 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
             return Center(child: Text('Terjadi kesalahan: $error'));
           },
           data: (state) {
-            final sortBy = ref.watch(urutanPelangganAktifStateProvider);
-            final urutkan = urutkanPelangganAktif(
-              state.daftarPelangganAktif,
-              sortBy,
+            final daftarTerurutAsync = ref.watch(
+              daftarPelangganAktifTerurutProvider,
             );
-            final query = _searchController.text.toLowerCase();
-            final displayedCustomers = urutkan
-                .where((c) => c.namaPelanggan.toLowerCase().contains(query))
-                .toList();
-            if (displayedCustomers.isEmpty) {
-              return Center(
-                child: Text(
-                  query.isNotEmpty
-                      ? 'Pelanggan tidak ditemukan.'
-                      : 'Tidak ada pelanggan aktif.',
-                ),
-              );
-            }
+            return daftarTerurutAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, st) => Center(child: Text('Error: $e')),
+              data: (daftarTerurut) {
+                final query = _searchController.text.toLowerCase();
+                final displayed = daftarTerurut
+                    .where((c) => c.namaPelanggan.toLowerCase().contains(query))
+                    .toList();
 
-            return ListView.builder(
-              itemCount: displayedCustomers.length,
-              itemBuilder: (_, i) {
-                final detail = displayedCustomers[i];
-                final c = detail.pelangganAktif;
-                return Card(
-                  margin: const EdgeInsets.only(
-                    left: TSizes.p16,
-                    right: TSizes.p16,
-                    bottom: TSizes.p12,
-                  ),
-                  child: InkWell(
-                    onLongPress: () => _softDeletePelangganAktif(detail),
-                    onTap: () async {
-                      await Navigator.push<void>(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (_) =>
-                              DetailPelangganAktif(pelangganAktif: c),
-                        ),
-                      );
-                    },
-                    child: ListTile(
-                      title: Text(
-                        detail.namaPelanggan,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(detail.namaPaket),
-                          Text(
-                            'Pembayaran: ${c.status.displayName}',
-                            style: TextStyle(
-                              color: c.status == StatusPembayaran.paid
-                                  ? Colors.green
-                                  : Colors.red,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'Status: ${PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(c.tanggalBerakhir)}',
-                            style: TextStyle(
-                              color: PerhitunganUtil.ambilWarnaSisaMasaAktif(
-                                c.tanggalBerakhir,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            'Berakhir: ${FormatTanggal.formatDasar(c.tanggalBerakhir)} ${FormatJam.formatJamMenit(c.tanggalBerakhir)}',
-                          ),
-                        ],
-                      ),
-                      trailing: const Icon(TIcons.chevronRight),
+                if (displayed.isEmpty) {
+                  return Center(
+                    child: Text(
+                      query.isNotEmpty
+                          ? 'Tidak ditemukan'
+                          : 'Tidak ada pelanggan',
                     ),
-                  ),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: displayed.length, // perbaikan: gunakan displayed
+                  itemBuilder: (_, i) {
+                    final detail = displayed[i];
+                    final c = detail.pelangganAktif;
+                    return Card(
+                      margin: const EdgeInsets.only(
+                        left: TSizes.p16,
+                        right: TSizes.p16,
+                        bottom: TSizes.p12,
+                      ),
+                      child: InkWell(
+                        onLongPress: () => _softDeletePelangganAktif(detail),
+                        onTap: () async {
+                          await Navigator.push<void>(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) =>
+                                  DetailPelangganAktif(idPelangganAktif: c.id),
+                            ),
+                          );
+                        },
+                        child: ListTile(
+                          title: Text(
+                            detail.namaPelanggan,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(detail.namaPaket),
+                              Text(
+                                'Pembayaran: ${c.status.displayName}',
+                                style: TextStyle(
+                                  color: c.status == StatusPembayaran.paid
+                                      ? Colors.green
+                                      : Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'Status: ${PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(c.tanggalBerakhir)}',
+                                style: TextStyle(
+                                  color:
+                                      PerhitunganUtil.ambilWarnaSisaMasaAktif(
+                                        c.tanggalBerakhir,
+                                      ),
+                                ),
+                              ),
+                              Text(
+                                'Berakhir: ${FormatTanggal.formatDasar(c.tanggalBerakhir)} ${FormatJam.formatJamMenit(c.tanggalBerakhir)}',
+                              ),
+                            ],
+                          ),
+                          trailing: const Icon(TIcons.chevronRight),
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             );
@@ -2737,12 +2717,17 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
+import 'package:wifi/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -2753,10 +2738,17 @@ part 'pelanggan_aktif_provider.freezed.dart';
 
 @freezed
 abstract class PelangganAktifState with _$PelangganAktifState {
+  const PelangganAktifState._();
   const factory PelangganAktifState({
     @Default([]) List<PelangganAktifModel> daftarPelangganAktif,
     @Default(0) int jumlahPelangganAktif,
   }) = _PelangganAktifState;
+
+  PelangganAktifModel? ambilBerdasarkanId(String idPelangganAktif) {
+    return daftarPelangganAktif.firstWhereOrNull(
+      (p) => p.id == idPelangganAktif,
+    );
+  }
 }
 
 @Riverpod(keepAlive: true)
@@ -2842,6 +2834,15 @@ class PelangganAktif extends _$PelangganAktif {
       rethrow;
     }
   }
+
+  Future<void> perbaruiData() async {
+    try {
+      await _ambilData();
+    } on Exception catch (e, s) {
+      Log.error('Error diperbaruiData: $e', e: e, s: s);
+      rethrow;
+    }
+  }
 }
 
 @freezed
@@ -2859,6 +2860,28 @@ Future<void> detailPelangganAktif(Ref ref) async {
   final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
   await pelangganAktifOpSqlite.ambilSemuaPelangganAktifDenganDetail();
   return;
+}
+
+@riverpod
+Future<List<DetailPelangganAktifModel>> daftarPelangganAktifTerurut(
+  Ref ref,
+) async {
+  final pelangganAktifState = await ref.watch(pelangganAktifProvider.future);
+  final pelangganState = await ref.watch(pelangganProvider.future);
+  final paketState = await ref.watch(paketProvider.future);
+
+  final daftarDetail = pelangganAktifState.daftarPelangganAktif.map((pa) {
+    final pelanggan = pelangganState.ambilBerdasarkanId(pa.idPelanggan);
+    final paket = paketState.ambilBerdasarkanId(pa.idPaket);
+    return DetailPelangganAktifModel(
+      pelangganAktif: pa,
+      namaPelanggan: pelanggan?.nama ?? '',
+      namaPaket: paket?.nama ?? '',
+    );
+  }).toList();
+
+  final sortBy = ref.watch(urutanPelangganAktifStateProvider);
+  return urutkanPelangganAktif(daftarDetail, sortBy);
 }
 ```
 
