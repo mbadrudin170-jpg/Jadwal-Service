@@ -12,7 +12,7 @@ import 'package:wifi/shared/debug/log.dart';
 ///   dompetOp.ambilSemua(),
 /// ]);
 /// ```
-Future<List<Object?>> loadAll(List<Future<Object?>> futures) async {
+Future<List<Object?>> futureWait(List<Future<Object?>> futures) async {
   try {
     return await Future.wait(futures);
   } catch (e, st) {

@@ -36,7 +36,7 @@ Future<DetailLanggananState?> ambilDetailLangganan(
   if (transaksi == null) return null;
 
   // 2. Ambil data relasi secara paralel untuk menghemat waktu pemuatan
-  final hasil = await loadAll([
+  final hasil = await futureWait([
     transaksi.idPelanggan != null
         ? pelangganOpSqlite.ambilBerdasarkanId(transaksi.idPelanggan!)
         : Future<PelangganModel?>.value(),

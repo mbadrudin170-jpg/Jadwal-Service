@@ -105,7 +105,7 @@ class LayananUnduhData {
     final stopwatch = Stopwatch()..start();
 
     try {
-      await loadAll([
+      await futureWait([
         unduhDataPelangganAktif(),
         unduhDataPengaturan(),
         unduhDataDompet(),

@@ -84,7 +84,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       }
 
       // 1. Ambil seluruh data dari server secara paralel (bersamaan)
-      final hasilInisialisasi = await loadAll([
+      final hasilInisialisasi = await futureWait([
         _periksaModePemeliharaan(),
         _periksaPembaruanAplikasi(),
         _cekEvent(),

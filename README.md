@@ -485,7 +485,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   DateTime? _pilihTanggal;
   TimeOfDay? _pilihJam;
   StatusPembayaran _statusPembayaran = StatusPembayaran.paid;
-  bool get _modeEdit => widget.pelangganAktif != null;
+  bool get _modeEdit => widget.pelangganAktif != null && !widget.modePerpanjang;
+  bool get _modePerpanjang => widget.modePerpanjang;
   int hitungPoinEfektif() {
     if (_paketDipilih == null) {
       return 0;
@@ -576,7 +577,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         _kategoriPengeluaranList = daftarKategoriPengeluaran;
       });
       Log.info('Semua data berhasil dimuat.');
-      if (_modeEdit) {
+      if (_modePerpanjang) {
+        await _mapPerpanjangData();
+      } else if (_modeEdit) {
         await _mapEditData(transaksiTerkait);
       } else {
         _mapNewData();
@@ -661,6 +664,35 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     }
   }
 
+  Future<void> _mapPerpanjangData() async {
+    final pa = widget.pelangganAktif!;
+    _pelangganDipilih = _daftarPelanggan.firstWhereOrNull(
+      (p) => p.id == pa.idPelanggan,
+    );
+    _paketDipilih = _daftarPaket.firstWhereOrNull((p) => p.id == pa.idPaket);
+
+    // Untuk perpanjang, tanggal mulai diisi dengan tanggal berakhir saat ini
+    _pilihTanggal = pa.tanggalBerakhir;
+    _pilihJam = TimeOfDay.fromDateTime(pa.tanggalBerakhir);
+
+    // Dompet dan kategori diisi default (bisa diubah user)
+    _dompetDipilih = _dompetList.isNotEmpty ? _dompetList.first : null;
+    _kategoriDipilih =
+        _kategoriPemasukanList.firstWhereOrNull(
+          (k) => k.nama.toLowerCase() == 'perpanjangan paket',
+        ) ??
+        _kategoriPemasukanList.first;
+
+    _statusPembayaran = StatusPembayaran.paid; // default lunas
+
+    // Ambil saldo poin seperti biasa
+    if (_pelangganDipilih != null) {
+      final transaksiOperasi = ref.read(transaksiOpGlobalProvider);
+      final poin = await transaksiOperasi.ambilTotalPoin(_pelangganDipilih!.id);
+      if (mounted) setState(() => _saldoPoinPelanggan = poin);
+    }
+  }
+
   Future<void> _memilihTanggal(BuildContext context) async {
     Log.info('Memilih tanggal, saat ini: $_pilihTanggal');
     final terpilih = await showDatePicker(
@@ -698,6 +730,19 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     final pelangganAktif = ref.read(pelangganAktifProvider.notifier);
     final transaksiOp = ref.read(transaksiOpProvider.notifier);
 
+    final String idPelangganAktif;
+    final String idTransaksi;
+
+    if (_modePerpanjang) {
+      idPelangganAktif = widget.pelangganAktif!.id;
+      idTransaksi = const Uuid().v4();
+    } else if (_modeEdit) {
+      idPelangganAktif = widget.pelangganAktif!.id;
+      idTransaksi = widget.pelangganAktif!.idTransaksi;
+    } else {
+      idPelangganAktif = const Uuid().v4();
+      idTransaksi = const Uuid().v4();
+    }
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Validasi form gagal');
       if (mounted) {
@@ -743,13 +788,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         durasiBonus: durasiBonus,
         tipeDurasiBonus: _bonus ? _tipeBonusDurasi : null,
       );
-      final idTransaksi =
-          (_modeEdit && widget.pelangganAktif?.idTransaksi != null)
-          ? widget.pelangganAktif!.idTransaksi
-          : const Uuid().v4();
       final sekarang = DateTime.now();
       final pelangganAktifData = PelangganAktifModel(
-        id: _modeEdit ? widget.pelangganAktif!.id : const Uuid().v4(),
+        id: idPelangganAktif,
         idPelanggan: _pelangganDipilih!.id,
         idPaket: _paketDipilih!.id,
         tanggalMulai: tanggalMulai,
@@ -794,7 +835,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           'menghapus data notifikasi dalam mode edit agar data selalu terbaru',
         );
       } else {
-        await loadAll([
+        await Future.wait([
           pelangganAktif.tambahPelangganAktif(pelangganAktifData),
           transaksiOp.tambah(transaksiData),
         ]);
@@ -885,7 +926,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _modeEdit ? 'Edit Pelanggan Aktif' : 'Form Pelanggan Aktif',
+          _modePerpanjang
+              ? 'Perpanjang Masa Aktif'
+              : _modeEdit
+              ? 'Edit Pelanggan Aktif'
+              : 'Form Pelanggan Aktif',
         ),
       ),
       body: _isLoading
@@ -1002,24 +1047,23 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       items: _daftarPelanggan
           .map((p) => DropdownMenuItem(value: p, child: Text(p.nama)))
           .toList(),
-      onChanged: (newValue) async {
-        if (newValue == null) {
-          return;
-        }
-        final saldoPoin = await transaksiOperasi.ambilTotalPoin(newValue.id);
-        if (mounted) {
-          setState(() {
-            Log.info(
-              'Pelanggan dipilih: id=${newValue.id} nama=${newValue.nama}, saldoPoin=$saldoPoin',
-            );
-            _pelangganDipilih = newValue;
-            _saldoPoinPelanggan = saldoPoin;
-            if (_kategoriList.isNotEmpty && _kategoriDipilih == null) {
-              _kategoriDipilih = _kategoriList.first;
-            }
-          });
-        }
-      },
+      onChanged: _modePerpanjang
+          ? null
+          : (newValue) async {
+              if (newValue == null) return;
+              final saldoPoin = await transaksiOperasi.ambilTotalPoin(
+                newValue.id,
+              );
+              if (mounted) {
+                setState(() {
+                  _pelangganDipilih = newValue;
+                  _saldoPoinPelanggan = saldoPoin;
+                  if (_kategoriList.isNotEmpty && _kategoriDipilih == null) {
+                    _kategoriDipilih = _kategoriList.first;
+                  }
+                });
+              }
+            },
       validator: (v) => v == null ? 'Pelanggan tidak boleh kosong' : null,
     );
   }

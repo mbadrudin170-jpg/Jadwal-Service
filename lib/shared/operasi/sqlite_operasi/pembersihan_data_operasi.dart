@@ -115,7 +115,7 @@ class PembersihanDataOperasi {
             .where(NamaKolom.diarsipkanPada, isLessThanOrEqualTo: timeLimit)
             .get();
       }).toList();
-      final snapshots = await loadAll(futures);
+      final snapshots = await futureWait(futures);
       final batch = _firestore.batch();
       var dokumenDitemukan = 0;
 

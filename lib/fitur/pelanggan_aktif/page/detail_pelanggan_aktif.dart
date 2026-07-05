@@ -50,7 +50,7 @@ final detailPleangganAktifProvider =
       final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
       final paketOpSqlite = ref.watch(paketOpSqliteProvider);
       final transaksiOpsqlite = ref.watch(transaksiOpGlobalProvider);
-      final hasil = await loadAll([
+      final hasil = await futureWait([
         pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.idPelanggan),
         pelangganAktif.idPaket.isNotEmpty
             ? paketOpSqlite.ambilBerdasarkanId(pelangganAktif.idPaket)
