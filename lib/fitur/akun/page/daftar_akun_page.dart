@@ -118,7 +118,7 @@ class DaftarAkunPage extends ConsumerWidget {
       final activityService = await ref.read(
         layananAktivitasUserProvider.future,
       );
-       ref.invalidate(transaksiOpProvider);
+      ref.invalidate(transaksiOpProvider);
       Log.info('Mulai memilih akun', {
         'customer_id': pelanggan.id,
         'nama': pelanggan.nama,

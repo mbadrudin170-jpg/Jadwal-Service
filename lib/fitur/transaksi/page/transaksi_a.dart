@@ -181,10 +181,10 @@ class _TransactionBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sortBy = ref.watch(urutanTransaksiStateProvider);
     final sortedTransactions = transaksiState.transaksi.urutkan(sortBy);
-    
+
     // Ambil statistik dari transaksiProvider
     final statAsync = ref.watch(transaksiProvider);
-    
+
     return statAsync.when(
       data: (stat) => RefreshIndicator(
         onRefresh: () async =>
@@ -209,6 +209,7 @@ class _TransactionBody extends ConsumerWidget {
     );
   }
 }
+
 // ============================================================
 // ListView (tidak berubah)
 // ============================================================

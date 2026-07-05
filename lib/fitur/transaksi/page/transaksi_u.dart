@@ -212,7 +212,9 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                     .where((e) => e.idPelanggan == userId)
                     .toList();
                 if (semuaTransaksi.isEmpty) {
-                  return const Center(child: Text('Belum ada riwayat transaksi'));
+                  return const Center(
+                    child: Text('Belum ada riwayat transaksi'),
+                  );
                 }
                 final riwayatUrut = _sortHistory(List.from(semuaTransaksi));
                 final transaksiTampil = riwayatUrut

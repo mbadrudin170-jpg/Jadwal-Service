@@ -105,19 +105,19 @@ class LayananUnduhData {
     final stopwatch = Stopwatch()..start();
 
     try {
-await loadAll([
-  unduhDataPelangganAktif(),
-  unduhDataPengaturan(),
-  unduhDataDompet(),
-  unduhDataKategori(),
-  unduhDataPaket(),
-  unduhDataPelanggan(),
-  unduhDataTransaksi(),
-  unduhDataUmpanBalik(),
-  unduhDataPesanan(),
-  unduhDataSubKategori(),
-  unduhDataVersiApk(),
-]);
+      await loadAll([
+        unduhDataPelangganAktif(),
+        unduhDataPengaturan(),
+        unduhDataDompet(),
+        unduhDataKategori(),
+        unduhDataPaket(),
+        unduhDataPelanggan(),
+        unduhDataTransaksi(),
+        unduhDataUmpanBalik(),
+        unduhDataPesanan(),
+        unduhDataSubKategori(),
+        unduhDataVersiApk(),
+      ]);
       stopwatch.stop();
       Log.info(
         'Prosedur unduh data massal selesai sepenuhnya. Total durasi: ${stopwatch.elapsed.inMilliseconds} ms.',

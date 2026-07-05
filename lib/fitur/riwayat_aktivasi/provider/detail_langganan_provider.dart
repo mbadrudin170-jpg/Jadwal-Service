@@ -36,14 +36,14 @@ Future<DetailLanggananState?> ambilDetailLangganan(
   if (transaksi == null) return null;
 
   // 2. Ambil data relasi secara paralel untuk menghemat waktu pemuatan
-final hasil = await loadAll([
-  transaksi.idPelanggan != null
-      ? pelangganOpSqlite.ambilBerdasarkanId(transaksi.idPelanggan!)
-      : Future<PelangganModel?>.value(),
-  transaksi.idPaket != null
-      ? paketOpSqlite.ambilBerdasarkanId(transaksi.idPaket!)
-      : Future<PaketModel?>.value(),
-]);
+  final hasil = await loadAll([
+    transaksi.idPelanggan != null
+        ? pelangganOpSqlite.ambilBerdasarkanId(transaksi.idPelanggan!)
+        : Future<PelangganModel?>.value(),
+    transaksi.idPaket != null
+        ? paketOpSqlite.ambilBerdasarkanId(transaksi.idPaket!)
+        : Future<PaketModel?>.value(),
+  ]);
   return DetailLanggananState(
     transaksi: transaksi,
     pelanggan: hasil[0] as PelangganModel?,

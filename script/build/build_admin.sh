@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Pindah ke direktori tempat script ini berada (root project)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
-
 # Validasi parameter
 if [ -z "$1" ] || [ -z "$2" ]; then
     echo "Error: Parameter tidak lengkap."

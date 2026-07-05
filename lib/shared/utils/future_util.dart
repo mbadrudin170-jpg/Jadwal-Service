@@ -30,7 +30,9 @@ Future<List<Object?>> loadAll(List<Future<Object?>> futures) async {
 ///   ('paket', paketOp.ambilSemua()),
 /// ]);
 /// ```
-Future<List<Object?>> loadAllWithLabel(List<(String label, Future<Object?> future)> items) async {
+Future<List<Object?>> loadAllWithLabel(
+  List<(String label, Future<Object?> future)> items,
+) async {
   try {
     final futures = items.map((e) => e.$2).toList();
     return await Future.wait(futures);
@@ -44,7 +46,11 @@ Future<List<Object?>> loadAllWithLabel(List<(String label, Future<Object?> futur
         break;
       }
     }
-    Log.error('Gagal memuat data paralel: ${labelError ?? 'unknown'}', e: e, s: st);
+    Log.error(
+      'Gagal memuat data paralel: ${labelError ?? 'unknown'}',
+      e: e,
+      s: st,
+    );
     rethrow;
   }
 }

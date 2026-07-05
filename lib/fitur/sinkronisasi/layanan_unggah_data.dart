@@ -45,9 +45,7 @@ class LayananUnggahData {
     );
     Log.info('========================================');
 
-    Log.info(
-      'Menyiapkan daftar Future untuk semua fungsi unggah spesifik. '
-    );
+    Log.info('Menyiapkan daftar Future untuk semua fungsi unggah spesifik. ');
 
     final daftarTabel = <Future<void>>[
       unggahDataDompet(),
