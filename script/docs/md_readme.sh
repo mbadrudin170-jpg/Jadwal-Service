@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Naik ke root project (script/docs/ → myapp)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-cd "$SCRIPT_DIR"
-
 # Fungsi internal (sebelumnya _proses_fitur_readme)
 _proses_fitur_readme() {
     local dir="$1"
@@ -29,14 +25,21 @@ _proses_fitur_readme() {
             echo '```'
             echo ""
         done
-    } >> "$outfile"   # APPEND ke file gabungan
+    } >> "$outfile"
 }
+# alias =>  r
+# Daftar fitur default (jika tidak ada argumen)
+default_features=(
+    "voucher"
+     "paket"
+      "transaksi"
+    )   # <-- UBAH SESUAI KEBUTUHAN
 
-# Jika tidak ada argumen, tampilkan cara pakai
+# Tentukan array fitur yang akan diproses
 if [[ $# -eq 0 ]]; then
-    echo "Penggunaan: $0 <fitur1> [fitur2 ...]"
-    echo "Contoh: $0 voucher paket transaksi"
-    exit 1
+    features=("${default_features[@]}")
+else
+    features=("$@")
 fi
 
 output="README.md"
@@ -46,7 +49,7 @@ temp_file=$(mktemp)
 echo "# Dokumentasi Fitur" > "$temp_file"
 echo "" >> "$temp_file"
 
-for target in "$@"; do
+for target in "${features[@]}"; do
     dir=$(find lib/fitur -maxdepth 1 -type d -iname "*${target}*" | head -1)
     if [[ -z "$dir" ]]; then
         echo "⚠️  Fitur '$target' tidak ditemukan, dilewati." >&2
