@@ -3243,10 +3243,10 @@ class _TransactionBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sortBy = ref.watch(urutanTransaksiStateProvider);
     final sortedTransactions = transaksiState.transaksi.urutkan(sortBy);
-    
+
     // Ambil statistik dari transaksiProvider
     final statAsync = ref.watch(transaksiProvider);
-    
+
     return statAsync.when(
       data: (stat) => RefreshIndicator(
         onRefresh: () async =>
@@ -3271,6 +3271,7 @@ class _TransactionBody extends ConsumerWidget {
     );
   }
 }
+
 // ============================================================
 // ListView (tidak berubah)
 // ============================================================
@@ -3603,7 +3604,9 @@ class _TransaksiUState extends ConsumerState<TransaksiU> {
                     .where((e) => e.idPelanggan == userId)
                     .toList();
                 if (semuaTransaksi.isEmpty) {
-                  return const Center(child: Text('Belum ada riwayat transaksi'));
+                  return const Center(
+                    child: Text('Belum ada riwayat transaksi'),
+                  );
                 }
                 final riwayatUrut = _sortHistory(List.from(semuaTransaksi));
                 final transaksiTampil = riwayatUrut

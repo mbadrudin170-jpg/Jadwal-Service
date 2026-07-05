@@ -456,19 +456,19 @@ class LayananUnduhData {
     final stopwatch = Stopwatch()..start();
 
     try {
-await loadAll([
-  unduhDataPelangganAktif(),
-  unduhDataPengaturan(),
-  unduhDataDompet(),
-  unduhDataKategori(),
-  unduhDataPaket(),
-  unduhDataPelanggan(),
-  unduhDataTransaksi(),
-  unduhDataUmpanBalik(),
-  unduhDataPesanan(),
-  unduhDataSubKategori(),
-  unduhDataVersiApk(),
-]);
+      await loadAll([
+        unduhDataPelangganAktif(),
+        unduhDataPengaturan(),
+        unduhDataDompet(),
+        unduhDataKategori(),
+        unduhDataPaket(),
+        unduhDataPelanggan(),
+        unduhDataTransaksi(),
+        unduhDataUmpanBalik(),
+        unduhDataPesanan(),
+        unduhDataSubKategori(),
+        unduhDataVersiApk(),
+      ]);
       stopwatch.stop();
       Log.info(
         'Prosedur unduh data massal selesai sepenuhnya. Total durasi: ${stopwatch.elapsed.inMilliseconds} ms.',
@@ -783,9 +783,7 @@ class LayananUnggahData {
     );
     Log.info('========================================');
 
-    Log.info(
-      'Menyiapkan daftar Future untuk semua fungsi unggah spesifik. '
-    );
+    Log.info('Menyiapkan daftar Future untuk semua fungsi unggah spesifik. ');
 
     final daftarTabel = <Future<void>>[
       unggahDataDompet(),
