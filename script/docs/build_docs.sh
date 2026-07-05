@@ -1,4 +1,5 @@
 #!/bin/bash
+# // path: script/docs/build_docs.sh
 
 # Validasi argumen
 if [ $# -lt 1 ]; then
