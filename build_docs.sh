@@ -15,8 +15,7 @@ fi
 output_file="$1"
 include_test="${2:-}"
 
-# Menghasilkan struktur proyek (tidak wajib tree, bisa error jika tidak ada)
-tree lib test > prompt/struktur_proyek.md
+ls -R lib test > prompt/struktur_proyek.md
 
 {
     echo -e "// File: pubspec.yaml\n"
