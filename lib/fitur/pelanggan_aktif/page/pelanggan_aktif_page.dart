@@ -5,8 +5,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/paket/provider/paket_provider.dart';
-import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart';
@@ -366,94 +364,88 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
             return Center(child: Text('Terjadi kesalahan: $error'));
           },
           data: (state) {
-            final pelangganState = ref.watch(pelangganProvider);
-            final paketState = ref.watch(paketProvider);
-            final daftarDetail = state.daftarPelangganAktif.map((pa) {
-              final pelanggan = pelangganState.whenOrNull(
-                data: (s) => s.ambilBerdasarkanId(pa.idPelanggan),
-              );
-              final paket = paketState.whenOrNull(
-                data: (s) => s.ambilBerdasarkanId(pa.idPaket),
-              );
-              return DetailPelangganAktifModel(
-                pelangganAktif: pa,
-                namaPelanggan: pelanggan?.nama ?? '',
-                namaPaket: paket?.nama ?? '',
-              );
-            }).toList();
-            final sortBy = ref.watch(urutanPelangganAktifStateProvider);
-            final urutkan = urutkanPelangganAktif(daftarDetail, sortBy);
-            final query = _searchController.text.toLowerCase();
-            final displayedCustomers = urutkan
-                .where((c) => c.namaPelanggan.toLowerCase().contains(query))
-                .toList();
-            if (displayedCustomers.isEmpty) {
-              return Center(
-                child: Text(
-                  query.isNotEmpty
-                      ? 'Pelanggan tidak ditemukan.'
-                      : 'Tidak ada pelanggan aktif.',
-                ),
-              );
-            }
+            final daftarTerurutAsync = ref.watch(
+              daftarPelangganAktifTerurutProvider,
+            );
+            return daftarTerurutAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, st) => Center(child: Text('Error: $e')),
+              data: (daftarTerurut) {
+                final query = _searchController.text.toLowerCase();
+                final displayed = daftarTerurut
+                    .where((c) => c.namaPelanggan.toLowerCase().contains(query))
+                    .toList();
 
-            return ListView.builder(
-              itemCount: displayedCustomers.length,
-              itemBuilder: (_, i) {
-                final detail = displayedCustomers[i];
-                final c = detail.pelangganAktif;
-                return Card(
-                  margin: const EdgeInsets.only(
-                    left: TSizes.p16,
-                    right: TSizes.p16,
-                    bottom: TSizes.p12,
-                  ),
-                  child: InkWell(
-                    onLongPress: () => _softDeletePelangganAktif(detail),
-                    onTap: () async {
-                      await Navigator.push<void>(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (_) =>
-                              DetailPelangganAktif(idPelangganAktif: c.id),
-                        ),
-                      );
-                    },
-                    child: ListTile(
-                      title: Text(
-                        detail.namaPelanggan,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(detail.namaPaket),
-                          Text(
-                            'Pembayaran: ${c.status.displayName}',
-                            style: TextStyle(
-                              color: c.status == StatusPembayaran.paid
-                                  ? Colors.green
-                                  : Colors.red,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'Status: ${PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(c.tanggalBerakhir)}',
-                            style: TextStyle(
-                              color: PerhitunganUtil.ambilWarnaSisaMasaAktif(
-                                c.tanggalBerakhir,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            'Berakhir: ${FormatTanggal.formatDasar(c.tanggalBerakhir)} ${FormatJam.formatJamMenit(c.tanggalBerakhir)}',
-                          ),
-                        ],
-                      ),
-                      trailing: const Icon(TIcons.chevronRight),
+                if (displayed.isEmpty) {
+                  return Center(
+                    child: Text(
+                      query.isNotEmpty
+                          ? 'Tidak ditemukan'
+                          : 'Tidak ada pelanggan',
                     ),
-                  ),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: displayed.length, // perbaikan: gunakan displayed
+                  itemBuilder: (_, i) {
+                    final detail = displayed[i];
+                    final c = detail.pelangganAktif;
+                    return Card(
+                      margin: const EdgeInsets.only(
+                        left: TSizes.p16,
+                        right: TSizes.p16,
+                        bottom: TSizes.p12,
+                      ),
+                      child: InkWell(
+                        onLongPress: () => _softDeletePelangganAktif(detail),
+                        onTap: () async {
+                          await Navigator.push<void>(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) =>
+                                  DetailPelangganAktif(idPelangganAktif: c.id),
+                            ),
+                          );
+                        },
+                        child: ListTile(
+                          title: Text(
+                            detail.namaPelanggan,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(detail.namaPaket),
+                              Text(
+                                'Pembayaran: ${c.status.displayName}',
+                                style: TextStyle(
+                                  color: c.status == StatusPembayaran.paid
+                                      ? Colors.green
+                                      : Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'Status: ${PerhitunganUtil.cobaAmbilTeksSisaMasaAktif(c.tanggalBerakhir)}',
+                                style: TextStyle(
+                                  color:
+                                      PerhitunganUtil.ambilWarnaSisaMasaAktif(
+                                        c.tanggalBerakhir,
+                                      ),
+                                ),
+                              ),
+                              Text(
+                                'Berakhir: ${FormatTanggal.formatDasar(c.tanggalBerakhir)} ${FormatJam.formatJamMenit(c.tanggalBerakhir)}',
+                              ),
+                            ],
+                          ),
+                          trailing: const Icon(TIcons.chevronRight),
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             );

@@ -87,3 +87,46 @@ final class DetailPelangganAktifProvider
 
 String _$detailPelangganAktifHash() =>
     r'27f1d5c020290ba608e0f2cfb0d8715a4f2ee1e8';
+
+@ProviderFor(daftarPelangganAktifTerurut)
+final daftarPelangganAktifTerurutProvider =
+    DaftarPelangganAktifTerurutProvider._();
+
+final class DaftarPelangganAktifTerurutProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<DetailPelangganAktifModel>>,
+          List<DetailPelangganAktifModel>,
+          FutureOr<List<DetailPelangganAktifModel>>
+        >
+    with
+        $FutureModifier<List<DetailPelangganAktifModel>>,
+        $FutureProvider<List<DetailPelangganAktifModel>> {
+  DaftarPelangganAktifTerurutProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'daftarPelangganAktifTerurutProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$daftarPelangganAktifTerurutHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<DetailPelangganAktifModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<DetailPelangganAktifModel>> create(Ref ref) {
+    return daftarPelangganAktifTerurut(ref);
+  }
+}
+
+String _$daftarPelangganAktifTerurutHash() =>
+    r'8487e5b8dd88bef544b9d2005355b4e4c180c8eb';

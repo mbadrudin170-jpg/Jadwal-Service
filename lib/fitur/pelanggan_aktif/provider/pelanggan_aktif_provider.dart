@@ -8,7 +8,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
+import 'package:wifi/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart';
+import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
@@ -24,7 +28,7 @@ abstract class PelangganAktifState with _$PelangganAktifState {
     @Default([]) List<PelangganAktifModel> daftarPelangganAktif,
     @Default(0) int jumlahPelangganAktif,
   }) = _PelangganAktifState;
-  
+
   PelangganAktifModel? ambilBerdasarkanId(String idPelangganAktif) {
     return daftarPelangganAktif.firstWhereOrNull(
       (p) => p.id == idPelangganAktif,
@@ -141,4 +145,26 @@ Future<void> detailPelangganAktif(Ref ref) async {
   final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
   await pelangganAktifOpSqlite.ambilSemuaPelangganAktifDenganDetail();
   return;
+}
+
+@riverpod
+Future<List<DetailPelangganAktifModel>> daftarPelangganAktifTerurut(
+  Ref ref,
+) async {
+  final pelangganAktifState = await ref.watch(pelangganAktifProvider.future);
+  final pelangganState = await ref.watch(pelangganProvider.future);
+  final paketState = await ref.watch(paketProvider.future);
+
+  final daftarDetail = pelangganAktifState.daftarPelangganAktif.map((pa) {
+    final pelanggan = pelangganState.ambilBerdasarkanId(pa.idPelanggan);
+    final paket = paketState.ambilBerdasarkanId(pa.idPaket);
+    return DetailPelangganAktifModel(
+      pelangganAktif: pa,
+      namaPelanggan: pelanggan?.nama ?? '',
+      namaPaket: paket?.nama ?? '',
+    );
+  }).toList();
+
+  final sortBy = ref.watch(urutanPelangganAktifStateProvider);
+  return urutkanPelangganAktif(daftarDetail, sortBy);
 }
