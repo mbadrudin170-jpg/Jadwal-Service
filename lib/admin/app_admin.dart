@@ -126,7 +126,6 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
             if (adaDataBaru) {
               ref.invalidate(pelangganAktifProvider);
-
               ref.invalidate(pelangganProvider);
               ref.invalidate(paketProvider);
               ref.invalidate(transaksiOpProvider);
