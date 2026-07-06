@@ -336,4 +336,66 @@ class InvestasiOpSqlite {
       rethrow;
     }
   }
+
+  /// Menyisipkan atau memperbarui beberapa investasi sekaligus (batch).
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<InvestasiModel> daftarInvestasi, {
+    bool dariServer = false,
+  }) async {
+    if (daftarInvestasi.isEmpty) {
+      Log.info('Daftar investasi kosong, batch dibatalkan.');
+      return;
+    }
+
+    Log.info(
+      'Memulai batch insert/update untuk ${daftarInvestasi.length} investasi',
+    );
+    try {
+      final data = daftarInvestasi
+          .map(
+            (item) => item.copyWith(diperbaruiPada: DateTime.now()).toSqlite(),
+          )
+          .toList();
+      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
+        NamaTabel.investasi,
+        data,
+        dariServer: dariServer,
+      );
+      Log.info('Batch ${daftarInvestasi.length} investasi berhasil diproses');
+    } catch (e, st) {
+      Log.error('Gagal memproses batch investasi', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  /// Menyisipkan atau memperbarui beberapa dividen sekaligus (batch).
+  Future<void> sisipkanAtauPerbaruiBatchDividen(
+    List<DividenModel> daftarDividen, {
+    bool dariServer = false,
+  }) async {
+    if (daftarDividen.isEmpty) {
+      Log.info('Daftar dividen kosong, batch dibatalkan.');
+      return;
+    }
+
+    Log.info(
+      'Memulai batch insert/update untuk ${daftarDividen.length} dividen',
+    );
+    try {
+      final data = daftarDividen
+          .map(
+            (item) => item.copyWith(diperbaruiPada: DateTime.now()).toSqlite(),
+          )
+          .toList();
+      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
+        NamaTabel.dividen,
+        data,
+        dariServer: dariServer,
+      );
+      Log.info('Batch ${daftarDividen.length} dividen berhasil diproses');
+    } catch (e, st) {
+      Log.error('Gagal memproses batch dividen', e: e, s: st);
+      rethrow;
+    }
+  }
 }

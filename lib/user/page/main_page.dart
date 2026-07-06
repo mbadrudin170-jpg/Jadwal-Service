@@ -53,17 +53,20 @@ class _MainPageState extends ConsumerState<MainPage> {
         unawaited(pengingatService.cekDanTampilkanPengingatTagihan());
       }
     });
+    // lib/user/page/main_page.dart
+
     final halamanDasar = <Widget>[
       const ProfilePage(),
       const TransaksiU(),
       const OrderPage(),
-    ];
-    final halamanTambahan = <Widget>[
-      if (ref.isInvestor) const HalamanPortofolio(),
-      if (!ref.isInvestor) const HalamanUjiKecepatan(),
+      if (ref.isInvestor)
+        const HalamanPortofolio()
+      else
+        const HalamanUjiKecepatan(),
       const SettingsPageU(),
     ];
-    _daftarHalaman = [...halamanDasar, ...halamanTambahan];
+
+    _daftarHalaman = halamanDasar;
     _reaktorSiklusHidup = AppLifecycleReactor(
       appOpenAdService: _layananIklanBukaAplikasi,
     );
@@ -85,8 +88,6 @@ class _MainPageState extends ConsumerState<MainPage> {
   @override
   Widget build(BuildContext context) {
     Log.info('Membangun MainPage untuk indeks halaman: $_indeksTerpilih');
-
-    // ✅ Buat daftar item navigasi secara dinamis
     final navItems = <BottomNavigationBarItem>[
       const BottomNavigationBarItem(icon: Icon(TIcons.person), label: 'Profil'),
       const BottomNavigationBarItem(
@@ -97,22 +98,21 @@ class _MainPageState extends ConsumerState<MainPage> {
         icon: Icon(TIcons.pesanan),
         label: 'Pesanan',
       ),
-      // ✅ Tambahkan item Portofolio jika investor
       if (ref.isInvestor)
         const BottomNavigationBarItem(
           icon: Icon(TIcons.money),
           label: 'Portofolio',
+        )
+      else
+        const BottomNavigationBarItem(
+          icon: Icon(TIcons.speed),
+          label: 'Uji Speed',
         ),
-      const BottomNavigationBarItem(
-        icon: Icon(TIcons.speed),
-        label: 'Uji Speed',
-      ),
       const BottomNavigationBarItem(
         icon: Icon(TIcons.settings),
         label: 'Pengaturan',
       ),
     ];
-
     return Scaffold(
       body: Column(
         children: [
