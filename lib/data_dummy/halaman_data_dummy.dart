@@ -2,19 +2,23 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/data_dummy/dummy_dompet.dart';
+import 'package:wifi/data_dummy/dummy_investasi.dart';
 import 'package:wifi/data_dummy/dummy_kategori.dart';
 import 'package:wifi/data_dummy/dummy_paket.dart';
 import 'package:wifi/data_dummy/dummy_pelanggan.dart';
 import 'package:wifi/data_dummy/dummy_sub_kategori.dart';
 import 'package:wifi/data_dummy/dummy_transaksi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/investasi/operasi/investasi_op_sqlite.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -86,6 +90,27 @@ class HalamanDataDummy extends ConsumerWidget {
             },
             label: 'Tambah Transaksi Dummy (${daftarTransaksi.length})',
             icon: TIcons.receiptLong,
+          ),
+          // ============================================================
+          // TOMBOL INVESTASI & DIVIDEN
+          // ============================================================
+          _tombolFitur(
+            context: context,
+            onPressed: () async {
+              await _tambahInvestasi(ref);
+            },
+            label: 'Tambah Investasi Dummy (${daftarInvestasi.length})',
+            icon: TIcons.money,
+            color: Colors.purple,
+          ),
+          _tombolFitur(
+            context: context,
+            onPressed: () async {
+              await _tambahDividen(ref);
+            },
+            label: 'Tambah Dividen Dummy (${daftarDividen.length})',
+            icon: TIcons.points,
+            color: Colors.orange,
           ),
           _tombolFitur(
             context: context,
@@ -302,6 +327,82 @@ class HalamanDataDummy extends ConsumerWidget {
     }
   }
 
+  // ============================================================
+  // FUNGSI TAMBAH INVESTASI
+  // ============================================================
+
+  Future<void> _tambahInvestasi(WidgetRef ref) async {
+    try {
+      Log.info('Memulai proses penambahan data Investasi dummy');
+      final investasiOp = InvestasiOpSqlite(
+        sqliteDb: ref.read(sqliteDatabaseProvider),
+        baseOpSqlite: ref.read(baseOpSqliteProvider),
+      );
+      var successCount = 0;
+
+      for (final data in daftarInvestasi) {
+        try {
+          await investasiOp.tambahInvestasi(data);
+          successCount++;
+        } catch (e) {
+          Log.warning('Gagal insert investasi ${data.id}: $e');
+        }
+      }
+
+      if (ref.context.mounted) {
+        ToastUtil.success(
+          ref.context,
+          'Berhasil menambahkan $successCount dari ${daftarInvestasi.length} Investasi.',
+        );
+      }
+    } catch (e, s) {
+      Log.error('Gagal menambahkan Investasi dummy', e: e, s: s);
+      if (ref.context.mounted) {
+        ToastUtil.error(ref.context, 'Gagal menambah Investasi: $e');
+      }
+    }
+  }
+
+  // ============================================================
+  // FUNGSI TAMBAH DIVIDEN
+  // ============================================================
+
+  Future<void> _tambahDividen(WidgetRef ref) async {
+    try {
+      Log.info('Memulai proses penambahan data Dividen dummy');
+      final investasiOp = InvestasiOpSqlite(
+        sqliteDb: ref.read(sqliteDatabaseProvider),
+        baseOpSqlite: ref.read(baseOpSqliteProvider),
+      );
+      var successCount = 0;
+
+      for (final data in daftarDividen) {
+        try {
+          await investasiOp.tambahDividen(data);
+          successCount++;
+        } catch (e) {
+          Log.warning('Gagal insert dividen ${data.id}: $e');
+        }
+      }
+
+      if (ref.context.mounted) {
+        ToastUtil.success(
+          ref.context,
+          'Berhasil menambahkan $successCount dari ${daftarDividen.length} Dividen.',
+        );
+      }
+    } catch (e, s) {
+      Log.error('Gagal menambahkan Dividen dummy', e: e, s: s);
+      if (ref.context.mounted) {
+        ToastUtil.error(ref.context, 'Gagal menambah Dividen: $e');
+      }
+    }
+  }
+
+  // ============================================================
+  // FUNGSI TAMBAH PENGATURAN
+  // ============================================================
+
   Future<void> _tambahPengaturan(WidgetRef ref) async {
     try {
       Log.info('Memulai proses penambahan data Pengaturan dummy');
@@ -374,7 +475,23 @@ class HalamanDataDummy extends ConsumerWidget {
       }
       Log.info('✅ Transaksi: ${daftarTransaksi.length} data');
 
-      // 7. Pengaturan
+      // 7. Investasi
+      final investasiOp = InvestasiOpSqlite(
+        sqliteDb: ref.read(sqliteDatabaseProvider),
+        baseOpSqlite: ref.read(baseOpSqliteProvider),
+      );
+      for (final data in daftarInvestasi) {
+        await investasiOp.tambahInvestasi(data);
+      }
+      Log.info('✅ Investasi: ${daftarInvestasi.length} data');
+
+      // 8. Dividen
+      for (final data in daftarDividen) {
+        await investasiOp.tambahDividen(data);
+      }
+      Log.info('✅ Dividen: ${daftarDividen.length} data');
+
+      // 9. Pengaturan
       final settingsOp = ref.read(settingsOpSqliteProvider);
       await settingsOp.simpanAtauPerbaruiSettings(const SettingsModel());
       Log.info('✅ Pengaturan: 1 data');
@@ -411,6 +528,8 @@ class HalamanDataDummy extends ConsumerWidget {
                 ),
                 Text('• ${DummyPaket.daftarPaket.length} Paket'),
                 Text('• ${daftarTransaksi.length} Transaksi'),
+                Text('• ${daftarInvestasi.length} Investasi'),
+                Text('• ${daftarDividen.length} Dividen'),
                 const Text('• 1 Pengaturan'),
               ],
             ),

@@ -132,7 +132,7 @@ List<PelangganModel> get daftarPelanggan => [
 ];
 
 /// Mendapatkan pelanggan berdasarkan ID
-PelangganModel? getById(String id) {
+PelangganModel? getPelangganById(String id) {
   try {
     return daftarPelanggan.firstWhere((p) => p.id == id);
   } catch (e) {
@@ -141,7 +141,7 @@ PelangganModel? getById(String id) {
 }
 
 /// Mendapatkan pelanggan berdasarkan nama
-PelangganModel? getByName(String nama) {
+PelangganModel? getPelangganByName(String nama) {
   try {
     return daftarPelanggan.firstWhere(
       (p) => p.nama.toLowerCase() == nama.toLowerCase(),
@@ -152,7 +152,7 @@ PelangganModel? getByName(String nama) {
 }
 
 /// Mendapatkan pelanggan berdasarkan role
-List<PelangganModel> getByRole(AppRole role) {
+List<PelangganModel> getPelangganByRole(AppRole role) {
   return daftarPelanggan.where((p) => p.role == role).toList();
 }
 

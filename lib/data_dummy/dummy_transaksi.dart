@@ -27,16 +27,18 @@ const String idTransaksi12 = 'trans-012';
 List<TransaksiModel> get daftarTransaksi {
   final now = DateTime.now();
   final satuHariLalu = now.subtract(const Duration(days: 1));
-  const tigaHariLalu = Duration(days: 3);
-  const limaHariLalu = Duration(days: 5);
-  const tujuhHariLalu = Duration(days: 7);
-  const sepuluhHariLalu = Duration(days: 10);
-  const empatBelasHariLalu = Duration(days: 14);
-  const duaPuluhHariLalu = Duration(days: 20);
-  const tigaPuluhHariLalu = Duration(days: 30);
+  final tigaHariLalu = now.subtract(const Duration(days: 3));
+  final limaHariLalu = now.subtract(const Duration(days: 5));
+  final tujuhHariLalu = now.subtract(const Duration(days: 7));
+  final sepuluhHariLalu = now.subtract(const Duration(days: 10));
+  final empatBelasHariLalu = now.subtract(const Duration(days: 14));
+  final duaPuluhHariLalu = now.subtract(const Duration(days: 20));
+  final tigaPuluhHariLalu = now.subtract(const Duration(days: 30));
 
   return [
+    // ============================================================
     // 1. Transaksi Pemasukan - Gaji Budi
+    // ============================================================
     TransaksiModel(
       id: idTransaksi1,
       tanggal: now,
@@ -51,7 +53,10 @@ List<TransaksiModel> get daftarTransaksi {
       tanggalMulai: null,
       tanggalBerakhir: null,
     ),
+
+    // ============================================================
     // 2. Transaksi Pemasukan - Bonus Budi
+    // ============================================================
     TransaksiModel(
       id: idTransaksi2,
       tanggal: satuHariLalu,
@@ -66,10 +71,13 @@ List<TransaksiModel> get daftarTransaksi {
       tanggalMulai: null,
       tanggalBerakhir: null,
     ),
+
+    // ============================================================
     // 3. Transaksi Pengeluaran - Makanan Budi
+    // ============================================================
     TransaksiModel(
       id: idTransaksi3,
-      tanggal: now.subtract(tigaHariLalu),
+      tanggal: tigaHariLalu,
       deskripsi: 'Belanja Makanan',
       jumlah: 500000,
       tipe: TipeTransaksi.expense,
@@ -81,10 +89,13 @@ List<TransaksiModel> get daftarTransaksi {
       tanggalMulai: null,
       tanggalBerakhir: null,
     ),
+
+    // ============================================================
     // 4. Transaksi Aktivasi Paket Hemat - Budi
+    // ============================================================
     TransaksiModel(
       id: idTransaksi4,
-      tanggal: now.subtract(tigaHariLalu),
+      tanggal: tigaHariLalu,
       deskripsi: 'Aktivasi Paket Hemat',
       jumlah: 150000,
       tipe: TipeTransaksi.expense,
@@ -96,14 +107,17 @@ List<TransaksiModel> get daftarTransaksi {
       poinDidapat: 50,
       durasiPaket: 30,
       tipeDurasiPaket: TipeDurasiPaket.days,
-      tanggalMulai: now.subtract(tigaHariLalu),
-      tanggalBerakhir: now.subtract(tigaHariLalu).add(const Duration(days: 30)),
+      tanggalMulai: tigaHariLalu,
+      tanggalBerakhir: tigaHariLalu.add(const Duration(days: 30)),
       statusAktivasi: true,
     ),
+
+    // ============================================================
     // 5. Transaksi Aktivasi Paket Bisnis - Siti
+    // ============================================================
     TransaksiModel(
       id: idTransaksi5,
-      tanggal: now.subtract(limaHariLalu),
+      tanggal: limaHariLalu,
       deskripsi: 'Aktivasi Paket Bisnis',
       jumlah: 250000,
       tipe: TipeTransaksi.expense,
@@ -115,14 +129,17 @@ List<TransaksiModel> get daftarTransaksi {
       poinDidapat: 100,
       durasiPaket: 30,
       tipeDurasiPaket: TipeDurasiPaket.days,
-      tanggalMulai: now.subtract(limaHariLalu),
-      tanggalBerakhir: now.subtract(limaHariLalu).add(const Duration(days: 30)),
+      tanggalMulai: limaHariLalu,
+      tanggalBerakhir: limaHariLalu.add(const Duration(days: 30)),
       statusAktivasi: true,
     ),
+
+    // ============================================================
     // 6. Transaksi Aktivasi Paket Premium - Agus (Belum Lunas)
+    // ============================================================
     TransaksiModel(
       id: idTransaksi6,
-      tanggal: now.subtract(tujuhHariLalu),
+      tanggal: tujuhHariLalu,
       deskripsi: 'Aktivasi Paket Premium',
       jumlah: 350000,
       tipe: TipeTransaksi.expense,
@@ -134,16 +151,17 @@ List<TransaksiModel> get daftarTransaksi {
       statusPembayaran: StatusPembayaran.unpaid,
       durasiPaket: 30,
       tipeDurasiPaket: TipeDurasiPaket.days,
-      tanggalMulai: now.subtract(tujuhHariLalu),
-      tanggalBerakhir: now
-          .subtract(tujuhHariLalu)
-          .add(const Duration(days: 30)),
+      tanggalMulai: tujuhHariLalu,
+      tanggalBerakhir: tujuhHariLalu.add(const Duration(days: 30)),
       statusAktivasi: true,
     ),
+
+    // ============================================================
     // 7. Transaksi Aktivasi Paket Gamer - Dewi
+    // ============================================================
     TransaksiModel(
       id: idTransaksi7,
-      tanggal: now.subtract(sepuluhHariLalu),
+      tanggal: sepuluhHariLalu,
       deskripsi: 'Aktivasi Paket Gamer',
       jumlah: 500000,
       tipe: TipeTransaksi.expense,
@@ -155,16 +173,17 @@ List<TransaksiModel> get daftarTransaksi {
       poinDidapat: 200,
       durasiPaket: 30,
       tipeDurasiPaket: TipeDurasiPaket.days,
-      tanggalMulai: now.subtract(sepuluhHariLalu),
-      tanggalBerakhir: now
-          .subtract(sepuluhHariLalu)
-          .add(const Duration(days: 30)),
+      tanggalMulai: sepuluhHariLalu,
+      tanggalBerakhir: sepuluhHariLalu.add(const Duration(days: 30)),
       statusAktivasi: true,
     ),
+
+    // ============================================================
     // 8. Transaksi Aktivasi Paket Edukasi - Andi
+    // ============================================================
     TransaksiModel(
       id: idTransaksi8,
-      tanggal: now.subtract(empatBelasHariLalu),
+      tanggal: empatBelasHariLalu,
       deskripsi: 'Aktivasi Paket Edukasi',
       jumlah: 100000,
       tipe: TipeTransaksi.expense,
@@ -176,16 +195,17 @@ List<TransaksiModel> get daftarTransaksi {
       poinDidapat: 30,
       durasiPaket: 15,
       tipeDurasiPaket: TipeDurasiPaket.days,
-      tanggalMulai: now.subtract(empatBelasHariLalu),
-      tanggalBerakhir: now
-          .subtract(empatBelasHariLalu)
-          .add(const Duration(days: 15)),
+      tanggalMulai: empatBelasHariLalu,
+      tanggalBerakhir: empatBelasHariLalu.add(const Duration(days: 15)),
       statusAktivasi: true,
     ),
+
+    // ============================================================
     // 9. Transaksi Aktivasi Paket Ultimate - Joko
+    // ============================================================
     TransaksiModel(
       id: idTransaksi9,
-      tanggal: now.subtract(duaPuluhHariLalu),
+      tanggal: duaPuluhHariLalu,
       deskripsi: 'Aktivasi Paket Ultimate',
       jumlah: 750000,
       tipe: TipeTransaksi.expense,
@@ -197,16 +217,17 @@ List<TransaksiModel> get daftarTransaksi {
       poinDidapat: 300,
       durasiPaket: 60,
       tipeDurasiPaket: TipeDurasiPaket.days,
-      tanggalMulai: now.subtract(duaPuluhHariLalu),
-      tanggalBerakhir: now
-          .subtract(duaPuluhHariLalu)
-          .add(const Duration(days: 60)),
+      tanggalMulai: duaPuluhHariLalu,
+      tanggalBerakhir: duaPuluhHariLalu.add(const Duration(days: 60)),
       statusAktivasi: true,
     ),
+
+    // ============================================================
     // 10. Transaksi Pengeluaran - Transportasi Rina
+    // ============================================================
     TransaksiModel(
       id: idTransaksi10,
-      tanggal: now.subtract(tigaPuluhHariLalu),
+      tanggal: tigaPuluhHariLalu,
       deskripsi: 'Transportasi Bulanan',
       jumlah: 300000,
       tipe: TipeTransaksi.expense,
@@ -218,10 +239,13 @@ List<TransaksiModel> get daftarTransaksi {
       tanggalMulai: null,
       tanggalBerakhir: null,
     ),
+
+    // ============================================================
     // 11. Transaksi Pengeluaran - Listrik Maya
+    // ============================================================
     TransaksiModel(
       id: idTransaksi11,
-      tanggal: now.subtract(duaPuluhHariLalu),
+      tanggal: duaPuluhHariLalu,
       deskripsi: 'Pembayaran Listrik',
       jumlah: 200000,
       tipe: TipeTransaksi.expense,
@@ -233,7 +257,10 @@ List<TransaksiModel> get daftarTransaksi {
       tanggalMulai: null,
       tanggalBerakhir: null,
     ),
+
+    // ============================================================
     // 12. Transaksi Transfer - Rudi ke Lisa
+    // ============================================================
     TransaksiModel(
       id: idTransaksi12,
       tanggal: satuHariLalu,
@@ -252,7 +279,7 @@ List<TransaksiModel> get daftarTransaksi {
 }
 
 /// Mendapatkan transaksi berdasarkan ID
-TransaksiModel? getById(String id) {
+TransaksiModel? getTransaksiById(String id) {
   try {
     return daftarTransaksi.firstWhere((t) => t.id == id);
   } catch (e) {
@@ -261,12 +288,12 @@ TransaksiModel? getById(String id) {
 }
 
 /// Mendapatkan transaksi berdasarkan ID pelanggan
-List<TransaksiModel> getByCustomerId(String idPelanggan) {
+List<TransaksiModel> getTransaksiByCustomerId(String idPelanggan) {
   return daftarTransaksi.where((t) => t.idPelanggan == idPelanggan).toList();
 }
 
 /// Mendapatkan transaksi berdasarkan tipe
-List<TransaksiModel> getByTipe(TipeTransaksi tipe) {
+List<TransaksiModel> getTransaksiByTipe(TipeTransaksi tipe) {
   return daftarTransaksi.where((t) => t.tipe == tipe).toList();
 }
 
