@@ -27,7 +27,6 @@ class DetailInvestor extends ConsumerWidget {
               if (investor == null) {
                 return const Center(child: Text('Investor tidak ditemukan'));
               }
-
               final totalLembar = investasi.getTotalLembarInvestor(
                 investor.id,
               );
@@ -38,7 +37,6 @@ class DetailInvestor extends ConsumerWidget {
               final returnPersentase = totalModal > 0
                   ? (totalDividen / totalModal) * 100
                   : 0.0;
-
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
