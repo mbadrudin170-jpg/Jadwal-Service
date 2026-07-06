@@ -131,14 +131,17 @@ class RingkasanSaham extends ConsumerWidget {
                     ),
                   ),
                 ),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: pelangganAsync.when(
-                      data: (listInvestor) {
-                        final daftarInvestor =
-                            listInvestor.ambilBerdasarkanRole(AppRole.investor)
-                              ..sort((a, b) {
+                InkWell(
+                  onTap: () {},
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: pelangganAsync.when(
+                        data: (listInvestor) {
+                          final daftarInvestor =
+                              listInvestor.ambilBerdasarkanRole(
+                                AppRole.investor,
+                              )..sort((a, b) {
                                 final lembarA = investasi
                                     .getTotalLembarInvestor(a.id);
                                 final lembarB = investasi
@@ -148,56 +151,59 @@ class RingkasanSaham extends ConsumerWidget {
                                 ); // descending (terbanyak ke terkecil)
                               });
 
-                        if (daftarInvestor.isEmpty) {
-                          return const Center(
-                            child: Text('Belum ada investor'),
-                          );
-                        }
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Daftar Investor',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                          if (daftarInvestor.isEmpty) {
+                            return const Center(
+                              child: Text('Belum ada investor'),
+                            );
+                          }
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Daftar Investor',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            gapH12,
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: daftarInvestor.length > 5
-                                  ? 5
-                                  : daftarInvestor.length,
-                              itemBuilder: (context, index) {
-                                final investor = daftarInvestor[index];
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 4.0,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(investor.nama),
-                                      Text(
-                                        investasi
-                                            .getTotalLembarInvestor(investor.id)
-                                            .toString(),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                      error: (error, stackTrace) =>
-                          Center(child: Text('Error: $error')),
-                      loading: () =>
-                          const Center(child: CircularProgressIndicator()),
+                              gapH12,
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: daftarInvestor.length > 5
+                                    ? 5
+                                    : daftarInvestor.length,
+                                itemBuilder: (context, index) {
+                                  final investor = daftarInvestor[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 4.0,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(investor.nama),
+                                        Text(
+                                          investasi
+                                              .getTotalLembarInvestor(
+                                                investor.id,
+                                              )
+                                              .toString(),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                        error: (error, stackTrace) =>
+                            Center(child: Text('Error: $error')),
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                      ),
                     ),
                   ),
                 ),
