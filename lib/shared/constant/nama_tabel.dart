@@ -18,4 +18,8 @@ abstract final class NamaTabel {
   static const String notifikasi = 'notification';
   static const String statusGlobal = 'status_global';
   static const String event = 'events';
+
+  // ========== INVESTASI ==========
+  static const String investasi = 'investasi';
+  static const String dividen = 'dividen';
 }
