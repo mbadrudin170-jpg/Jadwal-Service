@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/investasi/model/investasi_model.dart';
+import 'package:wifi/fitur/investasi/page/form_saham.dart';
 import 'package:wifi/fitur/investasi/provider/investasi_provider.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -17,29 +18,48 @@ class DetailInvestor extends ConsumerWidget {
     final investasiAsync = ref.watch(investasiProvider);
     final pelangganAsync = ref.watch(pelangganProvider);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Detail Investor')),
-      body: investasiAsync.when(
-        data: (investasi) {
-          return pelangganAsync.when(
-            data: (listPelanggan) {
-              final investor = listPelanggan.ambilBerdasarkanId(idInvestor);
-              if (investor == null) {
-                return const Center(child: Text('Investor tidak ditemukan'));
-              }
-              final totalLembar = investasi.getTotalLembarInvestor(investor.id);
-              final totalModal = investasi.getTotalModalInvestor(investor.id);
-              final totalDividen = investasi.getTotalDividenDiterimaInvestor(
-                investor.id,
+    return investasiAsync.when(
+      data: (investasi) {
+        return pelangganAsync.when(
+          data: (listPelanggan) {
+            final investor = listPelanggan.ambilBerdasarkanId(idInvestor);
+            if (investor == null) {
+              return Scaffold(
+                appBar: AppBar(title: const Text('Detail Investor')),
+                body: const Center(child: Text('Investor tidak ditemukan')),
               );
-              final returnPersentase = totalModal > 0
-                  ? (totalDividen / totalModal) * 100
-                  : 0.0;
-              return SingleChildScrollView(
+            }
+            final totalLembar = investasi.getTotalLembarInvestor(investor.id);
+            final totalModal = investasi.getTotalModalInvestor(investor.id);
+            final totalDividen = investasi.getTotalDividenDiterimaInvestor(
+              investor.id,
+            );
+            final returnPersentase = totalModal > 0
+                ? (totalDividen / totalModal) * 100
+                : 0.0;
+
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Detail Investor'),
+                actions: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (context) =>
+                              FormSaham(idInvestor: idInvestor),
+                        ),
+                      );
+                    },
+                    icon: const Icon(TIcons.add),
+                  ),
+                ],
+              ),
+              body: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    // Profil Investor
                     Card(
                       elevation: 4,
                       shape: RoundedRectangleBorder(
@@ -87,8 +107,6 @@ class DetailInvestor extends ConsumerWidget {
                       ),
                     ),
                     gapH16,
-
-                    // Ringkasan Investasi
                     Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(
@@ -139,8 +157,6 @@ class DetailInvestor extends ConsumerWidget {
                       ),
                     ),
                     gapH16,
-
-                    // Daftar Investasi
                     Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(
@@ -168,9 +184,12 @@ class DetailInvestor extends ConsumerWidget {
                     ),
                   ],
                 ),
-              );
-            },
-            error: (error, stackTrace) => Center(
+              ),
+            );
+          },
+          error: (error, stackTrace) => Scaffold(
+            appBar: AppBar(title: const Text('Detail Investor')),
+            body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -180,10 +199,16 @@ class DetailInvestor extends ConsumerWidget {
                 ],
               ),
             ),
-            loading: () => const Center(child: CircularProgressIndicator()),
-          );
-        },
-        error: (e, s) => Center(
+          ),
+          loading: () => Scaffold(
+            appBar: AppBar(title: const Text('Detail Investor')),
+            body: const Center(child: CircularProgressIndicator()),
+          ),
+        );
+      },
+      error: (e, s) => Scaffold(
+        appBar: AppBar(title: const Text('Detail Investor')),
+        body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -193,7 +218,10 @@ class DetailInvestor extends ConsumerWidget {
             ],
           ),
         ),
-        loading: () => const Center(child: CircularProgressIndicator()),
+      ),
+      loading: () => Scaffold(
+        appBar: AppBar(title: const Text('Detail Investor')),
+        body: const Center(child: CircularProgressIndicator()),
       ),
     );
   }
