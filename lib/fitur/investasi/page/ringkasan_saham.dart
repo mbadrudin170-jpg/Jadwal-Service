@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/app_role_enum.dart';
+import 'package:wifi/fitur/investasi/page/daftar_investor.dart';
 import 'package:wifi/fitur/investasi/provider/investasi_provider.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -132,7 +133,14 @@ class RingkasanSaham extends ConsumerWidget {
                   ),
                 ),
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (context) => const DaftarInvestor(),
+                      ),
+                    );
+                  },
                   child: Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),

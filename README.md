@@ -1,4 +1,43 @@
 
+// File: lib/fitur/investasi/page/daftar_investor.dart
+
+```dart
+// path: lib/fitur/investasi/page/daftar_investor.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/investasi/provider/investasi_provider.dart';
+
+class DaftarInvestor extends ConsumerWidget {
+  const DaftarInvestor({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final investasiAsync = ref.watch(investasiProvider);
+    return Scaffold(
+      appBar: AppBar(title: const Text('data')),
+      body: investasiAsync.when(
+        data: (data) {
+          return const Column(
+            children: [
+              ListTile(
+                title: Text('Nama'),
+                subtitle: Text('lembar'),
+                leading: Text('jumlah inves'),
+              ),
+            ],
+          );
+        },
+        error: (error, stackTrace) {
+          return null;
+        },
+        loading: () => null,
+      ),
+    );
+  }
+}
+```
+
 // File: lib/fitur/investasi/page/ringkasan_saham.dart
 
 ```dart
@@ -135,14 +174,17 @@ class RingkasanSaham extends ConsumerWidget {
                     ),
                   ),
                 ),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: pelangganAsync.when(
-                      data: (listInvestor) {
-                        final daftarInvestor =
-                            listInvestor.ambilBerdasarkanRole(AppRole.investor)
-                              ..sort((a, b) {
+                InkWell(
+                  onTap: () {},
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: pelangganAsync.when(
+                        data: (listInvestor) {
+                          final daftarInvestor =
+                              listInvestor.ambilBerdasarkanRole(
+                                AppRole.investor,
+                              )..sort((a, b) {
                                 final lembarA = investasi
                                     .getTotalLembarInvestor(a.id);
                                 final lembarB = investasi
@@ -152,54 +194,59 @@ class RingkasanSaham extends ConsumerWidget {
                                 ); // descending (terbanyak ke terkecil)
                               });
 
-                        if (daftarInvestor.isEmpty) {
-                          return const Center(
-                            child: Text('Belum ada investor'),
-                          );
-                        }
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Daftar Investor',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                          if (daftarInvestor.isEmpty) {
+                            return const Center(
+                              child: Text('Belum ada investor'),
+                            );
+                          }
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Daftar Investor',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            gapH12,
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: daftarInvestor.length,
-                              itemBuilder: (context, index) {
-                                final investor = daftarInvestor[index];
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 4.0,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(investor.nama),
-                                      Text(
-                                        investasi
-                                            .getTotalLembarInvestor(investor.id)
-                                            .toString(),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                      error: (error, stackTrace) =>
-                          Center(child: Text('Error: $error')),
-                      loading: () =>
-                          const Center(child: CircularProgressIndicator()),
+                              gapH12,
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: daftarInvestor.length > 5
+                                    ? 5
+                                    : daftarInvestor.length,
+                                itemBuilder: (context, index) {
+                                  final investor = daftarInvestor[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 4.0,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(investor.nama),
+                                        Text(
+                                          investasi
+                                              .getTotalLembarInvestor(
+                                                investor.id,
+                                              )
+                                              .toString(),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                        error: (error, stackTrace) =>
+                            Center(child: Text('Error: $error')),
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                      ),
                     ),
                   ),
                 ),
