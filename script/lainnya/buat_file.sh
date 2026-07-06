@@ -1,128 +1,126 @@
 #!/bin/bash
-set -e
-# // path: script/lainnya/buat_struktur.sh
+# // path: script/lainnya/buat_file.sh
 
-# Warna output
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 RED='\033[0;31m'
+YELLOW='\033[1;33m'
 NC='\033[0m'
 
-# Fungsi bantuan
-usage() {
+if [ -z "$1" ] || [ -z "$2" ]; then
+    echo -e "${RED}❌ Error: Parameter tidak lengkap!${NC}"
+    echo ""
     echo -e "${YELLOW}Penggunaan:${NC}"
-    echo "  $0 <nama_fitur> [sub_folder1 sub_folder2 ...]"
+    echo "  $0 <path_file> <tipe>"
+    echo ""
+    echo -e "${YELLOW}Tipe yang tersedia:${NC}"
+    echo "  widget  - Stateless Widget"
+    echo "  model   - Freezed Model"
+    echo "  provider - Riverpod Provider"
+    echo "  page    - ConsumerWidget Page"
     echo ""
     echo -e "${YELLOW}Contoh:${NC}"
-    echo "  $0 investasi model operasi provider page"
-    echo "  $0 laporan model provider"
-    echo "  $0 transaksi"  # default: model, provider, page
+    echo "  $0 lib/fitur/kopi/widget/kopi_card.dart widget"
+    echo "  $0 lib/fitur/kopi/model/kopi_model.dart model"
     echo ""
-    echo -e "${YELLOW}Hasil:${NC}"
-    echo "  lib/fitur/<nama_fitur>/"
-    echo "    ├── model/"
-    echo "    ├── operasi/   (jika disebutkan)"
-    echo "    ├── provider/  (jika disebutkan)"
-    echo "    └── page/      (jika disebutkan)"
     exit 1
+fi
+
+FILE_PATH="$1"
+TYPE="$2"
+FOLDER=$(dirname "$FILE_PATH")
+FILENAME=$(basename "$FILE_PATH" .dart)
+
+# Buat folder
+mkdir -p "$FOLDER"
+
+# Buat file dengan template
+case "$TYPE" in
+    widget)
+        cat > "$FILE_PATH" << 'EOF'
+// path: PATH_PLACEHOLDER
+import 'package:flutter/material.dart';
+
+class CLASSNAME_PLACEHOLDER extends StatelessWidget {
+  const CLASSNAME_PLACEHOLDER({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      // TODO: Implementasi widget
+    );
+  }
 }
+EOF
+        ;;
+    model)
+        cat > "$FILE_PATH" << 'EOF'
+// path: PATH_PLACEHOLDER
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-# Validasi parameter
-if [ -z "$1" ]; then
-    echo -e "${RED}❌ Error: Nama fitur wajib diisi!${NC}"
-    usage
-fi
+part 'FILENAME_PLACEHOLDER.freezed.dart';
+part 'FILENAME_PLACEHOLDER.g.dart';
 
-FITUR="$1"
-shift  # Hapus argumen pertama, sisanya jadi sub folder
+@freezed
+class CLASSNAME_PLACEHOLDER with _$CLASSNAME_PLACEHOLDER {
+  const factory CLASSNAME_PLACEHOLDER({
+    required String id,
+    // TODO: Tambahkan field
+  }) = _CLASSNAME_PLACEHOLDER;
 
-# Default sub folder jika tidak ada parameter
-if [ $# -eq 0 ]; then
-    set -- model provider page
-fi
+  factory CLASSNAME_PLACEHOLDER.fromJson(Map<String, dynamic> json) =>
+      _$CLASSNAME_PLACEHOLDERFromJson(json);
+}
+EOF
+        ;;
+    provider)
+        cat > "$FILE_PATH" << 'EOF'
+// path: PATH_PLACEHOLDER
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-# Pindah ke root proyek
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-cd "$PROJECT_ROOT"
+part 'FILENAME_PLACEHOLDER.g.dart';
 
-echo -e "${YELLOW}========================================${NC}"
-echo -e "${YELLOW}  MEMBUAT STRUKTUR FOLDER${NC}"
-echo -e "${YELLOW}  Fitur: ${GREEN}$FITUR${NC}"
-echo -e "${YELLOW}  Sub folder: ${GREEN}$@${NC}"
-echo -e "${YELLOW}========================================${NC}"
+@riverpod
+class CLASSNAME_PLACEHOLDER extends _$CLASSNAME_PLACEHOLDER {
+  @override
+  FutureOr<void> build() {
+    // TODO: Implementasi provider
+  }
+}
+EOF
+        ;;
+    page)
+        cat > "$FILE_PATH" << 'EOF'
+// path: PATH_PLACEHOLDER
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-# 1. Buat folder utama dan sub folder
-FITUR_PATH="lib/fitur/$FITUR"
+class CLASSNAME_PLACEHOLDER extends ConsumerWidget {
+  const CLASSNAME_PLACEHOLDER({super.key});
 
-if [ -d "$FITUR_PATH" ]; then
-    echo -e "${YELLOW}⚠️  Folder $FITUR_PATH sudah ada!${NC}"
-    echo -e "${YELLOW}   Akan melewati pembuatan folder, tapi tetap cek file...${NC}"
-else
-    echo -e "${GREEN}📁 Membuat folder...${NC}"
-    mkdir -p "$FITUR_PATH"
-fi
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('CLASSNAME_PLACEHOLDER'),
+      ),
+      body: const Center(
+        child: Text('Halaman CLASSNAME_PLACEHOLDER'),
+      ),
+    );
+  }
+}
+EOF
+        ;;
+    *)
+        echo -e "${RED}❌ Tipe '$TYPE' tidak dikenal!${NC}"
+        exit 1
+        ;;
+esac
 
-# Buat sub folder
-for sub in "$@"; do
-    mkdir -p "$FITUR_PATH/$sub"
-    echo -e "  ${GREEN}✅ $FITUR_PATH/$sub dibuat${NC}"
-done
+# Ganti placeholder
+sed -i "s|PATH_PLACEHOLDER|$FILE_PATH|g" "$FILE_PATH"
+sed -i "s|FILENAME_PLACEHOLDER|$FILENAME|g" "$FILE_PATH"
+sed -i "s|CLASSNAME_PLACEHOLDER|${FILENAME%_*}|g" "$FILE_PATH"
 
-# 2. Buat file sesuai sub folder (dinamis)
-echo -e "\n${GREEN}📄 Membuat file-file kosong...${NC}"
-
-declare -A FILE_TEMPLATES=(
-    ["model"]="${FITUR}_model.dart"
-    ["provider"]="${FITUR}_provider.dart"
-    ["page"]="${FITUR}_page.dart"
-    ["operasi"]="${FITUR}_op_sqlite.dart"
-)
-
-for sub in "$@"; do
-    # Tentukan nama file default
-    case "$sub" in
-        model)
-            FILE_NAME="${FITUR}_model.dart"
-            ;;
-        provider)
-            FILE_NAME="${FITUR}_provider.dart"
-            ;;
-        page)
-            FILE_NAME="${FITUR}_page.dart"
-            ;;
-        operasi)
-            FILE_NAME="${FITUR}_op_sqlite.dart"
-            ;;
-        *)
-            # Jika sub folder tidak dikenal, buat file dengan nama generic
-            FILE_NAME="${FITUR}_${sub}.dart"
-            ;;
-    esac
-
-    FILE_PATH="$FITUR_PATH/$sub/$FILE_NAME"
-
-    if [ -f "$FILE_PATH" ]; then
-        echo -e "  ${YELLOW}⚠️  $FILE_PATH sudah ada, dilewati${NC}"
-    else
-        touch "$FILE_PATH"
-        echo -e "  ${GREEN}✅ $FILE_PATH dibuat${NC}"
-    fi
-done
-
-# 3. Tampilkan hasil
-echo -e "\n${GREEN}📂 Struktur folder yang dibuat:${NC}"
-if command -v tree &> /dev/null; then
-    tree "$FITUR_PATH" 2>/dev/null || echo "  (Folder kosong)"
-else
-    find "$FITUR_PATH" -type f 2>/dev/null | sort || echo "  (Folder kosong)"
-fi
-
-# 4. Hitung total file
-TOTAL_FILES=$(find "$FITUR_PATH" -type f -name "*.dart" 2>/dev/null | wc -l)
-echo -e "\n${GREEN}📊 Total file .dart: $TOTAL_FILES${NC}"
-
-echo -e "\n${GREEN}✅ Selesai!${NC}"
-echo -e "${YELLOW}📝 Langkah selanjutnya:${NC}"
-echo "  1. Isi file-file dengan kode yang sudah disiapkan"
-echo "  2. Jalankan: fbuild (untuk generate freezed)"
-echo "  3. Jalankan: flutter analyze (untuk cek error)"
+echo -e "${GREEN}✅ File berhasil dibuat dengan template:${NC}"
+echo "  📁 $FILE_PATH"

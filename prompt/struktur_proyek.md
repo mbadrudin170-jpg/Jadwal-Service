@@ -714,6 +714,7 @@ test/admin/model
 test/admin/model/best_selling_package_test.dart
 script
 script/lainnya
+script/lainnya/buat_struktur.sh
 script/lainnya/buat_file.sh
 script/docs
 script/docs/md_script.sh

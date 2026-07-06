@@ -36,7 +36,7 @@ find lib test script docs prompt assets > prompt/struktur_proyek.md
     echo -e "\n\n// ============================================================"
     echo -e "// FILE SCRIPT SHELL"
     echo -e "// ============================================================"
-    find script -type f -name "*.sh" -exec sh -c '
+    find docs/script.md -type f -name "*.sh" -exec sh -c '
         echo -e "\n\n// File: $1"
         echo "\`\`\`bash"
         cat "$1"

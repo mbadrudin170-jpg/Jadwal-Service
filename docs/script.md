@@ -1,53 +1,137 @@
 
 
-// File: script/lainnya/buat_file.sh
+// File: script/lainnya/buat_struktur.sh
 #!/bin/bash
-# // path: script/lainnya/buat_file.sh
+set -e
+# // path: script/lainnya/buat_struktur.sh
 
 # Warna output
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
-NC='\033[0m' # No Color
+NC='\033[0m'
+
+# Fungsi bantuan
+usage() {
+    echo -e "${YELLOW}Penggunaan:${NC}"
+    echo "  $0 <nama_fitur> [sub_folder1 sub_folder2 ...]"
+    echo ""
+    echo -e "${YELLOW}Contoh:${NC}"
+    echo "  $0 investasi model operasi provider page"
+    echo "  $0 laporan model provider"
+    echo "  $0 transaksi"  # default: model, provider, page
+    echo ""
+    echo -e "${YELLOW}Hasil:${NC}"
+    echo "  lib/fitur/<nama_fitur>/"
+    echo "    ├── model/"
+    echo "    ├── operasi/   (jika disebutkan)"
+    echo "    ├── provider/  (jika disebutkan)"
+    echo "    └── page/      (jika disebutkan)"
+    exit 1
+}
+
+# Validasi parameter
+if [ -z "$1" ]; then
+    echo -e "${RED}❌ Error: Nama fitur wajib diisi!${NC}"
+    usage
+fi
+
+FITUR="$1"
+shift  # Hapus argumen pertama, sisanya jadi sub folder
+
+# Default sub folder jika tidak ada parameter
+if [ $# -eq 0 ]; then
+    set -- model provider page
+fi
+
+# Pindah ke root proyek
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$PROJECT_ROOT"
 
 echo -e "${YELLOW}========================================${NC}"
-echo -e "${YELLOW}  MEMBUAT STRUKTUR FOLDER INVESTASI${NC}"
+echo -e "${YELLOW}  MEMBUAT STRUKTUR FOLDER${NC}"
+echo -e "${YELLOW}  Fitur: ${GREEN}$FITUR${NC}"
+echo -e "${YELLOW}  Sub folder: ${GREEN}$@${NC}"
 echo -e "${YELLOW}========================================${NC}"
 
-# 1. Buat folder
-echo -e "${GREEN}📁 Membuat folder...${NC}"
-mkdir -p lib/fitur/investasi/{model,operasi,provider,page}
+# 1. Buat folder utama dan sub folder
+FITUR_PATH="lib/fitur/$FITUR"
 
-# 2. Buat file-file kosong
-echo -e "${GREEN}📄 Membuat file-file kosong...${NC}"
+if [ -d "$FITUR_PATH" ]; then
+    echo -e "${YELLOW}⚠️  Folder $FITUR_PATH sudah ada!${NC}"
+    echo -e "${YELLOW}   Akan melewati pembuatan folder, tapi tetap cek file...${NC}"
+else
+    echo -e "${GREEN}📁 Membuat folder...${NC}"
+    mkdir -p "$FITUR_PATH"
+fi
 
-FILES=(
-    "lib/fitur/investasi/model/investasi_model.dart"
-    "lib/fitur/investasi/model/dividen_model.dart"
-    "lib/fitur/investasi/model/riwayat_pembelian_model.dart"
-    "lib/fitur/investasi/model/dividen_history_model.dart"
-    "lib/fitur/investasi/operasi/investasi_op_sqlite.dart"
-    "lib/fitur/investasi/provider/investasi_provider.dart"
-    "lib/fitur/investasi/page/portofolio.dart"
+# Buat sub folder
+for sub in "$@"; do
+    mkdir -p "$FITUR_PATH/$sub"
+    echo -e "  ${GREEN}✅ $FITUR_PATH/$sub dibuat${NC}"
+done
+
+# 2. Buat file sesuai sub folder (dinamis)
+echo -e "\n${GREEN}📄 Membuat file-file kosong...${NC}"
+
+declare -A FILE_TEMPLATES=(
+    ["model"]="${FITUR}_model.dart"
+    ["provider"]="${FITUR}_provider.dart"
+    ["page"]="${FITUR}_page.dart"
+    ["operasi"]="${FITUR}_op_sqlite.dart"
 )
 
-for file in "${FILES[@]}"; do
-    if [ -f "$file" ]; then
-        echo -e "  ${YELLOW}⚠️  $file sudah ada, dilewati${NC}"
+for sub in "$@"; do
+    # Tentukan nama file default
+    case "$sub" in
+        model)
+            FILE_NAME="${FITUR}_model.dart"
+            ;;
+        provider)
+            FILE_NAME="${FITUR}_provider.dart"
+            ;;
+        page)
+            FILE_NAME="${FITUR}_page.dart"
+            ;;
+        operasi)
+            FILE_NAME="${FITUR}_op_sqlite.dart"
+            ;;
+        *)
+            # Jika sub folder tidak dikenal, buat file dengan nama generic
+            FILE_NAME="${FITUR}_${sub}.dart"
+            ;;
+    esac
+
+    FILE_PATH="$FITUR_PATH/$sub/$FILE_NAME"
+
+    if [ -f "$FILE_PATH" ]; then
+        echo -e "  ${YELLOW}⚠️  $FILE_PATH sudah ada, dilewati${NC}"
     else
-        touch "$file"
-        echo -e "  ${GREEN}✅ $file dibuat${NC}"
+        touch "$FILE_PATH"
+        echo -e "  ${GREEN}✅ $FILE_PATH dibuat${NC}"
     fi
 done
 
 # 3. Tampilkan hasil
 echo -e "\n${GREEN}📂 Struktur folder yang dibuat:${NC}"
-tree lib/fitur/investasi 2>/dev/null || find lib/fitur/investasi -type f | sort
+if command -v tree &> /dev/null; then
+    tree "$FITUR_PATH" 2>/dev/null || echo "  (Folder kosong)"
+else
+    find "$FITUR_PATH" -type f 2>/dev/null | sort || echo "  (Folder kosong)"
+fi
+
+# 4. Hitung total file
+TOTAL_FILES=$(find "$FITUR_PATH" -type f -name "*.dart" 2>/dev/null | wc -l)
+echo -e "\n${GREEN}📊 Total file .dart: $TOTAL_FILES${NC}"
 
 echo -e "\n${GREEN}✅ Selesai!${NC}"
 echo -e "${YELLOW}📝 Langkah selanjutnya:${NC}"
-echo "  1. Jalankan: fbuild (untuk generate freezed)"
-echo "  2. Edit file-file di lib/fitur/investasi/"
+echo "  1. Isi file-file dengan kode yang sudah disiapkan"
+echo "  2. Jalankan: fbuild (untuk generate freezed)"
+echo "  3. Jalankan: flutter analyze (untuk cek error)"
+
+// File: script/lainnya/buat_file.sh
+
 
 // File: script/docs/md_script.sh
 #!/bin/bash
@@ -120,21 +204,39 @@ include_test="${2:-}"
 
 # Pastikan folder prompt ada, lalu buat daftar struktur
 mkdir -p prompt
-find lib test > prompt/struktur_proyek.md
+# Hanya satu kali find untuk struktur
+find lib test script docs prompt assets > prompt/struktur_proyek.md
 
 {
-    # Struktur direktori (hanya nama file)
-    find lib test
+    # Struktur direktori
+    echo "// ============================================================"
+    echo "// STRUKTUR PROYEK"
+    echo "// ============================================================"
+    cat prompt/struktur_proyek.md
 
     # File pubspec.yaml
-    echo -e "// File: pubspec.yaml\n"
+    echo -e "\n\n// File: pubspec.yaml\n"
     cat pubspec.yaml
 
     # File analysis_options.yaml
     echo -e "\n\n// File: analysis_options.yaml\n"
     cat analysis_options.yaml
 
-    # Semua file .dart di lib/ dengan blok kode Dart
+    # === FILE SCRIPT SHELL (.sh) ===
+    echo -e "\n\n// ============================================================"
+    echo -e "// FILE SCRIPT SHELL"
+    echo -e "// ============================================================"
+    find docs/script.md -type f -name "*.sh" -exec sh -c '
+        echo -e "\n\n// File: $1"
+        echo "\`\`\`bash"
+        cat "$1"
+        echo "\`\`\`"
+    ' _ {} \;
+
+    # === FILE DART DI LIB ===
+    echo -e "\n\n// ============================================================"
+    echo -e "// FILE DART DI LIB"
+    echo -e "// ============================================================"
     find lib -type f -name "*.dart" -exec sh -c '
         echo -e "\n\n// File: $1"
         echo "\`\`\`dart"
@@ -142,23 +244,29 @@ find lib test > prompt/struktur_proyek.md
         echo "\`\`\`"
     ' _ {} \;
 
-    # File .md di prompt/
+    # === FILE MD DI PROMPT ===
+    echo -e "\n\n// ============================================================"
+    echo -e "// FILE PROMPT (.md)"
+    echo -e "// ============================================================"
     find prompt -type f -name "*.md" -exec sh -c '
         echo -e "\n\n// File: $1"
         cat "$1"
     ' _ {} \;
 
-    # Snippet VS Code
+    # === SNIPPET VS CODE ===
     echo -e "\n\n// ============================================================"
     echo -e "// SNIPPET VS CODE"
-    echo -e "// ============================================================\n"
+    echo -e "// ============================================================"
     find .vscode -type f -name "*.code-snippets" -exec sh -c '
         echo -e "\n\n// File: $1"
         cat "$1"
     ' _ {} \;
 
-    # Jika include_test, tambahkan file .dart di test/ dengan blok kode
+    # === FILE DART DI TEST (opsional) ===
     if [ "$include_test" = "include_test" ]; then
+        echo -e "\n\n// ============================================================"
+        echo -e "// FILE DART DI TEST"
+        echo -e "// ============================================================"
         find test -type f -name "*.dart" -exec sh -c '
             echo -e "\n\n// File: $1"
             echo "\`\`\`dart"
@@ -417,3 +525,5 @@ alias g='md_readme'
 alias dscript='md_script'
 alias r='cd_root build_docs README.md'
 alias l='cd_root build_docs README.md include_test'
+
+alias buat_struktur='/home/user/myapp/script/lainnya/buat_struktur.sh'
