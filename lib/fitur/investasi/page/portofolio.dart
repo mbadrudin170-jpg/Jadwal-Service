@@ -52,9 +52,6 @@ class HalamanPortofolio extends ConsumerWidget {
     // 1. AMBIL DATA DARI PROVIDER
     // ============================================================
     final investasiAsync = ref.watch(investasiProvider);
-    final detailInvestorAsync = ref.watch(
-      detailInvestorInvestasiProvider(userId),
-    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Portofolio Saya')),
@@ -92,8 +89,8 @@ class HalamanPortofolio extends ConsumerWidget {
             // ============================================================
             final daftarInvestasi = state.ambilInvestasiByIdInvestor(userId);
             final daftarDividen = state.ambilDividenByIdInvestor(userId);
-
-            // Hitung total
+            final lembarBeredar = state.getTotalLembarBeredar();
+            final totalLembarUser = state.getTotalLembarInvestor(userId);
             final totalModal = daftarInvestasi.fold(
               0.0,
               (sum, i) => sum + i.jumlahModal,
@@ -148,16 +145,15 @@ class HalamanPortofolio extends ConsumerWidget {
                     namaInvestor:
                         'Investor', // Bisa diambil dari data pelanggan
                     totalModal: totalModal,
-                    persentase: 0,
+                    persentase: (totalLembarUser / lembarBeredar),
                     totalDividenDiterima: totalDividenDiterima,
                   ),
                   gapH24,
-
-                  // Detail Kepemilikan
                   _buildDetailKepemilikan(
                     totalModal: totalModal,
-                    persentase: 0,
+                    persentase: (totalLembarUser / lembarBeredar),
                     totalDividenDiterima: totalDividenDiterima,
+                    totalLembar: totalLembarUser.toString(),
                   ),
                   gapH24,
 
@@ -296,6 +292,7 @@ class HalamanPortofolio extends ConsumerWidget {
     required double totalModal,
     required double persentase,
     required double totalDividenDiterima,
+    required String totalLembar,
   }) {
     return Card(
       elevation: 2,
@@ -324,6 +321,8 @@ class HalamanPortofolio extends ConsumerWidget {
               'Persentase',
               '${(persentase * 100).toStringAsFixed(1)}%',
             ),
+            _buildBarisDetail('Total Lembar', totalLembar),
+
             _buildBarisDetail(
               'Total Dividen',
               FormatUang.formatMataUang(totalDividenDiterima),

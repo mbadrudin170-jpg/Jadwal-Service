@@ -72,6 +72,20 @@ abstract class InvestasiState with _$InvestasiState {
         .where((d) => d.idInvestor == idInvestor && !d.sudahDibayar)
         .fold(0.0, (sum, d) => sum + d.jumlahDividen);
   }
+
+  /// Menghitung total lembar investor berdasarkan ID investor
+  int getTotalLembarInvestor(String idInvestor) {
+    return daftarInvestasi
+        .where((i) => i.idInvestor == idInvestor)
+        .fold(0, (sum, i) => sum + i.jumlahLembar);
+  }
+  // path: lib/fitur/investasi/provider/investasi_provider.dart
+  // Tambahkan di dalam class InvestasiState
+
+  /// Menghitung total semua lembar saham yang beredar (dari semua investor)
+  int getTotalLembarBeredar() {
+    return daftarInvestasi.fold(0, (sum, i) => sum + i.jumlahLembar);
+  }
 }
 
 // ============================================================

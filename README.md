@@ -38894,6 +38894,7 @@ class HalamanPortofolio extends ConsumerWidget {
     }
 
     final userId = ref.watch(userIdProvider).value;
+    Log.info('UserId saat ini: $userId');
     if (userId == null || userId.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text('Portofolio')),
@@ -39751,6 +39752,7 @@ abstract class InvestasiState with _$InvestasiState {
         .where((d) => d.idInvestor == idInvestor && !d.sudahDibayar)
         .fold(0.0, (sum, d) => sum + d.jumlahDividen);
   }
+  
 }
 
 // ============================================================
@@ -58915,7 +58917,7 @@ List<InvestasiModel> get daftarInvestasi {
     // ============================================================
     InvestasiModel(
       id: idInvestasi1,
-      idInvestor: idInvestor1,
+      idInvestor: idBudi,
       idTransaksi: idTransaksi1, // Transaksi Gaji Budi
       jumlahModal: 5000000,
       jumlahLembar: 50,
@@ -58923,7 +58925,7 @@ List<InvestasiModel> get daftarInvestasi {
     ),
     InvestasiModel(
       id: idInvestasi2,
-      idInvestor: idInvestor1,
+      idInvestor: idBudi,
       idTransaksi: idTransaksi2, // Transaksi Bonus Budi
       jumlahModal: 2000000,
       jumlahLembar: 20,
