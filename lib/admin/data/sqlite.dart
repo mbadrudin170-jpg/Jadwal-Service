@@ -242,7 +242,12 @@ class SqliteDatabase {
         '[MIGRASI v54] Menghapus dan membuat ulang tabel notifikasi untuk membersihkan kolom usang.',
       );
       await db.execute('DROP TABLE IF EXISTS "$tableName"');
-      await db.execute(_tabelNotification);
+      await db.execute(
+        _tabelNotification.replaceFirst(
+          'CREATE TABLE',
+          'CREATE TABLE IF NOT EXISTS',
+        ),
+      );
       Log.info(
         '[MIGRASI v54] Tabel notifikasi dibuat ulang dengan struktur terbaru.',
       );
