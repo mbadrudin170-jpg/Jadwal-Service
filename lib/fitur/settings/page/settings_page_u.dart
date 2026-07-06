@@ -14,6 +14,7 @@ import 'package:wifi/fitur/investor/page/portofolio.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/user/providers/user_provider.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
 class SettingsPageU extends ConsumerWidget {
@@ -21,6 +22,7 @@ class SettingsPageU extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userId = ref.watch(userIdProvider).value ?? '';
     return Scaffold(
       appBar: AppBar(title: const Text('Pengaturan')),
       body: ListView(
@@ -111,7 +113,7 @@ class SettingsPageU extends ConsumerWidget {
                 await Navigator.push(
                   context,
                   MaterialPageRoute<void>(
-                    builder: (context) => const FormPelanggan(),
+                    builder: (context) => FormPelanggan(idPelanggan: userId),
                   ),
                 );
               },

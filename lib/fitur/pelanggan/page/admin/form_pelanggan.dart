@@ -9,6 +9,7 @@ import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -21,9 +22,9 @@ import 'package:wifi/shared/widget/input/input_teks.dart';
 import 'package:wifi/shared/widget/input/input_telepon.dart';
 
 class FormPelanggan extends ConsumerStatefulWidget {
-  final PelangganModel? pelanggan;
+  final String? idPelanggan;
 
-  const FormPelanggan({super.key, this.pelanggan});
+  const FormPelanggan({super.key, this.idPelanggan});
 
   @override
   ConsumerState<FormPelanggan> createState() => _FormPelangganState();
@@ -43,7 +44,7 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
   final _passwordFocusNode = FocusNode();
   final _macAddressFocusNode = FocusNode();
   AppRole _selectedRole = AppRole.user;
-  bool get _modeEdit => widget.pelanggan != null;
+  bool get _modeEdit => widget.idPelanggan != null;
   bool _menyimpan = false;
 
   @override
@@ -54,14 +55,20 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
     );
     if (_modeEdit) {
       Log.info(
-        'Mode Edit: Mempopulasikan form dengan data pelanggan ID: ${widget.pelanggan!.id}',
+        'Mode Edit: Mempopulasikan form dengan data pelanggan ID: ${widget.idPelanggan}',
       );
-      _namaController.text = widget.pelanggan!.nama;
-      _teleponController.text = widget.pelanggan!.telepon;
-      _alamatController.text = widget.pelanggan!.alamat;
-      _passwordController.text = widget.pelanggan!.kataSandi;
-      _macAddressController.text = widget.pelanggan!.macAddress;
-      _selectedRole = widget.pelanggan!.role;
+      final pelanggan = ref
+          .read(pelangganProvider)
+          .value
+          ?.ambilBerdasarkanId(widget.idPelanggan ?? '');
+      if (pelanggan != null) {
+        _namaController.text = pelanggan.nama;
+        _teleponController.text = pelanggan.telepon;
+        _alamatController.text = pelanggan.alamat;
+        _passwordController.text = pelanggan.kataSandi;
+        _macAddressController.text = pelanggan.macAddress;
+        _selectedRole = pelanggan.role;
+      }
     }
   }
 
@@ -105,7 +112,7 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
       Log.info('Form valid. Memulai proses penyimpanan.');
       setState(() => _menyimpan = true);
       final pelangganBaru = PelangganModel(
-        id: _modeEdit ? widget.pelanggan!.id : const Uuid().v4(),
+        id: _modeEdit ? widget.idPelanggan! : const Uuid().v4(),
         nama: _namaController.text.trim(),
         telepon: _teleponController.text.trim(),
         alamat: _alamatController.text.trim(),

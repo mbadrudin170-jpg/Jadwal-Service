@@ -68,7 +68,7 @@ Poin: $totalPoin
       Navigator.push<void>(
         context,
         MaterialPageRoute<void>(
-          builder: (context) => FormPelanggan(pelanggan: pelanggan),
+          builder: (context) => FormPelanggan(idPelanggan: pelanggan.id),
         ),
       ),
     );

@@ -18,9 +18,8 @@ abstract class PelangganState with _$PelangganState {
     @Default(0) int jumlahPelanggan,
     @Default(0) int totalPoin,
   }) = _PelangganState;
-  // di dalam PelangganState (freezed)
+
   PelangganModel? ambilBerdasarkanId(String idPelanggan) {
-    // pastikan import 'package:collection/collection.dart';
     return daftarPelanggan.firstWhereOrNull((p) => p.id == idPelanggan);
   }
 }

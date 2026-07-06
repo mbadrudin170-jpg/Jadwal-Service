@@ -244,7 +244,8 @@ class _PelangganState extends ConsumerState<PelangganPage> {
                   Navigator.push<void>(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => FormPelanggan(pelanggan: pelanggan),
+                      builder: (context) =>
+                          FormPelanggan(idPelanggan: pelanggan.id),
                     ),
                   ),
                 );
