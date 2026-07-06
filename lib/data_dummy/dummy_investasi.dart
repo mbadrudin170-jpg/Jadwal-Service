@@ -46,7 +46,7 @@ List<InvestasiModel> get daftarInvestasi {
     // ============================================================
     InvestasiModel(
       id: idInvestasi1,
-      idInvestor: idInvestor1,
+      idInvestor: idBudi,
       idTransaksi: idTransaksi1, // Transaksi Gaji Budi
       jumlahModal: 5000000,
       jumlahLembar: 50,
@@ -54,7 +54,7 @@ List<InvestasiModel> get daftarInvestasi {
     ),
     InvestasiModel(
       id: idInvestasi2,
-      idInvestor: idInvestor1,
+      idInvestor: idBudi,
       idTransaksi: idTransaksi2, // Transaksi Bonus Budi
       jumlahModal: 2000000,
       jumlahLembar: 20,

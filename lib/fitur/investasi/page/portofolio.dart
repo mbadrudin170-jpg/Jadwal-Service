@@ -1,12 +1,15 @@
 // path: lib/fitur/investasi/page/portofolio.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/investasi/model/dividen_model.dart';
 import 'package:wifi/fitur/investasi/model/investasi_model.dart';
 import 'package:wifi/fitur/investasi/provider/investasi_provider.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_unduh_data.dart';
 import 'package:wifi/shared/common/teks.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/user/providers/user_provider.dart';
@@ -14,6 +17,15 @@ import 'package:wifi/user/providers/user_provider.dart';
 /// Halaman portofolio untuk investor.
 class HalamanPortofolio extends ConsumerWidget {
   const HalamanPortofolio({super.key});
+
+  Future<void> _unggahDataDummy(WidgetRef ref) async {
+    try {
+      await ref.read(layananUnduhDataProvider).unduhSemuaData();
+    } on Exception catch (e, s) {
+      Log.error('Error di unggahDataDummy: $e', e: e, s: s);
+      // Error handling opsional
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,6 +40,7 @@ class HalamanPortofolio extends ConsumerWidget {
     }
 
     final userId = ref.watch(userIdProvider).value;
+    Log.info('UserId saat ini: $userId');
     if (userId == null || userId.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text('Portofolio')),
@@ -93,16 +106,29 @@ class HalamanPortofolio extends ConsumerWidget {
             // 3. CEK APAKAH ADA DATA
             // ============================================================
             if (daftarInvestasi.isEmpty) {
-              return const Center(
+              return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(TIcons.warningAmber, size: 60, color: Colors.orange),
+                    const Icon(
+                      TIcons.warningAmber,
+                      size: 60,
+                      color: Colors.orange,
+                    ),
                     gapH16,
-                    TeksIsiBesar('Belum ada investasi.'),
-                    TeksIsiSedang(
+                    const TeksIsiBesar('Belum ada investasi.'),
+                    const TeksIsiSedang(
                       'Mulai investasi sekarang untuk melihat portofolio.',
                     ),
+                    if (kDebugMode) ...[
+                      gapH16,
+                      TextButton(
+                        onPressed: () {
+                          _unggahDataDummy(ref);
+                        },
+                        child: const Text('DaftarKandataDummy'),
+                      ),
+                    ],
                   ],
                 ),
               );
