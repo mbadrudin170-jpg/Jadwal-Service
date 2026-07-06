@@ -2,6 +2,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/shared/debug/log.dart';
 
@@ -9,9 +10,10 @@ part 'role_util.g.dart';
 
 @Riverpod(keepAlive: true)
 AppRole appRole(Ref ref) {
-  throw UnimplementedError(
-    'appRoleProvider harus di-override di dalam ProviderScope',
-  );
+  final akunState = ref.watch(pengelolaAkunProvider);
+  final role = akunState.value?.akunSaatIni?.role ?? AppRole.user;
+  Log.info('Role saat ini: ${role.name} (dari pengelolaAkunProvider)');
+  return role;
 }
 
 class RoleUtil {

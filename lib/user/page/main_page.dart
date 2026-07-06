@@ -6,7 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/chating/chating_dashboard.dart';
+import 'package:wifi/fitur/investor/page/portofolio.dart';
 import 'package:wifi/fitur/notifikasi/pengingat_paket_belum_lunas.dart';
 import 'package:wifi/fitur/notifikasi/penjadwal_notifikasi.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';
@@ -53,13 +55,18 @@ class _MainPageState extends ConsumerState<MainPage> {
         unawaited(pengingatService.cekDanTampilkanPengingatTagihan());
       }
     });
-    _daftarHalaman = [
+    final halamanDasar = <Widget>[
       const ProfilePage(),
       const TransaksiU(),
       const OrderPage(),
-      kDebugMode ? const ChatingDashboard() : const HalamanUjiKecepatan(),
+    ];
+    final halamanTambahan = <Widget>[
+      if (ref.isInvestor) const HalamanPortofolio(),
+      if (!ref.isInvestor) const HalamanUjiKecepatan(),
+      if (kDebugMode) const ChatingDashboard() else const HalamanUjiKecepatan(),
       const SettingsPageU(),
     ];
+    _daftarHalaman = [...halamanDasar, ...halamanTambahan];
     _reaktorSiklusHidup = AppLifecycleReactor(
       appOpenAdService: _layananIklanBukaAplikasi,
     );
@@ -76,10 +83,39 @@ class _MainPageState extends ConsumerState<MainPage> {
       _indeksTerpilih = index;
     });
   }
+  // path: lib/user/page/main_page.dart
 
   @override
   Widget build(BuildContext context) {
     Log.info('Membangun MainPage untuk indeks halaman: $_indeksTerpilih');
+
+    // ✅ Buat daftar item navigasi secara dinamis
+    final navItems = <BottomNavigationBarItem>[
+      const BottomNavigationBarItem(icon: Icon(TIcons.person), label: 'Profil'),
+      const BottomNavigationBarItem(
+        icon: Icon(TIcons.history),
+        label: 'Riwayat',
+      ),
+      const BottomNavigationBarItem(
+        icon: Icon(TIcons.pesanan),
+        label: 'Pesanan',
+      ),
+      // ✅ Tambahkan item Portofolio jika investor
+      if (ref.isInvestor)
+        const BottomNavigationBarItem(
+          icon: Icon(TIcons.money),
+          label: 'Portofolio',
+        ),
+      const BottomNavigationBarItem(
+        icon: Icon(TIcons.speed),
+        label: 'Uji Speed',
+      ),
+      const BottomNavigationBarItem(
+        icon: Icon(TIcons.settings),
+        label: 'Pengaturan',
+      ),
+    ];
+
     return Scaffold(
       body: Column(
         children: [
@@ -93,17 +129,8 @@ class _MainPageState extends ConsumerState<MainPage> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed, // Agar semua label terlihat
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(TIcons.person), label: 'Profil'),
-          BottomNavigationBarItem(icon: Icon(TIcons.history), label: 'Riwayat'),
-          BottomNavigationBarItem(icon: Icon(TIcons.pesanan), label: 'Pesanan'),
-          BottomNavigationBarItem(icon: Icon(TIcons.speed), label: 'Uji Speed'),
-          BottomNavigationBarItem(
-            icon: Icon(TIcons.settings),
-            label: 'Pengaturan',
-          ),
-        ],
+        type: BottomNavigationBarType.fixed,
+        items: navItems, // ✅ Gunakan navItems dinamis
         currentIndex: _indeksTerpilih,
         onTap: _ketikaItemDiketuk,
       ),

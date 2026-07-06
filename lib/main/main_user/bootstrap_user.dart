@@ -9,11 +9,9 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
 import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/user/app_user.dart';
 
 Future<void> bootstrapUser({
@@ -32,8 +30,7 @@ Future<void> bootstrapUser({
   await Firebase.initializeApp(options: firebaseOptions);
 
   Log.info('Inisialisasi Firebase selesai.');
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('app_role', AppRole.user.name);
+  await SharedPreferences.getInstance();
 
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
@@ -66,10 +63,5 @@ Future<void> bootstrapUser({
   );
 
   // Native splash akan dihilangkan dari dalam SplashScreenUser.
-  runApp(
-    ProviderScope(
-      overrides: [appRoleProvider.overrideWithValue(AppRole.user)],
-      child: const AppUser(),
-    ),
-  );
+  runApp(const ProviderScope(child: AppUser()));
 }

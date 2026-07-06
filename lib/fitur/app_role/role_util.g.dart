@@ -48,4 +48,4 @@ final class AppRoleProvider
   }
 }
 
-String _$appRoleHash() => r'cb30ce59264980d6e8d623c1c86512db1c3caf35';
+String _$appRoleHash() => r'7e4e813dcfc110fb92bff87849efc675e9d34750';
