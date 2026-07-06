@@ -13,7 +13,7 @@ import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
 import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/app_role_enum.dart';
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/user/app_user.dart';
 
 Future<void> bootstrapUser({

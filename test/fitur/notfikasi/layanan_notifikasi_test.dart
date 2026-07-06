@@ -13,7 +13,7 @@ import 'package:wifi/fitur/notifikasi/enum/tipe_notifikasi_enum.dart';
 import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/notifikasi/model/notifikasi_model.dart';
 import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart';
-import 'package:wifi/shared/enum/app_role_enum.dart';
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
 
 import 'layanan_notifikasi_test.mocks.dart';
 
