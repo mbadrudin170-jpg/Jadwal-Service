@@ -41,25 +41,13 @@ class DetailInvestor extends ConsumerWidget {
             return Scaffold(
               appBar: AppBar(
                 title: const Text('Detail Investor'),
-                actions: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (context) =>
-                              FormSaham(idInvestor: idInvestor),
-                        ),
-                      );
-                    },
-                    icon: const Icon(TIcons.add),
-                  ),
-                ],
+                // Hapus actions (tombol tambah)
               ),
               body: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
+                    // Profil Investor
                     Card(
                       elevation: 4,
                       shape: RoundedRectangleBorder(
@@ -107,6 +95,7 @@ class DetailInvestor extends ConsumerWidget {
                       ),
                     ),
                     gapH16,
+                    // Ringkasan Investasi
                     Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(
@@ -157,6 +146,7 @@ class DetailInvestor extends ConsumerWidget {
                       ),
                     ),
                     gapH16,
+                    // Daftar Investasi
                     Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(
@@ -177,6 +167,7 @@ class DetailInvestor extends ConsumerWidget {
                             gapH12,
                             _buildDaftarInvestasi(
                               investasi.ambilInvestasiByIdInvestor(investor.id),
+                              context,
                             ),
                           ],
                         ),
@@ -257,7 +248,10 @@ class DetailInvestor extends ConsumerWidget {
     );
   }
 
-  Widget _buildDaftarInvestasi(List<InvestasiModel> daftarInvestasi) {
+  Widget _buildDaftarInvestasi(
+    List<InvestasiModel> daftarInvestasi,
+    BuildContext context,
+  ) {
     if (daftarInvestasi.isEmpty) {
       return const Center(
         child: Padding(
@@ -272,35 +266,79 @@ class DetailInvestor extends ConsumerWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 6.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    investasi.idTransaksi,
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  Text(
-                    investasi.tanggalInvestasi != null
-                        ? FormatTanggal.formatDasar(investasi.tanggalInvestasi!)
-                        : '-',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      investasi.idTransaksi,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Text(
+                      investasi.tanggalInvestasi != null
+                          ? FormatTanggal.formatDasar(
+                              investasi.tanggalInvestasi!,
+                            )
+                          : '-',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    gapH4,
+                    Row(
+                      children: [
+                        Text(
+                          FormatUang.formatMataUang(investasi.jumlahModal),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                        gapW8,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            '${investasi.jumlahLembar} lembar',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.blue.shade700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    FormatUang.formatMataUang(investasi.jumlahModal),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    '${investasi.jumlahLembar} lembar',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-                ],
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (context) => FormSaham(
+                        idInvestasi: investasi.id,
+                        idInvestor: investasi.idInvestor,
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(TIcons.edit, size: 20, color: Colors.blue),
+                tooltip: 'Edit Investasi',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
             ],
           ),
