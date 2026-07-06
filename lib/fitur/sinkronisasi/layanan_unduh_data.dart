@@ -140,7 +140,6 @@ class LayananUnduhData {
 
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
-        // Menggunakan ColumnNames.updatedAt untuk field 'diperbarui'
         if (data.containsKey(NamaKolom.diperbaruiPada)) {
           final dynamic fieldValue = data[NamaKolom.diperbaruiPada];
 
@@ -150,9 +149,7 @@ class LayananUnduhData {
             );
             return;
           }
-
           final waktuPembaruanServer = fieldValue.toDate();
-
           if (waktuPembaruanServer.isAfter(lastDownloadTime)) {
             Log.info('Data pengaturan server lebih baru, memperbarui lokal.');
             final settings = SettingsModel.fromFirebase(data);
