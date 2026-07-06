@@ -8,6 +8,7 @@ file_list=(
 'lib/fitur/investasi/provider/investasi_provider.dart'
 'lib/fitur/investasi/page/daftar_investor.dart'
 'lib/fitur/investasi/page/detail_investor.dart'
+'lib/fitur/investasi/page/form_saham.dart'
 ) # Isi path file nya disini
 
 # Hapus duplikasi dari array

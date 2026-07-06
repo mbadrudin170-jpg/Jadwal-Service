@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/investasi/model/investasi_model.dart';
 import 'package:wifi/fitur/investasi/provider/investasi_provider.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/input/input_angka.dart';
 import 'package:wifi/shared/widget/input/input_teks.dart';
@@ -95,6 +97,69 @@ class _FormSahamState extends ConsumerState<FormSaham> {
     }
   }
 
+  Future<void> _pilihTransaksi() async {
+    final transaksiState = ref.read(transaksiOpProvider);
+    if (!transaksiState.hasValue) {
+      ToastUtil.warning(context, 'Data transaksi belum tersedia');
+      return;
+    }
+
+    final daftarTransaksi = transaksiState.value!.transaksi;
+    if (daftarTransaksi.isEmpty) {
+      ToastUtil.warning(context, 'Belum ada transaksi');
+      return;
+    }
+
+    await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Pilih Transaksi'),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 300,
+            child: ListView.builder(
+              itemCount: daftarTransaksi.length > 20 ? 20 : daftarTransaksi.length,
+              itemBuilder: (context, index) {
+                final transaksi = daftarTransaksi[index];
+                return ListTile(
+                  title: Text(
+                    transaksi.deskripsi,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(
+                    'ID: ${transaksi.id}',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  trailing: Text(
+                    FormatUang.formatMataUang(transaksi.jumlah),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                  onTap: () {
+                    setState(() {
+                      _idTransaksiController.text = transaksi.id;
+                    });
+                    Navigator.pop(context);
+                  },
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Tutup'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _simpan() async {
     if (_menyimpan) return;
     if (!_formKey.currentState!.validate()) return;
@@ -151,86 +216,78 @@ class _FormSahamState extends ConsumerState<FormSaham> {
 
   @override
   Widget build(BuildContext context) {
-    final investasiAsync = ref.watch(investasiProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(_modeEdit ? 'Edit Investasi' : 'Tambah Investasi'),
       ),
-      body: investasiAsync.when(
-        data: (data) {
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: ListView(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              Row(
                 children: [
-                  InputTeks(
-                    controller: _idTransaksiController,
-                    focusNode: _idTransaksiFocusNode,
-                    nextFocusNode: _jumlahModalFocusNode,
-                    label: 'ID Transaksi',
-                    prefixIcon: TIcons.receiptLong,
-                  ),
-                  gapH16,
-                  InputAngka(
-                    controller: _jumlahModalController,
-                    focusNode: _jumlahModalFocusNode,
-                    nextFocusNode: _jumlahLembarFocusNode,
-                    label: 'Jumlah Modal',
-                    prefixIcon: TIcons.money,
-                  ),
-                  gapH16,
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.chevron_left),
-                      ),
-                      InputAngka(
-                        controller: _jumlahLembarController,
-                        focusNode: _jumlahLembarFocusNode,
-                        label: 'Jumlah Lembar',
-                        prefixIcon: TIcons.points,
-                        textInputAction: TextInputAction.done,
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(TIcons.chevronRight),
-                      ),
-                    ],
-                  ),
-                  gapH16,
-                  PemilihTanggalWaktuWidget(
-                    tanggalTerpilih: _tanggalInvestasi,
-                    waktuTerpilih: _waktuInvestasi,
-                    onPilihTanggal: _pilihTanggal,
-                    onPilihWaktu: _pilihWaktu,
-                    teksLabel: 'Tanggal Investasi',
-                  ),
-                  gapH24,
-                  ElevatedButton(
-                    onPressed: _menyimpan ? null : _simpan,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
+                  Expanded(
+                    child: InputTeks(
+                      controller: _idTransaksiController,
+                      focusNode: _idTransaksiFocusNode,
+                      nextFocusNode: _jumlahModalFocusNode,
+                      label: 'ID Transaksi',
+                      prefixIcon: TIcons.receiptLong,
                     ),
-                    child: _menyimpan
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text('Simpan'),
+                  ),
+                  IconButton(
+                    onPressed: _pilihTransaksi,
+                    icon: const Icon(TIcons.search),
+                    tooltip: 'Pilih Transaksi',
                   ),
                 ],
               ),
-            ),
-          );
-        },
-        error: (error, stackTrace) {},
-        loading: () {},
+              gapH16,
+              InputAngka(
+                controller: _jumlahModalController,
+                focusNode: _jumlahModalFocusNode,
+                nextFocusNode: _jumlahLembarFocusNode,
+                label: 'Jumlah Modal',
+                prefixIcon: TIcons.money,
+              ),
+              gapH16,
+              InputAngka(
+                controller: _jumlahLembarController,
+                focusNode: _jumlahLembarFocusNode,
+                label: 'Jumlah Lembar',
+                prefixIcon: TIcons.points,
+                textInputAction: TextInputAction.done,
+              ),
+              gapH16,
+              PemilihTanggalWaktuWidget(
+                tanggalTerpilih: _tanggalInvestasi,
+                waktuTerpilih: _waktuInvestasi,
+                onPilihTanggal: _pilihTanggal,
+                onPilihWaktu: _pilihWaktu,
+                teksLabel: 'Tanggal Investasi',
+              ),
+              gapH24,
+              ElevatedButton(
+                onPressed: _menyimpan ? null : _simpan,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: _menyimpan
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text('Simpan'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
