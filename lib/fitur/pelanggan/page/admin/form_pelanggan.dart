@@ -205,29 +205,29 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
                   nextFocusNode: _macAddressFocusNode,
                 ),
                 gapH16,
-                  DropdownButtonFormField<AppRole>(
-                    initialValue: _selectedRole,
-                    decoration: const InputDecoration(
-                      labelText: 'Peran (Role)',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(TIcons.person),
-                    ),
-                    items: AppRole.values.map((role) {
-                      return DropdownMenuItem<AppRole>(
-                        value: role,
-                        child: Text(role.name.toUpperCase()),
-                      );
-                    }).toList(),
-                    onChanged: (newRole) {
-                      if (newRole != null) {
-                        setState(() {
-                          _selectedRole = newRole;
-                        });
-                      }
-                    },
-                    validator: (value) =>
-                        value == null ? 'Role harus dipilih' : null,
+                DropdownButtonFormField<AppRole>(
+                  initialValue: _selectedRole,
+                  decoration: const InputDecoration(
+                    labelText: 'Peran (Role)',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(TIcons.person),
                   ),
+                  items: AppRole.values.map((role) {
+                    return DropdownMenuItem<AppRole>(
+                      value: role,
+                      child: Text(role.name.toUpperCase()),
+                    );
+                  }).toList(),
+                  onChanged: (newRole) {
+                    if (newRole != null) {
+                      setState(() {
+                        _selectedRole = newRole;
+                      });
+                    }
+                  },
+                  validator: (value) =>
+                      value == null ? 'Role harus dipilih' : null,
+                ),
                 gapH16,
                 if (!kDebugMode && ref.isAdmin)
                   InputMacAddress(
