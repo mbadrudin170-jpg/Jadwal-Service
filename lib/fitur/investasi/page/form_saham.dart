@@ -151,67 +151,86 @@ class _FormSahamState extends ConsumerState<FormSaham> {
 
   @override
   Widget build(BuildContext context) {
+    final investasiAsync = ref.watch(investasiProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(_modeEdit ? 'Edit Investasi' : 'Tambah Investasi'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              InputTeks(
-                controller: _idTransaksiController,
-                focusNode: _idTransaksiFocusNode,
-                nextFocusNode: _jumlahModalFocusNode,
-                label: 'ID Transaksi',
-                prefixIcon: TIcons.receiptLong,
+      body: investasiAsync.when(
+        data: (data) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                children: [
+                  InputTeks(
+                    controller: _idTransaksiController,
+                    focusNode: _idTransaksiFocusNode,
+                    nextFocusNode: _jumlahModalFocusNode,
+                    label: 'ID Transaksi',
+                    prefixIcon: TIcons.receiptLong,
+                  ),
+                  gapH16,
+                  InputAngka(
+                    controller: _jumlahModalController,
+                    focusNode: _jumlahModalFocusNode,
+                    nextFocusNode: _jumlahLembarFocusNode,
+                    label: 'Jumlah Modal',
+                    prefixIcon: TIcons.money,
+                  ),
+                  gapH16,
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.chevron_left),
+                      ),
+                      InputAngka(
+                        controller: _jumlahLembarController,
+                        focusNode: _jumlahLembarFocusNode,
+                        label: 'Jumlah Lembar',
+                        prefixIcon: TIcons.points,
+                        textInputAction: TextInputAction.done,
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(TIcons.chevronRight),
+                      ),
+                    ],
+                  ),
+                  gapH16,
+                  PemilihTanggalWaktuWidget(
+                    tanggalTerpilih: _tanggalInvestasi,
+                    waktuTerpilih: _waktuInvestasi,
+                    onPilihTanggal: _pilihTanggal,
+                    onPilihWaktu: _pilihWaktu,
+                    teksLabel: 'Tanggal Investasi',
+                  ),
+                  gapH24,
+                  ElevatedButton(
+                    onPressed: _menyimpan ? null : _simpan,
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                    ),
+                    child: _menyimpan
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text('Simpan'),
+                  ),
+                ],
               ),
-              gapH16,
-              InputAngka(
-                controller: _jumlahModalController,
-                focusNode: _jumlahModalFocusNode,
-                nextFocusNode: _jumlahLembarFocusNode,
-                label: 'Jumlah Modal',
-                prefixIcon: TIcons.money,
-              ),
-              gapH16,
-              InputAngka(
-                controller: _jumlahLembarController,
-                focusNode: _jumlahLembarFocusNode,
-                label: 'Jumlah Lembar',
-                prefixIcon: TIcons.points,
-                textInputAction: TextInputAction.done,
-              ),
-              gapH16,
-              PemilihTanggalWaktuWidget(
-                tanggalTerpilih: _tanggalInvestasi,
-                waktuTerpilih: _waktuInvestasi,
-                onPilihTanggal: _pilihTanggal,
-                onPilihWaktu: _pilihWaktu,
-                teksLabel: 'Tanggal Investasi',
-              ),
-              gapH24,
-              ElevatedButton(
-                onPressed: _menyimpan ? null : _simpan,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                child: _menyimpan
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text('Simpan'),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
+        error: (error, stackTrace) {},
+        loading: () {},
       ),
     );
   }

@@ -279,7 +279,11 @@ lib/fitur/transaksi/model/transaksi_model.dart
 lib/fitur/transaksi/model/transaksi_model.freezed.dart
 lib/fitur/investasi
 lib/fitur/investasi/page
+lib/fitur/investasi/page/form_saham.dart
+lib/fitur/investasi/page/ringkasan_saham.dart
 lib/fitur/investasi/page/portofolio.dart
+lib/fitur/investasi/page/daftar_investor.dart
+lib/fitur/investasi/page/detail_investor.dart
 lib/fitur/investasi/provider
 lib/fitur/investasi/provider/investasi_provider.freezed.dart
 lib/fitur/investasi/provider/investasi_provider.dart
