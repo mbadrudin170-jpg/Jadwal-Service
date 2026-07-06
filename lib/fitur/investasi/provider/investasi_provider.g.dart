@@ -33,7 +33,7 @@ final class InvestasiNotifierProvider
   InvestasiNotifier create() => InvestasiNotifier();
 }
 
-String _$investasiNotifierHash() => r'aecb081008bc6fdd09065125286190177a1f59a7';
+String _$investasiNotifierHash() => r'4cd81a0065077a54a4bf49f06f7f002c104b644b';
 
 abstract class _$InvestasiNotifier extends $AsyncNotifier<InvestasiState> {
   FutureOr<InvestasiState> build();
@@ -53,12 +53,8 @@ abstract class _$InvestasiNotifier extends $AsyncNotifier<InvestasiState> {
   }
 }
 
-/// Provider untuk mendapatkan data investasi investor tertentu
-
 @ProviderFor(detailInvestorInvestasi)
 final detailInvestorInvestasiProvider = DetailInvestorInvestasiFamily._();
-
-/// Provider untuk mendapatkan data investasi investor tertentu
 
 final class DetailInvestorInvestasiProvider
     extends
@@ -78,7 +74,6 @@ final class DetailInvestorInvestasiProvider
         $FutureProvider<
           ({List<DividenModel> dividen, List<InvestasiModel> investasi})
         > {
-  /// Provider untuk mendapatkan data investasi investor tertentu
   DetailInvestorInvestasiProvider._({
     required DetailInvestorInvestasiFamily super.from,
     required String super.argument,
@@ -129,8 +124,6 @@ final class DetailInvestorInvestasiProvider
 String _$detailInvestorInvestasiHash() =>
     r'59c3a8337cc21a4bd899a41835d171e7075090f9';
 
-/// Provider untuk mendapatkan data investasi investor tertentu
-
 final class DetailInvestorInvestasiFamily extends $Family
     with
         $FunctionalFamilyOverride<
@@ -148,8 +141,6 @@ final class DetailInvestorInvestasiFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Provider untuk mendapatkan data investasi investor tertentu
-
   DetailInvestorInvestasiProvider call(String idInvestor) =>
       DetailInvestorInvestasiProvider._(argument: idInvestor, from: this);
 
@@ -157,17 +148,12 @@ final class DetailInvestorInvestasiFamily extends $Family
   String toString() => r'detailInvestorInvestasiProvider';
 }
 
-/// Provider untuk mendapatkan total modal investor
-
 @ProviderFor(totalModalInvestor)
 final totalModalInvestorProvider = TotalModalInvestorFamily._();
-
-/// Provider untuk mendapatkan total modal investor
 
 final class TotalModalInvestorProvider
     extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
     with $FutureModifier<double>, $FutureProvider<double> {
-  /// Provider untuk mendapatkan total modal investor
   TotalModalInvestorProvider._({
     required TotalModalInvestorFamily super.from,
     required String super.argument,
@@ -214,8 +200,6 @@ final class TotalModalInvestorProvider
 String _$totalModalInvestorHash() =>
     r'486defab84fbfe7b00c5ccbeb1e4c97352ec7453';
 
-/// Provider untuk mendapatkan total modal investor
-
 final class TotalModalInvestorFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<double>, String> {
   TotalModalInvestorFamily._()
@@ -227,8 +211,6 @@ final class TotalModalInvestorFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Provider untuk mendapatkan total modal investor
-
   TotalModalInvestorProvider call(String idInvestor) =>
       TotalModalInvestorProvider._(argument: idInvestor, from: this);
 
@@ -236,17 +218,12 @@ final class TotalModalInvestorFamily extends $Family
   String toString() => r'totalModalInvestorProvider';
 }
 
-/// Provider untuk mendapatkan total dividen investor
-
 @ProviderFor(totalDividenInvestor)
 final totalDividenInvestorProvider = TotalDividenInvestorFamily._();
-
-/// Provider untuk mendapatkan total dividen investor
 
 final class TotalDividenInvestorProvider
     extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
     with $FutureModifier<double>, $FutureProvider<double> {
-  /// Provider untuk mendapatkan total dividen investor
   TotalDividenInvestorProvider._({
     required TotalDividenInvestorFamily super.from,
     required String super.argument,
@@ -293,8 +270,6 @@ final class TotalDividenInvestorProvider
 String _$totalDividenInvestorHash() =>
     r'9feb35fbcf68186d7ae9413a22fc088407cbd456';
 
-/// Provider untuk mendapatkan total dividen investor
-
 final class TotalDividenInvestorFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<double>, String> {
   TotalDividenInvestorFamily._()
@@ -305,8 +280,6 @@ final class TotalDividenInvestorFamily extends $Family
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
-
-  /// Provider untuk mendapatkan total dividen investor
 
   TotalDividenInvestorProvider call(String idInvestor) =>
       TotalDividenInvestorProvider._(argument: idInvestor, from: this);

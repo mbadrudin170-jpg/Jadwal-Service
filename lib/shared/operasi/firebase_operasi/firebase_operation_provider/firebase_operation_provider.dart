@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
+import 'package:wifi/fitur/investasi/operasi/investasi_op_firebase.dart';
 import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
@@ -94,4 +95,19 @@ OrderOpFirebase orderOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
   final baseOp = ref.watch(baseOpFirebaseProvider);
   return OrderOpFirebase(firestore: firestoreInstance, baseOp: baseOp);
+}
+// ============================================================
+// TAMBAHKAN DI BAGIAN BAWAH FILE, SETELAH PROVIDER LAINNYA
+// ============================================================
+
+/// Provider untuk menyediakan instance dari [InvestasiOpFirebase].
+@Riverpod(keepAlive: true)
+InvestasiOpFirebase investasiOpFirebase(Ref ref) {
+  Log.info('Membuat instance InvestasiOpFirebase via @riverpod...');
+  final firestoreInstance = ref.watch(firestoreProvider);
+  final baseOp = ref.watch(baseOpFirebaseProvider);
+  return InvestasiOpFirebase(
+    firestore: firestoreInstance,
+    baseOpFirebase: baseOp,
+  );
 }

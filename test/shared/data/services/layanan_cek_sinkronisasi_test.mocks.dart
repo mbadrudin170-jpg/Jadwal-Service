@@ -322,6 +322,24 @@ class MockLayananUnduhData extends _i1.Mock implements _i8.LayananUnduhData {
           as _i4.Future<void>);
 
   @override
+  _i4.Future<void> unduhDataInvestasi() =>
+      (super.noSuchMethod(
+            Invocation.method(#unduhDataInvestasi, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> unduhDataDividen() =>
+      (super.noSuchMethod(
+            Invocation.method(#unduhDataDividen, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
   _i4.Future<void> unduhDataDompet() =>
       (super.noSuchMethod(
             Invocation.method(#unduhDataDompet, []),

@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/investasi/model/dividen_model.dart';
 import 'package:wifi/fitur/investasi/model/investasi_model.dart';
+import 'package:wifi/fitur/investasi/operasi/investasi_op_global.dart';
 import 'package:wifi/fitur/investasi/operasi/investasi_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 
@@ -79,11 +80,11 @@ abstract class InvestasiState with _$InvestasiState {
 
 @riverpod
 class InvestasiNotifier extends _$InvestasiNotifier {
-  late InvestasiOpSqlite _investasiOp;
+  late InvestasiOpGlobal _investasiOp;
 
   @override
   FutureOr<InvestasiState> build() {
-    _investasiOp = ref.read(investasiOpSqliteProvider);
+    _investasiOp = ref.read(investasiOpGlobalProvider);
     return _loadData();
   }
 

@@ -480,3 +480,56 @@ final class OrderOpFirebaseProvider
 }
 
 String _$orderOpFirebaseHash() => r'91a84983dc0ee49d1317fca190b73daaf5369c6d';
+
+/// Provider untuk menyediakan instance dari [InvestasiOpFirebase].
+
+@ProviderFor(investasiOpFirebase)
+final investasiOpFirebaseProvider = InvestasiOpFirebaseProvider._();
+
+/// Provider untuk menyediakan instance dari [InvestasiOpFirebase].
+
+final class InvestasiOpFirebaseProvider
+    extends
+        $FunctionalProvider<
+          InvestasiOpFirebase,
+          InvestasiOpFirebase,
+          InvestasiOpFirebase
+        >
+    with $Provider<InvestasiOpFirebase> {
+  /// Provider untuk menyediakan instance dari [InvestasiOpFirebase].
+  InvestasiOpFirebaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'investasiOpFirebaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$investasiOpFirebaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<InvestasiOpFirebase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  InvestasiOpFirebase create(Ref ref) {
+    return investasiOpFirebase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(InvestasiOpFirebase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<InvestasiOpFirebase>(value),
+    );
+  }
+}
+
+String _$investasiOpFirebaseHash() =>
+    r'4e9d8b3ec23530f0c185471686428ed409508c51';
