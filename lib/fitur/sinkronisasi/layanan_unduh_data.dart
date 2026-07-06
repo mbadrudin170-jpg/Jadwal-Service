@@ -341,7 +341,6 @@ class LayananUnduhData {
             );
           }
         }
-
         if (daftarData.isNotEmpty) {
           Log.info(
             'Mengirim ${daftarData.length} item ke operasi batch lokal.',
