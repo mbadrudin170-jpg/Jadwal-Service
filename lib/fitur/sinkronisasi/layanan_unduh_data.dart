@@ -137,12 +137,10 @@ class LayananUnduhData {
       const namaKoleksi = NamaTabel.settings;
       final docRef = _firestore.collection(namaKoleksi).doc(idGlobalSetting);
       final doc = await docRef.get(const GetOptions(source: Source.server));
-
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
         if (data.containsKey(NamaKolom.diperbaruiPada)) {
           final dynamic fieldValue = data[NamaKolom.diperbaruiPada];
-
           if (fieldValue is! Timestamp) {
             Log.error(
               'Inkompatibilitas Tipe: Field "${NamaKolom.diperbaruiPada}" bukan Timestamp.',
