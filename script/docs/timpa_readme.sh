@@ -10,6 +10,8 @@ file_list=(
 'lib/admin/data/sqlite.dart'
 'lib/shared/constant/nama_kolom.dart'
 'lib/main/main_admin/bootstrap_admin.dart'
+'lib/main/main_user/bootstrap_user.dart'
+'lib/user/page/login_page.dart'
 ) # Isi path file nya disini
 
 # Hapus duplikasi dari array
