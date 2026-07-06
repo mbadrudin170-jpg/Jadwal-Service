@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
@@ -16,7 +17,6 @@ import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dar
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_unduhan_awal.dart';
-import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -100,7 +100,7 @@ void main() {
         iconName: anyNamed('iconName'),
       ),
     ).thenAnswer((_) async {});
-    when(mockLayananNotifikasi.mintaIzin()).thenAnswer((_) async {});
+    when(mockLayananNotifikasi.mintaIzin()).thenAnswer((_) async => true);
     when(
       mockLayananNotifikasi.getDetailPeluncuranNotifikasi(),
     ).thenAnswer((_) async => mockLaunchDetails);

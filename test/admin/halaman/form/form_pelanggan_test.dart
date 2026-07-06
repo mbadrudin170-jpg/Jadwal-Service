@@ -54,7 +54,7 @@ void main() {
         ),
       ],
       child: MaterialApp(
-        home: FormPelanggan(idPelanggan: pelanggan),
+        home: FormPelanggan(idPelanggan: pelanggan?.id),
         navigatorObservers: [mockNavigatorObserver],
       ),
     );

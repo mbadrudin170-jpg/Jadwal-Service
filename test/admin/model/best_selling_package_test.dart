@@ -16,9 +16,9 @@ void main() {
     );
 
     test('01. harus membuat instance dengan benar', () {
-      final model = PaketTerlarisModel(paket: paket, totalTerjual: 150);
+      final model = PaketTerlarisModel(paket: paket.id, totalTerjual: 150);
 
-      expect(model.paket, paket);
+      expect(model.paket, paket.id);
       expect(model.totalTerjual, 150);
     });
   });

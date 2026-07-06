@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -204,7 +205,6 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
                   nextFocusNode: _macAddressFocusNode,
                 ),
                 gapH16,
-                if (ref.isAdmin)
                   DropdownButtonFormField<AppRole>(
                     initialValue: _selectedRole,
                     decoration: const InputDecoration(
@@ -229,7 +229,7 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
                         value == null ? 'Role harus dipilih' : null,
                   ),
                 gapH16,
-                if (ref.isAdmin)
+                if (!kDebugMode && ref.isAdmin)
                   InputMacAddress(
                     controller: _macAddressController,
                     focusNode: _macAddressFocusNode,
