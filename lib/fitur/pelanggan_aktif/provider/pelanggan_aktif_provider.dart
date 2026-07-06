@@ -141,13 +141,6 @@ abstract class DetailPelangganAktifState with _$DetailPelangganAktifState {
 }
 
 @riverpod
-Future<void> detailPelangganAktif(Ref ref) async {
-  final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
-  await pelangganAktifOpSqlite.ambilSemuaPelangganAktifDenganDetail();
-  return;
-}
-
-@riverpod
 Future<List<DetailPelangganAktifModel>> daftarPelangganAktifTerurut(
   Ref ref,
 ) async {

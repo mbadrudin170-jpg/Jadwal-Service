@@ -54,40 +54,6 @@ abstract class _$PelangganAktif extends $AsyncNotifier<PelangganAktifState> {
   }
 }
 
-@ProviderFor(detailPelangganAktif)
-final detailPelangganAktifProvider = DetailPelangganAktifProvider._();
-
-final class DetailPelangganAktifProvider
-    extends $FunctionalProvider<AsyncValue<void>, void, FutureOr<void>>
-    with $FutureModifier<void>, $FutureProvider<void> {
-  DetailPelangganAktifProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'detailPelangganAktifProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$detailPelangganAktifHash();
-
-  @$internal
-  @override
-  $FutureProviderElement<void> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<void> create(Ref ref) {
-    return detailPelangganAktif(ref);
-  }
-}
-
-String _$detailPelangganAktifHash() =>
-    r'27f1d5c020290ba608e0f2cfb0d8715a4f2ee1e8';
-
 @ProviderFor(daftarPelangganAktifTerurut)
 final daftarPelangganAktifTerurutProvider =
     DaftarPelangganAktifTerurutProvider._();

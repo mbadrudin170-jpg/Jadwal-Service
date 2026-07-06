@@ -23,18 +23,10 @@ echo "✅ Dokumentasi selesai: $output_file"
 #!/bin/bash
 
 output="README.md"
-
+# alias => s
 file_list=(
-    'lib/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart'
-    'lib/fitur/pelanggan_aktif/page/detail_pelanggan_aktif.dart'
-    'lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart'
-    'lib/fitur/pelanggan/provider/pelanggan_provider.dart'
-    'lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart'
-    'lib/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart'
-    'lib/fitur/paket/provider/paket_provider.dart'
-    'lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart'   # duplikat
-    'lib/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart'     # duplikat
-)
+
+) # Isi path file nya disini
 
 # Hapus duplikasi dari array
 mapfile -t file_list < <(printf '%s\n' "${file_list[@]}" | sort -u)
