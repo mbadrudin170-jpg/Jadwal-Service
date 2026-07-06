@@ -246,7 +246,12 @@ class SqliteDatabase {
         '[MIGRASI v54] Menghapus dan membuat ulang tabel notifikasi untuk membersihkan kolom usang.',
       );
       await db.execute('DROP TABLE IF EXISTS "$tableName"');
-      await db.execute(_tabelNotification);
+      await db.execute(
+        _tabelNotification.replaceFirst(
+          'CREATE TABLE',
+          'CREATE TABLE IF NOT EXISTS',
+        ),
+      );
       Log.info(
         '[MIGRASI v54] Tabel notifikasi dibuat ulang dengan struktur terbaru.',
       );
@@ -1688,7 +1693,7 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
         alamat: _alamatController.text.trim(),
         kataSandi: _passwordController.text,
         macAddress: _macAddressController.text.trim().toUpperCase(),
-        role:_selectedRole,
+        role: _selectedRole,
       );
       Log.info(
         'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}',
@@ -1775,29 +1780,29 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
                 ),
                 gapH16,
                 if (ref.isAdmin)
-                DropdownButtonFormField<AppRole>(
-                  value: _selectedRole,
-                  decoration: const InputDecoration(
-                    labelText: 'Peran (Role)',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(TIcons.person),
+                  DropdownButtonFormField<AppRole>(
+                    value: _selectedRole,
+                    decoration: const InputDecoration(
+                      labelText: 'Peran (Role)',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(TIcons.person),
+                    ),
+                    items: AppRole.values.map((role) {
+                      return DropdownMenuItem<AppRole>(
+                        value: role,
+                        child: Text(role.name.toUpperCase()),
+                      );
+                    }).toList(),
+                    onChanged: (newRole) {
+                      if (newRole != null) {
+                        setState(() {
+                          _selectedRole = newRole;
+                        });
+                      }
+                    },
+                    validator: (value) =>
+                        value == null ? 'Role harus dipilih' : null,
                   ),
-                  items: AppRole.values.map((role) {
-                    return DropdownMenuItem<AppRole>(
-                      value: role,
-                      child: Text(role.name.toUpperCase()),
-                    );
-                  }).toList(),
-                  onChanged: (newRole) {
-                    if (newRole != null) {
-                      setState(() {
-                        _selectedRole = newRole;
-                      });
-                    }
-                  },
-                  validator: (value) =>
-                      value == null ? 'Role harus dipilih' : null,
-                ),
                 gapH16,
                 if (ref.isAdmin)
                   InputMacAddress(
