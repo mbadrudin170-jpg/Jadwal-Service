@@ -3,89 +3,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
+import 'package:wifi/fitur/investasi/model/dividen_model.dart';
+import 'package:wifi/fitur/investasi/model/investasi_model.dart';
+import 'package:wifi/fitur/investasi/provider/investasi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
-/// Model data portofolio investor.
-class InvestorPortofolio {
-  final String id;
-  final String userId;
-  final String namaInvestor;
-  final double persentase; // 0.0 - 1.0
-  final double totalModal;
-  final double totalDividenDiterima;
-  final List<DividenHistory> riwayatDividen;
-
-  InvestorPortofolio({
-    required this.id,
-    required this.userId,
-    required this.namaInvestor,
-    required this.persentase,
-    required this.totalModal,
-    this.totalDividenDiterima = 0,
-    this.riwayatDividen = const [],
-  });
-}
-
-/// Model riwayat dividen.
-class DividenHistory {
-  final String id;
-  final DateTime tanggal;
-  final double jumlah;
-  final String keterangan;
-
-  DividenHistory({
-    required this.id,
-    required this.tanggal,
-    required this.jumlah,
-    required this.keterangan,
-  });
-}
-
-/// Provider untuk mengambil data portofolio investor yang sedang login.
-final investorPortofolioProvider = FutureProvider<InvestorPortofolio?>((
-  ref,
-) async {
-  final userId = await ref.watch(userIdProvider.future);
-  if (userId == null || userId.isEmpty) {
-    Log.warning('UserId tidak ditemukan untuk mengambil portofolio investor.');
-    return null;
-  }
-
-  // TODO: Ambil data dari SQLite atau Firebase sesuai kebutuhan.
-  // Karena ini masih contoh, kita akan kembalikan data dummy.
-  // Nanti bisa diganti dengan query ke database yang sebenarnya.
-  Log.info('Mengambil data portofolio untuk investor ID: $userId');
-
-  // Data dummy untuk demonstrasi
-  return InvestorPortofolio(
-    id: 'portofolio_1',
-    userId: userId,
-    namaInvestor: 'Budi Investor',
-    persentase: 0.4, // 40%
-    totalModal: 5000000,
-    totalDividenDiterima: 1200000,
-    riwayatDividen: [
-      DividenHistory(
-        id: 'div_1',
-        tanggal: DateTime(2025, 6, 1),
-        jumlah: 600000,
-        keterangan: 'Dividen Q2 2025',
-      ),
-      DividenHistory(
-        id: 'div_2',
-        tanggal: DateTime(2025, 3, 1),
-        jumlah: 600000,
-        keterangan: 'Dividen Q1 2025',
-      ),
-    ],
-  );
-});
-
-/// Halaman portofolio untuk investor (read-only).
+/// Halaman portofolio untuk investor.
 class HalamanPortofolio extends ConsumerWidget {
   const HalamanPortofolio({super.key});
 
@@ -101,76 +27,143 @@ class HalamanPortofolio extends ConsumerWidget {
       );
     }
 
-    final portofolioAsync = ref.watch(investorPortofolioProvider);
+    final userId = ref.watch(userIdProvider).value;
+    if (userId == null || userId.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Portofolio')),
+        body: const Center(child: Text('Silakan login terlebih dahulu.')),
+      );
+    }
+
+    // ============================================================
+    // 1. AMBIL DATA DARI PROVIDER
+    // ============================================================
+    final investasiAsync = ref.watch(investasiProvider);
+    final detailInvestorAsync = ref.watch(
+      detailInvestorInvestasiProvider(userId),
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Portofolio Saya')),
-      body: portofolioAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(TIcons.errorOutlined, size: 60, color: Colors.red),
-              gapH16,
-              const TeksIsiBesar(
-                'Gagal memuat data portofolio.',
-                warna: Colors.red,
-              ),
-              gapH8,
-              TeksIsiSedang('Error: $err'),
-              gapH16,
-              ElevatedButton.icon(
-                onPressed: () => ref.refresh(investorPortofolioProvider),
-                icon: const Icon(TIcons.refresh),
-                label: const Text('Coba Lagi'),
-              ),
-            ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(investasiProvider.notifier).refresh();
+        },
+        child: investasiAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, stack) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(TIcons.errorOutlined, size: 60, color: Colors.red),
+                gapH16,
+                const TeksIsiBesar(
+                  'Gagal memuat data portofolio.',
+                  warna: Colors.red,
+                ),
+                gapH8,
+                TeksIsiSedang('Error: $err'),
+                gapH16,
+                ElevatedButton.icon(
+                  onPressed: () =>
+                      ref.read(investasiProvider.notifier).refresh(),
+                  icon: const Icon(TIcons.refresh),
+                  label: const Text('Coba Lagi'),
+                ),
+              ],
+            ),
           ),
-        ),
-        data: (portofolio) {
-          if (portofolio == null) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(TIcons.warningAmber, size: 60, color: Colors.orange),
-                  gapH16,
-                  TeksIsiBesar('Data portofolio tidak ditemukan.'),
-                  TeksIsiSedang('Hubungi admin untuk informasi lebih lanjut.'),
-                ],
-              ),
-            );
-          }
+          data: (state) {
+            // ============================================================
+            // 2. AMBIL DATA INVESTOR DARI STATE
+            // ============================================================
+            final daftarInvestasi = state.ambilInvestasiByIdInvestor(userId);
+            final daftarDividen = state.ambilDividenByIdInvestor(userId);
 
-          return RefreshIndicator(
-            onRefresh: () async => ref.refresh(investorPortofolioProvider),
-            child: SingleChildScrollView(
+            // Hitung total
+            final totalModal = daftarInvestasi.fold(
+              0.0,
+              (sum, i) => sum + i.jumlahModal,
+            );
+            final totalPersentase = daftarInvestasi.fold(
+              0.0,
+              (sum, i) => sum + i.persentaseKepemilikan,
+            );
+            final totalDividenDiterima = daftarDividen
+                .where((d) => d.sudahDibayar)
+                .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+
+            // ============================================================
+            // 3. CEK APAKAH ADA DATA
+            // ============================================================
+            if (daftarInvestasi.isEmpty) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(TIcons.warningAmber, size: 60, color: Colors.orange),
+                    gapH16,
+                    TeksIsiBesar('Belum ada investasi.'),
+                    TeksIsiSedang(
+                      'Mulai investasi sekarang untuk melihat portofolio.',
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            // ============================================================
+            // 4. TAMPILKAN UI
+            // ============================================================
+            return SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Kartu Ringkasan
-                  _buildKartuRingkasan(portofolio),
+                  _buildKartuRingkasan(
+                    namaInvestor:
+                        'Investor', // Bisa diambil dari data pelanggan
+                    totalModal: totalModal,
+                    persentase: totalPersentase,
+                    totalDividenDiterima: totalDividenDiterima,
+                  ),
                   gapH24,
 
                   // Detail Kepemilikan
-                  _buildDetailKepemilikan(portofolio),
+                  _buildDetailKepemilikan(
+                    totalModal: totalModal,
+                    persentase: totalPersentase,
+                    totalDividenDiterima: totalDividenDiterima,
+                  ),
+                  gapH24,
+
+                  // Daftar Investasi
+                  _buildDaftarInvestasi(daftarInvestasi),
                   gapH24,
 
                   // Riwayat Dividen
-                  _buildRiwayatDividen(portofolio),
+                  _buildRiwayatDividen(daftarDividen),
                 ],
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildKartuRingkasan(InvestorPortofolio portofolio) {
+  // ============================================================
+  // WIDGET KARTU RINGKASAN
+  // ============================================================
+
+  Widget _buildKartuRingkasan({
+    required String namaInvestor,
+    required double totalModal,
+    required double persentase,
+    required double totalDividenDiterima,
+  }) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -194,11 +187,10 @@ class HalamanPortofolio extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TeksJudulSedang(
-                      portofolio.namaInvestor,
-                      tebalFont: FontWeight.bold,
+                    TeksJudulSedang(namaInvestor, tebalFont: FontWeight.bold),
+                    TeksIsiKecil(
+                      'ID Investor: ${DateTime.now().millisecondsSinceEpoch}',
                     ),
-                    TeksIsiKecil('ID Investor: ${portofolio.id}'),
                   ],
                 ),
               ],
@@ -214,7 +206,7 @@ class HalamanPortofolio extends ConsumerWidget {
                     children: [
                       const TeksIsiKecil('Total Modal', warna: Colors.grey),
                       TeksJudulSedang(
-                        FormatUang.formatMataUang(portofolio.totalModal),
+                        FormatUang.formatMataUang(totalModal),
                         tebalFont: FontWeight.bold,
                       ),
                     ],
@@ -226,7 +218,7 @@ class HalamanPortofolio extends ConsumerWidget {
                     children: [
                       const TeksIsiKecil('Persentase', warna: Colors.grey),
                       TeksJudulSedang(
-                        '${(portofolio.persentase * 100).toStringAsFixed(1)}%',
+                        '${(persentase * 100).toStringAsFixed(1)}%',
                         tebalFont: FontWeight.bold,
                       ),
                     ],
@@ -246,9 +238,7 @@ class HalamanPortofolio extends ConsumerWidget {
                         warna: Colors.grey,
                       ),
                       TeksJudulSedang(
-                        FormatUang.formatMataUang(
-                          portofolio.totalDividenDiterima,
-                        ),
+                        FormatUang.formatMataUang(totalDividenDiterima),
                         tebalFont: FontWeight.bold,
                         warna: Colors.green,
                       ),
@@ -276,7 +266,15 @@ class HalamanPortofolio extends ConsumerWidget {
     );
   }
 
-  Widget _buildDetailKepemilikan(InvestorPortofolio portofolio) {
+  // ============================================================
+  // WIDGET DETAIL KEPEMILIKAN
+  // ============================================================
+
+  Widget _buildDetailKepemilikan({
+    required double totalModal,
+    required double persentase,
+    required double totalDividenDiterima,
+  }) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -296,18 +294,17 @@ class HalamanPortofolio extends ConsumerWidget {
               ],
             ),
             gapH16,
-            _buildBarisDetail('Nama', portofolio.namaInvestor),
             _buildBarisDetail(
               'Modal Disetor',
-              FormatUang.formatMataUang(portofolio.totalModal),
+              FormatUang.formatMataUang(totalModal),
             ),
             _buildBarisDetail(
               'Persentase',
-              '${(portofolio.persentase * 100).toStringAsFixed(1)}%',
+              '${(persentase * 100).toStringAsFixed(1)}%',
             ),
             _buildBarisDetail(
               'Total Dividen',
-              FormatUang.formatMataUang(portofolio.totalDividenDiterima),
+              FormatUang.formatMataUang(totalDividenDiterima),
             ),
           ],
         ),
@@ -315,8 +312,98 @@ class HalamanPortofolio extends ConsumerWidget {
     );
   }
 
-  Widget _buildRiwayatDividen(InvestorPortofolio portofolio) {
-    final riwayat = portofolio.riwayatDividen;
+  // ============================================================
+  // WIDGET DAFTAR INVESTASI
+  // ============================================================
+
+  Widget _buildDaftarInvestasi(List<InvestasiModel> daftarInvestasi) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(TIcons.money, color: TColors.primaryColor),
+                gapW8,
+                TeksJudulKecil('Daftar Investasi', tebalFont: FontWeight.bold),
+              ],
+            ),
+            gapH16,
+            if (daftarInvestasi.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: TeksIsiSedang(
+                    'Belum ada investasi.',
+                    warna: Colors.grey,
+                  ),
+                ),
+              )
+            else
+              ...daftarInvestasi.map(_buildItemInvestasi),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildItemInvestasi(InvestasiModel investasi) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          gapW12,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TeksIsiSedang(
+                  'ID Transaksi: ${investasi.idTransaksi}',
+                  tebalFont: FontWeight.w500,
+                ),
+                TeksIsiKecil(
+                  'Tanggal: ${FormatTanggal.formatDasar(investasi.tanggalInvestasi ?? DateTime.now())}',
+                  warna: Colors.grey,
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              TeksIsiSedang(
+                FormatUang.formatMataUang(investasi.jumlahModal),
+                tebalFont: FontWeight.bold,
+                warna: Colors.blue,
+              ),
+              TeksIsiKecil(
+                '${(investasi.persentaseKepemilikan * 100).toStringAsFixed(1)}%',
+                warna: Colors.grey,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // WIDGET RIWAYAT DIVIDEN
+  // ============================================================
+
+  Widget _buildRiwayatDividen(List<DividenModel> daftarDividen) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -333,7 +420,7 @@ class HalamanPortofolio extends ConsumerWidget {
               ],
             ),
             gapH16,
-            if (riwayat.isEmpty)
+            if (daftarDividen.isEmpty)
               const Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 20),
@@ -344,14 +431,14 @@ class HalamanPortofolio extends ConsumerWidget {
                 ),
               )
             else
-              ...riwayat.map(_buildItemDividen),
+              ...daftarDividen.map(_buildItemDividen),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildItemDividen(DividenHistory dividen) {
+  Widget _buildItemDividen(DividenModel dividen) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -360,7 +447,7 @@ class HalamanPortofolio extends ConsumerWidget {
             width: 4,
             height: 40,
             decoration: BoxDecoration(
-              color: Colors.green,
+              color: dividen.sudahDibayar ? Colors.green : Colors.orange,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -369,23 +456,31 @@ class HalamanPortofolio extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TeksIsiSedang(dividen.keterangan, tebalFont: FontWeight.w500),
+                TeksIsiSedang(
+                  dividen.sudahDibayar ? 'Sudah Dibayar' : 'Belum Dibayar',
+                  tebalFont: FontWeight.w500,
+                  warna: dividen.sudahDibayar ? Colors.green : Colors.orange,
+                ),
                 TeksIsiKecil(
-                  FormatTanggal.formatDasar(dividen.tanggal),
+                  FormatTanggal.formatDasar(dividen.tanggalPembagian),
                   warna: Colors.grey,
                 ),
               ],
             ),
           ),
           TeksIsiSedang(
-            FormatUang.formatMataUang(dividen.jumlah),
+            FormatUang.formatMataUang(dividen.jumlahDividen),
             tebalFont: FontWeight.bold,
-            warna: Colors.green,
+            warna: dividen.sudahDibayar ? Colors.green : Colors.orange,
           ),
         ],
       ),
     );
   }
+
+  // ============================================================
+  // WIDGET HELPER
+  // ============================================================
 
   Widget _buildBarisDetail(String label, String value) {
     return Padding(
