@@ -9,11 +9,11 @@ import 'package:mockito/mockito.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/fitur/notifikasi/enum/tipe_notifikasi_enum.dart';
 import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/notifikasi/model/notifikasi_model.dart';
 import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart';
-import 'package:wifi/fitur/app_role/app_role_enum.dart';
 
 import 'layanan_notifikasi_test.mocks.dart';
 
@@ -44,26 +44,26 @@ void main() {
     // Mock for FlutterTimezone
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(timezoneChannel, (methodCall) async {
-          if (methodCall.method == 'getLocalTimezone') {
-            return 'America/Detroit';
-          }
-          return null;
-        });
+      if (methodCall.method == 'getLocalTimezone') {
+        return 'America/Detroit';
+      }
+      return null;
+    });
 
     // Mock for Permission Handler
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(permissionChannel, (methodCall) async {
-          if (methodCall.method == 'checkPermissionStatus') {
-            return PermissionStatus.granted.index;
-          }
-          if (methodCall.method == 'requestPermissions') {
-            return {
-              Permission.scheduleExactAlarm.value:
-                  PermissionStatus.granted.index,
-            };
-          }
-          return null;
-        });
+      if (methodCall.method == 'checkPermissionStatus') {
+        return PermissionStatus.granted.index;
+      }
+      if (methodCall.method == 'requestPermissions') {
+        return {
+          Permission.scheduleExactAlarm.value:
+              PermissionStatus.granted.index,
+        };
+      }
+      return null;
+    });
   });
 
   setUp(() {
@@ -73,10 +73,8 @@ void main() {
 
     // Stub the platform-specific implementation resolving
     when(
-      mockPlugin
-          .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin
-          >(),
+      mockPlugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>(),
     ).thenReturn(mockAndroidPlugin);
 
     // Stubbing channel creation to avoid null errors on channelNotifikasiPenting
@@ -144,11 +142,11 @@ void main() {
       () async {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(timezoneChannel, (methodCall) async {
-              if (methodCall.method == 'getLocalTimezone') {
-                return 'GMT';
-              }
-              return null;
-            });
+          if (methodCall.method == 'getLocalTimezone') {
+            return 'GMT';
+          }
+          return null;
+        });
 
         await layananNotifikasi.inisialisasiNotifikasi(iconName: 'test_icon');
 
@@ -156,9 +154,9 @@ void main() {
 
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(
-              timezoneChannel,
-              (methodCall) async => 'America/Detroit',
-            );
+          timezoneChannel,
+          (methodCall) async => 'America/Detroit',
+        );
         tz.setLocalLocation(tz.getLocation('America/Detroit'));
       },
     );

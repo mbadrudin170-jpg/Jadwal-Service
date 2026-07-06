@@ -34,7 +34,7 @@ void main() {
     return ProviderScope(
       overrides: [detailPaketProvider(paket.id).overrideWith((ref) => paket)],
       child: MaterialApp(
-        home: DetailPaketPage(paket: paket),
+        home: const DetailPaketPage(paket: paket),
         navigatorObservers: [mockNavigatorObserver],
       ),
     );
