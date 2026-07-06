@@ -86,6 +86,9 @@ abstract class InvestasiState with _$InvestasiState {
   int getTotalLembarBeredar() {
     return daftarInvestasi.fold(0, (sum, i) => sum + i.jumlahLembar);
   }
+  double getTotalAsetPerusahaan() {
+  return daftarInvestasi.fold(0.0, (sum, i) => sum + i.jumlahModal);
+}
 }
 
 // ============================================================
