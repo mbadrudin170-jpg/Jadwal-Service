@@ -8363,10 +8363,8 @@ import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page.dart';
 import 'package:wifi/fitur/info_perangkat/page/info_apk_page_user.dart';
 import 'package:wifi/fitur/investasi/page/portofolio.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/user/providers/user_provider.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
 class SettingsPageU extends ConsumerWidget {
@@ -8374,7 +8372,6 @@ class SettingsPageU extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userId = ref.watch(userIdProvider).value ?? '';
     return Scaffold(
       appBar: AppBar(title: const Text('Pengaturan')),
       body: ListView(
@@ -8454,18 +8451,6 @@ class SettingsPageU extends ConsumerWidget {
                   context,
                   MaterialPageRoute<void>(
                     builder: (context) => const HalamanTes(),
-                  ),
-                );
-              },
-            ),
-            _SettingsMenuItem(
-              icon: TIcons.science,
-              title: 'Form Pelanggan',
-              onTap: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (context) => FormPelanggan(idPelanggan: userId),
                   ),
                 );
               },
@@ -38954,10 +38939,6 @@ class HalamanPortofolio extends ConsumerWidget {
               0.0,
               (sum, i) => sum + i.jumlahModal,
             );
-            final totalPersentase = daftarInvestasi.fold(
-              0.0,
-              (sum, i) => sum + i.persentaseKepemilikan,
-            );
             final totalDividenDiterima = daftarDividen
                 .where((d) => d.sudahDibayar)
                 .fold(0.0, (sum, d) => sum + d.jumlahDividen);
@@ -38995,7 +38976,7 @@ class HalamanPortofolio extends ConsumerWidget {
                     namaInvestor:
                         'Investor', // Bisa diambil dari data pelanggan
                     totalModal: totalModal,
-                    persentase: totalPersentase,
+                    persentase: 0,
                     totalDividenDiterima: totalDividenDiterima,
                   ),
                   gapH24,
@@ -39003,7 +38984,7 @@ class HalamanPortofolio extends ConsumerWidget {
                   // Detail Kepemilikan
                   _buildDetailKepemilikan(
                     totalModal: totalModal,
-                    persentase: totalPersentase,
+                    persentase: 0,
                     totalDividenDiterima: totalDividenDiterima,
                   ),
                   gapH24,
@@ -39256,10 +39237,6 @@ class HalamanPortofolio extends ConsumerWidget {
                 FormatUang.formatMataUang(investasi.jumlahModal),
                 tebalFont: FontWeight.bold,
                 warna: Colors.blue,
-              ),
-              TeksIsiKecil(
-                '${(investasi.persentaseKepemilikan * 100).toStringAsFixed(1)}%',
-                warna: Colors.grey,
               ),
             ],
           ),
@@ -39749,13 +39726,6 @@ abstract class InvestasiState with _$InvestasiState {
         .where((d) => d.idInvestor == idInvestor && !d.sudahDibayar)
         .fold(0.0, (sum, d) => sum + d.jumlahDividen);
   }
-
-  /// Menghitung total persentase kepemilikan investor
-  double getTotalPersentaseInvestor(String idInvestor) {
-    return daftarInvestasi
-        .where((i) => i.idInvestor == idInvestor)
-        .fold(0.0, (sum, i) => sum + i.persentaseKepemilikan);
-  }
 }
 
 // ============================================================
@@ -40058,13 +40028,6 @@ Future<double> totalDividenInvestor(Ref ref, String idInvestor) async {
   final state = await ref.watch(investasiProvider.future);
   return state.getTotalDividenDiterimaInvestor(idInvestor);
 }
-
-/// Provider untuk mendapatkan total persentase investor
-@riverpod
-Future<double> totalPersentaseInvestor(Ref ref, String idInvestor) async {
-  final state = await ref.watch(investasiProvider.future);
-  return state.getTotalPersentaseInvestor(idInvestor);
-}
 ```
 
 
@@ -40199,7 +40162,7 @@ final class DetailInvestorInvestasiProvider
 }
 
 String _$detailInvestorInvestasiHash() =>
-    r'f5513f94963dc6c871e5698a2cfaee37218e5a98';
+    r'59c3a8337cc21a4bd899a41835d171e7075090f9';
 
 /// Provider untuk mendapatkan data investasi investor tertentu
 
@@ -40284,7 +40247,7 @@ final class TotalModalInvestorProvider
 }
 
 String _$totalModalInvestorHash() =>
-    r'b9d2c3c0c437db6972aa1f9f4e9fe259b0cd3235';
+    r'486defab84fbfe7b00c5ccbeb1e4c97352ec7453';
 
 /// Provider untuk mendapatkan total modal investor
 
@@ -40363,7 +40326,7 @@ final class TotalDividenInvestorProvider
 }
 
 String _$totalDividenInvestorHash() =>
-    r'00d2ce9b4d4ed4709bddfdb0b25f57c665ea571e';
+    r'9feb35fbcf68186d7ae9413a22fc088407cbd456';
 
 /// Provider untuk mendapatkan total dividen investor
 
@@ -40385,86 +40348,6 @@ final class TotalDividenInvestorFamily extends $Family
 
   @override
   String toString() => r'totalDividenInvestorProvider';
-}
-
-/// Provider untuk mendapatkan total persentase investor
-
-@ProviderFor(totalPersentaseInvestor)
-final totalPersentaseInvestorProvider = TotalPersentaseInvestorFamily._();
-
-/// Provider untuk mendapatkan total persentase investor
-
-final class TotalPersentaseInvestorProvider
-    extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
-    with $FutureModifier<double>, $FutureProvider<double> {
-  /// Provider untuk mendapatkan total persentase investor
-  TotalPersentaseInvestorProvider._({
-    required TotalPersentaseInvestorFamily super.from,
-    required String super.argument,
-  }) : super(
-         retry: null,
-         name: r'totalPersentaseInvestorProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$totalPersentaseInvestorHash();
-
-  @override
-  String toString() {
-    return r'totalPersentaseInvestorProvider'
-        ''
-        '($argument)';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<double> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<double> create(Ref ref) {
-    final argument = this.argument as String;
-    return totalPersentaseInvestor(ref, argument);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is TotalPersentaseInvestorProvider &&
-        other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$totalPersentaseInvestorHash() =>
-    r'b46fc9ef94826e8655dae7fb5e328a5d0c5660a0';
-
-/// Provider untuk mendapatkan total persentase investor
-
-final class TotalPersentaseInvestorFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<double>, String> {
-  TotalPersentaseInvestorFamily._()
-    : super(
-        retry: null,
-        name: r'totalPersentaseInvestorProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  /// Provider untuk mendapatkan total persentase investor
-
-  TotalPersentaseInvestorProvider call(String idInvestor) =>
-      TotalPersentaseInvestorProvider._(argument: idInvestor, from: this);
-
-  @override
-  String toString() => r'totalPersentaseInvestorProvider';
 }
 ```
 
@@ -40809,6 +40692,68 @@ class InvestasiOpSqlite {
       rethrow;
     }
   }
+
+  /// Menyisipkan atau memperbarui beberapa investasi sekaligus (batch).
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<InvestasiModel> daftarInvestasi, {
+    bool dariServer = false,
+  }) async {
+    if (daftarInvestasi.isEmpty) {
+      Log.info('Daftar investasi kosong, batch dibatalkan.');
+      return;
+    }
+
+    Log.info(
+      'Memulai batch insert/update untuk ${daftarInvestasi.length} investasi',
+    );
+    try {
+      final data = daftarInvestasi
+          .map(
+            (item) => item.copyWith(diperbaruiPada: DateTime.now()).toSqlite(),
+          )
+          .toList();
+      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
+        NamaTabel.investasi,
+        data,
+        dariServer: dariServer,
+      );
+      Log.info('Batch ${daftarInvestasi.length} investasi berhasil diproses');
+    } catch (e, st) {
+      Log.error('Gagal memproses batch investasi', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  /// Menyisipkan atau memperbarui beberapa dividen sekaligus (batch).
+  Future<void> sisipkanAtauPerbaruiBatchDividen(
+    List<DividenModel> daftarDividen, {
+    bool dariServer = false,
+  }) async {
+    if (daftarDividen.isEmpty) {
+      Log.info('Daftar dividen kosong, batch dibatalkan.');
+      return;
+    }
+
+    Log.info(
+      'Memulai batch insert/update untuk ${daftarDividen.length} dividen',
+    );
+    try {
+      final data = daftarDividen
+          .map(
+            (item) => item.copyWith(diperbaruiPada: DateTime.now()).toSqlite(),
+          )
+          .toList();
+      await _baseOpSqlite.sisipkanAtauPerbaruiBatch(
+        NamaTabel.dividen,
+        data,
+        dariServer: dariServer,
+      );
+      Log.info('Batch ${daftarDividen.length} dividen berhasil diproses');
+    } catch (e, st) {
+      Log.error('Gagal memproses batch dividen', e: e, s: st);
+      rethrow;
+    }
+  }
 }
 ```
 
@@ -40831,7 +40776,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$InvestasiModel {
 
- String get id; String get idInvestor; String get idTransaksi; double get jumlahModal; int get jumlahLembar; double get persentaseKepemilikan; DateTime? get tanggalInvestasi; bool get diHapus; DateTime? get diarsipkanPada; DateTime? get diperbaruiPada;
+ String get id; String get idInvestor; String get idTransaksi; double get jumlahModal; int get jumlahLembar; DateTime? get tanggalInvestasi; bool get diHapus; DateTime? get diarsipkanPada; DateTime? get diperbaruiPada;
 /// Create a copy of InvestasiModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -40842,16 +40787,16 @@ $InvestasiModelCopyWith<InvestasiModel> get copyWith => _$InvestasiModelCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is InvestasiModel&&(identical(other.id, id) || other.id == id)&&(identical(other.idInvestor, idInvestor) || other.idInvestor == idInvestor)&&(identical(other.idTransaksi, idTransaksi) || other.idTransaksi == idTransaksi)&&(identical(other.jumlahModal, jumlahModal) || other.jumlahModal == jumlahModal)&&(identical(other.jumlahLembar, jumlahLembar) || other.jumlahLembar == jumlahLembar)&&(identical(other.persentaseKepemilikan, persentaseKepemilikan) || other.persentaseKepemilikan == persentaseKepemilikan)&&(identical(other.tanggalInvestasi, tanggalInvestasi) || other.tanggalInvestasi == tanggalInvestasi)&&(identical(other.diHapus, diHapus) || other.diHapus == diHapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InvestasiModel&&(identical(other.id, id) || other.id == id)&&(identical(other.idInvestor, idInvestor) || other.idInvestor == idInvestor)&&(identical(other.idTransaksi, idTransaksi) || other.idTransaksi == idTransaksi)&&(identical(other.jumlahModal, jumlahModal) || other.jumlahModal == jumlahModal)&&(identical(other.jumlahLembar, jumlahLembar) || other.jumlahLembar == jumlahLembar)&&(identical(other.tanggalInvestasi, tanggalInvestasi) || other.tanggalInvestasi == tanggalInvestasi)&&(identical(other.diHapus, diHapus) || other.diHapus == diHapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,idInvestor,idTransaksi,jumlahModal,jumlahLembar,persentaseKepemilikan,tanggalInvestasi,diHapus,diarsipkanPada,diperbaruiPada);
+int get hashCode => Object.hash(runtimeType,id,idInvestor,idTransaksi,jumlahModal,jumlahLembar,tanggalInvestasi,diHapus,diarsipkanPada,diperbaruiPada);
 
 @override
 String toString() {
-  return 'InvestasiModel(id: $id, idInvestor: $idInvestor, idTransaksi: $idTransaksi, jumlahModal: $jumlahModal, jumlahLembar: $jumlahLembar, persentaseKepemilikan: $persentaseKepemilikan, tanggalInvestasi: $tanggalInvestasi, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada, diperbaruiPada: $diperbaruiPada)';
+  return 'InvestasiModel(id: $id, idInvestor: $idInvestor, idTransaksi: $idTransaksi, jumlahModal: $jumlahModal, jumlahLembar: $jumlahLembar, tanggalInvestasi: $tanggalInvestasi, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada, diperbaruiPada: $diperbaruiPada)';
 }
 
 
@@ -40862,7 +40807,7 @@ abstract mixin class $InvestasiModelCopyWith<$Res>  {
   factory $InvestasiModelCopyWith(InvestasiModel value, $Res Function(InvestasiModel) _then) = _$InvestasiModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String idInvestor, String idTransaksi, double jumlahModal, int jumlahLembar, double persentaseKepemilikan, DateTime? tanggalInvestasi, bool diHapus, DateTime? diarsipkanPada, DateTime? diperbaruiPada
+ String id, String idInvestor, String idTransaksi, double jumlahModal, int jumlahLembar, DateTime? tanggalInvestasi, bool diHapus, DateTime? diarsipkanPada, DateTime? diperbaruiPada
 });
 
 
@@ -40879,15 +40824,14 @@ class _$InvestasiModelCopyWithImpl<$Res>
 
 /// Create a copy of InvestasiModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? idInvestor = null,Object? idTransaksi = null,Object? jumlahModal = null,Object? jumlahLembar = null,Object? persentaseKepemilikan = null,Object? tanggalInvestasi = freezed,Object? diHapus = null,Object? diarsipkanPada = freezed,Object? diperbaruiPada = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? idInvestor = null,Object? idTransaksi = null,Object? jumlahModal = null,Object? jumlahLembar = null,Object? tanggalInvestasi = freezed,Object? diHapus = null,Object? diarsipkanPada = freezed,Object? diperbaruiPada = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,idInvestor: null == idInvestor ? _self.idInvestor : idInvestor // ignore: cast_nullable_to_non_nullable
 as String,idTransaksi: null == idTransaksi ? _self.idTransaksi : idTransaksi // ignore: cast_nullable_to_non_nullable
 as String,jumlahModal: null == jumlahModal ? _self.jumlahModal : jumlahModal // ignore: cast_nullable_to_non_nullable
 as double,jumlahLembar: null == jumlahLembar ? _self.jumlahLembar : jumlahLembar // ignore: cast_nullable_to_non_nullable
-as int,persentaseKepemilikan: null == persentaseKepemilikan ? _self.persentaseKepemilikan : persentaseKepemilikan // ignore: cast_nullable_to_non_nullable
-as double,tanggalInvestasi: freezed == tanggalInvestasi ? _self.tanggalInvestasi : tanggalInvestasi // ignore: cast_nullable_to_non_nullable
+as int,tanggalInvestasi: freezed == tanggalInvestasi ? _self.tanggalInvestasi : tanggalInvestasi // ignore: cast_nullable_to_non_nullable
 as DateTime?,diHapus: null == diHapus ? _self.diHapus : diHapus // ignore: cast_nullable_to_non_nullable
 as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
 as DateTime?,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
@@ -40976,10 +40920,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String idInvestor,  String idTransaksi,  double jumlahModal,  int jumlahLembar,  double persentaseKepemilikan,  DateTime? tanggalInvestasi,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? diperbaruiPada)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String idInvestor,  String idTransaksi,  double jumlahModal,  int jumlahLembar,  DateTime? tanggalInvestasi,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? diperbaruiPada)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _InvestasiModel() when $default != null:
-return $default(_that.id,_that.idInvestor,_that.idTransaksi,_that.jumlahModal,_that.jumlahLembar,_that.persentaseKepemilikan,_that.tanggalInvestasi,_that.diHapus,_that.diarsipkanPada,_that.diperbaruiPada);case _:
+return $default(_that.id,_that.idInvestor,_that.idTransaksi,_that.jumlahModal,_that.jumlahLembar,_that.tanggalInvestasi,_that.diHapus,_that.diarsipkanPada,_that.diperbaruiPada);case _:
   return orElse();
 
 }
@@ -40997,10 +40941,10 @@ return $default(_that.id,_that.idInvestor,_that.idTransaksi,_that.jumlahModal,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String idInvestor,  String idTransaksi,  double jumlahModal,  int jumlahLembar,  double persentaseKepemilikan,  DateTime? tanggalInvestasi,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? diperbaruiPada)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String idInvestor,  String idTransaksi,  double jumlahModal,  int jumlahLembar,  DateTime? tanggalInvestasi,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? diperbaruiPada)  $default,) {final _that = this;
 switch (_that) {
 case _InvestasiModel():
-return $default(_that.id,_that.idInvestor,_that.idTransaksi,_that.jumlahModal,_that.jumlahLembar,_that.persentaseKepemilikan,_that.tanggalInvestasi,_that.diHapus,_that.diarsipkanPada,_that.diperbaruiPada);case _:
+return $default(_that.id,_that.idInvestor,_that.idTransaksi,_that.jumlahModal,_that.jumlahLembar,_that.tanggalInvestasi,_that.diHapus,_that.diarsipkanPada,_that.diperbaruiPada);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -41017,10 +40961,10 @@ return $default(_that.id,_that.idInvestor,_that.idTransaksi,_that.jumlahModal,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String idInvestor,  String idTransaksi,  double jumlahModal,  int jumlahLembar,  double persentaseKepemilikan,  DateTime? tanggalInvestasi,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? diperbaruiPada)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String idInvestor,  String idTransaksi,  double jumlahModal,  int jumlahLembar,  DateTime? tanggalInvestasi,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? diperbaruiPada)?  $default,) {final _that = this;
 switch (_that) {
 case _InvestasiModel() when $default != null:
-return $default(_that.id,_that.idInvestor,_that.idTransaksi,_that.jumlahModal,_that.jumlahLembar,_that.persentaseKepemilikan,_that.tanggalInvestasi,_that.diHapus,_that.diarsipkanPada,_that.diperbaruiPada);case _:
+return $default(_that.id,_that.idInvestor,_that.idTransaksi,_that.jumlahModal,_that.jumlahLembar,_that.tanggalInvestasi,_that.diHapus,_that.diarsipkanPada,_that.diperbaruiPada);case _:
   return null;
 
 }
@@ -41032,7 +40976,7 @@ return $default(_that.id,_that.idInvestor,_that.idTransaksi,_that.jumlahModal,_t
 
 
 class _InvestasiModel extends InvestasiModel {
-  const _InvestasiModel({required this.id, required this.idInvestor, required this.idTransaksi, required this.jumlahModal, required this.jumlahLembar, required this.persentaseKepemilikan, this.tanggalInvestasi, this.diHapus = false, this.diarsipkanPada, this.diperbaruiPada}): super._();
+  const _InvestasiModel({required this.id, required this.idInvestor, required this.idTransaksi, required this.jumlahModal, required this.jumlahLembar, this.tanggalInvestasi, this.diHapus = false, this.diarsipkanPada, this.diperbaruiPada}): super._();
   
 
 @override final  String id;
@@ -41040,7 +40984,6 @@ class _InvestasiModel extends InvestasiModel {
 @override final  String idTransaksi;
 @override final  double jumlahModal;
 @override final  int jumlahLembar;
-@override final  double persentaseKepemilikan;
 @override final  DateTime? tanggalInvestasi;
 @override@JsonKey() final  bool diHapus;
 @override final  DateTime? diarsipkanPada;
@@ -41056,16 +40999,16 @@ _$InvestasiModelCopyWith<_InvestasiModel> get copyWith => __$InvestasiModelCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InvestasiModel&&(identical(other.id, id) || other.id == id)&&(identical(other.idInvestor, idInvestor) || other.idInvestor == idInvestor)&&(identical(other.idTransaksi, idTransaksi) || other.idTransaksi == idTransaksi)&&(identical(other.jumlahModal, jumlahModal) || other.jumlahModal == jumlahModal)&&(identical(other.jumlahLembar, jumlahLembar) || other.jumlahLembar == jumlahLembar)&&(identical(other.persentaseKepemilikan, persentaseKepemilikan) || other.persentaseKepemilikan == persentaseKepemilikan)&&(identical(other.tanggalInvestasi, tanggalInvestasi) || other.tanggalInvestasi == tanggalInvestasi)&&(identical(other.diHapus, diHapus) || other.diHapus == diHapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InvestasiModel&&(identical(other.id, id) || other.id == id)&&(identical(other.idInvestor, idInvestor) || other.idInvestor == idInvestor)&&(identical(other.idTransaksi, idTransaksi) || other.idTransaksi == idTransaksi)&&(identical(other.jumlahModal, jumlahModal) || other.jumlahModal == jumlahModal)&&(identical(other.jumlahLembar, jumlahLembar) || other.jumlahLembar == jumlahLembar)&&(identical(other.tanggalInvestasi, tanggalInvestasi) || other.tanggalInvestasi == tanggalInvestasi)&&(identical(other.diHapus, diHapus) || other.diHapus == diHapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,idInvestor,idTransaksi,jumlahModal,jumlahLembar,persentaseKepemilikan,tanggalInvestasi,diHapus,diarsipkanPada,diperbaruiPada);
+int get hashCode => Object.hash(runtimeType,id,idInvestor,idTransaksi,jumlahModal,jumlahLembar,tanggalInvestasi,diHapus,diarsipkanPada,diperbaruiPada);
 
 @override
 String toString() {
-  return 'InvestasiModel(id: $id, idInvestor: $idInvestor, idTransaksi: $idTransaksi, jumlahModal: $jumlahModal, jumlahLembar: $jumlahLembar, persentaseKepemilikan: $persentaseKepemilikan, tanggalInvestasi: $tanggalInvestasi, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada, diperbaruiPada: $diperbaruiPada)';
+  return 'InvestasiModel(id: $id, idInvestor: $idInvestor, idTransaksi: $idTransaksi, jumlahModal: $jumlahModal, jumlahLembar: $jumlahLembar, tanggalInvestasi: $tanggalInvestasi, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada, diperbaruiPada: $diperbaruiPada)';
 }
 
 
@@ -41076,7 +41019,7 @@ abstract mixin class _$InvestasiModelCopyWith<$Res> implements $InvestasiModelCo
   factory _$InvestasiModelCopyWith(_InvestasiModel value, $Res Function(_InvestasiModel) _then) = __$InvestasiModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String idInvestor, String idTransaksi, double jumlahModal, int jumlahLembar, double persentaseKepemilikan, DateTime? tanggalInvestasi, bool diHapus, DateTime? diarsipkanPada, DateTime? diperbaruiPada
+ String id, String idInvestor, String idTransaksi, double jumlahModal, int jumlahLembar, DateTime? tanggalInvestasi, bool diHapus, DateTime? diarsipkanPada, DateTime? diperbaruiPada
 });
 
 
@@ -41093,15 +41036,14 @@ class __$InvestasiModelCopyWithImpl<$Res>
 
 /// Create a copy of InvestasiModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? idInvestor = null,Object? idTransaksi = null,Object? jumlahModal = null,Object? jumlahLembar = null,Object? persentaseKepemilikan = null,Object? tanggalInvestasi = freezed,Object? diHapus = null,Object? diarsipkanPada = freezed,Object? diperbaruiPada = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? idInvestor = null,Object? idTransaksi = null,Object? jumlahModal = null,Object? jumlahLembar = null,Object? tanggalInvestasi = freezed,Object? diHapus = null,Object? diarsipkanPada = freezed,Object? diperbaruiPada = freezed,}) {
   return _then(_InvestasiModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,idInvestor: null == idInvestor ? _self.idInvestor : idInvestor // ignore: cast_nullable_to_non_nullable
 as String,idTransaksi: null == idTransaksi ? _self.idTransaksi : idTransaksi // ignore: cast_nullable_to_non_nullable
 as String,jumlahModal: null == jumlahModal ? _self.jumlahModal : jumlahModal // ignore: cast_nullable_to_non_nullable
 as double,jumlahLembar: null == jumlahLembar ? _self.jumlahLembar : jumlahLembar // ignore: cast_nullable_to_non_nullable
-as int,persentaseKepemilikan: null == persentaseKepemilikan ? _self.persentaseKepemilikan : persentaseKepemilikan // ignore: cast_nullable_to_non_nullable
-as double,tanggalInvestasi: freezed == tanggalInvestasi ? _self.tanggalInvestasi : tanggalInvestasi // ignore: cast_nullable_to_non_nullable
+as int,tanggalInvestasi: freezed == tanggalInvestasi ? _self.tanggalInvestasi : tanggalInvestasi // ignore: cast_nullable_to_non_nullable
 as DateTime?,diHapus: null == diHapus ? _self.diHapus : diHapus // ignore: cast_nullable_to_non_nullable
 as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
 as DateTime?,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
@@ -41540,7 +41482,6 @@ abstract class InvestasiModel with _$InvestasiModel implements HasId {
     required String idTransaksi, // ID transaksi terkait
     required double jumlahModal, // Jumlah modal yang ditanamkan (Rupiah)
     required int jumlahLembar, // Jumlah lembar/saham yang dibeli
-    required double persentaseKepemilikan, // Persentase kepemilikan
     DateTime? tanggalInvestasi,
     @Default(false) bool diHapus,
     DateTime? diarsipkanPada,
@@ -41556,8 +41497,6 @@ abstract class InvestasiModel with _$InvestasiModel implements HasId {
       idTransaksi: map[NamaKolom.idTransaksi] as String? ?? '',
       jumlahModal: (map[NamaKolom.jumlahModal] as num?)?.toDouble() ?? 0.0,
       jumlahLembar: (map[NamaKolom.jumlahLembar] as int?) ?? 0,
-      persentaseKepemilikan:
-          (map[NamaKolom.persentaseKepemilikan] as num?)?.toDouble() ?? 0.0,
       tanggalInvestasi: ParserUtil.parseDateTime(
         map[NamaKolom.tanggalInvestasi],
       ),
@@ -41574,7 +41513,6 @@ abstract class InvestasiModel with _$InvestasiModel implements HasId {
       NamaKolom.idTransaksi: idTransaksi,
       NamaKolom.jumlahModal: jumlahModal,
       NamaKolom.jumlahLembar: jumlahLembar,
-      NamaKolom.persentaseKepemilikan: persentaseKepemilikan,
       NamaKolom.tanggalInvestasi: tanggalInvestasi?.millisecondsSinceEpoch,
       NamaKolom.dihapus: diHapus ? 1 : 0,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
@@ -41592,8 +41530,6 @@ abstract class InvestasiModel with _$InvestasiModel implements HasId {
       idTransaksi: data[NamaKolom.idTransaksi] as String? ?? '',
       jumlahModal: (data[NamaKolom.jumlahModal] as num?)?.toDouble() ?? 0.0,
       jumlahLembar: (data[NamaKolom.jumlahLembar] as int?) ?? 0,
-      persentaseKepemilikan:
-          (data[NamaKolom.persentaseKepemilikan] as num?)?.toDouble() ?? 0.0,
       tanggalInvestasi: ParserUtil.parseDateTime(
         data[NamaKolom.tanggalInvestasi],
       ),
@@ -41610,7 +41546,6 @@ abstract class InvestasiModel with _$InvestasiModel implements HasId {
       NamaKolom.idTransaksi: idTransaksi,
       NamaKolom.jumlahModal: jumlahModal,
       NamaKolom.jumlahLembar: jumlahLembar,
-      NamaKolom.persentaseKepemilikan: persentaseKepemilikan,
       NamaKolom.tanggalInvestasi: Timestamp.fromDate(
         tanggalInvestasi ?? DateTime.now(),
       ),
@@ -43957,6 +43892,7 @@ final pelangganOpGlobalProvider = Provider<PelangganOpGlobal>((ref) {
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
@@ -43989,12 +43925,9 @@ class PelangganOpFirebase {
           .where(NamaKolom.telepon, isEqualTo: telepon)
           .where(NamaKolom.kataSandi, isEqualTo: kataSandi)
           .where(NamaKolom.dihapus, isEqualTo: false);
-
-      // Jika excludeId diberikan, exclude pelanggan dengan ID tersebut
       if (excludeId != null && excludeId.isNotEmpty) {
         query = query.where(NamaKolom.id, isNotEqualTo: excludeId);
       }
-
       final snapshot = await query.limit(1).get();
       return snapshot.docs.isNotEmpty;
     } catch (e, s) {
@@ -44009,9 +43942,16 @@ class PelangganOpFirebase {
       pelanggan.telepon,
       pelanggan.kataSandi,
     );
-
-    if (isDuplicate) {
+    if (!kDebugMode && isDuplicate) {
+      Log.error(
+        'Duplikasi data pelanggan',
+        data: {'telepon': pelanggan.telepon, 'nama': pelanggan.nama},
+      );
       throw Exception('Nomor telepon dan password sudah digunakan.');
+    }
+
+    if (kDebugMode && isDuplicate) {
+      Log.warning('⚠️ Duplikasi terdeteksi di DEBUG MODE, tetapi dilewati.');
     }
     await _baseOpFirebase.sisipkan(
       _namaKoleksi,
@@ -44028,8 +43968,16 @@ class PelangganOpFirebase {
       excludeId: pelanggan.id,
     );
 
-    if (isDuplicate) {
+    if (!kDebugMode && isDuplicate) {
+      Log.error(
+        'Duplikasi data pelanggan',
+        data: {'telepon': pelanggan.telepon, 'nama': pelanggan.nama},
+      );
       throw Exception('Nomor telepon dan password sudah digunakan.');
+    }
+
+    if (kDebugMode && isDuplicate) {
+      Log.warning('⚠️ Duplikasi terdeteksi di DEBUG MODE, tetapi dilewati.');
     }
     await _baseOpFirebase.update(
       _namaKoleksi,
@@ -44142,6 +44090,7 @@ class PelangganOpFirebase {
 ```dart
 // path: lib/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
@@ -44214,14 +44163,19 @@ class PelangganOpSqlite {
       pelanggan.telepon,
       pelanggan.kataSandi,
     );
-    if (isDuplicate) {
-      Log.warning('Data pelanggan duplikat ditemukan.', {
+    if (!kDebugMode && isDuplicate) {
+      Log.warning('Data pelanggan duplikat ditemukan saat update.', {
         'telepon': pelanggan.telepon,
         'nama': pelanggan.nama,
+        'id': pelanggan.id,
       });
       throw Exception(
         'Pelanggan dengan nomor telepon dan password ini sudah ada.',
       );
+    }
+
+    if (kDebugMode && isDuplicate) {
+      Log.warning('⚠️ Duplikasi terdeteksi di DEBUG MODE, tetapi dilewati.');
     }
     Log.info('Memulai pembuatan customer dengan ID: ${pelanggan.id}');
     try {
@@ -44297,7 +44251,7 @@ class PelangganOpSqlite {
       excludeId: pelanggan.id,
     );
 
-    if (isDuplicate) {
+    if (!kDebugMode && isDuplicate) {
       Log.warning('Data pelanggan duplikat ditemukan saat update.', {
         'telepon': pelanggan.telepon,
         'nama': pelanggan.nama,
@@ -44306,6 +44260,10 @@ class PelangganOpSqlite {
       throw Exception(
         'Pelanggan dengan nomor telepon dan password ini sudah ada.',
       );
+    }
+
+    if (kDebugMode && isDuplicate) {
+      Log.warning('⚠️ Duplikasi terdeteksi di DEBUG MODE, tetapi dilewati.');
     }
     Log.info('Memulai pembaruan untuk customer ID: ${pelanggan.id}');
     try {
@@ -45367,6 +45325,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/investasi/model/dividen_model.dart';
+import 'package:wifi/fitur/investasi/model/investasi_model.dart';
+import 'package:wifi/fitur/investasi/operasi/investasi_op_sqlite.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
@@ -45399,6 +45360,8 @@ class LayananUnduhData {
   final SubKategoriOpSqlite _operasiSubKategori;
   final VersiApkOpSqlite _operasiVersiApk;
   final SettingsOpSqlite _operasiPengaturan;
+  final InvestasiOpSqlite _operasiInvestasi;
+  final InvestasiOpSqlite _operasiDividen;
 
   /// Konstruktor dengan injeksi dependensi (untuk produksi dan testing)
   LayananUnduhData({
@@ -45416,6 +45379,8 @@ class LayananUnduhData {
     required VersiApkOpSqlite operasiVersiApk,
     required SettingsOpSqlite operasiPengaturan,
     required PengelolaSinkronisasi pengelolaSinkronisasi,
+    required InvestasiOpSqlite operasiInvestasi,
+    required InvestasiOpSqlite operasiDividen,
   }) : _pengelolaSinkronisasi = pengelolaSinkronisasi,
        _firestore = firestore,
        _operasiDompet = operasiDompet,
@@ -45428,7 +45393,9 @@ class LayananUnduhData {
        _operasiPesanan = operasiPesanan,
        _operasiSubKategori = operasiSubKategori,
        _operasiVersiApk = operasiVersiApk,
-       _operasiPengaturan = operasiPengaturan {
+       _operasiPengaturan = operasiPengaturan,
+       _operasiInvestasi = operasiInvestasi,
+       _operasiDividen = operasiDividen {
     Log.info('LayananUnduhData diinisialisasi dengan dependency injection.');
   }
 
@@ -45446,6 +45413,8 @@ class LayananUnduhData {
     required final SubKategoriOpSqlite operasiSubKategori,
     required final VersiApkOpSqlite operasiVersiApk,
     required final SettingsOpSqlite operasiPengaturan,
+    required InvestasiOpSqlite operasiInvestasi,
+    required InvestasiOpSqlite operasiDividen,
   }) : _firestore = firestore,
        _pengelolaSinkronisasi = syncManager,
        _operasiDompet = operasiDompet,
@@ -45458,6 +45427,8 @@ class LayananUnduhData {
        _operasiPesanan = operasiPesanan,
        _operasiSubKategori = operasiSubKategori,
        _operasiVersiApk = operasiVersiApk,
+       _operasiInvestasi = operasiInvestasi,
+       _operasiDividen = operasiDividen,
        _operasiPengaturan = operasiPengaturan {
     Log.info('LayananUnduhData berhasil diinisialisasi untuk pengujian.');
   }
@@ -45479,6 +45450,8 @@ class LayananUnduhData {
         unduhDataPesanan(),
         unduhDataSubKategori(),
         unduhDataVersiApk(),
+        unduhDataInvestasi(),
+        unduhDataDividen(),
       ]);
       stopwatch.stop();
       Log.info(
@@ -45499,22 +45472,17 @@ class LayananUnduhData {
       const namaKoleksi = NamaTabel.settings;
       final docRef = _firestore.collection(namaKoleksi).doc(idGlobalSetting);
       final doc = await docRef.get(const GetOptions(source: Source.server));
-
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
-        // Menggunakan ColumnNames.updatedAt untuk field 'diperbarui'
         if (data.containsKey(NamaKolom.diperbaruiPada)) {
           final dynamic fieldValue = data[NamaKolom.diperbaruiPada];
-
           if (fieldValue is! Timestamp) {
             Log.error(
               'Inkompatibilitas Tipe: Field "${NamaKolom.diperbaruiPada}" bukan Timestamp.',
             );
             return;
           }
-
           final waktuPembaruanServer = fieldValue.toDate();
-
           if (waktuPembaruanServer.isAfter(lastDownloadTime)) {
             Log.info('Data pengaturan server lebih baru, memperbarui lokal.');
             final settings = SettingsModel.fromFirebase(data);
@@ -45538,6 +45506,32 @@ class LayananUnduhData {
       Log.error('Kesalahan sinkronisasi Pengaturan.', e: e, s: s);
       rethrow;
     }
+  }
+
+  Future<void> unduhDataInvestasi() async {
+    Log.info('Memulai sinkronisasi untuk koleksi: [INVESTASI]');
+    final lastDownloadTime = await _pengelolaSinkronisasi
+        .ambilWaktuTerakhirUnduhPreferensi();
+    await sinkronkanKoleksi<InvestasiModel>(
+      namaKoleksi: NamaTabel.investasi,
+      waktuTerakhirUnduh: lastDownloadTime,
+      dariFirebase: InvestasiModel.fromFirebase,
+      operasiBatch: (final data) =>
+          _operasiInvestasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
+    );
+  }
+
+  Future<void> unduhDataDividen() async {
+    Log.info('Memulai sinkronisasi untuk koleksi: [DIVIDEN]');
+    final lastDownloadTime = await _pengelolaSinkronisasi
+        .ambilWaktuTerakhirUnduhPreferensi();
+    await sinkronkanKoleksi<DividenModel>(
+      namaKoleksi: NamaTabel.dividen,
+      waktuTerakhirUnduh: lastDownloadTime,
+      dariFirebase: DividenModel.fromFirebase,
+      operasiBatch: (final data) => _operasiDividen
+          .sisipkanAtauPerbaruiBatchDividen(data, dariServer: true),
+    );
   }
 
   Future<void> unduhDataDompet() async {
@@ -45703,7 +45697,6 @@ class LayananUnduhData {
             );
           }
         }
-
         if (daftarData.isNotEmpty) {
           Log.info(
             'Mengirim ${daftarData.length} item ke operasi batch lokal.',
@@ -45740,6 +45733,10 @@ final layananUnduhDataProvider = Provider<LayananUnduhData>((ref) {
     operasiSubKategori: ref.read(subKategoriOpSqliteProvider),
     operasiVersiApk: ref.read(versiApkOpSqliteProvider),
     operasiPengaturan: ref.read(settingsOpSqliteProvider),
+    operasiInvestasi: ref.read(investasiOpSqliteProvider),
+    operasiDividen: ref.read(
+      investasiOpSqliteProvider,
+    ), // sama karena satu class
     pengelolaSinkronisasi: ref.read(pengelolaSinkronisasiProvider),
   );
 });
@@ -49623,17 +49620,20 @@ class _MainPageState extends ConsumerState<MainPage> {
         unawaited(pengingatService.cekDanTampilkanPengingatTagihan());
       }
     });
+    // lib/user/page/main_page.dart
+
     final halamanDasar = <Widget>[
       const ProfilePage(),
       const TransaksiU(),
       const OrderPage(),
-    ];
-    final halamanTambahan = <Widget>[
-      if (ref.isInvestor) const HalamanPortofolio(),
-      if (!ref.isInvestor) const HalamanUjiKecepatan(),
+      if (ref.isInvestor)
+        const HalamanPortofolio()
+      else
+        const HalamanUjiKecepatan(),
       const SettingsPageU(),
     ];
-    _daftarHalaman = [...halamanDasar, ...halamanTambahan];
+
+    _daftarHalaman = halamanDasar;
     _reaktorSiklusHidup = AppLifecycleReactor(
       appOpenAdService: _layananIklanBukaAplikasi,
     );
@@ -49655,8 +49655,6 @@ class _MainPageState extends ConsumerState<MainPage> {
   @override
   Widget build(BuildContext context) {
     Log.info('Membangun MainPage untuk indeks halaman: $_indeksTerpilih');
-
-    // ✅ Buat daftar item navigasi secara dinamis
     final navItems = <BottomNavigationBarItem>[
       const BottomNavigationBarItem(icon: Icon(TIcons.person), label: 'Profil'),
       const BottomNavigationBarItem(
@@ -49667,22 +49665,21 @@ class _MainPageState extends ConsumerState<MainPage> {
         icon: Icon(TIcons.pesanan),
         label: 'Pesanan',
       ),
-      // ✅ Tambahkan item Portofolio jika investor
       if (ref.isInvestor)
         const BottomNavigationBarItem(
           icon: Icon(TIcons.money),
           label: 'Portofolio',
+        )
+      else
+        const BottomNavigationBarItem(
+          icon: Icon(TIcons.speed),
+          label: 'Uji Speed',
         ),
-      const BottomNavigationBarItem(
-        icon: Icon(TIcons.speed),
-        label: 'Uji Speed',
-      ),
       const BottomNavigationBarItem(
         icon: Icon(TIcons.settings),
         label: 'Pengaturan',
       ),
     ];
-
     return Scaffold(
       body: Column(
         children: [
@@ -58897,7 +58894,6 @@ List<InvestasiModel> get daftarInvestasi {
       idTransaksi: idTransaksi1, // Transaksi Gaji Budi
       jumlahModal: 5000000,
       jumlahLembar: 50,
-      persentaseKepemilikan: 0.4, // 40%
       tanggalInvestasi: now.subtract(duaBulanLalu),
     ),
     InvestasiModel(
@@ -58906,7 +58902,6 @@ List<InvestasiModel> get daftarInvestasi {
       idTransaksi: idTransaksi2, // Transaksi Bonus Budi
       jumlahModal: 2000000,
       jumlahLembar: 20,
-      persentaseKepemilikan: 0.15, // 15%
       tanggalInvestasi: satuBulanLalu,
     ),
 
@@ -58919,7 +58914,6 @@ List<InvestasiModel> get daftarInvestasi {
       idTransaksi: idTransaksi5, // Transaksi Aktivasi Paket Bisnis Siti
       jumlahModal: 7500000,
       jumlahLembar: 75,
-      persentaseKepemilikan: 0.6, // 60%
       tanggalInvestasi: now.subtract(tigaBulanLalu),
     ),
     InvestasiModel(
@@ -58928,7 +58922,6 @@ List<InvestasiModel> get daftarInvestasi {
       idTransaksi: idTransaksi7, // Transaksi Aktivasi Paket Gamer Dewi
       jumlahModal: 3000000,
       jumlahLembar: 30,
-      persentaseKepemilikan: 0.25, // 25%
       tanggalInvestasi: now.subtract(empatBulanLalu),
     ),
     InvestasiModel(
@@ -58937,7 +58930,6 @@ List<InvestasiModel> get daftarInvestasi {
       idTransaksi: idTransaksi9, // Transaksi Aktivasi Paket Ultimate Joko
       jumlahModal: 1000000,
       jumlahLembar: 10,
-      persentaseKepemilikan: 0.1, // 10%
       tanggalInvestasi: now.subtract(duaBulanLalu),
     ),
   ];
@@ -59075,11 +59067,6 @@ int getTotalLembarInvestor(String idInvestor) {
 }
 
 /// Menghitung total persentase kepemilikan investor
-double getTotalPersentaseInvestor(String idInvestor) {
-  return daftarInvestasi
-      .where((i) => i.idInvestor == idInvestor)
-      .fold(0.0, (sum, i) => sum + i.persentaseKepemilikan);
-}
 
 /// Menghitung total dividen yang sudah diterima investor
 double getTotalDividenDiterima(String idInvestor) {
@@ -59124,11 +59111,18 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-class HalamanDataDummy extends ConsumerWidget {
+class HalamanDataDummy extends ConsumerStatefulWidget {
   const HalamanDataDummy({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HalamanDataDummy> createState() => _HalamanDataDummyState();
+}
+
+class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
+  bool _menyimpan = false;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Halaman Data Dummy')),
       body: ListView(
@@ -59136,7 +59130,7 @@ class HalamanDataDummy extends ConsumerWidget {
         children: [
           _tombolFitur(
             context: context,
-            onPressed: () => _tambahSemuaData(context, ref),
+            onPressed: _menyimpan ? null : () => _tambahSemuaData(context, ref),
             label: 'TAMBAH SEMUA DATA DUMMY',
             icon: Icons.abc_outlined,
             color: Colors.green,
@@ -59229,7 +59223,7 @@ class HalamanDataDummy extends ConsumerWidget {
   /// Widget helper untuk membuat tombol fitur.
   Widget _tombolFitur({
     required BuildContext context,
-    required VoidCallback onPressed,
+    required void Function()? onPressed,
     required String label,
     required IconData icon,
     Color? color,
@@ -59529,6 +59523,11 @@ class HalamanDataDummy extends ConsumerWidget {
   // ============================================================
 
   Future<void> _tambahSemuaData(BuildContext context, WidgetRef ref) async {
+    if (_menyimpan) return;
+    setState(() {
+      _menyimpan = true;
+    });
+
     try {
       Log.info('Memulai proses penambahan SEMUA data dummy');
 
@@ -59650,6 +59649,12 @@ class HalamanDataDummy extends ConsumerWidget {
           context,
           'Terjadi kesalahan saat menambah semua data: $e',
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _menyimpan = false;
+        });
       }
     }
   }
@@ -60153,7 +60158,7 @@ class SqliteDatabase {
   }
   static final SqliteDatabase instance = SqliteDatabase._internal();
   static Database? _database;
-  static const int _databaseVersion = 55;
+  static const int _databaseVersion = 56;
   void debugSetDatabaseNull() {
     if (Platform.environment.containsKey('FLUTTER_TEST')) {
       _database = null;
@@ -60275,6 +60280,33 @@ class SqliteDatabase {
       await db.execute(
         'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN ${NamaKolom.role} TEXT DEFAULT "user"',
       );
+    }
+
+    if (oldVersion < 56) {
+      Log.info('[MIGRASI v56] Membuat tabel investasi dan dividen.');
+      await db.execute(
+        _tabelInvestasi.replaceFirst(
+          'CREATE TABLE',
+          'CREATE TABLE IF NOT EXISTS',
+        ),
+      );
+      await db.execute(
+        _tabelDividen.replaceFirst(
+          'CREATE TABLE',
+          'CREATE TABLE IF NOT EXISTS',
+        ),
+      );
+      // Buat indeks
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_investasi_investor ON ${NamaTabel.investasi}(${NamaKolom.idInvestor})',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_dividen_investor ON ${NamaTabel.dividen}(${NamaKolom.idInvestor})',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_dividen_investasi ON ${NamaTabel.dividen}(${NamaKolom.idInvestasi})',
+      );
+      Log.info('[MIGRASI v56] Tabel investasi dan dividen berhasil dibuat.');
     }
     Log.info('========================================');
     Log.info('PROSES UPGRADE DATABASE SELESAI');
@@ -60719,11 +60751,23 @@ class SqliteDatabase {
     batch.execute(_tabelSetting);
     batch.execute(_tabelStatusUnggah);
     batch.execute(_tabelPesan);
-    batch.execute(
-      _tabelNotification,
-    ); // 2. Tambahkan pembuatan tabel notifikasi
-    Log.info('Semua 14 definisi tabel (v52) ditambahkan ke batch.');
+    batch.execute(_tabelNotification);
+    batch.execute(_tabelInvestasi);
+    batch.execute(_tabelDividen);
 
+    Log.info('Semua 14 definisi tabel (v52) ditambahkan ke batch.');
+    const investasiTable = NamaTabel.investasi;
+    const dividenTable = NamaTabel.dividen;
+
+    batch.execute(
+      'CREATE INDEX IF NOT EXISTS idx_investasi_investor ON $investasiTable(${NamaKolom.idInvestor})',
+    );
+    batch.execute(
+      'CREATE INDEX IF NOT EXISTS idx_dividen_investor ON $dividenTable(${NamaKolom.idInvestor})',
+    );
+    batch.execute(
+      'CREATE INDEX IF NOT EXISTS idx_dividen_investasi ON $dividenTable(${NamaKolom.idInvestasi})',
+    );
     // diperbaiki: Index ditargetkan menggunakan escaping keyword "transaction" otomatis dari TableNameValue
     const trxTable = '"${NamaTabel.transaksi}"';
     batch.execute(
@@ -60975,6 +61019,44 @@ class SqliteDatabase {
     ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
     ${NamaKolom.diarsipkanPada} INTEGER,
     ${NamaKolom.targetRole} TEXT NOT NULL
+  )
+''';
+
+  // path: lib/admin/data/sqlite.dart
+  // Tambahkan setelah _tabelOrder
+
+  static const String _tabelInvestasi =
+      '''
+  CREATE TABLE ${NamaTabel.investasi}(
+    ${NamaKolom.id} TEXT PRIMARY KEY,
+    ${NamaKolom.idInvestor} TEXT NOT NULL,
+    ${NamaKolom.idTransaksi} TEXT NOT NULL,
+    ${NamaKolom.jumlahModal} REAL NOT NULL,
+    ${NamaKolom.jumlahLembar} INTEGER NOT NULL,
+    ${NamaKolom.persentaseKepemilikan} REAL NOT NULL DEFAULT 0.0,
+    ${NamaKolom.tanggalInvestasi} INTEGER,
+    ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
+    ${NamaKolom.diarsipkanPada} INTEGER,
+    ${NamaKolom.diperbaruiPada} INTEGER,
+    FOREIGN KEY (${NamaKolom.idInvestor}) REFERENCES ${NamaTabel.pelanggan} (${NamaKolom.id}) ON DELETE CASCADE,
+    FOREIGN KEY (${NamaKolom.idTransaksi}) REFERENCES "${NamaTabel.transaksi}" (${NamaKolom.id}) ON DELETE CASCADE
+  )
+''';
+
+  static const String _tabelDividen =
+      '''
+  CREATE TABLE ${NamaTabel.dividen}(
+    ${NamaKolom.id} TEXT PRIMARY KEY,
+    ${NamaKolom.idInvestasi} TEXT NOT NULL,
+    ${NamaKolom.idInvestor} TEXT NOT NULL,
+    ${NamaKolom.jumlahDividen} REAL NOT NULL,
+    ${NamaKolom.tanggalPembagian} INTEGER NOT NULL,
+    ${NamaKolom.sudahDibayar} INTEGER NOT NULL DEFAULT 0,
+    ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
+    ${NamaKolom.diarsipkanPada} INTEGER,
+    ${NamaKolom.diperbaruiPada} INTEGER,
+    FOREIGN KEY (${NamaKolom.idInvestasi}) REFERENCES ${NamaTabel.investasi} (${NamaKolom.id}) ON DELETE CASCADE,
+    FOREIGN KEY (${NamaKolom.idInvestor}) REFERENCES ${NamaTabel.pelanggan} (${NamaKolom.id}) ON DELETE CASCADE
   )
 ''';
   // ============================================================

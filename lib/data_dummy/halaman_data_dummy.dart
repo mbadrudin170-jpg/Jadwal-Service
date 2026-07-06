@@ -23,11 +23,18 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-class HalamanDataDummy extends ConsumerWidget {
+class HalamanDataDummy extends ConsumerStatefulWidget {
   const HalamanDataDummy({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HalamanDataDummy> createState() => _HalamanDataDummyState();
+}
+
+class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
+  bool _menyimpan = false;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Halaman Data Dummy')),
       body: ListView(
@@ -35,7 +42,7 @@ class HalamanDataDummy extends ConsumerWidget {
         children: [
           _tombolFitur(
             context: context,
-            onPressed: () => _tambahSemuaData(context, ref),
+            onPressed: _menyimpan ? null : () => _tambahSemuaData(context, ref),
             label: 'TAMBAH SEMUA DATA DUMMY',
             icon: Icons.abc_outlined,
             color: Colors.green,
@@ -128,7 +135,7 @@ class HalamanDataDummy extends ConsumerWidget {
   /// Widget helper untuk membuat tombol fitur.
   Widget _tombolFitur({
     required BuildContext context,
-    required VoidCallback onPressed,
+    required VoidCallback? onPressed,
     required String label,
     required IconData icon,
     Color? color,
@@ -428,6 +435,11 @@ class HalamanDataDummy extends ConsumerWidget {
   // ============================================================
 
   Future<void> _tambahSemuaData(BuildContext context, WidgetRef ref) async {
+    if (_menyimpan) return;
+    setState(() {
+      _menyimpan = true;
+    });
+
     try {
       Log.info('Memulai proses penambahan SEMUA data dummy');
 
@@ -549,6 +561,12 @@ class HalamanDataDummy extends ConsumerWidget {
           context,
           'Terjadi kesalahan saat menambah semua data: $e',
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _menyimpan = false;
+        });
       }
     }
   }
