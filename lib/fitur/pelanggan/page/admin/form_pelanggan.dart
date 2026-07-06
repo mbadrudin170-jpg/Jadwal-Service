@@ -197,6 +197,7 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
                   nextFocusNode: _macAddressFocusNode,
                 ),
                 gapH16,
+                if (ref.isAdmin)
                 DropdownButtonFormField<AppRole>(
                   value: _selectedRole,
                   decoration: const InputDecoration(

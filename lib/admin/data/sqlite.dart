@@ -122,7 +122,7 @@ class SqliteDatabase {
 
     if (oldVersion < 51) {
       Log.info(
-        '[MIGRASI v51] Menambahkan kolom `${NamaKolom.terkahirAktif}` ke tabel `${NamaTabel.pelanggan}`.',
+        '[MIGRASI v51] Menambahkan kolom `${NamaKolom.terakhirAktif}` ke tabel `${NamaTabel.pelanggan}`.',
       );
       await _migrateToV51(db);
     }
@@ -157,18 +157,24 @@ class SqliteDatabase {
   }
 
   Future<void> _migrateToV51(final Database db) async {
-    Log.info('[MIGRASI v51] Menambahkan kolom ${NamaKolom.terkahirAktif}...');
+    Log.info('[MIGRASI v51] Menambahkan kolom ${NamaKolom.terakhirAktif}...');
     await db.execute(
-      'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN ${NamaKolom.terkahirAktif} INTEGER',
+      'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN ${NamaKolom.terakhirAktif} INTEGER',
     );
     Log.info(
-      '[MIGRASI v51] Penambahan kolom ${NamaKolom.terkahirAktif} selesai.',
+      '[MIGRASI v51] Penambahan kolom ${NamaKolom.terakhirAktif} selesai.',
     );
   }
 
   Future<void> _migrateToV52(final Database db) async {
     Log.info('[MIGRASI v52] Membuat tabel notification...');
-    await db.execute(_tabelNotification);
+    // Ganti definisi string-nya, atau lakukan replace saat eksekusi:
+    await db.execute(
+      _tabelNotification.replaceFirst(
+        'CREATE TABLE',
+        'CREATE TABLE IF NOT EXISTS',
+      ),
+    );
     Log.info('[MIGRASI v52] Tabel notification berhasil dibuat.');
   }
 
@@ -767,7 +773,7 @@ class SqliteDatabase {
       ${NamaKolom.diperbaruiPada} INTEGER,
       ${NamaKolom.diarsipkanPada} INTEGER,
       ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.terkahirAktif} INTEGER
+      ${NamaKolom.terakhirAktif} INTEGER
     )
   ''';
 

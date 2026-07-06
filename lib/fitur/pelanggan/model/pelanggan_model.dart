@@ -41,7 +41,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
-      terkahirAktif: ParserUtil.parseDateTime(map[NamaKolom.terkahirAktif]),
+      terkahirAktif: ParserUtil.parseDateTime(map[NamaKolom.terakhirAktif]),
     );
   }
 
@@ -58,7 +58,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
-      NamaKolom.terkahirAktif: terkahirAktif?.millisecondsSinceEpoch,
+      NamaKolom.terakhirAktif: terkahirAktif?.millisecondsSinceEpoch,
     };
   }
 
@@ -77,7 +77,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
-      terkahirAktif: ParserUtil.parseDateTime(data[NamaKolom.terkahirAktif]),
+      terkahirAktif: ParserUtil.parseDateTime(data[NamaKolom.terakhirAktif]),
     );
   }
 
@@ -97,7 +97,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,
-      NamaKolom.terkahirAktif: terkahirAktif != null
+      NamaKolom.terakhirAktif: terkahirAktif != null
           ? Timestamp.fromDate(terkahirAktif!.toUtc())
           : null,
     };

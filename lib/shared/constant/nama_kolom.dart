@@ -43,7 +43,7 @@ abstract final class NamaKolom {
   static const String linkDownload = 'download_links';
   static const String versiTerkahir = 'latest_version';
   static const String wajibUpdate = 'is_update_required';
-  static const String terkahirAktif = 'last_active_at';
+  static const String terakhirAktif = 'last_active_at';
   static const String linkYoutubeTutorial = 'youtube_tutorial';
   static const String waktuOtomatisSinkronisasi = 'auto_sync_interval';
   static const String waktuOtomatisHapusDataArsip = 'auto_delete_archive_days';

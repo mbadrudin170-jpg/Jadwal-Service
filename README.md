@@ -126,7 +126,7 @@ class SqliteDatabase {
 
     if (oldVersion < 51) {
       Log.info(
-        '[MIGRASI v51] Menambahkan kolom `${NamaKolom.terkahirAktif}` ke tabel `${NamaTabel.pelanggan}`.',
+        '[MIGRASI v51] Menambahkan kolom `${NamaKolom.terakhirAktif}` ke tabel `${NamaTabel.pelanggan}`.',
       );
       await _migrateToV51(db);
     }
@@ -147,11 +147,11 @@ class SqliteDatabase {
       await _migrateToV54(db);
     }
     if (oldVersion < 55) {
-  Log.info('[MIGRASI v55] Menambahkan kolom role ke tabel pelanggan.');
-  await db.execute(
-    'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN ${NamaKolom.role} TEXT DEFAULT "user"',
-  );
-}
+      Log.info('[MIGRASI v55] Menambahkan kolom role ke tabel pelanggan.');
+      await db.execute(
+        'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN ${NamaKolom.role} TEXT DEFAULT "user"',
+      );
+    }
     Log.info('========================================');
     Log.info('PROSES UPGRADE DATABASE SELESAI');
     Log.info(
@@ -161,18 +161,24 @@ class SqliteDatabase {
   }
 
   Future<void> _migrateToV51(final Database db) async {
-    Log.info('[MIGRASI v51] Menambahkan kolom ${NamaKolom.terkahirAktif}...');
+    Log.info('[MIGRASI v51] Menambahkan kolom ${NamaKolom.terakhirAktif}...');
     await db.execute(
-      'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN ${NamaKolom.terkahirAktif} INTEGER',
+      'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN ${NamaKolom.terakhirAktif} INTEGER',
     );
     Log.info(
-      '[MIGRASI v51] Penambahan kolom ${NamaKolom.terkahirAktif} selesai.',
+      '[MIGRASI v51] Penambahan kolom ${NamaKolom.terakhirAktif} selesai.',
     );
   }
 
   Future<void> _migrateToV52(final Database db) async {
     Log.info('[MIGRASI v52] Membuat tabel notification...');
-    await db.execute(_tabelNotification);
+    // Ganti definisi string-nya, atau lakukan replace saat eksekusi:
+    await db.execute(
+      _tabelNotification.replaceFirst(
+        'CREATE TABLE',
+        'CREATE TABLE IF NOT EXISTS',
+      ),
+    );
     Log.info('[MIGRASI v52] Tabel notification berhasil dibuat.');
   }
 
@@ -214,7 +220,7 @@ class SqliteDatabase {
       NamaKolom.tanggalTampil: 'INTEGER NOT NULL',
       NamaKolom.judul: 'TEXT NOT NULL',
       NamaKolom.deskripsi: 'TEXT NOT NULL',
-      NamaKolom.setatusDibaca: 'INTEGER NOT NULL DEFAULT 0',
+      NamaKolom.statusDibaca: 'INTEGER NOT NULL DEFAULT 0',
       NamaKolom.tipe: 'TEXT NOT NULL',
       NamaKolom.diperbaruiPada: 'INTEGER NOT NULL',
       NamaKolom.idTujuan: 'TEXT NOT NULL',
@@ -771,7 +777,7 @@ class SqliteDatabase {
       ${NamaKolom.diperbaruiPada} INTEGER,
       ${NamaKolom.diarsipkanPada} INTEGER,
       ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.terkahirAktif} INTEGER
+      ${NamaKolom.terakhirAktif} INTEGER
     )
   ''';
 
@@ -832,7 +838,7 @@ class SqliteDatabase {
     ${NamaKolom.tanggalTampil} INTEGER NOT NULL,
     ${NamaKolom.judul} TEXT NOT NULL,
     ${NamaKolom.deskripsi} TEXT NOT NULL,
-    ${NamaKolom.setatusDibaca} INTEGER NOT NULL DEFAULT 0,
+    ${NamaKolom.statusDibaca} INTEGER NOT NULL DEFAULT 0,
     ${NamaKolom.tipe} TEXT NOT NULL,
     ${NamaKolom.diperbaruiPada} INTEGER NOT NULL,
     ${NamaKolom.idTujuan} TEXT NOT NULL,
@@ -1502,7 +1508,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
-      terkahirAktif: ParserUtil.parseDateTime(map[NamaKolom.terkahirAktif]),
+      terkahirAktif: ParserUtil.parseDateTime(map[NamaKolom.terakhirAktif]),
     );
   }
 
@@ -1519,7 +1525,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
-      NamaKolom.terkahirAktif: terkahirAktif?.millisecondsSinceEpoch,
+      NamaKolom.terakhirAktif: terkahirAktif?.millisecondsSinceEpoch,
     };
   }
 
@@ -1538,7 +1544,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
-      terkahirAktif: ParserUtil.parseDateTime(data[NamaKolom.terkahirAktif]),
+      terkahirAktif: ParserUtil.parseDateTime(data[NamaKolom.terakhirAktif]),
     );
   }
 
@@ -1558,7 +1564,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,
-      NamaKolom.terkahirAktif: terkahirAktif != null
+      NamaKolom.terakhirAktif: terkahirAktif != null
           ? Timestamp.fromDate(terkahirAktif!.toUtc())
           : null,
     };
@@ -1768,6 +1774,7 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
                   nextFocusNode: _macAddressFocusNode,
                 ),
                 gapH16,
+                if (ref.isAdmin)
                 DropdownButtonFormField<AppRole>(
                   value: _selectedRole,
                   decoration: const InputDecoration(
@@ -1969,7 +1976,7 @@ abstract final class NamaKolom {
   static const String linkDownload = 'download_links';
   static const String versiTerkahir = 'latest_version';
   static const String wajibUpdate = 'is_update_required';
-  static const String terkahirAktif = 'last_active_at';
+  static const String terakhirAktif = 'last_active_at';
   static const String linkYoutubeTutorial = 'youtube_tutorial';
   static const String waktuOtomatisSinkronisasi = 'auto_sync_interval';
   static const String waktuOtomatisHapusDataArsip = 'auto_delete_archive_days';
@@ -1982,7 +1989,7 @@ abstract final class NamaKolom {
   static const String statusAktif = 'is_active';
   static const String tanggalDibuat = 'created_at';
   static const String judul = 'title';
-  static const String setatusDibaca = 'is_read';
+  static const String statusDibaca = 'is_read';
   static const String idTujuan = 'id_tujuan';
   static const String tanggalTampil = 'tanggal_tampil';
   static const String durasiBonus = 'durasi_bonus';

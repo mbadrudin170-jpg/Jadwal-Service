@@ -234,7 +234,7 @@ void main() {
       verifyNever(mockDatabase.execute('DROP TABLE IF EXISTS pengaturan'));
       verify(
         mockDatabase.execute(
-          argThat(contains('ADD COLUMN ${NamaKolom.terkahirAktif}')),
+          argThat(contains('ADD COLUMN ${NamaKolom.terakhirAktif}')),
         ),
       ).called(1);
     });

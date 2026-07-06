@@ -92,7 +92,7 @@ class PelangganOpFirebase {
   Future<void> perbaruiTerakhirAktif(String id) async {
     Log.info('Mendelegasikan update last active untuk: $id');
     await _baseOpFirebase.update(_namaKoleksi, id, {
-      NamaKolom.terkahirAktif: FieldValue.serverTimestamp(),
+      NamaKolom.terakhirAktif: FieldValue.serverTimestamp(),
     });
   }
 
