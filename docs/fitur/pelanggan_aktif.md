@@ -2315,7 +2315,7 @@ class _PelangganAktifPageState extends ConsumerState<PelangganAktifPage> {
 
   PelangganAktifOpSqlite get _pelangganAktifOpSqlite =>
       ref.read(pelangganAktifOpSqliteProvider);
-      
+
   void _onSearchChanged() {
     setState(() {});
   }
@@ -2853,13 +2853,6 @@ abstract class DetailPelangganAktifState with _$DetailPelangganAktifState {
     required TransaksiModel transaksi,
     required PaketModel paket,
   }) = _DetailPelangganAktifState;
-}
-
-@riverpod
-Future<void> detailPelangganAktif(Ref ref) async {
-  final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
-  await pelangganAktifOpSqlite.ambilSemuaPelangganAktifDenganDetail();
-  return;
 }
 
 @riverpod

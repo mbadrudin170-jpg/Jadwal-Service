@@ -364,6 +364,7 @@ abstract class TransaksiNotifierState with _$TransaksiNotifierState {
   const factory TransaksiNotifierState({
     @Default([]) List<TransaksiModel> transaksi,
   }) = _TransaksiNotifierState;
+
   ({List<TransaksiModel> transaksi, int totalPoin}) riwayatPelanggan(
     String idPelanggan,
   ) {
