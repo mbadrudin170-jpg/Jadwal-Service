@@ -25,6 +25,7 @@ abstract class PaketState with _$PaketState {
     @Default([]) List<PaketModel?> daftarPaketPublik,
     @Default(0) int jumlahPaket,
   }) = _PaketState;
+  
    PaketModel? ambilBerdasarkanId(String idPaket) {
     return daftarPaket.firstWhereOrNull((p) => p?.id == idPaket);
   }
