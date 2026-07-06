@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/fitur/investasi/provider/investasi_provider.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
@@ -12,20 +14,18 @@ class RingkasanSaham extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final investasiAsync = ref.watch(investasiProvider);
-
+    final pelangganAsync = ref.watch(pelangganProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Ringkasan Saham')),
       body: investasiAsync.when(
-        data: (data) {
-          final totalLembar = data.getTotalLembarBeredar();
-          final totalAset = data.getTotalAsetPerusahaan();
-          final totalDividenDiterima = data.totalDividenDiterima;
-          final totalDividenBelumDibayar = data.totalDividenBelumDibayar;
-
+        data: (investasi) {
+          final totalLembar = investasi.getTotalLembarBeredar();
+          final totalAset = investasi.getTotalAsetPerusahaan();
+          final totalDividenDiterima = investasi.totalDividenDiterima;
+          final totalDividenBelumDibayar = investasi.totalDividenBelumDibayar;
           final returnPersentase = totalAset > 0
               ? (totalDividenDiterima / totalAset) * 100
               : 0.0;
-
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -108,26 +108,96 @@ class RingkasanSaham extends ConsumerWidget {
                         gapH12,
                         _buildInfoRow(
                           'Jumlah Investasi',
-                          data.jumlahInvestasi.toString(),
+                          investasi.jumlahInvestasi.toString(),
                           icon: TIcons.listAlt,
                         ),
                         gapH8,
                         _buildInfoRow(
                           'Jumlah Dividen',
-                          data.jumlahDividen.toString(),
+                          investasi.jumlahDividen.toString(),
                           icon: TIcons.history,
                         ),
                         gapH8,
                         _buildInfoRow(
                           'Rata-rata Modal per Investasi',
                           FormatUang.formatMataUang(
-                            data.jumlahInvestasi > 0
-                                ? totalAset / data.jumlahInvestasi
+                            investasi.jumlahInvestasi > 0
+                                ? totalAset / investasi.jumlahInvestasi
                                 : 0,
                           ),
                           icon: TIcons.info,
                         ),
                       ],
+                    ),
+                  ),
+                ),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: pelangganAsync.when(
+                      data: (listInvestor) {
+                        final daftarInvestor =
+                            listInvestor.ambilBerdasarkanRole(AppRole.investor)
+                              ..sort((a, b) {
+                                final lembarA = investasi
+                                    .getTotalLembarInvestor(a.id);
+                                final lembarB = investasi
+                                    .getTotalLembarInvestor(b.id);
+                                return lembarB.compareTo(
+                                  lembarA,
+                                ); // descending (terbanyak ke terkecil)
+                              });
+
+                        if (daftarInvestor.isEmpty) {
+                          return const Center(
+                            child: Text('Belum ada investor'),
+                          );
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Daftar Investor',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            gapH12,
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: daftarInvestor.length > 5
+                                  ? 5
+                                  : daftarInvestor.length,
+                              itemBuilder: (context, index) {
+                                final investor = daftarInvestor[index];
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 4.0,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(investor.nama),
+                                      Text(
+                                        investasi
+                                            .getTotalLembarInvestor(investor.id)
+                                            .toString(),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                      error: (error, stackTrace) =>
+                          Center(child: Text('Error: $error')),
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
                     ),
                   ),
                 ),

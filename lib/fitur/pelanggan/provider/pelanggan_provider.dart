@@ -3,6 +3,7 @@
 import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
@@ -21,6 +22,10 @@ abstract class PelangganState with _$PelangganState {
 
   PelangganModel? ambilBerdasarkanId(String idPelanggan) {
     return daftarPelanggan.firstWhereOrNull((p) => p.id == idPelanggan);
+  }
+
+  List<PelangganModel> ambilBerdasarkanRole(AppRole role) {
+    return daftarPelanggan.where((p) => p.role == role).toList();
   }
 }
 
