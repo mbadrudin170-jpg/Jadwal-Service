@@ -283,6 +283,10 @@ lib/fitur/transaksi/model/transaksi_model.freezed.dart
 lib/fitur/investasi
 lib/fitur/investasi/page
 lib/fitur/investasi/page/portofolio.dart
+lib/fitur/investasi/provider
+lib/fitur/investasi/provider/investasi_provider.freezed.dart
+lib/fitur/investasi/provider/investasi_provider.dart
+lib/fitur/investasi/provider/investasi_provider.g.dart
 lib/fitur/investasi/operasi
 lib/fitur/investasi/operasi/investasi_op_sqlite.dart
 lib/fitur/investasi/model
@@ -38868,89 +38872,15 @@ as bool,
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
+import 'package:wifi/fitur/investasi/model/dividen_model.dart';
+import 'package:wifi/fitur/investasi/model/investasi_model.dart';
+import 'package:wifi/fitur/investasi/provider/investasi_provider.dart';
 import 'package:wifi/shared/common/teks.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/user/providers/user_provider.dart';
 
-/// Model data portofolio investor.
-class InvestorPortofolio {
-  final String id;
-  final String userId;
-  final String namaInvestor;
-  final double persentase; // 0.0 - 1.0
-  final double totalModal;
-  final double totalDividenDiterima;
-  final List<DividenHistory> riwayatDividen;
-
-  InvestorPortofolio({
-    required this.id,
-    required this.userId,
-    required this.namaInvestor,
-    required this.persentase,
-    required this.totalModal,
-    this.totalDividenDiterima = 0,
-    this.riwayatDividen = const [],
-  });
-}
-
-/// Model riwayat dividen.
-class DividenHistory {
-  final String id;
-  final DateTime tanggal;
-  final double jumlah;
-  final String keterangan;
-
-  DividenHistory({
-    required this.id,
-    required this.tanggal,
-    required this.jumlah,
-    required this.keterangan,
-  });
-}
-
-/// Provider untuk mengambil data portofolio investor yang sedang login.
-final investorPortofolioProvider = FutureProvider<InvestorPortofolio?>((
-  ref,
-) async {
-  final userId = await ref.watch(userIdProvider.future);
-  if (userId == null || userId.isEmpty) {
-    Log.warning('UserId tidak ditemukan untuk mengambil portofolio investor.');
-    return null;
-  }
-
-  // TODO: Ambil data dari SQLite atau Firebase sesuai kebutuhan.
-  // Karena ini masih contoh, kita akan kembalikan data dummy.
-  // Nanti bisa diganti dengan query ke database yang sebenarnya.
-  Log.info('Mengambil data portofolio untuk investor ID: $userId');
-
-  // Data dummy untuk demonstrasi
-  return InvestorPortofolio(
-    id: 'portofolio_1',
-    userId: userId,
-    namaInvestor: 'Budi Investor',
-    persentase: 0.4, // 40%
-    totalModal: 5000000,
-    totalDividenDiterima: 1200000,
-    riwayatDividen: [
-      DividenHistory(
-        id: 'div_1',
-        tanggal: DateTime(2025, 6, 1),
-        jumlah: 600000,
-        keterangan: 'Dividen Q2 2025',
-      ),
-      DividenHistory(
-        id: 'div_2',
-        tanggal: DateTime(2025, 3, 1),
-        jumlah: 600000,
-        keterangan: 'Dividen Q1 2025',
-      ),
-    ],
-  );
-});
-
-/// Halaman portofolio untuk investor (read-only).
+/// Halaman portofolio untuk investor.
 class HalamanPortofolio extends ConsumerWidget {
   const HalamanPortofolio({super.key});
 
@@ -38966,76 +38896,143 @@ class HalamanPortofolio extends ConsumerWidget {
       );
     }
 
-    final portofolioAsync = ref.watch(investorPortofolioProvider);
+    final userId = ref.watch(userIdProvider).value;
+    if (userId == null || userId.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Portofolio')),
+        body: const Center(child: Text('Silakan login terlebih dahulu.')),
+      );
+    }
+
+    // ============================================================
+    // 1. AMBIL DATA DARI PROVIDER
+    // ============================================================
+    final investasiAsync = ref.watch(investasiProvider);
+    final detailInvestorAsync = ref.watch(
+      detailInvestorInvestasiProvider(userId),
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Portofolio Saya')),
-      body: portofolioAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(TIcons.errorOutlined, size: 60, color: Colors.red),
-              gapH16,
-              const TeksIsiBesar(
-                'Gagal memuat data portofolio.',
-                warna: Colors.red,
-              ),
-              gapH8,
-              TeksIsiSedang('Error: $err'),
-              gapH16,
-              ElevatedButton.icon(
-                onPressed: () => ref.refresh(investorPortofolioProvider),
-                icon: const Icon(TIcons.refresh),
-                label: const Text('Coba Lagi'),
-              ),
-            ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(investasiProvider.notifier).refresh();
+        },
+        child: investasiAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, stack) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(TIcons.errorOutlined, size: 60, color: Colors.red),
+                gapH16,
+                const TeksIsiBesar(
+                  'Gagal memuat data portofolio.',
+                  warna: Colors.red,
+                ),
+                gapH8,
+                TeksIsiSedang('Error: $err'),
+                gapH16,
+                ElevatedButton.icon(
+                  onPressed: () =>
+                      ref.read(investasiProvider.notifier).refresh(),
+                  icon: const Icon(TIcons.refresh),
+                  label: const Text('Coba Lagi'),
+                ),
+              ],
+            ),
           ),
-        ),
-        data: (portofolio) {
-          if (portofolio == null) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(TIcons.warningAmber, size: 60, color: Colors.orange),
-                  gapH16,
-                  TeksIsiBesar('Data portofolio tidak ditemukan.'),
-                  TeksIsiSedang('Hubungi admin untuk informasi lebih lanjut.'),
-                ],
-              ),
-            );
-          }
+          data: (state) {
+            // ============================================================
+            // 2. AMBIL DATA INVESTOR DARI STATE
+            // ============================================================
+            final daftarInvestasi = state.ambilInvestasiByIdInvestor(userId);
+            final daftarDividen = state.ambilDividenByIdInvestor(userId);
 
-          return RefreshIndicator(
-            onRefresh: () async => ref.refresh(investorPortofolioProvider),
-            child: SingleChildScrollView(
+            // Hitung total
+            final totalModal = daftarInvestasi.fold(
+              0.0,
+              (sum, i) => sum + i.jumlahModal,
+            );
+            final totalPersentase = daftarInvestasi.fold(
+              0.0,
+              (sum, i) => sum + i.persentaseKepemilikan,
+            );
+            final totalDividenDiterima = daftarDividen
+                .where((d) => d.sudahDibayar)
+                .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+
+            // ============================================================
+            // 3. CEK APAKAH ADA DATA
+            // ============================================================
+            if (daftarInvestasi.isEmpty) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(TIcons.warningAmber, size: 60, color: Colors.orange),
+                    gapH16,
+                    TeksIsiBesar('Belum ada investasi.'),
+                    TeksIsiSedang(
+                      'Mulai investasi sekarang untuk melihat portofolio.',
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            // ============================================================
+            // 4. TAMPILKAN UI
+            // ============================================================
+            return SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Kartu Ringkasan
-                  _buildKartuRingkasan(portofolio),
+                  _buildKartuRingkasan(
+                    namaInvestor:
+                        'Investor', // Bisa diambil dari data pelanggan
+                    totalModal: totalModal,
+                    persentase: totalPersentase,
+                    totalDividenDiterima: totalDividenDiterima,
+                  ),
                   gapH24,
 
                   // Detail Kepemilikan
-                  _buildDetailKepemilikan(portofolio),
+                  _buildDetailKepemilikan(
+                    totalModal: totalModal,
+                    persentase: totalPersentase,
+                    totalDividenDiterima: totalDividenDiterima,
+                  ),
+                  gapH24,
+
+                  // Daftar Investasi
+                  _buildDaftarInvestasi(daftarInvestasi),
                   gapH24,
 
                   // Riwayat Dividen
-                  _buildRiwayatDividen(portofolio),
+                  _buildRiwayatDividen(daftarDividen),
                 ],
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildKartuRingkasan(InvestorPortofolio portofolio) {
+  // ============================================================
+  // WIDGET KARTU RINGKASAN
+  // ============================================================
+
+  Widget _buildKartuRingkasan({
+    required String namaInvestor,
+    required double totalModal,
+    required double persentase,
+    required double totalDividenDiterima,
+  }) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -39059,11 +39056,10 @@ class HalamanPortofolio extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TeksJudulSedang(
-                      portofolio.namaInvestor,
-                      tebalFont: FontWeight.bold,
+                    TeksJudulSedang(namaInvestor, tebalFont: FontWeight.bold),
+                    TeksIsiKecil(
+                      'ID Investor: ${DateTime.now().millisecondsSinceEpoch}',
                     ),
-                    TeksIsiKecil('ID Investor: ${portofolio.id}'),
                   ],
                 ),
               ],
@@ -39079,7 +39075,7 @@ class HalamanPortofolio extends ConsumerWidget {
                     children: [
                       const TeksIsiKecil('Total Modal', warna: Colors.grey),
                       TeksJudulSedang(
-                        FormatUang.formatMataUang(portofolio.totalModal),
+                        FormatUang.formatMataUang(totalModal),
                         tebalFont: FontWeight.bold,
                       ),
                     ],
@@ -39091,7 +39087,7 @@ class HalamanPortofolio extends ConsumerWidget {
                     children: [
                       const TeksIsiKecil('Persentase', warna: Colors.grey),
                       TeksJudulSedang(
-                        '${(portofolio.persentase * 100).toStringAsFixed(1)}%',
+                        '${(persentase * 100).toStringAsFixed(1)}%',
                         tebalFont: FontWeight.bold,
                       ),
                     ],
@@ -39111,9 +39107,7 @@ class HalamanPortofolio extends ConsumerWidget {
                         warna: Colors.grey,
                       ),
                       TeksJudulSedang(
-                        FormatUang.formatMataUang(
-                          portofolio.totalDividenDiterima,
-                        ),
+                        FormatUang.formatMataUang(totalDividenDiterima),
                         tebalFont: FontWeight.bold,
                         warna: Colors.green,
                       ),
@@ -39141,7 +39135,15 @@ class HalamanPortofolio extends ConsumerWidget {
     );
   }
 
-  Widget _buildDetailKepemilikan(InvestorPortofolio portofolio) {
+  // ============================================================
+  // WIDGET DETAIL KEPEMILIKAN
+  // ============================================================
+
+  Widget _buildDetailKepemilikan({
+    required double totalModal,
+    required double persentase,
+    required double totalDividenDiterima,
+  }) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -39161,18 +39163,17 @@ class HalamanPortofolio extends ConsumerWidget {
               ],
             ),
             gapH16,
-            _buildBarisDetail('Nama', portofolio.namaInvestor),
             _buildBarisDetail(
               'Modal Disetor',
-              FormatUang.formatMataUang(portofolio.totalModal),
+              FormatUang.formatMataUang(totalModal),
             ),
             _buildBarisDetail(
               'Persentase',
-              '${(portofolio.persentase * 100).toStringAsFixed(1)}%',
+              '${(persentase * 100).toStringAsFixed(1)}%',
             ),
             _buildBarisDetail(
               'Total Dividen',
-              FormatUang.formatMataUang(portofolio.totalDividenDiterima),
+              FormatUang.formatMataUang(totalDividenDiterima),
             ),
           ],
         ),
@@ -39180,8 +39181,98 @@ class HalamanPortofolio extends ConsumerWidget {
     );
   }
 
-  Widget _buildRiwayatDividen(InvestorPortofolio portofolio) {
-    final riwayat = portofolio.riwayatDividen;
+  // ============================================================
+  // WIDGET DAFTAR INVESTASI
+  // ============================================================
+
+  Widget _buildDaftarInvestasi(List<InvestasiModel> daftarInvestasi) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(TIcons.money, color: TColors.primaryColor),
+                gapW8,
+                TeksJudulKecil('Daftar Investasi', tebalFont: FontWeight.bold),
+              ],
+            ),
+            gapH16,
+            if (daftarInvestasi.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: TeksIsiSedang(
+                    'Belum ada investasi.',
+                    warna: Colors.grey,
+                  ),
+                ),
+              )
+            else
+              ...daftarInvestasi.map(_buildItemInvestasi),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildItemInvestasi(InvestasiModel investasi) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          gapW12,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TeksIsiSedang(
+                  'ID Transaksi: ${investasi.idTransaksi}',
+                  tebalFont: FontWeight.w500,
+                ),
+                TeksIsiKecil(
+                  'Tanggal: ${FormatTanggal.formatDasar(investasi.tanggalInvestasi ?? DateTime.now())}',
+                  warna: Colors.grey,
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              TeksIsiSedang(
+                FormatUang.formatMataUang(investasi.jumlahModal),
+                tebalFont: FontWeight.bold,
+                warna: Colors.blue,
+              ),
+              TeksIsiKecil(
+                '${(investasi.persentaseKepemilikan * 100).toStringAsFixed(1)}%',
+                warna: Colors.grey,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // WIDGET RIWAYAT DIVIDEN
+  // ============================================================
+
+  Widget _buildRiwayatDividen(List<DividenModel> daftarDividen) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -39198,7 +39289,7 @@ class HalamanPortofolio extends ConsumerWidget {
               ],
             ),
             gapH16,
-            if (riwayat.isEmpty)
+            if (daftarDividen.isEmpty)
               const Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 20),
@@ -39209,14 +39300,14 @@ class HalamanPortofolio extends ConsumerWidget {
                 ),
               )
             else
-              ...riwayat.map(_buildItemDividen),
+              ...daftarDividen.map(_buildItemDividen),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildItemDividen(DividenHistory dividen) {
+  Widget _buildItemDividen(DividenModel dividen) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -39225,7 +39316,7 @@ class HalamanPortofolio extends ConsumerWidget {
             width: 4,
             height: 40,
             decoration: BoxDecoration(
-              color: Colors.green,
+              color: dividen.sudahDibayar ? Colors.green : Colors.orange,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -39234,23 +39325,31 @@ class HalamanPortofolio extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TeksIsiSedang(dividen.keterangan, tebalFont: FontWeight.w500),
+                TeksIsiSedang(
+                  dividen.sudahDibayar ? 'Sudah Dibayar' : 'Belum Dibayar',
+                  tebalFont: FontWeight.w500,
+                  warna: dividen.sudahDibayar ? Colors.green : Colors.orange,
+                ),
                 TeksIsiKecil(
-                  FormatTanggal.formatDasar(dividen.tanggal),
+                  FormatTanggal.formatDasar(dividen.tanggalPembagian),
                   warna: Colors.grey,
                 ),
               ],
             ),
           ),
           TeksIsiSedang(
-            FormatUang.formatMataUang(dividen.jumlah),
+            FormatUang.formatMataUang(dividen.jumlahDividen),
             tebalFont: FontWeight.bold,
-            warna: Colors.green,
+            warna: dividen.sudahDibayar ? Colors.green : Colors.orange,
           ),
         ],
       ),
     );
   }
+
+  // ============================================================
+  // WIDGET HELPER
+  // ============================================================
 
   Widget _buildBarisDetail(String label, String value) {
     return Padding(
@@ -39264,6 +39363,1108 @@ class HalamanPortofolio extends ConsumerWidget {
       ),
     );
   }
+}
+```
+
+
+// File: lib/fitur/investasi/provider/investasi_provider.freezed.dart
+```dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'investasi_provider.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$InvestasiState {
+
+ List<InvestasiModel> get daftarInvestasi; List<DividenModel> get daftarDividen; int get jumlahInvestasi; int get jumlahDividen; double get totalModal; double get totalDividenDiterima; double get totalDividenBelumDibayar;
+/// Create a copy of InvestasiState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$InvestasiStateCopyWith<InvestasiState> get copyWith => _$InvestasiStateCopyWithImpl<InvestasiState>(this as InvestasiState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InvestasiState&&const DeepCollectionEquality().equals(other.daftarInvestasi, daftarInvestasi)&&const DeepCollectionEquality().equals(other.daftarDividen, daftarDividen)&&(identical(other.jumlahInvestasi, jumlahInvestasi) || other.jumlahInvestasi == jumlahInvestasi)&&(identical(other.jumlahDividen, jumlahDividen) || other.jumlahDividen == jumlahDividen)&&(identical(other.totalModal, totalModal) || other.totalModal == totalModal)&&(identical(other.totalDividenDiterima, totalDividenDiterima) || other.totalDividenDiterima == totalDividenDiterima)&&(identical(other.totalDividenBelumDibayar, totalDividenBelumDibayar) || other.totalDividenBelumDibayar == totalDividenBelumDibayar));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(daftarInvestasi),const DeepCollectionEquality().hash(daftarDividen),jumlahInvestasi,jumlahDividen,totalModal,totalDividenDiterima,totalDividenBelumDibayar);
+
+@override
+String toString() {
+  return 'InvestasiState(daftarInvestasi: $daftarInvestasi, daftarDividen: $daftarDividen, jumlahInvestasi: $jumlahInvestasi, jumlahDividen: $jumlahDividen, totalModal: $totalModal, totalDividenDiterima: $totalDividenDiterima, totalDividenBelumDibayar: $totalDividenBelumDibayar)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $InvestasiStateCopyWith<$Res>  {
+  factory $InvestasiStateCopyWith(InvestasiState value, $Res Function(InvestasiState) _then) = _$InvestasiStateCopyWithImpl;
+@useResult
+$Res call({
+ List<InvestasiModel> daftarInvestasi, List<DividenModel> daftarDividen, int jumlahInvestasi, int jumlahDividen, double totalModal, double totalDividenDiterima, double totalDividenBelumDibayar
+});
+
+
+
+
+}
+/// @nodoc
+class _$InvestasiStateCopyWithImpl<$Res>
+    implements $InvestasiStateCopyWith<$Res> {
+  _$InvestasiStateCopyWithImpl(this._self, this._then);
+
+  final InvestasiState _self;
+  final $Res Function(InvestasiState) _then;
+
+/// Create a copy of InvestasiState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? daftarInvestasi = null,Object? daftarDividen = null,Object? jumlahInvestasi = null,Object? jumlahDividen = null,Object? totalModal = null,Object? totalDividenDiterima = null,Object? totalDividenBelumDibayar = null,}) {
+  return _then(_self.copyWith(
+daftarInvestasi: null == daftarInvestasi ? _self.daftarInvestasi : daftarInvestasi // ignore: cast_nullable_to_non_nullable
+as List<InvestasiModel>,daftarDividen: null == daftarDividen ? _self.daftarDividen : daftarDividen // ignore: cast_nullable_to_non_nullable
+as List<DividenModel>,jumlahInvestasi: null == jumlahInvestasi ? _self.jumlahInvestasi : jumlahInvestasi // ignore: cast_nullable_to_non_nullable
+as int,jumlahDividen: null == jumlahDividen ? _self.jumlahDividen : jumlahDividen // ignore: cast_nullable_to_non_nullable
+as int,totalModal: null == totalModal ? _self.totalModal : totalModal // ignore: cast_nullable_to_non_nullable
+as double,totalDividenDiterima: null == totalDividenDiterima ? _self.totalDividenDiterima : totalDividenDiterima // ignore: cast_nullable_to_non_nullable
+as double,totalDividenBelumDibayar: null == totalDividenBelumDibayar ? _self.totalDividenBelumDibayar : totalDividenBelumDibayar // ignore: cast_nullable_to_non_nullable
+as double,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [InvestasiState].
+extension InvestasiStatePatterns on InvestasiState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _InvestasiState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _InvestasiState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _InvestasiState value)  $default,){
+final _that = this;
+switch (_that) {
+case _InvestasiState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _InvestasiState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _InvestasiState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<InvestasiModel> daftarInvestasi,  List<DividenModel> daftarDividen,  int jumlahInvestasi,  int jumlahDividen,  double totalModal,  double totalDividenDiterima,  double totalDividenBelumDibayar)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _InvestasiState() when $default != null:
+return $default(_that.daftarInvestasi,_that.daftarDividen,_that.jumlahInvestasi,_that.jumlahDividen,_that.totalModal,_that.totalDividenDiterima,_that.totalDividenBelumDibayar);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<InvestasiModel> daftarInvestasi,  List<DividenModel> daftarDividen,  int jumlahInvestasi,  int jumlahDividen,  double totalModal,  double totalDividenDiterima,  double totalDividenBelumDibayar)  $default,) {final _that = this;
+switch (_that) {
+case _InvestasiState():
+return $default(_that.daftarInvestasi,_that.daftarDividen,_that.jumlahInvestasi,_that.jumlahDividen,_that.totalModal,_that.totalDividenDiterima,_that.totalDividenBelumDibayar);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<InvestasiModel> daftarInvestasi,  List<DividenModel> daftarDividen,  int jumlahInvestasi,  int jumlahDividen,  double totalModal,  double totalDividenDiterima,  double totalDividenBelumDibayar)?  $default,) {final _that = this;
+switch (_that) {
+case _InvestasiState() when $default != null:
+return $default(_that.daftarInvestasi,_that.daftarDividen,_that.jumlahInvestasi,_that.jumlahDividen,_that.totalModal,_that.totalDividenDiterima,_that.totalDividenBelumDibayar);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _InvestasiState extends InvestasiState {
+  const _InvestasiState({final  List<InvestasiModel> daftarInvestasi = const [], final  List<DividenModel> daftarDividen = const [], this.jumlahInvestasi = 0, this.jumlahDividen = 0, this.totalModal = 0.0, this.totalDividenDiterima = 0.0, this.totalDividenBelumDibayar = 0.0}): _daftarInvestasi = daftarInvestasi,_daftarDividen = daftarDividen,super._();
+  
+
+ final  List<InvestasiModel> _daftarInvestasi;
+@override@JsonKey() List<InvestasiModel> get daftarInvestasi {
+  if (_daftarInvestasi is EqualUnmodifiableListView) return _daftarInvestasi;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_daftarInvestasi);
+}
+
+ final  List<DividenModel> _daftarDividen;
+@override@JsonKey() List<DividenModel> get daftarDividen {
+  if (_daftarDividen is EqualUnmodifiableListView) return _daftarDividen;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_daftarDividen);
+}
+
+@override@JsonKey() final  int jumlahInvestasi;
+@override@JsonKey() final  int jumlahDividen;
+@override@JsonKey() final  double totalModal;
+@override@JsonKey() final  double totalDividenDiterima;
+@override@JsonKey() final  double totalDividenBelumDibayar;
+
+/// Create a copy of InvestasiState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$InvestasiStateCopyWith<_InvestasiState> get copyWith => __$InvestasiStateCopyWithImpl<_InvestasiState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InvestasiState&&const DeepCollectionEquality().equals(other._daftarInvestasi, _daftarInvestasi)&&const DeepCollectionEquality().equals(other._daftarDividen, _daftarDividen)&&(identical(other.jumlahInvestasi, jumlahInvestasi) || other.jumlahInvestasi == jumlahInvestasi)&&(identical(other.jumlahDividen, jumlahDividen) || other.jumlahDividen == jumlahDividen)&&(identical(other.totalModal, totalModal) || other.totalModal == totalModal)&&(identical(other.totalDividenDiterima, totalDividenDiterima) || other.totalDividenDiterima == totalDividenDiterima)&&(identical(other.totalDividenBelumDibayar, totalDividenBelumDibayar) || other.totalDividenBelumDibayar == totalDividenBelumDibayar));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_daftarInvestasi),const DeepCollectionEquality().hash(_daftarDividen),jumlahInvestasi,jumlahDividen,totalModal,totalDividenDiterima,totalDividenBelumDibayar);
+
+@override
+String toString() {
+  return 'InvestasiState(daftarInvestasi: $daftarInvestasi, daftarDividen: $daftarDividen, jumlahInvestasi: $jumlahInvestasi, jumlahDividen: $jumlahDividen, totalModal: $totalModal, totalDividenDiterima: $totalDividenDiterima, totalDividenBelumDibayar: $totalDividenBelumDibayar)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$InvestasiStateCopyWith<$Res> implements $InvestasiStateCopyWith<$Res> {
+  factory _$InvestasiStateCopyWith(_InvestasiState value, $Res Function(_InvestasiState) _then) = __$InvestasiStateCopyWithImpl;
+@override @useResult
+$Res call({
+ List<InvestasiModel> daftarInvestasi, List<DividenModel> daftarDividen, int jumlahInvestasi, int jumlahDividen, double totalModal, double totalDividenDiterima, double totalDividenBelumDibayar
+});
+
+
+
+
+}
+/// @nodoc
+class __$InvestasiStateCopyWithImpl<$Res>
+    implements _$InvestasiStateCopyWith<$Res> {
+  __$InvestasiStateCopyWithImpl(this._self, this._then);
+
+  final _InvestasiState _self;
+  final $Res Function(_InvestasiState) _then;
+
+/// Create a copy of InvestasiState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? daftarInvestasi = null,Object? daftarDividen = null,Object? jumlahInvestasi = null,Object? jumlahDividen = null,Object? totalModal = null,Object? totalDividenDiterima = null,Object? totalDividenBelumDibayar = null,}) {
+  return _then(_InvestasiState(
+daftarInvestasi: null == daftarInvestasi ? _self._daftarInvestasi : daftarInvestasi // ignore: cast_nullable_to_non_nullable
+as List<InvestasiModel>,daftarDividen: null == daftarDividen ? _self._daftarDividen : daftarDividen // ignore: cast_nullable_to_non_nullable
+as List<DividenModel>,jumlahInvestasi: null == jumlahInvestasi ? _self.jumlahInvestasi : jumlahInvestasi // ignore: cast_nullable_to_non_nullable
+as int,jumlahDividen: null == jumlahDividen ? _self.jumlahDividen : jumlahDividen // ignore: cast_nullable_to_non_nullable
+as int,totalModal: null == totalModal ? _self.totalModal : totalModal // ignore: cast_nullable_to_non_nullable
+as double,totalDividenDiterima: null == totalDividenDiterima ? _self.totalDividenDiterima : totalDividenDiterima // ignore: cast_nullable_to_non_nullable
+as double,totalDividenBelumDibayar: null == totalDividenBelumDibayar ? _self.totalDividenBelumDibayar : totalDividenBelumDibayar // ignore: cast_nullable_to_non_nullable
+as double,
+  ));
+}
+
+
+}
+
+// dart format on
+```
+
+
+// File: lib/fitur/investasi/provider/investasi_provider.dart
+```dart
+// path: lib/fitur/investasi/provider/investasi_provider.dart
+
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/investasi/model/dividen_model.dart';
+import 'package:wifi/fitur/investasi/model/investasi_model.dart';
+import 'package:wifi/fitur/investasi/operasi/investasi_op_sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
+
+part 'investasi_provider.freezed.dart';
+part 'investasi_provider.g.dart';
+
+// ============================================================
+// STATE
+// ============================================================
+
+@freezed
+abstract class InvestasiState with _$InvestasiState {
+  const InvestasiState._();
+  const factory InvestasiState({
+    @Default([]) List<InvestasiModel> daftarInvestasi,
+    @Default([]) List<DividenModel> daftarDividen,
+    @Default(0) int jumlahInvestasi,
+    @Default(0) int jumlahDividen,
+    @Default(0.0) double totalModal,
+    @Default(0.0) double totalDividenDiterima,
+    @Default(0.0) double totalDividenBelumDibayar,
+  }) = _InvestasiState;
+
+  /// Mendapatkan investasi berdasarkan ID
+  InvestasiModel? ambilInvestasiById(String id) {
+    try {
+      return daftarInvestasi.firstWhere((i) => i.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Mendapatkan investasi berdasarkan ID investor
+  List<InvestasiModel> ambilInvestasiByIdInvestor(String idInvestor) {
+    return daftarInvestasi.where((i) => i.idInvestor == idInvestor).toList();
+  }
+
+  /// Mendapatkan dividen berdasarkan ID investor
+  List<DividenModel> ambilDividenByIdInvestor(String idInvestor) {
+    return daftarDividen.where((d) => d.idInvestor == idInvestor).toList();
+  }
+
+  /// Mendapatkan dividen berdasarkan ID investasi
+  List<DividenModel> ambilDividenByIdInvestasi(String idInvestasi) {
+    return daftarDividen.where((d) => d.idInvestasi == idInvestasi).toList();
+  }
+
+  /// Mendapatkan total modal investor
+  double getTotalModalInvestor(String idInvestor) {
+    return daftarInvestasi
+        .where((i) => i.idInvestor == idInvestor)
+        .fold(0.0, (sum, i) => sum + i.jumlahModal);
+  }
+
+  /// Mendapatkan total dividen yang sudah diterima investor
+  double getTotalDividenDiterimaInvestor(String idInvestor) {
+    return daftarDividen
+        .where((d) => d.idInvestor == idInvestor && d.sudahDibayar)
+        .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+  }
+
+  /// Mendapatkan total dividen yang belum dibayar investor
+  double getTotalDividenBelumDibayarInvestor(String idInvestor) {
+    return daftarDividen
+        .where((d) => d.idInvestor == idInvestor && !d.sudahDibayar)
+        .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+  }
+
+  /// Menghitung total persentase kepemilikan investor
+  double getTotalPersentaseInvestor(String idInvestor) {
+    return daftarInvestasi
+        .where((i) => i.idInvestor == idInvestor)
+        .fold(0.0, (sum, i) => sum + i.persentaseKepemilikan);
+  }
+}
+
+// ============================================================
+// NOTIFIER INVESTASI
+// ============================================================
+
+@riverpod
+class InvestasiNotifier extends _$InvestasiNotifier {
+  late InvestasiOpSqlite _investasiOp;
+
+  @override
+  FutureOr<InvestasiState> build() {
+    _investasiOp = ref.read(investasiOpSqliteProvider);
+    return _loadData();
+  }
+
+  /// Memuat semua data investasi dan dividen
+  Future<InvestasiState> _loadData() async {
+    Log.info('Memuat data investasi dan dividen');
+    try {
+      final results = await Future.wait([
+        _investasiOp.ambilSemuaInvestasi(),
+        _investasiOp.ambilSemuaDividen(),
+      ]);
+
+      final daftarInvestasi = results[0] as List<InvestasiModel>;
+      final daftarDividen = results[1] as List<DividenModel>;
+
+      final totalModal = daftarInvestasi.fold(
+        0.0,
+        (sum, i) => sum + i.jumlahModal,
+      );
+      final totalDividenDiterima = daftarDividen
+          .where((d) => d.sudahDibayar)
+          .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+      final totalDividenBelumDibayar = daftarDividen
+          .where((d) => !d.sudahDibayar)
+          .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+
+      return InvestasiState(
+        daftarInvestasi: daftarInvestasi,
+        daftarDividen: daftarDividen,
+        jumlahInvestasi: daftarInvestasi.length,
+        jumlahDividen: daftarDividen.length,
+        totalModal: totalModal,
+        totalDividenDiterima: totalDividenDiterima,
+        totalDividenBelumDibayar: totalDividenBelumDibayar,
+      );
+    } catch (e, s) {
+      Log.error('Gagal memuat data investasi', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Menyegarkan data
+  Future<void> refresh() async {
+    Log.info('Menyegarkan data investasi');
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      return _loadData();
+    });
+  }
+
+  // ============================================================
+  // OPERASI INVESTASI
+  // ============================================================
+
+  /// Menambahkan investasi baru
+  Future<void> tambahInvestasi(InvestasiModel investasi) async {
+    if (!state.hasValue) return;
+    Log.info('Menambahkan investasi baru - ID: ${investasi.id}');
+
+    try {
+      await _investasiOp.tambahInvestasi(investasi);
+      final currentData = state.requireValue;
+      final updatedList = [...currentData.daftarInvestasi, investasi];
+      state = AsyncData(
+        currentData.copyWith(
+          daftarInvestasi: updatedList,
+          jumlahInvestasi: updatedList.length,
+          totalModal: updatedList.fold(0.0, (sum, i) => sum + i.jumlahModal),
+        ),
+      );
+      Log.info('Investasi berhasil ditambahkan - ID: ${investasi.id}');
+    } catch (e, s) {
+      Log.error('Gagal menambahkan investasi', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Memperbarui investasi
+  Future<void> perbaruiInvestasi(InvestasiModel investasi) async {
+    if (!state.hasValue) return;
+    Log.info('Memperbarui investasi - ID: ${investasi.id}');
+
+    try {
+      await _investasiOp.perbaruiInvestasi(investasi);
+      final currentData = state.requireValue;
+      final updatedList = currentData.daftarInvestasi.map((i) {
+        return i.id == investasi.id ? investasi : i;
+      }).toList();
+
+      state = AsyncData(
+        currentData.copyWith(
+          daftarInvestasi: updatedList,
+          totalModal: updatedList.fold(0.0, (sum, i) => sum + i.jumlahModal),
+        ),
+      );
+      Log.info('Investasi berhasil diperbarui - ID: ${investasi.id}');
+    } catch (e, s) {
+      Log.error('Gagal memperbarui investasi', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Soft delete investasi
+  Future<void> softDeleteInvestasi(String id) async {
+    if (!state.hasValue) return;
+    Log.info('Soft delete investasi - ID: $id');
+
+    try {
+      await _investasiOp.softDeleteInvestasi(id);
+      final currentData = state.requireValue;
+      final updatedList = currentData.daftarInvestasi
+          .where((i) => i.id != id)
+          .toList();
+
+      state = AsyncData(
+        currentData.copyWith(
+          daftarInvestasi: updatedList,
+          jumlahInvestasi: updatedList.length,
+          totalModal: updatedList.fold(0.0, (sum, i) => sum + i.jumlahModal),
+        ),
+      );
+      Log.info('Soft delete investasi berhasil - ID: $id');
+    } catch (e, s) {
+      Log.error('Gagal soft delete investasi', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  // ============================================================
+  // OPERASI DIVIDEN
+  // ============================================================
+
+  /// Menambahkan dividen baru
+  Future<void> tambahDividen(DividenModel dividen) async {
+    if (!state.hasValue) return;
+    Log.info('Menambahkan dividen baru - ID: ${dividen.id}');
+
+    try {
+      await _investasiOp.tambahDividen(dividen);
+      final currentData = state.requireValue;
+      final updatedList = [...currentData.daftarDividen, dividen];
+
+      state = AsyncData(
+        currentData.copyWith(
+          daftarDividen: updatedList,
+          jumlahDividen: updatedList.length,
+          totalDividenDiterima: updatedList
+              .where((d) => d.sudahDibayar)
+              .fold(0.0, (sum, d) => sum + d.jumlahDividen),
+          totalDividenBelumDibayar: updatedList
+              .where((d) => !d.sudahDibayar)
+              .fold(0.0, (sum, d) => sum + d.jumlahDividen),
+        ),
+      );
+      Log.info('Dividen berhasil ditambahkan - ID: ${dividen.id}');
+    } catch (e, s) {
+      Log.error('Gagal menambahkan dividen', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Memperbarui dividen
+  Future<void> perbaruiDividen(DividenModel dividen) async {
+    if (!state.hasValue) return;
+    Log.info('Memperbarui dividen - ID: ${dividen.id}');
+
+    try {
+      await _investasiOp.perbaruiDividen(dividen);
+      final currentData = state.requireValue;
+      final updatedList = currentData.daftarDividen.map((d) {
+        return d.id == dividen.id ? dividen : d;
+      }).toList();
+
+      state = AsyncData(
+        currentData.copyWith(
+          daftarDividen: updatedList,
+          totalDividenDiterima: updatedList
+              .where((d) => d.sudahDibayar)
+              .fold(0.0, (sum, d) => sum + d.jumlahDividen),
+          totalDividenBelumDibayar: updatedList
+              .where((d) => !d.sudahDibayar)
+              .fold(0.0, (sum, d) => sum + d.jumlahDividen),
+        ),
+      );
+      Log.info('Dividen berhasil diperbarui - ID: ${dividen.id}');
+    } catch (e, s) {
+      Log.error('Gagal memperbarui dividen', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Soft delete dividen
+  Future<void> softDeleteDividen(String id) async {
+    if (!state.hasValue) return;
+    Log.info('Soft delete dividen - ID: $id');
+
+    try {
+      await _investasiOp.softDeleteDividen(id);
+      final currentData = state.requireValue;
+      final updatedList = currentData.daftarDividen
+          .where((d) => d.id != id)
+          .toList();
+
+      state = AsyncData(
+        currentData.copyWith(
+          daftarDividen: updatedList,
+          jumlahDividen: updatedList.length,
+          totalDividenDiterima: updatedList
+              .where((d) => d.sudahDibayar)
+              .fold(0.0, (sum, d) => sum + d.jumlahDividen),
+          totalDividenBelumDibayar: updatedList
+              .where((d) => !d.sudahDibayar)
+              .fold(0.0, (sum, d) => sum + d.jumlahDividen),
+        ),
+      );
+      Log.info('Soft delete dividen berhasil - ID: $id');
+    } catch (e, s) {
+      Log.error('Gagal soft delete dividen', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Menandai dividen sebagai sudah dibayar
+  Future<void> tandaiDividenDibayar(String id) async {
+    if (!state.hasValue) return;
+    Log.info('Menandai dividen sudah dibayar - ID: $id');
+
+    try {
+      await _investasiOp.tandaiDividenDibayar(id);
+      final currentData = state.requireValue;
+      final updatedList = currentData.daftarDividen.map((d) {
+        if (d.id == id) {
+          return d.copyWith(sudahDibayar: true);
+        }
+        return d;
+      }).toList();
+
+      state = AsyncData(
+        currentData.copyWith(
+          daftarDividen: updatedList,
+          totalDividenDiterima: updatedList
+              .where((d) => d.sudahDibayar)
+              .fold(0.0, (sum, d) => sum + d.jumlahDividen),
+          totalDividenBelumDibayar: updatedList
+              .where((d) => !d.sudahDibayar)
+              .fold(0.0, (sum, d) => sum + d.jumlahDividen),
+        ),
+      );
+      Log.info('Dividen berhasil ditandai sudah dibayar - ID: $id');
+    } catch (e, s) {
+      Log.error('Gagal menandai dividen sudah dibayar', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Invalidasi provider
+  void invalidate() {
+    ref.invalidateSelf();
+  }
+}
+
+// ============================================================
+// PROVIDER UNTUK DETAIL INVESTOR
+// ============================================================
+
+/// Provider untuk mendapatkan data investasi investor tertentu
+@riverpod
+Future<({List<InvestasiModel> investasi, List<DividenModel> dividen})>
+detailInvestorInvestasi(Ref ref, String idInvestor) async {
+  final state = await ref.watch(investasiProvider.future);
+  return (
+    investasi: state.ambilInvestasiByIdInvestor(idInvestor),
+    dividen: state.ambilDividenByIdInvestor(idInvestor),
+  );
+}
+
+/// Provider untuk mendapatkan total modal investor
+@riverpod
+Future<double> totalModalInvestor(Ref ref, String idInvestor) async {
+  final state = await ref.watch(investasiProvider.future);
+  return state.getTotalModalInvestor(idInvestor);
+}
+
+/// Provider untuk mendapatkan total dividen investor
+@riverpod
+Future<double> totalDividenInvestor(Ref ref, String idInvestor) async {
+  final state = await ref.watch(investasiProvider.future);
+  return state.getTotalDividenDiterimaInvestor(idInvestor);
+}
+
+/// Provider untuk mendapatkan total persentase investor
+@riverpod
+Future<double> totalPersentaseInvestor(Ref ref, String idInvestor) async {
+  final state = await ref.watch(investasiProvider.future);
+  return state.getTotalPersentaseInvestor(idInvestor);
+}
+```
+
+
+// File: lib/fitur/investasi/provider/investasi_provider.g.dart
+```dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'investasi_provider.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(InvestasiNotifier)
+final investasiProvider = InvestasiNotifierProvider._();
+
+final class InvestasiNotifierProvider
+    extends $AsyncNotifierProvider<InvestasiNotifier, InvestasiState> {
+  InvestasiNotifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'investasiProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$investasiNotifierHash();
+
+  @$internal
+  @override
+  InvestasiNotifier create() => InvestasiNotifier();
+}
+
+String _$investasiNotifierHash() => r'aecb081008bc6fdd09065125286190177a1f59a7';
+
+abstract class _$InvestasiNotifier extends $AsyncNotifier<InvestasiState> {
+  FutureOr<InvestasiState> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<InvestasiState>, InvestasiState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<InvestasiState>, InvestasiState>,
+              AsyncValue<InvestasiState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// Provider untuk mendapatkan data investasi investor tertentu
+
+@ProviderFor(detailInvestorInvestasi)
+final detailInvestorInvestasiProvider = DetailInvestorInvestasiFamily._();
+
+/// Provider untuk mendapatkan data investasi investor tertentu
+
+final class DetailInvestorInvestasiProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<
+            ({List<DividenModel> dividen, List<InvestasiModel> investasi})
+          >,
+          ({List<DividenModel> dividen, List<InvestasiModel> investasi}),
+          FutureOr<
+            ({List<DividenModel> dividen, List<InvestasiModel> investasi})
+          >
+        >
+    with
+        $FutureModifier<
+          ({List<DividenModel> dividen, List<InvestasiModel> investasi})
+        >,
+        $FutureProvider<
+          ({List<DividenModel> dividen, List<InvestasiModel> investasi})
+        > {
+  /// Provider untuk mendapatkan data investasi investor tertentu
+  DetailInvestorInvestasiProvider._({
+    required DetailInvestorInvestasiFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'detailInvestorInvestasiProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$detailInvestorInvestasiHash();
+
+  @override
+  String toString() {
+    return r'detailInvestorInvestasiProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<
+    ({List<DividenModel> dividen, List<InvestasiModel> investasi})
+  >
+  $createElement($ProviderPointer pointer) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<({List<DividenModel> dividen, List<InvestasiModel> investasi})>
+  create(Ref ref) {
+    final argument = this.argument as String;
+    return detailInvestorInvestasi(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DetailInvestorInvestasiProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$detailInvestorInvestasiHash() =>
+    r'f5513f94963dc6c871e5698a2cfaee37218e5a98';
+
+/// Provider untuk mendapatkan data investasi investor tertentu
+
+final class DetailInvestorInvestasiFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<
+            ({List<DividenModel> dividen, List<InvestasiModel> investasi})
+          >,
+          String
+        > {
+  DetailInvestorInvestasiFamily._()
+    : super(
+        retry: null,
+        name: r'detailInvestorInvestasiProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Provider untuk mendapatkan data investasi investor tertentu
+
+  DetailInvestorInvestasiProvider call(String idInvestor) =>
+      DetailInvestorInvestasiProvider._(argument: idInvestor, from: this);
+
+  @override
+  String toString() => r'detailInvestorInvestasiProvider';
+}
+
+/// Provider untuk mendapatkan total modal investor
+
+@ProviderFor(totalModalInvestor)
+final totalModalInvestorProvider = TotalModalInvestorFamily._();
+
+/// Provider untuk mendapatkan total modal investor
+
+final class TotalModalInvestorProvider
+    extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
+    with $FutureModifier<double>, $FutureProvider<double> {
+  /// Provider untuk mendapatkan total modal investor
+  TotalModalInvestorProvider._({
+    required TotalModalInvestorFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'totalModalInvestorProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$totalModalInvestorHash();
+
+  @override
+  String toString() {
+    return r'totalModalInvestorProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<double> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<double> create(Ref ref) {
+    final argument = this.argument as String;
+    return totalModalInvestor(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TotalModalInvestorProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$totalModalInvestorHash() =>
+    r'b9d2c3c0c437db6972aa1f9f4e9fe259b0cd3235';
+
+/// Provider untuk mendapatkan total modal investor
+
+final class TotalModalInvestorFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<double>, String> {
+  TotalModalInvestorFamily._()
+    : super(
+        retry: null,
+        name: r'totalModalInvestorProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Provider untuk mendapatkan total modal investor
+
+  TotalModalInvestorProvider call(String idInvestor) =>
+      TotalModalInvestorProvider._(argument: idInvestor, from: this);
+
+  @override
+  String toString() => r'totalModalInvestorProvider';
+}
+
+/// Provider untuk mendapatkan total dividen investor
+
+@ProviderFor(totalDividenInvestor)
+final totalDividenInvestorProvider = TotalDividenInvestorFamily._();
+
+/// Provider untuk mendapatkan total dividen investor
+
+final class TotalDividenInvestorProvider
+    extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
+    with $FutureModifier<double>, $FutureProvider<double> {
+  /// Provider untuk mendapatkan total dividen investor
+  TotalDividenInvestorProvider._({
+    required TotalDividenInvestorFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'totalDividenInvestorProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$totalDividenInvestorHash();
+
+  @override
+  String toString() {
+    return r'totalDividenInvestorProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<double> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<double> create(Ref ref) {
+    final argument = this.argument as String;
+    return totalDividenInvestor(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TotalDividenInvestorProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$totalDividenInvestorHash() =>
+    r'00d2ce9b4d4ed4709bddfdb0b25f57c665ea571e';
+
+/// Provider untuk mendapatkan total dividen investor
+
+final class TotalDividenInvestorFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<double>, String> {
+  TotalDividenInvestorFamily._()
+    : super(
+        retry: null,
+        name: r'totalDividenInvestorProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Provider untuk mendapatkan total dividen investor
+
+  TotalDividenInvestorProvider call(String idInvestor) =>
+      TotalDividenInvestorProvider._(argument: idInvestor, from: this);
+
+  @override
+  String toString() => r'totalDividenInvestorProvider';
+}
+
+/// Provider untuk mendapatkan total persentase investor
+
+@ProviderFor(totalPersentaseInvestor)
+final totalPersentaseInvestorProvider = TotalPersentaseInvestorFamily._();
+
+/// Provider untuk mendapatkan total persentase investor
+
+final class TotalPersentaseInvestorProvider
+    extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
+    with $FutureModifier<double>, $FutureProvider<double> {
+  /// Provider untuk mendapatkan total persentase investor
+  TotalPersentaseInvestorProvider._({
+    required TotalPersentaseInvestorFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'totalPersentaseInvestorProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$totalPersentaseInvestorHash();
+
+  @override
+  String toString() {
+    return r'totalPersentaseInvestorProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<double> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<double> create(Ref ref) {
+    final argument = this.argument as String;
+    return totalPersentaseInvestor(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TotalPersentaseInvestorProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$totalPersentaseInvestorHash() =>
+    r'b46fc9ef94826e8655dae7fb5e328a5d0c5660a0';
+
+/// Provider untuk mendapatkan total persentase investor
+
+final class TotalPersentaseInvestorFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<double>, String> {
+  TotalPersentaseInvestorFamily._()
+    : super(
+        retry: null,
+        name: r'totalPersentaseInvestorProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Provider untuk mendapatkan total persentase investor
+
+  TotalPersentaseInvestorProvider call(String idInvestor) =>
+      TotalPersentaseInvestorProvider._(argument: idInvestor, from: this);
+
+  @override
+  String toString() => r'totalPersentaseInvestorProvider';
 }
 ```
 
@@ -61785,6 +62986,10 @@ lib/fitur/transaksi/model/transaksi_model.freezed.dart
 lib/fitur/investasi
 lib/fitur/investasi/page
 lib/fitur/investasi/page/portofolio.dart
+lib/fitur/investasi/provider
+lib/fitur/investasi/provider/investasi_provider.freezed.dart
+lib/fitur/investasi/provider/investasi_provider.dart
+lib/fitur/investasi/provider/investasi_provider.g.dart
 lib/fitur/investasi/operasi
 lib/fitur/investasi/operasi/investasi_op_sqlite.dart
 lib/fitur/investasi/model

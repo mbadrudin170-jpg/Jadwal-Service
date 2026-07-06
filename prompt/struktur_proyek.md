@@ -280,6 +280,10 @@ lib/fitur/transaksi/model/transaksi_model.freezed.dart
 lib/fitur/investasi
 lib/fitur/investasi/page
 lib/fitur/investasi/page/portofolio.dart
+lib/fitur/investasi/provider
+lib/fitur/investasi/provider/investasi_provider.freezed.dart
+lib/fitur/investasi/provider/investasi_provider.dart
+lib/fitur/investasi/provider/investasi_provider.g.dart
 lib/fitur/investasi/operasi
 lib/fitur/investasi/operasi/investasi_op_sqlite.dart
 lib/fitur/investasi/model
