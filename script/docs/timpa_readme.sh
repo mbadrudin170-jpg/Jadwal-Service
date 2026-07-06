@@ -3,7 +3,11 @@
 output="README.md"
 # alias => s
 file_list=(
-
+'lib/fitur/investor/page/portofolio.dart'
+'lib/fitur/app_role/role_util.dart'
+'lib/fitur/pelanggan/page/admin/form_pelanggan.dart'
+'lib/fitur/pelanggan/model/pelanggan_model.dart'
+'lib/admin/data/sqlite.dart'
 ) # Isi path file nya disini
 
 # Hapus duplikasi dari array

@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
@@ -19,6 +20,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
     required String alamat,
     required String kataSandi,
     required String macAddress,
+    @Default(AppRole.user) AppRole role,
     DateTime? diperbaruiPada,
     @Default(false) bool diHapus,
     DateTime? diarsipkanPada,

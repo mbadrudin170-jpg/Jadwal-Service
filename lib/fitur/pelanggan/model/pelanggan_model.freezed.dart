@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PelangganModel {
 
- String get id; String get nama; String get telepon; String get alamat; String get kataSandi; String get macAddress; DateTime? get diperbaruiPada; bool get diHapus; DateTime? get diarsipkanPada; DateTime? get terkahirAktif;
+ String get id; String get nama; String get telepon; String get alamat; String get kataSandi; String get macAddress; AppRole get role; DateTime? get diperbaruiPada; bool get diHapus; DateTime? get diarsipkanPada; DateTime? get terkahirAktif;
 /// Create a copy of PelangganModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $PelangganModelCopyWith<PelangganModel> get copyWith => _$PelangganModelCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PelangganModel&&(identical(other.id, id) || other.id == id)&&(identical(other.nama, nama) || other.nama == nama)&&(identical(other.telepon, telepon) || other.telepon == telepon)&&(identical(other.alamat, alamat) || other.alamat == alamat)&&(identical(other.kataSandi, kataSandi) || other.kataSandi == kataSandi)&&(identical(other.macAddress, macAddress) || other.macAddress == macAddress)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.diHapus, diHapus) || other.diHapus == diHapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.terkahirAktif, terkahirAktif) || other.terkahirAktif == terkahirAktif));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PelangganModel&&(identical(other.id, id) || other.id == id)&&(identical(other.nama, nama) || other.nama == nama)&&(identical(other.telepon, telepon) || other.telepon == telepon)&&(identical(other.alamat, alamat) || other.alamat == alamat)&&(identical(other.kataSandi, kataSandi) || other.kataSandi == kataSandi)&&(identical(other.macAddress, macAddress) || other.macAddress == macAddress)&&(identical(other.role, role) || other.role == role)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.diHapus, diHapus) || other.diHapus == diHapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.terkahirAktif, terkahirAktif) || other.terkahirAktif == terkahirAktif));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,nama,telepon,alamat,kataSandi,macAddress,diperbaruiPada,diHapus,diarsipkanPada,terkahirAktif);
+int get hashCode => Object.hash(runtimeType,id,nama,telepon,alamat,kataSandi,macAddress,role,diperbaruiPada,diHapus,diarsipkanPada,terkahirAktif);
 
 @override
 String toString() {
-  return 'PelangganModel(id: $id, nama: $nama, telepon: $telepon, alamat: $alamat, kataSandi: $kataSandi, macAddress: $macAddress, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada, terkahirAktif: $terkahirAktif)';
+  return 'PelangganModel(id: $id, nama: $nama, telepon: $telepon, alamat: $alamat, kataSandi: $kataSandi, macAddress: $macAddress, role: $role, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada, terkahirAktif: $terkahirAktif)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $PelangganModelCopyWith<$Res>  {
   factory $PelangganModelCopyWith(PelangganModel value, $Res Function(PelangganModel) _then) = _$PelangganModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String nama, String telepon, String alamat, String kataSandi, String macAddress, DateTime? diperbaruiPada, bool diHapus, DateTime? diarsipkanPada, DateTime? terkahirAktif
+ String id, String nama, String telepon, String alamat, String kataSandi, String macAddress, AppRole role, DateTime? diperbaruiPada, bool diHapus, DateTime? diarsipkanPada, DateTime? terkahirAktif
 });
 
 
@@ -62,7 +62,7 @@ class _$PelangganModelCopyWithImpl<$Res>
 
 /// Create a copy of PelangganModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? nama = null,Object? telepon = null,Object? alamat = null,Object? kataSandi = null,Object? macAddress = null,Object? diperbaruiPada = freezed,Object? diHapus = null,Object? diarsipkanPada = freezed,Object? terkahirAktif = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? nama = null,Object? telepon = null,Object? alamat = null,Object? kataSandi = null,Object? macAddress = null,Object? role = null,Object? diperbaruiPada = freezed,Object? diHapus = null,Object? diarsipkanPada = freezed,Object? terkahirAktif = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,nama: null == nama ? _self.nama : nama // ignore: cast_nullable_to_non_nullable
@@ -70,7 +70,8 @@ as String,telepon: null == telepon ? _self.telepon : telepon // ignore: cast_nul
 as String,alamat: null == alamat ? _self.alamat : alamat // ignore: cast_nullable_to_non_nullable
 as String,kataSandi: null == kataSandi ? _self.kataSandi : kataSandi // ignore: cast_nullable_to_non_nullable
 as String,macAddress: null == macAddress ? _self.macAddress : macAddress // ignore: cast_nullable_to_non_nullable
-as String,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as AppRole,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
 as DateTime?,diHapus: null == diHapus ? _self.diHapus : diHapus // ignore: cast_nullable_to_non_nullable
 as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
 as DateTime?,terkahirAktif: freezed == terkahirAktif ? _self.terkahirAktif : terkahirAktif // ignore: cast_nullable_to_non_nullable
@@ -159,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String nama,  String telepon,  String alamat,  String kataSandi,  String macAddress,  DateTime? diperbaruiPada,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? terkahirAktif)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String nama,  String telepon,  String alamat,  String kataSandi,  String macAddress,  AppRole role,  DateTime? diperbaruiPada,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? terkahirAktif)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PelangganModel() when $default != null:
-return $default(_that.id,_that.nama,_that.telepon,_that.alamat,_that.kataSandi,_that.macAddress,_that.diperbaruiPada,_that.diHapus,_that.diarsipkanPada,_that.terkahirAktif);case _:
+return $default(_that.id,_that.nama,_that.telepon,_that.alamat,_that.kataSandi,_that.macAddress,_that.role,_that.diperbaruiPada,_that.diHapus,_that.diarsipkanPada,_that.terkahirAktif);case _:
   return orElse();
 
 }
@@ -180,10 +181,10 @@ return $default(_that.id,_that.nama,_that.telepon,_that.alamat,_that.kataSandi,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String nama,  String telepon,  String alamat,  String kataSandi,  String macAddress,  DateTime? diperbaruiPada,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? terkahirAktif)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String nama,  String telepon,  String alamat,  String kataSandi,  String macAddress,  AppRole role,  DateTime? diperbaruiPada,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? terkahirAktif)  $default,) {final _that = this;
 switch (_that) {
 case _PelangganModel():
-return $default(_that.id,_that.nama,_that.telepon,_that.alamat,_that.kataSandi,_that.macAddress,_that.diperbaruiPada,_that.diHapus,_that.diarsipkanPada,_that.terkahirAktif);case _:
+return $default(_that.id,_that.nama,_that.telepon,_that.alamat,_that.kataSandi,_that.macAddress,_that.role,_that.diperbaruiPada,_that.diHapus,_that.diarsipkanPada,_that.terkahirAktif);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +201,10 @@ return $default(_that.id,_that.nama,_that.telepon,_that.alamat,_that.kataSandi,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String nama,  String telepon,  String alamat,  String kataSandi,  String macAddress,  DateTime? diperbaruiPada,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? terkahirAktif)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String nama,  String telepon,  String alamat,  String kataSandi,  String macAddress,  AppRole role,  DateTime? diperbaruiPada,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? terkahirAktif)?  $default,) {final _that = this;
 switch (_that) {
 case _PelangganModel() when $default != null:
-return $default(_that.id,_that.nama,_that.telepon,_that.alamat,_that.kataSandi,_that.macAddress,_that.diperbaruiPada,_that.diHapus,_that.diarsipkanPada,_that.terkahirAktif);case _:
+return $default(_that.id,_that.nama,_that.telepon,_that.alamat,_that.kataSandi,_that.macAddress,_that.role,_that.diperbaruiPada,_that.diHapus,_that.diarsipkanPada,_that.terkahirAktif);case _:
   return null;
 
 }
@@ -215,7 +216,7 @@ return $default(_that.id,_that.nama,_that.telepon,_that.alamat,_that.kataSandi,_
 
 
 class _PelangganModel extends PelangganModel {
-  const _PelangganModel({required this.id, required this.nama, required this.telepon, required this.alamat, required this.kataSandi, required this.macAddress, this.diperbaruiPada, this.diHapus = false, this.diarsipkanPada, this.terkahirAktif}): super._();
+  const _PelangganModel({required this.id, required this.nama, required this.telepon, required this.alamat, required this.kataSandi, required this.macAddress, this.role = AppRole.user, this.diperbaruiPada, this.diHapus = false, this.diarsipkanPada, this.terkahirAktif}): super._();
   
 
 @override final  String id;
@@ -224,6 +225,7 @@ class _PelangganModel extends PelangganModel {
 @override final  String alamat;
 @override final  String kataSandi;
 @override final  String macAddress;
+@override@JsonKey() final  AppRole role;
 @override final  DateTime? diperbaruiPada;
 @override@JsonKey() final  bool diHapus;
 @override final  DateTime? diarsipkanPada;
@@ -239,16 +241,16 @@ _$PelangganModelCopyWith<_PelangganModel> get copyWith => __$PelangganModelCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PelangganModel&&(identical(other.id, id) || other.id == id)&&(identical(other.nama, nama) || other.nama == nama)&&(identical(other.telepon, telepon) || other.telepon == telepon)&&(identical(other.alamat, alamat) || other.alamat == alamat)&&(identical(other.kataSandi, kataSandi) || other.kataSandi == kataSandi)&&(identical(other.macAddress, macAddress) || other.macAddress == macAddress)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.diHapus, diHapus) || other.diHapus == diHapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.terkahirAktif, terkahirAktif) || other.terkahirAktif == terkahirAktif));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PelangganModel&&(identical(other.id, id) || other.id == id)&&(identical(other.nama, nama) || other.nama == nama)&&(identical(other.telepon, telepon) || other.telepon == telepon)&&(identical(other.alamat, alamat) || other.alamat == alamat)&&(identical(other.kataSandi, kataSandi) || other.kataSandi == kataSandi)&&(identical(other.macAddress, macAddress) || other.macAddress == macAddress)&&(identical(other.role, role) || other.role == role)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada)&&(identical(other.diHapus, diHapus) || other.diHapus == diHapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.terkahirAktif, terkahirAktif) || other.terkahirAktif == terkahirAktif));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,nama,telepon,alamat,kataSandi,macAddress,diperbaruiPada,diHapus,diarsipkanPada,terkahirAktif);
+int get hashCode => Object.hash(runtimeType,id,nama,telepon,alamat,kataSandi,macAddress,role,diperbaruiPada,diHapus,diarsipkanPada,terkahirAktif);
 
 @override
 String toString() {
-  return 'PelangganModel(id: $id, nama: $nama, telepon: $telepon, alamat: $alamat, kataSandi: $kataSandi, macAddress: $macAddress, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada, terkahirAktif: $terkahirAktif)';
+  return 'PelangganModel(id: $id, nama: $nama, telepon: $telepon, alamat: $alamat, kataSandi: $kataSandi, macAddress: $macAddress, role: $role, diperbaruiPada: $diperbaruiPada, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada, terkahirAktif: $terkahirAktif)';
 }
 
 
@@ -259,7 +261,7 @@ abstract mixin class _$PelangganModelCopyWith<$Res> implements $PelangganModelCo
   factory _$PelangganModelCopyWith(_PelangganModel value, $Res Function(_PelangganModel) _then) = __$PelangganModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String nama, String telepon, String alamat, String kataSandi, String macAddress, DateTime? diperbaruiPada, bool diHapus, DateTime? diarsipkanPada, DateTime? terkahirAktif
+ String id, String nama, String telepon, String alamat, String kataSandi, String macAddress, AppRole role, DateTime? diperbaruiPada, bool diHapus, DateTime? diarsipkanPada, DateTime? terkahirAktif
 });
 
 
@@ -276,7 +278,7 @@ class __$PelangganModelCopyWithImpl<$Res>
 
 /// Create a copy of PelangganModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? nama = null,Object? telepon = null,Object? alamat = null,Object? kataSandi = null,Object? macAddress = null,Object? diperbaruiPada = freezed,Object? diHapus = null,Object? diarsipkanPada = freezed,Object? terkahirAktif = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? nama = null,Object? telepon = null,Object? alamat = null,Object? kataSandi = null,Object? macAddress = null,Object? role = null,Object? diperbaruiPada = freezed,Object? diHapus = null,Object? diarsipkanPada = freezed,Object? terkahirAktif = freezed,}) {
   return _then(_PelangganModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,nama: null == nama ? _self.nama : nama // ignore: cast_nullable_to_non_nullable
@@ -284,7 +286,8 @@ as String,telepon: null == telepon ? _self.telepon : telepon // ignore: cast_nul
 as String,alamat: null == alamat ? _self.alamat : alamat // ignore: cast_nullable_to_non_nullable
 as String,kataSandi: null == kataSandi ? _self.kataSandi : kataSandi // ignore: cast_nullable_to_non_nullable
 as String,macAddress: null == macAddress ? _self.macAddress : macAddress // ignore: cast_nullable_to_non_nullable
-as String,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as AppRole,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
 as DateTime?,diHapus: null == diHapus ? _self.diHapus : diHapus // ignore: cast_nullable_to_non_nullable
 as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
 as DateTime?,terkahirAktif: freezed == terkahirAktif ? _self.terkahirAktif : terkahirAktif // ignore: cast_nullable_to_non_nullable
