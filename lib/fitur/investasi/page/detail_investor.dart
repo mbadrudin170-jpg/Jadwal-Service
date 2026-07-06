@@ -27,9 +27,7 @@ class DetailInvestor extends ConsumerWidget {
               if (investor == null) {
                 return const Center(child: Text('Investor tidak ditemukan'));
               }
-              final totalLembar = investasi.getTotalLembarInvestor(
-                investor.id,
-              );
+              final totalLembar = investasi.getTotalLembarInvestor(investor.id);
               final totalModal = investasi.getTotalModalInvestor(investor.id);
               final totalDividen = investasi.getTotalDividenDiterimaInvestor(
                 investor.id,
@@ -162,9 +160,7 @@ class DetailInvestor extends ConsumerWidget {
                             ),
                             gapH12,
                             _buildDaftarInvestasi(
-                              investasi.ambilInvestasiByIdInvestor(
-                                investor.id,
-                              ),
+                              investasi.ambilInvestasiByIdInvestor(investor.id),
                             ),
                           ],
                         ),
@@ -259,9 +255,7 @@ class DetailInvestor extends ConsumerWidget {
                   ),
                   Text(
                     investasi.tanggalInvestasi != null
-                        ? FormatTanggal.formatDasar(
-                            investasi.tanggalInvestasi!,
-                          )
+                        ? FormatTanggal.formatDasar(investasi.tanggalInvestasi!)
                         : '-',
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                   ),
