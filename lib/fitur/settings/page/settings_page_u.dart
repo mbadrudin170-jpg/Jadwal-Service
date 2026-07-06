@@ -10,7 +10,7 @@ import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page.dart';
 import 'package:wifi/fitur/info_perangkat/page/info_apk_page_user.dart';
-import 'package:wifi/fitur/investor/page/portofolio.dart';
+import 'package:wifi/fitur/investasi/page/portofolio.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
