@@ -16,6 +16,7 @@ import 'package:wifi/fitur/pelanggan/page/admin/pelanggan_page.dart';
 import 'package:wifi/fitur/riwayat_aktivasi/page/riwayat_aktivasi_paket.dart';
 import 'package:wifi/fitur/settings/page/settings_page_a.dart';
 import 'package:wifi/fitur/versi_apk/page/versi_apk_page.dart';
+import 'package:wifi/fitur/voucher/page/voucher.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -105,6 +106,12 @@ class _LainnyaPageState extends State<LainnyaPage> {
             icon: TIcons.packages,
             title: 'Paket',
             onTap: () => _navigateTo(const PackagePage(), 'Paket'),
+          ),
+          _buildMenuItem(
+            context: context,
+            icon: TIcons.wifi,
+            title: 'Voucher',
+            onTap: () => _navigateTo(const Voucher(), 'Voucher'),
           ),
           _buildMenuItem(
             context: context,
