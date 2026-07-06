@@ -2,12 +2,10 @@
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
-import 'package:wifi/fitur/chating/chating_dashboard.dart';
 import 'package:wifi/fitur/investor/page/portofolio.dart';
 import 'package:wifi/fitur/notifikasi/pengingat_paket_belum_lunas.dart';
 import 'package:wifi/fitur/notifikasi/penjadwal_notifikasi.dart';
@@ -63,7 +61,6 @@ class _MainPageState extends ConsumerState<MainPage> {
     final halamanTambahan = <Widget>[
       if (ref.isInvestor) const HalamanPortofolio(),
       if (!ref.isInvestor) const HalamanUjiKecepatan(),
-      if (kDebugMode) const ChatingDashboard() else const HalamanUjiKecepatan(),
       const SettingsPageU(),
     ];
     _daftarHalaman = [...halamanDasar, ...halamanTambahan];

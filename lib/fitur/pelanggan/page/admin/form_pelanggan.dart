@@ -199,7 +199,7 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
                 gapH16,
                 if (ref.isAdmin)
                   DropdownButtonFormField<AppRole>(
-                    value: _selectedRole,
+                    initialValue: _selectedRole,
                     decoration: const InputDecoration(
                       labelText: 'Peran (Role)',
                       border: OutlineInputBorder(),
