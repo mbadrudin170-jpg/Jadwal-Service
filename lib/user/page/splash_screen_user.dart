@@ -102,7 +102,6 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
           MaterialPageRoute(builder: (context) => EventPageU(event: eventInfo)),
         );
       } else {
-        // Keselamatan Visual: Jika event kosong, hapus Native Splash sekarang!
         FlutterNativeSplash.remove();
       }
 

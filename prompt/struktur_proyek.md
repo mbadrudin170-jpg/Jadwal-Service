@@ -626,7 +626,6 @@ test/fitur/alarm
 test/fitur/alarm/android_alarm_scheduler_test.dart
 test/fitur/alarm/alarm_scheduler_test.mocks.dart
 test/fitur/alarm/alarm_scheduler_test.dart
-test/widget_test.dart
 test/shared
 test/shared/data
 test/shared/data/services

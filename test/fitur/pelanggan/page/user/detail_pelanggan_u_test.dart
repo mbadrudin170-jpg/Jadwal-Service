@@ -6,7 +6,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
-import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan.dart';
+import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan_u.dart';
 import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
@@ -47,7 +47,8 @@ void main() {
         transaksiOpFirebaseProvider.overrideWithValue(mockTransaksiOp),
         interstitialAdServiceProvider.overrideWithValue(mockInterstitialAd),
       ],
-      child: const MaterialApp(home: DetailPelanggan(idPelanggan: 'user123')),
+      child:
+          const MaterialApp(home: DetailPelangganUser(idPelanggan: 'user123')),
     );
   }
 

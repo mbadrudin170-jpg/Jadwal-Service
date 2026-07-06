@@ -25,7 +25,11 @@ echo "✅ Dokumentasi selesai: $output_file"
 output="README.md"
 # alias => s
 file_list=(
-
+    'lib/user/page/splash_screen_user.dart'
+    'lib/main/main_user/bootstrap_user.dart'
+    'lib/fitur/app_role/role_util.dart'
+    'lib/user/page/main_page.dart'
+    'lib/fitur/settings/page/settings_page_u.dart'
 ) # Isi path file nya disini
 
 # Hapus duplikasi dari array
