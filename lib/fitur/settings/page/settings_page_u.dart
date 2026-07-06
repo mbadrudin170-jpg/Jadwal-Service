@@ -11,10 +11,8 @@ import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page.dart';
 import 'package:wifi/fitur/info_perangkat/page/info_apk_page_user.dart';
 import 'package:wifi/fitur/investasi/page/portofolio.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/user/providers/user_provider.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
 class SettingsPageU extends ConsumerWidget {
@@ -22,7 +20,6 @@ class SettingsPageU extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userId = ref.watch(userIdProvider).value ?? '';
     return Scaffold(
       appBar: AppBar(title: const Text('Pengaturan')),
       body: ListView(
@@ -106,18 +103,7 @@ class SettingsPageU extends ConsumerWidget {
                 );
               },
             ),
-            _SettingsMenuItem(
-              icon: TIcons.science,
-              title: 'Form Pelanggan',
-              onTap: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (context) => FormPelanggan(idPelanggan: userId),
-                  ),
-                );
-              },
-            ),
+            
           ],
           _SettingsMenuItem(
             icon: TIcons.logout,
