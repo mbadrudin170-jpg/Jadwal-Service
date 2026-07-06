@@ -1,5 +1,6 @@
 // path: lib/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
@@ -72,14 +73,19 @@ class PelangganOpSqlite {
       pelanggan.telepon,
       pelanggan.kataSandi,
     );
-    if (isDuplicate) {
-      Log.warning('Data pelanggan duplikat ditemukan.', {
+    if (!kDebugMode && isDuplicate) {
+      Log.warning('Data pelanggan duplikat ditemukan saat update.', {
         'telepon': pelanggan.telepon,
         'nama': pelanggan.nama,
+        'id': pelanggan.id,
       });
       throw Exception(
         'Pelanggan dengan nomor telepon dan password ini sudah ada.',
       );
+    }
+
+    if (kDebugMode && isDuplicate) {
+      Log.warning('⚠️ Duplikasi terdeteksi di DEBUG MODE, tetapi dilewati.');
     }
     Log.info('Memulai pembuatan customer dengan ID: ${pelanggan.id}');
     try {
@@ -155,7 +161,7 @@ class PelangganOpSqlite {
       excludeId: pelanggan.id,
     );
 
-    if (isDuplicate) {
+    if (!kDebugMode && isDuplicate) {
       Log.warning('Data pelanggan duplikat ditemukan saat update.', {
         'telepon': pelanggan.telepon,
         'nama': pelanggan.nama,
@@ -164,6 +170,10 @@ class PelangganOpSqlite {
       throw Exception(
         'Pelanggan dengan nomor telepon dan password ini sudah ada.',
       );
+    }
+
+    if (kDebugMode && isDuplicate) {
+      Log.warning('⚠️ Duplikasi terdeteksi di DEBUG MODE, tetapi dilewati.');
     }
     Log.info('Memulai pembaruan untuk customer ID: ${pelanggan.id}');
     try {

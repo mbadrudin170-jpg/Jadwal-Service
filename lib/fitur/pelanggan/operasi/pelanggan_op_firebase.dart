@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
@@ -35,12 +36,9 @@ class PelangganOpFirebase {
           .where(NamaKolom.telepon, isEqualTo: telepon)
           .where(NamaKolom.kataSandi, isEqualTo: kataSandi)
           .where(NamaKolom.dihapus, isEqualTo: false);
-
-      // Jika excludeId diberikan, exclude pelanggan dengan ID tersebut
       if (excludeId != null && excludeId.isNotEmpty) {
         query = query.where(NamaKolom.id, isNotEqualTo: excludeId);
       }
-
       final snapshot = await query.limit(1).get();
       return snapshot.docs.isNotEmpty;
     } catch (e, s) {
@@ -55,9 +53,16 @@ class PelangganOpFirebase {
       pelanggan.telepon,
       pelanggan.kataSandi,
     );
-
-    if (isDuplicate) {
+    if (!kDebugMode && isDuplicate) {
+      Log.error(
+        'Duplikasi data pelanggan',
+        data: {'telepon': pelanggan.telepon, 'nama': pelanggan.nama},
+      );
       throw Exception('Nomor telepon dan password sudah digunakan.');
+    }
+
+    if (kDebugMode && isDuplicate) {
+      Log.warning('⚠️ Duplikasi terdeteksi di DEBUG MODE, tetapi dilewati.');
     }
     await _baseOpFirebase.sisipkan(
       _namaKoleksi,
@@ -74,8 +79,16 @@ class PelangganOpFirebase {
       excludeId: pelanggan.id,
     );
 
-    if (isDuplicate) {
+    if (!kDebugMode && isDuplicate) {
+      Log.error(
+        'Duplikasi data pelanggan',
+        data: {'telepon': pelanggan.telepon, 'nama': pelanggan.nama},
+      );
       throw Exception('Nomor telepon dan password sudah digunakan.');
+    }
+
+    if (kDebugMode && isDuplicate) {
+      Log.warning('⚠️ Duplikasi terdeteksi di DEBUG MODE, tetapi dilewati.');
     }
     await _baseOpFirebase.update(
       _namaKoleksi,

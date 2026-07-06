@@ -103,7 +103,6 @@ class SettingsPageU extends ConsumerWidget {
                 );
               },
             ),
-            
           ],
           _SettingsMenuItem(
             icon: TIcons.logout,
