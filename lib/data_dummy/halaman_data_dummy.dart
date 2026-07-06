@@ -9,17 +9,11 @@ import 'package:wifi/data_dummy/dummy_pelanggan.dart';
 import 'package:wifi/data_dummy/dummy_sub_kategori.dart';
 import 'package:wifi/data_dummy/dummy_transaksi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/dompet/model/dompet_model.dart';
-import 'package:wifi/fitur/feedback/model/feedback_model.dart';
-import 'package:wifi/fitur/kategori/model/kategori_model.dart';
-import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
-import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
-import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -46,14 +40,7 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData<PelangganModel>(
-                context,
-                ref,
-                'Pelanggan',
-                daftarPelanggan,
-                ref.read(pelangganOpSqliteProvider).sisipkanAtauPerbaruiBatch,
-              );
-              ref.invalidate(pelangganOpSqliteProvider);
+              await _tambahPelanggan(ref);
             },
             label: 'Tambah Pelanggan Dummy (${daftarPelanggan.length})',
             icon: TIcons.customers,
@@ -61,14 +48,7 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData<DompetModel>(
-                context,
-                ref,
-                'Dompet',
-                DummyDompet.daftarDompet,
-                ref.read(dompetOpSqliteProvider).sisipkanAtauPerbaruiBatch,
-              );
-              ref.invalidate(dompetOpSqliteProvider);
+              await _tambahDompet(ref);
             },
             label: 'Tambah Dompet Dummy (${DummyDompet.daftarDompet.length})',
             icon: TIcons.wallet,
@@ -76,14 +56,7 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData<KategoriModel>(
-                context,
-                ref,
-                'Kategori',
-                DummyKategori.daftarKategori,
-                ref.read(kategoriOpSqliteProvider).sisipkanAtauPerbaruiBatch,
-              );
-              ref.invalidate(kategoriOpSqliteProvider);
+              await _tambahKategori(ref);
             },
             label:
                 'Tambah Kategori Dummy (${DummyKategori.daftarKategori.length})',
@@ -92,14 +65,7 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData<SubKategoriModel>(
-                context,
-                ref,
-                'Sub Kategori',
-                DummySubKategori.daftarSubKategori,
-                ref.read(subKategoriOpSqliteProvider).sisipkanAtauPerbaruiBatch,
-              );
-              ref.invalidate(subKategoriOpSqliteProvider);
+              await _tambahSubKategori(ref);
             },
             label:
                 'Tambah Sub Kategori Dummy (${DummySubKategori.daftarSubKategori.length})',
@@ -108,14 +74,7 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData<PaketModel>(
-                context,
-                ref,
-                'Paket',
-                DummyPaket.daftarPaket,
-                ref.read(paketOpSqliteProvider).sisipkanAtauPerbaruiBatch,
-              );
-              ref.invalidate(paketOpSqliteProvider);
+              await _tambahPaket(ref);
             },
             label: 'Tambah Paket Dummy (${DummyPaket.daftarPaket.length})',
             icon: TIcons.packages,
@@ -123,14 +82,7 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData<TransaksiModel>(
-                context,
-                ref,
-                'Transaksi',
-                daftarTransaksi,
-                ref.read(transaksiOpGlobalProvider).sisipkanAtauPerbaruiBatch,
-              );
-              ref.invalidate(transaksiOpSqliteProvider);
+              await _tambahTransaksi(ref);
             },
             label: 'Tambah Transaksi Dummy (${daftarTransaksi.length})',
             icon: TIcons.receiptLong,
@@ -138,56 +90,7 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              // Hapus atau komentari dulu karena belum ada implementasi konversi yang valid
-              //   await _tambahData<dynamic>(
-              //     context,
-              //     ref,
-              //     'Pelanggan Aktif',
-              //     [], // Kosongkan dulu
-              //     ref
-              //         .read(pelangganAktifOpSqliteProvider)
-              //         .sisipkanAtauPerbaruiBatch,
-              //   );
-              //   ref.invalidate(pelangganAktifProvider);
-            },
-            label: 'Tambah Pelanggan Aktif Dummy',
-            icon: TIcons.pelangganAktif,
-          ),
-          _tombolFitur(
-            context: context,
-            onPressed: () async {
-              await _tambahData<FeedbackModel>(
-                context,
-                ref,
-                'Feedback',
-                [], // Kosongkan
-                ref.read(feedbackOpSqliteProvider).sisipkanAtauPerbaruiBatch,
-              );
-              ref.invalidate(feedbackOpSqliteProvider);
-            },
-            label: 'Tambah Feedback Dummy',
-            icon: TIcons.feedback,
-          ),
-          _tombolFitur(
-            context: context,
-            onPressed: () async {
-              await _tambahData<VersiApkModel>(
-                context,
-                ref,
-                'Versi APK',
-                [], // Kosongkan
-                ref.read(versiApkOpSqliteProvider).sisipkanAtauPerbaruiBatch,
-              );
-              ref.invalidate(versiApkOpSqliteProvider);
-            },
-            label: 'Tambah Versi APK Dummy',
-            icon: TIcons.systemUpdate,
-          ),
-          _tombolFitur(
-            context: context,
-            onPressed: () async {
-              await _tambahPengaturan(context, ref);
-              ref.invalidate(settingsOpSqliteProvider);
+              await _tambahPengaturan(ref);
             },
             label: 'Tambah Pengaturan Dummy',
             icon: TIcons.settings,
@@ -221,120 +124,262 @@ class HalamanDataDummy extends ConsumerWidget {
     );
   }
 
-  /// Menambahkan data dummy secara generik.
-  Future<void> _tambahData<T>(
-    BuildContext context,
-    WidgetRef ref,
-    String modelName,
-    List<T> dataList,
-    Future<void> Function(List<T> data, {bool dariServer}) batchFunction,
-  ) async {
-    if (dataList.isEmpty) {
-      if (context.mounted) {
-        ToastUtil.info(
-          context,
-          'Tidak ada data $modelName dummy yang tersedia.',
-        );
-      }
-      return;
-    }
+  // ============================================================
+  // FUNGSI TAMBAH DATA PER TABEL (MENGGUNAKAN OpGlobal)
+  // ============================================================
 
+  Future<void> _tambahPelanggan(WidgetRef ref) async {
     try {
-      Log.info('Memulai proses penambahan data $modelName dummy');
-      await batchFunction(dataList, dariServer: false);
+      Log.info('Memulai proses penambahan data Pelanggan dummy');
+      final pelangganOp = ref.read(pelangganOpGlobalProvider);
+      var successCount = 0;
 
-      if (context.mounted) {
+      for (final data in daftarPelanggan) {
+        try {
+          await pelangganOp.tambahPelanggan(data);
+          successCount++;
+        } catch (e) {
+          Log.warning('Gagal insert pelanggan ${data.nama}: $e');
+        }
+      }
+
+      if (ref.context.mounted) {
         ToastUtil.success(
-          context,
-          'Berhasil menambahkan ${dataList.length} data $modelName dummy.',
+          ref.context,
+          'Berhasil menambahkan $successCount dari ${daftarPelanggan.length} Pelanggan.',
         );
       }
     } catch (e, s) {
-      Log.error('Gagal menambahkan data $modelName dummy', e: e, s: s);
-      if (context.mounted) {
-        ToastUtil.error(
-          context,
-          'Terjadi kesalahan saat menambah $modelName: $e',
-        );
+      Log.error('Gagal menambahkan Pelanggan dummy', e: e, s: s);
+      if (ref.context.mounted) {
+        ToastUtil.error(ref.context, 'Gagal menambah Pelanggan: $e');
       }
     }
   }
 
-  /// Menambahkan data pengaturan dummy.
-  Future<void> _tambahPengaturan(BuildContext context, WidgetRef ref) async {
+  Future<void> _tambahDompet(WidgetRef ref) async {
+    try {
+      Log.info('Memulai proses penambahan data Dompet dummy');
+      final dompetOp = ref.read(dompetOpSqliteProvider);
+      var successCount = 0;
+
+      for (final data in DummyDompet.daftarDompet) {
+        try {
+          await dompetOp.tambahDompet(data);
+          successCount++;
+        } catch (e) {
+          Log.warning('Gagal insert dompet ${data.nama}: $e');
+        }
+      }
+
+      if (ref.context.mounted) {
+        ToastUtil.success(
+          ref.context,
+          'Berhasil menambahkan $successCount dari ${DummyDompet.daftarDompet.length} Dompet.',
+        );
+      }
+    } catch (e, s) {
+      Log.error('Gagal menambahkan Dompet dummy', e: e, s: s);
+      if (ref.context.mounted) {
+        ToastUtil.error(ref.context, 'Gagal menambah Dompet: $e');
+      }
+    }
+  }
+
+  Future<void> _tambahKategori(WidgetRef ref) async {
+    try {
+      Log.info('Memulai proses penambahan data Kategori dummy');
+      final kategoriOp = ref.read(kategoriOpSqliteProvider);
+      var successCount = 0;
+
+      for (final data in DummyKategori.daftarKategori) {
+        try {
+          await kategoriOp.tambahKategori(data);
+          successCount++;
+        } catch (e) {
+          Log.warning('Gagal insert kategori ${data.nama}: $e');
+        }
+      }
+
+      if (ref.context.mounted) {
+        ToastUtil.success(
+          ref.context,
+          'Berhasil menambahkan $successCount dari ${DummyKategori.daftarKategori.length} Kategori.',
+        );
+      }
+    } catch (e, s) {
+      Log.error('Gagal menambahkan Kategori dummy', e: e, s: s);
+      if (ref.context.mounted) {
+        ToastUtil.error(ref.context, 'Gagal menambah Kategori: $e');
+      }
+    }
+  }
+
+  Future<void> _tambahSubKategori(WidgetRef ref) async {
+    try {
+      Log.info('Memulai proses penambahan data Sub Kategori dummy');
+      final subKategoriOp = ref.read(subKategoriOpSqliteProvider);
+      var successCount = 0;
+
+      for (final data in DummySubKategori.daftarSubKategori) {
+        try {
+          await subKategoriOp.createSubCategory(data);
+          successCount++;
+        } catch (e) {
+          Log.warning('Gagal insert sub kategori ${data.nama}: $e');
+        }
+      }
+
+      if (ref.context.mounted) {
+        ToastUtil.success(
+          ref.context,
+          'Berhasil menambahkan $successCount dari ${DummySubKategori.daftarSubKategori.length} Sub Kategori.',
+        );
+      }
+    } catch (e, s) {
+      Log.error('Gagal menambahkan Sub Kategori dummy', e: e, s: s);
+      if (ref.context.mounted) {
+        ToastUtil.error(ref.context, 'Gagal menambah Sub Kategori: $e');
+      }
+    }
+  }
+
+  Future<void> _tambahPaket(WidgetRef ref) async {
+    try {
+      Log.info('Memulai proses penambahan data Paket dummy');
+      final paketOp = ref.read(paketOpGlobalProvider);
+      var successCount = 0;
+
+      for (final data in DummyPaket.daftarPaket) {
+        try {
+          await paketOp.tambahPaket(data);
+          successCount++;
+        } catch (e) {
+          Log.warning('Gagal insert paket ${data.nama}: $e');
+        }
+      }
+
+      if (ref.context.mounted) {
+        ToastUtil.success(
+          ref.context,
+          'Berhasil menambahkan $successCount dari ${DummyPaket.daftarPaket.length} Paket.',
+        );
+      }
+    } catch (e, s) {
+      Log.error('Gagal menambahkan Paket dummy', e: e, s: s);
+      if (ref.context.mounted) {
+        ToastUtil.error(ref.context, 'Gagal menambah Paket: $e');
+      }
+    }
+  }
+
+  Future<void> _tambahTransaksi(WidgetRef ref) async {
+    try {
+      Log.info('Memulai proses penambahan data Transaksi dummy');
+      final transaksiOp = ref.read(transaksiOpGlobalProvider);
+      var successCount = 0;
+
+      for (final data in daftarTransaksi) {
+        try {
+          await transaksiOp.tambahTransaksi(data);
+          successCount++;
+        } catch (e) {
+          Log.warning('Gagal insert transaksi ${data.id}: $e');
+        }
+      }
+
+      if (ref.context.mounted) {
+        ToastUtil.success(
+          ref.context,
+          'Berhasil menambahkan $successCount dari ${daftarTransaksi.length} Transaksi.',
+        );
+      }
+    } catch (e, s) {
+      Log.error('Gagal menambahkan Transaksi dummy', e: e, s: s);
+      if (ref.context.mounted) {
+        ToastUtil.error(ref.context, 'Gagal menambah Transaksi: $e');
+      }
+    }
+  }
+
+  Future<void> _tambahPengaturan(WidgetRef ref) async {
     try {
       Log.info('Memulai proses penambahan data Pengaturan dummy');
-      final settingsOperation = ref.read(settingsOpSqliteProvider);
-      // Settings default
-      await settingsOperation.simpanAtauPerbaruiSettings(const SettingsModel());
+      final settingsOp = ref.read(settingsOpSqliteProvider);
+      await settingsOp.simpanAtauPerbaruiSettings(const SettingsModel());
 
-      if (context.mounted) {
+      if (ref.context.mounted) {
         ToastUtil.success(
-          context,
+          ref.context,
           'Berhasil menambahkan data Pengaturan dummy.',
         );
       }
     } catch (e, s) {
-      Log.error('Gagal menambahkan data Pengaturan dummy', e: e, s: s);
-      if (context.mounted) {
-        ToastUtil.error(
-          context,
-          'Terjadi kesalahan saat menambah Pengaturan: $e',
-        );
+      Log.error('Gagal menambahkan Pengaturan dummy', e: e, s: s);
+      if (ref.context.mounted) {
+        ToastUtil.error(ref.context, 'Gagal menambah Pengaturan: $e');
       }
     }
   }
 
-  /// Menambahkan semua data dummy sekaligus.
+  // ============================================================
+  // TAMBAH SEMUA DATA
+  // ============================================================
+
   Future<void> _tambahSemuaData(BuildContext context, WidgetRef ref) async {
     try {
       Log.info('Memulai proses penambahan SEMUA data dummy');
 
-      // 1. Tambahkan Pelanggan
-      await ref
-          .read(pelangganOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(daftarPelanggan);
+      // 1. Pelanggan
+      final pelangganOp = ref.read(pelangganOpGlobalProvider);
+      for (final data in daftarPelanggan) {
+        await pelangganOp.tambahPelanggan(data);
+      }
       Log.info('✅ Pelanggan: ${daftarPelanggan.length} data');
 
-      // 2. Tambahkan Dompet
-      await ref
-          .read(dompetOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DummyDompet.daftarDompet);
+      // 2. Dompet
+      final dompetOp = ref.read(dompetOpSqliteProvider);
+      for (final data in DummyDompet.daftarDompet) {
+        await dompetOp.tambahDompet(data);
+      }
       Log.info('✅ Dompet: ${DummyDompet.daftarDompet.length} data');
 
-      // 3. Tambahkan Kategori
-      await ref
-          .read(kategoriOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DummyKategori.daftarKategori);
+      // 3. Kategori
+      final kategoriOp = ref.read(kategoriOpSqliteProvider);
+      for (final data in DummyKategori.daftarKategori) {
+        await kategoriOp.tambahKategori(data);
+      }
       Log.info('✅ Kategori: ${DummyKategori.daftarKategori.length} data');
 
-      // 4. Tambahkan Sub Kategori
-      await ref
-          .read(subKategoriOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DummySubKategori.daftarSubKategori);
+      // 4. Sub Kategori
+      final subKategoriOp = ref.read(subKategoriOpSqliteProvider);
+      for (final data in DummySubKategori.daftarSubKategori) {
+        await subKategoriOp.createSubCategory(data);
+      }
       Log.info(
         '✅ Sub Kategori: ${DummySubKategori.daftarSubKategori.length} data',
       );
 
-      // 5. Tambahkan Paket
-      await ref
-          .read(paketOpSqliteProvider)
-          .sisipkanAtauPerbaruiBatch(DummyPaket.daftarPaket);
+      // 5. Paket
+      final paketOp = ref.read(paketOpGlobalProvider);
+      for (final data in DummyPaket.daftarPaket) {
+        await paketOp.tambahPaket(data);
+      }
       Log.info('✅ Paket: ${DummyPaket.daftarPaket.length} data');
 
-      // 6. Tambahkan Transaksi
-      await ref
-          .read(transaksiOpGlobalProvider)
-          .sisipkanAtauPerbaruiBatch(daftarTransaksi);
+      // 6. Transaksi
+      final transaksiOp = ref.read(transaksiOpGlobalProvider);
+      for (final data in daftarTransaksi) {
+        await transaksiOp.tambahTransaksi(data);
+      }
       Log.info('✅ Transaksi: ${daftarTransaksi.length} data');
 
-      // 7. Tambahkan Pengaturan
-      await ref
-          .read(settingsOpSqliteProvider)
-          .simpanAtauPerbaruiSettings(const SettingsModel());
+      // 7. Pengaturan
+      final settingsOp = ref.read(settingsOpSqliteProvider);
+      await settingsOp.simpanAtauPerbaruiSettings(const SettingsModel());
       Log.info('✅ Pengaturan: 1 data');
 
-      // Invalidate semua provider
+      // Invalidate provider
       ref.invalidate(pelangganOpSqliteProvider);
       ref.invalidate(dompetOpSqliteProvider);
       ref.invalidate(kategoriOpSqliteProvider);

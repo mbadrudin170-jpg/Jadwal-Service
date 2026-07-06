@@ -1,5 +1,6 @@
-// path lib/data_dummy/dummy_pelanggan.dart
+// path: lib/data_dummy/dummy_pelanggan.dart
 
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 
 /// Data dummy untuk pelanggan
@@ -16,15 +17,23 @@ const String idMaya = 'Maya-Sari-id';
 const String idRudi = 'Rudi-Hartono-id';
 const String idLisa = 'Lisa-Anggraini-id';
 
-/// Daftar pelanggan dummy
+// ✅ ID INVESTOR
+const String idInvestor1 = 'Investor-Satu-id';
+const String idInvestor2 = 'Investor-Dua-id';
+
+/// Daftar pelanggan dummy (SEMUA DATA TETAP ADA)
 List<PelangganModel> get daftarPelanggan => [
+  // ============================================================
+  // DATA USER BIASA (TETAP ADA)
+  // ============================================================
   const PelangganModel(
     id: idBudi,
     nama: 'Budi Santoso',
-    telepon: '081234567890',
-    kataSandi: 'budi123',
+    telepon: '08568050170',
+    kataSandi: '100',
     alamat: 'Jl. Merdeka No. 10, Jakarta',
     macAddress: '00:1B:44:11:3A:B7',
+    role: AppRole.investor,
   ),
   const PelangganModel(
     id: idSiti,
@@ -98,6 +107,28 @@ List<PelangganModel> get daftarPelanggan => [
     alamat: 'Jl. Kartini No. 3, Bali',
     macAddress: '00:1B:44:11:3A:C6',
   ),
+
+  // ============================================================
+  // ✅ DATA INVESTOR (TAMBAHAN)
+  // ============================================================
+  const PelangganModel(
+    id: idInvestor1,
+    nama: 'Investor Satu',
+    telepon: '081234567891',
+    kataSandi: 'investor1',
+    alamat: 'Jl. Investasi No. 1, Jakarta',
+    macAddress: '00:1B:44:11:3A:D1',
+    role: AppRole.investor,
+  ),
+  const PelangganModel(
+    id: idInvestor2,
+    nama: 'Investor Dua',
+    telepon: '081234567892',
+    kataSandi: 'investor2',
+    alamat: 'Jl. Investasi No. 2, Surabaya',
+    macAddress: '00:1B:44:11:3A:D2',
+    role: AppRole.investor,
+  ),
 ];
 
 /// Mendapatkan pelanggan berdasarkan ID
@@ -120,6 +151,16 @@ PelangganModel? getByName(String nama) {
   }
 }
 
+/// Mendapatkan pelanggan berdasarkan role
+List<PelangganModel> getByRole(AppRole role) {
+  return daftarPelanggan.where((p) => p.role == role).toList();
+}
+
+/// Mendapatkan daftar investor saja
+List<PelangganModel> getDaftarInvestor() {
+  return daftarPelanggan.where((p) => p.role == AppRole.investor).toList();
+}
+
 /// Mendapatkan pelanggan dengan total poin (simulasi)
 Map<String, int> get totalPoin {
   return {
@@ -133,6 +174,9 @@ Map<String, int> get totalPoin {
     idMaya: 80,
     idRudi: 250,
     idLisa: 100,
+    // ✅ Poin untuk investor
+    idInvestor1: 1000,
+    idInvestor2: 750,
   };
 }
 

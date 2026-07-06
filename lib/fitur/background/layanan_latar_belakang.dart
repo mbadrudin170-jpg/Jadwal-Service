@@ -4,12 +4,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/notifikasi/pengingat_paket_belum_lunas.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:workmanager/workmanager.dart';
 
 const String namaTugasSinkronisasi = 'syncDataTask';
