@@ -19,19 +19,32 @@ class InvestasiOpSqlite {
     Log.info('InvestasiOpSqlite diinisialisasi.');
   }
 
-  Future<void> tambahInvestasi(InvestasiModel investasi, {bool dariServer = false}) async {
+  Future<void> tambahInvestasi(
+    InvestasiModel investasi, {
+    bool dariServer = false,
+  }) async {
     Log.info('Menambahkan investasi baru - ID: ${investasi.id}');
     try {
       final data = investasi.toSqlite();
-      await _baseOpSqlite.sisipkan(NamaTabel.investasi, data, dariServer: dariServer);
+      await _baseOpSqlite.sisipkan(
+        NamaTabel.investasi,
+        data,
+        dariServer: dariServer,
+      );
       Log.info('Investasi berhasil ditambahkan - ID: ${investasi.id}');
     } catch (e, s) {
-      Log.error('Gagal menambahkan investasi - ID: ${investasi.id}', e: e, s: s);
+      Log.error(
+        'Gagal menambahkan investasi - ID: ${investasi.id}',
+        e: e,
+        s: s,
+      );
       rethrow;
     }
   }
 
-  Future<List<InvestasiModel>> ambilSemuaInvestasi({bool tampilkanYangDiarsip = false}) async {
+  Future<List<InvestasiModel>> ambilSemuaInvestasi({
+    bool tampilkanYangDiarsip = false,
+  }) async {
     Log.info('Mengambil semua data investasi');
     try {
       final db = await _sqliteDb.database;
@@ -71,7 +84,9 @@ class InvestasiOpSqlite {
     }
   }
 
-  Future<List<InvestasiModel>> ambilBerdasarkanIdInvestor(String idInvestor) async {
+  Future<List<InvestasiModel>> ambilBerdasarkanIdInvestor(
+    String idInvestor,
+  ) async {
     Log.info('Mengambil investasi untuk investor - ID: $idInvestor');
     try {
       final db = await _sqliteDb.database;
@@ -85,19 +100,35 @@ class InvestasiOpSqlite {
       Log.info('Berhasil mengambil ${hasil.length} investasi untuk investor');
       return hasil;
     } catch (e, s) {
-      Log.error('Gagal mengambil investasi untuk investor - ID: $idInvestor', e: e, s: s);
+      Log.error(
+        'Gagal mengambil investasi untuk investor - ID: $idInvestor',
+        e: e,
+        s: s,
+      );
       rethrow;
     }
   }
 
-  Future<void> perbaruiInvestasi(InvestasiModel investasi, {bool dariServer = false}) async {
+  Future<void> perbaruiInvestasi(
+    InvestasiModel investasi, {
+    bool dariServer = false,
+  }) async {
     Log.info('Memperbarui investasi - ID: ${investasi.id}');
     try {
       final data = investasi.toSqlite();
-      await _baseOpSqlite.update(NamaTabel.investasi, data, investasi.id, dariServer: dariServer);
+      await _baseOpSqlite.update(
+        NamaTabel.investasi,
+        data,
+        investasi.id,
+        dariServer: dariServer,
+      );
       Log.info('Investasi berhasil diperbarui - ID: ${investasi.id}');
     } catch (e, s) {
-      Log.error('Gagal memperbarui investasi - ID: ${investasi.id}', e: e, s: s);
+      Log.error(
+        'Gagal memperbarui investasi - ID: ${investasi.id}',
+        e: e,
+        s: s,
+      );
       rethrow;
     }
   }
@@ -105,7 +136,11 @@ class InvestasiOpSqlite {
   Future<void> softDelete(String id, {bool dariServer = false}) async {
     Log.info('Soft delete investasi - ID: $id');
     try {
-      await _baseOpSqlite.softDelete(NamaTabel.investasi, id, dariServer: dariServer);
+      await _baseOpSqlite.softDelete(
+        NamaTabel.investasi,
+        id,
+        dariServer: dariServer,
+      );
       Log.info('Soft delete investasi berhasil - ID: $id');
     } catch (e, s) {
       Log.error('Gagal soft delete investasi - ID: $id', e: e, s: s);

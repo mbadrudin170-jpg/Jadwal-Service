@@ -69,4 +69,15 @@ abstract final class NamaKolom {
   static const String voucher = 'voucher';
   static const String terpakai = 'used';
   static const String tipeVoucher = 'tipeVoucher';
+
+  // ========== INVESTASI ==========
+  static const String idInvestasi = 'id_investasi';
+  static const String idInvestor = 'id_investor';
+  static const String jumlahModal = 'jumlah_modal';
+  static const String jumlahLembar = 'jumlah_lembar';
+  static const String persentaseKepemilikan = 'persentase_kepemilikan';
+  static const String tanggalInvestasi = 'tanggal_investasi';
+  static const String jumlahDividen = 'jumlah_dividen';
+  static const String tanggalPembagian = 'tanggal_pembagian';
+  static const String sudahDibayar = 'sudah_dibayar';
 }

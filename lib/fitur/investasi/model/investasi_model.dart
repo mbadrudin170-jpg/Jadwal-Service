@@ -15,10 +15,10 @@ abstract class InvestasiModel with _$InvestasiModel implements HasId {
   const InvestasiModel._();
   const factory InvestasiModel({
     required String id,
-    required String idInvestor,          // ID pelanggan dengan role investor
-    required String idTransaksi,         // ID transaksi terkait
-    required double jumlahModal,         // Jumlah modal yang ditanamkan (Rupiah)
-    required int jumlahLembar,           // Jumlah lembar/saham yang dibeli
+    required String idInvestor, // ID pelanggan dengan role investor
+    required String idTransaksi, // ID transaksi terkait
+    required double jumlahModal, // Jumlah modal yang ditanamkan (Rupiah)
+    required int jumlahLembar, // Jumlah lembar/saham yang dibeli
     required double persentaseKepemilikan, // Persentase kepemilikan
     DateTime? tanggalInvestasi,
     @Default(false) bool diHapus,
@@ -35,8 +35,11 @@ abstract class InvestasiModel with _$InvestasiModel implements HasId {
       idTransaksi: map[NamaKolom.idTransaksi] as String? ?? '',
       jumlahModal: (map[NamaKolom.jumlahModal] as num?)?.toDouble() ?? 0.0,
       jumlahLembar: (map[NamaKolom.jumlahLembar] as int?) ?? 0,
-      persentaseKepemilikan: (map[NamaKolom.persentaseKepemilikan] as num?)?.toDouble() ?? 0.0,
-      tanggalInvestasi: ParserUtil.parseDateTime(map[NamaKolom.tanggalInvestasi]),
+      persentaseKepemilikan:
+          (map[NamaKolom.persentaseKepemilikan] as num?)?.toDouble() ?? 0.0,
+      tanggalInvestasi: ParserUtil.parseDateTime(
+        map[NamaKolom.tanggalInvestasi],
+      ),
       diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
@@ -54,7 +57,8 @@ abstract class InvestasiModel with _$InvestasiModel implements HasId {
       NamaKolom.tanggalInvestasi: tanggalInvestasi?.millisecondsSinceEpoch,
       NamaKolom.dihapus: diHapus ? 1 : 0,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
-      NamaKolom.diperbaruiPada: (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada:
+          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
     };
   }
 
@@ -67,8 +71,11 @@ abstract class InvestasiModel with _$InvestasiModel implements HasId {
       idTransaksi: data[NamaKolom.idTransaksi] as String? ?? '',
       jumlahModal: (data[NamaKolom.jumlahModal] as num?)?.toDouble() ?? 0.0,
       jumlahLembar: (data[NamaKolom.jumlahLembar] as int?) ?? 0,
-      persentaseKepemilikan: (data[NamaKolom.persentaseKepemilikan] as num?)?.toDouble() ?? 0.0,
-      tanggalInvestasi: ParserUtil.parseDateTime(data[NamaKolom.tanggalInvestasi]),
+      persentaseKepemilikan:
+          (data[NamaKolom.persentaseKepemilikan] as num?)?.toDouble() ?? 0.0,
+      tanggalInvestasi: ParserUtil.parseDateTime(
+        data[NamaKolom.tanggalInvestasi],
+      ),
       diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
@@ -83,10 +90,16 @@ abstract class InvestasiModel with _$InvestasiModel implements HasId {
       NamaKolom.jumlahModal: jumlahModal,
       NamaKolom.jumlahLembar: jumlahLembar,
       NamaKolom.persentaseKepemilikan: persentaseKepemilikan,
-      NamaKolom.tanggalInvestasi: Timestamp.fromDate(tanggalInvestasi ?? DateTime.now()),
+      NamaKolom.tanggalInvestasi: Timestamp.fromDate(
+        tanggalInvestasi ?? DateTime.now(),
+      ),
       NamaKolom.dihapus: diHapus,
-      NamaKolom.diarsipkanPada: diarsipkanPada != null ? Timestamp.fromDate(diarsipkanPada!) : null,
-      NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada ?? DateTime.now()),
+      NamaKolom.diarsipkanPada: diarsipkanPada != null
+          ? Timestamp.fromDate(diarsipkanPada!)
+          : null,
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        diperbaruiPada ?? DateTime.now(),
+      ),
     };
   }
 }

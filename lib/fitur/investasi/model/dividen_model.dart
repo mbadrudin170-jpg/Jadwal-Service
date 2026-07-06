@@ -16,7 +16,7 @@ abstract class DividenModel with _$DividenModel implements HasId {
   const factory DividenModel({
     required String id,
     required String idInvestasi, // ID investasi terkait
-    required String idInvestor,  // ID pelanggan investor
+    required String idInvestor, // ID pelanggan investor
     required double jumlahDividen,
     required DateTime tanggalPembagian,
     required bool sudahDibayar,
@@ -33,7 +33,9 @@ abstract class DividenModel with _$DividenModel implements HasId {
       idInvestasi: map[NamaKolom.idInvestasi] as String? ?? '',
       idInvestor: map[NamaKolom.idInvestor] as String? ?? '',
       jumlahDividen: (map[NamaKolom.jumlahDividen] as num?)?.toDouble() ?? 0.0,
-      tanggalPembagian: ParserUtil.parseDateTime(map[NamaKolom.tanggalPembagian]) ?? DateTime.now(),
+      tanggalPembagian:
+          ParserUtil.parseDateTime(map[NamaKolom.tanggalPembagian]) ??
+          DateTime.now(),
       sudahDibayar: ParserUtil.parseBool(map[NamaKolom.sudahDibayar]),
       diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
@@ -51,7 +53,8 @@ abstract class DividenModel with _$DividenModel implements HasId {
       NamaKolom.sudahDibayar: sudahDibayar ? 1 : 0,
       NamaKolom.dihapus: diHapus ? 1 : 0,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
-      NamaKolom.diperbaruiPada: (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada:
+          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
     };
   }
 
@@ -63,7 +66,9 @@ abstract class DividenModel with _$DividenModel implements HasId {
       idInvestasi: data[NamaKolom.idInvestasi] as String? ?? '',
       idInvestor: data[NamaKolom.idInvestor] as String? ?? '',
       jumlahDividen: (data[NamaKolom.jumlahDividen] as num?)?.toDouble() ?? 0.0,
-      tanggalPembagian: ParserUtil.parseDateTime(data[NamaKolom.tanggalPembagian]) ?? DateTime.now(),
+      tanggalPembagian:
+          ParserUtil.parseDateTime(data[NamaKolom.tanggalPembagian]) ??
+          DateTime.now(),
       sudahDibayar: ParserUtil.parseBool(data[NamaKolom.sudahDibayar]),
       diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
@@ -80,8 +85,12 @@ abstract class DividenModel with _$DividenModel implements HasId {
       NamaKolom.tanggalPembagian: Timestamp.fromDate(tanggalPembagian),
       NamaKolom.sudahDibayar: sudahDibayar,
       NamaKolom.dihapus: diHapus,
-      NamaKolom.diarsipkanPada: diarsipkanPada != null ? Timestamp.fromDate(diarsipkanPada!) : null,
-      NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada ?? DateTime.now()),
+      NamaKolom.diarsipkanPada: diarsipkanPada != null
+          ? Timestamp.fromDate(diarsipkanPada!)
+          : null,
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        diperbaruiPada ?? DateTime.now(),
+      ),
     };
   }
 }
