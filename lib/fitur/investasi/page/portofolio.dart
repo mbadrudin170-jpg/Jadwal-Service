@@ -85,10 +85,6 @@ class HalamanPortofolio extends ConsumerWidget {
               0.0,
               (sum, i) => sum + i.jumlahModal,
             );
-            final totalPersentase = daftarInvestasi.fold(
-              0.0,
-              (sum, i) => sum + i.persentaseKepemilikan,
-            );
             final totalDividenDiterima = daftarDividen
                 .where((d) => d.sudahDibayar)
                 .fold(0.0, (sum, d) => sum + d.jumlahDividen);
@@ -126,7 +122,7 @@ class HalamanPortofolio extends ConsumerWidget {
                     namaInvestor:
                         'Investor', // Bisa diambil dari data pelanggan
                     totalModal: totalModal,
-                    persentase: totalPersentase,
+                    persentase: 0,
                     totalDividenDiterima: totalDividenDiterima,
                   ),
                   gapH24,
@@ -134,7 +130,7 @@ class HalamanPortofolio extends ConsumerWidget {
                   // Detail Kepemilikan
                   _buildDetailKepemilikan(
                     totalModal: totalModal,
-                    persentase: totalPersentase,
+                    persentase: 0,
                     totalDividenDiterima: totalDividenDiterima,
                   ),
                   gapH24,
@@ -387,10 +383,6 @@ class HalamanPortofolio extends ConsumerWidget {
                 FormatUang.formatMataUang(investasi.jumlahModal),
                 tebalFont: FontWeight.bold,
                 warna: Colors.blue,
-              ),
-              TeksIsiKecil(
-                '${(investasi.persentaseKepemilikan * 100).toStringAsFixed(1)}%',
-                warna: Colors.grey,
               ),
             ],
           ),

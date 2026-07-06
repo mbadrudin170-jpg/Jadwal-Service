@@ -127,7 +127,7 @@ final class DetailInvestorInvestasiProvider
 }
 
 String _$detailInvestorInvestasiHash() =>
-    r'f5513f94963dc6c871e5698a2cfaee37218e5a98';
+    r'59c3a8337cc21a4bd899a41835d171e7075090f9';
 
 /// Provider untuk mendapatkan data investasi investor tertentu
 
@@ -212,7 +212,7 @@ final class TotalModalInvestorProvider
 }
 
 String _$totalModalInvestorHash() =>
-    r'b9d2c3c0c437db6972aa1f9f4e9fe259b0cd3235';
+    r'486defab84fbfe7b00c5ccbeb1e4c97352ec7453';
 
 /// Provider untuk mendapatkan total modal investor
 
@@ -291,7 +291,7 @@ final class TotalDividenInvestorProvider
 }
 
 String _$totalDividenInvestorHash() =>
-    r'00d2ce9b4d4ed4709bddfdb0b25f57c665ea571e';
+    r'9feb35fbcf68186d7ae9413a22fc088407cbd456';
 
 /// Provider untuk mendapatkan total dividen investor
 
@@ -313,84 +313,4 @@ final class TotalDividenInvestorFamily extends $Family
 
   @override
   String toString() => r'totalDividenInvestorProvider';
-}
-
-/// Provider untuk mendapatkan total persentase investor
-
-@ProviderFor(totalPersentaseInvestor)
-final totalPersentaseInvestorProvider = TotalPersentaseInvestorFamily._();
-
-/// Provider untuk mendapatkan total persentase investor
-
-final class TotalPersentaseInvestorProvider
-    extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
-    with $FutureModifier<double>, $FutureProvider<double> {
-  /// Provider untuk mendapatkan total persentase investor
-  TotalPersentaseInvestorProvider._({
-    required TotalPersentaseInvestorFamily super.from,
-    required String super.argument,
-  }) : super(
-         retry: null,
-         name: r'totalPersentaseInvestorProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$totalPersentaseInvestorHash();
-
-  @override
-  String toString() {
-    return r'totalPersentaseInvestorProvider'
-        ''
-        '($argument)';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<double> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<double> create(Ref ref) {
-    final argument = this.argument as String;
-    return totalPersentaseInvestor(ref, argument);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is TotalPersentaseInvestorProvider &&
-        other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$totalPersentaseInvestorHash() =>
-    r'b46fc9ef94826e8655dae7fb5e328a5d0c5660a0';
-
-/// Provider untuk mendapatkan total persentase investor
-
-final class TotalPersentaseInvestorFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<double>, String> {
-  TotalPersentaseInvestorFamily._()
-    : super(
-        retry: null,
-        name: r'totalPersentaseInvestorProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  /// Provider untuk mendapatkan total persentase investor
-
-  TotalPersentaseInvestorProvider call(String idInvestor) =>
-      TotalPersentaseInvestorProvider._(argument: idInvestor, from: this);
-
-  @override
-  String toString() => r'totalPersentaseInvestorProvider';
 }

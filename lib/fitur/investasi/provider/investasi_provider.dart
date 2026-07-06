@@ -73,12 +73,6 @@ abstract class InvestasiState with _$InvestasiState {
         .fold(0.0, (sum, d) => sum + d.jumlahDividen);
   }
 
-  /// Menghitung total persentase kepemilikan investor
-  double getTotalPersentaseInvestor(String idInvestor) {
-    return daftarInvestasi
-        .where((i) => i.idInvestor == idInvestor)
-        .fold(0.0, (sum, i) => sum + i.persentaseKepemilikan);
-  }
 }
 
 // ============================================================
@@ -382,9 +376,3 @@ Future<double> totalDividenInvestor(Ref ref, String idInvestor) async {
   return state.getTotalDividenDiterimaInvestor(idInvestor);
 }
 
-/// Provider untuk mendapatkan total persentase investor
-@riverpod
-Future<double> totalPersentaseInvestor(Ref ref, String idInvestor) async {
-  final state = await ref.watch(investasiProvider.future);
-  return state.getTotalPersentaseInvestor(idInvestor);
-}

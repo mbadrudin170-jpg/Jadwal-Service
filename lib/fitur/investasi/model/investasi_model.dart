@@ -19,7 +19,6 @@ abstract class InvestasiModel with _$InvestasiModel implements HasId {
     required String idTransaksi, // ID transaksi terkait
     required double jumlahModal, // Jumlah modal yang ditanamkan (Rupiah)
     required int jumlahLembar, // Jumlah lembar/saham yang dibeli
-    required double persentaseKepemilikan, // Persentase kepemilikan
     DateTime? tanggalInvestasi,
     @Default(false) bool diHapus,
     DateTime? diarsipkanPada,
@@ -35,8 +34,6 @@ abstract class InvestasiModel with _$InvestasiModel implements HasId {
       idTransaksi: map[NamaKolom.idTransaksi] as String? ?? '',
       jumlahModal: (map[NamaKolom.jumlahModal] as num?)?.toDouble() ?? 0.0,
       jumlahLembar: (map[NamaKolom.jumlahLembar] as int?) ?? 0,
-      persentaseKepemilikan:
-          (map[NamaKolom.persentaseKepemilikan] as num?)?.toDouble() ?? 0.0,
       tanggalInvestasi: ParserUtil.parseDateTime(
         map[NamaKolom.tanggalInvestasi],
       ),
@@ -53,7 +50,6 @@ abstract class InvestasiModel with _$InvestasiModel implements HasId {
       NamaKolom.idTransaksi: idTransaksi,
       NamaKolom.jumlahModal: jumlahModal,
       NamaKolom.jumlahLembar: jumlahLembar,
-      NamaKolom.persentaseKepemilikan: persentaseKepemilikan,
       NamaKolom.tanggalInvestasi: tanggalInvestasi?.millisecondsSinceEpoch,
       NamaKolom.dihapus: diHapus ? 1 : 0,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
@@ -71,8 +67,6 @@ abstract class InvestasiModel with _$InvestasiModel implements HasId {
       idTransaksi: data[NamaKolom.idTransaksi] as String? ?? '',
       jumlahModal: (data[NamaKolom.jumlahModal] as num?)?.toDouble() ?? 0.0,
       jumlahLembar: (data[NamaKolom.jumlahLembar] as int?) ?? 0,
-      persentaseKepemilikan:
-          (data[NamaKolom.persentaseKepemilikan] as num?)?.toDouble() ?? 0.0,
       tanggalInvestasi: ParserUtil.parseDateTime(
         data[NamaKolom.tanggalInvestasi],
       ),
@@ -89,7 +83,6 @@ abstract class InvestasiModel with _$InvestasiModel implements HasId {
       NamaKolom.idTransaksi: idTransaksi,
       NamaKolom.jumlahModal: jumlahModal,
       NamaKolom.jumlahLembar: jumlahLembar,
-      NamaKolom.persentaseKepemilikan: persentaseKepemilikan,
       NamaKolom.tanggalInvestasi: Timestamp.fromDate(
         tanggalInvestasi ?? DateTime.now(),
       ),

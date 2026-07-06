@@ -50,7 +50,6 @@ List<InvestasiModel> get daftarInvestasi {
       idTransaksi: idTransaksi1, // Transaksi Gaji Budi
       jumlahModal: 5000000,
       jumlahLembar: 50,
-      persentaseKepemilikan: 0.4, // 40%
       tanggalInvestasi: now.subtract(duaBulanLalu),
     ),
     InvestasiModel(
@@ -59,7 +58,6 @@ List<InvestasiModel> get daftarInvestasi {
       idTransaksi: idTransaksi2, // Transaksi Bonus Budi
       jumlahModal: 2000000,
       jumlahLembar: 20,
-      persentaseKepemilikan: 0.15, // 15%
       tanggalInvestasi: satuBulanLalu,
     ),
 
@@ -72,7 +70,6 @@ List<InvestasiModel> get daftarInvestasi {
       idTransaksi: idTransaksi5, // Transaksi Aktivasi Paket Bisnis Siti
       jumlahModal: 7500000,
       jumlahLembar: 75,
-      persentaseKepemilikan: 0.6, // 60%
       tanggalInvestasi: now.subtract(tigaBulanLalu),
     ),
     InvestasiModel(
@@ -81,7 +78,6 @@ List<InvestasiModel> get daftarInvestasi {
       idTransaksi: idTransaksi7, // Transaksi Aktivasi Paket Gamer Dewi
       jumlahModal: 3000000,
       jumlahLembar: 30,
-      persentaseKepemilikan: 0.25, // 25%
       tanggalInvestasi: now.subtract(empatBulanLalu),
     ),
     InvestasiModel(
@@ -90,7 +86,6 @@ List<InvestasiModel> get daftarInvestasi {
       idTransaksi: idTransaksi9, // Transaksi Aktivasi Paket Ultimate Joko
       jumlahModal: 1000000,
       jumlahLembar: 10,
-      persentaseKepemilikan: 0.1, // 10%
       tanggalInvestasi: now.subtract(duaBulanLalu),
     ),
   ];
@@ -228,11 +223,6 @@ int getTotalLembarInvestor(String idInvestor) {
 }
 
 /// Menghitung total persentase kepemilikan investor
-double getTotalPersentaseInvestor(String idInvestor) {
-  return daftarInvestasi
-      .where((i) => i.idInvestor == idInvestor)
-      .fold(0.0, (sum, i) => sum + i.persentaseKepemilikan);
-}
 
 /// Menghitung total dividen yang sudah diterima investor
 double getTotalDividenDiterima(String idInvestor) {
