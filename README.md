@@ -280,6 +280,14 @@ lib/fitur/transaksi/enum/tipe_transaksi.dart
 lib/fitur/transaksi/model
 lib/fitur/transaksi/model/transaksi_model.dart
 lib/fitur/transaksi/model/transaksi_model.freezed.dart
+lib/fitur/investasi
+lib/fitur/investasi/page
+lib/fitur/investasi/page/portofolio.dart
+lib/fitur/investasi/operasi
+lib/fitur/investasi/operasi/investasi_op_sqlite.dart
+lib/fitur/investasi/model
+lib/fitur/investasi/model/dividen_model.dart
+lib/fitur/investasi/model/investasi_model.dart
 lib/fitur/pelanggan
 lib/fitur/pelanggan/page
 lib/fitur/pelanggan/page/user
@@ -704,6 +712,84 @@ test/admin/providers/riwayat_aktivasi_paket_provider_test.dart
 test/admin/halaman_utama_test.dart
 test/admin/model
 test/admin/model/best_selling_package_test.dart
+script
+script/lainnya
+script/lainnya/buat_file.sh
+script/docs
+script/docs/md_script.sh
+script/docs/timpa_readme.sh
+script/docs/build_docs.sh
+script/docs/md_fitur.sh
+script/docs/md_readme.sh
+script/clean
+script/clean/full_clean.sh
+script/build
+script/build/build_user.sh
+script/build/build_admin.sh
+docs
+docs/script.md
+docs/fitur
+docs/fitur/chating.md
+docs/fitur/notifikasi.md
+docs/fitur/versi_apk.md
+docs/fitur/database.md
+docs/fitur/voucher.md
+docs/fitur/paket.md
+docs/fitur/app_role.md
+docs/fitur/alarm.md
+docs/fitur/statistik.md
+docs/fitur/settings.md
+docs/fitur/speedtest.md
+docs/fitur/pelanggan.md
+docs/fitur/info_perangkat.md
+docs/fitur/poin.md
+docs/fitur/whatsapp.md
+docs/fitur/kategori.md
+docs/fitur/transaksi.md
+docs/fitur/riwayat_aktivasi.md
+docs/fitur/background.md
+docs/fitur/order.md
+docs/fitur/feedback.md
+docs/fitur/pelanggan_aktif.md
+docs/fitur/akun.md
+docs/fitur/investor.md
+docs/fitur/event.md
+docs/fitur/dompet.md
+docs/fitur/sinkronisasi.md
+docs/build
+docs/build/build_apk_user.md
+docs/build/build_apk_admin.md
+prompt
+prompt/aturan_penamaan.md
+prompt/permintaan_benarkan_kode.md
+prompt/struktur_proyek.md
+prompt/aturan_analisis_error.md
+prompt/aturan_test.md
+prompt/aturan_pribadi.md
+prompt/build.md
+prompt/penyisipan_log_sanckbar.md
+prompt/aturan_ai.md
+prompt/style.md
+prompt/flutter.md
+prompt/aturan_penulisan_kode.md
+prompt/aturan_kepatuhan_ai.md
+assets
+assets/image
+assets/image/ikon_apk.png
+assets/image/ikon_putih.png
+assets/image/splash.png
+assets/fonts
+assets/fonts/Poppins-Bold.ttf
+assets/fonts/inter
+assets/fonts/inter/Inter_18pt-Medium.ttf
+assets/fonts/inter/Inter_18pt-Bold.ttf
+assets/fonts/inter/Inter_18pt-ExtraBold.ttf
+assets/fonts/inter/Inter_18pt-SemiBold.ttf
+assets/fonts/inter/Inter_18pt-Regular.ttf
+assets/fonts/Poppins-Medium.ttf
+assets/fonts/OpenSans-Medium.ttf
+assets/fonts/OpenSans-Regular.ttf
+assets/app-userprod-release.apk
 // File: pubspec.yaml
 
 name: wifi
@@ -39110,6 +39196,26 @@ as bool,
 ```
 
 
+// File: lib/fitur/investasi/page/portofolio.dart
+```dart
+```
+
+
+// File: lib/fitur/investasi/operasi/investasi_op_sqlite.dart
+```dart
+```
+
+
+// File: lib/fitur/investasi/model/dividen_model.dart
+```dart
+```
+
+
+// File: lib/fitur/investasi/model/investasi_model.dart
+```dart
+```
+
+
 // File: lib/fitur/pelanggan/page/user/detail_pelanggan.dart
 ```dart
 // file: lib/fitur/pelanggan/page/admin/detail_pelanggan.dart
@@ -60047,6 +60153,14 @@ lib/fitur/transaksi/enum/tipe_transaksi.dart
 lib/fitur/transaksi/model
 lib/fitur/transaksi/model/transaksi_model.dart
 lib/fitur/transaksi/model/transaksi_model.freezed.dart
+lib/fitur/investasi
+lib/fitur/investasi/page
+lib/fitur/investasi/page/portofolio.dart
+lib/fitur/investasi/operasi
+lib/fitur/investasi/operasi/investasi_op_sqlite.dart
+lib/fitur/investasi/model
+lib/fitur/investasi/model/dividen_model.dart
+lib/fitur/investasi/model/investasi_model.dart
 lib/fitur/pelanggan
 lib/fitur/pelanggan/page
 lib/fitur/pelanggan/page/user

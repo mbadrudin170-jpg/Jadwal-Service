@@ -18,7 +18,7 @@ find lib test > prompt/struktur_proyek.md
 
 {
     # Struktur direktori (hanya nama file)
-    find lib test
+    find lib test script docs prompt assets
 
     # File pubspec.yaml
     echo -e "// File: pubspec.yaml\n"
@@ -27,6 +27,13 @@ find lib test > prompt/struktur_proyek.md
     # File analysis_options.yaml
     echo -e "\n\n// File: analysis_options.yaml\n"
     cat analysis_options.yaml
+
+    find lib -type f -name "*.sh" -exec sh -c '
+        echo -e "\n\n// File: $1"
+        echo "\`\`\`sh"
+        cat "$1"
+        echo "\`\`\`"
+    ' _ {} \;
 
     # Semua file .dart di lib/ dengan blok kode Dart
     find lib -type f -name "*.dart" -exec sh -c '

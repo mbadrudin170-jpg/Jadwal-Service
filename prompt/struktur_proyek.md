@@ -280,6 +280,14 @@ lib/fitur/transaksi/enum/tipe_transaksi.dart
 lib/fitur/transaksi/model
 lib/fitur/transaksi/model/transaksi_model.dart
 lib/fitur/transaksi/model/transaksi_model.freezed.dart
+lib/fitur/investasi
+lib/fitur/investasi/page
+lib/fitur/investasi/page/portofolio.dart
+lib/fitur/investasi/operasi
+lib/fitur/investasi/operasi/investasi_op_sqlite.dart
+lib/fitur/investasi/model
+lib/fitur/investasi/model/dividen_model.dart
+lib/fitur/investasi/model/investasi_model.dart
 lib/fitur/pelanggan
 lib/fitur/pelanggan/page
 lib/fitur/pelanggan/page/user

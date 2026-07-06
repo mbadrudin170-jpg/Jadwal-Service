@@ -1,5 +1,54 @@
 
 
+// File: script/lainnya/buat_file.sh
+#!/bin/bash
+# // path: script/lainnya/buat_file.sh
+
+# Warna output
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+echo -e "${YELLOW}========================================${NC}"
+echo -e "${YELLOW}  MEMBUAT STRUKTUR FOLDER INVESTASI${NC}"
+echo -e "${YELLOW}========================================${NC}"
+
+# 1. Buat folder
+echo -e "${GREEN}📁 Membuat folder...${NC}"
+mkdir -p lib/fitur/investasi/{model,operasi,provider,page}
+
+# 2. Buat file-file kosong
+echo -e "${GREEN}📄 Membuat file-file kosong...${NC}"
+
+FILES=(
+    "lib/fitur/investasi/model/investasi_model.dart"
+    "lib/fitur/investasi/model/dividen_model.dart"
+    "lib/fitur/investasi/model/riwayat_pembelian_model.dart"
+    "lib/fitur/investasi/model/dividen_history_model.dart"
+    "lib/fitur/investasi/operasi/investasi_op_sqlite.dart"
+    "lib/fitur/investasi/provider/investasi_provider.dart"
+    "lib/fitur/investasi/page/portofolio.dart"
+)
+
+for file in "${FILES[@]}"; do
+    if [ -f "$file" ]; then
+        echo -e "  ${YELLOW}⚠️  $file sudah ada, dilewati${NC}"
+    else
+        touch "$file"
+        echo -e "  ${GREEN}✅ $file dibuat${NC}"
+    fi
+done
+
+# 3. Tampilkan hasil
+echo -e "\n${GREEN}📂 Struktur folder yang dibuat:${NC}"
+tree lib/fitur/investasi 2>/dev/null || find lib/fitur/investasi -type f | sort
+
+echo -e "\n${GREEN}✅ Selesai!${NC}"
+echo -e "${YELLOW}📝 Langkah selanjutnya:${NC}"
+echo "  1. Jalankan: fbuild (untuk generate freezed)"
+echo "  2. Edit file-file di lib/fitur/investasi/"
+
 // File: script/docs/md_script.sh
 #!/bin/bash
 
