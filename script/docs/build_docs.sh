@@ -14,28 +14,39 @@ include_test="${2:-}"
 
 # Pastikan folder prompt ada, lalu buat daftar struktur
 mkdir -p prompt
-find lib test > prompt/struktur_proyek.md
+# Hanya satu kali find untuk struktur
+find lib test script docs prompt assets > prompt/struktur_proyek.md
 
 {
-    # Struktur direktori (hanya nama file)
-    find lib test script docs prompt assets
+    # Struktur direktori
+    echo "// ============================================================"
+    echo "// STRUKTUR PROYEK"
+    echo "// ============================================================"
+    cat prompt/struktur_proyek.md
 
     # File pubspec.yaml
-    echo -e "// File: pubspec.yaml\n"
+    echo -e "\n\n// File: pubspec.yaml\n"
     cat pubspec.yaml
 
     # File analysis_options.yaml
     echo -e "\n\n// File: analysis_options.yaml\n"
     cat analysis_options.yaml
 
-    find lib -type f -name "*.sh" -exec sh -c '
+    # === FILE SCRIPT SHELL (.sh) ===
+    echo -e "\n\n// ============================================================"
+    echo -e "// FILE SCRIPT SHELL"
+    echo -e "// ============================================================"
+    find script -type f -name "*.sh" -exec sh -c '
         echo -e "\n\n// File: $1"
-        echo "\`\`\`sh"
+        echo "\`\`\`bash"
         cat "$1"
         echo "\`\`\`"
     ' _ {} \;
 
-    # Semua file .dart di lib/ dengan blok kode Dart
+    # === FILE DART DI LIB ===
+    echo -e "\n\n// ============================================================"
+    echo -e "// FILE DART DI LIB"
+    echo -e "// ============================================================"
     find lib -type f -name "*.dart" -exec sh -c '
         echo -e "\n\n// File: $1"
         echo "\`\`\`dart"
@@ -43,23 +54,29 @@ find lib test > prompt/struktur_proyek.md
         echo "\`\`\`"
     ' _ {} \;
 
-    # File .md di prompt/
+    # === FILE MD DI PROMPT ===
+    echo -e "\n\n// ============================================================"
+    echo -e "// FILE PROMPT (.md)"
+    echo -e "// ============================================================"
     find prompt -type f -name "*.md" -exec sh -c '
         echo -e "\n\n// File: $1"
         cat "$1"
     ' _ {} \;
 
-    # Snippet VS Code
+    # === SNIPPET VS CODE ===
     echo -e "\n\n// ============================================================"
     echo -e "// SNIPPET VS CODE"
-    echo -e "// ============================================================\n"
+    echo -e "// ============================================================"
     find .vscode -type f -name "*.code-snippets" -exec sh -c '
         echo -e "\n\n// File: $1"
         cat "$1"
     ' _ {} \;
 
-    # Jika include_test, tambahkan file .dart di test/ dengan blok kode
+    # === FILE DART DI TEST (opsional) ===
     if [ "$include_test" = "include_test" ]; then
+        echo -e "\n\n// ============================================================"
+        echo -e "// FILE DART DI TEST"
+        echo -e "// ============================================================"
         find test -type f -name "*.dart" -exec sh -c '
             echo -e "\n\n// File: $1"
             echo "\`\`\`dart"
