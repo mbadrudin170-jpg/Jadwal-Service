@@ -2,9 +2,26 @@
 
 ## Daftar file
 
+- [lib/fitur/app_role/app_role_enum.dart](../../lib/fitur/app_role/app_role_enum.dart)
 - [lib/fitur/app_role/role_util.dart](../../lib/fitur/app_role/role_util.dart)
 
 ## Isi file
+
+### File: `lib/fitur/app_role/app_role_enum.dart`
+```dart
+// path: lib/fitur/app_role/app_role_enum.dart
+
+/// Mendefinisikan peran pengguna dalam aplikasi.
+enum AppRole {
+  /// Peran administrator dengan hak akses penuh.
+  admin,
+
+  /// Peran pengguna biasa dengan hak akses terbatas.
+  user,
+
+  investor,
+}
+```
 
 ### File: `lib/fitur/app_role/role_util.dart`
 ```dart
@@ -12,8 +29,8 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/app_role_enum.dart';
 
 part 'role_util.g.dart';
 
@@ -33,6 +50,10 @@ class RoleUtil {
 
   static bool isUser(Ref ref) {
     return ref.watch(appRoleProvider) == AppRole.user;
+  }
+
+  static bool isInvestor(Ref ref) {
+    return ref.watch(appRoleProvider) == AppRole.investor;
   }
 
   static bool hasRole(Ref ref, AppRole role) {
@@ -70,6 +91,8 @@ extension RoleExtension on WidgetRef {
 
   /// Mengecek apakah pengguna saat ini adalah user.
   bool get isUser => watch(appRoleProvider) == AppRole.user;
+
+  bool get isInvestor => watch(appRoleProvider) == AppRole.investor;
 
   /// Mengecek apakah pengguna saat ini memiliki role yang sama dengan [role].
   bool hasRole(AppRole role) => watch(appRoleProvider) == role;

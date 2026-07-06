@@ -591,7 +591,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
           DateTime.now(),
       judul: map[NamaKolom.judul] as String? ?? '',
       deskripsi: map[NamaKolom.deskripsi] as String? ?? '',
-      setatusDibaca: ParserUtil.parseBool(map[NamaKolom.setatusDibaca]),
+      setatusDibaca: ParserUtil.parseBool(map[NamaKolom.statusDibaca]),
       tipe:
           ParserUtil.safeParseEnum(
             TipeNotifikasiEnum.values,
@@ -621,7 +621,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
       NamaKolom.tanggalBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
       NamaKolom.judul: judul,
       NamaKolom.deskripsi: deskripsi,
-      NamaKolom.setatusDibaca: setatusDibaca ? 1 : 0,
+      NamaKolom.statusDibaca: setatusDibaca ? 1 : 0,
       NamaKolom.tipe: tipe.name,
       NamaKolom.diperbaruiPada: diperbaruiPada.millisecondsSinceEpoch,
       NamaKolom.idTujuan: idTujuan,
@@ -651,7 +651,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
           DateTime.now(),
       judul: data[NamaKolom.judul] as String? ?? '',
       deskripsi: data[NamaKolom.deskripsi] as String? ?? '',
-      setatusDibaca: ParserUtil.parseBool(data[NamaKolom.setatusDibaca]),
+      setatusDibaca: ParserUtil.parseBool(data[NamaKolom.statusDibaca]),
       tipe:
           ParserUtil.safeParseEnum(
             TipeNotifikasiEnum.values,
@@ -681,7 +681,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
       NamaKolom.tanggalBerakhir: Timestamp.fromDate(tanggalBerakhir),
       NamaKolom.judul: judul,
       NamaKolom.deskripsi: deskripsi,
-      NamaKolom.setatusDibaca: setatusDibaca,
+      NamaKolom.statusDibaca: setatusDibaca,
       NamaKolom.tipe: tipe.name,
       NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada),
       NamaKolom.idTujuan: idTujuan,
@@ -725,7 +725,7 @@ class NotifikasiOpFirebase {
     return _firestore
         .collection(_koleksi)
         .where(NamaKolom.dihapus, isEqualTo: false)
-        .where(NamaKolom.setatusDibaca, isEqualTo: false)
+        .where(NamaKolom.statusDibaca, isEqualTo: false)
         .where(
           NamaKolom.tanggalTampil,
           isLessThanOrEqualTo: Timestamp.fromDate(now),
@@ -745,7 +745,7 @@ class NotifikasiOpFirebase {
         .where(NamaKolom.userId, isEqualTo: userId)
         .where(NamaKolom.targetRole, isEqualTo: AppRole.user.name)
         .where(NamaKolom.dihapus, isEqualTo: false)
-        .where(NamaKolom.setatusDibaca, isEqualTo: false)
+        .where(NamaKolom.statusDibaca, isEqualTo: false)
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
@@ -759,7 +759,7 @@ class NotifikasiOpFirebase {
       if (!snapshot.exists) return [];
       final data = snapshot.data()!;
       if (data[NamaKolom.dihapus] == true ||
-          data[NamaKolom.setatusDibaca] == true) {
+          data[NamaKolom.statusDibaca] == true) {
         return [];
       }
       return [NotifikasiModel.fromFirebase(snapshot.id, data)];
@@ -773,7 +773,7 @@ class NotifikasiOpFirebase {
         .collection(_koleksi)
         .where(NamaKolom.targetRole, isEqualTo: AppRole.admin.name)
         .where(NamaKolom.tipe, isEqualTo: TipeNotifikasiEnum.order.name)
-        .where(NamaKolom.setatusDibaca, isEqualTo: false)
+        .where(NamaKolom.statusDibaca, isEqualTo: false)
         .where(NamaKolom.dihapus, isEqualTo: false)
         .where(
           NamaKolom.tanggalTampil,
@@ -849,7 +849,7 @@ class NotifikasiOpFirebase {
   Future<void> tandaiSudahDibaca(String id) async {
     try {
       Log.info('Marking notification as read via BaseOp: $id');
-      await _baseOp.update(_koleksi, id, {NamaKolom.setatusDibaca: true});
+      await _baseOp.update(_koleksi, id, {NamaKolom.statusDibaca: true});
     } catch (e) {
       Log.error('Error marking notification as read: $e');
       rethrow;
@@ -939,7 +939,7 @@ class NotifikasiOpSqlite {
     Log.info('Menandai notifikasi sudah dibaca - ID: $id');
     try {
       final data = {
-        NamaKolom.setatusDibaca: 1,
+        NamaKolom.statusDibaca: 1,
         NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
       };
       await _baseOpSqlite.update(_namaTabel, data, id, dariServer: dariServer);
@@ -1061,7 +1061,7 @@ class NotifikasiOpSqlite {
       final List<Map<String, dynamic>> maps = await db.query(
         _namaTabel,
         where:
-            '${NamaKolom.dihapus} = 0 AND ${NamaKolom.setatusDibaca} = 0 AND ${NamaKolom.tanggalTampil} <= ?',
+            '${NamaKolom.dihapus} = 0 AND ${NamaKolom.statusDibaca} = 0 AND ${NamaKolom.tanggalTampil} <= ?',
         whereArgs: [now],
         orderBy: '${NamaKolom.tanggalTampil} DESC',
       );

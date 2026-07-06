@@ -177,6 +177,7 @@ Future<List<(PelangganModel, int)>> filteredCustomers(Ref ref) async {
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
@@ -194,12 +195,12 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
     required String alamat,
     required String kataSandi,
     required String macAddress,
+    @Default(AppRole.user) AppRole role,
     DateTime? diperbaruiPada,
     @Default(false) bool diHapus,
     DateTime? diarsipkanPada,
     DateTime? terkahirAktif,
   }) = _PelangganModel;
-
   factory PelangganModel.fromSqlite(Map<String, dynamic> map) {
     Log.info('Creating CustomerModel from SQLite: ${map[NamaKolom.id]}');
     return PelangganModel(
@@ -209,10 +210,13 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       alamat: map[NamaKolom.alamat] as String? ?? '',
       kataSandi: map[NamaKolom.kataSandi] as String? ?? '',
       macAddress: map[NamaKolom.macAddress] as String? ?? '',
+      role:
+          ParserUtil.safeParseEnum(AppRole.values, map[NamaKolom.role]) ??
+          AppRole.user, // <-- perbaikan
       diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
-      terkahirAktif: ParserUtil.parseDateTime(map[NamaKolom.terkahirAktif]),
+      terkahirAktif: ParserUtil.parseDateTime(map[NamaKolom.terakhirAktif]),
     );
   }
 
@@ -224,15 +228,15 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.alamat: alamat,
       NamaKolom.kataSandi: kataSandi,
       NamaKolom.macAddress: macAddress,
+      NamaKolom.role: role.name, // <-- tambahkan
       NamaKolom.dihapus: diHapus ? 1 : 0,
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
       NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
-      NamaKolom.terkahirAktif: terkahirAktif?.millisecondsSinceEpoch,
+      NamaKolom.terakhirAktif: terkahirAktif?.millisecondsSinceEpoch,
     };
   }
 
-  /// Creates a [PelangganModel] from a Firebase document.
   factory PelangganModel.fromFirebase(String id, Map<String, dynamic> data) {
     Log.info('Creating CustomerModel from Firebase: $id');
     return PelangganModel(
@@ -242,14 +246,16 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       alamat: data[NamaKolom.alamat] as String? ?? '',
       kataSandi: data[NamaKolom.kataSandi] as String? ?? '',
       macAddress: data[NamaKolom.macAddress] as String? ?? '',
+      role:
+          ParserUtil.safeParseEnum(AppRole.values, data[NamaKolom.role]) ??
+          AppRole.user, // <-- tambahkan
       diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
-      terkahirAktif: ParserUtil.parseDateTime(data[NamaKolom.terkahirAktif]),
+      terkahirAktif: ParserUtil.parseDateTime(data[NamaKolom.terakhirAktif]),
     );
   }
 
-  /// Converts the [PelangganModel] to a map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
@@ -258,6 +264,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.alamat: alamat,
       NamaKolom.kataSandi: kataSandi,
       NamaKolom.macAddress: macAddress,
+      NamaKolom.role: role.name, // <-- tambahkan
       NamaKolom.dihapus: diHapus,
       NamaKolom.diperbaruiPada: Timestamp.fromDate(
         (diperbaruiPada ?? DateTime.now()).toUtc(),
@@ -265,7 +272,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,
-      NamaKolom.terkahirAktif: terkahirAktif != null
+      NamaKolom.terakhirAktif: terkahirAktif != null
           ? Timestamp.fromDate(terkahirAktif!.toUtc())
           : null,
     };
@@ -369,7 +376,7 @@ class PelangganOpFirebase {
   Future<void> perbaruiTerakhirAktif(String id) async {
     Log.info('Mendelegasikan update last active untuk: $id');
     await _baseOpFirebase.update(_namaKoleksi, id, {
-      NamaKolom.terkahirAktif: FieldValue.serverTimestamp(),
+      NamaKolom.terakhirAktif: FieldValue.serverTimestamp(),
     });
   }
 
@@ -969,6 +976,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
@@ -989,10 +997,10 @@ class FormPelanggan extends ConsumerStatefulWidget {
   const FormPelanggan({super.key, this.pelanggan});
 
   @override
-  ConsumerState<FormPelanggan> createState() => _CustomerFormState();
+  ConsumerState<FormPelanggan> createState() => _FormPelangganState();
 }
 
-class _CustomerFormState extends ConsumerState<FormPelanggan> {
+class _FormPelangganState extends ConsumerState<FormPelanggan> {
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   final _teleponController = TextEditingController();
@@ -1005,7 +1013,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
   final _alamatFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
   final _macAddressFocusNode = FocusNode();
-
+  AppRole _selectedRole = AppRole.user;
   bool get _modeEdit => widget.pelanggan != null;
   bool _menyimpan = false;
 
@@ -1024,6 +1032,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       _alamatController.text = widget.pelanggan!.alamat;
       _passwordController.text = widget.pelanggan!.kataSandi;
       _macAddressController.text = widget.pelanggan!.macAddress;
+      _selectedRole = widget.pelanggan!.role;
     }
   }
 
@@ -1073,6 +1082,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         alamat: _alamatController.text.trim(),
         kataSandi: _passwordController.text,
         macAddress: _macAddressController.text.trim().toUpperCase(),
+        role: _selectedRole,
       );
       Log.info(
         'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}',
@@ -1157,6 +1167,31 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                   focusNode: _passwordFocusNode,
                   nextFocusNode: _macAddressFocusNode,
                 ),
+                gapH16,
+                if (ref.isAdmin)
+                  DropdownButtonFormField<AppRole>(
+                    value: _selectedRole,
+                    decoration: const InputDecoration(
+                      labelText: 'Peran (Role)',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(TIcons.person),
+                    ),
+                    items: AppRole.values.map((role) {
+                      return DropdownMenuItem<AppRole>(
+                        value: role,
+                        child: Text(role.name.toUpperCase()),
+                      );
+                    }).toList(),
+                    onChanged: (newRole) {
+                      if (newRole != null) {
+                        setState(() {
+                          _selectedRole = newRole;
+                        });
+                      }
+                    },
+                    validator: (value) =>
+                        value == null ? 'Role harus dipilih' : null,
+                  ),
                 gapH16,
                 if (ref.isAdmin)
                   InputMacAddress(
