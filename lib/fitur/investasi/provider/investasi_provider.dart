@@ -11,10 +11,6 @@ import 'package:wifi/shared/debug/log.dart';
 part 'investasi_provider.freezed.dart';
 part 'investasi_provider.g.dart';
 
-// ============================================================
-// STATE
-// ============================================================
-
 @freezed
 abstract class InvestasiState with _$InvestasiState {
   const InvestasiState._();
@@ -28,7 +24,6 @@ abstract class InvestasiState with _$InvestasiState {
     @Default(0.0) double totalDividenBelumDibayar,
   }) = _InvestasiState;
 
-  /// Mendapatkan investasi berdasarkan ID
   InvestasiModel? ambilInvestasiById(String id) {
     try {
       return daftarInvestasi.firstWhere((i) => i.id == id);
@@ -37,63 +32,50 @@ abstract class InvestasiState with _$InvestasiState {
     }
   }
 
-  /// Mendapatkan investasi berdasarkan ID investor
   List<InvestasiModel> ambilInvestasiByIdInvestor(String idInvestor) {
     return daftarInvestasi.where((i) => i.idInvestor == idInvestor).toList();
   }
 
-  /// Mendapatkan dividen berdasarkan ID investor
   List<DividenModel> ambilDividenByIdInvestor(String idInvestor) {
     return daftarDividen.where((d) => d.idInvestor == idInvestor).toList();
   }
 
-  /// Mendapatkan dividen berdasarkan ID investasi
   List<DividenModel> ambilDividenByIdInvestasi(String idInvestasi) {
     return daftarDividen.where((d) => d.idInvestasi == idInvestasi).toList();
   }
 
-  /// Mendapatkan total modal investor
   double getTotalModalInvestor(String idInvestor) {
     return daftarInvestasi
         .where((i) => i.idInvestor == idInvestor)
         .fold(0.0, (sum, i) => sum + i.jumlahModal);
   }
 
-  /// Mendapatkan total dividen yang sudah diterima investor
   double getTotalDividenDiterimaInvestor(String idInvestor) {
     return daftarDividen
         .where((d) => d.idInvestor == idInvestor && d.sudahDibayar)
         .fold(0.0, (sum, d) => sum + d.jumlahDividen);
   }
 
-  /// Mendapatkan total dividen yang belum dibayar investor
   double getTotalDividenBelumDibayarInvestor(String idInvestor) {
     return daftarDividen
         .where((d) => d.idInvestor == idInvestor && !d.sudahDibayar)
         .fold(0.0, (sum, d) => sum + d.jumlahDividen);
   }
 
-  /// Menghitung total lembar investor berdasarkan ID investor
   int getTotalLembarInvestor(String idInvestor) {
     return daftarInvestasi
         .where((i) => i.idInvestor == idInvestor)
         .fold(0, (sum, i) => sum + i.jumlahLembar);
   }
-  // path: lib/fitur/investasi/provider/investasi_provider.dart
-  // Tambahkan di dalam class InvestasiState
 
-  /// Menghitung total semua lembar saham yang beredar (dari semua investor)
   int getTotalLembarBeredar() {
     return daftarInvestasi.fold(0, (sum, i) => sum + i.jumlahLembar);
   }
-  double getTotalAsetPerusahaan() {
-  return daftarInvestasi.fold(0.0, (sum, i) => sum + i.jumlahModal);
-}
-}
 
-// ============================================================
-// NOTIFIER INVESTASI
-// ============================================================
+  double getTotalAsetPerusahaan() {
+    return daftarInvestasi.fold(0.0, (sum, i) => sum + i.jumlahModal);
+  }
+}
 
 @riverpod
 class InvestasiNotifier extends _$InvestasiNotifier {
@@ -105,7 +87,6 @@ class InvestasiNotifier extends _$InvestasiNotifier {
     return _loadData();
   }
 
-  /// Memuat semua data investasi dan dividen
   Future<InvestasiState> _loadData() async {
     Log.info('Memuat data investasi dan dividen');
     try {
@@ -143,7 +124,6 @@ class InvestasiNotifier extends _$InvestasiNotifier {
     }
   }
 
-  /// Menyegarkan data
   Future<void> refresh() async {
     Log.info('Menyegarkan data investasi');
     state = const AsyncValue.loading();
@@ -152,11 +132,6 @@ class InvestasiNotifier extends _$InvestasiNotifier {
     });
   }
 
-  // ============================================================
-  // OPERASI INVESTASI
-  // ============================================================
-
-  /// Menambahkan investasi baru
   Future<void> tambahInvestasi(InvestasiModel investasi) async {
     if (!state.hasValue) return;
     Log.info('Menambahkan investasi baru - ID: ${investasi.id}');
@@ -179,7 +154,6 @@ class InvestasiNotifier extends _$InvestasiNotifier {
     }
   }
 
-  /// Memperbarui investasi
   Future<void> perbaruiInvestasi(InvestasiModel investasi) async {
     if (!state.hasValue) return;
     Log.info('Memperbarui investasi - ID: ${investasi.id}');
@@ -204,7 +178,6 @@ class InvestasiNotifier extends _$InvestasiNotifier {
     }
   }
 
-  /// Soft delete investasi
   Future<void> softDeleteInvestasi(String id) async {
     if (!state.hasValue) return;
     Log.info('Soft delete investasi - ID: $id');
@@ -230,11 +203,6 @@ class InvestasiNotifier extends _$InvestasiNotifier {
     }
   }
 
-  // ============================================================
-  // OPERASI DIVIDEN
-  // ============================================================
-
-  /// Menambahkan dividen baru
   Future<void> tambahDividen(DividenModel dividen) async {
     if (!state.hasValue) return;
     Log.info('Menambahkan dividen baru - ID: ${dividen.id}');
@@ -263,7 +231,6 @@ class InvestasiNotifier extends _$InvestasiNotifier {
     }
   }
 
-  /// Memperbarui dividen
   Future<void> perbaruiDividen(DividenModel dividen) async {
     if (!state.hasValue) return;
     Log.info('Memperbarui dividen - ID: ${dividen.id}');
@@ -293,7 +260,6 @@ class InvestasiNotifier extends _$InvestasiNotifier {
     }
   }
 
-  /// Soft delete dividen
   Future<void> softDeleteDividen(String id) async {
     if (!state.hasValue) return;
     Log.info('Soft delete dividen - ID: $id');
@@ -324,7 +290,6 @@ class InvestasiNotifier extends _$InvestasiNotifier {
     }
   }
 
-  /// Menandai dividen sebagai sudah dibayar
   Future<void> tandaiDividenDibayar(String id) async {
     if (!state.hasValue) return;
     Log.info('Menandai dividen sudah dibayar - ID: $id');
@@ -357,17 +322,11 @@ class InvestasiNotifier extends _$InvestasiNotifier {
     }
   }
 
-  /// Invalidasi provider
   void invalidate() {
     ref.invalidateSelf();
   }
 }
 
-// ============================================================
-// PROVIDER UNTUK DETAIL INVESTOR
-// ============================================================
-
-/// Provider untuk mendapatkan data investasi investor tertentu
 @riverpod
 Future<({List<InvestasiModel> investasi, List<DividenModel> dividen})>
 detailInvestorInvestasi(Ref ref, String idInvestor) async {
@@ -378,14 +337,12 @@ detailInvestorInvestasi(Ref ref, String idInvestor) async {
   );
 }
 
-/// Provider untuk mendapatkan total modal investor
 @riverpod
 Future<double> totalModalInvestor(Ref ref, String idInvestor) async {
   final state = await ref.watch(investasiProvider.future);
   return state.getTotalModalInvestor(idInvestor);
 }
 
-/// Provider untuk mendapatkan total dividen investor
 @riverpod
 Future<double> totalDividenInvestor(Ref ref, String idInvestor) async {
   final state = await ref.watch(investasiProvider.future);
