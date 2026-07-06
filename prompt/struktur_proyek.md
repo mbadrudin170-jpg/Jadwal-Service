@@ -4,6 +4,7 @@ lib/tes_fitur/tes_iklan.dart
 lib/tes_fitur/tes_notifikasi.dart
 lib/fitur
 lib/fitur/app_role
+lib/fitur/app_role/app_role_enum.dart
 lib/fitur/app_role/role_util.dart
 lib/fitur/app_role/role_util.g.dart
 lib/fitur/akun
@@ -105,6 +106,9 @@ lib/fitur/paket/enum/tipe_durasi_paket.dart
 lib/fitur/paket/model
 lib/fitur/paket/model/paket_model.freezed.dart
 lib/fitur/paket/model/paket_model.dart
+lib/fitur/investor
+lib/fitur/investor/page
+lib/fitur/investor/page/portofolio.dart
 lib/fitur/whatsapp
 lib/fitur/whatsapp/info_paket.dart
 lib/fitur/order
@@ -431,7 +435,6 @@ lib/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart
 lib/shared/operasi/sqlite_operasi/base_op_sqlite.dart
 lib/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart
 lib/shared/enum
-lib/shared/enum/app_role_enum.dart
 lib/shared/enum/url_supabase_enum.dart
 lib/shared/constant
 lib/shared/constant/app_constants.dart
