@@ -24,7 +24,7 @@ class NotifikasiOpFirebase {
     return _firestore
         .collection(_koleksi)
         .where(NamaKolom.dihapus, isEqualTo: false)
-        .where(NamaKolom.setatusDibaca, isEqualTo: false)
+        .where(NamaKolom.statusDibaca, isEqualTo: false)
         .where(
           NamaKolom.tanggalTampil,
           isLessThanOrEqualTo: Timestamp.fromDate(now),
@@ -44,7 +44,7 @@ class NotifikasiOpFirebase {
         .where(NamaKolom.userId, isEqualTo: userId)
         .where(NamaKolom.targetRole, isEqualTo: AppRole.user.name)
         .where(NamaKolom.dihapus, isEqualTo: false)
-        .where(NamaKolom.setatusDibaca, isEqualTo: false)
+        .where(NamaKolom.statusDibaca, isEqualTo: false)
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
@@ -58,7 +58,7 @@ class NotifikasiOpFirebase {
       if (!snapshot.exists) return [];
       final data = snapshot.data()!;
       if (data[NamaKolom.dihapus] == true ||
-          data[NamaKolom.setatusDibaca] == true) {
+          data[NamaKolom.statusDibaca] == true) {
         return [];
       }
       return [NotifikasiModel.fromFirebase(snapshot.id, data)];
@@ -72,7 +72,7 @@ class NotifikasiOpFirebase {
         .collection(_koleksi)
         .where(NamaKolom.targetRole, isEqualTo: AppRole.admin.name)
         .where(NamaKolom.tipe, isEqualTo: TipeNotifikasiEnum.order.name)
-        .where(NamaKolom.setatusDibaca, isEqualTo: false)
+        .where(NamaKolom.statusDibaca, isEqualTo: false)
         .where(NamaKolom.dihapus, isEqualTo: false)
         .where(
           NamaKolom.tanggalTampil,
@@ -148,7 +148,7 @@ class NotifikasiOpFirebase {
   Future<void> tandaiSudahDibaca(String id) async {
     try {
       Log.info('Marking notification as read via BaseOp: $id');
-      await _baseOp.update(_koleksi, id, {NamaKolom.setatusDibaca: true});
+      await _baseOp.update(_koleksi, id, {NamaKolom.statusDibaca: true});
     } catch (e) {
       Log.error('Error marking notification as read: $e');
       rethrow;

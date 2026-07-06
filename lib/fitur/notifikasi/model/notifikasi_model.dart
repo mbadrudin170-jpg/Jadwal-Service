@@ -43,7 +43,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
           DateTime.now(),
       judul: map[NamaKolom.judul] as String? ?? '',
       deskripsi: map[NamaKolom.deskripsi] as String? ?? '',
-      setatusDibaca: ParserUtil.parseBool(map[NamaKolom.setatusDibaca]),
+      setatusDibaca: ParserUtil.parseBool(map[NamaKolom.statusDibaca]),
       tipe:
           ParserUtil.safeParseEnum(
             TipeNotifikasiEnum.values,
@@ -73,7 +73,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
       NamaKolom.tanggalBerakhir: tanggalBerakhir.millisecondsSinceEpoch,
       NamaKolom.judul: judul,
       NamaKolom.deskripsi: deskripsi,
-      NamaKolom.setatusDibaca: setatusDibaca ? 1 : 0,
+      NamaKolom.statusDibaca: setatusDibaca ? 1 : 0,
       NamaKolom.tipe: tipe.name,
       NamaKolom.diperbaruiPada: diperbaruiPada.millisecondsSinceEpoch,
       NamaKolom.idTujuan: idTujuan,
@@ -103,7 +103,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
           DateTime.now(),
       judul: data[NamaKolom.judul] as String? ?? '',
       deskripsi: data[NamaKolom.deskripsi] as String? ?? '',
-      setatusDibaca: ParserUtil.parseBool(data[NamaKolom.setatusDibaca]),
+      setatusDibaca: ParserUtil.parseBool(data[NamaKolom.statusDibaca]),
       tipe:
           ParserUtil.safeParseEnum(
             TipeNotifikasiEnum.values,
@@ -133,7 +133,7 @@ abstract class NotifikasiModel with _$NotifikasiModel implements HasId {
       NamaKolom.tanggalBerakhir: Timestamp.fromDate(tanggalBerakhir),
       NamaKolom.judul: judul,
       NamaKolom.deskripsi: deskripsi,
-      NamaKolom.setatusDibaca: setatusDibaca,
+      NamaKolom.statusDibaca: setatusDibaca,
       NamaKolom.tipe: tipe.name,
       NamaKolom.diperbaruiPada: Timestamp.fromDate(diperbaruiPada),
       NamaKolom.idTujuan: idTujuan,

@@ -512,7 +512,7 @@ void main() {
       () async {
         when(
           mockBaseOp.update(NamaTabel.notifikasi, 'notif-id', {
-            NamaKolom.setatusDibaca: true,
+            NamaKolom.statusDibaca: true,
           }),
         ).thenAnswer((_) async {});
 
@@ -520,7 +520,7 @@ void main() {
 
         verify(
           mockBaseOp.update(NamaTabel.notifikasi, 'notif-id', {
-            NamaKolom.setatusDibaca: true,
+            NamaKolom.statusDibaca: true,
           }),
         ).called(1);
       },
@@ -532,7 +532,7 @@ void main() {
         final exception = Exception('Gagal tandai dibaca');
         when(
           mockBaseOp.update(NamaTabel.notifikasi, 'notif-id', {
-            NamaKolom.setatusDibaca: true,
+            NamaKolom.statusDibaca: true,
           }),
         ).thenThrow(exception);
 

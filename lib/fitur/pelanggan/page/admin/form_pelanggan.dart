@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
@@ -25,10 +26,10 @@ class FormPelanggan extends ConsumerStatefulWidget {
   const FormPelanggan({super.key, this.pelanggan});
 
   @override
-  ConsumerState<FormPelanggan> createState() => _CustomerFormState();
+  ConsumerState<FormPelanggan> createState() => _FormPelangganState();
 }
 
-class _CustomerFormState extends ConsumerState<FormPelanggan> {
+class _FormPelangganState extends ConsumerState<FormPelanggan> {
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   final _teleponController = TextEditingController();
@@ -41,7 +42,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
   final _alamatFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
   final _macAddressFocusNode = FocusNode();
-
+  AppRole _selectedRole = AppRole.user;
   bool get _modeEdit => widget.pelanggan != null;
   bool _menyimpan = false;
 
@@ -60,6 +61,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       _alamatController.text = widget.pelanggan!.alamat;
       _passwordController.text = widget.pelanggan!.kataSandi;
       _macAddressController.text = widget.pelanggan!.macAddress;
+      _selectedRole = widget.pelanggan!.role;
     }
   }
 
@@ -109,6 +111,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         alamat: _alamatController.text.trim(),
         kataSandi: _passwordController.text,
         macAddress: _macAddressController.text.trim().toUpperCase(),
+        role:_selectedRole,
       );
       Log.info(
         'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}',
@@ -192,6 +195,30 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                   controller: _passwordController,
                   focusNode: _passwordFocusNode,
                   nextFocusNode: _macAddressFocusNode,
+                ),
+                gapH16,
+                DropdownButtonFormField<AppRole>(
+                  value: _selectedRole,
+                  decoration: const InputDecoration(
+                    labelText: 'Peran (Role)',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(TIcons.person),
+                  ),
+                  items: AppRole.values.map((role) {
+                    return DropdownMenuItem<AppRole>(
+                      value: role,
+                      child: Text(role.name.toUpperCase()),
+                    );
+                  }).toList(),
+                  onChanged: (newRole) {
+                    if (newRole != null) {
+                      setState(() {
+                        _selectedRole = newRole;
+                      });
+                    }
+                  },
+                  validator: (value) =>
+                      value == null ? 'Role harus dipilih' : null,
                 ),
                 gapH16,
                 if (ref.isAdmin)

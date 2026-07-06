@@ -26,7 +26,6 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
     DateTime? diarsipkanPada,
     DateTime? terkahirAktif,
   }) = _PelangganModel;
-
   factory PelangganModel.fromSqlite(Map<String, dynamic> map) {
     Log.info('Creating CustomerModel from SQLite: ${map[NamaKolom.id]}');
     return PelangganModel(
@@ -36,6 +35,9 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       alamat: map[NamaKolom.alamat] as String? ?? '',
       kataSandi: map[NamaKolom.kataSandi] as String? ?? '',
       macAddress: map[NamaKolom.macAddress] as String? ?? '',
+      role:
+          ParserUtil.safeParseEnum(AppRole.values, map[NamaKolom.role]) ??
+          AppRole.user, // <-- perbaikan
       diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
@@ -51,6 +53,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.alamat: alamat,
       NamaKolom.kataSandi: kataSandi,
       NamaKolom.macAddress: macAddress,
+      NamaKolom.role: role.name, // <-- tambahkan
       NamaKolom.dihapus: diHapus ? 1 : 0,
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
@@ -59,7 +62,6 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
     };
   }
 
-  /// Creates a [PelangganModel] from a Firebase document.
   factory PelangganModel.fromFirebase(String id, Map<String, dynamic> data) {
     Log.info('Creating CustomerModel from Firebase: $id');
     return PelangganModel(
@@ -69,6 +71,9 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       alamat: data[NamaKolom.alamat] as String? ?? '',
       kataSandi: data[NamaKolom.kataSandi] as String? ?? '',
       macAddress: data[NamaKolom.macAddress] as String? ?? '',
+      role:
+          ParserUtil.safeParseEnum(AppRole.values, data[NamaKolom.role]) ??
+          AppRole.user, // <-- tambahkan
       diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
@@ -76,7 +81,6 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
     );
   }
 
-  /// Converts the [PelangganModel] to a map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
@@ -85,6 +89,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.alamat: alamat,
       NamaKolom.kataSandi: kataSandi,
       NamaKolom.macAddress: macAddress,
+      NamaKolom.role: role.name, // <-- tambahkan
       NamaKolom.dihapus: diHapus,
       NamaKolom.diperbaruiPada: Timestamp.fromDate(
         (diperbaruiPada ?? DateTime.now()).toUtc(),

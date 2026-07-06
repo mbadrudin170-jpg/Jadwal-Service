@@ -8,6 +8,8 @@ file_list=(
 'lib/fitur/pelanggan/page/admin/form_pelanggan.dart'
 'lib/fitur/pelanggan/model/pelanggan_model.dart'
 'lib/admin/data/sqlite.dart'
+'lib/shared/constant/nama_kolom.dart'
+'lib/main/main_admin/bootstrap_admin.dart'
 ) # Isi path file nya disini
 
 # Hapus duplikasi dari array

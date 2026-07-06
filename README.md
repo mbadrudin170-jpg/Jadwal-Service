@@ -29,7 +29,7 @@ class SqliteDatabase {
   }
   static final SqliteDatabase instance = SqliteDatabase._internal();
   static Database? _database;
-  static const int _databaseVersion = 54;
+  static const int _databaseVersion = 55;
   void debugSetDatabaseNull() {
     if (Platform.environment.containsKey('FLUTTER_TEST')) {
       _database = null;
@@ -146,6 +146,12 @@ class SqliteDatabase {
       Log.info('[MIGRASI v54] Menyesuaikan tabel notifikasi dengan model.');
       await _migrateToV54(db);
     }
+    if (oldVersion < 55) {
+  Log.info('[MIGRASI v55] Menambahkan kolom role ke tabel pelanggan.');
+  await db.execute(
+    'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN ${NamaKolom.role} TEXT DEFAULT "user"',
+  );
+}
     Log.info('========================================');
     Log.info('PROSES UPGRADE DATABASE SELESAI');
     Log.info(
@@ -760,6 +766,7 @@ class SqliteDatabase {
       ${NamaKolom.alamat} TEXT NOT NULL,
       ${NamaKolom.kataSandi} TEXT NOT NULL,
       ${NamaKolom.macAddress} TEXT NOT NULL,
+      ${NamaKolom.role} TEXT NOT NULL DEFAULT 'user',
       ${NamaKolom.status} TEXT NOT NULL DEFAULT 'aktif',
       ${NamaKolom.diperbaruiPada} INTEGER,
       ${NamaKolom.diarsipkanPada} INTEGER,
@@ -1480,7 +1487,6 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
     DateTime? diarsipkanPada,
     DateTime? terkahirAktif,
   }) = _PelangganModel;
-
   factory PelangganModel.fromSqlite(Map<String, dynamic> map) {
     Log.info('Creating CustomerModel from SQLite: ${map[NamaKolom.id]}');
     return PelangganModel(
@@ -1490,6 +1496,9 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       alamat: map[NamaKolom.alamat] as String? ?? '',
       kataSandi: map[NamaKolom.kataSandi] as String? ?? '',
       macAddress: map[NamaKolom.macAddress] as String? ?? '',
+      role:
+          ParserUtil.safeParseEnum(AppRole.values, map[NamaKolom.role]) ??
+          AppRole.user, // <-- perbaikan
       diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
@@ -1505,6 +1514,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.alamat: alamat,
       NamaKolom.kataSandi: kataSandi,
       NamaKolom.macAddress: macAddress,
+      NamaKolom.role: role.name, // <-- tambahkan
       NamaKolom.dihapus: diHapus ? 1 : 0,
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
@@ -1513,7 +1523,6 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
     };
   }
 
-  /// Creates a [PelangganModel] from a Firebase document.
   factory PelangganModel.fromFirebase(String id, Map<String, dynamic> data) {
     Log.info('Creating CustomerModel from Firebase: $id');
     return PelangganModel(
@@ -1523,6 +1532,9 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       alamat: data[NamaKolom.alamat] as String? ?? '',
       kataSandi: data[NamaKolom.kataSandi] as String? ?? '',
       macAddress: data[NamaKolom.macAddress] as String? ?? '',
+      role:
+          ParserUtil.safeParseEnum(AppRole.values, data[NamaKolom.role]) ??
+          AppRole.user, // <-- tambahkan
       diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
@@ -1530,7 +1542,6 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
     );
   }
 
-  /// Converts the [PelangganModel] to a map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
@@ -1539,6 +1550,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
       NamaKolom.alamat: alamat,
       NamaKolom.kataSandi: kataSandi,
       NamaKolom.macAddress: macAddress,
+      NamaKolom.role: role.name, // <-- tambahkan
       NamaKolom.dihapus: diHapus,
       NamaKolom.diperbaruiPada: Timestamp.fromDate(
         (diperbaruiPada ?? DateTime.now()).toUtc(),
@@ -1564,6 +1576,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
@@ -1584,10 +1597,10 @@ class FormPelanggan extends ConsumerStatefulWidget {
   const FormPelanggan({super.key, this.pelanggan});
 
   @override
-  ConsumerState<FormPelanggan> createState() => _CustomerFormState();
+  ConsumerState<FormPelanggan> createState() => _FormPelangganState();
 }
 
-class _CustomerFormState extends ConsumerState<FormPelanggan> {
+class _FormPelangganState extends ConsumerState<FormPelanggan> {
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   final _teleponController = TextEditingController();
@@ -1600,7 +1613,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
   final _alamatFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
   final _macAddressFocusNode = FocusNode();
-
+  AppRole _selectedRole = AppRole.user;
   bool get _modeEdit => widget.pelanggan != null;
   bool _menyimpan = false;
 
@@ -1619,6 +1632,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       _alamatController.text = widget.pelanggan!.alamat;
       _passwordController.text = widget.pelanggan!.kataSandi;
       _macAddressController.text = widget.pelanggan!.macAddress;
+      _selectedRole = widget.pelanggan!.role;
     }
   }
 
@@ -1668,6 +1682,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         alamat: _alamatController.text.trim(),
         kataSandi: _passwordController.text,
         macAddress: _macAddressController.text.trim().toUpperCase(),
+        role:_selectedRole,
       );
       Log.info(
         'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}',
@@ -1753,6 +1768,30 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                   nextFocusNode: _macAddressFocusNode,
                 ),
                 gapH16,
+                DropdownButtonFormField<AppRole>(
+                  value: _selectedRole,
+                  decoration: const InputDecoration(
+                    labelText: 'Peran (Role)',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(TIcons.person),
+                  ),
+                  items: AppRole.values.map((role) {
+                    return DropdownMenuItem<AppRole>(
+                      value: role,
+                      child: Text(role.name.toUpperCase()),
+                    );
+                  }).toList(),
+                  onChanged: (newRole) {
+                    if (newRole != null) {
+                      setState(() {
+                        _selectedRole = newRole;
+                      });
+                    }
+                  },
+                  validator: (value) =>
+                      value == null ? 'Role harus dipilih' : null,
+                ),
+                gapH16,
                 if (ref.isAdmin)
                   InputMacAddress(
                     controller: _macAddressController,
@@ -1787,5 +1826,174 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       ),
     );
   }
+}
+```
+
+// File: lib/main/main_admin/bootstrap_admin.dart
+
+```dart
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:wifi/admin/app_admin.dart';
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
+import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
+import 'package:wifi/fitur/background/layanan_peluncuran.dart';
+import 'package:wifi/shared/constant/app_constants.dart';
+import 'package:wifi/shared/debug/log.dart';
+
+Future<void> bootstrapAdmin({
+  required FirebaseOptions firebaseOptions,
+  required bool debugSupabase,
+  required String logPrefix,
+}) async {
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  Log.info('Memuat variabel lingkungan dari file .env...');
+  await dotenv.load();
+  Log.info('Variabel lingkungan berhasil dimuat.');
+
+  Log.info('Menginisialisasi Firebase...');
+  await Firebase.initializeApp(options: firebaseOptions);
+  Log.info('Inisialisasi Firebase selesai.');
+
+  Log.info('Menginisialisasi Supabase...');
+  final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey] ?? '';
+  final supabasePublishableKey =
+      dotenv.env[AppConstants.supabasePublishableKey] ?? '';
+
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('app_role', AppRole.admin.name);
+
+  await Supabase.initialize(
+    url: supabaseUrl,
+    publishableKey: supabasePublishableKey,
+  );
+
+  Log.info('Inisialisasi Supabase selesai.');
+
+  if (debugSupabase) {
+    Log.info('DEBUG URL: $supabaseUrl');
+    Log.info('DEBUG PUBLISHABLE KEY LENGTH: ${supabasePublishableKey.length}');
+  }
+
+  if (supabaseUrl.isEmpty || supabasePublishableKey.isEmpty) {
+    Log.error('❌ ERROR KRUSIAL: Nilai di file .env kosong atau tidak terbaca!');
+  }
+
+  Log.info('Menginisialisasi Background Services...');
+  await LayananLatarBelakang.inisialisasi();
+  Log.info('Inisialisasi Background Services selesai.');
+
+  final container = ProviderContainer();
+  try {
+    Log.info('Menjadwalkan tugas pengarsipan pelanggan kedaluwarsa...');
+    await LayananPeluncuran().jadwalkanTugasArsipPeriodik(container);
+    Log.info('Tugas pengarsipan berhasil dijadwalkan.');
+  } finally {
+    container.dispose();
+  }
+
+  Log.info('Menginisialisasi Google Mobile Ads SDK...');
+  await MobileAds.instance.initialize();
+  Log.info('Inisialisasi Google Mobile Ads SDK selesai.');
+
+  Intl.defaultLocale = 'id_ID';
+
+  Log.info(
+    '$logPrefix Memulai aplikasi admin. Menyerahkan kendali ke AppAdmin...',
+  );
+
+  runApp(
+    ProviderScope(
+      overrides: [appRoleProvider.overrideWithValue(AppRole.admin)],
+      child: const AppAdmin(),
+    ),
+  );
+}
+```
+
+// File: lib/shared/constant/nama_kolom.dart
+
+```dart
+// path: lib/shared/constant/nama_kolom.dart
+
+abstract final class NamaKolom {
+  static const String id = 'id';
+  static const String dihapus = 'is_deleted';
+  static const String diperbaruiPada = 'updated_at';
+  static const String diarsipkanPada = 'archived_at';
+  static const String nama = 'name';
+  static const String saldo = 'balance';
+  static const String deskripsi = 'description';
+  static const String jumlah = 'amount';
+  static const String tanggal = 'date';
+  static const String tipe = 'type';
+  static const String idDompet = 'wallet_id';
+  static const String idKategori = 'category_id';
+  static const String idSubKategori = 'sub_category_id';
+  static const String idPelanggan = 'customer_id';
+  static const String idPaket = 'package_id';
+  static const String idTransaksi = 'transaction_id';
+  static const String idDompetTujuan = 'destination_wallet_id';
+  static const String poinDidapat = 'earned_points';
+  static const String poinDigunakan = 'used_points';
+  static const String statusPembayaran = 'payment_status';
+  static const String durasiPaket = 'package_duration';
+  static const String tipeDurasiPaket = 'duration_type';
+  static const String tanggalMulai = 'start_date';
+  static const String tanggalBerakhir = 'end_date';
+  static const String statusAktivasi = 'is_activated';
+  static const String harga = 'price';
+  static const String durasi = 'duration';
+  static const String poinHadiah = 'reward_points';
+  static const String poinPenukaran = 'redemption_points';
+  static const String statusPublik = 'is_public';
+  static const String telepon = 'phone';
+  static const String alamat = 'address';
+  static const String kataSandi = 'password';
+  static const String macAddress = 'mac_address';
+  static const String status = 'status';
+  static const String pesan = 'content';
+  static const String userId = 'user_id';
+  static const String catatanRilis = 'release_notes';
+  static const String nomorBuildTerakhir = 'latest_build_number';
+  static const String linkDownload = 'download_links';
+  static const String versiTerkahir = 'latest_version';
+  static const String wajibUpdate = 'is_update_required';
+  static const String terkahirAktif = 'last_active_at';
+  static const String linkYoutubeTutorial = 'youtube_tutorial';
+  static const String waktuOtomatisSinkronisasi = 'auto_sync_interval';
+  static const String waktuOtomatisHapusDataArsip = 'auto_delete_archive_days';
+  static const String modeMaintenance = 'maintenance_mode';
+  static const String infoMaintenance = 'maintenance_info';
+  static const String namaTabel = 'table_name';
+  static const String ids = 'ids';
+  static const String value = 'value';
+  static const String linkGambar = 'image_url';
+  static const String statusAktif = 'is_active';
+  static const String tanggalDibuat = 'created_at';
+  static const String judul = 'title';
+  static const String setatusDibaca = 'is_read';
+  static const String idTujuan = 'id_tujuan';
+  static const String tanggalTampil = 'tanggal_tampil';
+  static const String durasiBonus = 'durasi_bonus';
+  static const String tipeDurasiBonus = 'durasi_bonus_type';
+  static const String targetRole = 'target_role';
+
+  // Pelanggan
+  static const String role = 'role';
+
+  static const String voucher = 'voucher';
+  static const String terpakai = 'used';
+  static const String tipeVoucher = 'tipeVoucher';
 }
 ```

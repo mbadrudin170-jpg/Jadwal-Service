@@ -56,12 +56,15 @@ abstract final class NamaKolom {
   static const String statusAktif = 'is_active';
   static const String tanggalDibuat = 'created_at';
   static const String judul = 'title';
-  static const String setatusDibaca = 'is_read';
+  static const String statusDibaca = 'is_read';
   static const String idTujuan = 'id_tujuan';
   static const String tanggalTampil = 'tanggal_tampil';
   static const String durasiBonus = 'durasi_bonus';
   static const String tipeDurasiBonus = 'durasi_bonus_type';
   static const String targetRole = 'target_role';
+
+  // Pelanggan
+  static const String role = 'role';
 
   static const String voucher = 'voucher';
   static const String terpakai = 'used';

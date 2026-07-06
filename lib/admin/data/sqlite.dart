@@ -25,7 +25,7 @@ class SqliteDatabase {
   }
   static final SqliteDatabase instance = SqliteDatabase._internal();
   static Database? _database;
-  static const int _databaseVersion = 54;
+  static const int _databaseVersion = 55;
   void debugSetDatabaseNull() {
     if (Platform.environment.containsKey('FLUTTER_TEST')) {
       _database = null;
@@ -142,6 +142,12 @@ class SqliteDatabase {
       Log.info('[MIGRASI v54] Menyesuaikan tabel notifikasi dengan model.');
       await _migrateToV54(db);
     }
+    if (oldVersion < 55) {
+      Log.info('[MIGRASI v55] Menambahkan kolom role ke tabel pelanggan.');
+      await db.execute(
+        'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN ${NamaKolom.role} TEXT DEFAULT "user"',
+      );
+    }
     Log.info('========================================');
     Log.info('PROSES UPGRADE DATABASE SELESAI');
     Log.info(
@@ -204,7 +210,7 @@ class SqliteDatabase {
       NamaKolom.tanggalTampil: 'INTEGER NOT NULL',
       NamaKolom.judul: 'TEXT NOT NULL',
       NamaKolom.deskripsi: 'TEXT NOT NULL',
-      NamaKolom.setatusDibaca: 'INTEGER NOT NULL DEFAULT 0',
+      NamaKolom.statusDibaca: 'INTEGER NOT NULL DEFAULT 0',
       NamaKolom.tipe: 'TEXT NOT NULL',
       NamaKolom.diperbaruiPada: 'INTEGER NOT NULL',
       NamaKolom.idTujuan: 'TEXT NOT NULL',
@@ -756,6 +762,7 @@ class SqliteDatabase {
       ${NamaKolom.alamat} TEXT NOT NULL,
       ${NamaKolom.kataSandi} TEXT NOT NULL,
       ${NamaKolom.macAddress} TEXT NOT NULL,
+      ${NamaKolom.role} TEXT NOT NULL DEFAULT 'user',
       ${NamaKolom.status} TEXT NOT NULL DEFAULT 'aktif',
       ${NamaKolom.diperbaruiPada} INTEGER,
       ${NamaKolom.diarsipkanPada} INTEGER,
@@ -821,7 +828,7 @@ class SqliteDatabase {
     ${NamaKolom.tanggalTampil} INTEGER NOT NULL,
     ${NamaKolom.judul} TEXT NOT NULL,
     ${NamaKolom.deskripsi} TEXT NOT NULL,
-    ${NamaKolom.setatusDibaca} INTEGER NOT NULL DEFAULT 0,
+    ${NamaKolom.statusDibaca} INTEGER NOT NULL DEFAULT 0,
     ${NamaKolom.tipe} TEXT NOT NULL,
     ${NamaKolom.diperbaruiPada} INTEGER NOT NULL,
     ${NamaKolom.idTujuan} TEXT NOT NULL,

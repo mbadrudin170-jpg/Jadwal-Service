@@ -77,7 +77,7 @@ class NotifikasiOpSqlite {
     Log.info('Menandai notifikasi sudah dibaca - ID: $id');
     try {
       final data = {
-        NamaKolom.setatusDibaca: 1,
+        NamaKolom.statusDibaca: 1,
         NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
       };
       await _baseOpSqlite.update(_namaTabel, data, id, dariServer: dariServer);
@@ -199,7 +199,7 @@ class NotifikasiOpSqlite {
       final List<Map<String, dynamic>> maps = await db.query(
         _namaTabel,
         where:
-            '${NamaKolom.dihapus} = 0 AND ${NamaKolom.setatusDibaca} = 0 AND ${NamaKolom.tanggalTampil} <= ?',
+            '${NamaKolom.dihapus} = 0 AND ${NamaKolom.statusDibaca} = 0 AND ${NamaKolom.tanggalTampil} <= ?',
         whereArgs: [now],
         orderBy: '${NamaKolom.tanggalTampil} DESC',
       );
