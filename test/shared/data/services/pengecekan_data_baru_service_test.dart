@@ -71,7 +71,7 @@ void main() {
       () async {
         final now = DateTime.now();
         when(
-          mockPengelolaSinkronisasi.ambilWaktuTerakhirUnduh(),
+          mockPengelolaSinkronisasi.ambilWaktuTerakhirUnduhPreferensi(),
         ).thenAnswer((_) async => now.subtract(const Duration(hours: 1)));
 
         final result = await layananPengecekanDataBaru

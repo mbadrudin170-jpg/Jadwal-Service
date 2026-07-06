@@ -85,7 +85,7 @@ void main() {
       mockLayananUnggah.unggahSemuaData(),
     ).thenAnswer((_) async => Future.value());
     when(
-      mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any),
+      mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggahPreferensi(any),
     ).thenAnswer((_) async => Future.value());
     when(
       mockPengecekanDataBaru.resetButuhUpload(),
@@ -94,7 +94,7 @@ void main() {
       mockLayananUnduh.unduhSemuaData(),
     ).thenAnswer((_) async => Future.value());
     when(
-      mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any),
+      mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduhPreferensi(any),
     ).thenAnswer((_) async => Future.value());
   }
 
@@ -110,12 +110,12 @@ void main() {
 
         verify(mockLayananUnggah.unggahSemuaData()).called(1);
         verify(
-          mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any),
+          mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggahPreferensi(any),
         ).called(1);
         verify(mockPengecekanDataBaru.resetButuhUpload()).called(1);
         verify(mockLayananUnduh.unduhSemuaData()).called(1);
         verify(
-          mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any),
+          mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduhPreferensi(any),
         ).called(1);
       },
     );
@@ -129,12 +129,13 @@ void main() {
 
       verify(mockLayananUnggah.unggahSemuaData()).called(1);
       verify(
-        mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any),
+        mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggahPreferensi(any),
       ).called(1);
       verify(mockPengecekanDataBaru.resetButuhUpload()).called(1);
 
       verifyNever(mockLayananUnduh.unduhSemuaData());
-      verifyNever(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any));
+      verifyNever(
+          mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduhPreferensi(any));
     });
 
     test('03. harus unduh saja jika hanya ada data baru di server', () async {
@@ -145,11 +146,13 @@ void main() {
       await layanan.jalankanCekSinkronisasi();
 
       verifyNever(mockLayananUnggah.unggahSemuaData());
-      verifyNever(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any));
+      verifyNever(
+          mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggahPreferensi(any));
       verifyNever(mockPengecekanDataBaru.resetButuhUpload());
 
       verify(mockLayananUnduh.unduhSemuaData()).called(1);
-      verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any)).called(1);
+      verify(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduhPreferensi(any))
+          .called(1);
     });
 
     test('04. tidak melakukan apa-apa jika tidak ada data baru', () async {
@@ -173,10 +176,12 @@ void main() {
         await layanan.jalankanCekSinkronisasi();
 
         verify(mockLayananUnggah.unggahSemuaData()).called(1);
-        verifyNever(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggah(any));
+        verifyNever(
+            mockPengelolaSinkronisasi.simpanWaktuTerakhirUnggahPreferensi(any));
         verifyNever(mockPengecekanDataBaru.resetButuhUpload());
         verifyNever(mockLayananUnduh.unduhSemuaData());
-        verifyNever(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any));
+        verifyNever(
+            mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduhPreferensi(any));
       },
     );
 
@@ -190,7 +195,8 @@ void main() {
 
       verifyNever(mockLayananUnggah.unggahSemuaData());
       verify(mockLayananUnduh.unduhSemuaData()).called(1);
-      verifyNever(mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduh(any));
+      verifyNever(
+          mockPengelolaSinkronisasi.simpanWaktuTerakhirUnduhPreferensi(any));
     });
   });
 }
