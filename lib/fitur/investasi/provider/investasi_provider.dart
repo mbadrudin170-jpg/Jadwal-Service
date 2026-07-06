@@ -72,7 +72,6 @@ abstract class InvestasiState with _$InvestasiState {
         .where((d) => d.idInvestor == idInvestor && !d.sudahDibayar)
         .fold(0.0, (sum, d) => sum + d.jumlahDividen);
   }
-
 }
 
 // ============================================================
@@ -375,4 +374,3 @@ Future<double> totalDividenInvestor(Ref ref, String idInvestor) async {
   final state = await ref.watch(investasiProvider.future);
   return state.getTotalDividenDiterimaInvestor(idInvestor);
 }
-

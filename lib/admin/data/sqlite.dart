@@ -25,7 +25,7 @@ class SqliteDatabase {
   }
   static final SqliteDatabase instance = SqliteDatabase._internal();
   static Database? _database;
-  static const int _databaseVersion = 55;
+  static const int _databaseVersion = 56;
   void debugSetDatabaseNull() {
     if (Platform.environment.containsKey('FLUTTER_TEST')) {
       _database = null;
@@ -147,6 +147,33 @@ class SqliteDatabase {
       await db.execute(
         'ALTER TABLE ${NamaTabel.pelanggan} ADD COLUMN ${NamaKolom.role} TEXT DEFAULT "user"',
       );
+    }
+
+    if (oldVersion < 56) {
+      Log.info('[MIGRASI v56] Membuat tabel investasi dan dividen.');
+      await db.execute(
+        _tabelInvestasi.replaceFirst(
+          'CREATE TABLE',
+          'CREATE TABLE IF NOT EXISTS',
+        ),
+      );
+      await db.execute(
+        _tabelDividen.replaceFirst(
+          'CREATE TABLE',
+          'CREATE TABLE IF NOT EXISTS',
+        ),
+      );
+      // Buat indeks
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_investasi_investor ON ${NamaTabel.investasi}(${NamaKolom.idInvestor})',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_dividen_investor ON ${NamaTabel.dividen}(${NamaKolom.idInvestor})',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_dividen_investasi ON ${NamaTabel.dividen}(${NamaKolom.idInvestasi})',
+      );
+      Log.info('[MIGRASI v56] Tabel investasi dan dividen berhasil dibuat.');
     }
     Log.info('========================================');
     Log.info('PROSES UPGRADE DATABASE SELESAI');
@@ -591,11 +618,23 @@ class SqliteDatabase {
     batch.execute(_tabelSetting);
     batch.execute(_tabelStatusUnggah);
     batch.execute(_tabelPesan);
-    batch.execute(
-      _tabelNotification,
-    ); // 2. Tambahkan pembuatan tabel notifikasi
-    Log.info('Semua 14 definisi tabel (v52) ditambahkan ke batch.');
+    batch.execute(_tabelNotification);
+    batch.execute(_tabelInvestasi);
+    batch.execute(_tabelDividen);
 
+    Log.info('Semua 14 definisi tabel (v52) ditambahkan ke batch.');
+    const investasiTable = NamaTabel.investasi;
+    const dividenTable = NamaTabel.dividen;
+
+    batch.execute(
+      'CREATE INDEX IF NOT EXISTS idx_investasi_investor ON $investasiTable(${NamaKolom.idInvestor})',
+    );
+    batch.execute(
+      'CREATE INDEX IF NOT EXISTS idx_dividen_investor ON $dividenTable(${NamaKolom.idInvestor})',
+    );
+    batch.execute(
+      'CREATE INDEX IF NOT EXISTS idx_dividen_investasi ON $dividenTable(${NamaKolom.idInvestasi})',
+    );
     // diperbaiki: Index ditargetkan menggunakan escaping keyword "transaction" otomatis dari TableNameValue
     const trxTable = '"${NamaTabel.transaksi}"';
     batch.execute(
@@ -847,6 +886,44 @@ class SqliteDatabase {
     ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
     ${NamaKolom.diarsipkanPada} INTEGER,
     ${NamaKolom.targetRole} TEXT NOT NULL
+  )
+''';
+
+  // path: lib/admin/data/sqlite.dart
+  // Tambahkan setelah _tabelOrder
+
+  static const String _tabelInvestasi =
+      '''
+  CREATE TABLE ${NamaTabel.investasi}(
+    ${NamaKolom.id} TEXT PRIMARY KEY,
+    ${NamaKolom.idInvestor} TEXT NOT NULL,
+    ${NamaKolom.idTransaksi} TEXT NOT NULL,
+    ${NamaKolom.jumlahModal} REAL NOT NULL,
+    ${NamaKolom.jumlahLembar} INTEGER NOT NULL,
+    ${NamaKolom.persentaseKepemilikan} REAL NOT NULL DEFAULT 0.0,
+    ${NamaKolom.tanggalInvestasi} INTEGER,
+    ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
+    ${NamaKolom.diarsipkanPada} INTEGER,
+    ${NamaKolom.diperbaruiPada} INTEGER,
+    FOREIGN KEY (${NamaKolom.idInvestor}) REFERENCES ${NamaTabel.pelanggan} (${NamaKolom.id}) ON DELETE CASCADE,
+    FOREIGN KEY (${NamaKolom.idTransaksi}) REFERENCES "${NamaTabel.transaksi}" (${NamaKolom.id}) ON DELETE CASCADE
+  )
+''';
+
+  static const String _tabelDividen =
+      '''
+  CREATE TABLE ${NamaTabel.dividen}(
+    ${NamaKolom.id} TEXT PRIMARY KEY,
+    ${NamaKolom.idInvestasi} TEXT NOT NULL,
+    ${NamaKolom.idInvestor} TEXT NOT NULL,
+    ${NamaKolom.jumlahDividen} REAL NOT NULL,
+    ${NamaKolom.tanggalPembagian} INTEGER NOT NULL,
+    ${NamaKolom.sudahDibayar} INTEGER NOT NULL DEFAULT 0,
+    ${NamaKolom.dihapus} INTEGER NOT NULL DEFAULT 0,
+    ${NamaKolom.diarsipkanPada} INTEGER,
+    ${NamaKolom.diperbaruiPada} INTEGER,
+    FOREIGN KEY (${NamaKolom.idInvestasi}) REFERENCES ${NamaTabel.investasi} (${NamaKolom.id}) ON DELETE CASCADE,
+    FOREIGN KEY (${NamaKolom.idInvestor}) REFERENCES ${NamaTabel.pelanggan} (${NamaKolom.id}) ON DELETE CASCADE
   )
 ''';
   // ============================================================
