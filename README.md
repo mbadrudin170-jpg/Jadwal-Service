@@ -109,9 +109,6 @@ lib/fitur/paket/enum/tipe_durasi_paket.dart
 lib/fitur/paket/model
 lib/fitur/paket/model/paket_model.freezed.dart
 lib/fitur/paket/model/paket_model.dart
-lib/fitur/investor
-lib/fitur/investor/page
-lib/fitur/investor/page/portofolio.dart
 lib/fitur/whatsapp
 lib/fitur/whatsapp/info_paket.dart
 lib/fitur/order
@@ -289,6 +286,8 @@ lib/fitur/investasi/page/portofolio.dart
 lib/fitur/investasi/operasi
 lib/fitur/investasi/operasi/investasi_op_sqlite.dart
 lib/fitur/investasi/model
+lib/fitur/investasi/model/investasi_model.freezed.dart
+lib/fitur/investasi/model/dividen_model.freezed.dart
 lib/fitur/investasi/model/dividen_model.dart
 lib/fitur/investasi/model/investasi_model.dart
 lib/fitur/pelanggan
@@ -466,6 +465,7 @@ lib/data_dummy/dummy_pelanggan.dart
 lib/data_dummy/dummy_paket.dart
 lib/data_dummy/dummy_kategori.dart
 lib/data_dummy/dummy_transaksi.dart
+lib/data_dummy/dummy_investasi.dart
 lib/data_dummy/halaman_data_dummy.dart
 lib/data_dummy/dummy_sub_kategori.dart
 lib/data_dummy/dummy_dompet.dart
@@ -8358,7 +8358,7 @@ import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page.dart';
 import 'package:wifi/fitur/info_perangkat/page/info_apk_page_user.dart';
-import 'package:wifi/fitur/investor/page/portofolio.dart';
+import 'package:wifi/fitur/investasi/page/portofolio.dart';
 import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -13187,413 +13187,6 @@ abstract class PaketModel with _$PaketModel implements HasId {
           ? Timestamp.fromDate(diarsipkanPada!)
           : null,
     };
-  }
-}
-```
-
-
-// File: lib/fitur/investor/page/portofolio.dart
-```dart
-// path: lib/fitur/investor/page/portofolio.dart
-
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/app_role/role_util.dart';
-import 'package:wifi/shared/common/teks.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/user/providers/user_provider.dart';
-
-/// Model data portofolio investor.
-class InvestorPortofolio {
-  final String id;
-  final String userId;
-  final String namaInvestor;
-  final double persentase; // 0.0 - 1.0
-  final double totalModal;
-  final double totalDividenDiterima;
-  final List<DividenHistory> riwayatDividen;
-
-  InvestorPortofolio({
-    required this.id,
-    required this.userId,
-    required this.namaInvestor,
-    required this.persentase,
-    required this.totalModal,
-    this.totalDividenDiterima = 0,
-    this.riwayatDividen = const [],
-  });
-}
-
-/// Model riwayat dividen.
-class DividenHistory {
-  final String id;
-  final DateTime tanggal;
-  final double jumlah;
-  final String keterangan;
-
-  DividenHistory({
-    required this.id,
-    required this.tanggal,
-    required this.jumlah,
-    required this.keterangan,
-  });
-}
-
-/// Provider untuk mengambil data portofolio investor yang sedang login.
-final investorPortofolioProvider = FutureProvider<InvestorPortofolio?>((
-  ref,
-) async {
-  final userId = await ref.watch(userIdProvider.future);
-  if (userId == null || userId.isEmpty) {
-    Log.warning('UserId tidak ditemukan untuk mengambil portofolio investor.');
-    return null;
-  }
-
-  // TODO: Ambil data dari SQLite atau Firebase sesuai kebutuhan.
-  // Karena ini masih contoh, kita akan kembalikan data dummy.
-  // Nanti bisa diganti dengan query ke database yang sebenarnya.
-  Log.info('Mengambil data portofolio untuk investor ID: $userId');
-
-  // Data dummy untuk demonstrasi
-  return InvestorPortofolio(
-    id: 'portofolio_1',
-    userId: userId,
-    namaInvestor: 'Budi Investor',
-    persentase: 0.4, // 40%
-    totalModal: 5000000,
-    totalDividenDiterima: 1200000,
-    riwayatDividen: [
-      DividenHistory(
-        id: 'div_1',
-        tanggal: DateTime(2025, 6, 1),
-        jumlah: 600000,
-        keterangan: 'Dividen Q2 2025',
-      ),
-      DividenHistory(
-        id: 'div_2',
-        tanggal: DateTime(2025, 3, 1),
-        jumlah: 600000,
-        keterangan: 'Dividen Q1 2025',
-      ),
-    ],
-  );
-});
-
-/// Halaman portofolio untuk investor (read-only).
-class HalamanPortofolio extends ConsumerWidget {
-  const HalamanPortofolio({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isInvestor = ref.isInvestor;
-    if (!isInvestor) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Portofolio')),
-        body: const Center(
-          child: Text('Anda tidak memiliki akses ke halaman ini.'),
-        ),
-      );
-    }
-
-    final portofolioAsync = ref.watch(investorPortofolioProvider);
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Portofolio Saya')),
-      body: portofolioAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(TIcons.errorOutlined, size: 60, color: Colors.red),
-              gapH16,
-              const TeksIsiBesar(
-                'Gagal memuat data portofolio.',
-                warna: Colors.red,
-              ),
-              gapH8,
-              TeksIsiSedang('Error: $err'),
-              gapH16,
-              ElevatedButton.icon(
-                onPressed: () => ref.refresh(investorPortofolioProvider),
-                icon: const Icon(TIcons.refresh),
-                label: const Text('Coba Lagi'),
-              ),
-            ],
-          ),
-        ),
-        data: (portofolio) {
-          if (portofolio == null) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(TIcons.warningAmber, size: 60, color: Colors.orange),
-                  gapH16,
-                  TeksIsiBesar('Data portofolio tidak ditemukan.'),
-                  TeksIsiSedang('Hubungi admin untuk informasi lebih lanjut.'),
-                ],
-              ),
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async => ref.refresh(investorPortofolioProvider),
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Kartu Ringkasan
-                  _buildKartuRingkasan(portofolio),
-                  gapH24,
-
-                  // Detail Kepemilikan
-                  _buildDetailKepemilikan(portofolio),
-                  gapH24,
-
-                  // Riwayat Dividen
-                  _buildRiwayatDividen(portofolio),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildKartuRingkasan(InvestorPortofolio portofolio) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: TColors.primaryColor.withAlpha(25),
-                  radius: 28,
-                  child: const Icon(
-                    TIcons.person,
-                    size: 32,
-                    color: TColors.primaryColor,
-                  ),
-                ),
-                gapW16,
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TeksJudulSedang(
-                      portofolio.namaInvestor,
-                      tebalFont: FontWeight.bold,
-                    ),
-                    TeksIsiKecil('ID Investor: ${portofolio.id}'),
-                  ],
-                ),
-              ],
-            ),
-            gapH16,
-            const Divider(),
-            gapH16,
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const TeksIsiKecil('Total Modal', warna: Colors.grey),
-                      TeksJudulSedang(
-                        FormatUang.formatMataUang(portofolio.totalModal),
-                        tebalFont: FontWeight.bold,
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      const TeksIsiKecil('Persentase', warna: Colors.grey),
-                      TeksJudulSedang(
-                        '${(portofolio.persentase * 100).toStringAsFixed(1)}%',
-                        tebalFont: FontWeight.bold,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            gapH12,
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const TeksIsiKecil(
-                        'Dividen Diterima',
-                        warna: Colors.grey,
-                      ),
-                      TeksJudulSedang(
-                        FormatUang.formatMataUang(
-                          portofolio.totalDividenDiterima,
-                        ),
-                        tebalFont: FontWeight.bold,
-                        warna: Colors.green,
-                      ),
-                    ],
-                  ),
-                ),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      TeksIsiKecil('Dividen Berikutnya', warna: Colors.grey),
-                      TeksJudulSedang(
-                        'Belum ditentukan',
-                        tebalFont: FontWeight.bold,
-                        warna: Colors.orange,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetailKepemilikan(InvestorPortofolio portofolio) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(TIcons.points, color: TColors.primaryColor),
-                gapW8,
-                TeksJudulKecil(
-                  'Detail Kepemilikan',
-                  tebalFont: FontWeight.bold,
-                ),
-              ],
-            ),
-            gapH16,
-            _buildBarisDetail('Nama', portofolio.namaInvestor),
-            _buildBarisDetail(
-              'Modal Disetor',
-              FormatUang.formatMataUang(portofolio.totalModal),
-            ),
-            _buildBarisDetail(
-              'Persentase',
-              '${(portofolio.persentase * 100).toStringAsFixed(1)}%',
-            ),
-            _buildBarisDetail(
-              'Total Dividen',
-              FormatUang.formatMataUang(portofolio.totalDividenDiterima),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRiwayatDividen(InvestorPortofolio portofolio) {
-    final riwayat = portofolio.riwayatDividen;
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(TIcons.history, color: TColors.primaryColor),
-                gapW8,
-                TeksJudulKecil('Riwayat Dividen', tebalFont: FontWeight.bold),
-              ],
-            ),
-            gapH16,
-            if (riwayat.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: TeksIsiSedang(
-                    'Belum ada riwayat dividen.',
-                    warna: Colors.grey,
-                  ),
-                ),
-              )
-            else
-              ...riwayat.map(_buildItemDividen),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildItemDividen(DividenHistory dividen) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 4,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.green,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          gapW12,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TeksIsiSedang(dividen.keterangan, tebalFont: FontWeight.w500),
-                TeksIsiKecil(
-                  FormatTanggal.formatDasar(dividen.tanggal),
-                  warna: Colors.grey,
-                ),
-              ],
-            ),
-          ),
-          TeksIsiSedang(
-            FormatUang.formatMataUang(dividen.jumlah),
-            tebalFont: FontWeight.bold,
-            warna: Colors.green,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBarisDetail(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          TeksIsiSedang(label, warna: Colors.grey.shade700),
-          TeksIsiSedang(value, tebalFont: FontWeight.w500),
-        ],
-      ),
-    );
   }
 }
 ```
@@ -31907,6 +31500,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
+import 'package:wifi/fitur/investasi/operasi/investasi_op_sqlite.dart';
 import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 import 'package:wifi/fitur/kategori/operasi/sub_kategori_op_sqlite.dart';
 import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_sqlite.dart';
@@ -32058,6 +31652,14 @@ NotifikasiOpSqlite notifikasiOpSqlite(Ref ref) {
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
   return NotifikasiOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
+}
+
+@Riverpod(keepAlive: true)
+InvestasiOpSqlite investasiOpSqlite(Ref ref) {
+  Log.info('Membuat instance InvestasiOpSqlite via @riverpod...');
+  final sqliteDb = ref.watch(sqliteDatabaseProvider);
+  final baseOpSqlite = ref.watch(baseOpSqliteProvider);
+  return InvestasiOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
 }
 ```
 
@@ -32721,6 +32323,53 @@ final class NotifikasiOpSqliteProvider
 
 String _$notifikasiOpSqliteHash() =>
     r'0dc2d9bb36915f7dbe460268edb9c04828dad88f';
+
+@ProviderFor(investasiOpSqlite)
+final investasiOpSqliteProvider = InvestasiOpSqliteProvider._();
+
+final class InvestasiOpSqliteProvider
+    extends
+        $FunctionalProvider<
+          InvestasiOpSqlite,
+          InvestasiOpSqlite,
+          InvestasiOpSqlite
+        >
+    with $Provider<InvestasiOpSqlite> {
+  InvestasiOpSqliteProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'investasiOpSqliteProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$investasiOpSqliteHash();
+
+  @$internal
+  @override
+  $ProviderElement<InvestasiOpSqlite> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  InvestasiOpSqlite create(Ref ref) {
+    return investasiOpSqlite(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(InvestasiOpSqlite value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<InvestasiOpSqlite>(value),
+    );
+  }
+}
+
+String _$investasiOpSqliteHash() => r'54b361d6ae86edf831c1c343f082f52b12f524a1';
 ```
 
 
@@ -39214,21 +38863,1566 @@ as bool,
 
 // File: lib/fitur/investasi/page/portofolio.dart
 ```dart
+// path: lib/fitur/investasi/page/portofolio.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
+import 'package:wifi/shared/common/teks.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/user/providers/user_provider.dart';
+
+/// Model data portofolio investor.
+class InvestorPortofolio {
+  final String id;
+  final String userId;
+  final String namaInvestor;
+  final double persentase; // 0.0 - 1.0
+  final double totalModal;
+  final double totalDividenDiterima;
+  final List<DividenHistory> riwayatDividen;
+
+  InvestorPortofolio({
+    required this.id,
+    required this.userId,
+    required this.namaInvestor,
+    required this.persentase,
+    required this.totalModal,
+    this.totalDividenDiterima = 0,
+    this.riwayatDividen = const [],
+  });
+}
+
+/// Model riwayat dividen.
+class DividenHistory {
+  final String id;
+  final DateTime tanggal;
+  final double jumlah;
+  final String keterangan;
+
+  DividenHistory({
+    required this.id,
+    required this.tanggal,
+    required this.jumlah,
+    required this.keterangan,
+  });
+}
+
+/// Provider untuk mengambil data portofolio investor yang sedang login.
+final investorPortofolioProvider = FutureProvider<InvestorPortofolio?>((
+  ref,
+) async {
+  final userId = await ref.watch(userIdProvider.future);
+  if (userId == null || userId.isEmpty) {
+    Log.warning('UserId tidak ditemukan untuk mengambil portofolio investor.');
+    return null;
+  }
+
+  // TODO: Ambil data dari SQLite atau Firebase sesuai kebutuhan.
+  // Karena ini masih contoh, kita akan kembalikan data dummy.
+  // Nanti bisa diganti dengan query ke database yang sebenarnya.
+  Log.info('Mengambil data portofolio untuk investor ID: $userId');
+
+  // Data dummy untuk demonstrasi
+  return InvestorPortofolio(
+    id: 'portofolio_1',
+    userId: userId,
+    namaInvestor: 'Budi Investor',
+    persentase: 0.4, // 40%
+    totalModal: 5000000,
+    totalDividenDiterima: 1200000,
+    riwayatDividen: [
+      DividenHistory(
+        id: 'div_1',
+        tanggal: DateTime(2025, 6, 1),
+        jumlah: 600000,
+        keterangan: 'Dividen Q2 2025',
+      ),
+      DividenHistory(
+        id: 'div_2',
+        tanggal: DateTime(2025, 3, 1),
+        jumlah: 600000,
+        keterangan: 'Dividen Q1 2025',
+      ),
+    ],
+  );
+});
+
+/// Halaman portofolio untuk investor (read-only).
+class HalamanPortofolio extends ConsumerWidget {
+  const HalamanPortofolio({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isInvestor = ref.isInvestor;
+    if (!isInvestor) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Portofolio')),
+        body: const Center(
+          child: Text('Anda tidak memiliki akses ke halaman ini.'),
+        ),
+      );
+    }
+
+    final portofolioAsync = ref.watch(investorPortofolioProvider);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Portofolio Saya')),
+      body: portofolioAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(TIcons.errorOutlined, size: 60, color: Colors.red),
+              gapH16,
+              const TeksIsiBesar(
+                'Gagal memuat data portofolio.',
+                warna: Colors.red,
+              ),
+              gapH8,
+              TeksIsiSedang('Error: $err'),
+              gapH16,
+              ElevatedButton.icon(
+                onPressed: () => ref.refresh(investorPortofolioProvider),
+                icon: const Icon(TIcons.refresh),
+                label: const Text('Coba Lagi'),
+              ),
+            ],
+          ),
+        ),
+        data: (portofolio) {
+          if (portofolio == null) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(TIcons.warningAmber, size: 60, color: Colors.orange),
+                  gapH16,
+                  TeksIsiBesar('Data portofolio tidak ditemukan.'),
+                  TeksIsiSedang('Hubungi admin untuk informasi lebih lanjut.'),
+                ],
+              ),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: () async => ref.refresh(investorPortofolioProvider),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Kartu Ringkasan
+                  _buildKartuRingkasan(portofolio),
+                  gapH24,
+
+                  // Detail Kepemilikan
+                  _buildDetailKepemilikan(portofolio),
+                  gapH24,
+
+                  // Riwayat Dividen
+                  _buildRiwayatDividen(portofolio),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildKartuRingkasan(InvestorPortofolio portofolio) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: TColors.primaryColor.withAlpha(25),
+                  radius: 28,
+                  child: const Icon(
+                    TIcons.person,
+                    size: 32,
+                    color: TColors.primaryColor,
+                  ),
+                ),
+                gapW16,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TeksJudulSedang(
+                      portofolio.namaInvestor,
+                      tebalFont: FontWeight.bold,
+                    ),
+                    TeksIsiKecil('ID Investor: ${portofolio.id}'),
+                  ],
+                ),
+              ],
+            ),
+            gapH16,
+            const Divider(),
+            gapH16,
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const TeksIsiKecil('Total Modal', warna: Colors.grey),
+                      TeksJudulSedang(
+                        FormatUang.formatMataUang(portofolio.totalModal),
+                        tebalFont: FontWeight.bold,
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const TeksIsiKecil('Persentase', warna: Colors.grey),
+                      TeksJudulSedang(
+                        '${(portofolio.persentase * 100).toStringAsFixed(1)}%',
+                        tebalFont: FontWeight.bold,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            gapH12,
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const TeksIsiKecil(
+                        'Dividen Diterima',
+                        warna: Colors.grey,
+                      ),
+                      TeksJudulSedang(
+                        FormatUang.formatMataUang(
+                          portofolio.totalDividenDiterima,
+                        ),
+                        tebalFont: FontWeight.bold,
+                        warna: Colors.green,
+                      ),
+                    ],
+                  ),
+                ),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      TeksIsiKecil('Dividen Berikutnya', warna: Colors.grey),
+                      TeksJudulSedang(
+                        'Belum ditentukan',
+                        tebalFont: FontWeight.bold,
+                        warna: Colors.orange,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailKepemilikan(InvestorPortofolio portofolio) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(TIcons.points, color: TColors.primaryColor),
+                gapW8,
+                TeksJudulKecil(
+                  'Detail Kepemilikan',
+                  tebalFont: FontWeight.bold,
+                ),
+              ],
+            ),
+            gapH16,
+            _buildBarisDetail('Nama', portofolio.namaInvestor),
+            _buildBarisDetail(
+              'Modal Disetor',
+              FormatUang.formatMataUang(portofolio.totalModal),
+            ),
+            _buildBarisDetail(
+              'Persentase',
+              '${(portofolio.persentase * 100).toStringAsFixed(1)}%',
+            ),
+            _buildBarisDetail(
+              'Total Dividen',
+              FormatUang.formatMataUang(portofolio.totalDividenDiterima),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRiwayatDividen(InvestorPortofolio portofolio) {
+    final riwayat = portofolio.riwayatDividen;
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(TIcons.history, color: TColors.primaryColor),
+                gapW8,
+                TeksJudulKecil('Riwayat Dividen', tebalFont: FontWeight.bold),
+              ],
+            ),
+            gapH16,
+            if (riwayat.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: TeksIsiSedang(
+                    'Belum ada riwayat dividen.',
+                    warna: Colors.grey,
+                  ),
+                ),
+              )
+            else
+              ...riwayat.map(_buildItemDividen),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildItemDividen(DividenHistory dividen) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.green,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          gapW12,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TeksIsiSedang(dividen.keterangan, tebalFont: FontWeight.w500),
+                TeksIsiKecil(
+                  FormatTanggal.formatDasar(dividen.tanggal),
+                  warna: Colors.grey,
+                ),
+              ],
+            ),
+          ),
+          TeksIsiSedang(
+            FormatUang.formatMataUang(dividen.jumlah),
+            tebalFont: FontWeight.bold,
+            warna: Colors.green,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBarisDetail(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          TeksIsiSedang(label, warna: Colors.grey.shade700),
+          TeksIsiSedang(value, tebalFont: FontWeight.w500),
+        ],
+      ),
+    );
+  }
+}
 ```
 
 
 // File: lib/fitur/investasi/operasi/investasi_op_sqlite.dart
 ```dart
+// path: lib/fitur/investasi/operasi/investasi_op_sqlite.dart
+
+import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/investasi/model/dividen_model.dart';
+import 'package:wifi/fitur/investasi/model/investasi_model.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
+
+class InvestasiOpSqlite {
+  final SqliteDatabase _sqliteDb;
+  final BaseOpSqlite _baseOpSqlite;
+
+  InvestasiOpSqlite({
+    required SqliteDatabase sqliteDb,
+    required BaseOpSqlite baseOpSqlite,
+  }) : _sqliteDb = sqliteDb,
+       _baseOpSqlite = baseOpSqlite {
+    Log.info('InvestasiOpSqlite diinisialisasi.');
+  }
+
+  // ============================================================
+  // OPERASI INVESTASI
+  // ============================================================
+
+  /// Menambahkan investasi baru
+  Future<void> tambahInvestasi(
+    InvestasiModel investasi, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Menambahkan investasi baru - ID: ${investasi.id}');
+    try {
+      final data = investasi.toSqlite();
+      await _baseOpSqlite.sisipkan(
+        NamaTabel.investasi,
+        data,
+        dariServer: dariServer,
+      );
+      Log.info('Investasi berhasil ditambahkan - ID: ${investasi.id}');
+    } catch (e, s) {
+      Log.error(
+        'Gagal menambahkan investasi - ID: ${investasi.id}',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Mengambil semua investasi
+  Future<List<InvestasiModel>> ambilSemuaInvestasi({
+    bool tampilkanYangDiarsip = false,
+  }) async {
+    Log.info('Mengambil semua data investasi');
+    try {
+      final db = await _sqliteDb.database;
+      final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = 0';
+      final List<Map<String, dynamic>> maps = await db.query(
+        NamaTabel.investasi,
+        where: query,
+        orderBy: '${NamaKolom.tanggalInvestasi} DESC',
+      );
+      final hasil = maps.map(InvestasiModel.fromSqlite).toList();
+      Log.info('Berhasil mengambil ${hasil.length} data investasi');
+      return hasil;
+    } catch (e, s) {
+      Log.error('Gagal mengambil data investasi', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil investasi berdasarkan ID
+  Future<InvestasiModel?> ambilInvestasiById(String id) async {
+    Log.info('Mengambil investasi berdasarkan ID: $id');
+    try {
+      final db = await _sqliteDb.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        NamaTabel.investasi,
+        where: '${NamaKolom.id} = ?',
+        whereArgs: [id],
+      );
+      if (maps.isNotEmpty) {
+        Log.info('Investasi ditemukan - ID: $id');
+        return InvestasiModel.fromSqlite(maps.first);
+      }
+      Log.info('Investasi tidak ditemukan - ID: $id');
+      return null;
+    } catch (e, s) {
+      Log.error('Gagal mengambil investasi - ID: $id', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil investasi berdasarkan ID investor
+  Future<List<InvestasiModel>> ambilInvestasiByIdInvestor(
+    String idInvestor,
+  ) async {
+    Log.info('Mengambil investasi untuk investor - ID: $idInvestor');
+    try {
+      final db = await _sqliteDb.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        NamaTabel.investasi,
+        where: '${NamaKolom.idInvestor} = ? AND ${NamaKolom.dihapus} = 0',
+        whereArgs: [idInvestor],
+        orderBy: '${NamaKolom.tanggalInvestasi} DESC',
+      );
+      final hasil = maps.map(InvestasiModel.fromSqlite).toList();
+      Log.info('Berhasil mengambil ${hasil.length} investasi untuk investor');
+      return hasil;
+    } catch (e, s) {
+      Log.error(
+        'Gagal mengambil investasi untuk investor - ID: $idInvestor',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Memperbarui investasi
+  Future<void> perbaruiInvestasi(
+    InvestasiModel investasi, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Memperbarui investasi - ID: ${investasi.id}');
+    try {
+      final data = investasi.toSqlite();
+      await _baseOpSqlite.update(
+        NamaTabel.investasi,
+        data,
+        investasi.id,
+        dariServer: dariServer,
+      );
+      Log.info('Investasi berhasil diperbarui - ID: ${investasi.id}');
+    } catch (e, s) {
+      Log.error(
+        'Gagal memperbarui investasi - ID: ${investasi.id}',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Soft delete investasi
+  Future<void> softDeleteInvestasi(String id, {bool dariServer = false}) async {
+    Log.info('Soft delete investasi - ID: $id');
+    try {
+      await _baseOpSqlite.softDelete(
+        NamaTabel.investasi,
+        id,
+        dariServer: dariServer,
+      );
+      Log.info('Soft delete investasi berhasil - ID: $id');
+    } catch (e, s) {
+      Log.error('Gagal soft delete investasi - ID: $id', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  // ============================================================
+  // OPERASI DIVIDEN
+  // ============================================================
+
+  /// Menambahkan dividen baru
+  Future<void> tambahDividen(
+    DividenModel dividen, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Menambahkan dividen baru - ID: ${dividen.id}');
+    try {
+      final data = dividen.toSqlite();
+      await _baseOpSqlite.sisipkan(
+        NamaTabel.dividen,
+        data,
+        dariServer: dariServer,
+      );
+      Log.info('Dividen berhasil ditambahkan - ID: ${dividen.id}');
+    } catch (e, s) {
+      Log.error('Gagal menambahkan dividen - ID: ${dividen.id}', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil semua dividen
+  Future<List<DividenModel>> ambilSemuaDividen({
+    bool tampilkanYangDiarsip = false,
+  }) async {
+    Log.info('Mengambil semua data dividen');
+    try {
+      final db = await _sqliteDb.database;
+      final query = tampilkanYangDiarsip ? null : '${NamaKolom.dihapus} = 0';
+      final List<Map<String, dynamic>> maps = await db.query(
+        NamaTabel.dividen,
+        where: query,
+        orderBy: '${NamaKolom.tanggalPembagian} DESC',
+      );
+      final hasil = maps.map(DividenModel.fromSqlite).toList();
+      Log.info('Berhasil mengambil ${hasil.length} data dividen');
+      return hasil;
+    } catch (e, s) {
+      Log.error('Gagal mengambil data dividen', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil dividen berdasarkan ID
+  Future<DividenModel?> ambilDividenById(String id) async {
+    Log.info('Mengambil dividen berdasarkan ID: $id');
+    try {
+      final db = await _sqliteDb.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        NamaTabel.dividen,
+        where: '${NamaKolom.id} = ?',
+        whereArgs: [id],
+      );
+      if (maps.isNotEmpty) {
+        Log.info('Dividen ditemukan - ID: $id');
+        return DividenModel.fromSqlite(maps.first);
+      }
+      Log.info('Dividen tidak ditemukan - ID: $id');
+      return null;
+    } catch (e, s) {
+      Log.error('Gagal mengambil dividen - ID: $id', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil dividen berdasarkan ID investor
+  Future<List<DividenModel>> ambilDividenByIdInvestor(String idInvestor) async {
+    Log.info('Mengambil dividen untuk investor - ID: $idInvestor');
+    try {
+      final db = await _sqliteDb.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        NamaTabel.dividen,
+        where: '${NamaKolom.idInvestor} = ? AND ${NamaKolom.dihapus} = 0',
+        whereArgs: [idInvestor],
+        orderBy: '${NamaKolom.tanggalPembagian} DESC',
+      );
+      final hasil = maps.map(DividenModel.fromSqlite).toList();
+      Log.info('Berhasil mengambil ${hasil.length} dividen untuk investor');
+      return hasil;
+    } catch (e, s) {
+      Log.error(
+        'Gagal mengambil dividen untuk investor - ID: $idInvestor',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Mengambil dividen berdasarkan ID investasi
+  Future<List<DividenModel>> ambilDividenByIdInvestasi(
+    String idInvestasi,
+  ) async {
+    Log.info('Mengambil dividen untuk investasi - ID: $idInvestasi');
+    try {
+      final db = await _sqliteDb.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        NamaTabel.dividen,
+        where: '${NamaKolom.idInvestasi} = ? AND ${NamaKolom.dihapus} = 0',
+        whereArgs: [idInvestasi],
+        orderBy: '${NamaKolom.tanggalPembagian} DESC',
+      );
+      final hasil = maps.map(DividenModel.fromSqlite).toList();
+      Log.info('Berhasil mengambil ${hasil.length} dividen untuk investasi');
+      return hasil;
+    } catch (e, s) {
+      Log.error(
+        'Gagal mengambil dividen untuk investasi - ID: $idInvestasi',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Memperbarui dividen
+  Future<void> perbaruiDividen(
+    DividenModel dividen, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Memperbarui dividen - ID: ${dividen.id}');
+    try {
+      final data = dividen.toSqlite();
+      await _baseOpSqlite.update(
+        NamaTabel.dividen,
+        data,
+        dividen.id,
+        dariServer: dariServer,
+      );
+      Log.info('Dividen berhasil diperbarui - ID: ${dividen.id}');
+    } catch (e, s) {
+      Log.error('Gagal memperbarui dividen - ID: ${dividen.id}', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Soft delete dividen
+  Future<void> softDeleteDividen(String id, {bool dariServer = false}) async {
+    Log.info('Soft delete dividen - ID: $id');
+    try {
+      await _baseOpSqlite.softDelete(
+        NamaTabel.dividen,
+        id,
+        dariServer: dariServer,
+      );
+      Log.info('Soft delete dividen berhasil - ID: $id');
+    } catch (e, s) {
+      Log.error('Gagal soft delete dividen - ID: $id', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Menandai dividen sebagai sudah dibayar
+  Future<void> tandaiDividenDibayar(
+    String id, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Menandai dividen sudah dibayar - ID: $id');
+    try {
+      await _baseOpSqlite.update(
+        NamaTabel.dividen,
+        {
+          NamaKolom.sudahDibayar: 1,
+          NamaKolom.diperbaruiPada: DateTime.now().millisecondsSinceEpoch,
+        },
+        id,
+        dariServer: dariServer,
+      );
+      Log.info('Dividen berhasil ditandai sudah dibayar - ID: $id');
+    } catch (e, s) {
+      Log.error('Gagal menandai dividen sudah dibayar - ID: $id', e: e, s: s);
+      rethrow;
+    }
+  }
+}
+```
+
+
+// File: lib/fitur/investasi/model/investasi_model.freezed.dart
+```dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'investasi_model.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$InvestasiModel {
+
+ String get id; String get idInvestor; String get idTransaksi; double get jumlahModal; int get jumlahLembar; double get persentaseKepemilikan; DateTime? get tanggalInvestasi; bool get diHapus; DateTime? get diarsipkanPada; DateTime? get diperbaruiPada;
+/// Create a copy of InvestasiModel
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$InvestasiModelCopyWith<InvestasiModel> get copyWith => _$InvestasiModelCopyWithImpl<InvestasiModel>(this as InvestasiModel, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InvestasiModel&&(identical(other.id, id) || other.id == id)&&(identical(other.idInvestor, idInvestor) || other.idInvestor == idInvestor)&&(identical(other.idTransaksi, idTransaksi) || other.idTransaksi == idTransaksi)&&(identical(other.jumlahModal, jumlahModal) || other.jumlahModal == jumlahModal)&&(identical(other.jumlahLembar, jumlahLembar) || other.jumlahLembar == jumlahLembar)&&(identical(other.persentaseKepemilikan, persentaseKepemilikan) || other.persentaseKepemilikan == persentaseKepemilikan)&&(identical(other.tanggalInvestasi, tanggalInvestasi) || other.tanggalInvestasi == tanggalInvestasi)&&(identical(other.diHapus, diHapus) || other.diHapus == diHapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,idInvestor,idTransaksi,jumlahModal,jumlahLembar,persentaseKepemilikan,tanggalInvestasi,diHapus,diarsipkanPada,diperbaruiPada);
+
+@override
+String toString() {
+  return 'InvestasiModel(id: $id, idInvestor: $idInvestor, idTransaksi: $idTransaksi, jumlahModal: $jumlahModal, jumlahLembar: $jumlahLembar, persentaseKepemilikan: $persentaseKepemilikan, tanggalInvestasi: $tanggalInvestasi, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada, diperbaruiPada: $diperbaruiPada)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $InvestasiModelCopyWith<$Res>  {
+  factory $InvestasiModelCopyWith(InvestasiModel value, $Res Function(InvestasiModel) _then) = _$InvestasiModelCopyWithImpl;
+@useResult
+$Res call({
+ String id, String idInvestor, String idTransaksi, double jumlahModal, int jumlahLembar, double persentaseKepemilikan, DateTime? tanggalInvestasi, bool diHapus, DateTime? diarsipkanPada, DateTime? diperbaruiPada
+});
+
+
+
+
+}
+/// @nodoc
+class _$InvestasiModelCopyWithImpl<$Res>
+    implements $InvestasiModelCopyWith<$Res> {
+  _$InvestasiModelCopyWithImpl(this._self, this._then);
+
+  final InvestasiModel _self;
+  final $Res Function(InvestasiModel) _then;
+
+/// Create a copy of InvestasiModel
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? idInvestor = null,Object? idTransaksi = null,Object? jumlahModal = null,Object? jumlahLembar = null,Object? persentaseKepemilikan = null,Object? tanggalInvestasi = freezed,Object? diHapus = null,Object? diarsipkanPada = freezed,Object? diperbaruiPada = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,idInvestor: null == idInvestor ? _self.idInvestor : idInvestor // ignore: cast_nullable_to_non_nullable
+as String,idTransaksi: null == idTransaksi ? _self.idTransaksi : idTransaksi // ignore: cast_nullable_to_non_nullable
+as String,jumlahModal: null == jumlahModal ? _self.jumlahModal : jumlahModal // ignore: cast_nullable_to_non_nullable
+as double,jumlahLembar: null == jumlahLembar ? _self.jumlahLembar : jumlahLembar // ignore: cast_nullable_to_non_nullable
+as int,persentaseKepemilikan: null == persentaseKepemilikan ? _self.persentaseKepemilikan : persentaseKepemilikan // ignore: cast_nullable_to_non_nullable
+as double,tanggalInvestasi: freezed == tanggalInvestasi ? _self.tanggalInvestasi : tanggalInvestasi // ignore: cast_nullable_to_non_nullable
+as DateTime?,diHapus: null == diHapus ? _self.diHapus : diHapus // ignore: cast_nullable_to_non_nullable
+as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [InvestasiModel].
+extension InvestasiModelPatterns on InvestasiModel {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _InvestasiModel value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _InvestasiModel() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _InvestasiModel value)  $default,){
+final _that = this;
+switch (_that) {
+case _InvestasiModel():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _InvestasiModel value)?  $default,){
+final _that = this;
+switch (_that) {
+case _InvestasiModel() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String idInvestor,  String idTransaksi,  double jumlahModal,  int jumlahLembar,  double persentaseKepemilikan,  DateTime? tanggalInvestasi,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? diperbaruiPada)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _InvestasiModel() when $default != null:
+return $default(_that.id,_that.idInvestor,_that.idTransaksi,_that.jumlahModal,_that.jumlahLembar,_that.persentaseKepemilikan,_that.tanggalInvestasi,_that.diHapus,_that.diarsipkanPada,_that.diperbaruiPada);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String idInvestor,  String idTransaksi,  double jumlahModal,  int jumlahLembar,  double persentaseKepemilikan,  DateTime? tanggalInvestasi,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? diperbaruiPada)  $default,) {final _that = this;
+switch (_that) {
+case _InvestasiModel():
+return $default(_that.id,_that.idInvestor,_that.idTransaksi,_that.jumlahModal,_that.jumlahLembar,_that.persentaseKepemilikan,_that.tanggalInvestasi,_that.diHapus,_that.diarsipkanPada,_that.diperbaruiPada);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String idInvestor,  String idTransaksi,  double jumlahModal,  int jumlahLembar,  double persentaseKepemilikan,  DateTime? tanggalInvestasi,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? diperbaruiPada)?  $default,) {final _that = this;
+switch (_that) {
+case _InvestasiModel() when $default != null:
+return $default(_that.id,_that.idInvestor,_that.idTransaksi,_that.jumlahModal,_that.jumlahLembar,_that.persentaseKepemilikan,_that.tanggalInvestasi,_that.diHapus,_that.diarsipkanPada,_that.diperbaruiPada);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _InvestasiModel extends InvestasiModel {
+  const _InvestasiModel({required this.id, required this.idInvestor, required this.idTransaksi, required this.jumlahModal, required this.jumlahLembar, required this.persentaseKepemilikan, this.tanggalInvestasi, this.diHapus = false, this.diarsipkanPada, this.diperbaruiPada}): super._();
+  
+
+@override final  String id;
+@override final  String idInvestor;
+@override final  String idTransaksi;
+@override final  double jumlahModal;
+@override final  int jumlahLembar;
+@override final  double persentaseKepemilikan;
+@override final  DateTime? tanggalInvestasi;
+@override@JsonKey() final  bool diHapus;
+@override final  DateTime? diarsipkanPada;
+@override final  DateTime? diperbaruiPada;
+
+/// Create a copy of InvestasiModel
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$InvestasiModelCopyWith<_InvestasiModel> get copyWith => __$InvestasiModelCopyWithImpl<_InvestasiModel>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InvestasiModel&&(identical(other.id, id) || other.id == id)&&(identical(other.idInvestor, idInvestor) || other.idInvestor == idInvestor)&&(identical(other.idTransaksi, idTransaksi) || other.idTransaksi == idTransaksi)&&(identical(other.jumlahModal, jumlahModal) || other.jumlahModal == jumlahModal)&&(identical(other.jumlahLembar, jumlahLembar) || other.jumlahLembar == jumlahLembar)&&(identical(other.persentaseKepemilikan, persentaseKepemilikan) || other.persentaseKepemilikan == persentaseKepemilikan)&&(identical(other.tanggalInvestasi, tanggalInvestasi) || other.tanggalInvestasi == tanggalInvestasi)&&(identical(other.diHapus, diHapus) || other.diHapus == diHapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,idInvestor,idTransaksi,jumlahModal,jumlahLembar,persentaseKepemilikan,tanggalInvestasi,diHapus,diarsipkanPada,diperbaruiPada);
+
+@override
+String toString() {
+  return 'InvestasiModel(id: $id, idInvestor: $idInvestor, idTransaksi: $idTransaksi, jumlahModal: $jumlahModal, jumlahLembar: $jumlahLembar, persentaseKepemilikan: $persentaseKepemilikan, tanggalInvestasi: $tanggalInvestasi, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada, diperbaruiPada: $diperbaruiPada)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$InvestasiModelCopyWith<$Res> implements $InvestasiModelCopyWith<$Res> {
+  factory _$InvestasiModelCopyWith(_InvestasiModel value, $Res Function(_InvestasiModel) _then) = __$InvestasiModelCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String idInvestor, String idTransaksi, double jumlahModal, int jumlahLembar, double persentaseKepemilikan, DateTime? tanggalInvestasi, bool diHapus, DateTime? diarsipkanPada, DateTime? diperbaruiPada
+});
+
+
+
+
+}
+/// @nodoc
+class __$InvestasiModelCopyWithImpl<$Res>
+    implements _$InvestasiModelCopyWith<$Res> {
+  __$InvestasiModelCopyWithImpl(this._self, this._then);
+
+  final _InvestasiModel _self;
+  final $Res Function(_InvestasiModel) _then;
+
+/// Create a copy of InvestasiModel
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? idInvestor = null,Object? idTransaksi = null,Object? jumlahModal = null,Object? jumlahLembar = null,Object? persentaseKepemilikan = null,Object? tanggalInvestasi = freezed,Object? diHapus = null,Object? diarsipkanPada = freezed,Object? diperbaruiPada = freezed,}) {
+  return _then(_InvestasiModel(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,idInvestor: null == idInvestor ? _self.idInvestor : idInvestor // ignore: cast_nullable_to_non_nullable
+as String,idTransaksi: null == idTransaksi ? _self.idTransaksi : idTransaksi // ignore: cast_nullable_to_non_nullable
+as String,jumlahModal: null == jumlahModal ? _self.jumlahModal : jumlahModal // ignore: cast_nullable_to_non_nullable
+as double,jumlahLembar: null == jumlahLembar ? _self.jumlahLembar : jumlahLembar // ignore: cast_nullable_to_non_nullable
+as int,persentaseKepemilikan: null == persentaseKepemilikan ? _self.persentaseKepemilikan : persentaseKepemilikan // ignore: cast_nullable_to_non_nullable
+as double,tanggalInvestasi: freezed == tanggalInvestasi ? _self.tanggalInvestasi : tanggalInvestasi // ignore: cast_nullable_to_non_nullable
+as DateTime?,diHapus: null == diHapus ? _self.diHapus : diHapus // ignore: cast_nullable_to_non_nullable
+as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+
+}
+
+// dart format on
+```
+
+
+// File: lib/fitur/investasi/model/dividen_model.freezed.dart
+```dart
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'dividen_model.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$DividenModel {
+
+ String get id; String get idInvestasi; String get idInvestor; double get jumlahDividen; DateTime get tanggalPembagian; bool get sudahDibayar; bool get diHapus; DateTime? get diarsipkanPada; DateTime? get diperbaruiPada;
+/// Create a copy of DividenModel
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$DividenModelCopyWith<DividenModel> get copyWith => _$DividenModelCopyWithImpl<DividenModel>(this as DividenModel, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DividenModel&&(identical(other.id, id) || other.id == id)&&(identical(other.idInvestasi, idInvestasi) || other.idInvestasi == idInvestasi)&&(identical(other.idInvestor, idInvestor) || other.idInvestor == idInvestor)&&(identical(other.jumlahDividen, jumlahDividen) || other.jumlahDividen == jumlahDividen)&&(identical(other.tanggalPembagian, tanggalPembagian) || other.tanggalPembagian == tanggalPembagian)&&(identical(other.sudahDibayar, sudahDibayar) || other.sudahDibayar == sudahDibayar)&&(identical(other.diHapus, diHapus) || other.diHapus == diHapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,idInvestasi,idInvestor,jumlahDividen,tanggalPembagian,sudahDibayar,diHapus,diarsipkanPada,diperbaruiPada);
+
+@override
+String toString() {
+  return 'DividenModel(id: $id, idInvestasi: $idInvestasi, idInvestor: $idInvestor, jumlahDividen: $jumlahDividen, tanggalPembagian: $tanggalPembagian, sudahDibayar: $sudahDibayar, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada, diperbaruiPada: $diperbaruiPada)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $DividenModelCopyWith<$Res>  {
+  factory $DividenModelCopyWith(DividenModel value, $Res Function(DividenModel) _then) = _$DividenModelCopyWithImpl;
+@useResult
+$Res call({
+ String id, String idInvestasi, String idInvestor, double jumlahDividen, DateTime tanggalPembagian, bool sudahDibayar, bool diHapus, DateTime? diarsipkanPada, DateTime? diperbaruiPada
+});
+
+
+
+
+}
+/// @nodoc
+class _$DividenModelCopyWithImpl<$Res>
+    implements $DividenModelCopyWith<$Res> {
+  _$DividenModelCopyWithImpl(this._self, this._then);
+
+  final DividenModel _self;
+  final $Res Function(DividenModel) _then;
+
+/// Create a copy of DividenModel
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? idInvestasi = null,Object? idInvestor = null,Object? jumlahDividen = null,Object? tanggalPembagian = null,Object? sudahDibayar = null,Object? diHapus = null,Object? diarsipkanPada = freezed,Object? diperbaruiPada = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,idInvestasi: null == idInvestasi ? _self.idInvestasi : idInvestasi // ignore: cast_nullable_to_non_nullable
+as String,idInvestor: null == idInvestor ? _self.idInvestor : idInvestor // ignore: cast_nullable_to_non_nullable
+as String,jumlahDividen: null == jumlahDividen ? _self.jumlahDividen : jumlahDividen // ignore: cast_nullable_to_non_nullable
+as double,tanggalPembagian: null == tanggalPembagian ? _self.tanggalPembagian : tanggalPembagian // ignore: cast_nullable_to_non_nullable
+as DateTime,sudahDibayar: null == sudahDibayar ? _self.sudahDibayar : sudahDibayar // ignore: cast_nullable_to_non_nullable
+as bool,diHapus: null == diHapus ? _self.diHapus : diHapus // ignore: cast_nullable_to_non_nullable
+as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [DividenModel].
+extension DividenModelPatterns on DividenModel {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _DividenModel value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _DividenModel() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _DividenModel value)  $default,){
+final _that = this;
+switch (_that) {
+case _DividenModel():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _DividenModel value)?  $default,){
+final _that = this;
+switch (_that) {
+case _DividenModel() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String idInvestasi,  String idInvestor,  double jumlahDividen,  DateTime tanggalPembagian,  bool sudahDibayar,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? diperbaruiPada)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _DividenModel() when $default != null:
+return $default(_that.id,_that.idInvestasi,_that.idInvestor,_that.jumlahDividen,_that.tanggalPembagian,_that.sudahDibayar,_that.diHapus,_that.diarsipkanPada,_that.diperbaruiPada);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String idInvestasi,  String idInvestor,  double jumlahDividen,  DateTime tanggalPembagian,  bool sudahDibayar,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? diperbaruiPada)  $default,) {final _that = this;
+switch (_that) {
+case _DividenModel():
+return $default(_that.id,_that.idInvestasi,_that.idInvestor,_that.jumlahDividen,_that.tanggalPembagian,_that.sudahDibayar,_that.diHapus,_that.diarsipkanPada,_that.diperbaruiPada);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String idInvestasi,  String idInvestor,  double jumlahDividen,  DateTime tanggalPembagian,  bool sudahDibayar,  bool diHapus,  DateTime? diarsipkanPada,  DateTime? diperbaruiPada)?  $default,) {final _that = this;
+switch (_that) {
+case _DividenModel() when $default != null:
+return $default(_that.id,_that.idInvestasi,_that.idInvestor,_that.jumlahDividen,_that.tanggalPembagian,_that.sudahDibayar,_that.diHapus,_that.diarsipkanPada,_that.diperbaruiPada);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _DividenModel extends DividenModel {
+  const _DividenModel({required this.id, required this.idInvestasi, required this.idInvestor, required this.jumlahDividen, required this.tanggalPembagian, required this.sudahDibayar, this.diHapus = false, this.diarsipkanPada, this.diperbaruiPada}): super._();
+  
+
+@override final  String id;
+@override final  String idInvestasi;
+@override final  String idInvestor;
+@override final  double jumlahDividen;
+@override final  DateTime tanggalPembagian;
+@override final  bool sudahDibayar;
+@override@JsonKey() final  bool diHapus;
+@override final  DateTime? diarsipkanPada;
+@override final  DateTime? diperbaruiPada;
+
+/// Create a copy of DividenModel
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$DividenModelCopyWith<_DividenModel> get copyWith => __$DividenModelCopyWithImpl<_DividenModel>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DividenModel&&(identical(other.id, id) || other.id == id)&&(identical(other.idInvestasi, idInvestasi) || other.idInvestasi == idInvestasi)&&(identical(other.idInvestor, idInvestor) || other.idInvestor == idInvestor)&&(identical(other.jumlahDividen, jumlahDividen) || other.jumlahDividen == jumlahDividen)&&(identical(other.tanggalPembagian, tanggalPembagian) || other.tanggalPembagian == tanggalPembagian)&&(identical(other.sudahDibayar, sudahDibayar) || other.sudahDibayar == sudahDibayar)&&(identical(other.diHapus, diHapus) || other.diHapus == diHapus)&&(identical(other.diarsipkanPada, diarsipkanPada) || other.diarsipkanPada == diarsipkanPada)&&(identical(other.diperbaruiPada, diperbaruiPada) || other.diperbaruiPada == diperbaruiPada));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,idInvestasi,idInvestor,jumlahDividen,tanggalPembagian,sudahDibayar,diHapus,diarsipkanPada,diperbaruiPada);
+
+@override
+String toString() {
+  return 'DividenModel(id: $id, idInvestasi: $idInvestasi, idInvestor: $idInvestor, jumlahDividen: $jumlahDividen, tanggalPembagian: $tanggalPembagian, sudahDibayar: $sudahDibayar, diHapus: $diHapus, diarsipkanPada: $diarsipkanPada, diperbaruiPada: $diperbaruiPada)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$DividenModelCopyWith<$Res> implements $DividenModelCopyWith<$Res> {
+  factory _$DividenModelCopyWith(_DividenModel value, $Res Function(_DividenModel) _then) = __$DividenModelCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String idInvestasi, String idInvestor, double jumlahDividen, DateTime tanggalPembagian, bool sudahDibayar, bool diHapus, DateTime? diarsipkanPada, DateTime? diperbaruiPada
+});
+
+
+
+
+}
+/// @nodoc
+class __$DividenModelCopyWithImpl<$Res>
+    implements _$DividenModelCopyWith<$Res> {
+  __$DividenModelCopyWithImpl(this._self, this._then);
+
+  final _DividenModel _self;
+  final $Res Function(_DividenModel) _then;
+
+/// Create a copy of DividenModel
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? idInvestasi = null,Object? idInvestor = null,Object? jumlahDividen = null,Object? tanggalPembagian = null,Object? sudahDibayar = null,Object? diHapus = null,Object? diarsipkanPada = freezed,Object? diperbaruiPada = freezed,}) {
+  return _then(_DividenModel(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,idInvestasi: null == idInvestasi ? _self.idInvestasi : idInvestasi // ignore: cast_nullable_to_non_nullable
+as String,idInvestor: null == idInvestor ? _self.idInvestor : idInvestor // ignore: cast_nullable_to_non_nullable
+as String,jumlahDividen: null == jumlahDividen ? _self.jumlahDividen : jumlahDividen // ignore: cast_nullable_to_non_nullable
+as double,tanggalPembagian: null == tanggalPembagian ? _self.tanggalPembagian : tanggalPembagian // ignore: cast_nullable_to_non_nullable
+as DateTime,sudahDibayar: null == sudahDibayar ? _self.sudahDibayar : sudahDibayar // ignore: cast_nullable_to_non_nullable
+as bool,diHapus: null == diHapus ? _self.diHapus : diHapus // ignore: cast_nullable_to_non_nullable
+as bool,diarsipkanPada: freezed == diarsipkanPada ? _self.diarsipkanPada : diarsipkanPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,diperbaruiPada: freezed == diperbaruiPada ? _self.diperbaruiPada : diperbaruiPada // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+
+}
+
+// dart format on
 ```
 
 
 // File: lib/fitur/investasi/model/dividen_model.dart
 ```dart
+// path: lib/fitur/investasi/model/dividen_model.dart
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart';
+
+part 'dividen_model.freezed.dart';
+
+@freezed
+abstract class DividenModel with _$DividenModel implements HasId {
+  const DividenModel._();
+  const factory DividenModel({
+    required String id,
+    required String idInvestasi, // ID investasi terkait
+    required String idInvestor, // ID pelanggan investor
+    required double jumlahDividen,
+    required DateTime tanggalPembagian,
+    required bool sudahDibayar,
+    @Default(false) bool diHapus,
+    DateTime? diarsipkanPada,
+    DateTime? diperbaruiPada,
+  }) = _DividenModel;
+
+  // ---------- SQLite ----------
+  factory DividenModel.fromSqlite(Map<String, dynamic> map) {
+    Log.info('Creating DividenModel from SQLite: ${map[NamaKolom.id]}');
+    return DividenModel(
+      id: map[NamaKolom.id] as String? ?? const Uuid().v4(),
+      idInvestasi: map[NamaKolom.idInvestasi] as String? ?? '',
+      idInvestor: map[NamaKolom.idInvestor] as String? ?? '',
+      jumlahDividen: (map[NamaKolom.jumlahDividen] as num?)?.toDouble() ?? 0.0,
+      tanggalPembagian:
+          ParserUtil.parseDateTime(map[NamaKolom.tanggalPembagian]) ??
+          DateTime.now(),
+      sudahDibayar: ParserUtil.parseBool(map[NamaKolom.sudahDibayar]),
+      diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
+      diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
+      diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
+    );
+  }
+
+  Map<String, dynamic> toSqlite() {
+    return {
+      NamaKolom.id: id,
+      NamaKolom.idInvestasi: idInvestasi,
+      NamaKolom.idInvestor: idInvestor,
+      NamaKolom.jumlahDividen: jumlahDividen,
+      NamaKolom.tanggalPembagian: tanggalPembagian.millisecondsSinceEpoch,
+      NamaKolom.sudahDibayar: sudahDibayar ? 1 : 0,
+      NamaKolom.dihapus: diHapus ? 1 : 0,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada:
+          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
+    };
+  }
+
+  // ---------- Firebase ----------
+  factory DividenModel.fromFirebase(String id, Map<String, dynamic> data) {
+    Log.info('Creating DividenModel from Firebase: $id');
+    return DividenModel(
+      id: id,
+      idInvestasi: data[NamaKolom.idInvestasi] as String? ?? '',
+      idInvestor: data[NamaKolom.idInvestor] as String? ?? '',
+      jumlahDividen: (data[NamaKolom.jumlahDividen] as num?)?.toDouble() ?? 0.0,
+      tanggalPembagian:
+          ParserUtil.parseDateTime(data[NamaKolom.tanggalPembagian]) ??
+          DateTime.now(),
+      sudahDibayar: ParserUtil.parseBool(data[NamaKolom.sudahDibayar]),
+      diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
+      diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
+      diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
+    );
+  }
+
+  Map<String, dynamic> toFirebase() {
+    return {
+      NamaKolom.id: id,
+      NamaKolom.idInvestasi: idInvestasi,
+      NamaKolom.idInvestor: idInvestor,
+      NamaKolom.jumlahDividen: jumlahDividen,
+      NamaKolom.tanggalPembagian: Timestamp.fromDate(tanggalPembagian),
+      NamaKolom.sudahDibayar: sudahDibayar,
+      NamaKolom.dihapus: diHapus,
+      NamaKolom.diarsipkanPada: diarsipkanPada != null
+          ? Timestamp.fromDate(diarsipkanPada!)
+          : null,
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        diperbaruiPada ?? DateTime.now(),
+      ),
+    };
+  }
+}
 ```
 
 
 // File: lib/fitur/investasi/model/investasi_model.dart
 ```dart
+// path: lib/fitur/investasi/model/investasi_model.dart
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart';
+
+part 'investasi_model.freezed.dart';
+
+@freezed
+abstract class InvestasiModel with _$InvestasiModel implements HasId {
+  const InvestasiModel._();
+  const factory InvestasiModel({
+    required String id,
+    required String idInvestor, // ID pelanggan dengan role investor
+    required String idTransaksi, // ID transaksi terkait
+    required double jumlahModal, // Jumlah modal yang ditanamkan (Rupiah)
+    required int jumlahLembar, // Jumlah lembar/saham yang dibeli
+    required double persentaseKepemilikan, // Persentase kepemilikan
+    DateTime? tanggalInvestasi,
+    @Default(false) bool diHapus,
+    DateTime? diarsipkanPada,
+    DateTime? diperbaruiPada,
+  }) = _InvestasiModel;
+
+  // ---------- SQLite ----------
+  factory InvestasiModel.fromSqlite(Map<String, dynamic> map) {
+    Log.info('Creating InvestasiModel from SQLite: ${map[NamaKolom.id]}');
+    return InvestasiModel(
+      id: map[NamaKolom.id] as String? ?? const Uuid().v4(),
+      idInvestor: map[NamaKolom.idInvestor] as String? ?? '',
+      idTransaksi: map[NamaKolom.idTransaksi] as String? ?? '',
+      jumlahModal: (map[NamaKolom.jumlahModal] as num?)?.toDouble() ?? 0.0,
+      jumlahLembar: (map[NamaKolom.jumlahLembar] as int?) ?? 0,
+      persentaseKepemilikan:
+          (map[NamaKolom.persentaseKepemilikan] as num?)?.toDouble() ?? 0.0,
+      tanggalInvestasi: ParserUtil.parseDateTime(
+        map[NamaKolom.tanggalInvestasi],
+      ),
+      diHapus: ParserUtil.parseBool(map[NamaKolom.dihapus]),
+      diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
+      diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
+    );
+  }
+
+  Map<String, dynamic> toSqlite() {
+    return {
+      NamaKolom.id: id,
+      NamaKolom.idInvestor: idInvestor,
+      NamaKolom.idTransaksi: idTransaksi,
+      NamaKolom.jumlahModal: jumlahModal,
+      NamaKolom.jumlahLembar: jumlahLembar,
+      NamaKolom.persentaseKepemilikan: persentaseKepemilikan,
+      NamaKolom.tanggalInvestasi: tanggalInvestasi?.millisecondsSinceEpoch,
+      NamaKolom.dihapus: diHapus ? 1 : 0,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada:
+          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
+    };
+  }
+
+  // ---------- Firebase ----------
+  factory InvestasiModel.fromFirebase(String id, Map<String, dynamic> data) {
+    Log.info('Creating InvestasiModel from Firebase: $id');
+    return InvestasiModel(
+      id: id,
+      idInvestor: data[NamaKolom.idInvestor] as String? ?? '',
+      idTransaksi: data[NamaKolom.idTransaksi] as String? ?? '',
+      jumlahModal: (data[NamaKolom.jumlahModal] as num?)?.toDouble() ?? 0.0,
+      jumlahLembar: (data[NamaKolom.jumlahLembar] as int?) ?? 0,
+      persentaseKepemilikan:
+          (data[NamaKolom.persentaseKepemilikan] as num?)?.toDouble() ?? 0.0,
+      tanggalInvestasi: ParserUtil.parseDateTime(
+        data[NamaKolom.tanggalInvestasi],
+      ),
+      diHapus: ParserUtil.parseBool(data[NamaKolom.dihapus]),
+      diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
+      diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
+    );
+  }
+
+  Map<String, dynamic> toFirebase() {
+    return {
+      NamaKolom.id: id,
+      NamaKolom.idInvestor: idInvestor,
+      NamaKolom.idTransaksi: idTransaksi,
+      NamaKolom.jumlahModal: jumlahModal,
+      NamaKolom.jumlahLembar: jumlahLembar,
+      NamaKolom.persentaseKepemilikan: persentaseKepemilikan,
+      NamaKolom.tanggalInvestasi: Timestamp.fromDate(
+        tanggalInvestasi ?? DateTime.now(),
+      ),
+      NamaKolom.dihapus: diHapus,
+      NamaKolom.diarsipkanPada: diarsipkanPada != null
+          ? Timestamp.fromDate(diarsipkanPada!)
+          : null,
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(
+        diperbaruiPada ?? DateTime.now(),
+      ),
+    };
+  }
+}
 ```
 
 
@@ -47181,7 +48375,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
-import 'package:wifi/fitur/investor/page/portofolio.dart';
+import 'package:wifi/fitur/investasi/page/portofolio.dart';
 import 'package:wifi/fitur/notifikasi/pengingat_paket_belum_lunas.dart';
 import 'package:wifi/fitur/notifikasi/penjadwal_notifikasi.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';
@@ -54280,6 +55474,17 @@ abstract final class NamaKolom {
   static const String voucher = 'voucher';
   static const String terpakai = 'used';
   static const String tipeVoucher = 'tipeVoucher';
+
+  // ========== INVESTASI ==========
+  static const String idInvestasi = 'id_investasi';
+  static const String idInvestor = 'id_investor';
+  static const String jumlahModal = 'jumlah_modal';
+  static const String jumlahLembar = 'jumlah_lembar';
+  static const String persentaseKepemilikan = 'persentase_kepemilikan';
+  static const String tanggalInvestasi = 'tanggal_investasi';
+  static const String jumlahDividen = 'jumlah_dividen';
+  static const String tanggalPembagian = 'tanggal_pembagian';
+  static const String sudahDibayar = 'sudah_dibayar';
 }
 ```
 
@@ -54306,6 +55511,10 @@ abstract final class NamaTabel {
   static const String notifikasi = 'notification';
   static const String statusGlobal = 'status_global';
   static const String event = 'events';
+
+  // ========== INVESTASI ==========
+  static const String investasi = 'investasi';
+  static const String dividen = 'dividen';
 }
 ```
 
@@ -55677,10 +56886,12 @@ class FirebaseMigrationService {
 // path: lib/data_dummy/data_dummy.dart
 
 export 'dummy_dompet.dart';
+export 'dummy_investasi.dart'; // ← Tambahkan ini
 export 'dummy_kategori.dart';
 export 'dummy_paket.dart';
 export 'dummy_pelanggan.dart';
-export 'dummy_sub_kategori.dart'; // ← Tambahkan ini
+export 'dummy_sub_kategori.dart';
+export 'dummy_transaksi.dart';
 ```
 
 
@@ -55820,7 +57031,7 @@ List<PelangganModel> get daftarPelanggan => [
 ];
 
 /// Mendapatkan pelanggan berdasarkan ID
-PelangganModel? getById(String id) {
+PelangganModel? getPelangganById(String id) {
   try {
     return daftarPelanggan.firstWhere((p) => p.id == id);
   } catch (e) {
@@ -55829,7 +57040,7 @@ PelangganModel? getById(String id) {
 }
 
 /// Mendapatkan pelanggan berdasarkan nama
-PelangganModel? getByName(String nama) {
+PelangganModel? getPelangganByName(String nama) {
   try {
     return daftarPelanggan.firstWhere(
       (p) => p.nama.toLowerCase() == nama.toLowerCase(),
@@ -55840,7 +57051,7 @@ PelangganModel? getByName(String nama) {
 }
 
 /// Mendapatkan pelanggan berdasarkan role
-List<PelangganModel> getByRole(AppRole role) {
+List<PelangganModel> getPelangganByRole(AppRole role) {
   return daftarPelanggan.where((p) => p.role == role).toList();
 }
 
@@ -56121,16 +57332,18 @@ const String idTransaksi12 = 'trans-012';
 List<TransaksiModel> get daftarTransaksi {
   final now = DateTime.now();
   final satuHariLalu = now.subtract(const Duration(days: 1));
-  const tigaHariLalu = Duration(days: 3);
-  const limaHariLalu = Duration(days: 5);
-  const tujuhHariLalu = Duration(days: 7);
-  const sepuluhHariLalu = Duration(days: 10);
-  const empatBelasHariLalu = Duration(days: 14);
-  const duaPuluhHariLalu = Duration(days: 20);
-  const tigaPuluhHariLalu = Duration(days: 30);
+  final tigaHariLalu = now.subtract(const Duration(days: 3));
+  final limaHariLalu = now.subtract(const Duration(days: 5));
+  final tujuhHariLalu = now.subtract(const Duration(days: 7));
+  final sepuluhHariLalu = now.subtract(const Duration(days: 10));
+  final empatBelasHariLalu = now.subtract(const Duration(days: 14));
+  final duaPuluhHariLalu = now.subtract(const Duration(days: 20));
+  final tigaPuluhHariLalu = now.subtract(const Duration(days: 30));
 
   return [
+    // ============================================================
     // 1. Transaksi Pemasukan - Gaji Budi
+    // ============================================================
     TransaksiModel(
       id: idTransaksi1,
       tanggal: now,
@@ -56145,7 +57358,10 @@ List<TransaksiModel> get daftarTransaksi {
       tanggalMulai: null,
       tanggalBerakhir: null,
     ),
+
+    // ============================================================
     // 2. Transaksi Pemasukan - Bonus Budi
+    // ============================================================
     TransaksiModel(
       id: idTransaksi2,
       tanggal: satuHariLalu,
@@ -56160,10 +57376,13 @@ List<TransaksiModel> get daftarTransaksi {
       tanggalMulai: null,
       tanggalBerakhir: null,
     ),
+
+    // ============================================================
     // 3. Transaksi Pengeluaran - Makanan Budi
+    // ============================================================
     TransaksiModel(
       id: idTransaksi3,
-      tanggal: now.subtract(tigaHariLalu),
+      tanggal: tigaHariLalu,
       deskripsi: 'Belanja Makanan',
       jumlah: 500000,
       tipe: TipeTransaksi.expense,
@@ -56175,10 +57394,13 @@ List<TransaksiModel> get daftarTransaksi {
       tanggalMulai: null,
       tanggalBerakhir: null,
     ),
+
+    // ============================================================
     // 4. Transaksi Aktivasi Paket Hemat - Budi
+    // ============================================================
     TransaksiModel(
       id: idTransaksi4,
-      tanggal: now.subtract(tigaHariLalu),
+      tanggal: tigaHariLalu,
       deskripsi: 'Aktivasi Paket Hemat',
       jumlah: 150000,
       tipe: TipeTransaksi.expense,
@@ -56190,14 +57412,17 @@ List<TransaksiModel> get daftarTransaksi {
       poinDidapat: 50,
       durasiPaket: 30,
       tipeDurasiPaket: TipeDurasiPaket.days,
-      tanggalMulai: now.subtract(tigaHariLalu),
-      tanggalBerakhir: now.subtract(tigaHariLalu).add(const Duration(days: 30)),
+      tanggalMulai: tigaHariLalu,
+      tanggalBerakhir: tigaHariLalu.add(const Duration(days: 30)),
       statusAktivasi: true,
     ),
+
+    // ============================================================
     // 5. Transaksi Aktivasi Paket Bisnis - Siti
+    // ============================================================
     TransaksiModel(
       id: idTransaksi5,
-      tanggal: now.subtract(limaHariLalu),
+      tanggal: limaHariLalu,
       deskripsi: 'Aktivasi Paket Bisnis',
       jumlah: 250000,
       tipe: TipeTransaksi.expense,
@@ -56209,14 +57434,17 @@ List<TransaksiModel> get daftarTransaksi {
       poinDidapat: 100,
       durasiPaket: 30,
       tipeDurasiPaket: TipeDurasiPaket.days,
-      tanggalMulai: now.subtract(limaHariLalu),
-      tanggalBerakhir: now.subtract(limaHariLalu).add(const Duration(days: 30)),
+      tanggalMulai: limaHariLalu,
+      tanggalBerakhir: limaHariLalu.add(const Duration(days: 30)),
       statusAktivasi: true,
     ),
+
+    // ============================================================
     // 6. Transaksi Aktivasi Paket Premium - Agus (Belum Lunas)
+    // ============================================================
     TransaksiModel(
       id: idTransaksi6,
-      tanggal: now.subtract(tujuhHariLalu),
+      tanggal: tujuhHariLalu,
       deskripsi: 'Aktivasi Paket Premium',
       jumlah: 350000,
       tipe: TipeTransaksi.expense,
@@ -56228,16 +57456,17 @@ List<TransaksiModel> get daftarTransaksi {
       statusPembayaran: StatusPembayaran.unpaid,
       durasiPaket: 30,
       tipeDurasiPaket: TipeDurasiPaket.days,
-      tanggalMulai: now.subtract(tujuhHariLalu),
-      tanggalBerakhir: now
-          .subtract(tujuhHariLalu)
-          .add(const Duration(days: 30)),
+      tanggalMulai: tujuhHariLalu,
+      tanggalBerakhir: tujuhHariLalu.add(const Duration(days: 30)),
       statusAktivasi: true,
     ),
+
+    // ============================================================
     // 7. Transaksi Aktivasi Paket Gamer - Dewi
+    // ============================================================
     TransaksiModel(
       id: idTransaksi7,
-      tanggal: now.subtract(sepuluhHariLalu),
+      tanggal: sepuluhHariLalu,
       deskripsi: 'Aktivasi Paket Gamer',
       jumlah: 500000,
       tipe: TipeTransaksi.expense,
@@ -56249,16 +57478,17 @@ List<TransaksiModel> get daftarTransaksi {
       poinDidapat: 200,
       durasiPaket: 30,
       tipeDurasiPaket: TipeDurasiPaket.days,
-      tanggalMulai: now.subtract(sepuluhHariLalu),
-      tanggalBerakhir: now
-          .subtract(sepuluhHariLalu)
-          .add(const Duration(days: 30)),
+      tanggalMulai: sepuluhHariLalu,
+      tanggalBerakhir: sepuluhHariLalu.add(const Duration(days: 30)),
       statusAktivasi: true,
     ),
+
+    // ============================================================
     // 8. Transaksi Aktivasi Paket Edukasi - Andi
+    // ============================================================
     TransaksiModel(
       id: idTransaksi8,
-      tanggal: now.subtract(empatBelasHariLalu),
+      tanggal: empatBelasHariLalu,
       deskripsi: 'Aktivasi Paket Edukasi',
       jumlah: 100000,
       tipe: TipeTransaksi.expense,
@@ -56270,16 +57500,17 @@ List<TransaksiModel> get daftarTransaksi {
       poinDidapat: 30,
       durasiPaket: 15,
       tipeDurasiPaket: TipeDurasiPaket.days,
-      tanggalMulai: now.subtract(empatBelasHariLalu),
-      tanggalBerakhir: now
-          .subtract(empatBelasHariLalu)
-          .add(const Duration(days: 15)),
+      tanggalMulai: empatBelasHariLalu,
+      tanggalBerakhir: empatBelasHariLalu.add(const Duration(days: 15)),
       statusAktivasi: true,
     ),
+
+    // ============================================================
     // 9. Transaksi Aktivasi Paket Ultimate - Joko
+    // ============================================================
     TransaksiModel(
       id: idTransaksi9,
-      tanggal: now.subtract(duaPuluhHariLalu),
+      tanggal: duaPuluhHariLalu,
       deskripsi: 'Aktivasi Paket Ultimate',
       jumlah: 750000,
       tipe: TipeTransaksi.expense,
@@ -56291,16 +57522,17 @@ List<TransaksiModel> get daftarTransaksi {
       poinDidapat: 300,
       durasiPaket: 60,
       tipeDurasiPaket: TipeDurasiPaket.days,
-      tanggalMulai: now.subtract(duaPuluhHariLalu),
-      tanggalBerakhir: now
-          .subtract(duaPuluhHariLalu)
-          .add(const Duration(days: 60)),
+      tanggalMulai: duaPuluhHariLalu,
+      tanggalBerakhir: duaPuluhHariLalu.add(const Duration(days: 60)),
       statusAktivasi: true,
     ),
+
+    // ============================================================
     // 10. Transaksi Pengeluaran - Transportasi Rina
+    // ============================================================
     TransaksiModel(
       id: idTransaksi10,
-      tanggal: now.subtract(tigaPuluhHariLalu),
+      tanggal: tigaPuluhHariLalu,
       deskripsi: 'Transportasi Bulanan',
       jumlah: 300000,
       tipe: TipeTransaksi.expense,
@@ -56312,10 +57544,13 @@ List<TransaksiModel> get daftarTransaksi {
       tanggalMulai: null,
       tanggalBerakhir: null,
     ),
+
+    // ============================================================
     // 11. Transaksi Pengeluaran - Listrik Maya
+    // ============================================================
     TransaksiModel(
       id: idTransaksi11,
-      tanggal: now.subtract(duaPuluhHariLalu),
+      tanggal: duaPuluhHariLalu,
       deskripsi: 'Pembayaran Listrik',
       jumlah: 200000,
       tipe: TipeTransaksi.expense,
@@ -56327,7 +57562,10 @@ List<TransaksiModel> get daftarTransaksi {
       tanggalMulai: null,
       tanggalBerakhir: null,
     ),
+
+    // ============================================================
     // 12. Transaksi Transfer - Rudi ke Lisa
+    // ============================================================
     TransaksiModel(
       id: idTransaksi12,
       tanggal: satuHariLalu,
@@ -56346,7 +57584,7 @@ List<TransaksiModel> get daftarTransaksi {
 }
 
 /// Mendapatkan transaksi berdasarkan ID
-TransaksiModel? getById(String id) {
+TransaksiModel? getTransaksiById(String id) {
   try {
     return daftarTransaksi.firstWhere((t) => t.id == id);
   } catch (e) {
@@ -56355,12 +57593,12 @@ TransaksiModel? getById(String id) {
 }
 
 /// Mendapatkan transaksi berdasarkan ID pelanggan
-List<TransaksiModel> getByCustomerId(String idPelanggan) {
+List<TransaksiModel> getTransaksiByCustomerId(String idPelanggan) {
   return daftarTransaksi.where((t) => t.idPelanggan == idPelanggan).toList();
 }
 
 /// Mendapatkan transaksi berdasarkan tipe
-List<TransaksiModel> getByTipe(TipeTransaksi tipe) {
+List<TransaksiModel> getTransaksiByTipe(TipeTransaksi tipe) {
   return daftarTransaksi.where((t) => t.tipe == tipe).toList();
 }
 
@@ -56404,25 +57642,283 @@ Map<String, int> getTotalPoinPerPelanggan() {
 ```
 
 
+// File: lib/data_dummy/dummy_investasi.dart
+```dart
+// path: lib/data_dummy/dummy_investasi.dart
+
+import 'package:wifi/data_dummy/dummy_pelanggan.dart';
+import 'package:wifi/data_dummy/dummy_transaksi.dart';
+import 'package:wifi/fitur/investasi/model/dividen_model.dart';
+import 'package:wifi/fitur/investasi/model/investasi_model.dart';
+
+/// Data dummy untuk investasi dan dividen
+
+// ============================================================
+// ID INVESTASI
+// ============================================================
+const String idInvestasi1 = 'investasi-001';
+const String idInvestasi2 = 'investasi-002';
+const String idInvestasi3 = 'investasi-003';
+const String idInvestasi4 = 'investasi-004';
+const String idInvestasi5 = 'investasi-005';
+
+// ============================================================
+// ID DIVIDEN
+// ============================================================
+const String idDividen1 = 'dividen-001';
+const String idDividen2 = 'dividen-002';
+const String idDividen3 = 'dividen-003';
+const String idDividen4 = 'dividen-004';
+const String idDividen5 = 'dividen-005';
+const String idDividen6 = 'dividen-006';
+const String idDividen7 = 'dividen-007';
+const String idDividen8 = 'dividen-008';
+
+// ============================================================
+// DATA INVESTASI DUMMY
+// ============================================================
+
+/// Daftar investasi untuk semua investor
+List<InvestasiModel> get daftarInvestasi {
+  final now = DateTime.now();
+  final satuBulanLalu = now.subtract(const Duration(days: 30));
+  const duaBulanLalu = Duration(days: 60);
+  const tigaBulanLalu = Duration(days: 90);
+  const empatBulanLalu = Duration(days: 120);
+
+  return [
+    // ============================================================
+    // INVESTASI INVESTOR 1 (Budi Santoso)
+    // ============================================================
+    InvestasiModel(
+      id: idInvestasi1,
+      idInvestor: idInvestor1,
+      idTransaksi: idTransaksi1, // Transaksi Gaji Budi
+      jumlahModal: 5000000,
+      jumlahLembar: 50,
+      persentaseKepemilikan: 0.4, // 40%
+      tanggalInvestasi: now.subtract(duaBulanLalu),
+    ),
+    InvestasiModel(
+      id: idInvestasi2,
+      idInvestor: idInvestor1,
+      idTransaksi: idTransaksi2, // Transaksi Bonus Budi
+      jumlahModal: 2000000,
+      jumlahLembar: 20,
+      persentaseKepemilikan: 0.15, // 15%
+      tanggalInvestasi: satuBulanLalu,
+    ),
+
+    // ============================================================
+    // INVESTASI INVESTOR 2
+    // ============================================================
+    InvestasiModel(
+      id: idInvestasi3,
+      idInvestor: idInvestor2,
+      idTransaksi: idTransaksi5, // Transaksi Aktivasi Paket Bisnis Siti
+      jumlahModal: 7500000,
+      jumlahLembar: 75,
+      persentaseKepemilikan: 0.6, // 60%
+      tanggalInvestasi: now.subtract(tigaBulanLalu),
+    ),
+    InvestasiModel(
+      id: idInvestasi4,
+      idInvestor: idInvestor2,
+      idTransaksi: idTransaksi7, // Transaksi Aktivasi Paket Gamer Dewi
+      jumlahModal: 3000000,
+      jumlahLembar: 30,
+      persentaseKepemilikan: 0.25, // 25%
+      tanggalInvestasi: now.subtract(empatBulanLalu),
+    ),
+    InvestasiModel(
+      id: idInvestasi5,
+      idInvestor: idInvestor2,
+      idTransaksi: idTransaksi9, // Transaksi Aktivasi Paket Ultimate Joko
+      jumlahModal: 1000000,
+      jumlahLembar: 10,
+      persentaseKepemilikan: 0.1, // 10%
+      tanggalInvestasi: now.subtract(duaBulanLalu),
+    ),
+  ];
+}
+
+// ============================================================
+// DATA DIVIDEN DUMMY
+// ============================================================
+
+/// Daftar dividen untuk semua investor
+List<DividenModel> get daftarDividen {
+  final now = DateTime.now();
+  const satuBulanLalu = Duration(days: 30);
+  const duaBulanLalu = Duration(days: 60);
+
+  return [
+    // ============================================================
+    // DIVIDEN INVESTOR 1 (Budi Santoso)
+    // ============================================================
+    DividenModel(
+      id: idDividen1,
+      idInvestasi: idInvestasi1,
+      idInvestor: idInvestor1,
+      jumlahDividen: 600000,
+      tanggalPembagian: now.subtract(satuBulanLalu),
+      sudahDibayar: true,
+    ),
+    DividenModel(
+      id: idDividen2,
+      idInvestasi: idInvestasi1,
+      idInvestor: idInvestor1,
+      jumlahDividen: 600000,
+      tanggalPembagian: now,
+      sudahDibayar: false, // Belum dibayar
+    ),
+    DividenModel(
+      id: idDividen3,
+      idInvestasi: idInvestasi2,
+      idInvestor: idInvestor1,
+      jumlahDividen: 240000,
+      tanggalPembagian: now.subtract(satuBulanLalu),
+      sudahDibayar: true,
+    ),
+
+    // ============================================================
+    // DIVIDEN INVESTOR 2
+    // ============================================================
+    DividenModel(
+      id: idDividen4,
+      idInvestasi: idInvestasi3,
+      idInvestor: idInvestor2,
+      jumlahDividen: 900000,
+      tanggalPembagian: now.subtract(duaBulanLalu),
+      sudahDibayar: true,
+    ),
+    DividenModel(
+      id: idDividen5,
+      idInvestasi: idInvestasi3,
+      idInvestor: idInvestor2,
+      jumlahDividen: 900000,
+      tanggalPembagian: now.subtract(satuBulanLalu),
+      sudahDibayar: true,
+    ),
+    DividenModel(
+      id: idDividen6,
+      idInvestasi: idInvestasi3,
+      idInvestor: idInvestor2,
+      jumlahDividen: 900000,
+      tanggalPembagian: now,
+      sudahDibayar: false,
+    ),
+    DividenModel(
+      id: idDividen7,
+      idInvestasi: idInvestasi4,
+      idInvestor: idInvestor2,
+      jumlahDividen: 360000,
+      tanggalPembagian: now.subtract(duaBulanLalu),
+      sudahDibayar: true,
+    ),
+    DividenModel(
+      id: idDividen8,
+      idInvestasi: idInvestasi5,
+      idInvestor: idInvestor2,
+      jumlahDividen: 120000,
+      tanggalPembagian: now.subtract(satuBulanLalu),
+      sudahDibayar: true,
+    ),
+  ];
+}
+
+// ============================================================
+// FUNGSI PEMBANTU
+// ============================================================
+
+/// Mendapatkan investasi berdasarkan ID investor
+List<InvestasiModel> getInvestasiByIdInvestor(String idInvestor) {
+  return daftarInvestasi.where((i) => i.idInvestor == idInvestor).toList();
+}
+
+/// Mendapatkan dividen berdasarkan ID investor
+List<DividenModel> getDividenByIdInvestor(String idInvestor) {
+  return daftarDividen.where((d) => d.idInvestor == idInvestor).toList();
+}
+
+/// Mendapatkan investasi berdasarkan ID
+InvestasiModel? getInvestasiById(String id) {
+  try {
+    return daftarInvestasi.firstWhere((i) => i.id == id);
+  } catch (e) {
+    return null;
+  }
+}
+
+/// Mendapatkan dividen berdasarkan ID
+DividenModel? getDividenById(String id) {
+  try {
+    return daftarDividen.firstWhere((d) => d.id == id);
+  } catch (e) {
+    return null;
+  }
+}
+
+/// Menghitung total modal investor berdasarkan ID investor
+double getTotalModalInvestor(String idInvestor) {
+  return daftarInvestasi
+      .where((i) => i.idInvestor == idInvestor)
+      .fold(0.0, (sum, i) => sum + i.jumlahModal);
+}
+
+/// Menghitung total lembar investor berdasarkan ID investor
+int getTotalLembarInvestor(String idInvestor) {
+  return daftarInvestasi
+      .where((i) => i.idInvestor == idInvestor)
+      .fold(0, (sum, i) => sum + i.jumlahLembar);
+}
+
+/// Menghitung total persentase kepemilikan investor
+double getTotalPersentaseInvestor(String idInvestor) {
+  return daftarInvestasi
+      .where((i) => i.idInvestor == idInvestor)
+      .fold(0.0, (sum, i) => sum + i.persentaseKepemilikan);
+}
+
+/// Menghitung total dividen yang sudah diterima investor
+double getTotalDividenDiterima(String idInvestor) {
+  return daftarDividen
+      .where((d) => d.idInvestor == idInvestor && d.sudahDibayar)
+      .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+}
+
+/// Menghitung total dividen yang belum dibayar investor
+double getTotalDividenBelumDibayar(String idInvestor) {
+  return daftarDividen
+      .where((d) => d.idInvestor == idInvestor && !d.sudahDibayar)
+      .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+}
+```
+
+
 // File: lib/data_dummy/halaman_data_dummy.dart
 ```dart
 // path: lib/data_dummy/halaman_data_dummy.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/data_dummy/dummy_dompet.dart';
+import 'package:wifi/data_dummy/dummy_investasi.dart';
 import 'package:wifi/data_dummy/dummy_kategori.dart';
 import 'package:wifi/data_dummy/dummy_paket.dart';
 import 'package:wifi/data_dummy/dummy_pelanggan.dart';
 import 'package:wifi/data_dummy/dummy_sub_kategori.dart';
 import 'package:wifi/data_dummy/dummy_transaksi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/investasi/operasi/investasi_op_sqlite.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -56494,6 +57990,27 @@ class HalamanDataDummy extends ConsumerWidget {
             },
             label: 'Tambah Transaksi Dummy (${daftarTransaksi.length})',
             icon: TIcons.receiptLong,
+          ),
+          // ============================================================
+          // TOMBOL INVESTASI & DIVIDEN
+          // ============================================================
+          _tombolFitur(
+            context: context,
+            onPressed: () async {
+              await _tambahInvestasi(ref);
+            },
+            label: 'Tambah Investasi Dummy (${daftarInvestasi.length})',
+            icon: TIcons.money,
+            color: Colors.purple,
+          ),
+          _tombolFitur(
+            context: context,
+            onPressed: () async {
+              await _tambahDividen(ref);
+            },
+            label: 'Tambah Dividen Dummy (${daftarDividen.length})',
+            icon: TIcons.points,
+            color: Colors.orange,
           ),
           _tombolFitur(
             context: context,
@@ -56710,6 +58227,82 @@ class HalamanDataDummy extends ConsumerWidget {
     }
   }
 
+  // ============================================================
+  // FUNGSI TAMBAH INVESTASI
+  // ============================================================
+
+  Future<void> _tambahInvestasi(WidgetRef ref) async {
+    try {
+      Log.info('Memulai proses penambahan data Investasi dummy');
+      final investasiOp = InvestasiOpSqlite(
+        sqliteDb: ref.read(sqliteDatabaseProvider),
+        baseOpSqlite: ref.read(baseOpSqliteProvider),
+      );
+      var successCount = 0;
+
+      for (final data in daftarInvestasi) {
+        try {
+          await investasiOp.tambahInvestasi(data);
+          successCount++;
+        } catch (e) {
+          Log.warning('Gagal insert investasi ${data.id}: $e');
+        }
+      }
+
+      if (ref.context.mounted) {
+        ToastUtil.success(
+          ref.context,
+          'Berhasil menambahkan $successCount dari ${daftarInvestasi.length} Investasi.',
+        );
+      }
+    } catch (e, s) {
+      Log.error('Gagal menambahkan Investasi dummy', e: e, s: s);
+      if (ref.context.mounted) {
+        ToastUtil.error(ref.context, 'Gagal menambah Investasi: $e');
+      }
+    }
+  }
+
+  // ============================================================
+  // FUNGSI TAMBAH DIVIDEN
+  // ============================================================
+
+  Future<void> _tambahDividen(WidgetRef ref) async {
+    try {
+      Log.info('Memulai proses penambahan data Dividen dummy');
+      final investasiOp = InvestasiOpSqlite(
+        sqliteDb: ref.read(sqliteDatabaseProvider),
+        baseOpSqlite: ref.read(baseOpSqliteProvider),
+      );
+      var successCount = 0;
+
+      for (final data in daftarDividen) {
+        try {
+          await investasiOp.tambahDividen(data);
+          successCount++;
+        } catch (e) {
+          Log.warning('Gagal insert dividen ${data.id}: $e');
+        }
+      }
+
+      if (ref.context.mounted) {
+        ToastUtil.success(
+          ref.context,
+          'Berhasil menambahkan $successCount dari ${daftarDividen.length} Dividen.',
+        );
+      }
+    } catch (e, s) {
+      Log.error('Gagal menambahkan Dividen dummy', e: e, s: s);
+      if (ref.context.mounted) {
+        ToastUtil.error(ref.context, 'Gagal menambah Dividen: $e');
+      }
+    }
+  }
+
+  // ============================================================
+  // FUNGSI TAMBAH PENGATURAN
+  // ============================================================
+
   Future<void> _tambahPengaturan(WidgetRef ref) async {
     try {
       Log.info('Memulai proses penambahan data Pengaturan dummy');
@@ -56782,7 +58375,23 @@ class HalamanDataDummy extends ConsumerWidget {
       }
       Log.info('✅ Transaksi: ${daftarTransaksi.length} data');
 
-      // 7. Pengaturan
+      // 7. Investasi
+      final investasiOp = InvestasiOpSqlite(
+        sqliteDb: ref.read(sqliteDatabaseProvider),
+        baseOpSqlite: ref.read(baseOpSqliteProvider),
+      );
+      for (final data in daftarInvestasi) {
+        await investasiOp.tambahInvestasi(data);
+      }
+      Log.info('✅ Investasi: ${daftarInvestasi.length} data');
+
+      // 8. Dividen
+      for (final data in daftarDividen) {
+        await investasiOp.tambahDividen(data);
+      }
+      Log.info('✅ Dividen: ${daftarDividen.length} data');
+
+      // 9. Pengaturan
       final settingsOp = ref.read(settingsOpSqliteProvider);
       await settingsOp.simpanAtauPerbaruiSettings(const SettingsModel());
       Log.info('✅ Pengaturan: 1 data');
@@ -56819,6 +58428,8 @@ class HalamanDataDummy extends ConsumerWidget {
                 ),
                 Text('• ${DummyPaket.daftarPaket.length} Paket'),
                 Text('• ${daftarTransaksi.length} Transaksi'),
+                Text('• ${daftarInvestasi.length} Investasi'),
+                Text('• ${daftarDividen.length} Dividen'),
                 const Text('• 1 Pengaturan'),
               ],
             ),
@@ -60000,9 +61611,6 @@ lib/fitur/paket/enum/tipe_durasi_paket.dart
 lib/fitur/paket/model
 lib/fitur/paket/model/paket_model.freezed.dart
 lib/fitur/paket/model/paket_model.dart
-lib/fitur/investor
-lib/fitur/investor/page
-lib/fitur/investor/page/portofolio.dart
 lib/fitur/whatsapp
 lib/fitur/whatsapp/info_paket.dart
 lib/fitur/order
@@ -60180,6 +61788,8 @@ lib/fitur/investasi/page/portofolio.dart
 lib/fitur/investasi/operasi
 lib/fitur/investasi/operasi/investasi_op_sqlite.dart
 lib/fitur/investasi/model
+lib/fitur/investasi/model/investasi_model.freezed.dart
+lib/fitur/investasi/model/dividen_model.freezed.dart
 lib/fitur/investasi/model/dividen_model.dart
 lib/fitur/investasi/model/investasi_model.dart
 lib/fitur/pelanggan
@@ -60357,6 +61967,7 @@ lib/data_dummy/dummy_pelanggan.dart
 lib/data_dummy/dummy_paket.dart
 lib/data_dummy/dummy_kategori.dart
 lib/data_dummy/dummy_transaksi.dart
+lib/data_dummy/dummy_investasi.dart
 lib/data_dummy/halaman_data_dummy.dart
 lib/data_dummy/dummy_sub_kategori.dart
 lib/data_dummy/dummy_dompet.dart

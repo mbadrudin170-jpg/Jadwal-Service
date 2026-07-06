@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_sqlite.dart';
+import 'package:wifi/fitur/investasi/operasi/investasi_op_sqlite.dart';
 import 'package:wifi/fitur/kategori/operasi/kategori_op_sqlite.dart';
 import 'package:wifi/fitur/kategori/operasi/sub_kategori_op_sqlite.dart';
 import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_sqlite.dart';
@@ -155,4 +156,12 @@ NotifikasiOpSqlite notifikasiOpSqlite(Ref ref) {
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
   return NotifikasiOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
+}
+
+@Riverpod(keepAlive: true)
+InvestasiOpSqlite investasiOpSqlite(Ref ref) {
+  Log.info('Membuat instance InvestasiOpSqlite via @riverpod...');
+  final sqliteDb = ref.watch(sqliteDatabaseProvider);
+  final baseOpSqlite = ref.watch(baseOpSqliteProvider);
+  return InvestasiOpSqlite(sqliteDb: sqliteDb, baseOpSqlite: baseOpSqlite);
 }

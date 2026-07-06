@@ -655,3 +655,50 @@ final class NotifikasiOpSqliteProvider
 
 String _$notifikasiOpSqliteHash() =>
     r'0dc2d9bb36915f7dbe460268edb9c04828dad88f';
+
+@ProviderFor(investasiOpSqlite)
+final investasiOpSqliteProvider = InvestasiOpSqliteProvider._();
+
+final class InvestasiOpSqliteProvider
+    extends
+        $FunctionalProvider<
+          InvestasiOpSqlite,
+          InvestasiOpSqlite,
+          InvestasiOpSqlite
+        >
+    with $Provider<InvestasiOpSqlite> {
+  InvestasiOpSqliteProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'investasiOpSqliteProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$investasiOpSqliteHash();
+
+  @$internal
+  @override
+  $ProviderElement<InvestasiOpSqlite> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  InvestasiOpSqlite create(Ref ref) {
+    return investasiOpSqlite(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(InvestasiOpSqlite value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<InvestasiOpSqlite>(value),
+    );
+  }
+}
+
+String _$investasiOpSqliteHash() => r'54b361d6ae86edf831c1c343f082f52b12f524a1';

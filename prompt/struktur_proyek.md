@@ -106,9 +106,6 @@ lib/fitur/paket/enum/tipe_durasi_paket.dart
 lib/fitur/paket/model
 lib/fitur/paket/model/paket_model.freezed.dart
 lib/fitur/paket/model/paket_model.dart
-lib/fitur/investor
-lib/fitur/investor/page
-lib/fitur/investor/page/portofolio.dart
 lib/fitur/whatsapp
 lib/fitur/whatsapp/info_paket.dart
 lib/fitur/order
@@ -286,6 +283,8 @@ lib/fitur/investasi/page/portofolio.dart
 lib/fitur/investasi/operasi
 lib/fitur/investasi/operasi/investasi_op_sqlite.dart
 lib/fitur/investasi/model
+lib/fitur/investasi/model/investasi_model.freezed.dart
+lib/fitur/investasi/model/dividen_model.freezed.dart
 lib/fitur/investasi/model/dividen_model.dart
 lib/fitur/investasi/model/investasi_model.dart
 lib/fitur/pelanggan
@@ -463,6 +462,7 @@ lib/data_dummy/dummy_pelanggan.dart
 lib/data_dummy/dummy_paket.dart
 lib/data_dummy/dummy_kategori.dart
 lib/data_dummy/dummy_transaksi.dart
+lib/data_dummy/dummy_investasi.dart
 lib/data_dummy/halaman_data_dummy.dart
 lib/data_dummy/dummy_sub_kategori.dart
 lib/data_dummy/dummy_dompet.dart
