@@ -119,7 +119,9 @@ class _FormSahamState extends ConsumerState<FormSaham> {
             width: double.maxFinite,
             height: 300,
             child: ListView.builder(
-              itemCount: daftarTransaksi.length > 20 ? 20 : daftarTransaksi.length,
+              itemCount: daftarTransaksi.length > 20
+                  ? 20
+                  : daftarTransaksi.length,
               itemBuilder: (context, index) {
                 final transaksi = daftarTransaksi[index];
                 return ListTile(

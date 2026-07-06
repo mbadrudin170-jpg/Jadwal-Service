@@ -289,6 +289,7 @@ lib/fitur/investasi/provider/investasi_provider.freezed.dart
 lib/fitur/investasi/provider/investasi_provider.dart
 lib/fitur/investasi/provider/investasi_provider.g.dart
 lib/fitur/investasi/operasi
+lib/fitur/investasi/operasi/investasi_op_firebase.dart
 lib/fitur/investasi/operasi/investasi_op_sqlite.dart
 lib/fitur/investasi/model
 lib/fitur/investasi/model/investasi_model.freezed.dart
