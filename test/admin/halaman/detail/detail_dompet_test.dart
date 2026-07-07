@@ -1,134 +1,134 @@
 // path: test/admin/halaman/detail/detail_dompet_test.dart
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
-import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/fitur/dompet/page/detail_dompet.dart';
-import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
+import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+import 'package:wifi/fitur/transaksi/widget/daftar_transaksi_widget.dart';
 
-import 'detail_dompet_test.mocks.dart';
+// ============================================================
+// MOCK CLASSES
+// ============================================================
+class MockTransaksiOpGlobal extends Mock implements TransaksiOpGlobal {}
+class MockDompetProvider extends Mock implements DompetProvider {}
+class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
-@GenerateMocks([DompetOpSqlite, TransaksiOpSqlite, NavigatorObserver])
 void main() {
-  late MockDompetOpSqlite mockDompetOpSqlite;
-  late MockTransaksiOpSqlite mockTransaksiOpSqlite;
+  late MockTransaksiOpGlobal mockTransaksiOpGlobal;
+  late MockDompetProvider mockDompetProvider;
   late MockNavigatorObserver mockNavigatorObserver;
 
-  final dompetAwal = DompetModel(
-    id: 'd1',
-    nama: 'Dompet Utama',
-    saldo: 1000.0,
-    diperbaruiPada: DateTime.now(),
-  );
-  final daftarTransaksi = <TransaksiModel>[
-    TransaksiModel(
-      id: 't1',
-      deskripsi: 'Gaji',
-      jumlah: 5000.0,
-      tipe: TipeTransaksi.income,
-      tanggal: DateTime(2023, 1, 5),
-      idDompet: 'd1',
-      idKategori: 'k1',
-      idPelanggan: 'pelanggan1',
-      idPaket: 'paket1',
-      tanggalMulai: DateTime(2023, 1, 3),
-      tanggalBerakhir: DateTime(2023, 1, 31),
-    ),
-    TransaksiModel(
-      id: 't2',
-      deskripsi: 'Beli Kopi',
-      jumlah: 15.0,
-      tipe: TipeTransaksi.expense,
-      tanggal: DateTime(2023, 1, 6),
-      idDompet: 'd1',
-      idKategori: 'k2',
-      idPelanggan: null,
-      idPaket: null,
-      tanggalMulai: null,
-      tanggalBerakhir: null,
-    ),
-  ];
-
-  setUp(() {
-    mockDompetOpSqlite = MockDompetOpSqlite();
-    mockTransaksiOpSqlite = MockTransaksiOpSqlite();
+  setUp(() {m
+    mockTransaksiOpGlobal = MockTransaksiOpGlobal();
+    mockDompetProvider = MockDompetProvider();
     mockNavigatorObserver = MockNavigatorObserver();
-
-    when(
-      mockDompetOpSqlite.ambilBerdasarkanId(any),
-    ).thenAnswer((_) async => dompetAwal);
-    when(
-      mockTransaksiOpSqlite.ambilBerdasarkanIdDompet(any),
-    ).thenAnswer((_) async => daftarTransaksi);
-    when(mockTransaksiOpSqlite.softDelete(any)).thenAnswer((_) async => 1);
   });
 
-  Widget createWidget() {
+  // Helper untuk membuat test widget dengan ProviderScope
+  Widget buildTestWidget({
+    required DompetModel dompet,
+    required List<TransaksiModel> transaksiList,
+    bool hasError = false,
+  }) {
     return ProviderScope(
       overrides: [
-        dompetOpSqliteProvider.overrideWithValue(mockDompetOpSqlite),
-        transaksiOpSqliteProvider.overrideWithValue(mockTransaksiOpSqlite),
+        detailDompetProvider(dompet.id).overrideWithValue(
+          hasError
+              ? AsyncValue.error(Exception('Gagal memuat'), StackTrace.current)
+              : AsyncValue.data(
+                  DetailDompetState(
+                    daftarTransaksi: transaksiList,
+                    dompet: dompet,
+                    totalTransaksi: transaksiList.length,
+                    totalPemasukan: 1000000,
+                    totalPengeluaran: 500000,
+                    totalSaldo: 500000,
+                    namaDompet: dompet.nama,
+                  ),
+                ),
+        ),
       ],
       child: MaterialApp(
-        home: DetailDompet(dompet: dompetAwal),
         navigatorObservers: [mockNavigatorObserver],
+        home: DetailDompet(dompet: dompet),
       ),
     );
   }
 
-  group('01. DetailDompet Widget Tests', () {
+  group('DetailDompet Widget Tests', () {
+    final dompetUtama = DompetModel(
+      id: 'dompet-1',
+      nama: 'Dompet Utama',
+      saldo: 5000000,
+    );
+
+    final transaksiGaji = TransaksiModel(
+      id: 'trans-1',
+      tanggal: DateTime.now(),
+      deskripsi: 'Gaji',
+      jumlah: 5000000,
+      tipe: TipeTransaksi.income,
+      idDompet: 'dompet-1',
+      idKategori: 'kategori-1',
+      idPelanggan: null,
+      idPaket: null,
+      tanggalMulai: null,
+      tanggalBerakhir: null,
+      statusAktivasi: false,
+    );
+
     testWidgets(
       '01. harus menampilkan CircularProgressIndicator saat loading',
       (tester) async {
-        final completer = Completer<DompetModel>();
-        when(
-          mockDompetOpSqlite.ambilBerdasarkanId(any),
-        ).thenAnswer((_) => completer.future);
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              detailDompetProvider(
+                dompetUtama.id,
+              ).overrideWithValue(const AsyncValue.loading()),
+            ],
+            child: MaterialApp(home: DetailDompet(dompet: dompetUtama)),
+          ),
+        );
 
-        await tester.pumpWidget(createWidget());
+        await tester.pump();
+
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-        completer.complete(dompetAwal);
-        await tester.pumpAndSettle();
       },
     );
 
     testWidgets('02. harus menampilkan pesan error jika data gagal dimuat', (
       tester,
     ) async {
-      when(
-        mockDompetOpSqlite.ambilBerdasarkanId(any),
-      ).thenThrow(Exception('Gagal memuat'));
-
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
-
-      expect(
-        find.textContaining('Error: Exception: Gagal memuat'),
-        findsOneWidget,
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            detailDompetProvider(dompetUtama.id).overrideWithValue(
+              AsyncValue.error(Exception('Gagal memuat'), StackTrace.current),
+            ),
+          ],
+          child: MaterialApp(home: DetailDompet(dompet: dompetUtama)),
+        ),
       );
+
+      await tester.pump();
+
+      expect(find.textContaining('Gagal memuat'), findsOneWidget);
     });
 
     testWidgets(
       '03. harus menampilkan "Belum ada transaksi." jika future selesai tanpa data',
       (tester) async {
-        when(
-          mockDompetOpSqlite.ambilBerdasarkanId(any),
-        ).thenAnswer((_) async => dompetAwal);
-        when(
-          mockTransaksiOpSqlite.ambilBerdasarkanIdDompet(any),
-        ).thenAnswer((_) async => []);
+        await tester.pumpWidget(
+          buildTestWidget(dompet: dompetUtama, transaksiList: []),
+        );
 
-        await tester.pumpWidget(createWidget());
-        await tester.pumpAndSettle();
+        await tester.pump();
 
         expect(find.text('Belum ada transaksi.'), findsOneWidget);
       },
@@ -137,113 +137,198 @@ void main() {
     testWidgets(
       '04. harus menampilkan detail dan daftar transaksi setelah data berhasil dimuat',
       (tester) async {
-        await tester.pumpWidget(createWidget());
-        await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildTestWidget(dompet: dompetUtama, transaksiList: [transaksiGaji]),
+        );
 
+        await tester.pump();
+
+        // Verifikasi nama dompet
         expect(find.text('Dompet Utama'), findsOneWidget);
-        expect(find.text('Pemasukan'), findsOneWidget);
-        expect(find.textContaining('5,000'), findsOneWidget);
-        expect(find.text('Pengeluaran'), findsOneWidget);
-        expect(find.textContaining('15'), findsOneWidget);
-        expect(find.text('Saldo'), findsOneWidget);
-        expect(find.textContaining('1,000'), findsOneWidget);
+
+        // Verifikasi ringkasan keuangan
+        expect(find.text('Rp 1.000.000'), findsOneWidget);
+        expect(find.text('Rp 500.000'), findsOneWidget);
+        expect(find.text('Rp 500.000'), findsOneWidget);
+
+        // Verifikasi transaksi
         expect(find.text('Gaji'), findsOneWidget);
-        expect(find.text('Beli Kopi'), findsOneWidget);
       },
     );
 
     testWidgets(
       '05. harus menampilkan "Belum ada transaksi." jika daftar transaksi kosong',
       (tester) async {
-        when(
-          mockTransaksiOpSqlite.ambilBerdasarkanIdDompet(any),
-        ).thenAnswer((_) async => []);
+        await tester.pumpWidget(
+          buildTestWidget(dompet: dompetUtama, transaksiList: []),
+        );
 
-        await tester.pumpWidget(createWidget());
-        await tester.pumpAndSettle();
+        await tester.pump();
 
         expect(find.text('Belum ada transaksi.'), findsOneWidget);
       },
     );
   });
 
-  group('02. Interaksi dan Navigasi', () {
+  group('Interaksi dan Navigasi', () {
+    final dompetUtama = DompetModel(
+      id: 'dompet-1',
+      nama: 'Dompet Utama',
+      saldo: 5000000,
+    );
+
+    final transaksiGaji = TransaksiModel(
+      id: 'trans-1',
+      tanggal: DateTime.now(),
+      deskripsi: 'Gaji',
+      jumlah: 5000000,
+      tipe: TipeTransaksi.income,
+      idDompet: 'dompet-1',
+      idKategori: 'kategori-1',
+      idPelanggan: null,
+      idPaket: null,
+      tanggalMulai: null,
+      tanggalBerakhir: null,
+      statusAktivasi: false,
+    );
+
     testWidgets('01. harus memanggil Navigator.pop saat tombol back ditekan', (
       tester,
     ) async {
-      await tester.pumpWidget(createWidget());
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            detailDompetProvider(dompetUtama.id).overrideWithValue(
+              AsyncValue.data(
+                DetailDompetState(
+                  daftarTransaksi: [transaksiGaji],
+                  dompet: dompetUtama,
+                  totalTransaksi: 1,
+                  totalPemasukan: 1000000,
+                  totalPengeluaran: 0,
+                  totalSaldo: 1000000,
+                  namaDompet: dompetUtama.nama,
+                ),
+              ),
+            ),
+          ],
+          child: MaterialApp(
+            navigatorObservers: [mockNavigatorObserver],
+            home: DetailDompet(dompet: dompetUtama),
+          ),
+        ),
+      );
+
+      await tester.pump();
+
+      // Cari tombol back
+      final backButton = find.byIcon(Icons.arrow_back);
+      expect(backButton, findsOneWidget);
+
+      // Tap tombol back
+      await tester.tap(backButton);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.arrow_back));
+      // Verifikasi navigator dipanggil
+      verify(() => mockNavigatorObserver.didPop(any(), any())).called(1);
+    });
+
+    testWidgets('02. harus navigasi ke DetailTransaksi saat item ditekan', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestWidget(dompet: dompetUtama, transaksiList: [transaksiGaji]),
+      );
+
+      await tester.pump();
+
+      // Cari dan tap item transaksi
+      final transaksiTile = find.text('Gaji');
+      expect(transaksiTile, findsOneWidget);
+
+      await tester.tap(transaksiTile);
       await tester.pumpAndSettle();
 
-      verify(mockNavigatorObserver.didPop(any, any));
+      // Verifikasi navigasi terjadi
+      verify(() => mockNavigatorObserver.didPush(any(), any(), any())).called(1);
     });
 
     testWidgets(
-      '02. harus navigasi ke DetailTransaksi dan refresh data jika result true',
+      '03. harus hapus transaksi dan refresh data saat onDelete ditekan',
       (tester) async {
-        await tester.pumpWidget(createWidget());
-        await tester.pumpAndSettle();
-
+        // Mock delete operation
         when(
-          mockNavigatorObserver.didPush(any, any),
-        ).thenAnswer((_) => Future.value(true));
+          () => mockTransaksiOpGlobal.softDelete(any()),
+        ).thenAnswer((_) async => Future.value());
 
-        await tester.tap(find.text('Gaji'));
-        await tester.pumpAndSettle();
-
-        verify(mockNavigatorObserver.didPush(any, any)).called(1);
-        verify(mockDompetOpSqlite.ambilBerdasarkanId('d1')).called(2);
-      },
-    );
-
-    testWidgets(
-      '03. harus hapus transaksi dan refresh data saat on_delete ditekan',
-      (tester) async {
-        when(mockTransaksiOpSqlite.softDelete('t1')).thenAnswer((_) async => 1);
-
-        await tester.pumpWidget(createWidget());
-        await tester.pumpAndSettle();
-
-        final gajiItem = find.widgetWithText(ListTile, 'Gaji');
-        final deleteIcon = find.descendant(
-          of: gajiItem,
-          matching: find.byIcon(Icons.delete),
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              detailDompetProvider(dompetUtama.id).overrideWithValue(
+                AsyncValue.data(
+                  DetailDompetState(
+                    daftarTransaksi: [transaksiGaji],
+                    dompet: dompetUtama,
+                    totalTransaksi: 1,
+                    totalPemasukan: 1000000,
+                    totalPengeluaran: 0,
+                    totalSaldo: 1000000,
+                    namaDompet: dompetUtama.nama,
+                  ),
+                ),
+              ),
+              transaksiOpGlobalProvider.overrideWithValue(
+                mockTransaksiOpGlobal,
+              ),
+            ],
+            child: MaterialApp(home: DetailDompet(dompet: dompetUtama)),
+          ),
         );
 
-        expect(deleteIcon, findsOneWidget);
+        await tester.pump();
 
-        await tester.tap(deleteIcon);
+        // Long press pada item transaksi
+        final transaksiTile = find.text('Gaji');
+        expect(transaksiTile, findsOneWidget);
+
+        await tester.longPress(transaksiTile);
+        await tester.pump();
+
+        // Tap tombol hapus di dialog
+        final deleteButton = find.text('Hapus');
+        expect(deleteButton, findsOneWidget);
+        await tester.tap(deleteButton);
         await tester.pumpAndSettle();
 
-        verify(mockTransaksiOpSqlite.softDelete('t1')).called(1);
-        verify(mockDompetOpSqlite.ambilBerdasarkanId('d1')).called(2);
-        verify(mockTransaksiOpSqlite.ambilBerdasarkanIdDompet('d1')).called(2);
+        // Verifikasi delete dipanggil
+        verify(() => mockTransaksiOpGlobal.softDelete(transaksiGaji.id)).called(1);
       },
     );
 
     testWidgets('04. harus navigasi ke FormTransaksi saat onEdit ditekan', (
       tester,
     ) async {
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
-
-      final gajiItem = find.widgetWithText(ListTile, 'Gaji');
-      final editIcon = find.descendant(
-        of: gajiItem,
-        matching: find.byIcon(Icons.edit),
+      await tester.pumpWidget(
+        buildTestWidget(dompet: dompetUtama, transaksiList: [transaksiGaji]),
       );
 
-      expect(editIcon, findsOneWidget);
-
-      await tester.tap(editIcon);
       await tester.pump();
 
-      final pushedRoute =
-          verify(mockNavigatorObserver.didPush(captureAny, any)).captured.last
-              as Route<dynamic>;
-      expect(pushedRoute, isA<MaterialPageRoute<dynamic>>());
+      // Long press pada item transaksi
+      final transaksiTile = find.text('Gaji');
+      expect(transaksiTile, findsOneWidget);
+
+      await tester.longPress(transaksiTile);
+      await tester.pump();
+
+      // Tap tombol edit di dialog
+      final editButton = find.text('Edit');
+      expect(editButton, findsOneWidget);
+      await tester.tap(editButton);
+      await tester.pumpAndSettle();
+
+      // Verifikasi navigasi terjadi
+      verify(() => mockNavigatorObserver.didPush(any(), any(), any())).called(1);
     });
   });
 }

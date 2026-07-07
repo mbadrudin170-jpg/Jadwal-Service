@@ -3,29 +3,18 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i8;
+import 'dart:async' as _i5;
 
-import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:shared_preferences/src/shared_preferences_legacy.dart' as _i7;
-import 'package:sqflite_common_ffi/sqflite_ffi.dart' as _i3;
-import 'package:wifi/admin/data/sqlite.dart' as _i4;
-import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart' as _i9;
-import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart'
-    as _i10;
+import 'package:wifi/admin/data/sqlite.dart' as _i2;
 import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart'
-    as _i13;
+    as _i7;
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart'
-    as _i5;
+    as _i3;
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart'
-    as _i12;
-import 'package:wifi/fitur/settings/model/settings_model.dart' as _i6;
-import 'package:wifi/fitur/settings/operasi/settings_op_sqlite.dart' as _i15;
-import 'package:wifi/fitur/sinkronisasi/layanan_unduhan_awal.dart' as _i14;
-import 'package:wifi/shared/operasi/sqlite_operasi/pembersihan_data_operasi.dart'
-    as _i16;
-import 'package:wifi/shared/services/koneksi_internet_service.dart' as _i11;
+    as _i6;
+import 'package:wifi/fitur/sinkronisasi/layanan_unduhan_awal.dart' as _i4;
+import 'package:wifi/shared/services/koneksi_internet_service.dart' as _i8;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -42,425 +31,79 @@ import 'package:wifi/shared/services/koneksi_internet_service.dart' as _i11;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-class _FakeFlutterLocalNotificationsPlugin_0 extends _i1.SmartFake
-    implements _i2.FlutterLocalNotificationsPlugin {
-  _FakeFlutterLocalNotificationsPlugin_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(parent, parentInvocation);
-}
-
-class _FakeDatabase_1 extends _i1.SmartFake implements _i3.Database {
-  _FakeDatabase_1(Object parent, Invocation parentInvocation)
+class _FakeSqliteDatabase_0 extends _i1.SmartFake
+    implements _i2.SqliteDatabase {
+  _FakeSqliteDatabase_0(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSqliteDatabase_2 extends _i1.SmartFake
-    implements _i4.SqliteDatabase {
-  _FakeSqliteDatabase_2(Object parent, Invocation parentInvocation)
+class _FakePelangganAktifModel_1 extends _i1.SmartFake
+    implements _i3.PelangganAktifModel {
+  _FakePelangganAktifModel_1(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakePelangganAktifModel_3 extends _i1.SmartFake
-    implements _i5.PelangganAktifModel {
-  _FakePelangganAktifModel_3(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeSettingsModel_4 extends _i1.SmartFake implements _i6.SettingsModel {
-  _FakeSettingsModel_4(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-/// A class which mocks [SharedPreferences].
+/// A class which mocks [LayananUnduhanAwal].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSharedPreferences extends _i1.Mock implements _i7.SharedPreferences {
-  MockSharedPreferences() {
+class MockLayananUnduhanAwal extends _i1.Mock
+    implements _i4.LayananUnduhanAwal {
+  MockLayananUnduhanAwal() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  Set<String> getKeys() =>
+  _i5.Future<bool> jalankanUnduhanAwal() =>
       (super.noSuchMethod(
-            Invocation.method(#getKeys, []),
-            returnValue: <String>{},
+            Invocation.method(#jalankanUnduhanAwal, []),
+            returnValue: _i5.Future<bool>.value(false),
           )
-          as Set<String>);
-
-  @override
-  Object? get(String? key) =>
-      (super.noSuchMethod(Invocation.method(#get, [key])) as Object?);
-
-  @override
-  bool? getBool(String? key) =>
-      (super.noSuchMethod(Invocation.method(#getBool, [key])) as bool?);
-
-  @override
-  int? getInt(String? key) =>
-      (super.noSuchMethod(Invocation.method(#getInt, [key])) as int?);
-
-  @override
-  double? getDouble(String? key) =>
-      (super.noSuchMethod(Invocation.method(#getDouble, [key])) as double?);
-
-  @override
-  String? getString(String? key) =>
-      (super.noSuchMethod(Invocation.method(#getString, [key])) as String?);
-
-  @override
-  bool containsKey(String? key) =>
-      (super.noSuchMethod(
-            Invocation.method(#containsKey, [key]),
-            returnValue: false,
-          )
-          as bool);
-
-  @override
-  List<String>? getStringList(String? key) =>
-      (super.noSuchMethod(Invocation.method(#getStringList, [key]))
-          as List<String>?);
-
-  @override
-  _i8.Future<bool> setBool(String? key, bool? value) =>
-      (super.noSuchMethod(
-            Invocation.method(#setBool, [key, value]),
-            returnValue: _i8.Future<bool>.value(false),
-          )
-          as _i8.Future<bool>);
-
-  @override
-  _i8.Future<bool> setInt(String? key, int? value) =>
-      (super.noSuchMethod(
-            Invocation.method(#setInt, [key, value]),
-            returnValue: _i8.Future<bool>.value(false),
-          )
-          as _i8.Future<bool>);
-
-  @override
-  _i8.Future<bool> setDouble(String? key, double? value) =>
-      (super.noSuchMethod(
-            Invocation.method(#setDouble, [key, value]),
-            returnValue: _i8.Future<bool>.value(false),
-          )
-          as _i8.Future<bool>);
-
-  @override
-  _i8.Future<bool> setString(String? key, String? value) =>
-      (super.noSuchMethod(
-            Invocation.method(#setString, [key, value]),
-            returnValue: _i8.Future<bool>.value(false),
-          )
-          as _i8.Future<bool>);
-
-  @override
-  _i8.Future<bool> setStringList(String? key, List<String>? value) =>
-      (super.noSuchMethod(
-            Invocation.method(#setStringList, [key, value]),
-            returnValue: _i8.Future<bool>.value(false),
-          )
-          as _i8.Future<bool>);
-
-  @override
-  _i8.Future<bool> remove(String? key) =>
-      (super.noSuchMethod(
-            Invocation.method(#remove, [key]),
-            returnValue: _i8.Future<bool>.value(false),
-          )
-          as _i8.Future<bool>);
-
-  @override
-  _i8.Future<bool> commit() =>
-      (super.noSuchMethod(
-            Invocation.method(#commit, []),
-            returnValue: _i8.Future<bool>.value(false),
-          )
-          as _i8.Future<bool>);
-
-  @override
-  _i8.Future<bool> clear() =>
-      (super.noSuchMethod(
-            Invocation.method(#clear, []),
-            returnValue: _i8.Future<bool>.value(false),
-          )
-          as _i8.Future<bool>);
-
-  @override
-  _i8.Future<void> reload() =>
-      (super.noSuchMethod(
-            Invocation.method(#reload, []),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
-          )
-          as _i8.Future<void>);
-}
-
-/// A class which mocks [LayananNotifikasi].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockLayananNotifikasi extends _i1.Mock implements _i9.LayananNotifikasi {
-  MockLayananNotifikasi() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i2.FlutterLocalNotificationsPlugin get plugin =>
-      (super.noSuchMethod(
-            Invocation.getter(#plugin),
-            returnValue: _FakeFlutterLocalNotificationsPlugin_0(
-              this,
-              Invocation.getter(#plugin),
-            ),
-          )
-          as _i2.FlutterLocalNotificationsPlugin);
-
-  @override
-  set channelNotifikasiPenting(_i2.AndroidNotificationChannel? value) =>
-      super.noSuchMethod(
-        Invocation.setter(#channelNotifikasiPenting, value),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  _i8.Future<void> inisialisasiNotifikasi({required String? iconName}) =>
-      (super.noSuchMethod(
-            Invocation.method(#inisialisasiNotifikasi, [], {
-              #iconName: iconName,
-            }),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
-          )
-          as _i8.Future<void>);
-
-  @override
-  void pantauNotifUmum(_i10.NotifikasiOpFirebase? notifikasiOp) =>
-      super.noSuchMethod(
-        Invocation.method(#pantauNotifUmum, [notifikasiOp]),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void pantauNotifUser(
-    _i10.NotifikasiOpFirebase? notifikasiOp,
-    String? userId,
-  ) => super.noSuchMethod(
-    Invocation.method(#pantauNotifUser, [notifikasiOp, userId]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void hentikanPemantauanNotifikasi() => super.noSuchMethod(
-    Invocation.method(#hentikanPemantauanNotifikasi, []),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  _i8.Future<void> mintaIzin() =>
-      (super.noSuchMethod(
-            Invocation.method(#mintaIzin, []),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
-          )
-          as _i8.Future<void>);
-
-  @override
-  _i8.Future<_i2.NotificationAppLaunchDetails?>
-  getDetailPeluncuranNotifikasi() =>
-      (super.noSuchMethod(
-            Invocation.method(#getDetailPeluncuranNotifikasi, []),
-            returnValue: _i8.Future<_i2.NotificationAppLaunchDetails?>.value(),
-          )
-          as _i8.Future<_i2.NotificationAppLaunchDetails?>);
-
-  @override
-  _i8.Future<void> tampilkanNotifikasiLangsung({
-    required String? title,
-    required String? body,
-    String? payload,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(#tampilkanNotifikasiLangsung, [], {
-              #title: title,
-              #body: body,
-              #payload: payload,
-            }),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
-          )
-          as _i8.Future<void>);
-
-  @override
-  _i8.Future<void> jadwalNotifikasi({
-    required int? id,
-    required String? judul,
-    required String? pesan,
-    required DateTime? jadwal,
-    String? payload,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(#jadwalNotifikasi, [], {
-              #id: id,
-              #judul: judul,
-              #pesan: pesan,
-              #jadwal: jadwal,
-              #payload: payload,
-            }),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
-          )
-          as _i8.Future<void>);
-
-  @override
-  _i8.Future<void> perbaruiJadwalNotifikasi({
-    required int? id,
-    required String? title,
-    required String? body,
-    required DateTime? jadwal,
-    String? payload,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(#perbaruiJadwalNotifikasi, [], {
-              #id: id,
-              #title: title,
-              #body: body,
-              #jadwal: jadwal,
-              #payload: payload,
-            }),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
-          )
-          as _i8.Future<void>);
-
-  @override
-  _i8.Future<void> batalkanNotifikasi(int? id) =>
-      (super.noSuchMethod(
-            Invocation.method(#batalkanNotifikasi, [id]),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
-          )
-          as _i8.Future<void>);
-
-  @override
-  _i8.Future<void> batalkanSemuaNotifikasi() =>
-      (super.noSuchMethod(
-            Invocation.method(#batalkanSemuaNotifikasi, []),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
-          )
-          as _i8.Future<void>);
-
-  @override
-  _i8.Future<bool> mengecekIzinExactAlarm() =>
-      (super.noSuchMethod(
-            Invocation.method(#mengecekIzinExactAlarm, []),
-            returnValue: _i8.Future<bool>.value(false),
-          )
-          as _i8.Future<bool>);
-}
-
-/// A class which mocks [KoneksiInternetService].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockKoneksiInternetService extends _i1.Mock
-    implements _i11.KoneksiInternetService {
-  MockKoneksiInternetService() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i8.Future<bool> cekKoneksiLokal() =>
-      (super.noSuchMethod(
-            Invocation.method(#cekKoneksiLokal, []),
-            returnValue: _i8.Future<bool>.value(false),
-          )
-          as _i8.Future<bool>);
-
-  @override
-  _i8.Future<bool> cekInternet() =>
-      (super.noSuchMethod(
-            Invocation.method(#cekInternet, []),
-            returnValue: _i8.Future<bool>.value(false),
-          )
-          as _i8.Future<bool>);
-}
-
-/// A class which mocks [SqliteDatabase].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockSqliteDatabase extends _i1.Mock implements _i4.SqliteDatabase {
-  MockSqliteDatabase() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i8.Future<_i3.Database> get database =>
-      (super.noSuchMethod(
-            Invocation.getter(#database),
-            returnValue: _i8.Future<_i3.Database>.value(
-              _FakeDatabase_1(this, Invocation.getter(#database)),
-            ),
-          )
-          as _i8.Future<_i3.Database>);
-
-  @override
-  void debugSetDatabaseNull() => super.noSuchMethod(
-    Invocation.method(#debugSetDatabaseNull, []),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  _i8.Future<void> membuatTabel(_i3.Database? db, int? version) =>
-      (super.noSuchMethod(
-            Invocation.method(#membuatTabel, [db, version]),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
-          )
-          as _i8.Future<void>);
+          as _i5.Future<bool>);
 }
 
 /// A class which mocks [PelangganAktifOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPelangganAktifOpSqlite extends _i1.Mock
-    implements _i12.PelangganAktifOpSqlite {
+    implements _i6.PelangganAktifOpSqlite {
   MockPelangganAktifOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.SqliteDatabase get sqliteDb =>
+  _i2.SqliteDatabase get sqliteDb =>
       (super.noSuchMethod(
             Invocation.getter(#sqliteDb),
-            returnValue: _FakeSqliteDatabase_2(
+            returnValue: _FakeSqliteDatabase_0(
               this,
               Invocation.getter(#sqliteDb),
             ),
           )
-          as _i4.SqliteDatabase);
+          as _i2.SqliteDatabase);
 
   @override
-  _i8.Future<void> jadwalkanUlangSemuaNotifikasi() =>
+  _i5.Future<void> jadwalkanUlangSemuaNotifikasi() =>
       (super.noSuchMethod(
             Invocation.method(#jadwalkanUlangSemuaNotifikasi, []),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i8.Future<List<_i13.DetailPelangganAktifModel>>
+  _i5.Future<List<_i7.DetailPelangganAktifModel>>
   ambilSemuaPelangganAktifDenganDetail() =>
       (super.noSuchMethod(
             Invocation.method(#ambilSemuaPelangganAktifDenganDetail, []),
-            returnValue: _i8.Future<List<_i13.DetailPelangganAktifModel>>.value(
-              <_i13.DetailPelangganAktifModel>[],
+            returnValue: _i5.Future<List<_i7.DetailPelangganAktifModel>>.value(
+              <_i7.DetailPelangganAktifModel>[],
             ),
           )
-          as _i8.Future<List<_i13.DetailPelangganAktifModel>>);
+          as _i5.Future<List<_i7.DetailPelangganAktifModel>>);
 
   @override
-  _i8.Future<_i5.PelangganAktifModel> tambahPelangganAktif(
-    _i5.PelangganAktifModel? pelangganAktif, {
+  _i5.Future<_i3.PelangganAktifModel> tambahPelangganAktif(
+    _i3.PelangganAktifModel? pelangganAktif, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -469,8 +112,8 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
               [pelangganAktif],
               {#fromServer: fromServer},
             ),
-            returnValue: _i8.Future<_i5.PelangganAktifModel>.value(
-              _FakePelangganAktifModel_3(
+            returnValue: _i5.Future<_i3.PelangganAktifModel>.value(
+              _FakePelangganAktifModel_1(
                 this,
                 Invocation.method(
                   #tambahPelangganAktif,
@@ -480,29 +123,29 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
               ),
             ),
           )
-          as _i8.Future<_i5.PelangganAktifModel>);
+          as _i5.Future<_i3.PelangganAktifModel>);
 
   @override
-  _i8.Future<List<_i5.PelangganAktifModel>> ambilSemua() =>
+  _i5.Future<List<_i3.PelangganAktifModel>> ambilSemua() =>
       (super.noSuchMethod(
             Invocation.method(#ambilSemua, []),
-            returnValue: _i8.Future<List<_i5.PelangganAktifModel>>.value(
-              <_i5.PelangganAktifModel>[],
+            returnValue: _i5.Future<List<_i3.PelangganAktifModel>>.value(
+              <_i3.PelangganAktifModel>[],
             ),
           )
-          as _i8.Future<List<_i5.PelangganAktifModel>>);
+          as _i5.Future<List<_i3.PelangganAktifModel>>);
 
   @override
-  _i8.Future<_i5.PelangganAktifModel?> ambilBerdasarkanid(String? id) =>
+  _i5.Future<_i3.PelangganAktifModel?> ambilBerdasarkanid(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBerdasarkanid, [id]),
-            returnValue: _i8.Future<_i5.PelangganAktifModel?>.value(),
+            returnValue: _i5.Future<_i3.PelangganAktifModel?>.value(),
           )
-          as _i8.Future<_i5.PelangganAktifModel?>);
+          as _i5.Future<_i3.PelangganAktifModel?>);
 
   @override
-  _i8.Future<_i5.PelangganAktifModel> updatePelangganAktif(
-    _i5.PelangganAktifModel? pelangganAktif, {
+  _i5.Future<_i3.PelangganAktifModel> updatePelangganAktif(
+    _i3.PelangganAktifModel? pelangganAktif, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -511,8 +154,8 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
               [pelangganAktif],
               {#fromServer: fromServer},
             ),
-            returnValue: _i8.Future<_i5.PelangganAktifModel>.value(
-              _FakePelangganAktifModel_3(
+            returnValue: _i5.Future<_i3.PelangganAktifModel>.value(
+              _FakePelangganAktifModel_1(
                 this,
                 Invocation.method(
                   #updatePelangganAktif,
@@ -522,22 +165,22 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
               ),
             ),
           )
-          as _i8.Future<_i5.PelangganAktifModel>);
+          as _i5.Future<_i3.PelangganAktifModel>);
 
   @override
-  _i8.Future<void> jadwalkanNotifikasi(
-    _i5.PelangganAktifModel? pelangganAktif,
+  _i5.Future<void> jadwalkanNotifikasi(
+    _i3.PelangganAktifModel? pelangganAktif,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#jadwalkanNotifikasi, [pelangganAktif]),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i8.Future<void> sisipkanAtauPerbaruiBatch(
-    List<_i5.PelangganAktifModel>? daftarPelangganAktif, {
+  _i5.Future<void> sisipkanAtauPerbaruiBatch(
+    List<_i3.PelangganAktifModel>? daftarPelangganAktif, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -546,22 +189,22 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
               [daftarPelangganAktif],
               {#dariServer: dariServer},
             ),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i8.Future<void> softDelete(String? id, {bool? dariServer = false}) =>
+  _i5.Future<void> softDelete(String? id, {bool? dariServer = false}) =>
       (super.noSuchMethod(
             Invocation.method(#softDelete, [id], {#dariServer: dariServer}),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i8.Future<void> softDeletePelangganAktifDanTransaksi(
+  _i5.Future<void> softDeletePelangganAktifDanTransaksi(
     String? idPelangganAKtif,
     String? idTransaksi, {
     bool? dariServer = false,
@@ -572,200 +215,64 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
               [idPelangganAKtif, idTransaksi],
               {#dariServer: dariServer},
             ),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i8.Future<int> arsipkanLanggananKadaluarsa({bool? dariServer = false}) =>
+  _i5.Future<int> arsipkanLanggananKadaluarsa({bool? dariServer = false}) =>
       (super.noSuchMethod(
             Invocation.method(#arsipkanLanggananKadaluarsa, [], {
               #dariServer: dariServer,
             }),
-            returnValue: _i8.Future<int>.value(0),
+            returnValue: _i5.Future<int>.value(0),
           )
-          as _i8.Future<int>);
+          as _i5.Future<int>);
 
   @override
-  _i8.Future<int> softDeleteAll({bool? dariServer = false}) =>
+  _i5.Future<int> softDeleteAll({bool? dariServer = false}) =>
       (super.noSuchMethod(
             Invocation.method(#softDeleteAll, [], {#dariServer: dariServer}),
-            returnValue: _i8.Future<int>.value(0),
+            returnValue: _i5.Future<int>.value(0),
           )
-          as _i8.Future<int>);
+          as _i5.Future<int>);
 
   @override
-  _i8.Future<List<_i5.PelangganAktifModel>> ambilBerdasarkanIds(
+  _i5.Future<List<_i3.PelangganAktifModel>> ambilBerdasarkanIds(
     List<String>? ids,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#ambilBerdasarkanIds, [ids]),
-            returnValue: _i8.Future<List<_i5.PelangganAktifModel>>.value(
-              <_i5.PelangganAktifModel>[],
+            returnValue: _i5.Future<List<_i3.PelangganAktifModel>>.value(
+              <_i3.PelangganAktifModel>[],
             ),
           )
-          as _i8.Future<List<_i5.PelangganAktifModel>>);
+          as _i5.Future<List<_i3.PelangganAktifModel>>);
 }
 
-/// A class which mocks [LayananUnduhanAwal].
+/// A class which mocks [KoneksiInternetService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLayananUnduhanAwal extends _i1.Mock
-    implements _i14.LayananUnduhanAwal {
-  MockLayananUnduhanAwal() {
+class MockKoneksiInternetService extends _i1.Mock
+    implements _i8.KoneksiInternetService {
+  MockKoneksiInternetService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i8.Future<bool> jalankanUnduhanAwal() =>
+  _i5.Future<bool> cekKoneksiLokal() =>
       (super.noSuchMethod(
-            Invocation.method(#jalankanUnduhanAwal, []),
-            returnValue: _i8.Future<bool>.value(false),
+            Invocation.method(#cekKoneksiLokal, []),
+            returnValue: _i5.Future<bool>.value(false),
           )
-          as _i8.Future<bool>);
-}
-
-/// A class which mocks [SettingsOpSqlite].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockSettingsOpSqlite extends _i1.Mock implements _i15.SettingsOpSqlite {
-  MockSettingsOpSqlite() {
-    _i1.throwOnMissingStub(this);
-  }
+          as _i5.Future<bool>);
 
   @override
-  _i4.SqliteDatabase get sqliteDb =>
+  _i5.Future<bool> cekInternet() =>
       (super.noSuchMethod(
-            Invocation.getter(#sqliteDb),
-            returnValue: _FakeSqliteDatabase_2(
-              this,
-              Invocation.getter(#sqliteDb),
-            ),
+            Invocation.method(#cekInternet, []),
+            returnValue: _i5.Future<bool>.value(false),
           )
-          as _i4.SqliteDatabase);
-
-  @override
-  _i8.Future<_i6.SettingsModel> ambilSettings() =>
-      (super.noSuchMethod(
-            Invocation.method(#ambilSettings, []),
-            returnValue: _i8.Future<_i6.SettingsModel>.value(
-              _FakeSettingsModel_4(this, Invocation.method(#ambilSettings, [])),
-            ),
-          )
-          as _i8.Future<_i6.SettingsModel>);
-
-  @override
-  _i8.Future<void> simpanAtauPerbaruiSettings(
-    _i6.SettingsModel? settings, {
-    bool? dariServer = false,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #simpanAtauPerbaruiSettings,
-              [settings],
-              {#dariServer: dariServer},
-            ),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
-          )
-          as _i8.Future<void>);
-
-  @override
-  _i8.Future<void> perbaruiSettings(
-    Map<String, dynamic>? data, {
-    bool? dariServer = false,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #perbaruiSettings,
-              [data],
-              {#dariServer: dariServer},
-            ),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
-          )
-          as _i8.Future<void>);
-
-  @override
-  _i8.Future<void> simpanAtauPerbaruiSettingsDenganBatch(
-    _i6.SettingsModel? settings, {
-    bool? dariServer = false,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #simpanAtauPerbaruiSettingsDenganBatch,
-              [settings],
-              {#dariServer: dariServer},
-            ),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
-          )
-          as _i8.Future<void>);
-}
-
-/// A class which mocks [PembersihanDataOperasi].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockPembersihanDataOperasi extends _i1.Mock
-    implements _i16.PembersihanDataOperasi {
-  MockPembersihanDataOperasi() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i8.Future<int> hapusPermanentDataYangDiarsip({
-    required int? waktuPenjadwalanHapusDataArsip,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(#hapusPermanentDataYangDiarsip, [], {
-              #waktuPenjadwalanHapusDataArsip: waktuPenjadwalanHapusDataArsip,
-            }),
-            returnValue: _i8.Future<int>.value(0),
-          )
-          as _i8.Future<int>);
-}
-
-/// A class which mocks [NotificationResponse].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockNotificationResponse extends _i1.Mock
-    implements _i2.NotificationResponse {
-  MockNotificationResponse() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  Map<String, dynamic> get data =>
-      (super.noSuchMethod(
-            Invocation.getter(#data),
-            returnValue: <String, dynamic>{},
-          )
-          as Map<String, dynamic>);
-
-  @override
-  _i2.NotificationResponseType get notificationResponseType =>
-      (super.noSuchMethod(
-            Invocation.getter(#notificationResponseType),
-            returnValue: _i2.NotificationResponseType.selectedNotification,
-          )
-          as _i2.NotificationResponseType);
-}
-
-/// A class which mocks [NotificationAppLaunchDetails].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockNotificationAppLaunchDetails extends _i1.Mock
-    implements _i2.NotificationAppLaunchDetails {
-  MockNotificationAppLaunchDetails() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  bool get didNotificationLaunchApp =>
-      (super.noSuchMethod(
-            Invocation.getter(#didNotificationLaunchApp),
-            returnValue: false,
-          )
-          as bool);
+          as _i5.Future<bool>);
 }

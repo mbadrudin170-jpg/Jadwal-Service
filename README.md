@@ -292,6 +292,7 @@ lib/fitur/investasi/provider/investasi_provider.freezed.dart
 lib/fitur/investasi/provider/investasi_provider.dart
 lib/fitur/investasi/provider/investasi_provider.g.dart
 lib/fitur/investasi/operasi
+lib/fitur/investasi/operasi/investasi_op_global.dart
 lib/fitur/investasi/operasi/investasi_op_firebase.dart
 lib/fitur/investasi/operasi/investasi_op_sqlite.dart
 lib/fitur/investasi/model
@@ -679,7 +680,6 @@ test/data_dummy/halaman_data_dummy_test.dart
 test/admin
 test/admin/data
 test/admin/data/sqlite_test.dart
-test/admin/data/sqlite_test.mocks.dart
 test/admin/splash_screen_admin_test.dart
 test/admin/halaman_utama_test.mocks.dart
 test/admin/firebase_option
@@ -704,7 +704,6 @@ test/admin/halaman/widget/tombol_aksi_test.dart
 test/admin/halaman/event
 test/admin/halaman/detail
 test/admin/halaman/detail/detail_dompet_test.dart
-test/admin/halaman/detail/detail_dompet_test.mocks.dart
 test/admin/halaman/detail/detail_paket_test.mocks.dart
 test/admin/halaman/detail/detail_paket_test.dart
 test/admin/halaman/form
@@ -38978,7 +38977,9 @@ class _FormSahamState extends ConsumerState<FormSaham> {
             width: double.maxFinite,
             height: 300,
             child: ListView.builder(
-              itemCount: daftarTransaksi.length > 20 ? 20 : daftarTransaksi.length,
+              itemCount: daftarTransaksi.length > 20
+                  ? 20
+                  : daftarTransaksi.length,
               itemBuilder: (context, index) {
                 final transaksi = daftarTransaksi[index];
                 return ListTile(
@@ -39150,7 +39151,8 @@ class _FormSahamState extends ConsumerState<FormSaham> {
       ),
     );
   }
-}```
+}
+```
 
 
 // File: lib/fitur/investasi/page/ringkasan_saham.dart
@@ -39437,6 +39439,7 @@ import 'package:wifi/fitur/investasi/model/dividen_model.dart';
 import 'package:wifi/fitur/investasi/model/investasi_model.dart';
 import 'package:wifi/fitur/investasi/provider/investasi_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_unduh_data.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_unggah_data.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -39449,7 +39452,7 @@ class HalamanPortofolio extends ConsumerWidget {
 
   Future<void> _unggahDataDummy(WidgetRef ref) async {
     try {
-      await ref.read(layananUnduhDataProvider).unduhSemuaData();
+      await ref.read(layananUnggahDataProvider).unggahSemuaData();
     } on Exception catch (e, s) {
       Log.error('Error di unggahDataDummy: $e', e: e, s: s);
       // Error handling opsional
@@ -40748,6 +40751,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/investasi/model/dividen_model.dart';
 import 'package:wifi/fitur/investasi/model/investasi_model.dart';
+import 'package:wifi/fitur/investasi/operasi/investasi_op_global.dart';
 import 'package:wifi/fitur/investasi/operasi/investasi_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 
@@ -40822,11 +40826,11 @@ abstract class InvestasiState with _$InvestasiState {
 
 @riverpod
 class InvestasiNotifier extends _$InvestasiNotifier {
-  late InvestasiOpSqlite _investasiOp;
+  late InvestasiOpGlobal _investasiOp;
 
   @override
   FutureOr<InvestasiState> build() {
-    _investasiOp = ref.read(investasiOpSqliteProvider);
+    _investasiOp = ref.read(investasiOpGlobalProvider);
     return _loadData();
   }
 
@@ -41131,7 +41135,7 @@ final class InvestasiNotifierProvider
   InvestasiNotifier create() => InvestasiNotifier();
 }
 
-String _$investasiNotifierHash() => r'aecb081008bc6fdd09065125286190177a1f59a7';
+String _$investasiNotifierHash() => r'0c25612789ee2ed04ae79dc189b3faac2c1a346d';
 
 abstract class _$InvestasiNotifier extends $AsyncNotifier<InvestasiState> {
   FutureOr<InvestasiState> build();
@@ -41151,12 +41155,8 @@ abstract class _$InvestasiNotifier extends $AsyncNotifier<InvestasiState> {
   }
 }
 
-/// Provider untuk mendapatkan data investasi investor tertentu
-
 @ProviderFor(detailInvestorInvestasi)
 final detailInvestorInvestasiProvider = DetailInvestorInvestasiFamily._();
-
-/// Provider untuk mendapatkan data investasi investor tertentu
 
 final class DetailInvestorInvestasiProvider
     extends
@@ -41176,7 +41176,6 @@ final class DetailInvestorInvestasiProvider
         $FutureProvider<
           ({List<DividenModel> dividen, List<InvestasiModel> investasi})
         > {
-  /// Provider untuk mendapatkan data investasi investor tertentu
   DetailInvestorInvestasiProvider._({
     required DetailInvestorInvestasiFamily super.from,
     required String super.argument,
@@ -41227,8 +41226,6 @@ final class DetailInvestorInvestasiProvider
 String _$detailInvestorInvestasiHash() =>
     r'59c3a8337cc21a4bd899a41835d171e7075090f9';
 
-/// Provider untuk mendapatkan data investasi investor tertentu
-
 final class DetailInvestorInvestasiFamily extends $Family
     with
         $FunctionalFamilyOverride<
@@ -41246,8 +41243,6 @@ final class DetailInvestorInvestasiFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Provider untuk mendapatkan data investasi investor tertentu
-
   DetailInvestorInvestasiProvider call(String idInvestor) =>
       DetailInvestorInvestasiProvider._(argument: idInvestor, from: this);
 
@@ -41255,17 +41250,12 @@ final class DetailInvestorInvestasiFamily extends $Family
   String toString() => r'detailInvestorInvestasiProvider';
 }
 
-/// Provider untuk mendapatkan total modal investor
-
 @ProviderFor(totalModalInvestor)
 final totalModalInvestorProvider = TotalModalInvestorFamily._();
-
-/// Provider untuk mendapatkan total modal investor
 
 final class TotalModalInvestorProvider
     extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
     with $FutureModifier<double>, $FutureProvider<double> {
-  /// Provider untuk mendapatkan total modal investor
   TotalModalInvestorProvider._({
     required TotalModalInvestorFamily super.from,
     required String super.argument,
@@ -41312,8 +41302,6 @@ final class TotalModalInvestorProvider
 String _$totalModalInvestorHash() =>
     r'486defab84fbfe7b00c5ccbeb1e4c97352ec7453';
 
-/// Provider untuk mendapatkan total modal investor
-
 final class TotalModalInvestorFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<double>, String> {
   TotalModalInvestorFamily._()
@@ -41325,8 +41313,6 @@ final class TotalModalInvestorFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Provider untuk mendapatkan total modal investor
-
   TotalModalInvestorProvider call(String idInvestor) =>
       TotalModalInvestorProvider._(argument: idInvestor, from: this);
 
@@ -41334,17 +41320,12 @@ final class TotalModalInvestorFamily extends $Family
   String toString() => r'totalModalInvestorProvider';
 }
 
-/// Provider untuk mendapatkan total dividen investor
-
 @ProviderFor(totalDividenInvestor)
 final totalDividenInvestorProvider = TotalDividenInvestorFamily._();
-
-/// Provider untuk mendapatkan total dividen investor
 
 final class TotalDividenInvestorProvider
     extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
     with $FutureModifier<double>, $FutureProvider<double> {
-  /// Provider untuk mendapatkan total dividen investor
   TotalDividenInvestorProvider._({
     required TotalDividenInvestorFamily super.from,
     required String super.argument,
@@ -41391,8 +41372,6 @@ final class TotalDividenInvestorProvider
 String _$totalDividenInvestorHash() =>
     r'9feb35fbcf68186d7ae9413a22fc088407cbd456';
 
-/// Provider untuk mendapatkan total dividen investor
-
 final class TotalDividenInvestorFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<double>, String> {
   TotalDividenInvestorFamily._()
@@ -41404,8 +41383,6 @@ final class TotalDividenInvestorFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Provider untuk mendapatkan total dividen investor
-
   TotalDividenInvestorProvider call(String idInvestor) =>
       TotalDividenInvestorProvider._(argument: idInvestor, from: this);
 
@@ -41415,9 +41392,675 @@ final class TotalDividenInvestorFamily extends $Family
 ```
 
 
+// File: lib/fitur/investasi/operasi/investasi_op_global.dart
+```dart
+// path: lib/fitur/investasi/operasi/investasi_op_global.dart
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/investasi/model/dividen_model.dart';
+import 'package:wifi/fitur/investasi/model/investasi_model.dart';
+import 'package:wifi/fitur/investasi/operasi/investasi_op_firebase.dart';
+import 'package:wifi/fitur/investasi/operasi/investasi_op_sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+
+/// Kelas global untuk operasi investasi dan dividen.
+/// Menentukan apakah menggunakan SQLite (admin) atau Firebase (user) berdasarkan role.
+class InvestasiOpGlobal {
+  final Ref ref;
+
+  InvestasiOpGlobal({required this.ref});
+
+  InvestasiOpSqlite get _investasiOpSqlite => ref.read(investasiOpSqliteProvider);
+  InvestasiOpFirebase get _investasiOpFirebase => ref.read(investasiOpFirebaseProvider);
+
+  // ============================================================
+  // INVESTASI
+  // ============================================================
+
+  /// Menambahkan investasi baru.
+  Future<void> tambahInvestasi(InvestasiModel investasi, {bool dariServer = false}) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin menambah investasi ke SQLite: ${investasi.id}');
+      await _investasiOpSqlite.tambahInvestasi(investasi, dariServer: dariServer);
+    } else {
+      Log.info('[InvestasiOpGlobal] User menambah investasi ke Firebase: ${investasi.id}');
+      await _investasiOpFirebase.tambahInvestasi(investasi);
+    }
+  }
+
+  /// Mengambil semua investasi.
+  Future<List<InvestasiModel>> ambilSemuaInvestasi({bool tampilkanYangDiarsip = false}) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin mengambil investasi dari SQLite');
+      return await _investasiOpSqlite.ambilSemuaInvestasi(tampilkanYangDiarsip: tampilkanYangDiarsip);
+    } else {
+      Log.info('[InvestasiOpGlobal] User mengambil investasi dari Firebase');
+      return await _investasiOpFirebase.ambilSemuaInvestasi(tampilkanYangDiarsip: tampilkanYangDiarsip);
+    }
+  }
+
+  /// Mengambil investasi berdasarkan ID.
+  Future<InvestasiModel?> ambilInvestasiById(String id) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin mengambil investasi ID: $id dari SQLite');
+      return await _investasiOpSqlite.ambilInvestasiById(id);
+    } else {
+      Log.info('[InvestasiOpGlobal] User mengambil investasi ID: $id dari Firebase');
+      return await _investasiOpFirebase.ambilInvestasiById(id);
+    }
+  }
+
+  /// Mengambil investasi berdasarkan ID investor.
+  Future<List<InvestasiModel>> ambilInvestasiByIdInvestor(String idInvestor) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin mengambil investasi untuk investor ID: $idInvestor dari SQLite');
+      return await _investasiOpSqlite.ambilInvestasiByIdInvestor(idInvestor);
+    } else {
+      Log.info('[InvestasiOpGlobal] User mengambil investasi untuk investor ID: $idInvestor dari Firebase');
+      return await _investasiOpFirebase.ambilInvestasiByIdInvestor(idInvestor);
+    }
+  }
+
+  /// Memperbarui investasi.
+  Future<void> perbaruiInvestasi(InvestasiModel investasi, {bool dariServer = false}) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin memperbarui investasi di SQLite: ${investasi.id}');
+      await _investasiOpSqlite.perbaruiInvestasi(investasi, dariServer: dariServer);
+    } else {
+      Log.info('[InvestasiOpGlobal] User memperbarui investasi di Firebase: ${investasi.id}');
+      await _investasiOpFirebase.perbaruiInvestasi(investasi);
+    }
+  }
+
+  /// Soft delete investasi.
+  Future<void> softDeleteInvestasi(String id, {bool dariServer = false}) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin soft delete investasi di SQLite: $id');
+      await _investasiOpSqlite.softDeleteInvestasi(id, dariServer: dariServer);
+    } else {
+      Log.info('[InvestasiOpGlobal] User soft delete investasi di Firebase: $id');
+      await _investasiOpFirebase.softDeleteInvestasi(id);
+    }
+  }
+
+  // ============================================================
+  // DIVIDEN
+  // ============================================================
+
+  /// Menambahkan dividen baru.
+  Future<void> tambahDividen(DividenModel dividen, {bool dariServer = false}) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin menambah dividen ke SQLite: ${dividen.id}');
+      await _investasiOpSqlite.tambahDividen(dividen, dariServer: dariServer);
+    } else {
+      Log.info('[InvestasiOpGlobal] User menambah dividen ke Firebase: ${dividen.id}');
+      await _investasiOpFirebase.tambahDividen(dividen);
+    }
+  }
+
+  /// Mengambil semua dividen.
+  Future<List<DividenModel>> ambilSemuaDividen({bool tampilkanYangDiarsip = false}) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin mengambil dividen dari SQLite');
+      return await _investasiOpSqlite.ambilSemuaDividen(tampilkanYangDiarsip: tampilkanYangDiarsip);
+    } else {
+      Log.info('[InvestasiOpGlobal] User mengambil dividen dari Firebase');
+      return await _investasiOpFirebase.ambilSemuaDividen(tampilkanYangDiarsip: tampilkanYangDiarsip);
+    }
+  }
+
+  /// Mengambil dividen berdasarkan ID.
+  Future<DividenModel?> ambilDividenById(String id) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin mengambil dividen ID: $id dari SQLite');
+      return await _investasiOpSqlite.ambilDividenById(id);
+    } else {
+      Log.info('[InvestasiOpGlobal] User mengambil dividen ID: $id dari Firebase');
+      return await _investasiOpFirebase.ambilDividenById(id);
+    }
+  }
+
+  /// Mengambil dividen berdasarkan ID investor.
+  Future<List<DividenModel>> ambilDividenByIdInvestor(String idInvestor) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin mengambil dividen untuk investor ID: $idInvestor dari SQLite');
+      return await _investasiOpSqlite.ambilDividenByIdInvestor(idInvestor);
+    } else {
+      Log.info('[InvestasiOpGlobal] User mengambil dividen untuk investor ID: $idInvestor dari Firebase');
+      return await _investasiOpFirebase.ambilDividenByIdInvestor(idInvestor);
+    }
+  }
+
+  /// Mengambil dividen berdasarkan ID investasi.
+  Future<List<DividenModel>> ambilDividenByIdInvestasi(String idInvestasi) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin mengambil dividen untuk investasi ID: $idInvestasi dari SQLite');
+      return await _investasiOpSqlite.ambilDividenByIdInvestasi(idInvestasi);
+    } else {
+      Log.info('[InvestasiOpGlobal] User mengambil dividen untuk investasi ID: $idInvestasi dari Firebase');
+      return await _investasiOpFirebase.ambilDividenByIdInvestasi(idInvestasi);
+    }
+  }
+
+  /// Memperbarui dividen.
+  Future<void> perbaruiDividen(DividenModel dividen, {bool dariServer = false}) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin memperbarui dividen di SQLite: ${dividen.id}');
+      await _investasiOpSqlite.perbaruiDividen(dividen, dariServer: dariServer);
+    } else {
+      Log.info('[InvestasiOpGlobal] User memperbarui dividen di Firebase: ${dividen.id}');
+      await _investasiOpFirebase.perbaruiDividen(dividen);
+    }
+  }
+
+  /// Soft delete dividen.
+  Future<void> softDeleteDividen(String id, {bool dariServer = false}) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin soft delete dividen di SQLite: $id');
+      await _investasiOpSqlite.softDeleteDividen(id, dariServer: dariServer);
+    } else {
+      Log.info('[InvestasiOpGlobal] User soft delete dividen di Firebase: $id');
+      await _investasiOpFirebase.softDeleteDividen(id);
+    }
+  }
+
+  /// Menandai dividen sebagai sudah dibayar.
+  Future<void> tandaiDividenDibayar(String id, {bool dariServer = false}) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin menandai dividen dibayar di SQLite: $id');
+      await _investasiOpSqlite.tandaiDividenDibayar(id, dariServer: dariServer);
+    } else {
+      Log.info('[InvestasiOpGlobal] User menandai dividen dibayar di Firebase: $id');
+      await _investasiOpFirebase.tandaiDividenDibayar(id);
+    }
+  }
+
+  /// Menyisipkan atau memperbarui banyak investasi sekaligus (batch).
+  Future<void> sisipkanAtauPerbaruiBatch(List<InvestasiModel> daftarInvestasi, {bool dariServer = false}) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin batch investasi ke SQLite: ${daftarInvestasi.length} item');
+      await _investasiOpSqlite.sisipkanAtauPerbaruiBatch(daftarInvestasi, dariServer: dariServer);
+    } else {
+      Log.info('[InvestasiOpGlobal] User batch investasi ke Firebase: ${daftarInvestasi.length} item');
+      await _investasiOpFirebase.sisipkanAtauPerbaruiBatch(daftarInvestasi);
+    }
+  }
+
+  /// Menyisipkan atau memperbarui banyak dividen sekaligus (batch).
+  Future<void> sisipkanAtauPerbaruiBatchDividen(List<DividenModel> daftarDividen, {bool dariServer = false}) async {
+    if (RoleUtil.isAdmin(ref)) {
+      Log.info('[InvestasiOpGlobal] Admin batch dividen ke SQLite: ${daftarDividen.length} item');
+      await _investasiOpSqlite.sisipkanAtauPerbaruiBatchDividen(daftarDividen, dariServer: dariServer);
+    } else {
+      Log.info('[InvestasiOpGlobal] User batch dividen ke Firebase: ${daftarDividen.length} item');
+      await _investasiOpFirebase.sisipkanAtauPerbaruiBatchDividen(daftarDividen);
+    }
+  }
+}
+
+/// Provider global untuk InvestasiOpGlobal.
+final investasiOpGlobalProvider = Provider<InvestasiOpGlobal>((ref) {
+  return InvestasiOpGlobal(ref: ref);
+});```
+
+
 // File: lib/fitur/investasi/operasi/investasi_op_firebase.dart
 ```dart
-// path: lib/fitur/investasi/operasi/investasi_op_firebase.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/fitur/investasi/model/dividen_model.dart';
+import 'package:wifi/fitur/investasi/model/investasi_model.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
+
+/// Kelas untuk operasi terkait data investasi dan dividen di Firebase.
+class InvestasiOpFirebase {
+  final FirebaseFirestore _firestore;
+  final BaseOpFirebase _baseOpFirebase;
+
+  InvestasiOpFirebase({
+    required FirebaseFirestore firestore,
+    required BaseOpFirebase baseOpFirebase,
+  }) : _firestore = firestore,
+       _baseOpFirebase = baseOpFirebase {
+    Log.info('InvestasiOpFirebase diinisialisasi.');
+  }
+
+  // ============================================================
+  // OPERASI INVESTASI
+  // ============================================================
+
+  /// Menambahkan investasi baru ke Firebase
+  Future<void> tambahInvestasi(
+    InvestasiModel investasi, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Menambahkan investasi baru ke Firebase - ID: ${investasi.id}');
+    try {
+      await _baseOpFirebase.sisipkan(
+        NamaTabel.investasi,
+        investasi.id,
+        investasi.toFirebase(),
+      );
+      Log.info(
+        'Investasi berhasil ditambahkan ke Firebase - ID: ${investasi.id}',
+      );
+    } catch (e, s) {
+      Log.error(
+        'Gagal menambahkan investasi ke Firebase - ID: ${investasi.id}',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Mengambil semua investasi dari Firebase
+  Future<List<InvestasiModel>> ambilSemuaInvestasi({
+    bool tampilkanYangDiarsip = false,
+  }) async {
+    Log.info('Mengambil semua data investasi dari Firebase');
+    try {
+      Query query = _firestore.collection(NamaTabel.investasi);
+
+      if (!tampilkanYangDiarsip) {
+        query = query.where(NamaKolom.dihapus, isEqualTo: false);
+      }
+
+      final querySnapshot = await query
+          .orderBy(NamaKolom.tanggalInvestasi, descending: true)
+          .get();
+
+      final hasil = querySnapshot.docs.map((doc) {
+        // doc.data() returns Object (non‑null for QueryDocumentSnapshot)
+        // Cast to Map<String, dynamic> for the model factory
+        return InvestasiModel.fromFirebase(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }).toList();
+
+      Log.info(
+        'Berhasil mengambil ${hasil.length} data investasi dari Firebase',
+      );
+      return hasil;
+    } catch (e, s) {
+      Log.error('Gagal mengambil data investasi dari Firebase', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil investasi berdasarkan ID dari Firebase
+  Future<InvestasiModel?> ambilInvestasiById(String id) async {
+    Log.info('Mengambil investasi berdasarkan ID dari Firebase: $id');
+    try {
+      final doc = await _firestore
+          .collection(NamaTabel.investasi)
+          .doc(id)
+          .get();
+
+      if (doc.exists) {
+        Log.info('Investasi ditemukan di Firebase - ID: $id');
+        // doc.data() returns Object? (DocumentSnapshot) – cast it directly
+        return InvestasiModel.fromFirebase(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }
+      Log.info('Investasi tidak ditemukan di Firebase - ID: $id');
+      return null;
+    } catch (e, s) {
+      Log.error(
+        'Gagal mengambil investasi dari Firebase - ID: $id',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Mengambil investasi berdasarkan ID investor dari Firebase
+  Future<List<InvestasiModel>> ambilInvestasiByIdInvestor(
+    String idInvestor,
+  ) async {
+    Log.info(
+      'Mengambil investasi untuk investor dari Firebase - ID: $idInvestor',
+    );
+    try {
+      final querySnapshot = await _firestore
+          .collection(NamaTabel.investasi)
+          .where(NamaKolom.idInvestor, isEqualTo: idInvestor)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.tanggalInvestasi, descending: true)
+          .get();
+
+      final hasil = querySnapshot.docs.map((doc) {
+        return InvestasiModel.fromFirebase(doc.id, doc.data());
+      }).toList();
+
+      Log.info(
+        'Berhasil mengambil ${hasil.length} investasi untuk investor dari Firebase',
+      );
+      return hasil;
+    } catch (e, s) {
+      Log.error(
+        'Gagal mengambil investasi untuk investor dari Firebase - ID: $idInvestor',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Memperbarui investasi di Firebase
+  Future<void> perbaruiInvestasi(
+    InvestasiModel investasi, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Memperbarui investasi di Firebase - ID: ${investasi.id}');
+    try {
+      await _baseOpFirebase.update(
+        NamaTabel.investasi,
+        investasi.id,
+        investasi.toFirebase(),
+      );
+      Log.info(
+        'Investasi berhasil diperbarui di Firebase - ID: ${investasi.id}',
+      );
+    } catch (e, s) {
+      Log.error(
+        'Gagal memperbarui investasi di Firebase - ID: ${investasi.id}',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Soft delete investasi di Firebase
+  Future<void> softDeleteInvestasi(String id, {bool dariServer = false}) async {
+    Log.info('Soft delete investasi di Firebase - ID: $id');
+    try {
+      await _baseOpFirebase.softDelete(NamaTabel.investasi, id);
+      Log.info('Soft delete investasi berhasil di Firebase - ID: $id');
+    } catch (e, s) {
+      Log.error(
+        'Gagal soft delete investasi di Firebase - ID: $id',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
+  // ============================================================
+  // OPERASI DIVIDEN
+  // ============================================================
+
+  /// Menambahkan dividen baru ke Firebase
+  Future<void> tambahDividen(
+    DividenModel dividen, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Menambahkan dividen baru ke Firebase - ID: ${dividen.id}');
+    try {
+      await _baseOpFirebase.sisipkan(
+        NamaTabel.dividen,
+        dividen.id,
+        dividen.toFirebase(),
+      );
+      Log.info('Dividen berhasil ditambahkan ke Firebase - ID: ${dividen.id}');
+    } catch (e, s) {
+      Log.error(
+        'Gagal menambahkan dividen ke Firebase - ID: ${dividen.id}',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Mengambil semua dividen dari Firebase
+  Future<List<DividenModel>> ambilSemuaDividen({
+    bool tampilkanYangDiarsip = false,
+  }) async {
+    Log.info('Mengambil semua data dividen dari Firebase');
+    try {
+      Query query = _firestore.collection(NamaTabel.dividen);
+
+      if (!tampilkanYangDiarsip) {
+        query = query.where(NamaKolom.dihapus, isEqualTo: false);
+      }
+
+      final querySnapshot = await query
+          .orderBy(NamaKolom.tanggalPembagian, descending: true)
+          .get();
+
+      final hasil = querySnapshot.docs.map((doc) {
+        // doc.data() returns Object (non‑null) – cast to required type
+        return DividenModel.fromFirebase(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }).toList();
+
+      Log.info('Berhasil mengambil ${hasil.length} data dividen dari Firebase');
+      return hasil;
+    } catch (e, s) {
+      Log.error('Gagal mengambil data dividen dari Firebase', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil dividen berdasarkan ID dari Firebase
+  Future<DividenModel?> ambilDividenById(String id) async {
+    Log.info('Mengambil dividen berdasarkan ID dari Firebase: $id');
+    try {
+      final doc = await _firestore.collection(NamaTabel.dividen).doc(id).get();
+
+      if (doc.exists) {
+        Log.info('Dividen ditemukan di Firebase - ID: $id');
+        // DocumentSnapshot.data() is Object? – cast directly
+        return DividenModel.fromFirebase(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }
+      Log.info('Dividen tidak ditemukan di Firebase - ID: $id');
+      return null;
+    } catch (e, s) {
+      Log.error('Gagal mengambil dividen dari Firebase - ID: $id', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil dividen berdasarkan ID investor dari Firebase
+  Future<List<DividenModel>> ambilDividenByIdInvestor(String idInvestor) async {
+    Log.info(
+      'Mengambil dividen untuk investor dari Firebase - ID: $idInvestor',
+    );
+    try {
+      final querySnapshot = await _firestore
+          .collection(NamaTabel.dividen)
+          .where(NamaKolom.idInvestor, isEqualTo: idInvestor)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.tanggalPembagian, descending: true)
+          .get();
+
+      final hasil = querySnapshot.docs.map((doc) {
+        return DividenModel.fromFirebase(doc.id, doc.data());
+      }).toList();
+
+      Log.info(
+        'Berhasil mengambil ${hasil.length} dividen untuk investor dari Firebase',
+      );
+      return hasil;
+    } catch (e, s) {
+      Log.error(
+        'Gagal mengambil dividen untuk investor dari Firebase - ID: $idInvestor',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Mengambil dividen berdasarkan ID investasi dari Firebase
+  Future<List<DividenModel>> ambilDividenByIdInvestasi(
+    String idInvestasi,
+  ) async {
+    Log.info(
+      'Mengambil dividen untuk investasi dari Firebase - ID: $idInvestasi',
+    );
+    try {
+      final querySnapshot = await _firestore
+          .collection(NamaTabel.dividen)
+          .where(NamaKolom.idInvestasi, isEqualTo: idInvestasi)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.tanggalPembagian, descending: true)
+          .get();
+
+      final hasil = querySnapshot.docs.map((doc) {
+        return DividenModel.fromFirebase(doc.id, doc.data());
+      }).toList();
+
+      Log.info(
+        'Berhasil mengambil ${hasil.length} dividen untuk investasi dari Firebase',
+      );
+      return hasil;
+    } catch (e, s) {
+      Log.error(
+        'Gagal mengambil dividen untuk investasi dari Firebase - ID: $idInvestasi',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Memperbarui dividen di Firebase
+  Future<void> perbaruiDividen(
+    DividenModel dividen, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Memperbarui dividen di Firebase - ID: ${dividen.id}');
+    try {
+      await _baseOpFirebase.update(
+        NamaTabel.dividen,
+        dividen.id,
+        dividen.toFirebase(),
+      );
+      Log.info('Dividen berhasil diperbarui di Firebase - ID: ${dividen.id}');
+    } catch (e, s) {
+      Log.error(
+        'Gagal memperbarui dividen di Firebase - ID: ${dividen.id}',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Soft delete dividen di Firebase
+  Future<void> softDeleteDividen(String id, {bool dariServer = false}) async {
+    Log.info('Soft delete dividen di Firebase - ID: $id');
+    try {
+      await _baseOpFirebase.softDelete(NamaTabel.dividen, id);
+      Log.info('Soft delete dividen berhasil di Firebase - ID: $id');
+    } catch (e, s) {
+      Log.error('Gagal soft delete dividen di Firebase - ID: $id', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Menandai dividen sebagai sudah dibayar di Firebase
+  Future<void> tandaiDividenDibayar(
+    String id, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Menandai dividen sudah dibayar di Firebase - ID: $id');
+    try {
+      await _baseOpFirebase.update(NamaTabel.dividen, id, {
+        NamaKolom.sudahDibayar: true,
+        NamaKolom.diperbaruiPada: FieldValue.serverTimestamp(),
+      });
+      Log.info('Dividen berhasil ditandai sudah dibayar di Firebase - ID: $id');
+    } catch (e, s) {
+      Log.error(
+        'Gagal menandai dividen sudah dibayar di Firebase - ID: $id',
+        e: e,
+        s: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Menyisipkan atau memperbarui beberapa investasi sekaligus (batch) di Firebase.
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<InvestasiModel> daftarInvestasi, {
+    bool dariServer = false,
+  }) async {
+    if (daftarInvestasi.isEmpty) {
+      Log.info('Daftar investasi kosong, batch dibatalkan.');
+      return;
+    }
+
+    Log.info(
+      'Memulai batch insert/update untuk ${daftarInvestasi.length} investasi di Firebase',
+    );
+    try {
+      final dataList = daftarInvestasi
+          .map((item) => item.toFirebase())
+          .toList();
+
+      await _baseOpFirebase.insertOrUpdateBatch(
+        NamaTabel.investasi,
+        dataList,
+        NamaKolom.id,
+      );
+      Log.info(
+        'Batch ${daftarInvestasi.length} investasi berhasil diproses di Firebase',
+      );
+    } catch (e, st) {
+      Log.error('Gagal memproses batch investasi di Firebase', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  /// Menyisipkan atau memperbarui beberapa dividen sekaligus (batch) di Firebase.
+  Future<void> sisipkanAtauPerbaruiBatchDividen(
+    List<DividenModel> daftarDividen, {
+    bool dariServer = false,
+  }) async {
+    if (daftarDividen.isEmpty) {
+      Log.info('Daftar dividen kosong, batch dibatalkan.');
+      return;
+    }
+
+    Log.info(
+      'Memulai batch insert/update untuk ${daftarDividen.length} dividen di Firebase',
+    );
+    try {
+      final dataList = daftarDividen.map((item) => item.toFirebase()).toList();
+
+      await _baseOpFirebase.insertOrUpdateBatch(
+        NamaTabel.dividen,
+        dataList,
+        NamaKolom.id,
+      );
+      Log.info(
+        'Batch ${daftarDividen.length} dividen berhasil diproses di Firebase',
+      );
+    } catch (e, st) {
+      Log.error('Gagal memproses batch dividen di Firebase', e: e, s: st);
+      rethrow;
+    }
+  }
+}
 ```
 
 
@@ -55875,14 +56518,9 @@ part of 'shared_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
-/// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
 
 @ProviderFor(sharedPreferences)
 final sharedPreferencesProvider = SharedPreferencesProvider._();
-
-/// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
-/// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
 
 final class SharedPreferencesProvider
     extends
@@ -55894,8 +56532,6 @@ final class SharedPreferencesProvider
     with
         $FutureModifier<SharedPreferences>,
         $FutureProvider<SharedPreferences> {
-  /// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
-  /// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
   SharedPreferencesProvider._()
     : super(
         from: null,
@@ -55966,12 +56602,8 @@ final class LayananPenyimpananLokalProvider
 String _$layananPenyimpananLokalHash() =>
     r'a6896842e5554ff630479075eedbb2f81542ae5a';
 
-/// Provider sederhana yang hanya membuat instance NotifikasiServis.
-
 @ProviderFor(layananNotifikasi)
 final layananNotifikasiProvider = LayananNotifikasiProvider._();
-
-/// Provider sederhana yang hanya membuat instance NotifikasiServis.
 
 final class LayananNotifikasiProvider
     extends
@@ -55981,7 +56613,6 @@ final class LayananNotifikasiProvider
           LayananNotifikasi
         >
     with $Provider<LayananNotifikasi> {
-  /// Provider sederhana yang hanya membuat instance NotifikasiServis.
   LayananNotifikasiProvider._()
     : super(
         from: null,
@@ -56059,6 +56690,47 @@ final class PengontrolNotifikasiProvider
 
 String _$pengontrolNotifikasiHash() =>
     r'26ae02c220f18bc760585f65a9b76d3e37fd1e75';
+
+@ProviderFor(workmanager)
+final workmanagerProvider = WorkmanagerProvider._();
+
+final class WorkmanagerProvider
+    extends $FunctionalProvider<Workmanager, Workmanager, Workmanager>
+    with $Provider<Workmanager> {
+  WorkmanagerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'workmanagerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$workmanagerHash();
+
+  @$internal
+  @override
+  $ProviderElement<Workmanager> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  Workmanager create(Ref ref) {
+    return workmanager(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Workmanager value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Workmanager>(value),
+    );
+  }
+}
+
+String _$workmanagerHash() => r'5fb24c7bed7b6b00e447382c853449913ab7eb40';
 ```
 
 
@@ -56072,11 +56744,10 @@ import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
+import 'package:workmanager/workmanager.dart';
 
 part 'shared_providers.g.dart';
 
-/// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
-/// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
 @Riverpod(keepAlive: true)
 Future<SharedPreferences> sharedPreferences(Ref ref) {
   return SharedPreferences.getInstance();
@@ -56088,7 +56759,6 @@ Future<LayananPenyimpananLokal> layananPenyimpananLokal(Ref ref) async {
   return LayananPenyimpananLokal(prefs: preferensi);
 }
 
-/// Provider sederhana yang hanya membuat instance NotifikasiServis.
 @Riverpod(keepAlive: true)
 LayananNotifikasi layananNotifikasi(Ref ref) {
   return LayananNotifikasi();
@@ -56137,6 +56807,11 @@ void pengontrolNotifikasi(Ref ref) {
     );
     layananNotifikasi.hentikanPemantauanNotifikasi();
   });
+}
+
+@Riverpod(keepAlive: true)
+Workmanager workmanager(Ref ref) {
+  return Workmanager();
 }
 ```
 
@@ -56893,6 +57568,59 @@ final class OrderOpFirebaseProvider
 }
 
 String _$orderOpFirebaseHash() => r'91a84983dc0ee49d1317fca190b73daaf5369c6d';
+
+/// Provider untuk menyediakan instance dari [InvestasiOpFirebase].
+
+@ProviderFor(investasiOpFirebase)
+final investasiOpFirebaseProvider = InvestasiOpFirebaseProvider._();
+
+/// Provider untuk menyediakan instance dari [InvestasiOpFirebase].
+
+final class InvestasiOpFirebaseProvider
+    extends
+        $FunctionalProvider<
+          InvestasiOpFirebase,
+          InvestasiOpFirebase,
+          InvestasiOpFirebase
+        >
+    with $Provider<InvestasiOpFirebase> {
+  /// Provider untuk menyediakan instance dari [InvestasiOpFirebase].
+  InvestasiOpFirebaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'investasiOpFirebaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$investasiOpFirebaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<InvestasiOpFirebase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  InvestasiOpFirebase create(Ref ref) {
+    return investasiOpFirebase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(InvestasiOpFirebase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<InvestasiOpFirebase>(value),
+    );
+  }
+}
+
+String _$investasiOpFirebaseHash() =>
+    r'4e9d8b3ec23530f0c185471686428ed409508c51';
 ```
 
 
@@ -56903,6 +57631,7 @@ String _$orderOpFirebaseHash() => r'91a84983dc0ee49d1317fca190b73daaf5369c6d';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
+import 'package:wifi/fitur/investasi/operasi/investasi_op_firebase.dart';
 import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_firebase.dart';
@@ -56995,7 +57724,21 @@ OrderOpFirebase orderOpFirebase(Ref ref) {
   final baseOp = ref.watch(baseOpFirebaseProvider);
   return OrderOpFirebase(firestore: firestoreInstance, baseOp: baseOp);
 }
-```
+// ============================================================
+// TAMBAHKAN DI BAGIAN BAWAH FILE, SETELAH PROVIDER LAINNYA
+// ============================================================
+
+/// Provider untuk menyediakan instance dari [InvestasiOpFirebase].
+@Riverpod(keepAlive: true)
+InvestasiOpFirebase investasiOpFirebase(Ref ref) {
+  Log.info('Membuat instance InvestasiOpFirebase via @riverpod...');
+  final firestoreInstance = ref.watch(firestoreProvider);
+  final baseOp = ref.watch(baseOpFirebaseProvider);
+  return InvestasiOpFirebase(
+    firestore: firestoreInstance,
+    baseOpFirebase: baseOp,
+  );
+}```
 
 
 // File: lib/shared/operasi/firebase_operasi/status_op_firebase.dart
@@ -63581,8 +64324,8 @@ import 'package:wifi/fitur/statistik/page/statistik_page_a.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_a.dart';
 import 'package:wifi/fitur/voucher/page/voucher.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:workmanager/workmanager.dart';
@@ -63624,11 +64367,12 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     _syncService = ref.read(layananCekSinkronisasiProvider);
     WidgetsBinding.instance.addObserver(this);
 
+    // Subscribe to connectivity changes
+    _langgananKoneksi = Connectivity().onConnectivityChanged.listen(_handleConnectivityChange);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_initAwal());
     });
-
-    _koneksiBerubah();
   }
 
   Future<void> _initAwal() async {
@@ -63641,7 +64385,8 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     try {
       final expiredService = ref.read(arsipLanggananKadaluarsaServiceProvider);
       await expiredService.prosesArsipLanggananKadaluarsa();
-      await _syncJikaOnline().timeout(const Duration(seconds: 5));
+      final initialConnection = await Connectivity().checkConnectivity();
+      await _handleConnectivityChange(initialConnection);
     } catch (e, s) {
       Log.info('gagal arsip langganan kadaluarsa $e $s');
     }
@@ -63662,19 +64407,22 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   }
 
   Future<void> _jadwalkanSinkron() async {
-    await Workmanager().registerPeriodicTask(
-      '1',
-      namaTugasSinkronisasi,
-      frequency: const Duration(minutes: 15),
-      constraints: Constraints(networkType: NetworkType.connected),
-    );
+    await ref.read(workmanagerProvider).registerPeriodicTask(
+          '1',
+          namaTugasSinkronisasi,
+          frequency: const Duration(minutes: 15),
+          constraints: Constraints(networkType: NetworkType.connected),
+        );
     Log.info('Tugas sinkronisasi periodik dijadwalkan.');
   }
 
-  Future<void> _koneksiBerubah() async {
-    final isOnline = await ref
-        .read(koneksiInternetServiceProvider)
-        .cekInternet();
+  Future<void> _handleConnectivityChange(
+    List<ConnectivityResult> results,
+  ) async {
+    final isOnline = results.contains(ConnectivityResult.mobile) ||
+        results.contains(ConnectivityResult.wifi) ||
+        results.contains(ConnectivityResult.ethernet);
+
     if (isOnline) {
       Log.info('Koneksi kembali online. Memicu sinkronisasi.');
       await _syncJikaOnline();
@@ -64156,6 +64904,7 @@ lib/fitur/investasi/provider/investasi_provider.freezed.dart
 lib/fitur/investasi/provider/investasi_provider.dart
 lib/fitur/investasi/provider/investasi_provider.g.dart
 lib/fitur/investasi/operasi
+lib/fitur/investasi/operasi/investasi_op_global.dart
 lib/fitur/investasi/operasi/investasi_op_firebase.dart
 lib/fitur/investasi/operasi/investasi_op_sqlite.dart
 lib/fitur/investasi/model
@@ -64543,7 +65292,6 @@ test/data_dummy/halaman_data_dummy_test.dart
 test/admin
 test/admin/data
 test/admin/data/sqlite_test.dart
-test/admin/data/sqlite_test.mocks.dart
 test/admin/splash_screen_admin_test.dart
 test/admin/halaman_utama_test.mocks.dart
 test/admin/firebase_option
@@ -64568,7 +65316,6 @@ test/admin/halaman/widget/tombol_aksi_test.dart
 test/admin/halaman/event
 test/admin/halaman/detail
 test/admin/halaman/detail/detail_dompet_test.dart
-test/admin/halaman/detail/detail_dompet_test.mocks.dart
 test/admin/halaman/detail/detail_paket_test.mocks.dart
 test/admin/halaman/detail/detail_paket_test.dart
 test/admin/halaman/form

@@ -289,6 +289,7 @@ lib/fitur/investasi/provider/investasi_provider.freezed.dart
 lib/fitur/investasi/provider/investasi_provider.dart
 lib/fitur/investasi/provider/investasi_provider.g.dart
 lib/fitur/investasi/operasi
+lib/fitur/investasi/operasi/investasi_op_global.dart
 lib/fitur/investasi/operasi/investasi_op_firebase.dart
 lib/fitur/investasi/operasi/investasi_op_sqlite.dart
 lib/fitur/investasi/model
@@ -676,7 +677,6 @@ test/data_dummy/halaman_data_dummy_test.dart
 test/admin
 test/admin/data
 test/admin/data/sqlite_test.dart
-test/admin/data/sqlite_test.mocks.dart
 test/admin/splash_screen_admin_test.dart
 test/admin/halaman_utama_test.mocks.dart
 test/admin/firebase_option
@@ -701,7 +701,6 @@ test/admin/halaman/widget/tombol_aksi_test.dart
 test/admin/halaman/event
 test/admin/halaman/detail
 test/admin/halaman/detail/detail_dompet_test.dart
-test/admin/halaman/detail/detail_dompet_test.mocks.dart
 test/admin/halaman/detail/detail_paket_test.mocks.dart
 test/admin/halaman/detail/detail_paket_test.dart
 test/admin/halaman/form

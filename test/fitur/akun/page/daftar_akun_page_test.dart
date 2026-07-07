@@ -3,8 +3,9 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-// IMPORT INI UNTUK MENYEDIAKAN FUNGSI MOCK FIREBASE RESMI YANG SESUAI DENGAN PIGEON CODEC
+import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -19,6 +20,39 @@ import 'package:wifi/user/providers/user_provider.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
 import 'daftar_akun_page_test.mocks.dart';
+
+// Helper from firebase_core tests
+void setupFirebaseCoreMocks() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  // Mock Firebase services
+  const MethodChannel channel = MethodChannel(
+    'plugins.flutter.io/firebase_core',
+  );
+  channel.setMockMethodCallHandler((MethodCall methodCall) async {
+    if (methodCall.method == 'Firebase#initializeCore') {
+      return [
+        {
+          'name': '[DEFAULT]',
+          'options': {
+            'apiKey': 'MOCK_API_KEY',
+            'appId': 'MOCK_APP_ID',
+            'messagingSenderId': 'MOCK_SENDER_ID',
+            'projectId': 'MOCK_PROJECT_ID',
+          },
+          'pluginConstants': <String, dynamic>{},
+        }
+      ];
+    }
+    if (methodCall.method == 'Firebase#initializeApp') {
+      return {
+        'name': methodCall.arguments['appName'],
+        'options': methodCall.arguments['options'],
+        'pluginConstants': <String, dynamic>{},
+      };
+    }
+    return null;
+  });
+}
 
 // Membuat objek Fake untuk mensimulasikan Notifier secara aman tanpa merusak internal Riverpod
 class FakePengelolaAkun extends PengelolaAkun {
@@ -64,6 +98,8 @@ class FakeLayananPenyimpananLokal extends Fake
   MockSpec<FirebaseFirestore>(),
 ])
 void main() {
+  setupFirebaseCoreMocks();
+
   setUpAll(() async {
     await Firebase.initializeApp();
   });

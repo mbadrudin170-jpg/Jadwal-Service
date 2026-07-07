@@ -10,8 +10,6 @@ import 'package:workmanager/workmanager.dart';
 
 part 'shared_providers.g.dart';
 
-/// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
-/// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
 @Riverpod(keepAlive: true)
 Future<SharedPreferences> sharedPreferences(Ref ref) {
   return SharedPreferences.getInstance();
@@ -23,7 +21,6 @@ Future<LayananPenyimpananLokal> layananPenyimpananLokal(Ref ref) async {
   return LayananPenyimpananLokal(prefs: preferensi);
 }
 
-/// Provider sederhana yang hanya membuat instance NotifikasiServis.
 @Riverpod(keepAlive: true)
 LayananNotifikasi layananNotifikasi(Ref ref) {
   return LayananNotifikasi();

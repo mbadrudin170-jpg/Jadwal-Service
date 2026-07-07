@@ -38,15 +38,15 @@ class _FakeSharedPreferences_0 extends _i1.SmartFake
 /// See the documentation for Mockito's code generation for more information.
 class MockLayananPenyimpananLokal extends _i1.Mock
     implements _i3.LayananPenyimpananLokal {
-  MockLayananPenyimpananLokal() {
-    _i1.throwOnMissingStub(this);
-  }
-
   @override
   _i2.SharedPreferences get prefs =>
       (super.noSuchMethod(
             Invocation.getter(#prefs),
             returnValue: _FakeSharedPreferences_0(
+              this,
+              Invocation.getter(#prefs),
+            ),
+            returnValueForMissingStub: _FakeSharedPreferences_0(
               this,
               Invocation.getter(#prefs),
             ),
@@ -67,6 +67,9 @@ class MockLayananPenyimpananLokal extends _i1.Mock
       (super.noSuchMethod(
             Invocation.method(#ambilModeTema, []),
             returnValue: _i4.Future<_i5.ThemeMode>.value(_i5.ThemeMode.system),
+            returnValueForMissingStub: _i4.Future<_i5.ThemeMode>.value(
+              _i5.ThemeMode.system,
+            ),
           )
           as _i4.Future<_i5.ThemeMode>);
 
@@ -95,6 +98,10 @@ class MockLayananPenyimpananLokal extends _i1.Mock
             returnValue: _i4.Future<List<_i6.PelangganModel>>.value(
               <_i6.PelangganModel>[],
             ),
+            returnValueForMissingStub:
+                _i4.Future<List<_i6.PelangganModel>>.value(
+                  <_i6.PelangganModel>[],
+                ),
           )
           as _i4.Future<List<_i6.PelangganModel>>);
 
@@ -130,6 +137,7 @@ class MockLayananPenyimpananLokal extends _i1.Mock
       (super.noSuchMethod(
             Invocation.method(#ambilAkunLogin, []),
             returnValue: _i4.Future<_i6.PelangganModel?>.value(),
+            returnValueForMissingStub: _i4.Future<_i6.PelangganModel?>.value(),
           )
           as _i4.Future<_i6.PelangganModel?>);
 

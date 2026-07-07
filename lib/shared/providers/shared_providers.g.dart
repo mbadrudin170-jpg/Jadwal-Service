@@ -8,14 +8,9 @@ part of 'shared_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
-/// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
 
 @ProviderFor(sharedPreferences)
 final sharedPreferencesProvider = SharedPreferencesProvider._();
-
-/// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
-/// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
 
 final class SharedPreferencesProvider
     extends
@@ -27,8 +22,6 @@ final class SharedPreferencesProvider
     with
         $FutureModifier<SharedPreferences>,
         $FutureProvider<SharedPreferences> {
-  /// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
-  /// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
   SharedPreferencesProvider._()
     : super(
         from: null,
@@ -99,12 +92,8 @@ final class LayananPenyimpananLokalProvider
 String _$layananPenyimpananLokalHash() =>
     r'a6896842e5554ff630479075eedbb2f81542ae5a';
 
-/// Provider sederhana yang hanya membuat instance NotifikasiServis.
-
 @ProviderFor(layananNotifikasi)
 final layananNotifikasiProvider = LayananNotifikasiProvider._();
-
-/// Provider sederhana yang hanya membuat instance NotifikasiServis.
 
 final class LayananNotifikasiProvider
     extends
@@ -114,7 +103,6 @@ final class LayananNotifikasiProvider
           LayananNotifikasi
         >
     with $Provider<LayananNotifikasi> {
-  /// Provider sederhana yang hanya membuat instance NotifikasiServis.
   LayananNotifikasiProvider._()
     : super(
         from: null,

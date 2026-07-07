@@ -1,17 +1,19 @@
 // path: test/admin/halaman/detail/detail_paket_test.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/page/detail_paket.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 
-import 'detail_paket_test.mocks.dart';
+// ============================================================
+// MOCK CLASSES
+// ============================================================
+class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
-@GenerateMocks([NavigatorObserver])
 void main() {
   late MockNavigatorObserver mockNavigatorObserver;
 
@@ -50,7 +52,7 @@ void main() {
       expect(find.text('Nama Paket'), findsOneWidget);
       expect(find.text('Paket Harian'), findsOneWidget);
       expect(find.text('Harga'), findsOneWidget);
-      expect(find.text('10,000'), findsOneWidget);
+      expect(find.text('Rp 10.000'), findsOneWidget);
       expect(find.text('Durasi'), findsOneWidget);
       expect(find.text('1 Hari'), findsOneWidget);
       expect(find.text('Poin Hadiah'), findsOneWidget);
@@ -117,7 +119,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.arrow_back));
         await tester.pumpAndSettle();
 
-        verify(mockNavigatorObserver.didPop(any, any)).called(1);
+        verify(() => mockNavigatorObserver.didPop(any(), any())).called(1);
       },
     );
 
@@ -129,7 +131,9 @@ void main() {
       await tester.tap(find.byIcon(Icons.edit));
       await tester.pumpAndSettle();
 
-      verify(mockNavigatorObserver.didPush(any, any)).called(1);
+      verify(
+        () => mockNavigatorObserver.didPush(any(), any(), any()),
+      ).called(1);
     });
 
     testWidgets(
