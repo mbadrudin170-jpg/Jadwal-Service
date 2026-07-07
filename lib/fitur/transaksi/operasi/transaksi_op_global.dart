@@ -26,7 +26,7 @@ class TransaksiOpGlobal {
 
   Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     Log.info('Menambahkan transaksi baru: ${transaksi.id}');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       await _transaksiOpSqlite.tambahTransaksi(transaksi);
     } else {
       await _transaksiOpFirebase.tambahTransaksi(transaksi);
@@ -38,7 +38,7 @@ class TransaksiOpGlobal {
     TransaksiModel transaksi, {
     bool dariServer = false,
   }) async {
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       await _transaksiOpSqlite.perbaruiTransaksi(
         transaksi,
         dariServer: dariServer,
@@ -51,7 +51,7 @@ class TransaksiOpGlobal {
 
   Future<void> softDelete(String id, {bool dariServer = false}) async {
     Log.info('Menghapus transaksi ID: $id');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       await _transaksiOpSqlite.softDelete(id, dariServer: dariServer);
     } else {
       await _transaksiOpFirebase.softDeleteTransaksi(id);
@@ -61,7 +61,7 @@ class TransaksiOpGlobal {
 
   Future<void> softDeleteAll({bool dariServer = false}) async {
     Log.info('Menghapus semua transaksi');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       await _transaksiOpSqlite.softDeleteAll(dariServer: dariServer);
     } else {
       final userId = await ref.read(userIdProvider.future);
@@ -88,7 +88,7 @@ class TransaksiOpGlobal {
       return;
     }
     Log.info('Memulai batch insert/update untuk ${items.length} transaksi');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       await _transaksiOpSqlite.sisipkanAtauPerbaruiBatch(
         items,
         dariServer: dariServer,
@@ -101,7 +101,7 @@ class TransaksiOpGlobal {
 
   Future<List<TransaksiModel>> ambilSemua() async {
     Log.info('Mengambil semua transaksi berdasarkan role');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       Log.info('Mode Admin: Mengambil transaksi dari SQLite');
       return await _transaksiOpSqlite.ambilSemua();
     } else {
@@ -117,7 +117,7 @@ class TransaksiOpGlobal {
 
   Future<TransaksiModel?> ambilBerdasarkanId(String id) async {
     Log.info('Mengambil transaksi berdasarkan ID: $id');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       return await _transaksiOpSqlite.ambilBerdasarkanId(id);
     } else {
       return await _transaksiOpFirebase.ambilBerdasarkanId(id);
@@ -128,7 +128,7 @@ class TransaksiOpGlobal {
     String idPelanggan,
   ) async {
     Log.info('[TransaksiOpGlobal] ambilBerdasarkanIdPelanggan: $idPelanggan');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       Log.info('[TransaksiOpGlobal] Admin → SQLite');
       return await _transaksiOpSqlite.ambilBerdasarkanIdPelanggan(idPelanggan);
     } else {
@@ -141,7 +141,7 @@ class TransaksiOpGlobal {
 
   Future<List<TransaksiModel>> ambilBerdasarkanIdDompet(String idDompet) async {
     Log.info('Mengambil transaksi berdasarkan ID dompet: $idDompet');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       return await _transaksiOpSqlite.ambilBerdasarkanIdDompet(idDompet);
     } else {
       return await _transaksiOpFirebase.ambilBerdasarkanIdDompet(idDompet);
@@ -150,7 +150,7 @@ class TransaksiOpGlobal {
 
   Future<List<TransaksiModel>> ambilBerdasarkanStatusAktivasi() async {
     Log.info('Mengambil transaksi dengan status aktivasi = true');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       return await _transaksiOpSqlite.ambilBerdasarkanStatusAktivasi();
     } else {
       return await _transaksiOpFirebase.ambilBerdasarkanStatusAktivasi();
@@ -163,7 +163,7 @@ class TransaksiOpGlobal {
       Log.warning('Daftar ID kosong, mengembalikan list kosong');
       return [];
     }
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       return await _transaksiOpSqlite.ambilBerdasarkanIds(ids);
     } else {
       final hasil = <TransaksiModel>[];
@@ -181,7 +181,7 @@ class TransaksiOpGlobal {
     String idPelanggan,
   ) async {
     Log.info('Mengambil paket aktif untuk pelanggan: $idPelanggan');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       final semuaTransaksi = await _transaksiOpSqlite
           .ambilBerdasarkanIdPelanggan(idPelanggan);
       final sekarang = DateTime.now();
@@ -200,7 +200,7 @@ class TransaksiOpGlobal {
 
   Future<int> ambilTotalPoin(String idPelanggan) async {
     Log.info('Mengambil total poin untuk pelanggan: $idPelanggan');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       return await _transaksiOpSqlite.ambilTotalPoin(idPelanggan);
     } else {
       return await _transaksiOpFirebase.ambilTotalPoin(idPelanggan);
@@ -209,7 +209,7 @@ class TransaksiOpGlobal {
 
   Future<double> ambilTotalPemasukan() async {
     Log.info('Menghitung total pemasukan');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       return await _transaksiOpSqlite.ambilTotalPemasukan();
     } else {
       return 0;
@@ -218,7 +218,7 @@ class TransaksiOpGlobal {
 
   Future<double> ambilTotalPengeluaran() async {
     Log.info('Menghitung total pengeluaran');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       return await _transaksiOpSqlite.ambilTotalPengeluaran();
     } else {
       return 0;
@@ -227,7 +227,7 @@ class TransaksiOpGlobal {
 
   Future<double> getNetTotal() async {
     Log.info('Menghitung total bersih');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       return await _transaksiOpSqlite.getNetTotal();
     } else {
       final income = await ambilTotalPemasukan();
@@ -238,7 +238,7 @@ class TransaksiOpGlobal {
 
   Future<double> ambilTotalPendapatanPerbulan() async {
     Log.info('Mengambil total pendapatan bersih per bulan');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       return await _transaksiOpSqlite.ambilTotalPendapatanPerbulan();
     } else {
       return 0;
@@ -256,7 +256,7 @@ class TransaksiOpGlobal {
 
   Future<List<double>> ambilPendapatanHarian() async {
     Log.info('Mengambil pendapatan harian 7 hari terakhir');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       return await _transaksiOpSqlite.ambilPendapatanHarian();
     } else {
       return [];
@@ -265,7 +265,7 @@ class TransaksiOpGlobal {
 
   Future<List<double>> ambilPendapatanMingguan() async {
     Log.info('Mengambil pendapatan mingguan 4 minggu terakhir');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       return await _transaksiOpSqlite.ambilPendapatanMingguan();
     } else {
       return [];
@@ -274,7 +274,7 @@ class TransaksiOpGlobal {
 
   Future<List<double>> ambilPendapatanBulanan() async {
     Log.info('Mengambil pendapatan bulanan 5 bulan terakhir');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       return await _transaksiOpSqlite.ambilPendapatanBulanan();
     } else {
       return [];
@@ -283,7 +283,7 @@ class TransaksiOpGlobal {
 
   Future<int> ambilTotalPoinSemuaPelanggan() async {
     Log.info('Menghitung total poin semua pelanggan');
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       return await _transaksiOpSqlite.ambilTotalPoinSemuaPelanggan();
     } else {
       return 0;

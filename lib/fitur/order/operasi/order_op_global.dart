@@ -22,7 +22,7 @@ class OrderOpGlobal {
 
   Future<void> tambah(OrderModel order) async {
     try {
-      if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
         await _orderOpSqlite.tambahOrder(order);
       } else {
         await _orderOpFirebase.tambahOrder(order);
@@ -36,7 +36,7 @@ class OrderOpGlobal {
 
   Future<void> perbarui(OrderModel order) async {
     try {
-      if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
         await _orderOpSqlite.perbarui(order);
       } else {
         await _orderOpFirebase.perbarui(order);
@@ -50,7 +50,7 @@ class OrderOpGlobal {
 
   Future<void> softDelete(String id) async {
     try {
-      if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
         await _orderOpSqlite.softDeleteorder(id);
       } else {
         await _orderOpFirebase.softDeleteOrder(id);
@@ -64,7 +64,7 @@ class OrderOpGlobal {
 
   Future<void> softDeleteAll() async {
     try {
-      if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
         await _orderOpSqlite.softDeleteAll();
       } else {
         await _orderOpFirebase.softDeleteAll();
@@ -79,7 +79,7 @@ class OrderOpGlobal {
   Future<List<OrderModel>> ambilSemua() async {
     try {
       Log.info('fungsi ambil semua dijalankan');
-      if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
         return await _orderOpSqlite.ambilSemua();
       } else {
         return await _orderOpFirebase.ambilSemua();

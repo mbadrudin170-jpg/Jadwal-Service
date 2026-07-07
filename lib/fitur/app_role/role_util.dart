@@ -16,62 +16,20 @@ AppRole appRole(Ref ref) {
   return role;
 }
 
-class RoleUtil {
-  static bool isAdmin(Ref ref) {
-    final role = ref.watch(appRoleProvider);
-    Log.info('Role saat ini: ${role.name}'); // ← lihat log ini
-    return role == AppRole.admin;
-  }
-
-  static bool isUser(Ref ref) {
-    return ref.watch(appRoleProvider) == AppRole.user;
-  }
-
-  static bool isInvestor(Ref ref) {
-    return ref.watch(appRoleProvider) == AppRole.investor;
-  }
-
-  static bool hasRole(Ref ref, AppRole role) {
-    return ref.watch(appRoleProvider) == role;
-  }
-
-  static Future<bool> isAdminAsync(Ref ref) async {
-    final role = ref.watch(appRoleProvider);
-    return role == AppRole.admin;
-  }
-
-  static Future<bool> isUserAsync(Ref ref) async {
-    final role = ref.watch(appRoleProvider);
-    return role == AppRole.user;
-  }
-
-  static Future<bool> hasRoleAsync(Ref ref, AppRole role) async {
-    final currentRole = ref.watch(appRoleProvider);
-    return currentRole == role;
-  }
-
-  static String getRoleName(Ref ref) {
-    return ref.watch(appRoleProvider).name;
-  }
-
-  static Future<String> getRoleNameAsync(Ref ref) async {
-    final role = ref.watch(appRoleProvider);
-    return role.name;
-  }
+// ✅ Extension untuk WidgetRef (digunakan di UI)
+extension RoleExtension on WidgetRef {
+  bool get isAdmin => watch(appRoleProvider) == AppRole.admin;
+  bool get isUser => watch(appRoleProvider) == AppRole.user;
+  bool get isInvestor => watch(appRoleProvider) == AppRole.investor;
+  bool hasRole(AppRole role) => watch(appRoleProvider) == role;
+  AppRole get currentRole => watch(appRoleProvider);
 }
 
-extension RoleExtension on WidgetRef {
-  /// Mengecek apakah pengguna saat ini adalah admin.
-  bool get isAdmin => watch(appRoleProvider) == AppRole.admin;
-
-  /// Mengecek apakah pengguna saat ini adalah user.
-  bool get isUser => watch(appRoleProvider) == AppRole.user;
-
-  bool get isInvestor => watch(appRoleProvider) == AppRole.investor;
-
-  /// Mengecek apakah pengguna saat ini memiliki role yang sama dengan [role].
-  bool hasRole(AppRole role) => watch(appRoleProvider) == role;
-
-  /// Mendapatkan role saat ini.
-  AppRole get currentRole => watch(appRoleProvider);
+// ✅ Extension untuk Ref (digunakan di service/operation)
+extension RoleRefExtension on Ref {
+  bool get isAdmin => read(appRoleProvider) == AppRole.admin;
+  bool get isUser => read(appRoleProvider) == AppRole.user;
+  bool get isInvestor => read(appRoleProvider) == AppRole.investor;
+  bool hasRole(AppRole role) => read(appRoleProvider) == role;
+  AppRole get currentRole => read(appRoleProvider);
 }

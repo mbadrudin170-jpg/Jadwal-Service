@@ -30,7 +30,7 @@ LayananNotifikasi layananNotifikasi(Ref ref) {
 void pengontrolNotifikasi(Ref ref) {
   final layananNotifikasi = ref.watch(layananNotifikasiProvider);
   final notifikasiOpFirebase = ref.watch(notifikasiOpFirebaseProvider);
-  if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
     Log.info('Mode Admin: Memulai pemantauan notifikasi umum.');
     layananNotifikasi.pantauNotifUmum(notifikasiOpFirebase);
   } else {
