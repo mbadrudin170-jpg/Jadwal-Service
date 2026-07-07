@@ -39458,11 +39458,13 @@ class _FormSahamState extends ConsumerState<FormSaham> {
 ```dart
 // path: lib/fitur/investasi/page/ringkasan_saham.dart
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/fitur/investasi/page/daftar_investor.dart';
 import 'package:wifi/fitur/investasi/provider/investasi_provider.dart';
+import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -39546,7 +39548,43 @@ class RingkasanSaham extends ConsumerWidget {
                   ),
                 ),
                 gapH16,
-
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Distribusi Kepemilikan Saham',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        gapH12,
+                        pelangganAsync.when(
+                          data: (listInvestor) => _buildPieChartKepemilikan(
+                            investasi,
+                            listInvestor.daftarPelanggan,
+                          ),
+                          error: (error, stackTrace) =>
+                              const Text('Gagal memuat data investor'),
+                          loading: () =>
+                              const Center(child: CircularProgressIndicator()),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                gapH16,
+                _buildRingkasanTambahan(investasi),
+                gapH16,
+                _buildGrafikPertumbuhanAset(investasi),
+                gapH16,
                 Card(
                   elevation: 2,
                   shape: RoundedRectangleBorder(
@@ -39616,7 +39654,6 @@ class RingkasanSaham extends ConsumerWidget {
                                   lembarA,
                                 ); // descending (terbanyak ke terkecil)
                               });
-
                           if (daftarInvestor.isEmpty) {
                             return const Center(
                               child: Text('Belum ada investor'),
@@ -39689,6 +39726,297 @@ class RingkasanSaham extends ConsumerWidget {
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
       ),
+    );
+  }
+
+  Widget _buildRingkasanTambahan(InvestasiState investasi) {
+    final totalLembar = investasi.getTotalLembarBeredar();
+    final totalAset = investasi.getTotalAsetPerusahaan();
+    final hargaPerLembar = totalLembar > 0 ? totalAset / totalLembar : 0.0;
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Informasi Tambahan',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            gapH12,
+            // path: lib/fitur/investasi/page/ringkasan_saham.dart
+
+            // Di dalam _buildRingkasanTambahan
+            _buildInfoRow(
+              'Harga per Lembar',
+              FormatUang.formatMataUang(hargaPerLembar),
+              icon: TIcons.money,
+              color: Colors.blue, // Tambahkan warna
+            ),
+            _buildInfoRow(
+              'Kapitalisasi Pasar',
+              FormatUang.formatMataUang(totalAset),
+              icon: TIcons.points,
+              color: Colors.purple, // Tambahkan warna
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  // path: lib/fitur/investasi/page/ringkasan_saham.dart
+
+  // Tambahkan method ini untuk grafik pertumbuhan aset
+  Widget _buildGrafikPertumbuhanAset(InvestasiState investasi) {
+    // Ambil data investasi yang sudah ada
+    final daftarInvestasi = investasi.daftarInvestasi;
+
+    if (daftarInvestasi.isEmpty) {
+      return Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Pertumbuhan Aset (6 Bulan Terakhir)',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              gapH12,
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  child: Text('Belum ada data investasi untuk grafik.'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    // Kelompokkan investasi per bulan
+    final asetPerBulan = <DateTime, double>{};
+    for (final inv in daftarInvestasi) {
+      final bulan = DateTime(
+        inv.tanggalInvestasi!.year,
+        inv.tanggalInvestasi!.month,
+      );
+      asetPerBulan[bulan] = (asetPerBulan[bulan] ?? 0) + inv.jumlahModal;
+    }
+
+    // Ambil 6 bulan terakhir
+    final sortedKeys = asetPerBulan.keys.toList()..sort();
+    final last6Months = sortedKeys.length > 6
+        ? sortedKeys.sublist(sortedKeys.length - 6)
+        : sortedKeys;
+
+    if (last6Months.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final spots = last6Months.asMap().entries.map((entry) {
+      return FlSpot(entry.key.toDouble(), asetPerBulan[entry.value]!);
+    }).toList();
+
+    final maxY = spots.map((s) => s.y).reduce((a, b) => a > b ? a : b);
+    final minY = maxY * 0.8; // Tampilkan dari 80% dari nilai maks
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Pertumbuhan Aset (6 Bulan Terakhir)',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            gapH12,
+            SizedBox(
+              height: 180,
+              child: LineChart(
+                LineChartData(
+                  minX: 0,
+                  maxX: (spots.length - 1).toDouble(),
+                  minY: minY,
+                  maxY: maxY * 1.05,
+                  gridData: const FlGridData(show: false),
+                  lineTouchData: LineTouchData(
+                    touchTooltipData: LineTouchTooltipData(
+                      getTooltipColor: (touchedSpot) =>
+                          Colors.blueGrey.withAlpha(200),
+                      tooltipBorderRadius: BorderRadius.circular(8),
+                      tooltipPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      getTooltipItems: (touchedSpots) {
+                        return touchedSpots.map((touchedSpot) {
+                          return LineTooltipItem(
+                            FormatUang.formatMataUang(touchedSpot.y),
+                            const TextStyle(color: Colors.white, fontSize: 12),
+                          );
+                        }).toList();
+                      },
+                    ),
+                  ),
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          final index = value.toInt();
+                          if (index >= 0 && index < last6Months.length) {
+                            return Text(
+                              '${last6Months[index].month}/${last6Months[index].year.toString().substring(2)}',
+                              style: const TextStyle(fontSize: 10),
+                            );
+                          }
+                          return const Text('');
+                        },
+                        interval: 1,
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            (value / 1000000).toStringAsFixed(1),
+                            style: const TextStyle(fontSize: 10),
+                          );
+                        },
+                        reservedSize: 35,
+                      ),
+                    ),
+                    rightTitles: const AxisTitles(),
+                    topTitles: const AxisTitles(),
+                  ),
+                  borderData: FlBorderData(
+                    show: true,
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: spots,
+                      isCurved: true,
+                      color: Colors.blue,
+                      barWidth: 3,
+                      dotData: const FlDotData(show: false),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: Colors.blue.withAlpha(50),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  } // Tambahkan method ini di dalam class RingkasanSaham
+  Widget _buildPieChartLegend(List<({String nama, int lembar})> dataInvestor) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 4,
+      children: dataInvestor.map((item) {
+        final index = dataInvestor.indexOf(item);
+        final color = Colors.primaries[index % Colors.primaries.length];
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            gapW4,
+            Text(
+              '${item.nama} (${item.lembar} lembar)',
+              style: const TextStyle(fontSize: 11),
+            ),
+          ],
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildPieChartKepemilikan(
+    InvestasiState investasi,
+    List<PelangganModel> daftarInvestor,
+  ) {
+    final totalLembar = investasi.getTotalLembarBeredar();
+    if (totalLembar == 0) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20.0),
+        child: Center(child: Text('Belum ada data kepemilikan saham.')),
+      );
+    }
+
+    final dataInvestor = daftarInvestor
+        .where(
+          (p) =>
+              p.role == AppRole.investor &&
+              investasi.getTotalLembarInvestor(p.id) > 0,
+        )
+        .map(
+          (p) => (nama: p.nama, lembar: investasi.getTotalLembarInvestor(p.id)),
+        )
+        .toList();
+
+    final totalLembarValid = dataInvestor.fold<int>(
+      0,
+      (sum, item) => sum + item.lembar,
+    );
+
+    if (totalLembarValid == 0) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20.0),
+        child: Center(child: Text('Belum ada investor yang memiliki saham.')),
+      );
+    }
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 220,
+          width: double.infinity,
+          child: PieChart(
+            PieChartData(
+              sections: dataInvestor.map((item) {
+                final persentase = (item.lembar / totalLembarValid) * 100;
+                return PieChartSectionData(
+                  title: '${persentase.toStringAsFixed(1)}%',
+                  value: item.lembar.toDouble(),
+                  titleStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  color:
+                      Colors.primaries[dataInvestor.indexOf(item) %
+                          Colors.primaries.length],
+                  radius: 80,
+                );
+              }).toList(),
+              centerSpaceRadius: 40,
+              sectionsSpace: 2,
+              borderData: FlBorderData(show: false),
+            ),
+          ),
+        ),
+        gapH12,
+        _buildPieChartLegend(dataInvestor),
+      ],
     );
   }
 
@@ -41709,64 +42037,102 @@ class InvestasiOpGlobal {
 
   InvestasiOpGlobal({required this.ref});
 
-  InvestasiOpSqlite get _investasiOpSqlite => ref.read(investasiOpSqliteProvider);
-  InvestasiOpFirebase get _investasiOpFirebase => ref.read(investasiOpFirebaseProvider);
+  InvestasiOpSqlite get _investasiOpSqlite =>
+      ref.read(investasiOpSqliteProvider);
+  InvestasiOpFirebase get _investasiOpFirebase =>
+      ref.read(investasiOpFirebaseProvider);
 
   // ============================================================
   // INVESTASI
   // ============================================================
 
   /// Menambahkan investasi baru.
-  Future<void> tambahInvestasi(InvestasiModel investasi, {bool dariServer = false}) async {
+  Future<void> tambahInvestasi(
+    InvestasiModel investasi, {
+    bool dariServer = false,
+  }) async {
     if (RoleUtil.isAdmin(ref)) {
-      Log.info('[InvestasiOpGlobal] Admin menambah investasi ke SQLite: ${investasi.id}');
-      await _investasiOpSqlite.tambahInvestasi(investasi, dariServer: dariServer);
+      Log.info(
+        '[InvestasiOpGlobal] Admin menambah investasi ke SQLite: ${investasi.id}',
+      );
+      await _investasiOpSqlite.tambahInvestasi(
+        investasi,
+        dariServer: dariServer,
+      );
     } else {
-      Log.info('[InvestasiOpGlobal] User menambah investasi ke Firebase: ${investasi.id}');
+      Log.info(
+        '[InvestasiOpGlobal] User menambah investasi ke Firebase: ${investasi.id}',
+      );
       await _investasiOpFirebase.tambahInvestasi(investasi);
     }
   }
 
   /// Mengambil semua investasi.
-  Future<List<InvestasiModel>> ambilSemuaInvestasi({bool tampilkanYangDiarsip = false}) async {
+  Future<List<InvestasiModel>> ambilSemuaInvestasi({
+    bool tampilkanYangDiarsip = false,
+  }) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[InvestasiOpGlobal] Admin mengambil investasi dari SQLite');
-      return await _investasiOpSqlite.ambilSemuaInvestasi(tampilkanYangDiarsip: tampilkanYangDiarsip);
+      return await _investasiOpSqlite.ambilSemuaInvestasi(
+        tampilkanYangDiarsip: tampilkanYangDiarsip,
+      );
     } else {
       Log.info('[InvestasiOpGlobal] User mengambil investasi dari Firebase');
-      return await _investasiOpFirebase.ambilSemuaInvestasi(tampilkanYangDiarsip: tampilkanYangDiarsip);
+      return await _investasiOpFirebase.ambilSemuaInvestasi(
+        tampilkanYangDiarsip: tampilkanYangDiarsip,
+      );
     }
   }
 
   /// Mengambil investasi berdasarkan ID.
   Future<InvestasiModel?> ambilInvestasiById(String id) async {
     if (RoleUtil.isAdmin(ref)) {
-      Log.info('[InvestasiOpGlobal] Admin mengambil investasi ID: $id dari SQLite');
+      Log.info(
+        '[InvestasiOpGlobal] Admin mengambil investasi ID: $id dari SQLite',
+      );
       return await _investasiOpSqlite.ambilInvestasiById(id);
     } else {
-      Log.info('[InvestasiOpGlobal] User mengambil investasi ID: $id dari Firebase');
+      Log.info(
+        '[InvestasiOpGlobal] User mengambil investasi ID: $id dari Firebase',
+      );
       return await _investasiOpFirebase.ambilInvestasiById(id);
     }
   }
 
   /// Mengambil investasi berdasarkan ID investor.
-  Future<List<InvestasiModel>> ambilInvestasiByIdInvestor(String idInvestor) async {
+  Future<List<InvestasiModel>> ambilInvestasiByIdInvestor(
+    String idInvestor,
+  ) async {
     if (RoleUtil.isAdmin(ref)) {
-      Log.info('[InvestasiOpGlobal] Admin mengambil investasi untuk investor ID: $idInvestor dari SQLite');
+      Log.info(
+        '[InvestasiOpGlobal] Admin mengambil investasi untuk investor ID: $idInvestor dari SQLite',
+      );
       return await _investasiOpSqlite.ambilInvestasiByIdInvestor(idInvestor);
     } else {
-      Log.info('[InvestasiOpGlobal] User mengambil investasi untuk investor ID: $idInvestor dari Firebase');
+      Log.info(
+        '[InvestasiOpGlobal] User mengambil investasi untuk investor ID: $idInvestor dari Firebase',
+      );
       return await _investasiOpFirebase.ambilInvestasiByIdInvestor(idInvestor);
     }
   }
 
   /// Memperbarui investasi.
-  Future<void> perbaruiInvestasi(InvestasiModel investasi, {bool dariServer = false}) async {
+  Future<void> perbaruiInvestasi(
+    InvestasiModel investasi, {
+    bool dariServer = false,
+  }) async {
     if (RoleUtil.isAdmin(ref)) {
-      Log.info('[InvestasiOpGlobal] Admin memperbarui investasi di SQLite: ${investasi.id}');
-      await _investasiOpSqlite.perbaruiInvestasi(investasi, dariServer: dariServer);
+      Log.info(
+        '[InvestasiOpGlobal] Admin memperbarui investasi di SQLite: ${investasi.id}',
+      );
+      await _investasiOpSqlite.perbaruiInvestasi(
+        investasi,
+        dariServer: dariServer,
+      );
     } else {
-      Log.info('[InvestasiOpGlobal] User memperbarui investasi di Firebase: ${investasi.id}');
+      Log.info(
+        '[InvestasiOpGlobal] User memperbarui investasi di Firebase: ${investasi.id}',
+      );
       await _investasiOpFirebase.perbaruiInvestasi(investasi);
     }
   }
@@ -41774,10 +42140,14 @@ class InvestasiOpGlobal {
   /// Soft delete investasi.
   Future<void> softDeleteInvestasi(String id, {bool dariServer = false}) async {
     if (RoleUtil.isAdmin(ref)) {
-      Log.info('[InvestasiOpGlobal] Admin soft delete investasi di SQLite: $id');
+      Log.info(
+        '[InvestasiOpGlobal] Admin soft delete investasi di SQLite: $id',
+      );
       await _investasiOpSqlite.softDeleteInvestasi(id, dariServer: dariServer);
     } else {
-      Log.info('[InvestasiOpGlobal] User soft delete investasi di Firebase: $id');
+      Log.info(
+        '[InvestasiOpGlobal] User soft delete investasi di Firebase: $id',
+      );
       await _investasiOpFirebase.softDeleteInvestasi(id);
     }
   }
@@ -41787,34 +42157,51 @@ class InvestasiOpGlobal {
   // ============================================================
 
   /// Menambahkan dividen baru.
-  Future<void> tambahDividen(DividenModel dividen, {bool dariServer = false}) async {
+  Future<void> tambahDividen(
+    DividenModel dividen, {
+    bool dariServer = false,
+  }) async {
     if (RoleUtil.isAdmin(ref)) {
-      Log.info('[InvestasiOpGlobal] Admin menambah dividen ke SQLite: ${dividen.id}');
+      Log.info(
+        '[InvestasiOpGlobal] Admin menambah dividen ke SQLite: ${dividen.id}',
+      );
       await _investasiOpSqlite.tambahDividen(dividen, dariServer: dariServer);
     } else {
-      Log.info('[InvestasiOpGlobal] User menambah dividen ke Firebase: ${dividen.id}');
+      Log.info(
+        '[InvestasiOpGlobal] User menambah dividen ke Firebase: ${dividen.id}',
+      );
       await _investasiOpFirebase.tambahDividen(dividen);
     }
   }
 
   /// Mengambil semua dividen.
-  Future<List<DividenModel>> ambilSemuaDividen({bool tampilkanYangDiarsip = false}) async {
+  Future<List<DividenModel>> ambilSemuaDividen({
+    bool tampilkanYangDiarsip = false,
+  }) async {
     if (RoleUtil.isAdmin(ref)) {
       Log.info('[InvestasiOpGlobal] Admin mengambil dividen dari SQLite');
-      return await _investasiOpSqlite.ambilSemuaDividen(tampilkanYangDiarsip: tampilkanYangDiarsip);
+      return await _investasiOpSqlite.ambilSemuaDividen(
+        tampilkanYangDiarsip: tampilkanYangDiarsip,
+      );
     } else {
       Log.info('[InvestasiOpGlobal] User mengambil dividen dari Firebase');
-      return await _investasiOpFirebase.ambilSemuaDividen(tampilkanYangDiarsip: tampilkanYangDiarsip);
+      return await _investasiOpFirebase.ambilSemuaDividen(
+        tampilkanYangDiarsip: tampilkanYangDiarsip,
+      );
     }
   }
 
   /// Mengambil dividen berdasarkan ID.
   Future<DividenModel?> ambilDividenById(String id) async {
     if (RoleUtil.isAdmin(ref)) {
-      Log.info('[InvestasiOpGlobal] Admin mengambil dividen ID: $id dari SQLite');
+      Log.info(
+        '[InvestasiOpGlobal] Admin mengambil dividen ID: $id dari SQLite',
+      );
       return await _investasiOpSqlite.ambilDividenById(id);
     } else {
-      Log.info('[InvestasiOpGlobal] User mengambil dividen ID: $id dari Firebase');
+      Log.info(
+        '[InvestasiOpGlobal] User mengambil dividen ID: $id dari Firebase',
+      );
       return await _investasiOpFirebase.ambilDividenById(id);
     }
   }
@@ -41822,32 +42209,49 @@ class InvestasiOpGlobal {
   /// Mengambil dividen berdasarkan ID investor.
   Future<List<DividenModel>> ambilDividenByIdInvestor(String idInvestor) async {
     if (RoleUtil.isAdmin(ref)) {
-      Log.info('[InvestasiOpGlobal] Admin mengambil dividen untuk investor ID: $idInvestor dari SQLite');
+      Log.info(
+        '[InvestasiOpGlobal] Admin mengambil dividen untuk investor ID: $idInvestor dari SQLite',
+      );
       return await _investasiOpSqlite.ambilDividenByIdInvestor(idInvestor);
     } else {
-      Log.info('[InvestasiOpGlobal] User mengambil dividen untuk investor ID: $idInvestor dari Firebase');
+      Log.info(
+        '[InvestasiOpGlobal] User mengambil dividen untuk investor ID: $idInvestor dari Firebase',
+      );
       return await _investasiOpFirebase.ambilDividenByIdInvestor(idInvestor);
     }
   }
 
   /// Mengambil dividen berdasarkan ID investasi.
-  Future<List<DividenModel>> ambilDividenByIdInvestasi(String idInvestasi) async {
+  Future<List<DividenModel>> ambilDividenByIdInvestasi(
+    String idInvestasi,
+  ) async {
     if (RoleUtil.isAdmin(ref)) {
-      Log.info('[InvestasiOpGlobal] Admin mengambil dividen untuk investasi ID: $idInvestasi dari SQLite');
+      Log.info(
+        '[InvestasiOpGlobal] Admin mengambil dividen untuk investasi ID: $idInvestasi dari SQLite',
+      );
       return await _investasiOpSqlite.ambilDividenByIdInvestasi(idInvestasi);
     } else {
-      Log.info('[InvestasiOpGlobal] User mengambil dividen untuk investasi ID: $idInvestasi dari Firebase');
+      Log.info(
+        '[InvestasiOpGlobal] User mengambil dividen untuk investasi ID: $idInvestasi dari Firebase',
+      );
       return await _investasiOpFirebase.ambilDividenByIdInvestasi(idInvestasi);
     }
   }
 
   /// Memperbarui dividen.
-  Future<void> perbaruiDividen(DividenModel dividen, {bool dariServer = false}) async {
+  Future<void> perbaruiDividen(
+    DividenModel dividen, {
+    bool dariServer = false,
+  }) async {
     if (RoleUtil.isAdmin(ref)) {
-      Log.info('[InvestasiOpGlobal] Admin memperbarui dividen di SQLite: ${dividen.id}');
+      Log.info(
+        '[InvestasiOpGlobal] Admin memperbarui dividen di SQLite: ${dividen.id}',
+      );
       await _investasiOpSqlite.perbaruiDividen(dividen, dariServer: dariServer);
     } else {
-      Log.info('[InvestasiOpGlobal] User memperbarui dividen di Firebase: ${dividen.id}');
+      Log.info(
+        '[InvestasiOpGlobal] User memperbarui dividen di Firebase: ${dividen.id}',
+      );
       await _investasiOpFirebase.perbaruiDividen(dividen);
     }
   }
@@ -41864,35 +42268,64 @@ class InvestasiOpGlobal {
   }
 
   /// Menandai dividen sebagai sudah dibayar.
-  Future<void> tandaiDividenDibayar(String id, {bool dariServer = false}) async {
+  Future<void> tandaiDividenDibayar(
+    String id, {
+    bool dariServer = false,
+  }) async {
     if (RoleUtil.isAdmin(ref)) {
-      Log.info('[InvestasiOpGlobal] Admin menandai dividen dibayar di SQLite: $id');
+      Log.info(
+        '[InvestasiOpGlobal] Admin menandai dividen dibayar di SQLite: $id',
+      );
       await _investasiOpSqlite.tandaiDividenDibayar(id, dariServer: dariServer);
     } else {
-      Log.info('[InvestasiOpGlobal] User menandai dividen dibayar di Firebase: $id');
+      Log.info(
+        '[InvestasiOpGlobal] User menandai dividen dibayar di Firebase: $id',
+      );
       await _investasiOpFirebase.tandaiDividenDibayar(id);
     }
   }
 
   /// Menyisipkan atau memperbarui banyak investasi sekaligus (batch).
-  Future<void> sisipkanAtauPerbaruiBatch(List<InvestasiModel> daftarInvestasi, {bool dariServer = false}) async {
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<InvestasiModel> daftarInvestasi, {
+    bool dariServer = false,
+  }) async {
     if (RoleUtil.isAdmin(ref)) {
-      Log.info('[InvestasiOpGlobal] Admin batch investasi ke SQLite: ${daftarInvestasi.length} item');
-      await _investasiOpSqlite.sisipkanAtauPerbaruiBatch(daftarInvestasi, dariServer: dariServer);
+      Log.info(
+        '[InvestasiOpGlobal] Admin batch investasi ke SQLite: ${daftarInvestasi.length} item',
+      );
+      await _investasiOpSqlite.sisipkanAtauPerbaruiBatch(
+        daftarInvestasi,
+        dariServer: dariServer,
+      );
     } else {
-      Log.info('[InvestasiOpGlobal] User batch investasi ke Firebase: ${daftarInvestasi.length} item');
+      Log.info(
+        '[InvestasiOpGlobal] User batch investasi ke Firebase: ${daftarInvestasi.length} item',
+      );
       await _investasiOpFirebase.sisipkanAtauPerbaruiBatch(daftarInvestasi);
     }
   }
 
   /// Menyisipkan atau memperbarui banyak dividen sekaligus (batch).
-  Future<void> sisipkanAtauPerbaruiBatchDividen(List<DividenModel> daftarDividen, {bool dariServer = false}) async {
+  Future<void> sisipkanAtauPerbaruiBatchDividen(
+    List<DividenModel> daftarDividen, {
+    bool dariServer = false,
+  }) async {
     if (RoleUtil.isAdmin(ref)) {
-      Log.info('[InvestasiOpGlobal] Admin batch dividen ke SQLite: ${daftarDividen.length} item');
-      await _investasiOpSqlite.sisipkanAtauPerbaruiBatchDividen(daftarDividen, dariServer: dariServer);
+      Log.info(
+        '[InvestasiOpGlobal] Admin batch dividen ke SQLite: ${daftarDividen.length} item',
+      );
+      await _investasiOpSqlite.sisipkanAtauPerbaruiBatchDividen(
+        daftarDividen,
+        dariServer: dariServer,
+      );
     } else {
-      Log.info('[InvestasiOpGlobal] User batch dividen ke Firebase: ${daftarDividen.length} item');
-      await _investasiOpFirebase.sisipkanAtauPerbaruiBatchDividen(daftarDividen);
+      Log.info(
+        '[InvestasiOpGlobal] User batch dividen ke Firebase: ${daftarDividen.length} item',
+      );
+      await _investasiOpFirebase.sisipkanAtauPerbaruiBatchDividen(
+        daftarDividen,
+      );
     }
   }
 }
@@ -41900,7 +42333,8 @@ class InvestasiOpGlobal {
 /// Provider global untuk InvestasiOpGlobal.
 final investasiOpGlobalProvider = Provider<InvestasiOpGlobal>((ref) {
   return InvestasiOpGlobal(ref: ref);
-});```
+});
+```
 
 
 // File: lib/fitur/investasi/operasi/investasi_op_firebase.dart
@@ -57973,11 +58407,9 @@ DompetOpFirebase dompetOpFirebase(Ref ref) {
   Log.info('Membuat instance DompetOpFirebase via @riverpod...');
   final firestoreInstance = ref.watch(firestoreProvider);
   final baseOp = ref.watch(baseOpFirebaseProvider);
-  return DompetOpFirebase(
-    firestore: firestoreInstance,
-    baseOpFirebase: baseOp,
-  );
-}```
+  return DompetOpFirebase(firestore: firestoreInstance, baseOpFirebase: baseOp);
+}
+```
 
 
 // File: lib/shared/operasi/firebase_operasi/status_op_firebase.dart
@@ -60151,7 +60583,8 @@ export 'dummy_kategori.dart';
 export 'dummy_paket.dart';
 export 'dummy_pelanggan.dart';
 export 'dummy_sub_kategori.dart';
-export 'dummy_transaksi.dart';```
+export 'dummy_transaksi.dart';
+```
 
 
 // File: lib/data_dummy/dummy_pelanggan.dart
@@ -60272,7 +60705,7 @@ List<PelangganModel> get daftarPelanggan => [
   const PelangganModel(
     id: idInvestor1,
     nama: 'Investor Satu',
-    telepon: '081234567891',
+    telepon: '08568050170',
     kataSandi: 'investor1',
     alamat: 'Jl. Investasi No. 1, Jakarta',
     macAddress: '00:1B:44:11:3A:D1',
@@ -61195,7 +61628,8 @@ List<DividenModel> getDividenTertua({int limit = 5}) {
   final sorted = List<DividenModel>.from(daftarDividen)
     ..sort((a, b) => a.tanggalPembagian.compareTo(b.tanggalPembagian));
   return sorted.take(limit).toList();
-}```
+}
+```
 
 
 // File: lib/data_dummy/dummy_investasi.dart
@@ -61902,7 +62336,9 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
     });
 
     try {
-      Log.info('🚀 Memulai proses penambahan SEMUA data dummy dengan Future.wait');
+      Log.info(
+        '🚀 Memulai proses penambahan SEMUA data dummy dengan Future.wait',
+      );
 
       // Tampilkan dialog loading
       if (context.mounted) {
@@ -61948,25 +62384,33 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       }
 
       // 1.2 Dompet
-      Log.info('📦 Menyiapkan data Dompet: ${DummyDompet.daftarDompet.length} item');
+      Log.info(
+        '📦 Menyiapkan data Dompet: ${DummyDompet.daftarDompet.length} item',
+      );
       for (final data in DummyDompet.daftarDompet) {
         futureList.add(dompetOp.tambahDompet(data));
       }
 
       // 1.3 Kategori
-      Log.info('📦 Menyiapkan data Kategori: ${DummyKategori.daftarKategori.length} item');
+      Log.info(
+        '📦 Menyiapkan data Kategori: ${DummyKategori.daftarKategori.length} item',
+      );
       for (final data in DummyKategori.daftarKategori) {
         futureList.add(kategoriOp.tambahKategori(data));
       }
 
       // 1.4 Sub Kategori
-      Log.info('📦 Menyiapkan data Sub Kategori: ${DummySubKategori.daftarSubKategori.length} item');
+      Log.info(
+        '📦 Menyiapkan data Sub Kategori: ${DummySubKategori.daftarSubKategori.length} item',
+      );
       for (final data in DummySubKategori.daftarSubKategori) {
         futureList.add(subKategoriOp.createSubCategory(data));
       }
 
       // 1.5 Paket
-      Log.info('📦 Menyiapkan data Paket: ${DummyPaket.daftarPaket.length} item');
+      Log.info(
+        '📦 Menyiapkan data Paket: ${DummyPaket.daftarPaket.length} item',
+      );
       for (final data in DummyPaket.daftarPaket) {
         futureList.add(paketOp.tambahPaket(data));
       }
@@ -61991,7 +62435,9 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
 
       // 1.9 Pengaturan
       Log.info('📦 Menyiapkan data Pengaturan: 1 item');
-      futureList.add(settingsOp.simpanAtauPerbaruiSettings(const SettingsModel()));
+      futureList.add(
+        settingsOp.simpanAtauPerbaruiSettings(const SettingsModel()),
+      );
 
       // Eksekusi semua Future secara paralel
       Log.info('⚡ Menjalankan ${futureList.length} operasi secara paralel...');
@@ -62102,7 +62548,8 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       }
     }
   }
-}```
+}
+```
 
 
 // File: lib/data_dummy/dummy_sub_kategori.dart
@@ -64989,7 +65436,9 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     WidgetsBinding.instance.addObserver(this);
 
     // Subscribe to connectivity changes
-    _langgananKoneksi = Connectivity().onConnectivityChanged.listen(_handleConnectivityChange);
+    _langgananKoneksi = Connectivity().onConnectivityChanged.listen(
+      _handleConnectivityChange,
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_initAwal());
@@ -65028,7 +65477,9 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   }
 
   Future<void> _jadwalkanSinkron() async {
-    await ref.read(workmanagerProvider).registerPeriodicTask(
+    await ref
+        .read(workmanagerProvider)
+        .registerPeriodicTask(
           '1',
           namaTugasSinkronisasi,
           frequency: const Duration(minutes: 15),
@@ -65040,7 +65491,8 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   Future<void> _handleConnectivityChange(
     List<ConnectivityResult> results,
   ) async {
-    final isOnline = results.contains(ConnectivityResult.mobile) ||
+    final isOnline =
+        results.contains(ConnectivityResult.mobile) ||
         results.contains(ConnectivityResult.wifi) ||
         results.contains(ConnectivityResult.ethernet);
 
